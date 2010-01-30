@@ -52,8 +52,6 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
@@ -61,6 +59,8 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 /**
  * A representation of a MethodInstance. This implements the requirement that method
@@ -193,13 +193,13 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     /** Constraint on formal parameters. */
-    protected XConstraint guard;
-    public XConstraint guard() {
+    protected CConstraint guard;
+    public CConstraint guard() {
         if (guard == null)
             return Types.get(x10Def().guard());
         return guard;
     }
-    public X10MethodInstance guard(XConstraint s) { 
+    public X10MethodInstance guard(CConstraint s) { 
         X10MethodInstance_c n = (X10MethodInstance_c) copy();
         n.guard = s; 
         return n;
@@ -322,7 +322,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
         if (mj.guard() != null) {
             try {
-                XConstraint newGuard = mj.guard().substitute(y, x);
+                CConstraint newGuard = mj.guard().substitute(y, x);
                 mj = (X10MethodInstance) mj.guard(newGuard);
             }
             catch (XFailure e) {
@@ -560,16 +560,16 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         X10TypeSystem xts = (X10TypeSystem) thisType.typeSystem();
 
         TypeConstraint tenv = new TypeConstraint_c();
-        XConstraint env = new XConstraint_c();
+        CConstraint env = new CConstraint_c();
 
         XVar ythis = X10TypeMixin.selfVar(thisType);
 
         if (ythis == null) {
-            XConstraint c = X10TypeMixin.xclause(thisType);
-            c = (c == null) ? new XConstraint_c() : c.copy();
+            CConstraint c = X10TypeMixin.xclause(thisType);
+            c = (c == null) ? new CConstraint_c() : c.copy();
 
             try {
-                ythis = xts.xtypeTranslator().genEQV(thisType, false);
+                ythis = XTerms.makeUQV(); // xts.xtypeTranslator().genEQV(thisType, false);
                 c.addSelfBinding(ythis);
                 c.setThisVar(ythis);
             }
@@ -613,7 +613,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             // Be sure to copy the constraints since we use the self vars
             // in other constraints and don't want to conflate them if
             // realX returns the same constraint twice.
-            final XConstraint yc = X10TypeMixin.realX(ytype).copy();
+            final CConstraint yc = X10TypeMixin.realX(ytype).copy();
 
             XRoot xi;
             XVar yi;
@@ -623,7 +623,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             if (yi == null) {
                 // This must mean that yi was not final, hence it cannot occur in 
                 // the dependent clauses of downstream yi's.
-                yi = xts.xtypeTranslator().genEQV(ytype, false);
+                yi = XTerms.makeUQV(); // xts.xtypeTranslator().genEQV(ytype, false);
             }
 
             try {
@@ -632,7 +632,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             catch (XFailure f) {
             }
 
-            XConstraint xc = X10TypeMixin.realX(xtype).copy();
+            CConstraint xc = X10TypeMixin.realX(xtype).copy();
             xi = xts.xtypeTranslator().trans(me.formalNames().get(i), xtype);
 
             x[i] = xi;
@@ -695,19 +695,19 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return me3;
     }
     
-    private static void checkQuery(XConstraint query, XVar ythis, XRoot xthis, XVar[] y, XRoot[] x, 
-    		XConstraint env, X10Context context) throws SemanticException {
+    private static void checkQuery(CConstraint query, XVar ythis, XRoot xthis, XVar[] y, XRoot[] x, 
+    		CConstraint env, X10Context context) throws SemanticException {
     	 // Check that the guard is entailed.
         try {
             if (query != null) { 
                 if (! ((X10TypeSystem) context.typeSystem()).consistent(query)) {
                     throw new SemanticException("Guard " + query + " cannot be established; inconsistent in calling context.");
                 }
-                XConstraint query2 = xthis==null ? query : query.substitute(ythis, xthis);
+                CConstraint query2 = xthis==null ? query : query.substitute(ythis, xthis);
                 query2.setThisVar(ythis);
-                //	                XConstraint query3 = query2.substitute(Y, X);
-                XConstraint query3 = query2;
-                XConstraint query4 = query3.substitute(y, x);
+                //	                CConstraint query3 = query2.substitute(Y, X);
+                CConstraint query3 = query2;
+                CConstraint query4 = query3.substitute(y, x);
                 
                 if (! env.entails(query4, context.constraintProjection(env, query4))) {
                     throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
@@ -750,7 +750,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     		boolean isStatic)
     		throws SemanticException {
         for (int i=0; i < formals.size(); ++i) {
-        	 XConstraint formalC = X10TypeMixin.xclause(formals.get(i));
+        	 CConstraint formalC = X10TypeMixin.xclause(formals.get(i));
              if (formalC != null) {
              	try {
              	formalC = formalC.copy().substitute(y, x);
@@ -771,27 +771,27 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     	 }
     }
    
-    private static XConstraint computeNewSigma(Type thisType, List<Type> actuals, XVar[] y, X10TypeSystem xts) 
+    private static CConstraint computeNewSigma(Type thisType, List<Type> actuals, XVar[] y, X10TypeSystem xts) 
     throws SemanticException {
     	return computeNewSigma(thisType, actuals, null, y, xts);
     }
     
-    private static XConstraint computeNewSigma(Type thisType, List<Type> actuals, 
+    private static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
     		XVar ythis, XVar[] y, X10TypeSystem xts) 
     throws SemanticException {
 
-    	XConstraint env = X10TypeMixin.xclause(thisType);
+    	CConstraint env = X10TypeMixin.xclause(thisType);
     	if (ythis != null) {
     		if (! ((env == null) || env.valid())) {
     			env = env.instantiateSelf(ythis);
     		}
     	}
     	
-    	env = env == null ? new XConstraint_c() : env.copy();
+    	env = env == null ? new CConstraint_c() : env.copy();
        
         for (int i = 0; i < actuals.size(); i++) { // update Gamma
             Type ytype = actuals.get(i);
-            final XConstraint yc = X10TypeMixin.realX(ytype);
+            final CConstraint yc = X10TypeMixin.realX(ytype);
             try {
                 if (! ((yc == null) || yc.valid())){
                     env.addIn(y[i], yc);
@@ -808,7 +808,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     private static XVar getSymbol(Type type, String prefix, boolean eqv, X10TypeSystem xts) {
     	  XVar symbol = X10TypeMixin.selfVarBinding(type);
           if (symbol == null) {
-              symbol = xts.xtypeTranslator().genEQV(XTerms.makeFreshName(prefix),  type, eqv);
+              symbol = XTerms.makeEQV(XTerms.makeFreshName(prefix), eqv);
           }
           return symbol;
     }
@@ -858,7 +858,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         final XVar ythis = ys[0];
         System.arraycopy(ys, 1, y, 0, formals.size());
         
-        final XConstraint env = computeNewSigma(thisType, actuals, y, xts);
+        final CConstraint env = computeNewSigma(thisType, actuals, y, xts);
         try {
         	env.addBinding(XTerms.HERE, context.currentPlaceTerm().term());
         } catch (XFailure z) {
@@ -943,7 +943,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         XVar[] ySymbols = getSymbolicNames(actuals, eqv, xts);
         System.arraycopy(ySymbols, 0, ys, 1, actuals.size());
        
-        XConstraint returnEnv = computeNewSigma(thisType, actuals, ythiseqv, ySymbols, xts);
+        CConstraint returnEnv = computeNewSigma(thisType, actuals, ythiseqv, ySymbols, xts);
 
         // We'll subst selfVar for THIS.
         XRoot xthis = null; // xts.xtypeTranslator().transThis(thisType);
@@ -997,7 +997,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         // BUG: we subst in an existential, then check that existential
         // should subst in a fresh var, not an existential
 
-        XConstraint newWhere = Subst.subst(me.guard(), y2eqv, x2, Y, X); 
+        CConstraint newWhere = Subst.subst(me.guard(), y2eqv, x2, Y, X); 
         TypeConstraint newTWhere = Subst.subst(me.typeGuard(), y2eqv, x2, Y, X);
 
         final PI zme = me;
@@ -1005,7 +1005,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         final XRoot[] zx2 = x2;
         final Type[] zY = Y;
         final ParameterType[] zX = X;
-        final XConstraint zenv = returnEnv;
+        final CConstraint zenv = returnEnv;
         final X10Context zcontext = context;
         
         final LazyRef_c<Type> newReturnTypeRef = new LazyRef_c<Type>(null);
@@ -1016,8 +1016,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                     Type rt = zz.returnType();
                     Type newReturnType = Subst.subst(rt, zy2, zx2, zY, zX);
                     if (! newReturnType.isVoid() && ! (newReturnType instanceof UnknownType)) {
-                        XConstraint c = X10TypeMixin.xclause(newReturnType);
-                        c = c == null ? new XConstraint_c() : c.copy();
+                        CConstraint c = X10TypeMixin.xclause(newReturnType);
+                        c = c == null ? new CConstraint_c() : c.copy();
                         try {
                             // Add the terms in the environment for any vars actually appearing in the constraint.
                             // Complicated by the fact that when we add a term, we need to add all other terms with the same vars.
@@ -1193,9 +1193,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                     rightType = t;
                 }
                 else {
-                    XConstraint rc = X10TypeMixin.xclause(t);
+                    CConstraint rc = X10TypeMixin.xclause(t);
                     if (rc == null)
-                        rc = new XConstraint_c();
+                        rc = new CConstraint_c();
 
                     XTerm receiver;
 
@@ -1212,7 +1212,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                         // otherwise, we'll get called recursively.
                         XTerm self = body();
 
-                        XConstraint c = rc.copy();
+                        CConstraint c = rc.copy();
 
                         // TODO: handle non-vars, like rail().body
                         if (self == null || ! (self instanceof XVar)) {

@@ -14,13 +14,13 @@ import polyglot.types.LocalDef;
 import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
-import x10.constraint.XConstraint;
+import x10.types.constraints.CConstraint;
 
 public interface X10ProcedureDef extends X10Def, ProcedureDef, X10MemberDef {
     Ref<? extends Type> returnType();
 
-    Ref<XConstraint> guard();
-    void setGuard(Ref<XConstraint> s);
+    Ref<CConstraint> guard();
+    void setGuard(Ref<CConstraint> s);
     
     Ref<TypeConstraint> typeGuard();
     void setTypeGuard(Ref<TypeConstraint> s);

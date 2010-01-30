@@ -39,6 +39,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.types.constraints.CConstraint;
 
 /**
  * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
@@ -48,7 +49,7 @@ import x10.constraint.XVar;
  *
  */
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
-    Ref<XConstraint> guard;
+    Ref<CConstraint> guard;
     Ref<TypeConstraint> typeGuard;
     List<Ref<? extends Type>> typeParameters;
     List<LocalDef> formalNames;
@@ -63,7 +64,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             List<Ref<? extends Type>> formalTypes,
             XRoot thisVar,
             List<LocalDef> formalNames,
-            Ref<XConstraint> guard,
+            Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard,
             List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
         super(ts, pos, container, flags, returnType, name, formalTypes, excTypes);
@@ -130,11 +131,11 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     // END ANNOTATION MIXIN
     
     /** Constraint on formal parameters. */
-    public Ref<XConstraint> guard() {
+    public Ref<CConstraint> guard() {
         return guard;
     }
 
-    public void setGuard(Ref<XConstraint> s) {
+    public void setGuard(Ref<CConstraint> s) {
         this.guard = s;
     }
     

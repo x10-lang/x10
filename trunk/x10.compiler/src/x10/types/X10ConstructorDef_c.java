@@ -25,9 +25,10 @@ import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XConstraint;
+
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.types.constraints.CConstraint;
 
 /**
  * An X10ConstructorDef_c varies from a ConstructorDef_c only in that it
@@ -40,8 +41,8 @@ import x10.constraint.XTerm;
  */
 public class X10ConstructorDef_c extends ConstructorDef_c implements X10ConstructorDef {
     Ref<? extends ClassType> returnType;
-    protected Ref<XConstraint> supClause;
-    protected Ref<XConstraint> guard;
+    protected Ref<CConstraint> supClause;
+    protected Ref<CConstraint> guard;
     protected Ref<TypeConstraint> typeGuard;
     List<LocalDef> formalNames;
 
@@ -52,7 +53,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             List<Ref<? extends Type>> typeParameters,
             List<Ref<? extends Type>> formalTypes, 
             XRoot thisVar, List<LocalDef> formalNames,
-            Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, 
+            Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, 
             List<Ref<? extends Type>> throwTypes) {
         super(ts, pos, container, flags, formalTypes, throwTypes);
         this.returnType = returnType;
@@ -114,20 +115,20 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
     
     /** Constraint on superclass constructor call return type. */
-    public Ref<XConstraint> supClause() {
+    public Ref<CConstraint> supClause() {
 	return supClause;
     }
     
-    public void setSupClause(Ref<XConstraint> s) {
+    public void setSupClause(Ref<CConstraint> s) {
 	this.supClause = s;
     }
 
     /** Constraint on formal parameters. */
-    public Ref<XConstraint> guard() {
+    public Ref<CConstraint> guard() {
         return guard;
     }
 
-    public void setGuard(Ref<XConstraint> s) {
+    public void setGuard(Ref<CConstraint> s) {
         this.guard = s;
     }
 

@@ -23,10 +23,10 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XConstrainedTerm;
-import x10.constraint.XConstraint;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 public class ClosureDef_c extends Def_c implements ClosureDef {
 
@@ -37,7 +37,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected List<Ref<? extends Type>> formalTypes;
     protected List<LocalDef> formalNames;
     protected List<Ref<? extends Type>> throwTypes;
-    protected Ref<XConstraint> guard;
+    protected Ref<CConstraint> guard;
   //  protected Ref<TypeConstraint> typeGuard;
     protected CodeInstance<?> asInstance;
     
@@ -52,7 +52,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             List<Ref<? extends Type>> formalTypes,
             XRoot thisVar,
             List<LocalDef> formalNames, 
-            Ref<XConstraint> guard,
+            Ref<CConstraint> guard,
        //     Ref<TypeConstraint> typeGuard,
             List<Ref<? extends Type>> throwTypes) {
 
@@ -160,11 +160,11 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
     }
 
-    public Ref<XConstraint> guard() {
+    public Ref<CConstraint> guard() {
 	    return guard;
     }
     
-    public void setGuard(Ref<XConstraint> s) {
+    public void setGuard(Ref<CConstraint> s) {
 	    this.guard = s;
     }
     

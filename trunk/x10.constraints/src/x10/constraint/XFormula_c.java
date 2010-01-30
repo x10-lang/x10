@@ -92,7 +92,7 @@ public class XFormula_c extends XTerm_c implements XFormula {
         return false;
     }
 
-    public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+    public XPromise internIntoConstraint(XConstraint_c c, XPromise last) throws XFailure {
         assert last == null;
         // Evaluate left == right, if both are literals.
         XPromise result = c.lookup(this);

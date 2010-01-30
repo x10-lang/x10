@@ -34,8 +34,7 @@ import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
+
 import x10.constraint.XFailure;
 import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
@@ -47,6 +46,8 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 /**
  * @author vj
@@ -187,15 +188,15 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		    
 		    Type returnType = Types.get(thisConstructor.returnType());
 		    
-//		    XConstraint result = X10TypeMixin.xclause(returnType);
-		    XConstraint result = X10TypeMixin.realX(returnType);
+//		    CConstraint result = X10TypeMixin.xclause(returnType);
+		    CConstraint result = X10TypeMixin.realX(returnType);
 		    
 		    if (result.valid())
 		        result = null;
 		    
 		    if (result != null) {
-			XConstraint known = Types.get(thisConstructor.supClause());
-			known = (known==null ? new XConstraint_c() : known.copy());
+			CConstraint known = Types.get(thisConstructor.supClause());
+			known = (known==null ? new CConstraint_c() : known.copy());
 			try {
 		            known.addIn(Types.get(thisConstructor.guard()));
 
@@ -210,7 +211,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		        	XVar prop = (XVar) ts.xtypeTranslator().trans(known, known.self(), fii);
 
 		        	// Add in the real clause of the initializer with [self.prop/self]
-		        	XConstraint c = X10TypeMixin.realX(initType);
+		        	CConstraint c = X10TypeMixin.realX(initType);
 		        	if (c != null)
 		        	    known.addIn(c.substitute(prop, c.self()));
 		        	

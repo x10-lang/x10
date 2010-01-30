@@ -49,7 +49,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.extension.X10Del_c;
@@ -61,6 +60,7 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.constraints.CConstraint;
 
 
 /**
@@ -184,7 +184,7 @@ public class X10New_c extends New_c implements X10New {
             Type t = tn.type();
             t = ts.expandMacros(t);
 
-            XConstraint xc = X10TypeMixin.xclause(t);
+            CConstraint xc = X10TypeMixin.xclause(t);
             t = X10TypeMixin.baseType(t);
 
             if (!(t instanceof X10ClassType)) {
@@ -229,7 +229,7 @@ public class X10New_c extends New_c implements X10New {
             Type t = ts.findMemberType(qualifier.type(), name, c);
             t = ts.expandMacros(t);
 
-            XConstraint xc = X10TypeMixin.xclause(t);
+            CConstraint xc = X10TypeMixin.xclause(t);
             t = X10TypeMixin.baseType(t);
 
             if (!(t instanceof X10ClassType)) {
@@ -532,7 +532,7 @@ public class X10New_c extends New_c implements X10New {
         X10Context c = (X10Context) tc.context();
         X10ConstructorInstance ci = (X10ConstructorInstance) constructorInstance();
         if (ci != null) {
-            XConstraint guard = ci.guard();
+            CConstraint guard = ci.guard();
             if (guard != null && !guard.consistent()) {
                 throw new SemanticException("Constructor guard not satisfied by caller.", position());
             }

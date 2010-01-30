@@ -20,7 +20,6 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import x10.ast.Closure;
 import x10.ast.X10NodeFactory;
-import x10.constraint.XConstraint;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
@@ -39,6 +38,7 @@ import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.constraints.CConstraint;
 
 public class ClosureSynthesizer {
 
@@ -166,7 +166,7 @@ public class ClosureSynthesizer {
     		final int numValueParams, 
     		final boolean isVoid, 
     		List<LocalDef> formalNames, 
-    		final Ref<XConstraint> guard) {
+    		final Ref<CConstraint> guard) {
         final Position pos = Position.COMPILER_GENERATED;
 
         String name = "Fun_" + numTypeParams + "_" + numValueParams;

@@ -32,7 +32,6 @@ import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XConstraint;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.TypeConstraint;
@@ -40,6 +39,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
 
 
 public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddFlags {
@@ -126,7 +126,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         
         DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);
         
-        XConstraint c = Types.get(dep.valueConstraint());
+        CConstraint c = Types.get(dep.valueConstraint());
         t = X10TypeMixin.xclause(t, c);
         if (flags != null) {
         	t = X10TypeMixin.processFlags(flags, t);

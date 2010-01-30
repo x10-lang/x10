@@ -11,9 +11,9 @@ import polyglot.ast.Expr;
 import polyglot.ast.Receiver;
 import polyglot.types.FieldInstance;
 import polyglot.types.Type;
-import x10.constraint.XConstraint;
 
 import polyglot.types.TypeObject;
+import x10.types.constraints.CConstraint;
 /**
  * Represents information about a Property. A property has the same
  * attributes as a Field, except that it is always public, instance and final
@@ -29,8 +29,8 @@ public interface X10FieldInstance extends FieldInstance, TypeObject, X10Use<X10F
 	/** Is this field a property? */
 	boolean isProperty();
 	
-	XConstraint guard();
-	X10FieldInstance guard(XConstraint guard);
+	CConstraint guard();
+	X10FieldInstance guard(CConstraint guard);
 	
 	/** Type of the field with self==FI. */
 	Type rightType();

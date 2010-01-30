@@ -17,28 +17,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
+
 /**
- * A constraint solver for the following constraint system:
- * <verbatim>
- * t ::= x                  -- variable
- *       | t.f              -- field access
- *       | g(t1,..., tn)    -- uninterpreted function symbol
- *       
- * c ::= t == t             -- equality
- *       | t != t           -- dis-equality
- *       | c,c              -- conjunction
- *       | p(t1,..., tn)    -- atomic formula
- * </verbatim>  
+ * See the comment on XConstraint.
  * 
- * The constraint system implements the usual congruence rules for equality. 
- * 
- *  <p> TBD:  Add
- *  <verbatim>
- *  t ::= t == t
- *  </verbatim>
- *  
- *  <p> This is useful in specifying that a Region is zeroBased iff its rank=0.
- *  
  * 
  * <p>A constraint is implemented as a graph whose nodes are XPromises. Additionally, a constraint
  * keeps track of two variables, self and this. 
@@ -62,21 +45,23 @@ import java.util.Set;
  * Use Shostak's congruence procedure. Treat <tt>t.f</tt> as the term <tt>f(t)</tt>, 
  * i.e. each field is regarded as a unary function symbol. This will be helpful in implementing
  * Nelson-Oppen integration of decision procedures.
- * 
  * @author vj
  *
  */
-public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
+public class XConstraint_c implements XConstraint, Cloneable {
 
     private static final boolean DEBUG = false;
 
-    /** Variable to use for self in the constraint. */
-    XRoot self;
-
-    XVar thisVar;
+  
+    
     // Maps XTerms to nodes.
     protected HashMap<XTerm, XPromise> roots;
 
+    protected boolean consistent = true;
+    boolean valid = true;
+
+    public XConstraint_c() {}
+    
     public HashMap<XTerm, XPromise> roots() {
         return roots;
     }
@@ -89,30 +74,6 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
     	}
     	return xvars;
     }
-    
-    public XRoot self() {
-        return self;
-    }
-
-    public XVar thisVar() {
-    	return thisVar;
-    }
-    boolean consistent = true;
-    boolean valid = true;
-
-/*
-static    XName selfName = XTerms.makeFreshName("_self");
-   
-public XConstraint_c() {
-		self = genEQV(selfName, false);
-//        self = genEQV(XTerms.makeName(new Object(), "self"), false);
-    }
-*/
-
-    public XConstraint_c() {
-        self = genEQV(XTerms.makeFreshName("_self"), false);
-//        self = genEQV(XTerms.makeName(new Object(), "self"), false);
-    }
 
     /**
      * Copy this constraint logically; that is, create a new constraint
@@ -123,8 +84,7 @@ public XConstraint_c() {
     public XConstraint_c copy() {
         XConstraint_c c = new XConstraint_c();
         try {
-        	c.thisVar = thisVar();
-        	c.self = self();
+        
         	c.consistent = consistent;
         	c.valid = valid;
             return copyInto(c);
@@ -134,7 +94,7 @@ public XConstraint_c() {
             return c;
         }
     }
-
+    
     /**
      * Return the result of copying this into c. Assume that c will be 
      * the depclause of the same base type as this, hence it is ok to 
@@ -142,51 +102,33 @@ public XConstraint_c() {
      * @param c
      * @return
      */
-    private XConstraint_c copyInto(XConstraint_c c) throws XFailure {
+    protected XConstraint_c copyInto(XConstraint_c c) throws XFailure {
+    	   /** Add in a constraint, substituting this.self for c.self */
         c.addIn(this);
         return c;
     }
 
-    /** Add in a constraint, substituting this.self for c.self */
     public XConstraint addIn(XConstraint c)  throws XFailure {
-    	return addIn(self(), c);
+    	if (c != null) {
+    		List<XTerm> result = c.constraints();
+    		if (result == null)
+    			return this;
+    		for (XTerm t : result) {
+    			addTerm(t);
+    		}
+    	}
+    	// vj: What about thisVar for c? Should that be added?
+    			// thisVar = getThisVar(this, c);
+    	return this;
     }
+
     
-    /** Add in a constraint, with given term for self. */
-    public XConstraint addIn(XTerm newSelf, XConstraint c)  throws XFailure {
-        if (c != null) {
-            List<XTerm> result = c.constraints();
-            if (result == null)
-                return this;
-            for (XTerm t : result) {
-                addTerm(t.subst(newSelf, c.self()));
-            }
-        }
-        // vj: What about thisVar for c? Should that be added?
-       // thisVar = getThisVar(this, c);
-        return this;
-    }
-
-    public static XVar getThisVar(XConstraint t1, XConstraint t2) throws XFailure {
-		XVar thisVar = t1 == null ? null : t1.thisVar();
-		if (thisVar == null)
-			return t2==null ? null : t2.thisVar();
-		if (t2 != null && ! thisVar.equals( t2.thisVar()))
-			throw new XFailure("Inconsistent this vars " + thisVar + " and "
-					+ t2.thisVar());
-		return thisVar;
-	}
     public XVar bindingForVar(XVar v) {
-        try {
-            XPromise p = lookup(v);
-            if (p != null && p.term() instanceof XVar && ! p.term().equals(v)) {
-                return (XVar) p.term();
-            }
-        }
-        catch (XFailure e) {
-        }
-
-        return null;
+    	XPromise p = lookup(v);
+    	if (p != null && p.term() instanceof XVar && ! p.term().equals(v)) {
+    		return (XVar) p.term();
+    	}
+    	return null;
     }
 
  /*   public XConstraint removeVarBindings(XVar v) {
@@ -259,8 +201,27 @@ public XConstraint_c() {
         return valid;
     }
 
+	/**
+	 * Return the promise obtained by interning this term in the constraint.
+	 * This may result in new promises being added to the graph maintained
+	 * by the constraint. 
+	 * <p>term: Literal -- return the literal. 
+	 * <p> term:LocalVariable, Special, Here Check if term is already in the roots
+	 * maintained by the constraint. If so, return the root, if not add a
+	 * promise to the roots and return it. 
+	 * <p> term: XField. Start with the rootVar x and follow the path f1...fk, 
+	 * if term=x.f1...fk. If the graph contains no nodes after fi, 
+	 * for some i < k, add promises into the graph from fi+1...fk. 
+	 * Return the last promise.
+	 * 
+	 * <p> Package protected -- should only be used in the implementation of the constraint
+	 * system.
+	 * @param term
+	 * @return
+	 * @throws XFailure
+	 */
 
-    public XPromise intern(XTerm term) throws XFailure {
+    XPromise intern(XTerm term) throws XFailure {
         return intern(term, null);
     }
     
@@ -276,7 +237,7 @@ public XConstraint_c() {
      * @param last
      * @return
      */
-    public XPromise intern(XTerm term, XPromise last) throws XFailure {
+    XPromise intern(XTerm term, XPromise last) throws XFailure {
     	assert term != null;
         if (term instanceof XPromise) {
             XPromise q = (XPromise) term;
@@ -297,7 +258,7 @@ public XConstraint_c() {
         return term.internIntoConstraint(this, last);
     }
 
-    public XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last) throws XFailure {
+    XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last) throws XFailure {
         if (roots == null)
             roots = new LinkedHashMap<XTerm, XPromise>();
         XPromise p = (XPromise) roots.get(baseVar);
@@ -308,13 +269,13 @@ public XConstraint_c() {
         return p;
     }
     
-    public void addPromise(XTerm p, XPromise node) {
+    void addPromise(XTerm p, XPromise node) {
         if (roots == null)
             roots = new LinkedHashMap<XTerm, XPromise>();
         roots.put(p, node);
     }
 
-    public void internRecursively(XVar v) throws XFailure {
+     void internRecursively(XVar v) throws XFailure {
         intern(v);
     }
     
@@ -322,7 +283,7 @@ public XConstraint_c() {
      * Return the promise obtained by looking up term in this. Does not create new
      * nodes in the constraint graph. Does not return a forwarded promise.
      */
-    public XPromise lookup(XTerm term) throws XFailure {
+    public XPromise lookup(XTerm term) {
         XPromise result = lookupPartialOk(term);
         if (!(result instanceof XPromise_c))
             return result;
@@ -337,7 +298,22 @@ public XConstraint_c() {
         return null;
     }
     
-    public XPromise lookupPartialOk(XTerm term) throws XFailure {
+	/**
+	 * Look this term up in the constraint graph. If the term is of the form
+	 * x.f1...fk and the longest prefix that exists in the graph is
+	 * x.f1..fi, return the promise corresponding to x.f1...fi. If the
+	 * promise is a Promise_c, the caller must invoke lookupReturnValue() to
+	 * determine if the match was partial (value returned is not equal to
+	 * the length of term.vars()). If not even a partial match is found, or
+	 * the partial match terminates in a literal (which, by definition,
+	 * cannot have fields), then return null.
+	 * 
+	 * @seeAlso lookup(C_term term)
+	 * @param term
+	 * @return
+	 * @throws XFailure
+	 */
+    XPromise lookupPartialOk(XTerm term) {
         if (term == null)
             return null;
         
@@ -471,17 +447,16 @@ public XConstraint_c() {
      * @param other
      * @return
      */
-    public boolean entails(XConstraint other) throws XFailure {
-        return entails(other, null);
+    public boolean entails(XConstraint other)  {
+        return entails(other, (XConstraint) null);
     }
     
-    /**
-     * If other is not inconsistent, and this is consistent,
+    /** If other is not inconsistent, and this is consistent,
      * checks that each binding X=t in other also exists in this.
      * @param other
      * @return
      */
-    public boolean entails(XConstraint other, XConstraint sigma) throws XFailure {
+    public boolean entails(XConstraint other, XConstraint sigma)  {
         if (!consistent())
             return true;
         if (other == null || other.valid())
@@ -489,13 +464,15 @@ public XConstraint_c() {
 //        if (other.toString().equals(toString()))
 //        	return true;
         List<XTerm> otherConstraints = other.extConstraints();
-        XRoot otherSelf = other.self();
-        return entails(otherConstraints, otherSelf, sigma);
+        for (XTerm t : otherConstraints)
+        	if (! entails(t, sigma))
+        		return false;
+        return true;
     }
-
+    
     public List<XTerm> constraints() {
         return constraints(new ArrayList<XTerm>());
-    }
+    }  
     
     public List<XTerm> constraints(List<XTerm> result) {
         if (roots == null)
@@ -507,11 +484,10 @@ public XConstraint_c() {
         	// that do not involve X1,..., Xn are entailed by c.
         	//if (p.term() ==null ||  p.term().isEQV())
         	//	continue;
-        	p.dump(null, result, self, true);
+        	p.dump(null, result,  true);
         }
         return result;
     }
-    
     public List<XTerm> extConstraints() {
         return extConstraints(new ArrayList<XTerm>());
     }
@@ -520,127 +496,11 @@ public XConstraint_c() {
         if (roots == null)
             return result;
         for (XPromise p : roots.values()) {
-            p.dump(null, result, self, false);
+            p.dump(null, result, false);
         }
         return result;
     }
-   
-
-    private boolean entails(List<XTerm> conjuncts, XRoot self, final XConstraint sigma) throws XFailure {
-        
-        XConstraint_c me = copy();
-        if (sigma != null) {
-            me.addIn(sigma);
-        }
-
-        if (! me.consistent()) {
-        	return true;
-        }
-        
-    	for (XTerm term : conjuncts) {
-    		if (! me.entails(term, self, (XConstraint) null))
-    			return false;
-    	}
-    	
-       return true;
-    }
-
-    private boolean entails(XTerm  term, XRoot self, final XConstraint sigma) throws XFailure {
-    	XTerm subst = term.subst(self(), self);
-    	return entails(subst, (XConstraint) null);
-    }
- 
-    	
-
-    /** Traverse the terms in the constraint, adding in their self constraints. */
-//    public XConstraint_c saturate() throws XFailure {
-//        XConstraint_c c = (XConstraint_c) copy();
-//        if (false) c.self = self();
-//        Set<XTerm> visited = new HashSet<XTerm>();
-//        for (XTerm term : constraints()) {
-//            XTerm t;
-//            if (!false)
-//				t = term.subst(c.self(), self());
-//            else
-//            	t = term;
-//            t.saturate(c, visited);
-//        }
-//        return c;
-//    }
-
-    /** Return true if this constraint entails t. */
-    private boolean entails(XTerm t, XConstraint sigma) throws XFailure {
-        if (t instanceof XEquals) {
-            XEquals f = (XEquals) t;
-            XTerm left = f.left();
-            XTerm right = f.right();
-            
-            if (entails(left, right)) {
-                return true;
-            }
-            if (right instanceof XEquals) {
-            	XEquals r = (XEquals) right;
-            	if (entails(r.left(), r.right())) {
-            		return entails(left, XTerms.TRUE);
-            	}
-            	if (disEntails(r.left(), r.right())) {
-            		return entails(left, XTerms.FALSE);
-            	}
-            }
-            if (right instanceof XDisEquals) {
-            	XDisEquals r = (XDisEquals) right;
-            	if (entails(r.left(), r.right())) {
-            		return entails(left, XTerms.FALSE);
-            	}
-            	if (disEntails(r.left(), r.right())) {
-            		return entails(left, XTerms.TRUE);
-            	}
-            }
-            
-        } else if (t instanceof XDisEquals) {
-            XDisEquals f = (XDisEquals) t;
-            XTerm left = f.left();
-            XTerm right = f.right();
-            
-            if (disEntails(left, right)) {
-                return true;
-            }
-        }
-        else if (t instanceof XFormula) {
-        	XFormula f = (XFormula) t;
-        	XName op = f.operator();
-        	List<XTerm> args = f.arguments();
-        	int n = args.size();
-        	for (XFormula x : atoms()) {
-        		if (x.operator().equals(op)) {
-        			List<XTerm> xargs = x.arguments();
-        			if (n!= xargs.size())
-        				continue;
-        			int i=0;
-        			while(i < n && entails(args.get(i), xargs.get(i))) i++;
-        			if (i==n) return true;
-        		}
-        	}
-        	return false;
-        }
-       
-
-        if (t.solver() != null) {
-        	if (t.solver().entails(this, t, sigma))
-        		return true;
-        }
-        List<XTerm> atoms = constraints();
-        for (XTerm ta : atoms) {
-        	if (ta.solver() != null && ta.solver() != t.solver()) {
-        		if (ta.solver().entails(this, t, sigma))
-        			return true;
-        	}
-        }
-
-        return false;
-    }
-
-    public boolean disEntails(XTerm t1, XTerm t2) throws XFailure {
+    public boolean disEntails(XTerm t1, XTerm t2)  {
     	if (! consistent) return true;
     	XPromise p1 = lookup(t1);
     	if (p1 == null) // this constraint knows nothing about t1.
@@ -651,11 +511,13 @@ public XConstraint_c() {
     	return p1.isDisBoundTo(p2);
     	
     }
+  
     /** Return true if this constraint entails that t1==t2. */
-    public boolean entails(XTerm t1, XTerm t2) throws XFailure {
+    public boolean entails(XTerm t1, XTerm t2)  {
         if (!consistent)
             return true;
-        
+        if (t1.isEQV() || t2.isEQV())
+        	return true;
         XPromise p1 = lookupPartialOk(t1);
         if (p1 == null) // No match, the term t1 is not equated to anything by this.
             return false;
@@ -725,7 +587,7 @@ public XConstraint_c() {
         return equiv(other, null);
     }
 
-    public boolean equiv(XConstraint other, XConstraint sigma) throws XFailure {
+    public boolean equiv(XConstraint other, XConstraint sigma){
         boolean result = entails(other, sigma);
         if (result) {
             if (other == null)
@@ -736,15 +598,81 @@ public XConstraint_c() {
         return result;
     }
 
-    public XTerm find(XName varName) throws XFailure {
-        if (!consistent || roots == null)
-            return null;
-        XPromise self = (XPromise) roots.get(self());
-        if (self == null)
-            return null;
-        XPromise result = self.lookup(varName);
-        return result == null ? null : result.term();
+    /** Return true if this constraint entails t. */
+    public boolean entails(XTerm t) {
+    	return entails(t, (XConstraint) null);
     }
+    protected boolean entails(XTerm t, XConstraint sigma) {
+        if (t instanceof XEquals) {
+            XEquals f = (XEquals) t;
+            XTerm left = f.left();
+            XTerm right = f.right();
+            
+            if (entails(left, right)) {
+                return true;
+            }
+            if (right instanceof XEquals) {
+            	XEquals r = (XEquals) right;
+            	if (entails(r.left(), r.right())) {
+            		return entails(left, XTerms.TRUE);
+            	}
+            	if (disEntails(r.left(), r.right())) {
+            		return entails(left, XTerms.FALSE);
+            	}
+            }
+            if (right instanceof XDisEquals) {
+            	XDisEquals r = (XDisEquals) right;
+            	if (entails(r.left(), r.right())) {
+            		return entails(left, XTerms.FALSE);
+            	}
+            	if (disEntails(r.left(), r.right())) {
+            		return entails(left, XTerms.TRUE);
+            	}
+            }
+            
+        } else if (t instanceof XDisEquals) {
+            XDisEquals f = (XDisEquals) t;
+            XTerm left = f.left();
+            XTerm right = f.right();
+            
+            if (disEntails(left, right)) {
+                return true;
+            }
+        }
+        else if (t instanceof XFormula) {
+        	XFormula f = (XFormula) t;
+        	XName op = f.operator();
+        	List<XTerm> args = f.arguments();
+        	int n = args.size();
+        	for (XFormula x : atoms()) {
+        		if (x.operator().equals(op)) {
+        			List<XTerm> xargs = x.arguments();
+        			if (n!= xargs.size())
+        				continue;
+        			int i=0;
+        			while(i < n && entails(args.get(i), xargs.get(i))) i++;
+        			if (i==n) return true;
+        		}
+        	}
+        	return false;
+        }
+       
+
+        if (t.solver() != null) {
+        	if (t.solver().entails(this, t, sigma))
+        		return true;
+        }
+        List<XTerm> atoms = constraints();
+        for (XTerm ta : atoms) {
+        	if (ta.solver() != null && ta.solver() != t.solver()) {
+        		if (ta.solver().entails(this, t, sigma))
+        			return true;
+        	}
+        }
+
+        return false;
+    }
+ 
     
    // private static boolean printEQV = true;
 
@@ -782,6 +710,23 @@ public XConstraint_c() {
         return "{" + str + "}";
     }
 
+    
+    
+    public XConstraint substitute(HashMap<XRoot, XTerm> subs) throws XFailure {
+        XConstraint c = this;
+        for (Map.Entry<XRoot,XTerm> e : subs.entrySet()) {
+            XRoot x = e.getKey();
+            XTerm y = e.getValue();
+            c = c.substitute(y, x);            
+        }
+        return c;
+    }
+    public XConstraint substitute(XTerm y, XRoot x) throws XFailure {
+        return substitute(new XTerm[] { y }, new XRoot[] { x });
+    }
+    public XConstraint substitute(XTerm[] ys, XRoot[] xs, boolean propagate) throws XFailure {
+    	return substitute(ys, xs);
+    }
     
     public XConstraint substitute(XTerm[] ys, XRoot[] xs) throws XFailure {
     	assert (ys != null && xs != null);
@@ -824,7 +769,7 @@ public XConstraint_c() {
     			t = t.subst(y, x, true);
     		}
     		
-    		t = t.subst(result.self(), self(), true);
+    		// t = t.subst(result.self(), self(), true);
 
     		try {
     			result.addTerm(t);
@@ -837,22 +782,6 @@ public XConstraint_c() {
     	//		result.valid = true;
     	//		result.applySubstitution(y,x);
     	return result;
-    }
-    
-    public XConstraint substitute(HashMap<XRoot, XTerm> subs) throws XFailure {
-        XConstraint c = this;
-        for (Map.Entry<XRoot,XTerm> e : subs.entrySet()) {
-            XRoot x = e.getKey();
-            XTerm y = e.getValue();
-            c = c.substitute(y, x);            
-        }
-        return c;
-    }
-    public XConstraint substitute(XTerm y, XRoot x) throws XFailure {
-        return substitute(new XTerm[] { y }, new XRoot[] { x });
-    }
-    public XConstraint substitute(XTerm[] ys, XRoot[] xs, boolean propagate) throws XFailure {
-    	return substitute(ys, xs);
     }
     public void applySubstitution(HashMap<XRoot, XTerm> subs) throws XFailure {
         for (Map.Entry<XRoot, XTerm> e : subs.entrySet()) {
@@ -918,7 +847,7 @@ public XConstraint_c() {
             // Cannot replace x with x.  Instead,
             // introduce an EQV and substitute that for x.
 
-            XEQV v = genEQV();
+            XEQV v = XTerms.makeEQV();
 
             // Clone the root map, with the renaming map primed
             // with x -> v
@@ -1029,24 +958,7 @@ public XConstraint_c() {
         return roots.keySet().contains(v);
     }
 
-    public void addSelfBinding(XTerm var) throws XFailure {
-        addBinding(self(), var);
-    }
-    public void addSelfBinding(XConstrainedTerm var) throws XFailure {
-        addBinding(self(), var);
-    }
-
-    public void addThisBinding(XTerm term) throws XFailure {
-    	addBinding(thisVar(), term);
-    }
-    
-    public void setThisVar(XVar var) {
-    	if (var == null) return;
-    	if (DEBUG && thisVar != null && ! thisVar.equals(var))
-    		System.err.println("Thisvar for " + this + " was " + thisVar + " (#"  + thisVar.hashCode() 
-    				+ ") being now set to " + var + " (#" + var.hashCode());
-    	thisVar = var;
-    }
+  
     // FIXME: need to convert f(g(x)) into \exists y. f(y) && g(x) = y when f and g both atoms
     // This is needed for Nelson-Oppen to work correctly.
     // Each atom should be a root.
@@ -1094,66 +1006,21 @@ public XConstraint_c() {
 
     public void setInconsistent() {
         this.consistent = false;
-    }
-    
-    public void addBinding(XTerm s, XConstrainedTerm t) throws XFailure {
-    	addBinding(s, t.term());
-    	addIn(s, t.constraint());
-    	
-    }
-    public void addBinding(XConstrainedTerm s, XTerm t) throws XFailure {
-    	addBinding(t,s);
-    }
-    public void addBinding(XConstrainedTerm s, XConstrainedTerm t) throws XFailure {
-    	addBinding(s.term(), t.term());
-    	addIn(s.term(), s.constraint());
-    	addIn(t.term(), t.constraint());
-    }
-    public XConstraint instantiateSelf(XTerm newSelf) {
-    	try {
-    		return substitute(newSelf, self());
-    	} catch (XFailure z) {
-    		return FALSE;
-    	}
-    }
-    public static  XConstraint FALSE = new XConstraint_c();
-    static {
-    	FALSE.setInconsistent();
-    }
-    public static XEQV genEQV() {
-        return genEQV(true);
-    }
-    
-    public static XEQV genUQV() {
-        return genEQV(false);
-    }
-
-    public static XEQV genEQV(boolean hidden) {
-        XName handle = XTerms.makeFreshName();
-        return genEQV(handle, hidden);
-    }
-
-    public static XEQV genEQV(XName name, boolean hidden) {
-        XEQV result = new XEQV_c(name, hidden);
-        return result;
-    }
+    }  
+   
     public XConstraint leastUpperBound(XConstraint other) {
-    	XRoot otherSelf = other.self();
-    	
-    	XConstraint result = new XConstraint_c();
-    	XRoot resultSelf = result.self();
-    	XConstraint sigma = new XConstraint_c();
-    	for (XTerm term : other.constraints()) {
-    		try {
-    			if (entails(term, otherSelf, sigma)) {
-    				term = term.subst(resultSelf, otherSelf);
-    				result.addTerm(term);
-    			}
-    		} catch (XFailure z) {
+     
+       	XConstraint result = new XConstraint_c();
+       	for (XTerm term : other.constraints()) {
+       		try {
+       			if (entails(term)) {
+       				result.addTerm(term);
+       			}
+       		} catch (XFailure z) {
 
-    		}
-    	}
-    	return result;
-    }
-
+       		}
+       	}
+       	return result;
+       }
+       
 }

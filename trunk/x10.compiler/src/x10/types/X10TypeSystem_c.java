@@ -80,9 +80,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10StringLit_c;
-import x10.constraint.XConstrainedTerm;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
@@ -92,6 +89,9 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.parser.X10ParsedName;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.XConstrainedTerm;
 import x10.util.ClosureSynthesizer;
 
 /**
@@ -244,7 +244,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     /** Return true if the constraint is consistent. */
-    public boolean consistent(XConstraint c) {
+    public boolean consistent(CConstraint c) {
         return c.consistent();
     }
 
@@ -1053,9 +1053,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                          null);
     }
 
-    public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
-            List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames, Ref<XConstraint> guard,
-            Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
+    public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, 
+    		Flags flags, Ref<? extends Type> returnType, Name name,
+            List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, 
+            XRoot thisVar, List<LocalDef> formalNames, 
+            Ref<CConstraint> guard,
+            Ref<TypeConstraint> typeGuard, 
+            List<Ref<? extends Type>> excTypes, 
+            Ref<XTerm> body) {
         assert_(container);
         assert_(returnType);
         assert_(typeParams);
@@ -1105,7 +1110,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
             Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes, XRoot thisVar,
-            List<LocalDef> formalNames, Ref<XConstraint> guard,
+            List<LocalDef> formalNames, Ref<CConstraint> guard,
             List<Ref<? extends Type>> throwTypes) {
         return new ClosureDef_c(this, p, typeContainer, methodContainer, returnType, 
         		argTypes, thisVar, formalNames, guard, throwTypes);
@@ -1114,7 +1119,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public FunctionType closureType(Position p, Ref<? extends Type> returnType, 
     		// List<Ref<? extends Type>> typeParams, 
     		List<Ref<? extends Type>> argTypes,
-            List<LocalDef> formalNames, Ref<XConstraint> guard, 
+            List<LocalDef> formalNames, Ref<CConstraint> guard, 
           //  Ref<TypeConstraint> typeGuard, 
             List<Ref<? extends Type>> throwTypes) {
         Type rt = Types.get(returnType);
@@ -1586,13 +1591,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             Type ebase = expandMacros(base);
             if (base == ebase)
                 return t;
-            XConstraint c = ct.constraint().get();
+            CConstraint c = ct.constraint().get();
             return X10TypeMixin.xclause(ebase, c);
         }
         return t;
     }
 
-    public boolean entails(XConstraint c1, XConstraint c2, X10Context context, Type selfType) {
+    public boolean entails(CConstraint c1, CConstraint c2, X10Context context, Type selfType) {
         if (c1 != null || c2 != null) {
             boolean result = true;
 
@@ -1773,14 +1778,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return entailsClause(me, other, context) && entailsClause(other, me, context);
     }
 
-    public boolean entailsClause(XConstraint c1, XConstraint c2, X10Context context, Type selfType) {
+    public boolean entailsClause(CConstraint c1, CConstraint c2, X10Context context, Type selfType) {
         return entails(c1, c2, context, selfType);
     }
 
     public boolean entailsClause(Type me, Type other, X10Context context) {
         try {
-            XConstraint c1 = X10TypeMixin.realX(me);
-            XConstraint c2 = X10TypeMixin.xclause(other);
+            CConstraint c1 = X10TypeMixin.realX(me);
+            CConstraint c2 = X10TypeMixin.xclause(other);
             return entailsClause(c1, c2, context, null);
         }
         catch (InternalCompilerError e) {
@@ -2115,7 +2120,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
-            List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames, Ref<XConstraint> guard,
+            List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes) {
         assert_(container);
         assert_(argTypes);
@@ -2151,23 +2156,23 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
     
 
-    public boolean clausesConsistent(x10.constraint.XConstraint c1, x10.constraint.XConstraint c2, Context context) {
+    public boolean clausesConsistent(CConstraint c1, CConstraint c2, Context context) {
         X10TypeEnv env = env(context);
         return env.clausesConsistent(c1, c2);
     }
 
     public Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op) {
-        XConstraint cl = X10TypeMixin.realX(l);
-        XConstraint cr = X10TypeMixin.realX(r);
+        CConstraint cl = X10TypeMixin.realX(l);
+        CConstraint cr = X10TypeMixin.realX(r);
         X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-        XConstraint c = xts.xtypeTranslator().binaryOp(op, cl, cr);
+        CConstraint c = xts.xtypeTranslator().binaryOp(op, cl, cr);
         return X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
     }
 
     public Type performUnaryOperation(Type t, Type a, polyglot.ast.Unary.Operator op) {
-        XConstraint ca = X10TypeMixin.realX(a);
+        CConstraint ca = X10TypeMixin.realX(a);
         X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-        XConstraint c = xts.xtypeTranslator().unaryOp(op, ca);
+        CConstraint c = xts.xtypeTranslator().unaryOp(op, ca);
         return X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
     }
 
@@ -2244,7 +2249,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public X10FieldMatcher FieldMatcher(Type container, Name name, Context context) {
-    	container = X10TypeMixin.ensureSelfBound(container);
+    	container = X10TypeMixin.ensureSelfBound( container);
         return new X10FieldMatcher(container, name, context);
     }
 
@@ -2514,7 +2519,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
  
     public boolean isAtPlace(Receiver r, Expr place, X10Context xc) {
-    	XConstraint_c c = new XConstraint_c();
+    	CConstraint_c c = new CConstraint_c();
     	XTerm placeTerm = xtypeTranslator().trans(c, place, xc);
     	if (placeTerm == null) 
     		return false;
@@ -2528,7 +2533,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
  		   return false;
  	   
  	   try {
- 		   XConstraint pc = xc.currentPlaceTerm().xconstraint();
+ 		   CConstraint pc = xc.currentPlaceTerm().xconstraint();
  		   Type rType = r.type();
  		   XTerm target = X10TypeMixin.selfVarBinding(rType); // 
  		   if (target == null) {
@@ -2536,15 +2541,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
  			   if (target == null)
  			   // The receiver is not named. So make up a new name.
  			   // The only thing we know about the name is that it is of rType,
- 			   target = XConstraint_c.genEQV();
+ 			   target = XTerms.makeEQV();
  		   } 
  		  // rType = X10TypeMixin.setSelfVar(rType, (XVar) target);
  		   rType = Subst.subst(rType, target, (XRoot) X10TypeMixin.selfVar(rType));
  		   assert xc.currentPlaceTerm() != null;
  		   assert homeVar(target, xc) != null;
  		  pc.addBinding(homeVar(target,xc), placeTerm);
- 		   XConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
- 		   XConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
+ 		   CConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
+ 		   CConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
 
  		   sigma.addBinding(XTerms.HERE, xc.currentPlaceTerm().term());
  		   XRoot thisVar = xc.thisVar();
@@ -2569,19 +2574,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     }
     
-   public XConstraint isHereConstraint(Receiver r, X10Context xc) {
-	   XConstraint pc = new XConstraint_c();
+   public CConstraint isHereConstraint(Receiver r, X10Context xc) {
+	   CConstraint pc = new CConstraint_c();
 
 	   XTerm target = xtypeTranslator().trans(pc, r, xc);
 	   assert r != null;
 	   return isHereConstraint(pc, target, xc);
 
    }
-   public XConstraint isHereConstraint(XTerm target, X10Context xc) {
-	   XConstraint c = new XConstraint_c();
+   public CConstraint isHereConstraint(XTerm target, X10Context xc) {
+	   CConstraint c = new CConstraint_c();
 	   return isHereConstraint(c, target, xc);
    }
-   protected XConstraint isHereConstraint(XConstraint pc, XTerm target, X10Context xc) {
+   protected CConstraint isHereConstraint(CConstraint pc, XTerm target, X10Context xc) {
 	   try {
 		   XTerm eloc = xtypeTranslator().trans(pc, target, 
 				   ((StructType) Object()).fieldNamed(homeName()));
@@ -2592,12 +2597,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   return pc;
    }
    public XTerm homeVar(XTerm target, X10Context xc)  {
-	   XConstraint pc = new XConstraint_c();
+	   CConstraint pc = new CConstraint_c();
 	   return xtypeTranslator().trans(pc, target, 
 			   ((StructType) Object()).fieldNamed(homeName()));
    }
    public XTerm locVar(Receiver r, X10Context xc)  {
-	   XConstraint pc = new XConstraint_c();
+	   CConstraint pc = new CConstraint_c();
 	   XTerm target = xtypeTranslator().trans(pc, r, xc);
 	   if (target == null) return null;
 	   return xtypeTranslator().trans(pc, target, 
@@ -2613,7 +2618,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
    
    public FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
 	throws SemanticException {
-	   container = X10TypeMixin.ensureSelfBound(container);
+	   container = X10TypeMixin.ensureSelfBound( container);
 	   return super.findField(container, matcher);
    }
    public void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException {
@@ -2634,7 +2639,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			Type t = tn.type();
 			t = ts.expandMacros(t);
 
-			XConstraint xc = X10TypeMixin.xclause(t);
+			CConstraint xc = X10TypeMixin.xclause(t);
 			t = X10TypeMixin.baseType(t);
 
 			if (!(ts.isStructType(t))) { // bail

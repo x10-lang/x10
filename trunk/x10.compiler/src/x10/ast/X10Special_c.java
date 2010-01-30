@@ -18,9 +18,6 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.constraint.XConstrainedTerm;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
@@ -34,6 +31,9 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.XConstrainedTerm;
 
 public class X10Special_c extends Special_c implements X10Special {
 
@@ -144,8 +144,8 @@ public class X10Special_c extends Special_c implements X10Special {
 
         if (kind == THIS) {
             Type tt = X10TypeMixin.baseType(t);
-            XConstraint cc = X10TypeMixin.xclause(t);
-            cc = cc == null ? new XConstraint_c() : cc.copy();
+            CConstraint cc = X10TypeMixin.xclause(t);
+            cc = cc == null ? new CConstraint_c() : cc.copy();
             try {
             	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
                 cc.addSelfBinding(var);
@@ -166,8 +166,8 @@ public class X10Special_c extends Special_c implements X10Special {
         else if (kind == SUPER) {
         	Type superClass =  X10TypeMixin.superClass(t);
             Type tt = X10TypeMixin.baseType(superClass);
-            XConstraint cc = X10TypeMixin.xclause(superClass);
-            cc = cc == null ? new XConstraint_c() : cc.copy();
+            CConstraint cc = X10TypeMixin.xclause(superClass);
+            cc = cc == null ? new CConstraint_c() : cc.copy();
             try {
                 cc.addSelfBinding((XVar) xts.xtypeTranslator().trans(cc, this, c));
             }
@@ -184,10 +184,10 @@ public class X10Special_c extends Special_c implements X10Special {
         CodeDef ci = c.currentCode();
         if (ci instanceof X10ProcedureDef) {
             X10ProcedureDef pi = (X10ProcedureDef) ci;
-            XConstraint guard = Types.get(pi.guard());
+            CConstraint guard = Types.get(pi.guard());
             if (guard != null) {
                 Type newType = result.type();
-                XConstraint dep = X10TypeMixin.xclause(newType).copy();
+                CConstraint dep = X10TypeMixin.xclause(newType).copy();
                 try {
 			dep.addIn(guard);
 		}

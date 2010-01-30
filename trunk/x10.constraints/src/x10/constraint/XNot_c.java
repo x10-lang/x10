@@ -13,7 +13,7 @@ public class XNot_c extends XFormula_c implements XNot {
 		super(XTerms.notName, arg);
 	}
 	
-	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+	public XPromise internIntoConstraint(XConstraint_c c, XPromise last) throws XFailure {
 		assert false : "Should not intern " + this;
 		return super.internIntoConstraint(c, last);
 	}

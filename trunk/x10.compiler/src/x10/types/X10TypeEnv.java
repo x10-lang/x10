@@ -10,12 +10,13 @@ import polyglot.types.TypeEnv;
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
 import x10.types.X10TypeSystem_c.Kind;
+import x10.types.constraints.CConstraint;
 
 public interface X10TypeEnv extends TypeEnv {
     public void checkOverride(ClassType thisType, MethodInstance mi, MethodInstance mj) throws SemanticException;
 
     /** Return true if the constraint is consistent. */
-    boolean consistent(XConstraint c);
+    boolean consistent(CConstraint c);
 
     /** Return true if constraints in the type are all consistent. */
     boolean consistent(Type t);
@@ -38,7 +39,7 @@ public interface X10TypeEnv extends TypeEnv {
 
     boolean isSubtype(Type t1, Type t2);
    
-    boolean entails(XConstraint c1, XConstraint c2);
+    boolean entails(CConstraint c1, CConstraint c2);
 
     boolean hasSameClassDef(Type t1, Type t2);
 
@@ -52,9 +53,9 @@ public interface X10TypeEnv extends TypeEnv {
 
     boolean equalTypeParameters(List<Type> a, List<Type> b);
 
-    boolean primitiveClausesConsistent(x10.constraint.XConstraint c1, x10.constraint.XConstraint c2);
+    boolean primitiveClausesConsistent(CConstraint c1, CConstraint c2);
 
-    boolean clausesConsistent(x10.constraint.XConstraint c1, x10.constraint.XConstraint c2);
+    boolean clausesConsistent(CConstraint c1, CConstraint c2);
 
     Kind kind(Type t);
     

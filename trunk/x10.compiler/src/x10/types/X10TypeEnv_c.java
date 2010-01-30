@@ -45,8 +45,6 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.TransformingList;
 import x10.ast.X10Special;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
@@ -57,6 +55,8 @@ import x10.constraint.XVar;
 import x10.types.ParameterType.Variance;
 import x10.types.X10TypeSystem_c.Bound;
 import x10.types.X10TypeSystem_c.Kind;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 /**
  * A TypeSystem implementation for X10.
@@ -207,9 +207,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     /* (non-Javadoc)
-     * @see x10.types.X10TypeEnv#consistent(x10.constraint.XConstraint)
+     * @see x10.types.X10TypeEnv#consistent(x10.constraint.CConstraint)
      */
-    public boolean consistent(XConstraint c) {
+    public boolean consistent(CConstraint c) {
         return c.consistent();
     }
 
@@ -388,7 +388,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             visited.add(expanded);
         
 //            // Get constraints from the type's where clause.
-//            XConstraint wc = X10TypeMixin.xclause(w);
+//            CConstraint wc = X10TypeMixin.xclause(w);
 //            if (wc != null) {
 //                List<Type> b = getBoundsFromConstraint(t, wc, kind);
 //                worklist.addAll(b);
@@ -472,7 +472,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             visited.add(w);
         
 //            // Get constraints from the type's where clause.
-//            XConstraint wc = X10TypeMixin.xclause(w);
+//            CConstraint wc = X10TypeMixin.xclause(w);
 //            if (wc != null) {
 //                List<Type> b = getBoundsFromConstraint(t, wc, kind);
 //                worklist.addAll(b);
@@ -785,8 +785,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		return true;
     	
     	Type baseType2 = X10TypeMixin.baseType(t2);
-    	XConstraint c1 = X10TypeMixin.realX(t1);
-    	XConstraint c2 = X10TypeMixin.xclause(t2);  // NOTE: xclause, not realX
+    	CConstraint c1 = X10TypeMixin.realX(t1);
+    	CConstraint c2 = X10TypeMixin.xclause(t2);  // NOTE: xclause, not realX
     	if (c2 != null && c2.valid()) { 
     		c2 = null; 
     	}
@@ -798,8 +798,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		//if (x == null) {
     			x = XTerms.makeFreshLocal();
     		//}
-    		//XConstraint c = xcontext.currentConstraint();
-    			XConstraint c = null;
+    		//CConstraint c = xcontext.currentConstraint();
+    			CConstraint c = null;
     			try {
     				c = xcontext.constraintProjection(c1, c2);
     			    c.addBinding(XTerms.HERE, xcontext.currentPlaceTerm().term()); 
@@ -816,7 +816,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     				//c1 = c1.substitute(x, c1.self());
     				xcontext = (X10Context) xcontext.pushBlock();	
     				
-    				XConstraint r = c.addIn(x, c1);
+    				CConstraint r = c.addIn(x, c1);
     				xcontext.setCurrentConstraint(r);
     		
     				X10TypeEnv_c tenv = copy();
@@ -994,8 +994,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Type baseType2 = X10TypeMixin.baseType(t2);
 
         // Don't need the real clause here, since will only be true if the base types are equal.
-        XConstraint c1 = X10TypeMixin.xclause(t1);
-        XConstraint c2 = X10TypeMixin.xclause(t2);
+        CConstraint c1 = X10TypeMixin.xclause(t1);
+        CConstraint c2 = X10TypeMixin.xclause(t2);
 
         if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
         if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
@@ -1084,8 +1084,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         Type t1 = X10TypeMixin.baseType(fromType);
         Type t2 = X10TypeMixin.baseType(toType);
-        XConstraint c1 = X10TypeMixin.realX(fromType);
-        XConstraint c2 = X10TypeMixin.realX(toType);
+        CConstraint c1 = X10TypeMixin.realX(fromType);
+        CConstraint c2 = X10TypeMixin.realX(toType);
 
 
         Type baseType1 = t1;
@@ -1122,15 +1122,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     /* (non-Javadoc)
-     * @see x10.types.X10TypeEnv#entails(x10.constraint.XConstraint, x10.constraint.XConstraint)
+     * @see x10.types.X10TypeEnv#entails(x10.constraint.CConstraint, x10.constraint.CConstraint)
      */
-    public boolean entails(XConstraint c1, XConstraint c2) {
+    public boolean entails(CConstraint c1, CConstraint c2) {
         if (c1 != null || c2 != null) {
             boolean result = true;
  
                 try {
                 	 X10Context xc = (X10Context) context;
-                     XConstraint sigma = xc.constraintProjection(c1,c2);
+                     CConstraint sigma = xc.constraintProjection(c1,c2);
                      sigma.addIn(c1);
                      result = sigma.entails(c2);
                    /*  result = c1 == null ? 
@@ -1159,9 +1159,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     /** Return true if there is a conversion from fromType to toType.  Returns false if the two types are not both value types. */
     public boolean isPrimitiveConversionValid(Type fromType, Type toType) {
         Type baseType1 = X10TypeMixin.baseType(fromType);
-        XConstraint c1 = X10TypeMixin.realX(fromType);
+        CConstraint c1 = X10TypeMixin.realX(fromType);
         Type baseType2 = X10TypeMixin.baseType(toType);
-        XConstraint c2 = X10TypeMixin.realX(toType);
+        CConstraint c2 = X10TypeMixin.realX(toType);
 
         if (c1 != null && c1.valid()) { c1 = null; }
         if (c2 != null && c2.valid()) { c2 = null; }
@@ -1330,7 +1330,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             XLit val = XTerms.makeLit(value);
 
             try {
-                XConstraint c = new XConstraint_c();
+                CConstraint c = new CConstraint_c();
                 c.addSelfBinding(val);
                 return entails(c, X10TypeMixin.realX(toType));
             }
@@ -1379,8 +1379,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      */
     public boolean entailsClause(Type me, Type other) {
         try {
-            XConstraint c1 = X10TypeMixin.realX(me);
-            XConstraint c2 = X10TypeMixin.xclause(other);
+            CConstraint c1 = X10TypeMixin.realX(me);
+            CConstraint c2 = X10TypeMixin.xclause(other);
             return entails(c1, c2);
         }
         catch (InternalCompilerError e) {
@@ -1398,8 +1398,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	Type t = leastCommonAncestorBase(X10TypeMixin.baseType(type1), 
     			X10TypeMixin.baseType(type2));
     	
-    	XConstraint c1 = X10TypeMixin.realX(type1), c2 = X10TypeMixin.realX(type2);
-    	XConstraint c = c1.leastUpperBound(c2);
+    	CConstraint c1 = X10TypeMixin.realX(type1), c2 = X10TypeMixin.realX(type2);
+    	CConstraint c = c1.leastUpperBound(c2);
     	if (! c.valid())
     		t = X10TypeMixin.addConstraint(t, c);
     	return t;
@@ -1533,9 +1533,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     /* (non-Javadoc)
-     * @see x10.types.X10TypeEnv#primitiveClausesConsistent(x10.constraint.XConstraint, x10.constraint.XConstraint)
+     * @see x10.types.X10TypeEnv#primitiveClausesConsistent(CConstraint, x10.constraint.CConstraint)
      */
-    public boolean primitiveClausesConsistent(x10.constraint.XConstraint c1, x10.constraint.XConstraint c2) {
+    public boolean primitiveClausesConsistent(CConstraint c1, CConstraint c2) {
         //		try {
         //			x10.constraint.Promise p1 = c1.lookup(x10.constraint.C_Self.Self);
         //			x10.constraint.Promise p2 = c2.lookup(x10.constraint.C_Self.Self);
@@ -1552,11 +1552,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     /* (non-Javadoc)
-     * @see x10.types.X10TypeEnv#clausesConsistent(x10.constraint.XConstraint, x10.constraint.XConstraint)
+     * @see x10.types.X10TypeEnv#clausesConsistent(x10.constraint.CConstraint, x10.constraint.CConstraint)
      */
-    public boolean clausesConsistent(x10.constraint.XConstraint c1, x10.constraint.XConstraint c2) {
+    public boolean clausesConsistent(CConstraint c1, CConstraint c2) {
         if (primitiveClausesConsistent(c1, c2)) {
-            x10.constraint.XConstraint r = c1.copy();
+            CConstraint r = c1.copy();
             try {
                 r.addIn(c2);
                 return r.consistent();
@@ -1821,7 +1821,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
         else {
             try {
-                entails = xmi.guard() == null || xmj.guard().entails(xmi.guard(), ((X10Context) context).constraintProjection(xmj.guard(), xmi.guard()));
+                entails = xmi.guard() == null || xmj.guard().entails(xmi.guard(), 
+                		((X10Context) context).constraintProjection(xmj.guard(), xmi.guard()));
             }
             catch (XFailure e) {
                 entails = false;

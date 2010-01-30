@@ -74,11 +74,9 @@ import polyglot.visit.Translator;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XPromise;
 import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
@@ -103,6 +101,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.constraints.CConstraint;
 
 /** A representation of a method declaration.
  * Includes an extra field to represent the guard
@@ -263,7 +262,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     
         // Add the method guard into the environment.
         if (guard != null) {
-            Ref<XConstraint> vc = guard.valueConstraint();
+            Ref<CConstraint> vc = guard.valueConstraint();
             Ref<TypeConstraint> tc = guard.typeConstraint();
         
             if (vc != null || tc != null) {
@@ -363,7 +362,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         }
 
         for (TypeNode type : n.throwTypes()) {
-            XConstraint rc = X10TypeMixin.xclause(type.type());
+            CConstraint rc = X10TypeMixin.xclause(type.type());
             if (rc != null && ! rc.valid())
                 throw new SemanticException("Cannot throw a dependent type.", type.position());
         }
@@ -405,7 +404,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                 if (s instanceof Return) {
                     Return r = (Return) s;
                     if (r.expr() != null) {
-                        XTerm v = ts.xtypeTranslator().trans((XConstraint) null, r.expr(), (X10Context) tc.context());
+                        XTerm v = ts.xtypeTranslator().trans((CConstraint) null, r.expr(), (X10Context) tc.context());
                         ok = true;
                         X10MethodDef mi = (X10MethodDef) this.mi;
                         if (mi.body() instanceof LazyRef) {
@@ -474,7 +473,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
         for (TypeNode type : throwTypes()) {
-            XConstraint rc = X10TypeMixin.xclause(type.type());
+            CConstraint rc = X10TypeMixin.xclause(type.type());
             if (rc != null && ! rc.valid())
                 throw new SemanticException("Cannot throw a dependent type.", type.position());
         }
@@ -853,7 +852,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
             //List newFormals = new ArrayList(formals.size());
             X10ProcedureDef pi = (X10ProcedureDef) nn.memberDef();
-            XConstraint c = pi.guard().get();
+            CConstraint c = pi.guard().get();
             try {
                 if (c != null) {
                     c = c.copy();
@@ -864,11 +863,14 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
                         // Fold the formal's constraint into the guard.
                         XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
-                        XConstraint dep = X10TypeMixin.xclause(newType);
+                        CConstraint dep = X10TypeMixin.xclause(newType);
                         if (dep != null) {
                             dep = dep.copy();
+                            dep = dep.substitute(var, c.self());
+                            /*
                             XPromise p = dep.intern(var);
                             dep = dep.substitute(p.term(), c.self());
+                            */
                             c.addIn(dep);
                         }
 
@@ -881,7 +883,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                 // Fold this's constraint (the class invariant) into the guard.
                 {
                     Type t =  tc.context().currentClass();
-                    XConstraint dep = X10TypeMixin.xclause(t);
+                    CConstraint dep = X10TypeMixin.xclause(t);
                     if (c != null && dep != null) {
                         XRoot thisVar = ((X10MemberDef) methodDef()).thisVar();
                         if (thisVar != null)

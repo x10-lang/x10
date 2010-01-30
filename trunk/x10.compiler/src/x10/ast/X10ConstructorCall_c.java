@@ -44,7 +44,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.X10New_c.MatcherMaker;
-import x10.constraint.XConstraint;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10MethodInstance;
@@ -53,6 +52,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10TypeSystem_c.DumbConstructorMatcher;
+import x10.types.constraints.CConstraint;
 
 /**
  * A call to this(...) or super(...) in the body of a constructor.
@@ -253,7 +253,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 
 			// The constructor *within which this super call happens*.
 			X10ConstructorDef thisConstructor = (X10ConstructorDef) ctx.currentCode();
-			XConstraint c = X10TypeMixin.realX(ci.returnType());
+			CConstraint c = X10TypeMixin.realX(ci.returnType());
 			thisConstructor.setSupClause(Types.ref(c));
 		}
 	

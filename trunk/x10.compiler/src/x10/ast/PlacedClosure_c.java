@@ -23,15 +23,17 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XConstrainedTerm;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
+
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.XConstrainedTerm;
 
 /**
  * A common abstraction for a closure that may execute at a given place,
@@ -100,16 +102,16 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     		X10TypeSystem  ts
     		) throws SemanticException {
  		Type placeType = place.type();
-		XConstraint d = X10TypeMixin.xclause(placeType);
-		d = (d==null) ? new XConstraint_c() : d.copy();
-		XConstraint pc = null;
+		CConstraint d = X10TypeMixin.xclause(placeType);
+		d = (d==null) ? new CConstraint_c() : d.copy();
+		CConstraint pc = null;
 		XTerm term = null;
 		XConstrainedTerm pt = null;
     	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), xc);
     	if (placeIsPlace)  {
     		term = ts.xtypeTranslator().trans(pc, place, xc);
     		if (term == null) {
-    			term = XConstraint_c.genUQV();
+    			term = XTerms.makeUQV();
     		}
     		try {
     			pt = XConstrainedTerm.instantiate(d, term);
@@ -123,7 +125,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     		if (placeIsRef) {
     			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
     			if (src == null) {
-    				src = XConstraint_c.genUQV();
+    				src = XTerms.makeUQV();
     			}
     			try {
     				d= d.substitute(src, d.self());

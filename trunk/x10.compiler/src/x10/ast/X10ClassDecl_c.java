@@ -80,9 +80,7 @@ import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XConstrainedTerm;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
+
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
@@ -108,6 +106,9 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.XConstrainedTerm;
 import x10.util.Synthesizer;
 /**
  * The same as a Java class, except that it needs to handle properties.
@@ -437,29 +438,29 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         final DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, childTb);
         n = (X10ClassDecl_c) n.classInvariant(ci);
 
-        final LazyRef<XConstraint> c = new LazyRef_c<XConstraint>(new XConstraint_c());
+        final LazyRef<CConstraint> c = new LazyRef_c<CConstraint>(new CConstraint_c());
 
         final X10ClassDecl_c nn = n;
         
         // Add all the constraints on the supertypes into the invariant.
         c.setResolver(new Runnable() {
         	public void run() {
-        		XConstraint x = new XConstraint_c();
+        		CConstraint x = new CConstraint_c();
         		try {
         			if (ci != null) {
-        				XConstraint xi = ci.valueConstraint().get();
+        				CConstraint xi = ci.valueConstraint().get();
         				x.addIn(xi);
         				TypeConstraint ti = ci.typeConstraint().get();
         			}
         			if (nn.superClass != null) {
         				Type t = nn.superClass.type();
-        				XConstraint tc = X10TypeMixin.xclause(t);
+        				CConstraint tc = X10TypeMixin.xclause(t);
         				if (tc != null)
         					x.addIn(tc);
         			}
         			for (TypeNode tn : nn.interfaces) {
         				Type t = tn.type();
-        				XConstraint tc = X10TypeMixin.xclause(t);
+        				CConstraint tc = X10TypeMixin.xclause(t);
         				if (tc != null)
         					x.addIn(tc);
         			}
@@ -608,7 +609,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-    	X10ClassDecl_c n = this;
+
+X10ClassDecl_c n = this;
     	
     	NodeVisitor v = tc.enter(parent, n);
     	

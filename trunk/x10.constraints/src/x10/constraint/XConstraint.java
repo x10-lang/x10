@@ -10,26 +10,37 @@ package x10.constraint;
 import java.util.HashMap;
 import java.util.List;
 
+
 /**
- * An implementation of a simple constraint system. The only constraints
- * expressible are x=a, where x is a variable and a is a constant. In
- * particular, variable=variable constraints are not expressible.
  * 
- * A null constraint is treated as true (valid).
+ *  A constraint solver for the following constraint system:
+ * <verbatim>
+ * t ::= x                  -- variable
+ *       | t.f              -- field access
+ *       | g(t1,..., tn)    -- uninterpreted function symbol
+ *       
+ * c ::= t == t             -- equality
+ *       | t != t           -- dis-equality
+ *       | c,c              -- conjunction
+ *       | p(t1,..., tn)    -- atomic formula
+ * </verbatim>  
+ * 
+ * The constraint system implements the usual congruence rules for equality. 
+ * 
+ *  <p> TBD:  Add
+ *  <verbatim>
+ *  t ::= t == t
+ *  </verbatim>
+ *  
+ *  <p> This is useful in specifying that a Region is zeroBased iff its rank=0.
+ * 
+ * 
  * 
  * @author vj
  * 
  */
-public interface XConstraint extends java.io.Serializable, ThisVar {
-        /**
-         * Variable to use for self in the constraint.
-         */
-        XRoot self();
-        
-        
-        void setThisVar(XVar thisVar);
-        void addThisBinding(XTerm term) throws XFailure;
-    
+public interface XConstraint extends java.io.Serializable{
+	
 	/**
 	 * Is the consistent consistent? That is, does it have a solution?
 	 * 
@@ -51,49 +62,60 @@ public interface XConstraint extends java.io.Serializable, ThisVar {
 	 * @return
 	 * @throws XFailure
 	 */
-	boolean entails(XConstraint c) throws XFailure;
-	boolean entails(XConstraint c, XConstraint sigma) throws XFailure;
+	boolean entails(XConstraint c);
+	boolean entails(XConstraint c, XConstraint sigma);
 
-	boolean entails(XTerm a, XTerm b) throws XFailure;
+	/**
+	 * Does this entail a==b? 
+	 * @param a
+	 * @param b
+	 * @return
+	 * @throws XFailure -- should never be thrown. (TODO: Check this.)
+	 */
+	boolean entails(XTerm a, XTerm b);
 	
-	boolean disEntails(XTerm a, XTerm b) throws XFailure;
+	boolean entails(XTerm a);
+	
+	/**
+	 * Does this entail a != b?
+	 * @param a
+	 * @param b
+	 * @return
+	 * @throws XFailure -- should never be thrown. (TOOD: Check this.)
+	 */
+	boolean disEntails(XTerm a, XTerm b);
 
 
 	/**
-	 * Do the two constraints entail each other?
+	 * Does this entail c, and c entail this? 
 	 * 
 	 * @param t
 	 * @return
-	 * @throws XFailure
+	 * @throws XFailure -- should never be thrown. (TODO: Check this.)
 	 */
 	boolean equiv(XConstraint c) throws XFailure;
-	boolean equiv(XConstraint c, XConstraint sigma) throws XFailure;
-
+	
 	/**
-	 * Does the constraint entail var=val?
+	 * Does this entail c, and c entail this, given the constraint sigma?
 	 * 
-	 * @param var
-	 * @param t
-	 * @return
-	 * @throws XFailure
+	 * @param c
+	 * @return 
 	 */
-	// boolean entails(XTerm var, XTerm val) throws XFailure;
-	/**
-	 * Return the term this variable is bound to in the constraint, and null
-	 * if there is no such term.
-	 * 
-	 * @param varName
-	 * @return
-	 * @throws XFailure
-	 */
-	XTerm find(XName varName) throws XFailure;
+	boolean equiv(XConstraint c, XConstraint sigma);
 
-	void addSelfBinding(XTerm var) throws XFailure;
-	void addSelfBinding(XConstrainedTerm var) throws XFailure;
+	
+	
+	/** Return the term v is bound to in this constraint, and null
+	 * if there is no such term. This term will be distinct from v.
+	 * */
+	XVar bindingForVar(XVar v);
+
+
+
 
 	void setInconsistent();
 
-	public void addPromise(XTerm p, XPromise node);
+	//public void addPromise(XTerm p, XPromise node);
 
 	/**
 	 * Add t1 -> t2 to the constraint.
@@ -101,12 +123,10 @@ public interface XConstraint extends java.io.Serializable, ThisVar {
 	 * @param var
 	 * @param t
 	 * @return constraint with t1=t2 added.
-	 * @throws XFailure
+	 * @throws XFailure if the resulting constraint is inconsistent.
 	 */
 	void addBinding(XTerm var, XTerm val) throws XFailure;
-	void addBinding(XTerm var, XConstrainedTerm val) throws XFailure;
-	void addBinding(XConstrainedTerm var, XConstrainedTerm val) throws XFailure;
-	void addBinding(XConstrainedTerm var, XTerm val) throws XFailure;
+	
 
 	/**
 	 * Add t1 != t2 to the constraint.
@@ -117,38 +137,16 @@ public interface XConstraint extends java.io.Serializable, ThisVar {
 	 * @throws XFailure if the resulting constraint is inconsistent
 	 */
 	void addDisBinding(XTerm var, XTerm val) throws XFailure;
-
-	/**
-	 * For each pair (t1,t2) in result, add t1 -> t2 to the constraint, and
-	 * return the resulting constraint.
-	 * 
-	 * @param var
-	 * @param t
-	 * @return new constraint with t1=t2 added.
-	 */
-	// XConstraint addConstraints(List<XTerm> terms) throws XFailure;
 	
 	/** Deep copy the constraint. */
 	XConstraint copy();
 
-//	/** Shallow copy the constraint. */
-//	XConstraint clone();
 
-	/**
-	 * Add constraint c into this, and return this.
-	 * No change is made to this if c==null
-	 * 
-	 * @param c
-	 * @return
-	 */
-	XConstraint addIn(XConstraint c) throws XFailure;
-	XConstraint addIn(XTerm newSelf, XConstraint c)  throws XFailure;
-
+	
 	/**
 	 * Add the binding term=true to the constraint.
 	 * 
-	 * @param term --
-	 *                must be of type Boolean.
+	 * @param term -- must be of type Boolean.
 	 * @return new constraint with term=true added.
 	 * @throws SemanticException
 	 */
@@ -162,45 +160,6 @@ public interface XConstraint extends java.io.Serializable, ThisVar {
 	 * @throws XFailure
 	 */
 	void addAtom(XTerm term) throws XFailure;
-
-	/** Return x if this constraint has v==x, else null.*/
-	XVar bindingForVar(XVar v);
-
-	/**
-	 * Return the promise obtained by interning this term in the constraint.
-	 * This may result in new promises being added to the graph maintained
-	 * by the constraint. 
-	 * <p>term: Literal -- return the literal. 
-	 * <p> term:LocalVariable, Special, Here Check if term is already in the roots
-	 * maintained by the constraint. If so, return the root, if not add a
-	 * promise to the roots and return it. 
-	 * <p> term: XField. Start with the rootVar x and follow the path f1...fk, 
-	 * if term=x.f1...fk. If the graph contains no nodes after fi, 
-	 * for some i < k, add promises into the graph from fi+1...fk. 
-	 * Return the last promise.
-	 * 
-	 * @param term
-	 * @return
-	 * @throws XFailure
-	 */
-	XPromise intern(XTerm term) throws XFailure;
-
-	/**
-	 * Look this term up in the constraint graph. If the term is of the form
-	 * x.f1...fk and the longest prefix that exists in the graph is
-	 * x.f1..fi, return the promise corresponding to x.f1...fi. If the
-	 * promise is a Promise_c, the caller must invoke lookupReturnValue() to
-	 * determine if the match was partial (value returned is not equal to
-	 * the length of term.vars()). If not even a partial match is found, or
-	 * the partial match terminates in a literal (which, by definition,
-	 * cannot have fields), then return null.
-	 * 
-	 * @seeAlso lookup(C_term term)
-	 * @param term
-	 * @return
-	 * @throws XFailure
-	 */
-	XPromise lookupPartialOk(XTerm term) throws XFailure;
 
 	/**
 	 * Look this term up in the constraint graph. Return null if the term
@@ -229,20 +188,6 @@ public interface XConstraint extends java.io.Serializable, ThisVar {
 	 */
 	List<XTerm> extConstraints();
 
-	/**
-	 * Generate a new existentially quantified variable scoped to this
-	 * constraint.
-	 * 
-	 * @return
-	 */
-	//XEQV genEQV();
-	/**
-	 * Return a new variable, not existentially quantified.
-	 * @return
-	 */
-	//XEQV genVar();
-	//XEQV genEQV(boolean hidden);
-	//XEQV genEQV(XName name, boolean hidden);
 
 	/**
 	 * If y equals x, or x does not occur in this, return this, else copy
@@ -291,10 +236,7 @@ public interface XConstraint extends java.io.Serializable, ThisVar {
 	 */
 	boolean hasVar(XRoot v);
 
-	XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last) throws XFailure;
 
-//        @Deprecated
-//	XConstraint saturate() throws XFailure;
 	
 	/**
 	 * Return the list of existentially quantified variables in this constraint.
@@ -308,13 +250,7 @@ public interface XConstraint extends java.io.Serializable, ThisVar {
 	 */
 	List<XFormula> atoms();
 	
-	/**
-	 * Return a new constraint obtained from the current one by substituting
-	 * newSelf for this.self(). Note, the resulting constraint may be marked inconsistent.
-	 * @param newSelf
-	 * @return
-	 */
-	XConstraint instantiateSelf(XTerm newSelf);
+
 	
 	/**
 	 * Return the least upper bound of this and other. That is, the resulting constraint has precisely

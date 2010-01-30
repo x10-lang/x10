@@ -15,17 +15,18 @@ import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import x10.constraint.XConstraint;
+import x10.types.constraints.CConstraint;
+
 
 public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
     /** Conjunction of the class invariant and property invariants. */
-    XConstraint getRootClause();
-    void setRootClause(Ref<XConstraint> c);
+    CConstraint getRootClause();
+    void setRootClause(Ref<CConstraint> c);
     void checkRealClause() throws SemanticException;
 
     /** The class invariant. */
-    Ref<XConstraint> classInvariant();
-    void setClassInvariant(Ref<XConstraint> classInvariant);
+    Ref<CConstraint> classInvariant();
+    void setClassInvariant(Ref<CConstraint> classInvariant);
 
     Ref<TypeConstraint> typeBounds() ;
     void setTypeBounds(Ref<TypeConstraint> c) ;

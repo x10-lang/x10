@@ -1,3 +1,20 @@
+vj Jan 25, 2010
+
+Cleaned out several classes. 
+
+Using factory methods on X10TypeMixin for most operations on types. These should be moved 
+to X10TypeEnv since they will need information from the environment (e.g. type constraints)
+when processing type parameters.
+
+Need to implement consistency of type constraints. E.g. X <: C, X <: D are inconsistent
+if C and D are two classes neither of which inherit from the other. 
+
+Similarly X <: A, X <: S are inconsistent if S is a struct and A a class.
+
+X <: A, X <: I is inconsistent if A does not implement I and A is final.
+
+Type functionality should be removed from X10TypeSystem_c and placed in x10TypeMixin/X10TypeEnv_c.
+
 vj Aug 25, 2009
 
 Dont understand how TypeConstraint works. Why does entail not use any 

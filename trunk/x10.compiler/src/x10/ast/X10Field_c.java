@@ -36,11 +36,11 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
+
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
@@ -54,6 +54,8 @@ import x10.types.X10MethodInstance;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 
 /**
@@ -159,12 +161,12 @@ public class X10Field_c extends Field_c {
 
 			// Substitute in the actual target for this.  This is done by findField, now.
 			//			Type thisType = tType;
-			//			XConstraint rc = X10TypeMixin.realX(retType);
+			//			CConstraint rc = X10TypeMixin.realX(retType);
 			//			if (rc != null) {
 			//				XVar var= X10TypeMixin.selfVar(thisType);
 			//				if (var == null) 
 			//					var = ts.xtypeTranslator().genEQV(rc, thisType);
-			//				XConstraint newRC = rc.substitute(var, ts.xtypeTranslator().transThis(thisType));
+			//				CConstraint newRC = rc.substitute(var, ts.xtypeTranslator().transThis(thisType));
 			//				retType = X10TypeMixin.xclause(retType, newRC);
 			//				fi = fi.type(retType);
 			//			}
@@ -172,8 +174,9 @@ public class X10Field_c extends Field_c {
 			result.checkConsistency(c);
 
 			// Check the guard
-			XConstraint guard = ((X10FieldInstance) result.fieldInstance()).guard();
-			if (guard != null && ! new XConstraint_c().entails(guard, c.constraintProjection(guard))) {
+			CConstraint guard = ((X10FieldInstance) result.fieldInstance()).guard();
+			if (guard != null && ! new CConstraint_c().entails(guard, 
+					c.constraintProjection(guard))) {
 				throw new SemanticException("Cannot access field.  Field guard not satisfied.", position());
 			}
 
@@ -212,20 +215,20 @@ public class X10Field_c extends Field_c {
 	}
 
 	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c) throws SemanticException {
-		XConstraint x = X10TypeMixin.xclause(t);
+		CConstraint x = X10TypeMixin.xclause(t);
 		if (x != null && fi.thisVar() != null) {
 			if (target instanceof Expr) {
 				XVar receiver = null;
 				
 					X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-					XTerm r = ts.xtypeTranslator().trans((XConstraint) null, target, (X10Context) c);
+					XTerm r = ts.xtypeTranslator().trans((CConstraint) null, target, (X10Context) c);
 					if (r instanceof XVar) {
 						receiver = (XVar) r;
 					}
 				
 				
 				if (receiver == null)
-					receiver = XConstraint_c.genEQV();
+					receiver = XTerms.makeEQV();
 				t = Subst.subst(t, (new XVar[] { receiver }), (new XRoot[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
 			}
 		}
@@ -234,13 +237,13 @@ public class X10Field_c extends Field_c {
 	}
 
 	public static Type fieldRightType(Type t, X10MemberDef fi, Receiver target, Context c) throws SemanticException {
-		XConstraint x = X10TypeMixin.xclause(t);
+		CConstraint x = X10TypeMixin.xclause(t);
 		if (x != null && fi.thisVar() != null) {
 			x = x.copy();
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
 			if (target instanceof Expr) {
-				XConstraint xc = X10TypeMixin.xclause(target.type());
+				CConstraint xc = X10TypeMixin.xclause(target.type());
 				if (xc != null && ! xc.valid()) {
 					xc = xc.copy();
 					try {
@@ -248,13 +251,13 @@ public class X10Field_c extends Field_c {
 						assert receiver != null;
 						/*if (receiver == null) {
 							X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-							XTerm r = ts.xtypeTranslator().trans((XConstraint) null, target, (X10Context) c);
+							XTerm r = ts.xtypeTranslator().trans((CConstraint) null, target, (X10Context) c);
 							if (r instanceof XVar) {
 								receiver = (XVar) r;
 							}
 
 							if (receiver == null)
-								receiver = XConstraint_c.genUQV();
+								receiver = CConstraint_c.genUQV();
 						}*/
 						xc = xc.substitute(receiver, xc.self());
 						x.addIn(xc);

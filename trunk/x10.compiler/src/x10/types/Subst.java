@@ -9,10 +9,10 @@ import java.util.List;
 
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.types.constraints.CConstraint;
 
 public
 class Subst {
@@ -40,7 +40,7 @@ class Subst {
             t = ts.expandMacros(t);
             
             Type base = X10TypeMixin.baseType(t);
-            XConstraint c = X10TypeMixin.xclause(t);
+            CConstraint c = X10TypeMixin.xclause(t);
             
             
             if (t instanceof X10ParsedClassType) {
@@ -77,7 +77,7 @@ class Subst {
             if (t instanceof ConstrainedType) {
                 Type ct = t;
                 Type base = X10TypeMixin.baseType(ct);
-                XConstraint c = X10TypeMixin.xclause(ct);
+                CConstraint c = X10TypeMixin.xclause(ct);
                 Type newBase = subst(base, y, x, Y, X);
                 // if (x instanceof XSelf) {
                 // return X10TypeMixin.xclause(newBase, c);
@@ -138,12 +138,12 @@ class Subst {
         }
         
         public
-        static XConstraint subst(XConstraint t, XTerm y, XRoot x) throws SemanticException {
+        static CConstraint subst(CConstraint t, XTerm y, XRoot x) throws SemanticException {
             return subst(t, new XTerm[] { y }, new XRoot[] { x }, new Type[0], new ParameterType[0]);
         }
         
         public
-        static XConstraint subst(XConstraint t, Type Y, ParameterType X) throws SemanticException {
+        static CConstraint subst(CConstraint t, Type Y, ParameterType X) throws SemanticException {
             return t;
         }
         
@@ -194,28 +194,28 @@ class Subst {
             return t3;
         }
         
-        static XConstraint subst(XConstraint t, XTerm[] y, XRoot[] x) throws SemanticException {
+        static CConstraint subst(CConstraint t, XTerm[] y, XRoot[] x) throws SemanticException {
             if (t == null)
                 return null;
             
             try {
-                XConstraint c = t.substitute(y, x);
+                CConstraint c = t.substitute(y, x);
                 return c;
             }
             catch (XFailure e) {
                 throw new SemanticException("Cannot instantiate formal parameters on actuals.");
             }
         }
-        static XConstraint subst(XConstraint t, Type[] Y, ParameterType[] X) throws SemanticException {
+        static CConstraint subst(CConstraint t, Type[] Y, ParameterType[] X) throws SemanticException {
             if (t == null)
                 return null;
             
             return t;
         }
         
-        static XConstraint subst(XConstraint t, XTerm[] y, XRoot[] x, Type[] Y, ParameterType[] X) throws SemanticException {
-            XConstraint t2 = subst(t, y, x);
-            XConstraint t3 = subst(t2, Y, X);
+        static CConstraint subst(CConstraint t, XTerm[] y, XRoot[] x, Type[] Y, ParameterType[] X) throws SemanticException {
+            CConstraint t2 = subst(t, y, x);
+            CConstraint t3 = subst(t2, Y, X);
             return t3;
         }
     }

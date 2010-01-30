@@ -39,12 +39,12 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.types.TypeConstraint;
 import x10.types.TypeConstraint_c;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 /** An immutable representation of a dependent type constraint.
  * The corresponding syntax is [T](e){x: T; c}
@@ -61,7 +61,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
      */
     protected List<Expr> condition;
     
-    private Ref<XConstraint> valueConstraint;
+    private Ref<CConstraint> valueConstraint;
     private Ref<TypeConstraint> typeConstraint;
     
     /**
@@ -102,11 +102,11 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
         return super.enterChildScope(child, c);
     }
 
-    public Ref<XConstraint> valueConstraint() {
+    public Ref<CConstraint> valueConstraint() {
 		return valueConstraint;
     }
     
-    public DepParameterExpr valueConstraint(Ref<XConstraint> c) {
+    public DepParameterExpr valueConstraint(Ref<CConstraint> c) {
             DepParameterExpr_c n = (DepParameterExpr_c) copy();
             n.valueConstraint = c;
             return n;
@@ -158,7 +158,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
     	DepParameterExpr_c n = (DepParameterExpr_c) copy();
-    	n.valueConstraint = Types.<XConstraint>lazyRef(new XConstraint_c(), new SetResolverGoal(tb.job()));
+    	n.valueConstraint = Types.<CConstraint>lazyRef(new CConstraint_c(), new SetResolverGoal(tb.job()));
     	n.typeConstraint = Types.<TypeConstraint>lazyRef(new TypeConstraint_c(), new SetResolverGoal(tb.job()));
     	return n;
       }
@@ -168,7 +168,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     	  tc = (TypeChecker) tc.context(v.context().freeze());
 
     	  {
-    	      LazyRef<XConstraint> xr = (LazyRef<XConstraint>) valueConstraint;
+    	      LazyRef<CConstraint> xr = (LazyRef<CConstraint>) valueConstraint;
     	      assert xr != null : "setResolver pass run before buildTypes for " + this;
     	      xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr, false));
     	  }
@@ -242,8 +242,8 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
             }
         }
         
-            XConstraint xvc = ts.xtypeTranslator().constraint(formals, values, (X10Context) tc.context());
-            ((LazyRef<XConstraint>) valueConstraint).update(xvc);
+            x10.types.constraints.CConstraint xvc = ts.xtypeTranslator().constraint(formals, values, (X10Context) tc.context());
+            ((LazyRef<CConstraint>) valueConstraint).update(xvc);
 
             TypeConstraint xtc = ts.xtypeTranslator().typeConstraint(formals, types, (X10Context) tc.context());
             ((LazyRef<TypeConstraint>) typeConstraint).update(xtc);

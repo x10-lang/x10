@@ -8,7 +8,7 @@ public class XDisEquals_c extends XFormula_c implements XDisEquals {
 	public XDisEquals_c(XTerm left, XTerm right) {
 		super(XTerms.disEqualsName, left, right);
 	}
-	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+	public XPromise internIntoConstraint(XConstraint_c c, XPromise last) throws XFailure {
 //	    XTerm left = left();
 //	    XTerm right = right();
 //	    if (left instanceof XLit && right instanceof XLit) {

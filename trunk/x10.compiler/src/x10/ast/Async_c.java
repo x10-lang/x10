@@ -32,7 +32,6 @@ import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
-import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -41,6 +40,7 @@ import x10.constraint.XTerms;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.XConstrainedTerm;
 
 /**
  * Created on Oct 5, 2004

@@ -71,7 +71,6 @@ import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.RewriteExternVisitor;
 import x10.visit.StaticNestedClassRemover;
-import x10.visit.X10Boxer;
 import x10.visit.X10Caster;
 import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InitChecker;
@@ -386,12 +385,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10MLTypeChecked", job, new X10MLVerifier(job, ts, nf)).intern(this);
        }
-       
-       public Goal X10Boxed(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("X10Boxed", job, new X10Boxer(job, ts, nf)).intern(this);
-       }
+      
 
        public Goal X10Casted(Job job) {
            TypeSystem ts = extInfo.typeSystem();

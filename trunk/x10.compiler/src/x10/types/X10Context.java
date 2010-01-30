@@ -18,11 +18,11 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarDef;
-import x10.constraint.XConstrainedTerm;
-import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 public interface X10Context extends Context {
 	/**
@@ -37,8 +37,8 @@ public interface X10Context extends Context {
 	List<LocalDef> locals();
 	
 	/** Current constraint on variables in scope. */
-	XConstraint currentConstraint();
-	void setCurrentConstraint(XConstraint c);
+	CConstraint currentConstraint();
+	void setCurrentConstraint(CConstraint c);
 
 	XConstrainedTerm currentPlaceTerm();
 
@@ -61,9 +61,9 @@ public interface X10Context extends Context {
 	
 	
 	/** Current constraint on here. */
-	//XConstraint currentPlaceConstraint();
+	//CConstraint currentPlaceConstraint();
 	
-	//void setCurrentPlaceConstraint(XConstraint c);
+	//void setCurrentPlaceConstraint(CConstraint c);
 
 	/** Current constraint on type variables in scope */
 	TypeConstraint currentTypeConstraint();
@@ -102,7 +102,7 @@ public interface X10Context extends Context {
      * @return
      * @throw SemanticException if adding this constraint would cause inconsistency
      */
-    X10Context pushAdditionalConstraint(XConstraint env) throws SemanticException ;
+    X10Context pushAdditionalConstraint(CConstraint env) throws SemanticException ;
     
     /** Enter the scope of a deptype. */
     X10Context pushDepType(Ref<? extends Type> ref);
@@ -153,7 +153,7 @@ public interface X10Context extends Context {
 
     XRoot thisVar();
 
-    XConstraint constraintProjection(XConstraint... cs) throws XFailure;
+    CConstraint constraintProjection(CConstraint... cs) throws XFailure;
     
   
 }

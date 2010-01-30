@@ -12,17 +12,21 @@ import java.util.List;
 
 
 /**
+ * A representation of logical variables. 
+ * 
+ * <p> EQVs (created with hidden = true) are existentially quantified
+ * in each constraint in which they occur.
+
+  * <p> UQVs (created with hidden=false) are free in the constraint 
+ * and may occur in multiple constraints. 
  * @author vj
  *
  */
 public class XEQV_c extends XLocal_c implements XEQV {
 	boolean hidden;
 
-	public XEQV_c(XName name) {
-		this(name, true);
-	}
 
-	public XEQV_c(XName name, boolean hidden) {
+	XEQV_c(XName name, boolean hidden) {
 		super(name);
 		this.hidden = hidden;
 	}
@@ -39,9 +43,5 @@ public class XEQV_c extends XLocal_c implements XEQV {
 			return Collections.<XEQV>singletonList(this);
 		return Collections.EMPTY_LIST;
 	}
-	//public String toString() {
-	//	return (hidden? "exists " : "") + super.toString();
-	//}
-
 
 }

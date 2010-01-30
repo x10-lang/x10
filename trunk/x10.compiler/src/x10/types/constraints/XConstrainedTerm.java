@@ -1,4 +1,9 @@
-package x10.constraint;
+package x10.types.constraints;
+
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
 
 /**
  * A representation of a constrained term: an XTerm t with a constraint c
@@ -11,7 +16,7 @@ package x10.constraint;
 public class XConstrainedTerm  {
 	
 	XTerm term;
-	XConstraint constraint;
+	CConstraint constraint;
 	
 	/**
 	 * Return a (non-null) XConstrainedTerm built from t and c. 
@@ -22,7 +27,7 @@ public class XConstrainedTerm  {
 	 * @return
 	 * @throws XFailure
 	 */
-	public static XConstrainedTerm make(XTerm t, XConstraint c)  {
+	public static XConstrainedTerm make(XTerm t, CConstraint c)  {
 		return new XConstrainedTerm(t, c);
 	}
 	
@@ -35,7 +40,7 @@ public class XConstrainedTerm  {
 	 * @return
 	 * @throws XFailure
 	 */
-	public static XConstrainedTerm instantiate(XConstraint c, XTerm t) throws XFailure {
+	public static XConstrainedTerm instantiate(CConstraint c, XTerm t) throws XFailure {
 		c.addSelfBinding(t);
 		// the self variable in c is now bound.
 		return new XConstrainedTerm(t, c);
@@ -48,7 +53,7 @@ public class XConstrainedTerm  {
 	 */
 	public static XConstrainedTerm make(XTerm t) {
 		try {
-			return instantiate(new XConstraint_c(), t);
+			return instantiate(new CConstraint_c(), t);
 		} catch (XFailure r) {
 			throw new InternalError("Cannot constrain " + t);
 		}
@@ -59,7 +64,7 @@ public class XConstrainedTerm  {
 	 * @param c
 	 * @throws XFailure
 	 */
-	private XConstrainedTerm(XTerm t, XConstraint c)  {
+	private XConstrainedTerm(XTerm t, CConstraint c)  {
 		assert t!= null;
 		assert c!= null;
 		assert c.consistent();
@@ -69,7 +74,7 @@ public class XConstrainedTerm  {
 	}
 	
 	public XTerm term(){return term;}
-	public XConstraint constraint() { return constraint;}
+	public CConstraint constraint() { return constraint;}
 	
 	/**
 	 * Returns true iff every value of term() (satisfying constraint()) is also a value of t.term(),
@@ -79,11 +84,7 @@ public class XConstrainedTerm  {
 	 */
 	public boolean entails(XConstrainedTerm t) {
 		assert t!= null;
-		try {
 		return constraint.entails(term(), t.term()) && constraint.entails(t.constraint());
-		} catch (XFailure f) {
-			return false;
-		}
 	}
 	/**
 	 * Add t1==t2 to the underlying constraint.
@@ -104,9 +105,9 @@ public class XConstrainedTerm  {
 	 * Return the constraint, instantiated with the term.
 	 * @return
 	 */
-	public XConstraint xconstraint() {
-		XConstraint s = constraint();
-		s = s == null ? new XConstraint_c() : s.copy();
+	public CConstraint xconstraint() {
+		CConstraint s = constraint();
+		s = s == null ? new CConstraint_c() : s.copy();
 		try {
 			s = s.substitute(term(), s.self());
 		} catch (XFailure z) {

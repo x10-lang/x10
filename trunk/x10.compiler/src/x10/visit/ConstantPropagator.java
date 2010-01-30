@@ -26,21 +26,24 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.X10Cast_c;
 import x10.ast.X10NodeFactory;
-import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
-import x10.constraint.XNameWrapper;
-import x10.constraint.XPromise;
 import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.types.X10TypeMixin;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.Constraints;
 
 /**
- * Very simple constant propagation pass. If an expr has a constant value,
- * replace it with the value. Replace branches on constants with the consequent
- * or alternative as appropriate. TODO: Handle constant rails and conversions.
- * TODO: Propagate through rails A(0) = v; ... A(0) --> v. TODO: Dead code
+ * Very simple constant propagation pass. 
+ * <p> If an expr has a constant value, replace it with the value. 
+ * 
+ * <p> Replace branches on constants with the consequent or alternative as appropriate. 
+ * 
+ * <p> TODO: Handle constant rails and conversions.
+ * <p> TODO: Propagate through rails A(0) = v; ... A(0) --> v. TODO: Dead code
  * elimination. visitor.
  * 
  * @param theValueIfBindingTimeIsStatic
@@ -135,27 +138,23 @@ public class ConstantPropagator extends ContextVisitor {
             return null;
 
         if (e instanceof Field) {
-            Field f = (Field) e;
-            if (f.target() instanceof Expr) {
-                Expr target = (Expr) f.target();
-                Type t = target.type();
-                XConstraint c = X10TypeMixin.xclause(t);
-                if (c != null) {
-                    try {
-                        XPromise p = c.lookup(XTerms.makeField(c.self(), XTerms.makeName(f.fieldInstance().def(), f.name().id().toString())));
-                        if (p != null && p.term() instanceof XLit) {
-                            XLit l = (XLit) p.term();
-                            return l.val();
-                        }
-                    }
-                    catch (XFailure e1) {
-                    }
-                }
-            }
+        	Field f = (Field) e;
+        	if (f.target() instanceof Expr) {
+        		Expr target = (Expr) f.target();
+        		Type t = target.type();
+        		CConstraint c = X10TypeMixin.xclause(t);
+        		if (c != null) {
+        			XTerm val = c.bindingForSelfField(f);
+        			if (val instanceof XLit) {
+        				XLit l = (XLit) val;
+        				return l.val();
+        			}
+        		}
+        	}
         }
 
         Type t = e.type();
-        XConstraint c = X10TypeMixin.xclause(t);
+        CConstraint c = X10TypeMixin.xclause(t);
         if (c != null) {
             XRoot r = c.self();
             if (r instanceof XLit) {
@@ -178,22 +177,18 @@ public class ConstantPropagator extends ContextVisitor {
             if (f.target() instanceof Expr) {
                 Expr target = (Expr) f.target();
                 Type t = target.type();
-                XConstraint c = X10TypeMixin.xclause(t);
+                CConstraint c = X10TypeMixin.xclause(t);
                 if (c != null) {
-                    try {
-                        XPromise p = c.lookup(XTerms.makeField(c.self(), XTerms.makeName(f.fieldInstance().def(), f.name().id().toString())));
-                        if (p != null && p.term() instanceof XLit) {
-                            return true;
-                        }
-                    }
-                    catch (XFailure e1) {
-                    }
+                	XTerm val = c.bindingForSelfField(f);
+                	if (val instanceof XLit) {
+                		return true;
+                	}
                 }
             }
         }
 
         Type t = e.type();
-        XConstraint c = X10TypeMixin.xclause(t);
+        CConstraint c = X10TypeMixin.xclause(t);
         if (c != null) {
             XRoot r = c.self();
             if (r instanceof XLit) {
