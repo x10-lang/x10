@@ -2,18 +2,18 @@ TESTS += $(patsubst test/%,test/%.mpi,$(BASE_TESTS))
 
 AR ?= ar
 
-LIBS += lib/libx10rt_mpi.a
+LIBS += lib/libx10rt_mpi.la
 
 PROPERTIES += etc/x10rt_mpi.properties
 
-%.mpi: %.cc lib/libx10rt_mpi.a
-	$(MPICXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_mpi
+%.mpi: %.cc lib/libx10rt_mpi.la
+	libtool --mode=link --tag=CXX $(MPICXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_mpi
 
-mpi/x10rt_mpi.o: mpi/x10rt_mpi.cc
-	$(MPICXX) $(CXXFLAGS) -c $< -o $@
+mpi/x10rt_mpi.lo: mpi/x10rt_mpi.cc
+	libtool --mode=compile --tag=CXX $(MPICXX) $(CXXFLAGS) -c $< -o $@
 
-lib/libx10rt_mpi.a: mpi/x10rt_mpi.o $(COMMON_OBJS)
-	$(AR) $(ARFLAGS) $@ $^
+lib/libx10rt_mpi.la: mpi/x10rt_mpi.lo $(COMMON_OBJS)
+	libtool --mode=link --tag=CXX $(MPICXX) -o $@ $^ -rpath ${X10_HOME}/x10.dist/lib
 
 etc/x10rt_mpi.properties:
 	@echo "CXX=$(MPICXX)" > $@
