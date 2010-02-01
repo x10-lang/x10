@@ -15,6 +15,10 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
         assert (CXXCommandBuilder.PLATFORM.startsWith("macosx_"));
     }
 
+    protected String defaultPostCompiler() { 
+        return "glibtool --mode=link --tag=CXX "+x10rtOpts.cxx;
+    }
+
     protected boolean gcEnabled() { return true; }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {

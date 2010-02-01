@@ -6,6 +6,14 @@ CP              ?= cp -f
 WGET            ?= wget
 TAR             ?= tar
 GZIP            ?= gzip
+LIBTOOL         ?= libtool
+
+ifeq ($(X10RT_PLATFORM), darwin)
+LIBTOOL		= glibtool
+endif
+ifeq ($(X10RT_PLATFORM), darwin64)
+LIBTOOL		= glibtool
+endif
 
 # these are used only for building tests
 CXXFLAGS        += -Iinclude -Icommon
@@ -39,10 +47,10 @@ endif
 include standalone/standalone.mk
 
 %.lo:	%.cc
-	libtool --mode=compile $(CXX) $(CXXFLAGS) -c $< -o $@
+	$(LIBTOOL) --mode=compile $(CXX) $(CXXFLAGS) -c $< -o $@
 
 install: $(LIBS) $(PROPERTIES)
-	libtool --mode=install $(CP) $(LIBS) $(X10_HOME)/x10.dist/lib
+	$(LIBTOOL) --mode=install $(CP) $(LIBS) $(X10_HOME)/x10.dist/lib
 	$(CP) $(PROPERTIES) $(X10_HOME)/x10.dist/etc
 	$(CP) include/*.h $(X10_HOME)/x10.dist/include
 	(test -n "$(EXECUTABLES)" && $(CP) $(EXECUTABLES) $(X10_HOME)/x10.dist/bin) || true
@@ -65,7 +73,7 @@ debug::
 
 clean:
 	$(RM) -r */*.o bin/* etc/*.properties test/*.mpi */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
-	libtool --mode=clean $(RM) */*.lo lib/*.la test/*.standalone test/*.pgas_* test/*.mpi_* 
+	$(LIBTOOL) --mode=clean $(RM) */*.lo lib/*.la test/*.standalone test/*.pgas_* test/*.mpi_* 
 
 # vim: ts=8:sw=8:noet
 # DO NOT DELETE
