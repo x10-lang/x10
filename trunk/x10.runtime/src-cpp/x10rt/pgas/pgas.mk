@@ -113,12 +113,12 @@ endif
 ifeq ($(PLATFORM_SUPPORTS_SOCKETS), yes)
 
 TESTS += $(patsubst test/%,test/%.pgas_sockets,$(BASE_TESTS))
-LIBS += lib/libx10rt_pgas_sockets.a
+LIBS += lib/libx10rt_pgas_sockets.la
 PROPERTIES += etc/x10rt_pgas_sockets.properties
 EXECUTABLES += bin/launcher bin/manager bin/daemon
 
-%.pgas_sockets: %.cc lib/libx10rt_pgas_sockets.a
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(SOCKETS_LDFLAGS) $(SOCKETS_LDLIBS)
+%.pgas_sockets: %.cc lib/libx10rt_pgas_sockets.la
+	libtool --mode=link $(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(SOCKETS_LDFLAGS) $(SOCKETS_LDLIBS)
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a include/pgasrt.h
@@ -133,9 +133,8 @@ lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
 	$(GZIP) -cd $(SOCKETS_TGZ) | $(TAR) -xf -
 endif
 
-lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) lib/libxlpgas_sockets.a
-	$(CP) lib/libxlpgas_sockets.a lib/libx10rt_pgas_sockets.a
-	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+lib/libx10rt_pgas_sockets.la: $(COMMON_OBJS) lib/libxlpgas_sockets.a
+	libtool --mode=link $(CXX) -o $@ $(COMMON_OBJS) lib/libxlpgas_sockets.a -rpath ${X10_HOME}/x10.dist/lib
 
 etc/x10rt_pgas_sockets.properties:
 	@echo "CXX=$(CXX)" > $@
@@ -157,11 +156,11 @@ else
 HACK=$(shell echo "Your platform supports LAPI but we could not find the poe executable so not building LAPI tests">2)
 endif
 
-LIBS += lib/libx10rt_pgas_lapi.a
+LIBS += lib/libx10rt_pgas_lapi.la
 PROPERTIES += etc/x10rt_pgas_lapi.properties
 
-%.pgas_lapi: %.cc lib/libx10rt_pgas_lapi.a
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS)
+%.pgas_lapi: %.cc lib/libx10rt_pgas_lapi.la
+	libtool --mode=link $(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS)
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a include/pgasrt.h
@@ -176,9 +175,8 @@ lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
 	$(GZIP) -cd $(LAPI_TGZ) | $(TAR) -xf -
 endif
 
-lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) lib/libxlpgas_lapi.a
-	$(CP) lib/libxlpgas_lapi.a lib/libx10rt_pgas_lapi.a
-	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+lib/libx10rt_pgas_lapi.la: $(COMMON_OBJS) lib/libxlpgas_lapi.a
+	libtool --mode=link $(CXX) -o $@ $(COMMON_OBJS) lib/libxlpgas_lapi.a -rpath ${X10_HOME}/x10.dist/lib
 
 etc/x10rt_pgas_lapi.properties:
 	echo "CXX=$(CXX)" > $@
@@ -196,10 +194,10 @@ endif #PLATFORM_SUPPORTS_LAPI
 ifeq ($(PLATFORM_SUPPORTS_BGP),yes)
 
 TESTS += $(patsubst test/%,test/%.pgas_bgp,$(BASE_TESTS))
-LIBS += lib/libx10rt_pgas_bgp.a
+LIBS += lib/libx10rt_pgas_bgp.la
 PROPERTIES += etc/x10rt_pgas_bgp.properties
 
-%.pgas_bgp: %.cc lib/libx10rt_pgas_bgp.a
+%.pgas_bgp: %.cc lib/libx10rt_pgas_bgp.la
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(BGP_LDFLAGS) $(BGP_LDLIBS)
 
 ifdef CUSTOM_PGAS
@@ -215,9 +213,8 @@ lib/libxlpgas_bgp.a: $(COMMON_OBJS) $(BGP_TGZ)
 	$(GZIP) -cd $(BGP_TGZ) | $(TAR) -xf -
 endif
 
-lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) lib/libxlpgas_bgp.a
-	$(CP) lib/libxlpgas_bgp.a lib/libx10rt_pgas_bgp.a
-	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+lib/libx10rt_pgas_bgp.la: $(COMMON_OBJS) lib/libxlpgas_bgp.a
+	libtool --mode=link $(CXX) -o $@ $(COMMON_OBJS) lib/libxlpgas_bgp.a -rpath ${X10_HOME}/x10.dist/lib
 
 etc/x10rt_pgas_bgp.properties:
 	@echo "CXX=$(CXX)" > $@

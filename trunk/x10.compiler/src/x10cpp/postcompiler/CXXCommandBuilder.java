@@ -92,7 +92,7 @@ public class CXXCommandBuilder {
     protected boolean gcEnabled() { return false; }
 
     protected String defaultPostCompiler() { 
-        return x10rtOpts.cxx;
+        return "libtool --mode=link --tag=CXX "+x10rtOpts.cxx;
     }
 
     /** Add the arguments that go before the output files */
