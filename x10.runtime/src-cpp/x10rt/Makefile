@@ -6,14 +6,6 @@ CP              ?= cp -f
 WGET            ?= wget
 TAR             ?= tar
 GZIP            ?= gzip
-LIBTOOL         ?= libtool
-
-ifeq ($(X10RT_PLATFORM), darwin)
-LIBTOOL		= glibtool
-endif
-ifeq ($(X10RT_PLATFORM), darwin64)
-LIBTOOL		= glibtool
-endif
 
 # these are used only for building tests
 CXXFLAGS        += -Iinclude -Icommon
@@ -23,9 +15,9 @@ BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology
 
 EXECUTABLES     =
 
-X10_HOME        = ${CURDIR}/../../..
+X10_HOME        = ../../..
 
-COMMON_OBJS     = common/x10rt_front.lo common/x10rt_logical.lo common/x10rt_cuda.lo
+COMMON_OBJS     = common/x10rt_front.o common/x10rt_logical.o common/x10rt_cuda.o
 
 ifdef ENABLE_X10RT_CUDA
 	CXXFLAGS += -DENABLE_CUDA -isystem/usr/local/cuda/include
@@ -46,11 +38,8 @@ endif
 
 include standalone/standalone.mk
 
-%.lo:	%.cc
-	$(LIBTOOL) --mode=compile $(CXX) $(CXXFLAGS) -c $< -o $@
-
 install: $(LIBS) $(PROPERTIES)
-	$(LIBTOOL) --mode=install $(CP) $(LIBS) $(X10_HOME)/x10.dist/lib
+	$(CP) $(LIBS) $(X10_HOME)/x10.dist/lib
 	$(CP) $(PROPERTIES) $(X10_HOME)/x10.dist/etc
 	$(CP) include/*.h $(X10_HOME)/x10.dist/include
 	(test -n "$(EXECUTABLES)" && $(CP) $(EXECUTABLES) $(X10_HOME)/x10.dist/bin) || true
@@ -72,21 +61,20 @@ debug::
 	@echo TESTS = $(TESTS)
 
 clean:
-	$(RM) -r */*.o bin/* etc/*.properties test/*.mpi */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
-	$(LIBTOOL) --mode=clean $(RM) */*.lo lib/*.la test/*.standalone test/*.pgas_* test/*.mpi_* 
+	$(RM) -r */*.o lib/*.a bin/* etc/*.properties test/*.mpi test/*.standalone test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
 
 # vim: ts=8:sw=8:noet
 # DO NOT DELETE
 
-common/x10rt_cuda.lo: include/x10rt_types.h common/x10rt_internal.h
-common/x10rt_cuda.lo: include/x10rt_cuda.h
-common/x10rt_front.lo: include/x10rt_front.h include/x10rt_types.h
-common/x10rt_front.lo: include/x10rt_logical.h
-common/x10rt_logical.lo: include/x10rt_logical.h include/x10rt_types.h
-common/x10rt_logical.lo: include/x10rt_net.h include/x10rt_cuda.h
-common/x10rt_logical.lo: common/x10rt_internal.h
-mpi/x10rt_mpi.lo: include/x10rt_net.h include/x10rt_types.h
-standalone/x10rt_standalone.lo: include/x10rt_net.h include/x10rt_types.h
-test/x10rt_basic.lo: include/x10rt_front.h include/x10rt_types.h
-test/x10rt_gups.lo: include/x10rt_front.h include/x10rt_types.h
-test/x10rt_topology.lo: include/x10rt_front.h include/x10rt_types.h
+common/x10rt_cuda.o: include/x10rt_types.h common/x10rt_internal.h
+common/x10rt_cuda.o: include/x10rt_cuda.h
+common/x10rt_front.o: include/x10rt_front.h include/x10rt_types.h
+common/x10rt_front.o: include/x10rt_logical.h
+common/x10rt_logical.o: include/x10rt_logical.h include/x10rt_types.h
+common/x10rt_logical.o: include/x10rt_net.h include/x10rt_cuda.h
+common/x10rt_logical.o: common/x10rt_internal.h
+mpi/x10rt_mpi.o: include/x10rt_net.h include/x10rt_types.h
+standalone/x10rt_standalone.o: include/x10rt_net.h include/x10rt_types.h
+test/x10rt_basic.o: include/x10rt_front.h include/x10rt_types.h
+test/x10rt_gups.o: include/x10rt_front.h include/x10rt_types.h
+test/x10rt_topology.o: include/x10rt_front.h include/x10rt_types.h
