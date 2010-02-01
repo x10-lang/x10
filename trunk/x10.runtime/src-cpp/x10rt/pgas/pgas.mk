@@ -118,7 +118,7 @@ PROPERTIES += etc/x10rt_pgas_sockets.properties
 EXECUTABLES += bin/launcher bin/manager bin/daemon
 
 %.pgas_sockets: %.cc lib/libx10rt_pgas_sockets.la
-	libtool --mode=link $(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(SOCKETS_LDFLAGS) $(SOCKETS_LDLIBS)
+	$(LIBTOOL) --mode=link $(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(SOCKETS_LDFLAGS) $(SOCKETS_LDLIBS)
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a include/pgasrt.h
@@ -134,7 +134,7 @@ lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
 endif
 
 lib/libx10rt_pgas_sockets.la: $(COMMON_OBJS) lib/libxlpgas_sockets.a
-	libtool --mode=link $(CXX) -o $@ $(COMMON_OBJS) lib/libxlpgas_sockets.a -rpath ${X10_HOME}/x10.dist/lib
+	$(LIBTOOL) --mode=link $(CXX) -o $@ $(COMMON_OBJS) lib/libxlpgas_sockets.a -rpath ${X10_HOME}/x10.dist/lib
 
 etc/x10rt_pgas_sockets.properties:
 	@echo "CXX=$(CXX)" > $@
@@ -160,7 +160,7 @@ LIBS += lib/libx10rt_pgas_lapi.la
 PROPERTIES += etc/x10rt_pgas_lapi.properties
 
 %.pgas_lapi: %.cc lib/libx10rt_pgas_lapi.la
-	libtool --mode=link $(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS)
+	$(LIBTOOL) --mode=link $(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS)
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a include/pgasrt.h
@@ -176,7 +176,7 @@ lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
 endif
 
 lib/libx10rt_pgas_lapi.la: $(COMMON_OBJS) lib/libxlpgas_lapi.a
-	libtool --mode=link $(CXX) -o $@ $(COMMON_OBJS) lib/libxlpgas_lapi.a -rpath ${X10_HOME}/x10.dist/lib
+	$(LIBTOOL) --mode=link $(CXX) -o $@ $(COMMON_OBJS) lib/libxlpgas_lapi.a -rpath ${X10_HOME}/x10.dist/lib
 
 etc/x10rt_pgas_lapi.properties:
 	echo "CXX=$(CXX)" > $@
@@ -214,7 +214,7 @@ lib/libxlpgas_bgp.a: $(COMMON_OBJS) $(BGP_TGZ)
 endif
 
 lib/libx10rt_pgas_bgp.la: $(COMMON_OBJS) lib/libxlpgas_bgp.a
-	libtool --mode=link $(CXX) -o $@ $(COMMON_OBJS) lib/libxlpgas_bgp.a -rpath ${X10_HOME}/x10.dist/lib
+	$(LIBTOOL) --mode=link $(CXX) -o $@ $(COMMON_OBJS) lib/libxlpgas_bgp.a -rpath ${X10_HOME}/x10.dist/lib
 
 etc/x10rt_pgas_bgp.properties:
 	@echo "CXX=$(CXX)" > $@
