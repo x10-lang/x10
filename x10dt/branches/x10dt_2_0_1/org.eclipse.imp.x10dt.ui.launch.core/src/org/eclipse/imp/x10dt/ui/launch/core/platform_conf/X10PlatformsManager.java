@@ -54,6 +54,27 @@ public final class X10PlatformsManager {
   }
   
   /**
+   * Creates a new X10 platform configuration with the new resource manager id provided and the rest of the 
+   * configuration taken from the one transmitted.
+   * 
+   * @param configuration The original configuration to consider for creating the new configuration.
+   * @param newRMId The new resource manager id.
+   * @return A non-null instance of {@link IX10PlatformConfiguration}.
+   */
+  public static IX10PlatformConfiguration createNewConfigurationRMId(final IX10PlatformConfiguration configuration,
+                                                                     final String newRMId) {
+    return new StoredPlatformConf(configuration.getName(), configuration.getArchitecture(), newRMId, 
+                                  configuration.getTargetOS(), configuration.getX10DistribLocation(), 
+                                  configuration.getPGASLocation(), configuration.getX10HeadersLocations(), 
+                                  configuration.getX10LibsLocations(), configuration.getCompiler(), 
+                                  configuration.getCompilerOpts(), configuration.getArchiver(), 
+                                  configuration.getArchivingOpts(), configuration.getLinker(), 
+                                  configuration.getLinkingOpts(), configuration.getLinkingLibs(), 
+                                  configuration.isCplusPlus(), configuration.isLocal(), 
+                                  configuration.getValidationStatus(), configuration.getValidationErrorMessage());
+  }
+  
+  /**
    * Loads the X10 platform configurations from the workspace metadata.
    * 
    * @return A non-null map, but possibly empty.

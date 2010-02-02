@@ -163,7 +163,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     }
     final IResourceManager resourceManager = getResourceManager();
     if (resourceManager != null) {
-      platformConfiguration.setResManagerId(resourceManager.getID());
+      platformConfiguration.setResManagerId(resourceManager.getUniqueName());
     }
     final String osName = this.fTargetOSCombo.getItem(this.fTargetOSCombo.getSelectionIndex());
     platformConfiguration.setTargetOS(ETargetOS.valueOf(osName));
@@ -230,7 +230,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     for (final IResourceManager resourceManager : universe.getResourceManagers()) {
       if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
         this.fResManagerCombo.add(resourceManager.getName());
-        this.fResManagerCombo.setData(resourceManager.getName(), resourceManager.getID());
+        this.fResManagerCombo.setData(resourceManager.getName(), resourceManager.getUniqueName());
         ++nbStarted;
       }
     }
@@ -255,7 +255,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       for (final IResourceManager resourceManager : universe.getResourceManagers()) {
         if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
           ++index;
-          if (resourceManager.getID().equals(this.fDefaultPlatformConf.getResourceManagerId())) {
+          if (resourceManager.getUniqueName().equals(this.fDefaultPlatformConf.getResourceManagerId())) {
             this.fResManagerCombo.select(index);
             break;
           }
@@ -461,9 +461,8 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       return null;
     } else {
       final String resName = this.fResManagerCombo.getItem(this.fResManagerCombo.getSelectionIndex());
-      final String resId = (String) this.fResManagerCombo.getData(resName);
-      final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
-      return modelManager.getUniverse().getResourceManager(resId);
+      final String resUniqueName = (String) this.fResManagerCombo.getData(resName);
+      return PTPCorePlugin.getDefault().getModelManager().getResourceManagerFromUniqueName(resUniqueName);
     }
   }
   

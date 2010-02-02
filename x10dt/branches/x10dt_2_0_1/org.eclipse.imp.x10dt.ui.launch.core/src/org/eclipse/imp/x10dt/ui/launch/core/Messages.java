@@ -21,7 +21,6 @@ public class Messages extends NLS {
   public static String APCC_CompilationTaskMsg;
   public static String APCC_LinkingTaskMsg;
   public static String APCC_NoTempDirError;
-  public static String APCC_ProcessErrorStreamMsg;
   public static String APCC_CompilErrorWithoutPos;
   public static String APCC_CompilErrorWithPos;
   public static String APCC_ExecuteCommand;
@@ -54,6 +53,9 @@ public class Messages extends NLS {
   public static String CPPB_RemoteOpError;
   public static String CPPB_TransferError;
   public static String CPPB_TransferTaskName;
+  public static String CRMSD_ErrDialogMsg;
+  public static String CRMSD_ErrDialogTitle;
+  public static String CRMSD_MalformedJIRAURL;
   public static String EQ_PosErrorMsg;
   public static String EQ_URIErrorMsg;
   public static String JPU_ResourceErrorMsg;
@@ -107,6 +109,7 @@ public class Messages extends NLS {
   public static String PCNWP_WizDefaultMsg;
   public static String PCNWP_WizDescr;
   public static String PCNWP_WizTitle;
+  public static String PU_RMNotFound;
   public static String RMSD_DialogDescription;
   public static String RMSD_DialogMsg;
   public static String RMSD_DialogTitle;
@@ -114,6 +117,8 @@ public class Messages extends NLS {
   public static String RMSD_StartBtText;
   public static String RMSD_StartBtTooltip;
   public static String RMSD_TaskMsg;
+  public static String URMDS_RMSelectionDialogMsg;
+  public static String URMDS_RMSelectionDialogTitle;
   public static String XB_NoPlatformConfError;
   public static String XBU_ArchNameNotInEnum;
   public static String XBU_NoCheckerForLanguage;
@@ -139,6 +144,7 @@ public class Messages extends NLS {
   public static String XPCPP_LoadingErrorMsg;
   public static String XPCPP_NoResIdDgMsg;
   public static String XPCPP_NoResIdDgTitle;
+  public static String XPCPP_NoRMForIdSaved;
   public static String XPCPP_OneLineBreak;
   public static String XPCPP_PGASLoc;
   public static String XPCPP_PlatformConfigTitle;
@@ -159,6 +165,7 @@ public class Messages extends NLS {
   public static String XPCPP_StartExistingRMMsg;
   public static String XPCPP_TargetOS;
   public static String XPCPP_TwoLinesBreak;
+  public static String XPCPP_UnknownRMName;
   public static String XPCPP_ValidationFailure;
   public static String XPCPP_ValidationInternalError;
   public static String XPCPP_X10DistribLoc;

@@ -137,6 +137,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
         final IRemoteProcess process = processBuilder.start();
         
         final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+        messageConsole.clearConsole();
         final MessageConsoleStream mcStream = messageConsole.newMessageStream();
         UIUtils.printStream(process.getInputStream(), process.getErrorStream(), new IInputListener() {
           

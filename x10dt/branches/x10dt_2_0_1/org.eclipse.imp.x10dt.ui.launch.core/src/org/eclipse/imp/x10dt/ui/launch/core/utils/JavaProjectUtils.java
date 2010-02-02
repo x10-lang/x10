@@ -7,14 +7,21 @@
  *****************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
+import java.io.File;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -51,6 +58,28 @@ public final class JavaProjectUtils {
       collectCpEntries(container, cpEntry, root, libFilter, cpEntryFunctor);
     }
     return container;
+  }
+  
+  /**
+   * Returns the target workspace directory from the one saved in the project properties.
+   * 
+   * @param project The project of interest.
+   * @return A non-null string identifying the target workspace directory.
+   * @throws CoreException Occurs if we could not access the persisted property for the project transmitted.
+   */
+  public static String getTargetWorkspaceDir(final IProject project) throws CoreException {
+    final String targetWorkspaceDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
+    if (targetWorkspaceDir == null) {
+      final IJavaProject javaProject = JavaCore.create(project);
+      final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+      final URI outputFolderURI = root.getFolder(javaProject.getOutputLocation()).getLocationURI();
+      final File outputDirFile = EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor());
+      final String wDir = new File(outputDirFile, X10_GENERATED_DIR).getAbsolutePath();
+      project.setPersistentProperty(Constants.WORKSPACE_DIR, wDir);
+      return wDir;
+    } else {
+      return targetWorkspaceDir;
+    }
   }
   
   // --- Private code
@@ -95,5 +124,9 @@ public final class JavaProjectUtils {
       return root.getLocation().append(path);
     }
   }
+  
+  // --- Fields
+  
+  private static final String X10_GENERATED_DIR = "x10-generated-dir"; //$NON-NLS-1$
 
 }

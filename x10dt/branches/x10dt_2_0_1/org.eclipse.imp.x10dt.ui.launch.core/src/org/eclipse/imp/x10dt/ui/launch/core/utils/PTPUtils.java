@@ -7,10 +7,17 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
+import java.util.Arrays;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.utils.Pair;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
+import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
-import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
@@ -83,9 +90,9 @@ public final class PTPUtils {
     if (combo.getSelectionIndex() == -1) {
       return null;
     }
-    final IPUniverse universe = PTPCorePlugin.getDefault().getUniverse();
     final String rmId = (String) combo.getData(combo.getItem(combo.getSelectionIndex()));
-    final IResourceManager resourceManager = universe.getResourceManager(rmId);
+    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+    final IResourceManager resourceManager = modelManager.getResourceManagerFromUniqueName(rmId);
     final IResourceManagerControl rmControl = (IResourceManagerControl) resourceManager;
     return browse(shell, rmControl.getConfiguration(), dialogTitle, initialPath, browseDirectory);
   }
@@ -179,8 +186,8 @@ public final class PTPUtils {
    * @return The pair containing the connection and the remote file manager.
    */
   public static Pair<IRemoteConnection, IRemoteFileManager> getConnectionAndFileManager(final String resourceManagerId) {
-    final IPUniverse universe = PTPCorePlugin.getDefault().getUniverse();
-    return getConnectionAndFileManager(universe.getResourceManager(resourceManagerId));
+    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+    return getConnectionAndFileManager(modelManager.getResourceManagerFromUniqueName(resourceManagerId));
   }
   
   /**
@@ -205,7 +212,8 @@ public final class PTPUtils {
    * @return The workspace directory or an empty string if we could not identify one.
    */
   public static String getTargetWorkspaceDirectory(final String resourceManagerId, final String projectName) {
-    final IResourceManager resourceManager = PTPCorePlugin.getDefault().getUniverse().getResourceManager(resourceManagerId);
+    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+    final IResourceManager resourceManager = modelManager.getResourceManagerFromUniqueName(resourceManagerId);
     final IResourceManagerControl rmControl = (IResourceManagerControl) resourceManager;
     final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
     final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
@@ -263,6 +271,83 @@ public final class PTPUtils {
     } else {
       return tmpVar.replace('\\', '/');
     }
+  }
+  
+  /**
+   * Returns the resource manager associated with the unique name provided.
+   * 
+   * <p>If the unique name provided does not match any, then:
+   * <ul>
+   * <li>If there is no resource manager the method will return <b>null</b>.</li>
+   * <li>If there is some resource manager and the end-user starts and selects one, we will return this one of interest.</li>
+   * </ul>
+   * 
+   * @param shell The shell to use for creating dialog boxes in case the id is staled.
+   * @param rmUniqueName The resource manager unique name.
+   * @return The resource manager if we could find it, otherwise <b>null</b>.
+   */
+  public static IResourceManager getResourceManager(final Shell shell, final String rmUniqueName) {
+    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+    final IResourceManager resourceManager = modelManager.getResourceManagerFromUniqueName(rmUniqueName);
+    if (resourceManager == null) {
+      final IResourceManager[] rms = PTPCorePlugin.getDefault().getUniverse().getResourceManagers();
+      if (rms.length == 0) {
+        return null;
+      } else {
+        return DialogsFactory.selectResourceManagerStartDialog(shell, Arrays.asList(rms), Messages.PU_RMNotFound);
+      }
+    } else {
+      return resourceManager;
+    }
+  }
+  
+  /**
+   * Returns the resource manager associated with the unique name stored in the project provided.
+   * 
+   * <p>If the unique name provided does not match any, then:
+   * <ul>
+   * <li>If there is no resource manager the method will return <b>null</b>.</li>
+   * <li>If there is some resource manager and the end-user starts and selects one, we will return this one of interest.
+   * Furthermore in such case we will update the staled internal unique name for the project.</li>
+   * </ul>
+   * 
+   * @param shell The shell to use for creating dialog boxes in case the id is staled.
+   * @param project The project of interest.
+   * @return The resource manager if we could find it, otherwise <b>null</b>.
+   * @throws CoreException Occurs if we could not read or store the internal unique name persisted in the project.
+   */
+  public static IResourceManager getResourceManager(final Shell shell, final IProject project) throws CoreException {
+    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+    final String rmUniqueName = project.getPersistentProperty(Constants.RES_MANAGER_ID);
+    final IResourceManager resourceManager = modelManager.getResourceManagerFromUniqueName(rmUniqueName);
+    if (resourceManager == null) {
+      final IResourceManager[] rms = PTPCorePlugin.getDefault().getUniverse().getResourceManagers();
+      if (rms.length == 0) {
+        return null;
+      } else {
+        final IResourceManager newRM = DialogsFactory.selectResourceManagerStartDialog(shell, Arrays.asList(rms), 
+                                                                                       Messages.PU_RMNotFound);
+        if (newRM != null) {
+          project.setPersistentProperty(Constants.RES_MANAGER_ID, newRM.getUniqueName());
+        }
+        return newRM;
+      }
+    } else {
+      return resourceManager;
+    }
+  }
+  
+  /**
+   * Returns if the given resource manager is local one or not.
+   * 
+   * @param resourceManager The resource manager to test.
+   * @return True if the resource manager is a local one, false if it is a remote one.
+   */
+  public static boolean isLocal(final IResourceManager resourceManager) {
+    final IResourceManagerControl rmControl = (IResourceManagerControl) resourceManager;
+    final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
+    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
+    return PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(remoteServices);
   }
   
   // --- Private code

@@ -37,6 +37,22 @@ public final class FileUtils {
     }
   }
   
+  /**
+   * Deletes a local directory whether it is empty or not.
+   * 
+   * @param directory The directory to delete.
+   */
+  public static void deleteDirectory(final File directory) {
+    for (final File file : directory.listFiles()) {
+      if (file.isDirectory()) {
+        deleteDirectory(file);
+      } else {
+        file.delete();
+      }
+    }
+    directory.delete();
+  }
+  
   // --- Private code
   
   private static void collect(final Collection<File> files, final File directory, final IFilter<File> fileFilter, 
