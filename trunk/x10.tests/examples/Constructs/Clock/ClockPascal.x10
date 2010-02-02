@@ -108,11 +108,13 @@ public class ClockPascal extends x10Test {
 				}
 			}
 		}
-		x10.io.Console.OUT.println("sum = "+A.sum());
-		return A.sum() == EXPECTED_CHECKSUM;
+//		x10.io.Console.OUT.println("sum = "+A.sum());
+//		return A.sum() == EXPECTED_CHECKSUM;
+                val aSum = A.reduce(Int.+, 0);
+                return aSum == EXPECTED_CHECKSUM;
 	}
 
-	public const rand: x10.util.Random = new x10.util.Random(1L);
+	public const rand: x10.util.Random! = new x10.util.Random(1L);
 
 	static def randDelay(var millis: int): void = {
 		var n: int;
@@ -146,12 +148,12 @@ public class ClockPascal extends x10Test {
 		}
 		val s: String = oo ? " Out of order!" : "";
 
-		x10.io.Console.OUT.println(tim()+" sec: About to do next "+w+" of "+w+" (produce output): A["+i+","+j+"] = "+A(i, j)+s);
+//		x10.io.Console.OUT.println(tim()+" sec: About to do next "+w+" of "+w+" (produce output): A["+i+","+j+"] = "+A(i, j)+s);
 	}
 
 	static def pr4(var i: int, var j: int, var A: Array[int]): void = {
 		var w: int = i+j-1; // wave number
-		x10.io.Console.OUT.println(tim()+" sec: Passed next "+w+" of "+w+" (produce output): A["+i+","+j+"] = "+A(i, j));
+//		x10.io.Console.OUT.println(tim()+" sec: Passed next "+w+" of "+w+" (produce output): A["+i+","+j+"] = "+A(i, j));
 	}
 
 	/**
