@@ -25,7 +25,7 @@ public class ClockTest18 extends x10Test {
 		val c0: Clock = Clock.make();
 		var x: X! = new X();
 		// f0 does not transmit clocks to subactivity
-		var f0: foo = new foo() {
+		var f0: foo! = new foo() {
 			public def apply(): void = {
 				/* Activity A3 */
 				async {
@@ -34,7 +34,7 @@ public class ClockTest18 extends x10Test {
 			}
 		};
 		// f1 transmits clock c0 to subactivity
-		var f1: foo = new foo() {
+		var f1: foo! = new foo() {
 			public def apply(): void = {
 				/*Activity A2*/
 				async clocked(c0) {
@@ -47,7 +47,7 @@ public class ClockTest18 extends x10Test {
 			}
 		};
 
-		var fooArray: Rail[foo]! = [f0,f1];
+		var fooArray: Rail[foo!]! = [f0,f1];
 		x10.io.Console.OUT.println("#A0 before resume");
 		c0.resume();
 		x10.io.Console.OUT.println("#A0 before spawning A3");
@@ -75,7 +75,7 @@ public class ClockTest18 extends x10Test {
 	 * A class to invoke a 'function pointer'
 	 */
 	static class Y {
-		static def test(var f: foo): void = {
+		static def test(var f: foo!): void = {
 			f.apply(); // it is hard to determine what f does at compile time
 		}
 	}

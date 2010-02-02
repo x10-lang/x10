@@ -98,10 +98,12 @@ public class ClockPascal2 extends x10Test {
 					pr4(i, j, A);
 				}
 		}
-		return A.sum() == EXPECTED_CHECKSUM;
+                val aSum = A.reduce(Int.+, 0);
+                return aSum == EXPECTED_CHECKSUM;
+//WAS: 		return A.sum() == EXPECTED_CHECKSUM;
 	}
 
-	public const rand: x10.util.Random = new x10.util.Random(1L);
+	public const rand: x10.util.Random! = new x10.util.Random(1L);
 
 	static def randDelay(var millis: int): void = {
 		var n: int;
@@ -125,11 +127,11 @@ public class ClockPascal2 extends x10Test {
 	}
 
 	static def pr3(var i: int, var j: int, var A: Array[int]): void = {
-		x10.io.Console.OUT.println(tim()+" sec: About to do next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"] = "+A(i, j));
+//		x10.io.Console.OUT.println(tim()+" sec: About to do next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"] = "+A(i, j));
 	}
 
 	static def pr4(var i: int, var j: int, var A: Array[int]): void = {
-		x10.io.Console.OUT.println(tim()+" sec: Passed next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"] = "+A(i, j));
+//		x10.io.Console.OUT.println(tim()+" sec: Passed next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"] = "+A(i, j));
 	}
 
 	/**
