@@ -167,17 +167,17 @@ abstract public class x10Test {
           for (var i : Int = 0; i < a.length; i++) {
             val ai:T = a(i);
             val bi:T = b(i);  
-            yes(equals[T](ai,bi), loc + "(" + i + ")"+ " for ‹" + ai + "›.equals(‹" + bi + "›)");
+            yes(equals[T](ai,bi), loc + "(" + i + ")"+ " for (" + ai + ").equals((" + bi + "))");
           }
         }
 
 
 
         public final def neqeq[T](a:T, b:T, loc: String) {
-          no(a==b, loc + " for !(‹" + a + "›.equals(‹" + b + "›))");
+          no(a==b, loc + " for !((" + a + ").equals((" + b + ")))");
         }
         public final def neq[T](a:T, b:T, loc: String) {
-          no(equals[T](a,b), loc + " for !(‹" + a + "›.equals(‹" + b + "›))");
+          no(equals[T](a,b), loc + " for !((" + a + ").equals((" + b + ")))");
         }
 
         public final def say(msg: String) { 
