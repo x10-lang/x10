@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
 import org.eclipse.imp.x10dt.ui.launch.core.preferences.X10PlatformConfigurationPrefPage;
@@ -114,7 +115,9 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
     final String resName = this.fResManagerCombo.getItem(this.fResManagerCombo.getSelectionIndex());
     final String resID = (String) this.fResManagerCombo.getData(resName);
     project.setPersistentProperty(Constants.RES_MANAGER_ID, resID);
-    project.setPersistentProperty(Constants.WORKSPACE_DIR, this.fWorkspaceLocText.getText().trim());
+    if (this.fTargetWorkspaceDir != null) {
+      project.setPersistentProperty(Constants.WORKSPACE_DIR, this.fTargetWorkspaceDir);
+    }
     final String platformConfName = this.fX10PlatformCombo.getItem(this.fX10PlatformCombo.getSelectionIndex());
     project.setPersistentProperty(Constants.X10_PLATFORM_CONF, platformConfName);
   }
@@ -193,7 +196,7 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
         for (final IResourceManager resManager : universe.getResourceManagers()) {
           if (resManager.getState() == ResourceManagerAttributes.State.STARTED) {
             CppProjectX10PlatformWizardPage.this.fResManagerCombo.add(resManager.getName());
-            CppProjectX10PlatformWizardPage.this.fResManagerCombo.setData(resManager.getName(), resManager.getID());
+            CppProjectX10PlatformWizardPage.this.fResManagerCombo.setData(resManager.getName(), resManager.getUniqueName());
           }
         }
       }
@@ -211,7 +214,10 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
     this.fResManagerCombo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     for (final IResourceManager resourceManager : startedResManagerList) {
       this.fResManagerCombo.add(resourceManager.getName());
-      this.fResManagerCombo.setData(resourceManager.getName(), resourceManager.getID());
+      this.fResManagerCombo.setData(resourceManager.getName(), resourceManager.getUniqueName());
+    }
+    if (startedResManagerList.size() == 1) {
+      this.fResManagerCombo.select(0);
     }
     this.fResManagerCombo.addSelectionListener(new PageUpdateSelectionListener());
   }
@@ -286,8 +292,10 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
               CppProjectX10PlatformWizardPage.this.fX10Platforms = X10PlatformsManager.loadPlatformsConfiguration();
               
               CppProjectX10PlatformWizardPage.this.fX10PlatformCombo.removeAll();
-              for (final String configurationName : CppProjectX10PlatformWizardPage.this.fX10Platforms.keySet()) {
-                CppProjectX10PlatformWizardPage.this.fX10PlatformCombo.add(configurationName);
+              for (final IX10PlatformConfiguration x10Conf : CppProjectX10PlatformWizardPage.this.fX10Platforms.values()) {
+                if (x10Conf.getValidationStatus() == EValidStatus.VALID) {
+                  CppProjectX10PlatformWizardPage.this.fX10PlatformCombo.add(x10Conf.getName());
+                }
               }
             } catch (Exception except) {
               setErrorMessage(Messages.XPCPP_LoadingErrorMsg);
@@ -308,8 +316,15 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
       this.fX10PlatformCombo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
       this.fX10PlatformCombo.addSelectionListener(new PageUpdateSelectionListener());
     
-      for (final String configurationName : this.fX10Platforms.keySet()) {
-        this.fX10PlatformCombo.add(configurationName);
+      int nbValidConfigs = 0;
+      for (final IX10PlatformConfiguration x10Conf : this.fX10Platforms.values()) {
+        if (x10Conf.getValidationStatus() == EValidStatus.VALID) {
+          this.fX10PlatformCombo.add(x10Conf.getName());
+          ++nbValidConfigs;
+        }
+      }
+      if (nbValidConfigs == 1) {
+        this.fX10PlatformCombo.select(0);
       }
     }  catch (WorkbenchException except) {
       setErrorMessage(Messages.XPCPP_LoadingErrorMsg);
@@ -322,12 +337,24 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
   
   private void updateDisablingPart() {
     final int selectionIndex = this.fResManagerCombo.getSelectionIndex();
-    this.fWorkspaceLocText.setEnabled(selectionIndex != -1);
-    if (this.fWorkspaceLocText.isEnabled()) {      
-      final String resManagerId = (String) this.fResManagerCombo.getData(this.fResManagerCombo.getItem(selectionIndex));
-      this.fWorkspaceLocText.setText(PTPUtils.getTargetWorkspaceDirectory(resManagerId, this.fFirstPage.getProjectName()));
+    final boolean isLocal;
+    final String resManagerId;
+    if (selectionIndex == -1) {
+      resManagerId = null;
+      isLocal = true;
+    } else {
+      resManagerId = (String) this.fResManagerCombo.getData(this.fResManagerCombo.getItem(selectionIndex));
+      final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+      isLocal = PTPUtils.isLocal(modelManager.getResourceManagerFromUniqueName(resManagerId));
     }
-    this.fBrowseBt.setEnabled(selectionIndex != -1);
+    
+    this.fWorkspaceLocText.setEnabled(selectionIndex != -1 && ! isLocal);
+    this.fBrowseBt.setEnabled(selectionIndex != -1 && ! isLocal);
+    
+    if (this.fWorkspaceLocText.isEnabled()) {
+      this.fWorkspaceLocText.setText(PTPUtils.getTargetWorkspaceDirectory(resManagerId, this.fFirstPage.getProjectName()));
+      this.fTargetWorkspaceDir = this.fWorkspaceLocText.getText().trim();
+    }
   }
   
   private void updateMessage() {
@@ -339,11 +366,13 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
     } else {
       if (this.fResManagerCombo.getSelectionIndex() == -1) {
         setMessage(LaunchMessages.CPWSP_SelectResMsg);
-      } else {
+      } else if (this.fWorkspaceLocText.isEnabled()) {
         setMessage(LaunchMessages.CPWSP_SelectWorkspaceMsg);
       }
     }
-    setPageComplete(this.fWorkspaceLocText.getText().trim().length() > 0 && this.fX10PlatformCombo.getSelectionIndex() > -1);
+    boolean isComplete = (! this.fWorkspaceLocText.isEnabled() || this.fWorkspaceLocText.getText().trim().length() > 0) &&
+                         this.fX10PlatformCombo.getSelectionIndex() > -1;
+    setPageComplete(isComplete);
   }
   
   // --- Private classes
@@ -402,6 +431,8 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
   private Button fBrowseBt;
     
   private Text fWorkspaceLocText;
+  
+  private String fTargetWorkspaceDir;
   
   private Map<String, IX10PlatformConfiguration> fX10Platforms;
   

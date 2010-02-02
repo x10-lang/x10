@@ -8,8 +8,6 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.properties;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
@@ -19,25 +17,23 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
-import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
-import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
-import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
+import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.swt.SWT;
@@ -69,31 +65,6 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
   protected Control createContents(final Composite parent) {
     noDefaultAndApplyButton();
     
-    boolean noStartedResourceManager = true;
-    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
-    final IPUniverse universe = modelManager.getUniverse();
-    final Collection<IResourceManager> stoppedRMs = new ArrayList<IResourceManager>();
-    for (final IResourceManager resourceManager : universe.getResourceManagers()) {
-      if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
-        noStartedResourceManager = false;
-      } else {
-        stoppedRMs.add(resourceManager);
-      }
-    }
-    if (noStartedResourceManager) {
-      if (DialogsFactory.openResourceManagerStartDialog(getShell(), stoppedRMs) != Window.OK) {
-        for (final IResourceManager resourceManager : universe.getResourceManagers()) {
-          if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
-            noStartedResourceManager = false;
-          }
-        }
-        if (noStartedResourceManager) {
-          setErrorMessage(LaunchMessages.XPCPP_NoResManagerStartedError);
-          return null;
-        }
-      }
-    }
-    
     final IProject project = (IProject) getElement().getAdapter(IProject.class);
     
     final Composite composite = new Composite(parent, SWT.NULL);
@@ -124,13 +95,6 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
     workspaceGroup.setText(LaunchMessages.CPWSP_TargetWorkspaceGroupName);
     
     createTargetWorkspace(workspaceGroup);
-
-    for (final IResourceManager resourceManager : universe.getResourceManagers()) {
-      if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
-        this.fResManagerCombo.add(resourceManager.getName());
-        this.fResManagerCombo.setData(resourceManager.getName(), resourceManager.getID());
-      }
-    }
     
     initValues(project);
     
@@ -173,7 +137,7 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
         return false;
       } else {
         final String newWDir = this.fWorkspaceLocText.getText().trim();
-        final String curWDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
+        final String curWDir = JavaProjectUtils.getTargetWorkspaceDir(project);
         project.setPersistentProperty(Constants.WORKSPACE_DIR, newWDir);
         
         if (! newWDir.equals(curWDir)) {
@@ -291,23 +255,28 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
   
   private void initValues(final IProject project) {
     try {
-      final String resManagerId = project.getPersistentProperty(Constants.RES_MANAGER_ID);
-      
-      int index = -1;
-      final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
-      final IPUniverse universe = modelManager.getUniverse();
-      for (final IResourceManager resourceManager : universe.getResourceManagers()) {
-        if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
-          ++index;
-          if (resourceManager.getID().equals(resManagerId)) {
-            this.fResManagerCombo.select(index);
-            break;
+      final IResourceManager resourceManager = PTPUtils.getResourceManager(getShell(), project);
+      if (resourceManager == null) {
+        setErrorMessage(LaunchMessages.XPCPP_NoResManagerStartedError);
+      } else {
+        if (resourceManager.getState() != State.STARTED) {
+          resourceManager.startUp(new NullProgressMonitor());
+        }
+        int index = -1;
+        for (final IResourceManager rm : PTPCorePlugin.getDefault().getUniverse().getResourceManagers()) {
+          if (rm.getState() == State.STARTED) {
+            this.fResManagerCombo.add(rm.getName());
+            this.fResManagerCombo.setData(rm.getName(), rm.getUniqueName());
+            ++index;
+            if (rm.getUniqueName().equals(resourceManager.getUniqueName())) {
+              this.fResManagerCombo.select(index);
+            }
           }
         }
       }
       
       final String x10Platform = project.getPersistentProperty(Constants.X10_PLATFORM_CONF);
-      index = -1;
+      int index = -1;
       for (final String platform : this.fX10PlatformCombo.getItems()) {
         ++index;
         if (platform.equals(x10Platform)) {
@@ -316,7 +285,7 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
         }
       }
       
-      final String targetWorkspace = project.getPersistentProperty(Constants.WORKSPACE_DIR);
+      final String targetWorkspace = JavaProjectUtils.getTargetWorkspaceDir(project);
       if (targetWorkspace != null) {
         this.fWorkspaceLocText.setText(targetWorkspace);
       }
