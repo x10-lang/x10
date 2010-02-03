@@ -1,22 +1,21 @@
-CXX             ?= g++
-MPICXX          ?= mpicxx
-CXXFLAGS        ?= -g -O3 -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused
-AR              ?= ar
+include ../Make.rules
+
 CP              ?= cp -f
 WGET            ?= wget
 TAR             ?= tar
 GZIP            ?= gzip
 LIBTOOL		?= libtool
 
+override CXXFLAGS += -Iinclude -Icommon
+
 # these are used only for building tests
-CXXFLAGS        += -Iinclude -Icommon
-LDFLAGS         += -Llib -lpthread
+override LDFLAGS         += -Llib -lpthread
 
 BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology
 
 EXECUTABLES     =
 
-X10_HOME        = ${CURDIR}/../../..
+X10_HOME        = ${CURDIR}/../..
 
 COMMON_OBJS     = common/x10rt_front.o common/x10rt_logical.o common/x10rt_cuda.o
 COMMON_LT_OBJS  = $(COMMON_OBJS:.o=.lo)
