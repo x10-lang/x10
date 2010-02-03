@@ -619,14 +619,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 
                 if (isIntRail(t)) {
                     if (xts().isRail(t)) {
-                        inc.write("(x10_int*)(size_t)x10aux::get_remote_ref("+name+".operator->())");
+                        inc.write("(x10_int*)(size_t)x10aux::get_remote_ref_maybe_null("+name+".operator->())");
                     } else {
                         inc.write("(x10_int*)(size_t)x10aux::remote_alloc(__gpu, sizeof(x10_int)*"+name+"->FMGL(length));"); inc.newline();
                         inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", &(*"+name+")[0], sizeof(x10_int)*"+name+"->FMGL(length))");
                     }
                 } else if (isFloatRail(t)) {
                     if (xts().isRail(t)) {
-                        inc.write("(x10_float*)(size_t)x10aux::get_remote_ref("+name+".operator->())");
+                        inc.write("(x10_float*)(size_t)x10aux::get_remote_ref_maybe_null("+name+".operator->())");
                     } else {
                         inc.write("(x10_float*)(size_t)x10aux::remote_alloc(__gpu, sizeof(x10_float)*"+name+"->FMGL(length));"); inc.newline();
                         inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", &(*"+name+")[0], sizeof(x10_float)*"+name+"->FMGL(length))");

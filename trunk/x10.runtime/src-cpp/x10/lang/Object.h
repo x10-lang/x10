@@ -93,6 +93,7 @@ namespace x10 {
 
             // Needed for linking - do not override
             virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
+                assert(other!=x10aux::null); // checked in basic_functions.h x10aux::struct_equals
                 if (other == x10aux::ref<Object>(this)) return true;
                 if (this->location == x10aux::here) return false; // already tested above
                 if (other->location == this->location &&
