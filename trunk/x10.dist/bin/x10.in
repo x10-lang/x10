@@ -67,7 +67,7 @@ if [ -n "$extra_cp" ]; then
    classpath="$extra_cp${PATH_SEP}$classpath"
 fi
 
-externpath="${TOP}${FILE_SEP}lib${FILE_SEP}${X10_PLATFORM}"
+externpath="${classpath}${PATH_SEP}${LIB_DIR}${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${X10_PLATFORM}"
 if [ -n "$extra_lib" ]; then
    externpath="$extra_lib${PATH_SEP}$externpath"
 fi
