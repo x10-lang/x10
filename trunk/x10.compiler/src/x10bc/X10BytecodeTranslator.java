@@ -24,6 +24,7 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.bytecode.rep.IClassGen;
 import polyglot.bytecode.rep.ILabel;
+import polyglot.bytecode.types.StackType;
 import polyglot.bytecode.types.Type;
 import polyglot.bytecode.AbstractTranslator;
 import polyglot.bytecode.BranchTranslator;
@@ -176,6 +177,11 @@ public class X10BytecodeTranslator extends BytecodeTranslator {
 
 		public void visit(ParExpr_c n) { visitExpr(n.expr()); }
 
+        void promoteToPrimitive(Expr n, Type t) {
+            visitExpr(n);
+            coerce(typeof(n), t, n.position());
+        }
+
         public void visit(final Call n) {
             System.out.println("visit Call " + n);
             if (n.target() instanceof Expr) {
@@ -185,25 +191,41 @@ public class X10BytecodeTranslator extends BytecodeTranslator {
             MethodInstance mi = n.methodInstance();
             System.out.println(mi.name().toString());
 
+            if (mi.name().toString() == "operator+") {
+                if (typeof(mi.container()).equals(Type.typeFromDescriptor("Ljava/lang/Integer;"))) {
+                    promoteToPrimitive(n.arguments().get(0), Type.INT);
+                    promoteToPrimitive(n.arguments().get(1), Type.INT);
+                    il.IADD(n.position());
+//                  n = n.methodInstance(mi.returnType(ts.Int()));
+                    return;
+                }
+            }
+
             pushArguments(mi.formalTypes(), n.arguments());
 
             if (n.target() instanceof Special && ((Special) n.target()).kind() == Special.SUPER) {
                 il.INVOKESPECIAL(typeof(mi.container()), mi.name().toString(), typeofTypes(mi.formalTypes()), typeof(mi.returnType()), n.position());
             }
             else if (n.target() instanceof TypeNode) {
-                Type[] args = typeofTypes(mi.formalTypes());
-                System.out.println(typeof(mi.container()) + " " + mi.name().toString() + " " + args[0] + (args.length>1?args[1]:""));
+                Type[] argTypes = typeofTypes(mi.formalTypes());
+                System.out.println(typeof(mi.container()) + " " + mi.name().toString() + " " + argTypes[0] + (argTypes.length>1?argTypes[1]:""));
                 if (typeof(mi.container()).equals(Type.STRING)) {
                     System.out.println("true1");
                     if (mi.name().toString().equals("valueOf")) {
                         System.out.println("true2");
-                        if (args[0].isObject()) {
+                        if (argTypes[0].isObject()) {
                             System.out.println("true3");
-                            args[0] = Type.OBJECT;
+                            System.out.println(il.currentStack().top());
+                            if (il.currentStack().top().isObject()) {
+                                argTypes[0] = Type.OBJECT;
+                            } else {
+                                System.out.println("true4");
+                                argTypes[0] = il.currentStack().top();
+                            }
                         }
                     }
                 }
-                il.INVOKESTATIC(typeof(mi.container()), mi.name().toString(), args, typeof(mi.returnType()), n.position());
+                il.INVOKESTATIC(typeof(mi.container()), mi.name().toString(), argTypes, typeof(mi.returnType()), n.position());
             }
             else if (mi.container().isClass() && mi.container().toClass().flags().isInterface()) {
                 il.INVOKEINTERFACE(typeof(mi.container()), mi.name().toString(), typeofTypes(mi.formalTypes()), typeof(mi.returnType()), n.position());
@@ -219,19 +241,19 @@ public class X10BytecodeTranslator extends BytecodeTranslator {
                 TypeSystem ts = n.type().typeSystem();
                 MethodInstance mi = ts.findMethod(ts.String(), ts.MethodMatcher(ts.String(), Name.make("valueOf"), Collections.singletonList(n.type()), ts.emptyContext()));
                 coerce(typeof(n.type()), typeof(mi.formalTypes().get(0)), n.position());
-                Type[] args = typeofTypes(mi.formalTypes());
-                System.out.println(typeof(mi.container()) + " " + mi.name().toString() + " " + args[0] + (args.length>1?args[1]:""));
+                Type[] argTypes = typeofTypes(mi.formalTypes());
+                System.out.println(typeof(mi.container()) + " " + mi.name().toString() + " " + argTypes[0] + (argTypes.length>1?argTypes[1]:""));
                 if (typeof(mi.container()).equals(Type.STRING)) {
                     System.out.println("true1");
                     if (mi.name().toString().equals("valueOf")) {
                         System.out.println("true2");
-                        if (args[0].isObject()) {
+                        if (argTypes[0].isObject()) {
                             System.out.println("true3");
-                            args[0] = Type.OBJECT;
+                            argTypes[0] = Type.OBJECT;
                         }
                     }
                 }
-                il.INVOKESTATIC(typeof(mi.container()), mi.name().toString(), args, typeof(mi.returnType()), n.position());
+                il.INVOKESTATIC(typeof(mi.container()), mi.name().toString(), argTypes, typeof(mi.returnType()), n.position());
             }
             catch (SemanticException e) {
                 throw new InternalCompilerError(e);
