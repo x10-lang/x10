@@ -67,4 +67,5 @@ void x10::lang::Rail_serializeAndSendGet(Place src_place_, ref<Reference> df, x1
     x10aux::send_get(src_place_.FMGL(id), _id, buf, data, size);
 }
 
+
 // vim:tabstop=4:shiftwidth=4:expandtab
