@@ -109,8 +109,8 @@
         <property name="available.procs" value="2"/>
     </target>
 
-    <target name="distclean" depends="distclean-java,distclean-cpp"/>
-    <target name="clean" depends="clean-java,clean-cpp"/>
+    <target name="distclean" depends="distclean-java,distclean-cpp,distclean-x10rt"/>
+    <target name="clean" depends="clean-java,clean-cpp,clean-x10rt"/>
     <target name="distclean-java" depends="clean-java"/>
     <target name="clean-java">
         <delete dir="${build}"/>
@@ -120,9 +120,6 @@
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j1" />
             <arg value="clean"/>
-            <arg value="${cppmake.x10rt_mpi}" />
-            <arg value="${cppmake.x10rt_pgas}" />
-            <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
@@ -135,13 +132,36 @@
             <arg value="distclean"/>
         </exec>
     </target>
+    <target name="distclean-x10rt" depends="clean-x10rt"/>
+    <target name="clean-x10rt" depends="available-procs">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <arg value="-j1" />
+            <arg value="clean"/>
+            <arg value="${cppmake.x10rt_mpi}" />
+            <arg value="${cppmake.x10rt_pgas}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgp}" />
+        </exec>
+    </target>
+
+    <target name="dist-x10rt" depends="build-x10rt,available-procs">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <arg value="-j${available.procs}" />
+            <arg value="install" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.x10rt_mpi}" />
+            <arg value="${cppmake.x10rt_pgas}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgp}" />
+        </exec>
+    </target>
     <target name="dist-java" depends="jar">
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
             <fileset dir="${build}" includes="${jar}"/>
         </copy>
     </target>
-    <target name="dist-cpp" depends="build-cpp,available-procs">
+    <target name="dist-cpp" depends="dist-x10rt,build-cpp,available-procs">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j${available.procs}" />
             <arg value="install" />
@@ -149,9 +169,6 @@
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.use_bfd}" />
-            <arg value="${cppmake.x10rt_mpi}" />
-            <arg value="${cppmake.x10rt_pgas}" />
-            <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
@@ -235,6 +252,17 @@
         </ejc>
     </target>
 
+    <target name="build-x10rt" depends="init,available-procs">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <arg value="-j${available.procs}" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.x10rt_mpi}" />
+            <arg value="${cppmake.x10rt_pgas}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgp}" />
+        </exec>
+    </target>
+
     <target name="build-cpp" depends="init,dist-bdwgc,available-procs">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j${available.procs}" />
@@ -242,9 +270,6 @@
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.use_bfd}" />
-            <arg value="${cppmake.x10rt_mpi}" />
-            <arg value="${cppmake.x10rt_pgas}" />
-            <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>

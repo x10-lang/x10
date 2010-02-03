@@ -2,18 +2,9 @@
 # User-servicable Parts #
 #########################
 
-CXX ?= g++
-AR ?= ar
+include ../Make.rules
 
-__m_have_abspath:=$(abspath /)
-ifndef __m_have_abspath
-  abspath=$(shell cd $1 && /bin/pwd)
-else
-  abspath=$(abspath $1)
-endif
-
-CXXFLAGS += -g
-INCLUDE_DIRS += -I. -Ix10rt/include
+INCLUDE_DIRS += -I. -I../x10rt/include
 
 ifdef ENABLE_GC
   CXXFLAGS += -DX10_USE_BDWGC
@@ -21,115 +12,10 @@ ifdef ENABLE_GC
   INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
 endif
 
-#avoid specifying -NDEBUG twice
-ifdef OPTIMIZE
-  USE_NDEBUG := -DNDEBUG
-  X10CPPFLAGS += -optimize
-endif
-ifdef NO_CHECKS
-  USE_NDEBUG := -DNDEBUG
-  CXXFLAGS += -DNO_CHECKS
-  X10CPPFLAGS += -NO_CHECKS
-endif
-CXXFLAGS += $(USE_NDEBUG)
+override CXXFLAGS += $(INCLUDE_DIRS) -Igen
 
-ifdef USE_BFD
-  CXXFLAGS += -DUSE_BFD
-endif
-
-CXXFLAGS += $(INCLUDE_DIRS) -Igen
-
-ifndef NO_VAR_OVERRIDE
-
-ifdef ENABLE_CROSS_COMPILE_BGP
-  override MPICXX = /bgsys/drivers/ppcfloor/comm/bin/mpicxx
-  #override CXX = /bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-g++
-  #override CC =/bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-gcc
-  override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
-  override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
-  export X10RT_PLATFORM="bgp"
-else
-
-  ifeq ($(shell uname -s),AIX)
-
-
-    ifdef USE_GCC
-      export X10RT_PLATFORM="aix_gcc"
-      ifdef OPTIMIZE
-        override CXXFLAGS += -O2 -finline-functions
-      endif
-      override CXXFLAGS += -maix64
-      MPICXX ?= mpicxx
-    else	
-      export X10RT_PLATFORM="aix_xlc"
-      CXX = mpCC_r
-      MPICXX ?= mpCC_r
-      override CXXFLAGS -= -g
-      ifndef USE_32BIT
-        override CXXFLAGS += -q64
-      else
-        override CXXFLAGS += -q32
-      endif
-      ifdef OPTIMIZE
-        override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
-      endif
-      override CXXFLAGS += -qrtti=all
-      override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
-      override CXXFLAGS += $(XLC_EXTRA_FLAGS)
-      ifeq ($(AR),ar) # use AIX default ar
-        AR = /usr/bin/ar
-      endif
-    endif
-
-    # FIXME
-    ifndef USE_32BIT
-      ARFLAGS := -X64 $(ARFLAGS)
-    else
-      ARFLAGS := -X32 $(ARFLAGS)
-    endif
-
-  else
-
-    MPICXX ?= mpicxx
-
-    ifdef OPTIMIZE
-      override CXXFLAGS += -O2 -finline-functions
-    endif
-
-    override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
-    ifeq ($(shell uname -s),Linux)
-      override CXXFLAGS += -pthread
-      ifeq ($(shell uname -m),x86_64)
-        export X10RT_PLATFORM="linux_x86_64"
-      else
-        ifeq ($(shell uname -m),ppc64)
-          export X10RT_PLATFORM="linux_ppc_64"
-        else
-          export X10RT_PLATFORM="linux_x86_32"
-        endif
-      endif
-    else
-      ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
-        export X10RT_PLATFORM="cygwin"
-      else
-        ifeq ($(shell uname -s),Darwin)
-          export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
-        else
-          ifeq ($(shell uname -s),SunOS)
-            export X10RT_PLATFORM="sunos"
-          endif
-        endif
-      endif
-    endif
-  endif
-endif
-
-endif
 
 INSTDIR = $(call abspath,../../x10.dist)
-
-
-
 
 ###########
 # Targets #
@@ -139,20 +25,15 @@ XRX_ARCHIVE = libx10.a
 XRX_MANIFEST = libx10.mft
 
 # this builds everything
-xrx: x10rt $(XRX_ARCHIVE)
+xrx: $(XRX_ARCHIVE)
 
 .PHONY: xrx
-.PHONY: x10rt
 
 export CXX
 export MPICXX
 export AR
 export CXXFLAGS
 export ARFLAGS
-
-# why must X10RT_PLATFORM be specified explicitly?
-x10rt:
-	cd x10rt && $(MAKE) -j1 X10RT_PLATFORM=$(X10RT_PLATFORM) default
 
 ###################
 # Generated Files #
@@ -300,7 +181,6 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	@cp -p x10rt.h $(INSTDIR)/include
 	@cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	@cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
-	@cd x10rt && $(MAKE) -j1 all install X10RT_PLATFORM=$(X10RT_PLATFORM)
 
 .PHONY: install
 
@@ -341,7 +221,6 @@ cleangen:
 	rm -rf gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
 
 clean: cleanobj cleangen
-	cd x10rt && $(MAKE) -j1 clean X10RT_PLATFORM=$(X10RT_PLATFORM)
 
 squeakyclean: clean
 	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t rm -f
