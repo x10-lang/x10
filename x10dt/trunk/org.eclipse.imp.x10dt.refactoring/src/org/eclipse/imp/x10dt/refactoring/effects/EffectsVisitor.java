@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.x10dt.refactoring.X10DTRefactoringPlugin;
-import org.eclipse.imp.x10dt.refactoring.analysis.ReachingDefsVisitor;
 import org.eclipse.imp.x10dt.refactoring.analysis.ReachingDefsVisitor.ValueMap;
 
 import polyglot.ast.Binary;
@@ -44,7 +43,6 @@ import x10.types.X10Flags;
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
@@ -95,7 +93,7 @@ public class EffectsVisitor extends NodeVisitor {
         for(Formal formal: formals) {
             X10Formal xFormal= (X10Formal) formal;
 //          X10LocalDef xDef= (X10LocalDef) xFormal.localDef();
-            X10Type xType= (X10Type) xFormal.type().type();
+            Type xType= xFormal.type().type();
             XConstraint xc= X10TypeMixin.xclause(xType);
             if (xc != null) {
                 result= conjunction(result, xc);
