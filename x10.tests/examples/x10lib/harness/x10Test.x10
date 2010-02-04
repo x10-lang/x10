@@ -181,7 +181,7 @@ abstract public class x10Test {
         }
 
         public final def say(msg: String) { 
-          Console.OUT.println("‹" + this.typeName() + "› " + msg);
+          Console.OUT.println("(" + this.typeName() + ") " + msg);
         }
 
         public static def str[T](r : ValRail[T], sep: String) : String {
