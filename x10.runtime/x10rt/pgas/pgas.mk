@@ -123,6 +123,9 @@ EXECUTABLES += bin/launcher bin/manager bin/daemon
 ifdef CUSTOM_PGAS
 lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a lib/libxlpgas_sockets.a
+
+$(EXECUTABLES): $(EXECUTABLES:%=$(CUSTOM_PGAS)/%)
+	-$(CP) $^ bin/
 else
 $(SOCKETS_TGZ).phony:
 	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(SOCKETS_TGZ)"
