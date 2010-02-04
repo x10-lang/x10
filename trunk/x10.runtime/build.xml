@@ -252,7 +252,20 @@
         </ejc>
     </target>
 
-    <target name="build-x10rt" depends="init,available-procs">
+    <target name="jni-headers" depends="init,build-java">
+        <javah destdir="x10rt/include">
+            <classpath>
+              <path refid="project.classpath"/>
+              <path>
+                  <pathelement location="${build}"/>
+              </path>
+            </classpath>
+            <class name="x10.x10rt.X10RT"/>
+            <class name="x10.x10rt.ActiveMessage"/>
+        </javah>
+    </target>
+
+    <target name="build-x10rt" depends="init,jni-headers,available-procs">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
             <arg value="-j${available.procs}" />
             <arg value="${cppmake.optimize}" />
