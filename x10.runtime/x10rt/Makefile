@@ -6,7 +6,7 @@ TAR             ?= tar
 GZIP            ?= gzip
 LIBTOOL		?= libtool
 
-override CXXFLAGS += -Iinclude -Icommon
+override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
 
 # these are used only for building tests
 override LDFLAGS         += -Llib -lpthread
@@ -18,6 +18,9 @@ EXECUTABLES     =
 X10_HOME        = ${CURDIR}/../..
 
 COMMON_OBJS     = common/x10rt_front.o common/x10rt_logical.o common/x10rt_cuda.o
+ifdef JNI_INCLUDES
+  COMMON_OBJS += jni/jni_x10rt.o jni/jni_message.o
+endif
 COMMON_LT_OBJS  = $(COMMON_OBJS:.o=.lo)
 
 ifdef ENABLE_X10RT_CUDA
@@ -86,6 +89,10 @@ common/x10rt_logical.o: common/x10rt_internal.h
 common/x10rt_logical.lo: include/x10rt_logical.h include/x10rt_types.h
 common/x10rt_logical.lo: include/x10rt_net.h include/x10rt_cuda.h
 common/x10rt_logical.lo: common/x10rt_internal.h
+jni/jni_x10rt.o: include/x10rt_front.h include/x10rt_types.h
+jni/jni_x10rt.lo: include/x10rt_front.h include/x10rt_types.h
+jni/jni_message.o: include/x10rt_front.h include/x10rt_types.h
+jni/jni_message.lo: include/x10rt_front.h include/x10rt_types.h
 mpi/x10rt_mpi.o: include/x10rt_net.h include/x10rt_types.h
 mpi/x10rt_mpi.lo: include/x10rt_net.h include/x10rt_types.h
 standalone/x10rt_standalone.o: include/x10rt_net.h include/x10rt_types.h
