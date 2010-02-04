@@ -15,12 +15,13 @@ public class ClosureExample4 extends ClosureTest {
 
     def fib(n: Int): Int {
         val f = (n: Int) : Point => {
-            if (n < 1) return new Point(1,0);
-            val (n,n1): Point = this(n-1);
-            new Point(n+n1,n)
-        }
-        val (n,n1): Point = f(n);
-        n
+//            if (n < 1) return new Point(1,0);
+            if (n < 1) return Point.make(1,0);
+            val (na,n1): Point = this(n-1);
+            Point.make(n+n1,na)
+        };
+        val (nb,n1): Point = f(n);
+        return nb;
     }
 
     public def run(): boolean = {
