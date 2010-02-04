@@ -17,8 +17,10 @@ public class ClosureException1i extends ClosureTest {
 
     public def run(): boolean = {
         
-        class C[T] {val i = (){T<:Exception} throws T => 1;}
-        check("new C[Exception]().i()", new C[Exception]().i(), 1);
+        class C[T] {
+          val i = (){T<:Exception} throws T => 1;
+          }
+        check("new C[Exception]().i()", (new C[Exception]().i)(), 1);
 
         return result;
     }
