@@ -30,6 +30,10 @@ ifdef USE_BFD
   CXXFLAGS += -DUSE_BFD
 endif
 
+ifdef JAVA_HOME
+  JNI_INCLUDES = -I$(JAVA_HOME)/include
+endif
+
 ifndef NO_VAR_OVERRIDE
 
 ifdef ENABLE_CROSS_COMPILE_BGP

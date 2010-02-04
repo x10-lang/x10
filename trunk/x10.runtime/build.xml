@@ -265,7 +265,7 @@
         </javah>
     </target>
 
-    <target name="build-x10rt" depends="init,jni-headers,available-procs">
+    <target name="build-x10rt" depends="init,jni-headers">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
             <arg value="-j1" />
             <arg value="${cppmake.optimize}" />
