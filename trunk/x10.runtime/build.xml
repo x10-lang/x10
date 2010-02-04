@@ -144,9 +144,9 @@
         </exec>
     </target>
 
-    <target name="dist-x10rt" depends="build-x10rt,available-procs">
+    <target name="dist-x10rt" depends="build-x10rt">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
-            <arg value="-j${available.procs}" />
+            <arg value="-j1" />
             <arg value="install" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.x10rt_mpi}" />
@@ -267,7 +267,7 @@
 
     <target name="build-x10rt" depends="init,jni-headers,available-procs">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
-            <arg value="-j${available.procs}" />
+            <arg value="-j1" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.x10rt_mpi}" />
             <arg value="${cppmake.x10rt_pgas}" />
