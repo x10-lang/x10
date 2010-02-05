@@ -728,6 +728,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 						w.write("(");
 						bex.expand(tr);
 						w.write(")");
+						// Fix XTENLANG-804
+						if (type.isByte() || type.isShort()) {
+							w.write("(");
+							uex.expand(tr);
+							w.write(")");
+						}
 					}
 					w.allowBreak(2, " ");
 					// HACK: (java.lang.Integer) -1
