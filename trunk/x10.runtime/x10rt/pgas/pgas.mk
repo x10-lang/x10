@@ -1,5 +1,5 @@
 X10_VERSION=svn head
-VERSION=20100122
+VERSION=20100205
 SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
 LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
 BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
@@ -51,7 +51,8 @@ ifeq ($(X10RT_PLATFORM), linux_x86_64)
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_32)
   WPLATFORM      := linux_x86_g++4
-  PLATFORM_SUPPORTS_LAPI       := yes
+# TODO: re-enable when we build the 32 bit lapi version of pgas and post it.
+#  PLATFORM_SUPPORTS_LAPI       := yes
   LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
   LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
   PLATFORM_SUPPORTS_SOCKETS    := yes
