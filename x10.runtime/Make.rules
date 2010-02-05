@@ -31,7 +31,21 @@ ifdef USE_BFD
 endif
 
 ifdef JAVA_HOME
-  JNI_INCLUDES = -I$(JAVA_HOME)/include
+  ifeq ($(shell uname -s),AIX)
+      JNI_INCLUDES = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/inclue/aix
+  else 
+    ifeq ($(shell uname -s),Linux)
+      JNI_INCLUDES = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+    else
+      ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
+        JNI_INCLUDES = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/win32
+      else
+        ifeq ($(shell uname -s),Darwin)
+        # TODO!!
+        endif
+      endif
+    endif
+  endif
 endif
 
 ifndef NO_VAR_OVERRIDE
