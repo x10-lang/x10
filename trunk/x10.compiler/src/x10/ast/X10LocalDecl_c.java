@@ -10,38 +10,35 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.ast.ArrayInit;
 import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Id;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Node;
-import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.types.Context;
-import polyglot.types.FieldDef;
-import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.extension.X10Del;
-import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
-import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
+import x10.visit.X10PrettyPrinterVisitor;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	
@@ -50,6 +47,44 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		super(pos, flags, type, name, init);
 	}
 
+	@Override
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+		if (!X10PrettyPrinterVisitor.reduce_generic_cast) {
+			super.prettyPrint(w, tr);
+			return;
+		}
+		
+        boolean printSemi = tr.appendSemicolon(true);
+        boolean printType = tr.printType(true);
+
+        print(flags, w, tr);
+        if (printType) {
+            print(type, w, tr);
+            w.write(" ");
+        }
+        tr.print(this, name, w);
+
+        if (init != null) {
+            w.write(" =");
+            w.allowBreak(2, " ");
+            
+            w.write("(");
+            print(type, w, tr);
+            w.write(")(");
+            
+            print(init, w, tr);
+            
+            w.write(")");
+        }
+
+        if (printSemi) {
+            w.write(";");
+        }
+
+        tr.printType(printType);
+        tr.appendSemicolon(printSemi);
+    }
+	
 	@Override
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		if (type instanceof UnknownTypeNode && init == null)

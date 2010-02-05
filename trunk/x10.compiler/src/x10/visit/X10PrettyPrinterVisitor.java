@@ -190,6 +190,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public static final int NO_VARIANCE = 4;
 	public static final int NO_QUALIFIER = 8;
 	public static final boolean serialize_runtime_constraints = false;
+	public static final boolean reduce_generic_cast = true;
 
 
 	final public CodeWriter w;
@@ -538,7 +539,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				w.write(sep);
 				n.print(tp, w, tr);
 				List<Type> sups = tp.upperBounds();
-				if (sups.size() > 0) {
+				if (sups.size() > 0 && !reduce_generic_cast) {
 					//TODO: Decide what to do with multiple upper bounds. Not sure how Java will handle this.
 					w.write(" extends ");
 					er.printType(sups.get(0), PRINT_TYPE_PARAMS | NO_VARIANCE);
@@ -669,13 +670,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
 				Type t = X10TypeMixin.baseType(xtn.type());
-				Expander ex = new TypeExpander(er, t, PRINT_TYPE_PARAMS);
+				Expander ex = new TypeExpander(er, t, reduce_generic_cast ? 0 : PRINT_TYPE_PARAMS);
 
 				Expander bex = (type.isBoolean() || type.isNumeric() || type.isChar()) 
-				? new TypeExpander(er, type, PRINT_TYPE_PARAMS | BOX_PRIMITIVES) 
+				? new TypeExpander(er, type, BOX_PRIMITIVES | (reduce_generic_cast ? 0 : PRINT_TYPE_PARAMS))
 				: null;
 				Expander uex = (type.isBoolean() || type.isNumeric() || type.isChar()) 
-				? new TypeExpander(er, type, PRINT_TYPE_PARAMS) 
+				? new TypeExpander(er, type, reduce_generic_cast ? 0 : PRINT_TYPE_PARAMS) 
 				: null;
 				Expander rt = new RuntimeTypeExpander(er, t);
 
