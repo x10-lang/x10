@@ -132,12 +132,6 @@ public class CXXCommandBuilder {
         // prebuilt XRX
         cxxCmd.add("-L"+X10_DIST+"/lib");
         cxxCmd.add("-lx10");
-        if (USE_XLC) {
-            // TODO: Linker magic to tell it to encode where to load X10's shared libraries from in the generated executable.
-        } else {
-            cxxCmd.add("-Wl,--rpath");
-            cxxCmd.add("-Wl,"+X10_DIST+"/lib");
-        }
 
         if (!Configuration.DISABLE_GC && gcEnabled()) {
             cxxCmd.add("-L"+X10GC+"/lib");
