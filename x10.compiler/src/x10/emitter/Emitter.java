@@ -320,7 +320,42 @@ public class Emitter {
 		}
 		return null;
 	}
+	
+	public boolean isPrimitiveJavaRep(X10ClassDef def) {
+		String pat = getJavaRepParam(def, 1);
+		if (pat == null) {
+			return false;
+		}
+		String[] s = new String[] { "boolean", "byte", "char",
+				"short", "int", "long", "float", "double" };
+		for (int i = 0; i < s.length; i++) {
+			if (pat.equals(s[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
 
+	public String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
+		String pat = getJavaRepParam(def, 1);
+		if (pat != null && boxPrimitives) {
+			String[] s = new String[] { "boolean", "byte", "char",
+					"short", "int", "long", "float", "double" };
+			String[] w = new String[] { "java.lang.Boolean",
+					"java.lang.Byte", "java.lang.Character",
+					"java.lang.Short", "java.lang.Integer",
+					"java.lang.Long", "java.lang.Float",
+					"java.lang.Double" };
+			for (int i = 0; i < s.length; i++) {
+				if (pat.equals(s[i])) {
+					pat = w[i];
+					break;
+				}
+			}
+		}
+		return pat;
+	}
+	
 	public String getJavaRep(X10ClassDef def) {
 		return getJavaRepParam(def, 1);
 	}
@@ -382,23 +417,8 @@ public class Emitter {
 		// If the type has a native representation, use that.
 		if (type instanceof X10ClassType) {
 			X10ClassDef cd = ((X10ClassType) type).x10Def();
-			String pat = getJavaRep(cd);
+			String pat = getJavaRep(cd, boxPrimitives);
 			if (pat != null) {
-				if (boxPrimitives) {
-					String[] s = new String[] { "boolean", "byte", "char",
-							"short", "int", "long", "float", "double" };
-					String[] w = new String[] { "java.lang.Boolean",
-							"java.lang.Byte", "java.lang.Character",
-							"java.lang.Short", "java.lang.Integer",
-							"java.lang.Long", "java.lang.Float",
-							"java.lang.Double" };
-					for (int i = 0; i < s.length; i++) {
-						if (pat.equals(s[i])) {
-							pat = w[i];
-							break;
-						}
-					}
-				}
 				List<Type> typeArguments = ((X10ClassType) type)
 						.typeArguments();
 				Object[] o = new Object[typeArguments.size() + 1];
