@@ -10,33 +10,20 @@
  */
 package x10.visit;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
 import polyglot.ast.Block_c;
-import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
-import polyglot.ast.Cast;
-import polyglot.ast.CharLit;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
-import polyglot.ast.Field;
 import polyglot.ast.FieldAssign_c;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
@@ -44,7 +31,6 @@ import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.Id_c;
 import polyglot.ast.Import_c;
-import polyglot.ast.Instanceof;
 import polyglot.ast.IntLit_c;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
@@ -55,33 +41,21 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Special_c;
-import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.Context;
-import polyglot.types.Def;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
-import polyglot.types.MemberInstance;
-import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
-import polyglot.types.NoClassException;
 import polyglot.types.QName;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
-import polyglot.util.Position;
-import polyglot.util.StringUtil;
 import polyglot.visit.InnerClassRemover;
 import polyglot.visit.Translator;
 import x10.Configuration;
@@ -91,7 +65,6 @@ import x10.ast.AtExpr_c;
 import x10.ast.AtStmt_c;
 import x10.ast.Atomic_c;
 import x10.ast.Await_c;
-import x10.ast.Clocked;
 import x10.ast.ClosureCall;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
@@ -116,10 +89,8 @@ import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode;
-import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10ClassDecl_c;
-import x10.ast.X10ClockedLoop;
 import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10Formal;
@@ -129,19 +100,6 @@ import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
-import x10.constraint.XAnd_c;
-import x10.constraint.XConstraint;
-import x10.constraint.XEQV_c;
-import x10.constraint.XEquals_c;
-import x10.constraint.XField_c;
-import x10.constraint.XFormula_c;
-import x10.constraint.XLit_c;
-import x10.constraint.XLocal_c;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
-import x10.constraint.XNot_c;
-import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.emitter.Emitter;
 import x10.emitter.Expander;
 import x10.emitter.Inline;
@@ -150,24 +108,19 @@ import x10.emitter.Loop;
 import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
 import x10.emitter.TypeExpander;
-import x10.extension.X10Ext;
-import x10.query.QueryEngine;
-import x10.types.FunctionType;
-import x10.types.MacroType;
+import x10.types.ConstrainedType_c;
 import x10.types.ParameterType;
+import x10.types.ParameterType_c;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
-import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
-
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
-import x10.types.XTypeTranslator.XTypeLit_c;
 
 
 /**
@@ -971,14 +924,38 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
 
+		boolean cast = false;
+		if (xts.isParameterType(t)) {
+			cast = true;
+		} else {
+			Type baseType = X10TypeMixin.baseType(t);
+			if (baseType instanceof X10ClassType) {
+				X10ClassType ct = (X10ClassType) baseType;
+				if (er.isPrimitiveJavaRep(ct.x10Def())) {
+					cast = true;
+				}
+			}
+		}
+				
 		String pat = er.getJavaImplForDef(mi.x10Def());
 		if (pat != null) {
 			boolean needsHereCheck = er.needsHereCheck(target, context);
-			Template tmp = null; 
-			if (needsHereCheck && ! (target instanceof TypeNode || target instanceof New)) {
-				tmp = new Template(er, "place-check", new TypeExpander(er, target.type(), true, false, false), target);
+			Object targetName = null;
+			if (needsHereCheck
+					&& !(target instanceof TypeNode || target instanceof New)) {
+				targetName = new Template(er, "place-check", new TypeExpander(
+						er, target.type(), true, false, false), target);
+			} else {
+				if (cast) {
+					String javaClassName = er.getJavaRep((X10ClassDef) mi
+							.container().toClass().def(), true);
+					targetName = "((" + javaClassName + ")" + target + ")";
+				} else {
+					targetName = target;
+				}
 			}
-			er.emitNativeAnnotation(pat, null == tmp ? target : tmp, mi.typeParameters(), c.arguments());
+			er.emitNativeAnnotation(pat, targetName, mi.typeParameters(), c
+					.arguments());
 			return;
 		}
 
@@ -993,6 +970,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					return;
 				}
 			}
+		}
+
+		if (cast) {
+			w.write("((");
+			Type ct = mi.container();
+			er.printType(ct, 0);
+			w.write(")");
 		}
 
 		if (target instanceof TypeNode) {
@@ -1023,7 +1007,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				tr.print(c, target, w);
 			}
 		}
-
+		
+		if (cast) {
+			w.write(")");
+		}
+		
 		w.write(".");
 
 		if (mi.typeParameters().size() > 0) {
