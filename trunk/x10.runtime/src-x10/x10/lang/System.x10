@@ -245,7 +245,7 @@ public class System {
                                 dst_place:Place, dst_handle:PlaceLocalHandle[Rail[T]]!, dst_off:Int,
                                 len:Int) {
         val finder = ()=> Pair[Rail[T],Int](dst_handle(), dst_off);
-        src.copyTo[T](src_off, dst_place, finder, len);
+        src.copyTo(src_off, dst_place, finder, len);
         Runtime.dealloc(finder);
     }
 
@@ -267,7 +267,7 @@ public class System {
                                 dst:Place, dst_handle:PlaceLocalHandle[Rail[T]]!, dst_off:Int,
                                 len:Int, notifier:()=>Void) {
         val finder = ()=> Pair[Rail[T],Int](dst_handle(), dst_off);
-        src.copyTo[T](src_off, dst, finder, len, notifier);
+        src.copyTo(src_off, dst, finder, len, notifier);
         Runtime.dealloc(finder);
         Runtime.dealloc(notifier);
     }
@@ -287,7 +287,7 @@ public class System {
     public static def copyTo[T](handle:PlaceLocalHandle[Rail[T]]!,
                                 dst_place:Place, len:Int, notifier:()=>Void) {
         val finder = ()=>Pair[Rail[T],Int](handle(), 0);
-        handle().copyTo[T](0, dst_place, finder, len, notifier);
+        handle().copyTo(0, dst_place, finder, len, notifier);
         Runtime.dealloc(finder);
         Runtime.dealloc(notifier);
     }
@@ -306,7 +306,7 @@ public class System {
     public static def copyTo[T](src:Rail[T]!, src_off:Int, dst:Rail[T], dst_off:Int,
                                 len:Int, notifier:()=>Void) {
         val finder = ()=>Pair[Rail[T],Int](dst,dst_off);
-        src.copyTo[T](src_off, dst.home, finder, len, notifier);
+        src.copyTo(src_off, dst.home, finder, len, notifier);
         Runtime.dealloc(finder);
         Runtime.dealloc(notifier);
     }
