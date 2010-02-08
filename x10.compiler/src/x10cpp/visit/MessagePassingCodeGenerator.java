@@ -2447,7 +2447,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String tmpName = null;
         if (stackAllocate) {
             tmpName = "_StackAllocate_"+mangled_non_method_name(dec.name().id().toString());
-            sw.write(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
+            sw.writeln(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
             assert context.getStackAllocName() == null;
             context.setStackAllocName(tmpName);
         } else {
@@ -2474,7 +2474,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        context.setStackAllocName(null);
 	        sw.writeln(";");
 	        emitter.printHeader(dec, sw, tr, true);
-	        sw.write(" = (&"+tmpName+")");
+	        sw.write("(&"+tmpName+")");
 	    }
 
 	    if (tr.appendSemicolon()) {
