@@ -3205,11 +3205,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		X10TypeSystem xts = (X10TypeSystem)context.typeSystem();
 		ConstructorInstance constructor = n.constructorInstance();
+		boolean stackAllocate = false;
 
-		// TODO: implement @StackAllocate
+        // Danger Will Robinson! Give programmer plenty of rope to hang themselves!!
+        // If there's a @StackAllocate annotation on a new expression, then do what
+        // the programmer asked us to and stack allocate the storage for the object.
+        // If the programmer was incorrect about the lifetime of the object, then
+        // the program will almost certainly crash in some unexpected way.
 		try {
 		    Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
 		    if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
+		        stackAllocate = true;
 		        System.err.println("@StackAllocate " + n);
 		    }
 		} catch (SemanticException e) {}
@@ -3233,7 +3239,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (xts.isStructType(n.objectType().type())) {
             sw.write(Emitter.structMethodClass(n.objectType().type().toClass(), true, true)+"::"+MAKE+"(");
 		} else {
-		    sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
+		    if (stackAllocate) {
+		        sw.write("__extension__ ({" +Emitter.translateType(n.objectType().type(), false)+" _; _._constructor(");
+		    } else {
+		        sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
+		    }
 		}
 		sw.begin(0);
 		for (Iterator<Expr> i = coercedArgs.iterator(); i.hasNext(); ) {
@@ -3245,6 +3255,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 		}
 		sw.write(")");
+		if (stackAllocate) {
+		    sw.write("; (&_);})");
+		}
 		sw.end();
 	}
 
