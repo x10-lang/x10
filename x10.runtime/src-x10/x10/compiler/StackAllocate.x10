@@ -9,9 +9,12 @@
 package x10.compiler;
 
 import x10.lang.annotations.ExpressionAnnotation;
+import x10.lang.annotations.StatementAnnotation;
 
-/** An annotation on "new" that requests the compiler to stack allocate the object
+/** An annotation that requests the compiler to stack allocate an object
+ * must be used *exactly* as the following for now:
+ *   @StackAllocate val v = @StackAllocate new T(...);
  * EXPERIMENTAL
  * @author Olivier Tardieu
  */
-public interface StackAllocate extends ExpressionAnnotation { }
+public interface StackAllocate extends ExpressionAnnotation,StatementAnnotation { }
