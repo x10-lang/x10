@@ -27,6 +27,6 @@ class XTENLANG_298_MustFailCompile extends x10Test {
     }
 
     public static def main(Rail[String]) {
-        new XTENLANG_298().execute();
+        new XTENLANG_298_MustFailCompile().execute();
     }
 }
