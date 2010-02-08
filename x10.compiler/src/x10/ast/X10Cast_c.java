@@ -360,18 +360,40 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
             }
         }
 
-        if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
-            if (ts.isParameterType(fromType) || ts.isParameterType(toType)) {
-                X10Cast_c n = (X10Cast_c) copy();
-                n.convert = ConversionType.CHECKED;
-                return n.type(toType);
-            }
+       l:  if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
+        	if (ts.isParameterType(toType)) {
+        		// Now get the upper bound.
+        		List<Type> upper = ts.env(context).upperBounds(toType, false);
+        		if (upper.isEmpty()) {
+        			// No upper bound. Now a hecked conversion is permitted only
+        			// if fromType is not Null.
+        			if (! fromType.isNull()) 
+        				return checkedConversionForTypeParameter(fromType, toType);
+        		} else {
+        			for (Type t : upper)
+        				if (ts.isSubtype(fromType, t))
+        					return checkedConversionForTypeParameter(fromType, toType);
+        		}
+        	} else 	if (ts.isParameterType(fromType)) {
+        		// Now get the upper bound.
+        		List<Type> upper = ts.env(context).upperBounds(fromType, false);
+        		for (Type t : upper) 
+        			if (! ts.isSubtype(t, toType))
+        				break l;
+        		return checkedConversionForTypeParameter(fromType, toType);
+        	}
         }
 
         throw new SemanticException("Cannot convert expression of type \"" 
                                     + fromType + "\" to type \"" 
                                     + toType + "\".",
                                     position());
+    }
+    
+    Expr checkedConversionForTypeParameter(Type fromType, Type toType) {
+        X10Cast_c n = (X10Cast_c) copy();
+        n.convert = ConversionType.CHECKED;
+        return n.type(toType);
     }
 
     public TypeNode getTypeNode() {

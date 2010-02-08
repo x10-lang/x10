@@ -903,7 +903,10 @@ public class X10TypeMixin {
 		return t;
 	}
 	
+	public static boolean isTypeParameter(Type t) {
+	    return t instanceof ParameterType;
+	}
 	public static boolean permitsNull(Type t) {
-		return ! isX10Struct(t);
+		return ! (isX10Struct(t) || isTypeParameter(t));
 	}
 }

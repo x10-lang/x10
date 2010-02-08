@@ -714,8 +714,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	if (t2.isVoid())
     		return false;
 
-    	if (t1.isNull() && X10TypeMixin.permitsNull(t2)) 
-    		return true;
+    	if (t1.isNull())
+    		return X10TypeMixin.permitsNull(t2);
     	
 
     	if (t2.isNull()) 
