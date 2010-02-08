@@ -907,7 +907,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		new Template(er, "tuple", 
 				new TypeExpander(er, t, true, true, false),
 				new RuntimeTypeExpander(er, t), 
-				new TypeExpander(er, t, true, false, false),
+				new TypeExpander(er, t, false, false, false),
 				new Join(er, ",", c.arguments())).expand();
 	}
 
