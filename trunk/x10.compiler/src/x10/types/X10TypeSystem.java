@@ -244,6 +244,7 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isUShort(Type t);
     boolean isUInt(Type t);
     boolean isULong(Type t);
+    boolean isNull(Type t);
 
     // RMF 7/11/2006 - Added so that the parser can create a canonical type node
     // for "primitive types", which otherwise will cause disambiguation to fail.
@@ -266,6 +267,8 @@ public interface X10TypeSystem extends TypeSystem {
     public boolean isPrimitiveTypeName(Name name);
 
     boolean hasSameClassDef(Type t1, Type t2);
+    
+    X10TypeEnv env(Context c);
 
     /**
      * Is a type constrained (i.e. its depClause is != null) If me is a

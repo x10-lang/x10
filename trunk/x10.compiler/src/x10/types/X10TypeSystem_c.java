@@ -1554,6 +1554,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return isSubtype(t, UShort(), emptyContext());
     }
 
+    public boolean isNull(Type t) {
+        return t.isNull();
+    }
+  
     public boolean isUInt(Type t) {
         return isSubtype(t, UInt(), emptyContext());
     }
