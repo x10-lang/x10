@@ -2430,14 +2430,34 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(LocalDecl_c dec) {
-	    emitter.printHeader(dec, sw, tr, true);
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    X10TypeSystem xts = (X10TypeSystem)context.typeSystem();
+	    
+        boolean stackAllocate = false;
+        try {
+            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
+            if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
+                stackAllocate = true;
+                System.err.println("@StackAllocate " + dec);
+            }
+        } catch (SemanticException e) { 
+            /* Ignore exception when looking for annotation */  
+        }
+        
+        String tmpName = null;
+        if (stackAllocate) {
+            tmpName = "_StackAllocate_"+mangled_non_method_name(dec.name().id().toString());
+            sw.write(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
+            assert context.getStackAllocName() == null;
+            context.setStackAllocName(tmpName);
+        } else {
+            emitter.printHeader(dec, sw, tr, true);
+        }
 
 	    Expr initexpr = dec.init();
 	    if (initexpr != null) {
-	        sw.write(" =");
+	        if (!stackAllocate) sw.write(" =");
 	        sw.allowBreak(2, " ");
-	        X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-	        Context context = tr.context();
 	        Type aType = dec.type().type();
 	        boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, initexpr.type(), context);
 	        if (rhsNeedsCast) {
@@ -2448,6 +2468,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        dec.print(initexpr, sw, tr);
 	        if (rhsNeedsCast)
 	            sw.write(")");
+	    }
+	    
+	    if (stackAllocate) {
+	        context.setStackAllocName(null);
+	        sw.writeln(";");
+	        emitter.printHeader(dec, sw, tr, true);
+	        sw.write(" = (&"+tmpName+")");
 	    }
 
 	    if (tr.appendSemicolon()) {
@@ -3240,7 +3267,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write(Emitter.structMethodClass(n.objectType().type().toClass(), true, true)+"::"+MAKE+"(");
 		} else {
 		    if (stackAllocate) {
-		        sw.write("__extension__ ({" +Emitter.translateType(n.objectType().type(), false)+" _; _._constructor(");
+		        sw.write(context.getStackAllocName()+"._constructor(");
 		    } else {
 		        sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
 		    }
@@ -3255,9 +3282,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 		}
 		sw.write(")");
-		if (stackAllocate) {
-		    sw.write("; (&_);})");
-		}
 		sw.end();
 	}
 

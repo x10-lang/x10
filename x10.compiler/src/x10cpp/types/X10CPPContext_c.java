@@ -126,7 +126,11 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
     public void setStackAllocateClosure(boolean val) { stackAllocateClosure = val; }
     // The outer context of the closure (if in closure)
     public X10CPPContext_c closureOuter = null;
-
+    
+    // used internally, shallow
+    protected String stackAllocName = null;
+    public String getStackAllocName() { return stackAllocName; }
+    public void setStackAllocName(String s) { stackAllocName = s; }
     
     public boolean hasInits = false;
     
