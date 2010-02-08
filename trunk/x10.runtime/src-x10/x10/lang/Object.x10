@@ -30,15 +30,15 @@ public class Object (
 
     public native def this();
 
-    @Native("java", "#0.equals(#1)")
+    @Native("java", "((Object)#0).equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(Any): boolean;
 
-    @Native("java", "#0.hashCode()")
+    @Native("java", "((Object)#0).hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
     public global safe native def hashCode() : Int;
 
-    @Native("java", "#0.toString()")
+    @Native("java", "((Object)#0).toString()")
     @Native("c++", "x10aux::to_string(#0)")
     public global safe native def toString() : String;
 
