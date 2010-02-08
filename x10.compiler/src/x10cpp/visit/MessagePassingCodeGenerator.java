@@ -2810,7 +2810,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String pat = getCppImplForDef(md);
 		if (pat != null) {
-			emitNativeAnnotation(pat, mi.typeParameters(), target, args);
+		    List<Type> typeArguments  = Collections.<Type>emptyList();
+		    if (mi.container().isClass() && !mi.flags().isStatic()) {
+		        X10ClassType ct = (X10ClassType) mi.container().toClass();
+		        typeArguments = ct.typeArguments();
+		    }
+			emitNativeAnnotation(pat, mi.typeParameters(), target, args, typeArguments);
 			return;
 		}
 
@@ -4630,8 +4635,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     // FIXME: generic native methods will break
-	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<Expr> args) {
-		 Object[] components = new Object[1+3*types.size() + args.size()];
+	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<Expr> args, List<Type> typeArguments) {
+		 Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
 		 assert (receiver != null);
          components[0] = receiver;
          if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
@@ -4648,6 +4653,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		 for (Expr e : args) {
 			 components[i++] = e;
 		 }
+         for (Type at : typeArguments) {
+             components[i++] = at;
+             components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+             components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+         }
 		 emitter.dumpRegex("Native", components, tr, pat, sw);
 	}
 
