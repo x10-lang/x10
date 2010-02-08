@@ -3206,6 +3206,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10TypeSystem xts = (X10TypeSystem)context.typeSystem();
 		ConstructorInstance constructor = n.constructorInstance();
 
+		// TODO: implement @StackAllocate
+		try {
+		    Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
+		    if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
+		        System.err.println("@StackAllocate " + n);
+		    }
+		} catch (SemanticException e) {}
+		
 		if (n.qualifier() != null)
 			throw new InternalCompilerError("Qualified new not supported");
 		if (n.body() != null)
