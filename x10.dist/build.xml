@@ -13,8 +13,8 @@
     <property name="lpg.jar.url" value="http://lpg.sourceforge.net/updates/plugins/lpg.runtime_2.0.17.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
     <!-- NOTE: Eventually, the 3.4 stream will get moved to archive.eclipse.org. When that happens, move to 3.5 or get 3.4 from the archive -->
-    <property name="ecj.url" value="http://download.eclipse.org/eclipse/downloads/drops/R-3.4.1-200809111700"/>
-    <property name="ecj.jar.url" value="${ecj.url}/ecj-3.4.1.jar"/>
+    <property name="ecj.url" value="http://download.eclipse.org/eclipse/downloads/drops/R-3.5.1-200909170800"/>
+    <property name="ecj.jar.url" value="${ecj.url}/ecj-3.5.1.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="polyglot.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/updates/plugins"/>
     <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_3.1.1.jar"/>
