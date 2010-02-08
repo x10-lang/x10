@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -988,7 +989,7 @@ public class Emitter {
 		String pat = getJavaImplForDef(md.x10Def());
 		if (pat != null) {
 			String target = "this";
-			emitNativeAnnotation(pat, target, md.typeParameters(), dispatchArgs);
+			emitNativeAnnotation(pat, target, md.typeParameters(), dispatchArgs, Collections.<Type>emptyList());
 			w.write("; }");
 			return;
 		}
@@ -1124,8 +1125,8 @@ public class Emitter {
 	 * object for B #7 = a #8 = b
 	 */
 	public void emitNativeAnnotation(String pat, Object target,
-			List<Type> types, List<? extends Object> args) {
-		Object[] components = new Object[1 + types.size() * 3 + args.size()];
+			List<Type> types, List<? extends Object> args, List<Type> typeArguments) {
+		Object[] components = new Object[1 + types.size() * 3 + args.size() + typeArguments.size() * 3];
 		int i = 0;
 		components[i++] = target;
 		for (Type at : types) {
@@ -1136,6 +1137,11 @@ public class Emitter {
 		for (Object e : args) {
 			components[i++] = e;
 		}
+        for (Type at : typeArguments) {
+            components[i++] = new TypeExpander(this, at, true, false, false);
+            components[i++] = new TypeExpander(this, at, true, true, false);
+            components[i++] = new RuntimeTypeExpander(this, at);
+        }
 		this.dumpRegex("Native", components, tr, pat);
 	}
 

@@ -931,7 +931,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			if (needsHereCheck && ! (target instanceof TypeNode || target instanceof New)) {
 				tmp = new Template(er, "place-check", new TypeExpander(er, target.type(), true, false, false), target);
 			}
-			er.emitNativeAnnotation(pat, null == tmp ? target : tmp, mi.typeParameters(), c.arguments());
+            List<Type> typeArguments  = Collections.<Type>emptyList();
+            if (mi.container().isClass() && !mi.flags().isStatic()) {
+                X10ClassType ct = (X10ClassType) mi.container().toClass();
+                typeArguments = ct.typeArguments();
+            }
+			er.emitNativeAnnotation(pat, null == tmp ? target : tmp, mi.typeParameters(), c.arguments(), typeArguments);
 			return;
 		}
 
@@ -1403,7 +1408,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			String pat = er.getJavaImplForDef(mi.x10Def());
 
 			if (pat != null) {
-				er.emitNativeAnnotation(pat, null == tmp ? array : tmp, mi.typeParameters(), args);
+				er.emitNativeAnnotation(pat, null == tmp ? array : tmp, mi.typeParameters(), args, Collections.<Type>emptyList());
 				return;
 			} else {
 				// otherwise emit the hardwired code.

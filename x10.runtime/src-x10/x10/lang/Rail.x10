@@ -100,70 +100,60 @@ public final class Rail[T](length: Int)
 
     // Transfer functions
 
-    @Native("java", "x10.lang.System.copyTo(#3, #0,#4,#5,#6,#7)")
-    @Native("c++", "(#0)->copyTo(#4,#5,#6,#7)")
-    // U must be T. hack to get the type info.
-    public native def copyTo[U] (src_off:Int, dst:Rail[U], dst_off:Int, len:Int) : Void;
+    @Native("java", "x10.lang.System.copyTo(#7, #0,#1,#2,#3,#4)")
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4)")
+    public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
 
-    @Native("java", "x10.lang.System.copyTo(#3, #0,#4,#5,#6,#7)")
-    @Native("c++", "(#0)->copyTo(#4,#5,#6,#7)")
-    // U must be T. hack to get the type info.
-    public native def copyTo[U] (src_off:Int,
-                                 dst_place:Place, dst_finder:()=>Pair[Rail[U],Int],
-                                 len:Int) : Void;
+    @Native("java", "x10.lang.System.copyTo(#7, #0,#1,#2,#3,#4)")
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4)")
+    public native def copyTo (src_off:Int,
+                              dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
+                              len:Int) : Void;
 
-    @Native("java", "x10.lang.System.copyTo(#3, #0,#4,#5,#6,#7,#8)")
-    @Native("c++", "(#0)->copyTo(#4,#5,#6,#7,#8)")
-    // U must be T. hack to get the type info.
-    public native def copyTo[U] (src_off:Int,
-                                 dst_place:Place, dst_finder:()=>Pair[Rail[U],Int],
-                                 len:Int, notifier:()=>Void) : Void;
+    @Native("java", "x10.lang.System.copyTo(#8, #0,#1,#2,#3,#4,#5)")
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
+    public native def copyTo (src_off:Int,
+                              dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
+                              len:Int, notifier:()=>Void) : Void;
 
-    @Native("java", "x10.lang.System.copyTo(#3, #0,#4,#5,#6,#7,#8)")
-    @Native("c++", "x10::lang::System::copyTo(#0,#4,#5,#6,#7,#8)")
-    // U must be T. hack to get the type info.
-    public native def copyTo[U] (src_off:Int,
-                                 dst_place:Place, dst_handle:PlaceLocalHandle[Rail[U]], dst_off:Int,
-                                 len:Int) : Void;
+    @Native("java", "x10.lang.System.copyTo(#8, #0,#1,#2,#3,#4,#5)")
+    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
+    public native def copyTo (src_off:Int,
+                              dst_place:Place, dst_handle:PlaceLocalHandle[Rail[T]], dst_off:Int,
+                              len:Int) : Void;
 
-    @Native("java", "x10.lang.System.copyTo(#3, #0,#4,#5,#6,#7,#8,#9)")
-    @Native("c++", "x10::lang::System::copyTo(#0,#4,#5,#6,#7,#8,#9)")
-    // U must be T. hack to get the type info.
-    public native def copyTo[U] (src_off:Int,
-                                 dst_place:Place, dst_handle:PlaceLocalHandle[Rail[U]], dst_off:Int,
-                                 len:Int, notifier:()=>Void) : Void;
+    @Native("java", "x10.lang.System.copyTo(#9, #0,#1,#2,#3,#4,#5,#6)")
+    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5,#6)")
+    public native def copyTo (src_off:Int,
+                              dst_place:Place, dst_handle:PlaceLocalHandle[Rail[T]], dst_off:Int,
+                              len:Int, notifier:()=>Void) : Void;
 
-    @Native("java", "x10.lang.System.copyTo(#3 #0,#4,#5,#6,#7,#8)")
-    @Native("c++", "x10::lang::System::copyTo(#0,#4,#5,#6,#7,#8)")
-    // U must be T. hack to get the type info.
-    public native def copyTo[U] (src_off:Int, dst:Rail[U], dst_off:Int,
-                                 len:Int, notifier:()=>Void) : Void;
+    @Native("java", "x10.lang.System.copyTo(#8 #0,#1,#2,#3,#4,#5)")
+    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
+    public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int,
+                              len:Int, notifier:()=>Void) : Void;
 
-    @Native("java", "x10.lang.System.copyFrom(#3, #0,#4,#5,#6,#7)")
-    @Native("c++", "(#0)->copyFrom(#4,#5,#6,#7)")
-    // U must be T. hack to get the type info.
-    public native def copyFrom[U] (dst_off:Int, src:Rail[U], src_off:Int, len:Int) : Void;
+    @Native("java", "x10.lang.System.copyFrom(#7, #0,#1,#2,#3,#4)")
+    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4)")
+    public native def copyFrom (dst_off:Int, src:Rail[T], src_off:Int, len:Int) : Void;
 
-    @Native("java", "x10.lang.System.copyFrom(#3, #0,#4,#5,#6,#7)")
-    @Native("c++", "(#0)->copyFrom(#4,#5,#6,#7)")
-    // U must be T. hack to get the type info.
-    public native def copyFrom[U] (dst_off:Int,
-                                   src_place:Place, src_finder:()=>Pair[Rail[U],Int],
-                                   len:Int) : Void;
+    @Native("java", "x10.lang.System.copyFrom(#7, #0,#1,#2,#3,#4)")
+    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4)")
+    public native def copyFrom (dst_off:Int,
+                                src_place:Place, src_finder:()=>Pair[Rail[T],Int],
+                                len:Int) : Void;
 
-    @Native("java", "x10.lang.System.copyFrom(#3, #0,#4,#5,#6,#7)")
-    @Native("c++", "(#0)->copyFrom(#4,#5,#6,#7)")
-    // U must be T. hack to get the type info.
-    public  native def copyFrom[U] (dst_off:Int, src:ValRail[U], src_off:Int, len:Int):Void;
+    @Native("java", "x10.lang.System.copyFrom(#7, #0,#1,#2,#3,#4)")
+    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4)")
+    public native def copyFrom (dst_off:Int, src:ValRail[T], src_off:Int, len:Int):Void;
 
-    @Native("java", "x10.lang.System.copyFrom(#3, #0,#4,#5,#6,#7)")
-    @Native("c++", "(#0)->copyFrom(#4,#5,#6,#7)")
-    // U must be T. hack to get the type info.
-    public native def copyFrom[U] (dst_off:Int,
-                                   src_place:Place, src_finder:()=>Pair[ValRail[U],Int],
-                                   len:Int) : Void;
+    @Native("java", "x10.lang.System.copyFrom(#7, #0,#1,#2,#3,#4)")
+    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4)")
+    public native def copyFrom (dst_off:Int,
+                                src_place:Place, src_finder:()=>Pair[ValRail[T],Int],
+                                len:Int) : Void;
 
-    @Native("java",  "#0.view()")
+    @Native("java", "#0.view()")
     @Native("c++", "#0->view()")
     public native def view(): ValRail[T]{self.length==this.length};
 
