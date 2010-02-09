@@ -23,9 +23,8 @@ public class X10RT {
       assert state.compareTo(State.TEARING_DOWN) < 0 : "X10RT is shutting down";
       assert state != State.BOOTED;
 
-      // TODO: Need to make this dependent on command line argument/system property
-      //       Eventually could be mpi, pgas_sockets, pgas_lapi, etc.
-      System.loadLibrary("x10rt_mpi");
+      String libName = System.getProperty("X10RT_IMPL", "x10rt_pgas_sockets");
+      System.loadLibrary(libName);
 
       initializeImpl();
 
