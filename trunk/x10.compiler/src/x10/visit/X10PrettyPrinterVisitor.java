@@ -96,6 +96,7 @@ import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
+import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.X10Special;
@@ -108,9 +109,7 @@ import x10.emitter.Loop;
 import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
 import x10.emitter.TypeExpander;
-import x10.types.ConstrainedType_c;
 import x10.types.ParameterType;
-import x10.types.ParameterType_c;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -119,6 +118,7 @@ import x10.types.X10Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
+import x10.types.X10PrimitiveType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -1146,6 +1146,67 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Await_c c) {
 		assert false;
 		//		new Template("await", c.expr(), getUniqueId_()).expand();
+	}
+	
+	public void visit(X10LocalDecl_c n) {
+		if (!X10PrettyPrinterVisitor.reduce_generic_cast) {
+			n.prettyPrint(w, tr);
+			return;
+		}
+		
+		//same with FieldDecl_c#prettyPrint(CodeWriter w, PrettyPrinter tr)
+        boolean printSemi = tr.appendSemicolon(true);
+        boolean printType = tr.printType(true);
+
+        tr.print(n, n.flags(), w);
+        if (printType) {
+        	tr.print(n, n.type(), w);
+            w.write(" ");
+        }
+        tr.print(n, n.name(), w);
+
+        if (n.init() != null) {
+            w.write(" =");
+            w.allowBreak(2, " ");
+            
+            //X10 unique
+            if (n.init().type().isNull()) {
+                tr.print(n, n.init(), w);
+            } else {
+            	Type expectedType = n.type().type();
+            	Type actualType = X10TypeMixin.baseType(n.init().type());
+            	if (expectedType != actualType && 
+            			(actualType.isBoolean() || actualType.isNumeric() || actualType.isByte())) {
+                    //cast (expected_boxed_primitive)((expected_primitive)((init_primitive)((init_boxed_primitive)[init_expr])))
+                    //ex: int i = (Integer)((int)((double)((Double)(2.0))));
+                    w.write("(");
+                    new TypeExpander(er, expectedType, false, true, false).expand(tr);
+                    w.write(")((");
+                    new TypeExpander(er, expectedType, false, false, false).expand(tr);
+                    w.write(")((");
+                    new TypeExpander(er, actualType, false, false, false).expand(tr);
+                    w.write(")((");
+                    new TypeExpander(er, actualType, false, true, false).expand(tr);
+                    w.write(")(");
+                    tr.print(n, n.init(), w);
+                    w.write("))))");
+            	} else {
+                    //ex: Get<Super> sub = (Get)(new Get<Sub>());
+                    w.write("(");
+                    new TypeExpander(er, expectedType, false, true, false).expand(tr);
+                    w.write(")(");
+                    tr.print(n, n.init(), w);
+                    w.write(")");
+                }
+            }
+        }
+
+        if (printSemi) {
+            w.write(";");
+        }
+
+        tr.printType(printType);
+        tr.appendSemicolon(printSemi);
 	}
 
 	public void visit(Next_c d) {

@@ -1681,26 +1681,39 @@ public class Emitter {
 
 	public void coerce(Node parent, Expr e, Type expected) {
 		Type actual = e.type();
-		if (expected == actual
-				&& false //horii
-				) {
+		// currently, print cast operation eagerly
+		//if (expected == actual) {
+		//	tr.print(parent, e, w);
+		//	return;
+		//}
+
+		if (actual.isNull()) {
 			tr.print(parent, e, w);
-			return;
+		} else {
+			if (actual != expected 
+					&& (actual.isBoolean() || actual.isNumeric() || actual.isByte())) {
+                //cast (expected_boxed_primitive)((expected_primitive)((init_primitive)((init_boxed_primitive)[init_expr])))
+                //ex: int i = (Integer)((int)((double)((Double)(2.0))));
+				w.write("((");
+				printType(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+				w.write(")((");
+				printType(expected, 0);
+				w.write(")((");
+				printType(actual, 0);
+				w.write(")((");
+				printType(actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+				w.write(")(");
+				tr.print(parent, e, w);
+				w.write(")))))");
+			} else {
+                //ex: Get<Super> sub = ((Get)(new Get<Sub>()));
+				w.write("((");
+				printType(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+				w.write(")(");
+				tr.print(parent, e, w);
+				w.write("))");
+			}
 		}
-
-		//w.write("((");
-		//printType(expected, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);//horii
-		//w.write(") ");
-		//tr.print(parent, e, w);
-		//w.write(")");
-
-		//horii
-		w.write("((");
-		printType(expected, 0);
-		w.write(") (");
-		tr.print(parent, e, w);
-		w.write("))");
-		//iiroh
 		
 		// w.write("x10.rtt.Types.<");
 		// printType(expected, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);

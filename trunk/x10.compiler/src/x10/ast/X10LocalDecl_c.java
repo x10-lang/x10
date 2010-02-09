@@ -33,6 +33,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.emitter.Emitter;
 import x10.extension.X10Del;
 import x10.extension.X10Ext;
 import x10.types.X10ClassType;
@@ -47,44 +48,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		super(pos, flags, type, name, init);
 	}
 
-	@Override
-    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-		if (!X10PrettyPrinterVisitor.reduce_generic_cast) {
-			super.prettyPrint(w, tr);
-			return;
-		}
-		
-        boolean printSemi = tr.appendSemicolon(true);
-        boolean printType = tr.printType(true);
-
-        print(flags, w, tr);
-        if (printType) {
-            print(type, w, tr);
-            w.write(" ");
-        }
-        tr.print(this, name, w);
-
-        if (init != null) {
-            w.write(" =");
-            w.allowBreak(2, " ");
-            
-            w.write("(");
-            print(type, w, tr);
-            w.write(")(");
-            
-            print(init, w, tr);
-            
-            w.write(")");
-        }
-
-        if (printSemi) {
-            w.write(";");
-        }
-
-        tr.printType(printType);
-        tr.appendSemicolon(printSemi);
-    }
-	
 	@Override
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		if (type instanceof UnknownTypeNode && init == null)
