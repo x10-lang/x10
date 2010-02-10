@@ -365,11 +365,8 @@
       <sequential>
         <mkdir dir="${lib}"/>
         <copy todir="${lib}" preservelastmodified="true" >
-           <fileset dir="${bdwgc.dir}/install/lib" includes="libgc*"/>
+           <fileset dir="${bdwgc.dir}/install/lib" includes="libgc.a"/>
         </copy>
-        <chmod perm="ugo+rx" >
-           <fileset dir="${lib}" includes="libgc.so*" />
-        </chmod>
         <copy todir="${inc}">
            <fileset dir="${bdwgc.dir}/install/include" includes="**/*.h"/>
         </copy>

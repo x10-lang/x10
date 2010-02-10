@@ -64,7 +64,8 @@ ifdef ENABLE_CROSS_COMPILE_BGP
 else
 
   ifeq ($(shell uname -s),AIX)
-
+    export X10_STATIC_LIB=1
+    LIBSUFFIX := .a
 
     ifdef USE_GCC
       export X10RT_PLATFORM=aix_gcc
@@ -72,7 +73,6 @@ else
         override CXXFLAGS += -O2 -finline-functions
       endif
       override CXXFLAGS += -maix64
-      override CXXFLAGS_SHARED += -fPIC -shared -Wl,-bexpfull
       MPICXX ?= mpicxx
     else	
       export X10RT_PLATFORM=aix_xlc
@@ -90,7 +90,6 @@ else
       override CXXFLAGS += -qrtti=all
       override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
       override CXXFLAGS += $(XLC_EXTRA_FLAGS)
-      override CXXFLAGS_SHARED += -qmkshrobj
       ifeq ($(AR),ar) # use AIX default ar
         AR = /usr/bin/ar
       endif
@@ -134,11 +133,13 @@ else
       else
         ifeq ($(shell uname -s),Darwin)
           export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
-          override CXXFLAGS_SHARED += -dynamiclib -fno-common -fPIC
-	  LIBSUFFIX := .dylib
+          export X10_STATIC_LIB=1
+          LIBSUFFIX := .a
         else
           ifeq ($(shell uname -s),SunOS)
             export X10RT_PLATFORM=sunos
+            export X10_STATIC_LIB=1
+            LIBSUFFIX := .a
           endif
         endif
       endif
