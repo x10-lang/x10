@@ -9,7 +9,8 @@ import harness.x10Test;
  */
 
 public class OperatorSelector1 extends ClosureTest {
-    const add = Double.$plus.(Double,Double);
+// WAS:     const add = Double.$plus.(Double,Double);
+     const add = Double.+(Double,Double);
     def m(x:(double,double)=>double):void={}
     public def run(): boolean = {
        m(add);
