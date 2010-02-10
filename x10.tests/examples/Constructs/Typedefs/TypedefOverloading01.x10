@@ -7,7 +7,7 @@ import harness.x10Test;
  * A compilation unit may have one or more type definitions or class
  * or interface declarations with the same name, as long as the
  * definitions have distinct parameters according to the method
- * overloading rules (§9.7.1).
+ * overloading rules (9.7.1).
  *
  * @author bdlucas 9/2008
  */
