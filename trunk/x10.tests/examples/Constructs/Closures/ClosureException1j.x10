@@ -19,7 +19,7 @@ public class ClosureException1j extends ClosureTest {
         
         class C[T] {val j = (){T<:Exception} throws T, Exception => 1;}
         check("new C[E]().j()", (new C[E]().j)(), 1);
-        check("new C[Exception]().j()", (new C[Exception]().j)(), 1);
+        check("new C[Exception]().j()", new C[Exception]().j(), 1);
 
         return result;
     }
