@@ -14,6 +14,9 @@ import harness.x10Test;
 /**
  * A local variable referenced in a deptype in a method declaration must have 
  * greater or equal accessibility/visibility than the declaration.
+ * 
+ * This restriction probably is 4.4.3 "Constraint Semantics", in a static semantic 
+ * rule called "Variable visibility"
  *
  * @author pvarma
  */
