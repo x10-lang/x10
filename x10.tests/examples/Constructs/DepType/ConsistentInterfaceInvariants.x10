@@ -5,7 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
-//LIMITATION:
+//ex-L-I-M-I-T-A-T-I-O-N:
+//(As of 2006, the following was a limitation.  It shouldn't be anymore.)
 //This test case will not meet expectations. It is a limitation of the current release.
 //Interface invariants are not currently implemented.
 // Cannot constrain super-properties in the class invariant
