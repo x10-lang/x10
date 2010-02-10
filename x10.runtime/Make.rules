@@ -128,7 +128,7 @@ else
     else
       ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
         export X10RT_PLATFORM=cygwin
-        override CXXFLAGS_SHARED += -shared
+        override CXXFLAGS_SHARED += -shared -Wl,--export-all-symbols -Wl,--enable-auto-import
         LIBPREFIX :=
         LIBSUFFIX := .dll
       else
