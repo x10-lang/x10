@@ -114,11 +114,12 @@ endif
 ifeq ($(PLATFORM_SUPPORTS_SOCKETS), yes)
 
 TESTS += $(patsubst test/%,test/%.pgas_sockets,$(BASE_TESTS))
-LIBS += lib/libx10rt_pgas_sockets.so
+PGAS_DYNLIB = lib/$(LIBPREFIX)x10rt_pgas_sockets$(LIBSUFFIX)
+LIBS += $(PGAS_DYNLIB)
 PROPERTIES += etc/x10rt_pgas_sockets.properties
 EXECUTABLES += bin/launcher bin/manager bin/daemon
 
-%.pgas_sockets: %.cc lib/libx10rt_pgas_sockets.so
+%.pgas_sockets: %.cc $(PGAS_DYNLIB)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(SOCKETS_LDFLAGS) $(SOCKETS_LDLIBS) $(X10RT_TEST_LDFLAGS)
 
 ifdef CUSTOM_PGAS
@@ -137,7 +138,7 @@ lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
 	$(GZIP) -cd $(SOCKETS_TGZ) | $(TAR) -xf -
 endif
 
-lib/libx10rt_pgas_sockets.so: $(COMMON_OBJS) lib/libxlpgas_sockets.a
+$(PGAS_DYNLIB): $(COMMON_OBJS) lib/libxlpgas_sockets.a
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
 
 etc/x10rt_pgas_sockets.properties:
@@ -160,10 +161,11 @@ else
 HACK=$(shell echo "Your platform supports LAPI but we could not find the poe executable so not building LAPI tests">2)
 endif
 
-LIBS += lib/libx10rt_pgas_lapi.so
+PGAS_DYNLIB = lib/$(LIBPREFIX)x10rt_pgas_lapi$(LIBSUFFIX)
+LIBS += $(PGAS_DYNLIB)
 PROPERTIES += etc/x10rt_pgas_lapi.properties
 
-%.pgas_lapi: %.cc lib/libx10rt_pgas_lapi.so
+%.pgas_lapi: %.cc $(PGAS_DYNLIB)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS) $(X10RT_TEST_LDFLAGS)
 
 ifdef CUSTOM_PGAS
@@ -179,7 +181,7 @@ lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
 	$(GZIP) -cd $(LAPI_TGZ) | $(TAR) -xf -
 endif
 
-lib/libx10rt_pgas_lapi.so: $(COMMON_OBJS) lib/libxlpgas_lapi.a
+$(PGAS_DYNLIB): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
 
 etc/x10rt_pgas_lapi.properties:

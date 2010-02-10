@@ -30,4 +30,10 @@ typedef void *x10rt_finder(const x10rt_msg_params &, x10rt_copy_sz);
 typedef void x10rt_notifier(const x10rt_msg_params &, x10rt_copy_sz);
 
 
+#ifdef __CYGWIN__
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT
+#endif
+
 #endif

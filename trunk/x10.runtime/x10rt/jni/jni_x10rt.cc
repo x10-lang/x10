@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 
+#define __int64 __int64_t
 #include "x10_x10rt_X10RT.h"
 
 #include <x10rt_front.h>
