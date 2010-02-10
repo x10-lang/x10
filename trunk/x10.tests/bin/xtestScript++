@@ -514,10 +514,6 @@ function main {
 		printf "\n[$prog: err]: unable to locate x10rt header files!\n"
 		cleanUpExit 2
 	fi
-	if [[ ! (-f $X10LANG/libx10.a || -f $X10LANG/lib/libx10.a) ]]; then
-		printf "\n[$prog: err]: unable to locate x10rt libraries!\n"
-		cleanUpExit 2
-	fi
 
 	# prepare test case list
 	# exit code: 3

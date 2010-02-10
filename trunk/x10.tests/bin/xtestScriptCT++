@@ -613,15 +613,6 @@ function main {
 		printf "\n[$prog: err]: unable to locate x10rt header files!\n"
 		cleanUpExitHarness 2
 	fi
-	if [[ ! -f $X10_HOME/x10.dist/lib/libx10.a ]]; then
-		printf "\n[$prog: err]: unable to locate x10rt libraries!\n"
-		cleanUpExitHarness 2
-	fi
-	if [[ ! (-f $X10_HOME/x10.dist/lib/libx10rt_pgas_lapi.a || \
-						-f $X10_HOME/x10.dist/lib/libx10rt_pgas_sockets.a) ]]; then
-		printf "\n[$prog: err]: unable to locate pgas libraries!\n"
-		celanUpExitHarness 2
-	fi
 
 	# prepare test case list
 	# exit code: 3
