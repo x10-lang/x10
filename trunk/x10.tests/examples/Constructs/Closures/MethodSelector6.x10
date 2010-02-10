@@ -34,10 +34,17 @@ public class MethodSelector6 extends ClosureTest {
     public def run(): boolean = {
 
         val c = new C6();
+/* Original ... 
         val f1 = c.foo.[int]();
         val f2 = c.foo.[int](int);
         check("f1", f1(), 1);
         check("f2", f2(2), 2);
+*/
+        val f1 = c.foo[int]();
+        check("f1", f1, 1);
+        val f2 = c.foo[int](47474);
+        check("f2", f2, 47474); 
+
 
         return result;
     }
