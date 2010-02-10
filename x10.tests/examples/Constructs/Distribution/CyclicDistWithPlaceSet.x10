@@ -80,7 +80,7 @@ public class CyclicDistWithPlaceSet extends x10Test {
 	 * Create a random, non-empty subset of the places
 	 */
 	def createRandPlaceSet(): randPlaceSet! = {
-		val placeSet: Set[Place] = new HashSet[Place]();
+		val placeSet: Set[Place]! = new HashSet[Place]();
 		var np: int;
 		val placeNums = Rail.make[int](Place.MAX_PLACES);
 		do {
