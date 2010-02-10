@@ -138,8 +138,15 @@ lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
 	$(GZIP) -cd $(SOCKETS_TGZ) | $(TAR) -xf -
 endif
 
+ifdef X10_STATIC_LIB
+$(PGAS_DYNLIB): $(COMMON_OBJS) lib/libxlpgas_sockets.a
+	$(CP) lib/libxlpgas_sockets.a $@
+	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+else
 $(PGAS_DYNLIB): $(COMMON_OBJS) lib/libxlpgas_sockets.a
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
+endif
+
 
 etc/x10rt_pgas_sockets.properties:
 	@echo "CXX=$(CXX)" > $@
@@ -181,8 +188,14 @@ lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
 	$(GZIP) -cd $(LAPI_TGZ) | $(TAR) -xf -
 endif
 
+ifdef X10_STATIC_LIB
+$(PGAS_DYNLIB): $(COMMON_OBJS) lib/libxlpgas_lapi.a
+	$(CP) lib/libxlpgas_lapi.a $@
+	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+else
 $(PGAS_DYNLIB): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
+endif
 
 etc/x10rt_pgas_lapi.properties:
 	echo "CXX=$(CXX)" > $@

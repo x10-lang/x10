@@ -11,8 +11,13 @@ PROPERTIES += etc/x10rt_mpi.properties
 mpi/x10rt_mpi.o: mpi/x10rt_mpi.cc
 	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 
+ifdef X10_STATIC_LIB
+$(MPI_DYNLIB): mpi/x10rt_mpi.o $(COMMON_OBJS)
+	$(AR) $(ARFLAGS) $@ $^
+else
 $(MPI_DYNLIB): mpi/x10rt_mpi.o $(COMMON_OBJS)
 	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
+endif
 
 etc/x10rt_mpi.properties:
 	@echo "CXX=$(MPICXX)" > $@

@@ -23,8 +23,13 @@ INSTDIR = $(call abspath,../../x10.dist)
 
 XRX_ARCHIVE = $(LIBPREFIX)x10$(LIBSUFFIX)
 ifeq ($(X10RT_PLATFORM),cygwin)
-
-XRX_DEP_LIBS = -L../x10rt/lib -lx10rt_pgas_sockets
+  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_pgas_sockets
+endif
+ifeq ($(X10RT_PLATFORM),darwin)
+  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_pgas_sockets
+endif
+ifeq ($(X10RT_PLATFORM),darwin64)
+  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_pgas_sockets
 endif
 XRX_MANIFEST = libx10.mft
 
@@ -151,11 +156,20 @@ gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST)
 	$(MAKE) $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST))
 	touch $@
 
+ifdef X10_STATIC_LIB
+$(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
+	$(AR) $(ARFLAGS) $@ \
+	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
+            $(ALL_MANUAL_OBJECTS)
+else
 $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ \
 	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
             $(ALL_MANUAL_OBJECTS) \
 	    $(XRX_DEP_LIBS)
+endif
+
+
 
 # The dummy files are needed to avoid rebuilds so must not be removed as
 # intermediate files usually are.
