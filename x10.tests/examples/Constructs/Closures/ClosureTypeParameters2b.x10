@@ -20,7 +20,7 @@ public class ClosureTypeParameters2b extends ClosureTest {
     public def run(): boolean = {
 
         class C[T] {val f = (){T<:Y} => T.name;}
-        check("new C[Y]().f()", new C[Y]().f(), "Y");
+        check("new C[Y]().f()", (new C[Y]().f)(), "Y");
 
         return result;
     }
