@@ -1852,13 +1852,26 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10ClassType container = (X10ClassType) dec.constructorDef().container().get();
         String typeName = Emitter.translateType(container.def().asType());
 
+        boolean inlined = false;
+        try {
+            X10TypeSystem xts = (X10TypeSystem)context.typeSystem();
+            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Inline"));
+            if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
+                inlined = true;
+            }
+        } catch (SemanticException e) { 
+            /* Ignore exception when looking for annotation */  
+        }
+
         sw.pushCurrentStream(h);
 		emitter.printHeader(dec, sw, tr, false, false, "void");
-        sw.popCurrentStream();
-        h.write(";") ; h.newline();
-        h.forceNewline();
+		if (!inlined) {
+		    h.write(";") ; h.newline();
+		    h.forceNewline();
+            sw.popCurrentStream();
 
-		emitter.printHeader(dec, sw, tr, true, false, "void");
+		    emitter.printHeader(dec, sw, tr, true, false, "void");
+		}
 		X10ConstructorInstance ci = (X10ConstructorInstance) dec.constructorDef().asInstance();
 		if (dec.body() == null) {
             assert false : dec.position().toString();
@@ -1940,6 +1953,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.end(); sw.newline();
         sw.write("}");
         sw.newline();
+        if (inlined) {
+            sw.popCurrentStream();
+        }
 
         if (!container.flags().isAbstract()) {
             // emit _make method
