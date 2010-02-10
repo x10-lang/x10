@@ -180,7 +180,7 @@ lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
 endif
 
 lib/libx10rt_pgas_lapi.so: $(COMMON_OBJS) lib/libxlpgas_lapi.a
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $<
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
 
 etc/x10rt_pgas_lapi.properties:
 	echo "CXX=$(CXX)" > $@
