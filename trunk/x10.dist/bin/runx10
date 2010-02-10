@@ -3,6 +3,10 @@
 # Can also be used to invoke valgrind, gdb, etc
 # Should work on Cygwin, Linux, Darwin, AIX
 
+prog="$(readlink $0 2>&1)"
+[ $? -eq 127 -o "$prog" = "" ] && prog="$0"
+TOP="$(cd "$(dirname $prog)/.." && pwd)"
+
 PATH="$PATH:."
 
 if [ "`uname -s`" = "AIX" ] ; then
@@ -28,5 +32,11 @@ else
     else
         export MP_CHILD=0 MP_PROCS=1 
     fi
+
+    # Cygwin: add x10.dist/lib to PATH to pick up the shared libs
+    if [[ "`uname -s`" = CYGWIN* ]] ; then
+        export PATH="$PATH:$TOP/lib"
+    fi
+
     exec "$@"
 fi
