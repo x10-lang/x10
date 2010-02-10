@@ -69,6 +69,7 @@ else
         override CXXFLAGS += -O2 -finline-functions
       endif
       override CXXFLAGS += -maix64
+      override CXXFLAGS_SHARED += -fPIC -shared -Wl,-bexpfull
       MPICXX ?= mpicxx
     else	
       export X10RT_PLATFORM=aix_xlc
@@ -86,6 +87,7 @@ else
       override CXXFLAGS += -qrtti=all
       override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
       override CXXFLAGS += $(XLC_EXTRA_FLAGS)
+      override CXXFLAGS_SHARED += -qmkshrobj
       ifeq ($(AR),ar) # use AIX default ar
         AR = /usr/bin/ar
       endif
@@ -108,7 +110,9 @@ else
 
     override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
     ifeq ($(shell uname -s),Linux)
-      override CXXFLAGS += -pthread
+      override CXXFLAGS += -pthread 
+      override CXXFLAGS_SHARED += -shared -fPIC
+      export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib
       ifeq ($(shell uname -m),x86_64)
         export X10RT_PLATFORM=linux_x86_64
       else
@@ -121,10 +125,11 @@ else
     else
       ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
         export X10RT_PLATFORM=cygwin
+        override CXXFLAGS_SHARED += -shared -fPIC
       else
         ifeq ($(shell uname -s),Darwin)
           export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
-	  export LIBTOOL=glibtool
+          override CXXFLAGS_SHARED += -shared -fPIC
         else
           ifeq ($(shell uname -s),SunOS)
             export X10RT_PLATFORM=sunos
