@@ -1,17 +1,17 @@
 TESTS += $(patsubst test/%,test/%.mpi,$(BASE_TESTS))
 
-LT_LIBS += lib/libx10rt_mpi.la
+LIBS += lib/libx10rt_mpi.so
 
 PROPERTIES += etc/x10rt_mpi.properties
 
-%.mpi: %.cc lib/libx10rt_mpi.la
-	$(LIBTOOL) --mode=link --tag=CXX $(MPICXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_mpi
+%.mpi: %.cc lib/libx10rt_mpi.so
+	$(MPICXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_mpi $(X10RT_TEST_LDFLAGS)
 
-mpi/x10rt_mpi.lo: mpi/x10rt_mpi.cc
-	$(LIBTOOL) --mode=compile --tag=CXX $(MPICXX) $(CXXFLAGS) -c $< -o $@
+mpi/x10rt_mpi.o: mpi/x10rt_mpi.cc
+	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 
-lib/libx10rt_mpi.la: mpi/x10rt_mpi.lo $(COMMON_LT_OBJS)
-	$(LIBTOOL) --mode=link --tag=CXX $(MPICXX) -o $@ $^ -rpath $(X10_HOME)/x10.dist/lib
+lib/libx10rt_mpi.so: mpi/x10rt_mpi.o $(COMMON_OBJS)
+	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
 
 etc/x10rt_mpi.properties:
 	@echo "CXX=$(MPICXX)" > $@

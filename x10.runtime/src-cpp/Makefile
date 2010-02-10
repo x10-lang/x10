@@ -21,7 +21,7 @@ INSTDIR = $(call abspath,../../x10.dist)
 # Targets #
 ###########
 
-XRX_ARCHIVE = libx10.a
+XRX_ARCHIVE = libx10.so
 XRX_MANIFEST = libx10.mft
 
 # this builds everything
@@ -148,7 +148,7 @@ gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST)
 	touch $@
 
 $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
-	$(AR) $(ARFLAGS) $@ \
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ \
 	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
             $(ALL_MANUAL_OBJECTS)
 
@@ -202,9 +202,9 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 # manually written code may #include some of the generated headers
 
 %.o: %.cc gen/all-cpp-generated 
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 %.o: %.cc %.h gen/all-cpp-generated 
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 
 
 depend:
