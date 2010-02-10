@@ -1,10 +1,10 @@
 import harness.x10Test;
 
-interface Sum {
+interface StructInterfaceTest_Sum {
   def sum():int;
 }
 
-struct S implements Sum {
+struct StructInterfaceTest_S implements StructInterfaceTest_Sum {
   val x:int;
   val y:int;
 
@@ -13,18 +13,18 @@ struct S implements Sum {
   public final def sum() = x + y;
 }
 
-class C implements Sum {
-  val f1:S;
+class StructInterfaceTest_C implements StructInterfaceTest_Sum {
+  val f1:StructInterfaceTest_S;
   
-  public def this(a:S) { f1 = a; }
+  public def this(a:StructInterfaceTest_S) { f1 = a; }
 
   public def sum() = f1.sum() + 3;
 }
 
 public class StructInterfaceTest extends x10Test {
   public def run(): boolean {
-    val a = S(3,4);
-    val b = new C(a);
+    val a = StructInterfaceTest_S(3,4);
+    val b = new StructInterfaceTest_C(a);
     
     chk(a.sum() == 7, "a.sum() == 7");
     chk(b.sum() == 10, "b.sum() == 10");
