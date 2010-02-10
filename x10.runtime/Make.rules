@@ -5,6 +5,9 @@
 CXX ?= g++
 AR ?= ar
 
+LIBPREFIX := lib
+LIBSUFFIX := .so
+
 __m_have_abspath:=$(abspath /)
 ifndef __m_have_abspath
   abspath=$(shell cd $1 && /bin/pwd)
@@ -125,7 +128,9 @@ else
     else
       ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
         export X10RT_PLATFORM=cygwin
-        override CXXFLAGS_SHARED += -shared -fPIC
+        override CXXFLAGS_SHARED += -shared
+        LIBPREFIX :=
+        LIBSUFFIX := .dll
       else
         ifeq ($(shell uname -s),Darwin)
           export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)

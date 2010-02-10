@@ -1,13 +1,14 @@
 TESTS += $(patsubst test/%,test/%.standalone,$(BASE_TESTS))
 
-LIBS += lib/libx10rt_standalone.so
+STANDALONE_DYNLIB = lib/$(LIBPREFIX)x10rt_standalone$(LIBSUFFIX)
+LIBS += $(STANDALONE_DYNLIB)
 
 PROPERTIES += etc/x10rt_standalone.properties
 
-%.standalone: %.cc lib/libx10rt_standalone.so
+%.standalone: %.cc $(STANDALONE_DYNLIB)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_standalone $(X10RT_TEST_LDFLAGS)
 
-lib/libx10rt_standalone.so: standalone/x10rt_standalone.o $(COMMON_OBJS)
+$(STANDALONE_DYNLIB): standalone/x10rt_standalone.o $(COMMON_OBJS)
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
 
 etc/x10rt_standalone.properties:
