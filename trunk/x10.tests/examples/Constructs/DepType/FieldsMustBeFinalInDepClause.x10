@@ -17,7 +17,7 @@ public class FieldsMustBeFinalInDepClause extends x10Test {
 	   val b:boolean{self==c};
 	   public def this(ii:int, bb:boolean):Test = {
 	     property(ii,bb);
-	     b=c;
+	     b=bb;
 	   }
 	   def m():Test{self.c==this.b}=this;
 	}
