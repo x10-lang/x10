@@ -5,6 +5,7 @@ package x10.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -67,9 +68,12 @@ public class WriterStreams {
                             new SimpleCodeWriter(targetFactory.outputWriter(file),
                                                  job.compiler().outputWidth()));
         }
+        Map<String, Integer> startLineOffsets = new HashMap<String, Integer>();
         for (ClassifiedStream s : streams) {
-            s.flush();
-            codeWriters.get(s.ext).write(s.contents());
+            int startLineOffset = startLineOffsets.containsKey(s.ext) ? startLineOffsets.get(s.ext) : 0;
+            s.commit(codeWriters.get(s.ext), startLineOffset);
+            startLineOffset += s.getStreamLineNumber()-1;
+            startLineOffsets.put(s.ext, startLineOffset);
         }
         for (String ext : extensions) {
             SimpleCodeWriter w = codeWriters.get(ext);

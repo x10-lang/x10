@@ -232,6 +232,13 @@ public class X10CPPTranslator extends Translator {
 	    return (DelegateTargetFactory) tf;
 	}
 
+	private static int adjustLNForNode(int outputLine, Node n) {
+	    // FIXME: Debugger HACK: adjust for loops
+	    if (n instanceof For || n instanceof ForLoop)
+	        return outputLine + 1;
+	    return outputLine;
+	}
+
 	private static final String FILE_TO_LINE_NUMBER_MAP = "FileToLineNumberMap";
 
 	public void print(Node parent, Node n, CodeWriter w_) {
@@ -246,30 +253,33 @@ public class X10CPPTranslator extends Translator {
 				 (n instanceof ClassDecl)))
 		{
 			w.forceNewline(0);
-			int line = n.position().line();
-			String file = n.position().file();
-			w.write("//#line " + line + " \"" + file + "\"");
+			final int line = n.position().line();
+			final String file = n.position().file();
+			w.write("//#line " + line + " \"" + file + "\": "+n.getClass().getName());
 			w.newline();
 			if (x10.Configuration.DEBUG) {
 				X10CPPContext_c c = (X10CPPContext_c)context;
 				HashMap<String, LineNumberMap> fileToLineNumberMap =
 					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
                 if (fileToLineNumberMap!=null) {
-    				LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
+    				final LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
     				// [DC] avoid NPE when writing to .cu files
     				if (lineNumberMap!=null) {
-        				int outputLine = w.currentStream().getLineNumber();
-        				// FIXME: Debugger HACK: adjust for loops
-        				if (n instanceof For || n instanceof ForLoop)
-        					outputLine++;
-        				lineNumberMap.put(outputLine, file, line);
         				if (n instanceof MethodDecl) {
         					lineNumberMap.addMethodMapping(((MethodDecl) n).methodDef());
         				}
         				if (n instanceof ConstructorDecl) {
         					lineNumberMap.addMethodMapping(((ConstructorDecl) n).constructorDef());
         				}
-                    }
+        				final int outputLine = adjustLNForNode(w.currentStream().getStreamLineNumber(), n);
+        				w.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
+        				    public void run(ClassifiedStream s) {
+        				        int cppLine = s.getStartLineOffset()+outputLine;
+//        				        System.out.println("Adding line number entry: "+lineNumberMap.file()+":"+cppLine+"->"+file+":"+line);
+        				        lineNumberMap.put(cppLine, file, line);
+        				    }
+        				});
+    				}
                 }
 			}
 		}
@@ -284,13 +294,19 @@ public class X10CPPTranslator extends Translator {
 				HashMap<String, LineNumberMap> fileToLineNumberMap =
 					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
                 if (fileToLineNumberMap!=null) {
-    				LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
+    				final LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
                     // [DC] avoid NPE when writing to .cu files
                     if (lineNumberMap!=null) {
-        				int endLine = n.position().endLine();
-        				String file = n.position().file();
-        				int outputLine = w.currentStream().getLineNumber();
-        				lineNumberMap.put(outputLine, file, endLine);
+        				final int line = n.position().endLine();
+        				final String file = n.position().file();
+        				final int outputLine = w.currentStream().getStreamLineNumber();
+        				w.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
+        				    public void run(ClassifiedStream s) {
+        				        int cppLine = s.getStartLineOffset()+outputLine;
+//        				        System.out.println("Adding block line number entry: "+lineNumberMap.file()+":"+cppLine+"->"+file+":"+line);
+        				        lineNumberMap.put(cppLine, file, line);
+        				    }
+        				});
                     }
                 }
 			}
@@ -372,8 +388,10 @@ public class X10CPPTranslator extends Translator {
 					printLineNumberMap(sw, pkg, className, StreamWrapper.Header, fileToLineNumberMap);
 					sw.popCurrentStream();
 				}
-				if (i.hasNext())
+				if (i.hasNext()) {
 					wstreams.commitStreams();
+					wstreams = null;
+				}
 			}
 
 			Iterator t = job().extensionInfo().scheduler().commandLineJobs().iterator();
@@ -403,22 +421,26 @@ public class X10CPPTranslator extends Translator {
 		}
 	}
 
-	private void printLineNumberMap(StreamWrapper sw, String pkg, String className, String ext, HashMap<String, LineNumberMap> fileToLineNumberMap) {
+	private void printLineNumberMap(StreamWrapper sw, String pkg, String className, final String ext, HashMap<String, LineNumberMap> fileToLineNumberMap) {
 		String fName = sw.getStreamName(ext);
-		LineNumberMap map = fileToLineNumberMap.get(fName);
-		if (map.isEmpty())
-			return;
-		sw.forceNewline();
-		String lnmName = Emitter.translate_mangled_FQN(pkg, "_")+"_"+Emitter.mangled_non_method_name(className);
-//		sw.write("struct LNMAP_"+lnmName+"_"+ext+" { static const char* map; };");
-//		sw.newline();
-//		sw.write("const char* LNMAP_"+lnmName+"_"+ext+"::map = \"");
-		sw.write("extern \"C\" { const char* LNMAP_"+lnmName+"_"+ext+" = \"");
-		sw.write(StringUtil.escape(map.exportMap()));
-//		String v = map.exportMap();
-//		LineNumberMap m = LineNumberMap.importMap(v);
-		sw.write("\"; }");
-		sw.newline();
+		final LineNumberMap map = fileToLineNumberMap.get(fName);
+		final String lnmName = Emitter.translate_mangled_FQN(pkg, "_")+"_"+Emitter.mangled_non_method_name(className);
+		sw.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
+		    public void run(ClassifiedStream s) {
+		        if (map.isEmpty())
+		            return;
+		        s.forceNewline();
+//		        sw.write("struct LNMAP_"+lnmName+"_"+ext+" { static const char* map; };");
+//		        sw.newline();
+//		        sw.write("const char* LNMAP_"+lnmName+"_"+ext+"::map = \"");
+		        s.write("extern \"C\" { const char* LNMAP_"+lnmName+"_"+ext+" = \"");
+		        s.write(StringUtil.escape(map.exportMap()));
+//		        String v = map.exportMap();
+//		        LineNumberMap m = LineNumberMap.importMap(v);
+		        s.write("\"; }");
+		        s.newline();
+		    }
+		});
 	}
 
 	/* (non-Javadoc)
