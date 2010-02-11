@@ -109,7 +109,12 @@ class fft {
                     }
                 }
            x10.io.Console.OUT.println("before copyto");
-                B.copyTo[Double](k * chunkSize, Place.places(k), Cs, dstIndex, chunkSize);
+           if (Place.places(k) != here) B.copyTo(k * chunkSize, Place.places(k), Cs, dstIndex, chunkSize);
+           else {
+             for ((i): Point in [k*chunkSize..(k+1)*chunkSize-1]) {
+                C(i) = B(i); 
+             }
+           }
            x10.io.Console.OUT.println("after copyto");
             }
            x10.io.Console.OUT.println("end transpose");                   
