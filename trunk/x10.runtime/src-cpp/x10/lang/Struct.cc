@@ -3,11 +3,11 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-void Struct_methods::_instance_init(Struct *this_) {
+void Struct_methods::_instance_init(Struct& this_) {
     _I_("Doing initialisation for class: x10::lang::Struct");
 }
 
-void Struct_methods::_constructor(Struct *this_) {
+void Struct_methods::_constructor(Struct& this_) {
 }
 
 x10_boolean Struct::_struct_equals(Struct that) {

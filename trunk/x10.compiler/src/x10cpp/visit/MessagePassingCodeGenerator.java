@@ -494,7 +494,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    boolean sawInit = false;
 	    emitter.printTemplateSignature(currentClass.typeArguments(), sw);
 	    if (currentClass.isX10Struct()) {
-	        sw.write(retType + " " + Emitter.structMethodClass(currentClass, true, true) + "::" + methodName + "("+className+" *this_) {");
+	        sw.write(retType + " " + Emitter.structMethodClass(currentClass, true, true) + "::" + methodName + "("+className+"& this_) {");
 	    } else {
 	        sw.write(retType + " " + className + "::" + methodName + "() {");
 	    }
@@ -1280,7 +1280,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 
-            h.write("static "+VOID + " " + INSTANCE_INIT + "("+className+" *this_);");
+            h.write("static "+VOID + " " + INSTANCE_INIT + "("+className+"& this_);");
             h.newline();
             h.forceNewline();
 
@@ -1973,7 +1973,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             b.allowBreak(0, " "); b.write("{"); b.newline(4); b.begin(0);
             if (container.isX10Struct()) {
                 b.write(typeName+" this_; "); b.newline();
-                b.write(CONSTRUCTOR+"(&this_");
+                b.write(CONSTRUCTOR+"(this_");
                 if (!dec.formals().isEmpty()) b.write(", ");
             } else {
                 b.write(make_ref(typeName)+" this_ = "+

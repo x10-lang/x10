@@ -788,7 +788,7 @@ public class Emitter {
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
 		if (container.isX10Struct() && !isMakeMethod) {
-		    h.write(typeName + " *this_");
+		    h.write(typeName + "& this_");
 		    if (!n.formals().isEmpty()) h.write(", ");
 		}
 		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {

@@ -10,8 +10,8 @@ namespace x10 {
 
         class Struct_methods {
         public:
-            static void _instance_init(x10::lang::Struct *this_);
-            static void _constructor(x10::lang::Struct *this_);
+            static void _instance_init(x10::lang::Struct& this_);
+            static void _constructor(x10::lang::Struct& this_);
             template<class T> static x10::lang::Place home(T v);
             template<class T> static x10_boolean at(T v, x10aux::ref<x10::lang::Object> p);
             template<class T> static x10_boolean at(T v, x10::lang::Place p);
