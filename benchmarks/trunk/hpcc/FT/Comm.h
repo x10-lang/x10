@@ -59,9 +59,9 @@ class Comm : public x10::lang::Object   {
     {
 
      void *r = __pgasrt_tspcoll_ibcast((unsigned)FMGL(my_id),  (unsigned)root, (void*)buf, (void*)buf, len*sizeof(T));
-     x10::runtime::Runtime::increaseParallelism();
+     x10::lang::Runtime::increaseParallelism();
      while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();
-     x10::runtime::Runtime::decreaseParallelism(1);
+     x10::lang::Runtime::decreaseParallelism(1);
     }
 
     /* template<typename T>
@@ -70,18 +70,18 @@ class Comm : public x10::lang::Object   {
 
      void *r = __pgasrt_tspcoll_ialltoall((unsigned)FMGL(my_id),  (void*)sbuf, (void*)rbuf,
              len*sizeof(T));
-     x10::runtime::Runtime::increaseParallelism();
+     x10::lang::Runtime::increaseParallelism();
      while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();
-     x10::runtime::Runtime::decreaseParallelism(1);
+     x10::lang::Runtime::decreaseParallelism(1);
     } */
 
    template<typename T>
     T reduce(T val, __pgasrt_ops_t OP,  __pgasrt_dtypes_t TYPE) {
     T val2;
      void *r = __pgasrt_tspcoll_iallreduce((unsigned)FMGL(my_id),  &val, &val2, OP, TYPE, 1);
-     x10::runtime::Runtime::increaseParallelism();
+     x10::lang::Runtime::increaseParallelism();
      while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();
-     x10::runtime::Runtime::decreaseParallelism(1);
+     x10::lang::Runtime::decreaseParallelism(1);
           return val2;
    }
 
