@@ -778,6 +778,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		List<FieldInstance> fields = def.asType().fields();
 		if (!fields.isEmpty()) {
 		    HashSet<Type> dupes = new HashSet<Type>();
+            Set<ClassType> dupes2 = new HashSet<ClassType>();
 		    ClassifiedStream fh = isStruct ? sh : h;
 		    for (FieldInstance fi : fields) {
 		        if (!fi.flags().isStatic()) {
@@ -792,8 +793,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                    fh.writeln("#undef "+guard+"_NODEPS");
 		                }
 		                if (isStruct && fct.isClass()) {
-		                    // Have to include all types of all instance fields in .struct_h
-		                    declareClass(((X10ClassType)fct.toClass()).x10Def(), fh);
+		                    ArrayList<ClassType> types = new ArrayList<ClassType>();
+		                    extractAllClassTypes(fct, types, dupes2);
+		                    for (ClassType t : types) {
+		                        X10ClassDef cd = ((X10ClassType)t).x10Def();
+		                        if (cd != def && getCppRep(cd) == null) {
+		                            declareClass(cd, fh);
+		                            allIncludes.add(t);
+		                        }
+		                    }
 		                }
 		            }
 		        }
