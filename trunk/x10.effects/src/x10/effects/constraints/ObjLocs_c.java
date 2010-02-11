@@ -1,7 +1,6 @@
 package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
-import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 
@@ -24,13 +23,9 @@ public class ObjLocs_c extends RigidTerm_c implements ObjLocs {
 	}
 	
 	public boolean disjointFrom(Locs other, XConstraint c) {
-		try {
-			if (other instanceof ObjLocs) {
-				return c.disEntails(designator(), ((ObjLocs) other).designator());
-			}
-		} catch (XFailure z) {
-			return false;
-		}
+		if (other instanceof ObjLocs) {
+        	return c.disEntails(designator(), ((ObjLocs) other).designator());
+        }
 		return true;
 	}
 

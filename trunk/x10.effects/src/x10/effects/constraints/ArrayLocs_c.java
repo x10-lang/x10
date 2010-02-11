@@ -1,7 +1,6 @@
 package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
-import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 
@@ -26,14 +25,10 @@ public class ArrayLocs_c extends RigidTerm_c implements ArrayLocs {
 	}
 	
 	public boolean disjointFrom(Locs other, XConstraint c) {
-		try {
-			if (other instanceof ArrayLocs_c) {
-				ArrayLocs_c o = (ArrayLocs_c) other;
-				return c.disEntails(designator(), o.designator());
-			}
-		} catch (XFailure z) {
-			return false;
-		}
+		if (other instanceof ArrayLocs_c) {
+        	ArrayLocs_c o = (ArrayLocs_c) other;
+        	return c.disEntails(designator(), o.designator());
+        }
 		return true;
 	}
 
