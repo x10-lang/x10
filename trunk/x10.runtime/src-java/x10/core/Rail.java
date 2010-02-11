@@ -126,10 +126,17 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
     }
     
     public String toString() {
-    	return value.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < length; i++) {
+            if (i > 0)
+                sb.append(", ");
+            sb.append(apply(i));
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
-	
     public T set(T v, Integer i) {
         return type.setArray(value, i, v);
     }
