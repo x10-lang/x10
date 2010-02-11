@@ -25,12 +25,6 @@ XRX_ARCHIVE = $(LIBPREFIX)x10$(LIBSUFFIX)
 ifeq ($(X10RT_PLATFORM),cygwin)
   XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_pgas_sockets
 endif
-ifeq ($(X10RT_PLATFORM),darwin)
-  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_pgas_sockets
-endif
-ifeq ($(X10RT_PLATFORM),darwin64)
-  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_pgas_sockets
-endif
 XRX_MANIFEST = libx10.mft
 
 # this builds everything
