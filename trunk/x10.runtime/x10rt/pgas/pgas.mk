@@ -114,12 +114,12 @@ endif
 ifeq ($(PLATFORM_SUPPORTS_SOCKETS), yes)
 
 TESTS += $(patsubst test/%,test/%.pgas_sockets,$(BASE_TESTS))
-PGAS_DYNLIB = lib/$(LIBPREFIX)x10rt_pgas_sockets$(LIBSUFFIX)
-LIBS += $(PGAS_DYNLIB)
+PGAS_DYNLIB_SOCKETS = lib/$(LIBPREFIX)x10rt_pgas_sockets$(LIBSUFFIX)
+LIBS += $(PGAS_DYNLIB_SOCKETS)
 PROPERTIES += etc/x10rt_pgas_sockets.properties
 EXECUTABLES += bin/launcher bin/manager bin/daemon
 
-%.pgas_sockets: %.cc $(PGAS_DYNLIB)
+%.pgas_sockets: %.cc $(PGAS_DYNLIB_SOCKETS)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(SOCKETS_LDFLAGS) $(SOCKETS_LDLIBS) $(X10RT_TEST_LDFLAGS)
 
 ifdef CUSTOM_PGAS
@@ -139,11 +139,11 @@ lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
 endif
 
 ifdef X10_STATIC_LIB
-$(PGAS_DYNLIB): $(COMMON_OBJS) lib/libxlpgas_sockets.a
+$(PGAS_DYNLIB_SOCKETS): $(COMMON_OBJS) lib/libxlpgas_sockets.a
 	$(CP) lib/libxlpgas_sockets.a $@
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
-$(PGAS_DYNLIB): $(COMMON_OBJS) lib/libxlpgas_sockets.a
+$(PGAS_DYNLIB_SOCKETS): $(COMMON_OBJS) lib/libxlpgas_sockets.a
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
 endif
 
@@ -168,11 +168,11 @@ else
 HACK=$(shell echo "Your platform supports LAPI but we could not find the poe executable so not building LAPI tests">2)
 endif
 
-PGAS_DYNLIB = lib/$(LIBPREFIX)x10rt_pgas_lapi$(LIBSUFFIX)
-LIBS += $(PGAS_DYNLIB)
+PGAS_DYNLIB_LAPI = lib/$(LIBPREFIX)x10rt_pgas_lapi$(LIBSUFFIX)
+LIBS += $(PGAS_DYNLIB_LAPI)
 PROPERTIES += etc/x10rt_pgas_lapi.properties
 
-%.pgas_lapi: %.cc $(PGAS_DYNLIB)
+%.pgas_lapi: %.cc $(PGAS_DYNLIB_LAPI)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS) $(X10RT_TEST_LDFLAGS)
 
 ifdef CUSTOM_PGAS
@@ -189,11 +189,11 @@ lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
 endif
 
 ifdef X10_STATIC_LIB
-$(PGAS_DYNLIB): $(COMMON_OBJS) lib/libxlpgas_lapi.a
+$(PGAS_DYNLIB_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 	$(CP) lib/libxlpgas_lapi.a $@
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
-$(PGAS_DYNLIB): $(COMMON_OBJS) lib/libxlpgas_lapi.a
+$(PGAS_DYNLIB_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
 endif
 
