@@ -63,7 +63,7 @@ debug::
 	@echo TESTS = $(TESTS)
 
 clean:
-	$(RM) -r */*.o lib/*.a bin/* etc/*.properties test/*.mpi test/*.standalone test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
+	$(RM) -r */*.o lib/* bin/* etc/*.properties test/*.mpi test/*.standalone test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
 
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
