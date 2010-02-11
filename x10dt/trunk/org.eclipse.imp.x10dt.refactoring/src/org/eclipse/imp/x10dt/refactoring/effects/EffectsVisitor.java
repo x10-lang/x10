@@ -30,6 +30,13 @@ import polyglot.ast.Unary;
 import polyglot.ast.VarDecl;
 import polyglot.ast.While;
 import polyglot.ast.Unary.Operator;
+import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
+import polyglot.types.MethodInstance;
+import polyglot.types.ProcedureInstance;
+import polyglot.types.StructType;
+import polyglot.types.Type;
+import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
 import x10.ast.AtStmt;
 import x10.ast.DepParameterExpr;
@@ -38,19 +45,6 @@ import x10.ast.ForLoop;
 import x10.ast.SettableAssign;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
-import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
-import x10.types.X10LocalInstance;
-import x10.types.X10ProcedureDef;
-import x10.types.X10ProcedureInstance;
-import x10.types.X10TypeMixin;
-import polyglot.types.ClassType;
-import polyglot.types.ConstructorInstance;
-import polyglot.types.MethodInstance;
-import polyglot.types.ProcedureInstance;
-import polyglot.types.StructType;
-import polyglot.types.Type;
-import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
@@ -61,6 +55,12 @@ import x10.effects.constraints.Effects;
 import x10.effects.constraints.FieldLocs;
 import x10.effects.constraints.LocalLocs;
 import x10.effects.constraints.Locs;
+import x10.types.X10FieldInstance;
+import x10.types.X10Flags;
+import x10.types.X10LocalInstance;
+import x10.types.X10ProcedureDef;
+import x10.types.X10ProcedureInstance;
+import x10.types.X10TypeMixin;
 
 public class EffectsVisitor extends NodeVisitor {
     private final Map<Node,Effect> fEffects= new HashMap<Node, Effect>();
@@ -126,7 +126,7 @@ public class EffectsVisitor extends NodeVisitor {
     private XConstraint conjunction(XConstraint c1, XConstraint c2) throws XFailure {
         if (c1 == null)
             return c2.copy();
-        return c1.addIn(c2);
+        return c1.leastUpperBound(c2);
     }
 
     // ================
