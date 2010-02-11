@@ -59,19 +59,18 @@ char *x10aux::realloc_printf(char *buf, const char *fmt, ...) {
 void *x10aux::alloc_internal (size_t size, bool containsPtrs) {
     void* ret;
 #ifdef X10_USE_BDWGC        
-    if (x10aux::use_bdwgc()) {
-        if (!gc_init_done) {
-            gc_init_done = true;
-            GC_INIT();
-        }
-        if (containsPtrs) {
-            ret = GC_MALLOC(size);
-        } else {
-            ret = GC_MALLOC_ATOMIC(size);
-        }
-    } else
-#endif        
+    if (!gc_init_done) {
+        GC_INIT();
+        gc_init_done = true;
+    }
+    if (containsPtrs) {
+        ret = GC_MALLOC(size);
+    } else {
+        ret = GC_MALLOC_ATOMIC(size);
+    }
+#else
     ret = ::malloc(size);
+#endif        
 
     _M_("\t-> " << (void*)ret);
     if (ret == NULL && size > 0) {
@@ -88,11 +87,10 @@ void *x10aux::alloc_internal (size_t size, bool containsPtrs) {
 void *x10aux::realloc_internal (void *src, size_t dsz) {
     void *ret;
 #ifdef X10_USE_BDWGC
-    if (x10aux::use_bdwgc()) {
-        ret = GC_REALLOC(src, dsz);
-    } else
-#endif
+    ret = GC_REALLOC(src, dsz);
+#else
     ret = ::realloc(src, dsz);
+#endif
     if (ret==NULL && dsz>0) {
         _M_("Out of memory reallocating " << dsz << " bytes");
         #ifndef NO_EXCEPTIONS
@@ -107,11 +105,10 @@ void *x10aux::realloc_internal (void *src, size_t dsz) {
 void x10aux::dealloc_internal (const void *obj_) {
     void *obj = const_cast<void*>(obj_); // free does not take const void *
 #ifdef X10_USE_BDWGC
-    if (x10aux::use_bdwgc()) {
-        GC_FREE(obj);
-    } else
-#endif        
+    GC_FREE(obj);
+#else
     ::free(obj);
+#endif        
 }
 
 size_t x10aux::heap_size() {
