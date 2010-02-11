@@ -7,7 +7,7 @@ include ../Make.rules
 INCLUDE_DIRS += -I. -I../x10rt/include
 
 ifdef ENABLE_GC
-  CXXFLAGS += -DX10_USE_BDWGC
+  override CXXFLAGS += -DX10_USE_BDWGC
   BDWGC_INCLUDE_DIR= ./bdwgc/install/include
   INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
 endif
