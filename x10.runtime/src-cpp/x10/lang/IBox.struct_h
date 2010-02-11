@@ -36,9 +36,15 @@ namespace x10 {
 
             virtual x10_int hashCode();
             
-            virtual x10aux::serialization_id_t _get_serialization_id();
+            static const x10aux::serialization_id_t _serialization_id;
+
+            virtual x10aux::serialization_id_t _get_serialization_id() {
+              return _serialization_id;
+            }
 
             virtual void _serialize_body(x10aux::serialization_buffer &);
+
+            template<class __T> static x10aux::ref<__T> _deserializer(x10aux::deserialization_buffer& buf);
         };
     }
 }

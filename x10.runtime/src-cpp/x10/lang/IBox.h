@@ -39,17 +39,19 @@ namespace x10 {
 
         template<class T> x10_int IBox<T>::hashCode() { return x10aux::hash_code(value); }
             
-        // TODO: Need to implement serialization/deserialization support for this class!
-        template<class T> x10aux::serialization_id_t IBox<T>::_get_serialization_id() {
-            assert(false);
-            return -1000;
-        }
+        template<class T> const x10aux::serialization_id_t x10::lang::IBox<T>::_serialization_id = 
+            x10aux::DeserializationDispatcher::addDeserializer(x10::lang::IBox<T>::template _deserializer<x10::lang::Object>);
 
-        template<class T> void IBox<T>::_serialize_body(x10aux::serialization_buffer &) {
-            assert(false);
+        template<class T> void IBox<T>::_serialize_body(x10aux::serialization_buffer &buf) {
+            buf.write(value);
+        }
+        
+        template<class T> template<class __T> x10aux::ref<__T> x10::lang::IBox<T>::_deserializer(x10aux::deserialization_buffer& buf) {
+            T tmp = buf.read<T>();
+            x10aux::ref<x10::lang::IBox<T> > this_ = new (x10aux::alloc<x10::lang::IBox<T> >()) x10::lang::IBox<T>(tmp);
+            return this_;
         }
     }
 }
-
 
 #endif
