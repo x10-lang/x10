@@ -95,7 +95,7 @@
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/lpg.jar"/>
+        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>
     </target>
