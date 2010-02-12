@@ -44,20 +44,26 @@ namespace x10aux {
 
 namespace x10aux {
 
+#ifndef NO_IOSTREAM
+    void railToStringProcessElement(std::stringstream *ss, int i, ref<x10::lang::String> elemStr);
+    ref<x10::lang::String> railToStringFinalize(std::stringstream *ss);
+    std::stringstream *allocStringStream();
+    void freeStringStream (std::stringstream *ss);
+#endif
+
+    extern ref<x10::lang::String> emptyRailToString;
+    
     template<class T, class R> ref<x10::lang::String> railToString(R* rail) {
         if (rail->FMGL(length)==0) {
-            return x10::lang::String::Lit("[]");
+            return emptyRailToString;
         }
         #ifndef NO_IOSTREAM
-        std::stringstream ss;
-        const char *prefix = "[";
+        std::stringstream *ss = allocStringStream();
         for (x10_int i=0 ; i<rail->FMGL(length) ; ++i) {
             T element = (*rail)[i];
-            ss << prefix << x10aux::safe_to_string(element);
-            prefix = ",";
+            railToStringProcessElement(ss, i, x10aux::safe_to_string(element));
         }
-        ss << "]";
-        return x10::lang::String::Lit(ss.str().c_str());
+        return railToStringFinalize(ss); // NOTE: Finalize is responsible for calling dealloc.
         #else
         return x10::lang::String::Lit("[NO_IOSTREAM so no contents]");
         #endif
