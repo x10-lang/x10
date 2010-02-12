@@ -365,7 +365,9 @@
       <sequential>
         <mkdir dir="${lib}"/>
         <copy todir="${lib}" preservelastmodified="true" >
-           <fileset dir="${bdwgc.dir}/install/lib" includes="libgc.a"/>
+           <!--<fileset dir="${bdwgc.dir}/install/lib" includes="libgc.a"/>-->
+           <fileset dir="${bdwgc.dir}/install/lib" includes="*.a,*.so,*.la"/>
+           <fileset dir="${bdwgc.dir}/install/bin" includes="*.dll"/> <!-- Cygwin -->
         </copy>
         <copy todir="${inc}">
            <fileset dir="${bdwgc.dir}/install/include" includes="**/*.h"/>
