@@ -93,6 +93,7 @@ import x10.ast.X10Cast_c;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
+import x10.ast.X10FieldDecl_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
@@ -940,6 +941,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			return;
 		}
 
+
 		// Check for properties accessed using method syntax.  They may have @Native annotations too.
 		if (X10Flags.toX10Flags(mi.flags()).isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
 			X10FieldInstance fi = (X10FieldInstance) mi.container().fieldNamed(mi.name());
@@ -957,8 +959,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		boolean cast = xts.isParameterType(t);
 		if (cast) {
 			w.write("((");
-			Type ct = mi.container();
-			er.printType(ct, 0);
+			new TypeExpander(er,  mi.container(), false, false, false).expand(tr);
 			w.write(")");
 		}
 
@@ -1099,7 +1100,35 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// not know what to do with them.
 		Flags flags = X10Flags.toX10Flags(n.flags().flags());
 
-		visit((Node) n.flags(n.flags().flags(flags)));
+		FieldDecl_c javaNode = (FieldDecl_c) n.flags(n.flags().flags(flags));
+
+		//same with FiledDecl_c#prettyPrint(CodeWriter w, PrettyPrinter tr)
+		FieldDef fieldDef = javaNode.fieldDef();
+        boolean isInterface = fieldDef != null && fieldDef.container() != null &&
+        fieldDef.container().get().toClass().flags().isInterface();
+
+        Flags f = javaNode.flags().flags();
+
+        if (isInterface) {
+            f = f.clearPublic();
+            f = f.clearStatic();
+            f = f.clearFinal();
+        }
+
+        w.write(f.translate());
+        tr.print(javaNode, javaNode.type(), w);
+        w.allowBreak(2, 2, " ", 1);
+        tr.print(javaNode, javaNode.name(), w);
+
+        if (javaNode.init() != null) {
+            w.write(" =");
+            w.allowBreak(2, " ");
+            
+            //X10 unique
+            er.coerce(javaNode, javaNode.init(), javaNode.type().type());
+        }
+
+        w.write(";");
 	}
 
 	public void visit(PropertyDecl_c dec) {
@@ -1170,35 +1199,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.allowBreak(2, " ");
             
             //X10 unique
-            if (n.init().type().isNull()) {
-                tr.print(n, n.init(), w);
-            } else {
-            	Type expectedType = n.type().type();
-            	Type actualType = X10TypeMixin.baseType(n.init().type());
-            	if (expectedType != actualType && 
-            			(actualType.isBoolean() || actualType.isNumeric() || actualType.isByte())) {
-                    //cast (expected_boxed_primitive)((expected_primitive)((init_primitive)((init_boxed_primitive)[init_expr])))
-                    //ex: int i = (Integer)((int)((double)((Double)(2.0))));
-                    w.write("(");
-                    new TypeExpander(er, expectedType, false, true, false).expand(tr);
-                    w.write(")((");
-                    new TypeExpander(er, expectedType, false, false, false).expand(tr);
-                    w.write(")((");
-                    new TypeExpander(er, actualType, false, false, false).expand(tr);
-                    w.write(")((");
-                    new TypeExpander(er, actualType, false, true, false).expand(tr);
-                    w.write(")(");
-                    tr.print(n, n.init(), w);
-                    w.write("))))");
-            	} else {
-                    //ex: Get<Super> sub = (Get)(new Get<Sub>());
-                    w.write("(");
-                    new TypeExpander(er, expectedType, false, true, false).expand(tr);
-                    w.write(")(");
-                    tr.print(n, n.init(), w);
-                    w.write(")");
-                }
-            }
+            er.coerce(n, n.init(), n.type().type());
         }
 
         if (printSemi) {
