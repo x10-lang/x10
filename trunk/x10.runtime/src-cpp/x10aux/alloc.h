@@ -37,20 +37,18 @@ namespace x10aux {
 
 namespace x10aux {
 
-    void throwOOME() X10_PRAGMA_NORETURN;
+    void reportOOM(size_t size) X10_PRAGMA_NORETURN;
 
-    void *alloc_internal (size_t size, bool containsPtrs = true);
     void *realloc_internal (void* src, size_t dsz);
+
     void dealloc_internal (const void *obj_);
 
 #ifdef X10_USE_BDWGC
 	extern bool gc_init_done;
 #endif
 
-    template<class T> inline T* alloc(size_t size = sizeof(T), bool containsPtrs = true) {
-        _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
-
-        void* ret;
+    inline void* alloc_internal(size_t size, bool containsPtrs) {
+        void *ret;
 #ifdef X10_USE_BDWGC        
         if (!gc_init_done) {
             GC_INIT();
@@ -67,14 +65,14 @@ namespace x10aux {
 
         _M_("\t-> " << (void*)ret);
         if (ret == NULL && size > 0) {
-            _M_("Out of memory allocating " << size << " bytes");
-#ifndef NO_EXCEPTIONS
-            throwOOME();
-#else
-            assert(false && "Out of memory");
-#endif
+            reportOOM(size);
         }
-        return (T*)ret;
+        return ret;
+    }
+    
+    template<class T> inline T* alloc(size_t size = sizeof(T), bool containsPtrs = true) {
+        _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
+        return (T*)alloc_internal(size, containsPtrs);
     }
 
     // Allocate an object with an x10_addr_t prepended to it

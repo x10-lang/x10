@@ -14,10 +14,13 @@ using namespace x10aux;
 extern "C" int vsnprintf(char *, size_t, const char *, va_list); 
 #endif
 
-// do not call this if NO_EXCEPTIONS is defined
-// defined here because it depends on OutOfMemoryError and we don't want a header cycle
-void x10aux::throwOOME() {
+void x10aux::reportOOM(size_t size) {
+    _M_("Out of memory allocating " << size << " bytes");
+#ifndef NO_EXCEPTIONS
     throwException<x10::lang::OutOfMemoryError>();
+#else
+    assert(false && "Out of memory");
+#endif
 }
 
 char *x10aux::alloc_printf(const char *fmt, ...) {
@@ -56,9 +59,6 @@ char *x10aux::realloc_printf(char *buf, const char *fmt, ...) {
 bool x10aux::gc_init_done;
 #endif        
 
-void *x10aux::alloc_internal (size_t size, bool containsPtrs) {
-}
-
 void *x10aux::realloc_internal (void *src, size_t dsz) {
     void *ret;
 #ifdef X10_USE_BDWGC
@@ -67,12 +67,7 @@ void *x10aux::realloc_internal (void *src, size_t dsz) {
     ret = ::realloc(src, dsz);
 #endif
     if (ret==NULL && dsz>0) {
-        _M_("Out of memory reallocating " << dsz << " bytes");
-        #ifndef NO_EXCEPTIONS
-        throwOOME();
-        #else
-        assert(false && "Out of memory");
-        #endif
+        reportOOM(dsz);
     }
     return ret;
 }
