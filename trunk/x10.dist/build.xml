@@ -9,12 +9,9 @@
     <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
-    <property name="lpg.jar.url" value="http://lpg.sourceforge.net/updates/plugins/lpg.runtime_2.0.17.jar"/>
+    <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime_2.0.17.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
-    <!-- NOTE: Eventually, the 3.4 stream will get moved to archive.eclipse.org. When that happens, move to 3.5 or get 3.4 from the archive -->
-    <property name="ecj.url" value="http://download.eclipse.org/eclipse/downloads/drops/R-3.5.1-200909170800"/>
-    <property name="ecj.jar.url" value="${ecj.url}/ecj-3.5.1.jar"/>
+    <property name="ecj.jar.url" value="http://dist.codehaus.org/x10/dependencies/ecj-3.5.1.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="polyglot.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/updates/plugins"/>
     <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_3.1.1.jar"/>
@@ -98,14 +95,7 @@
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/lpg-plugin.jar"/>
-        <unjar src="${lib}/lpg-plugin.jar" dest="${lib}">
-            <patternset>
-                <include name="lpgruntime.jar"/>
-            </patternset>
-        </unjar>
-        <copy file="${lib}/lpgruntime.jar" tofile="${lib}/${lpg.jar}"/>
-        <delete file="${lib}/lpgruntime.jar"/>
+        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/lpg.jar"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>
     </target>
