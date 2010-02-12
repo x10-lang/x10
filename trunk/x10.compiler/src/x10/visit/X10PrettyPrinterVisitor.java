@@ -822,7 +822,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("new ");
 
 		if (n.qualifier() == null) {
-		        er.printType(n.objectType().type(), NO_VARIANCE);
+		        er.printType(n.objectType().type(), PRINT_TYPE_PARAMS | NO_VARIANCE);
 		}
 		else {
 			er.printType(n.objectType().type(), PRINT_TYPE_PARAMS | NO_VARIANCE | NO_QUALIFIER);
