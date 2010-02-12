@@ -52,36 +52,11 @@ char *x10aux::realloc_printf(char *buf, const char *fmt, ...) {
     return r;
 }
 
-#ifdef X10_USE_BDWGC        
-	static bool gc_init_done = false;
+#ifdef X10_USE_BDWGC
+bool x10aux::gc_init_done;
 #endif        
 
 void *x10aux::alloc_internal (size_t size, bool containsPtrs) {
-    void* ret;
-#ifdef X10_USE_BDWGC        
-    if (!gc_init_done) {
-        GC_INIT();
-        gc_init_done = true;
-    }
-    if (containsPtrs) {
-        ret = GC_MALLOC(size);
-    } else {
-        ret = GC_MALLOC_ATOMIC(size);
-    }
-#else
-    ret = ::malloc(size);
-#endif        
-
-    _M_("\t-> " << (void*)ret);
-    if (ret == NULL && size > 0) {
-        _M_("Out of memory allocating " << size << " bytes");
-        #ifndef NO_EXCEPTIONS
-        throwOOME();
-        #else
-        assert(false && "Out of memory");
-        #endif
-    }
-    return ret;
 }
 
 void *x10aux::realloc_internal (void *src, size_t dsz) {
