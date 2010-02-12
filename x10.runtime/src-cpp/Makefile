@@ -23,7 +23,7 @@ INSTDIR = $(call abspath,../../x10.dist)
 
 XRX_ARCHIVE = $(LIBPREFIX)x10$(LIBSUFFIX)
 ifeq ($(X10RT_PLATFORM),cygwin)
-  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_pgas_sockets
+  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_pgas_sockets -lgc
 endif
 XRX_MANIFEST = libx10.mft
 
