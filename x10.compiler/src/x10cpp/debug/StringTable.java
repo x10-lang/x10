@@ -13,7 +13,7 @@ public class StringTable {
 		this.strings = strings;
 	}
 
-	protected int stringId(String str) {
+	public int stringId(String str) {
 	    String f = str.intern();
 	    int n = strings.size();
 	    for (int i = 0; i < n; i++)
@@ -23,11 +23,11 @@ public class StringTable {
 	    return n;
 	}
 
-	protected String lookupString(int i) {
+	public String lookupString(int i) {
 		return strings.get(i);
 	}
 
-	protected String[] lookupStrings(int[] indices) {
+	public String[] lookupStrings(int[] indices) {
 		String[] res = new String[indices.length];
 		for (int i = 0; i < indices.length; i++) {
 			res[i] = lookupString(indices[i]);
@@ -35,14 +35,18 @@ public class StringTable {
 		return res;
 	}
 
-	protected void exportStringMap(final StringBuilder sb) {
-		sb.append("{");
+	public int size() {
+	    return strings.size();
+	}
+
+	public void exportStringMap(final StringBuilder sb) {
+	    sb.append("{");
 	    for (int i = 0; i < strings.size(); i++)
 	        sb.append(i).append(":\"").append(StringUtil.escape(lookupString(i))).append("\","); // FIXME: might need to escape
 	    sb.append("}");
 	}
 
-	protected static ArrayList<String> importStringMap(StringTokenizer st) {
+	public static ArrayList<String> importStringMap(StringTokenizer st) {
 		ArrayList<String> strings = new ArrayList<String>();
 		String s = st.nextToken();
 		assert (s.equals("{"));

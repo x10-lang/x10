@@ -262,9 +262,11 @@ public class X10CPPTranslator extends Translator {
 				HashMap<String, LineNumberMap> fileToLineNumberMap =
 					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
                 if (fileToLineNumberMap!=null) {
-    				final LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
+                    String key = w.getStreamName(StreamWrapper.CC);
+                    final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
     				// [DC] avoid NPE when writing to .cu files
     				if (lineNumberMap!=null) {
+    				    final String cppFile = w.getStreamName(w.currentStream().ext);
         				if (n instanceof MethodDecl) {
         					lineNumberMap.addMethodMapping(((MethodDecl) n).methodDef());
         				}
@@ -276,7 +278,7 @@ public class X10CPPTranslator extends Translator {
         				    public void run(ClassifiedStream s) {
         				        int cppLine = s.getStartLineOffset()+outputLine;
 //        				        System.out.println("Adding line number entry: "+lineNumberMap.file()+":"+cppLine+"->"+file+":"+line);
-        				        lineNumberMap.put(cppLine, file, line);
+        				        lineNumberMap.put(cppFile, cppLine, file, line);
         				    }
         				});
     				}
@@ -294,9 +296,11 @@ public class X10CPPTranslator extends Translator {
 				HashMap<String, LineNumberMap> fileToLineNumberMap =
 					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
                 if (fileToLineNumberMap!=null) {
-    				final LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
+                    final String key = w.getStreamName(StreamWrapper.CC);
+                    final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
                     // [DC] avoid NPE when writing to .cu files
                     if (lineNumberMap!=null) {
+                        final String cppFile = w.getStreamName(w.currentStream().ext);
         				final int line = n.position().endLine();
         				final String file = n.position().file();
         				final int outputLine = w.currentStream().getStreamLineNumber();
@@ -304,7 +308,7 @@ public class X10CPPTranslator extends Translator {
         				    public void run(ClassifiedStream s) {
         				        int cppLine = s.getStartLineOffset()+outputLine;
 //        				        System.out.println("Adding block line number entry: "+lineNumberMap.file()+":"+cppLine+"->"+file+":"+line);
-        				        lineNumberMap.put(cppLine, file, line);
+        				        lineNumberMap.put(cppFile, cppLine, file, line);
         				    }
         				});
                     }
@@ -369,23 +373,26 @@ public class X10CPPTranslator extends Translator {
 				if (x10.Configuration.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap = (HashMap<String, LineNumberMap>)c.getData(FILE_TO_LINE_NUMBER_MAP);
 					String closures = wstreams.getStreamName(StreamWrapper.Closures);
-					fileToLineNumberMap.put(closures, new LineNumberMap(closures));
+					fileToLineNumberMap.put(closures, new LineNumberMap());
 					String cc = wstreams.getStreamName(StreamWrapper.CC);
-					fileToLineNumberMap.put(cc, new LineNumberMap(cc));
+					fileToLineNumberMap.put(cc, new LineNumberMap());
 					String header = wstreams.getStreamName(StreamWrapper.Header);
-					fileToLineNumberMap.put(header, new LineNumberMap(header));
+					fileToLineNumberMap.put(header, new LineNumberMap());
 				}
 				translateTopLevelDecl(sw, sfn, decl);
 				if (x10.Configuration.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap = (HashMap<String, LineNumberMap>)c.getData(FILE_TO_LINE_NUMBER_MAP);
-					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.Closures, false));
-					printLineNumberMap(sw, pkg, className, StreamWrapper.Closures, fileToLineNumberMap);
-					sw.popCurrentStream();
+//					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.Closures, false));
+//					printLineNumberMap(sw, pkg, className, StreamWrapper.Closures, fileToLineNumberMap);
+//					sw.popCurrentStream();
+//					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
+//					printLineNumberMap(sw, pkg, className, StreamWrapper.CC, fileToLineNumberMap);
+//					sw.popCurrentStream();
+//					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
+//					printLineNumberMap(sw, pkg, className, StreamWrapper.Header, fileToLineNumberMap);
+//					sw.popCurrentStream();
 					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
-					printLineNumberMap(sw, pkg, className, StreamWrapper.CC, fileToLineNumberMap);
-					sw.popCurrentStream();
-					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
-					printLineNumberMap(sw, pkg, className, StreamWrapper.Header, fileToLineNumberMap);
+					printLineNumberMapForCPPDebugger(sw, fileToLineNumberMap);
 					sw.popCurrentStream();
 				}
 				if (i.hasNext()) {
@@ -419,6 +426,18 @@ public class X10CPPTranslator extends Translator {
 					"I/O error while translating: " + e.getMessage());
 			return false;
 		}
+	}
+
+	private void printLineNumberMapForCPPDebugger(StreamWrapper sw, HashMap<String, LineNumberMap> fileToLineNumberMap) {
+	    final LineNumberMap map = fileToLineNumberMap.get(sw.getStreamName(StreamWrapper.CC));
+	    sw.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
+	        public void run(ClassifiedStream s) {
+//	            if (map.isEmpty())
+//	                return;
+	            s.forceNewline();
+	            LineNumberMap.exportForCPPDebugger(s, map);
+	        }
+	    });
 	}
 
 	private void printLineNumberMap(StreamWrapper sw, String pkg, String className, final String ext, HashMap<String, LineNumberMap> fileToLineNumberMap) {

@@ -245,5 +245,8 @@ namespace x10aux {
 //combine __FILE__ and __LINE__ without using sprintf or other junk
 #define __FILELINE__ __FILE__ ":" __TOKEN_STRING_DEREF(__LINE__) 
 
+// Debug support
+#include <x10aux/debug.h>
+
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab
