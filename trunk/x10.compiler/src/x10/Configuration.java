@@ -40,7 +40,7 @@ public final class Configuration extends x10.config.Configuration {
 	public static boolean OPTIMIZE = false;
 	private static final String OPTIMIZE_desc = "Generate optimized code";
 
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	private static final String DEBUG_desc = "Generate debug information";
 
     public static boolean NO_CHECKS = false;
