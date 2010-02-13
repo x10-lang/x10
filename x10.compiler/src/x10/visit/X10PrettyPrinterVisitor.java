@@ -48,6 +48,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.MethodInstance_c;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -93,7 +94,6 @@ import x10.ast.X10Cast_c;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
-import x10.ast.X10FieldDecl_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
@@ -119,7 +119,6 @@ import x10.types.X10Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
-import x10.types.X10PrimitiveType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -917,7 +916,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.end();
 		w.write(")");
 	}
-
+	
 	public void visit(Tuple_c c) {
 		Type t = X10TypeMixin.getParameterType(c.type(), 0);
 		new Template(er, "tuple", 
@@ -969,7 +968,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				}
 			}
 		}
-
+		
+		
+		boolean runAsync = false;
+		if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).fullName().toString().equals("x10.lang.Runtime")) {
+			if (mi.signature().startsWith("runAsync")) {
+				runAsync = true;
+			}
+		}
+		
 		// When the target class is a generics , print a cast operation explicitly.
 		boolean cast = xts.isParameterType(t);
 		if (cast) {
@@ -1040,11 +1047,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 		}
 
-		List<Expr> l = c.arguments();
-		for (Iterator<Expr> i = l.iterator(); i.hasNext(); ) {
-			Expr e = i.next();
-			c.print(e, w, tr);
-			if (i.hasNext()) {
+		List<Expr> exprs = c.arguments();
+		for (int i = 0; i < exprs.size(); ++i) {
+			Expr e = exprs.get(i);
+			
+			if (runAsync && e instanceof Closure_c) {
+				c.print(((Closure_c)e).methodContainer(mi), w, tr);
+			} else {
+				c.print(e, w, tr);
+			}
+			
+			if (i != exprs.size() - 1) {
 				w.write(",");
 				w.allowBreak(0, " ");
 			}
@@ -1071,6 +1084,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			});
 		}
 
+		boolean runAsync = false;
+		MethodInstance_c mi = (MethodInstance_c) n.methodContainer();
+		if (mi != null 
+				&& mi.container().isClass() 
+				&& ((X10ClassType) mi.container().toClass()).fullName().toString().equals("x10.lang.Runtime") 
+				&& mi.signature().startsWith("runAsync")) {
+			runAsync = true;
+		}
+		
 		TypeExpander ret = new TypeExpander(er, n.returnType().type(), true, true, false);
 		if (!n.returnType().type().isVoid()) {
 			typeArgs.add(ret);
@@ -1092,7 +1114,24 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write(" apply(");
 		new Join(er, ", ", formals).expand(tr2);
 		w.write(") { ");
+		
+		if (runAsync) {
+			w.newline();
+			w.write("try {");
+			w.newline();
+		}
+		
 		tr2.print(n, n.body(), w);
+		
+		if (runAsync) {
+			w.newline();
+			w.write("} catch (java.lang.Exception ex) {");
+			w.newline();
+			w.write("x10.lang.Runtime.pushException(ex);");
+			w.write("}");
+			w.newline();
+		}
+		
 		w.write("}");
 		w.newline();
 
