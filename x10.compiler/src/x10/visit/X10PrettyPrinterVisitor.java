@@ -833,15 +833,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		X10ConstructorInstance mi = (X10ConstructorInstance) n.constructorInstance();
 		X10ClassType ct = (X10ClassType) mi.container();
-
-		for (Iterator<Type> i = ct.typeArguments().iterator(); i.hasNext(); ) {
-			final Type at = i.next();
-			new RuntimeTypeExpander(er, at).expand(tr);
-			if (i.hasNext() || c.arguments().size() > 0) {
-				w.write(",");
-				w.allowBreak(0, " ");
-			}
-		}
+		
+		List<Type> ta = ct.typeArguments();
+                if (ta.size() > 0 && !isJavaNative(n)) {
+                    for (Iterator<Type> i = ta.iterator(); i.hasNext(); ) {
+                        final Type at = i.next();
+                        new RuntimeTypeExpander(er, at).expand(tr);
+                        if (i.hasNext() || c.arguments().size() > 0) {
+                                w.write(",");
+                                w.allowBreak(0, " ");
+                        }
+                    }        
+                }     
 
 		List<Expr> l = c.arguments();
 		for (Iterator<Expr> i = l.iterator(); i.hasNext(); ) {
@@ -861,6 +864,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write("}");
 		}
 	}
+
+        private boolean isJavaNative(X10New_c n) {
+                Type type = n.objectType().type();
+                if (type instanceof X10ClassType) {
+                    X10ClassDef cd = ((X10ClassType) type).x10Def();
+                    String pat = er.getJavaRepParam(cd, 1);
+                    if (pat != null && pat.startsWith("java.")) {
+                        return true;
+                    }
+                }
+                return false;
+        }
 
 	public void visit(Import_c c) {
 		// don't generate any code at all--we should fully qualify all type names
