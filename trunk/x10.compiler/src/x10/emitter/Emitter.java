@@ -20,6 +20,7 @@ import polyglot.ast.Cast;
 import polyglot.ast.CharLit;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Lit;
@@ -57,6 +58,7 @@ import polyglot.visit.Translator;
 import x10.Configuration;
 import x10.ast.Clocked;
 import x10.ast.ClosureCall;
+import x10.ast.ParExpr_c;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
@@ -76,6 +78,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.extension.X10Ext;
 import x10.query.QueryEngine;
+import x10.types.ConstrainedType_c;
 import x10.types.FunctionType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
@@ -85,6 +88,7 @@ import x10.types.X10Context;
 import x10.types.X10Def;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator.XTypeLit_c;
@@ -256,13 +260,27 @@ public class Emitter {
 				if (idx.intValue() >= components.length)
 					throw new InternalCompilerError("Template '" + id
 							+ "' uses #" + idx);
-				prettyPrint(components[idx.intValue()], tr);
+				
+				Object component = components[idx.intValue()];
+				if (component instanceof Expr && !isNoArgumentType((Expr)component)) {
+					prettyPrintExprWithCast((Expr)component, tr);
+				} else {
+					prettyPrint(component, tr);
+				}
 			}
 			pos++;
 		}
 		w.write(regex.substring(start));
 	}
 
+	public void prettyPrintExprWithCast(Expr expr, Translator tr) {
+		w.write("((");
+		new TypeExpander(this, expr.type(), false, true, false).expand();
+		w.write(")");
+		prettyPrint(expr, tr);
+		w.write(")");
+	}
+	
 	/**
 	 * Pretty-print a given object.
 	 * 
@@ -1117,7 +1135,7 @@ public class Emitter {
 			}
 		}
 	}
-
+	
 	/*
 	 * For "java" annotations:
 	 * 
@@ -1680,48 +1698,79 @@ public class Emitter {
 			tr.print(n, f.name(), w);
 		}
 	}
+	
+	public boolean isNoArgumentType(Expr e) {
+		while (e instanceof ParExpr_c) {
+			e = ((ParExpr_c) e).expr();
+			if (e == null) {
+			    return true;
+			}
+		}
+		
+		Type exprTgtType = null;
+		if (e instanceof Field_c) {
+			exprTgtType = ((Field_c) e).target().type();
+		} else if (e instanceof Call) {
+			exprTgtType = ((Call) e).target().type();
+		}
+		
+		if (exprTgtType != null) {
+			if (exprTgtType instanceof X10ParsedClassType_c && !((X10ParsedClassType_c) exprTgtType).typeArguments().isEmpty()) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public void coerce(Node parent, Expr e, Type expected) {
 		Type actual = e.type();
-		// currently, print cast operation eagerly
-		//if (expected == actual) {
-		//	tr.print(parent, e, w);
-		//	return;
-		//}
+		
+		if (expected instanceof ConstrainedType_c) {
+			expected = ((ConstrainedType_c) expected).baseType().get();
+		}
+		if (actual instanceof ConstrainedType_c) {
+			actual = ((ConstrainedType_c) actual).baseType().get();
+		}
 
-		if (actual.isNull()) {
+		if (actual.isNull() || e.isConstant()) {
 			tr.print(parent, e, w);
-		} else {
-			if (actual != expected 
+		} else if (actual != expected 
 					&& (actual.isBoolean() || actual.isNumeric() || actual.isByte())) {
-                //cast (expected_boxed_primitive)((expected_primitive)((init_primitive)((init_boxed_primitive)[init_expr])))
-                //ex: int i = (Integer)((int)((double)((Double)(2.0))));
-				w.write("((");
-				printType(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-				w.write(")((");
-				printType(expected, 0);
-				w.write(")((");
-				printType(actual, 0);
-				w.write(")((");
+			w.write("((");
+			printType(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+			w.write(")((");
+			printType(expected, 0);
+			w.write(")((");
+			printType(actual, 0);
+			w.write(")(");
+			if (isNoArgumentType(e)) {
+				tr.print(parent, e, w);
+			} else {
+				w.write("(");
 				printType(actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 				w.write(")(");
 				tr.print(parent, e, w);
-				w.write(")))))");
+				w.write(")");
+			}
+			w.write("))))");
+		} else if (actual.isBoolean() || actual.isNumeric() || actual.isByte()){
+			if (isNoArgumentType(e)) {
+				tr.print(parent, e, w);
 			} else {
-                //ex: Get<Super> sub = ((Get)(new Get<Sub>()));
 				w.write("((");
 				printType(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 				w.write(")(");
 				tr.print(parent, e, w);
 				w.write("))");
 			}
+		} else {
+			//cast eagerly
+			w.write("((");
+			printType(expected, 0);
+			w.write(")(");
+			tr.print(parent, e, w);
+			w.write("))");
 		}
-		
-		// w.write("x10.rtt.Types.<");
-		// printType(expected, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-		// w.write(">javacast(");
-		// tr.print(parent, e, w);
-		// w.write(") ");
 	}
 
 	public static X10ClassType annotationNamed(TypeSystem ts, Node o, QName name)
