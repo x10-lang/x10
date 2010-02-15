@@ -199,7 +199,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(" = ");
 			tr.print(n, l, w);
 			w.write(".");
-			w.write(Emitter.mangleIdentifier(methodName).toString());
+			w.write(Emitter.mangleToJava(methodName));
 			w.write("(");
 			tr.print(n, n.right(), w);
 			w.write(")");
@@ -213,7 +213,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (n.operator() == Assign.ASSIGN || t.isNumeric() || t.isBoolean() || t.isSubtype(ts.String(), tr.context())) {
 			tr.print(n, n.target(), w);
 			w.write(".");
-			w.write(Emitter.mangleIdentifier(n.name().id()).toString());
+			w.write(Emitter.mangleToJava(n.name().id()));
 			w.write(" ");
 			w.write(n.operator().toString());
 			w.write(" ");
@@ -225,14 +225,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			tr.print(n, n.target(), w);
 			w.write(".");
-			w.write(Emitter.mangleIdentifier(n.name().id()).toString());
+			w.write(Emitter.mangleToJava(n.name().id()));
 			w.write(" ");
 			w.write(" = ");
 			tr.print(n, n.target(), w);
 			w.write(".");
-			w.write(Emitter.mangleIdentifier(n.name().id()).toString());
+			w.write(Emitter.mangleToJava(n.name().id()));
 			w.write(".");
-			w.write(Emitter.mangleIdentifier(methodName).toString());
+			w.write(Emitter.mangleToJava(methodName));
 			w.write("(");
 			tr.print(n, n.right(), w);
 			w.write(")");
@@ -254,12 +254,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(" right) {");
 			w.allowBreak(0, " ");
 			w.write("return (target.");
-			w.write(Emitter.mangleIdentifier(n.name().id()).toString());
+			w.write(Emitter.mangleToJava(n.name().id()));
 			w.write(" = ");
 			w.write("target.");
-			w.write(Emitter.mangleIdentifier(n.name().id()).toString());
+			w.write(Emitter.mangleToJava(n.name().id()));
 			w.write(".");
-			w.write(Emitter.mangleIdentifier(methodName).toString());
+			w.write(Emitter.mangleToJava(methodName));
 			w.write("(right));");
 			w.allowBreak(0, " ");
 			w.write("} }.eval(");
@@ -316,7 +316,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 	public void visit(Id_c n) {
-		w.write(Emitter.mangleIdentifier(n.id()).toString());
+                w.write(Emitter.mangleToJava(n.id()));
 	}
 
 
@@ -338,7 +338,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write("final ");
 			w.write(X10_RUNTIME_TYPE_CLASS);
 			w.write(" ");
-			w.write(Emitter.mangleIdentifier(p.name()).toString());
+			w.write(Emitter.mangleToJava(p.name()));
 
 			typeAssignments.add("this." + p.name() + " = " + p.name() + ";");
 
@@ -1069,7 +1069,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(">");
 		}
 
-		w.write(Emitter.mangleIdentifier(c.name().id()).toString());
+		w.write(Emitter.mangleToJava(c.name().id()));
 
 		w.write("(");
 		w.begin(0);
@@ -1454,7 +1454,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (target instanceof TypeNode) {
 			er.printType(t, 0);
 			w.write(".");
-			w.write(Emitter.mangleIdentifier(n.name().id()).toString());
+			w.write(Emitter.mangleToJava(n.name().id()));
 		}
 		else {
 
@@ -1467,7 +1467,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				new Template(er, "place-check", new TypeExpander(er, t, true, false, false), target).expand();
 				// then emit '.' and name of the field.
 				w.write(".");
-				w.write(Emitter.mangleIdentifier(n.name().id()).toString());
+				w.write(Emitter.mangleToJava(n.name().id()));
 			} else
 				// WARNING: it's important to delegate to the appropriate visit() here!
 				visit((Node)n);
@@ -1602,7 +1602,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 			else {
 				w.write(".");
-				w.write(Emitter.mangleIdentifier(methodName).toString());
+				w.write(Emitter.mangleToJava(methodName));
 				w.write("(");
 				tr.print(n, n.right(), w);
 				w.write(")");
@@ -1661,7 +1661,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 			else {
 				w.write(".");
-				w.write(Emitter.mangleIdentifier(methodName).toString());
+				w.write(Emitter.mangleToJava(methodName));
 				w.write("(right)");
 			}
 			if (index.size() > 0)
