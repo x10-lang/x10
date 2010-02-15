@@ -102,7 +102,7 @@ public class Emitter {
 	Translator tr;
 	X10PrettyPrinterVisitor ppv;
         
-        private static final Set<String> JAVA_KEYWORD = new HashSet<String>(
+        private static final Set<String> JAVA_KEYWORDS = new HashSet<String>(
             Arrays.asList(new String[]{
                 "abstract", "default",  "if",         "private",    "this",
                 "boolean",  "do",       "implements", "protected",  "throw",
@@ -197,7 +197,7 @@ public class Emitter {
 	        if (str.startsWith(prefix)) {
 	            str = "_" + str;
 	        }
-	        if (JAVA_KEYWORD.contains(str)) {
+	        if (JAVA_KEYWORDS.contains(str)) {
 	            str = prefix + str;
 	        }
 	        return str;
