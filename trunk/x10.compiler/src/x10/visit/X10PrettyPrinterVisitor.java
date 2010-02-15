@@ -908,6 +908,51 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write(")");
 	}
 	
+	public void visit(Try_c c) {
+		w.write("try {");
+		
+		List<Catch> catchBlocks = c.catchBlocks();
+		
+		boolean catchWrappedEx = !catchBlocks.isEmpty();
+		if (catchWrappedEx) {
+			w.write("try");
+		}
+		
+		c.printSubStmt(c.tryBlock(), w, tr);
+
+		if (catchWrappedEx) {
+			w.write("catch (x10.runtime.impl.java.WrappedRuntimeException __$generated_wrappedex$__) {");
+			for (int i = 0; i < catchBlocks.size(); ++i) {
+				Catch cb = catchBlocks.get(i);
+			    w.newline(0);
+			    w.write("if (__$generated_wrappedex$__.getCause() instanceof ");
+			    new TypeExpander(er, cb.catchType(), false, false, false).expand();
+			    w.write(") {");
+			    w.newline(0);
+			    w.write("throw (");
+			    new TypeExpander(er, cb.catchType(), false, false, false).expand();
+			    w.write(") __$generated_wrappedex$__.getCause();");
+			    w.newline(0);
+			    w.write("}");
+			}
+			w.write("throw __$generated_wrappedex$__;");
+			w.write("}");
+		}
+		w.write("}");
+
+		for (int i = 0; i < catchBlocks.size(); ++i) {
+			Catch cb = catchBlocks.get(i);
+		    w.newline(0);
+		    c.printBlock(cb, w, tr);
+		}
+
+		if (c.finallyBlock() != null) {
+		    w.newline(0);
+		    w.write ("finally");
+		    c.printSubStmt(c.finallyBlock(), w, tr);
+		}
+	}
+	
 	public void visit(Tuple_c c) {
 		Type t = X10TypeMixin.getParameterType(c.type(), 0);
 		new Template(er, "tuple", 
