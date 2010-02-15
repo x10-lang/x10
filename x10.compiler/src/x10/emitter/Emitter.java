@@ -3,6 +3,7 @@ package x10.emitter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,7 +26,6 @@ import polyglot.ast.Formal;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
-import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
@@ -60,7 +60,6 @@ import x10.ast.Clocked;
 import x10.ast.ClosureCall;
 import x10.ast.ParExpr_c;
 import x10.ast.TypeParamNode;
-import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10ClockedLoop;
 import x10.ast.X10MethodDecl_c;
@@ -102,7 +101,24 @@ public class Emitter {
 	CodeWriter w;
 	Translator tr;
 	X10PrettyPrinterVisitor ppv;
-
+        
+        private static final Set<String> JAVA_KEYWORD = new HashSet<String>(
+            Arrays.asList(new String[]{
+                "abstract", "default",  "if",         "private",    "this",
+                "boolean",  "do",       "implements", "protected",  "throw",
+                "break",    "double",   "import",     "public",     "throws",
+                "byte",     "else",     "instanceof", "return",     "transient",
+                "case",     "extends",  "int",        "short",      "try",
+                "catch",    "final",    "interface",  "static",     "void",
+                "char",     "finally",  "long",       "strictfp",   "volatile",
+                "class",    "float",    "native",     "super",      "while",
+                "const",    "for",      "new",        "switch",
+                "continue", "goto",     "package",    "synchronized",
+                "null",     "true",     "false"
+                }
+            )
+        );
+        
 	public Emitter(CodeWriter w, Translator tr) {
 		this.w=w;
 		this.tr=tr;
@@ -175,6 +191,18 @@ public class Emitter {
 		return n;
 	}
 
+	public static String mangleToJava(Name name) {
+	        String str = mangleIdentifier(name).toString();
+	        String prefix = "kwd_";
+	        if (str.startsWith(prefix)) {
+	            str = "_" + str;
+	        }
+	        if (JAVA_KEYWORD.contains(str)) {
+	            str = prefix + str;
+	        }
+	        return str;
+	}
+	
 	static HashMap<String, String> translationCache_ = new HashMap<String, String>();
 
 	public static String translate(String id) {
@@ -923,7 +951,7 @@ public class Emitter {
 		printType(md.returnType(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
 				| X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 		w.allowBreak(2, 2, " ", 1);
-		w.write(mangleIdentifier(md.name()).toString());
+		w.write(mangleToJava(md.name()));
 
 		w.write("(");
 
@@ -943,14 +971,14 @@ public class Emitter {
 			w.write(" ");
 			Type pt = p;
 			assert pt instanceof ParameterType;
-			w.write(mangleIdentifier(((ParameterType) pt).name()).toString());
+			Name name = ((ParameterType) pt).name();
+                        w.write(mangleToJava(name));
 		}
 
 		List<Expander> dispatchArgs = new ArrayList<Expander>();
 
 		for (Type pt : md.typeParameters()) {
-			dispatchArgs.add(new Inline(this, mangleIdentifier(
-					((ParameterType) pt).name()).toString()));
+			dispatchArgs.add(new Inline(this, mangleToJava(((ParameterType) pt).name())));
 		}
 
 		for (int i = 0; i < md.formalTypes().size(); i++) {
@@ -1028,7 +1056,7 @@ public class Emitter {
 		if (md.typeParameters().size() > 0)
 			w.write("> ");
 
-		w.write(mangleIdentifier(md.name()).toString());
+		w.write(mangleToJava(md.name()));
 		w.write("(");
 		w.begin(0);
 
@@ -1073,14 +1101,14 @@ public class Emitter {
 
 			w.write("public x10.rtt.Type<?> " + "rtt_" + mangle(def.fullName())
 					+ "_");
-			w.write(mangleIdentifier(pt.name()).toString());
+			w.write(mangleToJava(pt.name()));
 			w.write("()");
 
 			if (def.flags().isInterface()) {
 				w.write(";");
 			} else if (!boxed) {
 				w.write(" { return this.");
-				w.write(mangleIdentifier(pt.name()).toString());
+				w.write(mangleToJava(pt.name()));
 				w.write("; }");
 			} else {
 				w.write(" { throw new java.lang.RuntimeException(); }");
@@ -1117,7 +1145,7 @@ public class Emitter {
 						ParameterType pt = idef.typeParameters().get(i);
 						w.write("public x10.rtt.Type<?> " + "rtt_"
 								+ mangle(idef.fullName()) + "_");
-						w.write(mangleIdentifier(pt.name()).toString());
+						w.write(mangleToJava(pt.name()));
 						w.write("() { ");
 
 						if (!boxed) {
@@ -1303,7 +1331,7 @@ public class Emitter {
 			w.write("final ");
 			w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
 			w.write(" ");
-			w.write(Emitter.mangleIdentifier(p.name().id()).toString());
+			w.write(Emitter.mangleToJava(p.name().id()));
 		}
 
 		for (int i = 0; i < n.formals().size(); i++) {
@@ -1435,7 +1463,7 @@ public class Emitter {
 		for (int i = 0; i < def.typeParameters().size(); i++) {
 			ParameterType pt = def.typeParameters().get(i);
 			w.write("public final x10.rtt.Type ");
-			w.write(Emitter.mangleIdentifier(pt.name()).toString());
+			w.write(Emitter.mangleToJava(pt.name()));
 			w.write(";");
 			w.newline();
 		}
@@ -1447,7 +1475,7 @@ public class Emitter {
 			if (i != 0)
 				w.write(", ");
 			w.write("final x10.rtt.Type ");
-			w.write(Emitter.mangleIdentifier(pt.name()).toString());
+			w.write(Emitter.mangleToJava(pt.name()));
 		}
 
 		w.write(") {");
@@ -1478,9 +1506,9 @@ public class Emitter {
 		for (int i = 0; i < def.typeParameters().size(); i++) {
 			ParameterType pt = def.typeParameters().get(i);
 			w.write("this.");
-			w.write(Emitter.mangleIdentifier(pt.name()).toString());
+			w.write(Emitter.mangleToJava(pt.name()));
 			w.write(" = ");
-			w.write(Emitter.mangleIdentifier(pt.name()).toString());
+			w.write(Emitter.mangleToJava(pt.name()));
 			w.write(";");
 			w.newline();
 		}
@@ -1514,23 +1542,23 @@ public class Emitter {
 			switch (var) {
 			case INVARIANT:
 				w.write("this.");
-				w.write(Emitter.mangleIdentifier(pt.name()).toString());
+				w.write(Emitter.mangleToJava(pt.name()));
 				w.write(".equals(");
 				javacast(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES,
 						"o");
 				w.write("." + "rtt_" + mangle(def.fullName()) + "_");
-				w.write(Emitter.mangleIdentifier(pt.name()).toString());
+				w.write(Emitter.mangleToJava(pt.name()));
 				w.write("()");
 				w.write(")");
 				break;
 			case COVARIANT:
 				w.write("this.");
-				w.write(Emitter.mangleIdentifier(pt.name()).toString());
+				w.write(Emitter.mangleToJava(pt.name()));
 				w.write(".isSubtype(");
 				javacast(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES,
 						"o");
 				w.write("." + "rtt_" + mangle(def.fullName()) + "_");
-				w.write(Emitter.mangleIdentifier(pt.name()).toString());
+				w.write(Emitter.mangleToJava(pt.name()));
 				w.write("()");
 				w.write(")");
 				break;
@@ -1538,11 +1566,11 @@ public class Emitter {
 				javacast(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES,
 						"o");
 				w.write("." + "rtt_" + mangle(def.fullName()) + "_");
-				w.write(Emitter.mangleIdentifier(pt.name()).toString());
+				w.write(Emitter.mangleToJava(pt.name()));
 				w.write("()");
 				w.write(".isSubtype(");
 				w.write("this.");
-				w.write(Emitter.mangleIdentifier(pt.name()).toString());
+				w.write(Emitter.mangleToJava(pt.name()));
 				w.write(")");
 				break;
 			}
@@ -1573,7 +1601,7 @@ public class Emitter {
 				ParameterType pt = def.typeParameters().get(i);
 				if (i != 0)
 					w.write(", ");
-				w.write(Emitter.mangleIdentifier(pt.name()).toString());
+				w.write(Emitter.mangleToJava(pt.name()));
 			}
 			w.end();
 			w.newline();
