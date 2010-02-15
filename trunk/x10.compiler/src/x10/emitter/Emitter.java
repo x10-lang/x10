@@ -548,6 +548,8 @@ public class Emitter {
 			} else {
 				type.print(w);
 			}
+		} else if (type.isNull()) {
+		        w.write("java.lang.Object");
 		} else {
 			type.print(w);
 		}
