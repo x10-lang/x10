@@ -25,7 +25,11 @@ x10_int Closure::hashCode() {
 }
 
 x10aux::ref<x10::lang::String> x10::lang::Closure::toString() {
-    return String::Lit("Closure without toString defined.");
+    return String::Lit(this->toNativeString());
+}
+
+const char* x10::lang::Closure::toNativeString() {
+    return "Closure without toNativeString defined.";
 }
 
 x10aux::ref<x10::lang::String> x10::lang::Closure::typeName() {
