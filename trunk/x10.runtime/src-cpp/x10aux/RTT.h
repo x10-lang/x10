@@ -227,6 +227,9 @@ namespace x10aux {
     template<> inline const char *typeName<const RuntimeType*>() { return "const RuntimeType *"; }
     template<> inline const char *typeName<RuntimeType::Variance>() { return "Variance"; }
     template<> inline const char *typeName<x10::lang::Reference>() { return "interface"; }
+#ifndef NO_IOSTREAM
+    template<> inline const char *typeName<std::stringstream>() { return "std::stringstream"; }
+#endif
     
     template<class T, class S> struct Instanceof { static x10_boolean _(S v) {
         return false;
