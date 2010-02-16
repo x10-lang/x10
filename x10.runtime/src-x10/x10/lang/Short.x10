@@ -105,19 +105,19 @@ public final struct Short {
     @Native("c++",  "((x10_short) (#1))")
     public native static safe operator (x:Byte): Short;
     
-    @Native("java", "((short) (#1))")
+    @Native("java", "((short)(int)(#1))")
     @Native("c++",  "((x10_short) (#1))")
     public native static safe operator (x:Int) as Short;
 
-    @Native("java", "((short) (#1))")
+    @Native("java", "((short)(long)(#1))")
     @Native("c++",  "((x10_short) (#1))")
     public native static safe operator (x:Long) as Short;
 
-    @Native("java", "((short) (#1))")
+    @Native("java", "((short)(float)(#1))")
     @Native("c++",  "((x10_short) (#1))")
     public native static safe operator (x:Float) as Short;
 
-    @Native("java", "((short) (#1))")
+    @Native("java", "((short)(double)(#1))")
     @Native("c++",  "((x10_short) (#1))")
     public native static safe operator (x:Double) as Short;
     

@@ -58,23 +58,23 @@ public final struct Float {
     @Native("c++",  "-(#1)")
     public native static safe operator - (x:Float): Float;
     
-    @Native("java", "((float) (#1))")
+    @Native("java", "((float)(byte)(#1))")
     @Native("c++",  "((x10_float) (#1))")
     public native static safe operator (x:Byte): Float;
 
-    @Native("java", "((float) (#1))")
+    @Native("java", "((float)(short)(#1))")
     @Native("c++",  "((x10_float) (#1))")
     public native static safe operator (x:Short): Float;
 
-    @Native("java", "((float) (#1))")
+    @Native("java", "((float)(int)(#1))")
     @Native("c++",  "((x10_float) (#1))")
     public native static safe operator (x:Int): Float;
 
-    @Native("java", "((float) (#1))")
+    @Native("java", "((float)(long)(#1))")
     @Native("c++",  "((x10_float) (#1))")
     public native static safe operator (x:Long): Float;
     
-    @Native("java", "((float) (#1))")
+    @Native("java", "((float)(double)(#1))")
     @Native("c++",  "((x10_float) (#1))")
     public native static safe operator (x:Double) as Float;
 
