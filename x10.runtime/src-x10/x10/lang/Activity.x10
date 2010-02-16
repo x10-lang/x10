@@ -99,11 +99,9 @@ public class Activity {
      */
     public var tag:Object!;
 
-    @Native("c++", "((x10aux::ref<x10::lang::Closure>) (this->FMGL(body)))->toNativeString()")
-    def nativeName() = body.toString();
-    
     def dump() {
-        Runtime.printf(@NativeString "%s\n", nativeName());
+        Runtime.printf(@NativeString "%p ", Runtime.nativeThis(this));
+        Runtime.printf(@NativeString "%s\n", Runtime.nativeClosureName(body));
     }
 }
 
