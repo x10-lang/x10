@@ -20,6 +20,11 @@ namespace x10aux {
         /** Low-level println to stderr; intended only for low-level debugging of XRX */
         static void println(const char *msg);
 
+        /** Low-level printf to stderr; intended only for low-level debugging of XRX */
+        template<class T> static void printf(const char* fmt, const T& t) {
+            fprintf(stderr, fmt, t);
+        }
+
     };
 }
 
