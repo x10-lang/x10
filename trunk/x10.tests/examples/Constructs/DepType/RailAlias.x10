@@ -22,6 +22,6 @@ public class RailAlias extends x10Test {
           return true;
      }
      public static def main(var a: Rail[String]): void = {
-    	 new RailAlias().run();
+    	 new RailAlias().execute();
      }
 }
