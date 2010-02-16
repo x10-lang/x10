@@ -101,23 +101,23 @@ public final struct Byte {
     @Native("c++",  "((x10_int) ~(#1))")
     public native static safe operator ~ (x:Byte): Int;
     
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(short)(#1))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static safe operator (x:Short) as Byte;
     
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(int)(#1))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static safe operator (x:Int) as Byte;
 
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(long)(#1))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static safe operator (x:Long) as Byte;
 
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(float)(#1))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static safe operator (x:Float) as Byte;
     
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(double)(#1))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static safe operator (x:Double) as Byte;
 

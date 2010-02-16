@@ -99,39 +99,39 @@ public final struct UInt {
     // To convert from int to uint, add MININT
     // That is (int) 0 is converted to (uint) 0, represented as MININT
 
-    @Native("java", "((int) ((#1) & 0xff))")
+    @Native("java", "((int) (((byte)(#1)) & 0xff))")
     @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:UByte): UInt;
 
-    @Native("java", "((int) ((#1) & 0xffff))")
+    @Native("java", "((int) (((short)(#1)) & 0xffff))")
     @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:UShort): UInt;
 
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(long)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:ULong) as UInt;
 
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(byte)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Byte) as UInt;
 
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(short)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Short) as UInt;
 
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(int)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Int) as UInt;
 
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(long)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Long) as UInt;
     
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(float)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Float) as UInt;
     
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(double)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Double) as UInt;
     

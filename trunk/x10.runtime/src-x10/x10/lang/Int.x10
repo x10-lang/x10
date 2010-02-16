@@ -100,23 +100,23 @@ public struct Int {
     @Native("c++",  "((x10_int) ~(#1))")
     public native static safe operator ~ (x:Int): Int;
     
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(byte)(#1))")
     @Native("c++",  "((x10_int) (#1))")
     public native static safe operator (x:Byte): Int;
 
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(short)(#1))")
     @Native("c++",  "((x10_int) (#1))")
     public native static safe operator (x:Short): Int;
 
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(long)(#1))")
     @Native("c++",  "((x10_int) (#1))")
     public native static safe operator (x:Long) as Int;
     
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(float)(#1))")
     @Native("c++",  "((x10_int) (#1))")
     public native static safe operator (x:Float) as Int;
     
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int)(double)(#1))")
     @Native("c++",  "((x10_int) (#1))")
     public native static safe operator (x:Double) as Int;
 

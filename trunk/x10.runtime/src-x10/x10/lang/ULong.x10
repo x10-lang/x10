@@ -103,27 +103,27 @@ public final struct ULong {
     @Native("c++",  "((x10_ulong) (#1))")
     public native static safe operator (x:UInt): ULong;
     
-    @Native("java", "((long) (#1))")
+    @Native("java", "((long)(byte)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
     public native static safe operator (x:Byte) as ULong;
 
-    @Native("java", "((long) (#1))")
+    @Native("java", "((long)(short)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
     public native static safe operator (x:Short) as ULong;
 
-    @Native("java", "((long) (#1))")
+    @Native("java", "((long)(int)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
     public native static safe operator (x:Int) as ULong;
 
-    @Native("java", "((long) (#1))")
+    @Native("java", "((long)(long)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
     public native static safe operator (x:Long) as ULong;
     
-    @Native("java", "((long) (#1))")
+    @Native("java", "((long)(float)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
     public native static safe operator (x:Float) as ULong;
     
-    @Native("java", "((long) (#1))")
+    @Native("java", "((long)(double)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
     public native static safe operator (x:Double) as ULong;
     

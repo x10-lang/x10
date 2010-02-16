@@ -88,39 +88,39 @@ public final struct UByte {
     @Native("c++",  "((x10_uint) (~(#1)))")
     public native static safe operator ~ (x:UByte): UInt;
     
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(short)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:UShort) as UByte;
 
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(int)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:UInt) as UByte;
 
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(long)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:ULong) as UByte;
     
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(byte)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:Byte) as UByte;
 
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(short)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:Short) as UByte;
 
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(int)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:Int) as UByte;
 
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(long)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:Long) as UByte;
     
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(float)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:Float) as UByte;
     
-    @Native("java", "((byte) (#1))")
+    @Native("java", "((byte)(double)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:Double) as UByte;
     

@@ -58,23 +58,23 @@ public final struct Double {
     @Native("c++",  "-(#1)")
     public native static safe operator - (x:Double): Double;
     
-    @Native("java", "((double) (#1))")
+    @Native("java", "((double)(byte)(#1))")
     @Native("c++",  "((x10_double) (#1))")
     public native static safe operator (x:Byte): Double;
     
-    @Native("java", "((double) (#1))")
+    @Native("java", "((double)(short)(#1))")
     @Native("c++",  "((x10_double) (#1))")
     public native static safe operator (x:Short): Double;
     
-    @Native("java", "((double) (#1))")
+    @Native("java", "((double)(int)(#1))")
     @Native("c++",  "((x10_double) (#1))")
     public native static safe operator (x:Int): Double;
     
-    @Native("java", "((double) (#1))")
+    @Native("java", "((double)(long)(#1))")
     @Native("c++",  "((x10_double) (#1))")
     public native static safe operator (x:Long): Double;
     
-    @Native("java", "((double) (#1))")
+    @Native("java", "((double)(float)(#1))")
     @Native("c++",  "((x10_double) (#1))")
     public native static safe operator (x:Float): Double;
 
