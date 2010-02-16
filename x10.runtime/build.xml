@@ -366,7 +366,7 @@
         <mkdir dir="${lib}"/>
         <copy todir="${lib}" preservelastmodified="true" flatten="true" >
            <!--<fileset dir="${bdwgc.dir}/install/lib" includes="libgc.a"/>-->
-           <fileset dir="${bdwgc.dir}/install" includes="lib/*.a,lib/*.so,lib/*.so.*,lib/*.la"/>
+           <fileset dir="${bdwgc.dir}/install" includes="lib/*gc.a,lib/*gc.so,lib/*gc.so.*"/>
            <fileset dir="${bdwgc.dir}/install" includes="bin/*.dll"/> <!-- Cygwin -->
         </copy>
         <copy todir="${inc}">
