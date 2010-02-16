@@ -27,6 +27,7 @@
 #include <sstream>
 #include <signal.h>
 #include <sys/time.h>
+#include <sys/types.h>
 
 #ifdef __CYGWIN__
 #define pthread_attr_setguardsize(A,B) do { (void)A; (void)B; } while(0)
@@ -454,6 +455,13 @@ long
 Thread::getId()
 {
     return __thread_id;
+}
+
+// Returns the system thread id.
+x10_long
+Thread::getTid()
+{
+    return (x10_long)pthread_self();
 }
 
 // Returns this thread's name.

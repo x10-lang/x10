@@ -186,6 +186,11 @@ namespace x10 {
              */
             long getId();
 
+            /**
+             * Returns the system thread id.
+             */
+            static x10_long getTid();
+
             // Changes the name of this thread to be equal to the argument name.
             void name(const x10aux::ref<x10::lang::String> name);
 
