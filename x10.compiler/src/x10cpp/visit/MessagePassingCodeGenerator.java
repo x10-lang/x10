@@ -3362,10 +3362,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(StringLit_c n) {
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		sw.write(Emitter.translateType(xts.String())+"::Lit(\"");
-		sw.write(StringUtil.escape(n.stringValue()));
-		sw.write("\")");
+        X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+
+        boolean nativeString = false;
+        try {
+            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeString"));
+            if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
+                nativeString = true;
+                System.err.println("@NativeString " + n);
+            }
+        } catch (SemanticException e) { 
+            /* Ignore exception when looking for annotation */  
+        }
+
+        if (nativeString) {
+            sw.write("\"");
+            sw.write(StringUtil.escape(n.stringValue()));
+            sw.write("\"");
+        } else {
+            sw.write(Emitter.translateType(xts.String())+"::Lit(\"");
+            sw.write(StringUtil.escape(n.stringValue()));
+            sw.write("\")");
+        }
 	}
 
 	public void visit(CharLit_c lit) {
@@ -4091,7 +4109,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write(Emitter.translateType(xts.String(), true)+" toString() {");
         inc.newline(4); inc.begin(0);
-        inc.write("return "+Emitter.translateType(xts.String())+"::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
+        inc.write("return "+Emitter.translateType(xts.String())+"::Lit(this->toNativeString());");
+        inc.end(); inc.newline();
+        inc.write("}");
+        inc.newline(); inc.forceNewline();
+
+        inc.write("const char* toNativeString() {");
+        inc.newline(4); inc.begin(0);
+        inc.write("return \""+StringUtil.escape(n.position().nameAndLineString())+"\";");
         inc.end(); inc.newline();
         inc.write("}");
         inc.end(); inc.newline(); inc.forceNewline();
