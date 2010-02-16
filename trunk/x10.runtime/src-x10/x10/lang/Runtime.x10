@@ -36,6 +36,12 @@ public final class Runtime {
     @Native("c++", "x10aux::system_utils::printf(#4, #5)")
     public native static def printf[T](fmt:String, t:T) : Void;
 
+    @Native("c++", "(#1)._val")
+    public static def nativeThis(x:Object) = 0L;
+
+    @Native("c++", "((x10aux::ref<x10::lang::Closure>)(#4))->toNativeString()")
+    public static def nativeClosureName[T](cl:T) = cl.toString();
+    
     // Configuration options
 
     @Native("java", "x10.runtime.impl.java.Runtime.NO_STEALS")
