@@ -88,4 +88,8 @@ public class Thread extends java.lang.Thread {
     public static void parkNanos(Long nanos) {
         java.util.concurrent.locks.LockSupport.parkNanos(nanos);
     }
+
+    public static long getTid() {
+        return Thread.currentThread().getId();
+    }
 }
