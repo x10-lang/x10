@@ -67,7 +67,7 @@ namespace x10 {
 
             virtual x10_boolean equals(x10aux::ref<Any> other);
             
-            virtual x10aux::ref<x10::lang::String> toString() { return x10aux::railToString<T,ValRail<T> >(this); }
+            virtual x10aux::ref<x10::lang::String> toString();
 
             static x10aux::ref<ValRail<T> > make(x10_int length);
 
@@ -187,6 +187,10 @@ namespace x10 {
             return rail;
         }
 
+        template <class T> x10aux::ref<x10::lang::String> ValRail<T>::toString() {
+            return x10aux::railToString<T>(FMGL(length), raw());
+        }
+        
         template <class T> x10aux::ref<Iterator<T> > ValRail<T>::iterator() {
             return ValRail__RailIterator<T>::_make(this);
         }

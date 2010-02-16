@@ -160,8 +160,7 @@ namespace x10 {
                                    x10aux::ref<Fun_0_0<x10::util::Pair<R, x10_int> > > src_finder,
                                    x10_int len);
 
-
-            virtual x10aux::ref<String> toString() { return x10aux::railToString<T,Rail<T> >(this); }
+            virtual x10aux::ref<String> toString();
         };
 
         void Rail_notifyEnclosingFinish(x10aux::deserialization_buffer& buf);
@@ -283,6 +282,11 @@ namespace x10 {
             return rail;
         }
 
+
+        template <class T> x10aux::ref<x10::lang::String> Rail<T>::toString() {
+            return x10aux::railToString<T>(FMGL(length), raw());
+        }
+        
 
         template <class T> x10aux::ref<Iterator<T> > Rail<T>::iterator() {
             return Rail__RailIterator<T>::_make(this);
