@@ -8,6 +8,8 @@
 
 package x10.lang;
 
+import x10.compiler.Native;
+import x10.compiler.NativeString;
 import x10.util.Stack;
 
 /**
@@ -96,6 +98,13 @@ public class Activity {
      * Activity-local storage
      */
     public var tag:Object!;
+
+    @Native("c++", "((x10aux::ref<x10::lang::Closure>) (this->FMGL(body)))->toNativeString()")
+    def nativeName() = body.toString();
+    
+    def dump() {
+        Runtime.printf(@NativeString "%s\n", nativeName());
+    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

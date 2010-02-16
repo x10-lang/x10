@@ -11,7 +11,9 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeClass;
 import x10.compiler.NativeDef;
+import x10.compiler.NativeString;
 import x10.util.HashMap;
+import x10.util.GrowableRail;
 import x10.util.Pair;
 import x10.util.Random;
 import x10.util.Stack;
@@ -25,6 +27,14 @@ public final class Runtime {
     @Native("java", "java.lang.System.out.println(#1)")
     @Native("c++", "x10aux::system_utils::println((#1)->toString()->c_str())")
     public native static def println(o:Object) : Void;
+
+    @Native("java", "java.lang.System.out.println()")
+    @Native("c++", "x10aux::system_utils::println(\"\")")
+    public native static def println() : Void;
+
+    @Native("java", "java.lang.System.out.printf(#4, #5)")
+    @Native("c++", "x10aux::system_utils::printf(#4, #5)")
+    public native static def printf[T](fmt:String, t:T) : Void;
 
     // Configuration options
 
@@ -593,6 +603,8 @@ public final class Runtime {
         public native def name(name:String):void;
 
         public native def locInt():Int;
+        
+        public static native def getTid():Long;
     }
 
 
@@ -611,6 +623,11 @@ public final class Runtime {
 
         // random number generator for this worker
         private val random:Random!;
+
+        // blocked activities (debugging info)
+        private val debug = new GrowableRail[Activity]();
+
+        private var tid:Long;
 
         def this(latch:Latch!, p:Int) {
             this.latch = latch;
@@ -636,6 +653,7 @@ public final class Runtime {
 
         // run pending activities
         public def apply():Void {
+            tid = Thread.getTid();
             try {
                 while (loop(latch, true));
             } catch (t:Throwable) {
@@ -662,9 +680,20 @@ public final class Runtime {
                     activity = Runtime.scan(random, latch, block);
                     if (activity == null) return false;
                 }
+                debug.add(activity);
                 runAtLocal(activity.home.id, (activity as Activity!).run.());
+                debug.removeLast();
             }
             return true;
+        }
+        
+        def dump(id:Int, thread:Thread!) {
+            Runtime.printf(@NativeString "WORKER %d", id);
+            Runtime.printf(@NativeString " = THREAD %#lx\n", tid);
+            for (var i:Int=debug.length()-1; i>=0; i--) {
+                debug(i).dump();
+            }
+            Runtime.println();
         }
     }
 
@@ -787,11 +816,21 @@ public final class Runtime {
                 if (++next == size) next = 0;
             }
         }
+        
+        def dump() {
+            for (var i:Int=0; i<size; i++) {
+                workers(i).dump(i, threads(i));
+            }
+        }
     }
 
 
     // for debugging
     const PRINT_STATS = false;
+    
+    static public def dump() {
+        runtime().pool.dump();
+    }
 
     // instance fields
 
