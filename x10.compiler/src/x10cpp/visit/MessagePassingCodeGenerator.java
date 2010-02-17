@@ -3428,6 +3428,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 } else if (c.conversionType()==X10Cast_c.ConversionType.SUBTYPE && xts.isSubtype(f_, t_, context)) {
                     // Need to check for case where a struct is being upcast to an interface that it implements.
                     // When that happens, we need to put in a class_cast_unchecked to cause boxing to happen.
+                    // TODO: clean this up
                     if (t_.isClass() && t_.toClass().flags().isInterface() &&
                             f_.isClass() && ((X10ClassType)f_.toClass()).isX10Struct()) {
                         sw.write("x10aux::class_cast_unchecked");
@@ -3435,7 +3436,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         c.printSubExpr(c.expr(), true, sw, tr);
                         sw.write(")");
                     } else {
+                        // But we need the class_cast_unchecked even in the non-struct case, for overload resolution. 
+                        sw.write("x10aux::class_cast_unchecked");
+                        sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
                         c.printSubExpr(c.expr(), true, sw, tr);
+                        sw.write(")");
                     }
                 } else {
 				    if (c.conversionType()==X10Cast_c.ConversionType.UNCHECKED) {
