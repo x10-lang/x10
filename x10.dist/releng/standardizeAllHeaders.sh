@@ -18,7 +18,7 @@ for proj in \
 do
   echo "Standardizing file headers in $proj"
   cd $proj
-  find . -name .svn -prune -o -name "*.java" -exec $top/x10.dist/releng/standardizeHeader.sh {} \;
-  find . -name .svn -prune -o -name "*.x10" -exec $top/x10.dist/releng/standardizeHeader.sh {} \;
+  find . -name .svn -prune -o -name "*.java" -exec $top/x10.dist/releng/standardizeHeader.pl {} \;
+  find . -name .svn -prune -o -name "*.x10" -exec $top/x10.dist/releng/standardizeHeader.pl {} \;
   cd $top
 done
