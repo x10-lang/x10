@@ -76,7 +76,6 @@ import x10.constraint.XNot_c;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.extension.X10Ext;
-import x10.query.QueryEngine;
 import x10.types.ConstrainedType_c;
 import x10.types.FunctionType;
 import x10.types.MacroType;
@@ -1759,8 +1758,10 @@ public class Emitter {
 		if (actual instanceof ConstrainedType_c) {
 			actual = ((ConstrainedType_c) actual).baseType().get();
 		}
+		
+		boolean parameterExpected = expected instanceof ParameterType;
 
-		if (actual.isNull() || e.isConstant()) {
+		if (actual.isNull() || e.isConstant() && !parameterExpected) {
 			tr.print(parent, e, w);
 		} else if (actual != expected 
 					&& (actual.isBoolean() || actual.isNumeric() || actual.isByte())) {
