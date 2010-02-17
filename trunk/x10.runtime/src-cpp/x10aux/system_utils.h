@@ -2,6 +2,7 @@
 #define X10AUX_SYSTEM_UTILS_H
 
 #include <x10aux/config.h>
+#include <stdio.h>
 
 namespace x10aux {
 
