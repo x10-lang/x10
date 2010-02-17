@@ -576,7 +576,7 @@ function main {
 		else
 			extendList=""
 		fi
-		comp_cmd="${X10CPP} -t -v -commandlineonly -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		comp_cmd="${X10CPP} -t -v -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
 		tccompdat=${tcroot}/${tctarget}.comp
 		execTimeOut $tccomptout $tccompdat "${comp_cmd}"
 		rc=$?
