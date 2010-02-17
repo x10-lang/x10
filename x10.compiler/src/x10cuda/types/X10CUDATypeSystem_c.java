@@ -1,9 +1,14 @@
 /*
- * Created on Feb 26, 2008
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- * To change the template for this generated file go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
  */
+
 package x10cuda.types;
 
 import polyglot.types.Context;
