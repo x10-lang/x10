@@ -1,9 +1,3 @@
-/*
- * Random Access, using Array[Array[long]] as the backing data
- * structure for the data. This is much less efficient than
- * the approach taken in FRASimpleDist, which uses 
- * PlaceLocalHandle[Rail[long]] to access the data.
- */
 
 class LocalTable {
     val a:Array[long](1)!;
@@ -19,6 +13,12 @@ class LocalTable {
     }
 }
 
+/**
+ * Random Access, using Array[Array[long]] as the backing data
+ * structure for the data. This is much less efficient than
+ * the approach taken in FRASimpleDist, which uses 
+ * PlaceLocalHandle[Rail[long]] to access the data.
+ */
 public class FRA {
 
     const POLY = 0x0000000000000007L;
