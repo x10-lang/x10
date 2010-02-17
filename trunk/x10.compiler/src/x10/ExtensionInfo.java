@@ -15,10 +15,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.AbstractGoal_c;
@@ -195,7 +198,22 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                         if (file.endsWith(".x10") || file.endsWith(".jar")) // FIXME: hard-codes the source extension.
                             manifest.add(file);
                 } catch (IOException e) { }
-            } else { // TODO: read manifest from x10.jar
+            } else {
+                for (File f : getOptions().source_path) {
+                    if (f.getName().endsWith("x10.jar")) {
+                        try {
+                            JarFile jf = new JarFile(f);
+                            manifest.add("x10.jar");
+                            Enumeration<JarEntry> entries = jf.entries();
+                            while (entries.hasMoreElements()) {
+                                JarEntry je = entries.nextElement();
+                                if (je.getName().endsWith(".x10")) { // FIXME: hard-codes the source extension.
+                                    manifest.add(je.getName());
+                                }
+                            }
+                        } catch (IOException e) { }
+                    }
+                }
             }
             // Resolver to handle lookups of member classes.
             if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
