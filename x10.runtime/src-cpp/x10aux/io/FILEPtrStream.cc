@@ -17,7 +17,7 @@ FILE* FILEPtrStream::open_file(const ref<String>& name, const char* mode) {
     FILE* res = fopen(filename, mode);
 #ifndef NO_EXCEPTIONS
     if (res == NULL)
-        throwException<FileNotFoundException>();
+        throwException(FileNotFoundException::_make(name));
 #endif
     return res;
 }
