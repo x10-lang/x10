@@ -745,7 +745,7 @@ doTest() {
 	then
 		extraClassPath="${extraClassPath}:${EXTRA_CLASSPATH}"
 	fi
-  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -commandlineonly -sourcepath $x10lib -sourcepath $testDir -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $extendList ./x10lib/harness/x10Test.x10" "" ""
+  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $extendList ./x10lib/harness/x10Test.x10" "" ""
 
   if [[ $? != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className

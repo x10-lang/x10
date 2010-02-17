@@ -814,8 +814,8 @@ doTest() {
 	__cat_test_x10c_sourcepath="$x10lib:$testDir"
 	__cat_test_x10c_classpath="$extraClassPath"
 	__cat_test_x10c_directory="$testDir"
-  __cat_test_x10c_command="$(echo runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -commandlineonly -sourcepath $x10lib -sourcepath $testDir -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $dependList $extendList ./x10lib/harness/x10Test.x10" "" "")"
-  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -commandlineonly -sourcepath $x10lib -sourcepath $testDir -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $dependList $extendList ./x10lib/harness/x10Test.x10" "" ""
+  __cat_test_x10c_command="$(echo runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $dependList $extendList ./x10lib/harness/x10Test.x10" "" "")"
+  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $dependList $extendList ./x10lib/harness/x10Test.x10" "" ""
 	local runRC=$?
   if [[ $runRC != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
