@@ -1240,41 +1240,6 @@ public class Emitter {
 		return false;
 	}
 
-	public static List<Object> asList(Object a, Object b) {
-		List<Object> l = new ArrayList<Object>(2);
-		l.add(a);
-		l.add(b);
-		return l;
-	}
-
-	public static List<Object> asList(Object a, Object b, Object c) {
-		List<Object> l = new ArrayList<Object>(3);
-		l.add(a);
-		l.add(b);
-		l.add(c);
-		return l;
-	}
-
-	public static List<Object> asList(Object a, Object b, Object c, Object d) {
-		List<Object> l = new ArrayList<Object>(3);
-		l.add(a);
-		l.add(b);
-		l.add(c);
-		l.add(d);
-		return l;
-	}
-
-	public static List<Object> asList(Object a, Object b, Object c, Object d,
-			Object e) {
-		List<Object> l = new ArrayList<Object>(3);
-		l.add(a);
-		l.add(b);
-		l.add(c);
-		l.add(d);
-		l.add(e);
-		return l;
-	}
-
 	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
