@@ -46,6 +46,7 @@ import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
@@ -66,8 +67,10 @@ import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
 import x10.parser.X10Parsersym;
 
-public class X10ContentProposer implements IContentProposer, X10Parsersym {
-    private void filterFields(List<FieldInstance> fields, List<FieldInstance> in_fields, String prefix) {
+public class X10ContentProposer implements IContentProposer, X10Parsersym { 
+    
+	
+	private void filterFields(List<FieldInstance> fields, List<FieldInstance> in_fields, String prefix) {
         for(FieldInstance f: in_fields) {
             String name= f.name().toString(); // PORT1.7 was f.name()
             String tempName = f.toString();  // PORT1.7 or is this preferable?
@@ -127,9 +130,11 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         ClassType container_type= type.toClass();
         if (container_type == null)
             return;
-
-        filterClasses(classes, container_type.memberClasses(), prefix);
-
+        List<ClassType> in_classes = new ArrayList<ClassType>();
+        in_classes.add(container_type);
+        in_classes.addAll(container_type.memberClasses());
+        filterClasses(classes, in_classes, prefix);
+       
         for(int i= 0; i < container_type.interfaces().size(); i++) {
             ClassType interf= ((ReferenceType) container_type.interfaces().get(i)).toClass();
             filterClasses(classes, interf.memberClasses(), prefix);
@@ -203,8 +208,8 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         IToken tokenToComplete= prs_stream.getIToken(token_index), contextToken= prs_stream.getIToken(token_index - 1);
         SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
 
-        if (offset == tokenToComplete.getStartOffset()) { // If we're at the beginning of the tokenToComplete, back up
-                                                            // one token
+        if (offset !=0 && offset == tokenToComplete.getStartOffset()) { // If we're at the beginning of the tokenToComplete, back up
+                                                            // one token, unless we are at offset 0.
             tokenToComplete= prs_stream.getIToken(tokenToComplete.getTokenIndex() - 1);
             contextToken= prs_stream.getIToken(tokenToComplete.getTokenIndex() - 1);
         }
@@ -237,7 +242,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
          */
         PolyglotNodeLocator locator= new PolyglotNodeLocator(controller.getProject(), ((SimpleLPGParseController) controller).getLexer().getILexStream());
         Node currentAst= (Node) controller.getCurrentAst();
-        Node node= (Node) locator.findNode(currentAst, contextToken.getStartOffset(), contextToken.getEndOffset()); // offset);
+        Node node= (Node) locator.findNode(currentAst, tokenToComplete.getStartOffset(), tokenToComplete.getEndOffset()); // offset);
         //
         // We execute this code when we encounter a qualified name x.foo,
         // where the left-hand side x of the qualified name may be either
@@ -245,12 +250,12 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         // type. Note that x itself may be a qualified name.
         // 
         if (node instanceof Field) {
-            // list.add(new SourceProposal("Field: " + node.getClass().toString(), " source proposal ", 0));
+        	// list.add(new SourceProposal("Field: " + node.getClass().toString(), " source proposal ", 0));
             Field field= (Field) node;
-            if (contextToken.getKind() == TK_DOT && field.target().type().isReference() /* instanceof ReferenceType */)
-                getCandidates((ObjectType) field.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
-            else
-                list.add(new SourceProposal("no info available", " source proposal ", 0));
+            if (tokenToComplete.getKind() == TK_DOT && field.target().type().isReference() /* instanceof ReferenceType */)
+            	getCandidates((ObjectType) field.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
+//            else
+//                list.add(new SourceProposal("no info available", " source proposal ", 0));
         } else if (node instanceof CanonicalTypeNode) {
         	CanonicalTypeNode ctNode=(CanonicalTypeNode)node;
             Qualifier qualifier= ctNode.qualifierRef().get();//PORT1.7 qualifier()->qualifierRef().get();
@@ -261,48 +266,65 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
                     getCandidates((ObjectType) qualType, list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
                 }
             }
+        } else if (node instanceof FieldAssign){
+        	FieldAssign field = (FieldAssign) node;
+        	if (field.target().type() != null && field.target().type().isReference() /* instanceof ReferenceType */)
+            	getCandidates((ObjectType) field.target().type(), list, prefix, offset);
+        	
+        
         } else if (node instanceof Assign) {
-            list.add(new SourceProposal("Assign: " + node.getClass().toString(), " source proposal ", 0));
-            list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-            if (prefix != null && prefix.length() > 0) {
-                // TODO: Any package, type, local variable and accessible class members
-            } else
-                list.add(new SourceProposal("no info available", " source proposal ", 0));
+//        	list.add(new SourceProposal("Assign: " + node.getClass().toString(), " source proposal ", 0));
+//            list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
+//            if (prefix != null && prefix.length() > 0) {
+//                // TODO: Any package, type, local variable and accessible class members
+//            } else
+//                list.add(new SourceProposal("no info available", " source proposal ", 0));
         } else if (node instanceof FieldDecl) {
-            list.add(new SourceProposal("FieldDecl: " + node.getClass().toString(), " source proposal ", 0));
-            list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-            if (prefix != null && prefix.length() > 0) {
+//        	list.add(new SourceProposal("FieldDecl: " + node.getClass().toString(), " source proposal ", 0));
+//            list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
+            //if (prefix != null && prefix.length() > 0) {
                 // TODO: Any package, type, local variable and accessible class members
-                list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-            } else if (contextToken.getKind() == TK_EQUAL) {
+        	
+            if (tokenToComplete.getKind() == TK_EQUAL) {
                 // TODO: Any package, type, local variable and accessible class members
-            } else
-                list.add(new SourceProposal("no info available", " source proposal ", 0));
+            	addNamesInScope(currentAst, node, prefix, list, offset);
+            } 
+//            else
+//                list.add(new SourceProposal("no info available", " source proposal ", 0));
         } else if (node instanceof Call) {
-            Call call= (Call) node;
-            if (contextToken.getKind() == TK_DOT && call.target().type() != null && call.target().type().isReference())
-                getCandidates((ObjectType) call.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
+        	Call call= (Call) node;
+            if (tokenToComplete.getKind() == TK_DOT && call.target().type() != null && call.target().type().isReference())
+            	getCandidates((ObjectType) call.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
         } else {
             // TODO: Any package, type, local variable and accessible class members
             if (node instanceof Binary) {
-                list.add(new SourceProposal("BINARY: " + node.getClass().toString(), " source proposal ", 0));
-            } else if (node instanceof Unary) {
-                list.add(new SourceProposal("UNARY: " + node.getClass().toString(), " source proposal ", 0));
+                //list.add(new SourceProposal("BINARY: " + node.getClass().toString(), " source proposal ", 0));
+            } else if (node instanceof Unary) {   
+                //list.add(new SourceProposal("UNARY: " + node.getClass().toString(), " source proposal ", 0));
             } else if (node instanceof Id) {
                 if (tokenToComplete.getKind() == TK_DOT || prs_stream.getIToken(tokenToComplete.getTokenIndex() - 1).getKind() == TK_DOT) {
-                    // node is the left-hand side of the dot operator
+                	// node is the left-hand side of the dot operator
                     Node parent= (Node) locator.findParentNode(currentAst, tokenToComplete.getStartOffset());
                     if (parent instanceof Call) {
                         Call call= (Call) parent;
                         if (call.target().type() != null && call.target().type().isReference())
                             getCandidates((ObjectType) call.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
                     }
+                    else if (parent instanceof Field){
+                    	Field field = (Field) parent;
+                    	if (field.target().type() != null && field.target().type().isReference() /* instanceof ReferenceType */)
+                        	getCandidates((ObjectType) field.target().type(), list, prefix, offset);
+                    } else if (parent instanceof FieldAssign) {
+                    	FieldAssign field = (FieldAssign) parent;
+                    	if (field.target().type() != null && field.target().type().isReference() /* instanceof ReferenceType */)
+                        	getCandidates((ObjectType) field.target().type(), list, prefix, offset);
+                    }
                 } else {
                     // Possibilities: prefix of a package, local variable, parameter, field, or type name
                     addNamesInScope(currentAst, (Id) node, prefix, list, offset);
                 }
             } else {
-                addTemplateProposals(offset, viewer, list, prefix);
+            	addTemplateProposals(offset, viewer, list, prefix);
             }
         }
         return (ICompletionProposal[]) list.toArray(new ICompletionProposal[list.size()]);
@@ -314,7 +336,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         TemplateContext tc= new DocumentTemplateContext(fContextType, doc, offset - prefix.length(), prefix.length());
 
         for(int i= 0; i < fTemplates.length; i++) {
-            addTemplateProposalIfMatch(list, fTemplates[i], tc, r, prefix);
+        	addTemplateProposalIfMatch(list, fTemplates[i], tc, r, prefix);
         }
     }
 
@@ -328,7 +350,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         return prefix;
     }
 
-    private void addNamesInScope(Node currentAst, Id id, String prefix, List<ICompletionProposal> proposals, int offset) {
+    private void addNamesInScope(Node currentAst, Node id, String prefix, List<ICompletionProposal> proposals, int offset) {
         // Polyglot can't supply the pkg/class names, so we'll have to appeal to the search index
         if ("this".startsWith(prefix)) // Should check that we're not in a static method or initializer
             proposals.add(new SourceProposal("this", prefix, offset));
@@ -377,8 +399,8 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     }
 
     private void addTemplateProposalIfMatch(ArrayList proposals, Template template, TemplateContext tc, Region r, String prefix) {
-        if (template.getName().startsWith(prefix)) {
-            proposals.add(new TemplateProposal(template, tc, r, null));
+    	if (!prefix.equals("") && template.getName().startsWith(prefix)) {
+    		proposals.add(new TemplateProposal(template, tc, r, null));
         }
     }
 }
