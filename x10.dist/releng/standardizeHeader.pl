@@ -24,8 +24,10 @@ while (<>) {
     if ($packageFound) {
 	print $_;
     } else {
-	# sigh.  Might be a class in the default package.  Deal with that by looking for a few other hints
-        if (m/^import /  || m/^interface / || m/^class / || m/^public /) {
+	# sigh.  Might be a class in the default package.  
+        # Recognize some other common indicators for the begining of the file contents
+        # that appear in files in x10.tests.
+        if (m/^import /  || m/^interface / || m/^class / || m/^public / || m/^final / || m/\/\*\*/ || m/LIMITATION/ || m/STATUS/ || m/OPTION/) {
 	    $packageFound = 1;
 	    printHeader();
 	    print $_;
