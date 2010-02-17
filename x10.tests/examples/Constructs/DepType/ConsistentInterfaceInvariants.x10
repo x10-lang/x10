@@ -1,15 +1,14 @@
 /*
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- * (C) Copyright IBM Corporation 2006
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  This file is part of X10 Test.
- *
+ *  (C) Copyright IBM Corporation 2006-2010.
  */
-//ex-L-I-M-I-T-A-T-I-O-N:
-//(As of 2006, the following was a limitation.  It shouldn't be anymore.)
-//This test case will not meet expectations. It is a limitation of the current release.
-//Interface invariants are not currently implemented.
-// Cannot constrain super-properties in the class invariant
+
 /** Tests that invariants due to a super constraint and a sub constraint are 
  * consistent with each other.
  *@author pvarma
