@@ -1,15 +1,21 @@
-/**
- * Version of Stream with a collection of local arrays implementing a
- * global array.
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- * @seealso Stream
- * @author vj
- * @author bdlucas
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
  */
 
 import x10.util.Timer;
 import x10.io.Console;
 
+/**
+ * Version of Stream with a collection of local arrays implementing a
+ * global array.
+ */
 public class FSSimpleDist {
 
     const MEG = 1024*1024;
