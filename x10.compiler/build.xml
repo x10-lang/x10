@@ -19,7 +19,7 @@
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="polyglot.bytecode.jar" value="polyglot-bytecode.jar"/>
-    <property name="asm.jar" value="asm-all-3.2.jar"/>
+    <property name="asm.jar" value="asm.jar"/>
     <property name="runtime.jar" value="x10.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
