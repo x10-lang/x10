@@ -695,6 +695,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 						w.write(")");
 					w.write(")");
 					w.end();
+				} else if (t instanceof ParameterType
+				    && (X10TypeMixin.baseType(type) instanceof ParameterType || type.isNumeric() || type.isChar())) {
+				        new Template(er, "cast_deptype_primitive_param", ex, expr, rt, "true").expand();
 				} else {
 					new Template(er, template, ex, expr, rt, "true").expand();
 				}
