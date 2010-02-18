@@ -73,6 +73,7 @@
         <mkdir dir="${etc}" />
         <delete dir="${incdir}" />
         <mkdir dir="${incdir}" />
+        <mkdir dir="${lib}" />
         <delete> <!-- TODO: download jars elsewhere and copy -->
             <fileset dir="${lib}">
                 <include name="*.a"/>
