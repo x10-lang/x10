@@ -419,7 +419,7 @@ returned.
 Incomplete types are designed with the following goals:
  \begin{itemize}
 
-\item Guarantee that fields are read only after they are initialized.
+\item Guarantee that fields are not read before they are initialized.
 
 \item  Allow the creation of immutable cyclic object graphs.\footnote{(Mutable
        graphs can be created without escaping \Xcd{this} 
