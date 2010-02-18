@@ -3370,7 +3370,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeString"));
             if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
                 nativeString = true;
-                System.err.println("@NativeString " + n);
+//                System.err.println("@NativeString " + n);
             }
         } catch (SemanticException e) { 
             /* Ignore exception when looking for annotation */  
