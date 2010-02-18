@@ -7,6 +7,7 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright Australian National University 2009-2010.
  */
 
 package x10.lang;
