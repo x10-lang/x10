@@ -600,7 +600,8 @@ function main {
 		cleanUpExitHarness 2
 	fi
 	if [[ "$(uname -s)" == "AIX" ]]; then
-		X10CPP="$X10CPP -DISABLE_GC -NO_CHECKS -x10rt pgas_lapi"
+	    # TODO: -NO_CHECKS is questionable here.  --dave 2/18/2010
+		X10CPP="$X10CPP -NO_CHECKS -x10rt pgas_lapi"
 	fi
 
 	if [[ ! -f $X10_HOME/x10.dist/include/x10rt.h ]]; then

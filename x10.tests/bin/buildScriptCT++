@@ -150,17 +150,17 @@ main() {
 		export LOCAL_POLYGLOT_JAR=$(cygpath -w -a $LOCAL_POLYGLOT_JAR)
 	fi
 
-  printf "\n##### [$prog]: building X10 #####\n"
+	printf "\n##### [$prog]: building X10 #####\n"
 	if [[ "$(uname -s)" == "AIX" ]]; then
-		(cd $X10_DIST; ant dist -DDISABLE_GC=true -DNO_CHECKS=true -DX10RT_PGAS=true);
-  elif [[ "$(uname -s)"  == "Linux" && "$(uname -m)" == "x86_64" ]]; then
-    (cd $X10_DIST; ant dist -DDISABLE_GC=false -DNO_CHECKS=true -DX10RT_PGAS=true);
+	    (cd $X10_DIST; ant dist);
+	elif [[ "$(uname -s)"  == "Linux" && "$(uname -m)" == "x86_64" ]]; then
+	    (cd $X10_DIST; ant dist);
 	elif [[ "$(uname -s)" == "SunOS" && "$(uname -p)" == "sparc" ]]; then
-		(cd $X10_DIST; ant dist -DDISABLE_GC=true -DNO_CHECKS=true -DX10RT_PGAS=true);
+	    (cd $X10_DIST; ant dist);
 	else
-		(cd $X10_DIST; ant dist);
+	    (cd $X10_DIST; ant dist);
 	fi
-
+	
 	return $?
 }
 
