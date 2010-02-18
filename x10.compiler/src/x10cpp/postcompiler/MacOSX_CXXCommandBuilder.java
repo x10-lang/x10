@@ -31,5 +31,11 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
+
+        // Support for loading shared libraries from x10.dist/lib
+        cxxCmd.add("-Wl,-rpath");
+        cxxCmd.add("-Wl,"+X10_DIST+"/lib");
+        cxxCmd.add("-Wl,-rpath");
+        cxxCmd.add("-Wl,"+X10_DIST+""); // some libs end up with a "lib/" relative path
     }
 }

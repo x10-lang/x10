@@ -144,8 +144,8 @@ else
       else
         ifeq ($(shell uname -s),Darwin)
           export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
-          export X10_STATIC_LIB=1
-          LIBSUFFIX := .a
+          override CXXFLAGS_SHARED += -shared -fPIC -install_name '@rpath/$@'
+          export X10RT_TEST_LDFLAGS = -Wl,-rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib -Wl,-rpath -Wl,$(X10_HOME)/x10.runtime/x10rt
         else
           ifeq ($(shell uname -s),SunOS)
             export X10RT_PLATFORM=sunos
