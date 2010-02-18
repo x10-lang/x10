@@ -105,6 +105,7 @@ import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
+import x10.emitter.CastExpander;
 import x10.emitter.Emitter;
 import x10.emitter.Expander;
 import x10.emitter.Inline;
@@ -112,6 +113,7 @@ import x10.emitter.Join;
 import x10.emitter.Loop;
 import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
+import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -910,48 +912,40 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	
 	public void visit(Try_c c) {
-		w.write("try {");
 		
-		List<Catch> catchBlocks = c.catchBlocks();
+		TryCatchExpander expander;
+		final List<Catch> catchBlocks = c.catchBlocks();
 		
-		boolean catchWrappedEx = !catchBlocks.isEmpty();
-		if (catchWrappedEx) {
-			w.write("try");
-		}
-		
-		c.printSubStmt(c.tryBlock(), w, tr);
-
-		if (catchWrappedEx) {
-			w.write("catch (x10.runtime.impl.java.WrappedRuntimeException __$generated_wrappedex$__) {");
+		if (catchBlocks.isEmpty()) {
+			expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
+		} else {
+			expander = new TryCatchExpander(w, er, c.tryBlock(), null);
+			expander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", "__$generated_wrappedex$__", new Expander(er) {
+				public void expand(Translator tr) {
+					for (int i = 0; i < catchBlocks.size(); ++i) {
+						Catch cb = catchBlocks.get(i);
+					    w.newline(0);
+					    w.write("if (__$generated_wrappedex$__.getCause() instanceof ");
+					    new TypeExpander(er, cb.catchType(), false, false, false).expand(tr);
+					    w.write(") {");
+					    w.newline(0);
+					    w.write("throw (");
+					    new TypeExpander(er, cb.catchType(), false, false, false).expand(tr);
+					    w.write(") __$generated_wrappedex$__.getCause();");
+					    w.newline(0);
+					    w.write("}");
+					}
+					w.write("throw __$generated_wrappedex$__;");
+				}
+			});
+			
+			expander = new TryCatchExpander(w, er, expander, c.finallyBlock());
 			for (int i = 0; i < catchBlocks.size(); ++i) {
-				Catch cb = catchBlocks.get(i);
-			    w.newline(0);
-			    w.write("if (__$generated_wrappedex$__.getCause() instanceof ");
-			    new TypeExpander(er, cb.catchType(), false, false, false).expand();
-			    w.write(") {");
-			    w.newline(0);
-			    w.write("throw (");
-			    new TypeExpander(er, cb.catchType(), false, false, false).expand();
-			    w.write(") __$generated_wrappedex$__.getCause();");
-			    w.newline(0);
-			    w.write("}");
+				expander.addCatchBlock(catchBlocks.get(i));
 			}
-			w.write("throw __$generated_wrappedex$__;");
-			w.write("}");
 		}
-		w.write("}");
-
-		for (int i = 0; i < catchBlocks.size(); ++i) {
-			Catch cb = catchBlocks.get(i);
-		    w.newline(0);
-		    c.printBlock(cb, w, tr);
-		}
-
-		if (c.finallyBlock() != null) {
-		    w.newline(0);
-		    w.write ("finally");
-		    c.printSubStmt(c.finallyBlock(), w, tr);
-		}
+		
+		expander.expand(tr);
 	}
 	
 	public void visit(Tuple_c c) {
@@ -979,16 +973,29 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		String pat = er.getJavaImplForDef(mi.x10Def());
 		if (pat != null) {
 			boolean needsHereCheck = er.needsHereCheck(target, context);
-			Template tmp = null; 
+			
+			CastExpander targetArg;
+			boolean cast = xts.isParameterType(t);
 			if (needsHereCheck && ! (target instanceof TypeNode || target instanceof New)) {
-				tmp = new Template(er, "place-check", new TypeExpander(er, target.type(), true, false, false), target);
+				Template tmplate = new Template(er, "place-check", new TypeExpander(er, target.type(), true, false, false), target);
+				if (cast) {
+					targetArg = new CastExpander(w, er, new TypeExpander(er,  mi.container(), BOX_PRIMITIVES), tmplate);
+				} else {
+					targetArg = new CastExpander(w, er, tmplate);
+				}
+			} else {
+				if (cast) {
+					targetArg = new CastExpander(w, er, new TypeExpander(er,  mi.container(), BOX_PRIMITIVES), target);
+				} else {
+					targetArg = new CastExpander(w, er, target);
+				}
 			}
             List<Type> typeArguments  = Collections.<Type>emptyList();
             if (mi.container().isClass() && !mi.flags().isStatic()) {
                 X10ClassType ct = (X10ClassType) mi.container().toClass();
                 typeArguments = ct.typeArguments();
             }
-			er.emitNativeAnnotation(pat, null == tmp ? target : tmp, mi.typeParameters(), c.arguments(), typeArguments);
+			er.emitNativeAnnotation(pat, targetArg, mi.typeParameters(), c.arguments(), typeArguments);
 			return;
 		}
 
@@ -1006,7 +1013,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 		}
 		
-		
 		boolean runAsync = false;
 		if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).fullName().toString().equals("x10.lang.Runtime")) {
 			if (mi.signature().startsWith("runAsync")) {
@@ -1015,44 +1021,36 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		
 		// When the target class is a generics , print a cast operation explicitly.
-		boolean cast = xts.isParameterType(t);
-		if (cast) {
-			w.write("((");
-			new TypeExpander(er,  mi.container(), false, false, false).expand(tr);
-			w.write(")");
-		}
-
 		if (target instanceof TypeNode) {
 			er.printType(t, 0);
 		}
 		else {
-
+			CastExpander miContainer;
 			// add a check that verifies if the target of the call is in place 'here'
 			// This is not needed for:
 
 			boolean needsHereCheck = er.needsHereCheck((Expr) target, context);
 
 			if (! (target instanceof Special || target instanceof New)) {
-				w.write("(");
 
 				if (needsHereCheck) {
 					// don't annotate calls with implicit target, or this and super
 					// the template file only emits the target
-					new Template(er, "place-check", new TypeExpander(er, t, true, false, false), target).expand();
+					miContainer = new CastExpander(w, er, new Template(er, "place-check", new TypeExpander(er, t, true, false, false), target));
 				}
 				else {
-					tr.print(c, target, w);
+					miContainer = new CastExpander(w, er, target);
 				}
 
-				w.write(")");
+				if (xts.isParameterType(t)) {
+					miContainer = new CastExpander(w, er, new TypeExpander(er,  mi.container(), false, false, false), miContainer);
+				}
+				miContainer = new CastExpander(w, er, miContainer);
 			}
 			else {
-				tr.print(c, target, w);
+				miContainer = new CastExpander(w, er, target);
 			}
-		}
-		
-		if (cast) {
-			w.write(")");
+			miContainer.expand();
 		}
 		
 		w.write(".");
@@ -1091,7 +1089,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			if (runAsync && e instanceof Closure_c) {
 				c.print(((Closure_c)e).methodContainer(mi), w, tr);
 			} else if (!er.isNoArgumentType(e)) {
-				er.prettyPrintExprWithCast(e, tr);
+				new CastExpander(w, er, new TypeExpander(er, e.type(), false, true, false), e).expand(tr);
 			} else {
 				c.print(e, w, tr);
 			}
@@ -1129,7 +1127,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				&& mi.signature().startsWith("runAsync")) {
 			runAsync = true;
 		}
-		boolean wrapEx = runAsync || true;// currently, always true.
 		
 		TypeExpander ret = new TypeExpander(er, n.returnType().type(), true, true, false);
 		if (!n.returnType().type().isVoid()) {
@@ -1153,32 +1150,35 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		new Join(er, ", ", formals).expand(tr2);
 		w.write(") { ");
 		
-		if (wrapEx) {
-			w.newline();
-			w.write("try {");
-			w.newline();
+		TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
+		if (runAsync) {
+			tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", "ex", new Expander(er) {
+				public void expand(Translator tr) {
+					w.write("x10.lang.Runtime.pushException(ex.getCause());");
+				}
+			});
 		}
 		
-		tr2.print(n, n.body(), w);
-		
-		if (wrapEx) {
-			w.newline();
-			w.write("} catch (java.lang.RuntimeException ex) {");
-			w.write("throw ex;");
-			if (runAsync) {
-				w.newline();
-				w.write("} catch (java.lang.Exception ex) {");
-				w.write("x10.lang.Runtime.pushException(ex);");
-				w.write("}");
-				w.newline();
-			} else {
-				w.newline();
-				w.write("} catch (java.lang.Exception ex) {");
-				w.write("throw new x10.runtime.impl.java.WrappedRuntimeException(ex);");
-				w.write("}");
-				w.newline();
+		tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
+			public void expand(Translator tr) {
+				w.write("throw ex;");
 			}
+		});
+		
+		if (runAsync) {
+			tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
+				public void expand(Translator tr) {
+					w.write("x10.lang.Runtime.pushException(ex);");
+				}
+			});
+		} else {
+			tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
+				public void expand(Translator tr) {
+					w.write("throw new x10.runtime.impl.java.WrappedRuntimeException(ex);");
+				}
+			});
 		}
+		tryCatchExpander.expand(tr2);
 		
 		w.write("}");
 		w.newline();
