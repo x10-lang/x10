@@ -28,7 +28,7 @@ public class KMeansDist {
                                                                     ()=> Rail.make[Int](CLUSTERS, (i:Int) => 0));
 
         val points_dist = Dist.makeBlock(points_region, 0);
-        val points = Array.makeVal[Float](points_dist, (p:Point)=>rnd().nextFloat());
+        val points = Array.make[Float](points_dist, (p:Point)=>rnd().nextFloat());
 
         val central_clusters = Rail.make[Float](CLUSTERS*DIM, (i:Int) => {
             val p = Point.make([i/DIM, i%DIM]);
