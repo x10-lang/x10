@@ -301,24 +301,15 @@ public class Emitter {
 				
 				Object component = components[idx.intValue()];
 				if (component instanceof Expr && !isNoArgumentType((Expr)component)) {
-					prettyPrintExprWithCast((Expr)component, tr);
-				} else {
-					prettyPrint(component, tr);
+					component = new CastExpander(w, this, new TypeExpander(this, ((Expr)component).type(), false, true, false), ((Expr)component));
 				}
+				prettyPrint(component, tr);
 			}
 			pos++;
 		}
 		w.write(regex.substring(start));
 	}
 
-	public void prettyPrintExprWithCast(Expr expr, Translator tr) {
-		w.write("((");
-		new TypeExpander(this, expr.type(), false, true, false).expand();
-		w.write(")");
-		prettyPrint(expr, tr);
-		w.write(")");
-	}
-	
 	/**
 	 * Pretty-print a given object.
 	 * 
@@ -1737,45 +1728,35 @@ public class Emitter {
 		
 		boolean parameterExpected = expected instanceof ParameterType;
 
+		CastExpander expander;
 		if (actual.isNull() || e.isConstant() && !parameterExpected) {
-			tr.print(parent, e, w);
+			expander = new CastExpander(w, this, e);
 		} else if (actual != expected 
 					&& (actual.isBoolean() || actual.isNumeric() || actual.isByte())) {
-			w.write("((");
-			printType(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-			w.write(")((");
-			printType(expected, 0);
-			w.write(")((");
-			printType(actual, 0);
-			w.write(")(");
+			
+			//when the type of e has parameters, cast to actual boxed primitive. 
 			if (isNoArgumentType(e)) {
-				tr.print(parent, e, w);
+				expander = new CastExpander(w, this, e);
 			} else {
-				w.write("(");
-				printType(actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-				w.write(")(");
-				tr.print(parent, e, w);
-				w.write(")");
+				expander = new CastExpander(w, this, new TypeExpander(this, actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES), e);
 			}
-			w.write("))))");
+			//cast to actual primitive. 
+			expander = new CastExpander(w, this, new TypeExpander(this, actual, 0), expander);
+			//cast to expected primitive. 
+			expander = new CastExpander(w, this, new TypeExpander(this, expected, 0), expander);
+			//cast to expected boxed primitive. 
+			expander = new CastExpander(w, this, new TypeExpander(this, expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES), expander);
 		} else if (actual.isBoolean() || actual.isNumeric() || actual.isByte()){
 			if (isNoArgumentType(e)) {
-				tr.print(parent, e, w);
+				expander = new CastExpander(w, this, e);
 			} else {
-				w.write("((");
-				printType(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-				w.write(")(");
-				tr.print(parent, e, w);
-				w.write("))");
+				expander = new CastExpander(w, this, new TypeExpander(this, expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES), e);
 			}
 		} else {
 			//cast eagerly
-			w.write("((");
-			printType(expected, 0);
-			w.write(")(");
-			tr.print(parent, e, w);
-			w.write("))");
+			expander = new CastExpander(w, this, new TypeExpander(this, expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES), e);
 		}
+		expander.expand(tr);
 	}
 
 	public static X10ClassType annotationNamed(TypeSystem ts, Node o, QName name)

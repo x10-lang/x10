@@ -37,6 +37,14 @@ public class TypeExpander extends Expander {
 	        		| (inSuper ? X10PrettyPrinterVisitor.NO_VARIANCE : 0));
 	    }
 	    
+	    Type type() {
+	    	return t;
+	    }
+	    
+	    int flags() {
+	    	return flags;
+	    }
+	    
 	    public String toString() {
 	    	if ((flags & X10PrettyPrinterVisitor.BOX_PRIMITIVES) != 0)
 	    		return "BP<" + t.toString() + ">";
