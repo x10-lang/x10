@@ -23,7 +23,7 @@ public class Bounds3 extends x10Test {
         }
 
 	public def run(): boolean = {
-                return new C[String]("").x == "";
+                return new C[String]("").x.equals("");
 	}
 
 	public static def main(var args: Rail[String]): void = {
