@@ -29,7 +29,8 @@ public class U {
         //new Exception(s).printStackTrace();
     }
 
-    public static def unsupported(o: Any, op: String): RuntimeException {
+    // Should be o: Any; see XTENLANG-998
+    public static def unsupported(o: Object, op: String): RuntimeException {
         return unsupported(o.typeName() + " does not support " + op);
     }
 
