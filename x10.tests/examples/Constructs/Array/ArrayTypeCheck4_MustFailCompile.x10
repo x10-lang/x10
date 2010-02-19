@@ -22,7 +22,7 @@ import harness.x10Test;
  * @author vj 9/2008
  */
 
-public class ArrayTypeCheck2_MustFailCompile extends x10Test {
+public class ArrayTypeCheck4_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
 
@@ -57,6 +57,6 @@ public class ArrayTypeCheck2_MustFailCompile extends x10Test {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new ArrayTypeCheck2_MustFailCompile().execute();
+        new ArrayTypeCheck4_MustFailCompile().execute();
     }
 }
