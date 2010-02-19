@@ -643,7 +643,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					new Template(er, template, ex, expr, rt, new Join(er, " && ", conds)).expand();
 					xct.restoreAnonObjectScope(inAnonObjectScope);
 				} else if (((X10TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type))
-	                       && (t.isBoolean() || t.isNumeric())) {
+	                       && (t.isBoolean() || t.isNumeric())) { /* special path for "Any as Numeric" */
+					/* XTENLANG-964: if expr==null, explicitly throw ClassCastException. otherwise, NullPointerException is thrown */
+					er.dumpCodeString("((#0)==null) ? " +
+							"(new java.lang.Object(){ final #1 nullIsCasted(){throw new java.lang.ClassCastException();} }).nullIsCasted() : ",
+							expr, new TypeExpander(er, t, 0));
 					if (t.isBoolean()) {
 						er.dumpCodeString("((Boolean) #0).booleanValue()", expr);
 					} else if (t.isInt()) {
