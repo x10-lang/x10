@@ -69,7 +69,7 @@ public class KMeansSPMD {
             val start_time = System.currentTimeMillis();
 
             finish {
-                for (d in points_dist.places()) async (d) clocked(clk) {
+                val closure = () => {
 
                     val local_points = points.restriction(here) as Array[Float](2);
 
@@ -174,7 +174,11 @@ public class KMeansSPMD {
                     }
 
 
-                }
+                };
+
+                for (d in points_dist.places()) if (d!=here) async (d) clocked(clk) closure();
+
+                closure();
 
                 clk.drop();
 
