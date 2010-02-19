@@ -27,7 +27,8 @@ public class Histogram {
     public static def main(args:Rail[String]!) {
 	if (args.length != 2) {
 	    Console.OUT.println("Usage: Histogram SizeOfArray Buckets");
-	    System.exit(-1);
+	    System.setExitCode(-1);
+	    return;
         }
 	val N = int.parseInt(args(0));
 	val S=int.parseInt(args(1));

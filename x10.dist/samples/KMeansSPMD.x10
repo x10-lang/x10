@@ -188,7 +188,8 @@ public class KMeansSPMD {
         } catch (e : IOException) {
             Console.ERR.println("We had a little problem:");
             e.printStackTrace(Console.ERR);
-            System.exit(1);
+            System.setExitCode(1);
+            return;
         }
     }
 }
