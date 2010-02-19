@@ -29,14 +29,9 @@ public class U {
         //new Exception(s).printStackTrace();
     }
 
-    public static def unsupported(o: Object, op: String): RuntimeException {
-        return unsupported(o/*.getClass().getName()*/ + " does not support " + op);
+    public static def unsupported(o: Any, op: String): RuntimeException {
+        return unsupported(o.typeName() + " does not support " + op);
     }
-    
-  // public static def unsupported(o: Value, op: String): RuntimeException {
-   //     return unsupported(o/*.getClass().getName() + " does not support " + op);
-   // }
-
 
     public static def illegal(): RuntimeException {
         return illegal("illegal operation");
