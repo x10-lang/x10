@@ -694,10 +694,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					//       does
 					if (X10TypeMixin.baseType(type) instanceof ParameterType && (t.isNumeric() || t.isChar())) {
 					        TypeExpander te = new TypeExpander(er, t, BOX_PRIMITIVES);
-	                                        w.write("(");
-					        te.expand(tr);
-	                                        w.write(")");
-					        w.write(" ");
 					        w.write("x10.rtt.Types.conversion(");
                                                 te.expand(tr);
 					        w.write(".class");
