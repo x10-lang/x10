@@ -688,11 +688,24 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					//       doesn't parse correctly, but
 					//       (java.lang.Integer) (-1)
 					//       does
+					if (X10TypeMixin.baseType(type) instanceof ParameterType && (t.isNumeric() || t.isChar())) {
+					        TypeExpander te = new TypeExpander(er, t, BOX_PRIMITIVES);
+	                                        w.write("(");
+					        te.expand(tr);
+	                                        w.write(")");
+					        w.write(" ");
+					        w.write("x10.rtt.Types.conversion(");
+                                                te.expand(tr);
+					        w.write(".class");
+					        w.write(",");
+					}
 					if (expr instanceof Unary || expr instanceof Lit)
 						w.write("(");
 					c.printSubExpr(expr, w, tr);
 					if (expr instanceof Unary || expr instanceof Lit)
 						w.write(")");
+	                                if (X10TypeMixin.baseType(type) instanceof ParameterType && (t.isNumeric() || t.isChar()))
+	                                        w.write(")");
 					w.write(")");
 					w.end();
 				} else if (t instanceof ParameterType
