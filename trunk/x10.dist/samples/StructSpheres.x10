@@ -117,7 +117,8 @@ class StructSpheres {
         if (counter != expected) {
             Console.ERR.println("number of intersections: "+counter
                                 +" (expected "+expected+")");
-            System.exit(1);
+            System.setExitCode(1);
+            return;
         }
     }
 
