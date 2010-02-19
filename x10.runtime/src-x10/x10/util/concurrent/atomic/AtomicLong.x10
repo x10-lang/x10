@@ -23,43 +23,43 @@ public final class AtomicLong {
 	
 	@Native("java", "#0.get()")
 	@Native("c++", "(#0)->get()")
-	public global safe native def get():long;
+	public safe native def get():long;
 	
 	@Native("java", "#0.set(#1)")
 	@Native("c++", "(#0)->set(#1)")
-	public global safe native def set(newVal:long):void;
+	public safe native def set(newVal:long):void;
 	
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	@Native("c++", "(#0)->compareAndSet(#1,#2)")
-	public global safe native def compareAndSet(expect:long, update:long):boolean;
+	public safe native def compareAndSet(expect:long, update:long):boolean;
 
 	@Native("java", "#0.weakCompareAndSet(#1,#2)")
 	@Native("c++", "(#0)->weakCompareAndSet(#1,#2)")
-	public global safe native def weakCompareAndSet(expect:long, update:long):boolean;
+	public safe native def weakCompareAndSet(expect:long, update:long):boolean;
 	
 	@Native("java", "#0.getAndIncrement()")
 	@Native("c++", "(#0)->getAndIncrement()")
-	public global safe native def getAndIncrement():long;
+	public safe native def getAndIncrement():long;
 
 	@Native("java", "#0.getAndDecrement()")
 	@Native("c++", "(#0)->getAndDecrement()")
-	public global safe native def getAndDecrement():long;
+	public safe native def getAndDecrement():long;
 	
 	@Native("java", "#0.getAndAdd(#1)")
 	@Native("c++", "(#0)->getAndAdd(#1)")
-	public global safe native def getAndAdd(delta:long):long;
+	public safe native def getAndAdd(delta:long):long;
 	
 	@Native("java", "#0.incrementAndGet()")
 	@Native("c++", "(#0)->incrementAndGet()")
-	public global safe native def incrementAndGet():long;
+	public safe native def incrementAndGet():long;
 
 	@Native("java", "#0.decrementAndGet()")
 	@Native("c++", "(#0)->decrementAndGet()")
-	public global safe native def decrementAndGet():long;
+	public safe native def decrementAndGet():long;
 	
 	@Native("java", "#0.addAndGet(#1)")
 	@Native("c++", "(#0)->addAndGet(#1)")
-	public global safe native def addAndGet(delta:long):long;
+	public safe native def addAndGet(delta:long):long;
 	
 	@Native("java", "#0.toString()")
 	@Native("c++", "(#0)->toString()")
@@ -67,17 +67,17 @@ public final class AtomicLong {
 
 	@Native("java", "#0.intValue()")
 	@Native("c++", "(#0)->intValue()")
-	public global safe native def intValue():int;
+	public safe native def intValue():int;
 
 	@Native("java", "#0.longValue()")
 	@Native("c++", "(#0)->longValue()")
-	public global safe native def longValue():long;
+	public safe native def longValue():long;
 	
 	@Native("java", "#0.floatValue()")
 	@Native("c++", "(#0)->floatValue()")
-	public global safe native def floatValue():float;
+	public safe native def floatValue():float;
 	
 	@Native("java", "#0.doubleValue()")
 	@Native("c++", "(#0)->doubleValue()")
-	public global safe native def doubleValue():double;
+	public safe native def doubleValue():double;
 }
