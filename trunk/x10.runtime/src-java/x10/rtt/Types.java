@@ -45,36 +45,28 @@ public class Types {
     public static Type<Float> FLOAT = new FloatType();
     public static Type<Double> DOUBLE = new DoubleType();
     
-    public static Object conversion(Class dep, Object typeParam) {
-        if(dep == java.lang.Byte.class) return conversion(BYTE, typeParam);
-        if(dep == java.lang.Short.class) return conversion(SHORT, typeParam);
-        if(dep == java.lang.Character.class) return conversion(CHAR, typeParam);
-        if(dep == java.lang.Integer.class) return conversion(INT, typeParam);
-        if(dep == java.lang.Long.class) return conversion(LONG, typeParam);
-        if(dep == java.lang.Float.class) return conversion(FLOAT, typeParam);
-        if(dep == java.lang.Double.class) return conversion(DOUBLE, typeParam);
-        return typeParam;
+    public static <T> T conversion(Class<T> dep, Object typeParam) {
+        if(dep == java.lang.Byte.class) return (T)conversion(BYTE, typeParam);
+        if(dep == java.lang.Short.class) return (T)conversion(SHORT, typeParam);
+        if(dep == java.lang.Character.class) return (T)conversion(CHAR, typeParam);
+        if(dep == java.lang.Integer.class) return (T)conversion(INT, typeParam);
+        if(dep == java.lang.Long.class) return (T)conversion(LONG, typeParam);
+        if(dep == java.lang.Float.class) return (T)conversion(FLOAT, typeParam);
+        if(dep == java.lang.Double.class) return (T)conversion(DOUBLE, typeParam);
+        return (T)typeParam;
     }
     
     public static Object conversion(Type rtt, Object primOrTypeParam) {
         if (rtt == x10.rtt.Types.BYTE) {
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).byteValue();
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Short) return ((java.lang.Short) primOrTypeParam).byteValue();
             if (primOrTypeParam instanceof java.lang.Character) return (byte)((java.lang.Character) primOrTypeParam).charValue();
-            if (primOrTypeParam instanceof java.lang.Integer) return ((java.lang.Integer) primOrTypeParam).byteValue();
-            if (primOrTypeParam instanceof java.lang.Long) return ((java.lang.Long) primOrTypeParam).byteValue();
-            if (primOrTypeParam instanceof java.lang.Float) return ((java.lang.Float) primOrTypeParam).byteValue();
-            if (primOrTypeParam instanceof java.lang.Double) return ((java.lang.Double) primOrTypeParam).byteValue();
             return primOrTypeParam;
         }
         if (rtt == x10.rtt.Types.SHORT) {
-            if (primOrTypeParam instanceof java.lang.Byte) return ((java.lang.Byte) primOrTypeParam).shortValue();
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).shortValue();
             if (primOrTypeParam instanceof java.lang.Short) return primOrTypeParam;
             if (primOrTypeParam instanceof java.lang.Character) return (short)((java.lang.Character) primOrTypeParam).charValue();
-            if (primOrTypeParam instanceof java.lang.Integer) return ((java.lang.Integer) primOrTypeParam).shortValue();
-            if (primOrTypeParam instanceof java.lang.Long) return ((java.lang.Long) primOrTypeParam).shortValue();
-            if (primOrTypeParam instanceof java.lang.Float) return ((java.lang.Float) primOrTypeParam).shortValue();
-            if (primOrTypeParam instanceof java.lang.Double) return ((java.lang.Double) primOrTypeParam).shortValue();
             return primOrTypeParam;
         }
         if (rtt == x10.rtt.Types.CHAR) {
@@ -88,42 +80,26 @@ public class Types {
             return primOrTypeParam;
         }
         if (rtt == x10.rtt.Types.INT) {
-            if (primOrTypeParam instanceof java.lang.Byte) return ((java.lang.Byte) primOrTypeParam).intValue();
-            if (primOrTypeParam instanceof java.lang.Short) return ((java.lang.Short) primOrTypeParam).intValue();
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).intValue();
             if (primOrTypeParam instanceof java.lang.Character) return (int)((java.lang.Character) primOrTypeParam).charValue();
             if (primOrTypeParam instanceof java.lang.Integer) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Long) return ((java.lang.Long) primOrTypeParam).intValue();
-            if (primOrTypeParam instanceof java.lang.Float) return ((java.lang.Float) primOrTypeParam).intValue();
-            if (primOrTypeParam instanceof java.lang.Double) return ((java.lang.Double) primOrTypeParam).intValue();
             return primOrTypeParam;
         }
         if (rtt == x10.rtt.Types.LONG) {
-            if (primOrTypeParam instanceof java.lang.Byte) return ((java.lang.Byte) primOrTypeParam).longValue();
-            if (primOrTypeParam instanceof java.lang.Short) return ((java.lang.Short) primOrTypeParam).longValue();
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).longValue();
             if (primOrTypeParam instanceof java.lang.Character) return (long)((java.lang.Character) primOrTypeParam).charValue();
-            if (primOrTypeParam instanceof java.lang.Integer) return ((java.lang.Integer) primOrTypeParam).longValue();
             if (primOrTypeParam instanceof java.lang.Long) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Float) return ((java.lang.Float) primOrTypeParam).longValue();
-            if (primOrTypeParam instanceof java.lang.Double) return ((java.lang.Double) primOrTypeParam).longValue();
             return primOrTypeParam;
         }
         if (rtt == x10.rtt.Types.FLOAT) {
-            if (primOrTypeParam instanceof java.lang.Byte) return ((java.lang.Byte) primOrTypeParam).floatValue();
-            if (primOrTypeParam instanceof java.lang.Short) return ((java.lang.Short) primOrTypeParam).floatValue();
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).floatValue();
             if (primOrTypeParam instanceof java.lang.Character) return (float)((java.lang.Character) primOrTypeParam).charValue();
-            if (primOrTypeParam instanceof java.lang.Integer) return ((java.lang.Integer) primOrTypeParam).floatValue();
-            if (primOrTypeParam instanceof java.lang.Long) return ((java.lang.Long) primOrTypeParam).floatValue();
             if (primOrTypeParam instanceof java.lang.Float) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Double) return ((java.lang.Double) primOrTypeParam).floatValue();
             return primOrTypeParam;
         }
         if (rtt == x10.rtt.Types.DOUBLE) {
-            if (primOrTypeParam instanceof java.lang.Byte) return ((java.lang.Byte) primOrTypeParam).doubleValue();
-            if (primOrTypeParam instanceof java.lang.Short) return ((java.lang.Short) primOrTypeParam).doubleValue();
+            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).doubleValue();
             if (primOrTypeParam instanceof java.lang.Character) return (double)((java.lang.Character) primOrTypeParam).charValue();
-            if (primOrTypeParam instanceof java.lang.Integer) return ((java.lang.Integer) primOrTypeParam).doubleValue();
-            if (primOrTypeParam instanceof java.lang.Long) return ((java.lang.Long) primOrTypeParam).doubleValue();
-            if (primOrTypeParam instanceof java.lang.Float) return ((java.lang.Float) primOrTypeParam).doubleValue();
             if (primOrTypeParam instanceof java.lang.Double) return primOrTypeParam;
             return primOrTypeParam;
         }
