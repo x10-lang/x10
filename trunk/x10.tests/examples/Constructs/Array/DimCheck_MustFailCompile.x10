@@ -26,7 +26,7 @@ public class DimCheck_MustFailCompile extends x10Test {
         // If  the type does not specify a constraint on the arity of the underlying region
         // then the initializer cannot specify the arity of the point. Otherwise the arity of the
         // point must be the same as the arity of the distribution.
-        var a1: Array[int] = new Array[int](Dist.makeConstant([0..2, 0..3], here), (var p: Point[i]): int => { return i; });
+        var a1: Array[int] = new Array[int](Dist.makeConstant([0..2, 0..3], here), ((i):Point)=> i);
         x10.io.Console.OUT.println(a1);
         return true;
     }

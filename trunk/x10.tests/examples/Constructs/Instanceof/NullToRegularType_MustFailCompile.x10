@@ -12,18 +12,16 @@
 import harness.x10Test;
 
 /**
- * 
- * @author vj
+ * Purpose: Checks a null value is not an instance of a non-null type.
+ * Issue: null is not an instance of a non-null type.
+ * @author vcave
  */
-public class ArrayTypeCheck_MustFailCompile extends x10Test {
+public class NullToRegularType_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
-        val a1:Array[Int](3)  =  // should be Array[Int](2)
-            Array.make[Int](Dist.makeConstant([0..2, 0..3], here), (p(i): Point)=>i);
-        return true;
-    }
+    // X10 forbids an instanceof test where the types are statically known to be incompatible.
+    public def run(): Boolean = !(null instanceof X10DepTypeClassOne{self!=null});
 
     public static def main(var args: Rail[String]): void = {
-        new ArrayTypeCheck_MustFailCompile().execute();
+        new NullToRegularType_MustFailCompile().execute();
     }
 }
