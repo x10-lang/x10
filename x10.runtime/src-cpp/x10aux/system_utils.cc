@@ -37,15 +37,16 @@
 #include <stdio.h>
 
 void x10aux::system_utils::exit(x10_int code) {
-    // FIXME: The implementation in x10.backend/x10lang/x10lang.cc copied code
-    //        into a static before throwing.
-    //        Do we need to do the equivalent operation? If so, what is it?
-
+#ifndef NO_EXCEPTIONS
     // Cannot do ::exit here, as we'll need to clean up.
-    // We need not worry about any user code that looks like
-    // catch(...), because --> We are generating code and will
-    // never generate such code. Duh!
-    throw code;
+    // We need not worry about user code catching the int
+    // because such a catch block can only be generated
+    // by us.
+    throw (int)code;
+#else
+    // No choice here: die without cleanup.
+    ::exit((int)code);
+#endif
 }
 
 x10_long x10aux::system_utils::currentTimeMillis() {
@@ -75,6 +76,5 @@ x10_long x10aux::system_utils::nanoTime() {
 void x10aux::system_utils::println(const char *msg) {
     fprintf(stderr, "%s\n", msg);
 }
-
 
 // vim:tabstop=4:shiftwidth=4:expandtab
