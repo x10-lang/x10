@@ -45,6 +45,17 @@ public class Types {
     public static Type<Float> FLOAT = new FloatType();
     public static Type<Double> DOUBLE = new DoubleType();
     
+    public static Object conversion(Class dep, Object typeParam) {
+        if(dep == java.lang.Byte.class) return conversion(BYTE, typeParam);
+        if(dep == java.lang.Short.class) return conversion(SHORT, typeParam);
+        if(dep == java.lang.Character.class) return conversion(CHAR, typeParam);
+        if(dep == java.lang.Integer.class) return conversion(INT, typeParam);
+        if(dep == java.lang.Long.class) return conversion(LONG, typeParam);
+        if(dep == java.lang.Float.class) return conversion(FLOAT, typeParam);
+        if(dep == java.lang.Double.class) return conversion(DOUBLE, typeParam);
+        return typeParam;
+    }
+    
     public static Object conversion(Type rtt, Object primOrTypeParam) {
         if (rtt == x10.rtt.Types.BYTE) {
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
