@@ -19,6 +19,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 
 public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {

@@ -14,6 +14,7 @@ package x10.types.constraints;
 import java.util.HashMap;
 
 import polyglot.ast.Field;
+import polyglot.types.SemanticException;
 
 import x10.constraint.ThisVar;
 import x10.constraint.XConstraint;
@@ -22,13 +23,14 @@ import x10.constraint.XName;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.types.X10Context;
 
 /**
  * @author vj
  *
  */
 public interface CConstraint extends XConstraint, ThisVar  {
-	public static final String SELF_VAR_PREFIX="_self";
+	public static final String SELF_VAR_PREFIX="self";
 	/**
 	 * Variable to use for self in the constraint.
 	 */
@@ -39,6 +41,14 @@ public interface CConstraint extends XConstraint, ThisVar  {
 	
 	/** Deep copy the constraint. */
 	CConstraint copy();
+	
+	/**
+	 * Return the constraint obtained by existentially quantifying out the variable v.
+	 * 
+	 * @param v
+	 * @return
+	 */
+	CConstraint project(XRoot v);
 	
 	/**
 	 * Return the term self.fieldName is bound to in the constraint, and null
@@ -54,10 +64,11 @@ public interface CConstraint extends XConstraint, ThisVar  {
 	/**
 	 * Add constraint c into this, and return this. Note: this is possibly side-effected
 	 * as a result of this operation.
+	 * 
 	 * No change is made to this if c==null
 	 * 
-	 * @param c
-	 * @return
+	 * @param c -- the constraint to be added in.
+	 * @return the possibly modified constraint
 	 */
 	CConstraint addIn(CConstraint c) throws XFailure;
 	CConstraint addIn(XTerm newSelf, CConstraint c)  throws XFailure;
@@ -69,6 +80,7 @@ public interface CConstraint extends XConstraint, ThisVar  {
 	void addBinding(XConstrainedTerm var, XTerm val) throws XFailure;
 	
 	void addSelfBinding(XConstrainedTerm var) throws XFailure;
+	XVar selfVarBinding();
 	/**
 	 * If y equals x, or x does not occur in this, return this, else copy
 	 * the constraint and return it after performing applySubstitution(y,x).
@@ -107,4 +119,7 @@ public interface CConstraint extends XConstraint, ThisVar  {
 	
 	void addThisBinding(XTerm term) throws XFailure;
 	void addSelfBinding(XTerm var) throws XFailure;
+	
+	void checkQuery(CConstraint query, XVar ythis, XRoot xthis, XVar[] y, XRoot[] x, 
+			 X10Context context) throws SemanticException;
 }

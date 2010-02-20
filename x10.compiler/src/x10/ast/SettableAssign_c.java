@@ -83,6 +83,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	 */
     public SettableAssign_c(Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
 		super(pos, op, right);
+		if (index.size() < 1)
 		assert index.size() >= 1;
 		this.array = array;
 		this.index = index;	
@@ -253,7 +254,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	    SettableAssign_c a = (SettableAssign_c) X10LocalAssign_c.typeCheckAssign(this, tc);
+	    SettableAssign_c a = (SettableAssign_c) x10.types.checker.Checker.typeCheckAssign(this, tc);
 	    return a.type(a.mi.returnType());
 	}
 	

@@ -31,7 +31,7 @@ public abstract class Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean
-) implements Iterable[Point{self.rank==this.rank}] {
+) implements Iterable[Point(rank)] {
 
     property rail = rank==1 && rect && zeroBased;
     property region = this; // structural affinity w/ Dist, Array for compiler
@@ -79,7 +79,7 @@ public abstract class Region(
      * rails of ints.
      */
 
-    public static def makeRectangular(min: Rail[int], max: Rail[int]): RectRegion(min.length)
+    public static def makeRectangular(min: Rail[int]!, max: Rail[int]!): RectRegion(min.length)
         = BaseRegion.makeRectangular1(min, max);
 
     /**
@@ -297,7 +297,8 @@ public abstract class Region(
      * specified axis.
      */
 
-    abstract public global def eliminate(axis: int): Region(rank-1);
+   
+    abstract public global def eliminate(axis: int): Region /*(rank-1)*/;
 
     /**
      * Returns true iff this region has no points in common with that
@@ -339,7 +340,7 @@ public abstract class Region(
      *        ... p ...
      */
 
-    public abstract global def iterator(): Iterator[Point{self.rank==this.rank}];
+    public abstract global def iterator(): Iterator[Point(rank)];
 
 
     /**

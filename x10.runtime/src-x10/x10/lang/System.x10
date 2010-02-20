@@ -286,7 +286,7 @@ public class System {
      */
     // This function exists because we do not want to call dealloc in user code (finder, notifier)
     // Also it is arguably a simpler interface because it has one less param
-    public static def copyTo[T](handle:PlaceLocalHandle[Rail[T]]!,
+    public static def copyTo[T](handle:PlaceLocalHandle[Rail[T]],
                                 dst_place:Place, len:Int, notifier:()=>Void) {
         val finder = ()=>Pair[Rail[T],Int](handle(), 0);
         handle().copyTo(0, dst_place, finder, len, notifier);
@@ -463,7 +463,7 @@ public class System {
     public static safe def makeRemoteRail[T](p:Place, length:Int, init: Rail[T]!)
         : Rail[T]{self.length==length}
     {
-        val r = p.isCUDA() ? cudaMakeRail[T](p,length) : at (p) Rail.make[T](length);
+        val r = (p.isCUDA() ? cudaMakeRail[T](p,length) : at (p) Rail.make[T](length)) as Rail[T](length);
         finish init.copyTo(0, r, 0, length);
         return r;
     }

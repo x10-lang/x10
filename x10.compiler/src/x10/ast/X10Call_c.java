@@ -64,6 +64,7 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XLocal;
 import x10.constraint.XRoot;
+import x10.errors.Errors;
 import x10.parser.X10ParsedName;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
@@ -75,13 +76,16 @@ import x10.types.X10MethodInstance;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
+import x10.types.checker.Converter;
+import x10.types.constraints.XConstrainedTerm;
+import x10.types.matcher.DumbMethodMatcher;
 
 
 /**
  * Representation of an X10 method call.
  * @author Igor
+ * @author vj
  */
 public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	public X10Call_c(Position pos, Receiver target, Id name,
@@ -97,7 +101,13 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		n.typeArguments = new ArrayList<TypeNode>(args);
 		return n;
 	}
+	public X10Call arguments(List<Expr> args) {
+		X10Call_c n = (X10Call_c) copy();
+		n.arguments = new ArrayList<Expr>(args);
+		return n;
+	}
 
+	
 	@Override
 	public Node visitChildren(NodeVisitor v) {
 		Receiver target = (Receiver) visitChild(this.target, v);
@@ -579,21 +589,17 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		
 		// Method invocations on structs are always permitted
 		if (ts.isStructType(target.type()))
-		//if (! (ts.isSubtype(target.type(), ts.Object(), xc) || ts.isInterfaceType(target.type())))
 			return;
 
 
 		if (ts.isHere(target, xc))
 			return;
 
-		if (xc.currentPlaceTerm().equals(((X10TypeSystem) tc.typeSystem()).globalPlace())) {
-			throw new SemanticError("Place type error: " +
-					" method " + name() + " called in the body of a global method; should be global.",
-					position());
+		XConstrainedTerm h = xc.currentPlaceTerm();
+		if (h != null && h.equals(((X10TypeSystem) tc.typeSystem()).globalPlace())) {
+			throw new Errors.PlaceTypeErrorMethodShouldBeGlobal(this, position());
 		}
-		throw new SemanticError("Place type error: method target " 
-				+ target + " cannot be determined to be at " + xc.currentPlaceTerm(),
-				position());
+		throw new Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal (this, xc.currentPlaceTerm(), position());
 	}
 
 	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(final X10Call_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
@@ -601,9 +607,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    final Context context = tc.context();
 	    ClassDef currentClassDef = context.currentClassDef();
 
-	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new X10TypeSystem_c.DumbMethodMatcher(targetType, n.name().id(), typeArgs, argTypes, context));
+	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new DumbMethodMatcher(targetType, n.name().id(), typeArgs, argTypes, context));
 
-	    Pair<MethodInstance,List<Expr>> p = X10New_c.<MethodDef,MethodInstance>tryImplicitConversions(n, tc, targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
+	    Pair<MethodInstance,List<Expr>> p = Converter.<MethodDef,MethodInstance>tryImplicitConversions(n, tc, targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
 	        public Matcher<MethodInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
 	            return ts.MethodMatcher(ct, n.name().id(), typeArgs, argTypes, context);
 	        }

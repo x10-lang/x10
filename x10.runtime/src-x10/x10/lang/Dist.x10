@@ -255,7 +255,7 @@ public abstract class Dist(
     /**
      * Return the set of regions that this distribution maps some place to.
      */
-    abstract public global def regions(): ValRail[Region]; // essentially regionMap().values()
+    abstract public global def regions(): ValRail[Region(rank)]; // essentially regionMap().values()
 
     /**
      * Return the region consisting of points which this distribution

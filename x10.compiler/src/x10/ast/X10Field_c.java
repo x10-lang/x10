@@ -15,6 +15,7 @@ import java.util.Collections;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.Field_c;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
@@ -43,7 +44,6 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
-import x10.types.Subst;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;
@@ -55,6 +55,9 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.XConstrainedTerm;
+import x10.types.matcher.Subst;
+import x10.errors.Errors;
 
 
 /**
@@ -73,25 +76,19 @@ public class X10Field_c extends Field_c {
 		super(pos, target, name);
 	}
 
-	public static class ProtoFieldAccessException extends SemanticException{
-		public ProtoFieldAccessException(String s) {
-			super(s);
-		}
-	}
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		Node n = typeCheck1(tc);
 		// Keep this at the very end. This is caught by 
 		// handle proto.
 		if (! ((X10Context) tc.context()).inAssignment()) {
 			if (n instanceof X10Field_c) {
-				
-			Type xtType = ((X10Field_c) n).target().type();
-			if (X10TypeMixin.isProto(xtType)) {
-				throw new SemanticException("Not permitted to read field " + 
-				n + " of proto value "  + target() +"."
-						
-						+ ((X10Field_c) n).target());
-			}
+				Field nf = (Field) n;
+				Type xtType = nf.target().type();
+				if (X10TypeMixin.isProto(xtType)) {
+					throw new Errors.CannotReadFieldOfProtoValue(nf,
+							nf.position());
+
+				}
 			}
 		}
 		return n;
@@ -99,10 +96,7 @@ public class X10Field_c extends Field_c {
 	public Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		final X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-		final X10Context c = (X10Context) tc.context();
-		//System.err.println("X10Field_c: Examining " + this + " at " + 
-		//		position() + " in depTypeMode=" + c.inDepType());
-		 
+		final X10Context c = (X10Context) tc.context(); 
 		Type tType = target.type();
 		
 
@@ -110,7 +104,8 @@ public class X10Field_c extends Field_c {
 			Type t = ((TypeNode) target).type();
 			t = X10TypeMixin.baseType(t);
 			if (t instanceof ParameterType) {
-				throw new SemanticException("Cannot access a static field of a type parameter.", position());
+				throw new Errors.CannotAccessStaticFieldOfTypeParameter(t, 
+						position());
 			}
 		}
 		
@@ -128,14 +123,15 @@ public class X10Field_c extends Field_c {
 								// Found!
 								X10Field_c result = this;
 								Type t = c.inDepType()? rightType(fi.rightType(), fi.x10Def(), target, c)
-										: fieldRightType(fi.rightType(), fi.x10Def(), target, c);
+										: fi.rightType(); //  fieldRightType(fi.rightType(), fi.x10Def(), target, c);
 								result = (X10Field_c) result.fieldInstance(fi).type(t);
 								return result;
 							}
 						}
 					}
 
-					throw new SemanticException("Cannot access field " + name + " of " + tCt + " in class declaration header; the field may be a member of a superclass.",
+					throw new SemanticException("Cannot access field " + name + " of " + tCt 
+							+ " in class declaration header; the field may be a member of a superclass.",
 							position());
 				}
 			}
@@ -231,7 +227,6 @@ public class X10Field_c extends Field_c {
 				t = Subst.subst(t, (new XVar[] { receiver }), (new XRoot[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
 			}
 		}
-		//System.err.println("X10Field_c: rightType returns " + t);
 		return t;
 	}
 
@@ -247,20 +242,18 @@ public class X10Field_c extends Field_c {
 					xc = xc.copy();
 					try {
 						XVar receiver = X10TypeMixin.selfVarBinding(target.type());
-						assert receiver != null;
-						/*if (receiver == null) {
-							X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-							XTerm r = ts.xtypeTranslator().trans((CConstraint) null, target, (X10Context) c);
-							if (r instanceof XVar) {
-								receiver = (XVar) r;
-							}
-
-							if (receiver == null)
-								receiver = CConstraint_c.genUQV();
-						}*/
+						//assert receiver != null;
+						XRoot root = null;
+						if (receiver == null) {
+							receiver = root = XTerms.makeUQV();
+							
+						}
 						xc = xc.substitute(receiver, xc.self());
 						x.addIn(xc);
 						x=x.substitute(receiver, fi.thisVar());
+						if (root != null) {
+							x = x.project(root);
+						}
 						t = X10TypeMixin.addConstraint(X10TypeMixin.baseType(t), x);
 					} catch (XFailure z) {
 						// should not happen
@@ -295,16 +288,16 @@ public class X10Field_c extends Field_c {
 		if (ts.isHere(target, xc))
 			return;
 
-		if (xc.currentPlaceTerm().equals(((X10TypeSystem) tc.typeSystem()).globalPlace())) {
-			throw new SemanticError("Place type error: " +
-					" field " + name() + " should be global.",
+		XConstrainedTerm h = xc.currentPlaceTerm();
+		if (h != null && h.equals(((X10TypeSystem) tc.typeSystem()).globalPlace())) {
+			throw new Errors.PlaceTypeErrorFieldShouldBeGlobal(this, 
 					position());
 		}
-		throw new SemanticError("Place type error: " +
-				"either field target " 
-				+ target + " of type " + target.type() + " should be local "
-				+ " to place " + ((X10Context) tc.context()).currentPlaceTerm()
-				+ " or field " + name() + " should be global.",
+		XTerm placeTerm=null;
+		if (h!= null)
+			placeTerm = h.term();
+		throw new Errors.PlaceTypeErrorFieldShouldBeLocalOrGlobal(this, 
+				placeTerm,
 				position());
 	}
 
@@ -315,9 +308,7 @@ public class X10Field_c extends Field_c {
 		if (xtc.inDepType()) {
 			FieldInstance fi = result.fieldInstance();
 			if (! fi.flags().contains(Flags.FINAL))
-				throw 
-				new SemanticException("Field " + fi.name() 
-						+ " is not final. Only final fields are permitted in a dependent clause.", 
+				throw new Errors.DependentClauseErrorFieldMustBeFinal(this, 
 						position());
 			if ((target instanceof X10Special) &&
 					((X10Special)target).kind()==X10Special.SELF) {
@@ -326,10 +317,8 @@ public class X10Field_c extends Field_c {
 				// The following is going to look for property propertyNames$
 				// and may throw a MissingDependencyException asking for the field to be set.
 				if (! (fi instanceof X10FieldInstance && ((X10FieldInstance) fi).isProperty()))
-					throw new SemanticException("Field \"" + fi.name() 
-							+  "\" is not a property of " + fi.container() + ". "
-							+ "Only properties may appear unqualified or prefixed with self in a dependent clause."
-					);
+					throw new Errors.DependentClauseErrorSelfMayAccessOnlyProperties(fi,
+							result.position());
 			}
 		}
 	}

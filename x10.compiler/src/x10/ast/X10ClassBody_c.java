@@ -47,7 +47,6 @@ import x10.constraint.XRoot;
 import x10.types.ClosureDef;
 import x10.types.MacroType;
 import x10.types.ParameterType;
-import x10.types.TypeConstraint;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -60,6 +59,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 public class X10ClassBody_c extends ClassBody_c {

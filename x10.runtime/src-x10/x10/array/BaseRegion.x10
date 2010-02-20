@@ -59,7 +59,7 @@ abstract public class BaseRegion extends Region {
         return PolyRegion.make(pm) as Region(normal.rank); // XXXX
     }
 
-    public static def makeRectangular1(min: Rail[int], max: Rail[int]): RectRegion(min.length) { // XTENLANG-4
+    public static def makeRectangular1(min: Rail[int]!, max: Rail[int]!): RectRegion(min.length) { // XTENLANG-4
         return RectRegion.make1(min, max);
     }        
 

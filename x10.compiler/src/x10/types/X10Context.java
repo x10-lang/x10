@@ -6,7 +6,8 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  This file is part of X10 Language.
+ *
  */
 
 package x10.types;
@@ -26,6 +27,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 public interface X10Context extends Context {
@@ -44,13 +46,19 @@ public interface X10Context extends Context {
 	CConstraint currentConstraint();
 	void setCurrentConstraint(CConstraint c);
 
+	/**
+	 * Return any known constraint on this.home (as an XConstrainedTerm).
+	 * If none is known, return null.
+	 * 
+	 * @return
+	 */
 	XConstrainedTerm currentPlaceTerm();
 
 	/**
-	 * Push a new context, and set currentPlaceRep in it to t.
+	 * Push a new context, and set currentPlaceTerm to t.
 	 * Intended to be set when entering the scope of a place changing control construct
-	 * such as at(p) S. 
-	 * @param t
+	 * such as at(p) S, or when entering the body of a method. 
+	 * @param t, t != null
 	 */
 	Context pushPlace(XConstrainedTerm t);
 	

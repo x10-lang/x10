@@ -73,8 +73,9 @@ final class RectRegion extends PolyRegion{rect} {
 
 
     // XTENLANG-109
+  
     public static def make1(min: int, max: int): Region{self.rect && self.rank==1 /*&& self.zeroBased==(min==0)*/} {
-        return make1([min], [max]) as Region{self.rect && self.rank==1 /*&& self.zeroBased==(min==0)*/};
+        return make1([min as Int], [max as Int]);  // self.zeroBased==(min==0)*/};
     }
 
     private static def computeSize(mat: PolyMat): int {
@@ -137,8 +138,8 @@ final class RectRegion extends PolyRegion{rect} {
         
         // parameters
         private val rank: int;
-        private val min: ValRail[int]!;
-        private val max: ValRail[int]!;
+        private val min: ValRail[int];
+        private val max: ValRail[int];
 
         // state
         private val x: Rail[int]!;

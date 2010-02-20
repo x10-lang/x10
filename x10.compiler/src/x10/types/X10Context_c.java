@@ -89,6 +89,8 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 
 public class X10Context_c extends Context_c implements X10Context {
@@ -148,6 +150,17 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 
 	/* sigma(Gamma) restricted to the variables mentioned in c1,c2 */
+	 void addSigma(CConstraint r, CConstraint c, HashMap<XTerm, CConstraint> m) throws XFailure {
+		 if (c != null && ! c.valid()) {
+			 r.addIn(c);
+			 r.addIn(constraintProjection(c, m));
+		 }
+	 }
+	 void addSigma(CConstraint r, XConstrainedTerm ct, HashMap<XTerm, CConstraint> m) throws XFailure {
+		 if (ct != null) {
+			 addSigma(r, ct.xconstraint(), m);
+		 }
+	 }
         public CConstraint constraintProjection(CConstraint... cs) throws XFailure {
             HashMap<XTerm, CConstraint> m = new HashMap<XTerm, CConstraint>();
 
@@ -165,30 +178,19 @@ public class X10Context_c extends Context_c implements X10Context {
             if (r == null) r = new CConstraint_c();
 
             // fold in the current constraint
-            CConstraint c1 = currentConstraint();
-            CConstraint sigma1 = constraintProjection(c1, m);
-            r.addIn(c1);
-            r.addIn(sigma1);
-
-            // fold in the current place constraint
-            CConstraint c2 = currentPlaceTerm == null ? null : currentPlaceTerm.xconstraint();
-           r.addIn(c2);
-           CConstraint sigma2 = constraintProjection(c2, m);
-           r.addIn(sigma2);
-
-           // fold in the current thisPlace constraint
-           //System.err.println("X10Context_c: thisPlace is " + thisPlace);
-           CConstraint c3 = thisPlace==null ? null : thisPlace.xconstraint();
-           r.addIn(c3);
-           CConstraint sigma3 = constraintProjection(c3, m);
-           r.addIn(sigma3);
+            addSigma(r, currentConstraint(), m);
+            addSigma(r, currentPlaceTerm, m);
+            if (currentPlaceTerm != null) {
+            	r.addBinding(XTerms.HERE, currentPlaceTerm.term());
+            }
+            addSigma(r, thisPlace, m);
 
             // fold in the real clause of the base type
             Type selfType = this.currentDepType();
             if (selfType != null) {
                 CConstraint selfConstraint = X10TypeMixin.realX(selfType);
                 if (selfConstraint != null) {
-                    r.addIn(selfConstraint.substitute(r.self(), selfConstraint.self()));
+                    r.addIn(selfConstraint.instantiateSelf(r.self()));
                 }
             }
 
@@ -320,12 +322,13 @@ public class X10Context_c extends Context_c implements X10Context {
    */
     protected XConstrainedTerm currentPlaceTerm = null;
     public XConstrainedTerm currentPlaceTerm() {
+    	/*
     	if (currentPlaceTerm == null) {
     		X10TypeSystem xts = (X10TypeSystem) ts;
     		currentPlaceTerm = xts.xtypeTranslator().firstPlace();
     		assert currentPlaceTerm != null;
     	}
-
+*/
     	return currentPlaceTerm;
     }
     public Context pushPlace(XConstrainedTerm t) {
@@ -336,11 +339,12 @@ public class X10Context_c extends Context_c implements X10Context {
     }
     protected XConstrainedTerm thisPlace = null;
     public XConstrainedTerm currentThisPlace() {
-    	if (thisPlace == null) {
+    	/*if (thisPlace == null) {
     		X10TypeSystem xts = (X10TypeSystem) ts;
     		thisPlace = ((X10TypeSystem) ts).xtypeTranslator().firstPlace();
     		assert thisPlace != null;
     	}
+    	*/
     	return thisPlace;
     }
 
@@ -611,12 +615,11 @@ public class X10Context_c extends Context_c implements X10Context {
 		assert (depType == null);
 		XConstrainedTerm currentHere = null;
 		if (! (inBootLoads(classScope)) ){
-			//System.err.println("X10COntext_c: GOLDEN..determining current place for " + classScope);
 			currentHere = currentPlaceTerm();
 		}
 		//XConstrainedTerm currentHere = currentPlaceTerm();
 		X10Context_c result = (X10Context_c) super.pushClass(classScope, type);
-
+/*
 		if ( (type.kind() == ClassDef.ANONYMOUS) || ! (
 		        type.toString().startsWith("x10.lang.Boolean") ||
                 type.toString().startsWith("x10.lang.Object")
@@ -626,7 +629,7 @@ public class X10Context_c extends Context_c implements X10Context {
 				XTerm thisLoc = ((X10TypeSystem) typeSystem()).homeVar(((X10ClassDef) classScope).thisVar(),
 						this);
 				if (currentHere != null) {
-					CConstraint r = currentHere== null ? null : currentHere.constraint().copy();
+					CConstraint r = currentHere.constraint().copy();
 					r.addBinding(thisLoc, currentHere.term());
 					result.thisPlace = XConstrainedTerm.make(thisLoc, r);
 				}
@@ -636,6 +639,7 @@ public class X10Context_c extends Context_c implements X10Context {
 				throw new InternalError("Unexpected failure when realizing thisPlace constraint" +
 						currentHere);
 			}
+			*/
 
 		return result;
 	}
@@ -889,9 +893,9 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	public String toString() {
 		return "(" + (depType != null ? "depType " + depType : kind.toString())
-		  + (currentConstraint !=null ? " constraint " + currentConstraint : "")
-		  + (" place=" + currentPlaceTerm)
-		  + (" thisPlace=" + thisPlace)
+		  + (currentConstraint ==null ? "" : " constraint= " + currentConstraint)
+		  + (currentPlaceTerm == null ? "" : " place=" + currentPlaceTerm)
+		  + (thisPlace == null? "" : " this.home=" + thisPlace.toString())
 		  + " "+  mapsToString() + " " + outer + ")";
 	}
 

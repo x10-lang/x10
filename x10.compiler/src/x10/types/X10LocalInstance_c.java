@@ -71,17 +71,16 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         	return rightType;
         }
         // If the local variable is final, replace T by T{self==t}, 
-        // do this even if depclause==null
+        // do this even if depclause==null.
         try {
         	CConstraint c = X10TypeMixin.xclause(rightType);
-        	if (c == null)
-        		c = new CConstraint_c();
-        	else
-        		c = c.copy();
+        	c = c==null? new CConstraint_c() : c.copy();
+
         	X10TypeSystem xts = (X10TypeSystem) ts;
         	XLocal var = xts.xtypeTranslator().trans(this, rightType);
         	c.addSelfBinding(var);
         	rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(rightType), c);
+
         	assert rightType != null;
         	return rightType;
         }

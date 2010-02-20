@@ -201,7 +201,7 @@ public abstract class BaseArray[T] extends Array[T] {
     }
 
     // must be internal only - assumes Dist places match
-    protected abstract safe global def restriction(d: Dist): Array[T];
+    protected abstract safe global def restriction(d: Dist(rank)): Array[T](rank);
 
 
     //
@@ -229,7 +229,7 @@ public abstract class BaseArray[T] extends Array[T] {
         	results(p(0)) = at (ps(p(0))) {
         	    var result: T = unit;
                 val a = (this | here) as Array[T](rank);
-                for (pt:Point(rank)  in a.region)
+                for (pt:Point(dist.region.rank)  in a.region)
                     result = op(result, a(pt));
                 return result;
             };

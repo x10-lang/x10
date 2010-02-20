@@ -78,41 +78,41 @@ public class X10Special_c extends Special_c implements X10Special {
 
         if (qualifier == null) {
             // an unqualified "this" 
-            t = c.currentClass();
-            
-            // If in the class header declaration, make this refer to the current class, not the enclosing class (or null).
-            if (c.inSuperTypeDeclaration()) {
-        	if (kind == SUPER) {
-        	    throw new SemanticException("Cannot refer to \"super\" from within a class or interface declaration header.");
+        	t = c.currentClass();
+
+        	// If in the class header declaration, make this refer to the current class, not the enclosing class (or null).
+        	if (c.inSuperTypeDeclaration()) {
+        		if (kind == SUPER) {
+        			throw new SemanticException("Cannot refer to \"super\" from within a class or interface declaration header.");
+        		}
+        		t = c.supertypeDeclarationType().asType();
         	}
-        	t = c.supertypeDeclarationType().asType();
-            }
-            
-            // Use the constructor return type, not the base type.
-            if (c.currentDepType() == null)
-            	if (c.currentCode() instanceof X10ConstructorDef) {
-            		X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
-            		Type returnType =  cd.returnType().get();
-            		returnType =  ts.expandMacros(returnType);
-            		// Set the type of this to be proto T, where T is the return
-            		// type of the constructor.
-            		returnType = X10TypeMixin.makeProto(returnType);
-            	/*
+
+        	// Use the constructor return type, not the base type.
+        	if (c.currentDepType() == null)
+        		if (c.currentCode() instanceof X10ConstructorDef) {
+        			X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
+        			Type returnType =  cd.returnType().get();
+        			returnType =  ts.expandMacros(returnType);
+        			// Set the type of this to be proto T, where T is the return
+        			// type of the constructor.
+        			returnType = X10TypeMixin.makeProto(returnType);
+        			/*
             		if (returnType.isClass()) {
             			t = (ClassType) X10TypeMixin.makeProto(returnType);
             		}
             		else {
             			throw new SemanticException("Constructor return type is not a class type.", cd.position());
             		}*/
-            	} else 
-            		// Check if this is a proto method, then the type of this needs 
-            		// to be set to proto C
-            		if (c.currentCode() instanceof X10MethodDef) {
-            			X10MethodDef cd = (X10MethodDef) c.currentCode();
-            			if (cd.isProto()) {
-            				t =  X10TypeMixin.makeProto(t);
-            			}
-            		}
+        		} else 
+        			// Check if this is a proto method, then the type of this needs 
+        			// to be set to proto C
+        			if (c.currentCode() instanceof X10MethodDef) {
+        				X10MethodDef cd = (X10MethodDef) c.currentCode();
+        				if (cd.isProto()) {
+        					t =  X10TypeMixin.makeProto(t);
+        				}
+        			}
         }
         else {
             if (qualifier.type().isClass()) {
@@ -156,9 +156,10 @@ public class X10Special_c extends Special_c implements X10Special {
             	cc.setThisVar(var);
             	 XTerm locVar = xts.homeVar(var, c);
                  XConstrainedTerm thisPlace = c.currentThisPlace();
-                 assert locVar != null;
-                 assert thisPlace != null;
-                 cc.addBinding(locVar, thisPlace);
+                 if (thisPlace != null) {
+                	 assert locVar != null;
+                	 cc.addBinding(locVar, thisPlace);
+                 }
             }
             catch (XFailure e) {
                 throw new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position());
@@ -187,20 +188,20 @@ public class X10Special_c extends Special_c implements X10Special {
         // Fold in the method's guard, if any.
         CodeDef ci = c.currentCode();
         if (ci instanceof X10ProcedureDef) {
-            X10ProcedureDef pi = (X10ProcedureDef) ci;
-            CConstraint guard = Types.get(pi.guard());
-            if (guard != null) {
-                Type newType = result.type();
-                CConstraint dep = X10TypeMixin.xclause(newType).copy();
-                try {
-			dep.addIn(guard);
-		}
-		catch (XFailure e) {
-			throw new SemanticException(e.getMessage(), position());
-		}
-                newType = X10TypeMixin.xclause(X10TypeMixin.baseType(newType), dep);
-                return result.type(newType);
-            }
+        	X10ProcedureDef pi = (X10ProcedureDef) ci;
+        	CConstraint guard = Types.get(pi.guard());
+        	if (guard != null) {
+        		Type newType = result.type();
+        		CConstraint dep = X10TypeMixin.xclause(newType).copy();
+        		try {
+        			dep.addIn(guard);
+        		}
+        		catch (XFailure e) {
+        			throw new SemanticException(e.getMessage(), position());
+        		}
+        		newType = X10TypeMixin.xclause(X10TypeMixin.baseType(newType), dep);
+        		return result.type(newType);
+        	}
         }
 
         return result;

@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.types;
+package x10.types.constraints;
 
 import java.io.Serializable;
 

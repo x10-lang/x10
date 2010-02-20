@@ -203,25 +203,20 @@ public class HashMap[-K,V] implements Map[K,V] {
         return null;
     }
     
-    public def keySet(): Set[K] {
-        return new KeySet[K,V](this);
-    }
+    public def keySet(): Set[K]! = new KeySet[K,V](this);
+    public def entries(): Set[Map.Entry[K,V]]! = new EntrySet[K,V](this);
     
-    public def entries(): Set[Map.Entry[K,V]] {
-        return new EntrySet[K,V](this);
-    }
-    
-    protected def entriesIterator(): Iterator[HashEntry[K,V]] {
+    protected def entriesIterator(): Iterator[HashEntry[K,V]!]! {
     val iterator = new EntriesIterator[K,V](this);
     iterator.advance();
     return iterator;
     }
 
-    protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]] {
+    protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]!] {
         val map: HashMap[Key,Value]!;
         var i: Int;
         
-        def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; }
+        def this(map: HashMap[Key,Value]!) { this.map = map; this.i = 0; }
 
         def advance(): void {
             while (i < map.table.length) {
@@ -239,12 +234,12 @@ public class HashMap[-K,V] implements Map[K,V] {
             return false;
         }
         
-        public def next(): HashEntry[Key,Value] {
+        public def next(): HashEntry[Key,Value]! {
             val j = i;
 //            assert map.table(j) != null && ! map.table(j).removed : "map entry " + j + " is null or removed";
             i++;
             advance();
-            return map.table(j);
+            return map.table(j) ;
         }
     }
     
@@ -265,7 +260,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         
         public def add(k: Key): Boolean { throw new UnsupportedOperationException(); }
         public def remove(k: Key): Boolean { throw new UnsupportedOperationException(); }
-        public def clone(): KeySet[Key,Value] { throw new UnsupportedOperationException(); }
+        public def clone(): KeySet[Key,Value]! { throw new UnsupportedOperationException(); }
         public def size(): Int = map.size();
     }
 
@@ -281,7 +276,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         public def contains(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
         public def add(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
         public def remove(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
-        public def clone(): EntrySet[Key,Value] { throw new UnsupportedOperationException(); }
+        public def clone(): EntrySet[Key,Value]! { throw new UnsupportedOperationException(); }
         public def size(): Int = map.size();
     }
 }

@@ -28,7 +28,7 @@ abstract public class x10Test {
     abstract public def run(): boolean;
 
     public def executeAsync() {
-        val b: Rail[boolean]! = [ false ]; // use a rail until we have shared locals working
+        val b: Rail[boolean]! = [ false as Boolean ]; // use a rail until we have shared locals working
         try {
             finish async b(0) = this.run();
         } catch (e: Throwable) {
@@ -51,12 +51,14 @@ abstract public class x10Test {
 
     public static def success(): void = {
         println(PREFIX+"Test succeeded.");
-	System.setExitCode(0);
+	   at (Place.FIRST_PLACE) 
+	     System.setExitCode(0);
     }
 
     public static def failure(): void = {
         println(PREFIX+"Test failed.");
-        System.setExitCode(1);
+        at (Place.FIRST_PLACE)
+           System.setExitCode(1);
     }
 
     protected static def reportResult(b: boolean): void = {

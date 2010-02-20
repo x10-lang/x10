@@ -8,7 +8,6 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-
 package x10.optimizations;
 
 
@@ -81,7 +80,7 @@ public class ForLoopOptimizer extends ContextVisitor {
 			X10TypeMixin.setSelfVar(regionType, var);
 			
 			
-			if (xts.isSubtypeWithValueInterfaces(domainType, regionType, context())) {
+			if (xts.isSubtype(domainType, regionType, context())) {
 				// Now check if domain is actually a RegionMaker, i.e. a parsing of e1..e2
 				if (loop.domain() instanceof RegionMaker) {
 					List<Expr> args = ((RegionMaker) loop.domain()).arguments();

@@ -35,6 +35,7 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.types.X10TypeSystem;
+import x10.types.checker.Converter;
 
 /**
  * An immutable representation of a unary operation op Expr.
@@ -77,7 +78,7 @@ public class X10Unary_c extends Unary_c {
                 kind = IntLit.INT;
             else
                 kind = IntLit.LONG;
-            return X10Cast_c.check(nf.IntLit(position(), kind, -((IntLit) expr).longValue()), tc);
+            return Converter.check(nf.IntLit(position(), kind, -((IntLit) expr).longValue()), tc);
         }
         
         Call c = desugarUnaryOp(this, tc);
@@ -194,7 +195,7 @@ public class X10Unary_c extends Unary_c {
                 n2 = n2.constantValue(n.constantValue());
             
             try {
-                n2 = X10Cast_c.check(n2, tc);
+                n2 = Converter.check(n2, tc);
                 if (! n2.methodInstance().def().flags().isStatic())
                     virtual_left = n2;
             }
@@ -210,7 +211,7 @@ public class X10Unary_c extends Unary_c {
                 n4 = n4.constantValue(n.constantValue());
             
             try {
-                n4 = X10Cast_c.check(n4, tc);
+                n4 = Converter.check(n4, tc);
                 if (n4.methodInstance().def().flags().isStatic())
                     static_left = n4;
             }

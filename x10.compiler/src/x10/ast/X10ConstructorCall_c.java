@@ -50,9 +50,9 @@ import x10.types.X10MethodInstance;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
-import x10.types.X10TypeSystem_c.DumbConstructorMatcher;
+import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
+import x10.types.matcher.DumbConstructorMatcher;
 
 /**
  * A call to this(...) or super(...) in the body of a constructor.
@@ -268,8 +268,8 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 
             List<ConstructorInstance> methods 
             = ts.findAcceptableConstructors(targetType, 
-            		new X10TypeSystem_c.DumbConstructorMatcher(targetType, typeArgs, argTypes, context));
-            return X10New_c.tryImplicitConversions(n, tc, targetType, methods, 
+            		new DumbConstructorMatcher(targetType, typeArgs, argTypes, context));
+            return Converter.tryImplicitConversions(n, tc, targetType, methods, 
             		new MatcherMaker<ConstructorInstance>() {
                 public Matcher<ConstructorInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
                     return ts.ConstructorMatcher(ct, typeArgs, argTypes, context);

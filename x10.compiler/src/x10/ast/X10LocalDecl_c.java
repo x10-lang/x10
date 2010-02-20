@@ -14,13 +14,17 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.ast.ArrayInit;
 import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Id;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Node;
+import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.types.Context;
+import polyglot.types.FieldDef;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
@@ -37,12 +41,15 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
-import x10.emitter.Emitter;
+import x10.errors.Errors;
 import x10.extension.X10Del;
+import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
+import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
+import x10.types.checker.Converter;
 import x10.visit.X10PrettyPrinterVisitor;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
@@ -52,17 +59,32 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		super(pos, flags, type, name, init);
 	}
 
+	/**
+	 * This method is called by TypeChecker after the node has been type-checked to give this node a chance
+	 * to update the current scope with declarations introduced by this node.
+	 * 
+	 * (Added this delegating method here merely to record how this piece of functionality works.
+	 */
+	@Override
+	public void addDecls(Context c) {
+		super.addDecls(c);
+
+	}
+	
 	@Override
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
-		if (type instanceof UnknownTypeNode && init == null)
-			throw new SemanticException("Cannot infer variable type; variable has no initializer.", position());
-		// TODO: For now, since there can be more than once assignment to a mutable variable, 
-		// do not allow mutable variable types to be inferred.
-		// This can be fixed later for local variables by doing better 
-		// type inference.  This should never be done for fields.
-		if (type instanceof UnknownTypeNode && ! flags.flags().isFinal())
-			throw new SemanticException("Cannot infer type of non-final variable.", position());
-		
+		if (type instanceof UnknownTypeNode) {
+			if (init == null)
+				throw new SemanticException("Cannot infer variable type; variable has no initializer.", position());
+			// TODO: For now, since there can be more than once assignment to a mutable variable, 
+			// do not allow mutable variable types to be inferred.
+			// This can be fixed later for local variables by doing better 
+			// type inference.  This should never be done for fields.
+			if (! flags.flags().isFinal())
+				throw new SemanticException("Cannot infer type of non-final variable.", position());
+		}
+			
+		// This installs a LocalDef 
 		X10LocalDecl_c n = (X10LocalDecl_c) super.buildTypes(tb);
 
 		X10LocalDef fi = (X10LocalDef) n.localDef();
@@ -79,6 +101,11 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	        return n;
 	}
 	
+	/**
+	 * If the initializer is not null, and the type is Unknown (e.g. because the type was not explicitly
+	 * specified by the programmer, and hence must be inferred), then update the type to be the type
+	 * of the initializer. 
+	 */
         @Override
         public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
             if (type() instanceof UnknownTypeNode) {
@@ -118,6 +145,10 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             return super.typeCheckOverride(parent, tc);
         }
 
+        /**
+         * At this point, the type of the declaration should be known. If the type was not specified
+         * then typeCheckOverride would have set it from the type of the initializer.
+         */
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	    if (this.type().type().isVoid())
@@ -132,18 +163,15 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	        throw new SemanticException(e.getMessage(), position());
 	    }
 
+	    // Need to check that the initializer is a subtype of the (declared or inferred) type of the variable,
+	    // or can be implicitly coerced to the type.
 	    if (init != null) {
 	            try {
-	                Expr newInit = X10New_c.attemptCoercion(tc, init, this.type().type());
+	                Expr newInit = Converter.attemptCoercion(tc, init, this.type().type());
 	                return this.init(newInit);
 	            }
 	            catch (SemanticException e) {
-	                throw new SemanticException("The type of the variable " +
-	                                            "initializer \"" + init.type() +
-	                                            "\" does not match that of " +
-	                                            "the declaration \"" +
-	                                            type.type() + "\".",
-	                                            init.position());
+	            	throw new Errors.CannotAssign(init, this.type().type(), init.position());
 	            }
 	    }
 

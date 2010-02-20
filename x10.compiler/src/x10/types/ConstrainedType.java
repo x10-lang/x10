@@ -34,5 +34,5 @@ public interface ConstrainedType extends ObjectType, X10NamedType, Proto, X10Str
 	void checkRealClause() throws SemanticException;
 	
 	
-	void ensureSelfBound();
+	//void ensureSelfBound();
 }

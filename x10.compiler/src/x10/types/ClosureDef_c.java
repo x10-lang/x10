@@ -29,6 +29,7 @@ import polyglot.util.TypedList;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 public class ClosureDef_c extends Def_c implements ClosureDef {

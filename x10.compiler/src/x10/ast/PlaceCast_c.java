@@ -62,7 +62,7 @@ public class PlaceCast_c extends Expr_c implements PlaceCast {
 		Expr expr = (Expr) visitChild(this.expr, v);
 		Node result = reconstruct(place, expr);
 		if (v instanceof ExprFlattener.Flattener ) {
-			Report.report(1, "PlaceCast_c flattened to |" + result + "|");
+			//Report.report(1, "PlaceCast_c flattened to |" + result + "|");
 		}
 		return result;
 	}

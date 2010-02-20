@@ -33,6 +33,7 @@ import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.types.X10MethodInstance_c.NoClauseVariant;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements ClosureInstance {
     private static final long serialVersionUID= 2804222307728697502L;
@@ -69,11 +70,12 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     }
     
     public boolean callValid(Type thisType, List<Type> actualTypes, Context context) {
-        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes, context);
+    	// me should have been instantiated correctly; if so, the call is valid
+    	return true;
     }
 
     public boolean moreSpecific(ProcedureInstance<ClosureDef> p, Context context) {
-        return X10MethodInstance_c.moreSpecificImpl(this, p, context);
+        return X10TypeMixin.moreSpecificImpl(this, p, context);
     }
 
     public String signature() {

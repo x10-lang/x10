@@ -24,7 +24,7 @@ public class MacroConstraint extends x10Test {
 		result=false;
 	    }
 	    val d = v instanceof Region(2);
-	    if (c) {
+	    if (d) {
 		Console.OUT.println("Failed v instanceof Region(2)");
 		result=false;
 	    }

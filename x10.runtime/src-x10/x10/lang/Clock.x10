@@ -77,7 +77,8 @@ public class Clock(name:String) {
         val ph = remove();
         async (this) atomic {
             --count;
-            if (-ph != phase) resumeLocal();
+            if (-ph != phase) 
+            	resumeLocal();
         }
     }
 

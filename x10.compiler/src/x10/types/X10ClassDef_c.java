@@ -43,6 +43,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.TypeConstraint;
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     protected List<ParameterType.Variance> variances;
@@ -339,32 +340,35 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public boolean isFunction() {
     	return false;
     }
+    private String typeParameterString() {
+    	return ""; // ((typeParameters == null || typeParameters.isEmpty())? "" : typeParameters.toString());
+    }
     public String toString() {
         Name name = name();
         
         if (kind() == null) {
-            return "<unknown class " + name + ">";
+            return "<unknown class " + name + typeParameterString() + ">";
         }
     
         if (kind() == ANONYMOUS) {
             if (interfaces != null && ! interfaces.isEmpty()) {
-                return isFunction() ? "" + interfaces.get(0) : "<anonymous subtype of " + interfaces.get(0) + ">";
+                return isFunction() ? "" + interfaces.get(0) : "<anonymous subtype of " + interfaces.get(0) + typeParameters() + ">";
             }
             if (superType != null) {
-                return "<anonymous subclass of " + superType + ">";
+                return "<anonymous subclass of " + superType + ">" + typeParameterString();
             }
         }
     
         if (kind() == TOP_LEVEL) {
             Package p = Types.get(package_());
-            return (p != null ? p.toString() + "." : "") + name;
+            return (p != null ? p.toString() + "." : "") + name + typeParameterString();
         }
         else if (kind() == MEMBER) {
             ClassDef outer = Types.get(outer());
-            return (outer != null ? outer.toString() + "." : "") + name;
+            return (outer != null ? outer.toString() + "." : "") + name + typeParameterString();
         }
         else {
-            return name.toString();
+            return name.toString() + typeParameterString();
         }
     }
 }

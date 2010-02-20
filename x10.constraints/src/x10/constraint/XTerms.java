@@ -69,11 +69,11 @@ public class XTerms {
 	public static XEQV makeUQV(XName name) {
 		return new XEQV_c(name, false);
 	}
-	public static final XEQV makeEQV(String name) {
-		return new XEQV_c(makeName(name), true);
+	public static final XEQV makeEQV(String prefix) {
+		return new XEQV_c(makeFreshName(prefix), true);
 	}
-	public static final XEQV makeUQV(String name) {
-		return new XEQV_c(makeName(name), false);
+	public static final XEQV makeUQV(String prefix) {
+		return new XEQV_c(makeFreshName(prefix), false);
 	}
 	public static XEQV makeEQV(XName name, boolean hidden) {
 		return new XEQV_c(name, hidden);

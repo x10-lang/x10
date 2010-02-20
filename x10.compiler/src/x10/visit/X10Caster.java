@@ -28,11 +28,11 @@ import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
-import x10.ast.X10Cast;
 import x10.ast.X10NodeFactory;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.Converter;
 
 /**
  * Visitor that inserts explicit subtyping coercions whenever there is an
@@ -145,7 +145,7 @@ public class X10Caster extends ContextVisitor {
 
             }
             if (ts.isSubtype(fromType, toType, context) && !ts.typeBaseEquals(fromType, toType, context) && !ts.typeEquals(toType, ts.Object(), context)) {
-                Expr e2 = nf.X10Cast(e1.position(), nf.CanonicalTypeNode(e1.position(), toType), e1, X10Cast.ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
+                Expr e2 = nf.X10Cast(e1.position(), nf.CanonicalTypeNode(e1.position(), toType), e1, Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
                 e2 = (Expr) e2.del().disambiguate(this).typeCheck(this).checkConstants(this);
                 return e2;
             }

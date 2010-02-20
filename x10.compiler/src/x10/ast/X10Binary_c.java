@@ -52,6 +52,7 @@ import polyglot.visit.ContextVisitor;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.Converter;
 import x10.visit.ExprFlattener;
 import x10.visit.ExprFlattener.Flattener;
 
@@ -332,12 +333,12 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             
             if (xts.isSigned(lbase) && xts.isUnsigned(rbase) || xts.isSigned(lbase) && xts.isUnsigned(rbase)) {
                 if (lv != null && xts.numericConversionValid(rbase, lv, context)) {
-                    Expr e = X10New_c.attemptCoercion(tc, left, rbase);
-                    return X10Cast_c.check(left(e), tc);
+                    Expr e = Converter.attemptCoercion(tc, left, rbase);
+                    return Converter.check(left(e), tc);
                 }
                 if (rv != null && xts.numericConversionValid(lbase, rv, context)) {
-                    Expr e = X10New_c.attemptCoercion(tc, right, lbase);
-                    return X10Cast_c.check(right(e), tc);
+                    Expr e = Converter.attemptCoercion(tc, right, lbase);
+                    return Converter.check(right(e), tc);
                 }
             }
             
@@ -352,9 +353,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             if (promoted != null &&
                 (! xts.typeBaseEquals(lbase, promoted, context) ||
                  ! xts.typeBaseEquals(rbase, promoted, context))) {
-                Expr el = X10New_c.attemptCoercion(tc, left, promoted);
-                Expr er = X10New_c.attemptCoercion(tc, right, promoted);
-                return X10Cast_c.check(left(el).right(er), tc);
+                Expr el = Converter.attemptCoercion(tc, left, promoted);
+                Expr er = Converter.attemptCoercion(tc, right, promoted);
+                return Converter.check(left(el).right(er), tc);
             }
         }
         
@@ -449,7 +450,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 n2 = n2.constantValue(n.constantValue());
         
             try {
-                n2 = X10Cast_c.check(n2, tc);
+                n2 = Converter.check(n2, tc);
                 if (! n2.methodInstance().def().flags().isStatic())
                     virtual_left = n2;
             }
@@ -465,7 +466,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 n4 = n4.constantValue(n.constantValue());
         
             try {
-                n4 = X10Cast_c.check(n4, tc);
+                n4 = Converter.check(n4, tc);
                 if (n4.methodInstance().def().flags().isStatic())
                     static_left = n4;
             }
@@ -481,7 +482,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 n3 = n3.constantValue(n.constantValue());
         
             try {
-                n3 = X10Cast_c.check(n3, tc);
+                n3 = Converter.check(n3, tc);
                 if (n3.methodInstance().def().flags().isStatic())
                     static_right = n3;
             }
@@ -497,7 +498,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 n5 = n5.constantValue(n.constantValue());
         
             try {
-                n5 = X10Cast_c.check(n5, tc);
+                n5 = Converter.check(n5, tc);
                 if (! n5.methodInstance().def().flags().isStatic())
                     virtual_right = n5;
             }
@@ -611,7 +612,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             if (actuals[k] != original[k])
                 if (actuals[k] instanceof X10Call) {
                     X10Call c = (X10Call) actuals[k];
-                    if (c.methodInstance().name() == X10Cast_c.operator_as)
+                    if (c.methodInstance().name() == Converter.operator_as)
                         return true;
                 }
         }
@@ -626,7 +627,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         return false;
     }
 
-    protected static Expr coerceToString(ContextVisitor tc, Expr e) throws SemanticException {
+    public static Expr coerceToString(ContextVisitor tc, Expr e) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
 
         if (!e.type().isSubtype(ts.String(), tc.context())) {

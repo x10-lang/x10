@@ -49,7 +49,6 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.types.Subst;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;
@@ -60,7 +59,9 @@ import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
+import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
 
 /**
@@ -163,7 +164,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		Type Iterable = ts.Iterable(formalType);
 		assert domainType != null 
 		: "formal=" + formal + " domain = " + domain + " position = " + position();
-		if (ts.isSubtypeWithValueInterfaces(domainType, Iterable, tc.context())) {
+		if (ts.isSubtype(domainType, Iterable, tc.context())) {
 		//	if (X10TypeMixin.areConsistent(formalType, domainType)
 		    return this;
 		}
@@ -177,14 +178,14 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 
 		if (ts.isSubtype(formalType, ts.Point(), tc.context())) {
 		    try {
-		        Expr newDomain = X10New_c.attemptCoercion(tc, domain, ts.Region());
+		        Expr newDomain = Converter.attemptCoercion(tc, domain, ts.Region());
 		        if (newDomain != domain)
 		            return this.domain(newDomain).del().typeCheck(tc);
 		    }
 		    catch (SemanticException e) {
 		    }
 		    try {
-		        Expr newDomain = X10New_c.attemptCoercion(tc, domain, ts.Dist());
+		        Expr newDomain = Converter.attemptCoercion(tc, domain, ts.Dist());
 		        if (newDomain != domain)
 		            return this.domain(newDomain).del().typeCheck(tc);
 		    }

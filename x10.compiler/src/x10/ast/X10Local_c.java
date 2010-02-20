@@ -80,6 +80,7 @@ public class X10Local_c extends Local_c {
 			}
 			
 			// Add in self==x to local variable x.
+
 			result = (X10Local_c) result.type(((X10LocalInstance) li).rightType());
 			
 			// Fold in the method's guard.

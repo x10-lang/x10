@@ -47,6 +47,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XTerm;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
@@ -61,6 +62,9 @@ import x10.types.X10InitializerDef;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.Checker;
+import x10.types.checker.Converter;
+import x10.types.constraints.XConstrainedTerm;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
@@ -84,6 +88,18 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 			xc.addVariable(fi.asInstance());
 			xc.setVarWhoseTypeIsBeingElaborated(fi);
 			c = xc;
+		}
+		if (child == this.type || child == this.init) {
+			X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
+			X10Context xc = (X10Context) c;
+			ClassDef cd = c.currentClassDef();
+			if (cd != null)
+			if ( ! X10TypeMixin.isX10Struct(cd.asType())) {
+			XTerm h =  xts.homeVar(xc.thisVar(),xc);
+			if (h != null)  // null for structs.
+				c = ((X10Context) c).pushPlace(XConstrainedTerm.make(h)); 	
+			}
+        	
 		}
 		Context cc = super.enterChildScope(child, c);
 		return cc;
@@ -147,10 +163,10 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     	vars.put(pt.name(), v);
         }
         if (flags().flags().isFinal()) {
-            X10MethodDecl_c.checkVariancesOfType(type.position(), type.type(), ParameterType.Variance.COVARIANT, "as the type of a final field", vars, tc);
+            Checker.checkVariancesOfType(type.position(), type.type(), ParameterType.Variance.COVARIANT, "as the type of a final field", vars, tc);
         }
         else {
-            X10MethodDecl_c.checkVariancesOfType(type.position(), type.type(), ParameterType.Variance.INVARIANT, "as the type of a non-final field", vars, tc);
+        	Checker.checkVariancesOfType(type.position(), type.type(), ParameterType.Variance.INVARIANT, "as the type of a non-final field", vars, tc);
         }
     }
 
@@ -336,7 +352,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                     
                     if (init != null) {
                         try {
-                            Expr newInit = X10New_c.attemptCoercion(tc, init, this.type().type());
+                            Expr newInit = Converter.attemptCoercion(tc, init, this.type().type());
                             return this.init(newInit);
                         }
                         catch (SemanticException e) {

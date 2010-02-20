@@ -62,7 +62,11 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.SubtypeConstraint_c;
+import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
 
 /**

@@ -15,7 +15,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
     private var a: GrowableRail[T]!;
 
-    public static def make[T](c: Container[T]) {
+    public static def make[T](c: Container[T]!) {
 	val a = new ArrayList[T]();
 	a.addAll(c);
 	return a;
@@ -32,9 +32,8 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return false;
     }
     
-    public def clone(): ArrayList[T] {
-        return new ArrayList[T](this);
-    }
+    public def clone() = new ArrayList[T](this);
+    
     
     public def add(v: T): Boolean {
         a.add(v);
@@ -149,11 +148,11 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         private var i: int;
         private val al: ArrayList[S]!;
         
-        def this(al: ArrayList[S]) {
+        def this(al: ArrayList[S]!) {
             this(al, -1);
         }
 
-        def this(al: ArrayList[S], i: int) {
+        def this(al: ArrayList[S]!, i: int) {
             this.al = al;
             this.i = i;
         }
@@ -211,7 +210,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     }
 
     // [NN]: should not need to cast x to Comparable[T]
-    public def sort() {T <: Comparable[T]} = sort((x:T, y:T) => (x as Comparable[T]).compareTo(y));
+    public def sort() {T <: Comparable[T]} = sort((x:T, y:T) => (x as Comparable[T]!).compareTo(y));
     public def sort(cmp: (T,T)=>Int) = qsort(a, 0, 
          a.length()-1, 
          cmp

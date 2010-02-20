@@ -22,19 +22,20 @@ import harness.x10Test;
 abstract public class TestDist extends x10Test {
     
     var os: StringWriter;
-    var out: Printer;
+    val out: Printer!;
     val testName = typeName();
 
     def this() {
         System.setProperty("line.separator", "\n");
-        try {
+        
 	    val tmp = new StringWriter();
             os = tmp;
             out = new Printer(tmp);
-        } catch (e:Exception) {
+       /* } catch (e:Exception) {
             //e.printStackTrace();
             x10.io.Console.OUT.println(e.toString());
         }
+        */
     }
 
     abstract def expected():String;
@@ -96,7 +97,7 @@ abstract public class TestDist extends x10Test {
             grid.set(i1, i2, vue);
         }
 
-        def pr(rank: int): void = {
+        def pr(rank: int){here==TestDist.this.home}: void = {
             var min: int = os.length;
             var max: int = 0;
             for (var i: int = 0; i<os.length; i++) {
@@ -185,7 +186,7 @@ abstract public class TestDist extends x10Test {
 
         // scanner api
         var grid:Grid! = new Grid();
-        var it:Iterator[Region.Scanner]! = r.scanners();
+        val it = r.scanners() as Iterator[Region.Scanner]!;
         while (it.hasNext()) {
             var s: Region.Scanner! = it.next() as Region.Scanner!; // XTENLANG-55
             pr("  poly");
@@ -280,8 +281,8 @@ abstract public class TestDist extends x10Test {
     }
         
 
-    def pr(s: String): void = {
-        out.println(s);
+    global def pr(s: String): void = {
+        at (this) out.println(s);
     }
 
     static def xxx(s: String): void {

@@ -33,8 +33,8 @@ public abstract class Array[T](
      * The distribution of this array.
      */
     dist:Dist
-) implements (Point{self.rank==dist.region.rank})=>T,
-             Iterable[Point{self.rank==dist.region.rank}]
+) implements (Point(dist.region.rank))=>T,
+             Iterable[Point(dist.region.rank)]
 {
     //
     // properties
@@ -466,7 +466,7 @@ public abstract class Array[T](
      *         region of this array.
      * @see #restriction(Region)
      */
-    public abstract safe global operator this | (r: Region(rank)): Array[T](dist);
+    public abstract safe global operator this | (r: Region(rank)): Array[T](rank);
 
     /**
      * Restrict this array to the given place.
@@ -477,7 +477,7 @@ public abstract class Array[T](
      * @return a copy of the portion of this array that resides in the given place.
      * @see #restriction(Place)
      */
-    public abstract safe global operator this | (p: Place): Array[T](dist);
+    public abstract safe global operator this | (p: Place): Array[T](rank);
 
 
     //

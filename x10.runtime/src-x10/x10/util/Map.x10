@@ -24,7 +24,7 @@ public interface Map[-K,V]   {
 
 	public def remove(k: K): Box[V];
 
-	public def keySet(): Set[K];
+	public def keySet(): Set[K]!;
 
 	public def clear(): void;
 	

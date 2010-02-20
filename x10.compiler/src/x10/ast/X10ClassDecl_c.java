@@ -93,8 +93,6 @@ import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.MacroType;
 import x10.types.ParameterType;
-import x10.types.TypeConstraint;
-import x10.types.TypeConstraint_c;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
@@ -112,6 +110,8 @@ import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 import x10.util.Synthesizer;
 /**

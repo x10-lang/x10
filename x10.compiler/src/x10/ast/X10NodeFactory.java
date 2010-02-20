@@ -42,11 +42,12 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.Position;
-import x10.ast.X10Cast.ConversionType;
 import x10.parser.X10Parser.JPGPosition;
 import x10.types.ParameterType;
 import x10.types.X10ConstructorDef;
 import x10.types.ParameterType.Variance;
+import x10.types.checker.Converter;
+import x10.types.checker.Converter.ConversionType;
 
 /**
  * NodeFactory for x10 extension.
@@ -76,7 +77,7 @@ public interface X10NodeFactory extends NodeFactory {
     X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> t, DepParameterExpr e);
 
     X10Cast X10Cast(Position pos, TypeNode castType, Expr expr);
-    X10Cast X10Cast(Position pos, TypeNode castType, Expr expr, X10Cast.ConversionType conversionType);
+    X10Cast X10Cast(Position pos, TypeNode castType, Expr expr, Converter.ConversionType conversionType);
     Return X10Return(Position pos, Expr expr, boolean implicit);
 
     UnknownTypeNode UnknownTypeNode(Position pos);

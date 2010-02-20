@@ -180,38 +180,6 @@ public class Async_c extends Stmt_c implements Async {
 
 	        if (placeTerm != null)
 	        	xc = (X10Context) xc.pushPlace(placeTerm);
-
-                /*
-	        
-	        // Change the place constraint to here==p
-	        if (xc == c)
-	            xc = (X10Context) xc.pushBlock();
-
-	        XConstraint_c pc = new XConstraint_c();
-	        XTerm here = ts.xtypeTranslator().transHere();
-	        XTerm there = null;
-	        try {
-	            if (place != null)
-	                there = ts.xtypeTranslator().trans(pc, place, xc);
-	            else
-	                there = ts.xtypeTranslator().transHere();
-	        }
-	        catch (SemanticException e) {
-	            // The place cannot be represented as a constraint term.
-	        }
-
-	        if (there == null)
-	            there = pc.genEQV(XTerms.makeFreshName("place"), false);
-	        
-	        try {
-	            pc.addBinding(here, there);
-	        }
-	        catch (XFailure e) {
-	        }
-	        
-	        xc.setCurrentPlaceConstraint(pc);
-
-                */
 	    }
 	    return xc;
 	}

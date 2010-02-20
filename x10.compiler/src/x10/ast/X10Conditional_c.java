@@ -42,6 +42,7 @@ import x10.types.X10NamedType;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.Converter;
 import x10.visit.ExprFlattener;
 import x10.visit.ExprFlattener.Flattener;
 
@@ -140,8 +141,8 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
                 // If one of the second and third operands is of the null type and the
                 // type of the other is a reference type, then the type of the
                 // conditional expression is that reference type.
-                if (t1.isNull() && t2.isReference()) return type(t2);
-                if (t2.isNull() && t1.isReference()) return type(t1);
+                if (t1.isNull() && X10TypeMixin.permitsNull(t2)) return type(t2);
+                if (t2.isNull() && X10TypeMixin.permitsNull(t1)) return type(t1);
                 
                 // If the second and third operands are of different reference types,
                 // then it must be possible to convert one of the types to the other
@@ -160,8 +161,8 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
                 
                 try {
                     Type t = ts.leastCommonAncestor(t1, t2, context);
-                    Expr n1 =  X10New_c.attemptCoercion(tc, e1, t);
-                    Expr n2 =  X10New_c.attemptCoercion(tc, e2, t);
+                    Expr n1 =  Converter.attemptCoercion(tc, e1, t);
+                    Expr n2 =  Converter.attemptCoercion(tc, e2, t);
                     return consequent(n1).alternative(n2).type(t);
                 }
                 catch (SemanticException e) {

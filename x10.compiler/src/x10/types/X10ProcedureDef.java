@@ -18,6 +18,7 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 public interface X10ProcedureDef extends X10Def, ProcedureDef, X10MemberDef {
     Ref<? extends Type> returnType();

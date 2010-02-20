@@ -31,6 +31,8 @@ import x10.types.X10Context;
 import x10.types.X10Flags;
 
 import x10.types.X10TypeMixin;
+import x10.types.checker.Checker;
+import x10.errors.Errors;
 
 public class X10FieldAssign_c extends FieldAssign_c {
     
@@ -40,6 +42,10 @@ public class X10FieldAssign_c extends FieldAssign_c {
     
     @Override
     public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
+    	X10Context cxt = (X10Context) tc.context();
+    	if (cxt.inDepType()) 
+    		throw new Errors.NoAssignmentInDepType(this, this.position());
+    	
         tc = tc.context(((X10Context) tc.context()).pushAssignment());
         return super.typeCheckLeft(tc);
     }
@@ -63,31 +69,21 @@ public class X10FieldAssign_c extends FieldAssign_c {
     	// Check the proto condition.
     	
     	if (X10TypeMixin.isProto(s)) {
-    		if (! X10TypeMixin.isProto(targetType)) {
-    			throw new SemanticException("The receiver " + this.target() + 
-    					" does not have a proto type; hence " + 
-    					this.right() + 
-    					" cannot be assigned to it's field " + this.name(), 
-    					this.position());
-    		}
-    		if (op != ASSIGN) {
-    			throw new SemanticException("Only the assignment operator = can be used to "
-    					+ " assign the proto value " + this.right() +
-    					" to a field.", position());
-    		}
+    		if (! X10TypeMixin.isProto(targetType)) 
+    			throw new Errors.ProtoValuesAssignableOnlyToProtoReceivers(this.right(), this, position());
+    		if (op != ASSIGN) 
+    			throw new Errors.ProtoValuesAssignableOnlyUsingEquals(right(), position());
     		s = X10TypeMixin.baseOfProto(s);
-    		if (! (ts.isSubtype(s, t, tc.context()))) {
-    			throw new SemanticException("Cannot assign " + s + " to " + t + ".",
-        				n.position());
-    			
-    		}
+    		if (! (ts.isSubtype(s, t, tc.context()))) 
+    			throw new Errors.CannotAssign(n.right(), n.target().type(), n.position);
+
     		n.checkFieldPlaceType(tc);
     		
     		n= (X10FieldAssign_c) n.type(t);
     		return n;
     	}
         
-        return X10LocalAssign_c.typeCheckAssign(n, tc);
+        return Checker.typeCheckAssign(n, tc);
     }
     
     public void checkFieldPlaceType(ContextVisitor tc) throws SemanticException {

@@ -19,13 +19,13 @@ package x10.array;
 
 // TODO: Need to come through and clean up place types and global methods.
 //       This is a completely local array....
-final public class LocalArray[T] extends BaseArray[T] {
+public class LocalArray[T] extends BaseArray[T] {
 
     private global val raw:Rail[T]{self.at(dist.onePlace)};
     private global val layout:RectLayout;
 
     final protected global def layout() = layout;
-    final protected global def raw() = raw;
+    final protected global def raw() = raw as Rail[T]!;
 
     //
     // high-performance methods here to facilitate inlining
@@ -119,13 +119,13 @@ final public class LocalArray[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist{constant}):LocalArray[T]{self.dist==dist} {
+    def this(dist: Dist{constant}){here == dist.onePlace}:LocalArray[T]{self.dist==dist} {
         super(dist);
 
         layout = layout(region);
         val n = layout.size();
         val r = Rail.make[T](n);
-        raw = r;
+        raw = r as Rail[T]{this.dist.onePlace==self.home};
     }
 
     def this(dist: Dist{constant}, init: (Point(dist.rank))=>T){here == dist.onePlace}:LocalArray[T]{self.dist==dist} {
@@ -139,7 +139,7 @@ final public class LocalArray[T] extends BaseArray[T] {
         for (p:Point in region)
         	r(layout.offset(p)) = f(p);
 
-        raw = r;
+        raw = r as Rail[T]{this.dist.onePlace==self.home};
     }
 
 
@@ -147,20 +147,20 @@ final public class LocalArray[T] extends BaseArray[T] {
      * restriction view
      */
 
-    public safe global def restriction(d: Dist): Array[T] {
-        val dd = d as Dist{constant,here==self.onePlace};
+    public safe global def restriction(d: Dist(rank)): Array[T](rank) {
+        val dd = d as Dist{self==d, constant,here==self.onePlace};
         return new LocalArray[T](this, dd);
     }
 
-    def this(a: BaseArray[T], d: Dist{constant}){here == d.onePlace} {
+    def this(a: BaseArray[T], d: Dist{constant}){here == d.onePlace}:LocalArray{self.dist==d} {
         super(d);
 	
 	if (d.region.isEmpty()) {
             this.layout = layout(d.region);
-	    this.raw = Rail.make[T](0);
+	    this.raw = Rail.make[T](0) as Rail[T]{this.dist.onePlace==self.home};
         } else {
             this.layout = a.layout();
-            this.raw =  a.raw();
+            this.raw =  a.raw() as Rail[T]{this.dist.onePlace==self.home};
         }
     }
 

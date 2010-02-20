@@ -95,7 +95,16 @@ import x10.constraint.XVar;
 import x10.parser.X10ParsedName;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.SubtypeConstraint;
+import x10.types.constraints.SubtypeConstraint_c;
+import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.matcher.X10ConstructorMatcher;
+import x10.types.matcher.X10FieldMatcher;
+import x10.types.matcher.X10MemberTypeMatcher;
+import x10.types.matcher.X10MethodMatcher;
+import x10.types.matcher.X10TypeMatcher;
 import x10.util.ClosureSynthesizer;
 
 /**
@@ -106,6 +115,7 @@ import x10.util.ClosureSynthesizer;
  * @author vj
  */
 public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
+	public static final String DUMMY_ASYNC = "$dummyAsync";
 
     Map<Object, Type> tcache = new HashMap<Object, Type>();
 
@@ -146,7 +156,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             final XVar[] y = ys.toArray(new XVar[ys.size()]);
             final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
 
-            mi = X10MethodInstance_c.fixThis((X10MethodInstance) mi, y, x);
+            mi = X10TypeEnv_c.fixThis((X10MethodInstance) mi, y, x);
 
             if (mi.typeParameters().size() != typeParams.size()) {
                 continue;
@@ -194,7 +204,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
 
-        mi = X10MethodInstance_c.fixThis((X10MethodInstance) mi, y, x);
+        mi = X10TypeEnv_c.fixThis((X10MethodInstance) mi, y, x);
 
         StructType curr = ct;
         while (curr != null) {
@@ -363,63 +373,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         l.add(QName.make("x10.lang"));
         l.add(QName.make("x10.lang", X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME.toString()));
         return l;
-    }
-
-    static class TypeDefMatcher implements Matcher<Named> {
-        Type container;
-        Name name;
-        List<Type> typeArgs;
-        List<Type> argTypes;
-        Context context;
-
-        public TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
-            this.container = container;
-            this.name = name;
-            this.typeArgs = typeArgs;
-            this.argTypes = argTypes;
-            this.context = context;
-        }
-
-        public Name name() {
-            return name;
-        }
-
-        public String argumentString() {
-            return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]")
-                    + (argTypes.isEmpty() ? "" : "(" + CollectionUtil.listToString(argTypes) + ")");
-        }
-
-        public String signature() {
-            return name + argumentString();
-        }
-
-        public String toString() {
-            return signature();
-        }
-
-        public MacroType instantiate(Named n) throws SemanticException {
-            if (n instanceof MacroType) {
-                MacroType mi = (MacroType) n;
-                if (!mi.name().equals(name))
-                    return null;
-                if (mi.formalTypes().size() != argTypes.size())
-                    return null;
-                if (mi instanceof MacroType) {
-                    MacroType xmi = (MacroType) mi;
-                    Type c = container != null ? container : xmi.container();
-                    if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size()) {
-                        // no implicit coercions!
-                        MacroType result = X10MethodInstance_c.inferAndCheckAndInstantiate((X10Context) context, xmi, c, typeArgs, argTypes);
-                        return result;
-                    }
-                }
-            }
-            return null;
-        }
-
-        public Object key() {
-            return null;
-        }
     }
 
     public List<MacroType> findAcceptableTypeDefs(Type container, TypeDefMatcher matcher, Context context) throws SemanticException {
@@ -631,46 +584,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         // }
 
         throw new NoClassException(name.toString(), container);
-    }
-
-    static class X10TypeMatcher extends TypeMatcher {
-        protected X10TypeMatcher(Name name) {
-            super(name);
-        }
-
-        @Override
-        public Named instantiate(Named t) throws SemanticException {
-            Named n = super.instantiate(t);
-            // Also check that the name is simple.
-            if (n instanceof MacroType) {
-                MacroType mt = (MacroType) n;
-                if (mt.formalTypes().size() != 0)
-                    return null;
-                if (mt.typeParameters().size() != 0)
-                    return null;
-            }
-            return n;
-        }
-    }
-
-    static class X10MemberTypeMatcher extends MemberTypeMatcher {
-        protected X10MemberTypeMatcher(Type container, Name name, Context context) {
-            super(container, name, context);
-        }
-
-        @Override
-        public Named instantiate(Named t) throws SemanticException {
-            Named n = super.instantiate(t);
-            // Also check that the name is simple.
-            if (n instanceof MacroType) {
-                MacroType mt = (MacroType) n;
-                if (mt.formalTypes().size() != 0)
-                    return null;
-                if (mt.typeParameters().size() != 0)
-                    return null;
-            }
-            return n;
-        }
     }
 
     @Override
@@ -1098,18 +1011,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     protected CodeDef asyncCodeInstance_;
 
     public CodeDef asyncCodeInstance(boolean isStatic) {
-        if (isStatic) {
-            if (asyncStaticCodeInstance_ == null)
-                asyncStaticCodeInstance_ = methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), Public().Static(), Types.ref(VOID_),
-                                                     Name.make("$dummyAsync$"), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
-            return asyncStaticCodeInstance_;
-        }
-        else {
-            if (asyncCodeInstance_ == null)
-                asyncCodeInstance_ = methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), Public(), Types.ref(VOID_),
-                                               Name.make("$dummyAsync$"), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
-            return asyncCodeInstance_;
-        }
+    	// Need to create a new one on each call. Portions of this methodDef, such as thisVar may be destructively modified later.
+                return methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), isStatic ? Public().Static() : Public(), Types.ref(VOID_),
+                                                     Name.make(DUMMY_ASYNC), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
     }
 
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
@@ -1558,10 +1462,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return isSubtype(t, UShort(), emptyContext());
     }
 
-    public boolean isNull(Type t) {
-        return t.isNull();
-    }
-  
     public boolean isUInt(Type t) {
         return isSubtype(t, UInt(), emptyContext());
     }
@@ -2257,85 +2157,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public X10FieldMatcher FieldMatcher(Type container, Name name, Context context) {
-    	container = X10TypeMixin.ensureSelfBound( container);
+    	//container = X10TypeMixin.ensureSelfBound( container);
         return new X10FieldMatcher(container, name, context);
-    }
-
-    public static class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
-        protected X10FieldMatcher(Type container, Name name, Context context) {
-            super(container, name, context);
-        }
-
-        @Override
-        public FieldInstance instantiate(FieldInstance mi) throws SemanticException {
-            X10FieldInstance fi = (X10FieldInstance) super.instantiate(mi);
-            if (fi == null)
-                return null;
-
-            Type c = container != null 
-            ? container 
-            		: fi.container();
-            XVar v = X10TypeMixin.selfVarBinding(c);
-            // ensureBound should have been called on container.
-         
-            X10TypeSystem ts = (X10TypeSystem) fi.typeSystem();
-            XRoot oldThis = fi.x10Def().thisVar();
-            if (oldThis != null && v == null)
-            	assert false;
-            // TODO: vj: 08/11/09 
-            // Shouldnt we be setting thisVar on the type?
-            Type t = fi.type();
-            Type rt = fi.rightType();
-            if (v != null && oldThis != null) {
-            	t = Subst.subst(t, (new XVar[] { v }), 
-            			(new XRoot[] { oldThis }), new Type[] {}, new ParameterType[] {});
-            	rt = Subst.subst(rt, (new XVar[] { v }), (new XRoot[] { oldThis }), 
-            			new Type[] {}, new ParameterType[] {});
-            	rt = X10TypeMixin.setThisVar(rt, v);
-            }
-            if (!ts.consistent(t, (X10Context) context) || !ts.consistent(rt, (X10Context) context)) {
-                throw new SemanticException("Type of field access is not consistent.");
-            }
-
-            return fi.type(t, rt);
-        }
-    }
-
-    public static class X10MethodMatcher extends TypeSystem_c.MethodMatcher {
-        protected List<Type> typeArgs;
-
-        protected X10MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
-            this(container, name, Collections.EMPTY_LIST, argTypes, context);
-        }
-
-        protected X10MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
-            super(container, name, argTypes, context);
-            this.typeArgs = typeArgs;
-        }
-
-        public List<Type> arguments() {
-            return argTypes;
-        }
-
-        @Override
-        public String argumentString() {
-            return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]") + "(" + CollectionUtil.listToString(argTypes) + ")";
-        }
-
-        @Override
-        public MethodInstance instantiate(MethodInstance mi) throws SemanticException {
-            if (!mi.name().equals(name))
-                return null;
-            if (mi.formalTypes().size() != argTypes.size())
-                return null;
-            if (mi instanceof X10MethodInstance) {
-                X10MethodInstance xmi = (X10MethodInstance) mi;
-                Type c = container != null ? container : xmi.container();
-                if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-                    return X10MethodInstance_c.inferAndCheckAndInstantiate((X10Context) context, xmi, c, typeArgs, argTypes);
-            }
-            return null;
-        }
     }
 
     public boolean hasMethodNamed(Type container, Name name) {
@@ -2363,137 +2186,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return super.hasMethodNamed(container, name);
     }
 
-    public static class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
-        protected List<Type> typeArgs;
-
-        protected List<Expr> args;
-        
-        protected X10ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
-            this(container, Collections.EMPTY_LIST, argTypes, context);
-        }
-
-        protected X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        	this(container, typeArgs, null, argTypes, context);
-        }
-        
-        protected X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Expr> args, 
-        		List<Type> argTypes, Context context) {
-            super(container, argTypes, context);
-            this.typeArgs = typeArgs;
-            this.args = args;
-        }
-       
-
-        public List<Type> arguments() {
-            return argTypes;
-        }
-
-        @Override
-        public String argumentString() {
-            return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]") + "(" + CollectionUtil.listToString(argTypes) + ")";
-        }
-
-        @Override
-        public ConstructorInstance instantiate(ConstructorInstance ci) throws SemanticException {
-            if (ci.formalTypes().size() != argTypes.size())
-                return null;
-            if (ci instanceof X10ConstructorInstance) {
-                X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
-                Type c = container != null ? container : xmi.container();
-                if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-                    return X10MethodInstance_c.inferAndCheckAndInstantiate((X10Context) c.typeSystem().emptyContext(), 
-                    		xmi, c, typeArgs, argTypes);
-            }
-            return null;
-        }
-    }
-
-    /** A constructor matcher that only checks name and arity. */
-    public static class DumbConstructorMatcher extends X10ConstructorMatcher {
-        public DumbConstructorMatcher(Type container, List<Type> argTypes, Context context) {
-            super(container, argTypes, context);
-        }
-
-        public DumbConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
-            super(container, typeArgs, argTypes, context);
-        }
-
-        @Override
-        public ConstructorInstance instantiate(ConstructorInstance mi) throws SemanticException {
-            if (mi instanceof X10ConstructorInstance) {
-                X10ConstructorInstance xmi = (X10ConstructorInstance) mi;
-
-                if (xmi.formalTypes().size() != argTypes.size())
-                    return null;
-
-                List<Type> typeArgs = this.typeArgs;
-                // don't infer type arguments when doing conversions
-                // if (typeArgs.size() != 0 && typeArgs.size() !=
-                // xmi.typeParameters().size())
-                // return null;
-                if (typeArgs.size() != xmi.typeParameters().size())
-                    return null;
-
-                Type c = container != null ? container : xmi.container();
-                // if (typeArgs.isEmpty() && ! xmi.typeParameters().isEmpty()) {
-                // Type[] Y = X10MethodInstance_c.inferTypeArguments(xmi, c,
-                // argTypes, xmi.formalTypes(), xmi.typeParameters(),
-                // (X10Context) context);
-                // typeArgs = Arrays.asList(Y);
-                // }
-                if (typeArgs.size() == xmi.typeParameters().size()) {
-                    X10ConstructorInstance newXmi = X10MethodInstance_c.instantiate((X10Context) context, xmi, c, typeArgs, argTypes);
-                    return newXmi;
-                }
-            }
-            return null;
-        }
-    }
-
-    /** A method matcher that only checks name and arity. */
-    public static class DumbMethodMatcher extends X10MethodMatcher {
-        public DumbMethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
-            super(container, name, argTypes, context);
-        }
-
-        public DumbMethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
-            super(container, name, typeArgs, argTypes, context);
-        }
-
-        @Override
-        public MethodInstance instantiate(MethodInstance mi) throws SemanticException {
-            if (mi instanceof X10MethodInstance) {
-                X10MethodInstance xmi = (X10MethodInstance) mi;
-
-                if (!xmi.name().equals(name))
-                    return null;
-                if (xmi.formalTypes().size() != argTypes.size())
-                    return null;
-
-                List<Type> typeArgs = this.typeArgs;
-                // don't infer type arguments when doing conversions
-                // if (typeArgs.size() != 0 && typeArgs.size() !=
-                // xmi.typeParameters().size())
-                // return null;
-                if (typeArgs.size() != xmi.typeParameters().size())
-                    return null;
-
-                Type c = container != null ? container : xmi.container();
-                // if (typeArgs.isEmpty() && ! xmi.typeParameters().isEmpty()) {
-                // Type[] Y = X10MethodInstance_c.inferTypeArguments(xmi, c,
-                // argTypes, xmi.formalTypes(), xmi.typeParameters(),
-                // (X10Context) context);
-                // typeArgs = Arrays.asList(Y);
-                // }
-                if (typeArgs.size() == xmi.typeParameters().size()) {
-                    X10MethodInstance newXmi = X10MethodInstance_c.instantiate((X10Context) context, xmi, c, typeArgs, argTypes);
-                    return newXmi;
-                }
-            }
-            return null;
-        }
-    }
-
     public boolean isSubtype(Type t1, Type t2, Context context) {
         return env(context).isSubtype(t1, t2);
     }
@@ -2501,11 +2193,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return isSubtype(t1, t2, emptyContext());
     }
 
- 
-    public boolean isSubtypeWithValueInterfaces(Type t1, Type t2, Context context) {
-        X10Context xc = (X10Context) context;
-        return env(context).isSubtypeWithValueInterfaces(t1, t2);
-    }
     
     // Returns the number of bytes required to represent the type, or null if unknown (e.g. involves an address somehow)
     // Note for rails and valrails this returns the size of 1 element, this will have to be scaled
@@ -2527,6 +2214,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
  
     public boolean isAtPlace(Receiver r, Expr place, X10Context xc) {
+    	assert place != null;
     	CConstraint_c c = new CConstraint_c();
     	XTerm placeTerm = xtypeTranslator().trans(c, place, xc);
     	if (placeTerm == null) 
@@ -2534,50 +2222,68 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     	return isAtPlace(r, placeTerm, xc);
     }
     
+    // placeTerm may be null. Nothing is known about the current place.
+    // In such a case check if r.home == here, otherwise check r.home==placeTerm
     public boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context xc) {
     	// If the code is executing in a global context then
     	// no receiver can be local.
- 	   if (placeTerm.equals(globalPlace()))
+ 	   if (placeTerm != null && placeTerm.equals(globalPlace()))
  		   return false;
  	   
- 	   try {
- 		   CConstraint pc = xc.currentPlaceTerm().xconstraint();
- 		   Type rType = r.type();
- 		   XTerm target = X10TypeMixin.selfVarBinding(rType); // 
- 		   if (target == null) {
- 			   target = xtypeTranslator().trans(pc, r, xc);
- 			   if (target == null)
- 			   // The receiver is not named. So make up a new name.
- 			   // The only thing we know about the name is that it is of rType,
- 			   target = XTerms.makeEQV();
- 		   } 
- 		  // rType = X10TypeMixin.setSelfVar(rType, (XVar) target);
- 		   rType = Subst.subst(rType, target, (XRoot) X10TypeMixin.selfVar(rType));
- 		   assert xc.currentPlaceTerm() != null;
- 		   assert homeVar(target, xc) != null;
- 		  pc.addBinding(homeVar(target,xc), placeTerm);
- 		   CConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
- 		   CConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
-
- 		   sigma.addBinding(XTerms.HERE, xc.currentPlaceTerm().term());
- 		   XRoot thisVar = xc.thisVar();
- 		   for (X10Context outer = (X10Context) xc.pop();
- 		        outer != null && thisVar == null;
- 		        outer = (X10Context) outer.pop())
- 		   {
- 		       thisVar = outer.thisVar();
+ 		   try {
+ 			   XConstrainedTerm h = xc.currentPlaceTerm();
+ 			   CConstraint pc = h == null ? new CConstraint_c() : xc.currentPlaceTerm().xconstraint().copy();
+ 			   
+ 			   Type rType = r.type();
+ 			   XTerm target = X10TypeMixin.selfVarBinding(rType); 
+ 			   if (target != null && target.toString().contains("$dummyAsync#this")) {
+ 				  XRoot thisVar = xc.thisVar();
+ 				  for (X10Context outer = (X10Context) xc.pop();
+				   outer != null && target != null && target.toString().contains("$dummyAsync#this");
+				   outer = (X10Context) outer.pop())
+				   {
+					   target = outer.thisVar();
+				   }
+ 			   }
+ 			   if (target == null) {
+ 				   target = xtypeTranslator().trans(pc, r, xc);
+ 				   if (target == null)
+ 					   // The receiver is not named. So make up a new name.
+ 					   // The only thing we know about the name is that it is of rType,
+ 					   target = XTerms.makeUQV();
+ 			   } 
+ 			   rType = X10TypeMixin.instantiateSelf(target, rType); 
+ 			  
+ 			   assert homeVar(target, xc) != null;
+ 			   
+ 			   pc.addBinding(homeVar(target,xc), placeTerm == null ? XTerms.HERE : placeTerm);
+ 			   
+ 			   CConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
+ 			   CConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
+ 			   if (h != null) {
+ 				   sigma.addBinding(XTerms.HERE, h.term());
+ 			   }
+ 			   // Add this.here = currentThisPlace.
+ 			   XConstrainedTerm th = xc.currentThisPlace();
+ 			   if (th != null) {
+ 				   XRoot thisVar = xc.thisVar();
+ 				   for (X10Context outer = (X10Context) xc.pop();
+ 				   outer != null && thisVar == null;
+ 				   outer = (X10Context) outer.pop())
+ 				   {
+ 					   thisVar = outer.thisVar();
+ 				   }
+ 				   sigma.addBinding(th, homeVar(thisVar,xc));
+ 			   }
+ 			   // Now check the constraint.
+ 			   if (targetConstraint.entails(pc,sigma)) {
+ 				   // Gamma|- here==r.home
+ 				   return true;
+ 			   }	   
+ 		   } catch (XFailure z) {
+ 			   // fall through
  		   }
- 		   sigma.addBinding(homeVar(thisVar,xc), xc.currentThisPlace().term());
- 		   if (targetConstraint.entails(pc,sigma)) {
- 			   // Gamma|- here==e.home
- 			   return true;
- 		   }
-
- 	   } catch (SemanticException z) {
- 		   // fall through
- 	   } catch (XFailure z) {
- 		   // fall through
- 	   }
+ 	   
  	   return false;
 
     }
@@ -2598,11 +2304,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   try {
 		   XTerm eloc = xtypeTranslator().trans(pc, target, 
 				   ((StructType) Object()).fieldNamed(homeName()));
-		   pc.addBinding(eloc, xc.currentPlaceTerm());
+		   // XConstrainedTerm h = xc.currentPlaceTerm();
+		   // pc.addBinding(eloc, h==null ? h.term(): XTerms.HERE);
+		   pc.addBinding(eloc, XTerms.HERE);
 	   } catch (XFailure z) {
 		   pc.setInconsistent();
 	   } 
 	   return pc;
+   }
+   public XTerm homeVar(XTerm target) {
+	   return homeVar(target, null);
    }
    public XTerm homeVar(XTerm target, X10Context xc)  {
 	   CConstraint pc = new CConstraint_c();
@@ -2620,13 +2331,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   return xtypeTranslator().globalPlace();
    }
    public boolean isHere(Receiver r, X10Context xc) {
-	   return isAtPlace(r, xc.currentPlaceTerm().term(), xc);
+	   XConstrainedTerm h = xc.currentPlaceTerm();
+	   return isAtPlace(r, h==null? null : h.term(), xc);
    }
 	
    
    public FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
 	throws SemanticException {
-	   container = X10TypeMixin.ensureSelfBound( container);
+	   //container = X10TypeMixin.ensureSelfBound( container);
 	   return super.findField(container, matcher);
    }
    public void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException {
