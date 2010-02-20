@@ -45,6 +45,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.types.matcher.Subst;
 
 /** 08/11/09 
  * 
@@ -360,22 +361,16 @@ implements X10ParsedClassType
 		StringBuffer sb = new StringBuffer();
 		if (flags() != null) {
 			X10Flags f = X10Flags.toX10Flags(flags());
-			/*if (f.isStruct()) {
-				sb.append("struct ");
-			}
-			if (f.isRooted()) {
-				sb.append("rooted ");
-			}*/
 			if (f.isProto()) {
 				sb.append("proto ");
 			}
-			
+
 		}
 		//	sb.append(flags().toString()).append(" ");
 
-			String sup = super.toString();
+		String sup = super.toString();
 		sb.append(sup);
-	
+
 		if (propertyInitializers != null) {
 			String s = propertyInitializers.toString();
 			sb.append("(").append(s.substring(1, s.length()-1)).append(")");
@@ -383,7 +378,7 @@ implements X10ParsedClassType
 		}
 		if (typeArguments != null && ! typeArguments.isEmpty()) {
 			sb.append(typeArguments.toString());
-			
+
 		}
 		return sb.toString();
 	}

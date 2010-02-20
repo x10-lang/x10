@@ -78,14 +78,18 @@ public class Here_c extends Expr_c
 		X10Context xc = (X10Context) tc.context();
 
 		Type tt = ts.Place();
-		CConstraint cc = new CConstraint_c();
-		try {
-			cc.addSelfBinding(xc.currentPlaceTerm());
+		XConstrainedTerm h = xc.currentPlaceTerm();
+		if (h != null) {
+			CConstraint cc = new CConstraint_c();
+			try {
+				cc.addSelfBinding(xc.currentPlaceTerm());
+			}
+			catch (XFailure e) {
+				throw new SemanticException("Constraint on here is inconsistent; " + e.getMessage(), position());
+			}
+			tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
 		}
-		catch (XFailure e) {
-			throw new SemanticException("Constraint on here is inconsistent; " + e.getMessage(), position());
-		}
-		tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
+		
 		return type(tt);
 	}
     public String translate(Resolver c) {

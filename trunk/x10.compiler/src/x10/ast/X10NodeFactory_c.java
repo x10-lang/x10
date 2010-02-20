@@ -8,7 +8,6 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-
 package x10.ast;
 
 import java.util.ArrayList;
@@ -87,10 +86,11 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.ExtensionInfo;
-import x10.ast.X10Cast.ConversionType;
 import x10.types.ParameterType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Flags;
+import x10.types.checker.Converter;
+import x10.types.checker.Converter.ConversionType;
 
 /**
  * NodeFactory for X10 extension.
@@ -552,19 +552,23 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type, DepParameterExpr e) {
 	    X10CanonicalTypeNode tn = (X10CanonicalTypeNode) CanonicalTypeNode(pos, type);
-	    return tn.constraintExpr(e);
+	    return tn;
 	}
 
-	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> type, DepParameterExpr e) {
-	    X10CanonicalTypeNode tn = (X10CanonicalTypeNode) CanonicalTypeNode(pos, type);
-	    return tn.constraintExpr(e);
-	}
+	
 
 	@Override
 	public CanonicalTypeNode CanonicalTypeNode(Position pos, Ref<? extends Type> type) {
 	    CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type);
 	    n = (CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
 	    n = (CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
+	    return n;
+	}
+	
+	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> type, DepParameterExpr e) {
+	    X10CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type, e);
+	    n = (X10CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
+	    n = (X10CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
 	    return n;
 	}
 
@@ -612,9 +616,9 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	
 	public X10Cast X10Cast(Position pos, TypeNode castType, Expr expr) {
-	    return X10Cast(pos, castType, expr, X10Cast.ConversionType.UNKNOWN_CONVERSION);
+	    return X10Cast(pos, castType, expr, Converter.ConversionType.UNKNOWN_CONVERSION);
 	}
-	public X10Cast X10Cast(Position pos, TypeNode castType, Expr expr, ConversionType conversionType) {
+	public X10Cast X10Cast(Position pos, TypeNode castType, Expr expr, Converter.ConversionType conversionType) {
 	    X10Cast n = new X10Cast_c(pos, castType, expr, conversionType);
 	    n = (X10Cast)n.ext(extFactory().extCast());
 	    n = (X10Cast)n.del(delFactory().delCast());
@@ -623,7 +627,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	@Override
 	public Cast Cast(Position pos, TypeNode castType, Expr expr) {
-	    return X10Cast(pos, castType, expr, X10Cast.ConversionType.UNKNOWN_CONVERSION);
+	    return X10Cast(pos, castType, expr, Converter.ConversionType.UNKNOWN_CONVERSION);
 	}
 
 	@Override

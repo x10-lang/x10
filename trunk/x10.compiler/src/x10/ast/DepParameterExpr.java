@@ -18,8 +18,8 @@ import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.TypeNode;
 import polyglot.types.Ref;
-import x10.types.TypeConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 /**
  * @author vj Jan 9, 2005

@@ -37,6 +37,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
@@ -71,6 +72,7 @@ import x10.ast.Clocked;
 import x10.ast.ClosureCall;
 import x10.ast.ParExpr_c;
 import x10.ast.TypeParamNode;
+import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10ClockedLoop;
 import x10.ast.X10MethodDecl_c;
@@ -101,6 +103,7 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator.XTypeLit_c;
+import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
@@ -148,8 +151,8 @@ public class Emitter {
 
 	public static Name mangleIdentifier(Name n) {
 		Map<Name,Name> map = new HashMap<Name,Name>();
-		map.put(X10Cast_c.operator_as, Name.make("$convert"));
-		map.put(X10Cast_c.implicit_operator_as, Name.make("$implicit_convert"));
+		map.put(Converter.operator_as, Name.make("$convert"));
+		map.put(Converter.implicit_operator_as, Name.make("$implicit_convert"));
 		map.put(Name.make("set"), Name.make("set"));
 		map.put(Name.make("apply"), Name.make("apply"));
 		map.put(Name.make("operator+"), Name.make("$plus"));

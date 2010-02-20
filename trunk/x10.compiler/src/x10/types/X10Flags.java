@@ -349,7 +349,7 @@ public class X10Flags extends Flags {
      * Return true if <code>this</code> has the <code>global</code> flag set.
      */
     public boolean isGlobal() {
-        return contains(GLOBAL) || contains(PROPERTY);
+        return contains(GLOBAL) || contains(PROPERTY) || contains(STATIC);
     }
     
     /**

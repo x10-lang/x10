@@ -91,7 +91,6 @@ import x10.extension.X10Del_c;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
-import x10.types.TypeConstraint;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -105,7 +104,10 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.checker.Checker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 /** A representation of a method declaration.
  * Includes an extra field to represent the guard
@@ -127,6 +129,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
     }
 
+  
+    
     protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
         X10MethodDef mi = (X10MethodDef) super.createMethodDef(ts, ct, flags);
         mi.setThisVar(((X10ClassDef) ct).thisVar());
@@ -150,8 +154,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             mi.setDefAnnotations(ats);
         }
 
-        // Type of formal x contains {self==x}, we need to remove that constraint.
-
+        // Enable return type inference for this method declaration.
         if (n.returnType() instanceof UnknownTypeNode) {
             mi.inferReturnType(true);
         }
@@ -198,6 +201,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         return n;
     }
 
+    @Override
+	public void addDecls(Context c) {
+		
+
+	}
     public void setResolver(Node parent, final TypeCheckPreparer v) {
         X10MethodDef mi = (X10MethodDef) this.mi;
         if (mi.body() instanceof LazyRef) {
@@ -238,6 +246,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         return n;
     }
 
+    
     @Override
     public Context enterChildScope(Node child, Context c) {
         // We should have entered the method scope already.
@@ -254,15 +263,24 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             }
         }
     	
-        // Ensure that if this method is global then its body is type-checked
-        // in a global context.
+        // Ensure that the place constraint is set appropriately when
+        // entering the body of the method, the return type and the throw type.
        
-    	if (X10Flags.toX10Flags(methodDef().flags()).isGlobal() && 
-    			child == body) {
+        X10Context xc = (X10Context) c;
+        if (child == body || child == returnType || child == throwTypes) {
+        	X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
+        	X10Flags flags = X10Flags.toX10Flags(methodDef().flags());
+        	boolean isGlobal = flags.isGlobal() || X10Flags.toX10Flags(xc.currentClass().flags()).isStruct();
+        	if (! isGlobal) {
+        		if ( ! X10TypeMixin.isX10Struct(c.currentClassDef().asType())) {
+        			XTerm h =  xts.homeVar(xc.thisVar(),xc);
+        			if (h != null)  // null for structs.
+        				c = ((X10Context) c).pushPlace(XConstrainedTerm.make(h)); 	
+        		}
+        	}
+        }
+    	
     		
-    		c = ((X10Context) c).pushPlace(((X10TypeSystem) c.typeSystem()).globalPlace());
-    		
-    	}
     
         // Add the method guard into the environment.
         if (guard != null) {
@@ -274,6 +292,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                 try {
                 	if (vc.known())
                 		c= ((X10Context) c).pushAdditionalConstraint(vc.get());
+                	// TODO: Add type constraint.
+                	
                 } catch (SemanticException z) {
                 	throw 
                 	new InternalCompilerError("Unexpected inconsistent guard" + z);
@@ -511,7 +531,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
         checkVisibility(tc.typeSystem(), tc.context(), this);
 
-        return super.conformanceCheck(tc);
+        // Need to ensure that method overriding is checked in a context in which here=this.home
+        // has been asserted.
+        Context childtc = enterChildScope(returnType(), tc.context());
+        ContextVisitor childVisitor = tc.context(childtc);
+        return super.conformanceCheck(childVisitor);
     }
 
     final static boolean CHECK_VISIBILITY = false;
@@ -705,83 +729,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             throw ex[0];
     }
 
-    protected static void checkVariancesOfType(Position pos, Type t, ParameterType.Variance requiredVariance, String desc, Map<Name,ParameterType.Variance> vars, ContextVisitor tc) throws SemanticException {
-        if (t instanceof ParameterType) {
-            ParameterType pt = (ParameterType) t;
-            X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
-            if (pt.def() != cd)
-                return;
-            ParameterType.Variance actualVariance = vars.get(pt.name());
-            if (actualVariance == null)
-                return;
-            switch (actualVariance) {
-            case INVARIANT:
-                break;
-            case COVARIANT:
-                switch (requiredVariance) {
-                case INVARIANT:
-                    throw new SemanticException("Cannot use covariant parameter " + pt + " " + desc + "; must be invariant.", pos);
-                case COVARIANT:
-                    break;
-                case CONTRAVARIANT:
-                    throw new SemanticException("Cannot use covariant parameter " + pt + " " + desc + "; must be contravariant or invariant.", pos);
-                }
-                break;
-            case CONTRAVARIANT:
-                switch (requiredVariance) {
-                case INVARIANT:
-                    throw new SemanticException("Cannot use contravariant parameter " + pt + " " + desc + "; must be invariant.", pos);
-                case COVARIANT:
-                    throw new SemanticException("Cannot use contravariant parameter " + pt + " " + desc + "; must be covariant or invariant.", pos);
-                case CONTRAVARIANT:
-                    break;
-                }
-                break;
-            }
-        }
-        if (t instanceof MacroType) {
-            MacroType mt = (MacroType) t;
-            checkVariancesOfType(pos, mt.definedType(), requiredVariance, desc, vars, tc);
-        }
-        if (t instanceof X10ClassType) {
-            X10ClassType ct = (X10ClassType) t;
-            X10ClassDef def = ct.x10Def();
-            for (int i = 0; i < ct.typeArguments().size(); i++) {
-                Type at = ct.typeArguments().get(i);
-                ParameterType pt = def.typeParameters().get(i);
-                ParameterType.Variance v = def.variances().get(i);
-                ParameterType.Variance newVariance;
-
-                switch (v) {
-                case INVARIANT:
-                    checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
-                    break;
-                case COVARIANT:
-                    checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
-                    break;
-                case CONTRAVARIANT:
-                    switch (requiredVariance) {
-                    case INVARIANT:
-                        checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
-                        break;
-                    case COVARIANT:
-                        checkVariancesOfType(pos, at, ParameterType.Variance.CONTRAVARIANT, desc, vars, tc);
-                        break;
-                    case CONTRAVARIANT:
-                        checkVariancesOfType(pos, at, ParameterType.Variance.COVARIANT, desc, vars, tc);
-                        break;
-                    }
-                    break;
-                }
-            }
-        }
-        if (t instanceof ConstrainedType) {
-            ConstrainedType ct = (ConstrainedType) t;
-            Type at = Types.get(ct.baseType());
-            checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
-        }
-    }
-
+  
     protected void checkVariance(ContextVisitor tc) throws SemanticException {
         if (methodDef().flags().isStatic())
             return;
@@ -794,9 +742,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             vars.put(pt.name(), v);
         }
 
-        checkVariancesOfType(returnType.position(), returnType.type(), ParameterType.Variance.COVARIANT, "as a method return type", vars, tc);
+        Checker.checkVariancesOfType(returnType.position(), returnType.type(), ParameterType.Variance.COVARIANT, "as a method return type", vars, tc);
         for (Formal f : formals) {
-            checkVariancesOfType(f.type().position(), f.declType(), ParameterType.Variance.CONTRAVARIANT, "as a method parameter type", vars, tc);
+        	Checker.checkVariancesOfType(f.type().position(), f.declType(), ParameterType.Variance.CONTRAVARIANT, "as a method parameter type", vars, tc);
         }
     }
 

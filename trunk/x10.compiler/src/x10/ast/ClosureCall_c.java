@@ -57,8 +57,8 @@ import x10.types.FunctionType;
 import x10.types.X10MethodInstance;
 import x10.types.X10MethodInstance_c;
 import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
-import x10.types.X10TypeSystem_c.DumbMethodMatcher;
+import x10.types.checker.Converter;
+import x10.types.matcher.DumbMethodMatcher;
 
 public class ClosureCall_c extends Expr_c implements ClosureCall {
     protected Expr target;
@@ -234,9 +234,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
         final Context context = tc.context();
         ClassDef currentClassDef = context.currentClassDef();
 
-        List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new X10TypeSystem_c.DumbMethodMatcher(targetType, Name.make("apply"), typeArgs, argTypes, context));
+        List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new DumbMethodMatcher(targetType, Name.make("apply"), typeArgs, argTypes, context));
 
-        Pair<MethodInstance,List<Expr>> p = X10New_c.<MethodDef,MethodInstance>tryImplicitConversions(n, tc, targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
+        Pair<MethodInstance,List<Expr>> p = Converter.<MethodDef,MethodInstance>tryImplicitConversions(n, tc, targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
             public Matcher<MethodInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
                 return ts.MethodMatcher(ct, Name.make("apply"), typeArgs, argTypes, context);
             }

@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -37,6 +40,7 @@ import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 
 /**
@@ -66,7 +70,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
     @Override
     public boolean moreSpecific(ProcedureInstance<ConstructorDef> p, Context context) {
-        return X10MethodInstance_c.moreSpecificImpl(this, p, context);
+        return X10TypeMixin.moreSpecificImpl(this, p, context);
     }
 
     public X10ConstructorDef x10Def() {
@@ -143,7 +147,8 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     
     @Override
     public boolean callValid(Type thisType, List<Type> argTypes, Context context) {
-        return X10MethodInstance_c.callValidImpl(this, thisType, argTypes, context);
+    	// this should have been instantiated correctly; if so, the call is valid
+    	return true;
     }
     
     public List<Type> typeParameters;

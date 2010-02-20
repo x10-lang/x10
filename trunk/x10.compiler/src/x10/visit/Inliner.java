@@ -78,7 +78,6 @@ import x10.ast.SettableAssign_c;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
-import x10.ast.X10Cast_c;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
 import x10.types.X10ClassDef;
@@ -87,6 +86,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.Converter;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -982,16 +982,16 @@ public class Inliner extends ContextVisitor {
                             List<Expr> args = new ArrayList<Expr>(n);
 
                             for (int i = 0; i < n; i++) {
-                                Expr ni = X10Cast_c.check(nf.IntLit(c.position(), IntLit.INT, i), this);
-                                Expr ai = X10Cast_c.check(nf.ClosureCall(c.position(), init, Collections.singletonList(ni)), this);
+                                Expr ni = Converter.check(nf.IntLit(c.position(), IntLit.INT, i), this);
+                                Expr ai = Converter.check(nf.ClosureCall(c.position(), init, Collections.singletonList(ni)), this);
                                 args.add(ai);
                             }
 
-                            Expr e = X10Cast_c.check(nf.Tuple(c.position(), args), this);
+                            Expr e = Converter.check(nf.Tuple(c.position(), args), this);
 
                             if (! ts.typeEquals(e.type(), c.type(), context)) {
-                                e = nf.X10Cast(c.position(), nf.CanonicalTypeNode(c.position(), c.type()), e, X10Cast.ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
-                                e = X10Cast_c.check(e, this);
+                                e = nf.X10Cast(c.position(), nf.CanonicalTypeNode(c.position(), c.type()), e, Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
+                                e = Converter.check(e, this);
                             }
 
                             if (result == null) {

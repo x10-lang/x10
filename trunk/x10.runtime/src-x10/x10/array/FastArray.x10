@@ -174,7 +174,7 @@ public final class FastArray[T] extends BaseArray[T] {
             for (p:Point in region)
                 r(layout.offset(p)) = f(p);
         
-        raw = r;
+        raw = r as Rail[T]{self.home== this.dist.onePlace};
 
         delta0 = layout.delta0;
         delta1 = layout.delta1;
@@ -195,7 +195,7 @@ public final class FastArray[T] extends BaseArray[T] {
         val n = layout.size();
         val r = Rail.make[T](n);
        
-        raw = r;
+        raw = r as Rail[T]{self.home== this.dist.onePlace};
 
         delta0 = layout.delta0;
         delta1 = layout.delta1;
@@ -212,30 +212,31 @@ public final class FastArray[T] extends BaseArray[T] {
      * restriction view
      */
 
-    public safe global def restriction(d: Dist): Array[T] {
-        return new FastArray[T](this, d as Dist{constant});
+    public safe global def restriction(d: Dist(rank)): Array[T](rank) {
+        return new FastArray[T](this, d as Dist(rank){constant});
+    	
     }
 
-    def this(a: BaseArray[T], d: Dist{constant}) {
+ //   def this(a: BaseArray[T], d: Dist{constant,a.dist.onePlace==d.onePlace}):FastArray[T]{self.rank==d.rank} {
+    def this(a: BaseArray[T], d: Dist{constant}):FastArray[T]{self.rank==d.rank} {
+    	super(d);
+    	val l =   a.layout();
+    	this.layout = l;
+    	this.raw =  a.raw() as Rail[T]{self.home==this.dist.onePlace};;
 
-        super(d);
-        val l = at (d.onePlace) a.layout();
-        this.layout = l;
-        this.raw = at (d.onePlace) a.raw();
+    	delta0 = l.delta0;
+    	delta1 = l.delta1;
+    	delta2 = l.delta2;
+    	delta3 = l.delta3;
 
-        delta0 = l.delta0;
-        delta1 = l.delta1;
-        delta2 = l.delta2;
-        delta3 = l.delta3;
+    	val o0 = (l.min0);
+    	offset0 = o0;
+    	val o1 = (o0)*l.delta1 + l.min1;
+    	offset1 = o1;
+    	val o2 = o1*l.delta2 + l.min2;
+    	offset2 = o2;
+    	offset3 = o2*l.delta3 + l.min3;
 
-	val o0 = (l.min0);
-        offset0 = o0;
-        val o1 = (o0)*l.delta1 + l.min1;
-        offset1 = o1;
-        val o2 = o1*l.delta2 + l.min2;
-        offset2 = o2;
-        offset3 = o2*l.delta3 + l.min3;
-      
     }
 
 }

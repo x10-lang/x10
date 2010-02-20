@@ -8,23 +8,15 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-
 package x10.ast;
 
 import polyglot.ast.Cast;
+import polyglot.ast.Expr;
+import polyglot.visit.ContextVisitor;
+import x10.types.checker.Converter;
 
 public interface X10Cast extends Cast {
-    public static enum ConversionType {
-        UNKNOWN_CONVERSION,
-        UNKNOWN_IMPLICIT_CONVERSION,
-        PRIMITIVE,
-        CHECKED,
-        SUBTYPE,
-        UNBOXING,
-        BOXING,
-        UNCHECKED
-    }
-    
-    public ConversionType conversionType();
-    public X10Cast conversionType(ConversionType convert);
+    public Converter.ConversionType conversionType();
+    public X10Cast conversionType(Converter.ConversionType convert);
+
 }

@@ -339,7 +339,7 @@ public final class Runtime {
         private val map = new HashMap[RootFinish, RemoteFinish!]();
         private val lock = new Lock();
 
-        public def apply(rootFinish:RootFinish):RemoteFinish {
+        public def apply(rootFinish:RootFinish):RemoteFinish! {
             lock.lock();
             val finishState = map.getOrElse(rootFinish, null);
             if (null != finishState) {
@@ -407,7 +407,7 @@ public final class Runtime {
             }
         }
 
-       def notify(rail:ValRail[Int]!):Void {
+       def notify(rail:ValRail[Int]):Void {
             var b:Boolean = true;
             lock();
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
@@ -418,7 +418,7 @@ public final class Runtime {
             unlock();
         }
 
-        def notify2(rail:ValRail[Pair[Int,Int]]!):Void {
+        def notify2(rail:ValRail[Pair[Int,Int]]):Void {
             lock();
             for(var i:Int=0; i<rail.length; i++) {
                 counts(rail(i).first) += rail(i).second;
@@ -433,12 +433,12 @@ public final class Runtime {
             unlock();
         }
 
-        def notify(rail:ValRail[Int]!, t:Throwable):Void {
+        def notify(rail:ValRail[Int], t:Throwable):Void {
             pushExceptionLocal(t);
             notify(rail);
         }
 
-        def notify2(rail:ValRail[Pair[Int,Int]]!, t:Throwable):Void {
+        def notify2(rail:ValRail[Pair[Int,Int]], t:Throwable):Void {
             pushExceptionLocal(t);
             notify2(rail);
         }
@@ -493,7 +493,7 @@ public final class Runtime {
         private val message = Rail.make[Int](Place.MAX_PLACES, (Int)=>here.id) as Rail[Int]!;
         private var length:Int = 1;
 
-        private var count:AtomicInteger = new AtomicInteger(0);
+        private var count:AtomicInteger! = new AtomicInteger(0);
 
         public def notifyActivityCreation():Void {
             count.getAndIncrement();
@@ -625,7 +625,7 @@ public final class Runtime {
         const BOUND = 100;
 
         // activity (about to be) executed by this worker
-        private var activity:Activity = null;
+        private var activity:Activity! = null;
 
         // pending activities
         private val queue = new Deque();
@@ -634,7 +634,7 @@ public final class Runtime {
         private val random:Random!;
 
         // blocked activities (debugging info)
-        private val debug = new GrowableRail[Activity]();
+        private val debug = new GrowableRail[Activity!]();
 
         private var tid:Long;
 
@@ -652,10 +652,10 @@ public final class Runtime {
         def activity()  = activity;
 
         // poll activity from the bottom of the deque
-        private def poll() = queue.poll() as Activity;
+        private def poll() = queue.poll() as Activity!;
 
         // steal activity from the top of the deque
-        def steal() = queue.steal() as Activity;
+        def steal() = queue.steal() as Activity!;
 
         // push activity at the bottom of the deque
         def push(activity:Activity!):Void = queue.push(activity);
@@ -805,8 +805,8 @@ public final class Runtime {
         }
 
         // scan workers for activity to steal
-        def scan(random:Random!, latch:Latch!, block:Boolean):Activity {
-            var activity:Activity = null;
+        def scan(random:Random!, latch:Latch!, block:Boolean):Activity! {
+            var activity:Activity! = null;
             var next:Int = random.nextInt(size);
             for (;;) {
                 event_probe();
@@ -1150,7 +1150,7 @@ public final class Runtime {
     }
 
 
-    static def scan(random:Random!, latch:Latch!, block:Boolean):Activity {
+    static def scan(random:Random!, latch:Latch!, block:Boolean):Activity! {
         return runtime().pool.scan(random, latch, block);
     }
 

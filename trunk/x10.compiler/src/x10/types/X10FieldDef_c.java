@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -25,6 +28,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XRoot;
+import x10.types.constraints.TypeConstraint;
 
 /**
  * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it

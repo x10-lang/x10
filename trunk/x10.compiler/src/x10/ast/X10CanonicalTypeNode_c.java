@@ -54,6 +54,10 @@ AddFlags {
     public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type) {
 	super(pos, type);
     }
+    public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type, DepParameterExpr d) {
+    	super(pos, type);
+    	this.expr = d;
+        }
     
     DepParameterExpr expr;
     

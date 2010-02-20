@@ -38,12 +38,12 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
-import x10.types.TypeConstraint;
-import x10.types.TypeConstraint_c;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.TypeConstraint_c;
 
 /** An immutable representation of a dependent type constraint.
  * The corresponding syntax is [T](e){x: T; c}

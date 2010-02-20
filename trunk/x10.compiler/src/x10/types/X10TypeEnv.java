@@ -44,9 +44,7 @@ public interface X10TypeEnv extends TypeEnv {
 
     List<Type> equalBounds(Type t);
 
-    List<MacroType> findAcceptableTypeDefs(Type container, X10TypeSystem_c.TypeDefMatcher matcher) throws SemanticException;
-
-    boolean isSubtypeWithValueInterfaces(Type t1, Type t2);
+    List<MacroType> findAcceptableTypeDefs(Type container, TypeDefMatcher matcher) throws SemanticException;
 
     boolean isSubtype(Type t1, Type t2);
    

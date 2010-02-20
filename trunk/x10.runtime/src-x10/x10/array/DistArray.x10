@@ -18,7 +18,7 @@ package x10.array;
  * @author bdlucas
  */
 
-final class DistArray[T] extends BaseArray[T] {
+ final class DistArray[T] extends BaseArray[T] {
 
     private static class LocalState[T] {
         val layout:RectLayout;
@@ -105,11 +105,11 @@ final class DistArray[T] extends BaseArray[T] {
             val localLayout = layout(region);
             val localRaw = Rail.make[T](localLayout.size());
 
-                for (pt  in region) {
-                    localRaw(localLayout.offset(pt)) = init(pt);
-                }
+            for (pt  in region) {
+               localRaw(localLayout.offset(pt)) = init(pt as Point(dist.rank));
+            }
 
-	    return new LocalState[T](localLayout, localRaw);
+	        return new LocalState[T](localLayout, localRaw);
         };
 
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
@@ -133,17 +133,17 @@ final class DistArray[T] extends BaseArray[T] {
      * restriction view
      */
 
-    public safe global def restriction(d: Dist) {
+    public safe global def restriction(d: Dist(rank)) {
         if (d.constant)
-            return new LocalArray[T](this, d as Dist{constant, here==self.onePlace});
+            return new LocalArray[T](this, d as Dist{constant, here==self.onePlace}) as Array[T](rank);
         else
-            return new DistArray[T](this, d);
+            return new DistArray[T](this, d) as Array[T](rank);
     }
 
-    def this(a: DistArray[T], d: Dist) {
-        super(d);
-	localHandle = PlaceLocalHandle.make[LocalState[T]](d,
-		    () => a.localHandle());
+    def this(a: DistArray[T], d: Dist):DistArray{self.dist==d} {
+    	super(d);
+    	localHandle = PlaceLocalHandle.make[LocalState[T]](d,
+    			() => a.localHandle());
     }
 
 }

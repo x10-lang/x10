@@ -24,6 +24,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XRoot;
+import x10.types.constraints.TypeConstraint;
 
 public class X10InitializerDef_c extends InitializerDef_c implements X10InitializerDef {
     XRoot thisVar;

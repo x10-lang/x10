@@ -35,7 +35,11 @@ public class X10AmbAssign_c extends AmbAssign_c {
 
     	if (v instanceof ContextVisitor) {
     		ContextVisitor cv = (ContextVisitor) v;
-    		v = cv.context(((X10Context) cv.context()).pushAssignment());
+    		// Do not update context if within a deptype. 
+    		// This is an illegal user program -- assignments are not allowed in dep types --
+    		// and the error will be reported separately to the user.
+    		if (! ((X10Context) cv.context()).inDepType())
+    			v = cv.context(((X10Context) cv.context()).pushAssignment());
     	}
     	return super.visitLeft(v);
     }

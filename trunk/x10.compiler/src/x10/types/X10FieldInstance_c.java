@@ -133,6 +133,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                         // ### pass in the type rather than letting XField call fi.type();
                         // otherwise, we'll get called recursively.
                         XTerm self = xts.xtypeTranslator().trans(c, receiver, this, t);
+                        // Add {self = receiver.field} clause.
                         c.addSelfBinding(self);
                         if (receiver instanceof XRoot) {
                         	// this is the case if we are not in static context.

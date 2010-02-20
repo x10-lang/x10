@@ -35,7 +35,6 @@ import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.X10Cast_c;
 import x10.ast.X10NodeFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
@@ -44,6 +43,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.types.X10TypeMixin;
+import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.Constraints;
 
@@ -214,28 +214,28 @@ public class ConstantPropagator extends ContextVisitor {
         X10NodeFactory nf = (X10NodeFactory) this.nf;
         
         if (o == null) {
-            return X10Cast_c.check(nf.NullLit(pos), this);
+            return Converter.check(nf.NullLit(pos), this);
         }
         if (o instanceof Integer) {
-            return X10Cast_c.check(nf.IntLit(pos, IntLit.INT, (long) (int) (Integer) o), this);
+            return Converter.check(nf.IntLit(pos, IntLit.INT, (long) (int) (Integer) o), this);
         }
         if (o instanceof Long) {
-            return X10Cast_c.check(nf.IntLit(pos, IntLit.LONG, (long) (Long) o), this);
+            return Converter.check(nf.IntLit(pos, IntLit.LONG, (long) (Long) o), this);
         }
         if (o instanceof Float) {
-            return X10Cast_c.check(nf.FloatLit(pos, FloatLit.FLOAT, (double) (float) (Float) o), this);
+            return Converter.check(nf.FloatLit(pos, FloatLit.FLOAT, (double) (float) (Float) o), this);
         }
         if (o instanceof Double) {
-            return X10Cast_c.check(nf.FloatLit(pos, FloatLit.DOUBLE, (double) (Double) o), this);
+            return Converter.check(nf.FloatLit(pos, FloatLit.DOUBLE, (double) (Double) o), this);
         }
         if (o instanceof Character) {
-            return X10Cast_c.check(nf.CharLit(pos, (char) (Character) o), this);
+            return Converter.check(nf.CharLit(pos, (char) (Character) o), this);
         }
         if (o instanceof Boolean) {
-            return X10Cast_c.check(nf.BooleanLit(pos, (boolean) (Boolean) o), this);
+            return Converter.check(nf.BooleanLit(pos, (boolean) (Boolean) o), this);
         }
         if (o instanceof String) {
-            return X10Cast_c.check(nf.StringLit(pos, (String) o), this);
+            return Converter.check(nf.StringLit(pos, (String) o), this);
         }
         if (o instanceof Object[]) {
             Object[] a = (Object[]) o;
@@ -246,7 +246,7 @@ public class ConstantPropagator extends ContextVisitor {
                     return null;
                 args.add(ei);
             }
-            return X10Cast_c.check(nf.Tuple(pos, args), this);
+            return Converter.check(nf.Tuple(pos, args), this);
         }
         return null;
     }

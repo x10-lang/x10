@@ -212,6 +212,8 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.checker.Converter;
+
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10DelegatingVisitor;
 import x10.util.ClassifiedStream;
@@ -2780,7 +2782,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!xts.typeDeepBaseEquals(fType, a.type(), context)) {
 			Position pos = a.position();
 			a = nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
-			               X10Cast.ConversionType.UNCHECKED).type(fType);
+			               Converter.ConversionType.UNCHECKED).type(fType);
         }
 		return a;
 	}
@@ -3425,7 +3427,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
                 if (xts.typeEquals(f_, t_, context)) {
                     c.printSubExpr(c.expr(), true, sw, tr);
-                } else if (c.conversionType()==X10Cast_c.ConversionType.SUBTYPE && xts.isSubtype(f_, t_, context)) {
+                } else if (c.conversionType()==Converter.ConversionType.SUBTYPE && xts.isSubtype(f_, t_, context)) {
                     // Need to check for case where a struct is being upcast to an interface that it implements.
                     // When that happens, we need to put in a class_cast_unchecked to cause boxing to happen.
                     // TODO: clean this up
@@ -3443,7 +3445,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         sw.write(")");
                     }
                 } else {
-				    if (c.conversionType()==X10Cast_c.ConversionType.UNCHECKED) {
+				    if (c.conversionType()==Converter.ConversionType.UNCHECKED) {
 				        sw.write("x10aux::class_cast_unchecked");
 				    } else {
 				        sw.write("x10aux::class_cast");

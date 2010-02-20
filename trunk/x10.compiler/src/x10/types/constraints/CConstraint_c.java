@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.Field;
+import polyglot.types.SemanticException;
 
 
 import x10.constraint.XConstraint;
@@ -30,6 +31,8 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.X10Context;
+import x10.types.X10TypeSystem;
 
 /**
  * The compiler's notion of a constraint keeps track of this and self variables.
@@ -47,13 +50,16 @@ public class CConstraint_c extends XConstraint_c implements CConstraint {
 	 * 
 	 */
 	public CConstraint_c() {
-		 self = XTerms.makeEQV(CConstraint.SELF_VAR_PREFIX);
+		 self = XTerms.makeUQV(CConstraint.SELF_VAR_PREFIX);
 	}
 	
 	 public XRoot self() {
 	        return self;
 	    }
 
+	 public XVar selfVarBinding() {
+		 return  bindingForVar(self());
+	 }
 	    public XVar thisVar() {
 	    	return thisVar;
 	    }
@@ -302,5 +308,43 @@ public class CConstraint_c extends XConstraint_c implements CConstraint {
            c = c.substitute(y, x);            
        }
        return c;
+   }
+
+   public void checkQuery(CConstraint query, XVar ythis, XRoot xthis, XVar[] y, XRoot[] x, 
+		   X10Context context) throws SemanticException {
+	   // Check that the guard is entailed.
+	   try {
+		   if (query != null) { 
+			   if (! ((X10TypeSystem) context.typeSystem()).consistent(query)) {
+				   throw new SemanticException("Guard " + query + " cannot be established; inconsistent in calling context.");
+			   }
+			   CConstraint query2 = xthis==null ? query : query.substitute(ythis, xthis);
+			   query2.setThisVar(ythis);
+			   //	                CConstraint query3 = query2.substitute(Y, X);
+			   CConstraint query3 = query2;
+			   CConstraint query4 = query3.substitute(y, x);
+
+			   if (! entails(query4, context.constraintProjection(this, query4))) {
+				   throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
+			   }
+		   }
+	   }
+	   catch (XFailure f) {
+		   // Substitution introduces inconsistency.
+		   throw new SemanticException("Call invalid; calling environment is inconsistent.");
+	   }
+   }
+
+   public CConstraint project(XRoot v)  {
+	   if (! consistent)
+		   return this;
+	   CConstraint result = null;
+	   try {
+		XVar eqv = XTerms.makeEQV();
+		result = substitute(eqv, v); 
+	   } catch (XFailure c) {
+		   // should not happen
+	   }
+	   return result;
    }
 }

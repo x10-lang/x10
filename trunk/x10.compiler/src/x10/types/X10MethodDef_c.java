@@ -40,6 +40,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 /**
  * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it

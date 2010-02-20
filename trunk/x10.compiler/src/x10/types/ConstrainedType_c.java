@@ -284,11 +284,11 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return Collections.emptyList();
 	}
 	
-	public void ensureSelfBound() {
+/*	public void ensureSelfBound() {
 		assert constraint != null;
 		XVar self = X10TypeMixin.selfVarBinding(this);
 		if (self == null) {
-			self = XTerms.makeEQV();
+			self = XTerms.makeUQV();
 			CConstraint c = constraint.get();
 			try {
 			c.addSelfBinding(self);
@@ -298,7 +298,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 			constraint.update(c);
 		}
 	}
-
+*/
 	// vj: Revised substantially 08/11/09
 	
 	@Override

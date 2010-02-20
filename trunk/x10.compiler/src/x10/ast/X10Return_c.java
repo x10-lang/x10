@@ -45,6 +45,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 
 public class X10Return_c extends Return_c {
@@ -198,7 +199,7 @@ public class X10Return_c extends Return_c {
 //		                return n.superTypeCheck(tc);
 //		            }
 //		        }
-		        Expr e = X10New_c.attemptCoercion(tc, expr, returnType);
+		        Expr e = Converter.attemptCoercion(tc, expr, returnType);
 		        n = (X10Return_c) n.expr(e);
 		    }
 		}

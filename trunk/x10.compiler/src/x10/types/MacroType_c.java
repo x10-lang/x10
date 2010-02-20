@@ -49,6 +49,7 @@ import x10.constraint.XRef_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 /**
  * Represents a type definition
@@ -390,12 +391,13 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 
 	public boolean callValid(Type thisType, List<Type> actualTypes, Context context) {
-	        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes, context);
+		// this should have been instantiated correctly; if so, the call is valid
+		return true;
 	}
 	
 
 	public boolean moreSpecific(ProcedureInstance<TypeDef> p, Context context) {
-	    return X10MethodInstance_c.moreSpecificImpl(this, p, context);
+	    return X10TypeMixin.moreSpecificImpl(this, p, context);
 	}
 	
 	public Type returnType() {

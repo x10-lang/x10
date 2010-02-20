@@ -384,20 +384,22 @@ public class XPromise_c implements XPromise, Serializable {
             return;
         }
         
-        if (fields != null) {
-        	XVar v = t1 instanceof XVar ? (XVar) t1 : null;
-        	// If t1 is not an XVar, it is an atomic formula, and the fields are its subterms.
-        	// hence v shd be null.
-            for (Map.Entry<XName,XPromise> m : fields.entrySet()) {
-            	XName name = m.getKey();
-            	XPromise p = m.getValue();
-            	XVar path2 =  v==null? null : XTerms.makeField(v, name);
-                p.dump(path2, result, dumpEQV);
-            }
-        }
+        if (fields != null) 
+        	if (dumpEQV || ! t1.hasEQV())  {
+        		XVar v = t1 instanceof XVar ? (XVar) t1 : null;
+        		// If t1 is not an XVar, it is an atomic formula, and the fields are its subterms.
+        		// hence v shd be null.
+        		for (Map.Entry<XName,XPromise> m : fields.entrySet()) {
+        			XName name = m.getKey();
+        			XPromise p = m.getValue();
+        			XVar path2 =  v==null? null : XTerms.makeField(v, name);
+        			p.dump(path2, result, dumpEQV);
+        		}
+        	}
         if (disEquals != null) {
-        	for (XPromise i : disEquals) 
-        		result.add(XTerms.makeDisEquals(t1, i.lookup().var()));
+        	if (dumpEQV || ! t1.hasEQV())
+        		for (XPromise i : disEquals) 
+        			result.add(XTerms.makeDisEquals(t1, i.lookup().var()));
         }
     }
 

@@ -21,6 +21,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 
 /**

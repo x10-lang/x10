@@ -12,34 +12,23 @@
 package x10.ast;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.ClassBody;
-import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
-import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
-import polyglot.types.Def;
 import polyglot.types.Matcher;
-import polyglot.types.MemberInstance;
 import polyglot.types.Name;
-import polyglot.types.NoMemberException;
-import polyglot.types.ProcedureDef;
-import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -60,11 +49,12 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 import x10.types.X10Flags;
-import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
+import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.XConstrainedTerm;
+import x10.types.matcher.DumbConstructorMatcher;
 
 
 /**
@@ -268,158 +258,10 @@ public class X10New_c extends New_c implements X10New {
         return n;
     }
 
-    public static Expr attemptCoercion(ContextVisitor tc, Expr e, Type toType) throws SemanticException {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-
-        if (ts.isSubtypeWithValueInterfaces(e.type(), toType, tc.context())) {
-            return e;
-        }
-
-        Expr e2 = null;
-        if (ts.numericConversionValid(toType, e.type(), e.constantValue(), tc.context())) {
-            e2 = nf.X10Cast(e.position(), nf.CanonicalTypeNode(e.position(), toType), e, X10Cast.ConversionType.UNKNOWN_CONVERSION);
-        }
-        else {
-            e2 = nf.X10Cast(e.position(), nf.CanonicalTypeNode(e.position(), toType), e, X10Cast.ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
-        }
-
-        e2 = X10Cast_c.check(e2, tc);
-        return e2;
-    }
+   
 
     public static interface MatcherMaker<PI> {
         public Matcher<PI> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes);
-    }
-
-    /**
-     * 
-     * @param <PD>
-     * @param <PI>
-     * @param n
-     * @param tc
-     * @param targetType
-     * @param methods
-     *            Unsubstituted, uninstantiated methods. Need to go through
-     *            MethodMatcher.instantiate to use.
-     * @param maker
-     * @return
-     * @throws SemanticException
-     */
-    public static <PD extends ProcedureDef, PI extends ProcedureInstance<PD>> Pair<PI, List<Expr>> tryImplicitConversions(X10ProcedureCall n,
-            ContextVisitor tc, Type targetType, List<PI> methods, MatcherMaker<PI> maker) throws SemanticException {
-        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        X10Context xc = (X10Context) tc.context();
-        ClassDef currentClassDef = xc.currentClassDef();
-
-        List<PI> acceptable = new ArrayList<PI>();
-        Map<Def, List<Expr>> newArgs = new HashMap<Def, List<Expr>>();
-
-        List<Type> typeArgs = new ArrayList<Type>(n.typeArguments().size());
-
-        for (TypeNode tn : n.typeArguments()) {
-            typeArgs.add(tn.type());
-        }
-
-        METHOD: for (Iterator<PI> i = methods.iterator(); i.hasNext();) {
-            PI smi = (PI) i.next();
-
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, "Trying " + smi);
-
-            List<Expr> transformedArgs = new ArrayList<Expr>();
-            List<Type> transformedArgTypes = new ArrayList<Type>();
-
-            List<Type> formals = smi.formalTypes();
-
-            for (int j = 0; j < n.arguments().size(); j++) {
-                Expr e = n.arguments().get(j);
-                Type toType = formals.get(j);
-
-                try {
-                    Expr e2 = attemptCoercion(tc, e, toType);
-                    transformedArgs.add(e2);
-                    transformedArgTypes.add(e2.type());
-                }
-                catch (SemanticException ex) {
-                    // Implicit cast not allowed here.
-                    continue METHOD;
-                }
-            }
-
-            try {
-                Matcher<PI> matcher = maker.matcher(targetType, typeArgs, transformedArgTypes);
-                // ((X10ProcedureInstance) smi).returnType();
-                // X10MethodInstance_c.checkCall(xc, (X10ProcedureInstance) smi,
-                // targetType, typeArgs, transformedArgTypes);
-                // // smi = (PI) matcher.instantiate(smi);
-
-                // Reinstantiate using the new argument types.
-                // Be careful to re-subst in the type arguments of the container type.
-                // This should be cleaner!
-                PI raw = (PI) smi.def().asInstance();
-                if (smi instanceof MemberInstance) {
-                    Type container = ((MemberInstance) smi).container();
-                    Type base = X10TypeMixin.baseType(container);
-                    if (base instanceof X10ClassType) {
-                        X10ParsedClassType_c ct = (X10ParsedClassType_c) base;
-                        raw = ct.subst().reinstantiate(raw);
-                    }
-                }
-                PI smi2 = (PI) matcher.instantiate(raw);
-                // ((X10ProcedureInstance) smi2).returnType();
-                acceptable.add(smi2);
-                newArgs.put(smi2.def(), transformedArgs);
-            }
-            catch (SemanticException e) {
-                System.out.print("");
-            }
-        }
-
-        if (acceptable.size() == 0) {
-            if (n instanceof New || n instanceof ConstructorCall)
-                throw new NoMemberException(NoMemberException.CONSTRUCTOR, "Could not find matching constructor in " + targetType + ".", n.position());
-            else
-                throw new NoMemberException(NoMemberException.METHOD, "Could not find matching method in " + targetType + ".", n.position());
-        }
-
-        Collection<PI> maximal = ts.<PD, PI> findMostSpecificProcedures(acceptable, (Matcher<PI>) null, xc);
-
-        if (maximal.size() > 1) {
-            StringBuffer sb = new StringBuffer();
-            for (Iterator<PI> i = maximal.iterator(); i.hasNext();) {
-                PI ma = (PI) i.next();
-                if (ma instanceof MemberInstance) {
-                    sb.append(((MemberInstance) ma).container());
-                    sb.append(".");
-                }
-                sb.append(ma.signature());
-                if (i.hasNext()) {
-                    if (maximal.size() == 2) {
-                        sb.append(" and ");
-                    }
-                    else {
-                        sb.append(", ");
-                    }
-                }
-            }
-
-            if (n instanceof New || n instanceof ConstructorCall)
-                throw new NoMemberException(NoMemberException.CONSTRUCTOR, "Reference to " + targetType + " is ambiguous, multiple " + "constructors match: "
-                        + sb.toString(), n.position());
-            else
-                throw new NoMemberException(NoMemberException.METHOD, "Reference to " + targetType + " is ambiguous, multiple " + "methods match: "
-                        + sb.toString(), n.position());
-        }
-
-        PI mi;
-        mi = (PI) maximal.iterator().next();
-
-        List<Expr> args = newArgs.get(mi.def());
-        assert args != null;
-
-        return new Pair<PI, List<Expr>>(mi, args);
     }
 
     static Pair<ConstructorInstance, List<Expr>> tryImplicitConversions(X10New_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes)
@@ -428,8 +270,8 @@ public class X10New_c extends New_c implements X10New {
         final Context context = tc.context();
         ClassDef currentClassDef = context.currentClassDef();
 
-        List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new X10TypeSystem_c.DumbConstructorMatcher(targetType, typeArgs, argTypes, context));
-        return tryImplicitConversions(n, tc, targetType, methods, new MatcherMaker<ConstructorInstance>() {
+        List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new DumbConstructorMatcher(targetType, typeArgs, argTypes, context));
+        return Converter.tryImplicitConversions(n, tc, targetType, methods, new MatcherMaker<ConstructorInstance>() {
             public Matcher<ConstructorInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
                 return ts.ConstructorMatcher(ct, typeArgs, argTypes, context);
             }
@@ -567,7 +409,8 @@ public class X10New_c extends New_c implements X10New {
         	X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         	X10Context xc = (X10Context) tc.context();
         	XTerm locVar = xts.homeVar(selfVar, xc);
-        	type = X10TypeMixin.addBinding(type, locVar, xc.currentPlaceTerm());
+        	type = X10TypeMixin.addBinding(type, locVar, XTerms.HERE);
+        	
         	
         	// Add self != null
         	type = X10TypeMixin.addDisBinding(type, selfVar, XTerms.NULL);

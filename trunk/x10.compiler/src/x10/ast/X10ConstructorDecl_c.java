@@ -37,6 +37,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
@@ -48,6 +49,7 @@ import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.extension.X10Del;
@@ -63,6 +65,8 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 /**
  * An X10ConstructorDecl differs from a ConstructorDecl in that it has a returnType.
  *
@@ -179,6 +183,9 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return n;
     }
 
+    public Context enterScope(Context c) {
+        return c.pushCode(ci);
+    }
     public Context enterChildScope(Node child, Context c) {
         // We should have entered the constructor scope already.
         assert c.currentCode() == this.constructorDef();
@@ -212,8 +219,43 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 f.addDecls(c);
             }
         }
+        // Ensure that the place constraint is set appropriately when
+        // entering the body of the method.
+       
+        c  = super.enterChildScope(child, c);
+        X10Context xc = (X10Context) c;
+        
+        X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
+        if (child == body) {
+        	if (! X10TypeMixin.isX10Struct(c.currentClassDef().asType())) {
+        		XTerm h =  xts.homeVar(xc.thisVar(),xc);
+        		if (h != null)  // null for structs.
+        			c = ((X10Context) c).pushPlace(XConstrainedTerm.make(h)); 	
+        	}
+        }
+        
 
-        return super.enterChildScope(child, c);
+        // Add the constructor guard into the environment.
+        if (guard != null) {
+            Ref<CConstraint> vc = guard.valueConstraint();
+            Ref<TypeConstraint> tc = guard.typeConstraint();
+        
+            if (vc != null || tc != null) {
+                c = c.pushBlock();
+                try {
+                	if (vc.known())
+                		c= ((X10Context) c).pushAdditionalConstraint(vc.get());
+                } catch (SemanticException z) {
+                	throw 
+                	new InternalCompilerError("Unexpected inconsistent guard" + z);
+                }
+        //        ((X10Context) c).setCurrentConstraint(vc.get());
+        //        ((X10Context) c).setCurrentTypeConstraint(tc.get());
+            }            
+        }
+
+
+        return c;
     }
 
     /** Visit the children of the method. */

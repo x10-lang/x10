@@ -89,7 +89,6 @@ import x10.types.X10TypeSystem_c;
 import x10.ast.PropertyDecl;
 import x10.ast.RegionMaker;
 import x10.ast.X10Binary_c;
-import x10.ast.X10Cast_c;
 import x10.ast.X10Unary_c;
 import x10.ast.X10IntLit_c;
 import x10.extension.X10Ext;
@@ -109,6 +108,7 @@ import polyglot.main.Report;
 import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
 import x10.types.X10Flags;
+import x10.types.checker.Converter;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -1550,7 +1550,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(11)),
           extractFlags(MethodModifiersopt),
           Type,
-          nf.Id(pos(), X10Cast_c.operator_as),
+          nf.Id(pos(), Converter.operator_as),
           TypeParametersopt,
           Collections.<Formal>singletonList(fp1),
           WhereClauseopt,
@@ -1586,7 +1586,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(12)),
           extractFlags(MethodModifiersopt),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
-          nf.Id(pos(), X10Cast_c.operator_as),
+          nf.Id(pos(), Converter.operator_as),
           TypeParametersopt,
           Collections.<Formal>singletonList(fp1),
           WhereClauseopt,
@@ -1622,7 +1622,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(10)),
           extractFlags(MethodModifiersopt),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
-          nf.Id(pos(), X10Cast_c.implicit_operator_as),
+          nf.Id(pos(), Converter.implicit_operator_as),
           TypeParametersopt,
           Collections.<Formal>singletonList(fp1),
           WhereClauseopt,

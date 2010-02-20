@@ -38,12 +38,12 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
-import x10.types.TypeConstraint;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 
 public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddFlags {

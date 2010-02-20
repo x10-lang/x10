@@ -1,5 +1,4 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
  *  You may not use this file except in compliance with the License.
@@ -29,6 +28,7 @@ import polyglot.util.TypedList;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 /**
  * An X10ConstructorDef_c varies from a ConstructorDef_c only in that it

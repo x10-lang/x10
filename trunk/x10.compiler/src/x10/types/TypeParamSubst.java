@@ -31,6 +31,10 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.SubtypeConstraint;
+import x10.types.constraints.SubtypeConstraint_c;
+import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.TypeConstraint_c;
 
 /**
  * Comments by vj.

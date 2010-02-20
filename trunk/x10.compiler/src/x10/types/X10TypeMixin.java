@@ -23,11 +23,16 @@ import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef_c;
+import polyglot.types.LocalInstance;
+import polyglot.types.MemberInstance;
+import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -48,6 +53,8 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 
 /** 
@@ -61,7 +68,6 @@ public class X10TypeMixin {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 		    try {
 		        Context c = xts.emptyContext();
-		        t = X10TypeMixin.ensureSelfBound(t);
 			    X10FieldInstance fi = (X10FieldInstance) xts.findField(t, xts.FieldMatcher(t, propName, c));
 			    if (fi != null && fi.isProperty()) {
 				    return fi;
@@ -175,11 +181,11 @@ public class X10TypeMixin {
 	        }
 		if (t instanceof ConstrainedType) {
 			ConstrainedType ct = (ConstrainedType) t;
-			return Types.get(ct.constraint());
+			return Types.get(ct.constraint()).copy();
 		}
 		if (t instanceof X10ParsedClassType) {
 			X10ParsedClassType ct = (X10ParsedClassType) t;
-			return ct.getXClause();
+			return ct.getXClause().copy();
 		}
 		return null;
 	}
@@ -373,7 +379,7 @@ public class X10TypeMixin {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
         }
     }
-	public static Type instantiateSelf(XTerm t, Type type) throws SemanticException {
+	public static Type instantiateSelf(XTerm t, Type type) {
 	 	assert (! (t instanceof UnknownType));
 		 CConstraint c = xclause(type);
 	        if (! ((c==null) || c.valid())) {
@@ -886,7 +892,7 @@ public class X10TypeMixin {
 	 * 
 	 */
 
-	public static Type ensureSelfBound(Type t) {
+	/*public static Type ensureSelfBound(Type t) {
 		if (t instanceof ConstrainedType) {
 			((ConstrainedType) t).ensureSelfBound();
 			return t;
@@ -895,7 +901,7 @@ public class X10TypeMixin {
 		if (v !=null) 
 			return t;
 		try {
-			t = setSelfVar(t,XTerms.makeEQV());
+			t = setSelfVar(t,XTerms.makeUQV());
 		} catch (SemanticException z) {
 			
 		}
@@ -903,11 +909,108 @@ public class X10TypeMixin {
 		assert selfVarBinding(t) != null;
 		return t;
 	}
+	*/
 	
-	public static boolean isTypeParameter(Type t) {
-	    return t instanceof ParameterType;
-	}
 	public static boolean permitsNull(Type t) {
-		return ! (isX10Struct(t) || isTypeParameter(t));
+		return ! isX10Struct(t);
 	}
+
+	public static XRoot thisVar(XRoot xthis, Type thisType) {
+	    Type base = baseType(thisType);
+	    if (base instanceof X10ClassType) {
+	        XRoot supVar = ((X10ClassType) base).x10Def().thisVar();
+	        return supVar;
+	    }
+	    return xthis;
+	}
+
+	public static void expandTypes(List<Type> formals, X10TypeSystem xts) {
+		 for (int i = 0; i < formals.size(); ++i) {
+	         formals.set(i, xts.expandMacros(formals.get(i)));
+		 }
+	}
+
+	public static <PI extends X10ProcedureInstance<?>>  boolean isStatic(PI me) {
+		if (me instanceof ConstructorInstance) 
+			return true;
+		if (me instanceof MethodInstance) {
+			MethodInstance mi = (MethodInstance) me;
+			return mi.flags().isStatic();
+		}
+		return false;
+	}
+
+	public static Type meetTypes(X10TypeSystem xts, Type t1, Type t2, Context context) {
+	    if (xts.isSubtype(t1, t2, context))
+	        return t1;
+	    if (xts.isSubtype(t2, t1, context))
+	        return t2;
+	    return null;
+	}
+
+	public static boolean moreSpecificImpl(ProcedureInstance<?> p1, ProcedureInstance<?> p2, Context context) {
+	    X10TypeSystem ts = (X10TypeSystem) p1.typeSystem();
+	
+	    Type t1 = p1 instanceof MemberInstance ? ((MemberInstance) p1).container() : null;
+	    Type t2 = p2 instanceof MemberInstance ? ((MemberInstance) p2).container() : null;
+	
+	    if (t1 != null && t2 != null) {
+	        t1 = baseType(t1);
+	        t2 = baseType(t2);
+	    }
+	
+	    boolean descends = t1 != null && t2 != null && ts.descendsFrom(ts.classDefOf(t1), ts.classDefOf(t2));
+	
+	    Flags flags1 = p1 instanceof MemberInstance ? ((MemberInstance) p1).flags() : Flags.NONE;
+	    Flags flags2 = p2 instanceof MemberInstance ? ((MemberInstance) p2).flags() : Flags.NONE;
+	
+	    // A static method in a subclass is always more specific.
+	    // Note: this rule differs from Java but avoids an anomaly with conversion methods.
+	    if (descends && ! ts.hasSameClassDef(t1, t2) && flags1.isStatic() && flags2.isStatic()) {
+	        return true;
+	    }
+	    
+	    
+	
+	    // if the formal params of p1 can be used to call p2, p1 is more specific
+	    if (p1.formalTypes().size() == p2.formalTypes().size() ) {
+	        for (int i = 0; i < p1.formalTypes().size(); i++) {
+	            Type f1 = p1.formalTypes().get(i);
+	            Type f2 = p2.formalTypes().get(i);
+	            // Ignore constraints.  This avoids an anomaly with the translation with erased constraints
+	            // having inverting the result of the most-specific test.  Fixes XTENLANG-455.
+	            Type b1 = baseType(f1);
+	            Type b2 = baseType(f2);
+	            if (! ts.isImplicitCastValid(b1, b2, context)) {
+	                return false;
+	            }
+	        }
+	    }
+	
+	    // If the formal types are all equal, check the containers; otherwise p1 is more specific.
+	    for (int i = 0; i < p1.formalTypes().size(); i++) {
+	        Type f1 = p1.formalTypes().get(i);
+	        Type f2 = p2.formalTypes().get(i);
+	        if (! ts.typeEquals(f1, f2, context)) {
+	            return true;
+	        }
+	    }
+	
+	    if (t1 != null && t2 != null) {
+	        // If p1 overrides p2 or if p1 is in an inner class of p2, pick p1.
+	        if (descends) {
+	            return true;
+	        }
+	        if (t1.isClass() && t2.isClass()) {
+	            if (t1.toClass().isEnclosed(t2.toClass())) {
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
+	
+	    return true;
+	}
+	
+	
 }

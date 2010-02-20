@@ -43,6 +43,7 @@ import x10.constraint.XLit;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -245,7 +246,6 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isUShort(Type t);
     boolean isUInt(Type t);
     boolean isULong(Type t);
-    boolean isNull(Type t);
 
     // RMF 7/11/2006 - Added so that the parser can create a canonical type node
     // for "primitive types", which otherwise will cause disambiguation to fail.
@@ -315,9 +315,9 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type performUnaryOperation(Type t, Type l, Unary.Operator op);
 
-    X10TypeSystem_c.TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
+    TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
 
-    MacroType findTypeDef(Type t, X10TypeSystem_c.TypeDefMatcher matcher, Context context) throws SemanticException;
+    MacroType findTypeDef(Type t, TypeDefMatcher matcher, Context context) throws SemanticException;
 
     List<MacroType> findTypeDefs(Type container, Name name, ClassDef currClass) throws SemanticException;
 
@@ -369,8 +369,6 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isReferenceOrInterfaceType(Type t, X10Context context);
 
-    boolean isSubtypeWithValueInterfaces(Type t1, Type t2, Context context);
-
     boolean isParameterType(Type toType);
 
     Type Region();
@@ -411,7 +409,7 @@ public interface X10TypeSystem extends TypeSystem {
     
     /**
      * Returns true if the receiver r is known statically to be at place.
-     * Will always return false if place is 
+     * Will always return false if place is global.
      * @param r
      * @param place
      * @param context
@@ -427,6 +425,7 @@ public interface X10TypeSystem extends TypeSystem {
      * @return
      */
     XTerm homeVar(XTerm t, X10Context context) ;
+    XTerm homeVar(XTerm target);
     
     /**
      * Does there exist a struct with the given name, accessible at this point? 

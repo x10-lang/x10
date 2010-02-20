@@ -93,7 +93,8 @@ public class PolyRegion extends BaseRegion {
 	val scanner = PolyScanner.make(mat).iterator();
         return scanner;
     }*/
-    public global def iterator()= PolyScanner.make(mat).iterator() as Iterator[Point{self.rank==this.rank}];
+    public global def iterator():Iterator[Point(rank)]!
+          = PolyScanner.make(mat).iterator() as Iterator[Point(rank)]!;
   
 
     //
@@ -148,10 +149,11 @@ public class PolyRegion extends BaseRegion {
      */
 
     // XXX add a test case for this; also for projection!
-    public global def eliminate(axis: int): Region(rank-1) {
+  
+    public global def eliminate(axis: int): Region/*(rank1)*/ {
         val pm = mat.eliminate(axis, true); 
         val result = PolyRegion.make(pm);
-        return result as Region(rank-1);
+        return result /*as Region(rank1)*/;
     }
 
     /**

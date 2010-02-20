@@ -94,7 +94,7 @@ public class UnionRegion extends BaseRegion {
 
     incomplete public global def product(Region): Region(rank);
     incomplete public global def projection(int): Region(1);
-    incomplete public global def eliminate(int): Region(rank-1);
+    incomplete public global def eliminate(int): Region/*(rank-1)*/;
 
     public global def translate(v: Point(rank)): Region(rank) {
         val rs = new PolyRegionListBuilder(rank);
@@ -143,7 +143,7 @@ public class UnionRegion extends BaseRegion {
     class It implements Iterator[Point(UnionRegion.this.rank)] {
 
         private var i: int = 0;
-        var it: Iterator[Point/*(rank)*/] = null; // XTENLANG-118
+        var it: Iterator[Point(UnionRegion.this.rank)]! = null; // XTENLANG-118
         
         public def hasNext(): boolean {
             for (;;) {
@@ -155,7 +155,7 @@ public class UnionRegion extends BaseRegion {
             }
         }
         
-        final public def next(): Point(rank) = it.next() as Point(rank);  // XTENLANG-118
+        final public def next(): Point(UnionRegion.this.rank) = it.next();  // XTENLANG-118
 
         incomplete public def remove(): void;
     }

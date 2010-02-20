@@ -98,6 +98,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.checker.Converter;
 import x10.util.ClosureSynthesizer;
 import x10.util.Synthesizer;
 
@@ -136,8 +137,8 @@ public class Desugarer extends ContextVisitor {
     private static final Name STOP_FINISH = Name.make("stopFinish");
     private static final Name APPLY = Name.make("apply");
     private static final Name SET = Name.make("set");
-    private static final Name CONVERT = X10Cast_c.operator_as;
-    private static final Name CONVERT_IMPLICITLY = X10Cast_c.implicit_operator_as;
+    private static final Name CONVERT = Converter.operator_as;
+    private static final Name CONVERT_IMPLICITLY = Converter.implicit_operator_as;
     private static final Name DIST = Name.make("dist");
 
     public Node override(Node parent, Node n) {
@@ -609,7 +610,7 @@ public class Desugarer extends ContextVisitor {
     private Expr unaryPre(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
         Type ret = e.type();
         Expr one = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, ret),
-                (Expr) xnf.IntLit(pos, IntLit.INT, 1).typeCheck(this), X10Cast.ConversionType.PRIMITIVE).type(ret);
+                (Expr) xnf.IntLit(pos, IntLit.INT, 1).typeCheck(this), Converter.ConversionType.PRIMITIVE).type(ret);
         Assign.Operator asgn = (op == X10Unary_c.PRE_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         Expr a = assign(pos, e, asgn, one);
         if (e instanceof X10Call)
@@ -622,7 +623,7 @@ public class Desugarer extends ContextVisitor {
         Type ret = e.type();
         CanonicalTypeNode retTN = xnf.CanonicalTypeNode(pos, ret);
         Expr one = xnf.X10Cast(pos, retTN,
-                (Expr) xnf.IntLit(pos, IntLit.INT, 1).typeCheck(this), X10Cast.ConversionType.PRIMITIVE).type(ret);
+                (Expr) xnf.IntLit(pos, IntLit.INT, 1).typeCheck(this), Converter.ConversionType.PRIMITIVE).type(ret);
         Assign.Operator asgn = (op == X10Unary_c.POST_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         X10Binary_c.Operator bin = (op == X10Unary_c.POST_INC) ? X10Binary_c.SUB : X10Binary_c.ADD;
         Name t = Name.make("t");
@@ -631,7 +632,7 @@ public class Desugarer extends ContextVisitor {
                 retTN, xnf.Id(pos, t)).localDef(fDef);
         List<Formal> parms = Arrays.asList(new Formal[] { formal });
         Expr tLocal = xnf.Local(pos, xnf.Id(pos, t)).localInstance(fDef.asInstance()).type(ret);
-        X10Cast cast = (X10Cast) xnf.X10Cast(pos, retTN, xnf.Binary(pos, tLocal, bin, one).type(ret), X10Cast.ConversionType.PRIMITIVE).type(ret);
+        X10Cast cast = (X10Cast) xnf.X10Cast(pos, retTN, xnf.Binary(pos, tLocal, bin, one).type(ret), Converter.ConversionType.PRIMITIVE).type(ret);
         Block block = xnf.Block(pos, xnf.Return(pos, cast));
         Closure c = synth.makeClosure(pos, e.type(), parms, block, (X10Context) context);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
@@ -817,7 +818,7 @@ public class Desugarer extends ContextVisitor {
         Stmt check = xnf.If(pos, cond, throwCCE);
         Block body = xnf.Block(pos, check, xnf.Return(pos, xl));
         Closure c = synth.makeClosure(pos, ot, Collections.singletonList(x), body, (X10Context) context);
-        Expr cast = xnf.X10Cast(pos, tn, e, X10Cast.ConversionType.CHECKED).type(t);
+        Expr cast = xnf.X10Cast(pos, tn, e, Converter.ConversionType.CHECKED).type(t);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         return xnf.ClosureCall(pos, c, Collections.singletonList(cast)).closureInstance(ci).type(ot);
     }
@@ -838,7 +839,7 @@ public class Desugarer extends ContextVisitor {
                 xnf.CanonicalTypeNode(pos, et), xnf.Id(pos, xn)).localDef(xDef);
         Expr xl = xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(et);
         Expr iof = xnf.Instanceof(pos, xl, tn).type(xts.Boolean());
-        Expr cast = xnf.X10Cast(pos, tn, xl, X10Cast.ConversionType.CHECKED).type(tn.type());
+        Expr cast = xnf.X10Cast(pos, tn, xl, Converter.ConversionType.CHECKED).type(tn.type());
         List<Expr> condition = depClause.condition();
         Expr cond = conjunction(depClause.position(), condition, cast);
         Expr rval = xnf.Binary(pos, iof, X10Binary_c.COND_AND, cond).type(xts.Boolean());
