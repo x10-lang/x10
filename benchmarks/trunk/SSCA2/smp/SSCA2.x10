@@ -35,9 +35,9 @@ public static def main (args:Rail[String]!): void {
      val getRet = getStartLists.compute(compRet.second);
      val tmp: Rail[defs.edge]! = getRet.second;
 
-     for ((i) in 0..tmp.length-1) {
+/*     for ((i) in 0..tmp.length-1) {
        x10.io.Console.OUT.println("edge " + tmp(i).e + "( " + tmp(i).w + " ) " + " : " + "[ " + tmp(i).startVertex + " , " + tmp(i).endVertex + "]");
-     }
+     } */
 
      val tmp2 = findSubGraphs.compute(compRet.second, getRet.second);
 }

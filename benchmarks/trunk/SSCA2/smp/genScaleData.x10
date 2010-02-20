@@ -92,7 +92,7 @@ public class genScaleData  {
                 u += step;
                 v += step;
             }
-          x10.io.Console.OUT.println("u v " + u + " " + v + " " + p1 + " " + GLOBALS.SCALE);
+        //  x10.io.Console.OUT.println("u v " + u + " " + v + " " + p1 + " " + GLOBALS.SCALE);
         }
         } while (u == v);
 
@@ -101,6 +101,7 @@ public class genScaleData  {
        }
     }
 
+   //x10.io.Console.OUT.println(src + " " + dest);
    val  permV = Rail.make[types.VERT_T](n);
    for((i) in  0..n-1) permV(i) = i;
    
@@ -126,7 +127,7 @@ public class genScaleData  {
          dest(i) = permV(dest(i));
        }
     }
-   x10.io.Console.OUT.println("srcs " + src + "dests" + dest);
+  // x10.io.Console.OUT.println("srcs " + src + "dests" + dest);
   val wt = Rail.make[types.WEIGHT_T](m);
 
   finish foreach((tid) in 0..nthreads-1) {

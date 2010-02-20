@@ -55,7 +55,7 @@ class findSubGraphs  {
           val lo = Math.max(start(phase_num), tid*chunkSize);
           val hi = Math.min(start(phase_num+1)-1, lo + chunkSize-1);
 
-          x10.io.Console.OUT.println(" lo..hi" + lo + " "  + hi);
+          //x10.io.Console.OUT.println(" lo..hi" + lo + " "  + hi);
 
           for ((vert) in  lo..hi) {
             val v = S(vert);
@@ -64,7 +64,7 @@ class findSubGraphs  {
             for((j) in lo_1..hi_1-1){
               val w = (G.endV as Rail[types.LONG_T]!)(j);
               if (v==w) continue;
-              x10.io.Console.OUT.println("phase: " + phase_num + " " + v + " " + w + " " + visited(w) + " " + pCount);
+              //x10.io.Console.OUT.println("phase: " + phase_num + " " + v + " " + w + " " + visited(w) + " " + pCount);
               atomic {
                 if (!visited(w)) {
                    visited(w) = true;
@@ -88,7 +88,6 @@ class findSubGraphs  {
           }
 
           next;
-          x10.io.Console.OUT.println("ps " + pSCount);
           for ((k) in pSCount(tid)..pSCount(tid+1)-1) {
              S(k) = pS(k-pSCount(tid));
 

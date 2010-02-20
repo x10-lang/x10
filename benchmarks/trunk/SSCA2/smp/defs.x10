@@ -15,11 +15,11 @@ public static  def init (val SCALE: types.INT_T) {
 
   public var globals: runtime_consts;
   //public val sprng_stream: Rail[Rail[int]];
-  static val A: types.DOUBLE_T=0.6;
+  static val A: types.DOUBLE_T=0.55;
   static val ARRAY_INIT_SIZE = 6;
-  static val B: types.DOUBLE_T=(1-A)/3.0;
+  static val B: types.DOUBLE_T=0.1;
   static val C: types.DOUBLE_T=B;
-  static val D: types.DOUBLE_T=B;
+  static val D: types.DOUBLE_T=0.25;
 
 public static struct graphSDG {
   public val startVertex: Rail[types.VERT_T];
