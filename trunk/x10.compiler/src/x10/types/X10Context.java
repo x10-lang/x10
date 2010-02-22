@@ -6,8 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  This file is part of X10 Language.
- *
+ *  (C) Copyright IBM Corporation 2006-2010.
  */
 
 package x10.types;
