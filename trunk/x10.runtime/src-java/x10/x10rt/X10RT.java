@@ -52,29 +52,31 @@ public class X10RT {
         public void run() {
           synchronized(X10RT.class) {
             state = State.TEARING_DOWN;
-            finishImpl();
+            finalizeImpl();
             state = State.TORN_DOWN;
             System.err.flush();
             System.out.flush();
           }
         }}));
 
-      // Create threads dedicated to poll/drain the message queue.
-      Thread progressThread = new Thread(new Runnable(){
-          public void run() {
-              while (true) {
-                  try {
-                      ActiveMessage.processQueue();
-                  } catch (Throwable e) {
-                      if (REPORT_UNCAUGHT_USER_EXCEPTIONS) {
-                          e.printStackTrace();
+      // Create thread dedicated to poll/drain the message queue.
+      for (int i = 0; i<numProgressThreads; i++) {
+          Thread progressThread = new Thread(new Runnable(){
+              public void run() {
+                  while (true) {
+                      try {
+                          X10RT.probe();
+                      } catch (Throwable e) {
+                          if (REPORT_UNCAUGHT_USER_EXCEPTIONS) {
+                              e.printStackTrace();
+                          }
                       }
+                      Thread.yield();
                   }
-                  Thread.yield();
-              }
-          }}, "X10RT Progress Thread");
-      progressThread.setDaemon(true);
-      progressThread.start();
+              }}, "X10RT Progress Thread #"+i);
+          progressThread.setDaemon(true);
+          progressThread.start();
+      }
 
       state = State.BOOTED;
     }
@@ -102,10 +104,9 @@ public class X10RT {
      * This is a non-blocking call.
      * Checks network for incoming messages and returns.
      */
-    public static void poll() {
+    public static void probe() {
         assert state.compareTo(State.BOOTED) >= 0;
-        if(0 == numProgressThreads) ActiveMessage.processQueue();
-        pollImpl();
+        probeImpl();
     }
 
     /**
@@ -153,7 +154,7 @@ public class X10RT {
 
     private static native int hereImpl();
 
-    private static native int finishImpl();
+    private static native int finalizeImpl();
 
     private static native int numNodesImpl();
 
@@ -161,5 +162,5 @@ public class X10RT {
 
     private static native void fenceImpl();
 
-    private static native void pollImpl();
+    private static native void probeImpl();
 }

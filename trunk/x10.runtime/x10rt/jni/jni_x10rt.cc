@@ -35,8 +35,8 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_hereImpl(JNIEnv *, jclass) {
  * Method:    finishImpl
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_finishImpl(JNIEnv *, jclass) {
-    fprintf(stderr, "finishImpl called; doing nothing\n");
+JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_finalizeImpl(JNIEnv *, jclass) {
+    x10rt_finalize();
     return 0;
 }
 
@@ -55,6 +55,8 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_numNodesImpl(JNIEnv *, jclass) {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_barrierImpl(JNIEnv *, jclass) {
+    // TODO: Need to implement barrier semantics either in X10RT
+    //       or at the Java level if not provided by X10RT.
     fprintf(stderr, "barrierImpl called; doing nothing\n");
 }
 
@@ -64,7 +66,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_barrierImpl(JNIEnv *, jclass) {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_fenceImpl(JNIEnv *, jclass) {
-    fprintf(stderr, "fenceImpl called; doing nothing\n");
+    x10rt_remote_op_fence();
 }
 
 /*
@@ -72,6 +74,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_fenceImpl(JNIEnv *, jclass) {
  * Method:    pollImpl
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_pollImpl(JNIEnv *, jclass) {
-    fprintf(stderr, "pollImpl called; doing nothing\n");
+JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_probeImpl(JNIEnv *, jclass) {
+    x10rt_probe();
 }
