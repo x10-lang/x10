@@ -18,6 +18,4 @@ ssca2-opt: ${SRCS}
 		-post '${POSTCOMPILE_CXX} ${POSTCOMPILE_INCLUDEOPT}${NATIVE_HDR} ${POSTCOMPILE_CXXFLAGS} ${POSTCOMPILE_OPTFLAGS} -DTRANSPORT=${PGASTRANSPORT} # ${NATIVE_SRC} # ${POSTCOMPILE_LDFLAGS} ${POSTCOMPILE_LIBS} ${NATIVE_LIB}' 
 
 clean:
-	$(MAKE) -C ssca2-hpcc clean
-	rm -f ssca2-opt ssca2-dbg
-	rm -f ssca2-opt.exe ssca2-dbg.exe
+	$(MAKE) -C sprng2.0 clean

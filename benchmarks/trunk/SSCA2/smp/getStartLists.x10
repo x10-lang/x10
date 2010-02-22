@@ -4,23 +4,29 @@ import x10.util.*;
 class getStartLists  {
 
   public static def compute(G:defs.graph):  Pair[Double, Rail[defs.edge]] {
-    var time: Double;
+    var elapsed_time: Double;
 
     val nthreads = util.x10_get_num_threads();
     val p_start = Rail.make[types.LONG_T](nthreads);
     val p_end = Rail.make[types.LONG_T](nthreads);
-    val local_max = Rail.make[types.LONG_T](nthreads);
+    val local_max = Rail.make[types.LONG_T](nthreads, (p: Int)=>-1);
+    val maxWeight = Rail.make[types.LONG_T](1);
+    val maxIntWtList = Rail.make[Rail[defs.edge]](1);
     val m = G.m;
     val n = G.n;
-    val tmpListSize = 1000;
-    val pList =  Rail.make[defs.edge](tmpListSize);
 
-     /* replace this by max reduction */ 
-     time = util.x10_get_wtime();
+     elapsed_time = util.x10_get_wtime();
 
-     finish foreach ((tid) in 0..nthreads-1) {
+     finish  {
+
+       val c: Clock = Clock.make();
+       foreach ((tid) in 0..nthreads-1) clocked(c) {
        var pCount: Int = 0;
        val chunkSize = n/nthreads;
+
+       val tmpListSize = 1000;
+       val pList = Rail.make[defs.edge](tmpListSize);
+
        for((i) in tid*chunkSize..(tid+1)*chunkSize-1) {
          val lo = (G.numEdges as Rail[types.LONG_T]!)(i);
          val hi = (G.numEdges as Rail[types.LONG_T]!)(i+1);
@@ -39,39 +45,52 @@ class getStartLists  {
 
        p_end(tid) = pCount;
        p_start(tid)= 0;
+
+      next;
+
+      if (tid==0) {
+        var tmp: types.LONG_T  = local_max(0);
+        for((tid) in 1..nthreads-1) {
+          if (local_max(tid) > tmp) tmp = local_max(tid);
+        }
+
+      maxWeight(0) = tmp;
      }
 
-      var tmp: Double = local_max(0);
-      for((tid) in 1..nthreads-1) {
-        if (local_max(tid) > tmp) tmp = local_max(tid);
-      }
+      next;
 
-      val maxWeight = tmp;
+      if (maxWeight(0) != local_max(tid)) p_end(tid) = 0;
+     
+      next;
 
-      finish foreach((tid) in 0..nthreads-1) {
-         if (maxWeight != local_max(tid)) p_end(tid) = 0;
-      }
-
+     if (tid==0) {
        //scan
-      for((i) in 1..nthreads-1) {
-        p_end(i) = p_end(i-1) + p_end(i);
-        p_start(i) = p_end(i-1);
-      }
-
-      val maxIntWtListSize = p_end(nthreads-1);
-      val maxIntWtList = Rail.make[defs.edge](maxIntWtListSize);
-
-     x10.io.Console.OUT.println("before loop" );
-     finish foreach ((tid) in 0..nthreads-1) {
-       for ((j) in p_start(tid)..p_end(tid)-1) {
-          val startVertex = pList(j-p_start(tid)).startVertex;
-          val endVertex = pList(j-p_start(tid)).endVertex;
-          val e = pList(j-p_start(tid)).e;
-          val w = pList(j-p_start(tid)).w;
-          maxIntWtList(j) = new defs.edge(startVertex, endVertex, e, w);
+        for((i) in 1..nthreads-1) {
+          p_end(i) = p_end(i-1) + p_end(i);
+          p_start(i) = p_end(i-1);
         }
       }
 
-     return Pair[Double, Rail[defs.edge]](time, maxIntWtList);
+      next;
+
+     if (tid==0) { 
+       maxIntWtList(0) = Rail.make[defs.edge](p_end(nthreads-1));
+     }
+
+     next;
+     for ((j) in p_start(tid)..p_end(tid)-1) {
+        val startVertex = pList(j-p_start(tid)).startVertex;
+        val endVertex = pList(j-p_start(tid)).endVertex;
+        val e = pList(j-p_start(tid)).e;
+        val w = pList(j-p_start(tid)).w;
+        maxIntWtList(0)(j) = new defs.edge(startVertex, endVertex, e, w);
+      }
+     }
+
+     c.drop();
    } 
+     elapsed_time = util.x10_get_wtime() - elapsed_time;
+     return Pair[Double, Rail[defs.edge]](elapsed_time, maxIntWtList(0));
+
+   }
 }; 

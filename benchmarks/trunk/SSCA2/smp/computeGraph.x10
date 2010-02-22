@@ -14,33 +14,43 @@ public class computeGraph  {
     val w = Rail.make[types.WEIGHT_T](m);
     val pSums = Rail.make[types.LONG_T](nthreads);
 
-    val chunkSize = m/nthreads;
     
     var time: Double = util.x10_get_wtime();
 
     //x10.io.Console.OUT.println("computeGraph " + "loop 1");
-    finish foreach((tid) in 0..nthreads-1) {
+   finish {
+
+     c: Clock = Clock.make();
+
+    foreach((tid) in 0..nthreads-1) clocked(c) {
+
+     val chunkSize = m/nthreads;
+
      for ((i) in tid*chunkSize..(tid+1)*chunkSize-1) {
        val u = (SDGdata.startVertex as Rail[types.VERT_T]!)(i);
-       atomic{pos(i) = degree(u); degree(u)++;}
+       atomic {pos(i) = degree(u); degree(u)++;}
      }
-   }
 
-    //x10.io.Console.OUT.println("computeGraph " + "loop 2 " + " " + degree);
-   finish foreach((tid) in 0..nthreads-1) {
+     next;
+
      util.prefix_sums(degree, numEdges, pSums,n, tid);
-   }
     //x10.io.Console.OUT.println("computeGraph " + "loop 2 " + " " + numEdges);
 
+     next;
+
     //x10.io.Console.OUT.println("computeGraph " + "loop 3");
-   finish foreach((tid) in 0..nthreads-1) {
      for ((i) in tid*chunkSize..(tid+1)*chunkSize-1) {
        val u = (SDGdata.startVertex as Rail[types.VERT_T])(i);
        val j = numEdges(u) + pos(i);
        endV(j) = (SDGdata.endVertex as Rail[types.VERT_T])(i);
        w(j) = (SDGdata.weight as Rail[types.LONG_T])(i);
      }
+    
+    next;
    }
+   c.drop();
+  }
+   
 
    time = util.x10_get_wtime() - time; 
 

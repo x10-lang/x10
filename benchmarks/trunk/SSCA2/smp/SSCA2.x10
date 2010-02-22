@@ -28,18 +28,22 @@ public static def main (args:Rail[String]!): void {
      x10.io.Console.OUT.println("genScalData() begining exectuion" );
 
      val genRet = genScaleData.compute();
+     x10.io.Console.OUT.println("Time taken for scalable data generation is" + genRet.first);
    
      x10.io.Console.OUT.println("computeGraph begining execution");
      val compRet = computeGraph.compute(genRet.second);
+     x10.io.Console.OUT.println("Time taken for kernel 1 is" + compRet.first);
 
      val getRet = getStartLists.compute(compRet.second);
      val tmp: Rail[defs.edge]! = getRet.second;
+     x10.io.Console.OUT.println("Time taken for kernel 2 is" + getRet.first);
 
-/*     for ((i) in 0..tmp.length-1) {
+     /* for ((i) in 0..tmp.length-1) {
        x10.io.Console.OUT.println("edge " + tmp(i).e + "( " + tmp(i).w + " ) " + " : " + "[ " + tmp(i).startVertex + " , " + tmp(i).endVertex + "]");
-     } */
+     }  */
 
-     val tmp2 = findSubGraphs.compute(compRet.second, getRet.second);
+     val findRet = findSubGraphs.compute(compRet.second, getRet.second);
+     x10.io.Console.OUT.println("Time taken for kernel 3 is" + findRet);
 }
 
 };
