@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.eclipse.imp.x10dt.update.custom" default="build.update.zip" basedir=".">
+
+    <target name="init.custom">
+    	<property name="polyglotProjectName"   value="polyglot3"/>
+        <fail unless="imp.cache.location">
+            You must define the Ant property imp.cache.location to be the location of an IMP update site directory.
+            It should have sub-directories 'features' and 'plugins'.
+        </fail>
+        <available file="${imp.cache.location}/features" property="imp.cache.verified"/>
+        <fail unless="imp.cache.verified">
+            The Ant property imp.cache.location exists, but does not point to a valid IMP update site directory.
+            It should have sub-directories 'features' and 'plugins'.
+        </fail>
+        <fail unless="ptp.cache.location">
+            You must define the Ant property ptp.cache.location to be the location of an PTP update site directory.
+            It should have sub-directories 'features' and 'plugins'.
+        </fail>
+        <available file="${ptp.cache.location}/features" property="ptp.cache.verified"/>
+        <fail unless="ptp.cache.verified">
+            The Ant property ptp.cache.location exists, but does not point to a valid PTP update site directory.
+            It should have sub-directories 'features' and 'plugins'.
+        </fail>
+        <available file="../${polyglotProjectName}" property="polyglot.workspace.verified"/>
+        <fail unless="polyglot.workspace.verified">
+            The project '${polyglotProjectName}' does not exist in your workspace.
+        </fail>
+        <available file="../lpg.update" property="lpg.workspace.verified"/>
+        <fail unless="lpg.workspace.verified">
+            The project 'lpg.update' does not exist in your workspace.
+        </fail>
+    </target>
+
+    <target name="collect.extra.artifacts">
+        <antcall target="collect.lpg.artifacts"/>
+        <antcall target="collect.polyglot.artifacts"/>
+    	<antcall target="collect.imp.artifacts"/>
+		<antcall target="collect.ptp.artifacts"/>
+	</target>
+
+	<target name="add.all.features.to.site.xml">
+        <antcall target="add.features.to.site.xml.x10dt"/>
+        <antcall target="add.features.to.site.xml.sdf"/>
+        <antcall target="add.features.to.site.xml.lpg"/>
+        <antcall target="add.features.to.site.xml.polyglot"/>
+    	<antcall target="add.features.to.site.xml.imp"/>
+    	<antcall target="add.features.to.site.xml.ptp"/>
+	</target>
+
+    <target name="add.features.to.site.xml.sdf">
+        <antcall target="add.feature">
+            <param name="feature.id"      value="sdf_eclipse_installer_feature"/>
+            <param name="feature.version" value="${sdf.update.version}"/>
+            <param name="category"        value="${sdf.update.category}"/>
+        </antcall>
+    </target>
+
+    <target name="add.features.to.site.xml.lpg">
+        <antcall target="add.feature">
+            <param name="feature.id"      value="lpg.generator"/>
+            <param name="feature.version" value="${lpg.update.version}"/>
+            <param name="category"        value="${lpg.update.category}"/>
+        </antcall>
+        <antcall target="add.feature">
+            <param name="feature.id"      value="lpg.runtime"/>
+            <param name="feature.version" value="${lpg.update.version}"/>
+            <param name="category"        value="${lpg.update.category}"/>
+        </antcall>
+    </target>
+
+    <target name="add.features.to.site.xml.polyglot">
+        <antcall target="add.feature">
+            <param name="feature.id"      value="polyglot3"/>
+            <param name="feature.version" value="${polyglot.update.version}"/>
+            <param name="category"        value="${polyglot.update.category}"/>
+        </antcall>
+    </target>
+
+    <target name="add.features.to.site.xml.x10dt">
+        <for param="feature.id" values="${feature.list}" separator=",">
+            <!-- The following, when inlined, fails to set a new feature.version for each iteration (why???) -->
+            <antcall target="add.qualified.bin.src.features">
+            	<param name="feature.category" value="X10DT"/>
+            	<param name="feature.src.category" value="X10DT"/>
+            </antcall>
+        </for>
+    </target>
+
+    <target name="add.features.to.site.xml.imp">
+        <fileset id="imp.feature.jar.filelist" dir="${imp.cache.location}/features" includes="*.jar"/>
+        <pathconvert property="imp.feature.jar.list" refid="imp.feature.jar.filelist"/>
+
+        <for param="feature.jar" values="${imp.feature.jar.list}" separator=":">
+            <!-- The following, when inlined, fails to set a new feature.version for each iteration (why???) -->
+            <propertyRegexp name="feature.id" input="${feature.jar}" regexp=".*/([^/]*)\_.*\.jar" value="\1"/>
+            <propertyRegexp name="feature.version" input="${feature.jar}" regexp=".*/[^/]*\_(.*)\.jar" value="\1"/>
+            <antcall target="add.feature">
+            	<param name="feature.id" value="${feature.id}"/>
+            	<param name="feature.version" value="${feature.version}"/>
+            	<param name="category" value="X10DT Prerequisites"/>
+            </antcall>
+        </for>
+    </target>
+	
+    <target name="add.features.to.site.xml.ptp">
+        <fileset id="ptp.feature.jar.filelist" dir="${ptp.cache.location}/features">
+			<include name="org.eclipse.ptp_*.jar"/>
+			<include name="org.eclipse.ptp.core*.jar"/>
+			<include name="org.eclipse.ptp.debug*.jar"/>
+			<include name="org.eclipse.ptp.master*.jar"/>
+			<include name="org.eclipse.ptp.external*.jar"/>
+			<include name="org.eclipse.ptp.remote*.jar"/>
+			<include name="org.eclipse.ptp.rm*.jar"/>
+			<include name="org.eclipse.ptp.services*.jar"/>
+			<include name="org.eclipse.ptp.ui*.jar"/>
+			<include name="org.eclipse.ptp.utils*.jar"/>
+       	</fileset>
+        <pathconvert property="ptp.feature.jar.list" refid="ptp.feature.jar.filelist"/>
+
+        <for param="feature.jar" values="${ptp.feature.jar.list}" separator=":">
+            <!-- The following, when inlined, fails to set a new feature.version for each iteration (why???) -->
+            <propertyRegexp name="feature.id" input="${feature.jar}" regexp=".*/([^/]*)\_.*\.jar" value="\1"/>
+            <propertyRegexp name="feature.version" input="${feature.jar}" regexp=".*/[^/]*\_(.*)\.jar" value="\1"/>
+            <antcall target="add.feature">
+            	<param name="feature.id" value="${feature.id}"/>
+            	<param name="feature.version" value="${feature.version}"/>
+            	<param name="category" value="Parallel Tools Platform"/>
+            </antcall>
+        </for>
+    </target>
+
+	<target name="collect.lpg.artifacts">
+	    <delete dir="../lpg.update/plugins" includes="*.jar"/>
+	    <delete dir="../lpg.update/features" includes="*.jar"/>
+
+        <ant antfile="../lpg.update/exportUpdate.xml" target="build.plugins"/>
+        <ant antfile="../lpg.update/exportUpdate.xml" target="build.features"/>
+
+        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+           <fileset dir="../lpg.update/plugins" includes="lpg.runtime_*.jar"/>
+        </copy>
+        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+            <fileset dir="../lpg.update/features" includes="lpg.runtime_*.jar"/>
+        </copy>
+    </target>
+
+
+    <target name="collect.polyglot.artifacts">
+    	<property name="polyglotPluginId"        value="polyglot3"/>
+    	<property name="polyglotFeatureId"        value="polyglot3"/>
+    	<!-- The name of the X10DT ws  project containing the Polyglot source snapshot is "polyglot3". -->
+        <delete dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="*.jar"/>
+        <delete dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="*.jar"/>
+
+        <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-plugin"/>
+        <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-features"/>
+	    
+        <copy verbose="true" todir="${update.temp.folder}/plugins" failonerror="true" overwrite="true">
+           <fileset dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="${polyglotPluginId}_*.jar"/>
+        </copy>
+        <copy verbose="true" todir="${update.temp.folder}/features" failonerror="true" overwrite="true">
+           <fileset dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="${polyglotFeatureId}_*.jar"/>
+        </copy>
+    </target>
+	
+	<target name="collect.imp.artifacts">
+	 	<!-- imp.cache.location is the local cache of the (unzipped) IMP update site   -->
+	 	<property name="imp.cache.location"        value="/Users/beth/temp/imp104"/>
+	        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+	           <fileset dir="${imp.cache.location}/features/" includes="org.eclipse.imp.runtime_*.jar"/>
+	        	<fileset dir="${imp.cache.location}/features/" includes="org.eclipse.imp.java.hosted_*.jar"/>
+	        </copy>
+	 	<!-- fixme really should dynamically copy plugin jars based on list in feature manifest -->
+	        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+	            <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.doc_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.runtime_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.smapi_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.smapifier_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.xform_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.java.hosted_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="com.ibm.wala.shrike_*.jar"/>	        
+	        </copy>
+	</target>
+
+    <target name="collect.ptp.artifacts">
+		<!-- ptp.cache.location is the local cache of the (unzipped) ptp update site   
+		    which is the unzipped contents of ptp-master-*-subset-for-x10dt.zip   -->
+		<copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+			<!--
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp*.jar"/>
+			-->
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp_*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.core*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.debug*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.master*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.external*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.remote*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.rm*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.services*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.ui*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.utils*.jar"/>
+			 
+		</copy>
+		<copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+			<!--
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp*.jar"/>
+			-->
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp_*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.aix*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.core*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.debug*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.help*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.launch*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.linux*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.macosx*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.proxy*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.remote*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.rm*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.services*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.ui*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.utils*.jar"/>		 
+		</copy>
+
+	</target>
+</project>
