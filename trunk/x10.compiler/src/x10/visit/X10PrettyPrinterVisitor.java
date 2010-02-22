@@ -651,17 +651,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					if (t.isBoolean()) {
 						er.dumpCodeString("((Boolean) #0).booleanValue()", expr);
 					} else if (t.isInt()) {
-						er.dumpCodeString("((Integer) #0).intValue()", expr);
+						er.dumpCodeString("((Number) #0).intValue()", expr);
 					} else if (t.isShort()) {
-						er.dumpCodeString("((Short) #0).shortValue()", expr);
+						er.dumpCodeString("((Number) #0).shortValue()", expr);
 					} else if (t.isByte()) {
-						er.dumpCodeString("((Byte) #0).byteValue()", expr);
+						er.dumpCodeString("((Number) #0).byteValue()", expr);
 					} else if (t.isLong()) {
-						er.dumpCodeString("((Long) #0).longValue()", expr);
+						er.dumpCodeString("((Number) #0).longValue()", expr);
 					} else if (t.isFloat()) {
-						er.dumpCodeString("((Float) #0).floatValue()", expr);
+						er.dumpCodeString("((Number) #0).floatValue()", expr);
 					} else if (t.isDouble()) {
-						er.dumpCodeString("((Double) #0).doubleValue()", expr);
+						er.dumpCodeString("((Number) #0).doubleValue()", expr);
 					} else if (t.isChar()) {
 						er.dumpCodeString("((Char) #0).charValue()", expr);
 					}
