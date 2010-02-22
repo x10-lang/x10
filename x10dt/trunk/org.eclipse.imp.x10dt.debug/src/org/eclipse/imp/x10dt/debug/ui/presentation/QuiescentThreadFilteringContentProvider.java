@@ -30,8 +30,6 @@ import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Thread;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 
-import sun.rmi.runtime.GetThreadPoolAction;
-
 public class QuiescentThreadFilteringContentProvider extends
 		DebugTargetContentProvider implements IElementContentProvider {
 
