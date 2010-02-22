@@ -4467,9 +4467,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		} else if (t.isClass() && t.toClass().flags().isInterface()) {
 		    X10MethodInstance ami = null;
 		    try {
+		        List<Type> actualTypes = new ArrayList<Type>();
+		        for (Expr a : c.arguments()) {
+		            actualTypes.add(a.type());
+		        }
 		        ami = xts.findMethod(t,
-		                xts.MethodMatcher(t, Name.make("apply"), mi.formalTypes(), context));
+		                xts.MethodMatcher(c.type(), Name.make("apply"), actualTypes, context));
 		    } catch (SemanticException e) {
+		        e.printStackTrace();
 		        assert (false);
 		    }
 		    invokeInterface(c, target, args, make_ref("x10::lang::Reference"), t.toClass(), ami, needsPlaceCheck, needsNullCheck);
