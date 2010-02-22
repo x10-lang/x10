@@ -17,17 +17,13 @@ sub printHeader {
 }
 
 while (<>) {
-    if (m/^package /) {
-	$packageFound = 1;
-	printHeader();
-    }
     if ($packageFound) {
 	print $_;
     } else {
-	# sigh.  Might be a class in the default package.  
-        # Recognize some other common indicators for the begining of the file contents
-        # that appear in files in x10.tests.
-        if (m/^import /  || m/^interface / || m/^class / || m/^public / || m/^final / || m/\/\*\*/ || m/LIMITATION/ || m/STATUS/ || m/OPTION/) {
+	# Mainly want to look for the opening 'package statement', but we
+	# also have to deal with the fact that some of the programs (tests, samples) 
+	# are in the default package and therefore don't have opening package statements.
+        if (m/^package / || m/^import / || m/^interface / || m/^class / || m/^public / || m/^final / || m/LIMITATION/ || m/STATUS/ || m/OPTION/) {
 	    $packageFound = 1;
 	    printHeader();
 	    print $_;
