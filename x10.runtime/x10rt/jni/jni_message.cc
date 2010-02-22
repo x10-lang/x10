@@ -330,5 +330,4 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendGeneralRemote(JNIEnv *, 
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_processQueue(JNIEnv *, jclass) {
-    fprintf(stderr, "Unimplemented native function\n");
 }    
