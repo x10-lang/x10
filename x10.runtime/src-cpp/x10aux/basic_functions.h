@@ -24,7 +24,7 @@ namespace x10aux {
     /******* type_name ********/
     
     template<class T> inline ref<x10::lang::String> type_name(ref<T> x) {
-        return x10::lang::String::Lit(((const T*)x.operator->())->_type()->name());
+        return x10::lang::String::Lit((ref<x10::lang::Reference>(x))->_type()->name());
     }
 
     template<typename T> inline ref<x10::lang::String> type_name(T x) {
