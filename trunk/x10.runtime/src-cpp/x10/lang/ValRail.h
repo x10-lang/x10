@@ -48,6 +48,10 @@ namespace x10 {
             // 32 bit array indexes
             const x10_int FMGL(length);
 
+            // Support length() property method.
+            // TODO: If we eliminate auto-generated property getters, then we should delete this method
+            GPUSAFE x10_int length() { return FMGL(length); }
+            
             // The ValRail's data.
             // As a locality optimization, we are going to allocate all of the storage for the
             // Rail object and its data array contiguously (ie, in a single allocate call),
