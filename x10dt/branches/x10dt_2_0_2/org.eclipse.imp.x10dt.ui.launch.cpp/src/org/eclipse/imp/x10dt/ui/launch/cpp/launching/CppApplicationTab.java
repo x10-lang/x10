@@ -229,7 +229,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         if (resourceManager != null) {
           final Pair<IRemoteConnection, IRemoteFileManager> pair = PTPUtils.getConnectionAndFileManager(resourceManager);
           try {
-            pair.first.setWorkingDirectory(JavaProjectUtils.getTargetWorkspaceDir(project));
+            pair.second.setWorkingDirectory(JavaProjectUtils.getTargetWorkspaceDir(project));
           } catch (CoreException except) {
             // Simply forgets.
           }
