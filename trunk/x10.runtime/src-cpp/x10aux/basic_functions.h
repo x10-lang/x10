@@ -272,7 +272,7 @@ namespace x10aux {
     /******* hash_code ********/
 
     template<class T> inline x10_int hash_code(ref<T> x) {
-        return nullCheck(x)->hashCode();
+        return (ref<x10::lang::Reference>(nullCheck(x)))->hashCode();
     }
     
     template<class T> inline x10_int hash_code(T x) {
@@ -303,8 +303,7 @@ namespace x10aux {
     /******* to_string ********/
     
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
-        ref<x10::lang::Reference> asRef = x;
-        return nullCheck(asRef)->toString();
+        return (ref<x10::lang::Reference>(nullCheck(x)))->toString();
     }
 
     template<class T> ref<x10::lang::String> to_string(T x) {
