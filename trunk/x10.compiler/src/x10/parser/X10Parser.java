@@ -391,6 +391,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             break;
     }
 
+    // FIXME: HACK! Prepend "Syntax error: " until we figure out how to get Polyglot to do it for us.
+    if (errorCode != NO_MESSAGE_CODE) { msg = "Syntax error: " + msg; }
+
     eq.enqueue(ErrorInfo.SYNTAX_ERROR, msg, pos);
 }
 }
