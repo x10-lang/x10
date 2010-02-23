@@ -11,7 +11,6 @@ import polyglot.types.ClassType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import x10.constraint.XConstraint;
 import x10.types.ParameterType;
 import x10.types.SubtypeConstraint;
 import x10.types.TypeConstraint;
@@ -22,6 +21,7 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationTypeDoc;
@@ -151,7 +151,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	public String declString() {
 		// a declaration is needed if the class has associated constraints, or extends classes, implements interfaces that 
 		// are X10 specific (contain closures, constraints) 
-		Ref<XConstraint> refC = classDef.classInvariant(); 
+		Ref<CConstraint> refC = classDef.classInvariant(); 
 		Ref<TypeConstraint> refG = classDef.typeGuard();
 		boolean needsDeclForSuperOrInt = false; // signifies that the declaration is needed because either the super class 
 		                                        // or an implemented interface is X10-specific, as opposed to it being needed

@@ -239,7 +239,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 //			return getUnspecClass(classDef);
 //		}
 //		if (t instanceof ParametrizedType) {
-//			return new X10ParameterizedType((x10.types.X10Type)t);
+//			return new X10ParameterizedType((polyglot.types.Type)t);
 //		}
 		X10ClassDef classDef = (X10ClassDef) t.toClass().def();
 		if (t instanceof X10ParsedClassType) {
@@ -248,7 +248,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			// earlier test: "if (((X10ParsedClassType)t).typeArguments().size() > 0)"; this earlier test 
 			// includes all closures except closures with 0 arguments, hence the instanceof test
 			if ((t instanceof FunctionType) || (((X10ParsedClassType)t).typeArguments().size() > 0)) {
-				return new X10ParameterizedType((x10.types.X10Type)t, methodTypeVars, false);
+				return new X10ParameterizedType((polyglot.types.Type)t, methodTypeVars, false);
 			}
 			return getUnspecClass(classDef);
 		}
@@ -257,11 +257,11 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			if (base instanceof X10ParsedClassType) {
 				if (((X10ParsedClassType)base).typeArguments().size() > 0) {
 					// parameterized type with constraints
-					return new X10ParameterizedType((x10.types.X10Type)t, methodTypeVars, true); 
+					return new X10ParameterizedType((polyglot.types.Type)t, methodTypeVars, true); 
 				}
 			}
 			// non-parameterized type with constraints
-			return new X10ParameterizedType((x10.types.X10Type)t);
+			return new X10ParameterizedType((polyglot.types.Type)t);
 		}
 		return getUnspecClass(classDef);
 	}

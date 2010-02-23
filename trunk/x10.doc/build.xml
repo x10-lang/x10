@@ -89,7 +89,7 @@
     </target>
     <target name="build" depends="init,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac destdir="${build}" source="1.6" target="1.6" debug="on" includes="x10doc/**" excludes="">
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on" includes="x10doc/**" excludes="">
             <src path="${src}"/>
             <classpath refid="project.classpath"/>
         </javac>
