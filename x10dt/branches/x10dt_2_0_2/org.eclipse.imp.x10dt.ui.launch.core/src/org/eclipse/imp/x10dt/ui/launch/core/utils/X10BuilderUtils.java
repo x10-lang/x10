@@ -99,8 +99,8 @@ public final class X10BuilderUtils {
    * @return The option with the variables (if any are present) interpreted.
    */
   public static String interpretDistVariables(final IX10PlatformConfiguration platformConf, final String option) {
-    final String x10DistLoc = String.format("\"%s\"", platformConf.getX10DistribLocation());
-    final String pgasDistLoc = String.format("\"%s\"", platformConf.getPGASLocation());
+    final String x10DistLoc = String.format("\"%s\"", platformConf.getX10DistribLocation()); //$NON-NLS-1$
+    final String pgasDistLoc = String.format("\"%s\"", platformConf.getPGASLocation()); //$NON-NLS-1$
     return option.replace(X10_DIST_VAR, x10DistLoc).replace(PGAS_DIST_VAR, pgasDistLoc);
   }
   
