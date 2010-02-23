@@ -46,9 +46,9 @@ public final class X10PlatformsManager {
                                   configuration.getTargetOS(), configuration.getX10DistribLocation(), 
                                   configuration.getPGASLocation(), configuration.getX10HeadersLocations(), 
                                   configuration.getX10LibsLocations(), configuration.getCompiler(), 
-                                  configuration.getCompilerOpts(), configuration.getArchiver(), 
-                                  configuration.getArchivingOpts(), configuration.getLinker(), 
-                                  configuration.getLinkingOpts(), configuration.getLinkingLibs(), 
+                                  configuration.getCompilerOpts(false), configuration.getArchiver(), 
+                                  configuration.getArchivingOpts(false), configuration.getLinker(), 
+                                  configuration.getLinkingOpts(false), configuration.getLinkingLibs(false), 
                                   configuration.isCplusPlus(), configuration.isLocal(), 
                                   configuration.getValidationStatus(), configuration.getValidationErrorMessage());
   }
@@ -67,9 +67,9 @@ public final class X10PlatformsManager {
                                   configuration.getTargetOS(), configuration.getX10DistribLocation(), 
                                   configuration.getPGASLocation(), configuration.getX10HeadersLocations(), 
                                   configuration.getX10LibsLocations(), configuration.getCompiler(), 
-                                  configuration.getCompilerOpts(), configuration.getArchiver(), 
-                                  configuration.getArchivingOpts(), configuration.getLinker(), 
-                                  configuration.getLinkingOpts(), configuration.getLinkingLibs(), 
+                                  configuration.getCompilerOpts(false), configuration.getArchiver(), 
+                                  configuration.getArchivingOpts(false), configuration.getLinker(), 
+                                  configuration.getLinkingOpts(false), configuration.getLinkingLibs(false), 
                                   configuration.isCplusPlus(), configuration.isLocal(), 
                                   configuration.getValidationStatus(), configuration.getValidationErrorMessage());
   }
@@ -157,15 +157,15 @@ public final class X10PlatformsManager {
       }
       platformMemento.putString(X10_DIST_LIBS_LOC_TAG, libsBuilder.toString());
       platformMemento.putString(COMPILER_TAG, platformConf.getCompiler());
-      platformMemento.putString(COMPILER_OPTS_TAG, platformConf.getCompilerOpts());
+      platformMemento.putString(COMPILER_OPTS_TAG, platformConf.getCompilerOpts(false));
       if (platformConf.getArchiver() != null) {
         platformMemento.putString(ARCHIVER_TAG, platformConf.getArchiver());
-        platformMemento.putString(ARCHIVING_OPTS_TAG, platformConf.getArchivingOpts());
+        platformMemento.putString(ARCHIVING_OPTS_TAG, platformConf.getArchivingOpts(false));
       }
       if (platformConf.getLinker() != null) {
         platformMemento.putString(LINKER_TAG, platformConf.getLinker());
-        platformMemento.putString(LINKING_OPTS_TAG, platformConf.getLinkingOpts());
-        platformMemento.putString(LINKING_LIBS_TAG, platformConf.getLinkingLibs());
+        platformMemento.putString(LINKING_OPTS_TAG, platformConf.getLinkingOpts(false));
+        platformMemento.putString(LINKING_LIBS_TAG, platformConf.getLinkingLibs(false));
       }
       if (platformConf.getResourceManagerId() != null) {
         platformMemento.putString(RES_MANAGER_ID_TAG, platformConf.getResourceManagerId());

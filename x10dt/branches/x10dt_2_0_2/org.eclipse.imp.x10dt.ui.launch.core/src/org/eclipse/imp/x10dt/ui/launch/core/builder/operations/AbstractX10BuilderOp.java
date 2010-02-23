@@ -60,7 +60,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
     monitor.subTask(Messages.CPPB_ArchivingTaskName);
     final List<String> archiveCmd = new ArrayList<String>();
     archiveCmd.add(platform.getArchiver());
-    archiveCmd.addAll(X10BuilderUtils.getAllTokens(platform.getArchivingOpts()));
+    archiveCmd.addAll(X10BuilderUtils.getAllTokens(platform.getArchivingOpts(true)));
     final StringBuilder libName = new StringBuilder();
     libName.append(this.fWorkspaceDir).append("/lib").append(this.fProject.getName()).append(".a"); //$NON-NLS-1$//$NON-NLS-2$
     archiveCmd.add(libName.toString());
@@ -123,7 +123,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
 
         final List<String> command = new ArrayList<String>();
         command.add(platform.getCompiler());
-        command.addAll(X10BuilderUtils.getAllTokens(platform.getCompilerOpts()));
+        command.addAll(X10BuilderUtils.getAllTokens(platform.getCompilerOpts(true)));
         command.add(INCLUDE_OPT + this.fWorkspaceDir);
         for (final String headerLoc : platform.getX10HeadersLocations()) {
           command.add(INCLUDE_OPT + headerLoc);

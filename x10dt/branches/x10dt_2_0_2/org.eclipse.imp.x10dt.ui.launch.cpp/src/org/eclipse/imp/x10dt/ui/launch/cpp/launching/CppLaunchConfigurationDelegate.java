@@ -183,7 +183,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       
       final List<String> command = new ArrayList<String>();
       command.add(platform.getLinker());
-      command.addAll(X10BuilderUtils.getAllTokens(platform.getLinkingOpts()));
+      command.addAll(X10BuilderUtils.getAllTokens(platform.getLinkingOpts(true)));
       command.add(INCLUDE_OPT + workspaceDir);
       for (final String headerLoc : platform.getX10HeadersLocations()) {
         command.add(INCLUDE_OPT + headerLoc);
@@ -196,7 +196,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         command.add(LIB_OPT + libLoc);
       }
       command.add("-l" + project.getName()); //$NON-NLS-1$
-      command.addAll(X10BuilderUtils.getAllTokens(platform.getLinkingLibs()));
+      command.addAll(X10BuilderUtils.getAllTokens(platform.getLinkingLibs(true)));
 
       final IRemoteProcessBuilder processBuilder = remoteServices.getProcessBuilder(connection, command);
       final IRemoteProcess process = processBuilder.start();

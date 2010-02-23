@@ -73,7 +73,6 @@ public class Messages extends NLS {
   public static String PCDWP_CygwinEnv;
   public static String PCDWP_DefineCompCmdsMsg;
   public static String PCDWP_DefineCompLinkCmdsMsg;
-  public static String PCDWP_DefinePGASLocMsg;
   public static String PCDWP_DefineX10DistLocMsg;
   public static String PCDWP_DirectoryLocation;
   public static String PCDWP_DistribGroup;
