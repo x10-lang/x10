@@ -994,16 +994,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			boolean cast = xts.isParameterType(t);
 			if (needsHereCheck && ! (target instanceof TypeNode || target instanceof New)) {
 				Template tmplate = new Template(er, "place-check", new TypeExpander(er, target.type(), true, false, false), target);
+				targetArg = new CastExpander(w, er, tmplate);
 				if (cast) {
-					targetArg = new CastExpander(w, er, new TypeExpander(er,  mi.container(), BOX_PRIMITIVES), tmplate);
-				} else {
-					targetArg = new CastExpander(w, er, tmplate);
+					targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES);
 				}
 			} else {
+				targetArg = new CastExpander(w, er, target);
 				if (cast) {
-					targetArg = new CastExpander(w, er, new TypeExpander(er,  mi.container(), BOX_PRIMITIVES), target);
-				} else {
-					targetArg = new CastExpander(w, er, target);
+					targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES);
 				}
 			}
             List<Type> typeArguments  = Collections.<Type>emptyList();
@@ -1105,7 +1103,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			if (runAsync && e instanceof Closure_c) {
 				c.print(((Closure_c)e).methodContainer(mi), w, tr);
 			} else if (!er.isNoArgumentType(e)) {
-				new CastExpander(w, er, new TypeExpander(er, e.type(), false, true, false), e).expand(tr);
+				new CastExpander(w, er, e).castTo(e.type(), BOX_PRIMITIVES).expand();
 			} else {
 				c.print(e, w, tr);
 			}

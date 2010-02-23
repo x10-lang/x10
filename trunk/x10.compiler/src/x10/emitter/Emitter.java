@@ -304,7 +304,7 @@ public class Emitter {
 				
 				Object component = components[idx.intValue()];
 				if (component instanceof Expr && !isNoArgumentType((Expr)component)) {
-					component = new CastExpander(w, this, new TypeExpander(this, ((Expr)component).type(), false, true, false), ((Expr)component));
+                                    component = new CastExpander(w, this, (Node) component).castTo(((Expr)component).type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 				}
 				prettyPrint(component, tr);
 			}
@@ -1731,33 +1731,23 @@ public class Emitter {
 		
 		boolean parameterExpected = expected instanceof ParameterType;
 
-		CastExpander expander;
+		CastExpander expander = new CastExpander(w, this, e);
 		if (actual.isNull() || e.isConstant() && !parameterExpected) {
-			expander = new CastExpander(w, this, e);
 		} else if (actual != expected 
 					&& (actual.isBoolean() || actual.isNumeric() || actual.isByte())) {
-			
 			//when the type of e has parameters, cast to actual boxed primitive. 
-			if (isNoArgumentType(e)) {
-				expander = new CastExpander(w, this, e);
-			} else {
-				expander = new CastExpander(w, this, new TypeExpander(this, actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES), e);
+			if (!isNoArgumentType(e)) {
+				expander = expander.castTo(actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 			}
-			//cast to actual primitive. 
-			expander = new CastExpander(w, this, new TypeExpander(this, actual, 0), expander);
-			//cast to expected primitive. 
-			expander = new CastExpander(w, this, new TypeExpander(this, expected, 0), expander);
-			//cast to expected boxed primitive. 
-			expander = new CastExpander(w, this, new TypeExpander(this, expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES), expander);
+			//cast to actual primitive to expected primitive to expected boxed primitive.
+			expander = expander.castTo(actual).castTo(expected).castTo(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 		} else if (actual.isBoolean() || actual.isNumeric() || actual.isByte()){
-			if (isNoArgumentType(e)) {
-				expander = new CastExpander(w, this, e);
-			} else {
-				expander = new CastExpander(w, this, new TypeExpander(this, expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES), e);
+			if (!isNoArgumentType(e)) {
+				expander = expander.castTo(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 			}
 		} else {
 			//cast eagerly
-			expander = new CastExpander(w, this, new TypeExpander(this, expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES), e);
+			expander = expander.castTo(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 		}
 		expander.expand(tr);
 	}

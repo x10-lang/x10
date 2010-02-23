@@ -11,6 +11,7 @@
 package x10.emitter;
 
 import polyglot.ast.Node;
+import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.visit.Translator;
 
@@ -23,32 +24,12 @@ public class CastExpander extends Expander {
 	private final Node node;
 
 	public CastExpander(CodeWriter w, Emitter er, TypeExpander typeExpander,
-			Node node) {
-		super(er);
-		this.w = w;
-		this.typeExpander = typeExpander;
-		this.child = null;
-		this.template = null;
-		this.node = node;
-	}
-
-	public CastExpander(CodeWriter w, Emitter er, TypeExpander typeExpander,
 			Expander child) {
 		super(er);
 		this.w = w;
 		this.typeExpander = typeExpander;
 		this.child = child;
 		this.template = null;
-		this.node = null;
-	}
-
-	public CastExpander(CodeWriter w, Emitter er, TypeExpander typeExpander,
-			Template template) {
-		super(er);
-		this.w = w;
-		this.typeExpander = typeExpander;
-		this.child = null;
-		this.template = template;
 		this.node = null;
 	}
 
@@ -77,6 +58,15 @@ public class CastExpander extends Expander {
 		this.child = null;
 		this.template = template;
 		this.node = null;
+	}
+
+	public CastExpander castTo(Type castType) {
+		return new CastExpander(w, er, new TypeExpander(er, castType, 0), this);
+	}
+
+	public CastExpander castTo(Type castType, int flags) {
+		return new CastExpander(w, er, new TypeExpander(er, castType, flags),
+				this);
 	}
 
 	public String toString() {
@@ -148,8 +138,8 @@ public class CastExpander extends Expander {
 		if (typeExpander == null || expander.typeExpander == null) {
 			return typeExpander == null && expander.typeExpander == null;
 		}
-		return typeExpander.type().toString().equals(
-				expander.typeExpander.type().toString());
+		return typeExpander.toString().equals(
+				expander.typeExpander.toString());
 
 	}
 }
