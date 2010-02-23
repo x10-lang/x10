@@ -605,6 +605,8 @@ function main {
 		X10CPP="$X10CPP -x10rt pgas_lapi"
 	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
 	    X10CPP="$X10CPP -x10rt pgas_sockets"
+	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "ppc64" ]]; then
+	    X10CPP="$X10CPP -x10rt pgas_sockets"
 	elif [[ "$(uname -s)" == "SunOS" && "$(uname -p)" == "sparc" ]]; then
 	    X10CPP="$X10CPP -x10rt pgas_sockets"
 	fi
