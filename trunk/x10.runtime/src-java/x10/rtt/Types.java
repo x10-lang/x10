@@ -57,19 +57,25 @@ public class Types {
     }
     
     public static Object conversion(Type rtt, Object primOrTypeParam) {
-        if (rtt == x10.rtt.Types.BYTE) {
+        if (rtt == BOOLEAN) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
+        }
+        if (rtt == BYTE) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).byteValue();
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
             if (primOrTypeParam instanceof java.lang.Character) return (byte)((java.lang.Character) primOrTypeParam).charValue();
             return primOrTypeParam;
         }
-        if (rtt == x10.rtt.Types.SHORT) {
+        if (rtt == SHORT) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).shortValue();
             if (primOrTypeParam instanceof java.lang.Short) return primOrTypeParam;
             if (primOrTypeParam instanceof java.lang.Character) return (short)((java.lang.Character) primOrTypeParam).charValue();
             return primOrTypeParam;
         }
-        if (rtt == x10.rtt.Types.CHAR) {
+        if (rtt == CHAR) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Byte) return (char)(byte)((java.lang.Byte) primOrTypeParam);
             if (primOrTypeParam instanceof java.lang.Short) return (char)(short)((java.lang.Short) primOrTypeParam);
             if (primOrTypeParam instanceof java.lang.Character) return primOrTypeParam;
@@ -79,25 +85,29 @@ public class Types {
             if (primOrTypeParam instanceof java.lang.Double) return (char)(double)((java.lang.Double) primOrTypeParam);
             return primOrTypeParam;
         }
-        if (rtt == x10.rtt.Types.INT) {
+        if (rtt == INT) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).intValue();
             if (primOrTypeParam instanceof java.lang.Character) return (int)((java.lang.Character) primOrTypeParam).charValue();
             if (primOrTypeParam instanceof java.lang.Integer) return primOrTypeParam;
             return primOrTypeParam;
         }
-        if (rtt == x10.rtt.Types.LONG) {
+        if (rtt == LONG) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).longValue();
             if (primOrTypeParam instanceof java.lang.Character) return (long)((java.lang.Character) primOrTypeParam).charValue();
             if (primOrTypeParam instanceof java.lang.Long) return primOrTypeParam;
             return primOrTypeParam;
         }
-        if (rtt == x10.rtt.Types.FLOAT) {
+        if (rtt == FLOAT) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).floatValue();
             if (primOrTypeParam instanceof java.lang.Character) return (float)((java.lang.Character) primOrTypeParam).charValue();
             if (primOrTypeParam instanceof java.lang.Float) return primOrTypeParam;
             return primOrTypeParam;
         }
-        if (rtt == x10.rtt.Types.DOUBLE) {
+        if (rtt == DOUBLE) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).doubleValue();
             if (primOrTypeParam instanceof java.lang.Character) return (double)((java.lang.Character) primOrTypeParam).charValue();
             if (primOrTypeParam instanceof java.lang.Double) return primOrTypeParam;
@@ -105,10 +115,22 @@ public class Types {
         }
         
         // unimplemented
-        if (rtt == x10.rtt.Types.UBYTE) {return primOrTypeParam;}
-        if (rtt == x10.rtt.Types.USHORT) {return primOrTypeParam;}
-        if (rtt == x10.rtt.Types.UINT) {return primOrTypeParam;}
-        if (rtt == x10.rtt.Types.ULONG) {return primOrTypeParam;}
+        if (rtt == UBYTE) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
+            return primOrTypeParam;
+        }
+        if (rtt == USHORT) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
+            return primOrTypeParam;
+        }
+        if (rtt == UINT) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
+            return primOrTypeParam;
+        }
+        if (rtt == ULONG) {
+            if (primOrTypeParam == null) {throw new ClassCastException();}
+            return primOrTypeParam;
+        }
         return primOrTypeParam;
     }
 }
