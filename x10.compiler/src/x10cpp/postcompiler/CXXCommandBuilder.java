@@ -121,6 +121,7 @@ public class CXXCommandBuilder {
         if (x10.Configuration.OPTIMIZE) {
             cxxCmd.add(USE_XLC ? "-O3" : "-O2");
             cxxCmd.add("-DNDEBUG");
+            cxxCmd.add("-DNO_PLACE_CHECKS"); // All place checking is done statically, so this should be completely safe to do.
             cxxCmd.add(USE_XLC ? "-qinline" : "-finline-functions");
             if (USE_XLC) {
                 cxxCmd.add("-qhot");
