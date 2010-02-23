@@ -30,7 +30,7 @@ CXXFLAGS += -g
 
 #avoid specifying -NDEBUG twice
 ifdef OPTIMIZE
-  USE_NDEBUG := -DNDEBUG
+  USE_NDEBUG := -DNDEBUG -DNO_PLACE_CHECKS
   X10CPPFLAGS += -optimize
 endif
 ifdef NO_CHECKS
