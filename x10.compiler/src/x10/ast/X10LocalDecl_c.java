@@ -81,7 +81,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 			// This can be fixed later for local variables by doing better 
 			// type inference.  This should never be done for fields.
 			if (! flags.flags().isFinal())
-				throw new SemanticException("Cannot infer type of non-final variable.", position());
+				throw new SemanticException("Cannot infer type of a mutable (non-val) variable.", position());
 		}
 			
 		// This installs a LocalDef 

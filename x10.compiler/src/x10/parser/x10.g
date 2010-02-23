@@ -14,11 +14,18 @@
 
 %Notice
 /.
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
 //#line $next_line "$input_file$"
-//
-// Licensed Material
-// (C) Copyright IBM Corp, 2006
-//
 ./
 %End
 
@@ -417,6 +424,9 @@ public static class MessageHandler implements IMessageHandler {
                 msg = "Syntax error";
                 break;
         }
+
+        // FIXME: HACK! Prepend "Syntax error: " until we figure out how to get Polyglot to do it for us.
+        if (errorCode != NO_MESSAGE_CODE) { msg = "Syntax error: " + msg; }
 
         eq.enqueue(ErrorInfo.SYNTAX_ERROR, msg, pos);
     }
