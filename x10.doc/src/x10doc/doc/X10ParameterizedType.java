@@ -28,14 +28,14 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 	ArrayList<Type> interfaceTypes;
 
 	// the created X10ParameterizedType object represents a parameterized type with/without constraints 
-	public X10ParameterizedType(x10.types.X10Type t, X10TypeVariable[] methodTypeVars, boolean depType) {
+	public X10ParameterizedType(polyglot.types.Type t, X10TypeVariable[] methodTypeVars, boolean depType) {
 		super(t);
 
 		this.depType = depType;
 		rootDoc = X10RootDoc.getRootDoc();
 		classDoc = rootDoc.getUnspecClass(((X10ClassType)X10TypeMixin.baseType(t)).x10Def());
 
-		x10.types.X10Type b = (depType ? ((x10.types.X10Type) X10TypeMixin.baseType(t)) : t);
+		polyglot.types.Type b = (depType ? ((polyglot.types.Type) X10TypeMixin.baseType(t)) : t);
 		List<polyglot.types.Type> args = ((X10ClassType)b).typeArguments();
 		typeArgs = new Type[args.size()];
 		for (int i = 0; i < typeArgs.length; i++) {
@@ -59,7 +59,7 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 
 	// creates an X10ParameterizedType representing an X10 ConstrainedType that does not have any type 
 	// parameters, in other words a ConstrainedType for whose base type b, |b.typeParameters()| == 0  
-	public X10ParameterizedType(x10.types.X10Type t) {
+	public X10ParameterizedType(polyglot.types.Type t) {
 		super(t);
 		this.depType = true;
 		X10RootDoc rootDoc = X10RootDoc.getRootDoc();
