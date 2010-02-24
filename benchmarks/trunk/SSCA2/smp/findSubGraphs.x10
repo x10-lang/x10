@@ -11,7 +11,7 @@ class findSubGraphs  {
 		val nthreads = util.x10_get_num_threads();
 		val numPhases = GLOBALS.SubGraphPathLength + 1;
 		val S = Rail.make[types.VERT_T](n);
-		val visited = Rail.make[Boolean](n);
+		val visited = Rail.make[AtomicBoolean](n, (Int)=>new AtomicBoolean(false));
 		val start = Rail.make[types.LONG_T](numPhases+2);
 		val pSCount = Rail.make[types.LONG_T](nthreads+1);
 		
@@ -70,13 +70,21 @@ class findSubGraphs  {
 							val w = (G.endV as Rail[types.LONG_T]!)(j);
 							if (v==w) continue;
 							//x10.io.Console.OUT.println("phase: " + phase_num(0) + " " + v + " " + w + " " + visited(w) + " " + pCount);
-							atomic {
-								if (!visited(w)) {
-									visited(w) = true;
-									pS.add(w);
-									pCount++;
-								}
+							
+							
+							val ret = visited(w).compareAndSet(false, true);
+							if (ret) {
+								pS.add(w);
+								pCount++;
 							}
+							
+							//atomic {
+							//	if (!visited(w)) {
+							//		visited(w) = true;
+							//		pS.add(w);
+							//	        pCount++;
+							//	}
+							//}
 						}
 					}
 					
