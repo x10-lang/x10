@@ -41,6 +41,7 @@ namespace x10aux {
         static inline x10_double ceil(x10_double x) { return ::ceil(x); }
         static inline x10_double floor(x10_double x) { return ::floor(x); }
         static inline x10_double round(x10_double x) { return ::round(x); }
+        static inline x10_double copysign(x10_double x, x10_double y) { return ::copysign(x, y); }
     };
 }
 
