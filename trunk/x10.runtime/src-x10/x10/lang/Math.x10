@@ -282,6 +282,16 @@ public final class Math {
    @Native("c++", "x10aux::math_utils::cbrt(#1)")
    public static native def cbrt(a:Double):Double;
 
+   // See XTENLANG-910
+   @Native("java", "Double.NaN")
+   @Native("c++", "x10aux::math_utils::erf(#1)")
+   public static native def erf(a:Double):Double;
+
+   // See XTENLANG-910
+   @Native("java", "Double.NaN")
+   @Native("c++", "x10aux::math_utils::erfc(#1)")
+   public static native def erfc(a:Double):Double;
+
    @Native("java", "java.lang.Math.hypot(#1,#2)")
    @Native("c++", "x10aux::math_utils::hypot(#1,#2)")
    public static native def hypot(a:Double, b:Double):Double;
