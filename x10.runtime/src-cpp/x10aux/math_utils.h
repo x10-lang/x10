@@ -37,6 +37,8 @@ namespace x10aux {
         static inline x10_double log1p(x10_double x) { return ::log1p(x); }
         static inline x10_double sqrt(x10_double x) { return ::sqrt(x); }
         static inline x10_double cbrt(x10_double x) { return ::cbrt(x); }
+        static inline x10_double erf(x10_double x) { return ::erf(x); }
+        static inline x10_double erfc(x10_double x) { return ::erfc(x); }
         static inline x10_double hypot(x10_double x, x10_double y) { return ::hypot(x, y); }
         static inline x10_double ceil(x10_double x) { return ::ceil(x); }
         static inline x10_double floor(x10_double x) { return ::floor(x); }
