@@ -7,6 +7,7 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright Australian National University 2009-2010.
  */
 
 import harness.x10Test;
@@ -14,7 +15,7 @@ import harness.x10Test;
 /**
  * @author milthorpe 6/2009
  */
-class XTENLANG_443 extends x10Test {
+class TestMathTrig extends x10Test {
 
     public def run(): boolean {
         /*
@@ -58,7 +59,7 @@ class XTENLANG_443 extends x10Test {
     }
 
     public static def main(Rail[String]) {
-        new XTENLANG_443().execute();
+        new TestMathTrig().execute();
     }
 }
 
