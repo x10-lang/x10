@@ -68,7 +68,7 @@ For instance:
 \begin{xten}
 val data : Array[Int]
     = Array.make[Int](1..1000->here, ((i):Point) => i);
-val data2 : Array[Int,Int]
+val data2 : Array[Int]
     = Array.make[Int]([1..1000,1..1000]->here, ((i,j):Point) => i*j);
 \end{xten}
 
@@ -78,7 +78,7 @@ array with \xcd"1000" elements each of which is located in the
 same place as the array. Each array component is initialized to \xcd"i".
 
 The second declaration stores in \xcd"data2" a reference to a mutable
-2-d array over \xcd"[1:1000, 1:1000]" initialized with \xcd"i*j"
+2-d array over \xcd"[1..1000, 1..1000]" initialized with \xcd"i*j"
 at point \xcd"[i,j]".
 
 Other examples:
