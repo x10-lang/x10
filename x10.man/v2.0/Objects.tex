@@ -15,7 +15,8 @@ are located (have a place).
 In \XtenCurrVer{} an object stays resident at the place at
 which it was created for its entire lifetime. However, the
 programmer may designate certain immutable field of an object
-as \Xcd{global}. The value of these fields is accessible at every place the object can be referenced.
+as \Xcd{global}. The value of these fields is accessible 
+at every place the object can be referenced.
 
 {}\Xten{} has no operation to dispose of a reference.  Instead, the
 collection of all objects across all places is globally garbage
@@ -68,23 +69,14 @@ from the place where the object was created to the referencing place
 will be incurred at most once per referencing place, according to the
 rule for final fields discussed above.
 
-\item Method invocation (\Sref{MethodInvocation}).  A method may be
-  marked \Xcd{global}. A \Xcd{global} method may be invoked at any
-  place. It may access only the global fields of the object. The
-  mutable fields of an object may be accessed only by activities
-  operating in its home.  Any activity may use an \Xcd{at} statement
-  to place-shift to the place of the object. Methods may also be
-  marked \Xcd{pinned}, \Xcd{nonblocking}, \Xcd{sequential},
-  \Xcd{safe}, and \Xcd{pure}.
-
-
-A method may be marked \Xcd{nonblocking}.  A \Xcd{nonblocking} method
-may not contain any \Xcd{when} statement whose condition is not
-statically equivalent to \Xcd{true}, and must call only
-\Xcd{nonblocking} methods.
-
-
-A method may be marked \Xcd{sequential}. A \Xcd{sequential} method 
+{}\item Method invocation (\Sref{MethodInvocation}).  A method may be
+marked \Xcd{global}. A \Xcd{global} method may be invoked at any
+place. It may access only the global fields of the object. The
+mutable fields of an object may be accessed only by activities
+operating in its home.  Any activity may use an \Xcd{at} statement
+to place-shift to the place of the object. Methods may also be
+marked \Xcd{pinned}, \Xcd{nonblocking}, \Xcd{sequential},
+\Xcd{safe}, and \Xcd{pure} (\Sref{MethodQualifier})..
 
 {}\item Casting (\Sref{ClassCast}).  An activity can perform this
 operation on local or remote objects, and should not incur
