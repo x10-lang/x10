@@ -2,7 +2,7 @@
 \label{XtenClasses}\index{class}
 
 The {\em class declaration} has a list of type \params, properties, a
-constraint (the {\em class invariant}, a single superclass, one or
+constraint (the {\em class invariant}), a single superclass, one or
 more interfaces, and a class body containing the the definition of
 fields, properties, methods, and member types.  Each such declaration introduces a
 class type (\Sref{ReferenceTypes}).
@@ -15,7 +15,7 @@ NormalClassDeclaration \:
    && Super\opt Interfaces\opt ClassBody \\
 \\
 TypeParameterList     \:  \xcd"[" TypeParameters \xcd"]" \\
-TypeParameters        \:  TypeParameter ( \xcd"," Typearameter )\star \\
+TypeParameters        \:  TypeParameter ( \xcd"," TypeParameter )\star \\
 TypeParameter         \:  Variance\opt Annotation\star Identifier     \\
 Variance \: \xcd"+" \\
          && \xcd"-" \\

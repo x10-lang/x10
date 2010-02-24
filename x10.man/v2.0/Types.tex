@@ -106,7 +106,7 @@ FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")"
 Constraint\opt Throws\opt \xcd"=>" Type \\
 TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter )\star \xcd"]" \\
 TypeParameter \: Identifier \\
-Throws \: \xcd"throws" ( TypeName \xcd"," TypeName )\star \\
+Throws \: \xcd"throws" TypeName ( \xcd"," TypeName )\star \\
 
 ConstrainedType \: Annotation\star BaseType Constraint\opt
 PlaceConstraint\opt \\
@@ -200,7 +200,7 @@ Variables of class type may contain the value \xcd"null".
         An {\em interface declaration} (\Sref{XtenInterfaces})
         defines an {\em interface type}, which specifies a set of
         methods, type members, and properties to be implemented by any class
-        declared to implement the interface.  Interfaces also
+        declared to implement the interface.  Interfaces can also
         have static members: constant fields, type definitions,
         and member classes and interfaces.
 
@@ -285,7 +285,7 @@ class Cell[X] {
     var x: X;
     def this(x: X) { this.x = x; }
     def get(): X = x;
-    def set(x: X) = { this.x = x: }
+    def set(x: X) = { this.x = x; }
 }
 \end{xten}
 
