@@ -7,11 +7,13 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright Australian National University 2009-2010.
  */
 
 import harness.x10Test;
 
 /**
+ * Test operations on complex numbers.
  * @author milthorpe
  */
 class TestComplex extends x10Test {
@@ -36,6 +38,10 @@ class TestComplex extends x10Test {
 
         val e = a / Complex(0.0, 0.0);
         chk (e.isNaN());
+
+        val f = Complex(3.0, 4.0);
+        val fAbs = f.abs();
+        chk (fAbs == 5.0); // abs(3 + 4i) = 5 by Pythagoras' theorem
 
         return true;
     }
