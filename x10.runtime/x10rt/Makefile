@@ -33,10 +33,10 @@ ifdef JNI_INCLUDES
 endif
 
 ifdef ENABLE_X10RT_CUDA
-	CXXFLAGS += -DENABLE_CUDA -isystem/usr/local/cuda/include
-	CUDA_LDFLAGS = -L/usr/local/cuda/lib
-	CUDA_LDLIBS = -lcuda
-	LDFLAGS += $(CUDA_LDFLAGS) $(CUDA_LDLIBS)
+	override CXXFLAGS += -DENABLE_CUDA -isystem/usr/local/cuda/include
+	override CUDA_LDFLAGS = -L/usr/local/cuda/lib
+	override CUDA_LDLIBS = -lcuda
+	override LDFLAGS += $(CUDA_LDFLAGS) $(CUDA_LDLIBS)
 endif
 
 default: all
@@ -59,7 +59,7 @@ install: $(LIBS) $(PROPERTIES)
 
 tests: $(TESTS)
 
-all: $(TESTS) $(PROPERTIES) $(LIBS) $(EXECUTABLES) $(TGZ)
+all: $(TESTS) $(PROPERTIES) $(LIBS) $(EXECUTABLES) $(TGZ) debug
 
 debug::
 	@echo X10RT_PLATFORM = $(X10RT_PLATFORM)
