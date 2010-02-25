@@ -8,8 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import polyglot.types.Flags;
-import x10.constraint.XConstraint;
-import x10.types.TypeConstraint;
 
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.SeeTag;
