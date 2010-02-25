@@ -261,5 +261,8 @@ namespace x10 {
 
 #endif
 #endif
+//#define X10_LANG_VALRAIL__NATIVEREP_H_NODEPS
+#include <x10/lang/ValRail__NativeRep.h>
+//#undef X10_LANG_VALRAIL__NATIVEREP_H_NODEPS
 
 // vim:tabstop=4:shiftwidth=4:expandtab
