@@ -968,13 +968,11 @@ exception. Since no user code is executing which can catch exceptions
 thrown by the finish, the exceptions are printed on the console, and
 computation aborts.
 
-
 If the activities deadlock, the implementation deadlocks.
 
 In all cases, the main method is executed only once all static fields
 have been initialized correctly.
 
-Since static state is immutable, it can be accessed from any
-place.
-
-
+Since static state is immutable and is replicated to all places via 
+the initialization phase as described above, it can be accessed from
+any place.
