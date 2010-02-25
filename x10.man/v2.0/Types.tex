@@ -943,8 +943,9 @@ Consider the following method:
 def choose[T](a: T, b: T): T { ... }
 \end{xten}
 %
-Given \xcd"Set[T] <: Collection[T]"
-and \xcd"List[T] <: Collection[T]",
+Given \xcd"Set[T] <: Collection[T]", 
+\xcd"List[T] <: Collection[T]",
+and \xcd"SubClass <: SuperClass",
 in the following snippet, the algorithm will infer the type
 \xcd"Collection[Any]" for \xcd"x".
 \begin{xten}
@@ -964,9 +965,9 @@ def m(intSet: Set[Int], intList: List[Int]) {
 \end{xten}
 %
 Finally, in this snippet, the algorithm should infer the type
-\xcd"Collection{T <: Number}" for \xcd"z".
+\xcd"Collection{T <: SuperClass}" for \xcd"z".
 \begin{xten}
-def m(intSet: Set[Int], numList: List{T <: Number}) {
+def m(intSet: Set[SubClass], numList: List{T <: SuperClass}) {
   val z = choose(intSet, numList);
   ...
 }
