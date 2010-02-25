@@ -39,12 +39,10 @@ import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateProposal;
 
-import polyglot.ast.Assign;
-import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
-import polyglot.ast.CanonicalTypeNode;
-import polyglot.ast.Expr;
+import polyglot.ast.ClassBody;
+import polyglot.ast.ClassMember;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
@@ -54,103 +52,122 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
-import polyglot.ast.Unary;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ObjectType;
-import polyglot.types.Qualifier;
 import polyglot.types.ReferenceType;
-import polyglot.types.StructType;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
 import x10.parser.X10Parsersym;
 
+/**
+ * ContentProposer Specification:
+ * The content proposer is activated using control space, and currently supports the following features:
+ * 1. When the cursor is after a "." following a reference type, it displays all members of that type, filtering using the prefix.
+ * 2. When the cursor is in the middle or right after an identifier, it proposes completion for that identifier using names that are in the scope.
+ * 3. When the cursor is on white space, it proposes X10 code templates, as well as names available in the scope. It distinguishes between a class body, and a method body.
+ * 4. When the cursor is on white space right before a "def" method declaration, it proposes method modifiers.
+ * 5. When the cursor is on white space right before a "class" declaration, it proposes class modifiers (proto).
+ * 6. When the cursor is on white space right before a "var" or "val" for a field declaration, it proposes field modifiers (global).
+ * 
+ * Note that these features are not necessarily mutually exclusive. E.g., if the cursor is before a def with no other flags, it will propose both templates for a class body,
+ * as well as method modifiers.
+ * 
+ * Note that currently these features only work in the absence of compilation errors. Moreover, the file must be saved before hitting control space, to ensure accuracy.
+ * 
+ * @author mvaziri
+ *
+ */
 public class X10ContentProposer implements IContentProposer, X10Parsersym { 
     
+	private final static boolean EMPTY_PREFIX_MATCHES = true;
 	
-	private void filterFields(List<FieldInstance> fields, List<FieldInstance> in_fields, String prefix) {
+	private boolean emptyPrefixTest(boolean emptyPrefixMatches, String prefix){
+		if (!emptyPrefixMatches)
+			return !prefix.equals("");
+		return true;
+	}
+	
+	private void filterFields(List<FieldInstance> fields, List<FieldInstance> in_fields, String prefix, boolean emptyPrefixMatches) {
         for(FieldInstance f: in_fields) {
             String name= f.name().toString(); // PORT1.7 was f.name()
-            String tempName = f.toString();  // PORT1.7 or is this preferable?
-            if (name.startsWith(prefix))
+            if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix))
                 fields.add(f);
+            
         }
+        
     }
 
-    private void filterMethods(List<MethodInstance> methods, List<MethodInstance> in_methods, String prefix) {
+    private void filterMethods(List<MethodInstance> methods, List<MethodInstance> in_methods, String prefix, boolean emptyPrefixMatches) {
         for(MethodInstance m: in_methods) {
             String name= m.name().toString();   // PORT 1.7
-            if (name.startsWith(prefix))
+            if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix))
                 methods.add(m);
         }
     }
 
-    private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix) {//PORT1.7 2nd arg was List<ReferenceType>
+    private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix, boolean emptyPrefixMatches) {//PORT1.7 2nd arg was List<ReferenceType>
         for(ReferenceType r: in_classes) {
             ClassType c= r.toClass();
             String name= c.name().toString();  // PORT1.7 name() replaced with name().toString()
-            if (name.startsWith(prefix)) {
+            if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix)) {
                 classes.add(c);
             }
         }
     }
     // PORT1.7  this should probably take a Type instead of a ReferenceType arg.  cast to StructType or ObjectType to get at what we need now
-    private void getFieldCandidates(Type container_type, List<FieldInstance> fields, String prefix) {// PORT1.7 ReferenceType replaced with Type
+    private void getFieldCandidates(Type container_type, List<FieldInstance> fields, String prefix, boolean emptyPrefixMatches) {// PORT1.7 ReferenceType replaced with Type
 		if (container_type == null)
 			return;
 
 		if (container_type instanceof ObjectType) {
 			ObjectType oType = (ObjectType) container_type;
 
-			filterFields(fields, oType.fields(), prefix); // PORT1.7 ReferenceType.fields()->ObjectType.fields()
+			filterFields(fields, oType.fields(), prefix, emptyPrefixMatches); // PORT1.7 ReferenceType.fields()->ObjectType.fields()
 
 			for (int i = 0; i < oType.interfaces().size(); i++) {
 				ObjectType interf = (ObjectType) oType.interfaces().get(i);
-				filterFields(fields, interf.fields(), prefix);
+				filterFields(fields, interf.fields(), prefix, emptyPrefixMatches);
 			}
 
-			getFieldCandidates(oType.superClass(), fields, prefix);
+			getFieldCandidates(oType.superClass(), fields, prefix, emptyPrefixMatches);
 		}
 	}
 
-    private void getMethodCandidates(ObjectType container_type, List<MethodInstance> methods, String prefix) {//PORT1.7 ReferenceType->ObjectType
+    private void getMethodCandidates(ObjectType container_type, List<MethodInstance> methods, String prefix, boolean emptyPrefixMatches) {//PORT1.7 ReferenceType->ObjectType
         if (container_type == null)
             return;
 
-        filterMethods(methods, container_type.methods(), prefix);
+        filterMethods(methods, container_type.methods(), prefix, emptyPrefixMatches);
 
-        getMethodCandidates((ObjectType)container_type.superClass(), methods, prefix);//PORT1.7 superType()->superClass()
+        getMethodCandidates((ObjectType)container_type.superClass(), methods, prefix, emptyPrefixMatches);//PORT1.7 superType()->superClass()
     }
 
-    private void getClassCandidates(Type type, List<ClassType> classes, String prefix) {
+    private void getClassCandidates(Type type, List<ClassType> classes, String prefix, boolean emptyPrefixMatches) {
         if (type == null)
             return;
         ClassType container_type= type.toClass();
         if (container_type == null)
             return;
-        List<ClassType> in_classes = new ArrayList<ClassType>();
-        in_classes.add(container_type);
-        in_classes.addAll(container_type.memberClasses());
-        filterClasses(classes, in_classes, prefix);
+
+        filterClasses(classes, container_type.memberClasses(), prefix, emptyPrefixMatches);
        
         for(int i= 0; i < container_type.interfaces().size(); i++) {
             ClassType interf= ((ReferenceType) container_type.interfaces().get(i)).toClass();
-            filterClasses(classes, interf.memberClasses(), prefix);
+            filterClasses(classes, interf.memberClasses(), prefix, emptyPrefixMatches);
         }
-
-        getClassCandidates(container_type.superClass(), classes, prefix);//PORT1.7 superType)_->superClass()
+        getClassCandidates(container_type.superClass(), classes, prefix, emptyPrefixMatches);//PORT1.7 superType)_->superClass()
     }
 
-    private void getCandidates(ObjectType container_type, List<ICompletionProposal> list, String prefix, int offset) {//PORT1.7 RefType->ObjectType
+    private void getCandidates(ObjectType container_type, List<ICompletionProposal> list, String prefix, int offset, boolean emptyPrefixMatches) {//PORT1.7 RefType->ObjectType
         List<FieldInstance> fields= new ArrayList<FieldInstance>();
         List<MethodInstance> methods= new ArrayList<MethodInstance>();
         List<ClassType> classes= new ArrayList<ClassType>();
 
-        getFieldCandidates(container_type, fields, prefix);
-        getMethodCandidates(container_type, methods, prefix);
-        getClassCandidates((Type) container_type, classes, prefix);
+        getFieldCandidates(container_type, fields, prefix, emptyPrefixMatches);
+        getMethodCandidates(container_type, methods, prefix, emptyPrefixMatches);
+        getClassCandidates((Type) container_type, classes, prefix, emptyPrefixMatches);
 
         for(FieldInstance field : fields) {
             list.add(new SourceProposal(field.name().toString(), prefix, offset)); //PORT1.7 name() replaced with name().toString()
@@ -170,23 +187,85 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 
     private TemplateContextType fContextType= new TemplateContextType(CONTEXT_ID, "Coding Templates");
 
-    private final Template fRegion1DTemplate= new Template("1-D region", "X10 1-dimensional region creation", CONTEXT_ID, "[${lower}:${upper}]", false);
-    private final Template fRegion2DTemplate= new Template("2-D region", "X10 2-dimensional region creation", CONTEXT_ID, "[${lower1}:${upper1},${lower2}:${upper2}]", false);
-    private final Template fRegion3DTemplate= new Template("3-D region", "X10 3-dimensional region creation", CONTEXT_ID, "[${lower1}:${upper1},${lower2}:${upper2},${lower3}:${upper3}]", false);
-//  private final Template fDistribTemplate= new Template("distribution", "X10 distribution creation", CONTEXT_ID, "async (${place}) { }", false);
-    private final Template fArrayNewTemplate= new Template("array new", "X10 array instantiation", CONTEXT_ID, "new ${type}[] (point ${p}) { return ${expr}; }", false);
+    // Declarations
+    private final Template fVariableDeclaration = new Template("var", "variable declaration", CONTEXT_ID, "var ${name}:${typename}", false );
+    private final Template fValueDeclaration = new Template("val", "value declaration", CONTEXT_ID, "val ${name}:${typename}", false );
+    private final Template fMethodTemplate = new Template("def", "method declaration", CONTEXT_ID, "def ${name}(${x}:${typename}):${typename} {  }", false );
+    private final Template fConstructorTemplate = new Template("this", "constructor declaration", CONTEXT_ID, "def this(${name}:${typename}) {  }", false);
+    private final Template fStructTemplate = new Template("struct", "struct declaration", CONTEXT_ID, "struct ${name} {  }", false );
+    private final Template fCovariantGeneric = new Template("[+X]", "generic type, covariant parameter", CONTEXT_ID, "class ${name}[+${X}] {  }", false);
+    private final Template fContravariantGeneric = new Template("[-X]", "generic type, contravariant parameter", CONTEXT_ID, "class ${name}[-${X}] {  }", false);
+    private final Template fDependentTypeDeclaration = new Template("property", "dependent type", CONTEXT_ID, "class ${name}(${x}:${typename}) { def this(${x}:${typename}){ property(${x}); } }", false);
+    private final Template fTypeDefinition = new Template("type", "type definition", CONTEXT_ID, "type ${name} = ${name}", false);
+    private final Template fFunctionType = new Template("=>", "function type", CONTEXT_ID, "(${x1}: ${T1}, , ${xn}: ${Tn}){${constraint}} => ${T} throws ${S1}, ,${Sk}", false);
+    private final Template fConstDeclaration = new Template("const", "final static field declaration", CONTEXT_ID, "const ${name}:${typename}", false );
+    
+    
+    // Constructs
     private final Template fAsyncTemplate= new Template("async", "async statement", CONTEXT_ID, "async (${place}) {\n \n}\n", false);
-    private final Template fAtEachTemplate= new Template("ateach", "ateach statement", CONTEXT_ID, "ateach (point ${p}: ${region}) {\n \n}\n", false);
+    private final Template fAtStatementTemplate = new Template("at","at statement", CONTEXT_ID, "at (${place}) {  }", false );
+    private final Template fAtExpressionTemplate = new Template("at", "at expression", CONTEXT_ID, "at (${place}) ${expression}", false);
+    private final Template fFinishTemplate = new Template("finish", "finish statement", CONTEXT_ID, "finish {  }", false);
+    private final Template fAtEachTemplate= new Template("ateach", "ateach statement", CONTEXT_ID, "ateach (${x}:${typename} in ${region}) {  }", false);
     private final Template fAtomicTemplate= new Template("atomic", "atomic statement", CONTEXT_ID, "atomic { ${stmt} }", false);
+    private final Template fWhenTemplate= new Template("when", "when statement", CONTEXT_ID, "when (${condition}) { ${stmt} }", false);
     private final Template fForRegionTemplate= new Template("for region", "for iterating over a region", CONTEXT_ID, "for (point ${p}: ${region}) {\n \n}\n", false);
-    private final Template fForEachTemplate= new Template("foreach", "foreach statement", CONTEXT_ID, "foreach (point ${p}: ${region}) {\n\n}\n", false);
+    private final Template fForEachTemplate= new Template("foreach", "foreach statement", CONTEXT_ID, "foreach (${x}:${typename} in ${region}) {  }", false);
     private final Template fFutureTemplate= new Template("future", "future expression", CONTEXT_ID, "future (${place}) { ${expr} }.force()", false);
-
+    private final Template fCoercionTemplate = new Template("as", "coercion", CONTEXT_ID, "${expression} as ${typename}" , false);
+    
+    // Places, Regions, Distributions, Arrays
+    private final Template fFirstPlaceTemplate = new Template("Place.FIRST_PLACE", "first place", CONTEXT_ID, "Place.FIRST_PLACE", false);
+    private final Template fAllPlacesTemplate = new Template("Place.places", "set of all places", CONTEXT_ID, "Place.places", false);
+    private final Template fRegion1DTemplate= new Template("1-D region", "1-dimensional region creation", CONTEXT_ID, "[${lower}..${upper}]", false);
+    private final Template fRegion2DTemplate= new Template("2-D region", "2-dimensional region creation", CONTEXT_ID, "[${lower1}..${upper1},${lower2}..${upper2}]", false);
+    private final Template fArrayNewTemplate= new Template("array new", "array instantiation", CONTEXT_ID, "Array.make[${typename}](${D} , (p: Point) => ${initialization_expression} )", false);
+    // private final Template fArrayElement = new Template("")
+    private final Template fRailContructor = new Template("rail constructor", "rail constructor", CONTEXT_ID, "[${expression1}, ,${expressionk}]", false);
+    private final Template fArrayDistribution = new Template("dist", "array distribution", CONTEXT_ID, "${array}.dist", false);
+    private final Template fMakeUpperTriangular = new Template("makeUpperTriangular", "upper triangular region", CONTEXT_ID, "Region.makeUpperTriangular(${N})",false );
+    private final Template fMakeLowerTriangular = new Template("makeLowerTriangular", "lower triangular region", CONTEXT_ID, "Region.makeLowerTriangular(${N})",false );
+    private final Template fRegionIntersection = new Template("region intersection", "region intersection", CONTEXT_ID, "${R1} && ${R2}",false );
+    private final Template fRegionUnion = new Template("region union", "region union", CONTEXT_ID, "${R1} || ${R2}",false );
+    private final Template fRegionDifference = new Template("region difference", "region difference", CONTEXT_ID, "${R1} - ${R2}",false );
+    private final Template fRegionProduct = new Template("region cartesian product", "region cartesian product", CONTEXT_ID, "${R1} * ${R2}",false );
+    private final Template fBlockDistribution = new Template("block distribution", "block distribution", CONTEXT_ID, "Dist.makeBlock(${R})", false);    
+    private final Template fCyclicDistribution = new Template("cyclic distribution", "cyclic distribution", CONTEXT_ID, "Dist.makeCyclic(${R})", false);    
+    private final Template fDistributionMapping = new Template("->", "distribution mapping", CONTEXT_ID, "${region} -> ${place} ", false);
+    private final Template fDistributionIntersection = new Template("distribution intersection", "distribution intersection", CONTEXT_ID, "${D1} && ${D2}", false);
+    private final Template fDistributionOverlay = new Template("distribution overlay", "distribution overlay", CONTEXT_ID, "${D1}.overlay(${D2})", false);
+    private final Template fDistributionUnion = new Template("disjoint union of distributions", "disjoint union of distributions", CONTEXT_ID, "${D1} || ${D2}", false);
+    private final Template fDistributionDifference = new Template("distribution difference", "distribution difference", CONTEXT_ID, "${D1} - ${D2}", false);
+    
+    // Modifiers
+    private final Template fConstrainedType = new Template("constraint", "constrained type", CONTEXT_ID, "${typename}{${expression}}", false);
+    private final Template fNonblockingMethod = new Template("nonblocking", "nonblocking method", CONTEXT_ID, "nonblocking", false);
+    private final Template fSequentialMethod = new Template("sequential", "sequential method", CONTEXT_ID, "sequential", false);
+    private final Template fSafeMethod = new Template("safe", "safe method", CONTEXT_ID, "safe", false);
+    private final Template fPropertyMethod = new Template("property", "property method", CONTEXT_ID, "property", false);
+    private final Template fGlobalTemplate = new Template("global", "global method or field", CONTEXT_ID, "global", false);
+    private final Template fProtoTemplate = new Template("proto", "incomplete types", CONTEXT_ID, "proto", false);
+    
+    // Clocks
+    private final Template fClockUnregister = new Template("drop", "clock unregister", CONTEXT_ID, "${clock}.drop()", false);
+    private final Template fClockResume = new Template("resume", "clock resume", CONTEXT_ID, "${clock}.resume()", false);
+    private final Template fClockNext = new Template("next", "clock next", CONTEXT_ID, "${clock}.next()", false);
+    private final Template fClockedStatement = new Template("clocked", "clocked statement", CONTEXT_ID, "clocked (${clock}) {  }", false);
+    private final Template fClockRegistered = new Template("registered", "clock registration check", CONTEXT_ID, "${clock}.registered()", false);
+    
+    
+     
     private final Template[] fTemplates= new Template[] {
-            fRegion1DTemplate, fRegion2DTemplate, fRegion3DTemplate, fArrayNewTemplate, fAsyncTemplate,
-            fAtEachTemplate, fAtomicTemplate, fForRegionTemplate, fForEachTemplate, fFutureTemplate
+            fRegion1DTemplate, fRegion2DTemplate, fArrayNewTemplate, fAsyncTemplate,
+            fAtEachTemplate, fAtomicTemplate, fForRegionTemplate, fForEachTemplate, fFutureTemplate, fStructTemplate, fMethodTemplate, 
+            fVariableDeclaration, fValueDeclaration, fDependentTypeDeclaration, fConstructorTemplate, fCovariantGeneric, fContravariantGeneric, fTypeDefinition,
+            fConstrainedType, fFunctionType, fCoercionTemplate, fConstDeclaration, 
+            fRailContructor, fFirstPlaceTemplate, fAllPlacesTemplate, fAtStatementTemplate, fAtExpressionTemplate, fFinishTemplate, fWhenTemplate, fClockNext, fClockResume, 
+            fClockUnregister, fClockedStatement, fClockRegistered, fArrayDistribution, fMakeLowerTriangular, fMakeUpperTriangular, fRegionDifference, fRegionProduct, fRegionUnion, 
+            fRegionIntersection, fBlockDistribution, fCyclicDistribution, fDistributionMapping, fDistributionDifference, fDistributionIntersection, fDistributionOverlay, fDistributionUnion
     };
-
+    
+   
     public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer) {
         ArrayList<ICompletionProposal> list= new ArrayList<ICompletionProposal>();
         //
@@ -204,142 +283,146 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         //
         // PORT1.7 --  token use here, calculation OK for now (does not use getLeftToken() etc)
         IPrsStream prs_stream= ((SimpleLPGParseController) controller).getParser().getIPrsStream();
-        int index= prs_stream.getTokenIndexAtCharacter(offset), token_index= (index < 0 ? -index : index);
-        IToken tokenToComplete= prs_stream.getIToken(token_index), contextToken= prs_stream.getIToken(token_index - 1);
+        int index= prs_stream.getTokenIndexAtCharacter(offset);
+        int token_index = (index < 0 ? -index + 1 : index);
+        IToken tokenToComplete= prs_stream.getIToken(token_index); 
         SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
-
-        if (offset !=0 && offset == tokenToComplete.getStartOffset()) { // If we're at the beginning of the tokenToComplete, back up
-                                                            // one token, unless we are at offset 0.
-            tokenToComplete= prs_stream.getIToken(tokenToComplete.getTokenIndex() - 1);
-            contextToken= prs_stream.getIToken(tokenToComplete.getTokenIndex() - 1);
-        }
-
-        //
-        // If we are at an offset position immediately following an "identifier"
-        // candidate, then consider the contextToken to be the token to complete
-        // and choose its predecessor as the context for the lookup.
-        //
-
-        if ((contextToken.getKind() == TK_IDENTIFIER || lpgPC.isKeyword(contextToken.getKind())) && offset == contextToken.getEndOffset() + 1
-                && prs_stream.getIToken(contextToken.getTokenIndex() - 1).getKind() == TK_DOT) {
-            contextToken= prs_stream.getIToken(prs_stream.getPrevious(contextToken.getTokenIndex()));
-        } else if (tokenToComplete.getKind() == TK_IDENTIFIER && contextToken.getKind() == TK_DOT) {
-            contextToken= prs_stream.getIToken(contextToken.getTokenIndex() - 1);
-        } else if (tokenToComplete.getKind() == TK_DOT) {
-            contextToken= prs_stream.getIToken(tokenToComplete.getTokenIndex() - 1);
-        }
-
         String prefix= computePrefixOfToken(tokenToComplete, offset, lpgPC);
-
-        /*
-         * list.add(new SourceProposal("Offset: " + offset, "", offset)); list.add(new SourceProposal("Token start
-         * offset: " + token.getStartOffset(), "", offset)); list.add(new SourceProposal("Token end offset: " +
-         * token.getEndOffset(), "", offset)); list.add(new SourceProposal("Prefix: \"" + (prefix == null ? "" : prefix) +
-         * "\"", "", offset)); list.add(new SourceProposal("Candidate start offset: " + candidate.getStartOffset(), "",
-         * offset)); list.add(new SourceProposal("Candidate end offset: " + candidate.getEndOffset(), "", offset));
-         * list.add(new SourceProposal("Token: " + token, "", offset)); list.add(new SourceProposal("Candidate: " +
-         * candidate, "", offset));
-         */
-        PolyglotNodeLocator locator= new PolyglotNodeLocator(controller.getProject(), ((SimpleLPGParseController) controller).getLexer().getILexStream());
-        Node currentAst= (Node) controller.getCurrentAst();
-        Node node= (Node) locator.findNode(currentAst, tokenToComplete.getStartOffset(), tokenToComplete.getEndOffset()); // offset);
-        //
-        // We execute this code when we encounter a qualified name x.foo,
-        // where the left-hand side x of the qualified name may be either
-        // an object reference (declared field or local declaration) or a
-        // type. Note that x itself may be a qualified name.
-        // 
-        if (node instanceof Field) {
-        	// list.add(new SourceProposal("Field: " + node.getClass().toString(), " source proposal ", 0));
-            Field field= (Field) node;
-            if (tokenToComplete.getKind() == TK_DOT && field.target().type().isReference() /* instanceof ReferenceType */)
-            	getCandidates((ObjectType) field.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
-//            else
-//                list.add(new SourceProposal("no info available", " source proposal ", 0));
-        } else if (node instanceof CanonicalTypeNode) {
-        	CanonicalTypeNode ctNode=(CanonicalTypeNode)node;
-            Qualifier qualifier= ctNode.qualifierRef().get();//PORT1.7 qualifier()->qualifierRef().get();
-            Type qtype = ctNode.type();
-            if (qualifier.isType()) {
-                Type qualType= (Type) qualifier;
-                if (qualType.isReference()) {
-                    getCandidates((ObjectType) qualType, list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
-                }
-            }
-        } else if (node instanceof FieldAssign){
-        	FieldAssign field = (FieldAssign) node;
-        	if (field.target().type() != null && field.target().type().isReference() /* instanceof ReferenceType */)
-            	getCandidates((ObjectType) field.target().type(), list, prefix, offset);
-        	
+       
+        IToken previousToken = (token_index != 0)? prs_stream.getIToken(token_index - 1) : null;
         
-        } else if (node instanceof Assign) {
-//        	list.add(new SourceProposal("Assign: " + node.getClass().toString(), " source proposal ", 0));
-//            list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-//            if (prefix != null && prefix.length() > 0) {
-//                // TODO: Any package, type, local variable and accessible class members
-//            } else
-//                list.add(new SourceProposal("no info available", " source proposal ", 0));
-        } else if (node instanceof FieldDecl) {
-//        	list.add(new SourceProposal("FieldDecl: " + node.getClass().toString(), " source proposal ", 0));
-//            list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-            //if (prefix != null && prefix.length() > 0) {
-                // TODO: Any package, type, local variable and accessible class members
-        	
-            if (tokenToComplete.getKind() == TK_EQUAL) {
-                // TODO: Any package, type, local variable and accessible class members
-            	addNamesInScope(currentAst, node, prefix, list, offset);
-            } 
-//            else
-//                list.add(new SourceProposal("no info available", " source proposal ", 0));
-        } else if (node instanceof Call) {
-        	Call call= (Call) node;
-            if (tokenToComplete.getKind() == TK_DOT && call.target().type() != null && call.target().type().isReference())
-            	getCandidates((ObjectType) call.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
-        } else {
-            // TODO: Any package, type, local variable and accessible class members
-            if (node instanceof Binary) {
-                //list.add(new SourceProposal("BINARY: " + node.getClass().toString(), " source proposal ", 0));
-            } else if (node instanceof Unary) {   
-                //list.add(new SourceProposal("UNARY: " + node.getClass().toString(), " source proposal ", 0));
-            } else if (node instanceof Id) {
-                if (tokenToComplete.getKind() == TK_DOT || prs_stream.getIToken(tokenToComplete.getTokenIndex() - 1).getKind() == TK_DOT) {
-                	// node is the left-hand side of the dot operator
-                    Node parent= (Node) locator.findParentNode(currentAst, tokenToComplete.getStartOffset());
-                    if (parent instanceof Call) {
-                        Call call= (Call) parent;
-                        if (call.target().type() != null && call.target().type().isReference())
-                            getCandidates((ObjectType) call.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
-                    }
-                    else if (parent instanceof Field){
-                    	Field field = (Field) parent;
-                    	if (field.target().type() != null && field.target().type().isReference() /* instanceof ReferenceType */)
-                        	getCandidates((ObjectType) field.target().type(), list, prefix, offset);
-                    } else if (parent instanceof FieldAssign) {
-                    	FieldAssign field = (FieldAssign) parent;
-                    	if (field.target().type() != null && field.target().type().isReference() /* instanceof ReferenceType */)
-                        	getCandidates((ObjectType) field.target().type(), list, prefix, offset);
-                    }
-                } else {
-                    // Possibilities: prefix of a package, local variable, parameter, field, or type name
-                    addNamesInScope(currentAst, (Id) node, prefix, list, offset);
-                }
-            } else {
-            	addTemplateProposals(offset, viewer, list, prefix);
+        PolyglotNodeLocator locator= new PolyglotNodeLocator(controller.getProject(), ((SimpleLPGParseController) controller).getLexer().getILexStream())  ;
+        Node currentAst= (Node) controller.getCurrentAst();
+        Node node= (Node) locator.findNode(currentAst, tokenToComplete.getStartOffset(), tokenToComplete.getEndOffset());
+        Node previousNode = (previousToken != null)? (Node) locator.findNode(currentAst, previousToken.getStartOffset(), previousToken.getEndOffset()): null;
+     
+        
+        if (previousToken != null && previousToken.getKind() == TK_DOT) { //Display members following a dot
+        	Node parent= (Node) locator.getParentNodeOf(node, currentAst);
+        	Type type = null;
+        	if (parent instanceof Call){
+        		type = ((Call)parent).target().type();
+        	} else if (parent instanceof Field){
+        		type = ((Field)parent).target().type();
+        	} else if (parent instanceof FieldAssign){
+        		type = ((FieldAssign)parent).target().type();
+        	}
+        	if (type != null && type.isReference()){
+        		getCandidates((ObjectType) type, list, prefix, offset, true);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
+        	}
+        
+        //The next case completes an Id with names in scope  
+        } else if ((node instanceof Id && offset >= tokenToComplete.getStartOffset() && offset <= tokenToComplete.getEndOffset()) ||  
+        		   (previousNode instanceof Id && offset == previousToken.getEndOffset() + 1)){ //at the very end of an Id
+        	Node n = (node instanceof Id)? node : previousNode;
+        	String pref = (node instanceof Id)? prefix : computePrefixOfToken(previousToken, offset, lpgPC);
+        	addNamesInScope(currentAst, n, pref, list, offset, !EMPTY_PREFIX_MATCHES);
+        
+        } else if (index < 0){ //Display templates, names in scope -- index < 0 when we are at a white space or comment
+            Node location = location(previousNode, node, locator, currentAst);
+        	if (location instanceof Block){ 
+        		addTemplateProposals(offset, viewer, list, prefix, fTemplates);
+        		addNamesInScope(currentAst, node, prefix, list, offset, EMPTY_PREFIX_MATCHES);
+        	}
+        	else if (location instanceof ClassBody){
+        		Template[] templates = new Template[]{fVariableDeclaration, fValueDeclaration, fConstDeclaration, fMethodTemplate, fConstructorTemplate, 
+        			fStructTemplate, fCovariantGeneric, fContravariantGeneric, fDependentTypeDeclaration, };
+        		addTemplateProposals(offset, viewer, list, prefix, templates);
+            
+        	} 
+            
+            //add method modifiers before a "def"
+            if (justBefore(TK_def, tokenToComplete, previousToken, offset)){
+            	Template[] templates = new Template[]{fNonblockingMethod, fSequentialMethod, fSafeMethod, fGlobalTemplate, fPropertyMethod };
+        		addTemplateProposals(offset, viewer, list, prefix, templates);
             }
+            
+            //add class modifiers before a "class"
+            if (justBefore(TK_class, tokenToComplete, previousToken, offset)) {
+            	Template[] templates = new Template[]{fProtoTemplate};
+        		addTemplateProposals(offset, viewer, list, prefix, templates);
+            }
+        	
+            //add field modifiers before a "var" or "val" field declaration
+            if (location instanceof ClassBody && (justBefore(TK_var, tokenToComplete, previousToken, offset) || justBefore(TK_val, tokenToComplete, previousToken, offset))){
+        		Template[] templates = new Template[]{fGlobalTemplate};
+        		addTemplateProposals(offset, viewer, list, prefix, templates);
+        	}
+        	
         }
+               
         return (ICompletionProposal[]) list.toArray(new ICompletionProposal[list.size()]);
     }
 
-    private void addTemplateProposals(int offset, ITextViewer viewer, ArrayList<ICompletionProposal> list, String prefix) {
+    // Tests if we are just before a token of kind tokenKind, with white space before the current cursor position
+    private boolean justBefore(int tokenKind, IToken tokenToComplete, IToken previousToken, int offset){
+    	return tokenToComplete.getKind() == tokenKind && offset > previousToken.getEndOffset() + 1;
+    }
+    
+    // Finds the least common parent of prev and next in the currentAst. The reason for using our own visitor is that polyglot parent finder changes the AST as it goes along.
+    private Node location(final Node prev, final Node next, PolyglotNodeLocator locator, Node currentAst){
+    	if (prev == null)
+    		return next;
+    	
+    	if (next == null)
+    		return null;
+    	
+    	final Stack<Node> nextParents = new Stack<Node>();
+        final Stack<Node> prevParents = new Stack<Node>();
+       
+        currentAst.visit(new NodeVisitor(){
+        	boolean prevDone, nextDone = false;
+        	@Override
+        	public NodeVisitor enter(Node parent, Node child){
+        		if (!prevDone){
+        			if (parent != null) prevParents.push(parent);
+        			if (child == prev) {
+        				prevParents.push(child);
+        				prevDone = true;
+        			}
+        		} 
+        		if (!nextDone){
+        			if (parent != null) nextParents.push(parent);
+        			if (child == next) {
+        				nextParents.push(child);
+        				nextDone = true;
+        			}
+        		}
+        		return super.enter(parent, child);
+        	}
+        	
+        	public Node leave(Node parent, Node old, Node n, NodeVisitor v){
+        		if (!prevDone) prevParents.pop();
+        		if (!nextDone) nextParents.pop();
+        		return super.leave(parent, old, n, v);
+        	}
+        });
+        
+    	for(int i = prevParents.size()-1; i >= 0; i--){
+    		if (nextParents.contains(prevParents.get(i))) return prevParents.get(i);
+    	}
+    	return null;
+    }
+  
+   
+    
+    private void addTemplateProposals(int offset, ITextViewer viewer, ArrayList<ICompletionProposal> list, String prefix, Template[] templates) {
         IDocument doc= viewer.getDocument();
         Region r= new Region(offset, prefix.length());
         TemplateContext tc= new DocumentTemplateContext(fContextType, doc, offset - prefix.length(), prefix.length());
 
-        for(int i= 0; i < fTemplates.length; i++) {
-        	addTemplateProposalIfMatch(list, fTemplates[i], tc, r, prefix);
+        for(int i= 0; i < templates.length; i++) {
+        	addTemplateProposalIfMatch(list, templates[i], tc, r, prefix);
         }
     }
 
+
+    private void addTemplateProposalIfMatch(ArrayList<ICompletionProposal> proposals, Template template, TemplateContext tc, Region r, String prefix) {
+    	if (template.getName().startsWith(prefix)) {
+    		proposals.add(new TemplateProposal(template, tc, r, null));
+        }
+    }
+    
     private String computePrefixOfToken(IToken tokenToComplete, int offset, SimpleLPGParseController lpgPC) {
         String prefix= "";
         if (tokenToComplete.getKind() == TK_IDENTIFIER || tokenToComplete.getKind() == TK_ErrorId || lpgPC.isKeyword(tokenToComplete.getKind())) {
@@ -349,58 +432,93 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         }
         return prefix;
     }
+    
+    private List<Node> parents(Node node, PolyglotNodeLocator locator, Node currentAst){
+    	List<Node> ret = new ArrayList<Node>();
+    	Node parent= (Node) locator.getParentNodeOf(node, currentAst);
+    	while (parent != null){
+    		ret.add(parent);
+    		parent = (Node) locator.getParentNodeOf(parent, currentAst);
+    	}
+    	return ret;
+    }
+    
+  
 
-    private void addNamesInScope(Node currentAst, Node id, String prefix, List<ICompletionProposal> proposals, int offset) {
+    private void addNamesInScope(Node currentAst, final Node in_node, String prefix, List<ICompletionProposal> proposals, int offset, boolean emptyPrefixMatches) {
         // Polyglot can't supply the pkg/class names, so we'll have to appeal to the search index
-        if ("this".startsWith(prefix)) // Should check that we're not in a static method or initializer
+        if (emptyPrefixTest(emptyPrefixMatches, prefix) && "this".startsWith(prefix)) // Should check that we're not in a static method or initializer
             proposals.add(new SourceProposal("this", prefix, offset));
+        if (emptyPrefixTest(emptyPrefixMatches, prefix) && "here".startsWith(prefix)) // Should check that we're not in a static method or initializer
+            proposals.add(new SourceProposal("here", prefix, offset));
+        if (emptyPrefixTest(emptyPrefixMatches, prefix) && "self".startsWith(prefix)) // Should check that we're not in a static method or initializer
+            proposals.add(new SourceProposal("self", prefix, offset));
         final Stack<Node> path= new Stack<Node>();
-        path.push(id);
         currentAst.visit(new NodeVisitor() {
+        	boolean done = false;
+        	@Override
+        	public NodeVisitor enter(Node parent, Node child){
+        		if (!done) {
+        			if (parent != null) path.push(parent);
+        			if (child == in_node) {
+        				path.push(child);
+        				done = true;
+        			}
+        		}
+        		return super.enter(parent, child);
+        	}
+        	
             @Override
             public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
-                if (old == path.peek() && parent != null) {
-                    path.push(parent);
-                }
+            	if (!done) path.pop();
                 return super.leave(parent, old, n, v);
             }
         });
-        int idOffset= id.position().offset();
+        
         for(Node node : path) {
+        	if (node instanceof ClassBody){
+        		ClassBody cd = (ClassBody) node;
+        		List<ClassMember> members = cd.members();
+        		for(ClassMember m: members){
+        			if (m instanceof FieldDecl){
+        				String fname = ((FieldDecl)m).name().id().toString();
+        				if (emptyPrefixTest(emptyPrefixMatches, prefix) && fname.startsWith(prefix)) { //PORT1.7 name() changed to name().id().toString()
+                            proposals.add(new SourceProposal(fname, fname, prefix, offset)); //PORT1.7 use cached value
+                        }
+        			}
+        		}
+        	}
             if (node instanceof MethodDecl) {
                 MethodDecl md= (MethodDecl) node;
                 List<Formal> formals= md.formals();
                 for(Formal formal : formals) {
                 	String fname = formal.name().id().toString(); //PORT1.7 name() changed to name().id().toString(); cached here for reuse
-                    if (fname.startsWith(prefix)) { //PORT1.7 name() changed to name().id().toString()
+                    if (emptyPrefixTest(emptyPrefixMatches, prefix) && fname.startsWith(prefix)) { //PORT1.7 name() changed to name().id().toString()
                         proposals.add(new SourceProposal(fname, fname, prefix, offset)); //PORT1.7 use cached value
                     }
-                }
-                break; // Hack: don't bother including variables from surrounding types
+                } 
             }
+            
             if (node instanceof Block) {
                 Block b= (Block) node;
                 List<Stmt> stmts= b.statements();
                 for(Stmt s : stmts) {
-                    if (s.position().offset() > idOffset) {
+                	if (s.position().offset() > offset) {
                         // Don't include declarations that follow the current cursor pos
-                        break;
+                        continue;
                     }
                     if (s instanceof LocalDecl) {
                         LocalDecl decl= (LocalDecl) s;
                         String ldname = decl.name().id().toString();// PORT1.7 changed name() to name().id().toString(); cached
-                        if (ldname.startsWith(prefix)) { // PORT1.7 changed name() to name().id().toString(); cached
+                        if (emptyPrefixTest(emptyPrefixMatches, prefix) && ldname.startsWith(prefix)) { // PORT1.7 changed name() to name().id().toString(); cached
                             proposals.add(new SourceProposal(ldname, ldname, prefix, offset)); //PORT1.7 use cached value
                         }
                     }
                 }
             }
+           
+            
         }
     }
 
-    private void addTemplateProposalIfMatch(ArrayList proposals, Template template, TemplateContext tc, Region r, String prefix) {
-    	if (!prefix.equals("") && template.getName().startsWith(prefix)) {
-    		proposals.add(new TemplateProposal(template, tc, r, null));
-        }
-    }
 }
