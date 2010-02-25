@@ -37,6 +37,8 @@ public class RailCopy extends x10Test {
         success &= verify(at (there) remote as ValRail[T], master2, prefix+": Remote rail initialization");
 
         val c = new Cell[Boolean](false); // for notifiers
+        val update = () => { c.value = true; };
+        val notifier = () => { if (here==c.home) update(); else Runtime.runAtNative(c.home.id, update); };
 
         finish local.copyTo(0,remote,0,sz);
         success &= verify(at (there) remote as ValRail[T], master1, prefix+": test 1");
@@ -49,13 +51,13 @@ public class RailCopy extends x10Test {
         success &= verify(at (there) remote as ValRail[T], master2, prefix+": test 2 (reset)");
 
 /* not implemented
-        c(false); local.copyTo(0,remote,0,sz,()=>Runtime.runAtNative(c.home.id, ()=>{c.value = true;})); await c();
+        c(false); local.copyTo(0,remote,0,sz,notifier); await c();
         success &= verify(at (there) remote as ValRail[T], master1, prefix+": test 3");
         at (there) remote.reset(init2);
         success &= verify(at (there) remote as ValRail[T], master2, prefix+": test 3 (reset)");
 */
 
-        c(false); local.copyTo(0,there,()=>Pair[Rail[T],Int](remote,0),sz,()=>Runtime.runAtNative(c.home.id, ()=>{c.value = true;})); await c();
+        c(false); local.copyTo(0,there,()=>Pair[Rail[T],Int](remote,0),sz,notifier); await c();
         success &= verify(at (there) remote as ValRail[T], master1, prefix+": test 4");
         at (there) remote.reset(init2);
         success &= verify(at (there) remote as ValRail[T], master2, prefix+": test 4 (reset)");
@@ -65,7 +67,7 @@ public class RailCopy extends x10Test {
         at (there) handle().reset(init2);
         success &= verify(at (there) handle() as ValRail[T], master2, prefix+": test 5 (reset)");
 
-        c(false); local.copyTo(0,there,handle,0,sz,()=>Runtime.runAtNative(c.home.id, ()=>{c.value = true;})); await c();
+        c(false); local.copyTo(0,there,handle,0,sz,notifier); await c();
         success &= verify(at (there) handle() as ValRail[T], master1, prefix+": test 6");
         at (there) handle().reset(init2);
         success &= verify(at (there) handle() as ValRail[T], master2, prefix+": test 6 (reset)");
@@ -82,14 +84,14 @@ public class RailCopy extends x10Test {
         success &= verify(at (there) remote as ValRail[T], master2, prefix+": test 2v (reset)");
 
 /* not implemented
-        c(false); localv.copyTo(0,remote,0,sz,()=>Runtime.runAtNative(c.home.id, ()=>{c.value = true;})); await c();
+        c(false); localv.copyTo(0,remote,0,sz,notifier); await c();
         success &= verify(at (there) remote as ValRail[T], master1, prefix+": test 3v");
         at (there) remote.reset(init2);
         success &= verify(at (there) remote as ValRail[T], master2, prefix+": test 3v (reset)");
 */
 
 /* not implemented
-        c(false); localv.copyTo(0,there,()=>Pair[Rail[T],Int](remote,0),sz,()=>Runtime.runAtNative(c.home.id, ()=>{c.value = true;})); await c();
+        c(false); localv.copyTo(0,there,()=>Pair[Rail[T],Int](remote,0),sz,notifier); await c();
         success &= verify(at (there) remote as ValRail[T], master1, prefix+": test 4v");
         at (there) remote.reset(init2);
         success &= verify(at (there) remote as ValRail[T], master2, prefix+": test 4v (reset)");
@@ -103,7 +105,7 @@ public class RailCopy extends x10Test {
 */
 
 /* not implemented
-        c(false); localv.copyTo(0,there,handle,0,sz,()=>Runtime.runAtNative(c.home.id, ()=>{c.value = true;})); await c();
+        c(false); localv.copyTo(0,there,handle,0,sz,notifier); await c();
         success &= verify(at (there) handle() as ValRail[T], master1, prefix+": test 6v");
         at (there) handle().reset(init2);
         success &= verify(at (there) handle() as ValRail[T], master2, prefix+": test 6v (reset)");
@@ -143,15 +145,16 @@ public class RailCopy extends x10Test {
 
     public def run () : Boolean {
         var b:Boolean = true;
-        for (there in [here.next(), here]) {
+        val places = here.next() == here ? [here] : [here.next(), here];
+        for (p in places) {
             Console.ERR.println("=========================");
-            Console.ERR.println("| "+(here==there?"  Local copy test    ":"  Remote copy test   ")+" |");
+            Console.ERR.println("| "+(here==p?"  Local copy test    ":"  Remote copy test   ")+" |");
             Console.ERR.println("=========================");
             for (i in [1, 4200, 500000]) {
-                b &= test(i, there, (i:Int)=>i+1000 as Char, (i:Int)=>0 as Char, "Char"+i);
-                b &= test(i, there, (i:Int)=>i-1000 as Int, (i:Int)=>0 as Int, "Int"+i);
-                b &= test(i, there, (i:Int)=>i/1000.0 as Float, (i:Int)=>0 as Float, "Float"+i);
-                b &= test(i, there, (i:Int)=>Math.pow(-i,3) as Double, (i:Int)=>0 as Double, "Double"+i);
+                b &= test(i, p, (i:Int)=>i+1000 as Char, (i:Int)=>0 as Char, "Char"+i);
+                b &= test(i, p, (i:Int)=>i-1000 as Int, (i:Int)=>0 as Int, "Int"+i);
+                b &= test(i, p, (i:Int)=>i/1000.0 as Float, (i:Int)=>0 as Float, "Float"+i);
+                b &= test(i, p, (i:Int)=>Math.pow(-i,3) as Double, (i:Int)=>0 as Double, "Double"+i);
             }
         }
         return b;
