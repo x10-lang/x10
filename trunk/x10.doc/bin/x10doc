@@ -14,16 +14,25 @@ prog=$(readlink $0 2>&1)
 [ $? -eq 127 -o "$prog" = "" ] && prog="$0"
 TOP="$(cd "$(dirname "$prog")/.." && pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
-if [[ -z "$X10_FROM_SRC" ]]; then
-    # Default to pre-built distribution; do not set X10REL
-    [ -z "$X10SOURCES" ] && export X10SOURCES="$X10DIST/lib/x10.jar"
-    X10="$TOP"
-else
-    # Default to developer setup
-    [ -z "$X10REL" ] && export X10REL="../x10.dist"
-    [ -z "$X10SOURCES" ] && export X10SOURCES="$X10DIST/../x10.runtime/src-x10"
-    X10="$(cd "$TOP/$X10REL" && pwd)"
-fi
+
+#NOTE: Hacked to assume x10doc is not installed, since
+#      the dist rule is disabled.
+X10=$TOP/../x10.dist
+export X10SOURCES=$TOP/../x10.runtime/src-x10
+
+# if [[ -z "$X10_FROM_SRC" ]]; then
+#     # Default to pre-built distribution; do not set X10REL
+#     [ -z "$X10SOURCES" ] && export X10SOURCES="$X10DIST/lib/x10.jar"
+#     X10="$TOP"
+# else
+#     # Default to developer setup
+#     [ -z "$X10REL" ] && export X10REL="../x10.dist"
+#     [ -z "$X10SOURCES" ] && export X10SOURCES="$X10DIST/../x10.runtime/src-x10"
+#     X10="$(cd "$TOP/$X10REL" && pwd)"
+# fi
+
+
+
 [ -z "$TOOLSJAR" ] && export TOOLSJAR="$JAVA_HOME/lib/tools.jar"
 
 
