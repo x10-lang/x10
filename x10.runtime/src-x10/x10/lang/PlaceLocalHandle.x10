@@ -20,11 +20,11 @@ import x10.compiler.NativeClass;
  *
  * A key concept for correct usage of PlaceLocalHandles is that in different places,
  * the Handle may be mapped to distinct objects.  For example (assuming >1 Place):
- * <verbatim>
- *   val plh:PlaceLocalHandle[T] = ....
+ * <pre>
+ *   val plh:PlaceLocalHandle[T] = ....;
  *   val obj:T = plh();
  *   at (here.next()) Console.out.println(plh() == obj);
- * </verbatim>
+ * </pre>
  * may print either true or false depending on how the application is
  * using the particular PlaceLocalHandle (mapping the same object at
  * multiple places or mapping distinct object at each place).</p>
