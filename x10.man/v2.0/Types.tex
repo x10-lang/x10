@@ -58,6 +58,7 @@ public interface Any {
   property def at(p:Object):Boolean;
   property def at(p:Place):Boolean;
   global safe def toString():String;
+  global safe def typeName():String;
   global safe def equals(Any):Boolean;
   global safe def hashCode():Int;
 }
@@ -338,7 +339,7 @@ If the parameter of \xcd"Get" is covariant, then
 \xcd"S" is a {\em subtype} of \xcd"T".
 
 \item
-If the parameter of \xcd"Set" is covariant, then
+If the parameter of \xcd"Set" is contravariant, then
 \xcd"Set[S]" is a subtype of \xcd"Set[T]" if
 \xcd"S" is a {\em supertype} of \xcd"T".
 
@@ -716,10 +717,10 @@ A function type \xcd"F=(x1:T1,...,xn:Tn){c}=>T" can be used as the declared type
 
 A class or struct definition may use a function type \xcd"F" in its
 implements clause; this declares an abstract method 
-\xcd"def apply(x1:T1,...,xn:Tn)\{c\}:T" on that class. Similarly, an interface
+\xcd"def apply(x1:T1,...,xn:Tn){c}:T" on that class. Similarly, an interface
 definition may specify a function type "F" in its "extends" clause. A
 class or struct implementing such an interface implicitly defines an
-abstract method \xcd"def apply(x1:T1,..,xn:Tn)\{c\}:T". Expressions of such
+abstract method \xcd"def apply(x1:T1,..,xn:Tn){c}:T". Expressions of such
 a struct, class or interface type can be assigned to variables of type
 \xcd"F" and can be applied via juxtaposition to an argument list of the
 right type.
@@ -751,7 +752,7 @@ defined fields and hence no notion of structural equality.
         processed by compiler plugins, which may interpret the
         annotation symbolically.
 
-        A type \xcd"T" is annotated by with interface types
+        A type \xcd"T" is annotated by interface types
         \xcdmath"A$_1$", \dots,
         \xcdmath"A$_n$"
         using the syntax
@@ -872,10 +873,10 @@ public class Object (home: Place)
     public property def home() = home;
     public property def at(p:Place) = home==p;
     public property def at(r:Object) = home==r.home;
-    public native def toString() : String;
-    public global native def typeName() : String;
-    public def equals(x:Object) = this==x;
-    public native def hashCode() : Int;
+    public global safe native def toString() : String;
+    public global safe native def typeName() : String;
+    public global safe def equals(x:Any) = this == x;
+    public global safe native def hashCode():Int;
 }
 \end{xten}
 

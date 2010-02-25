@@ -181,13 +181,13 @@ at (P) {
       // In the body x contains a remote reference to o
       val f = new D();
       f.x1  = x; // remote reference stored in f.x1
-      Console.OUT.println((f.x1 == x);       // must print true
-      Console.OUT.println((x == x);          // must print true
+      Console.OUT.println(f.x1 == x);       // must print true
+      Console.OUT.println(x == x);          // must print true
       at (Q) { 
          // x continues to be a remote reference to o1.
          at (P) {  
              Console.OUT.println(f.x1 == x);   // must print true
-             Console.OUT.println((x == x);   // must print true
+             Console.OUT.println(x == x);   // must print true
          }
       }
 }
