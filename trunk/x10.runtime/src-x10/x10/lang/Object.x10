@@ -45,10 +45,6 @@ public class Object (
     @Native("c++", "x10aux::to_string(#0)")
     public global safe native def toString() : String;
 
- //   @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
-//   @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
-//   public property safe def loc() = location;
-
     @Native("java", "x10.core.Ref.at(#0, #1.id)")
     @Native("c++", "((#0)->location == (#1)->FMGL(id))")
     public property safe def at(p:Place) = home==p;
