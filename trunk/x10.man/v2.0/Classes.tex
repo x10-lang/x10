@@ -322,7 +322,7 @@ class MyRegion(rank:Int) {
 }
 \end{xten}
 The first constructor returns the empty region of rank \Xcd{r}.  The
-second constructor takes a \Xcd{ValRail[Int]} or arbitrary length
+second constructor takes a \Xcd{ValRail[Int]} of arbitrary length
 \Xcd{n} and returns a \Xcd{MyRegion(n)} (intended to represent the set
 of points in the rectangular parallelopiped between the origin and the
 \Xcd{diag}.)
@@ -652,7 +652,7 @@ not a subtype of \xcd"C{c}".
 \begin{staticrule*}
     The compiler checks that every method invocation
     \xcdmath"o.m(e$_1$, $\dots$, e$_n$)"
-    for a method is type correct. Each each argument
+    for a method is type correct. Each argument
     \xcdmath"e$_i$" must have a
     static type \xcdmath"S$_i$" that is a subtype of the declared type
     \xcdmath"T$_i$" for the $i$th
@@ -949,7 +949,7 @@ async {
 }
 \end{xten}
 
-During this phase, any read of a static field \Xcd{C.f} (declared at type \Xcd{T})
+During this phase, any read of a static field \Xcd{C.f} (where \Xcd{f} is of type \Xcd{T})
 is replaced by a call to the method \Xcd{C.read\_f():T} defined on class \Xcd{C}
 as follows
 

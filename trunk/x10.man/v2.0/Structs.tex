@@ -116,7 +116,7 @@ structs have the following methods implicitly defined on them:
 
 Structs are required to implement the following methods: 
 \begin{xten}
-  public global safe def equals(Any):boolean;
+  public global safe def equals(Any):Boolean;
   public global safe def hashCode():Int;
   public global safe def typeName():String;
   public global safe def toString():String;  
@@ -130,7 +130,7 @@ yield better performance since the cost of an upcast to \Xcd{Any} and
 then a downcast to \Xcd{S} can be avoided.
 
 Expressions of a struct type may be used in \Xcd{instanceof} and
-\Xcd{class-cast} tests.
+\Xcd{as} expressions.
 
 \section{``Primitives''}
 
@@ -212,10 +212,7 @@ struct Pair[S,T]  {
 The following types all make sense: 
 \begin{itemize}
 \item \Xcd{Pair[Complex, String]}: A struct with two fields, one inlined field of type \Xcd{Complex} and another of type \Xcd{String}. 
-\item \Xcd{Pair[Complex, Int]}: A class whose objects have size
-  \Xcd{sizeof(Complex)+sizeof(Ref)} (the state of complex is
-  ``inlined''). \emph\bf{FIXME}
+\item \Xcd{Pair[Complex, Int]}: A struct with two fields, one inlined field of type \Xcd{Complex} and another of type \Xcd{Int}. 
 \end{itemize}
-\emph{EndOfExample.}
 
 The definition of \Xcd{x10.lang.Complex} provides a good example of the use of structs.
