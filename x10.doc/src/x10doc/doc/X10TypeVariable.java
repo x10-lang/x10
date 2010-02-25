@@ -1,6 +1,6 @@
 package x10doc.doc;
 
-import x10.types.TypeConstraint;
+import x10.types.constraints.TypeConstraint;
 import x10.types.X10NamedType;
 
 import com.sun.javadoc.ClassDoc;
