@@ -64,14 +64,35 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
     @Native("c++", "(#0)->equals(#1)")
     public global safe native def equals(other:Any):boolean;
 
-    @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
-    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
-    //@Native("c++", "(#0)->copyTo(#1, #2, #3, #4, #5)")
+
+    /**
+     * Copies a portion of a given ValRail into a given remote Rail.
+     * Upon completion, notifies the enclosing finish.
+     *
+     * @param src the source ValRail.
+     * @param src_off the offset of the first element to copy in the source.
+     * @param dst the destination Rail.
+     * @param dst_off the offset of the first element store in the destination.
+     * @param len the number of elements to copy.
+     */
+    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#0,#1,#2,#3,#4)")
+    @Native("c++", "x10::lang::ValRail__NativeRep::copyTo(#0,#1,#2,#3,#4)")
     public global native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
 
-    @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5,#6)")
-    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
-    //@Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5,#6)")
+    /**
+     * Copies a portion of a given ValRail into a remote Rail indicated by the given closure.
+     * Upon completion, notifies the enclosing finish.
+     *
+     * @param src the source ValRail.
+     * @param src_off the offset of the first element to copy in the source.
+     * @param dst_place the location of the destination Rail.
+     * @param dst_finder a function returning a {@link x10.util.Pair} that consists
+     *                   of the reference to the destination Rail and the offset of
+     *                   the first element to copy to in the destination.
+     * @param len the number of elements to copy.
+     */
+    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#0,#1,#2,#3,#4)")
+    @Native("c++", "x10::lang::ValRail__NativeRep::copyTo(#0,#1,#2,#3,#4)")
     public global native def copyTo (src_off:Int,
                                      dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
                                      len:Int) : Void;
@@ -80,8 +101,10 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
         private var curIndex:int = 0;
         private val rail:ValRail[S]!;
 	
-	private def this(r:ValRail[S]!) { rail = r; }
+        private def this(r:ValRail[S]!) { rail = r; }
         public def hasNext() = curIndex < rail.length;
-	public def next() = rail(curIndex++);
+        public def next() = rail(curIndex++);
     }
+
+
 }

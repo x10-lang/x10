@@ -12,6 +12,7 @@
 package x10.lang;
 
 import x10.compiler.NativeClass;
+import x10.util.Pair;
 
 /**
  * The primary operation on a PlaceLocalHandle is to use it to access an object
@@ -48,9 +49,27 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
 
     public safe native def toString():String;
 
-    // TODO: fix guard and cast
-    public def copyTo[U](dst:Place, len:Int, notifier:()=>Void)/* {T<:Rail[U]} */:Void {
-        x10.lang.System.copyTo[U](this as Any as PlaceLocalHandle[Rail[U]], dst, len, notifier);
+    /**
+     * Copies the contents of a Rail stored in the given place-local handle in the
+     * current place to the Rail stored in the same handle at a given place.
+     * Upon completion, invokes the notifier closure.  The enclosing finish is not affected.
+     *
+     * @param handle the place-local handle that references the source and destination Rails.
+     * @param dst_place the location of the destination Rail.
+     * @param len the number of elements to copy.
+     * @param notifier the function to invoke upon completion.
+     */
+    // TODO: fix guard and cast -- should be an existential, i.e. exists U such
+    // that T<:Rail[U] then no need for U as an explicit type param and the
+    // cast should be implicit because of the knowledge that T <: Rail[U]
+    // FURTHERMORE: the constraint on explicit U (commented out) is not used by the code
+    // below, the cast is still required for the code to be accepted by the type system.
+    public def copyTo[U](dst:Place, len:Int, notifier:()=>Void) /*{T<:Rail[U]}*/ :Void {
+        val handle = this as Any as PlaceLocalHandle[Rail[U]];
+        val finder = ()=>Pair[Rail[U],Int](handle(), 0);
+        handle().copyTo(0, dst, finder, len, notifier);
+        Runtime.dealloc(finder);
+        Runtime.dealloc(notifier);
     }
 
     /**
@@ -72,5 +91,3 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
         return handle;
     }
 }
-
-// vim:shiftwidth=4:tabstop=4:expandtab

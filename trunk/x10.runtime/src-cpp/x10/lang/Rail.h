@@ -403,7 +403,6 @@ namespace x10 {
                     Rail_notifyEnclosingFinish(buf);
                     break;
                 }
-                // case 255 on death row
                 case 2: {
                     x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
                     x10aux::dealloc(bf.operator->());
@@ -755,4 +754,8 @@ namespace x10 {
 
 #endif
 #endif
+//#define X10_LANG_RAIL__NATIVEREP_H_NODEPS
+#include <x10/lang/Rail__NativeRep.h>
+//#undef X10_LANG_RAIL__NATIVEREP_H_NODEPS
 // vim:tabstop=4:shiftwidth=4:expandtab
+
