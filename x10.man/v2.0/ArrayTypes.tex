@@ -62,8 +62,8 @@ by the following class definitions:
 
 \begin{xten}
 package x10.lang;
-public class ValRail[T](length: Int) extends (Int)=>T, Iterable[T] { }
-public class Rail[T](length: Int) extends (Int)=>T, Settable[Int,T], Iterable[T] { }
+public class ValRail[T](length: Int) implements (Int)=>T, Iterable[T] { }
+public class Rail[T](length: Int) implements (Int)=>T, Settable[Int,T], Iterable[T] { }
 \end{xten}
 
 \Xten{} supports shorthand syntax for rail construction
