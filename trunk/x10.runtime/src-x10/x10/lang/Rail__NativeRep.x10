@@ -50,10 +50,11 @@ import x10.util.Pair;
                                      len:Int) : Void {
             if (useNativeFor(dst.home)) { copyTo_(src,src_off,dst,dst_off,len); return; }
             // could be further optimised to send only the part of the valrail needed
+            val to_serialize = src as ValRail[T];
             at (dst) {
                 //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
                 for (var i:Int=0 ; i<len ; ++i) {
-                    dst(dst_off+i) = src(src_off+i);
+                    dst(dst_off+i) = to_serialize(src_off+i);
                 }
             }
         }
