@@ -430,7 +430,7 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
     }
     return rail;
 #else
-    const char *msg = "No stacktrace available for your compiler.  So cry your heart out.";
+    const char *msg = "Detailed stacktraces not supported on this platform.";
     return alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
 #endif
 }
