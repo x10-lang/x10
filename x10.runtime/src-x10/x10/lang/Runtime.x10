@@ -653,10 +653,10 @@ public final class Runtime {
         def activity()  = activity;
 
         // poll activity from the bottom of the deque
-        private def poll() = queue.poll() as Activity!;
+        private def poll() = pretendLocal(queue.poll() as Activity);
 
         // steal activity from the top of the deque
-        def steal() = queue.steal() as Activity!;
+        def steal() = pretendLocal(queue.steal() as Activity);
 
         // push activity at the bottom of the deque
         def push(activity:Activity!):Void = queue.push(activity);
