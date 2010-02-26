@@ -32,10 +32,10 @@ public final class Rail[T](length: Int)
     private native def this(n: Int): Rail[T]{self.length==n};
 
     /**
-     * Create a rail and initialize it by evaluating the given closure at each index.
+     * Create a Rail and initialize it by evaluating the given closure at each index.
      *
-     * @param length The number of rail elements.
-     * @param init Evaluated once per element to initialize the rail.
+     * @param length The number of elements.
+     * @param init Evaluated once per element to initialize the Rail.
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
@@ -43,11 +43,11 @@ public final class Rail[T](length: Int)
     public native static safe def make[S](length: Int, init: (Int) => S): Rail[S]!{self.length==length};
 
     /**
-     * Create a rail and initialize it by copying elements from another rail.
+     * Create a Rail and initialize it by copying elements from another Rail.
      *
-     * @param length The number of rail elements.
-     * @param off Start copying elements from this offset of the given rail.
-     * @param init The rail to initialize from.
+     * @param length The number of Rail elements.
+     * @param off Start copying elements from this offset of the given Rail.
+     * @param init The Rail to initialize from.
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5, #6)")
@@ -55,9 +55,9 @@ public final class Rail[T](length: Int)
     public native static safe def make[S](length: Int, off:Int, init:Rail[S]): Rail[S]!{self.length==length};
 
     /**
-     * Creates an unitiialized rail, use with caution!
+     * Creates an unitiialized Rail, use with caution!
      *
-     * @param length The number of rail elements.
+     * @param length The number of Rail elements.
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
@@ -65,16 +65,16 @@ public final class Rail[T](length: Int)
     public native static safe def make[S](length: Int): Rail[S]!{self.length==length};
 
     /**
-     * Re-initializes a rail.
+     * Re-initializes a Rail.
      *
-     * @param init Evaluated once per element to reinitialize the rail.
+     * @param init Evaluated once per element to reinitialize the Rail.
      */
     @Native("java", "#0.reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
     public native safe def reset(init: (Int) => T): Void;
 
     /**
-     * Re-initializes a rail to a constant value.
+     * Re-initializes a Rail to a constant value.
      *
      * @param init Every element will be set to this value
      */
@@ -92,7 +92,7 @@ public final class Rail[T](length: Int)
     public native static safe operator [U](r: ValRail[U]): Rail[U]!{self.length==r.length};
 
     /**
-     * Operator that allows access of array elements by index.
+     * Operator that allows access of Rail elements by index.
      *
      * @param i The index to retreive.
      * @return The value at that index.
@@ -103,7 +103,7 @@ public final class Rail[T](length: Int)
     public native safe def apply(i: Int): T;
 
     /**
-     * Operator that allows assignment of array elements by index.
+     * Operator that allows assignment of Rail elements by index.
      *
      * @param v The value to assign.
      * @param i The index of the element to be changed.
@@ -115,7 +115,7 @@ public final class Rail[T](length: Int)
     public native safe def set(v: T, i: Int): T;
 
     /**
-     * Get an iterator over this rail.
+     * Get an iterator over this Rail.
      *
      * @return A new iterator instance.
      */
@@ -125,7 +125,7 @@ public final class Rail[T](length: Int)
 
 
     /**
-     * Create a rail in a given place and initialize it using the given function.
+     * Create a Rail in a given place and initialize it using the given function.
      * This is a synchronous operation.
      *
      * @param p the location of the new Rail.
@@ -138,7 +138,7 @@ public final class Rail[T](length: Int)
     public native static safe def makeRemote[T] (p:Place, length:Int, init: (Int) => T) : Rail[T]!p{self.length==length};
 
     /**
-     * Create a rail in a given place and initialize it by copying from a given Rail.
+     * Create a Rail in a given place and initialize it by copying from a given Rail.
      * This is a synchronous operation.
      *
      * @param p the location of the new Rail.
