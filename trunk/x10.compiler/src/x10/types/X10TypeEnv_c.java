@@ -51,6 +51,7 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.TransformingList;
 import x10.ast.X10Special;
+import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
@@ -64,6 +65,7 @@ import x10.errors.Errors;
 import x10.types.ParameterType.Variance;
 import x10.types.X10TypeSystem_c.Bound;
 import x10.types.X10TypeSystem_c.Kind;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.SubtypeConstraint;
@@ -184,7 +186,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         X10MethodInstance mi = (X10MethodInstance) mi0;
         X10MethodInstance mj = (X10MethodInstance) mj0;
 
-        XRoot thisVar = XTerms.makeLocal(XTerms.makeFreshName("this"));
+        XRoot thisVar =  XTerms.makeUQV(XTerms.makeFreshName("this")); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XRoot> xs = new ArrayList<XRoot>(2);
@@ -195,14 +197,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
 
-        mi = fixThis(mi, y, x);
-        mj = fixThis(mj, y, x);
+        Context cxt = PlaceChecker.pushHereTerm(mi.def(), (X10Context) context);
+        X10TypeEnv_c newEnv = new X10TypeEnv_c(cxt);
+        mi = newEnv.fixThis(mi, y, x);
+        mj = newEnv.fixThis(mj, y, x);
 
         // Force evaluation to help debugging.
         mi.returnType();
         mj.returnType();
-
-        checkOverride(mi, mj, true);
+        
+      
+        newEnv.checkOverride(mi, mj, true);
 
         X10Flags miF = X10Flags.toX10Flags(mi.flags());
         X10Flags mjF = X10Flags.toX10Flags(mj.flags());
@@ -1839,19 +1844,65 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 
     public void checkOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
-    	if (! mi.flags().isStatic()) {
-    		X10Context xc = (X10Context) context;
-    		X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
-    		XTerm h =  xts.homeVar(((X10MethodDef) mi.def()).thisVar(), xc);
-			if (h != null)  // null for structs.
-				xc = (X10Context) xc.pushPlace(XConstrainedTerm.make(h)); 	
-			new X10TypeEnv_c(xc).checkOverrideInProperContext(mi, mj, allowCovariantReturn);
-			return;
-    	}
+    	//Context cxt = PlaceChecker.pushHereTerm(mi.def(), (X10Context) context);
+    	//X10TypeEnv_c env = cxt == context ? this : new X10TypeEnv_c(cxt);
+    	//env.
     	checkOverrideInProperContext(mi, mj, allowCovariantReturn);
+    	return;
+
     }
+    public void superCheckOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
+    	if (mi == mj)
+    	    return;
+
+    	if (!(mi.name().equals(mj.name()) && mi.hasFormals(mj.formalTypes(), context))) {
+    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
+    		    + "; incompatible " + "parameter types", mi.position());
+    	}
+
+    	if (allowCovariantReturn ? !isSubtype(mi.returnType(), mj.returnType()) : !typeEquals(mi.returnType(), mj.returnType())) {
+    	    if (Report.should_report(Report.types, 3))
+    		Report.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
+    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
+    		    + "; attempting to use incompatible " + "return type\n" + "found: " + mi.returnType() + "\n" + "required: " + mj.returnType(),
+    					mi.position());
+    	}
+
+    	if (!ts.throwsSubset(mi, mj)) {
+    	    if (Report.should_report(Report.types, 3))
+    		Report.report(3, mi.throwTypes() + " not subset of " + mj.throwTypes());
+    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
+    		    + "; the throw set " + mi.throwTypes() + " is not a subset of the " + "overridden method's throw set " + mj.throwTypes() + ".",
+    					mi.position());
+    	}
+
+    	if (mi.flags().moreRestrictiveThan(mj.flags())) {
+    	    if (Report.should_report(Report.types, 3))
+    		Report.report(3, mi.flags() + " more restrictive than " + mj.flags());
+    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
+    		    + "; attempting to assign weaker " + "access privileges", mi.position());
+    	}
+
+    	if (mi.flags().isStatic() != mj.flags().isStatic()) {
+    	    if (Report.should_report(Report.types, 3))
+    		Report.report(3, mi.signature() + " is " + (mi.flags().isStatic() ? "" : "not") + " static but " + mj.signature() + " is "
+    			+ (mj.flags().isStatic() ? "" : "not") + " static");
+    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
+    		    + "; overridden method is " + (mj.flags().isStatic() ? "" : "not") + "static", mi.position());
+    	}
+
+    	if (!mi.def().equals(mj.def()) && mj.flags().isFinal()) {
+    	    // mi can "override" a final method mj if mi and mj are the same
+    	    // method instance.
+    	    if (Report.should_report(Report.types, 3))
+    		Report.report(3, mj.flags() + " final");
+    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
+    		    + "; overridden method is final", mi.position());
+    	}
+        }
+
     private void checkOverrideInProperContext(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
-    	super.checkOverride(mi, mj, allowCovariantReturn);
+    	superCheckOverride(mi, mj, allowCovariantReturn);
 
     	X10MethodInstance xmi = (X10MethodInstance) mi;
     	X10MethodInstance xmj = (X10MethodInstance) mj;
@@ -1981,35 +2032,31 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	return acceptable;
     }
 
-	public static X10MethodInstance fixThis(X10MethodInstance mi, final XVar[] y, final XRoot[] x) {
+	public  X10MethodInstance fixThis(final X10MethodInstance mi, final XVar[] y, final XRoot[] x) {
 	    X10MethodInstance mj = mi;
 	
-	    X10TypeSystem ts = (X10TypeSystem) mi.typeSystem();
+	    final X10TypeSystem ts = (X10TypeSystem) mi.typeSystem();
 	
 	    final X10MethodInstance zmj = mj;
 	    final LazyRef<Type> tref = new LazyRef_c<Type>(null);
 	    tref.setResolver(new Runnable() { 
 	        public void run() {
 	            try {
-	                Type subst = Subst.subst(zmj.returnType(), y, x, new Type[] { }, new ParameterType[] { });
-	                final boolean isStatic = ! zmj.flags().isStatic();
+	                Type newRetType = Subst.subst(zmj.returnType(), y, x, new Type[] { }, new ParameterType[] { });
+	              newRetType = PlaceChecker.ReplaceHereByPlaceTerm(newRetType, (X10Context) context);
+	                final boolean isStatic =  zmj.flags().isStatic();
 	                // add in this.home=here clause.
-	                if (! isStatic ) {
-	            		X10TypeSystem xts = (X10TypeSystem) zmj.typeSystem();
-	            		XTerm h =  xts.homeVar(y[0]);
-	            		CConstraint c = new CConstraint_c();
-
-	            		if (h != null) { // null for structs. 
-	            			try {
-	            				c.addBinding(h, XTerms.HERE);
-	            				subst = Subst.addIn(subst, c);
-	            			} catch (XFailure z) {
-	            			}
-	            		}	
-	            	}
-	                if ( y.length > 0)
-	            	subst = Subst.project(subst, (XRoot) y[0]);  			
-	                tref.update(subst);
+	                if (! isStatic  && ! X10TypeMixin.isX10Struct(mi.container())) {
+	                	try {
+	                		if ( y.length > 0 && y[0] instanceof XEQV)
+	                		newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));
+	                	} catch (XFailure z) {
+	                		throw new InternalError("Unexpectedly inconsistent place constraint.");
+	                	}
+	                }
+	                if ( y.length > 0 && y[0] instanceof XEQV) // this is a synthetic variable
+	                	newRetType = Subst.project(newRetType, (XRoot) y[0]);  			
+	                tref.update(newRetType);
 	            }
 	            catch (SemanticException e) {
 	                tref.update(zmj.returnType());

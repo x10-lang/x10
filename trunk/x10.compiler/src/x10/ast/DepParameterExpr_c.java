@@ -44,6 +44,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.TypeConstraint_c;
+import x10.visit.X10TypeChecker;
 
 /** An immutable representation of a dependent type constraint.
  * The corresponding syntax is [T](e){x: T; c}
@@ -163,7 +164,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
       }
 
       public void setResolver(Node parent, final TypeCheckPreparer v) {
-    	  TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+    	  TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     	  tc = (TypeChecker) tc.context(v.context().freeze());
 
     	  {

@@ -213,6 +213,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
 
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10DelegatingVisitor;
@@ -2787,14 +2788,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		return a;
 	}
 
-	private static boolean needsPlaceCheck(Receiver e, X10Context context) {
-	    if (e instanceof X10CanonicalTypeNode_c)
-	        return false;
-	    Type t = e.type();
-	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-	    return !xts.isHere(e, context);
-	}
-
 	private static boolean needsNullCheck(Receiver e) {
 	    if (e instanceof X10CanonicalTypeNode_c)
 	        return false;
@@ -2924,7 +2917,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    String targetMethodName = mangled_method_name(n.name().id().toString());
 		    boolean isInterfaceInvoke = false;
 		    X10Flags xf = X10Flags.toX10Flags(mi.flags());
-		    boolean needsPlaceCheck = !xf.isGlobal() && needsPlaceCheck(target, context);
+		    boolean needsPlaceCheck = !xf.isGlobal() && PlaceChecker.needsPlaceCheck(target, context);
 		    boolean needsNullCheck = needsNullCheck(target);
 		    if (!n.isTargetImplicit()) {
 		        // explicit target.
@@ -3220,7 +3213,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			} else {
 			    X10Flags xf = X10Flags.toX10Flags(fi.flags());
 			    boolean needsNullCheck = !X10TypeMixin.isX10Struct(t) && needsNullCheck(target);
-			    boolean needsPlaceCheck = !X10TypeMixin.isX10Struct(t) && !xf.isGlobal() && needsPlaceCheck(target, context);
+			    boolean needsPlaceCheck = !X10TypeMixin.isX10Struct(t) && !xf.isGlobal() && PlaceChecker.needsPlaceCheck(target, context);
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
 				if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
 				if (needsNullCheck) sw.write("x10aux::nullCheck(");
@@ -3808,7 +3801,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean doubleTemplate = ((X10ClassType)context.currentClass()).typeArguments().size() > 0;
 
 		X10Flags xf = X10Flags.toX10Flags(mi.flags());
-		boolean needsPlaceCheck = !xf.isGlobal() && needsPlaceCheck(domain, context);
+		boolean needsPlaceCheck = !xf.isGlobal() && PlaceChecker.needsPlaceCheck(domain, context);
 		boolean needsNullCheck = needsNullCheck(domain);
 		if (mi.container().toClass().flags().isInterface()) {
 		    sw.write(make_ref("x10::lang::Reference") + " " + name + " = "+iteratorTypeRef+"(");
@@ -4456,7 +4449,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type t = target.type();
 		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		boolean needsPlaceCheck = !xf.isGlobal() && needsPlaceCheck(target, context);
+		boolean needsPlaceCheck = !xf.isGlobal() && PlaceChecker.needsPlaceCheck(target, context);
 		boolean needsNullCheck = needsNullCheck(target);
 		if (lit != null) {
 		    // Optimize to stack-allocated closure and non-virtual dispatch

@@ -387,46 +387,6 @@ public interface X10TypeSystem extends TypeSystem {
     
     public Long size(Type t);
 
-   
-    
-    /**
-     * Check that the type system asserts r.home==here.
-     * @param r
-     * @param context
-     * @return
-     */
-    boolean isHere(Receiver r, X10Context context);
-    
-    /**
-     * Returns true if the receiver r is known statically to be at placeTerm.
-     * Will always return false if placeTerm is globalPlace().
-     * @param r
-     * @param placeTerm
-     * @param context
-     * @return
-     */
-    boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context context);
-    
-    /**
-     * Returns true if the receiver r is known statically to be at place.
-     * Will always return false if place is global.
-     * @param r
-     * @param place
-     * @param context
-     * @return
-     */
-    boolean isAtPlace(Receiver r, Expr place, X10Context context);
-    
-    CConstraint isHereConstraint(Receiver r, X10Context xc);
-    /**
-     * Return r.home.
-     * @param r
-     * @param context
-     * @return
-     */
-    XTerm homeVar(XTerm t, X10Context context) ;
-    XTerm homeVar(XTerm target);
-    
     /**
      * Does there exist a struct with the given name, accessible at this point? 
      * Throw an exception if it is not.
@@ -436,7 +396,7 @@ public interface X10TypeSystem extends TypeSystem {
      */
     void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException;
     
-    XConstrainedTerm globalPlace();
+  
     
     boolean isX10Array(Type me);
     

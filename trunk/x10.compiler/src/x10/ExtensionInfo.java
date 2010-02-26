@@ -19,11 +19,14 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -54,7 +57,9 @@ import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
 import polyglot.visit.PruningVisitor;
+import polyglot.visit.TypeChecker;
 import x10.ast.X10NodeFactory_c;
 import x10.optimizations.Optimizer;
 import x10.parser.X10Lexer;
@@ -84,6 +89,7 @@ import x10.visit.X10InitChecker;
 import x10.visit.X10InnerClassRemover;
 import x10.visit.X10MLVerifier;
 import x10.visit.X10Translator;
+import x10.visit.X10TypeChecker;
 
 /**
  * Extension information for x10 extension.
@@ -186,7 +192,32 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             return true;
         return false;
     }
-
+    
+    static class ExceptionComparator implements Comparator<SemanticException> {
+    	public int compare(SemanticException a, SemanticException b) {
+    		Position pa  = a.position();
+    		if (pa == null)
+    			return -1;
+    		Position pb = b.position();
+    		if (pb==null)
+    			return 1;
+    		if (pa.line() < pb.line())
+    			return -1;
+    		if (pb.line() < pa.line())
+    			return 1;
+    		if (pa.column() < pb.column())
+    			return -1;
+    		if (pb.line() < pa.line())
+    			return 1;
+    		return 0;
+    	}
+    }
+    Set<SemanticException> errors = new TreeSet<SemanticException>(new ExceptionComparator());
+    
+    public Set<SemanticException> errorSet() {
+    	return errors;
+    }
+    
     protected void initTypeSystem() {
         try {
             TopLevelResolver r = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
@@ -408,6 +439,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("X10MLTypeChecked", job, new X10MLVerifier(job, ts, nf)).intern(this);
        }
       
+       @Override
+       public Goal TypeChecked(Job job) {
+       	TypeSystem ts = job.extensionInfo().typeSystem();
+       	NodeFactory nf = job.extensionInfo().nodeFactory();
+       	return new VisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())).intern(this);
+       }
 
        public Goal X10Casted(Job job) {
            TypeSystem ts = extInfo.typeSystem();

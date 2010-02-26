@@ -78,6 +78,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbMethodMatcher;
 
@@ -465,7 +466,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 			
 			if (n instanceof X10Call_c)
-			 ((X10Call_c) n).checkLocalReceiver(tc);
+			 PlaceChecker.checkLocalReceiver((Call) n, tc);
 			
 			
 			// We have both!
@@ -559,7 +560,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		/////////////////////////////////////////////////////////////////////
 
 		result.checkProtoMethod();
-		result.checkLocalReceiver(tc);
+		PlaceChecker.checkLocalReceiver(result, tc);
 		// the arguments here.
 		result.checkConsistency(c);
 		//	        	result = result.adjustMI(tc);
@@ -570,38 +571,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	}
 
 	
-	public void checkLocalReceiver( ContextVisitor tc) 
-	throws SemanticException {
-		X10Flags xFlags = X10Flags.toX10Flags(methodInstance().flags());
-		// A global method can be invoked from anywhere.
-		if (xFlags.isGlobal())
-			return;
-		
-		// A static method can be invoked from anywhere.
-		if (xFlags.isStatic())
-			return;
-
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10Context xc = (X10Context) tc.context();
-		
-		Receiver target = target();
-		
-		
-		// Method invocations on structs are always permitted
-		if (ts.isStructType(target.type()))
-			return;
-
-
-		if (ts.isHere(target, xc))
-			return;
-
-		XConstrainedTerm h = xc.currentPlaceTerm();
-		if (h != null && h.equals(((X10TypeSystem) tc.typeSystem()).globalPlace())) {
-			throw new Errors.PlaceTypeErrorMethodShouldBeGlobal(this, position());
-		}
-		throw new Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal (this, xc.currentPlaceTerm(), position());
-	}
-
+	
 	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(final X10Call_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
 	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	    final Context context = tc.context();

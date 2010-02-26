@@ -29,10 +29,10 @@ import x10.util.Box;
  */    
 public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
     val r: Reader;
-    val m: Marshal[T]!;
+    val m: Marshal[T];
     var next: Box[T];
     
-    public def this(m: Marshal[T]!, r: Reader) {
+    public def this(m: Marshal[T], r: Reader) {
        this.m = m;
        this.r = r;
        //       this.next = null;

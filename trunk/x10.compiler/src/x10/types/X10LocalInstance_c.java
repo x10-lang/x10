@@ -13,6 +13,7 @@ package x10.types;
 
 import java.util.List;
 
+import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance_c;
 import polyglot.types.Ref;
@@ -26,6 +27,7 @@ import polyglot.util.Position;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 
@@ -66,6 +68,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
 
         rightType = type();
         assert rightType != null : "The type() for " + this + " at " + position() + " is null.";
+        	rightType = PlaceChecker.ReplaceHereByPlaceTerm(rightType, x10Def().placeTerm());
         Flags flags = flags();
         if ((! flags.isFinal())|| rightType instanceof UnknownType) {
         	return rightType;
@@ -77,7 +80,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         	c = c==null? new CConstraint_c() : c.copy();
 
         	X10TypeSystem xts = (X10TypeSystem) ts;
-        	XLocal var = xts.xtypeTranslator().trans(this, rightType);
+        	XLocal var = xts.xtypeTranslator().trans(this.type(rightType), rightType);
         	c.addSelfBinding(var);
         	rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(rightType), c);
 

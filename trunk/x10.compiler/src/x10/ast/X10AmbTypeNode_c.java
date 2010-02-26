@@ -21,6 +21,7 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
+import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
@@ -36,6 +37,8 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeCheckPreparer;
+import polyglot.visit.TypeChecker;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.MacroType;
@@ -44,6 +47,7 @@ import x10.types.X10Flags;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.visit.X10TypeChecker;
 
 /**
  * An <code>AmbTypeNode</code> is an ambiguous AST node composed of
@@ -201,6 +205,15 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       throw ex;
   }
   
+  @Override
+  public void setResolver(Node parent, final TypeCheckPreparer v) {
+  	if (typeRef() instanceof LazyRef) {
+  		LazyRef<Type> r = (LazyRef<Type>) typeRef();
+  		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+  		tc = (TypeChecker) tc.context(v.context().freeze());
+  		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
+  	}
+  }
   static TypeNode postprocess(CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) 
   throws SemanticException {
 	  Flags  f = ((X10AmbTypeNode_c) n).flags;

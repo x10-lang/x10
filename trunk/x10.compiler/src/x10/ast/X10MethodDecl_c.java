@@ -105,9 +105,11 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.checker.Checker;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.visit.X10TypeChecker;
 
 /** A representation of a method declaration.
  * Includes an extra field to represent the guard
@@ -120,6 +122,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     // The representation of the  guard on the method definition
     DepParameterExpr guard;
     List<TypeParamNode> typeParameters;
+    
+    // set by createMethodDef.
+    XTerm placeTerm;
 
     public X10MethodDecl_c(Position pos, FlagsNode flags, 
             TypeNode returnType, Id name,
@@ -127,6 +132,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         super(pos, flags, returnType, name, formals, throwTypes, body);
         this.guard = guard;
         this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
+      
     }
 
   
@@ -134,6 +140,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
         X10MethodDef mi = (X10MethodDef) super.createMethodDef(ts, ct, flags);
         mi.setThisVar(((X10ClassDef) ct).thisVar());
+        this.placeTerm = PlaceChecker.methodPT(flags, ct);
         return mi;
     }
 
@@ -210,7 +217,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         X10MethodDef mi = (X10MethodDef) this.mi;
         if (mi.body() instanceof LazyRef) {
             LazyRef<XTerm> r = (LazyRef<XTerm>) mi.body();
-            TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+            TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
             tc = (TypeChecker) tc.context(v.context().freeze());
             r.setResolver(new TypeCheckFragmentGoal(parent, this, tc, r, false));
         }
@@ -266,22 +273,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         // Ensure that the place constraint is set appropriately when
         // entering the body of the method, the return type and the throw type.
        
-        X10Context xc = (X10Context) c;
-        if (child == body || child == returnType || child == throwTypes) {
-        	X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
-        	X10Flags flags = X10Flags.toX10Flags(methodDef().flags());
-        	boolean isGlobal = flags.isGlobal() || X10Flags.toX10Flags(xc.currentClass().flags()).isStruct();
-        	if (! isGlobal) {
-        		if ( ! X10TypeMixin.isX10Struct(c.currentClassDef().asType())) {
-        			XTerm h =  xts.homeVar(xc.thisVar(),xc);
-        			if (h != null)  // null for structs.
-        				c = ((X10Context) c).pushPlace(XConstrainedTerm.make(h)); 	
-        		}
-        	}
+      
+        if (child == body || child == returnType || child == throwTypes || (formals != null && formals.contains(child))) {
+        	if (placeTerm != null)
+        	c = ((X10Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
+        	// 	PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
         }
-    	
-    		
-    
+
         // Add the method guard into the environment.
         if (guard != null) {
             Ref<CConstraint> vc = guard.valueConstraint();
@@ -339,7 +337,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             if (childv instanceof TypeCheckPreparer) {
                 TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
                 final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-                TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+                TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
                 tc = (TypeChecker) tc.context(tcp.context().freeze());
                 r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r, true));
             }
@@ -873,10 +871,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         nn.visitList(nn.typeParameters(),childtc1);
         nn.visitList(nn.formals(),childtc1);
         (( X10Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
-        final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
-        if (childtc1.hasErrors()) throw new SemanticException();
-        nn = (X10MethodDecl) nn.returnType(r);
-        ((Ref<Type>) nn.methodDef().returnType()).update(r.type());
+        { 
+        	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
+        	if (childtc1.hasErrors()) throw new SemanticException();
+        	nn = (X10MethodDecl) nn.returnType(r);
+        	Type type = PlaceChecker.ReplaceHereByPlaceTerm(r.type(), ( X10Context ) childtc1.context());
+        	((Ref<Type>) nn.methodDef().returnType()).update(r.type());
+        }
         // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
         // Step III. Check the body. 
         // We must do it with the correct mi -- the return type will be

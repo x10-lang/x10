@@ -25,6 +25,8 @@ import polyglot.ast.IntLit;
 import polyglot.ast.Node;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
+import polyglot.frontend.AbstractGoal_c;
+import polyglot.frontend.Goal;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
@@ -39,6 +41,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
@@ -48,6 +51,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XTerm;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
@@ -64,7 +68,9 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
+import x10.visit.X10TypeChecker;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
@@ -89,21 +95,48 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 			xc.setVarWhoseTypeIsBeingElaborated(fi);
 			c = xc;
 		}
-		if (child == this.type || child == this.init) {
-			X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
-			X10Context xc = (X10Context) c;
-			ClassDef cd = c.currentClassDef();
-			if (cd != null)
-			if ( ! X10TypeMixin.isX10Struct(cd.asType())) {
-			XTerm h =  xts.homeVar(xc.thisVar(),xc);
-			if (h != null)  // null for structs.
-				c = ((X10Context) c).pushPlace(XConstrainedTerm.make(h)); 	
-			}
-        	
+				
+	    if (child == this.type || child == this.init) {
+			c = PlaceChecker.pushHereTerm(fieldDef(), (X10Context) c);
 		}
 		Context cc = super.enterChildScope(child, c);
 		return cc;
 	}
+	
+	@Override
+	public void setResolver(final Node parent, TypeCheckPreparer v) {
+    	final FieldDef def = fieldDef();
+    	Ref<ConstantValue> rx = def.constantValueRef();
+    	if (rx instanceof LazyRef) {
+    		LazyRef<ConstantValue> r = (LazyRef<ConstantValue>) rx;
+    		  TypeChecker tc0 = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+    		  final TypeChecker tc = (TypeChecker) tc0.context(v.context().freeze());
+    		  final Node n = this;
+    		  r.setResolver(new AbstractGoal_c("ConstantValue") {
+    			  public boolean runTask() {
+    				  if (state() == Goal.Status.RUNNING_RECURSIVE || state() == Goal.Status.RUNNING_WILL_FAIL) {
+    					  // The field is not constant if the initializer is recursive.
+    					  //
+    					  // But, we could be checking if the field is constant for another
+    					  // reference in the same file:
+    					  //
+    					  // m() { use x; }
+    					  // final int x = 1;
+    					  //
+    					  // So this is incorrect.  The goal below needs to be refined to only visit the initializer.
+    					  def.setNotConstant();
+    				  }
+    				  else {
+    					  Node m = parent.visitChild(n, tc);
+    					  tc.job().nodeMemo().put(n, m);
+    					  tc.job().nodeMemo().put(m, m);
+    				  }
+    				  return true;
+    			  }
+    		  });
+    	}
+    }
+
 
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
         Node result = super.conformanceCheck(tc);
@@ -246,7 +279,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 			    if (childv instanceof TypeCheckPreparer) {
 				    TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
 				    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-				    TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+				    TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 				    tc = (TypeChecker) tc.context(tcp.context().freeze());
 				    r.setResolver(new TypeCheckExprGoal(this, init, tc, r));
 			    }
@@ -256,8 +289,9 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	        @Override
 	        public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+	        	 
 	            if (type() instanceof UnknownTypeNode) {
-	                NodeVisitor childtc = tc.enter(parent, this);
+	            	  NodeVisitor childtc = tc.enter(parent, this);
 	                
 	                Expr init = (Expr) this.visitChild(init(), childtc);
 	                if (init != null) {
@@ -271,6 +305,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                                t = ct.superClass();
 	                        }
 	                    }
+	                    X10Context xc = (X10Context) enterChildScope(type(), tc.context());
+	                    t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
 	                    LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
 	                    r.update(t);
 	                    
@@ -292,81 +328,87 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	            }
 	            return super.typeCheckOverride(parent, tc);
 	        }
-	        
+	     
 	    @Override
-	        public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	    public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	    	Type type =  this.type().type();
+	    	Type oldType = (Type)type.copy();
+	    	X10Context xc = (X10Context) enterChildScope(type(), tc.context());
 	    	
-	            if (type.isVoid())
-	                throw new SemanticException("Field cannot have type " + this.type().type() + ".", position());
+	    	
+	    	// Need to replace here by current placeTerm in type, 
+	    	// since the field of this type can be referenced across
+	    	// a place shift. So here must be bound to the current placeTerm.
+	    	
+	    	type = PlaceChecker.ReplaceHereByPlaceTerm(type, xc);
 
-	            if (X10TypeMixin.isProto(type)) {
-	                throw new SemanticException("Field cannot have type " 
-	                		+ this.type().type() + " (a proto type).", position());
-	            	
-	            }
-                X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    	if (type.isVoid())
+	    		throw new SemanticException("Field cannot have type " + this.type().type() + ".", position());
 
-                if (X10TypeMixin.isX10Struct(fieldDef().container().get()) &&
-	                    !isMutable(ts, fieldDef().container().get()) &&
-	            		! X10Flags.toX10Flags(fieldDef().flags()).isFinal()) {
-	                throw new SemanticException("A struct may not have var fields.",
-	                		position());
-	            }
-	            	
-	            X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	            X10Context context = (X10Context) tc.context();
-	            
-	            X10FieldDecl_c n = this;
+	    	if (X10TypeMixin.isProto(type)) {
+	    		throw new SemanticException("Field cannot have type " 
+	    				+ type + " (a proto type).", position());
 
-	            // Add an initializer to uninitialized var fields.
-                    if (! n.flags().flags().isFinal() && n.init() == null) {
-                        Type t = n.type().type();
-                        Expr e = null;
-                        if (t.isBoolean()) {
-                            e = (Expr) nf.BooleanLit(position(), false).del().typeCheck(tc).checkConstants(tc);
-                        }
-                        if (t.isIntOrLess()) {
-                            e = (Expr) nf.IntLit(position(), IntLit.INT, 0L).del().typeCheck(tc).checkConstants(tc);
-                        }
-                        if (t.isLong()) {
-                            e = (Expr) nf.IntLit(position(), IntLit.LONG, 0L).del().typeCheck(tc).checkConstants(tc);
-                        }
-                        if (t.isFloat()) {
-                            e = (Expr) nf.FloatLit(position(), FloatLit.FLOAT, 0.0).del().typeCheck(tc).checkConstants(tc);
-                        }
-                        if (t.isDouble()) {
-                            e = (Expr) nf.FloatLit(position(), FloatLit.DOUBLE, 0.0).del().typeCheck(tc).checkConstants(tc);
-                        }
-                        if (ts.isSubtype(t, ts.String(), tc.context())) {
-                            e = (Expr) nf.StringLit(position(), "").del().typeCheck(tc).checkConstants(tc);
-                        }
-                        if (ts.isReferenceType(t, context)) {
-                            e = (Expr) nf.NullLit(position()).del().typeCheck(tc).checkConstants(tc);
-                        }
-                        
-                        if (e != null) {
-                            n = (X10FieldDecl_c) n.init(e);
-                        }
-                    }
-                    
-                    if (init != null) {
-                        try {
-                            Expr newInit = Converter.attemptCoercion(tc, init, this.type().type());
-                            return this.init(newInit);
-                        }
-                        catch (SemanticException e) {
-                            throw new SemanticException("The type of the variable " +
-                                                        "initializer \"" + init.type() +
-                                                        "\" does not match that of " +
-                                                        "the declaration \"" +
-                                                        type + "\".",
-                                                        init.position());
-                        }
-                    }
+	    	}
+	    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
-                    return this;
-        }
+	    	if (X10TypeMixin.isX10Struct(fieldDef().container().get()) &&
+	    			!isMutable(ts, fieldDef().container().get()) &&
+	    			! X10Flags.toX10Flags(fieldDef().flags()).isFinal()) {
+	    		throw new SemanticException("A struct may not have var fields.",
+	    				position());
+	    	}
+
+	    	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	    	X10Context context = (X10Context) tc.context();
+
+	    	X10FieldDecl_c n = (X10FieldDecl_c) this.type(nf.CanonicalTypeNode(type().position(), type));
+
+	    	// Add an initializer to uninitialized var fields.
+	    	if (! n.flags().flags().isFinal() && n.init() == null) {
+	    		Type t = n.type().type();
+	    		Expr e = null;
+	    		if (t.isBoolean()) {
+	    			e = (Expr) nf.BooleanLit(position(), false).del().typeCheck(tc).checkConstants(tc);
+	    		}
+	    		if (t.isIntOrLess()) {
+	    			e = (Expr) nf.IntLit(position(), IntLit.INT, 0L).del().typeCheck(tc).checkConstants(tc);
+	    		}
+	    		if (t.isLong()) {
+	    			e = (Expr) nf.IntLit(position(), IntLit.LONG, 0L).del().typeCheck(tc).checkConstants(tc);
+	    		}
+	    		if (t.isFloat()) {
+	    			e = (Expr) nf.FloatLit(position(), FloatLit.FLOAT, 0.0).del().typeCheck(tc).checkConstants(tc);
+	    		}
+	    		if (t.isDouble()) {
+	    			e = (Expr) nf.FloatLit(position(), FloatLit.DOUBLE, 0.0).del().typeCheck(tc).checkConstants(tc);
+	    		}
+	    		if (ts.isSubtype(t, ts.String(), tc.context())) {
+	    			e = (Expr) nf.StringLit(position(), "").del().typeCheck(tc).checkConstants(tc);
+	    		}
+	    		if (ts.isReferenceType(t, context)) {
+	    			e = (Expr) nf.NullLit(position()).del().typeCheck(tc).checkConstants(tc);
+	    		}
+
+	    		if (e != null) {
+	    			n = (X10FieldDecl_c) n.init(e);
+	    		}
+	    	}
+
+	    	if (n.init != null) {
+	    		try {
+	    			 xc = (X10Context) n.enterChildScope(n.init, tc.context());
+	    	    	ContextVisitor childtc = tc.context(xc);
+	    			Expr newInit = Converter.attemptCoercion(childtc, n.init, oldType); // use the oldType. The type of n.init may have "here".
+	    			return n.init(newInit);
+	    		}
+	    		catch (SemanticException e) {
+	    			throw new Errors.FieldInitTypeWrong(init, type, init.position());
+	    		}
+	    	}
+
+	    	return n;
+	    }
 
 	    public Type childExpectedType(Expr child, AscriptionVisitor av) {
 	        if (child == init) {

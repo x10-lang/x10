@@ -87,6 +87,7 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.TypeConstraint;
@@ -161,125 +162,129 @@ public class X10Context_c extends Context_c implements X10Context {
 			 addSigma(r, ct.xconstraint(), m);
 		 }
 	 }
-        public CConstraint constraintProjection(CConstraint... cs) throws XFailure {
-            HashMap<XTerm, CConstraint> m = new HashMap<XTerm, CConstraint>();
+	 public CConstraint constraintProjection(CConstraint... cs) throws XFailure {
+		 HashMap<XTerm, CConstraint> m = new HashMap<XTerm, CConstraint>();
 
-            // add in the real clause of the type of any var mentioned in the constraint list cs
-            CConstraint r = null;
+		 // add in the real clause of the type of any var mentioned in the constraint list cs
+		 CConstraint r = null;
 
-            for (CConstraint ci : cs) {
-                CConstraint ri = constraintProjection(ci, m);
-                if (r == null)
-                    r = ri;
-                else
-                    r.addIn(ri);
-            }
+		 for (CConstraint ci : cs) {
+			 CConstraint ri = constraintProjection(ci, m);
+			 if (r == null)
+				 r = ri;
+			 else
+				 r.addIn(ri);
+		 }
 
-            if (r == null) r = new CConstraint_c();
+		 if (r == null) 
+			 r = new CConstraint_c();
 
-            // fold in the current constraint
-            addSigma(r, currentConstraint(), m);
-            addSigma(r, currentPlaceTerm, m);
-            if (currentPlaceTerm != null) {
-            	r.addBinding(XTerms.HERE, currentPlaceTerm.term());
-            }
-            addSigma(r, thisPlace, m);
+		 // fold in the current constraint
+		 addSigma(r, currentConstraint(), m);
+		 addSigma(r, currentPlaceTerm, m);
+		 PlaceChecker.AddHereEqualsPlaceTerm(r, this);
 
-            // fold in the real clause of the base type
-            Type selfType = this.currentDepType();
-            if (selfType != null) {
-                CConstraint selfConstraint = X10TypeMixin.realX(selfType);
-                if (selfConstraint != null) {
-                    r.addIn(selfConstraint.instantiateSelf(r.self()));
-                }
-            }
+		 addSigma(r, thisPlace, m);
 
-            return r;
-        }
+		 // fold in the real clause of the base type
+		 Type selfType = this.currentDepType();
+		 if (selfType != null) {
+			 CConstraint selfConstraint = X10TypeMixin.realX(selfType);
+			 if (selfConstraint != null) {
+				 r.addIn(selfConstraint.instantiateSelf(r.self()));
+			 }
+		 }
 
-        /* sigma(Gamma) restricted to the variables mentioned in c */
-        private CConstraint constraintProjection(CConstraint c, Map<XTerm,CConstraint> m) throws XFailure {
-            CConstraint r = new CConstraint_c();
-            if (c != null)
-                for (XTerm t : c.constraints()) {
-                    CConstraint tc = constraintProjection(t, m);
-                    if (tc != null)
-                        r.addIn(tc);
-                }
-            return r;
-        }
+		 return r;
+	 }
 
-        private CConstraint constraintProjection(XTerm t, Map<XTerm,CConstraint> m) throws XFailure {
-	    X10TypeSystem xts = (X10TypeSystem) this.ts;
+	 /* sigma(Gamma) restricted to the variables mentioned in c */
+	 private CConstraint constraintProjection(CConstraint c, Map<XTerm,CConstraint> m) throws XFailure {
+		 CConstraint r = new CConstraint_c();
+		 if (c != null)
+			 for (XTerm t : c.constraints()) {
+				 CConstraint tc = constraintProjection(t, m);
+				 if (tc != null)
+					 r.addIn(tc);
+			 }
+		 return r;
+	 }
 
-	    CConstraint r = m.get(t);
-	    if (r != null)
-	        return r;
+	 private CConstraint constraintProjection(XTerm t, Map<XTerm,CConstraint> m) throws XFailure {
+		 X10TypeSystem xts = (X10TypeSystem) this.ts;
 
-	    // pre-fill the cache to avoid infinite recursion
-	    m.put(t, new CConstraint_c());
+		 CConstraint r = m.get(t);
+		 if (r != null)
+			 return r;
 
-	    if (t instanceof XLocal) {
-	        XLocal v = (XLocal) t;
-	        X10LocalDef ld = getLocal(v);
-	        if (ld != null) {
-	            Type ty = Types.get(ld.type());
-	            CConstraint ci = X10TypeMixin.realX(ty);
-	            ci = ci.substitute(v, ci.self());
-	            r = new CConstraint_c();
-	            r.addIn(ci);
-	            r.addIn(constraintProjection(ci, m));
-	        }
-	    }
-	    else if (t instanceof XLit) {
-	    }
-	    else if (t instanceof XField) {
-	        XField f = (XField) t;
-	        XTerm target = f.receiver();
+		 // pre-fill the cache to avoid infinite recursion
+		 m.put(t, new CConstraint_c());
 
-	        CConstraint rt = constraintProjection(target, m);
+		 if (t instanceof XLocal) {
+			 XLocal v = (XLocal) t;
+			 X10LocalDef ld = getLocal(v);
+			 if (ld != null) {
+				 Type ty = Types.get(ld.type());
+				
+				 if (ld instanceof X10LocalDef) {
+				   ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ((X10LocalDef) ld).placeTerm());
+				 }
+				 CConstraint ci = X10TypeMixin.realX(ty);
+				 ci = ci.substitute(v, ci.self());
+				 r = new CConstraint_c();
+				 r.addIn(ci);
+				 r.addIn(constraintProjection(ci, m));
+			 }
+		 }
+		 else if (t instanceof XLit) {
+		 }
+		 else if (t instanceof XField) {
+			 XField f = (XField) t;
+			 XTerm target = f.receiver();
 
-	        X10FieldDef fi = getField(f);
-	        CConstraint ci = null;
+			 CConstraint rt = constraintProjection(target, m);
 
-	        if (fi != null) {
-	            Type ty = Types.get(fi.type());
-	            ci = X10TypeMixin.realX(ty);
-	            ci = ci.substitute(f, ci.self());
-	            ci = ci.substitute(target, xts.xtypeTranslator().transThisWithoutTypeConstraint());
-	            r = new CConstraint_c();
-	            r.addIn(ci);
-	            r.addIn(constraintProjection(ci, m));
-	            if (rt != null) {
-	                r.addIn(rt);
-	            }
-	        }
-	        else {
-	            r = rt;
-	        }
-	    }
-	    else if (t instanceof XFormula) {
-	        XFormula f = (XFormula) t;
-	        for (XTerm a : f.arguments()) {
-	            CConstraint ca = constraintProjection(a, m);
-	            if (ca != null) {
-	                if (r == null) {
-	                    r = new CConstraint_c();
-	                }
-	                r.addIn(ca);
-	            }
-	        }
-	    }
-	    else {
-	        assert false : "unexpected " + t;
-	    }
+			 X10FieldDef fi = getField(f);
+			 CConstraint ci = null;
 
-	    if (r != null)
-	        m.put(t, r);
-	    else
-	        m.put(t, new CConstraint_c());
-	    return r;
-        }
+			 if (fi != null) {
+				 Type ty = Types.get(fi.type());
+				 ci = X10TypeMixin.realX(ty);
+				 ci = ci.substitute(f, ci.self());
+				 ci = ci.substitute(target, xts.xtypeTranslator().transThisWithoutTypeConstraint());
+				 r = new CConstraint_c();
+				 r.addIn(ci);
+				 r.addIn(constraintProjection(ci, m));
+				 if (rt != null) {
+					 r.addIn(rt);
+				 }
+			 }
+			 else {
+				 r = rt;
+			 }
+		 }
+		 else if (t instanceof XFormula) {
+			 XFormula f = (XFormula) t;
+			 for (XTerm a : f.arguments()) {
+				 CConstraint ca = constraintProjection(a, m);
+				 if (ca != null) {
+					 if (r == null) {
+						 r = new CConstraint_c();
+					 }
+					 r.addIn(ca);
+				 }
+			 }
+		 }
+		 else {
+			 assert false : "unexpected " + t;
+		 }
+
+		 if (r != null)
+			 m.put(t, r);
+		 else
+			 m.put(t, new CConstraint_c());
+		 return r;
+	 }
 
     private X10FieldDef getField(XField f) {
         XName n = f.field();

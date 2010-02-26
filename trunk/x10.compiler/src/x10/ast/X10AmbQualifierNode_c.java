@@ -35,6 +35,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.visit.X10TypeChecker;
 
 /**
  * An <code>X10AmbQualifierNode</code> is an ambiguous AST node composed of
@@ -96,7 +97,7 @@ public class X10AmbQualifierNode_c extends AmbQualifierNode_c implements X10AmbQ
 
 	public void setResolver(Node parent, final TypeCheckPreparer v) {
 		final LazyRef<Qualifier> r = (LazyRef<Qualifier>) qualifierRef();
-		TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 		tc = (TypeChecker) tc.context(v.context().freeze());
 		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
 	}

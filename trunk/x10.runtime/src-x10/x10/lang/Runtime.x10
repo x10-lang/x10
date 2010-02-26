@@ -447,19 +447,20 @@ public final class Runtime {
             if (here.equals(home)) {
                 (this as RootFinish!).notifySubActivitySpawnLocal(place);
             } else {
-                Runtime.proxy(this).notifySubActivitySpawn(place);
+                (Runtime.proxy(this) as RemoteFinish!).notifySubActivitySpawn(place);
             }
         }
 
         public global def notifyActivityCreation():Void {
-            if (!here.equals(home)) Runtime.proxy(this).notifyActivityCreation();
+            if (!here.equals(home)) 
+            	(Runtime.proxy(this) as RemoteFinish!).notifyActivityCreation();
         }
 
         public global def notifyActivityTermination():Void {
             if (here.equals(home)) {
                 (this as RootFinish!).notifyActivityTerminationLocal();
             } else {
-                Runtime.proxy(this).notifyActivityTermination(this);
+                (Runtime.proxy(this) as RemoteFinish!).notifyActivityTermination(this);
             }
         }
 
@@ -467,7 +468,7 @@ public final class Runtime {
             if (here.equals(home)) {
                 (this as RootFinish!).pushExceptionLocal(t);
             } else {
-                Runtime.proxy(this).pushException(t);
+                (Runtime.proxy(this) as RemoteFinish!).pushException(t);
             }
         }
     }
@@ -488,9 +489,9 @@ public final class Runtime {
         /**
          * Keep track of the number of activities associated with this finish state.
          */
-        private val counts = Rail.make[Int](Place.MAX_PLACES, (Int)=>0) as Rail[Int]!;
+        private val counts = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
 
-        private val message = Rail.make[Int](Place.MAX_PLACES, (Int)=>here.id) as Rail[Int]!;
+        private val message = Rail.make[Int](Place.MAX_PLACES, (Int)=>here.id);
         private var length:Int = 1;
 
         private var count:AtomicInteger! = new AtomicInteger(0);
@@ -866,7 +867,8 @@ public final class Runtime {
     /**
      * Return the current worker
      */
-    private static def worker():Worker! = pretendLocal[Worker](Thread.currentThread().worker() as Worker);
+    private static def worker():Worker! = 
+    	pretendLocal[Worker](Thread.currentThread().worker() as Worker);
 
     /**
      * Return the current activity
@@ -895,7 +897,8 @@ public final class Runtime {
         try {
             for (var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (isLocal(i)) {
-                    runAtLocal(i, ()=>runtime.set(new Runtime(pool)));
+                	// needed because the closure can be invoked in places other than the p
+                    runAtLocal(i, ()=>runtime.set(new Runtime(pretendLocal(pool)))); 
                 }
             }
             registerHandlers();

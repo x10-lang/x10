@@ -63,6 +63,7 @@ import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
+import x10.visit.X10TypeChecker;
 
 /**
  * Captures the commonality of for, foreach and ateach loops in X10.
@@ -352,7 +353,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 			if (childv instanceof TypeCheckPreparer) {
 				final TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
 				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-				TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), 
+				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), 
 						v.getMemo());
 				tc = (TypeChecker) tc.context(tcp.context().freeze());
 

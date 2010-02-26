@@ -17,7 +17,7 @@ import harness.x10Test;
 
 public class FutureGlobalMethodInvokeStruct extends x10Test {
 
-    struct C[S] {
+    static struct C[S] {
         property p:int = 0;
         val x:S;
         final def foo() {}
@@ -28,7 +28,7 @@ public class FutureGlobalMethodInvokeStruct extends x10Test {
         }
     }
 
-    val c = new C[String]("0");
+    val c = C[String]("0");
 
     public def run02(): boolean = {
     		val p = Place.places(1);

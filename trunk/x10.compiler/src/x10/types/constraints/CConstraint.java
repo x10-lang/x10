@@ -14,6 +14,7 @@ package x10.types.constraints;
 import java.util.HashMap;
 
 import polyglot.ast.Field;
+import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
 
 import x10.constraint.ThisVar;
@@ -60,6 +61,7 @@ public interface CConstraint extends XConstraint, ThisVar  {
 	 */
 	XTerm bindingForSelfField(XName fieldName);
 	XTerm bindingForSelfField(Field f);
+	XTerm bindingForSelfField(FieldInstance f);
 	
 	/**
 	 * Add constraint c into this, and return this. Note: this is possibly side-effected

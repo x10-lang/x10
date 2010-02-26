@@ -19,6 +19,7 @@ import java.util.List;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.frontend.SetResolverGoal;
@@ -41,12 +42,15 @@ import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeCheckPreparer;
+import polyglot.visit.TypeChecker;
 
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.visit.X10TypeChecker;
 
 public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
@@ -138,6 +142,15 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		return n;
 	}
 
+	@Override
+	  public void setResolver(Node parent, final TypeCheckPreparer v) {
+	    	if (typeRef() instanceof LazyRef) {
+	    		LazyRef<Type> r = (LazyRef<Type>) typeRef();
+	    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+	    		tc = (TypeChecker) tc.context(v.context().freeze());
+	    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
+	    	}
+	    }
 	/* (non-Javadoc)
 	 * @see x10.ast.FunctionTypeNode#typeParameters()
 	 */

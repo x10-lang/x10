@@ -49,8 +49,12 @@ import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
+import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
+import x10.types.constraints.XConstrainedTerm;
 import x10.visit.X10PrettyPrinterVisitor;
+import x10.visit.X10TypeChecker;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	
@@ -70,7 +74,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		super.addDecls(c);
 
 	}
-	
+		
 	@Override
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		if (type instanceof UnknownTypeNode) {
@@ -86,7 +90,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 			
 		// This installs a LocalDef 
 		X10LocalDecl_c n = (X10LocalDecl_c) super.buildTypes(tb);
-
 		X10LocalDef fi = (X10LocalDef) n.localDef();
 
 	        List<AnnotationNode> as = ((X10Del) n.del()).annotations();
@@ -108,8 +111,13 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	 */
         @Override
         public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+        	 NodeVisitor childtc = tc.enter(parent, this);
+        	
+        	 XConstrainedTerm  pt = ((X10Context) tc.context()).currentPlaceTerm();
+        	 assert pt.term()!= null;
+        	 ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
             if (type() instanceof UnknownTypeNode) {
-                NodeVisitor childtc = tc.enter(parent, this);
+               
                 
                 Expr init = (Expr) this.visitChild(init(), childtc);
                 if (init != null) {
@@ -151,7 +159,13 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
          */
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	    if (this.type().type().isVoid())
+		Type type = type().type();
+
+		type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
+	    Ref<Type> r = (Ref<Type>) type().typeRef();
+        r.update(type);
+        
+	    if (type.isVoid())
 	        throw new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
 
 	    TypeSystem ts = tc.typeSystem();
@@ -163,15 +177,17 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	        throw new SemanticException(e.getMessage(), position());
 	    }
 
+	     X10LocalDecl_c n = (X10LocalDecl_c) this.type(tc.nodeFactory().CanonicalTypeNode(type().position(), type));
+
 	    // Need to check that the initializer is a subtype of the (declared or inferred) type of the variable,
 	    // or can be implicitly coerced to the type.
-	    if (init != null) {
+	    if (n.init != null) {
 	            try {
-	                Expr newInit = Converter.attemptCoercion(tc, init, this.type().type());
-	                return this.init(newInit);
+	                Expr newInit = Converter.attemptCoercion(tc, n.init, type);
+	                return n.init(newInit);
 	            }
 	            catch (SemanticException e) {
-	            	throw new Errors.CannotAssign(init, this.type().type(), init.position());
+	            	throw new Errors.CannotAssign(n.init, type, n.init.position());
 	            }
 	    }
 
@@ -189,7 +205,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 			    if (childv instanceof TypeCheckPreparer) {
 				    TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
 				    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-				    TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+				    TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 				    tc = (TypeChecker) tc.context(tcp.context().freeze());
 				    r.setResolver(new TypeCheckExprGoal(this, init, tc, r));
 			    }

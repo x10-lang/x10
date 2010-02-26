@@ -329,7 +329,7 @@ public class X10TypeMixin {
 
 	    Type tx = t.getCached();
 	    assert tx != null;
-	    return new ConstrainedType_c((X10TypeSystem) tx.typeSystem(), tx.position(), tref, cref);
+	    return new ConstrainedType_c((X10TypeSystem) tx.typeSystem(), tx.position(), t.known()? t: tref, cref);
 	}
 
     public static boolean isConstrained(Type t) {

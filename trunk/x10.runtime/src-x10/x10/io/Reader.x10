@@ -48,11 +48,11 @@ public abstract class Reader {
     public global def readDouble(): Double throws IOException = Marshal.DOUBLE.read(this);
     public global def readLine(): String throws IOException = Marshal.LINE.read(this);
 
-    public final global def read[T](m: Marshal[T]!): T throws IOException = m.read(this);
+    public final global def read[T](m: Marshal[T]): T throws IOException = m.read(this);
 
-    public final global def read[T](m: Marshal[T]!, a: Rail[T]!): Void  throws IOException 
+    public final global def read[T](m: Marshal[T], a: Rail[T]!): Void  throws IOException 
 	= read[T](m, a, 0, a.length);
-    public final global def read[T](m: Marshal[T]!, a: Rail[T]!, off: Int, len: Int): Void throws IOException {
+    public final global def read[T](m: Marshal[T], a: Rail[T]!, off: Int, len: Int): Void throws IOException {
         for (var i: Int = off; i < off+len; i++) {
             a(i) = read[T](m);
         }

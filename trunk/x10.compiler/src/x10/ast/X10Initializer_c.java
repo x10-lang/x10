@@ -14,14 +14,18 @@ package x10.ast;
 import polyglot.ast.Block;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Initializer_c;
+import polyglot.ast.Node;
 import polyglot.types.ClassDef;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.InitializerDef;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import x10.types.X10ClassDef;
+import x10.types.X10Context;
 import x10.types.X10InitializerDef;
+import x10.types.checker.PlaceChecker;
 
 public class X10Initializer_c extends Initializer_c {
 
@@ -32,8 +36,16 @@ public class X10Initializer_c extends Initializer_c {
     public InitializerDef createInitializerDef(TypeSystem ts, ClassDef ct, Flags flags) {
         X10InitializerDef ii;
         ii = (X10InitializerDef) super.createInitializerDef(ts, ct , flags);
-        ii.setThisVar(((X10ClassDef) ct).thisVar());
+        if (! ii.flags().isStatic())
+        	ii.setThisVar(((X10ClassDef) ct).thisVar());
         return ii;
+    }
+    @Override
+    public Context enterChildScope(Node child, Context c) {
+        if (child == body ) {
+        	c = PlaceChecker.pushHereTerm(initializerDef(), (X10Context) c);
+        }
+        return c;
     }
 
 }
