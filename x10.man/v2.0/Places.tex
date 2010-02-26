@@ -83,9 +83,9 @@ The code:
 \begin{xten}
 public class F {
   public def m(a: F) {
-    val OldHere: place = here;
+    val OldHere: Place = here;
     async (a) {
-      System.out.println("OldHere == here:" 
+      Console.OUT.println("OldHere == here:" 
                          + (OldHere == here));
     }
   }
