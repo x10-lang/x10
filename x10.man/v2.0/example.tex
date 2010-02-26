@@ -18,7 +18,7 @@ public class Jacobi {
    val B: Array[double](D) = new Array[double](D,
         (p(i,j): point) => DBoundary.contains(p) ? (N-1)/2 : N*(i-1)+(j-1));
     
-   public def run(): boolean {
+   public def run(): Boolean {
       var iters: Int = 0;
       var err: double;
       while (true) {
