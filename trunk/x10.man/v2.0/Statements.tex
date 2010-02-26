@@ -276,10 +276,7 @@ ThrowStatement \: \xcd"throw" Expression \xcd";"
 
 \index{Exception}
 The \xcd"throw" statement throws an exception.  The exception
-must be a subclass of the value class \xcd"x10.lang.Throwable". 
-% null not allowed since a value class;
-% If the exception is
-% \xcd"null", a \xcd"NullPointerException" is thrown.
+must be a subclass of the class \xcd"x10.lang.Throwable". 
 
 \begin{example}
 The following statement checks if an index is in range and
