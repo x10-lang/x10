@@ -34,6 +34,12 @@ memory representing their fields, without any vtable/itable. Structs
 are introduced by struct definitions. struct definitions look very
 similar to class definitions, but have additional restrictions.
 
+\paragraph{Implementation Note} In \XtenCurrVer{}, structs are
+only implemented as inline headerless objects when using the C++
+backend. In the Java backend, structs are mapped directly to Java
+classes and therefore have the same space and indirection
+characteristics as classes. 
+
 \section{Struct declaration}
 
 \Xten{} supports user-defined primitives (called
