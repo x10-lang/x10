@@ -198,7 +198,7 @@ Here is another example.
  \begin{xten}
 val x = new C(..); 
 // C object o created, reference stored in x. 
-// type of x is rooted C{c} if the return type 
+// type of x is C{c}! if the return type 
 // of the constructor is C{c}. 
 at (P) { 
     val x1 = x; 
@@ -207,9 +207,9 @@ at (P) {
   at (x.home()) {
         // x is now bound to o through a local reference. So is x1.
     Console.out.println(x1==x); // Must print true.
-      // rooted methods can be invoked on x or x1 and will 
+      // non-global methods can be invoked on x or x1 and will 
       // execute locally on o
-      // type of both x and x1 is rooted C{c}.
+      // type of both x and x1 is C{c}!.
   }
 }
 \end{xten}
