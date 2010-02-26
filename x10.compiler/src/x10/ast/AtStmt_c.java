@@ -51,6 +51,7 @@ import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -132,7 +133,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	}
 
     	if (placeTerm == null) {
-    		placeTerm = PlacedClosure_c.computePlaceTerm((Expr) visitChild(this.place, v),
+    		placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
     				 (X10Context) tc.context(),ts);
     	}
     	

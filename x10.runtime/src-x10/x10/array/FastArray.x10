@@ -174,7 +174,7 @@ public final class FastArray[T] extends BaseArray[T] {
             for (p:Point in region)
                 r(layout.offset(p)) = f(p);
         
-        raw = r as Rail[T]{self.home== this.dist.onePlace};
+        raw = r as Rail[T]{self.at(this.dist.onePlace)}; 
 
         delta0 = layout.delta0;
         delta1 = layout.delta1;
@@ -195,7 +195,7 @@ public final class FastArray[T] extends BaseArray[T] {
         val n = layout.size();
         val r = Rail.make[T](n);
        
-        raw = r as Rail[T]{self.home== this.dist.onePlace};
+        raw = r as Rail[T]{self.at(this.dist.onePlace)};
 
         delta0 = layout.delta0;
         delta1 = layout.delta1;
@@ -222,7 +222,7 @@ public final class FastArray[T] extends BaseArray[T] {
     	super(d);
     	val l =   a.layout();
     	this.layout = l;
-    	this.raw =  a.raw() as Rail[T]{self.home==this.dist.onePlace};;
+    	this.raw =  a.raw() as Rail[T]{self.at(this.dist.onePlace)};
 
     	delta0 = l.delta0;
     	delta1 = l.delta1;

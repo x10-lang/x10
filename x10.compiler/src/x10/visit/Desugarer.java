@@ -99,6 +99,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
 import x10.util.ClosureSynthesizer;
 import x10.util.Synthesizer;
 
@@ -339,7 +340,7 @@ public class Desugarer extends ContextVisitor {
         List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
         if (!v.type().isLong() || !xts.isRailOf(r.type(), xts.Long()))
             return null;
-        if (!xts.isAtPlace(r, p, xContext()))
+        if (!PlaceChecker.isAtPlace(r, p, xContext()))
             return null;
         ClassType RemoteOperation = (ClassType) xts.typeForName(REMOTE_OPERATION);
         Position pos = a.position();

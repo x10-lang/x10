@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class FutureFieldAccessStruct extends x10Test {
 
-    struct C[S] {
+   static struct C[S] {
         property p:int = 0;
         val x:S;
         def foo() {}

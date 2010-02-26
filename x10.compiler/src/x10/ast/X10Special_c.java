@@ -35,6 +35,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
@@ -154,12 +155,7 @@ public class X10Special_c extends Special_c implements X10Special {
             	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
                 cc.addSelfBinding(var);
             	cc.setThisVar(var);
-            	 XTerm locVar = xts.homeVar(var, c);
-                 XConstrainedTerm thisPlace = c.currentThisPlace();
-                 if (thisPlace != null) {
-                	 assert locVar != null;
-                	 cc.addBinding(locVar, thisPlace);
-                 }
+            	PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }
             catch (XFailure e) {
                 throw new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position());
@@ -174,7 +170,9 @@ public class X10Special_c extends Special_c implements X10Special {
             CConstraint cc = X10TypeMixin.xclause(superClass);
             cc = cc == null ? new CConstraint_c() : cc.copy();
             try {
-                cc.addSelfBinding((XVar) xts.xtypeTranslator().trans(cc, this, c));
+            	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
+                cc.addSelfBinding(var);
+            	PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }
             catch (XFailure e) {
                 throw new SemanticException("Constraint on super is inconsistent; " + e.getMessage(), position());

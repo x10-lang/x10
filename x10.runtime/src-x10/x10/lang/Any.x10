@@ -17,22 +17,29 @@ import x10.compiler.NativeRep;
 /**
  * The top of the type hierarchy.
  * Implemented by all classes and structs.
+ * 
+ * Restriction: The types in Any cannot use "here". (In the current implementation,
+ * using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite
+ * recursion. See PlaceChecker.pushHereTerm.)
  *
  * @author vj 12/14/09
  */
 @NativeRep("java", "java.lang.Object", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Any>", "x10::lang::Any", null)
-public interface Any {
+public interface Any( @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
+        @Native("c++", 
+        "x10::lang::Place_methods::place(x10aux::get_location(#0))")
+                home: Place) {
 
     /**
      * Return the home location of this entity.
      * This will be 'here' for non-object entities.
      * @return the home location of this entity.
-     */
+     
     @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
     @Native("c++", "x10::lang::Place_methods::place(x10aux::get_location(#0))")
     property def home():Place;
-
+*/
     /**
      * Return true if this entity is in the same home location as the given object.
      *

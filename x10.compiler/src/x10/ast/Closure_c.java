@@ -65,6 +65,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.util.ClosureSynthesizer;
+import x10.visit.X10TypeChecker;
 
 /**
  * An implementation of a closure literal in the source text.
@@ -365,7 +366,7 @@ public class Closure_c extends Expr_c implements Closure {
 		    if (childv instanceof TypeCheckPreparer) {
 		    	TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
 		    	final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-		    	TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+		    	TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 		    	tc = (TypeChecker) tc.context(tcp.context().freeze());
 		    	r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r, true));
 		    }

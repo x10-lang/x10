@@ -58,6 +58,8 @@ import x10.types.X10MethodInstance;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
+import x10.types.constraints.XConstrainedTerm;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
 
@@ -122,7 +124,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @see polyglot.ext.jl.ast.Formal#addDecls()
 	 */
 	public void addDecls(Context c) {
-		super.addDecls(c);
+		c.addVariable(li.asInstance());
 		for (Iterator<Formal> j = this.vars().iterator(); j.hasNext(); ) {
 			Formal fj = (Formal) j.next();
 			fj.addDecls(c);
@@ -162,10 +164,13 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	     final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
 	     final X10Context context = (X10Context) v.context();
 	     final ClassDef currClassDef = context.currentClassDef();
+	    
 
 	     Formal f = (Formal) this;
 	     X10LocalDef li = (X10LocalDef) f.localDef();
+	  
 	     if (f.type() instanceof UnknownTypeNode && parent instanceof Formal) {
+	    	   // We infer the types of exploded formals
 	         final UnknownTypeNode tn = (UnknownTypeNode) f.type();
 	         final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
 	         r.setResolver(new Runnable() {
@@ -197,10 +202,26 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	                 r.update(ts.unknownType(tn.position()));
 	             }
 	         });
-	     }
+	     } 
 	     return null;
 	 }
 	 
+
+	 @Override
+	 public Type declType() {
+		 return type.type();
+	 }
+	    
+	 @Override
+	 public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+		 NodeVisitor childtc = tc.enter(parent, this);
+
+		 XConstrainedTerm  pt = ((X10Context) ((ContextVisitor) childtc).context()).currentPlaceTerm();
+
+		 if (pt != null)
+			 ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
+		 return null;
+	 }
 	 @Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	     X10Formal_c n = (X10Formal_c) super.typeCheck(tc);

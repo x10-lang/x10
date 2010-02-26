@@ -64,6 +64,7 @@ import x10.types.X10ProcedureDef;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -227,11 +228,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
         if (child == body) {
-        	if (! X10TypeMixin.isX10Struct(c.currentClassDef().asType())) {
-        		XTerm h =  xts.homeVar(xc.thisVar(),xc);
-        		if (h != null)  // null for structs.
-        			c = ((X10Context) c).pushPlace(XConstrainedTerm.make(h)); 	
-        	}
+        	c = PlaceChecker.pushHereIsThisHome(xc);
         }
         
 

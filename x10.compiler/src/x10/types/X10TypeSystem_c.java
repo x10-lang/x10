@@ -93,6 +93,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.parser.X10ParsedName;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.SubtypeConstraint;
@@ -156,7 +157,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             final XVar[] y = ys.toArray(new XVar[ys.size()]);
             final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
 
-            mi = X10TypeEnv_c.fixThis((X10MethodInstance) mi, y, x);
+            mi = new X10TypeEnv_c(context).fixThis((X10MethodInstance) mi, y, x);
 
             if (mi.typeParameters().size() != typeParams.size()) {
                 continue;
@@ -204,7 +205,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
 
-        mi = X10TypeEnv_c.fixThis((X10MethodInstance) mi, y, x);
+        mi = new X10TypeEnv_c(context).fixThis((X10MethodInstance) mi, y, x);
 
         StructType curr = ct;
         while (curr != null) {
@@ -1975,6 +1976,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         assert_(type);
         return new X10LocalDef_c(this, pos, flags, type, name);
     }
+    
 
     public boolean equalTypeParameters(List<Type> a, List<Type> b, Context context) {
         if (a == null || a.isEmpty())
@@ -2213,133 +2215,56 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return null;
     }
  
-    public boolean isAtPlace(Receiver r, Expr place, X10Context xc) {
-    	assert place != null;
-    	CConstraint_c c = new CConstraint_c();
-    	XTerm placeTerm = xtypeTranslator().trans(c, place, xc);
-    	if (placeTerm == null) 
-    		return false;
-    	return isAtPlace(r, placeTerm, xc);
-    }
-    
-    // placeTerm may be null. Nothing is known about the current place.
-    // In such a case check if r.home == here, otherwise check r.home==placeTerm
-    public boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context xc) {
-    	// If the code is executing in a global context then
-    	// no receiver can be local.
- 	   if (placeTerm != null && placeTerm.equals(globalPlace()))
- 		   return false;
- 	   
- 		   try {
- 			   XConstrainedTerm h = xc.currentPlaceTerm();
- 			   CConstraint pc = h == null ? new CConstraint_c() : xc.currentPlaceTerm().xconstraint().copy();
- 			   
- 			   Type rType = r.type();
- 			   XTerm target = X10TypeMixin.selfVarBinding(rType); 
- 			   if (target != null && target.toString().contains("$dummyAsync#this")) {
- 				  XRoot thisVar = xc.thisVar();
- 				  for (X10Context outer = (X10Context) xc.pop();
-				   outer != null && target != null && target.toString().contains("$dummyAsync#this");
-				   outer = (X10Context) outer.pop())
-				   {
-					   target = outer.thisVar();
-				   }
- 			   }
- 			   if (target == null) {
- 				   target = xtypeTranslator().trans(pc, r, xc);
- 				   if (target == null)
- 					   // The receiver is not named. So make up a new name.
- 					   // The only thing we know about the name is that it is of rType,
- 					   target = XTerms.makeUQV();
- 			   } 
- 			   rType = X10TypeMixin.instantiateSelf(target, rType); 
- 			  
- 			   assert homeVar(target, xc) != null;
- 			   
- 			   pc.addBinding(homeVar(target,xc), placeTerm == null ? XTerms.HERE : placeTerm);
- 			   
- 			   CConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
- 			   CConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
- 			   if (h != null) {
- 				   sigma.addBinding(XTerms.HERE, h.term());
- 			   }
- 			   // Add this.here = currentThisPlace.
- 			   XConstrainedTerm th = xc.currentThisPlace();
- 			   if (th != null) {
- 				   XRoot thisVar = xc.thisVar();
- 				   for (X10Context outer = (X10Context) xc.pop();
- 				   outer != null && thisVar == null;
- 				   outer = (X10Context) outer.pop())
- 				   {
- 					   thisVar = outer.thisVar();
- 				   }
- 				   sigma.addBinding(th, homeVar(thisVar,xc));
- 			   }
- 			   // Now check the constraint.
- 			   if (targetConstraint.entails(pc,sigma)) {
- 				   // Gamma|- here==r.home
- 				   return true;
- 			   }	   
- 		   } catch (XFailure z) {
- 			   // fall through
- 		   }
- 	   
- 	   return false;
-
-    }
-    
-   public CConstraint isHereConstraint(Receiver r, X10Context xc) {
-	   CConstraint pc = new CConstraint_c();
-
-	   XTerm target = xtypeTranslator().trans(pc, r, xc);
-	   assert r != null;
-	   return isHereConstraint(pc, target, xc);
-
-   }
-   public CConstraint isHereConstraint(XTerm target, X10Context xc) {
-	   CConstraint c = new CConstraint_c();
-	   return isHereConstraint(c, target, xc);
-   }
-   protected CConstraint isHereConstraint(CConstraint pc, XTerm target, X10Context xc) {
-	   try {
-		   XTerm eloc = xtypeTranslator().trans(pc, target, 
-				   ((StructType) Object()).fieldNamed(homeName()));
-		   // XConstrainedTerm h = xc.currentPlaceTerm();
-		   // pc.addBinding(eloc, h==null ? h.term(): XTerms.HERE);
-		   pc.addBinding(eloc, XTerms.HERE);
-	   } catch (XFailure z) {
-		   pc.setInconsistent();
-	   } 
-	   return pc;
-   }
-   public XTerm homeVar(XTerm target) {
-	   return homeVar(target, null);
-   }
-   public XTerm homeVar(XTerm target, X10Context xc)  {
-	   CConstraint pc = new CConstraint_c();
-	   return xtypeTranslator().trans(pc, target, 
-			   ((StructType) Object()).fieldNamed(homeName()));
-   }
-   public XTerm locVar(Receiver r, X10Context xc)  {
-	   CConstraint pc = new CConstraint_c();
-	   XTerm target = xtypeTranslator().trans(pc, r, xc);
-	   if (target == null) return null;
-	   return xtypeTranslator().trans(pc, target, 
-			   ((StructType) Object()).fieldNamed(homeName()));
-   }
-   public XConstrainedTerm globalPlace() {
-	   return xtypeTranslator().globalPlace();
-   }
-   public boolean isHere(Receiver r, X10Context xc) {
-	   XConstrainedTerm h = xc.currentPlaceTerm();
-	   return isAtPlace(r, h==null? null : h.term(), xc);
-   }
+ 
+ 
 	
    
    public FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
 	throws SemanticException {
-	   //container = X10TypeMixin.ensureSelfBound( container);
-	   return super.findField(container, matcher);
+	   
+
+		Context context = matcher.context();
+		
+		Collection<FieldInstance> fields = findFields(container, matcher);
+
+		if (fields.size() == 0) {
+		    throw new NoMemberException(NoMemberException.FIELD,
+		                                "Field " + matcher.signature() +
+		                                " not found in type \"" +
+		                                container + "\".");
+		}
+
+		
+		if (fields.size() >= 2) {
+			Collection<FieldInstance> newFields = new HashSet<FieldInstance>();
+			for (FieldInstance fi : fields) {
+				
+				if (! (fi.container().toClass().flags().isInterface())){
+					newFields.add(fi);
+				}
+					
+			}
+			fields = newFields;
+		}
+		
+		Iterator<FieldInstance> i = fields.iterator();
+		FieldInstance fi = i.next();
+
+		if (i.hasNext()) {
+		    FieldInstance fi2 = i.next();
+
+		    throw new SemanticException("Field " + matcher.signature() +
+		                                " is ambiguous; it is defined in both " +
+		                                fi.container() + " and " +
+		                                fi2.container() + "."); 
+		}
+
+		if (context != null && ! isAccessible(fi, context)) {
+		    throw new SemanticException("Cannot access " + fi + ".");
+		}
+
+		return fi;
+	   
    }
    public void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException {
  	  X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();

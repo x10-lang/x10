@@ -18,6 +18,7 @@ import java.util.List;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.types.Context;
@@ -35,6 +36,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
@@ -44,6 +46,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
+import x10.visit.X10TypeChecker;
 
 
 public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddFlags {
@@ -108,6 +111,14 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     	return (base != null ? base.toString() : "") + (dep != null ? dep.toString() : "");
     }
     
+    public void setResolver(Node parent, final TypeCheckPreparer v) {
+    	if (typeRef() instanceof LazyRef) {
+    		LazyRef<Type> r = (LazyRef<Type>) typeRef();
+    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+    		tc = (TypeChecker) tc.context(v.context().freeze());
+    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
+    	}
+    }
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();

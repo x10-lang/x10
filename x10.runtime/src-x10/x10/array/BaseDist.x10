@@ -195,7 +195,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         for (r in rs)
             overall = overall.union(r) as Region(rank);
 
-        return new BaseDist(overall as Region(this.rank), ps, rs);
+        return new BaseDist(overall, ps, rs);
     }
 
     public global def difference(that: Dist(rank)): Dist(rank) {
@@ -316,7 +316,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     protected global val regions: ValRail[Region(rank)];
     private global val regionMap: ValRail[Region];
 
-    protected def this(r: Region, ps: ValRail[Place], rs: ValRail[Region(r.rank)]): BaseDist{self.region==r} {
+    public def this(r: Region, ps: ValRail[Place], rs: ValRail[Region(r.rank)]): BaseDist{self.region==r} {
 
         super(r, isUnique(ps), isConstant(ps), onePlace(ps));
 

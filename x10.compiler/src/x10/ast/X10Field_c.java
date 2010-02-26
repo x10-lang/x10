@@ -53,9 +53,9 @@ import x10.types.X10MethodInstance;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
-import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.Subst;
 import x10.errors.Errors;
 
@@ -176,8 +176,7 @@ public class X10Field_c extends Field_c {
 			}
 
 			checkFieldAccessesInDepClausesAreFinal(result, tc);
-
-			result.checkFieldPlaceType(tc);
+			PlaceChecker.checkFieldPlaceType(result, c);
 
 			//System.err.println("X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
@@ -266,40 +265,6 @@ public class X10Field_c extends Field_c {
 	}
 
 	private static final boolean ENABLE_PLACE_TYPES = true;
-
-	public void checkFieldPlaceType( ContextVisitor tc) 
-	throws SemanticException {
-		X10Flags xFlags = X10Flags.toX10Flags(fieldInstance().flags());
-		// A global field can be accessed from anywhere.
-		if (xFlags.isGlobal())
-			return;
-		
-		// A static field can be accessed from anywhere.
-		if (xFlags.isStatic())
-			return;
-
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10Context xc = (X10Context) tc.context();
-		
-		Receiver target = target();
-		if (! ts.isSubtype(target.type(), ts.Object(), xc))
-			return;
-
-		if (ts.isHere(target, xc))
-			return;
-
-		XConstrainedTerm h = xc.currentPlaceTerm();
-		if (h != null && h.equals(((X10TypeSystem) tc.typeSystem()).globalPlace())) {
-			throw new Errors.PlaceTypeErrorFieldShouldBeGlobal(this, 
-					position());
-		}
-		XTerm placeTerm=null;
-		if (h!= null)
-			placeTerm = h.term();
-		throw new Errors.PlaceTypeErrorFieldShouldBeLocalOrGlobal(this, 
-				placeTerm,
-				position());
-	}
 
 	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, ContextVisitor tc) 
 	throws SemanticException {

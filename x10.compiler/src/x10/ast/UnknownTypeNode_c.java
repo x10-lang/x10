@@ -15,6 +15,7 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.QualifierNode;
+import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.frontend.AbstractGoal_c;
@@ -31,6 +32,8 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
+import polyglot.visit.TypeChecker;
+import x10.visit.X10TypeChecker;
 
 public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 	public UnknownTypeNode_c(Position pos) {
@@ -63,6 +66,7 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 		return nf.CanonicalTypeNode(position(), typeRef());
 	}
 
+	
 	public void setResolver(Node parent, final TypeCheckPreparer v) {
 	    if (typeRef() instanceof LazyRef) {
 		final LazyRef<Type> r = (LazyRef<Type>) typeRef();

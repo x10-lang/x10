@@ -52,6 +52,7 @@ import x10.types.X10Flags;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbConstructorMatcher;
@@ -293,9 +294,10 @@ public class X10New_c extends New_c implements X10New {
         }
 
         List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
-
         for (Expr e : this.arguments) {
-            argTypes.add(e.type());
+        	//Type argType = PlaceChecker.ReplaceHereByPlaceTerm((Type) e.type(), (X10Context) tc.context());
+        	Type argType = e.type();
+        	argTypes.add(argType);
         }
 
         if (typeArgs.size() > 0)
@@ -347,6 +349,7 @@ public class X10New_c extends New_c implements X10New {
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         Type tp = ci.returnType();
+        tp = PlaceChecker.ReplaceHereByPlaceTerm(tp, (X10Context) tc.context());
         Type tp1 = (Type) tp.copy();
         if (X10TypeMixin.isProto(tp1)) {
         	tp1 = X10TypeMixin.baseOfProto(tp1);
@@ -402,18 +405,13 @@ public class X10New_c extends New_c implements X10New {
             return (X10ConstructorInstance) this.ci;
         Type type = xci.returnType();
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        
+
         // Add self.home == here to the return type.
         if (! ts.isStructType(type)) {
-        	XTerm selfVar = X10TypeMixin.selfVar(type);
-        	X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-        	X10Context xc = (X10Context) tc.context();
-        	XTerm locVar = xts.homeVar(selfVar, xc);
-        	type = X10TypeMixin.addBinding(type, locVar, XTerms.HERE);
-        	
-        	
+
+        	type = PlaceChecker.AddIsHereClause(type, tc.context());
         	// Add self != null
-        	type = X10TypeMixin.addDisBinding(type, selfVar, XTerms.NULL);
+        	type = X10TypeMixin.addDisBinding(type, X10TypeMixin.selfVar(type), XTerms.NULL);
         }
        
         

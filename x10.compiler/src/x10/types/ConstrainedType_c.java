@@ -64,8 +64,11 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		super(ts, pos);
 		assert ts != null;
 		this.baseType = baseType;
-		assert !(baseType.known() && baseType.getCached() instanceof UnknownType) :
-			" baseType is " + baseType;
+		if ((baseType.known() && baseType.getCached() instanceof UnknownType))
+			assert false;
+		
+		//assert  :
+		//	" baseType is " + baseType;
 		this.constraint = constraint;
 	}
 

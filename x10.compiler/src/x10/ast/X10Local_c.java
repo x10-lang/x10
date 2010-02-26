@@ -42,6 +42,7 @@ import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 
@@ -81,7 +82,8 @@ public class X10Local_c extends Local_c {
 			
 			// Add in self==x to local variable x.
 
-			result = (X10Local_c) result.type(((X10LocalInstance) li).rightType());
+			Type type = ((X10LocalInstance) li).rightType();
+			result = (X10Local_c) result.type(type);
 			
 			// Fold in the method's guard.
 			// %%% FIXME: move method guard into context.currentConstraint

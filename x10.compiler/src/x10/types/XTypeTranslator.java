@@ -60,6 +60,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.SubtypeConstraint_c;
@@ -83,56 +84,8 @@ public class XTypeTranslator {
 		ts = xts;
 	}
 
-	XConstrainedTerm firstPlace;
-	public XConstrainedTerm firstPlace() {
-		if (firstPlace == null)
-			firstPlace = makePlace(0, "FIRST_PLACE");
-		return firstPlace;
-	}
-	/**
-	 * We should think of a place term as representing a set of places.
-	 * firstPlace represents {Place.places(0)}.
-	 * globalPlace represents the set of all places.
-	 * From the type checkers point of view code is typechecked in a context in which the
-	 * current place is constrained to be any place in this set.
-	 */
-	XConstrainedTerm globalPlace;
-	public XConstrainedTerm globalPlace() {
-		if (globalPlace == null)
-			globalPlace = XConstrainedTerm.make(XTerms.GLOBAL_PLACE);
-		return globalPlace;
-	}
-	private XConstrainedTerm makePlace(int i, String placeName) {
-		CConstraint c = new CConstraint_c();
-		X10FieldInstance fi = null;
-		Type type = ts.Place();
-		 CConstraint c2 = new CConstraint_c();
-		 try {
-			 XTerm id = Synthesizer.makeProperty(ts.Place(), c2.self(), "id");
-			 if (id == null)
-			     return null;
-			 c.addBinding(id, XTerms.makeLit(i));
-			 type = X10TypeMixin.xclause(type, c);
-		 } catch (XFailure z) {
-			 // wont happen
-		 }
-		try {
-			Context con = ts.emptyContext();
-			fi = (X10FieldInstance) ts.findField(ts.Place(), 
-					ts.FieldMatcher(ts.Place(), Name.make(placeName), con));
-		}
-		catch (SemanticException e) {
-			// ignore
-		}
-
-		try {
-			XTerm term = trans(c, trans(ts.Place()), fi, type);
-			return XConstrainedTerm.make(term, c2);
-		} catch (SemanticException z) {
-			// wont happen
-		}
-		return null;
-	}
+	
+	
 	// TODO: vj 08/11/09 -- why does this do nothing? 
 	public void addTypeToEnv(XTerm self, final Type t) /*throws SemanticException*/ {
 	}
@@ -152,6 +105,9 @@ public class XTypeTranslator {
 	    return v;
 	}
 
+	public XTerm trans(XTerm target, FieldInstance fi) {
+		return trans(new CConstraint_c(), target, fi);
+	}
 	public XTerm trans(CConstraint c, XTerm target, FieldInstance fi)  {
 		if (fi == null)
 			return null;
@@ -176,6 +132,9 @@ public class XTypeTranslator {
 	    return v;
 	}
 	
+	public XTerm trans(XTerm target, FieldInstance fi, Type t) throws SemanticException {
+		return trans(new CConstraint_c(), target, fi, t);
+	}
 	public XTerm trans(CConstraint c, XTerm target, FieldInstance fi, Type t) throws SemanticException {
 		XTerm v;
 		//XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
@@ -406,7 +365,7 @@ public class XTypeTranslator {
 	//	if (here == null) here = new HereToken();
 	//	return XTerms.makeLit(here);
 		// return xc.currentPlaceTerm().term();
-		return XTerms.HERE;
+		return PlaceChecker.here();
 	}
 	
 	public XLit trans(Lit t) {
@@ -542,27 +501,7 @@ public class XTypeTranslator {
 			if (body == null) {
 				// hardwire s.at(t) for an interface
 				// return s.home = t is Place ? t : t.home
-
-				if (xmi.name().equals(Name.make("at"))
-						&& ts.typeEquals(xmi.def().container().get(), ts.Any(), xc)
-						&& t.arguments().size()==1) {
-					FieldInstance fi = ts.findField(ts.Object(), ts.FieldMatcher(ts.Object(), 
-							ts.homeName(), xc));
-					XTerm lhs =  trans(c, r, fi, ts.Place());
-
-					// replace by r.home == arg0 or r.home == arg0.home
-					Expr arg = t.arguments().get(0);
-					XTerm y = trans(c, arg, xc);
-					if (y == null)
-						throw new SemanticException("Cannot translate " + arg + " to a constraint term.",
-								arg.position()
-								);
-					y = ts.isSubtype(xmi.formalTypes().get(0), ts.Place(), xc) 
-					?   y : trans(c, y, fi, ts.Place());
-
-					body = XTerms.makeEquals(lhs, y);
-
-				}
+				body  = PlaceChecker.rewriteAtClause(c, xmi, t, r, xc);
 				//System.err.println("Golden...XTypeTranslator: translated " + t + " to " + body);
 			}
 			if (body != null) {

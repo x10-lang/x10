@@ -125,7 +125,7 @@ public class LocalArray[T] extends BaseArray[T] {
         layout = layout(region);
         val n = layout.size();
         val r = Rail.make[T](n);
-        raw = r as Rail[T]{this.dist.onePlace==self.home};
+        raw = r as Rail[T]{self.at(this.dist.onePlace)};
     }
 
     def this(dist: Dist{constant}, init: (Point(dist.rank))=>T){here == dist.onePlace}:LocalArray[T]{self.dist==dist} {
@@ -139,7 +139,7 @@ public class LocalArray[T] extends BaseArray[T] {
         for (p:Point in region)
         	r(layout.offset(p)) = f(p);
 
-        raw = r as Rail[T]{this.dist.onePlace==self.home};
+        raw = r as Rail[T]{self.at(this.dist.onePlace)};
     }
 
 
@@ -157,10 +157,10 @@ public class LocalArray[T] extends BaseArray[T] {
 	
 	if (d.region.isEmpty()) {
             this.layout = layout(d.region);
-	    this.raw = Rail.make[T](0) as Rail[T]{this.dist.onePlace==self.home};
+	    this.raw = Rail.make[T](0) as Rail[T]{self.at(this.dist.onePlace)};
         } else {
             this.layout = a.layout();
-            this.raw =  a.raw() as Rail[T]{this.dist.onePlace==self.home};
+            this.raw =  a.raw() as Rail[T]{self.at(this.dist.onePlace)};
         }
     }
 

@@ -43,6 +43,7 @@ public class AmbHereThis_c extends Expr_c {
 	/** Disambiguate the receiver. */
     public Node disambiguate(ContextVisitor ar) throws SemanticException {
     	X10NodeFactory nf = ((X10NodeFactory) ar.nodeFactory());
+    	
     	return (ar.context().inCode()) 
     	? nf.Here(position()) 
     	: nf.This(position());

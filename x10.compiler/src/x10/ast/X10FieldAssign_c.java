@@ -32,6 +32,7 @@ import x10.types.X10Flags;
 
 import x10.types.X10TypeMixin;
 import x10.types.checker.Checker;
+import x10.types.checker.PlaceChecker;
 import x10.errors.Errors;
 
 public class X10FieldAssign_c extends FieldAssign_c {
@@ -77,7 +78,7 @@ public class X10FieldAssign_c extends FieldAssign_c {
     		if (! (ts.isSubtype(s, t, tc.context()))) 
     			throw new Errors.CannotAssign(n.right(), n.target().type(), n.position);
 
-    		n.checkFieldPlaceType(tc);
+    		PlaceChecker.checkFieldPlaceType((Field) left(tc.nodeFactory()), (X10Context) tc.context());
     		
     		n= (X10FieldAssign_c) n.type(t);
     		return n;
@@ -86,7 +87,4 @@ public class X10FieldAssign_c extends FieldAssign_c {
         return Checker.typeCheckAssign(n, tc);
     }
     
-    public void checkFieldPlaceType(ContextVisitor tc) throws SemanticException {
-    	((X10Field_c) left(tc.nodeFactory())).checkFieldPlaceType(tc);
-    }
 }

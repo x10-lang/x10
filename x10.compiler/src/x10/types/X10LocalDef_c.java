@@ -1,5 +1,4 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
  *  You may not use this file except in compliance with the License.
@@ -16,14 +15,17 @@ import java.util.List;
 
 import polyglot.types.Flags;
 import polyglot.types.LocalDef_c;
+import polyglot.types.LocalInstance;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.constraint.XTerm;
 import x10.types.constraints.TypeConstraint;
 
 /**
@@ -60,9 +62,34 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
 		cvStr = " = " + v;
 	}
 	
+	
 	return "local " + flags.translate() + name + ": " + type + cvStr;
     }
 
+    XTerm placeTerm;
+    public XTerm placeTerm() { return placeTerm;}
+    // keep only the first
+    public void setPlaceTerm(XTerm pt) {
+    	
+    	if (placeTerm == null)
+    		placeTerm = pt;
+    	//else 
+    	//	assert placeTerm == pt;
+    }
+    
+    @Override
+    public  Ref<? extends Type> type() {
+    	 Ref<? extends Type> result = type;
+    	 return result;
+    	
+    }
+    @Override
+	 public LocalInstance asInstance() {
+	        if (asInstance == null) {
+	            asInstance = ts.createLocalInstance(position(), Types.ref(this));
+	        }
+	        return asInstance;
+	    }
     // BEGIN ANNOTATION MIXIN
     List<Ref<? extends Type>> annotations;
 

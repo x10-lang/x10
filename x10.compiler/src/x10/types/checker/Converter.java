@@ -88,8 +88,9 @@ public class Converter {
 	 */
 	public static Expr attemptCoercion(ContextVisitor tc, Expr e, Type toType) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-
-		if (ts.isSubtype(e.type(), toType, tc.context())) 
+		Type t1 = e.type();
+		t1 = PlaceChecker.ReplaceHereByPlaceTerm(t1, (X10Context) tc.context());
+		if (ts.isSubtype(t1, toType, tc.context())) 
 			return e;
 		
 		ConversionType ct = ts.numericConversionValid(toType, e.type(), e.constantValue(), tc.context()) 

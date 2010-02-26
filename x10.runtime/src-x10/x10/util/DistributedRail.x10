@@ -21,7 +21,9 @@ import x10.util.HashMap;
 public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     global val data : PlaceLocalHandle[Rail[T]];
     global val firstPlace : Place;
-    global val localRails = PlaceLocalHandle.make[HashMap[Activity, Rail[T]!]](Dist.makeUnique(), ()=>new HashMap[Activity, Rail[T]!]());
+    global val localRails 
+    = PlaceLocalHandle.make[HashMap[Activity, Rail[T]]](Dist.makeUnique(), 
+    		()=>new HashMap[Activity, Rail[T]]());
     global val original : ValRail[T];
     global val original_len : Int;
 
@@ -47,9 +49,9 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     public global safe def apply () {
         val a = Runtime.activity();
-        val r = localRails().getOrElse(a, null);
+        val r:Rail[T] = localRails().getOrElse(a, null);
         if (r==null) {
-            val r_ = Rail.make(original_len, original);
+            val r_ = Rail.make[T](original_len, original);
             localRails().put(a, r_);
             return r_;
         }
@@ -62,9 +64,18 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     public global safe def apply (i:Int) = this()(i);
 
-    public global safe def set (v:T, i:Int) = this()(i) = v;
+    public global safe def set (v:T, i:Int) {
+    	val t = this();
+    	at (t) 
+    	  t(i) = v;
+    	return v;
+    }
 
-    public global safe def iterator () = this().iterator();
+    public global safe def iterator () {
+    	val t = this();
+    	return at (t)
+    	 t.iterator();
+    }
 
     private global def reduceLocal (op:(T,T)=>T) {
         val master = data();
@@ -72,11 +83,14 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
         for (e in localRails().entries()) {
             val r = at(e) e.getValue();
             if (first) {
-                finish r.copyTo(0, master, 0, r.length);
+                at (r) 
+                  finish r.copyTo(0, master, 0, r.length);
                 first = false;
             } else {
+            	
                 for (var i:Int=0 ; i<master.length ; ++i) {
-                    master(i) = op(master(i), r(i));
+                	val i0=i;
+                    master(i) = op(master(i), at (r) r(i0));
                 }
             }
         }
@@ -106,8 +120,10 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     private global def bcastLocal (op:(T,T)=>T) {
         val master = data();
         for (e in localRails().entries()) {
-            val r = at(e) e.getValue();
-            finish r.copyFrom(0, master, 0, r.length);
+        	
+            val r = at (e) e.getValue();
+            finish at (r) r.copyFrom(0, master, 0, r.length);
+        	
         }
     }
 

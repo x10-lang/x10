@@ -39,6 +39,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.SubtypeConstraint_c;
@@ -108,8 +109,11 @@ public class Matcher {
 		
 	        final X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
 	        
-	        final List<Type> formals = new ArrayList<Type>(me.formalTypes()); // copy
-	      
+	        final List<Type> formals = new ArrayList<Type>();
+	        for (Type formal : me.formalTypes()) {
+	        	//formal = PlaceChecker.ReplaceHereByPlaceTerm((Type) formal.copy(), context);
+	        	formals.add(formal);
+	        }
 	        final List<LocalInstance> formalNames = me.formalNames();
 	        final List<Type> typeFormals = me.typeParameters();
 	        final boolean isStatic = X10TypeMixin.isStatic(me);
@@ -143,8 +147,11 @@ public class Matcher {
 	        hasSymbolicNames(hasSymbol, 1, actuals);
 	        final XVar[] ySymbols = getSymbolicNames(actuals);
 	        System.arraycopy(ySymbols, 0, ys, 1, actuals.size());
-	       
-	        final CConstraint returnEnv = Matcher.computeNewSigma(thisType, actuals, ythiseqv, ySymbols, xts);
+
+
+	        final CConstraint returnEnv = Matcher.computeNewSigma(thisType, actuals, ythiseqv, ySymbols, hasSymbol, xts);
+	        final CConstraint returnEnv2 = Matcher.computeNewSigma2(thisType, actuals, ythiseqv, ySymbols, hasSymbol, xts);
+
 	
 	        // We'll subst selfVar for THIS.
 	        XRoot xthis = null; // xts.xtypeTranslator().transThis(thisType);
@@ -195,15 +202,30 @@ public class Matcher {
 	        		public void run() {
 	        			try {
 	        				Type rt = me.returnType();
+	        				// Do not replace here by placeTerm. The return type may be used
+	        				// to compute the type of a closure, e.g. () => m(...)
+	        				// The type of the closure has to use here, so that 
+	        			    // here can get bound to the place at the point of invocation
+	        				// (rather than the point of definition). 
+	        			
 	        				Type newReturnType = Subst.subst(rt, y2eqv, x2, Y, X);
 	        				if (! newReturnType.isVoid() && ! (newReturnType instanceof UnknownType)) {
 	        					try {
-	        						newReturnType = Subst.addIn(newReturnType, returnEnv);
+	        						
+	        						newReturnType = Subst.addIn(newReturnType, returnEnv2);
+	        						/*CConstraint c = X10TypeMixin.realX(newReturnType);
+	        						c.addIn(returnEnv);
+	        						newReturnType = X10TypeMixin.xclause(X10TypeMixin.baseType(newReturnType), c);
+	        						*/
 	        						for (int i= isStatic ? 1 : 0; i < hasSymbol.length; ++i) {
 	        							if (! hasSymbol[i]) {
 	        								newReturnType = Subst.project(newReturnType, (XRoot) ys[i]);  
 	        							}
 	        						}
+	        					//	XConstrainedTerm placeTerm = ((X10Context) context).currentPlaceTerm();
+	        					//	if (placeTerm != null && PlaceChecker.isGlobalPlace(placeTerm.term())) {
+	        					//		newReturnType = Subst.project(newReturnType, (XRoot) placeTerm.term());  
+	        					//	}
 	        					} catch (XFailure z) {
 	        						throw new Errors.InconsistentReturnType(newReturnType, me);
 	        					}
@@ -246,21 +268,22 @@ public class Matcher {
 	        if (! checkActuals) return newMe;
 
 	        // Now check that the actual types are a subtype of the formal types, and the method guards are satisfied.
-	        CConstraint newEnv = returnEnv;
+	      /*  CConstraint newEnv = returnEnv;
 	        try {
 	        	XConstrainedTerm h = context.currentPlaceTerm();
 	        	if (h != null) {
 	        		newEnv = newEnv.copy();
-	        		newEnv.addBinding(XTerms.HERE, h.term());
+	        		newEnv.addBinding(PlaceChecker.here(), h.term());
 	        	}
 
 	        } catch (XFailure z) {
 	        	throw new SemanticException("Inconsistent place constraints");
-	        }
-	        X10Context context2 = context.pushAdditionalConstraint(newEnv);
+	        }*/
+	      
+	        X10Context context2 = context.pushAdditionalConstraint(returnEnv);
 	        CConstraint query = newMe.guard();
 	        try {
-	        	if (! newEnv.entails(query, context2.constraintProjection(newEnv, query))) {
+	        	if (! returnEnv.entails(query, context2.constraintProjection(returnEnv, query))) {
 	        		throw new SemanticException("Call invalid; calling environment does not entail the method guard.");
 	        	}
 	        } catch (XFailure z) {
@@ -304,16 +327,37 @@ public class Matcher {
 	        return newMe;
 	}
 
-
-
-
-	public static CConstraint computeNewSigma(Type thisType, List<Type> actuals, XVar[] y, X10TypeSystem xts) 
-	throws SemanticException {
-		return computeNewSigma(thisType, actuals, null, y, xts);
-	}
-
 	public static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y, X10TypeSystem xts) 
+			XVar ythis, XVar[] y, boolean[] hasSymbol, X10TypeSystem xts) 
+	throws SemanticException {
+	
+		CConstraint env = X10TypeMixin.xclause(thisType);
+		env = env == null ? new CConstraint_c() : env.copy();
+		if (ythis != null) {
+			if (! ((env == null) || env.valid())) {
+				env = env.instantiateSelf(ythis);
+			}
+		}
+		
+	
+	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
+	    	
+	    		Type ytype = actuals.get(i);
+	    		final CConstraint yc = X10TypeMixin.realX(ytype);
+	    		try {
+	    			if (! ((yc == null) || yc.valid())){
+	    				env.addIn(y[i], yc);
+	    			}
+	    		} catch (XFailure f) {
+	    			throw new SemanticException("Call invalid; calling environment is inconsistent.");
+	    		}
+	    	
+	    }
+	    return env;
+	}
+	
+	public static CConstraint computeNewSigma2(Type thisType, List<Type> actuals, 
+			XVar ythis, XVar[] y, boolean[] hasSymbol, X10TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = X10TypeMixin.xclause(thisType);
@@ -326,15 +370,17 @@ public class Matcher {
 		env = env == null ? new CConstraint_c() : env.copy();
 	
 	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
-	        Type ytype = actuals.get(i);
-	        final CConstraint yc = X10TypeMixin.realX(ytype);
-	        try {
-	            if (! ((yc == null) || yc.valid())){
-	                env.addIn(y[i], yc);
-	            }
-	        } catch (XFailure f) {
-	            throw new SemanticException("Call invalid; calling environment is inconsistent.");
-	        }
+	    	if (! hasSymbol[i+1]) {
+	    		Type ytype = actuals.get(i);
+	    		final CConstraint yc = X10TypeMixin.realX(ytype);
+	    		try {
+	    			if (! ((yc == null) || yc.valid())){
+	    				env.addIn(y[i], yc);
+	    			}
+	    		} catch (XFailure f) {
+	    			throw new SemanticException("Call invalid; calling environment is inconsistent.");
+	    		}
+	    	}
 	    }
 	    return env;
 	}

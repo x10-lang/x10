@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.Field;
+import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
 
 
@@ -278,6 +279,10 @@ public class CConstraint_c extends XConstraint_c implements CConstraint {
    public XTerm bindingForSelfField(Field f) {
 		assert f != null;
 		return bindingForSelfField(XTerms.makeName(f.fieldInstance().def(), f.name().id().toString()));
+	}
+   public XTerm bindingForSelfField(FieldInstance f) {
+		assert f != null;
+		return bindingForSelfField(XTerms.makeName(f.def(), f.name().toString()));
 	}
 
    public CConstraint leastUpperBound(CConstraint other) {

@@ -8,7 +8,6 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-
 package x10.types.matcher;
 
 import java.util.ArrayList;
@@ -141,6 +140,15 @@ class Subst {
        
         return X10TypeMixin.xclause(base, c);
     }
+    
+    /**
+     * Returns a new type formed from t by substituting y for x. The old type is not modified.
+     * @param t
+     * @param y
+     * @param x
+     * @return
+     * @throws SemanticException
+     */
     public
         static Type subst(Type t, XTerm[] y, XRoot[] x) throws SemanticException {
             assert y.length == x.length;

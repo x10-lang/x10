@@ -23,7 +23,6 @@ import polyglot.ast.TypeNode;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
@@ -32,15 +31,10 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeChecker;
 
-import x10.constraint.XFailure;
-import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
-import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
-import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -89,70 +83,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     	return n;
     }
     
-  /*  @Override
-    public NodeVisitor typeCheckEnter(TypeChecker v) throws SemanticException {
-    	if (placeTerm != null) {
-    		v = (TypeChecker) v.context(pushPlaceTerm((X10Context) v.context()));
-    	}
-    	return v;
-    	
-}
-*/
-    //XTerm placeTerm;
-    /**
-     * The type of the place term. May be Ref or Place. May contain a newly generated
-     * var, equated to self. The associated constraint must be considered to be in scope
-     * when examining the body of this PlacedClosure.
-     */
-   // Type placeType;
-    
-    public static XConstrainedTerm computePlaceTerm( Expr place, X10Context xc, 
-    		X10TypeSystem  ts
-    		) throws SemanticException {
- 		Type placeType = place.type();
-		CConstraint d = X10TypeMixin.xclause(placeType);
-		d = (d==null) ? new CConstraint_c() : d.copy();
-		CConstraint pc = null;
-		XTerm term = null;
-		XConstrainedTerm pt = null;
-    	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), xc);
-    	if (placeIsPlace)  {
-    		term = ts.xtypeTranslator().trans(pc, place, xc);
-    		if (term == null) {
-    			term = XTerms.makeUQV();
-    		}
-    		try {
-    			pt = XConstrainedTerm.instantiate(d, term);
-			} catch (XFailure z) {
-
-				throw new InternalCompilerError("Cannot construct placeTerm from " + 
-						term + " and constraint " + d + ".");
-			}
-    	} else {
-    		boolean placeIsRef = true; // ts.isImplicitCastValid(placeType, ts.Object(), xc);
-    		if (placeIsRef) {
-    			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
-    			if (src == null) {
-    				src = XTerms.makeUQV();
-    			}
-    			try {
-    				d= d.substitute(src, d.self());
-    				pt = XConstrainedTerm.make(ts.homeVar(src,xc), d);
-    			} catch (XFailure z) {
-    				assert false;
-    				throw new InternalCompilerError("Cannot construct placeTerm from " + 
-    					 place + " and constraint " + d + ".");
-    			}
-    		} else 
-    			throw new SemanticException(
-    					"Place expression |" + place + "| must be of type \"" +
-    					ts.Place() + "\", or " + ts.Object() + ", not \"" + place.type() + "\".",
-    					place.position());
-    	}
-    
-    	return pt;
-    }
-    @Override
+  @Override
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
     	
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -164,7 +95,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     	ClosureDef def = (ClosureDef) this.codeDef();
     	if (def.placeTerm() == null) {
     		Expr e = (Expr) visitChild(place, v);
-        	def.setPlaceTerm(computePlaceTerm(e, (X10Context) tc.context(), ts));
+        	def.setPlaceTerm(PlaceChecker.computePlaceTerm(e, (X10Context) tc.context(), ts));
     	}
     	// now that placeTerm is set in this node, continue visiting children
     	// enterScope will ensure that placeTerm is installed in the context.

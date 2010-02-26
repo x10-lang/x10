@@ -18,6 +18,7 @@ import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.types.ClassDef;
 import polyglot.types.CodeDef;
@@ -34,6 +35,7 @@ import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -48,6 +50,7 @@ import x10.types.X10Flags;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.visit.X10TypeChecker;
 
 public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode,
 AddFlags {
@@ -164,6 +167,15 @@ AddFlags {
 	return super.typeCheck(tc);
     }
     
+    @Override
+    public void setResolver(Node parent, final TypeCheckPreparer v) {
+    	if (typeRef() instanceof LazyRef) {
+    		LazyRef<Type> r = (LazyRef<Type>) typeRef();
+    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+    		tc = (TypeChecker) tc.context(v.context().freeze());
+    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
+    	}
+    }
     @Override
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
         Type t = type();

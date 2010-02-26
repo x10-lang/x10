@@ -23,6 +23,7 @@ import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.Node;
 import polyglot.ast.Prefix;
+import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.frontend.Globals;
@@ -46,6 +47,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XRoot;
 import x10.constraint.XTerms;
@@ -60,6 +62,7 @@ import x10.types.X10Context;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.visit.X10TypeChecker;
 
 
 public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, AddFlags {
@@ -130,6 +133,15 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
         return n;
     }
     
+    @Override
+    public void setResolver(Node parent, final TypeCheckPreparer v) {
+    	if (typeRef() instanceof LazyRef) {
+    		LazyRef<Type> r = (LazyRef<Type>) typeRef();
+    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+    		tc = (TypeChecker) tc.context(v.context().freeze());
+    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
+    	}
+    }
     public Node visitChildren(NodeVisitor v) {
         Prefix prefix = (Prefix) visitChild(this.prefix, v);
         Id name = (Id) visitChild(this.name, v);

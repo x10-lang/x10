@@ -293,7 +293,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     public Context enterChildScope(Node child, Context c) {
     	X10Context xc = (X10Context) c;
-    	if (child != this.body) {
+    	if (child != this.body ) {
     		
     		X10ClassDef_c type = (X10ClassDef_c) this.type;
     		xc = xc.pushSuperTypeDeclaration(type);
@@ -339,7 +339,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	//    	       return child.del().enterScope(xc); 
     	//    	   }
 
-    	if (child == this.body) {
+    	if (child == this.body || child == this.properties || (this.properties != null && this.properties.contains(child))) {
     		X10ClassDef_c type = (X10ClassDef_c) this.type;
     		xc = (X10Context) xc.pushClass(type, type.asType());
     		// Add type parameters
