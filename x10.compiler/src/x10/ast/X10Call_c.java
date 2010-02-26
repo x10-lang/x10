@@ -465,9 +465,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c));
 			}
 			
-			if (n instanceof X10Call_c) {
-				X10Call_c call = (X10Call_c) n;
-			 PlaceChecker.checkLocalReceiver(call, tc);
+			if (n instanceof X10Call_c)
+			 PlaceChecker.checkLocalReceiver((Call) n, tc);
 			
 			
 			// We have both!
@@ -481,12 +480,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				
 			}
 				
-			// the arguments here.
-			call.checkConsistency(c);
-			//	        	result = result.adjustMI(tc);
-			//	        	result.checkWhereClause(tc);
-			call.checkAnnotations(tc);
-			}
 			return n;
 		}
 
@@ -598,29 +591,26 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	private void checkAnnotations(ContextVisitor tc) throws SemanticException {
 		X10Context c = (X10Context) tc.context();
 		X10MethodInstance mi = (X10MethodInstance) methodInstance();
-	//	try {
+		try {
 		    if (mi !=null) {
 		        X10Flags flags = X10Flags.toX10Flags(mi.flags());
 		        if (c.inNonBlockingCode() 
 		                && ! (mi.isSafe() || flags.isNonBlocking() || flags.isExtern()))
-		        	throw new Errors.AnnotationError("Only nonblocking methods can be called from nonblocking code.", 
-		        			mi,
-		        			position());
+		            throw new SemanticException(mi + ": Only nonblocking methods can be called from nonblocking code.", 
+		                                        position());
 		        if (c.inSequentialCode() 
 		                && ! (mi.isSafe() || flags.isSequential() || flags.isExtern()))
-		        	throw new Errors.AnnotationError("Only sequential methods can be called from sequential code.", 
-		        			mi,
-		        			position());
+		            throw new SemanticException(mi + ": Only sequential methods can be called from sequential code.", 
+		                                        position());
 		        if (c.inLocalCode() 
 		                && ! (mi.isSafe() || flags.isPinned() || flags.isExtern()))
-		        	throw new Errors.AnnotationError("Only pinned methods can be called from pinned code.", 
-		        			mi,
-		        			position());
+		            throw new SemanticException(mi + ": Only pinned methods can be called from pinned code.", 
+		                                        position());
 		    }
-	//	}
-	//	catch (SemanticException e) {
-	//	    tc.errorQueue().enqueue(ErrorInfo.WARNING, "WARNING (should be error, but method annotations in XRX are wrong):\n " + e.getMessage(), position());
-	//	}
+		}
+		catch (SemanticException e) {
+		    tc.errorQueue().enqueue(ErrorInfo.WARNING, "WARNING (should be error, but method annotations in XRX are wrong): " + e.getMessage(), position());
+		}
 	}
 
 	private Node superTypeCheck(ContextVisitor tc) throws SemanticException {

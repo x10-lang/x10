@@ -308,17 +308,4 @@ public class Errors {
 		}
 	}
 
-	public static class AnnotationError extends SemanticException {
-		private static final long serialVersionUID = 3439181950615405685L;
-		public AnnotationError(String s, MethodInstance mi, Position p) {
-			super(s + "\n\t Method: " + mi,
-					p);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof AnnotationError) )
-				return false;
-			return((AnnotationError)o).position().equals(position());
-		}
-	}
-
 }
