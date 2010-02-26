@@ -29,7 +29,7 @@ public final class OptionsParser {
     private val set : HashMap[String,Boolean]!;
     private val filteredArgs : GrowableRail[String]!;
 
-    public def this (args:Rail[String]!, flags:ValRail[Option]!, specs:ValRail[Option]!) throws Err {
+    public def this (args:Rail[String]!, flags:ValRail[Option], specs:ValRail[Option]) throws Err {
         val map = new HashMap[String,String]();
         val set = new HashMap[String,Boolean]();
         val filteredArgs = new GrowableRail[String]();
