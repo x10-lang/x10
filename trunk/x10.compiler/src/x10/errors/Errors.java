@@ -24,6 +24,7 @@ import polyglot.util.Position;
 import x10.ast.SemanticError;
 import x10.ast.X10Call;
 import x10.ast.X10FieldAssign_c;
+import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;
 import x10.types.X10ProcedureInstance;
 import x10.types.checker.Converter;
@@ -292,6 +293,7 @@ public class Errors {
 			return((CannotConvertExprToType)o).position().equals(position());
 		}
 	}
+	
 	public static class InconsistentReturnType extends SemanticException {
 		private static final long serialVersionUID = 5928425853367539997L;
 
@@ -305,6 +307,19 @@ public class Errors {
 			if (o==null || ! (o instanceof InconsistentReturnType) )
 				return false;
 			return((InconsistentReturnType)o).position().equals(position());
+		}
+	}
+	public static class GlobalFieldIsVar extends SemanticException {
+		private static final long serialVersionUID = 57613769584666608L;
+		public GlobalFieldIsVar(X10FieldDecl f) {
+			super("Global field cannot be var."
+					+ "\n\t Field: " + f.name(),
+					f.position());
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof GlobalFieldIsVar) )
+				return false;
+			return((GlobalFieldIsVar)o).position().equals(position());
 		}
 	}
 
