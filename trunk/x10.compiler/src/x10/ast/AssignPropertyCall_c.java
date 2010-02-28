@@ -180,65 +180,66 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		
 	}
 	protected void checkReturnType(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties)
-		throws SemanticException {
-	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		    X10Context ctx = (X10Context) tc.context();
-		    if (Types.get(thisConstructor.returnType()) instanceof UnknownType) {
-		        throw new SemanticException();
-		    }
-		    
-		    Type returnType = Types.get(thisConstructor.returnType());
-		    
-//		    CConstraint result = X10TypeMixin.xclause(returnType);
-		    CConstraint result = X10TypeMixin.realX(returnType);
-		    
-		    if (result.valid())
-		        result = null;
-		    
-		    if (result != null) {
+	throws SemanticException {
+		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		X10Context ctx = (X10Context) tc.context();
+		if (Types.get(thisConstructor.returnType()) instanceof UnknownType) {
+			throw new SemanticException();
+		}
+
+		Type returnType = Types.get(thisConstructor.returnType());
+
+		//		    CConstraint result = X10TypeMixin.xclause(returnType);
+		CConstraint result = X10TypeMixin.realX(returnType);
+
+		if (result.valid())
+			result = null;
+
+		if (result != null) {
 			CConstraint known = Types.get(thisConstructor.supClause());
 			known = (known==null ? new CConstraint_c() : known.copy());
 			try {
-		            known.addIn(Types.get(thisConstructor.guard()));
+				known.addIn(Types.get(thisConstructor.guard()));
 
-		            XRoot thisVar = thisConstructor.thisVar();
-		            if (! XTypeTranslator.THIS_VAR)
-		                thisVar = ts.xtypeTranslator().transThisWithoutTypeConstraint();
-		            
-		            for (int i = 0; i < arguments.size(); i++) {
-		        	Expr initializer = arguments.get(i);
-		        	Type initType = initializer.type();
-		        	final FieldInstance fii = definedProperties.get(i);
-		        	XVar prop = (XVar) ts.xtypeTranslator().trans(known, known.self(), fii);
+				XRoot thisVar = thisConstructor.thisVar();
+				if (! XTypeTranslator.THIS_VAR)
+					thisVar = ts.xtypeTranslator().transThisWithoutTypeConstraint();
 
-		        	// Add in the real clause of the initializer with [self.prop/self]
-		        	CConstraint c = X10TypeMixin.realX(initType);
-		        	if (c != null)
-		        	    known.addIn(c.substitute(prop, c.self()));
-		        	
-		        	
-		        	    XTerm initVar = ts.xtypeTranslator().trans(known, initializer, (X10Context) ctx);
-		        	    known.addBinding(prop, initVar);
-		        	
-		        	
-		            }
+				for (int i = 0; i < arguments.size(); i++) {
+					Expr initializer = arguments.get(i);
+					Type initType = initializer.type();
+					final FieldInstance fii = definedProperties.get(i);
+					XVar prop = (XVar) ts.xtypeTranslator().trans(known, known.self(), fii);
 
-		            // bind this==self; sup clause may constrain this.
-		            if (thisVar != null) {
-		                known.addSelfBinding(thisVar);
-		                known.setThisVar(thisVar);
-		            }
+					// Add in the real clause of the initializer with [self.prop/self]
+					CConstraint c = X10TypeMixin.realX(initType);
+					if (c != null)
+						known.addIn(c.substitute(prop, c.self()));
 
-		            if (! known.entails(result, ctx.constraintProjection(known, result))) {
-		        	    throw new SemanticException("Instances created by this constructor satisfy " + known 
-		        	                                + "; this is not strong enough to entail the return constraint " + result,
-		        	                                position());
-		            }
-		    }
-		    catch (XFailure e) {
-		            throw new SemanticException(e.getMessage());
-		    } 
-		    }
+
+					XTerm initVar = ts.xtypeTranslator().trans(known, initializer, (X10Context) ctx);
+					if (initVar != null)
+						known.addBinding(prop, initVar);
+
+
+				}
+
+				// bind this==self; sup clause may constrain this.
+				if (thisVar != null) {
+					known.addSelfBinding(thisVar);
+					known.setThisVar(thisVar);
+				}
+
+				if (! known.entails(result, ctx.constraintProjection(known, result))) {
+					throw new SemanticException("Instances created by this constructor satisfy " + known 
+							+ "; this is not strong enough to entail the return constraint " + result,
+							position());
+				}
+			}
+			catch (XFailure e) {
+				throw new SemanticException(e.getMessage());
+			} 
+		}
 	}
 	
 	/** Visit the children of the statement. */
