@@ -703,16 +703,18 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		boolean isStruct2 = X10TypeMixin.isX10Struct(t2);
 
 
-    		if (isStruct1 || isStruct2) {
-    			if (isStruct1 != isStruct2) 
-    				return false;
-
-    			if (! ts.typeEquals(X10TypeMixin.baseType(t1), X10TypeMixin.baseType(t2),
-    					xcontext))
+    		if (isStruct2) {
+    			// t1 must be a struct, and the bases must be the same.
+    			if (! (isStruct1 && ts.typeEquals(X10TypeMixin.baseType(t1), X10TypeMixin.baseType(t2),
+    					xcontext)))
     				return false;
 
     			// now keep going, the clause entailment will be checked by the
     			// logic below.
+    		} else if (isStruct1) {
+    			if (! ts.isInterfaceType(t2))
+    				return false;
+    			// t1 is a struct, and t2 is an interface
     		}
     	}
     	
