@@ -1506,7 +1506,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		return ts.Any(); // an interface may be implemented by a struct
     	}
 
-    	if (type2.isClass() && type1.toClass().flags().isInterface()) {
+    	if (type2.isClass() && ts.isInterfaceType(type1)) {
     		return ts.Any();
     	}
 
