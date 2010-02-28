@@ -462,7 +462,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				if (cc != null)
 					return cc.typeCheck(tc);
 				throw new SemanticException("Method or static constructor not found for " +
-						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c));
+						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c),
+						position());
 			}
 			
 			if (n instanceof X10Call_c)
