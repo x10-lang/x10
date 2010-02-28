@@ -20,6 +20,7 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Assign.Operator;
+import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -28,6 +29,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
+import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 
 import x10.types.X10TypeMixin;
@@ -57,6 +59,11 @@ public class X10FieldAssign_c extends FieldAssign_c {
     	TypeSystem ts = tc.typeSystem();
         X10FieldAssign_c n = (X10FieldAssign_c) typeCheckLeft(tc);
         Type t =  n.leftType();
+     // Check that the field being assigned to is not a property. Such fields 
+        X10FieldInstance fd = (X10FieldInstance) n.fieldInstance();
+        if (fd.isProperty()) {
+        	throw new Errors.CannotAssignToProperty(fd, n.position());
+        }
         Type targetType =  n.target().type();
 
         if (t == null)
@@ -83,6 +90,8 @@ public class X10FieldAssign_c extends FieldAssign_c {
     		n= (X10FieldAssign_c) n.type(t);
     		return n;
     	}
+    	
+    	
         
         return Checker.typeCheckAssign(n, tc);
     }

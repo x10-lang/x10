@@ -26,6 +26,7 @@ import x10.ast.X10Call;
 import x10.ast.X10FieldAssign_c;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;
+import x10.types.X10FieldInstance;
 import x10.types.X10ProcedureInstance;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -320,6 +321,19 @@ public class Errors {
 			if (o==null || ! (o instanceof GlobalFieldIsVar) )
 				return false;
 			return((GlobalFieldIsVar)o).position().equals(position());
+		}
+	}
+	public static class CannotAssignToProperty extends SemanticException {
+		private static final long serialVersionUID = 3461823901187721248L;
+		public CannotAssignToProperty(X10FieldInstance f, Position p) {
+			super("Must use property(...) to assign to a property."
+					+ "\n\t Property: " + f.name(),
+					p);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotAssignToProperty) )
+				return false;
+			return((CannotAssignToProperty)o).position().equals(position());
 		}
 	}
 

@@ -44,7 +44,7 @@ final class RectLayout(rank: int) extends Layout {
             throw U.illegal("min and max must have same length");
 
         val r = min.length;
-        this.rank = r;
+        property(r);
         this.min = min;
 
         val d0 = ValRail.make[int](r, (i:Int) => max(i) - min(i) + 1);
