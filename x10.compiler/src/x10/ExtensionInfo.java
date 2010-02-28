@@ -195,6 +195,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     
     static class ExceptionComparator implements Comparator<SemanticException> {
     	public int compare(SemanticException a, SemanticException b) {
+    		int r = (a.getClass().toString().compareToIgnoreCase(b.getClass().toString()));
+    		if (r != 0)
+    			return r;
     		Position pa  = a.position();
     		if (pa == null)
     			return -1;
