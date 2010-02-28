@@ -33,9 +33,9 @@ public class PolyMatBuilder(rank: int) extends MatBuilder {
      * Create a new empty builder.
      */
 
-    public def this(val rank: int): PolyMatBuilder{self.rank==rank} {
+    public def this(rank: int): PolyMatBuilder{self.rank==rank} {
         super(rank+1);
-        this.rank = rank;
+        property(rank);
     }
 
 
