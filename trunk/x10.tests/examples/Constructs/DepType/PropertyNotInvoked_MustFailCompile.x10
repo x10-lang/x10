@@ -33,25 +33,19 @@ import harness.x10Test;
 public class PropertyNotInvoked_MustFailCompile extends x10Test { 
 
    class Tester(i: int(2) ) {
-      public def this(arg:int):Tester{i=arg} { 
+      public def this(arg:int):Tester{self.i==2} { 
          i=2;
-          property((int(:self==2)) arg);
-          }
-	  else {
-	      i=2;
-	  }*/
-      } 
+         if (i==2)
+          property(arg as int{self==2});
+	     else {
+	      this.i=2;
+	     }
+      }
     }
    
- 
-    public def run(): boolean = { 
-	 return true;
-    }
+    public def run()=true;
 	
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String]) {
         new PropertyNotInvoked_MustFailCompile().execute();
     }
-   
-
-		
 }
