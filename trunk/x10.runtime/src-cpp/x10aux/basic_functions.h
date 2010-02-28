@@ -34,7 +34,11 @@ namespace x10aux {
     /******* get_location ********/
 
     template<class T> inline place get_location(ref<T> x) {
-        return (ref<x10::lang::Reference>(x))->location;
+        if (x.isNull()) {
+            return x10aux::here;
+        } else {
+            return (ref<x10::lang::Reference>(x))->location;
+        }
     }
 
     template<typename T> inline place get_location(T x) {
