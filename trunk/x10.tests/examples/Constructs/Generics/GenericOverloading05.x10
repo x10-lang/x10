@@ -13,7 +13,7 @@
 
 import harness.x10Test;
 
-import x10.compiler.ArithmeticOps;
+
 
 /**
  * Two or more methods of a class or interface may have the same name

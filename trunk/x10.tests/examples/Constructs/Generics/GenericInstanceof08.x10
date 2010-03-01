@@ -14,7 +14,7 @@
 
 import harness.x10Test;
 
-import x10.compiler.ArithmeticOps;
+
 
 /**
  * @author bdlucas 8/2008
