@@ -32,7 +32,7 @@ public class ForLoop2 extends x10Test {
 
 		//Ensure iterator works in lexicographic order
 		var n: int = 0;
-		var prev: Box[Point] = null;
+		var prev: Box[Point]! = null;
 		for (val p: Point in d3) {
 			if (!successor(prev, p)) return false;
 			prev = p;
