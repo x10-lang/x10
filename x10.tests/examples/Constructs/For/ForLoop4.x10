@@ -24,7 +24,7 @@ public class ForLoop4 extends x10Test {
 	public def run(): boolean = {
 		//Ensure iterator works in lexicographic order
 		var n: int = 0;
-		var prev: Box[Point] = null;
+		var prev: Box[Point]! = null;
 		for (val p: Point in [0..N-1,0..N-1,0..N-1]->here) {
 			if (!successor(prev, p)) return false;
 			prev = p;
