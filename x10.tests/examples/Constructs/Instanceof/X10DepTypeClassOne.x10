@@ -24,9 +24,8 @@ import harness.x10Test;
  **/
 public class X10DepTypeClassOne(p:int) implements X10InterfaceOne {
 
-	
 	public def this(p:int) = {
-	    this.p=p;
+	    property(p);
 	}
 
 	public  def interfaceMethod():void  = {}
