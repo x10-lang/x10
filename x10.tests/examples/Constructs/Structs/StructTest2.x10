@@ -42,13 +42,14 @@ public class StructTest2 extends x10Test {
         x10.io.Console.OUT.println("3");
         if (x == y) return false;
         y = x;
-        x.refval.w++;
+	val tmp = x.refval;
+        at (tmp) tmp.w++;
         // ensure foo is treated as a reference object
         // so both x and y see the update
         x10.io.Console.OUT.println("4");
-        if (y.refval.w != x.refval.w) return false;
+        if (y.refval.getW() != x.refval.getW()) return false;
         x10.io.Console.OUT.println("5");
-        if (y.refval.w != 20) return false;
+        if (y.refval.getW() != 20) return false;
         val P0: Place = here;
         // the "place" of a value class instance is here
         var n: int;
@@ -78,5 +79,10 @@ public class StructTest2 extends x10Test {
 
    static class foo {
      var w: int = 19;
+
+     global def getW() {
+	return at(this) w;
+     }
+
    }
 }
