@@ -33,7 +33,7 @@ public class FS {
 
         val verified: Rail[boolean]! = [true];
         val times = Rail.make[double](NUM_TIMES);
-        val N0 = args.length>0? int.parseInt(args(0)) : DEFAULT_SIZE;
+        val N0 = args.length > 0 ? int.parse(args(0)) : DEFAULT_SIZE;
         val N = N0 * Place.MAX_PLACES;
         val localSize =  N0;
         val localRegion = 0..localSize-1;

@@ -56,8 +56,8 @@ public class Stencil1D {
     }
 
     public static def main(args: Rail[String]!) {
-       var n: int = args.length > 0 ? Int.parseInt(args(0)) : 100;
-       var p: int = args.length > 1 ? Int.parseInt(args(1)) : 2;
+       var n: int = args.length > 0 ? Int.parse(args(0)) : 100;
+       var p: int = args.length > 1 ? Int.parse(args(1)) : 2;
        x10.io.Console.ERR.println("Starting: N=" + n + " P=" + p);
        var time: Long = -System.nanoTime();
        val s = new Stencil1D(n, p); s.run();

@@ -30,7 +30,7 @@ public class FSSimpleDist {
     public static def main(args:Rail[String]!){here == Place.FIRST_PLACE} {
         val verified: Rail[boolean]! = [true];
         val times = Rail.make[double](NUM_TIMES);
-        val N0 = args.length>0? int.parseInt(args(0)) : DEFAULT_SIZE;
+        val N0 = args.length > 0 ? int.parse(args(0)) : DEFAULT_SIZE;
         val N = N0 * NUM_PLACES;
         val localSize =  N0;
 

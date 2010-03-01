@@ -64,7 +64,7 @@ class FRASimpleDist {
 
     static def randomAccessUpdate(
 	num_updates: long,
-        logLocalTableSize: long,
+        logLocalTableSize: int,
         tables: PlaceLocalHandle[LocalTable]
     ) {
         finish for (var p:int=0; p<Place.MAX_PLACES; p++) {
@@ -91,7 +91,7 @@ class FRASimpleDist {
         }
 
         // calculate the size of update array (must be a power of 2)
-        val logLocalTableSize = args.length > 1 && args(0).equals("-m")?int.parseInt(args(1)) : 12;
+        val logLocalTableSize = args.length > 1 && args(0).equals("-m") ? int.parse(args(1)) : 12;
         val localTableSize = 1<<logLocalTableSize;
         val tableSize = localTableSize*Place.MAX_PLACES;
         val num_updates = 4*tableSize;

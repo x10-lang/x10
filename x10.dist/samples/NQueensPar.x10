@@ -84,7 +84,7 @@ public class NQueensPar {
     }
 
     public static def main(args: Rail[String]!)  {
-        val n = args.length > 0 ? Int.parseInt(args(0)) : 8;
+        val n = args.length > 0 ? Int.parse(args(0)) : 8;
         println("N=" + n);
         //warmup
         //finish new NQueensPar(12, 1).start();

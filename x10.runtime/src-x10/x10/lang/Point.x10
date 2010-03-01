@@ -11,10 +11,6 @@
 
 package x10.lang;
 
-import x10.compiler.ArithmeticOps;
-import x10.compiler.ComparisonOps;
-
-
 /**
  * The type <code>Point(rank)</code> represents a point in a
  * rank-dimensional space. The coordiIntes of a point <code>p</code>
@@ -26,7 +22,6 @@ import x10.compiler.ComparisonOps;
  * @author bdlucas
  * @author vj
  */
-
 final public class Point(rank: Int) implements (Int) => Int {
 
     /**

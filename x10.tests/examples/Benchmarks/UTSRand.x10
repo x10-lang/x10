@@ -26,9 +26,9 @@ final class UTSRand {
         seed = (seed ^ 0x5DEECE66DL) & ((1L << 48) - 1);
         for (var k:int=0; k<11; k++)
             seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-        val l0 = (seed >>> (48 - 32)) as int;
+        val l0 = ((seed as ULong) >> (48 - 32)) as int;
         seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-        val l1 = (seed >>> (48 - 32)) as int;
+        val l1 = ((seed as ULong) >> (48 - 32)) as int;
         return ((l0 as long) << 32) + l1;
     }
 

@@ -11,7 +11,6 @@
 
 package x10.lang;
 
-import x10.compiler.ArithmeticOps;
 import x10.array.BaseArray;
 import x10.array.FastArray;
 

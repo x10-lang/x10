@@ -14,6 +14,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+// TODO: comparison operators
 @NativeRep("java", "java.lang.String", "x10.core.BoxedString", null)
 @NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
 public final class String implements (Int) => Char {

@@ -19,7 +19,7 @@ public class MontyPi {
             System.setExitCode(-1);
             return;
         }
-        val N = int.parseInt(s(0));
+        val N = int.parse(s(0));
         val initializer = (i:Point) => {
             val r = new Random();
             var result:double=0.0D;

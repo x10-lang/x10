@@ -13,9 +13,10 @@
 package x10.lang;
 
 /**
- * This struct represents a complex number (a + b*i).
+ * Complex is a struct representing a complex number (a + b*i).
+ * The real and imaginary components are represented as Doubles.
  */
-public struct Complex {
+public struct Complex /*TODO implements Arithmetic[Complex]*//*, Arithmetic[Double]*/ {
     /** The real component of this complex number. */
     public val re:Double;
     /** The imaginary component of this complex number. */
@@ -163,6 +164,11 @@ public struct Complex {
         }
         return Complex(re, -im);
     }
+
+    /**
+     * @return this complex number.
+     */
+    public safe operator + this:Complex  = this;
 
     /**
      * @return the negation of this complex number.

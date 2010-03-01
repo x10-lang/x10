@@ -19,7 +19,7 @@ public class XTENLANG_477 extends x10Test {
 
     public def run(): boolean {
         val x = "3.14159265359";
-        val d = Double.parseDouble(x);
+        val d = Double.parse(x);
         return d == 3.14159265359;
     }
 
