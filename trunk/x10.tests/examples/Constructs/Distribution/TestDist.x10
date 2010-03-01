@@ -21,21 +21,16 @@ import harness.x10Test;
 
 abstract public class TestDist extends x10Test {
     
-    var os: StringWriter;
-    val out: Printer!;
+    global val os: StringWriter;
+    global val out: Printer;
     val testName = typeName();
 
     def this() {
         System.setProperty("line.separator", "\n");
-        
-	    val tmp = new StringWriter();
-            os = tmp;
-            out = new Printer(tmp);
-       /* } catch (e:Exception) {
-            //e.printStackTrace();
-            x10.io.Console.OUT.println(e.toString());
-        }
-        */
+
+        val tmp = new StringWriter();
+        os = tmp;
+        out = new Printer(tmp);
     }
 
     abstract def expected():String;
@@ -97,7 +92,7 @@ abstract public class TestDist extends x10Test {
             grid.set(i1, i2, vue);
         }
 
-        def pr(rank: int){here==TestDist.this.home}: void = {
+        def pr(rank: int): void = {
             var min: int = os.length;
             var max: int = 0;
             for (var i: int = 0; i<os.length; i++) {
