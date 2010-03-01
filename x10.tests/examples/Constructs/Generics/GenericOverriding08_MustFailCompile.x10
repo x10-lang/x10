@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 
-import x10.compiler.ArithmeticOps;
+
 
 /**
  * STATIC SEMANTICS RULE: If a class C overrides a method of a class or
