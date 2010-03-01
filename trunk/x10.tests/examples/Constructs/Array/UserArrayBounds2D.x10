@@ -48,24 +48,19 @@ public class UserArrayBounds2D extends x10Test {
      * create a[lb1..ub1,lb2..ub2] then access a[i,j], return true iff
      * no array bounds exception occurred
      */
-    private static def arrayAccess(var lb1: int, var ub1: int, var lb2: int, var ub2: int, var i: int, var j: int): boolean = {
-
-        //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j);
-
-        var a: Array[boxedInt](2) = Array.make[boxedInt](
+    private static def arrayAccess(lb1: int, ub1: int, lb2: int, ub2: int, i: int, j: int): boolean = {
+        var a: Array[Int](2) = Array.make[Int](
            Dist.makeConstant([lb1..ub1, lb2..ub2], here), 
-           ((i,j): Point)=> new boxedInt(0));
+           ((i,j): Point):Int=> 0);
 
         var withinBounds: boolean = true;
         try {
-            a(i, j) = new boxedInt(0xabcdef07L as Int);
+            a(i, j) = 0xabcdef07L as Int;
             //pr("assigned");
-            chk(a(i, j).equals(new boxedInt(0xabcdef07L as Int)));
+            chk(a(i, j).equals(0xabcdef07L as Int));
         } catch (var e: ArrayIndexOutOfBoundsException) {
             withinBounds = false;
         }
-        //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j+" "+withinBounds);
-
         return withinBounds;
     }
 
@@ -81,19 +76,8 @@ public class UserArrayBounds2D extends x10Test {
     /**
      * true iff (x if and only if y)
      */
-    private static def iff(var x: boolean, var y: boolean): boolean = {
-        return x == y;
-    }
-
-    public static def main(var args: Rail[String]): void = {
+    private static def iff(x: boolean, y: boolean) = x == y;
+    public static def main(Rail[String]){
         new UserArrayBounds2D().execute();
-    }
-
-    static class boxedInt {
-        var val: int;
-        public def this(var x: int): boxedInt = { val = x; }
-        public def equals(var other: boxedInt): boolean = {
-            return other.at(here) && this.val == (other as boxedInt!).val;
-        }
     }
 }

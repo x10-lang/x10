@@ -20,7 +20,6 @@ import harness.x10Test;
  * See if the array index out of bounds exception occurs
  * in the right conditions.
  *
- * As of 11/2005 this did not work.
  *
  * @author kemal 11/2005
  */
@@ -45,23 +44,18 @@ public class UserArrayBounds1D extends x10Test {
     * create a[lb1..ub1] then access a[i], return true iff
     * no array bounds exception occurred
     */
-   private static def arrayAccess(var lb1: int, var ub1: int, var i: int): boolean = {
-      //pr(lb1+" "+ub1+" "+i);
-
-      var a: Array[boxedInt](1) = Array.make[boxedInt](
+   private static def arrayAccess(lb1: int, ub1: int,  i: int): boolean {
+      val a = Array.make[Int](
           Dist.makeConstant([lb1..ub1], here), 
-          ((i): Point): boxedInt => { return new boxedInt(0); });
+          ((i): Point):Int =>  0);
 
       var withinBounds: boolean = true;
       try {
-         a(i) = new boxedInt( 0xabcdef07L as Int);
-         //pr("assigned");
-         chk(a(i).equals(new boxedInt(0xabcdef07L as Int)));
-      } catch (var e: ArrayIndexOutOfBoundsException) {
+         a(i) = 0xabcdef07L as Int;
+         chk(a(i).equals(0xabcdef07L as Int));
+      } catch (e: ArrayIndexOutOfBoundsException) {
          withinBounds = false;
       }
-      //pr(lb1+" "+ub1+" "+i+" "+withinBounds);
-
       return withinBounds;
    }
 
@@ -70,26 +64,17 @@ public class UserArrayBounds1D extends x10Test {
    /**
     * print a string
     */
-   private static def pr(var s: String): void = {
+   private static def pr(s: String)  {
       x10.io.Console.OUT.println(s);
    }
 
    /**
     * true iff (x if and only if y)
     */
-   private static def iff(var x: boolean, var y: boolean): boolean = {
-      return x == y;
-   }
+   private static def iff(x: boolean, y: boolean)= x == y;
 
-   public static def main(var args: Rail[String]): void = {
+   public static def main(Rail[String]){
       new UserArrayBounds1D().execute();
    }
 
-   static class boxedInt {
-      var val: int;
-      public def this(var x: int): boxedInt = { val = x; }
-      public def equals(var other: boxedInt): boolean = {
-         return other.at(here) && this.val == (other as boxedInt!).val;
-      }
-   }
 }
