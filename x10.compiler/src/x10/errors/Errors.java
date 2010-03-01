@@ -151,7 +151,8 @@ public class Errors {
 		private static final long serialVersionUID = -657551989521522263L;
 
 		public PlaceTypeErrorMethodShouldBeGlobal(Call c, Position pos) {
-			super("Place type error: Method should be global. (Called within a global method.) \n\t Method: " + c.name(), pos);
+			super("Place type error: Method should be global. (Called within a global method.) " +
+					"\n\t Method: " + c.name(), pos);
 		}
 		public boolean equals(Object o) {
 			if (o==null || ! (o instanceof PlaceTypeErrorMethodShouldBeGlobal) )
@@ -336,5 +337,20 @@ public class Errors {
 			return((CannotAssignToProperty)o).position().equals(position());
 		}
 	}
-
+	public static class TernaryConditionalTypeUndetermined extends SemanticException {
+		private static final long serialVersionUID = -3724235800269996470L;
+		public TernaryConditionalTypeUndetermined(Type t1, Type t2, Position p) {
+			super("Could not determine type of ternary conditional expression. " 
+					+ "Cannot assign expression of type T1 to T2 or vice versa."
+					+ "\n\t T1: " + t1
+					+ "\n\t T2: " + t2,
+					p);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof TernaryConditionalTypeUndetermined) )
+				return false;
+			return((TernaryConditionalTypeUndetermined)o).position().equals(position());
+		}
+	}
+	
 }

@@ -37,6 +37,7 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
+import x10.errors.Errors;
 import x10.types.X10Context;
 import x10.types.X10NamedType;
 
@@ -168,8 +169,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
                 catch (SemanticException e) {
                 }
 
-                throw new SemanticException("Could not determine type of ternary conditional expression; cannot assign " + t1 + " to " + t2 + " or vice versa.",
-                                            position());
+                throw new Errors.TernaryConditionalTypeUndetermined(t1, t2, position());
            }
           
 
