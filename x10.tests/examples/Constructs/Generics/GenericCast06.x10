@@ -11,8 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.ArithmeticOps;
-
 /**
  * @author bdlucas 8/2008
  */
@@ -20,26 +18,26 @@ import x10.compiler.ArithmeticOps;
 public class GenericCast06 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
-        def n(T):int;
+        global def m(T):int;
+        global def n(T):int;
     }
 
     interface J[T] {
-        def m(T):int;
-        def o(T):int;
+        global def m(T):int;
+        global def o(T):int;
     }
 
     class A[T] implements I[T], J[T] {
-        public def m(T) = 0;
-        public def n(T) = 1;
-        public def o(T) = 2;
+        public global def m(T) = 0;
+        public global def n(T) = 1;
+        public global def o(T) = 2;
     }
 
     public def run() = {
 
         var a:Object = new A[int]();
-        var i:I[int]! = a as I[int];
-        var j:J[int]! = a as J[int];
+        var i:I[int] = a as I[int];
+        var j:J[int] = a as J[int];
 
         check("i.m(0)", i.m(0), 0);
         check("i.n(0)", i.n(0), 1);
