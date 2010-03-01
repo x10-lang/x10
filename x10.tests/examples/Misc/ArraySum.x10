@@ -16,7 +16,7 @@ public class ArraySum extends x10Test {
 
     var sum: Int;
     val size: Int;
-    val data: Rail[Int];
+    val data: Rail[Int]!;
     val R:Region{rail};
 
     public def this(n: Int) {
