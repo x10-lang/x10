@@ -32,7 +32,7 @@ public class NotInstanceof2_Method extends x10Test {
 		 
 	 public class OtherClass (p:int) {
 		public def this(p:int)= {
-		    this.p=p;
+                    property(p);
 		}
 	 }
 }
