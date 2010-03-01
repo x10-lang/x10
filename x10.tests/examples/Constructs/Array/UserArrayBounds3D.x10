@@ -52,23 +52,19 @@ public class UserArrayBounds3D extends x10Test {
      * return true iff
      * no array bounds exception occurred
      */
-    private static def arrayAccess(var lb1: int, var ub1: int, var lb2: int, var ub2: int, var lb3: int, var ub3: int, var i: int, var j: int, var k: int): boolean = {
+    private static def arrayAccess(lb1: int, ub1: int, lb2: int, ub2: int, lb3: int,ub3: int, i: int, j: int, var k: int): boolean = {
 
-        //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+lb3+" "+ub3+" "+i+" "+j+" "+k);
-
-        var a: Array[boxedInt](3) = Array.make[boxedInt](
+        var a: Array[Int](3) = Array.make[Int](
             Dist.makeConstant([lb1..ub1, lb2..ub2, lb3..ub3], here), 
-            ((i,j,k): Point)=> new boxedInt(0));
+            ((i,j,k): Point)=> 0);
 
         var withinBounds: boolean = true;
         try {
-            a(i, j, k) = new boxedInt(0xabcdef07L as Int);
-            chk(a(i, j, k).equals(new boxedInt( 0xabcdef07L as Int)));
-        } catch (var e: ArrayIndexOutOfBoundsException) {
+            a(i, j, k) = 0xabcdef07L as Int;
+            chk(a(i, j, k).equals(0xabcdef07L as Int));
+        } catch (e: ArrayIndexOutOfBoundsException) {
             withinBounds = false;
         }
-        //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+lb3+" "+ub3+" "+i+" "+j+" "+k+" "+withinBounds);
-
         return withinBounds;
     }
 
@@ -84,17 +80,9 @@ public class UserArrayBounds3D extends x10Test {
     /**
      * true iff (x if and only if y)
      */
-    private static def iff(var x: boolean, var y: boolean)= x==y;
+    private static def iff(x: boolean, y: boolean)= x==y;
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String]){
         new UserArrayBounds3D().execute();
-    }
-
-    static class boxedInt {
-        var val: int;
-        public def this(var x: int): boxedInt = { val = x; }
-        public def equals(var other: boxedInt): boolean = {
-            return other.at(here) && this.val == (other as boxedInt!).val;
-        }
     }
 }
