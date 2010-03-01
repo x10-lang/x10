@@ -73,6 +73,7 @@ import x10.types.constraints.SubtypeConstraint_c;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
 
 /**
@@ -1698,6 +1699,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         return l;
     }
+    
+    XRoot[] genSymbolicVars(int n) {
+    	XRoot[] result = new XRoot[n];
+    	String prefix = "arg";
+    	for (int i =0; i < n; ++i) {
+    		result[i] = XTerms.makeUQV(XTerms.makeFreshName(prefix));
+    	}
+    	return result;
+    }
 
     private void superCheckOverride(X10MethodInstance mi, X10MethodInstance mj) throws SemanticException {
         boolean allowCovariantReturn = true;
@@ -1705,6 +1715,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (mi == mj)
             return;
 
+        X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
         if (! mi.name().equals(mj.name()))
             throw new SemanticException(mi.signature() + " in " + mi.container() +
                                         " cannot override " + 
@@ -1712,16 +1723,26 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                                         "; method names are not equal",
                                         mi.position());
 
-        boolean allEqual = false;
+        if ( mi.formalNames().size() != mj.formalNames().size()) {
+        	  throw new SemanticException(mi.signature() + " in " + mi.container() +
+                      " cannot override " + 
+                      mj.signature() + " in " + mj.container() + 
+                      "; different number of arguments",
+                      mi.position());
+        }
+      
 
 
         List<LocalInstance> miFormals = mi.formalNames();
         assert miFormals.size() ==  mj.formalNames().size();
         
-        mj = (X10MethodInstance) mj.formalNames(miFormals);
-      
-     
-        if (mi.typeParameters().size() == mj.typeParameters().size() && mi.formalTypes().size() == mj.formalTypes().size()) {
+        boolean allEqual = false;
+        XRoot[] newSymbols = genSymbolicVars(mj.formalNames().size());
+        XRoot[] miSymbols = Matcher.getSymbolicNames(mi.formalTypes(), mi.formalNames(),xts);
+        XRoot[] mjSymbols = Matcher.getSymbolicNames(mj.formalTypes(), mj.formalNames(),xts);
+        
+        if (mi.typeParameters().size() == mj.typeParameters().size() 
+        		&& mi.formalTypes().size() == mj.formalTypes().size()) {
             allEqual = true;
             List<SubtypeConstraint> env = new ArrayList<SubtypeConstraint>();
             for (int j = 0; j < mi.typeParameters().size(); j++) {
@@ -1729,20 +1750,23 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 Type p2 = mj.typeParameters().get(j);
                 env.add(new SubtypeConstraint_c(p1, p2, true));
             }
-
-            if (!CollectionUtil.allElementwise(mi.formalTypes(), mj.formalTypes(), new TypeEquals(context))) {
+            List<Type> miTypes = Subst.subst(mi.formalTypes(), newSymbols, miSymbols);
+            List<Type> mjTypes = Subst.subst(mj.formalTypes(), newSymbols, mjSymbols);
+            if (!CollectionUtil.allElementwise(miTypes, mjTypes, 
+            		new TypeEquals(context))) {
                 allEqual = false;
             }
         }
 
         if (!allEqual) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-                                        + "; incompatible parameter types", mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() 
+            		+ " cannot override " + mj.signature() + " in " + mj.container()
+            		+ "; incompatible parameter types", mi.position());
         }
 
-        if (allowCovariantReturn
-                ? ! isSubtype(mi.returnType(), mj.returnType())
-                : ! typeEquals(mi.returnType(), mj.returnType())) {
+        Type miRet = Subst.subst(mi.returnType(), newSymbols, miSymbols);
+        Type mjRet = Subst.subst(mj.returnType(), newSymbols, mjSymbols);
+        if (! isSubtype(miRet, mjRet)) {
             if (Report.should_report(Report.types, 3))
                 Report.report(3, "return type " + mi.returnType() +
                               " != " + mj.returnType());

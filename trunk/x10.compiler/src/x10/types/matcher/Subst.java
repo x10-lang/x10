@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import polyglot.types.LocalInstance;
 import polyglot.types.NullType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -150,6 +151,13 @@ class Subst {
      * @throws SemanticException
      */
     public
+    static List<Type> subst(List<Type> ts, XTerm[] y, XRoot[] x) throws SemanticException {
+    	List<Type> result= new ArrayList<Type>(ts.size());
+    	for (Type t : ts) 
+    		result.add(subst(t, y, x));
+    	return result;
+    }
+    public
         static Type subst(Type t, XTerm[] y, XRoot[] x) throws SemanticException {
             assert y.length == x.length;
             
@@ -192,6 +200,7 @@ class Subst {
             
             return t;
         }
+    
         
 
         public static Type subst(Type t, XTerm[] y, XRoot[] x, Type[] Y, ParameterType[] X) throws SemanticException {
