@@ -20,6 +20,7 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
     //"mpCC_r -q64 -qrtti=all -qarch=pwr5 -O3 -qtune=pwr5 -qhot -qinline"
     //"mpCC_r -q64 -qrtti=all"
     public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
+    public static final boolean USE_32BIT = System.getenv("USE_32BIT")!=null;
     
     public AIX_CXXCommandBuilder(Options options, ErrorQueue eq) {
         super(options, eq);
@@ -33,7 +34,7 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
         
         if (USE_XLC) {
             cxxCmd.add("-qsuppress=1540-0809:1540-1101:1500-029");
-            cxxCmd.add("-q64"); // assume 64-bit
+            cxxCmd.add(USE_32BIT ? "-q32" : "-q64");
             cxxCmd.add("-qrtti=all");
             if (XLC_EXTRA_FLAGS != null) {
                 cxxCmd.add(XLC_EXTRA_FLAGS);
