@@ -45,7 +45,7 @@ public class NotInstanceof1_Inline extends x10Test {
 		 
 	 public class OtherClass (p:int) {
 		public  def this(p:int) = {
-		    this.p=p;
+                    property(p);
 		}
 	 }
 }
