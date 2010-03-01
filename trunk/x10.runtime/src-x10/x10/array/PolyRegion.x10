@@ -77,9 +77,7 @@ public class PolyRegion extends BaseRegion {
         }
     };
 
-    public global def scanners(): Iterator[Scanner] {
-        return new Scanners();
-    }
+    public global def scanners()=new Scanners();
 
     protected global def scanner(): Region.Scanner {
 	val scanner = PolyScanner.make(mat);

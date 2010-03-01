@@ -21,8 +21,8 @@ import harness.x10Test;
 
 abstract public class TestArray extends x10Test {
     
-    var os: StringWriter;
-    var out: Printer;
+    global val os: StringWriter;
+    global val out: Printer;
     val testName = typeName();
 
     def this() {
@@ -34,6 +34,7 @@ abstract public class TestArray extends x10Test {
         } catch (e:Exception) {
             //e.printStackTrace();
             x10.io.Console.OUT.println(e.toString());
+            throw e;
         }
     }
 
@@ -73,7 +74,7 @@ abstract public class TestArray extends x10Test {
             
     class Grid {
 
-        var os: Rail[Object] = Rail.make[Object](10);
+        var os: Rail[Object]! = Rail.make[Object](10);
 
         def set(i0: int, vue: double): void = {
             os(i0) = vue as Box[Double]; 
@@ -118,7 +119,7 @@ abstract public class TestArray extends x10Test {
                             out.print("-");
                         out.print(" " + i + "\n");
                     }
-                    (o as Grid).pr(rank-1);
+                    (o as Grid!).pr(rank-1);
                 } else {
                     val d = (o as Box[double]).value;
                     out.print((d as int)+"");

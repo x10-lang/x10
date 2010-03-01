@@ -220,7 +220,7 @@ abstract public class BaseRegion extends Region {
     // PolyRegion.Iterator gives us a BaseRegion.Iterator
     //
 
-    public global def scanners(): Iterator[Scanner] {
+    public global def scanners(): Iterator[Scanner]! {
         throw U.unsupported(this, "scanners()");
     }
 
