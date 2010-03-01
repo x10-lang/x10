@@ -20,23 +20,23 @@ import harness.x10Test;
 public class GenericCast08 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
+        global def m(T):int;
     }
 
     interface J[T] {
-        def m(T):int;
+        global def m(T):int;
     }
 
     class A implements I[int], J[String] {
-        public def m(int) = 0;
-        public def m(String) = 1;
+        public global def m(int) = 0;
+        public global def m(String) = 1;
     }
 
     public def run() = {
         
         var a:Object = new A();
-        var i:I[int]! = a as I[int];
-        var j:J[String]! = a as J[String];
+        var i:I[int] = a as I[int];
+        var j:J[String] = a as J[String];
 
         check("i.m(0)", i.m(0), 0);
         check("j.m(0)", j.m("0"), 1);

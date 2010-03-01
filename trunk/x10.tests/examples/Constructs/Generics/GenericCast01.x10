@@ -11,8 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.ArithmeticOps;
-
 /**
  * @author bdlucas 8/2008
  */
@@ -20,17 +18,17 @@ import x10.compiler.ArithmeticOps;
 public class GenericCast01 extends GenericTest {
 
     interface I[T] {
-        def m(T):int;
+        global def m(T):int;
     }
 
     class A implements I[int] {
-        public def m(int) = 0;
+        public global def m(int) = 0;
     }
 
     public def run() = {
 
         var a:Object = new A();
-        var i:I[int]! = a as I[int];
+        var i:I[int] = a as I[int];
         check("i.m(0)", i.m(0), 0);
 
         return result;
