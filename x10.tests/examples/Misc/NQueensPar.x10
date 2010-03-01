@@ -18,7 +18,8 @@ public class NQueensPar {
     public static val expectedSolutions =
         [0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512];
 
-    val N:Int, P:Int;
+    global val N:Int; 
+    global val P:Int;
 
     def this(N:Int, P:Int) { this.N=N; this.P=P;}
 
