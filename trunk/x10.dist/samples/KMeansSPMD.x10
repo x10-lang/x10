@@ -33,10 +33,10 @@ public class KMeansSPMD {
         var fname_:String = "points.dat";
         var DIM_:Int=3, CLUSTERS_:Int=8, POINTS_:Int=10000, ITERATIONS_:Int=500;
         switch (args.length) {
-            case 5: ITERATIONS_ = Int.parseInt(args(4));
-            case 4: DIM_        = Int.parseInt(args(3));
-            case 3: CLUSTERS_   = Int.parseInt(args(2));
-            case 2: POINTS_     = Int.parseInt(args(1));
+            case 5: ITERATIONS_ = Int.parse(args(4));
+            case 4: DIM_        = Int.parse(args(3));
+            case 3: CLUSTERS_   = Int.parse(args(2));
+            case 2: POINTS_     = Int.parse(args(1));
             case 1: fname_      = args(0);
         }
         val fname = fname_, DIM = DIM_, CLUSTERS = CLUSTERS_,
