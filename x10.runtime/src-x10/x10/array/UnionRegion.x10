@@ -131,9 +131,7 @@ public class UnionRegion extends BaseRegion {
     }
 
 
-    public global def scanners(): Iterator[Scanner] {
-        return new Scanners();
-    }
+    public global def scanners()=new Scanners();
 
 
     //

@@ -367,7 +367,7 @@ public abstract class Region(
         def max(axis: int): int;
     }
 
-    public abstract global def scanners(): Iterator[Scanner];
+    public abstract global def scanners(): Iterator[Scanner]!;
 
     public global def scan() = new x10.array.PolyScanner(this);
 
