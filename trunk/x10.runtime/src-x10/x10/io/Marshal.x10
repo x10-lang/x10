@@ -105,20 +105,20 @@ public interface Marshal[T] {
                 return;
             }
             if ((i & 0xfffff800) == 0) {
-                w.write(((i >>> 6) & 0x0000001f) | 0x000000c0 as Byte);
+                w.write(((i >> 6) & 0x0000001f) | 0x000000c0 as Byte);
                 w.write((i & 0x0000003f) | 0x00000080 as Byte);
                 return;
             }
             if ((i & 0xffff0000) == 0) {
-                w.write(((i >>> 12) & 0x0000000f) | 0x000000e0 as Byte);
-                w.write(((i >>> 6) & 0x0000003f) | 0x00000080 as Byte);
+                w.write(((i >> 12) & 0x0000000f) | 0x000000e0 as Byte);
+                w.write(((i >> 6) & 0x0000003f) | 0x00000080 as Byte);
                 w.write((i & 0x0000003f) | 0x00000080 as Byte);
                 return;
             }
             if ((i & 0xffe00000) == 0) {
-                w.write(((i >>> 18) & 0x00000007) | 0x000000f0 as Byte);
-                w.write(((i >>> 12) & 0x0000003f) | 0x00000080 as Byte);
-                w.write(((i >>> 6) & 0x0000003f) | 0x00000080 as Byte);
+                w.write(((i >> 18) & 0x00000007) | 0x000000f0 as Byte);
+                w.write(((i >> 12) & 0x0000003f) | 0x00000080 as Byte);
+                w.write(((i >> 6) & 0x0000003f) | 0x00000080 as Byte);
                 w.write((i & 0x0000003f) | 0x00000080 as Byte);
                 return;
             }
@@ -134,7 +134,7 @@ public interface Marshal[T] {
 
         public global def write(w: Writer, s: Short): Void throws IOException {
             val i = s as Int;
-            val b1 = ((i >>> 8) & 0xff) as Byte;
+            val b1 = ((i >> 8) & 0xff) as Byte;
             val b2 = (i & 0xff) as Byte;
             w.write(b1);
             w.write(b2);
@@ -151,9 +151,9 @@ public interface Marshal[T] {
         }
         
         public global def write(w: Writer, i: Int): Void throws IOException {
-            val b1 = ((i >>> 24) & 0xff) as Byte;
-            val b2 = ((i >>> 16) & 0xff) as Byte;
-            val b3 = ((i >>> 8) & 0xff) as Byte;
+            val b1 = ((i >> 24) & 0xff) as Byte;
+            val b2 = ((i >> 16) & 0xff) as Byte;
+            val b3 = ((i >> 8) & 0xff) as Byte;
             val b4 = (i & 0xff) as Byte;
             w.write(b1);
             w.write(b2);
@@ -176,7 +176,7 @@ public interface Marshal[T] {
             var shift: int = 64;
             while (shift > 0) {
                 shift -= 8;
-                val b = ((l >>> shift) & 0xffL) as Byte;
+                val b = ((l >> shift) & 0xffL) as Byte;
                 w.write(b);
             }
         }

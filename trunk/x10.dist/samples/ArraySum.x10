@@ -58,7 +58,7 @@ public class ArraySum {
 
         var size:Int = 5*1000*1000;
         if (args.length >=1)
-            size = Int.parseInt(args(0));
+            size = Int.parse(args(0));
 
         Console.OUT.println("Initializing.");
         val a = new ArraySum(size);

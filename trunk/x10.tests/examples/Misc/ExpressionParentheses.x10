@@ -16,12 +16,12 @@ import harness.x10Test;
  */
 public class ExpressionParentheses extends x10Test {
 
-	var x: int = Int.MIN_VALUE;
-	var n: int = 16;
-	var z: int;
+	var x: UInt = 0x80000000;
+	var n: Int = 16;
+	var z: Int;
 
 	public def run(): boolean = {
-		z = ((x ^ (x>>>8) ^ (x>>>31)) & (n-1));
+		z = ((x ^ (x>>8) ^ (x>>31)) & (n-1));
 		if (z != 1) return false;
 		z = ((x | (n-1)) & 1);
 		if (z != 1) return false;
