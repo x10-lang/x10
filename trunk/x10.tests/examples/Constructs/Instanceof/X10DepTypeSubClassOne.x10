@@ -22,6 +22,6 @@ public class X10DepTypeSubClassOne(a:int) extends X10DepTypeClassOne {
 
 	public def this(a:int, q:int) = {
 	    super(a);
-	    this.a=q;
+            property(q);
 	}
 }
