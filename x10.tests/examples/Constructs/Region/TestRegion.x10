@@ -21,8 +21,8 @@ import harness.x10Test;
 
 abstract public class TestRegion extends x10Test {
     
-    var os: StringWriter;
-    var out: Printer;
+    global val os: StringWriter;
+    global val out: Printer;
 
     def testName() {
         var cn:String = typeName();
@@ -41,6 +41,7 @@ abstract public class TestRegion extends x10Test {
         } catch (e:Exception) {
             //e.printStackTrace();
             x10.io.Console.OUT.println(e.toString());
+	    throw e;
         }
     }
 
