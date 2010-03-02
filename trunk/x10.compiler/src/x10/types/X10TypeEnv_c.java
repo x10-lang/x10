@@ -1028,20 +1028,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
         if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
-        XVar temp = null;
-        if (c1 != null)
-        	temp = c1.selfVarBinding();
-        if (temp == null && c2 != null) 
-        	temp = c2.selfVarBinding();
-        if (temp == null)
-        	temp = XTerms.makeUQV();
-        if (c1 != null)
+        XVar temp = XTerms.makeUQV();
+        if (c1 != null) {
         	c1 = c1.instantiateSelf(temp);
-        if (c2 != null)
+        }
+        if (c2 != null) {
         	c2 = c2.instantiateSelf(temp);
+        }
         	
-      
-
         if (! entails( c1, c2))
             return false;
 
