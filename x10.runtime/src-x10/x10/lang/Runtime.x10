@@ -44,7 +44,7 @@ public final class Runtime {
 
     @Native("c++", "((x10aux::ref<x10::lang::Closure>)(#4))->toNativeString()")
     public static def nativeClosureName[T](cl:T) = cl.toString();
-    
+
     // Configuration options
 
     @Native("java", "x10.runtime.impl.java.Runtime.NO_STEALS")
@@ -452,8 +452,8 @@ public final class Runtime {
         }
 
         public global def notifyActivityCreation():Void {
-            if (!here.equals(home)) 
-            	(Runtime.proxy(this) as RemoteFinish!).notifyActivityCreation();
+            if (!here.equals(home))
+                (Runtime.proxy(this) as RemoteFinish!).notifyActivityCreation();
         }
 
         public global def notifyActivityTermination():Void {
@@ -613,7 +613,7 @@ public final class Runtime {
         public native def name(name:String):void;
 
         public native def locInt():Int;
-        
+
         public static native def getTid():Long;
     }
 
@@ -626,7 +626,7 @@ public final class Runtime {
         const BOUND = 100;
 
         // activity (about to be) executed by this worker
-        private var activity:Activity! = null;
+        private var activity:Activity = null;
 
         // pending activities
         private val queue = new Deque();
@@ -650,13 +650,13 @@ public final class Runtime {
         public def size():Int = queue.size();
 
         // return activity executed by this worker
-        def activity()  = activity;
+        def activity() = activity;
 
         // poll activity from the bottom of the deque
-        private def poll() = pretendLocal(queue.poll() as Activity);
+        private def poll() = queue.poll() as Activity;
 
         // steal activity from the top of the deque
-        def steal() = pretendLocal(queue.steal() as Activity);
+        def steal() = queue.steal() as Activity;
 
         // push activity at the bottom of the deque
         def push(activity:Activity!):Void = queue.push(activity);
@@ -690,13 +690,13 @@ public final class Runtime {
                     activity = Runtime.scan(random, latch, block);
                     if (activity == null) return false;
                 }
-                debug.add(activity);
+                debug.add(pretendLocal(activity));
                 runAtLocal(activity.home.id, (activity as Activity!).run.());
                 debug.removeLast();
             }
             return true;
         }
-        
+
         def dump(id:Int, thread:Thread!) {
             Runtime.printf(@NativeString "WORKER %d", id);
             Runtime.printf(@NativeString " = THREAD %#lx\n", tid);
@@ -806,8 +806,8 @@ public final class Runtime {
         }
 
         // scan workers for activity to steal
-        def scan(random:Random!, latch:Latch!, block:Boolean):Activity! {
-            var activity:Activity! = null;
+        def scan(random:Random!, latch:Latch!, block:Boolean):Activity {
+            var activity:Activity = null;
             var next:Int = random.nextInt(size);
             for (;;) {
                 event_probe();
@@ -826,7 +826,7 @@ public final class Runtime {
                 if (++next == size) next = 0;
             }
         }
-        
+
         def dump() {
             for (var i:Int=0; i<size; i++) {
                 workers(i).dump(i, threads(i));
@@ -837,7 +837,7 @@ public final class Runtime {
 
     // for debugging
     const PRINT_STATS = false;
-    
+
     static public def dump() {
         runtime().pool.dump();
     }
@@ -867,8 +867,8 @@ public final class Runtime {
     /**
      * Return the current worker
      */
-    private static def worker():Worker! = 
-    	pretendLocal[Worker](Thread.currentThread().worker() as Worker);
+    private static def worker():Worker! =
+        pretendLocal(Thread.currentThread().worker() as Worker);
 
     /**
      * Return the current activity
@@ -897,8 +897,8 @@ public final class Runtime {
         try {
             for (var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (isLocal(i)) {
-                	// needed because the closure can be invoked in places other than the p
-                    runAtLocal(i, ()=>runtime.set(new Runtime(pretendLocal(pool)))); 
+                    // needed because the closure can be invoked in places other than the p
+                    runAtLocal(i, ()=>runtime.set(new Runtime(pretendLocal(pool))));
                 }
             }
             registerHandlers();
@@ -1153,7 +1153,7 @@ public final class Runtime {
     }
 
 
-    static def scan(random:Random!, latch:Latch!, block:Boolean):Activity! {
+    static def scan(random:Random!, latch:Latch!, block:Boolean):Activity {
         return runtime().pool.scan(random, latch, block);
     }
 
