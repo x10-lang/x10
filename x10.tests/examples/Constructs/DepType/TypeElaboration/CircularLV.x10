@@ -20,7 +20,7 @@
 import harness.x10Test;
 
 public class CircularLV(k: int ) extends x10Test {
-    public def this(k: int): CircularLV = { this.k = k;}
+    public def this(k: int): CircularLV = { property(k); }
     public def run(): boolean = { 
 	val h: CLV1{i==j} = new CLV1(4,4) ;
 	return true;
