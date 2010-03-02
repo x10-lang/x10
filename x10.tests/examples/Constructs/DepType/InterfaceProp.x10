@@ -31,14 +31,17 @@ interface  I(i:int) {
       public def a():void;
 	}
 	
-	class E(m:int, k:int) extends D implements J{
-      public def this(mm:int, nn:int, ii:int, kk:int):E { super(nn,ii); m = mm; k = kk;}
+      class E(m:int, k:int) extends D implements J{
+      public def this(mm:int, nn:int, ii:int, kk:int):E { 
+          super(nn,ii); 
+          property(mm, kk);
+      }
       public def a():void = {
         var x:int;
       }
 	}
 	class D(n:int, i:int) implements I {
-      public def this(nn:int, ii:int):D { n = nn; i=ii; }
+      public def this(nn:int, ii:int):D { property(nn, ii); }
       public def a():void= {
         var x:int;
       }
