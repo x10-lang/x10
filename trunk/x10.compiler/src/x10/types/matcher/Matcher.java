@@ -149,8 +149,8 @@ public class Matcher {
 	        System.arraycopy(ySymbols, 0, ys, 1, actuals.size());
 
 
-	        final CConstraint returnEnv = Matcher.computeNewSigma(thisType, actuals, ythiseqv, ySymbols, hasSymbol, xts);
-	        final CConstraint returnEnv2 = Matcher.computeNewSigma2(thisType, actuals, ythiseqv, ySymbols, hasSymbol, xts);
+	        final CConstraint returnEnv = Matcher.computeNewSigma(thisType, actuals, ythiseqv, ySymbols, hasSymbol, isStatic, xts);
+	        final CConstraint returnEnv2 = Matcher.computeNewSigma2(thisType, actuals, ythiseqv, ySymbols, hasSymbol, isStatic, xts);
 
 	
 	        // We'll subst selfVar for THIS.
@@ -328,18 +328,18 @@ public class Matcher {
 	}
 
 	public static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y, boolean[] hasSymbol, X10TypeSystem xts) 
+			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, X10TypeSystem xts) 
 	throws SemanticException {
 	
-		CConstraint env = X10TypeMixin.xclause(thisType);
-		env = env == null ? new CConstraint_c() : env.copy();
-		if (ythis != null) {
-			if (! ((env == null) || env.valid())) {
-				env = env.instantiateSelf(ythis);
-			}
+		CConstraint env = null; 
+		if (! isStatic) {
+			env = X10TypeMixin.xclause(thisType);
+			if (env != null && ythis != null && ! ((env == null) || env.valid()))
+				env = env.copy().instantiateSelf(ythis);
 		}
-		
-	
+		if (env == null)
+			env = new CConstraint_c();
+
 	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
 	    	
 	    		Type ytype = actuals.get(i);
@@ -357,17 +357,17 @@ public class Matcher {
 	}
 	
 	public static CConstraint computeNewSigma2(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y, boolean[] hasSymbol, X10TypeSystem xts) 
+			XVar ythis, XVar[] y, boolean[] hasSymbol, boolean isStatic, X10TypeSystem xts) 
 	throws SemanticException {
 	
-		CConstraint env = X10TypeMixin.xclause(thisType);
-		if (ythis != null) {
-			if (! ((env == null) || env.valid())) {
-				env = env.instantiateSelf(ythis);
-			}
+		CConstraint env = null; 
+		if (! isStatic) {
+			env = X10TypeMixin.xclause(thisType);
+			if (env != null && ythis != null && ! ((env == null) || env.valid()))
+				env = env.copy().instantiateSelf(ythis);
 		}
-		
-		env = env == null ? new CConstraint_c() : env.copy();
+		if (env == null)
+			env = new CConstraint_c();
 	
 	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
 	    	if (! hasSymbol[i+1]) {

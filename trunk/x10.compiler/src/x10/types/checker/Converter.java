@@ -407,8 +407,9 @@ public class Converter {
 				try {
 					mi = ts.findMethod(toType, ts.MethodMatcher(toType, Converter.implicit_operator_as, 
 							Collections.singletonList(fromType), context));
-					Type baseMiType = X10TypeMixin.baseType(mi.returnType());
-					if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {
+					//Type baseMiType = X10TypeMixin.baseType(mi.returnType());
+					Type miType = mi.returnType();
+					if (mi.flags().isStatic() && miType.isSubtype(baseTo, context)) {
 						converter = mi;
 						// Do the conversion.
 						c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
