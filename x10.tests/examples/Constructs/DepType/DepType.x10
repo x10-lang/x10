@@ -33,13 +33,15 @@ public class DepType(i:int, j:int) extends x10Test {
     }
 
     // thisClause on a class, and extension of a deptyped class
-    static class Test3 extends DepType {
+    // This test is no longer legal. 3/2/2010. Cant use this in
+    // returntype of a constructor.
+    /*static class Test3 extends DepType {
         val k:int;
         def this(v:int):Test3{self.j==this.k} {
-            super(v,v);
+            super(v,v,v);
             k = v;
         }
-    }
+    }*/
 
     // A constructor may specify constraints on properties that are true of the returned object.
     public def this(i:int, j:int):DepType{self.i==i && self.j==j} = {
