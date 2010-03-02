@@ -85,7 +85,7 @@ class SeqRandomAccess1 extends Benchmark {
             var ran:long = HPCCStarts(p* (numUpdates/PARALLELISM));
             for (var i:long=0; i<numUpdates/PARALLELISM; i++) {
                 val placeId = ((ran>>logLocalTableSize) & placeMask) as int;
-                tables(placeId).update(ran);
+                (tables(placeId) as LocalTable!).update(ran);
                 ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
             }
         }
