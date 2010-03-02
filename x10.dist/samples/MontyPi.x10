@@ -16,7 +16,7 @@ public class MontyPi {
     public static  def main(s: Rail[String]!) {
         if (s.length != 1) {
             Console.OUT.println("Usage: MontyPi <number of points>");
-            System.setExitCode(-1);
+            at (Place.FIRST_PLACE) System.setExitCode(-1);
             return;
         }
         val N = int.parse(s(0));
