@@ -28,6 +28,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
@@ -36,6 +37,7 @@ import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
@@ -296,6 +298,8 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
         throw ex;
     }
       
+   
+    
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
@@ -313,6 +317,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
         n = (AmbMacroTypeNode_c) n.prefix(prefix);
         n = (AmbMacroTypeNode_c) n.name(name);
 
+       
         List<TypeNode> typeArgs = visitList(n.typeArgs, childtc);
         List<Expr> args = visitList(n.args, childtc);
         n = (AmbMacroTypeNode_c) n.typeArgs(typeArgs);
@@ -435,8 +440,31 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
     	result = (CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
     	result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
     	result = (CanonicalTypeNode) result.del().typeCheck(childtc);
-    
-    	
+    	 {
+          	class VarChecker extends NodeVisitor {
+          		SemanticError error = null;
+          		public Node override(Node n) {
+          			if (n instanceof Local) {
+          				Local e = (Local) n;
+          				if (! e.flags().isFinal())
+          				    error = new SemanticError("Local variable " +  e.name() 
+        							+ " must be final in type def.", 
+        							e.position());
+          				return n;
+          				
+          			}
+          			return null;
+          		}
+          	}
+
+          	VarChecker ac = new VarChecker();
+          	result.visit(ac);
+          	
+          	if (ac.error != null) {
+          		throw ac.error;
+          	}
+
+          } 
     	return result;
     }
     
