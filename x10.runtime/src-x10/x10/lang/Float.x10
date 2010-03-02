@@ -158,7 +158,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
 
 
     /**
-     * Convert a given Byte to a Float.
+     * Coerce a given Byte to a Float.
      * @param x the given Byte
      * @return the given Byte converted to a Float.
      */
@@ -167,7 +167,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     public native static safe operator (x:Byte): Float;
 
     /**
-     * Convert a given Short to a Float.
+     * Coerce a given Short to a Float.
      * @param x the given Short
      * @return the given Short converted to a Float.
      */
@@ -176,7 +176,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     public native static safe operator (x:Short): Float;
 
     /**
-     * Convert a given Int to a Float.
+     * Coerce a given Int to a Float.
      * @param x the given Int
      * @return the given Int converted to a Float.
      */
@@ -185,13 +185,49 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     public native static safe operator (x:Int): Float;
 
     /**
-     * Convert a given Long to a Float.
+     * Coerce a given Long to a Float.
      * @param x the given Long
      * @return the given Long converted to a Float.
      */
     @Native("java", "((float)(long)(#1))")
     @Native("c++",  "((x10_float) (#1))")
     public native static safe operator (x:Long): Float;
+
+    /**
+     * Coerce a given UByte to a Float.
+     * @param x the given UByte
+     * @return the given UByte converted to a Float.
+     */
+    @Native("java", "((float)(byte)(#1))")
+    @Native("c++",  "((x10_float) (#1))")
+    public native static safe operator (x:UByte): Float;
+
+    /**
+     * Coerce a given UShort to a Float.
+     * @param x the given UShort
+     * @return the given UShort converted to a Float.
+     */
+    @Native("java", "((float)(short)(#1))")
+    @Native("c++",  "((x10_float) (#1))")
+    public native static safe operator (x:UShort): Float;
+
+    /**
+     * Coerce a given UInt to a Float.
+     * @param x the given UInt
+     * @return the given UInt converted to a Float.
+     */
+    @Native("java", "((float)(int)(#1))")
+    @Native("c++",  "((x10_float) (#1))")
+    public native static safe operator (x:UInt): Float;
+
+    /**
+     * Coerce a given ULong to a Float.
+     * @param x the given ULong
+     * @return the given ULong converted to a Float.
+     */
+    @Native("java", "((float)(long)(#1))")
+    @Native("c++",  "((x10_float) (#1))")
+    public native static safe operator (x:ULong): Float;
 
     /**
      * Convert a given Double to a Float.

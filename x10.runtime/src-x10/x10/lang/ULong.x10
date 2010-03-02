@@ -239,7 +239,7 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
 
 
     /**
-     * Convert a given UByte to a ULong.
+     * Coerce a given UByte to a ULong.
      * @param x the given UByte
      * @return the given UByte converted to a ULong.
      */
@@ -248,7 +248,7 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     public native static safe operator (x:UByte): ULong;
 
     /**
-     * Convert a given UShort to a ULong.
+     * Coerce a given UShort to a ULong.
      * @param x the given UShort
      * @return the given UShort converted to a ULong.
      */
@@ -257,7 +257,7 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     public native static safe operator (x:UShort): ULong;
 
     /**
-     * Convert a given UInt to a ULong.
+     * Coerce a given UInt to a ULong.
      * @param x the given UInt
      * @return the given UInt converted to a ULong.
      */
@@ -267,31 +267,31 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
 
 
     /**
-     * Convert a given Byte to a ULong.
+     * Coerce a given Byte to a ULong.
      * @param x the given Byte
      * @return the given Byte converted to a ULong.
      */
     @Native("java", "((long)(byte)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public native static safe operator (x:Byte) as ULong;
+    public native static safe operator (x:Byte): ULong;
 
     /**
-     * Convert a given Short to a ULong.
+     * Coerce a given Short to a ULong.
      * @param x the given Short
      * @return the given Short converted to a ULong.
      */
     @Native("java", "((long)(short)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public native static safe operator (x:Short) as ULong;
+    public native static safe operator (x:Short): ULong;
 
     /**
-     * Convert a given Int to a ULong.
+     * Coerce a given Int to a ULong.
      * @param x the given Int
      * @return the given Int converted to a ULong.
      */
     @Native("java", "((long)(int)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public native static safe operator (x:Int) as ULong;
+    public native static safe operator (x:Int): ULong;
 
     /**
      * Convert a given Float to a ULong.
@@ -312,13 +312,13 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     public native static safe operator (x:Double) as ULong;
 
     /**
-     * Convert a given Long to a ULong.
+     * Coerce a given Long to a ULong.
      * @param x the given Long
      * @return the given Long converted to a ULong.
      */
     @Native("java", "((long)(long)(#1))")
     @Native("c++",  "((x10_ulong) (#1))")
-    public native static safe operator (x:Long) as ULong;
+    public native static safe operator (x:Long): ULong;
 
 
     /**

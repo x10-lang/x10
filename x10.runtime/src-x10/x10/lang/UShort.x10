@@ -239,7 +239,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
 
 
     /**
-     * Convert a given UByte to a UShort.
+     * Coerce a given UByte to a UShort.
      * @param x the given UByte
      * @return the given UByte converted to a UShort.
      */
@@ -267,13 +267,13 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
 
 
     /**
-     * Convert a given Byte to a UShort.
+     * Coerce a given Byte to a UShort.
      * @param x the given Byte
      * @return the given Byte converted to a UShort.
      */
     @Native("java", "((short)(byte)(#1))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public native static safe operator (x:Byte) as UShort;
+    public native static safe operator (x:Byte): UShort;
 
     /**
      * Convert a given Int to a UShort.
@@ -312,13 +312,13 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
     public native static safe operator (x:Double) as UShort;
 
     /**
-     * Convert a given Short to a UShort.
+     * Coerce a given Short to a UShort.
      * @param x the given Short
      * @return the given Short converted to a UShort.
      */
     @Native("java", "((short)(short)(#1))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public native static safe operator (x:Short) as UShort;
+    public native static safe operator (x:Short): UShort;
 
 
     /**
