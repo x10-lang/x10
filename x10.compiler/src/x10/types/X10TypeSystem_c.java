@@ -963,11 +963,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     		Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> excTypes) {
 
-        String fullNameWithThis = name + "#this";
-        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XRoot thisVar = XTerms.makeLocal(thisName);
+        
+        	String fullNameWithThis = name + "#this";
+        	XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+        	XRoot thisVar = XTerms.makeLocal(thisName);
+        
 
-        return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, thisVar, dummyLocalDefs(argTypes), null, null, excTypes,
+        // set up null thisVar for method def's, so the outer contexts are searched for thisVar.
+        return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, 
+        		name.toString().contains(DUMMY_ASYNC) ? null : thisVar, dummyLocalDefs(argTypes), null, null, excTypes,
                          null);
     }
 
@@ -1013,8 +1017,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public CodeDef asyncCodeInstance(boolean isStatic) {
     	// Need to create a new one on each call. Portions of this methodDef, such as thisVar may be destructively modified later.
-                return methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), isStatic ? Public().Static() : Public(), Types.ref(VOID_),
-                                                     Name.make(DUMMY_ASYNC), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+                return methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), isStatic ? Public().Static() : Public(), 
+                		Types.ref(VOID_),
+                		Name.make(DUMMY_ASYNC), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
     }
 
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,

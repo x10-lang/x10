@@ -193,6 +193,7 @@ public class XTypeTranslator {
 		            }
 		        }
 		    }
+		    // why is this code not in X10Context_c.thisVar()?
 		    XRoot thisVar = xc == null ? null : xc.thisVar();
 		    for (X10Context outer = (X10Context) xc.pop();
 		    outer != null && thisVar == null;

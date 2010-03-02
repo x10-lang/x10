@@ -149,6 +149,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	    }
 	    return null;
 	}
+	
 
 	/* sigma(Gamma) restricted to the variables mentioned in c1,c2 */
 	 void addSigma(CConstraint r, CConstraint c, HashMap<XTerm, CConstraint> m) throws XFailure {
@@ -327,13 +328,16 @@ public class X10Context_c extends Context_c implements X10Context {
    */
     protected XConstrainedTerm currentPlaceTerm = null;
     public XConstrainedTerm currentPlaceTerm() {
-    	/*
-    	if (currentPlaceTerm == null) {
-    		X10TypeSystem xts = (X10TypeSystem) ts;
-    		currentPlaceTerm = xts.xtypeTranslator().firstPlace();
-    		assert currentPlaceTerm != null;
-    	}
-*/
+    	/*X10Context_c cxt = this;
+    	XConstrainedTerm result = cxt.currentPlaceTerm;
+    	// skip dummy async places
+    	for ( ;
+    	     cxt != null && result != null && result.term().toString().contains("$dummyAsync#");
+    	     cxt = (X10Context_c) cxt.pop())
+    	{
+    		result = cxt.currentPlaceTerm;
+    	}*/
+
     	return currentPlaceTerm;
     }
     public Context pushPlace(XConstrainedTerm t) {
