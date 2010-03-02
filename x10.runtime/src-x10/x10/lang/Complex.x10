@@ -16,7 +16,7 @@ package x10.lang;
  * Complex is a struct representing a complex number (a + b*i).
  * The real and imaginary components are represented as Doubles.
  */
-public struct Complex /*TODO implements Arithmetic[Complex]*//*, Arithmetic[Double]*/ {
+public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     /** The real component of this complex number. */
     public val re:Double;
     /** The imaginary component of this complex number. */

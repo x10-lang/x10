@@ -86,6 +86,20 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     @Native("java", "((#1) + (#2))")
     @Native("c++",  "((x10_ulong) ((#1) + (#2)))")
     public native static safe operator (x:ULong) + (y:ULong): ULong;
+    /**
+     * A binary plus operator (unsigned disambiguation).
+     * @see #operator(ULong)+(ULong)
+     */
+    @Native("java", "((#1) + (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) + (#2)))")
+    public native static safe operator (x:Long) + (y:ULong): ULong;
+    /**
+     * A binary plus operator (unsigned disambiguation).
+     * @see #operator(ULong)+(ULong)
+     */
+    @Native("java", "((#1) + (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) + (#2)))")
+    public native static safe operator (x:ULong) + (y:Long): ULong;
 
     /**
      * A binary minus operator.
@@ -98,6 +112,20 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((x10_ulong) ((#1) - (#2)))")
     public native static safe operator (x:ULong) - (y:ULong): ULong;
+    /**
+     * A binary minus operator (unsigned disambiguation).
+     * @see #operator(ULong)-(ULong)
+     */
+    @Native("java", "((#1) - (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) - (#2)))")
+    public native static safe operator (x:Long) - (y:ULong): ULong;
+    /**
+     * A binary minus operator (unsigned disambiguation).
+     * @see #operator(ULong)-(ULong)
+     */
+    @Native("java", "((#1) - (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) - (#2)))")
+    public native static safe operator (x:ULong) - (y:Long): ULong;
 
     /**
      * A binary multiply operator.
@@ -110,6 +138,20 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     @Native("java", "((#1) * (#2))")
     @Native("c++",  "((x10_ulong) ((#1) * (#2)))")
     public native static safe operator (x:ULong) * (y:ULong): ULong;
+    /**
+     * A binary multiply operator (unsigned disambiguation).
+     * @see #operator(ULong)*(ULong)
+     */
+    @Native("java", "((#1) * (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) * (#2)))")
+    public native static safe operator (x:Long) * (y:ULong): ULong;
+    /**
+     * A binary multiply operator (unsigned disambiguation).
+     * @see #operator(ULong)*(ULong)
+     */
+    @Native("java", "((#1) * (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) * (#2)))")
+    public native static safe operator (x:ULong) * (y:Long): ULong;
 
     /**
      * A binary divide operator.
@@ -121,6 +163,20 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     @Native("java", "x10.core.Unsigned.div(#1, #2)")
     @Native("c++",  "((x10_ulong) ((#1) / (#2)))")
     public native static safe operator (x:ULong) / (y:ULong): ULong;
+    /**
+     * A binary divide operator (unsigned disambiguation).
+     * @see #operator(ULong)/(ULong)
+     */
+    @Native("java", "x10.core.Unsigned.div(#1, #2)")
+    @Native("c++",  "((x10_ulong) ((#1) / (#2)))")
+    public native static safe operator (x:Long) / (y:ULong): ULong;
+    /**
+     * A binary divide operator (unsigned disambiguation).
+     * @see #operator(ULong)/(ULong)
+     */
+    @Native("java", "x10.core.Unsigned.div(#1, #2)")
+    @Native("c++",  "((x10_ulong) ((#1) / (#2)))")
+    public native static safe operator (x:ULong) / (y:Long): ULong;
 
     /**
      * A binary remainder operator.
@@ -132,6 +188,20 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     @Native("java", "x10.core.Unsigned.rem(#1, #2)")
     @Native("c++",  "((x10_ulong) ((#1) % (#2)))")
     public native static safe operator (x:ULong) % (y:ULong): ULong;
+    /**
+     * A binary remainder operator (unsigned disambiguation).
+     * @see #operator(ULong)%(ULong)
+     */
+    @Native("java", "x10.core.Unsigned.rem(#1, #2)")
+    @Native("c++",  "((x10_ulong) ((#1) % (#2)))")
+    public native static safe operator (x:Long) % (y:ULong): ULong;
+    /**
+     * A binary remainder operator (unsigned disambiguation).
+     * @see #operator(ULong)%(ULong)
+     */
+    @Native("java", "x10.core.Unsigned.rem(#1, #2)")
+    @Native("c++",  "((x10_ulong) ((#1) % (#2)))")
+    public native static safe operator (x:ULong) % (y:Long): ULong;
 
     /**
      * A unary plus operator.
@@ -165,6 +235,20 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     @Native("java", "((#1) & (#2))")
     @Native("c++",  "((x10_ulong) ((#1) & (#2)))")
     public native static safe operator (x:ULong) & (y:ULong): ULong;
+    /**
+     * A bitwise and operator (unsigned disambiguation).
+     * @see #operator(ULong)&(ULong)
+     */
+    @Native("java", "((#1) & (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) & (#2)))")
+    public native static safe operator (x:Long) & (y:ULong): ULong;
+    /**
+     * A bitwise and operator (unsigned disambiguation).
+     * @see #operator(ULong)&(ULong)
+     */
+    @Native("java", "((#1) & (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) & (#2)))")
+    public native static safe operator (x:ULong) & (y:Long): ULong;
 
     /**
      * A bitwise or operator.
@@ -176,6 +260,20 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     @Native("java", "((#1) | (#2))")
     @Native("c++",  "((x10_ulong) ((#1) | (#2)))")
     public native static safe operator (x:ULong) | (y:ULong): ULong;
+    /**
+     * A bitwise or operator (unsigned disambiguation).
+     * @see #operator(ULong)|(ULong)
+     */
+    @Native("java", "((#1) | (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) | (#2)))")
+    public native static safe operator (x:Long) | (y:ULong): ULong;
+    /**
+     * A bitwise or operator (unsigned disambiguation).
+     * @see #operator(ULong)|(ULong)
+     */
+    @Native("java", "((#1) | (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) | (#2)))")
+    public native static safe operator (x:ULong) | (y:Long): ULong;
 
     /**
      * A bitwise xor operator.
@@ -187,6 +285,20 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
     @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((x10_ulong) ((#1) ^ (#2)))")
     public native static safe operator (x:ULong) ^ (y:ULong): ULong;
+    /**
+     * A bitwise xor operator (unsigned disambiguation).
+     * @see #operator(ULong)^(ULong)
+     */
+    @Native("java", "((#1) ^ (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) ^ (#2)))")
+    public native static safe operator (x:Long) ^ (y:ULong): ULong;
+    /**
+     * A bitwise xor operator (unsigned disambiguation).
+     * @see #operator(ULong)^(ULong)
+     */
+    @Native("java", "((#1) ^ (#2))")
+    @Native("c++",  "((x10_ulong) ((#1) ^ (#2)))")
+    public native static safe operator (x:ULong) ^ (y:Long): ULong;
 
     /**
      * A bitwise left shift operator.

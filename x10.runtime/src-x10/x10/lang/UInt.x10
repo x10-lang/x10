@@ -88,6 +88,20 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("java", "((#1) + (#2))")
     @Native("c++",  "((x10_uint) ((#1) + (#2)))")
     public native static safe operator (x:UInt) + (y:UInt): UInt;
+    /**
+     * A binary plus operator (unsigned disambiguation).
+     * @see #operator(UInt)+(UInt)
+     */
+    @Native("java", "((#1) + (#2))")
+    @Native("c++",  "((x10_uint) ((#1) + (#2)))")
+    public native static safe operator (x:Int) + (y:UInt): UInt;
+    /**
+     * A binary plus operator (unsigned disambiguation).
+     * @see #operator(UInt)+(UInt)
+     */
+    @Native("java", "((#1) + (#2))")
+    @Native("c++",  "((x10_uint) ((#1) + (#2)))")
+    public native static safe operator (x:UInt) + (y:Int): UInt;
 
     /**
      * A binary minus operator.
@@ -100,6 +114,20 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((x10_uint) ((#1) - (#2)))")
     public native static safe operator (x:UInt) - (y:UInt): UInt;
+    /**
+     * A binary minus operator (unsigned disambiguation).
+     * @see #operator(UInt)-(UInt)
+     */
+    @Native("java", "((#1) - (#2))")
+    @Native("c++",  "((x10_uint) ((#1) - (#2)))")
+    public native static safe operator (x:Int) - (y:UInt): UInt;
+    /**
+     * A binary minus operator (unsigned disambiguation).
+     * @see #operator(UInt)-(UInt)
+     */
+    @Native("java", "((#1) - (#2))")
+    @Native("c++",  "((x10_uint) ((#1) - (#2)))")
+    public native static safe operator (x:UInt) - (y:Int): UInt;
 
     /**
      * A binary multiply operator.
@@ -112,6 +140,20 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("java", "((#1) * (#2))")
     @Native("c++",  "((x10_uint) ((#1) * (#2)))")
     public native static safe operator (x:UInt) * (y:UInt): UInt;
+    /**
+     * A binary multiply operator (unsigned disambiguation).
+     * @see #operator(UInt)*(UInt)
+     */
+    @Native("java", "((#1) * (#2))")
+    @Native("c++",  "((x10_uint) ((#1) * (#2)))")
+    public native static safe operator (x:Int) * (y:UInt): UInt;
+    /**
+     * A binary multiply operator (unsigned disambiguation).
+     * @see #operator(UInt)*(UInt)
+     */
+    @Native("java", "((#1) * (#2))")
+    @Native("c++",  "((x10_uint) ((#1) * (#2)))")
+    public native static safe operator (x:UInt) * (y:Int): UInt;
 
     /**
      * A binary divide operator.
@@ -123,6 +165,20 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("java", "x10.core.Unsigned.div(#1, #2)")
     @Native("c++",  "((x10_uint) ((#1) / (#2)))")
     public native static safe operator (x:UInt) / (y:UInt): UInt;
+    /**
+     * A binary divide operator (unsigned disambiguation).
+     * @see #operator(UInt)/(UInt)
+     */
+    @Native("java", "x10.core.Unsigned.div(#1, #2)")
+    @Native("c++",  "((x10_uint) ((#1) / (#2)))")
+    public native static safe operator (x:Int) / (y:UInt): UInt;
+    /**
+     * A binary divide operator (unsigned disambiguation).
+     * @see #operator(UInt)/(UInt)
+     */
+    @Native("java", "x10.core.Unsigned.div(#1, #2)")
+    @Native("c++",  "((x10_uint) ((#1) / (#2)))")
+    public native static safe operator (x:UInt) / (y:Int): UInt;
 
     /**
      * A binary remainder operator.
@@ -134,6 +190,20 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("java", "x10.core.Unsigned.rem(#1, #2)")
     @Native("c++",  "((x10_uint) ((#1) % (#2)))")
     public native static safe operator (x:UInt) % (y:UInt): UInt;
+    /**
+     * A binary remainder operator (unsigned disambiguation).
+     * @see #operator(UInt)%(UInt)
+     */
+    @Native("java", "x10.core.Unsigned.rem(#1, #2)")
+    @Native("c++",  "((x10_uint) ((#1) % (#2)))")
+    public native static safe operator (x:Int) % (y:UInt): UInt;
+    /**
+     * A binary remainder operator (unsigned disambiguation).
+     * @see #operator(UInt)%(UInt)
+     */
+    @Native("java", "x10.core.Unsigned.rem(#1, #2)")
+    @Native("c++",  "((x10_uint) ((#1) % (#2)))")
+    public native static safe operator (x:UInt) % (y:Int): UInt;
 
     /**
      * A unary plus operator.
@@ -167,6 +237,20 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("java", "((#1) & (#2))")
     @Native("c++",  "((x10_uint) ((#1) & (#2)))")
     public native static safe operator (x:UInt) & (y:UInt): UInt;
+    /**
+     * A bitwise and operator (unsigned disambiguation).
+     * @see #operator(UInt)&(UInt)
+     */
+    @Native("java", "((#1) & (#2))")
+    @Native("c++",  "((x10_uint) ((#1) & (#2)))")
+    public native static safe operator (x:Int) & (y:UInt): UInt;
+    /**
+     * A bitwise and operator (unsigned disambiguation).
+     * @see #operator(UInt)&(UInt)
+     */
+    @Native("java", "((#1) & (#2))")
+    @Native("c++",  "((x10_uint) ((#1) & (#2)))")
+    public native static safe operator (x:UInt) & (y:Int): UInt;
 
     /**
      * A bitwise or operator.
@@ -178,6 +262,20 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("java", "((#1) | (#2))")
     @Native("c++",  "((x10_uint) ((#1) | (#2)))")
     public native static safe operator (x:UInt) | (y:UInt): UInt;
+    /**
+     * A bitwise or operator (unsigned disambiguation).
+     * @see #operator(UInt)|(UInt)
+     */
+    @Native("java", "((#1) | (#2))")
+    @Native("c++",  "((x10_uint) ((#1) | (#2)))")
+    public native static safe operator (x:Int) | (y:UInt): UInt;
+    /**
+     * A bitwise or operator (unsigned disambiguation).
+     * @see #operator(UInt)|(UInt)
+     */
+    @Native("java", "((#1) | (#2))")
+    @Native("c++",  "((x10_uint) ((#1) | (#2)))")
+    public native static safe operator (x:UInt) | (y:Int): UInt;
 
     /**
      * A bitwise xor operator.
@@ -189,6 +287,20 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((x10_uint) ((#1) ^ (#2)))")
     public native static safe operator (x:UInt) ^ (y:UInt): UInt;
+    /**
+     * A bitwise xor operator (unsigned disambiguation).
+     * @see #operator(UInt)^(UInt)
+     */
+    @Native("java", "((#1) ^ (#2))")
+    @Native("c++",  "((x10_uint) ((#1) ^ (#2)))")
+    public native static safe operator (x:Int) ^ (y:UInt): UInt;
+    /**
+     * A bitwise xor operator (unsigned disambiguation).
+     * @see #operator(UInt)^(UInt)
+     */
+    @Native("java", "((#1) ^ (#2))")
+    @Native("c++",  "((x10_uint) ((#1) ^ (#2)))")
+    public native static safe operator (x:UInt) ^ (y:Int): UInt;
 
     /**
      * A bitwise left shift operator.
