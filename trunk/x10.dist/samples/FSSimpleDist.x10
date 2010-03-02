@@ -54,16 +54,16 @@ public class FSSimpleDist {
                     }
                     
                     for (var j:int=0; j<NUM_TIMES; j++) {
-                        if (p==0) times(j) = -now(); 
+                        if (p==0) (times as Rail[double]!)(j) = -now(); 
                         for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + alpha*c(i);
-                        if (p==0) times(j) = times(j) + now();
+                        if (p==0) (times as Rail[double]!)(j) = (times as Rail[double]!)(j) + now();
                     }
                     
                     // verification
                     for (var i:int=0; i<localSize; i++)
                         if (a(i) != b(i) + alpha*c(i)) 
-                            async(Place.FIRST_PLACE)
+                            async(verified)
                                 verified(0) = false;
                 }
             }
