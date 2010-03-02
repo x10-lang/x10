@@ -397,5 +397,10 @@
              language="x10"
              class="org.eclipse.imp.x10dt.ui.debug.X10ToggleBreakpointHandler"/>
             </extension>
-
+   <extension
+         point="org.eclipse.imp.runtime.entityNameLocator">
+         <entityNameLocator
+             language="x10"
+             class="org.eclipse.imp.x10dt.ui.editor.X10EntityNameLocator"/>
+   </extension>
 </plugin>
