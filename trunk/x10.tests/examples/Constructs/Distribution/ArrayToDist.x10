@@ -29,31 +29,27 @@ public class ArrayToDist extends x10Test {
         val A2 = Array.make[foo](D, ((i,j): Point) => new foo(f(i, j)));
 
         for (val p(i,j): Point(2) in A1.region) 
-            chk(f(i, j) == (future(A1.dist(i, j)) { A1(i, j) }).force(), "1");
-
-        finish foreach (val p(i,j): Point(2) in A1.region) 
-            chk(f(i, j) == (future(A1.dist(i, j)) { A1(i, j) }).force(), "2");
+            chk(f(i, j) == (at(A1.dist(i, j)) A1(i, j)), "1");
 
         finish ateach (val p(i,j): Point(2) in A1.dist) 
             chk(f(i, j) == A1(i, j), "3");
 
         for (val p(i,j): Point(2) in A2.region) 
-            chk(f(i, j) == (future(A2.dist(i, j)) { A2(i, j).val }).force(), "4");
+            chk(f(i, j) == (at(A2.dist(i, j)) { (A2(i, j) as foo!).val }), "4");
 
         finish foreach (val p(i,j): Point(2) in A2.region) 
-           chk(f(i, j) == (future(A2.dist(i, j)) { A2(i, j).val }).force(), "5");
+           chk(f(i, j) == (at(A2.dist(i, j)) { (A2(i, j) as foo!).val }), "5");
 
         finish ateach (val p(i,j): Point(2)  in A2.dist) 
-            chk(f(i, j) == A2(i, j).val, "6");
+            chk(f(i, j) == (A2(i, j)as foo!).val, "6");
 
         return true;
     }
 
-    static def f(var i: int, var j: int): int = {
-        return N * i + j;
-    }
+    static def f(i: int, j: int) = N * i + j;
+    
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String]) {
         new ArrayToDist().execute();
     }
 
