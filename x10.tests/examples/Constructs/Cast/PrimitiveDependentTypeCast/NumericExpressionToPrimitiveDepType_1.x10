@@ -21,14 +21,13 @@ public class NumericExpressionToPrimitiveDepType_1 extends x10Test {
 	public var j: int = -1;
 	
 	public def run(): boolean = {
-
 		var i: int{self == 0} = 0;
 		i = incr().j as int{self == 0};
 
 		return j == 0;
 	}
 	
-	private def incr(): NumericExpressionToPrimitiveDepType_1 = {
+	private def incr(): NumericExpressionToPrimitiveDepType_1! = {
 		j++;
 		return this;
 	}
