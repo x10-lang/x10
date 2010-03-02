@@ -158,7 +158,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
 
 
     /**
-     * Convert a given Byte to a Double.
+     * Coerce a given Byte to a Double.
      * @param x the given Byte
      * @return the given Byte converted to a Double.
      */
@@ -167,7 +167,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     public native static safe operator (x:Byte): Double;
 
     /**
-     * Convert a given Short to a Double.
+     * Coerce a given Short to a Double.
      * @param x the given Short
      * @return the given Short converted to a Double.
      */
@@ -176,7 +176,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     public native static safe operator (x:Short): Double;
 
     /**
-     * Convert a given Int to a Double.
+     * Coerce a given Int to a Double.
      * @param x the given Int
      * @return the given Int converted to a Double.
      */
@@ -185,7 +185,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     public native static safe operator (x:Int): Double;
 
     /**
-     * Convert a given Long to a Double.
+     * Coerce a given Long to a Double.
      * @param x the given Long
      * @return the given Long converted to a Double.
      */
@@ -194,7 +194,43 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     public native static safe operator (x:Long): Double;
 
     /**
-     * Convert a given Float to a Double.
+     * Coerce a given UByte to a Double.
+     * @param x the given UByte
+     * @return the given UByte converted to a Double.
+     */
+    @Native("java", "((double)(byte)(#1))")
+    @Native("c++",  "((x10_double) (#1))")
+    public native static safe operator (x:UByte): Double;
+
+    /**
+     * Coerce a given UShort to a Double.
+     * @param x the given UShort
+     * @return the given UShort converted to a Double.
+     */
+    @Native("java", "((double)(short)(#1))")
+    @Native("c++",  "((x10_double) (#1))")
+    public native static safe operator (x:UShort): Double;
+
+    /**
+     * Coerce a given UInt to a Double.
+     * @param x the given UInt
+     * @return the given UInt converted to a Double.
+     */
+    @Native("java", "((double)(int)(#1))")
+    @Native("c++",  "((x10_double) (#1))")
+    public native static safe operator (x:UInt): Double;
+
+    /**
+     * Coerce a given ULong to a Double.
+     * @param x the given ULong
+     * @return the given ULong converted to a Double.
+     */
+    @Native("java", "((double)(long)(#1))")
+    @Native("c++",  "((x10_double) (#1))")
+    public native static safe operator (x:ULong): Double;
+
+    /**
+     * Coerce a given Float to a Double.
      * @param x the given Float
      * @return the given Float converted to a Double.
      */

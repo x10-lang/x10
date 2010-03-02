@@ -241,7 +241,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
 
 
     /**
-     * Convert a given UByte to a UInt.
+     * Coerce a given UByte to a UInt.
      * @param x the given UByte
      * @return the given UByte converted to a UInt.
      */
@@ -250,7 +250,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     public native static safe operator (x:UByte): UInt;
 
     /**
-     * Convert a given UShort to a UInt.
+     * Coerce a given UShort to a UInt.
      * @param x the given UShort
      * @return the given UShort converted to a UInt.
      */
@@ -269,22 +269,22 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
 
 
     /**
-     * Convert a given Byte to a UInt.
+     * Coerce a given Byte to a UInt.
      * @param x the given Byte
      * @return the given Byte converted to a UInt.
      */
     @Native("java", "((int)(byte)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public native static safe operator (x:Byte) as UInt;
+    public native static safe operator (x:Byte): UInt;
 
     /**
-     * Convert a given Short to a UInt.
+     * Coerce a given Short to a UInt.
      * @param x the given Short
      * @return the given Short converted to a UInt.
      */
     @Native("java", "((int)(short)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public native static safe operator (x:Short) as UInt;
+    public native static safe operator (x:Short): UInt;
 
     /**
      * Convert a given Long to a UInt.
@@ -314,13 +314,13 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     public native static safe operator (x:Double) as UInt;
 
     /**
-     * Convert a given Int to a UInt.
+     * Coerce a given Int to a UInt.
      * @param x the given Int
      * @return the given Int converted to a UInt.
      */
     @Native("java", "((int)(int)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public native static safe operator (x:Int) as UInt;
+    public native static safe operator (x:Int): UInt;
 
 
     /**

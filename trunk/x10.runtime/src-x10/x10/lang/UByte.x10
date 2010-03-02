@@ -312,13 +312,13 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
     public native static safe operator (x:Double) as UByte;
 
     /**
-     * Convert a given Byte to a UByte.
+     * Coerce a given Byte to a UByte.
      * @param x the given Byte
      * @return the given Byte converted to a UByte.
      */
     @Native("java", "((byte)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public native static safe operator (x:Byte) as UByte;
+    public native static safe operator (x:Byte): UByte;
 
 
     /**

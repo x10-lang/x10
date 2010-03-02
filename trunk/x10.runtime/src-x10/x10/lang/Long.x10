@@ -239,7 +239,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
 
 
     /**
-     * Convert a given Byte to a Long.
+     * Coerce a given Byte to a Long.
      * @param x the given Byte
      * @return the given Byte converted to a Long.
      */
@@ -248,7 +248,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
     public native static safe operator (x:Byte): Long;
 
     /**
-     * Convert a given Short to a Long.
+     * Coerce a given Short to a Long.
      * @param x the given Short
      * @return the given Short converted to a Long.
      */
@@ -257,7 +257,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
     public native static safe operator (x:Short): Long;
 
     /**
-     * Convert a given Int to a Long.
+     * Coerce a given Int to a Long.
      * @param x the given Int
      * @return the given Int converted to a Long.
      */
@@ -284,7 +284,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
     public native static safe operator (x:Double) as Long;
 
     /**
-     * Convert a given ULong to a Long.
+     * Coerce a given ULong to a Long.
      * @param x the given ULong
      * @return the given ULong converted to a Long.
      */

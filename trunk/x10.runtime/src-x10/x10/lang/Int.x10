@@ -241,7 +241,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
 
 
     /**
-     * Convert a given Byte to an Int.
+     * Coerce a given Byte to an Int.
      * @param x the given Byte
      * @return the given Byte converted to an Int.
      */
@@ -250,7 +250,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
     public native static safe operator (x:Byte): Int;
 
     /**
-     * Convert a given Short to an Int.
+     * Coerce a given Short to an Int.
      * @param x the given Short
      * @return the given Short converted to an Int.
      */
@@ -286,13 +286,13 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
     public native static safe operator (x:Double) as Int;
 
     /**
-     * Convert a given UInt to an Int.
+     * Coerce a given UInt to an Int.
      * @param x the given UInt
      * @return the given UInt converted to an Int.
      */
     @Native("java", "((int) (#1))")
     @Native("c++",  "((x10_int) (#1))")
-    public native static safe operator (x:UInt) as Int;
+    public native static safe operator (x:UInt): Int;
 
 
     /**
