@@ -14,7 +14,7 @@ package x10.util;
 public final class Box[+T](value: T) implements ()=> T {
     public def this(x: T) { property(x); }
 
-    public def apply()=value;
+    public global safe def apply()=value;
     public global safe def hashCode(): int = value.hashCode();
 
     public global safe def toString(): String = value.toString();
