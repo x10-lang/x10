@@ -28,11 +28,11 @@ import x10.util.Box;
 		
 		// test 1 to primitive
 		// (int) <-- nullable<int>
-      var case1a: int = ni.t as int; // not null check
+      var case1a: int = ni.value as int; // not null check
 
 		try {
 			// (int) <-- nullable<int>
-         val case1b = nn.t as int; // not null check
+         val case1b = nn.value as int; // not null check
 		} catch (e: ClassCastException) {
 			res1 = true;
 		} catch (e: NullPointerException) {
@@ -44,7 +44,7 @@ import x10.util.Box;
 		try {
 			// (int(:self==3)) <-- nullable<int>
 			// not null check when unboxing and deptype check
-         val case2a = ni.t as int(3);
+         val case2a = ni.value as int(3);
 		} catch (e: ClassCastException) {
 			res2 = true;
 		}
@@ -53,7 +53,7 @@ import x10.util.Box;
 		try {
 			// (int(:self==3)) <-- nullable<int>
 			// not null check when unboxing and deptype check
-         val case2b = nn.t as int(3);
+         val case2b = nn.value as int(3);
 		} catch (e: ClassCastException) {
 			res2 &= true;
 		} catch (e: NullPointerException ) {
