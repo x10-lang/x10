@@ -121,6 +121,8 @@ public class LaunchMessages extends NLS {
 
   public static String CPWSP_MustDefineRMMsg;
 
+  public static String CPWSP_NoStoppedRM;
+
   public static String CPWSP_ResManagerGroupName;
 
   public static String CPWSP_ResManagerLabel;

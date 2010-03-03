@@ -27,6 +27,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.IPreferencePage;
 import org.eclipse.jface.preference.PreferenceDialog;
@@ -189,7 +190,11 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
             setMessage(NLS.bind(LaunchMessages.CPWSP_RMStartFailure, sb.toString()), IMessageProvider.WARNING);
           }
         } else {
-          DialogsFactory.openResourceManagerStartDialog(getShell(), stoppedResManagerList);
+          if (stoppedResManagerList.isEmpty()) {
+            MessageDialog.openInformation(getShell(), Messages.RMSD_DialogTitle, LaunchMessages.CPWSP_NoStoppedRM);
+          } else {
+            DialogsFactory.openResourceManagerStartDialog(getShell(), stoppedResManagerList);
+          }
         }
         
         CppProjectX10PlatformWizardPage.this.fResManagerCombo.removeAll();
@@ -326,7 +331,7 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
       if (nbValidConfigs == 1) {
         this.fX10PlatformCombo.select(0);
       }
-    }  catch (WorkbenchException except) {
+    } catch (WorkbenchException except) {
       setErrorMessage(Messages.XPCPP_LoadingErrorMsg);
       CppLaunchCore.log(IStatus.ERROR, org.eclipse.imp.x10dt.ui.launch.core.Messages.XPCPP_LoadingErrorLogMsg, except);
     } catch (IOException except) {
