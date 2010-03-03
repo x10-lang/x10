@@ -13,11 +13,13 @@ import harness.x10Test;
 
 public class ArrayStaticPlusEqual extends x10Test {
 
-    static val v: Rail[int]{self.at(Place.FIRST_PLACE)} = Rail.make[int](2, (x:int)=>0);
+    static val v: Rail[int] = Rail.make[int](2, (x:int)=>0);
 
     public def run() {
-        for ((i):Point(1) in 0..1) v(i) += 5;
-        for ((i):Point(1) in 0..1) chk(v(i) == 5);
+	at (v) {
+            for ((i):Point(1) in 0..1) v(i) += 5;
+            for ((i):Point(1) in 0..1) chk(v(i) == 5);
+        }
         return true;
     }
 
