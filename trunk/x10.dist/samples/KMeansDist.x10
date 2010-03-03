@@ -102,7 +102,7 @@ public class KMeansDist {
                         ValRail.make(CLUSTERS*DIM, (i:Int) => local_new_clusters()(i));
                     val local_cluster_counts_copy =
                         ValRail.make(CLUSTERS, (i:Int) => local_cluster_counts()(i));
-                    at (Place.FIRST_PLACE) atomic {
+                    at (central_clusters) atomic {
                         for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                             central_clusters(j) += local_new_clusters()(j);
                         }
