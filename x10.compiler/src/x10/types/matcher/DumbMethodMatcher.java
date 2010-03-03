@@ -23,10 +23,6 @@ import x10.types.X10MethodInstance;
 
 /** A method matcher that only checks name and arity. */
 public class DumbMethodMatcher extends X10MethodMatcher {
-    public DumbMethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
-        super(container, name, argTypes, context);
-    }
-
     public DumbMethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
         super(container, name, typeArgs, argTypes, context);
     }

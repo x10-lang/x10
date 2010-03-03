@@ -70,10 +70,8 @@ public class Matcher {
 	    }
 	    
 	    // Instantiate the proposed PI.
-	    XVar[] ys = new XVar[actuals.size()+1];
-	    boolean[] hasSymbol = new boolean[actuals.size()+1];
 	    Type[] thisTypeArray = new Type[] { thisType};
-	    PI newMe = instantiate2(context, me, thisTypeArray, typeActuals, actuals, ys, hasSymbol, true);
+	    PI newMe = instantiate2(context, me, thisTypeArray, typeActuals, actuals,  true);
 
 	    return newMe;
 	}
@@ -82,7 +80,9 @@ public class Matcher {
 			Type thisType, 
 			List<Type> typeActuals, 
 			final List<Type> actuals) throws SemanticException {
-	    return instantiate2(context, me, new Type[] {thisType}, typeActuals, actuals,  new XVar[actuals.size()+1], new boolean[actuals.size()+1], false);
+	   
+	    PI me2 = instantiate2(context, me, new Type[] {thisType}, typeActuals, actuals, false);
+	    return me2;
 	}
 
 	/**
@@ -95,18 +95,17 @@ public class Matcher {
 	 * @param actuals  -- The types of the actual parameters for the call.
 	 * @param ys   -- An inout parameter, on completion contains a symbolic name for the target and each parameter
 	 * @param hasSymbol -- An inout parameter of the same size as ys. On completion, the ith entry is true iff a symbolic name was generated for ys[i].
-	 * @return  -- An instantiated version of me, with actuals substituted for formals in actual types and return types. Needs to be type-checked by checkCall.
+	 * @return  -- An instantiated version of me, with actuals substituted for formals in actual types and return types. 
 	 * @throws SemanticException
 	 */
 	public static <PI extends X10ProcedureInstance<?>> PI instantiate2(final X10Context context, final PI me, 
 	    		/*inout*/ Type[] thisTypeArray,  
 	    		List<Type> typeActuals, 
 	    		List<Type> actuals, 
-	    		/*inout*/ final XVar[] ys, 
-	    		/*inout*/ final boolean [] hasSymbol,
 	    		boolean checkActuals
 	    		)  throws SemanticException {
-		
+		final XVar[] ys = new XVar[actuals.size()+1];
+		final  boolean[] hasSymbol = new boolean[actuals.size()+1];
 	        final X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
 	        
 	        final List<Type> formals = new ArrayList<Type>();
@@ -249,13 +248,44 @@ public class Matcher {
 	        	// by replacing x's by y's and this by the yeqv, and substituting in type parameters.
 	        	// with this normalization, checkCall will simply have to check that the types of the actuals
 	        	// are a subtype of the formals.
-	        	List<Type> newFormals = new ArrayList<Type>();
-	        	for (Type t : formals) {
-	        		Type newT = Subst.subst(t, y2eqv, x2, Y, X); 
-	        		newFormals.add(newT);
-	        	}
-	        	newMe = (PI) newMe.formalTypes(newFormals);
-	        } 
+	        	// substitute in the information about this.
+	        	if (! checkActuals) {
+	        		List<Type> newFormals = new ArrayList<Type>();
+	        		CConstraint env = null; 
+	        		if (! isStatic) {
+	        			env = X10TypeMixin.xclause(thisType);
+	        			if (env != null && ythiseqv != null && ! ((env == null) || env.valid())) {
+	        				env = env.copy().instantiateSelf(ythiseqv);
+	        			}
+	        		}
+	        		for (Type t : formals) {
+	        			t = Subst.subst(t, y2eqv, x2, Y, X); 
+	        			if (! (env == null || env.valid())) {
+	        				try {
+	        					t = Subst.subst(t, y2eqv, x2, Y, X); 
+	        					if (! isStatic)
+	        						t = Subst.addIn(t, env); 
+	        				} catch (XFailure z) {
+	        					t = xts.unknownType(me.position());
+	        				}
+	        			}
+	        			if (! isStatic && ! hasSymbol[0]) {
+	        				t = Subst.project(t, (XRoot) ys[0]);
+	        			}
+
+	        			newFormals.add(t);
+	        		}
+	        		newMe = (PI) newMe.formalTypes(newFormals);
+
+	        	} else {
+	        		List<Type> newFormals = new ArrayList<Type>();
+	        		for (Type t : formals) {
+	        			t = Subst.subst(t, y2eqv, x2, Y, X); 
+	        			newFormals.add(t);
+	        		}
+	        		newMe = (PI) newMe.formalTypes(newFormals);
+	        	} 
+	        }
 
 	        { // set up the guard.
 	        	CConstraint newWhere = Subst.subst(me.guard(), y2eqv, x2, Y, X); 
@@ -314,7 +344,8 @@ public class Matcher {
 	        final List<Type> myFormals =  new ArrayList<Type>(newMe.formalTypes()); // copy 
 	        for (int i = 0; i < formals.size(); i++) {
 	        	Type ytype = actuals.get(i);
-	        	Type xtype = myFormals.get(i);
+	        	Type xtype = Subst.subst(formals.get(i), y2eqv, x2, Y, X); 
+
 	        	if (! xts.consistent(xtype, context2)) {
 	        		throw new SemanticException("Parameter type " + xtype + " of call is inconsistent in calling context.");
 	        	}
@@ -391,7 +422,8 @@ public class Matcher {
     private static XVar getSymbol(Type type, String prefix) {
     	  XVar symbol = X10TypeMixin.selfVarBinding(type);
           if (symbol == null) {
-              symbol = XTerms.makeUQV(XTerms.makeFreshName(prefix));
+        	  symbol = XTerms.makeLocal(XTerms.makeFreshName("arg"));
+              // symbol = XTerms.makeUQV(XTerms.makeFreshName(prefix));
           }
           return symbol;
     }
