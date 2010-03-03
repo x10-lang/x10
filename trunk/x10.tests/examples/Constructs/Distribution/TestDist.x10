@@ -266,7 +266,7 @@ abstract public class TestDist extends x10Test {
 
         var ps: Rail[Place]! = d.places();
         for (var i: int = 0; i<ps.length; i++) {
-            var r: Region = d.get(ps(i));
+            val r: Region = d.get(ps(i));
             for (p:Point(r.rank) in r) {
                 val q = p as Point(a.dist.region.rank);
                 a(q) = a(q) + ps(i).id + 1;
