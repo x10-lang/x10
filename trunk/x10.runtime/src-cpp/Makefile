@@ -23,7 +23,10 @@ INSTDIR = $(call abspath,../../x10.dist)
 
 XRX_ARCHIVE = $(LIBPREFIX)x10$(LIBSUFFIX)
 ifeq ($(X10RT_PLATFORM),cygwin)
-  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_pgas_sockets -lgc
+  XRX_DEP_LIBS = -L$(INSTDIR)/lib -lx10rt_$(DEFAULT_X10RT_LIB)
+  ifdef ENABLE_GC
+    override XRX_DEP_LIBS += -lgc
+  endif
 endif
 XRX_MANIFEST = libx10.mft
 
