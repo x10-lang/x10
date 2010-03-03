@@ -40,6 +40,7 @@ import x10.types.X10Context;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
 import x10.visit.ExprFlattener;
 import x10.visit.ExprFlattener.Flattener;
 
@@ -61,6 +62,8 @@ public class AtExpr_c extends PlacedClosure_c
     public Node typeCheck( ContextVisitor tc ) throws SemanticException {
     	AtExpr_c n = (AtExpr_c) super.typeCheck(tc);
     	Type t = n.returnType().type();
+    	Context childC = enterChildScope(body, tc.context());
+    	t = PlaceChecker.ReplaceHereByPlaceTerm(t, (X10Context) childC);
     	return n.type(t);
     }
     
