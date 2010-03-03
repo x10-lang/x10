@@ -25,6 +25,7 @@ import polyglot.types.FunctionDef;
 import polyglot.types.InitializerDef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -45,6 +46,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 
@@ -100,7 +102,9 @@ public class X10Return_c extends Return_c {
 	
 		CodeDef ci = c.currentCode();
 		
-		if (ci == ts.asyncCodeInstance(true) || ci == ts.asyncCodeInstance(false)) {
+		if ((ci != null) 
+				&& (ci instanceof MethodDef)
+				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_ASYNC)) {
 		    throw new SemanticException("Cannot return from an async.");
 		}
 		
