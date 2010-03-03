@@ -64,13 +64,13 @@ public class NQueensPar {
         /** Search for all solutions in parallel, on finding
          * a solution update nSolutions.
          */
-        def search(R: Region(1)) {
+        def search(R: Region(1)){at(NQueensPar.this)}{
             for ((k) in R)
                 if (safe(k))
                     new Board(q, k).search();
         }
 
-        def search()  {
+        def search(){at(NQueensPar.this)} {
             if (q.length == N) {
                 atomic nSolutions++;
                 return;
