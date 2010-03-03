@@ -12,7 +12,7 @@
 import harness.x10Test;
 
 /**
- * Testing that an at spawned at some other place cannot access a remote field.
+ * Testing that a value created remotely has the right type so it can be accessed safely within a subsequent remote at.
  */
 public class AtFieldWrite extends x10Test {
 	var t: T;
