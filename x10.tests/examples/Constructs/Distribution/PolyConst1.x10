@@ -19,7 +19,7 @@ class PolyConst1 extends TestDist {
 
     public def run() {
 	
-	var r: Region = r(0,9,0,9);
+	val r: Region = r(0,9,0,9);
         pr("r " + r);
 
 	var d: Dist = Dist.makeConstant(r, here);
