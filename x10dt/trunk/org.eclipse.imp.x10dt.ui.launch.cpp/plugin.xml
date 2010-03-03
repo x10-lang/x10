@@ -34,7 +34,7 @@
    <extension
          point="org.eclipse.ui.newWizards">
       <wizard
-            canFinishEarly="true"
+            canFinishEarly="false"
             category="org.eclipse.imp.x10dt.core"
             class="org.eclipse.imp.x10dt.ui.launch.cpp.wizards.CppProjectWizard"
             finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
