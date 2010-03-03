@@ -25,11 +25,11 @@ import x10.util.Box;
 		
 		// test 1 to primitive		
 		// (int) <-- nullable<int>
-      var case1a: int = ni.t as int; // not null check
+      var case1a: int = ni.value as int; // not null check
 
 		try {
 			// (int) <-- nullable<int>
-         var case1b: int = nn.t as int; // not null check
+         var case1b: int = nn.value as int; // not null check
 		} catch (var e: ClassCastException) {
 			res1 = true;
 		} catch (e: NullPointerException) {
@@ -76,7 +76,7 @@ import x10.util.Box;
 	}
 	
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new UnboxNullablePrimitiveConstrained().execute();
 	}
 }
