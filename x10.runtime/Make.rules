@@ -141,6 +141,9 @@ else
         override CXXFLAGS_SHARED += -shared -Wl,--export-all-symbols -Wl,--enable-auto-import
         LIBPREFIX :=
         LIBSUFFIX := .dll
+        ifndef DEFAULT_X10RT_LIB
+          DEFAULT_X10RT_LIB = pgas_sockets
+        endif
       else
         ifeq ($(shell uname -s),Darwin)
           export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
