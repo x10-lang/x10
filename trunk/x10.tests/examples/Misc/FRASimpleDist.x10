@@ -64,7 +64,7 @@ class FRASimpleDist {
 
     static def randomAccessUpdate(
 	num_updates: long,
-        logLocalTableSize: long,
+        logLocalTableSize:int,
         tables: PlaceLocalHandle[LocalTable]
     ) {
         finish for (var p:int=0; p<Place.MAX_PLACES; p++) {
