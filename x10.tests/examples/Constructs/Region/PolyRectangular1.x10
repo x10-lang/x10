@@ -17,8 +17,8 @@
 class PolyRectangular1 extends TestRegion {
 
     public def run() {
-        var min: Rail[int] = [1, 2, 3];
-        var max: Rail[int] = [2, 4, 6];
+        val min  = [1, 2, 3];
+        val max  = [2, 4, 6];
         var r: Region = Region.makeRectangular(min, max);
         prArray("3-d rect array", r);
         return status();
