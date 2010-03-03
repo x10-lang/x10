@@ -88,6 +88,7 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
@@ -712,6 +713,9 @@ X10ClassDecl_c n = this;
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	
     	if (X10Flags.toX10Flags(flags().flags()).isStruct()) {
+    		if (n.classDef().isInnerClass() && ! flags().flags().isStatic()) {
+    			throw new Errors.StructMustBeStatic(n);
+    		}
     		n.checkStructMethods(parent, tc);
     		
     	}

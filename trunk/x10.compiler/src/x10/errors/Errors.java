@@ -23,6 +23,7 @@ import polyglot.types.Type;
 import polyglot.util.Position;
 import x10.ast.SemanticError;
 import x10.ast.X10Call;
+import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldAssign_c;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;
@@ -352,5 +353,19 @@ public class Errors {
 			return((TernaryConditionalTypeUndetermined)o).position().equals(position());
 		}
 	}
+	public static class StructMustBeStatic extends SemanticException {
+		private static final long serialVersionUID = 1450037642852701286L;
+		public StructMustBeStatic(X10ClassDecl cd) {
+			super("Struct must be declared static." 
+					+ "\n\t Struct: " + cd.name(),
+					cd.position());
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof StructMustBeStatic) )
+				return false;
+			return((StructMustBeStatic)o).position().equals(position());
+		}
+	}
+	
 	
 }
