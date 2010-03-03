@@ -25,11 +25,11 @@ import x10.util.Random;
 public class CUDABlackScholes {
 
     static def doBlackScholes(p:Place, 
-            optionYears:Rail[Float]!,
-            stockPrice:Rail[Float]!,
-            optionStrike:Rail[Float]!,
-            callResult:Rail[Float]!,
-            putResult:Rail[Float]!,
+            optionYears:Rail[Float]{self.at(p)},
+            stockPrice:Rail[Float]{self.at(p)},
+            optionStrike:Rail[Float]{self.at(p)},
+            callResult:Rail[Float]{self.at(p)},
+            putResult:Rail[Float]{self.at(p)},
             opt_N:Int,
             R:Float,
             V:Float) {
