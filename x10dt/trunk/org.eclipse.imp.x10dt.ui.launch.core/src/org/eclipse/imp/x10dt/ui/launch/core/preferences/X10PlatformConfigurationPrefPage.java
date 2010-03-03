@@ -522,15 +522,15 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
       sb.append(NLS.bind(Messages.XPCPP_X10DistribLoc, platformConfiguration.getX10DistribLocation()));
       sb.append(NLS.bind(Messages.XPCPP_PGASLoc, platformConfiguration.getPGASLocation()));
       sb.append(NLS.bind(Messages.XPCPP_Compiler, platformConfiguration.getCompiler()));
-      sb.append(NLS.bind(Messages.XPCPP_CompilerOpts, platformConfiguration.getCompilerOpts()));
+      sb.append(NLS.bind(Messages.XPCPP_CompilerOpts, platformConfiguration.getCompilerOpts(true)));
       if (platformConfiguration.hasArchivingStep()) {
         sb.append(NLS.bind(Messages.XPCPP_Archiver, platformConfiguration.getArchiver()));
-        sb.append(NLS.bind(Messages.XPCPP_ArchivingOpts, platformConfiguration.getArchivingOpts()));
+        sb.append(NLS.bind(Messages.XPCPP_ArchivingOpts, platformConfiguration.getArchivingOpts(true)));
       }
       if (platformConfiguration.hasLinkingStep()) {
         sb.append(NLS.bind(Messages.XPCPP_Linker, platformConfiguration.getLinker()));
-        sb.append(NLS.bind(Messages.XPCPP_LinkingOpts, platformConfiguration.getLinkingOpts()));
-        sb.append(NLS.bind(Messages.XPCPP_LinkingLibs, platformConfiguration.getLinkingLibs()));
+        sb.append(NLS.bind(Messages.XPCPP_LinkingOpts, platformConfiguration.getLinkingOpts(true)));
+        sb.append(NLS.bind(Messages.XPCPP_LinkingLibs, platformConfiguration.getLinkingLibs(true)));
       }
       boolean hasResourceManager = true;
       if (platformConfiguration.getResourceManagerId() != null) {
@@ -574,12 +574,12 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
     final IPlatformConfChecker checker = new PlatformConfChecker(resourceManager);
     
     final String compiler = platformConfiguration.getCompiler();
-    final String compilingOpts = platformConfiguration.getCompilerOpts();
+    final String compilingOpts = platformConfiguration.getCompilerOpts(true);
     final String archiver = platformConfiguration.getArchiver();
-    final String archivingOpts = platformConfiguration.getArchivingOpts();
+    final String archivingOpts = platformConfiguration.getArchivingOpts(true);
     final String linker = platformConfiguration.getLinker();
-    final String linkingOpts = platformConfiguration.getLinkingOpts();
-    final String linkingLibs = platformConfiguration.getLinkingLibs();
+    final String linkingOpts = platformConfiguration.getLinkingOpts(true);
+    final String linkingLibs = platformConfiguration.getLinkingLibs(true);
     final boolean hasLinkingStep = platformConfiguration.hasLinkingStep();
     final String x10DistLoc = platformConfiguration.getX10DistribLocation();
     final String pgasDistLoc = platformConfiguration.getPGASLocation();

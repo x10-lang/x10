@@ -11,6 +11,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 
 
 final class X10PlatformConfiguration implements IX10PlatformConfiguration {
@@ -33,28 +34,28 @@ final class X10PlatformConfiguration implements IX10PlatformConfiguration {
     return this.fArchiver;
   }
   
-  public String getArchivingOpts() {
-    return this.fArchivingOpts;
+  public String getArchivingOpts(final boolean shouldBeInterpreted) {
+    return shouldBeInterpreted ? X10BuilderUtils.interpretDistVariables(this, this.fArchivingOpts) :this.fArchivingOpts;
   }
   
   public String getCompiler() {
     return this.fCompiler;
   }
   
-  public String getCompilerOpts() {
-    return this.fCompilerOpts;
+  public String getCompilerOpts(final boolean shouldBeInterpreted) {
+    return shouldBeInterpreted ? X10BuilderUtils.interpretDistVariables(this, this.fCompilerOpts) : this.fCompilerOpts;
   }
   
   public String getLinker() {
     return this.fLinker;
   }
   
-  public String getLinkingLibs() {
-    return this.fLinkingLibs;
+  public String getLinkingLibs(final boolean shouldBeInterpreted) {
+    return shouldBeInterpreted ? X10BuilderUtils.interpretDistVariables(this, this.fLinkingLibs) : this.fLinkingLibs;
   }
   
-  public String getLinkingOpts() {
-    return this.fLinkingOpts;
+  public String getLinkingOpts(final boolean shouldBeInterpreted) {
+    return shouldBeInterpreted ? X10BuilderUtils.interpretDistVariables(this, this.fLinkingOpts) : this.fLinkingOpts;
   }
   
   public String getName() {

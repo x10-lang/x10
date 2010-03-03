@@ -42,7 +42,7 @@ final class UnknownUnixPlatform extends AbstractDefaultX10Platform implements ID
   }
 
   public String getLinkingLibraries() {
-    return "-lx10 -lx10rt_pgas_sockets -lm -lpthread"; //$NON-NLS-1$
+    return "-lx10 -lx10rt_pgas_sockets -lm -lpthread -Wl,--rpath -Wl,${X10-DIST}/lib"; //$NON-NLS-1$
   }
 
   public String getLinkingOptions() {

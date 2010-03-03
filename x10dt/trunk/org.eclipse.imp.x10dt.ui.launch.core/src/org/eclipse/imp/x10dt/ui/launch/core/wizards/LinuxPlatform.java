@@ -42,7 +42,7 @@ final class LinuxPlatform extends AbstractDefaultX10Platform implements IDefault
   }
 
   public String getLinkingLibraries() {
-    return "-lx10 -lgc -lx10rt_pgas_sockets -ldl -lm -lpthread -Wl,-export-dynamic -lrt"; //$NON-NLS-1$
+    return "-lx10 -lgc -lx10rt_pgas_sockets -ldl -lm -lpthread -Wl,--rpath -Wl,${X10-DIST}/lib -Wl,-export-dynamic -lrt"; //$NON-NLS-1$
   }
 
   public String getLinkingOptions() {

@@ -45,9 +45,10 @@ public interface IX10PlatformConfiguration {
   /**
    * Returns the archiving options to use in order to archive compiled generated files.
    * 
+   * @param shouldBeInterpreted Indicates if the potential variables in the option should be interpreted or not.
    * @return A null value if the linking step is not required, otherwise a non-empty string.
    */
-  public String getArchivingOpts();
+  public String getArchivingOpts(final boolean shouldBeInterpreted);
   
   /**
    * Returns the compiler to use in order to compile X10 generated code.
@@ -59,9 +60,10 @@ public interface IX10PlatformConfiguration {
   /**
    * Returns the compiler options to use in order to compile X10 generated code.
    * 
+   * @param shouldBeInterpreted Indicates if the potential variables in the option should be interpreted or not.
    * @return A non-null non-empty string.
    */
-  public String getCompilerOpts();
+  public String getCompilerOpts(final boolean shouldBeInterpreted);
   
   /**
    * Returns the linker to use in order to create executable from X10 generated files.
@@ -73,16 +75,18 @@ public interface IX10PlatformConfiguration {
   /**
    * Returns the linking libraries to use in order to create executable from X10 generated files.
    * 
+   * @param shouldBeInterpreted Indicates if the potential variables in the option should be interpreted or not.
    * @return A possibly null value.
    */
-  public String getLinkingLibs();
+  public String getLinkingLibs(final boolean shouldBeInterpreted);
   
   /**
    * Returns the linking options to use in order to create executable from X10 generated files.
    * 
+   * @param shouldBeInterpreted Indicates if the potential variables in the option should be interpreted or not.
    * @return A possibly null value.
    */
-  public String getLinkingOpts();
+  public String getLinkingOpts(final boolean shouldBeInterpreted);
   
   /**
    * Returns the unique platform configuration name.

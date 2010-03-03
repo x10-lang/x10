@@ -96,7 +96,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       distribLocGroup.setLayout(new GridLayout(1, false));
       distribLocGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
       distribLocGroup.setText(Messages.PCDWP_DistribGroup);
-      this.fPGASLocText = createX10PathLocation(distribLocGroup, Messages.PCDWP_PGASDistribLoc);
       this.fX10LocText = createX10PathLocation(distribLocGroup, Messages.PCDWP_X10DistribLoc);
     }
     
@@ -149,7 +148,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     platformConfiguration.setX10HeadersLoc(getX10HeadersLocs());
     platformConfiguration.setX10LibsLoc(getX10LibsLocs());
     platformConfiguration.setX10DistLoc(getX10DistLoc());
-    platformConfiguration.setPGASLoc(getPGASDistLoc());
+    platformConfiguration.setPGASLoc(platformConfiguration.getX10DistribLocation());
     platformConfiguration.setFlags(this.fIsCplusPlus, this.fIsLocal);
     platformConfiguration.setCompiler(this.fCompilerText.getText());
     platformConfiguration.setCompilerOpts(this.fCompilerOptsText.getText());
@@ -340,23 +339,23 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   private Text createX10PathLocation(final Composite parent, final String labelText) {
     final Composite composite = new Composite(parent, SWT.NONE);
     composite.setFont(parent.getFont());
-    composite.setLayout(new GridLayout(2, false));
+    composite.setLayout(new GridLayout(3, false));
     composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     
     final Label label = new Label(composite, SWT.NONE);
     label.setText(labelText);
     label.setFont(parent.getFont());
-    label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+    label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
     
     final Text locText = new Text(composite, SWT.BORDER);
     locText.setFont(composite.getFont());
-    locText.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    locText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     locText.addModifyListener(new UpdateMessageModifyListener());
     
     final Button browseBt = new Button(composite, SWT.PUSH);
     browseBt.setFont(parent.getFont());
     browseBt.setText(Messages.PCDWP_BrowseText);
-    browseBt.setLayoutData(new GridData(SWT.RIGHT, SWT.NONE, false, false));
+    browseBt.setLayoutData(new GridData(SWT.LEFT, SWT.NONE, false, false));
     browseBt.setEnabled(this.fResManagerCombo.getSelectionIndex() >= 0);
     this.fResMgrDepBts.add(browseBt);
     
@@ -448,14 +447,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     }
   }
   
-  private String getPGASDistLoc() {
-    if (this.fIsLocal) {
-      return this.fLocalLibsFile.getParentFile().getAbsolutePath();
-    } else {
-      return this.fPGASLocText.getText().trim();
-    }
-  }
-  
   private IResourceManager getResourceManager() {
     if (this.fResManagerCombo.getSelectionIndex() == -1) {
       return null;
@@ -480,7 +471,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     } else {
       return new String[] {
         this.fX10LocText.getText().trim() + '/' + INCLUDE_DIR,
-        this.fPGASLocText.getText().trim() + '/' + INCLUDE_DIR
       };
     }
   }
@@ -491,7 +481,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     } else {
       return new String[] {
         this.fX10LocText.getText() + '/' + LIB_DIR,
-        this.fPGASLocText.getText() + '/' + LIB_DIR
       };
     }
   }
@@ -504,9 +493,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       return false;
     }
     if (! this.fIsLocal) {
-      if ((this.fPGASLocText.getText() == null) || (this.fPGASLocText.getText().length() == 0)) {
-        return false;
-      }
       if ((this.fX10LocText.getText() == null) || (this.fX10LocText.getText().length() == 0)) {
         return false;
       }
@@ -575,21 +561,20 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     
     if (! this.fIsLocal) {
       this.fX10LocText.setText(this.fDefaultPlatformConf.getX10DistribLocation());
-      this.fPGASLocText.setText(this.fDefaultPlatformConf.getPGASLocation());
     }
     
     this.fCompilerText.setText(this.fDefaultPlatformConf.getCompiler());
-    this.fCompilerOptsText.setText(this.fDefaultPlatformConf.getCompilerOpts());
+    this.fCompilerOptsText.setText(this.fDefaultPlatformConf.getCompilerOpts(false));
     
     if (this.fArchiverText != null) {
       this.fArchiverText.setText(this.fDefaultPlatformConf.getArchiver());
-      this.fArchivingOptsText.setText(this.fDefaultPlatformConf.getArchivingOpts());
+      this.fArchivingOptsText.setText(this.fDefaultPlatformConf.getArchivingOpts(false));
     }
     
     if (this.fLinkerText != null) {
       this.fLinkerText.setText(this.fDefaultPlatformConf.getLinker());
-      this.fLinkingOptsText.setText(this.fDefaultPlatformConf.getLinkingOpts());
-      this.fLinkingLibsText.setText(this.fDefaultPlatformConf.getLinkingLibs());
+      this.fLinkingOptsText.setText(this.fDefaultPlatformConf.getLinkingOpts(false));
+      this.fLinkingLibsText.setText(this.fDefaultPlatformConf.getLinkingLibs(false));
     }
   }
   
@@ -600,8 +585,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
         setMessage(Messages.PCDWP_SelectRMMsg);
       } else if (this.fTargetOSCombo.getSelectionIndex() == -1) {
         setMessage(Messages.PCDWP_SelectOSMsg);
-      } else if ((this.fPGASLocText != null) && (this.fPGASLocText.getText().length() == 0)) {
-        setMessage(Messages.PCDWP_DefinePGASLocMsg);
       } else if ((this.fX10LocText != null) && (this.fX10LocText.getText().length() == 0)) {
         setMessage(Messages.PCDWP_DefineX10DistLocMsg);
       } else {
@@ -654,8 +637,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   private Label fArchLabel;
   
   private Button fArchitectureBt;
-  
-  private Text fPGASLocText;
   
   private Text fX10LocText;
   

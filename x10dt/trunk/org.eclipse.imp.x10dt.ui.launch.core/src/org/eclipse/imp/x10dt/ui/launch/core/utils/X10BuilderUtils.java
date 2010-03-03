@@ -21,6 +21,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.ELanguage;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.ICompilerX10ExtInfo;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.util.QuotedStringTokenizer;
@@ -90,6 +91,19 @@ public final class X10BuilderUtils {
     throw new AssertionError(NLS.bind(Messages.XBU_ArchNameNotInEnum, architecture));
   }
   
+  /**
+   * Interprets respectively the ${X10-DIST} and ${PGAS-DIST} variables with the X10 and PGAS distribution locations.
+   * 
+   * @param platformConf The platform configuration instance to consider.
+   * @param option The option to interpret.
+   * @return The option with the variables (if any are present) interpreted.
+   */
+  public static String interpretDistVariables(final IX10PlatformConfiguration platformConf, final String option) {
+    final String x10DistLoc = String.format("\"%s\"", platformConf.getX10DistribLocation()); //$NON-NLS-1$
+    final String pgasDistLoc = String.format("\"%s\"", platformConf.getPGASLocation()); //$NON-NLS-1$
+    return option.replace(X10_DIST_VAR, x10DistLoc).replace(PGAS_DIST_VAR, pgasDistLoc);
+  }
+  
   // --- Private code
   
   private X10BuilderUtils() {}
@@ -101,5 +115,9 @@ public final class X10BuilderUtils {
   private static final String CLASS_EP_ATTR = "class"; //$NON-NLS-1$
   
   private static final String LANGUAGE_EP_ATTR = "language"; //$NON-NLS-1$
+  
+  private static final String PGAS_DIST_VAR = "${PGAS-DIST}"; //$NON-NLS-1$
+  
+  private static final String X10_DIST_VAR = "${X10-DIST}"; //$NON-NLS-1$
   
 }
