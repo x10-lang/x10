@@ -25,14 +25,19 @@ public class BlockDistedArray1D extends x10Test {
 
     public def run(): boolean = {
         var D: Dist{rank==1} = Dist.makeConstant([0..SIZE-1], Place.place(0)); //The dep type constraint should not be enforced here. 
-        for(var i: int = 1;i<N_PLACES;i++) D=D||(Dist.makeConstant([i*SIZE..(i+1*SIZE-1)], Place.place(i)));
-        val intArray: Array[int](D) = Array.make[int](D, ((i):Point): int => {return i;}); 
-        val dblArray: Array[double](D) = Array.make[double](D, ((i): Point): double => {return i*0.1;});
-        finish ateach (p(i): Point in ALLPLACES) for (val (j): Point in intArray|here) dblArray(j)+=intArray(j); 
+        for(var i: int = 1;i<N_PLACES;i++) 
+        	D=D||(Dist.makeConstant([i*SIZE..(i+1*SIZE-1)], Place.place(i)));
+        val Df = D;
+        val intArray: Array[int](Df) = Array.make[int](Df, ((i):Point): int => {return i;}); 
+        val dblArray: Array[double](Df) = Array.make[double](Df, ((i): Point): double => {return i*0.1;});
+        finish 
+           ateach (p(i): Point in ALLPLACES) 
+              for (val (j): Point in intArray|here) 
+            	  dblArray(j)+=intArray(j); 
         return true;
     }
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(args: Rail[String]) {
         new BlockDistedArray1D().execute();
     }
 
