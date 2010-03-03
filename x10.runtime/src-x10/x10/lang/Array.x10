@@ -203,7 +203,7 @@ public abstract class Array[T](
      * @see #make[T](Region, (Point)=>T)
      */
     public static def make[T](size: Int, init: (Point(1))=>T): Array[T](1)
-        = makeVar[T](0..size-1, init) as Array[T](1);
+        = makeVar[T](0..size-1, init);
 
 
     /**
