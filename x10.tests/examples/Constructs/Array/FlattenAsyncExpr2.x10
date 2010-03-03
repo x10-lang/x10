@@ -22,15 +22,14 @@ import harness.x10Test;
 
 public class FlattenAsyncExpr2 extends x10Test {
 
-    global var a: Array[int](1);
+    global val a: Array[int](1);
 
     public def this(): FlattenAsyncExpr2 = {
         a = Array.make[int](1..10 -> here, ((j): Point): int => { return 2*j;});
     }
 
-    global def m(var x: int): int = {
-        return x;
-    }
+    global def m(x: int) = x;
+        
     
     public def run(): boolean = {
         finish async(a.dist(1)) {
@@ -40,7 +39,7 @@ public class FlattenAsyncExpr2 extends x10Test {
         return a(1)== (2^2);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String]) {
         new FlattenAsyncExpr2().execute();
     }
 }
