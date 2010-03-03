@@ -526,7 +526,7 @@ public class LineNumberMap extends StringTable {
 	    int offset = 0;
 	    int[] offsets = new int[size];
 	    // All strings, concatenated, with intervening nulls.
-	    w.writeln("static const char _X10strings[] =");
+	    w.writeln("static const char _X10strings[] __attribute__((used)) =");
 	    for (int i = 0; i < size; i++) {
 	        offsets[i] = offset;
 	        String s = m.lookupString(i);
@@ -539,7 +539,7 @@ public class LineNumberMap extends StringTable {
         if (!m.isEmpty()) {
 	    String[] files = m.allFiles();
 	    // A list of X10 source files that contributed to the generation of the current C++ file.
-	    w.writeln("static const struct _X10sourceFile _X10sourceList[] = {");
+	    w.writeln("static const struct _X10sourceFile _X10sourceList[] __attribute__((used)) = {");
 	    for (int i = 0; i < files.length; i++) {
 	        w.write("    { ");
 	        w.write(""+0+", ");                                                // FIXME: _numLines
@@ -562,7 +562,7 @@ public class LineNumberMap extends StringTable {
 	                                p.snd()));                                 // _CPPline
 	    }
 	    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
-	    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] = {");
+	    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) = {");
 	    for (CPPLineInfo cppDebugInfo : x10toCPPlist) {
 	        w.write("    { ");
 	        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
@@ -620,7 +620,7 @@ public class LineNumberMap extends StringTable {
 	                                    0));                                   // FIXME: _lineIndex
 	    }
 	    Collections.sort(x10MethodList);
-	    w.writeln("static const struct _X10methodName _X10methodNameList[] = {");
+	    w.writeln("static const struct _X10methodName _X10methodNameList[] __attribute__((used)) = {");
 	    for (CPPMethodInfo cppMethodInfo : x10MethodList) {
 	        w.write("    { ");
 	        w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
