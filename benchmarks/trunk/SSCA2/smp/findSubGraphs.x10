@@ -1,6 +1,7 @@
 package ssca2;
 
 import x10.util.*;
+import x10.util.concurrent.atomic.AtomicBoolean;
 
 class findSubGraphs  {
 	
@@ -35,11 +36,11 @@ class findSubGraphs  {
 				
 				next;
 				if(tid==0) { 
-					for((i) in 0..visited.length-1) visited(i) = false;
+					for((i) in 0..visited.length-1) visited(i).set(false);
 					S(0) = maxIntWtList(search_num).startVertex;
 					S(1) = maxIntWtList(search_num).endVertex;
-					visited(S(0)) = true;
-					visited(S(1)) = true;
+					visited(S(0)).set(true);
+					visited(S(1)).set(true);
 					count(0) = 2;
 					phase_num(0) = 1;
 					start(0) = 0;

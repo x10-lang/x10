@@ -15,13 +15,13 @@ TARGET = SSCA2
 # OpenMP is supported with gcc version >= 4.2
 # To verify Kernel 4 implementation, compile with -DVERIFYK4 flag. This 
 # will generate a 2D torus as the input instance instead of the scale-free graph.
-CC = mpCC -q64
+CC = mpCC 
 CFLAGS = 
 
-CXX = mpCC -q64
-CXXFLAGS = 
+CXX = mpCC 
+CXXFLAGS = -q32 -pg -g  -O3 -qarch=pwr5 -qtune=pwr5 -qhot -qinline -qrtti=all -DNDEBUG -DNO_CHECKS
 
-AR = ar -X64
+AR = ar 
 ARFLAGS = cr
 RANLIB = ranlib
 
@@ -31,7 +31,7 @@ INC = -Isprng2.0/include
 MAKE = gmake
 MKDIR = mkdir
 POSTCOMPILE_CXX =${CXX}
-POSTCOMPILE_CXXFLAGS = ${CXXFLAGS}
+POSTCOMPILE_CXXFLAGS = ${CXXFLAGS} 
 X10CXX = x10c++
 X10CXXFLAGS = -report postcompile=5
 POSTCOMPILE_INCLUDEOPT = -qinclude=
