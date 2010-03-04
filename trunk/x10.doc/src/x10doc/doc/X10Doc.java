@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import polyglot.types.Flags;
 
 import com.sun.javadoc.Doc;
+import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.SourcePosition;
 import com.sun.javadoc.Tag;
@@ -308,6 +309,22 @@ public class X10Doc implements Doc {
 			return inlineTags();
 		}
 		else return new Tag[0];
+	}
+
+	public static boolean isIncluded(String accessModFilter, ProgramElementDoc pd) {
+		boolean isPublic = pd.isPublic();
+		if (accessModFilter.equals("-public")) {
+			return isPublic;
+		}
+		boolean isProtected = pd.isProtected();
+		if (accessModFilter.equals("-protected")) {
+			return (isPublic || isProtected);
+		}
+		boolean isPackage = pd.isPackagePrivate();
+		if (accessModFilter.equals("-package")) {
+			return (isPublic || isProtected || isPackage);
+		}
+		return true;
 	}
 	
 	public static String rawCommentToText(String rawComment) {
