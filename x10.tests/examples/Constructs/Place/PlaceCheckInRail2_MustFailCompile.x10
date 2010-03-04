@@ -15,7 +15,7 @@ import harness.x10Test;
  * @author bdlucas
  */
 
-public class PlaceCheckInRail_MustFailCompile2 extends x10Test {
+public class PlaceCheckInRail2_MustFailCompile extends x10Test {
 
 
     class C {
