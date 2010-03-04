@@ -34,6 +34,7 @@ class PolyDistAlgebra1 extends TestDist {
     }
 
     public def run() {
+	chk(Place.places.length == 4, "This test must be run with 4 places");
 
         val r1 = r(0,1,0,7);
         prArray("r1", r1);

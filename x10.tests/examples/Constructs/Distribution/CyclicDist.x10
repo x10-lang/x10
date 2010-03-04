@@ -17,6 +17,7 @@
 class CyclicDist extends TestDist {
 
     public def run() {
+	chk(Place.places.length == 4, "This test must be run with 4 places");
 
         val r = [1..4, 1..7] as Region;
         pr("r " + r);
