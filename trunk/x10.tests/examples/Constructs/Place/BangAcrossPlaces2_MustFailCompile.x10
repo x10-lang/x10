@@ -17,7 +17,7 @@ import harness.x10Test;
  * 
  * @author vj
  */
-class BangAcrossPlaces_MustFailCompile2  extends x10Test {
+class BangAcrossPlaces2_MustFailCompile  extends x10Test {
 	class C {
 		var x:Int=0;
 		def x() =x;
