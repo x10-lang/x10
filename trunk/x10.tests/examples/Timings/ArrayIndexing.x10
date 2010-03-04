@@ -19,39 +19,39 @@ public class ArrayIndexing extends x10Test {
 
 	const verbose: boolean = false;
 
-	var _doubleArray1D: Array[double];
-	var _doubleArray2D: Array[double];
-	var _doubleArray3D: Array[double];
-	var _doubleArray4D: Array[double];
+	var _doubleArray1D: Array[double](1);
+	var _doubleArray2D: Array[double](2);
+	var _doubleArray3D: Array[double](3);
+	var _doubleArray4D: Array[double](4);
 
-	var _intArray1D: Array[int];
-	var _intArray2D: Array[int];
-	var _intArray3D: Array[int];
-	var _intArray4D: Array[int];
+	var _intArray1D: Array[int](1);
+	var _intArray2D: Array[int](2);
+	var _intArray3D: Array[int](3);
+	var _intArray4D: Array[int](4);
 
-	var _longArray3D: Array[long];
-	var _longArray4D: Array[long];
+	var _longArray3D: Array[long](3);
+	var _longArray4D: Array[long](4);
 
-	var _floatArray3D: Array[float];
-	var _floatArray4D: Array[float];
+	var _floatArray3D: Array[float](3);
+	var _floatArray4D: Array[float](4);
 
-	var _charArray3D: Array[char];
-	var _charArray4D: Array[char];
+	var _charArray3D: Array[char](3);
+	var _charArray4D: Array[char](4);
 
-	var _byteArray3D: Array[byte];
-	var _byteArray4D: Array[byte];
+	var _byteArray3D: Array[byte](3);
+	var _byteArray4D: Array[byte](4);
 
-	var _genericArray1D: Array[Generic];
-	var _genericArray2D: Array[Generic];
-	var _genericArray3D: Array[Generic];
-	var _genericArray4D: Array[Generic];
+	var _genericArray1D: Array[Generic](1);
+	var _genericArray2D: Array[Generic](2);
+	var _genericArray3D: Array[Generic](3);
+	var _genericArray4D: Array[Generic](4);
 
 	public def this(): ArrayIndexing = {
 		val kArraySize: int = 30;
-		var range1D: Region;
-                var range2D: Region;
-                var range3D: Region;
-                var range4D: Region;
+		var range1D: Region(1);
+                var range2D: Region(2);
+                var range3D: Region(3);
+                var range4D: Region(4);
 
 		// Note: cannot do anything fancy with starting index--assume 0 based
 		range1D = [0..kArraySize];
@@ -465,57 +465,56 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def initialize(var array: Array[double]): void = {
+	def initialize(array: Array[double]): void = {
 		var count: int = 0;
 		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
-	def initialize(var array: Array[Generic]): void = {
+	def initialize(array: Array[Generic]): void = {
 		var count: int = 0;
 		for (val p: Point(array.rank) in array.dist.region) {
-			array(p) = new Generic();
-			array(p).value = count++;
+			array(p) = new Generic(count++);
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
-	def initialize(var array: Array[int]): void = {
-		var count: int = 0;
-		for (val p: Point(array.rank) in array.dist.region) {
-			array(p) = count++;
-			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
-		}
-	}
-	def initialize(var array: Array[long]): void = {
+	def initialize(array: Array[int]): void = {
 		var count: int = 0;
 		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
-	def initialize(var array: Array[float]): void = {
+	def initialize(array: Array[long]): void = {
 		var count: int = 0;
 		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
-	def initialize(var array: Array[byte]): void = {
+	def initialize(array: Array[float]): void = {
+		var count: int = 0;
+		for (val p: Point(array.rank) in array.dist.region) {
+			array(p) = count++;
+			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
+		}
+	}
+	def initialize(array: Array[byte]): void = {
 		var count: int = 0;
 		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = (count++) as byte;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+(count as byte));
 		}
 	}
-	def initialize(var array: Array[char]): void = {
+	def initialize(array: Array[char]): void = {
 		var count: int = 0;
 		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = (count++) as char;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+(count as char));
 		}
 	}
-	def initialize(var array: Array[boolean]): void = {
+	def initialize(array: Array[boolean]): void = {
 		var count: int = 0;
 		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = 1 == (count++)%2;
@@ -683,6 +682,7 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	static class Generic {
-		public var value: int;
+		public global val value: int;
+                def this(x:int) { value = x; }
 	}
 }
