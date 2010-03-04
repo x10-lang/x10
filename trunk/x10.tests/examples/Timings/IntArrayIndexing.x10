@@ -20,17 +20,17 @@ public class IntArrayIndexing extends x10Test {
 
 	const verbose: boolean = false;
 
-	var _intArray1D: Array[int];
-	var _intArray2D: Array[int];
-	var _intArray3D: Array[int];
-	var _intArray4D: Array[int];
+	var _intArray1D: Array[int](1);
+	var _intArray2D: Array[int](2);
+	var _intArray3D: Array[int](3);
+	var _intArray4D: Array[int](4);
 
 	public def this(): IntArrayIndexing {
 		val kArraySize: int = 30;
-		var range1D: Region;
-                var range2D: Region;
-                var range3D: Region;
-                var range4D: Region;
+		var range1D: Region(1);
+                var range2D: Region(2);
+                var range3D: Region(3);
+                var range4D: Region(4);
 
 		// Note: cannot do anything fancy with starting index--assume 0 based
 		range1D = [0..kArraySize];
@@ -98,7 +98,7 @@ public class IntArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def initialize(var array: Array[int]): void {
+	def initialize(val array: Array[int]): void {
 		var count: int = 0;
 		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = count++;
