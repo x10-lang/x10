@@ -2398,13 +2398,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Assign_c asgn) {
 	    boolean unsigned_op = false;
 	    String opString = asgn.operator().toString();
+	    NodeFactory nf = tr.nodeFactory();
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	    Context context = tr.context();
+
+	    // TODO
+//	    // Boolean short-circuiting operators are ok
+//	    // FIXME: [IP] string concatenation are ok for now
+//	    Assign_c n = asgn;
+//	    assert (opString.equals("&&") || opString.equals("||") ||
+//	            (opString.equals("+") &&
+//	             (n.left(nf).type().isSubtype(xts.String(), context)) ||
+//	              n.right().type().isSubtype(xts.String(), context)))
+//	        : "visiting "+n.getClass()+" at "+n.position()+": "+n;
 
 	    if (opString.equals(">>>=")) {
 	        unsigned_op = true;
 	        opString = opString.substring(1);
 	    }
 
-	    NodeFactory nf = tr.nodeFactory();
 	    Expr lhs = asgn.left(nf);
 	    Expr rhs = asgn.right();
 	    if (unsigned_op) {
@@ -2419,8 +2431,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(opString);
         sw.allowBreak(2, 2, " ", 1);
 
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-	    Context context = tr.context();
 	    Type aType = lhs.type();
 	    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, rhs.type(), context);
 	    if (rhsNeedsCast) {
@@ -4634,43 +4644,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Binary_c n) {
-		// FIXME Check if there needs to be explicit handling of operators polyglot.ast.Binary.EQ and polyglot.ast.Binary.NE
-		// for Reference Type arguments here as in X10PrettyPrinter.java
-
-		boolean unsigned_op = false;
 		String opString = n.operator().toString();
 
-		if (opString.equals(">>>")) {
-			unsigned_op = true;
-			opString = opString.substring(1);
-		}
-		if (opString.equals("%") && (n.type().isFloat() || n.type().isDouble())) {
-		    // [IP] Float and double modulus have to be treated specially in C++
-		    assert (!unsigned_op);
-		    sw.write("x10aux::mod("); sw.begin(0);
-		    n.printSubExpr(n.left(), false, sw, tr);
-		    sw.write(",");
-		    sw.allowBreak(0, " ");
-		    n.printSubExpr(n.right(), false, sw, tr);
-		    sw.end(); sw.write(")");
-		    return;
-		}
+		// Boolean short-circuiting operators are ok
+		// FIXME: [IP] string concatenation are ok for now
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		assert (opString.equals("&&") || opString.equals("||") ||
+		        (opString.equals("+") &&
+		         (n.left().type().isSubtype(xts.String(), tr.context())) ||
+		          n.right().type().isSubtype(xts.String(), tr.context())))
+		    : "visiting "+n.getClass()+" at "+n.position()+": "+n;
 
-		if (unsigned_op) {
-			sw.write("("+Emitter.translateType(n.type())+")(");
-			sw.write("(("+emitter.makeUnsignedType(n.left().type())+")");
-		}
 		n.printSubExpr(n.left(), true, sw, tr);
-		if (unsigned_op)
-			sw.write(")");
 		sw.write(" ");
 		sw.write(opString);
 		sw.allowBreak(n.type() == null || n.type().isPrimitive() ? 2 : 0, " ");
-		if (unsigned_op)
-			sw.write("(("+emitter.makeUnsignedType(n.left().type())+")");
 		n.printSubExpr(n.right(), false, sw, tr);
-		if (unsigned_op)
-			sw.write("))");
 	}
 
 
