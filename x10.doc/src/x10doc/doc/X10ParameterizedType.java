@@ -5,8 +5,22 @@ import java.util.Arrays;
 import java.util.List;
 
 import polyglot.types.ClassType;
+import polyglot.types.FieldDef;
 import polyglot.types.Ref;
 
+import x10.constraint.XConstraint;
+import x10.constraint.XEQV;
+import x10.constraint.XFailure;
+import x10.constraint.XField;
+import x10.constraint.XFormula;
+import x10.constraint.XLocal;
+import x10.constraint.XLocal_c;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
+import x10.constraint.XTerm;
+import x10.constraint.XTermKind;
+import x10.constraint.XVar;
+import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType;
@@ -35,7 +49,8 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 		rootDoc = X10RootDoc.getRootDoc();
 		classDoc = rootDoc.getUnspecClass(((X10ClassType)X10TypeMixin.baseType(t)).x10Def());
 
-		polyglot.types.Type b = (depType ? ((polyglot.types.Type) X10TypeMixin.baseType(t)) : t);
+		polyglot.types.Type b = (depType ? (X10TypeMixin.baseType(t)) : t);
+		// polyglot.types.Type b = (depType ? ((polyglot.types.Type) X10TypeMixin.baseType(t)) : t);
 		List<polyglot.types.Type> args = ((X10ClassType)b).typeArguments();
 		typeArgs = new Type[args.size()];
 		for (int i = 0; i < typeArgs.length; i++) {
@@ -73,6 +88,78 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 			this.interfaceTypes.add(y);
 		}
 		typeArgs = new Type[0];
+
+//		XConstraint myXC = X10TypeMixin.xclause(pType);
+//		System.err.println("XConstraint: "+myXC);
+//		if (myXC != null) {
+//			System.err.println("\tatoms: "+myXC.atoms());
+//			System.err.println("\teqvs: "+myXC.eqvs());
+//			List<XTerm> terms = myXC.constraints();
+//			System.err.println("\tconstraints: "+terms);
+//			for (XTerm term : terms) {
+//				System.err.println("\t\tterm: "+term+"("+term.kind()+")");
+//				System.err.println("\t\targuments: "+((XFormula) term).arguments() + 
+//						           "; operator: " + ((XFormula)term).operator());
+//				for (XTerm sub: ((XFormula)term).arguments()) {
+//					System.err.print("\t\ttype(" + sub + ") = " + sub.getClass());
+//// //					if (sub instanceof XVar) {
+//// //						XVar xv = ((XVar)sub).rootVar();
+//// //						System.err.print("; type(" + xv + ") = " + xv.getClass());
+//// //						if (xv instanceof XLocal) {
+//// //							System.err.print("(Local_c.name()=" + ((XLocal_c)xv).name() + ")");
+//// //						}
+//// //					}
+//					if (sub instanceof XField) {
+//						XField f = (XField)sub;
+//						System.err.print("; type(" + f.receiver() + ") = " + f.receiver().getClass());
+//						System.err.print("; type(" + f.field() + ") = " + f.field().getClass());
+//						XName xn = f.field();
+//						if (xn instanceof XNameWrapper<?>) {
+//							FieldDef fd = ((XNameWrapper<FieldDef>)xn).val();
+//							System.err.print("; fd.name() = " + fd.name());
+//						}
+//						String fieldName = "";
+//
+//						for (XVar v: f.vars()) {
+//							if (v instanceof XEQV) {
+//								try {
+//									if (myXC.entails(myXC.self(), v)) {
+//										fieldName += "self";
+//									}
+//									else {
+//										fieldName += v.toString();
+//									}
+//								}
+//								catch (XFailure xf) {
+//								}
+//							}
+//							else if (v instanceof XLocal) {
+//								XName n = ((XLocal)v).name();
+//								if (v.toString().endsWith("#this")) {
+//									fieldName += "this";
+//								}
+//								else {
+//									fieldName += v.toString();
+//								}
+////								if (n instanceof XNameWrapper<?>) {
+////									System.err.println(n + " = XNameWrapper<" + ((XNameWrapper<?>)n).val().getClass() + 
+////											           ">; toString() = " + ((XNameWrapper<?>)n).val() + "; kind = " + v.kind());
+////								}
+//							}
+//							else {
+//								XName n = f.field();
+//								if (n instanceof XNameWrapper<?>) {
+//									FieldDef fd = ((XNameWrapper<FieldDef>)n).val();
+//									fieldName += "." + fd.name();
+//								}
+//							}
+//						}
+//						System.err.print("; fieldName = " + fieldName);
+//					}
+//					System.err.println();
+//				}
+//			}
+//		}
 	}
 
 	public boolean isX10Specific() {
@@ -88,6 +175,24 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 			}
 		}
 		return false;
+	}
+	
+	public String descriptor() {
+		XConstraint xc = X10TypeMixin.xclause(pType);
+		List<XTerm> terms = xc.constraints();
+		String result = "  {";
+		boolean first = true;
+		for (XTerm t: terms) {
+			if (first) {
+				first = false;
+			}
+			else {
+				result += ", ";
+			}
+			result += t;
+		}
+		result += "}";
+		return result;
 	}
 
 	public Type containingType() {
@@ -140,6 +245,24 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 
 	// temporary defn used in println statement in constructor 
 	public String toString() {
+		if (pType instanceof ConstrainedType) {
+			ConstrainedType ct = ((ConstrainedType) pType);
+			XConstraint xc = ct.constraint().get();
+			String str = ct.name() + "{";
+			boolean first = true;
+			for (XFormula f: xc.atoms()) {
+				if (first) {
+					first = false;
+					str += (f.left() + " " + f.operator() + " " + f.right());
+				}
+				else {
+					str += (", " + f.left() + " " + f.operator() + " " + f.right());
+				}
+			}
+			str += "}";
+			System.out.println("X10ParameterizedType.toString(): " + str + 
+					           "; ConstrainedType.constraint().get() = " + xc);
+		}
 		return pType.toString();
 	}
 }

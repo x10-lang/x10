@@ -27,7 +27,7 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 	private ArrayList<X10Parameter> parameters;
 	private Type returnType;
 	private X10TypeVariable[] typeParams;
-	// private LinkedHashMap<String, X10TypeVariable> typeParams;
+	private boolean included;
 	
 	public X10ConstructorDoc() {
 		super("");
@@ -62,6 +62,10 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 			polyglot.types.Type paramType = ld.type().get();
 			parameters.add(new X10Parameter(paramName, rootDoc.getType(paramType, typeParams)));
 		}
+		
+		// X10Doc.isIncluded(..., this) valid only if this.{isPublic(),...,isPrivate()} are valid, which requires
+		// this.constrDef to have been set appropriately
+		this.included = X10Doc.isIncluded(rootDoc.accessModFilter(), this);
 	}
 	
 	void initTypeParameters() {
@@ -120,7 +124,7 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 
 	@Override
 	public boolean isIncluded() {
-		return true;
+		return included;
 	}
 
 	@Override

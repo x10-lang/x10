@@ -2,7 +2,9 @@ package x10doc.doc;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -30,6 +32,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.ConstructorDoc;
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
@@ -41,14 +44,20 @@ import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 
 public class X10RootDoc extends X10Doc implements RootDoc {
-	HashMap<String, X10ClassDoc> specClasses;
-	HashMap<String, X10PackageDoc> specPackages;
+	HashMap<String, X10ClassDoc> specClasses; // classes specified to x10cod on the command-line
+	HashMap<String, X10PackageDoc> specPackages; // x10doc does not, at present, handle packages specified on the
+	                                             // command-line; specPackages should be empty
 	HashMap<String, X10ClassDoc> otherClasses;
 	HashMap<String, X10PackageDoc> otherPackages;
 	HashMap<String, X10Type> primitiveTypes;
+    
+	X10ClassDoc[] includedClasses; 
 	private String outputDir;
 	
-	public static boolean printSwitch = false;
+	public static final boolean printSwitch = false;
+	public static final String ACCESSMODFILTER = "-protected"; 
+	  // access modifier filter specified as a command-line option (RootDoc.options()) to the standard doclet; 
+	  // show only public and protected classes and class members
 
 	private static X10RootDoc globalRootDoc;
 	public static X10RootDoc getRootDoc(String outputDir) {
@@ -90,7 +99,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	public X10ClassDoc getSpecCLass(X10ClassDef classDef, X10ClassDoc containingClass, String comments) {
 		X10ClassDoc cd = null;
 		String className = classKey(classDef);
-		System.out.println("X10RootDoc.addClass(...): className = " + className);
+		// System.out.println("X10RootDoc.addClass(...): className = " + className);
 
 		assert(!specClasses.containsKey(className)) : "X10RootDoc.addSpecClass(" + className + 
 			",...): multiple attempts to create specified ClassDoc";
@@ -100,8 +109,12 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			cd = new X10ClassDoc(classDef, containingClass, comments);
 			specClasses.put(className, cd);
 
-			cd.initialize();
-			cd.setIncluded(true);
+			cd.initializeRelatedEntities();
+
+			// cd is added to specClasses but cd.included may be set to false, if the access 
+            // modifier filter is so defined; another alternative would be to simply not add cd
+            // to specClasses depending on the access mod filter
+			cd.setIncluded(); 
 
 //			X10PackageDoc containingPackage = getPackage(classDef.package_());
 //			cd.setPackage(containingPackage);
@@ -127,7 +140,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			assert(existingCmnt.equals("") || existingCmnt.equals(comments)) : "X10RootDoc.addClass(" + 
 				className + ",...): mismatch between existing and given comments";
 		
-			cd.setIncluded(true);
+			cd.setIncluded(); // see comment against earlier call to cd.setIncluded()
 			cd.setRawCommentText(comments); // may need to add class invariant, type guard also later
 			return cd;
 		}
@@ -149,6 +162,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		return pd;
 	}
 
+	/*
 	public void makePackageIncluded(String pkgName) {
 		assert(otherPackages.containsKey(pkgName)) : 
 			"X10RootDoc.includePackage: non-existent package " + pkgName;
@@ -156,6 +170,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			"X10RootDoc.includePackage: attempting to include specified package " + pkgName;
 		specPackages.put(pkgName, otherPackages.remove(pkgName));
 	}
+	*/
 	
 	public X10Type getPrimitiveType(polyglot.types.Type t) {
 		String typeName = t.toString();
@@ -248,7 +263,8 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			// earlier test: "if (((X10ParsedClassType)t).typeArguments().size() > 0)"; this earlier test 
 			// includes all closures except closures with 0 arguments, hence the instanceof test
 			if ((t instanceof FunctionType) || (((X10ParsedClassType)t).typeArguments().size() > 0)) {
-				return new X10ParameterizedType((polyglot.types.Type)t, methodTypeVars, false);
+				return new X10ParameterizedType(t, methodTypeVars, false);
+				// return new X10ParameterizedType((polyglot.types.Type)t, methodTypeVars, false);
 			}
 			return getUnspecClass(classDef);
 		}
@@ -257,11 +273,13 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			if (base instanceof X10ParsedClassType) {
 				if (((X10ParsedClassType)base).typeArguments().size() > 0) {
 					// parameterized type with constraints
-					return new X10ParameterizedType((polyglot.types.Type)t, methodTypeVars, true); 
+					return new X10ParameterizedType(t, methodTypeVars, true); 
+					// return new X10ParameterizedType((polyglot.types.Type)t, methodTypeVars, true); 
 				}
 			}
 			// non-parameterized type with constraints
-			return new X10ParameterizedType((polyglot.types.Type)t);
+			return new X10ParameterizedType(t);
+			// return new X10ParameterizedType((polyglot.types.Type)t);
 		}
 		return getUnspecClass(classDef);
 	}
@@ -298,7 +316,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		cd = new X10ClassDoc(classDef, containingClass, "");
 		otherClasses.put(ckey, cd);
 
-		cd.initialize();
+		cd.initializeRelatedEntities();
 		
 //		X10PackageDoc containingPackage = getPackage(classDef.package_());
 //		cd.setPackage(containingPackage);
@@ -353,20 +371,57 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	 * Return the included classes and interfaces in all packages.
 	 */
 	public ClassDoc[] classes() {
-		System.out.println("RootDoc.classes() called.");
-		return specClasses.values().toArray(new ClassDoc[0]);
+		// return specClasses.values().toArray(new ClassDoc[0]);
+
+		// return the set of classes in specClasses that are "included" according to the access modifier filter
+		if (includedClasses != null) {
+			// System.out.println("RootDoc.classes() called.");
+			return includedClasses;
+		}
+		int size = 0;
+		Collection<X10ClassDoc> classes = specClasses.values();
+		for (ClassDoc cd: classes) {
+			if (cd.isIncluded()) {
+				size++;
+			}
+		}
+		includedClasses = new X10ClassDoc[size];
+		int i = 0;
+		for (X10ClassDoc cd: classes) {
+			if (cd.isIncluded()) {
+				includedClasses[i++] = cd;
+			}
+		}
+		Comparator<X10ClassDoc> cmp =
+			new Comparator<X10ClassDoc>() {
+			  public int compare(X10ClassDoc first, X10ClassDoc second) {
+				  return first.name().compareTo(second.name());
+			  }
+			  
+			  public boolean equals(Object other) {
+				  return false;
+			  }
+		    };
+		Arrays.sort(includedClasses, cmp);
+		// System.out.println("RootDoc.classes() called. result = " + Arrays.toString(includedClasses));
+		return includedClasses;
 	}
 
 	/**
 	 * Command line options.
 	 */
 	public String[][] options() {
-		// TODO Auto-generated method stub
-		System.out.println("RootDoc.options() called.");
+		// System.out.println("RootDoc.options() called.");
 		String[][] result = new String[][] {
-				{ "-d", outputDir }
+				{ "-d", outputDir },
+				{ ACCESSMODFILTER, ""}
 		};
 		return result;
+	}
+	
+	public String accessModFilter() {
+		// this method is intended to be called from X10*Doc.isIncluded(), X10ClassDoc.{methods(), fields()} etc.
+		return ACCESSMODFILTER;
 	}
 
 	/**
@@ -390,16 +445,21 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	 * Return the classes and interfaces specified as source file names on the command line.
 	 */
 	public ClassDoc[] specifiedClasses() {
-		System.out.println("RootDoc.specifiedClasses() called.");
-		return specClasses.values().toArray(new ClassDoc[0]);
+		// System.out.println("RootDoc.specifiedClasses() called.");
+		// return specClasses.values().toArray(new ClassDoc[0]);
+		
+		// index.html lists classes returned from specifiedClasses; return the set of classes in specClasses that are 
+		// included as per access mod filter
+		return classes();
 	}
 
 	/**
 	 * Return the packages specified  on the command line.
 	 */
 	public PackageDoc[] specifiedPackages() {
-		System.out.println("RootDoc.specifiedPackages() called.");
+		// System.out.println("RootDoc.specifiedPackages() called. values = " + specPackages.values());
 		return specPackages.values().toArray(new PackageDoc[0]);
+		// return new PackageDoc[0];
 	}
 
 	public void printError(String arg0) {
@@ -460,20 +520,6 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 				stringDocObjNames(otherPackages.values()));
 	}
 
-//	 added by IP; not quite what is needed
-//	public X10ClassDoc addUnspecClass(X10ClassDef classDef) {
-//		// 
-//		X10ClassDoc outer = null;
-//		if (classDef.outer() != null) {
-//			String className = classKey((X10ClassDef) classDef.outer().get());
-//			outer = (X10ClassDoc) classNamed(className);
-//		}
-//		
-//		return createUnspecClass(classDef, outer);
-//		
-//		// X10ClassDef cd; X10FieldDef fd; X10MethodDef md; X10ConstructorDef cnd;
-//	}
-//	
 //	/**
 //	 * Adds a basic X10ClassDoc object corresponding to the given X10ClassDef object for an unspecified 
 //	 * class. Details of fields, constructors, methods, etc. are yet to be filled in.
