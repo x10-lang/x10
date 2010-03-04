@@ -12,17 +12,17 @@
 import harness.x10Test;
 
 /**
- * 3 should be an int, and ints are objects.
+ * 3 should be an int, and ints implement Any.
  *
  * @author vj, igor 09/06
  */
-public class PrimitiveLiteralIsAnObject extends x10Test {
+public class PrimitiveLiteralIsAnAny extends x10Test {
 
 	public def run(): boolean = {
-		return 3 instanceof x10.lang.Object;
+		return 3 instanceof Any;
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new PrimitiveLiteralIsAnObject().execute();
+		new PrimitiveLiteralIsAnAny().execute();
 	}
 }
