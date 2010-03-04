@@ -18,7 +18,9 @@
 package org.eclipse.imp.x10dt.ui.contentProposer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import lpg.runtime.IPrsStream;
@@ -66,15 +68,14 @@ import x10.parser.X10Parsersym;
  * The content proposer is activated using control space, and currently supports the following features:
  * 1. When the cursor is after a "." following a reference type, it displays all members of that type, filtering using the prefix.
  * 2. When the cursor is in the middle or right after an identifier, it proposes completion for that identifier using names that are in the scope.
- * 3. When the cursor is on white space, it proposes X10 code templates, as well as names available in the scope. It distinguishes between a class body, and a method body.
- * 4. When the cursor is on white space right before a "def" method declaration, it proposes method modifiers.
- * 5. When the cursor is on white space right before a "class" declaration, it proposes class modifiers (proto).
- * 6. When the cursor is on white space right before a "var" or "val" for a field declaration, it proposes field modifiers (global).
+ * 3. When the cursor is in between tokens, it proposes X10 code templates. It distinguishes between a class body, and a method body.
+ * 4. When the cursor is right before a "def" method declaration, it proposes method modifiers.
+ * 5. When the cursor is right before a "val" for a field declaration, it proposes field modifiers (global).
  * 
- * Note that these features are not necessarily mutually exclusive. E.g., if the cursor is before a def with no other flags, it will propose both templates for a class body,
+ * Note that these features are not necessarily mutually exclusive. E.g., if the cursor is before a def, it will propose both templates for a class body,
  * as well as method modifiers.
  * 
- * Note that currently these features only work in the absence of compilation errors. Moreover, the file must be saved before hitting control space, to ensure accuracy.
+ * Note that currently these features only work in the absence of compilation errors.
  * 
  * @author mvaziri
  *
@@ -171,6 +172,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 
         for(FieldInstance field : fields) {
             list.add(new SourceProposal(field.name().toString(), prefix, offset)); //PORT1.7 name() replaced with name().toString()
+           
         }
 
         for(MethodInstance method : methods) {
@@ -188,40 +190,40 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     private TemplateContextType fContextType= new TemplateContextType(CONTEXT_ID, "Coding Templates");
 
     // Declarations
-    private final Template fVariableDeclaration = new Template("var", "variable declaration", CONTEXT_ID, "var ${name}:${typename}", false );
-    private final Template fValueDeclaration = new Template("val", "value declaration", CONTEXT_ID, "val ${name}:${typename}", false );
-    private final Template fMethodTemplate = new Template("def", "method declaration", CONTEXT_ID, "def ${name}(${x}:${typename}):${typename} {  }", false );
+    private final Template fVariableDeclaration = new Template("var", "variable declaration", CONTEXT_ID, "var ${name}:${typename};", false );
+    private final Template fValueDeclaration = new Template("val", "value declaration", CONTEXT_ID, "val ${name} = ${expression};", false );
+    private final Template fMethodTemplate = new Template("def", "method declaration", CONTEXT_ID, "def ${name}(${x}:${typename1}):${typename2} {  }", false );
     private final Template fConstructorTemplate = new Template("this", "constructor declaration", CONTEXT_ID, "def this(${name}:${typename}) {  }", false);
     private final Template fStructTemplate = new Template("struct", "struct declaration", CONTEXT_ID, "struct ${name} {  }", false );
     private final Template fCovariantGeneric = new Template("[+X]", "generic type, covariant parameter", CONTEXT_ID, "class ${name}[+${X}] {  }", false);
     private final Template fContravariantGeneric = new Template("[-X]", "generic type, contravariant parameter", CONTEXT_ID, "class ${name}[-${X}] {  }", false);
     private final Template fDependentTypeDeclaration = new Template("property", "dependent type", CONTEXT_ID, "class ${name}(${x}:${typename}) { def this(${x}:${typename}){ property(${x}); } }", false);
-    private final Template fTypeDefinition = new Template("type", "type definition", CONTEXT_ID, "type ${name} = ${name}", false);
-    private final Template fFunctionType = new Template("=>", "function type", CONTEXT_ID, "(${x1}: ${T1}, , ${xn}: ${Tn}){${constraint}} => ${T} throws ${S1}, ,${Sk}", false);
-    private final Template fConstDeclaration = new Template("const", "final static field declaration", CONTEXT_ID, "const ${name}:${typename}", false );
+    private final Template fTypeDefinition = new Template("type", "type definition", CONTEXT_ID, "type ${name1} = ${name2};", false);
+    private final Template fFunctionType = new Template("=>", "function type", CONTEXT_ID, "var ${fname}:(${T1},${T2}) => ${T} = (${x1}:${T1}, ${x2}:${T2}) => ${expression};", false);
+    private final Template fConstDeclaration = new Template("const", "final static field declaration", CONTEXT_ID, "const ${name} = ${expression};", false );
     
     
     // Constructs
-    private final Template fAsyncTemplate= new Template("async", "async statement", CONTEXT_ID, "async (${place}) {\n \n}\n", false);
-    private final Template fAtStatementTemplate = new Template("at","at statement", CONTEXT_ID, "at (${place}) {  }", false );
+    private final Template fAsyncTemplate= new Template("async", "async statement", CONTEXT_ID, "async (${place}) { ${stmt} }", false);
+    private final Template fAtStatementTemplate = new Template("at","at statement", CONTEXT_ID, "at (${place}) { ${stmt} }", false );
     private final Template fAtExpressionTemplate = new Template("at", "at expression", CONTEXT_ID, "at (${place}) ${expression}", false);
-    private final Template fFinishTemplate = new Template("finish", "finish statement", CONTEXT_ID, "finish {  }", false);
-    private final Template fAtEachTemplate= new Template("ateach", "ateach statement", CONTEXT_ID, "ateach (${x}:${typename} in ${region}) {  }", false);
+    private final Template fFinishTemplate = new Template("finish", "finish statement", CONTEXT_ID, "finish { ${stmt} }", false);
+    private final Template fAtEachTemplate= new Template("ateach", "ateach statement", CONTEXT_ID, "ateach (${x}:Point in ${distribution}) { ${stmt} }", false);
     private final Template fAtomicTemplate= new Template("atomic", "atomic statement", CONTEXT_ID, "atomic { ${stmt} }", false);
     private final Template fWhenTemplate= new Template("when", "when statement", CONTEXT_ID, "when (${condition}) { ${stmt} }", false);
     private final Template fForRegionTemplate= new Template("for region", "for iterating over a region", CONTEXT_ID, "for (point ${p}: ${region}) {\n \n}\n", false);
-    private final Template fForEachTemplate= new Template("foreach", "foreach statement", CONTEXT_ID, "foreach (${x}:${typename} in ${region}) {  }", false);
-    private final Template fFutureTemplate= new Template("future", "future expression", CONTEXT_ID, "future (${place}) { ${expr} }.force()", false);
-    private final Template fCoercionTemplate = new Template("as", "coercion", CONTEXT_ID, "${expression} as ${typename}" , false);
+    private final Template fForEachTemplate= new Template("foreach", "foreach statement", CONTEXT_ID, "foreach (${x}:Point in ${region}) { ${stmt} }", false);
+    private final Template fFutureTemplate= new Template("future", "future expression", CONTEXT_ID, "var ${name}:${typename} = (future (${place}) { ${expr} }).force();", false);
+    private final Template fCoercionTemplate = new Template("as", "coercion", CONTEXT_ID, "var ${name}:${typename} = ${expression} as ${typename};" , false);
     
     // Places, Regions, Distributions, Arrays
     private final Template fFirstPlaceTemplate = new Template("Place.FIRST_PLACE", "first place", CONTEXT_ID, "Place.FIRST_PLACE", false);
     private final Template fAllPlacesTemplate = new Template("Place.places", "set of all places", CONTEXT_ID, "Place.places", false);
-    private final Template fRegion1DTemplate= new Template("1-D region", "1-dimensional region creation", CONTEXT_ID, "[${lower}..${upper}]", false);
-    private final Template fRegion2DTemplate= new Template("2-D region", "2-dimensional region creation", CONTEXT_ID, "[${lower1}..${upper1},${lower2}..${upper2}]", false);
-    private final Template fArrayNewTemplate= new Template("array new", "array instantiation", CONTEXT_ID, "Array.make[${typename}](${D} , (p: Point) => ${initialization_expression} )", false);
+    private final Template fRegion1DTemplate= new Template("region 1-D", "1-dimensional region creation", CONTEXT_ID, "var ${name}:Region = [${lower}..${upper}];", false);
+    private final Template fRegion2DTemplate= new Template("region 2-D", "2-dimensional region creation", CONTEXT_ID, "var ${name}:Region = [${lower1}..${upper1},${lower2}..${upper2}];", false);
+    private final Template fArrayNewTemplate= new Template("array new", "array instantiation", CONTEXT_ID, "var ${name}: Array[${typename}] = Array.make[${typename}](${distribution} , (p: Point) => ${initialization_expression} );", false);
     // private final Template fArrayElement = new Template("")
-    private final Template fRailContructor = new Template("rail constructor", "rail constructor", CONTEXT_ID, "[${expression1}, ,${expressionk}]", false);
+    private final Template fRailContructor = new Template("rail constructor", "rail constructor", CONTEXT_ID, "var ${name}: Rail = [${expression1}, ,${expressionk}];", false);
     private final Template fArrayDistribution = new Template("dist", "array distribution", CONTEXT_ID, "${array}.dist", false);
     private final Template fMakeUpperTriangular = new Template("makeUpperTriangular", "upper triangular region", CONTEXT_ID, "Region.makeUpperTriangular(${N})",false );
     private final Template fMakeLowerTriangular = new Template("makeLowerTriangular", "lower triangular region", CONTEXT_ID, "Region.makeLowerTriangular(${N})",false );
@@ -238,35 +240,83 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     private final Template fDistributionDifference = new Template("distribution difference", "distribution difference", CONTEXT_ID, "${D1} - ${D2}", false);
     
     // Modifiers
-    private final Template fConstrainedType = new Template("constraint", "constrained type", CONTEXT_ID, "${typename}{${expression}}", false);
-    private final Template fNonblockingMethod = new Template("nonblocking", "nonblocking method", CONTEXT_ID, "nonblocking", false);
-    private final Template fSequentialMethod = new Template("sequential", "sequential method", CONTEXT_ID, "sequential", false);
-    private final Template fSafeMethod = new Template("safe", "safe method", CONTEXT_ID, "safe", false);
-    private final Template fPropertyMethod = new Template("property", "property method", CONTEXT_ID, "property", false);
-    private final Template fGlobalTemplate = new Template("global", "global method or field", CONTEXT_ID, "global", false);
-    private final Template fProtoTemplate = new Template("proto", "incomplete types", CONTEXT_ID, "proto", false);
+    private final Template fConstrainedType = new Template("constraint", "constrained type", CONTEXT_ID, "type ${name} = typename{${constraint}};", false);
+    private final Template fNonblockingMethod = new Template("nonblocking", "nonblocking method", CONTEXT_ID, "nonblocking ", false);
+    private final Template fSequentialMethod = new Template("sequential", "sequential method", CONTEXT_ID, "sequential ", false);
+    private final Template fSafeMethod = new Template("safe", "safe method", CONTEXT_ID, "safe ", false);
+    private final Template fPropertyMethod = new Template("property", "property method", CONTEXT_ID, "property ", false);
+    private final Template fGlobalTemplate = new Template("global", "global method or field", CONTEXT_ID, "global ", false);
+    private final Template fProtoTemplate = new Template("proto", "incomplete types", CONTEXT_ID, "proto ", false);
     
     // Clocks
     private final Template fClockUnregister = new Template("drop", "clock unregister", CONTEXT_ID, "${clock}.drop()", false);
     private final Template fClockResume = new Template("resume", "clock resume", CONTEXT_ID, "${clock}.resume()", false);
     private final Template fClockNext = new Template("next", "clock next", CONTEXT_ID, "${clock}.next()", false);
-    private final Template fClockedStatement = new Template("clocked", "clocked statement", CONTEXT_ID, "clocked (${clock}) {  }", false);
+    private final Template fClockedStatement = new Template("clocked", "clocked statement", CONTEXT_ID, "async clocked (${clock}) { ${stmt} }", false);
     private final Template fClockRegistered = new Template("registered", "clock registration check", CONTEXT_ID, "${clock}.registered()", false);
     
     
      
     private final Template[] fTemplates= new Template[] {
-            fRegion1DTemplate, fRegion2DTemplate, fArrayNewTemplate, fAsyncTemplate,
-            fAtEachTemplate, fAtomicTemplate, fForRegionTemplate, fForEachTemplate, fFutureTemplate, fStructTemplate, fMethodTemplate, 
-            fVariableDeclaration, fValueDeclaration, fDependentTypeDeclaration, fConstructorTemplate, fCovariantGeneric, fContravariantGeneric, fTypeDefinition,
-            fConstrainedType, fFunctionType, fCoercionTemplate, fConstDeclaration, 
-            fRailContructor, fFirstPlaceTemplate, fAllPlacesTemplate, fAtStatementTemplate, fAtExpressionTemplate, fFinishTemplate, fWhenTemplate, fClockNext, fClockResume, 
-            fClockUnregister, fClockedStatement, fClockRegistered, fArrayDistribution, fMakeLowerTriangular, fMakeUpperTriangular, fRegionDifference, fRegionProduct, fRegionUnion, 
+             
+            fArrayNewTemplate, fCoercionTemplate, fAsyncTemplate, fAtStatementTemplate,
+            fAtEachTemplate, fAtomicTemplate,  
+            fClockedStatement, fConstrainedType, fFinishTemplate,  
+            fForEachTemplate, fFunctionType, fFutureTemplate, 
+            fRegion1DTemplate, fRegion2DTemplate,
+            fTypeDefinition, fValueDeclaration, fVariableDeclaration,   fWhenTemplate,
+            /*fDependentTypeDeclaration, 
+            fCovariantGeneric, fContravariantGeneric, fAtExpressionTemplate, fStructTemplate, 
+            fRailContructor, fFirstPlaceTemplate, fAllPlacesTemplate,  fClockNext, fClockResume, 
+            fClockUnregister, fClockRegistered, fArrayDistribution, fMakeLowerTriangular, fMakeUpperTriangular, fRegionDifference, fRegionProduct, fRegionUnion, 
             fRegionIntersection, fBlockDistribution, fCyclicDistribution, fDistributionMapping, fDistributionDifference, fDistributionIntersection, fDistributionOverlay, fDistributionUnion
+            */
     };
     
+    
+    private final String fArrayNewInfo = "\n\nNew Array";
+    private final String fCoercionInfo = "\n\nCoercion";
+    private final String fAsyncInfo = "\n\nAsync statement";
+    private final String fAtStatementInfo = "\n\nAt statement";
+    private final String fAtEachInfo = "\n\nAteach statement";
+    private final String fAtomicInfo = "\n\nAtomic statement";
+    private final String fClockedInfo = "\n\nClocked statement";
+    private final String fConstrainedInfo = "\n\nConstrained type";
+    private final String fFinishInfo = "\n\nFinish statement";
+    private final String fForEachInfo = "\n\nForeach statement";
+    private final String fFunctionTypeInfo = "\n\nFunction Type";
+    private final String fFutureInfo = "\n\nFuture";
+    private final String fRegion1DInfo = "\n\n1-D region";
+    private final String fRegion2DInfo = "\n\n2-D Region";
+    private final String fTypeDefinitionInfo = "\n\nType definition";
+    private final String fValueInfo = "\n\nValue declaration";
+    private final String fVariableInfo = "\n\nVariable declaration";
+    private final String fWhenInfo = "w\n\nWhen statement";
+    
+    private static final Map<Template,String> infos = new HashMap<Template,String>();
    
+    {
+    	infos.put(fArrayNewTemplate, fArrayNewInfo);
+    	infos.put(fCoercionTemplate, fCoercionInfo);
+    	infos.put(fAsyncTemplate, fAsyncInfo);
+    	infos.put(fAtStatementTemplate, fAtStatementInfo);
+    	infos.put(fAtEachTemplate, fAtEachInfo);
+    	infos.put(fAtomicTemplate, fAtomicInfo);
+    	infos.put(fClockedStatement, fClockedInfo);
+    	infos.put(fConstrainedType, fConstrainedInfo);
+    	infos.put(fFinishTemplate, fFinishInfo);
+    	infos.put(fForEachTemplate, fForEachInfo);
+    	infos.put(fFunctionType, fFunctionTypeInfo);
+    	infos.put(fFutureTemplate, fFutureInfo);
+    	infos.put(fRegion1DTemplate, fRegion1DInfo);
+    	infos.put(fRegion2DTemplate, fRegion2DInfo);
+    	infos.put(fTypeDefinition, fTypeDefinitionInfo);
+    	infos.put(fValueDeclaration, fValueInfo);
+    	infos.put(fVariableDeclaration, fVariableInfo);
+    	infos.put(fWhenTemplate, fWhenInfo);
+    }
     public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer) {
+    	
         ArrayList<ICompletionProposal> list= new ArrayList<ICompletionProposal>();
         //
         // When the offset is in between two tokens (for example, on a white space or comment)
@@ -285,7 +335,12 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         IPrsStream prs_stream= ((SimpleLPGParseController) controller).getParser().getIPrsStream();
         int index= prs_stream.getTokenIndexAtCharacter(offset);
         int token_index = (index < 0 ? -index + 1 : index);
-        IToken tokenToComplete= prs_stream.getIToken(token_index); 
+        IToken tokenToComplete = null;
+        try {
+        	tokenToComplete= prs_stream.getIToken(token_index); 
+        } catch(IndexOutOfBoundsException e){
+        	return (ICompletionProposal[]) list.toArray(new ICompletionProposal[list.size()]);
+        }
         SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
         String prefix= computePrefixOfToken(tokenToComplete, offset, lpgPC);
        
@@ -296,6 +351,9 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         Node node= (Node) locator.findNode(currentAst, tokenToComplete.getStartOffset(), tokenToComplete.getEndOffset());
         Node previousNode = (previousToken != null)? (Node) locator.findNode(currentAst, previousToken.getStartOffset(), previousToken.getEndOffset()): null;
      
+        boolean in_between_tokens = index < 0;
+        if (offset == tokenToComplete.getStartOffset())
+        	in_between_tokens = true;
         
         if (previousToken != null && previousToken.getKind() == TK_DOT) { //Display members following a dot
         	Node parent= (Node) locator.getParentNodeOf(node, currentAst);
@@ -312,17 +370,17 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         	}
         
         //The next case completes an Id with names in scope  
-        } else if ((node instanceof Id && offset >= tokenToComplete.getStartOffset() && offset <= tokenToComplete.getEndOffset()) ||  
+        } else if ((node instanceof Id && offset > tokenToComplete.getStartOffset() && offset <= tokenToComplete.getEndOffset()) ||  
         		   (previousNode instanceof Id && offset == previousToken.getEndOffset() + 1)){ //at the very end of an Id
         	Node n = (node instanceof Id)? node : previousNode;
         	String pref = (node instanceof Id)? prefix : computePrefixOfToken(previousToken, offset, lpgPC);
         	addNamesInScope(currentAst, n, pref, list, offset, !EMPTY_PREFIX_MATCHES);
         
-        } else if (index < 0){ //Display templates, names in scope -- index < 0 when we are at a white space or comment
+        } else if (in_between_tokens){ //Display templates, names in scope -- index < 0 when we are at a white space or comment
             Node location = location(previousNode, node, locator, currentAst);
-        	if (location instanceof Block){ 
+            if (location instanceof Block){ 
         		addTemplateProposals(offset, viewer, list, prefix, fTemplates);
-        		addNamesInScope(currentAst, node, prefix, list, offset, EMPTY_PREFIX_MATCHES);
+        		//addNamesInScope(currentAst, node, prefix, list, offset, EMPTY_PREFIX_MATCHES);
         	}
         	else if (location instanceof ClassBody){
         		Template[] templates = new Template[]{fVariableDeclaration, fValueDeclaration, fConstDeclaration, fMethodTemplate, fConstructorTemplate, 
@@ -333,18 +391,18 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
             
             //add method modifiers before a "def"
             if (justBefore(TK_def, tokenToComplete, previousToken, offset)){
-            	Template[] templates = new Template[]{fNonblockingMethod, fSequentialMethod, fSafeMethod, fGlobalTemplate, fPropertyMethod };
+            	Template[] templates = new Template[]{fNonblockingMethod, fSequentialMethod, fSafeMethod, fGlobalTemplate};
         		addTemplateProposals(offset, viewer, list, prefix, templates);
             }
             
             //add class modifiers before a "class"
-            if (justBefore(TK_class, tokenToComplete, previousToken, offset)) {
+            /*if (justBefore(TK_class, tokenToComplete, previousToken, offset)) {
             	Template[] templates = new Template[]{fProtoTemplate};
         		addTemplateProposals(offset, viewer, list, prefix, templates);
-            }
+            }*/
         	
             //add field modifiers before a "var" or "val" field declaration
-            if (location instanceof ClassBody && (justBefore(TK_var, tokenToComplete, previousToken, offset) || justBefore(TK_val, tokenToComplete, previousToken, offset))){
+            if (location instanceof ClassBody && (justBefore(TK_val, tokenToComplete, previousToken, offset))){
         		Template[] templates = new Template[]{fGlobalTemplate};
         		addTemplateProposals(offset, viewer, list, prefix, templates);
         	}
@@ -360,8 +418,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     }
     
     // Finds the least common parent of prev and next in the currentAst. The reason for using our own visitor is that polyglot parent finder changes the AST as it goes along.
-    private Node location(final Node prev, final Node next, PolyglotNodeLocator locator, Node currentAst){
-    	if (prev == null)
+    private Node location(final Node prev, final Node next, PolyglotNodeLocator locator, Node currentAst){    	if (prev == null)
     		return next;
     	
     	if (next == null)
@@ -372,21 +429,16 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
        
         currentAst.visit(new NodeVisitor(){
         	boolean prevDone, nextDone = false;
+        	
         	@Override
         	public NodeVisitor enter(Node parent, Node child){
         		if (!prevDone){
-        			if (parent != null) prevParents.push(parent);
-        			if (child == prev) {
-        				prevParents.push(child);
-        				prevDone = true;
-        			}
+        			prevParents.push(child);
+        			if (child == prev) prevDone = true;
         		} 
         		if (!nextDone){
-        			if (parent != null) nextParents.push(parent);
-        			if (child == next) {
-        				nextParents.push(child);
-        				nextDone = true;
-        			}
+        			nextParents.push(child);
+        			if (child == next) nextDone = true;
         		}
         		return super.enter(parent, child);
         	}
@@ -397,6 +449,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         		return super.leave(parent, old, n, v);
         	}
         });
+        
         
     	for(int i = prevParents.size()-1; i >= 0; i--){
     		if (nextParents.contains(prevParents.get(i))) return prevParents.get(i);
@@ -419,7 +472,10 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 
     private void addTemplateProposalIfMatch(ArrayList<ICompletionProposal> proposals, Template template, TemplateContext tc, Region r, String prefix) {
     	if (template.getName().startsWith(prefix)) {
-    		proposals.add(new TemplateProposal(template, tc, r, null));
+    		String info = infos.get(template);
+    		//ICompletionProposal proposal = new X10TemplateProposal(template, tc, r, null, info);
+    		ICompletionProposal proposal = new TemplateProposal(template, tc, r, null);
+    		proposals.add(proposal);
         }
     }
     
@@ -433,17 +489,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         return prefix;
     }
     
-    private List<Node> parents(Node node, PolyglotNodeLocator locator, Node currentAst){
-    	List<Node> ret = new ArrayList<Node>();
-    	Node parent= (Node) locator.getParentNodeOf(node, currentAst);
-    	while (parent != null){
-    		ret.add(parent);
-    		parent = (Node) locator.getParentNodeOf(parent, currentAst);
-    	}
-    	return ret;
-    }
-    
-  
+   
 
     private void addNamesInScope(Node currentAst, final Node in_node, String prefix, List<ICompletionProposal> proposals, int offset, boolean emptyPrefixMatches) {
         // Polyglot can't supply the pkg/class names, so we'll have to appeal to the search index
@@ -451,8 +497,8 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
             proposals.add(new SourceProposal("this", prefix, offset));
         if (emptyPrefixTest(emptyPrefixMatches, prefix) && "here".startsWith(prefix)) // Should check that we're not in a static method or initializer
             proposals.add(new SourceProposal("here", prefix, offset));
-        if (emptyPrefixTest(emptyPrefixMatches, prefix) && "self".startsWith(prefix)) // Should check that we're not in a static method or initializer
-            proposals.add(new SourceProposal("self", prefix, offset));
+//        if (emptyPrefixTest(emptyPrefixMatches, prefix) && "self".startsWith(prefix)) // Should check that we're not in a static method or initializer
+//            proposals.add(new SourceProposal("self", prefix, offset));
         final Stack<Node> path= new Stack<Node>();
         currentAst.visit(new NodeVisitor() {
         	boolean done = false;
