@@ -633,9 +633,9 @@ public class Desugarer extends ContextVisitor {
                 retTN, xnf.Id(pos, t)).localDef(fDef);
         List<Formal> parms = Arrays.asList(new Formal[] { formal });
         Expr tLocal = xnf.Local(pos, xnf.Id(pos, t)).localInstance(fDef.asInstance()).type(ret);
-        X10Cast cast = (X10Cast) xnf.X10Cast(pos, retTN, xnf.Binary(pos, tLocal, bin, one).type(ret), Converter.ConversionType.PRIMITIVE).type(ret);
-        Block block = xnf.Block(pos, xnf.Return(pos, cast));
-        Closure c = synth.makeClosure(pos, e.type(), parms, block, (X10Context) context);
+        Expr adjust = visitBinary((X10Binary_c) xnf.Binary(pos, tLocal, bin, one).type(ret));
+        Block block = xnf.Block(pos, xnf.Return(pos, adjust));
+        Closure c = synth.makeClosure(pos, ret, parms, block, (X10Context) context);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         Expr incr = assign(pos, e, asgn, one);
         if (e instanceof X10Call)
