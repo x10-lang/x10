@@ -40,6 +40,8 @@ import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS_METHOD;
 import static x10cpp.visit.SharedVarsMethods.THIS;
 import static x10cpp.visit.SharedVarsMethods.VOID;
 import static x10cpp.visit.SharedVarsMethods.VOID_PTR;
+import static x10cpp.visit.SharedVarsMethods.REFERENCE_TYPE;
+import static x10cpp.visit.SharedVarsMethods.CLOSURE_TYPE;
 import static x10cpp.visit.SharedVarsMethods.chevrons;
 import static x10cpp.visit.SharedVarsMethods.getId;
 import static x10cpp.visit.SharedVarsMethods.getUniqueId_;
@@ -1175,12 +1177,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
         h.write(Emitter.translateType(currentClass, true)+" this_,"); h.newline();
         h.write(SERIALIZATION_BUFFER+"& buf) {"); h.end(); h.newline(4); h.begin(0);
-        h.write("x10::lang::Reference::"+SERIALIZE_METHOD+"(this_, buf);"); h.end(); h.newline();
+        h.write(REFERENCE_TYPE+"::"+SERIALIZE_METHOD+"(this_, buf);"); h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
         h.write("public: template<class __T> static ");
         h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {"); h.newline(4) ; h.begin(0);
-        h.write("return x10::lang::Reference::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
+        h.write("return "+REFERENCE_TYPE+"::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
         if (!members.isEmpty()) {
@@ -1419,7 +1421,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             emitter.printTemplateSignature(currentClass.typeArguments(), sw);
             sw.write("x10_boolean "+StructCType+ "::equals(x10aux::ref<x10::lang::Any> that) {");
             sw.newline(4); sw.begin(0);
-            sw.writeln("x10aux::ref<x10::lang::Reference> thatAsRef(that);");
+            sw.writeln(make_ref(REFERENCE_TYPE)+" thatAsRef(that);");
             sw.write("if (thatAsRef->_type()->equals(x10aux::getRTT<"+StructCType+" >())) {");
             sw.newline(4); sw.begin(0);
             sw.writeln("x10aux::ref<x10::lang::IBox<"+StructCType+" > > thatAsIBox(that);");
@@ -1616,9 +1618,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private void generateProxiesForOverriddenMethods(X10CPPContext_c context,
-    		X10ClassType currentClass, X10ClassType superClass,
-    		X10TypeSystem xts, String maybeVirtual, ClassifiedStream h,
-    		List<ClassMember> members) {
+			X10ClassType currentClass, X10ClassType superClass,
+			X10TypeSystem xts, String maybeVirtual, ClassifiedStream h,
+			List<ClassMember> members) {
 		// first gather a set of all the method names in the current class
 		ArrayList<Name> mnames = getMethodNames(members);
 
@@ -1685,21 +1687,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				if (!dropzone.returnType().isVoid())
 					sw.write("return ");
 				String pat = getCppImplForDef(dropzone.x10Def());
-				if (pat != null) { // TODO: merge with emitNativeAnnotation
+				if (pat != null) {
+					X10ClassType ct = (X10ClassType) dropzone.container().toClass();
+					List<Type> typeArguments  = ct.typeArguments();
+					Expr target = tr.nodeFactory().Super(Position.COMPILER_GENERATED).type(ct);
 					// FIXME: casts!
-					Object[] components = new Object[1+3*newTypeParameters.size() + formals.size()];
-					components[0] = "this";
-					int i = 1;
-					for (Type at : newTypeParameters) {
-						components[i++] = at;
-						components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
-						components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
-					}
+					ArrayList<String> args = new ArrayList<String>();
 					counter = 0;
 					for (Type formal : formals) {
-						components[i++] = "p" + (counter++);
+						args.add("p" + (counter++));
 					}
-					emitter.dumpRegex("Native", components, tr, pat, sw);
+					emitNativeAnnotation(pat, newTypeParameters, target, args, typeArguments);
 				} else {
 					sw.write(Emitter.translateType(superClass, false) +
 							"::" + mangled_method_name(mname.toString()));
@@ -1733,7 +1731,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 	}
 
-    String defaultValue(Type type) {
+	String defaultValue(Type type) {
 		return type.isPrimitive() ? "0" : "x10aux::null";
 	}
 
@@ -2938,7 +2936,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                if (t.isClass()) {
 		                    X10ClassType clsType = (X10ClassType)t.toClass();
 		                    if (clsType.flags().isInterface()) {
-		                        invokeInterface(n, (Expr) target, args, make_ref("x10::lang::Reference"), clsType, mi, needsPlaceCheck, needsNullCheck);
+		                        invokeInterface(n, (Expr) target, args, make_ref(REFERENCE_TYPE), clsType, mi, needsPlaceCheck, needsNullCheck);
 		                        sw.end();
 		                        return;
 		                    }
@@ -3081,7 +3079,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.allowBreak(0, " ");
 	    }
 	    boolean needsCast = true;
-	    sw.write("(((x10::lang::Reference*)(");
+	    sw.write("((("+REFERENCE_TYPE+"*)(");
 	    if (!replicate) {
 	        sw.write("_");
 	    } else {
@@ -3804,11 +3802,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean needsPlaceCheck = !xf.isGlobal() && PlaceChecker.needsPlaceCheck(domain, context);
 		boolean needsNullCheck = needsNullCheck(domain);
 		if (mi.container().toClass().flags().isInterface()) {
-		    sw.write(make_ref("x10::lang::Reference") + " " + name + " = "+iteratorTypeRef+"(");
-		    invokeInterface(n, domain, Collections.EMPTY_LIST, make_ref("x10::lang::Reference"), xts.Iterable(form.type().type()), mi, needsPlaceCheck, needsNullCheck);
+		    sw.write(make_ref(REFERENCE_TYPE) + " " + name + " = "+iteratorTypeRef+"(");
+		    invokeInterface(n, domain, Collections.EMPTY_LIST, make_ref(REFERENCE_TYPE), xts.Iterable(form.type().type()), mi, needsPlaceCheck, needsNullCheck);
 		    sw.write(");"); sw.newline();
 		} else {
-		    sw.write(make_ref("x10::lang::Reference") + " " + name + " = (");
+		    sw.write(make_ref(REFERENCE_TYPE) + " " + name + " = (");
 		    if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
 		    if (needsNullCheck) sw.write("x10aux::nullCheck(");
 		    n.print(domain, sw, tr);
@@ -3816,13 +3814,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    if (needsNullCheck) sw.write(")");
 		    sw.writeln(")->iterator();");
 		}
-		sw.write((doubleTemplate ? "typename " : "")+iteratorType+"::"+(doubleTemplate ? "template ":"")+"itable<x10::lang::Reference> *"+itableName+" = x10aux::findITable"+chevrons(iteratorType)+"("+name+"->_getITables());"); sw.newline();
+		sw.write((doubleTemplate ? "typename " : "")+iteratorType+"::"+(doubleTemplate ? "template ":"")+"itable<"+REFERENCE_TYPE+"> *"+itableName+" = x10aux::findITable"+chevrons(iteratorType)+"("+name+"->_getITables());"); sw.newline();
 
 		sw.write("for (");
 		sw.begin(0);
 
 		sw.write(";"); sw.allowBreak(2, " ");
-		sw.write("(((x10::lang::Reference*)("+name+".operator->()))->*("+itableName+"->hasNext))();");
+		sw.write("((("+REFERENCE_TYPE+"*)("+name+".operator->()))->*("+itableName+"->hasNext))();");
 		sw.allowBreak(2, " ");
 
 		sw.end();
@@ -3833,7 +3831,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(";");
 		sw.newline();
 		sw.write(mangled_non_method_name(form.name().id().toString()));
-        sw.write(" = (((x10::lang::Reference*)("+name+".operator->()))->*("+itableName+"->next))();");
+		sw.write(" = ((("+REFERENCE_TYPE+"*)("+name+".operator->()))->*("+itableName+"->next))();");
 		sw.newline();
 		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
 		    Stmt l = (Stmt) li.next();
@@ -4038,7 +4036,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // class header
         if (!freeTypeParams.isEmpty())
             emitter.printTemplateSignature(freeTypeParams, inc);
-        inc.write("class "+cname+" : public x10::lang::Closure {");
+        inc.write("class "+cname+" : public "+CLOSURE_TYPE+" {");
         inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
 
@@ -4131,8 +4129,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // (an overridden member function will not be called from the itable, which is very non-intuitive).
         // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
         inc.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable(&"+cnamet+"::apply, &Reference::at, &Reference::at, &Reference::equals, &Closure::hashCode, &Reference::home, &"
-        			+cnamet+"::toString, &Closure::typeName);");
+        			cnamet+"::_itable(&"+cnamet+"::apply, &"+REFERENCE_TYPE+"::at, &"+REFERENCE_TYPE+"::at, "+
+        			"&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"+REFERENCE_TYPE+"::home, &"
+        			+cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
@@ -4470,7 +4469,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        e.printStackTrace();
 		        assert (false);
 		    }
-		    invokeInterface(c, target, args, make_ref("x10::lang::Reference"), t.toClass(), ami, needsPlaceCheck, needsNullCheck);
+		    invokeInterface(c, target, args, make_ref(REFERENCE_TYPE), t.toClass(), ami, needsPlaceCheck, needsNullCheck);
 		    return;
 		} else {
             if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
@@ -4734,31 +4733,31 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         return null;
     }
 
-    // FIXME: generic native methods will break
-	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<Expr> args, List<Type> typeArguments) {
-		 Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
-		 assert (receiver != null);
-         components[0] = receiver;
-         if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
-             pat = pat.replaceAll("\\(#0\\)->", "#0::"); // FIXME: HACK
-             pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(receiver.type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
-         }
+	// FIXME: generic native methods will break
+	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<? extends Object> args, List<Type> typeArguments) {
+	    Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
+	    assert (receiver != null);
+	    components[0] = receiver;
+	    if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
+	        pat = pat.replaceAll("\\(#0\\)->", "#0::"); // FIXME: HACK
+	        pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(receiver.type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
+	    }
 
-         int i = 1;
-		 for (Type at : types) {
-			 components[i++] = at;
-			 components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
-			 components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
-		 }
-		 for (Expr e : args) {
-			 components[i++] = e;
-		 }
-         for (Type at : typeArguments) {
-             components[i++] = at;
-             components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
-             components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
-         }
-		 emitter.dumpRegex("Native", components, tr, pat, sw);
+	    int i = 1;
+	    for (Type at : types) {
+	        components[i++] = at;
+	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+	    }
+	    for (Object e : args) {
+	        components[i++] = e;
+	    }
+	    for (Type at : typeArguments) {
+	        components[i++] = at;
+	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+	        components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+	    }
+	    emitter.dumpRegex("Native", components, tr, pat, sw);
 	}
 
 	public void visit(Tuple_c c) {
