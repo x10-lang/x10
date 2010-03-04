@@ -1,0 +1,78 @@
+
+\section{Type definitions}
+
+With value arguments, type arguments, and constraints, the
+syntax for \Xten{} types can often be verbose;
+\Xten{} therefore provides {\em type definitions}
+to allow users to define new type constructors.
+
+Type definitions have the following syntax:
+
+\begin{grammar}
+TypeDefinition \: 
+                \xcd"type"~Identifier
+                           ( \xcd"[" TypeParameters \xcd"]" )\opt \\
+                        && ( \xcd"(" Formals \xcd")" )\opt
+                            Constraint\opt \xcd"=" Type \\
+\end{grammar}
+
+\noindent
+A type definition can be thought of as a type-valued function,
+mapping type parameters and value parameters to a concrete type.
+%
+The following examples are legal type definitions:
+\begin{xten}
+type StringSet = Set[String];
+type MapToList[K,V] = Map[K,List[V]];
+type Nat = Int{self>=0};
+type Int(x: Int) = Int{self==x};
+type Int(lo: Int, hi: Int) = Int{lo <= self, self <= hi};
+\end{xten}
+
+As the two definitions of \xcd"Int" demonstrate, type definitions may 
+be overloaded: two type definitions with different numbers of type
+parameters or with different types of value
+parameters, according to the method overloading rules
+(\Sref{MethodOverload}), define distinct type constructors.
+
+Type definitions may appear as a class or interface member or
+in a block statement.
+
+Type definitions are applicative, not generative; that is, they
+define aliases for types but do not introduce new types.
+Thus, the following code is legal:
+\begin{xten}
+type A = Int;
+type B = String;
+type C = String;
+a: A = 3;
+b: B = new C("Hi");
+c: C = b + ", Mom!";
+\end{xten}
+% An instance of a defined type with no type parameters and no
+% value parameters may 
+If a type definition has no type parameters and no value
+parameters and is an alias for a class type, then a \xcd"new"
+expression may be used to create an instance of the class using
+the type definition's name.
+Given the following type definition:
+\begin{xtenmath}
+type A = C[T$_1$, $\dots$, T$_k$]{c};
+\end{xtenmath}
+where 
+\xcdmath"C[T$_1$, $\dots$, T$_k$]" is a
+class type, a constructor of \xcdmath"C" may be invoked with
+\xcdmath"new A(e$_1$, $\dots$, e$_n$)", if the
+invocation
+\xcdmath"new C[T$_1$, $\dots$, T$_k$](e$_1$, $\dots$, e$_n$)" is
+legal and if the constructor return type is a subtype of
+\xcd"A".
+
+\if 0
+All type definitions are members of their enclosing package or
+class.  A compilation unit may have one or more type definitions
+or class or interface declarations with the same name, as long
+as the definitions have distinct parameters according to the
+method overloading rules (\Sref{MethodOverload}).
+\fi
+
