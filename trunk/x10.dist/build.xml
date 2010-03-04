@@ -81,6 +81,7 @@
                 <include name="*.so"/>
                 <include name="*.dll"/>
                 <include name="*.mft"/>
+                <include name="x10*.jar"/>
             </fileset>
         </delete>
         <!-- TODO: remove generated libs, but not downloaded ones
