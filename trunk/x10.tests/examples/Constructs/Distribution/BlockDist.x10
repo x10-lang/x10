@@ -21,6 +21,8 @@ class BlockDist extends TestDist {
         val r = [1..4, 1..7] as Region;
         pr("r " + r);
 
+	chk(Place.places.length == 4, "This test must be run with 4 places");
+
         prDist("block 0", Dist.makeBlock(r, 0));
         prDist("block 1", Dist.makeBlock(r, 1));
 
