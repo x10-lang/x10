@@ -29,7 +29,7 @@ public class SeqArray2b extends Benchmark {
     // the benchmark
     //
 
-    val a = Array.makeFast[double]([0..N-1, 0..N-1], (Point)=>0.0) as Array[double](2){rect};
+    val a = Array.make[double]([0..N-1, 0..N-1], (Point)=>0.0) as Array[double](2){rect};
 
     def once() {
         for ((i,j):Point(2) in a)
