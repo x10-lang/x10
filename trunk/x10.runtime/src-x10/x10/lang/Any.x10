@@ -43,12 +43,12 @@ public interface Any( @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0
     /**
      * Return true if this entity is in the same home location as the given object.
      *
-     * @param p The given object
-     * @return true if the home location of this entity is the same as the home location of p.
+     * @param r The given object
+     * @return true if the home location of this entity is the same as the home location of r.
      */
     @Native("java", "x10.core.Ref.at(#0, #1)")
     @Native("c++", "(x10aux::get_location(#0) == (#1)->location)")
-    property def at(p:Object):Boolean;
+    property def at(r:Object):Boolean;
 
     /**
      * Return true if the home location of this entity is the given place.
@@ -115,7 +115,7 @@ public interface Any( @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0
      * Note that the method is global and safe, so the implementations cannot
      * spawn activities at other places.  So, either the equality comparison
      * has to be based on only global information, or the implementation has
-     * to ensure that the home location of the entities is 'here', and
+     * to ensure that the home location of this entity is 'here', and
      * possibly throw an exception if not.
      *
      * @return the hash code of this entity.
