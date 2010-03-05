@@ -748,6 +748,123 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		Type t = tn.type();
+		
+		// Fix for XTENLANG-1099
+                X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+                if (xts.typeEquals(xts.Object(), t, tr.context())) {
+		    /*
+		     * Because @NativeRep of x10.lang.Object is java.lang.Object,
+		     * we cannot compile "instanceof x10.lang.Object" as "instanceof @NativeRep".
+		     */
+
+                    w.write("(!");
+                    w.write("(");
+
+                    w.write("(null == ");
+                    w.write("(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+                    w.write(")");
+                    
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Struct()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Byte()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Short()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+                    
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Int()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Long()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Float()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Double()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Char()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Boolean()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    // Java representation of unsigned types are same as signed ones.
+                    /*
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.UByte()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.UShort()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+                    
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.UInt()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.ULong()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+                    */
+                    
+                    w.write(")");
+                    w.write(")");
+		    return;
+		}
+                
 		new RuntimeTypeExpander(er, t).expand(tr);
 		w.write(".");
 		w.write("instanceof$(");
