@@ -11,23 +11,15 @@
 
 package x10c;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
-import polyglot.ast.SourceFile;
-import polyglot.frontend.AbstractGoal_c;
-import polyglot.frontend.Compiler;
 import polyglot.frontend.Goal;
-import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
 import polyglot.types.TypeSystem;
-import x10.optimizations.Optimizer;
 import x10.visit.SharedBoxer;
-import x10.visit.TestNodeVisitor;
-import x10.visit.TestVisitor;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
     @Override
