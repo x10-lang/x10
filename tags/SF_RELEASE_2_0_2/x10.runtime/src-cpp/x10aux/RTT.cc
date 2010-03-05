@@ -22,6 +22,10 @@
 using namespace x10aux;
 using namespace x10::lang;
 
+#ifdef __CYGWIN__
+extern "C" char *strdup(const char *);
+#endif
+
 const char *RuntimeType::name() const {
     if (NULL == fullTypeName) {
         assert(paramsc > 0); // if paramssc == 0, then fullTypeName is set to baseName in initRTT();
