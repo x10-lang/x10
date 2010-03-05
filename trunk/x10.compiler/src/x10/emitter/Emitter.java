@@ -439,7 +439,7 @@ public class Emitter {
 			X10ClassType act = (X10ClassType) at;
 			if (index < act.propertyInitializers().size()) {
 				Expr e = act.propertyInitializer(index);
-				if (e.isConstant()) {
+                                if (e != null && e.isConstant()) {
 					Object v = e.constantValue();
 					if (v instanceof String) {
 						return (String) v;
