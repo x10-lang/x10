@@ -132,6 +132,7 @@ namespace x10aux {
     extern bool init_config_bools_done;
     void init_config_bools (void);
     extern bool use_ansi_colors_;
+    extern bool disable_dealloc_;
     extern bool trace_alloc_;
     extern bool trace_init_;
     extern bool trace_x10rt_;
