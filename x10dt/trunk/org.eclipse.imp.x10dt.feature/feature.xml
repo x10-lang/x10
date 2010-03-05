@@ -60,7 +60,7 @@
          id="org.eclipse.imp.x10dt.help"
          download-size="0"
          install-size="0"
-         version="2.0.1.qualifier"
+         version="2.0.2.qualifier"
          unpack="false"/>
 
    <plugin
@@ -163,5 +163,11 @@
          install-size="0"
          version="2.0.2.qualifier"
          fragment="true"/>
+
+   <plugin
+         id="polyglot.bytecode"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"/>
 
 </feature>
