@@ -13,6 +13,7 @@ package x10.ast;
 
 import java.util.Collections;
 
+import polyglot.ast.AmbReceiver;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -22,6 +23,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
+import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
@@ -32,10 +34,12 @@ import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.UnknownType;
+import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.PrettyPrinter;
 
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
@@ -44,6 +48,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
+import x10.types.ParametrizedType_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;
@@ -93,6 +98,32 @@ public class X10Field_c extends Field_c {
 		}
 		return n;
 	}
+	
+    // Fix XTENLANG-945
+    static boolean isInterfaceProperty(Type targetType, FieldInstance fi) {
+        boolean isInterfaceProperty = false;
+
+        if (X10Flags.toX10Flags(fi.flags()).isProperty()) {
+            // check if the target is interface
+            Type baseType = targetType;
+            while (baseType instanceof ConstrainedType) {
+                baseType = ((ConstrainedType) baseType).baseType().get();
+            }
+            Flags flags = null;
+            if (baseType instanceof ClassType) {
+                flags = ((ClassType) baseType).flags();
+            } else if (baseType instanceof ParametrizedType_c) {
+                // TODO add flags() to ParametrizedType and use it
+                flags = ((ParametrizedType_c) baseType).flags();
+            }
+            if (flags != null) {
+                isInterfaceProperty = flags.isInterface();
+            }
+        }
+
+        return isInterfaceProperty;
+    }
+	
 	public Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		final X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
@@ -145,6 +176,12 @@ public class X10Field_c extends Field_c {
 						" on node of type " + target.getClass().getName() + ".",
 						position());
 			}
+
+//			// Fix XTENLANG-945 (alternative common fix)
+//			if (isInterfaceProperty(tType, fi)) {
+//				throw new NoMemberException(NoMemberException.FIELD, "interface property access will be translated to property method call");
+//			}
+
 			X10Field_c result = this;
 			Type type = c.inDepType()? rightType(fi.rightType(), fi.x10Def(), target, c) :
 				fieldRightType(fi.rightType(), fi.x10Def(), target, c);
@@ -287,4 +324,28 @@ public class X10Field_c extends Field_c {
 			}
 		}
 	}
+
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        w.begin(0);
+        if (!targetImplicit) {
+            // explicit target.
+            if (target instanceof Expr) {
+                printSubExpr((Expr) target, w, tr);
+            } else if (target instanceof TypeNode || target instanceof AmbReceiver) {
+                print(target, w, tr);
+            }
+
+            w.write(".");
+            w.allowBreak(2, 3, "", 0);
+        }
+        tr.print(this, name, w);
+        
+        // Fix XTENLANG-945 (Java backend only fix)
+        // Change field access to method access
+        if (isInterfaceProperty(target.type(), fi)) {
+            w.write("()");
+        }
+        
+        w.end();
+    }
 }
