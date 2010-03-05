@@ -33,7 +33,7 @@ const char *RuntimeType::name() const {
             ss << params[i]->name();
         }
         ss << "]";
-        const_cast<RuntimeType*>(this)->fullTypeName = ss.str().c_str();
+        const_cast<RuntimeType*>(this)->fullTypeName = ::strdup(ss.str().c_str());
     }
     
     return fullTypeName;
