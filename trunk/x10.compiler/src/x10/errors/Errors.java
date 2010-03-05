@@ -15,6 +15,7 @@ import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
+import polyglot.ast.New;
 import polyglot.ast.Receiver;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
@@ -364,6 +365,19 @@ public class Errors {
 			if (o==null || ! (o instanceof StructMustBeStatic) )
 				return false;
 			return((StructMustBeStatic)o).position().equals(position());
+		}
+	}
+	public static class NewOfStructNotPermitted extends SemanticException {
+		private static final long serialVersionUID = 2484875712265904017L;
+		public NewOfStructNotPermitted(New n) {
+			super("Struct constructor invocations must not use \"new\"."
+					+ "\n\t Struct: " + n.toString(),
+					n.position());
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof NewOfStructNotPermitted) )
+				return false;
+			return((NewOfStructNotPermitted)o).position().equals(position());
 		}
 	}
 	
