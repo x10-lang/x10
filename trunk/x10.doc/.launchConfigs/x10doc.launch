@@ -12,7 +12,7 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="polyglot.main.Main"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-extclass x10doc.ExtensionInfo -sourcepath &quot;${workspace_loc:x10.runtime/src-x10}&quot; -sourcepath &quot;${workspace_loc:x10.dist}/lib/x10.jar&quot; -sourcepath &quot;${workspace_loc:x10.tests}/examples/x10lib&quot; -assert &quot;${resource_loc}&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-extclass x10doc.ExtensionInfo -d &quot;${workspace_loc:x10.doc}/out2&quot; -sourcepath &quot;${workspace_loc:x10.runtime/src-x10}&quot; -sourcepath &quot;${workspace_loc:x10.dist}/lib/x10.jar&quot; -sourcepath &quot;${workspace_loc:x10.tests}/examples/x10lib&quot; -assert &quot;${resource_loc}&quot;"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="x10.doc"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${container_loc}"/>
