@@ -30,6 +30,7 @@ import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10FieldDecl_c;
 import x10.ast.X10MethodDecl_c;
+import x10.extension.X10Ext;
 import x10.parser.X10Parser;
 import x10.types.ParameterType;
 import x10.types.TypeDef;
@@ -78,7 +79,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		}
 
 		// List<TopLevelDecl> decls = n.decls();
-        // X10ClassDoc[] classes = new X10ClassDoc[decls.size()];
+		// X10ClassDoc[] classes = new X10ClassDoc[decls.size()];
 		this.rootDoc = X10RootDoc.getRootDoc(job.extensionInfo().getOptions().output_directory.getPath());
 		this.stack = new Stack<X10ClassDoc>();
 		for (TopLevelDecl td: n.decls()) {
@@ -91,9 +92,16 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		this.parser = null;
 	}
 
+	private String getDocComments(Node n) {
+		String s = ((X10Ext) n.ext()).comment();
+		if (s != null)
+			return s;
+		return printDocComments(n.position().offset());
+	}
+
 	@Override
 	public void visit(X10ClassDecl_c n) {
-		String comments = printDocComments(n.position().offset());
+		String comments = getDocComments(n);
 
 		/*
 		System.out.println("visit(X10ClassDecl_c): Extracted comment text follows.");
@@ -178,7 +186,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
 	@Override
 	public void visit(X10FieldDecl_c n) {
-		String comments = printDocComments(n.position().offset());
+		String comments = getDocComments(n);
 		
 		FieldDef fd = n.fieldDef();
 
@@ -205,7 +213,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
 	@Override
 	public void visit(X10ConstructorDecl_c n) {
-		String comments = printDocComments(n.position().offset());
+		String comments = getDocComments(n);
 
 		/*
 		System.out.print("  Constructor: " + n.returnType().nameString() + " " + n.name() + "(");
@@ -230,7 +238,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
 	@Override
 	public void visit(X10MethodDecl_c n) {
-		String comments = printDocComments(n.position().offset());
+		String comments = getDocComments(n);
 
 		/*
 		System.out.print("  Method: " + n.returnType().nameString() + " " + n.name() + "(");
@@ -256,7 +264,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 	@Override
 	public void visit(TypeDecl_c n) {
 		// System.out.println("visit(TypeDecl_c{" + n + "}: node not handled");
-		String comments = printDocComments(n.position().offset());
+		String comments = getDocComments(n);
 		TypeDef def = n.typeDef();
 		X10ClassDoc cd = stack.peek();
 		cd.updateTypeDef(def, comments);
