@@ -242,9 +242,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		}
 
 		result += ".</TT><PRE>\n</PRE>"; // the period before <TT> is required because the declaration string is 
-                                         // added as a prefix to the first sentence, and is displayed in the 
-                                         // "Class Summary" table, where newlines are replaced with single spaces;
-                                         // the period separates the declaration from the first sentence in the 
+		                                 // added as a prefix to the first sentence, and is displayed in the 
+		                                 // "Class Summary" table, where newlines are replaced with single spaces;
+		                                 // the period separates the declaration from the first sentence in the 
 		                                 // "Class Summary" section
 		return result;
 	}
@@ -334,6 +334,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			fields.put(fieldKey(fdef), fd);
 		}
 		else {
+			String existingCmnt = fd.commentText();
+			assert(existingCmnt.equals("") || existingCmnt.equals(comments)) : "X10ClassDoc.updateField(" + 
+				fieldKey(fdef) + ",...): mismatch between existing and given comments";
 			// fd.setIncluded(true);
 			fd.setRawCommentText(comments);
 		}
@@ -347,6 +350,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			constructors.put(methodKey(cdef), cd);
 		}
 		else {
+			String existingCmnt = cd.commentText();
+			assert(existingCmnt.equals("") || existingCmnt.equals(comments)) : "X10ClassDoc.updateConstructor(" + 
+				methodKey(cdef) + ",...): mismatch between existing and given comments";
 			// cd.setIncluded(true);
 			cd.setRawCommentText(comments);
 		}
@@ -360,10 +366,13 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			methods.put(methodKey(mdef), md);
 		}
 		else {
+			String existingCmnt = md.commentText();
+			assert(existingCmnt.equals("") || existingCmnt.equals(comments)) : "X10ClassDoc.updateMethod(" + 
+				methodKey(mdef) + ",...): mismatch between existing and given comments";
 			// md.setIncluded(true);
 			// commented to avoid duplicate addition of declaration comments
 			// TODO: determine what needs to be done here or use another method/method name
-			// md.setRawCommentText(comments);
+			md.setRawCommentText(comments);
 		}
 		return md;
 	}
@@ -375,10 +384,13 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			methods.put(methodKey(tdef), td);
 		}
 		else {
-			// md.setIncluded(true);
+			String existingCmnt = td.commentText();
+			assert(existingCmnt.equals("") || existingCmnt.equals(comments)) : "X10ClassDoc.updateTypeDef(" + 
+				methodKey(tdef) + ",...): mismatch between existing and given comments";
+			// td.setIncluded(true);
 			// commented to avoid duplicate addition of declaration comments
 			// TODO: determine what needs to be done here or use another method/method name
-			// md.setRawCommentText(comments);
+			td.setRawCommentText(comments);
 		}
 		return td;
 	}
