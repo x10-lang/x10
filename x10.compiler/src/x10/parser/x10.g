@@ -13,20 +13,17 @@
 %End
 
 %Notice
-/.
-/*
- *  This file is part of the X10 project (http://x10-lang.org).
- *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2010.
- */
-
-//#line $next_line "$input_file$"
-./
+    /./*
+     *  This file is part of the X10 project (http://x10-lang.org).
+     *
+     *  This file is licensed to You under the Eclipse Public License (EPL);
+     *  You may not use this file except in compliance with the License.
+     *  You may obtain a copy of the License at
+     *      http://www.opensource.org/licenses/eclipse-1.0.php
+     *
+     *  (C) Copyright IBM Corporation 2006-2010.
+     */
+    ./
 %End
 
 %Globals
@@ -107,7 +104,6 @@
     import x10.ast.PropertyDecl;
     import x10.ast.RegionMaker;
     import x10.ast.X10Binary_c;
-    import x10.ast.X10Cast_c;
     import x10.ast.X10Unary_c;
     import x10.ast.X10IntLit_c;
     import x10.extension.X10Ext;
@@ -127,6 +123,7 @@
     import polyglot.parse.VarDeclarator;
     import polyglot.types.Flags;
     import x10.types.X10Flags;
+    import x10.types.checker.Converter;
     import polyglot.types.SemanticException;
     import polyglot.types.Type;
     import polyglot.types.TypeSystem;
@@ -142,6 +139,7 @@
     import lpg.runtime.BadParseException;
     import lpg.runtime.BadParseSymFileException;
     import lpg.runtime.DiagnoseParser;
+    import lpg.runtime.IToken;
     import lpg.runtime.LexStream;
     import lpg.runtime.NotBacktrackParseTableException;
     import lpg.runtime.NullExportedSymbolsException;
@@ -471,7 +469,7 @@ public static class MessageHandler implements IMessageHandler {
             public String toText()
             {
                 if (leftIToken == null) return "...";
-                IPrsStream prsStream = leftIToken.getPrsStream();
+                IPrsStream prsStream = leftIToken.getIPrsStream();
                 return new String(prsStream.getInputChars(), offset(), endOffset() - offset() + 1);
             }
         }
@@ -571,11 +569,15 @@ public static class MessageHandler implements IMessageHandler {
             return new Identifier(pos(i), prsStream.getName(i), $sym_type.TK_IDENTIFIER);
         }
         private String comment(int i) {
-            String s = prsStream.getName(i);
-            if (s != null && s.startsWith("/**") && s.endsWith("*/")) {
-                return s +"\n";
+            IToken[] adjuncts = prsStream.getTokenAt(i).getPrecedingAdjuncts();
+            String s = null;
+            for (IToken a : adjuncts) {
+                String c = a.toString();
+                if (c.startsWith("/**") && c.endsWith("*/")) {
+                    s = c;
+                }
             }
-            return null;
+            return s;
         }
 
         private List<Formal> toFormals(List<Formal> l) { return l; }
@@ -1107,7 +1109,7 @@ public static class MessageHandler implements IMessageHandler {
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
               Type,
-              nf.Id(pos(), X10Cast_c.operator_as),
+              nf.Id(pos(), Converter.operator_as),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
@@ -1124,7 +1126,7 @@ public static class MessageHandler implements IMessageHandler {
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
               ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
-              nf.Id(pos(), X10Cast_c.operator_as),
+              nf.Id(pos(), Converter.operator_as),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
@@ -1141,7 +1143,7 @@ public static class MessageHandler implements IMessageHandler {
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
               ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
-              nf.Id(pos(), X10Cast_c.implicit_operator_as),
+              nf.Id(pos(), Converter.implicit_operator_as),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
@@ -1554,10 +1556,11 @@ public static class MessageHandler implements IMessageHandler {
                             TypeNode type = (TypeNode) o[3];
                             if (type == null) type = nf.UnknownTypeNode(name.position());
                             Expr init = (Expr) o[4];
-                            FieldDecl ld = nf.FieldDecl(pos, fn,
+                            FieldDecl fd = nf.FieldDecl(pos, fn,
                                                type, name, init);
-                            ld = (FieldDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(FieldModifiersopt));
-                            l.add(ld);
+                            fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(FieldModifiersopt));
+                            fd = (FieldDecl) ((X10Ext) fd.ext()).setComment(comment(getRhsFirstTokenIndex(1)));
+                            l.add(fd);
                         }
                     setResult(l);
           $EndJava
@@ -1579,10 +1582,11 @@ public static class MessageHandler implements IMessageHandler {
                             TypeNode type = (TypeNode) o[3];
                             if (type == null) type = nf.UnknownTypeNode(name.position());
                             Expr init = (Expr) o[4];
-                            FieldDecl ld = nf.FieldDecl(pos, fn,
+                            FieldDecl fd = nf.FieldDecl(pos, fn,
                                                type, name, init);
-                            ld = (FieldDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(FieldModifiersopt));
-                            l.add(ld);
+                            fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(FieldModifiersopt));
+                            fd = (FieldDecl) ((X10Ext) fd.ext()).setComment(comment(getRhsFirstTokenIndex(1)));
+                            l.add(fd);
                         }
                     setResult(l);
           $EndJava
