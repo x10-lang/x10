@@ -1109,7 +1109,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
       //  	return true;
         
         if (fromType instanceof NullType) {
-            return toType.isNull() || ts.isReferenceOrInterfaceType(toType, (X10Context) context);
+            return toType.isNull() ||  X10TypeMixin.permitsNull(toType);
           
         }
 

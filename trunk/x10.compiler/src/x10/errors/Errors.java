@@ -380,6 +380,20 @@ public class Errors {
 			return((NewOfStructNotPermitted)o).position().equals(position());
 		}
 	}
+	public static class InstanceofError extends SemanticException {
+		private static final long serialVersionUID = -3026696944876868780L;
+		public InstanceofError(Type left, Type right, Position pos) {
+			super("Left operand of instanceof must be castable to right type."
+					+ "\n\t Left type: " + left
+					+ "\n\t Right type: " + right,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof InstanceofError) )
+				return false;
+			return((InstanceofError)o).position().equals(position());
+		}
+	}
 	
 	
 }

@@ -670,6 +670,12 @@ public class X10TypeMixin {
 			 c = new CConstraint_c();
 		 return c.disEntails(t1, t2);
 	  }
+	  public static boolean disEntailsSelf(Type t, XTerm t2) {
+			 CConstraint c = realX(t);
+			 if (c==null) 
+				 c = new CConstraint_c();
+			 return c.disEntails(c.self(), t2);
+		  }
 
 	 
 	protected static boolean amIProperty(Type t, Name propName, X10Context context) {
@@ -912,7 +918,14 @@ public class X10TypeMixin {
 	*/
 	
 	public static boolean permitsNull(Type t) {
-		return ! isX10Struct(t);
+		if (isX10Struct(t))
+			return false;
+		if (X10TypeMixin.disEntailsSelf(t, XTerms.NULL))
+			return false;
+		if (((X10TypeSystem) t.typeSystem()).isParameterType(t))
+			return false;
+		return true;
+		
 	}
 
 	public static XRoot thisVar(XRoot xthis, Type thisType) {
