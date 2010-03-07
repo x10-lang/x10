@@ -70,6 +70,7 @@ import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.visit.X10TypeChecker;
+import x10.types.checker.VarChecker;
 
 
 public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, AddFlags {
@@ -446,30 +447,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
     	result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
     	result = (CanonicalTypeNode) result.del().typeCheck(childtc);
     	 {
-          	class VarChecker extends ContextVisitor {
-          		VarChecker(Job job, TypeSystem ts, polyglot.ast.NodeFactory nf) {
-          			super(job, ts, nf);
-          		}
-          		SemanticException error = null;
-          		@Override
-          		public Node override(Node n) {
-          			if (n instanceof NamedVariable) {
-          				NamedVariable e = (NamedVariable) n;
-          				if (! e.flags().isFinal())
-          				    error = new Errors.VarMustBeFinalInTypeDef(e.name().toString(), e.position()); 
-          				
-          				if (n instanceof Field) {
-          					Field l = (Field) n;
-          					if (! new X10TypeEnv_c(context).isAccessible(l.fieldInstance())) {
-          						 error = new Errors.VarMustBeAccessibleInTypeDef(l.fieldInstance(), e.position()); 
-          					}
-          				}
-          				return n;
-          			}
-
-          			return null;
-          		}
-          	}
+          	
 
           	VarChecker ac = new VarChecker(childtc.job(), Globals.TS(), Globals.NF());
           	result.visit(ac);
