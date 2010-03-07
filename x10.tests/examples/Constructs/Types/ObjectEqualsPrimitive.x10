@@ -25,7 +25,7 @@ public class ObjectEqualsPrimitive extends x10Test {
 		return res;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String])  {
 		new ObjectEqualsPrimitive().execute();
 	}
 }
