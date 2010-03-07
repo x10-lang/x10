@@ -78,6 +78,7 @@ namespace x10 {
         };
 
         template<class T> void PlaceLocalHandle_Impl<T>::_initRTT() {
+            if (rtt.initStageOne(x10aux::getRTT<PlaceLocalHandle_Impl<void> >())) return;
             x10::lang::_initRTTHelper_PlaceLocalHandle_Impl(&rtt, x10aux::getRTT<T>());
         }
 

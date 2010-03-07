@@ -37,7 +37,8 @@ x10_int Struct::hashCode() {
 
 RuntimeType Struct::rtt;
 void Struct::_initRTT() {
-    rtt.init(&rtt, "x10.lang.Struct", 0, NULL, 0, NULL, NULL);
+    if (rtt.initStageOne(&rtt)) return;
+    rtt.initStageTwo("x10.lang.Struct", 0, NULL, 0, NULL, NULL);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100

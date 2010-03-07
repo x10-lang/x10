@@ -36,8 +36,9 @@
 #define RTT_CC_DECLS1(TYPE,NAME,P1)                             \
     x10aux::RuntimeType TYPE::rtt;                              \
     void TYPE::_initRTT() {                                     \
+        if (rtt.initStageOne(&rtt)) return;                     \
         const x10aux::RuntimeType* parents[1] = {P1::getRTT()}; \
-        rtt.init(&rtt, NAME, 1, parents, 0, NULL, NULL);        \
+        rtt.initStageTwo(NAME, 1, parents, 0, NULL, NULL);      \
     }
 
 namespace x10 {
@@ -85,10 +86,25 @@ namespace x10aux {
         Variance *variances;
         const char* fullTypeName;
         const char* baseName;
+
+        // Initialization protocol.
+        // (a) Call initStageOne before attempting to acquire the RTT
+        //     if any of the types parents or parameters.
+        // (b) if initStageOne returns true, then the type is either
+        //       (a) being recursively initialized by the same thread
+        //       (b) has already been initialied by another thread
+        //     In either case, return from initRTT because by the time
+        //     we unwind all the way back to the "user" code, the recursive
+        //     RTT cycle will have been fully initialized.
+        // (c) call getRTT on any input RTTs
+        // (d) call initStageTwo
+
         
-        void init(const RuntimeType* canonical_, const char* baseName_,
-                  int parsentsc_, const RuntimeType** parents_,
-                  int paramsc_, const RuntimeType** params_, Variance* variances_);
+        bool initStageOne(const RuntimeType* canonical_);
+        
+        void initStageTwo(const char* baseName_,
+                          int parsentsc_, const RuntimeType** parents_,
+                          int paramsc_, const RuntimeType** params_, Variance* variances_);
 
         const char *name() const;
 
@@ -211,15 +227,6 @@ namespace x10aux {
         assert(NULL != t);
         return t->name();
     } };
-
-/*
-    template<class T> struct TypeName<ref<T> > { static const char *_() {
-        const RuntimeType *t = getRTT<T>();
-        if (t == NULL) return "Uninitialized RTT";
-        static const char *with_star = alloc_printf("%s*",t->name());
-        return with_star;
-    } };
-*/
 
     template<class T> const char *typeName() {
         return TypeName<T>::_();

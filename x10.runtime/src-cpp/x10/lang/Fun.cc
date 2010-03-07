@@ -64,23 +64,22 @@ namespace x10 {
 
         void
         VoidFun_0_0::_initRTT() {
-            rtt.init(&rtt, "x10::lang::VoidFun_0_0", 0, NULL, 0, NULL, NULL);
+            if (rtt.initStageOne(&rtt)) return;
+            rtt.initStageTwo("x10::lang::VoidFun_0_0", 0, NULL, 0, NULL, NULL);
         }
 
         void
         _initRTTHelper_Fun_0_0(RuntimeType *location, const RuntimeType *rtt0) {
             const RuntimeType* params[1] = { rtt0 };
             RuntimeType::Variance variances[1] = { RuntimeType::covariant };
-            const RuntimeType* canonical = getRTT<Fun_0_0<void> >();
-            location->init(canonical, "x10.lang.Fun_0_0", 0, NULL, 1, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_0", 0, NULL, 1, params, variances);
         }
 
         void
         _initRTTHelper_Fun_0_1(RuntimeType *location, const RuntimeType *rtt0, const RuntimeType *rtt1) {
             const RuntimeType* params[2] = { rtt0, rtt1 };
             RuntimeType::Variance variances[2] = { RuntimeType::contravariant, RuntimeType::covariant };
-            const RuntimeType* canonical = getRTT<Fun_0_1<void, void> >();
-            location->init(canonical, "x10.lang.Fun_0_1", 0, NULL, 2, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_1", 0, NULL, 2, params, variances);
         }    
 
         void
@@ -90,8 +89,7 @@ namespace x10 {
                                const RuntimeType *rtt2) {
             const RuntimeType* params[3] = { rtt0, rtt1, rtt2 };
             RuntimeType::Variance variances[] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            const RuntimeType* canonical = getRTT<Fun_0_2<void, void, void> >();
-            location->init(canonical, "x10.lang.Fun_0_2", 0, NULL, 3, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_2", 0, NULL, 3, params, variances);
         }    
 
         void
@@ -102,8 +100,7 @@ namespace x10 {
                                const RuntimeType *rtt3) {
             const RuntimeType* params[4] = { rtt0, rtt1, rtt2, rtt3 };
             RuntimeType::Variance variances[4] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            const RuntimeType* canonical = getRTT<Fun_0_3<void, void, void, void> >();
-            location->init(canonical, "x10.lang.Fun_0_3", 0, NULL, 4, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_3", 0, NULL, 4, params, variances);
         }    
 
         void
@@ -115,8 +112,7 @@ namespace x10 {
                                const RuntimeType *rtt4) {
             const RuntimeType* params[5] = { rtt0, rtt1, rtt2, rtt3, rtt4 };
             RuntimeType::Variance variances[5] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            const RuntimeType* canonical = getRTT<Fun_0_4<void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.Fun_0_4", 0, NULL, 5, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_4", 0, NULL, 5, params, variances);
         }    
 
         void
@@ -130,8 +126,7 @@ namespace x10 {
             const RuntimeType* params[6] = { rtt0, rtt1, rtt2, rtt3, rtt4, rtt5 };
             RuntimeType::Variance variances[6] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            const RuntimeType* canonical = getRTT<Fun_0_5<void, void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.Fun_0_5", 0, NULL, 6, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_5", 0, NULL, 6, params, variances);
         }    
 
         void
@@ -147,8 +142,7 @@ namespace x10 {
             RuntimeType::Variance variances[7] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::covariant };
-            const RuntimeType* canonical = getRTT<Fun_0_6<void, void, void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.Fun_0_6", 0, NULL, 7, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_6", 0, NULL, 7, params, variances);
         }    
 
         void
@@ -165,8 +159,7 @@ namespace x10 {
             RuntimeType::Variance variances[8] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::covariant };
-            const RuntimeType* canonical = getRTT<Fun_0_7<void, void, void, void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.Fun_0_7", 0, NULL, 8, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_7", 0, NULL, 8, params, variances);
         }    
 
         void
@@ -184,8 +177,7 @@ namespace x10 {
             RuntimeType::Variance variances[9] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            const RuntimeType* canonical = getRTT<Fun_0_8<void, void, void, void, void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.Fun_0_8", 0, NULL, 9, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_8", 0, NULL, 9, params, variances);
         }    
 
         void
@@ -205,16 +197,14 @@ namespace x10 {
                                                     RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                     RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                     RuntimeType::covariant };
-            const RuntimeType* canonical = getRTT<Fun_0_9<void, void, void, void, void, void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.Fun_0_9", 0, NULL, 10, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_9", 0, NULL, 10, params, variances);
         }    
 
         void
         _initRTTHelper_VoidFun_0_1(RuntimeType *location, const RuntimeType *rtt1) {
             const RuntimeType* params[1] = { rtt1 };
             RuntimeType::Variance variances[] = { RuntimeType::contravariant };
-            const RuntimeType* canonical = getRTT<VoidFun_0_1<void> >();
-            location->init(canonical, "x10.lang.VoidFun_0_1", 0, NULL, 1, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_1", 0, NULL, 1, params, variances);
         }    
 
         void
@@ -223,8 +213,7 @@ namespace x10 {
                                    const RuntimeType *rtt2) {
             const RuntimeType* params[2] = { rtt1, rtt2 };
             RuntimeType::Variance variances[2] = { RuntimeType::contravariant, RuntimeType::contravariant };
-            const RuntimeType* canonical = getRTT<VoidFun_0_2<void, void> >();
-            location->init(canonical, "x10.lang.VoidFun_0_2", 0, NULL, 2, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_2", 0, NULL, 2, params, variances);
         }    
 
         void
@@ -234,8 +223,7 @@ namespace x10 {
                                    const RuntimeType *rtt3) {
             const RuntimeType* params[3] = { rtt1, rtt2, rtt3 };
             RuntimeType::Variance variances[3] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            const RuntimeType* canonical = getRTT<VoidFun_0_3<void, void, void> >();
-            location->init(canonical, "x10.lang.VoidFun_0_3", 0, NULL, 3, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_3", 0, NULL, 3, params, variances);
         }    
 
         void
@@ -246,8 +234,7 @@ namespace x10 {
                                    const RuntimeType *rtt4) {
             const RuntimeType* params[4] = { rtt1, rtt2, rtt3, rtt4 };
             RuntimeType::Variance variances[4] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            const RuntimeType* canonical = getRTT<VoidFun_0_4<void, void, void, void> >();
-            location->init(canonical, "x10.lang.VoidFun_0_4", 0, NULL, 4, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_4", 0, NULL, 4, params, variances);
         }    
 
         void
@@ -259,8 +246,7 @@ namespace x10 {
                                    const RuntimeType *rtt5) {
             const RuntimeType* params[5] = { rtt1, rtt2, rtt3, rtt4, rtt5 };
             RuntimeType::Variance variances[5] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            const RuntimeType* canonical = getRTT<VoidFun_0_5<void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.VoidFun_0_5", 0, NULL, 5, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_5", 0, NULL, 5, params, variances);
         }    
 
         void
@@ -274,8 +260,7 @@ namespace x10 {
             const RuntimeType* params[6] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6 };
             RuntimeType::Variance variances[6] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant };
-            const RuntimeType* canonical = getRTT<VoidFun_0_6<void, void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.VoidFun_0_6", 0, NULL, 6, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_6", 0, NULL, 6, params, variances);
         }    
 
         void
@@ -290,8 +275,7 @@ namespace x10 {
             const RuntimeType* params[7] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7 };
             RuntimeType::Variance variances[7] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant };
-            const RuntimeType* canonical = getRTT<VoidFun_0_7<void, void, void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.VoidFun_0_7", 0, NULL, 7, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_7", 0, NULL, 7, params, variances);
         }    
 
         void
@@ -307,8 +291,7 @@ namespace x10 {
             const RuntimeType* params[8] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7, rtt8 };
             RuntimeType::Variance variances[8] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            const RuntimeType* canonical = getRTT<VoidFun_0_8<void, void, void, void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.VoidFun_0_8", 0, NULL, 8, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_8", 0, NULL, 8, params, variances);
         }    
 
         void
@@ -325,8 +308,7 @@ namespace x10 {
             const RuntimeType* params[9] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7, rtt8, rtt9 };
             RuntimeType::Variance variances[9] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            const RuntimeType* canonical = getRTT<VoidFun_0_9<void, void, void, void, void, void, void, void, void> >();
-            location->init(canonical, "x10.lang.VoidFun_0_9", 0, NULL, 9, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_9", 0, NULL, 9, params, variances);
         }    
     }
 }

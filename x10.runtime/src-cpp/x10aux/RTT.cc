@@ -97,10 +97,10 @@ bool RuntimeType::concreteInstanceOf (const ref<Reference> &other) const {
     return other->_type()->equals(this);
 }
 
-void RuntimeType::init(const RuntimeType *canonical_, const char* baseName_,
-                       int parentsc_, const RuntimeType** parents_,
-                       int paramsc_, const RuntimeType** params_,
-                       Variance* variances_) {
+
+
+bool RuntimeType::initStageOne(const RuntimeType *canonical_) {
+
     // Ensure that at most one thread is doing any RTT initialization at a time.
     // This is overkill, since many RTT's have nothing to do with each other and
     // RTT initialization is idempotent. However, we want to make sure that if
@@ -117,16 +117,31 @@ void RuntimeType::init(const RuntimeType *canonical_, const char* baseName_,
     if (canonical != NULL) {
         if (isInitialized) {
             const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->unlock();
-            return; // another thread finished the job while this thread was blocked on initRTTLock.
+            return true; // another thread finished the job while this thread was blocked on initRTTLock.
         }
         // We should only get here if there is a cyclic intialization in progress.
         // We don't have a 100% foolproof way to be sure that is what is happening, so
         // just hope that is what is happening and return.
         const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->unlock();
-        return;
+        return true;
     }
     
     canonical = canonical_;
+
+    // NOTE: Intentionally did not call unlock before returning.
+    //       the unlock will happen at the end of initStageTwo
+    //       Return false to indicate that the thread should continue with initStageTwo.
+    return false;  
+}
+
+
+void RuntimeType::initStageTwo(const char* baseName_,
+                               int parentsc_, const RuntimeType** parents_,
+                               int paramsc_, const RuntimeType** params_,
+                               Variance* variances_) {
+    // NOTE: Lock still held because it was not released before returning
+    //       false from the end of initStageOne
+    
     baseName = baseName_;
     parentsc = parentsc_;
     paramsc = paramsc_;
@@ -154,55 +169,69 @@ void RuntimeType::init(const RuntimeType *canonical_, const char* baseName_,
 
     x10aux::atomic_ops::store_load_barrier();
     isInitialized = true; // must come after the store_load_barrier
+
+    // Unlock paired with lock operation at entry to initStageOne.
     const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->unlock();
 }
     
 void RuntimeType::initBooleanType() {
-    BooleanType.init(&BooleanType, "x10.lang.Boolean", 0, NULL, 0, NULL, NULL);
+    if (BooleanType.initStageOne(&BooleanType)) return;
+    BooleanType.initStageTwo("x10.lang.Boolean", 0, NULL, 0, NULL, NULL);
     BooleanType.containsPtrs = false;
 }
 void RuntimeType::initByteType() {
-    ByteType.init(&ByteType, "x10.lang.Byte", 0, NULL, 0, NULL, NULL);
+    if (ByteType.initStageOne(&ByteType)) return;
+    ByteType.initStageTwo("x10.lang.Byte", 0, NULL, 0, NULL, NULL);
     ByteType.containsPtrs = false;
 }
 void RuntimeType::initCharType() {
-    CharType.init(&CharType, "x10.lang.Char", 0, NULL, 0, NULL, NULL);
+    if (CharType.initStageOne(&CharType)) return;
+    CharType.initStageTwo("x10.lang.Char", 0, NULL, 0, NULL, NULL);
     CharType.containsPtrs = false;
 }
 void RuntimeType::initShortType() {
-    ShortType.init(&ShortType, "x10.lang.Short", 0, NULL, 0, NULL, NULL);
+    if (ShortType.initStageOne(&ShortType)) return;
+    ShortType.initStageTwo("x10.lang.Short", 0, NULL, 0, NULL, NULL);
     ShortType.containsPtrs = false;
 }
 void RuntimeType::initIntType() {
-    IntType.init(&IntType, "x10.lang.Int", 0, NULL, 0, NULL, NULL);
+    if (IntType.initStageOne(&IntType)) return;
+    IntType.initStageTwo("x10.lang.Int", 0, NULL, 0, NULL, NULL);
     IntType.containsPtrs = false;
 }
 void RuntimeType::initFloatType() {
-    FloatType.init(&FloatType, "x10.lang.Float", 0, NULL, 0, NULL, NULL);
+    if (FloatType.initStageOne(&FloatType)) return;
+    FloatType.initStageTwo("x10.lang.Float", 0, NULL, 0, NULL, NULL);
     FloatType.containsPtrs = false;
 }
 void RuntimeType::initLongType() {
-    LongType.init(&LongType, "x10.lang.Long", 0, NULL, 0, NULL, NULL);
+    if (LongType.initStageOne(&LongType)) return;
+    LongType.initStageTwo("x10.lang.Long", 0, NULL, 0, NULL, NULL);
     LongType.containsPtrs = false;
 }
 void RuntimeType::initDoubleType() {
-    DoubleType.init(&DoubleType, "x10.lang.Double", 0, NULL, 0, NULL, NULL);
+    if (DoubleType.initStageOne(&DoubleType)) return;
+    DoubleType.initStageTwo("x10.lang.Double", 0, NULL, 0, NULL, NULL);
     DoubleType.containsPtrs = false;
 }
 void RuntimeType::initUByteType() {
-    UByteType.init(&UByteType, "x10.lang.UByte", 0, NULL, 0, NULL, NULL);
+    if (UByteType.initStageOne(&UByteType)) return;
+    UByteType.initStageTwo("x10.lang.UByte", 0, NULL, 0, NULL, NULL);
     UByteType.containsPtrs = false;
 }
 void RuntimeType::initUShortType() {
-    UShortType.init(&UShortType, "x10.lang.UShort", 0, NULL, 0, NULL, NULL);
+    if (UShortType.initStageOne(&UShortType)) return;
+    UShortType.initStageTwo("x10.lang.UShort", 0, NULL, 0, NULL, NULL);
     UShortType.containsPtrs = false;
 }
 void RuntimeType::initUIntType() {
-    UIntType.init(&UIntType, "x10.lang.UInt", 0, NULL, 0, NULL, NULL);
+    if (UIntType.initStageOne(&UIntType)) return;
+    UIntType.initStageTwo("x10.lang.UInt", 0, NULL, 0, NULL, NULL);
     UIntType.containsPtrs = false;
 }
 void RuntimeType::initULongType() {
-    ULongType.init(&ULongType, "x10.lang.ULong", 0, NULL, 0, NULL, NULL);
+    if (ULongType.initStageOne(&ULongType)) return;
+    ULongType.initStageTwo("x10.lang.ULong", 0, NULL, 0, NULL, NULL);
     ULongType.containsPtrs = false;
 }
 
