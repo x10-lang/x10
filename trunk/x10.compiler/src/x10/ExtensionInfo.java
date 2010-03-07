@@ -341,7 +341,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //           goals.add(CodeGenBarrier());
            goals.add(CheckNativeAnnotations(job));
            
-           if (Globals.Options().workstealing) {
+           if (x10.Configuration.WORK_STEALING) {
                goals.add(WSCodeGenerator(job));
            }
            goals.add(InnerClassRemover(job));
