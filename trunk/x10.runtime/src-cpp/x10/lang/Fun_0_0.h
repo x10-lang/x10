@@ -49,6 +49,7 @@ namespace x10 {
         };
 
         template<class R> void Fun_0_0<R>::_initRTT() {
+            if (rtt.initStageOne(x10aux::getRTT<Fun_0_0<void> >())) return;
             x10::lang::_initRTTHelper_Fun_0_0(&rtt, x10aux::getRTT<R>());
         }
 
