@@ -19,8 +19,10 @@ import polyglot.ast.New;
 import polyglot.ast.Receiver;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.VarInstance;
 import polyglot.util.Position;
 import x10.ast.SemanticError;
 import x10.ast.X10Call;
@@ -392,6 +394,32 @@ public class Errors {
 			if (o==null || ! (o instanceof InstanceofError) )
 				return false;
 			return((InstanceofError)o).position().equals(position());
+		}
+	}
+	public static class VarMustBeFinalInTypeDef extends SemanticException {
+		private static final long serialVersionUID = -1828548933164244089L;
+		public VarMustBeFinalInTypeDef(String name, Position pos) {
+			super("Variable must be immutable (val) in type def."
+					+ "\n\t Variable: " + name,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof VarMustBeFinalInTypeDef) )
+				return false;
+			return((VarMustBeFinalInTypeDef)o).position().equals(position());
+		}
+	}
+	public static class VarMustBeAccessibleInTypeDef extends SemanticException {
+		private static final long serialVersionUID = -1984266198367743732L;
+		public VarMustBeAccessibleInTypeDef(VarInstance<?> var, Position pos) {
+			super("Variable must be accessible in type."
+					+ "\n\t Variable: " + var,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof VarMustBeAccessibleInTypeDef) )
+				return false;
+			return((VarMustBeAccessibleInTypeDef)o).position().equals(position());
 		}
 	}
 	

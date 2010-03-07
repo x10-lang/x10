@@ -19,8 +19,10 @@ import polyglot.ast.AmbExpr;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
+import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
 import polyglot.ast.Prefix;
 import polyglot.ast.TypeCheckTypeGoal;
@@ -28,6 +30,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
+import polyglot.frontend.Job;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
@@ -54,6 +57,7 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XRoot;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.MacroType;
@@ -62,6 +66,7 @@ import x10.types.TypeDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10ParsedClassType;
+import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.visit.X10TypeChecker;
@@ -441,23 +446,32 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
     	result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
     	result = (CanonicalTypeNode) result.del().typeCheck(childtc);
     	 {
-          	class VarChecker extends NodeVisitor {
-          		SemanticError error = null;
+          	class VarChecker extends ContextVisitor {
+          		VarChecker(Job job, TypeSystem ts, polyglot.ast.NodeFactory nf) {
+          			super(job, ts, nf);
+          		}
+          		SemanticException error = null;
+          		@Override
           		public Node override(Node n) {
-          			if (n instanceof Local) {
-          				Local e = (Local) n;
+          			if (n instanceof NamedVariable) {
+          				NamedVariable e = (NamedVariable) n;
           				if (! e.flags().isFinal())
-          				    error = new SemanticError("Local variable " +  e.name() 
-        							+ " must be final in type def.", 
-        							e.position());
-          				return n;
+          				    error = new Errors.VarMustBeFinalInTypeDef(e.name().toString(), e.position()); 
           				
+          				if (n instanceof Field) {
+          					Field l = (Field) n;
+          					if (! new X10TypeEnv_c(context).isAccessible(l.fieldInstance())) {
+          						 error = new Errors.VarMustBeAccessibleInTypeDef(l.fieldInstance(), e.position()); 
+          					}
+          				}
+          				return n;
           			}
+
           			return null;
           		}
           	}
 
-          	VarChecker ac = new VarChecker();
+          	VarChecker ac = new VarChecker(childtc.job(), Globals.TS(), Globals.NF());
           	result.visit(ac);
           	
           	if (ac.error != null) {
