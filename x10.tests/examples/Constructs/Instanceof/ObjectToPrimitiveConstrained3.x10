@@ -10,20 +10,21 @@
  */
 
 import harness.x10Test;
-
+import x10.util.Box;
 /**
  * Purpose: Checks boxed integer value is checks against primtive dependent type.
- * Issue: Constraint on self is not meet.
+ * Issue: Constraint on self is not met.
+ * vj: Fixed to deal with new boxing scheme in X10 2.0.
  * @author vcave
  **/
 public class ObjectToPrimitiveConstrained3 extends x10Test {
 	 
 	public def run(): boolean = {
-		var primitive: x10.lang.Object = 3;
-		return !(primitive instanceof Int(4));
+		var primitive:Box[Int]  = new Box[Int](3);
+		return !(primitive.value instanceof Int(4));
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new ObjectToPrimitiveConstrained3().execute();
 	}
 }
