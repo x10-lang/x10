@@ -422,6 +422,20 @@ public class Errors {
 			return((VarMustBeAccessibleInTypeDef)o).position().equals(position());
 		}
 	}
+	public static class CannotExtendTwoInstancesSameInterfaceLimitation extends SemanticException {
+		private static final long serialVersionUID = -1984266198367743732L;
+		public CannotExtendTwoInstancesSameInterfaceLimitation(Type t1, Type t2, Position pos) {
+			super("LIMITATION: Cannot extend different instantiations of the same type."
+					+ "\n\t Type 1: " + t1 
+					+ "\n\t Type 2: " + t2,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotExtendTwoInstancesSameInterfaceLimitation) )
+				return false;
+			return((CannotExtendTwoInstancesSameInterfaceLimitation)o).position().equals(position());
+		}
+	}
 	
 	
 }
