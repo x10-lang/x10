@@ -83,6 +83,7 @@ import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.RewriteExternVisitor;
 import x10.visit.StaticNestedClassRemover;
+import x10.visit.WSCodeGenerator;
 import x10.visit.X10Caster;
 import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InitChecker;
@@ -339,6 +340,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Serialized(job));
 //           goals.add(CodeGenBarrier());
            goals.add(CheckNativeAnnotations(job));
+           
+           if (Globals.Options().workstealing) {
+               goals.add(WSCodeGenerator(job));
+           }
            goals.add(InnerClassRemover(job));
            goals.add(Desugarer(job));
            goals.addAll(Optimizer.goals(this, job));
@@ -509,7 +514,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "java")).intern(this);
        }
-
+       
+       public Goal WSCodeGenerator(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new VisitorGoal("WSCodeGenerator", job, new WSCodeGenerator(job, ts, nf)).intern(this);
+       }
+       
        public Goal Desugarer(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
