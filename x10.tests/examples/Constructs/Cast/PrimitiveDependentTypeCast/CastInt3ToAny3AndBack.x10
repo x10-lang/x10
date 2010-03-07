@@ -24,7 +24,7 @@ import harness.x10Test;
       return true;
    }
 
-   public static def main(var args: Rail[String]): void = {
+   public static def main(Rail[String]) {
       new CastInt3ToAny3AndBack().execute();
    }
 }
