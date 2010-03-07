@@ -64,6 +64,7 @@ import x10.types.X10MemberDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.checker.VarChecker;
 import x10.util.ClosureSynthesizer;
 import x10.visit.X10TypeChecker;
 
@@ -390,6 +391,16 @@ public class Closure_c extends Expr_c implements Closure {
                     tn.position());
             }
         }
+        if (guard != null) {
+        	VarChecker ac = new VarChecker(tc.job(), Globals.TS(), Globals.NF());
+        	ac = (VarChecker) ac.context(tc.context());
+        	guard.visit(ac);
+        	if (ac.error != null) {
+          		throw ac.error;
+          	}
+        }
+      	
+      	
         
         if (n.returnType() instanceof UnknownTypeNode) {
         	NodeFactory nf = tc.nodeFactory();

@@ -34,6 +34,7 @@ import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
+import polyglot.ast.NamedVariable;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -41,6 +42,8 @@ import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
+import polyglot.frontend.Globals;
+import polyglot.frontend.Job;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
@@ -86,6 +89,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.ConstrainedType;
@@ -100,12 +104,14 @@ import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureDef;
+import x10.types.X10TypeEnv_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
+import x10.types.checker.VarChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -794,6 +800,14 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             DepParameterExpr processedWhere = (DepParameterExpr) nn.visitChild(nn.guard(), childtc);
             nn = (X10MethodDecl) nn.guard(processedWhere);
             if (tc.hasErrors()) throw new SemanticException();
+            
+          	VarChecker ac = new VarChecker(childtc.job(), Globals.TS(), Globals.NF());
+          	ac = (VarChecker) ac.context(childtc.context());
+          	processedWhere.visit(ac);
+          	
+          	if (ac.error != null) {
+          		throw ac.error;
+          	}
 
             // Now build the new formal arg list.
             // TODO: Add a marker to the TypeChecker which records
