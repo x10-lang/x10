@@ -701,9 +701,7 @@ X10ClassDecl_c n = this;
             if (t != null) {
                 if (!t.typeEquals(ct, tc.context())) {
                     String kind = ct.flags().isInterface() ? "interface" : "class";
-                    throw new SemanticException("Cannot extend different instantiations of the same " + kind + ";\n" 
-                    		+ type + " extends both " + t + " and "
-                                                + ct + ".", position());
+                    throw new Errors.CannotExtendTwoInstancesSameInterfaceLimitation(t, ct, position());
                 }
             }
             map.put(ct.x10Def(), ct);
