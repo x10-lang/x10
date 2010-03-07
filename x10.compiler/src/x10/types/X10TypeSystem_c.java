@@ -626,9 +626,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     X10UnknownType_c unknownType;
 
     @Override
-    protected ClassType load(String name) {
-       if (name.equals("x10.lang.Box") || name.equals("Box"))
-          new Error("Loading Box??").printStackTrace();
+    public ClassType load(String name) {
         QName qualName = QName.make(name);
         try {
             return (ClassType) typeForName(qualName);
@@ -639,7 +637,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                                                     "Cannot load X10 runtime class \"" + name
                                                             + "\".  Is the X10 runtime library in your classpath or sourcepath?");
             Goal goal = Globals.currentGoal();
-            if (goal == null)
+            if (goal != null)
                 goal.fail();
             return createFakeClass(qualName);
         }
