@@ -336,8 +336,7 @@ public class X10Doc implements Doc {
 		String result = rawComment;
 		result = result.replaceFirst("^/\\*\\*\\s*", "");
 		result = result.replaceFirst("\\s*\\*/$", "");
-		result = result.replaceAll("\\n*\\s*(\\*)+\\s*", " "); // prev: \n*\\s*\\*\\s*, diff: \\n was \n. (\\*)+ was \\*
-		result = result.replace('\n', ' ');
+		result = result.replaceAll("\\n*\\s*(\\*)+\\s?", "\n");
 		return result.trim();
 	}
 
