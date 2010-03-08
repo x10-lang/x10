@@ -42,6 +42,7 @@ Release Notes - X10 - Version X10 2.0.2
 
 ** New Features and Improvements
     * [XTENLANG-446] - Support for Solaris 10 platforms sunos_sparc
+    * [XTENLANG-504] - Performance of for loops over region indices
     * [XTENLANG-619] - 'new' for classes but not structs?
     * [XTENLANG-818] - Support printf on x10.io.Printer and general formatting in x10.lang.String.format
     * [XTENLANG-845] - A set of issues we found at UCLA compilers group
@@ -154,7 +155,7 @@ Release Notes - X10 - Version X10 2.0.2
     * [XTENLANG-1010] - local copyTo/From nolonger work
     * [XTENLANG-1047] - Error constructing distributed array
     * [XTENLANG-1052] - Null Pointer Exception in typechecker 
-
+    * [XTENLANG-1126] - Comparing remote references for equality fails
 
 For the details of JIRA issues fixed in this release, see
 http://jira.codehaus.org/browse/XTENLANG/fixforversion/16023
