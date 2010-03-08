@@ -89,7 +89,7 @@ public final struct Place(id: Int)  {
 
     public def this(id: Int):Place(id) { property(id); }
 
-    public static def place(id: Int): Place(id) = places(id) as Place(id);
+    public static def place(id: Int): Place(id) = Place(id);
     public def next(): Place = next(1);
     public def prev(): Place = next(-1);
     public def prev(i: Int): Place = next(-i);
