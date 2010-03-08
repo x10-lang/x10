@@ -480,6 +480,7 @@ namespace x10 {
             x10aux::checkRailBounds(src_off, FMGL(length));
             x10aux::checkRailBounds(src_off+len-1, FMGL(length));
             x10aux::place dst_place = x10aux::location(dst);
+            (void) dst_place;
             assert(dst_place != x10aux::here); // handle in X10 code wrapper
             x10aux::serialization_buffer buf;
             buf.realloc_func = x10aux::put_realloc;
@@ -521,6 +522,7 @@ namespace x10 {
             typedef x10::util::Pair<R,x10_int> P;
             R this_ = this;
             x10aux::place dst_place = dst_place_.FMGL(id);
+            (void) dst_place;
 
             // check beginning and end of range
             x10aux::checkRailBounds(src_off, FMGL(length));
@@ -668,6 +670,7 @@ namespace x10 {
             x10aux::checkRailBounds(dst_off, FMGL(length));
             x10aux::checkRailBounds(dst_off+len-1, FMGL(length));
             x10aux::place src_place = x10aux::location(src);
+            (void) src_place;
             assert(src_place != x10aux::here);
             x10aux::serialization_buffer buf;
             buf.realloc_func = x10aux::get_realloc;
