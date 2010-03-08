@@ -13,7 +13,6 @@ package x10.ast;
 
 import java.util.Collections;
 
-import polyglot.ast.AmbReceiver;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -34,12 +33,10 @@ import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.UnknownType;
-import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import polyglot.visit.PrettyPrinter;
 
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
@@ -100,7 +97,7 @@ public class X10Field_c extends Field_c {
 	}
 	
     // Fix XTENLANG-945
-    static boolean isInterfaceProperty(Type targetType, FieldInstance fi) {
+    public static boolean isInterfaceProperty(Type targetType, FieldInstance fi) {
         boolean isInterfaceProperty = false;
 
         if (X10Flags.toX10Flags(fi.flags()).isProperty()) {
@@ -324,28 +321,4 @@ public class X10Field_c extends Field_c {
 			}
 		}
 	}
-
-    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-        w.begin(0);
-        if (!targetImplicit) {
-            // explicit target.
-            if (target instanceof Expr) {
-                printSubExpr((Expr) target, w, tr);
-            } else if (target instanceof TypeNode || target instanceof AmbReceiver) {
-                print(target, w, tr);
-            }
-
-            w.write(".");
-            w.allowBreak(2, 3, "", 0);
-        }
-        tr.print(this, name, w);
-        
-        // Fix XTENLANG-945 (Java backend only fix)
-        // Change field access to method access
-        if (isInterfaceProperty(target.type(), fi)) {
-            w.write("()");
-        }
-        
-        w.end();
-    }
 }

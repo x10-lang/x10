@@ -97,6 +97,7 @@ import x10.ast.X10Cast_c;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
+import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
@@ -1587,6 +1588,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				visit((Node)n);
 
 		}
+
+		// Fix XTENLANG-945 (Java backend only fix)
+	        // Change field access to method access
+	        if (X10Field_c.isInterfaceProperty(target.type(), fi)) {
+	            w.write("()");
+	        }
 	}
 
 	public void visit(IntLit_c n) {
