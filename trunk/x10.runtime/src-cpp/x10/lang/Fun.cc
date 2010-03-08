@@ -65,21 +65,24 @@ namespace x10 {
         void
         VoidFun_0_0::_initRTT() {
             if (rtt.initStageOne(&rtt)) return;
-            rtt.initStageTwo("x10::lang::VoidFun_0_0", 0, NULL, 0, NULL, NULL);
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+            rtt.initStageTwo("x10::lang::VoidFun_0_0", 1, parents, 0, NULL, NULL);
         }
 
         void
         _initRTTHelper_Fun_0_0(RuntimeType *location, const RuntimeType *rtt0) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[1] = { rtt0 };
             RuntimeType::Variance variances[1] = { RuntimeType::covariant };
-            location->initStageTwo("x10.lang.Fun_0_0", 0, NULL, 1, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_0", 1, parents, 1, params, variances);
         }
 
         void
         _initRTTHelper_Fun_0_1(RuntimeType *location, const RuntimeType *rtt0, const RuntimeType *rtt1) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[2] = { rtt0, rtt1 };
             RuntimeType::Variance variances[2] = { RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("x10.lang.Fun_0_1", 0, NULL, 2, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_1", 1, parents, 2, params, variances);
         }    
 
         void
@@ -87,9 +90,10 @@ namespace x10 {
                                const RuntimeType *rtt0,
                                const RuntimeType *rtt1,
                                const RuntimeType *rtt2) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[3] = { rtt0, rtt1, rtt2 };
             RuntimeType::Variance variances[] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("x10.lang.Fun_0_2", 0, NULL, 3, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_2", 1, parents, 3, params, variances);
         }    
 
         void
@@ -98,9 +102,10 @@ namespace x10 {
                                const RuntimeType *rtt1,
                                const RuntimeType *rtt2,
                                const RuntimeType *rtt3) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[4] = { rtt0, rtt1, rtt2, rtt3 };
             RuntimeType::Variance variances[4] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("x10.lang.Fun_0_3", 0, NULL, 4, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_3", 1, parents, 4, params, variances);
         }    
 
         void
@@ -110,9 +115,10 @@ namespace x10 {
                                const RuntimeType *rtt2,
                                const RuntimeType *rtt3,
                                const RuntimeType *rtt4) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[5] = { rtt0, rtt1, rtt2, rtt3, rtt4 };
             RuntimeType::Variance variances[5] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("x10.lang.Fun_0_4", 0, NULL, 5, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_4", 1, parents, 5, params, variances);
         }    
 
         void
@@ -123,10 +129,11 @@ namespace x10 {
                                const RuntimeType *rtt3,
                                const RuntimeType *rtt4,
                                const RuntimeType *rtt5) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[6] = { rtt0, rtt1, rtt2, rtt3, rtt4, rtt5 };
             RuntimeType::Variance variances[6] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("x10.lang.Fun_0_5", 0, NULL, 6, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_5", 1, parents, 6, params, variances);
         }    
 
         void
@@ -138,11 +145,12 @@ namespace x10 {
                                const RuntimeType *rtt4,
                                const RuntimeType *rtt5,
                                const RuntimeType *rtt6) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[7] = { rtt0, rtt1, rtt2, rtt3, rtt4, rtt5, rtt6 };
             RuntimeType::Variance variances[7] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::covariant };
-            location->initStageTwo("x10.lang.Fun_0_6", 0, NULL, 7, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_6", 1, parents, 7, params, variances);
         }    
 
         void
@@ -155,11 +163,12 @@ namespace x10 {
                                const RuntimeType *rtt5,
                                const RuntimeType *rtt6,
                                const RuntimeType *rtt7) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[8] = { rtt0, rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7 };
             RuntimeType::Variance variances[8] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("x10.lang.Fun_0_7", 0, NULL, 8, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_7", 1, parents, 8, params, variances);
         }    
 
         void
@@ -173,11 +182,12 @@ namespace x10 {
                                const RuntimeType *rtt6,
                                const RuntimeType *rtt7,
                                const RuntimeType *rtt8) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[9] = { rtt0, rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7, rtt8 };
             RuntimeType::Variance variances[9] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::covariant };
-            location->initStageTwo("x10.lang.Fun_0_8", 0, NULL, 9, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_8", 1, parents, 9, params, variances);
         }    
 
         void
@@ -192,28 +202,31 @@ namespace x10 {
                                const RuntimeType *rtt7,
                                const RuntimeType *rtt8,
                                const RuntimeType *rtt9) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[10] = { rtt0, rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7, rtt8, rtt9 };
             RuntimeType::Variance variances[10] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                     RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                     RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                     RuntimeType::covariant };
-            location->initStageTwo("x10.lang.Fun_0_9", 0, NULL, 10, params, variances);
+            location->initStageTwo("x10.lang.Fun_0_9", 1, parents, 10, params, variances);
         }    
 
         void
         _initRTTHelper_VoidFun_0_1(RuntimeType *location, const RuntimeType *rtt1) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[1] = { rtt1 };
             RuntimeType::Variance variances[] = { RuntimeType::contravariant };
-            location->initStageTwo("x10.lang.VoidFun_0_1", 0, NULL, 1, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_1", 1, parents, 1, params, variances);
         }    
 
         void
         _initRTTHelper_VoidFun_0_2(RuntimeType *location,
                                    const RuntimeType *rtt1,
                                    const RuntimeType *rtt2) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[2] = { rtt1, rtt2 };
             RuntimeType::Variance variances[2] = { RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("x10.lang.VoidFun_0_2", 0, NULL, 2, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_2", 1, parents, 2, params, variances);
         }    
 
         void
@@ -221,9 +234,10 @@ namespace x10 {
                                    const RuntimeType *rtt1,
                                    const RuntimeType *rtt2,
                                    const RuntimeType *rtt3) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[3] = { rtt1, rtt2, rtt3 };
             RuntimeType::Variance variances[3] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("x10.lang.VoidFun_0_3", 0, NULL, 3, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_3", 1, parents, 3, params, variances);
         }    
 
         void
@@ -232,9 +246,10 @@ namespace x10 {
                                    const RuntimeType *rtt2,
                                    const RuntimeType *rtt3,
                                    const RuntimeType *rtt4) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[4] = { rtt1, rtt2, rtt3, rtt4 };
             RuntimeType::Variance variances[4] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("x10.lang.VoidFun_0_4", 0, NULL, 4, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_4", 1, parents, 4, params, variances);
         }    
 
         void
@@ -244,9 +259,10 @@ namespace x10 {
                                    const RuntimeType *rtt3,
                                    const RuntimeType *rtt4,
                                    const RuntimeType *rtt5) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[5] = { rtt1, rtt2, rtt3, rtt4, rtt5 };
             RuntimeType::Variance variances[5] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("x10.lang.VoidFun_0_5", 0, NULL, 5, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_5", 1, parents, 5, params, variances);
         }    
 
         void
@@ -257,10 +273,11 @@ namespace x10 {
                                    const RuntimeType *rtt4,
                                    const RuntimeType *rtt5,
                                    const RuntimeType *rtt6) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[6] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6 };
             RuntimeType::Variance variances[6] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant };
-            location->initStageTwo("x10.lang.VoidFun_0_6", 0, NULL, 6, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_6", 1, parents, 6, params, variances);
         }    
 
         void
@@ -272,10 +289,11 @@ namespace x10 {
                                    const RuntimeType *rtt5,
                                    const RuntimeType *rtt6,
                                    const RuntimeType *rtt7) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[7] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7 };
             RuntimeType::Variance variances[7] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("x10.lang.VoidFun_0_7", 0, NULL, 7, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_7", 1, parents, 7, params, variances);
         }    
 
         void
@@ -288,10 +306,11 @@ namespace x10 {
                                    const RuntimeType *rtt6,
                                    const RuntimeType *rtt7,
                                    const RuntimeType *rtt8) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[8] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7, rtt8 };
             RuntimeType::Variance variances[8] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("x10.lang.VoidFun_0_8", 0, NULL, 8, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_8", 1, parents, 8, params, variances);
         }    
 
         void
@@ -305,10 +324,11 @@ namespace x10 {
                                    const RuntimeType *rtt7,
                                    const RuntimeType *rtt8,
                                    const RuntimeType *rtt9) {
+            const RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
             const RuntimeType* params[9] = { rtt1, rtt2, rtt3, rtt4, rtt5, rtt6, rtt7, rtt8, rtt9 };
             RuntimeType::Variance variances[9] = { RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant,
                                                    RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant, RuntimeType::contravariant };
-            location->initStageTwo("x10.lang.VoidFun_0_9", 0, NULL, 9, params, variances);
+            location->initStageTwo("x10.lang.VoidFun_0_9", 1, parents, 9, params, variances);
         }    
     }
 }

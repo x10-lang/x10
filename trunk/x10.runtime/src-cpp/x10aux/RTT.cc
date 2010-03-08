@@ -176,62 +176,74 @@ void RuntimeType::initStageTwo(const char* baseName_,
     
 void RuntimeType::initBooleanType() {
     if (BooleanType.initStageOne(&BooleanType)) return;
-    BooleanType.initStageTwo("x10.lang.Boolean", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    BooleanType.initStageTwo("x10.lang.Boolean", 1, parents, 0, NULL, NULL);
     BooleanType.containsPtrs = false;
 }
 void RuntimeType::initByteType() {
     if (ByteType.initStageOne(&ByteType)) return;
-    ByteType.initStageTwo("x10.lang.Byte", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    ByteType.initStageTwo("x10.lang.Byte", 1, parents, 0, NULL, NULL);
     ByteType.containsPtrs = false;
 }
 void RuntimeType::initCharType() {
     if (CharType.initStageOne(&CharType)) return;
-    CharType.initStageTwo("x10.lang.Char", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    CharType.initStageTwo("x10.lang.Char", 1, parents, 0, NULL, NULL);
     CharType.containsPtrs = false;
 }
 void RuntimeType::initShortType() {
     if (ShortType.initStageOne(&ShortType)) return;
-    ShortType.initStageTwo("x10.lang.Short", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    ShortType.initStageTwo("x10.lang.Short", 1, parents, 0, NULL, NULL);
     ShortType.containsPtrs = false;
 }
 void RuntimeType::initIntType() {
     if (IntType.initStageOne(&IntType)) return;
-    IntType.initStageTwo("x10.lang.Int", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    IntType.initStageTwo("x10.lang.Int", 1, parents, 0, NULL, NULL);
     IntType.containsPtrs = false;
 }
 void RuntimeType::initFloatType() {
     if (FloatType.initStageOne(&FloatType)) return;
-    FloatType.initStageTwo("x10.lang.Float", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    FloatType.initStageTwo("x10.lang.Float", 1, parents, 0, NULL, NULL);
     FloatType.containsPtrs = false;
 }
 void RuntimeType::initLongType() {
     if (LongType.initStageOne(&LongType)) return;
-    LongType.initStageTwo("x10.lang.Long", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    LongType.initStageTwo("x10.lang.Long", 1, parents, 0, NULL, NULL);
     LongType.containsPtrs = false;
 }
 void RuntimeType::initDoubleType() {
     if (DoubleType.initStageOne(&DoubleType)) return;
-    DoubleType.initStageTwo("x10.lang.Double", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    DoubleType.initStageTwo("x10.lang.Double", 1, parents, 0, NULL, NULL);
     DoubleType.containsPtrs = false;
 }
 void RuntimeType::initUByteType() {
     if (UByteType.initStageOne(&UByteType)) return;
-    UByteType.initStageTwo("x10.lang.UByte", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    UByteType.initStageTwo("x10.lang.UByte", 1, parents, 0, NULL, NULL);
     UByteType.containsPtrs = false;
 }
 void RuntimeType::initUShortType() {
     if (UShortType.initStageOne(&UShortType)) return;
-    UShortType.initStageTwo("x10.lang.UShort", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    UShortType.initStageTwo("x10.lang.UShort", 1, parents, 0, NULL, NULL);
     UShortType.containsPtrs = false;
 }
 void RuntimeType::initUIntType() {
     if (UIntType.initStageOne(&UIntType)) return;
-    UIntType.initStageTwo("x10.lang.UInt", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    UIntType.initStageTwo("x10.lang.UInt", 1, parents, 0, NULL, NULL);
     UIntType.containsPtrs = false;
 }
 void RuntimeType::initULongType() {
     if (ULongType.initStageOne(&ULongType)) return;
-    ULongType.initStageTwo("x10.lang.ULong", 0, NULL, 0, NULL, NULL);
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    ULongType.initStageTwo("x10.lang.ULong", 1, parents, 0, NULL, NULL);
     ULongType.containsPtrs = false;
 }
 
