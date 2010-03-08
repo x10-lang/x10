@@ -19,11 +19,11 @@ import harness.x10Test;
 public class ObjectToPrimitiveConstrained2 extends x10Test {
 	 
 	public def run(): boolean = {
-		var primitive: x10.lang.Object = 3;
+		var primitive: x10.lang.Any = 3;
 		return !(primitive instanceof Int(4));
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new ObjectToPrimitiveConstrained2().execute();
 	}
 }
