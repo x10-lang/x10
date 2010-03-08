@@ -182,6 +182,38 @@ import x10.util.Pair;
         @Native("c++", "(#4)->copyTo(#5,#6,#7,#8,#9)")
         @Native("java", "java.lang.System.out.println(\"Should never occur, see Rail.x10\")")
         public static  native def copyTo_[T] (src: Rail[T]!, src_off:Int,
+                                              dst: Rail[T], dst_off:Int,
+                                              len:Int, notifier:()=>Void) : Void;
+
+        public static def copyTo[T] (src: Rail[T]!, src_off:Int,
+                                     dst: Rail[T], dst_off:Int,
+                                     len:Int, notifier:()=>Void) : Void {
+            if (useNativeFor(dst.home)) { copyTo_(src,src_off,dst,dst_off,len,notifier); return; }
+            if (dst.home==here) {
+                val dst2 = dst as Rail[T]!;
+                for (var i:Int=0 ; i<len ; ++i) {
+                    dst2(dst_off+i) = src(src_off+i);
+                }
+                notifier();
+                return;
+            }
+            // semantics allows an async per rail element inside a single finish
+            // this version is optimised to use a single async for the whole rail
+            // it could be further optimised to send only the part of the rail needed
+            val to_serialize = src as ValRail[T];
+            Runtime.runAtNative(dst.home.id, ()=>{
+                val dst2 = dst as Rail[T]!; // type system does not understand runAtNative (understandably)
+                //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
+                for (var i:Int=0 ; i<len ; ++i) {
+                    dst2(dst_off+i) = to_serialize(src_off+i);
+                }
+                notifier();
+            });
+        }
+
+        @Native("c++", "(#4)->copyTo(#5,#6,#7,#8,#9)")
+        @Native("java", "java.lang.System.out.println(\"Should never occur, see Rail.x10\")")
+        public static  native def copyTo_[T] (src: Rail[T]!, src_off:Int,
                                               dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
                                               len:Int, notifier:()=>Void) : Void;
 
