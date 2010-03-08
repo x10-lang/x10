@@ -222,7 +222,7 @@ public class X10New_c extends New_c implements X10New {
                 throw new SemanticException("Cannot instantiate member class of non-class type.", n.position());
             }
 
-            Type t = ts.findMemberType(qualifier.type(), name, c);
+            Type t = ts.findMemberType(X10TypeMixin.baseType(qualifier.type()), name, c);
             t = ts.expandMacros(t);
 
             CConstraint xc = X10TypeMixin.xclause(t);
