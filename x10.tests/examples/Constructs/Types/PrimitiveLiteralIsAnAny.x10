@@ -18,11 +18,9 @@ import harness.x10Test;
  */
 public class PrimitiveLiteralIsAnAny extends x10Test {
 
-	public def run(): boolean = {
-		return 3 instanceof Any;
-	}
+	public def run() = 3 instanceof Any;
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new PrimitiveLiteralIsAnAny().execute();
 	}
 }
