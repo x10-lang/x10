@@ -502,13 +502,11 @@ namespace x10 {
         {
             typedef x10::util::Pair<R,x10_int> P;
             R this_ = this;
-            x10aux::place dst_place = dst_place_.FMGL(id);
-
             // check beginning and end of range
             x10aux::checkRailBounds(src_off, FMGL(length));
             x10aux::checkRailBounds(src_off+len-1, FMGL(length));
             x10aux::ref<Reference> df = dst_finder;
-            assert(dst_place != x10aux::here); // handle in X10 code wrapper
+            assert(dst_place_.FMGL(id) != x10aux::here); // handle in X10 code wrapper
             Rail_serializeAndSendPut(dst_place_, df, 1, _copy_to_serialization_id,
                                      &_data[src_off], len * sizeof(T));
         } // }}}
@@ -691,13 +689,11 @@ namespace x10 {
         {
             typedef x10::util::Pair<R,x10_int> P;
             R this_ = this;
-            x10aux::place src_place = src_place_.FMGL(id);
-            assert(src_place != x10aux::here);
+            assert(src_place_.FMGL(id) != x10aux::here);
             // check beginning and end of range
             x10aux::checkRailBounds(dst_off, FMGL(length));
             x10aux::checkRailBounds(dst_off+len-1, FMGL(length));
             x10aux::ref<Reference> df = dst_finder;
-            assert(src_place!=x10aux::here);
             Rail_serializeAndSendGet(src_place_, df, 1, _copy_from_serialization_id,
                                      &_data[dst_off], len * sizeof(T));
         } // }}}
