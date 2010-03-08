@@ -18,7 +18,7 @@ import harness.x10Test;
 public class AssignmentLitteralPrimitiveToPrimitive extends x10Test {
 
 	 public def run(): boolean = {
-		var bb: byte{self==1} = 1;
+		var bb: byte{self==b1} = 1;
 		var ss: short{self==10} = 10;
 		var ii: int{self==20} = 20;
 		var iii: int{self==-2} = -2;
