@@ -199,7 +199,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.lang.Rail__NativeRep.copyTo(#8, #0,#1,#2,#3,#4,#5)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyTo(#0,#1,#2,#3,#4,#5)")
-    public native def copyTo (src_off:Int, dst:Place, dst_off:Int, len:Int, notifier:()=>Void) : Void;
+    public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int, notifier:()=>Void) : Void;
 
     /**
      * Copies a portion of a given Rail into a remote Rail indicated by the given closure.
