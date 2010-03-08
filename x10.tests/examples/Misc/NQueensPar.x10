@@ -73,7 +73,7 @@ public class NQueensPar {
 
         def search()  {
             if (q.length == N) {
-                atomic nSolutions++;
+                at (NQueensPar.this) atomic nSolutions++;
                 return;
             }
             if (q.length == 0) {
