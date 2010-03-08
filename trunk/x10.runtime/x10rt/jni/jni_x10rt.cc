@@ -17,7 +17,7 @@
 JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_initializeImpl(JNIEnv *, jclass) {
     int argc = 0;
     char **argv = NULL;
-    x10rt_init(argc, argv);
+    x10rt_init(&argc, &argv);
     return 0;
 }
 

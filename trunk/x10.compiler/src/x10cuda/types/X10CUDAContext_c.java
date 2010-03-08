@@ -86,6 +86,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
             cudaStream.write("#include <cfloat>"); cudaStream.newline();
             cudaStream.forceNewline();
             cudaStream.write("extern __shared__ char __shm[];"); cudaStream.newline();
+            cudaStream.write("extern __constant__ char __cmem[64*1024];"); cudaStream.newline();
             cudaStream.forceNewline();
         }
         return cudaStream;
