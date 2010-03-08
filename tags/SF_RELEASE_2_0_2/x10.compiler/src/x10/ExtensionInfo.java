@@ -340,8 +340,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //           goals.add(CodeGenBarrier());
            goals.add(CheckNativeAnnotations(job));
            goals.add(InnerClassRemover(job));
-           goals.add(Desugarer(job));
            goals.addAll(Optimizer.goals(this, job));
+           goals.add(Desugarer(job));
            goals.add(CodeGenerated(job));
            goals.add(End(job));
            
