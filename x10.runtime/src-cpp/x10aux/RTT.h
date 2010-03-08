@@ -250,7 +250,12 @@ namespace x10aux {
 #endif
     
     template<class T, class S> struct Instanceof { static x10_boolean _(S v) {
-        return false;
+        // NOTE: This is only correct because X10 doesn't allow subtyping of structs.
+        //       If a future version of X10 allows struct subtyping, then we would
+        //       have to have template specializations for all of the C primitive types
+        //       and call a method on non-C primitive structs (which would then have to have
+        //       C++-level vtables or pointers to RuntimeType*) to get the runtime RTT object for v.
+        return x10aux::getRTT<S>()->subtypeOf(x10aux::getRTT<T>());
     } };
     template<class T> struct Instanceof<T, T> { static x10_boolean _(T v) {
         return true;
