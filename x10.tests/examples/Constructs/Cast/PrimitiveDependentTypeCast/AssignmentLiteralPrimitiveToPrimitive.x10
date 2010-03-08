@@ -15,7 +15,7 @@ import harness.x10Test;
  * Purpose: Checks assignment of primitive to constrained primitives.
  * @author vcave
  **/
-public class AssignmentLitteralPrimitiveToPrimitive extends x10Test {
+public class AssignmentLiteralPrimitiveToPrimitive extends x10Test {
 
 	 public def run(): boolean = {
 		var bb: byte{self==b1} = 1;
@@ -31,6 +31,6 @@ public class AssignmentLitteralPrimitiveToPrimitive extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new AssignmentLitteralPrimitiveToPrimitive().execute();
+		new AssignmentLiteralPrimitiveToPrimitive().execute();
 	}
 }
