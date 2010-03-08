@@ -153,6 +153,11 @@ namespace x10 {
                                  x10_int len);
 
             virtual void copyTo (x10_int src_off,
+                                 R dst, x10_int dst_off,
+                                 x10_int len,
+                                 x10aux::ref<VoidFun_0_0> notifier);
+
+            virtual void copyTo (x10_int src_off,
                                  x10::lang::Place dst_place,
                                  x10aux::ref<Fun_0_0<x10::util::Pair<R, x10_int> > > dst_finder,
                                  x10_int len,
@@ -360,12 +365,12 @@ namespace x10 {
             x10_int dst_off;
             _X_("Finding a rail for copyTo ("<<(int)code<<")");
             switch (code) {
-                case 0: { // get rail+offset explicitly
+                case 0: case 2: { // get rail+offset explicitly
                     this_ = buf.read<R>();
                     dst_off = buf.read<x10_int>();
                     break;
                 }
-                case 1: case 2: { // get closure with which to find rail+offset
+                case 1: case 3: { // get closure with which to find rail+offset
                     x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
                     P pair = (bf.operator->()->*(x10aux::findITable<Fun_0_0<P> >(bf->_getITables())->apply))();
                     this_ = pair.FMGL(first);
@@ -405,6 +410,14 @@ namespace x10 {
                     break;
                 }
                 case 2: {
+                    buf.read<R>();
+                    buf.read<x10_int>();
+                    x10aux::ref<Reference> vf = buf.read<x10aux::ref<VoidFun_0_0> >();
+                    (vf.operator->()->*(x10aux::findITable<VoidFun_0_0>(vf->_getITables())->apply))();
+                    x10aux::dealloc(vf.operator->());
+                    break;
+                }
+                case 3: {
                     x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
                     x10aux::dealloc(bf.operator->());
                     x10aux::ref<Reference> vf = buf.read<x10aux::ref<VoidFun_0_0> >();
@@ -512,7 +525,31 @@ namespace x10 {
                                      &_data[src_off], len * sizeof(T));
         } // }}}
 
-        // CLOSURE NOTIFIER (2) (this one designed for LU) {{{
+        // RAIL NOTIFIER (2) (this one designed for LU) {{{
+        template <class T> void Rail<T>::copyTo (x10_int src_off, R dst, x10_int dst_off,
+                                                 x10_int len,
+                                                 x10aux::ref<VoidFun_0_0> notifier)
+        {
+            typedef x10::util::Pair<R,x10_int> P;
+            R this_ = this;
+            x10aux::place dst_place = x10aux::location(dst);
+
+            // check beginning and end of range
+            x10aux::checkRailBounds(src_off, FMGL(length));
+            x10aux::checkRailBounds(src_off+len-1, FMGL(length));
+            assert(dst_place != x10aux::here); // handle in X10 code wrapper
+            x10aux::serialization_buffer buf;
+            buf.realloc_func = x10aux::put_realloc;
+            x10_ubyte code = 2;
+            buf.write(code);
+            buf.write(dst);
+            buf.write(dst_off);
+            x10aux::send_put(dst_place, _copy_to_serialization_id,
+                             buf, &_data[src_off], len * sizeof(T));
+
+        } // }}}
+
+        // CLOSURE NOTIFIER (3) (this one designed for LU) {{{
         template <class T> void Rail<T>::copyTo (x10_int src_off,
                                                  x10::lang::Place dst_place_,
                                                  x10aux::ref<Fun_0_0<x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> > > dst_finder,
@@ -532,7 +569,7 @@ namespace x10 {
             assert(dst_place != x10aux::here); // handle in X10 code wrapper
             x10aux::serialization_buffer buf;
             buf.realloc_func = x10aux::put_realloc;
-            x10_ubyte code = 2;
+            x10_ubyte code = 3;
             buf.write(code);
             buf.write(df);
             buf.write(n);

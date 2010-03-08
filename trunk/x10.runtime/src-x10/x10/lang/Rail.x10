@@ -185,6 +185,23 @@ public final class Rail[T](length: Int)
                               len:Int) : Void;
 
     /**
+     * Copies a portion of a given Rail into a remote Rail.
+     * Upon completion, invokes the notifier closure.  The enclosing finish is not affected.
+     *
+     * @param src the source Rail.
+     * @param src_off the offset of the first element to copy in the source.
+     * @param dst_place the location of the destination Rail.
+     * @param dst_finder a function returning a {@link x10.util.Pair} that consists
+     *                   of the reference to the destination Rail and the offset of
+     *                   the first element to store in the destination.
+     * @param len the number of elements to copy.
+     * @param notifier the function to invoke upon completion.
+     */
+    @Native("java", "x10.lang.Rail__NativeRep.copyTo(#8, #0,#1,#2,#3,#4,#5)")
+    @Native("c++", "x10::lang::Rail__NativeRep::copyTo(#0,#1,#2,#3,#4,#5)")
+    public native def copyTo (src_off:Int, dst:Place, dst_off:Int, len:Int, notifier:()=>Void) : Void;
+
+    /**
      * Copies a portion of a given Rail into a remote Rail indicated by the given closure.
      * Upon completion, invokes the notifier closure.  The enclosing finish is not affected.
      *
