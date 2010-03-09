@@ -116,9 +116,12 @@ public class X10RuntimeUtils {
 	        return -1;
 	    }
 	 /**
-	  * PORT1.7 moved here from X10Builder
+	  * 
 	  * @return
 	  */
+	 //TODO this logic should agree (even in debug mode of development workspace) with
+	 // X10ProjectWizardSecondPage.. Right now this method gives "2.0.2.qualifier" for example,
+	 // instead of replacing the qualifier.
 	    public static String getCurrentRuntimeVersion() {    	
 	    	//String jarLoc=X10Util.getJarLocationForBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);
 	        Bundle x10RuntimeBundle= Platform.getBundle(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID);
