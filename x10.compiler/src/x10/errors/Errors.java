@@ -42,6 +42,7 @@ import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.Converter.ConversionType;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -489,6 +490,21 @@ public class Errors {
 			if (o==null || ! (o instanceof CannotAssignToElement) )
 				return false;
 			return((CannotAssignToElement)o).position().equals(position());
+		}
+	}
+	
+	public static class ConstructorReturnTypeNotEntailed extends SemanticException {
+		private static final long serialVersionUID = -4705861378590877043L;
+		public ConstructorReturnTypeNotEntailed(CConstraint known, CConstraint ret,  Position pos) {
+			super("Instances created by this constructor do not satisfy return type"
+					+ "\n\t Constraint satisfied: "  + known
+					+ "\n\t Constraint required: " + ret,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof ConstructorReturnTypeNotEntailed) )
+				return false;
+			return((ConstructorReturnTypeNotEntailed)o).position().equals(position());
 		}
 	}
 	

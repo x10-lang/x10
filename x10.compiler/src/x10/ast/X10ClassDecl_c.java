@@ -297,13 +297,21 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	if (child != this.body ) {
     		
     		X10ClassDef_c type = (X10ClassDef_c) this.type;
-    		xc = xc.pushSuperTypeDeclaration(type);
+    		if (child == this.classInvariant) {
+        		xc = (X10Context) xc.pushClass(type, type.asType());
+        		// Add type parameters
+        		for (ParameterType t : type.typeParameters()) {
+        			xc.addNamed(t);
+        		}
+    		} else {
+    			xc = xc.pushSuperTypeDeclaration(type);
 
-    		// Add this class to the context, but don't push a class scope.
-    		// This allows us to detect loops in the inheritance
-    		// hierarchy, but avoids an infinite loop.
-    		xc = (X10Context) xc.pushBlock();
-    		xc.addNamed(type.asType());
+    			// Add this class to the context, but don't push a class scope.
+    			// This allows us to detect loops in the inheritance
+    			// hierarchy, but avoids an infinite loop.
+    			xc = (X10Context) xc.pushBlock();
+    			xc.addNamed(type.asType());
+    		}
 
     		// Add type parameters
     		for (ParameterType t : type.typeParameters()) {
@@ -577,28 +585,19 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	}
     	return n;
     }
-    
-    
-//    private X10ClassDecl_c disambiguateHeader(TypeBuilder tb) {
-//	X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
-//	X10ClassDef_c type = (X10ClassDef_c) this.type;
-//	return (X10ClassDecl_c) this.visitChildren(new NodeVisitor() {
-//	    public Node override(Node n) {
-//		if (n == body)
-//		    return n;
-//		if (n instanceof AmbExpr) {
-//		    AmbExpr e = (AmbExpr) n;
-//		    if (e.name)
-//		}
-//		return null;
-//	    }
-//	});
-//    }
-
+ 
     public Node typeCheckClassInvariant(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
 	X10ClassDecl_c n = this;
 	DepParameterExpr classInvariant = (DepParameterExpr) n.visitChild(n.classInvariant, childtc);
 	n = (X10ClassDecl_c) n.classInvariant(classInvariant);
+	
+
+	// TODO: Add check that the invariant established by this class is adequate
+	// to entail the invariants associated with all interfaces (after applying
+	// a substitution which replaces all fields specified in the interface with the fields
+	// implementing them in the class).
+	
+	
 	return n;
     }
     

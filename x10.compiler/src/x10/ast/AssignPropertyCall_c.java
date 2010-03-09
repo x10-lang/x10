@@ -41,6 +41,7 @@ import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
 import x10.types.X10ParsedClassType;
@@ -189,8 +190,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 		Type returnType = Types.get(thisConstructor.returnType());
 
-		//		    CConstraint result = X10TypeMixin.xclause(returnType);
-		CConstraint result = X10TypeMixin.realX(returnType);
+		CConstraint result = X10TypeMixin.xclause(returnType);
 
 		if (result.valid())
 			result = null;
@@ -226,14 +226,15 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 				// bind this==self; sup clause may constrain this.
 				if (thisVar != null) {
-					known.addSelfBinding(thisVar);
-					known.setThisVar(thisVar);
+					known =known.instantiateSelf(thisVar);
+					result =  result.instantiateSelf(thisVar);
+					// known.addSelfBinding(thisVar);
+					// known.setThisVar(thisVar);
 				}
 
+				
 				if (! known.entails(result, ctx.constraintProjection(known, result))) {
-					throw new SemanticException("Instances created by this constructor satisfy " + known 
-							+ "; this is not strong enough to entail the return constraint " + result,
-							position());
+					throw new Errors.ConstructorReturnTypeNotEntailed(known, result, position());
 				}
 			}
 			catch (XFailure e) {

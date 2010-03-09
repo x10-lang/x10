@@ -99,8 +99,9 @@ public class XTypeTranslator {
 	}
 	
 	public XVar trans(CConstraint c, XVar target, FieldInstance fi) throws SemanticException {
-	    String string = Types.get(fi.def().container()) + "#" + fi.name().toString();
-	    XVar v = XTerms.makeField(target, XTerms.makeName(fi.def(), string));
+		XName field = XTerms.makeName(fi.def(),  fi.name().toString());
+	   // String string = Types.get(fi.def().container()) + "#" + fi.name().toString();
+	    XVar v = XTerms.makeField(target,field);
 	    addTypeToEnv(v, fi.type());
 	    return v;
 	}
