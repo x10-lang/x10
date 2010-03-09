@@ -40,7 +40,12 @@ import org.osgi.framework.Constants;
  */
 public class X10RuntimeUtils {
 
-    private static final class BundleJarFileFilter implements FilenameFilter {
+	/**
+	 * Class name for class we look for to determine a valid X10 runtime.
+	 * This should be a class that will be around for a while.  Right.
+	 */
+    public static final String X10_LANG_SYSTEM_CLASS = "x10/lang/System.class";
+	private static final class BundleJarFileFilter implements FilenameFilter {
         private final Bundle fBundle;
 
         private BundleJarFileFilter(Bundle bundle) {
@@ -51,8 +56,6 @@ public class X10RuntimeUtils {
             return name.contains(fBundle.getSymbolicName()) && name.endsWith(".jar"); //PORT1.7 use constant
         }
     }
-
-    public static final String X10_TYPES_TYPE_CLASS = "x10/types/Type.class";
 
     /**
      * Find the jar file for the currently installed runtime plugin
@@ -98,7 +101,7 @@ public class X10RuntimeUtils {
 	                        String jarName = x10Jar.getName();
 	                        if (jarName.contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID)) {
 	                        	// Look for a type we expect to find in the x10 runtime
-	                        	ZipEntry x10ObjEntry = x10Jar.getEntry(X10_TYPES_TYPE_CLASS); // PORT1.7  x10/lang/Object  ->  x10/types/Type
+	                        	ZipEntry x10ObjEntry = x10Jar.getEntry(X10_LANG_SYSTEM_CLASS); 
 								if (x10ObjEntry != null) {
 									return i;
 								}
