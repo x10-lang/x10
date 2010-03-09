@@ -1,0 +1,91 @@
+\documentclass[11pt,draftcls,onecolumn]{article}
+\usepackage{fullpage, graphicx, url}
+\begin{document}
+\begin{itemize}
+\item  Initially created: 21 Oct 2009 
+\item  Last updated: vj 21 Oct 2009 
+\item  Base link: XtenTwoOhDesign
+\end{itemize}
+
+
+  
+\section{Design of X10 Functions and function types}
+
+
+  The runtime entities in X10 are of three kinds: \emph{structs}
+, \emph{objects}
+, and \emph{functions}
+. This section is concerned with functions and their types -- how they are created, and what operations can be performed on them. 
+
+
+  Intuitively, a function is a piece of code which can be applied to a set of arguments to produce a value. (As in most programming languages, functions in X10 are partial.) 
+
+
+  
+\subsection{Function types}
+
+
+  For every sequence of types T1,..., Tn,T, n distinct variables x1,...,xn and constraint c, the expression (x1:T1,...,xn:Tn)\{c\}=$>$T is a \emph{function type}
+. It stands for the set of all functions f which can be applied in a place p to a list of values (v1,...,vn) provided that the constraint c[v1,...,vn,p/x1,...,xn,here] is true, and which returns a value of type T[v1,...vn/x1,...,xn]. When c is true, the clause \{c\} can be omitted. When x1,...,xn do not occur in c or T, they can be omitted. Thus the type (T1,...,Tn)=$>$T is actually shorthand for (x1:T1,...,xn:Tn)\{true\}=$>$T, for some variables x1,...,xn. 
+
+
+  Juxtaposition is used to express function application: the expression f(a1,..,an) expresses the application of a function f to the argument list a1,...,an. 
+
+
+  Note that function invocation may throw unchecked exceptions. 
+
+
+  A function type is covariant in its result type and contravariant in each of its argument types. That is, let S1,...,Sn,S,T1,...Tn,T be any types satisfying Si $<$: Ti and S $<$: T. Then (x1:T1,...,xn:Tn)\{c\}=$>$S is a subtype of (x1:S1,...,xn:Sn)\{c\}=$>$T. 
+
+
+  For convenience, a value f of a function type (x1:T1,...,xn:Tn)\{c\}=$>$T has two other functions associated with it: toString(): ()=$>$String and typeName():()=$>$String. These functions are called using the method invocation syntax, viz. f.toString() and f.typeName(). The first returns an implementation-defined string. The second returns a string representation of the function type, (x1:T1,...xn:Tn,)=$>$T. These functions can also be named using method selector notation, viz. f.toString.() and f.typeName.(). 
+
+
+  Function types do not support equality. Specifically, it is a compile-time error for a value of a function type to be passed as the first or second argument of an invocation of the operators == or !=. An important consequence is that the creation of a function does not require the generation of a globally unique id. 
+
+
+  A function type F=(x1:T1,...,xn:Tn)\{c\}=$>$T can be used as the declared type of local variables, parameters, loop variables, return types of methods and in \_  instanceof F and \_ as F expressions. 
+
+
+  A class or struct definition may use a function type F in its implements clause; this declares an abstract method def apply(x1:T1,...,xn:Tn)\{c\}:T on that class. Similarly, an interface definition may specify a function type F in its extends clause. A class or struct implementing such an interface implicitly defines an abstract method def apply(x1:T1,..,xn:Tn)\{c\}:T. Expressions of such a struct, class or interface type can be assigned to variables of type F and can be applied via juxtaposition to an argument list of the right type. 
+
+
+  Thus, objects and structs in X10 may behave like functions. 
+
+
+  A function type F is not a class type in that it does not extend any type or implement any interfaces. F cannot be extended by any type. It is not an interface type in that it is not a subtype of x10.lang.Object. (Values of type F cannot be assigned to variables of type x10.lang.Object.) It is not a struct type in that it has no defined fields and hence no notion of structural equality. 
+
+
+ null is not a legal value for a function type. 
+
+
+  
+
+
+  
+\subsection{Functions}
+
+
+  A \emph{closure literal expression}
+ (x1:T1,..,xn:Tn)\{c\}:T=$>$e creates a function of type
+ (x1:T1,...,xn:Tn)\{c\}:T. The constraint clause \{c\} is optional and
+ defaults to \{true\}. In some cases the return type T is also optional and
+ defaults to the type of e. If a formal xi does not occur in any Tj, c, T or e, the declaration xi:Ti may be replaced by just Ti. The body e of such an expression is type-checked in an environment in which c is true. At runtime, function execution results in the evaluation of e in an environment in which each formal is bound to the given actual parameter. 
+
+
+  The \emph{method selector expression}
+ e.m(T1,...,Tn) is type correct only if it is the case that the static type of e is a class or struct or interface with a method m(x1:T1,...xn:Tn)\{c\}:T defined on it (for some x1,...,xn,c,T). At runtime the evaluation of this expression evaluates e to a value v and creates a function f which, when applied to an argument list (a1,...,an) (of the right type) yields the value obtained by evaluating v.m(a1,...,an). 
+
+
+  An object o that is an instance of a class implementing a function type (x1:T1,...,xn:Tn)\{c\}:T also behaves like a function. Indeed, an object may behave like any (fixed) number of functions, since the class it is an instance of may implement any (fixed) number of function types. Note again that while structs and objects have a notion of equality (==), functions do not. Hence if one desires to use a function f in an == operation, it is necessary to first cast it to a class or struct type. 
+
+
+  
+\section{Implementation Notes}
+\begin{itemize}
+\item  Note that e.m.(T1,...,Tn) will evaluate e to create a function. This function will be applied later to given arguments. Thus this syntax can be used to evaluate the receiver of a method call ahead of the actual invocation. The resulting function can be used multiple times, of course.
+\end{itemize}
+
+
+  -- VijaySaraswat - 20 Oct 2009
+\end{document}

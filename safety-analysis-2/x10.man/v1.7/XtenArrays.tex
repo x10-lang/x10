@@ -1,0 +1,215 @@
+\chapter{Arrays}\label{XtenArrays}\index{arrays}
+
+An array is a mapping from a region (set of points) to a range data
+type distributed over one or more places.
+Multiple arrays may be declared with the same underlying
+distribution.
+The distribution underlying an array \xcd"a" may be obtained through
+the field \xcd"a.dist".
+\index{arrays!distribution@{\tt distribution}}
+
+\section{Points}\label{point-syntax}\index{point syntax}
+
+Arrays are indexed by points--$n$-dimensional tuples of
+integers, implemented by the class \xcd"x10.lang.Point".
+\Xten{} specifies a simple syntax for the construction of points.
+A rail constructor (\Sref{RailConstructors}) of type \xcd"ValRail[Int]"
+%or
+%\xcd"ValRail[Long]" array
+of length $n$
+can be implicitly coerced to a \xcd"Point" of rank $n$.  For
+example, the following code initializes \xcd"p" to a point of
+rank two using a rail constructor:
+
+\begin{xten}
+p: Point = [1,2];
+\end{xten}
+
+The \xcd"Point" constructor can take a rail constructor as
+argument.  The assignment above can be written, without
+implicit coercion, as:
+
+\begin{xten}
+p: Point = new Point([1,2]);
+\end{xten}
+
+Points implement the function type \xcd"(Int) => Int"; thus, the
+\xcd"i"the element of a point \xcd"p" may be accessed as \xcd"p(i)".
+If \xcd"i" is out of range, an
+\xcd"ArrayIndexOutOfBoundsException" is thrown.
+
+\input{XtenRegions}
+\input{XtenDistributions}
+\section{Array initializer}\label{ArrayInitializer}\label{array!creation}
+
+Arrays are instantiated by invoking a factory method for the
+class \xcd"Array".
+
+\eat{
+An array instantiation may be annotated
+\xcd"unsafe"
+if it is intended to be
+allocated in an unmanaged region (e.g., for communication with native
+code). A value array is an immutable array. An array creation
+must take either an \xcd"Int" as an argument or a \xcd"Dist". In the first
+case an array is created over the distribution \xcd"[0:N-1]->here";
+in the second over the given distribution. 
+}
+
+An array creation operation may also specify an initializer
+function.
+The function is applied in parallel
+at all points in the domain of the distribution. The array
+construction operation terminates locally only when the array has been
+fully created and initialized (at all places in the range of the
+distribution).
+
+For instance:
+\begin{xten}
+val data : Array[Int]
+    = Array.make[Int](1000->here, Point(i) => i);
+val data2 : Array[Int]
+    = Array.make[Int]([1:1000,1:1000]->here, Point(i,j) => i*j);
+\end{xten}
+
+{}\noindent 
+The first declaration stores in \xcd"data" a reference to a
+array with \xcd"1000" elements each of which is located in the
+same place as the array. Each array component is initialized to \xcd"i".
+
+The second declaration stores in \xcd"data2" a
+2-d array over \xcd"[1:1000, 1:1000]" initialized with \xcd"i*j"
+at point \xcd"[i,j]". It uses a more abbreviated form to specify 
+the array initializer function.
+
+Other examples:
+\begin{xten}
+val data : Array[Int]
+    = Array.make[Int](1000, ((i): Point) => i*i);
+val d : Array[Float](D)
+    = Array.make[Float](D, ((i): Point) => 10.0*i);
+val result : Array[Float](D)
+    = Array.make[Float](D, ((i,j): Point) => i+j);
+\end{xten}
+
+\section{Operations on arrays}
+In the following let \xcd"a" be an array with distribution \xcd"D" and
+base type \xcd"T". \xcd"a" may be mutable or immutable, unless
+indicated otherwise.
+
+\subsection{Element operations}\index{array!access}
+The value of \xcd"a" at a point \xcd"p" in its region of definition is
+obtained by using the indexing operation \xcd"a(p)". This operation
+may be used on the left hand side of an assignment operation to update
+the value. The operator assignments \xcd"a(i) op= e" are also available
+in \Xten{}.
+
+For array variables, the right-hand-side of an assignment must
+have the same distribution \xcd"D" as an array being assigned. This
+assignment involves
+control communication between the sites hosting \xcd"D". Each
+site performs the assignment(s) of array components locally. The
+assignment terminates when assignment has terminated at all
+sites hosting \xcd"D".
+
+\subsection{Constant promotion}\label{ConstantArray}\index{arrays!constant promotion}
+
+For a distribution \xcd"D" and a constant or final variable \xcd"v" of
+type \xcd"T" the expression \xcd"Array.make[T](D, (p: Point) => v)"
+denotes the mutable array with
+distribution \xcd"D" and base type \xcd"T" initialized with \xcd"v"
+at every point.
+
+\subsection{Restriction of an array}\index{array!restriction}
+
+Let \xcd"D1" be a sub-distribution of \xcd"D". Then \xcd"a | D1"
+represents the sub-array of \xcd"a" with the distribution \xcd"D1".
+
+Recall that a rich set of operators are available on distributions
+(\Sref{XtenDistributions}) to obtain sub-distributions
+(e.g. restricting to a sub-region, to a specific place etc).
+
+\subsection{Assembling an array}
+Let \xcd"a1,a2" be arrays of the same base type \xcd"T" defined over
+distributions \xcd"D1" and \xcd"D2" respectively. Assume that both
+arrays are value or reference arrays. 
+\paragraph{Assembling arrays over disjoint regions}\index{array!union!disjoint}
+
+If \xcd"D1" and \xcd"D2" are disjoint then the expression \xcd"a1 || a2" denotes the unique array of base type \xcd"T" defined over the
+distribution \xcd"D1 || D2" such that its value at point \xcd"p" is
+\xcd"a1(p)" if \xcd"p" lies in \xcd"D1" and \xcd"a2(p)"
+otherwise. This array is a reference (value) array if \xcd"a1" is.
+
+\paragraph{Overlaying an array on another}\index{array!union!asymmetric}
+The expression
+\xcd"a1.overlay(a2)" (read: the array \xcd"a1" {\em overlaid with} \xcd"a2")
+represents an array whose underlying region is the union of that of
+\xcd"a1" and \xcd"a2" and whose distribution maps each point \xcd"p"
+in this region to \xcd"D2(p)" if that is defined and to \xcd"D1(p)"
+otherwise. The value \xcd"a1.overlay(a2)(p)" is \xcd"a2(p)" if it is defined and \xcd"a1(p)" otherwise.
+
+This array is a reference (value) array if \xcd"a1" is.
+
+The expression \xcd"a1.update(a2)" updates the array \xcd"a1" in place
+with the result of \xcd"a1.overlay(a2)".
+
+\oldtodo{Define Flooding of arrays}
+
+\oldtodo{Wrapping an array}
+
+\oldtodo{Extending an array in a given direction.}
+
+\subsection{Global operations }
+
+\paragraph{Pointwise operations}\label{ArrayPointwise}\index{array!pointwise operations}
+The unary \xcd"lift" operation applies a function to each element of
+an array, returning a new array with the same distribution.
+The \xcd"lift" operation is implemented by the following method
+in \xcd"Array[T]":
+\begin{xten}
+def lift[S](f: (T) => S): Array[S](dist);
+\end{xten}
+
+The binary \xcd"lift" operation takes a binary function and
+another
+array over the same distribution and applies the function
+pointwise to corresponding elements of the two arrays, returning
+a new array with the same distribution.
+The \xcd"lift" operation is implemented by the following method
+in \xcd"Array[T]":
+\begin{xten}
+def lift[S,R](f: (T,S) => R, Array[S](dist)): Array[R](dist);
+\end{xten}
+
+\paragraph{Reductions}\label{ArrayReductions}\index{array!reductions}
+
+Let \xcd"f" be a function of type \xcd"(T,T)=>T".  Let
+\xcd"a" be a value or reference array over base type \xcd"T".
+Let \xcd"unit" be a value of type \xcd"T".
+Then the
+operation \xcd"a.reduce(f, unit)" returns a value of type \xcd"T" obtained
+by performing \xcd"f" on all points in \xcd"a" in some order, and in
+parallel.  The function \xcd"f" must be associative and
+commutative.  The value \xcd"unit" should satisfy
+\xcd"f(unit,x)" \xcd"==" \xcd"x" \xcd"==" \xcd"f(x,unit)".
+
+This operation involves communication between the places over which
+the array is distributed. The \Xten{} implementation guarantees that
+only one value of type \xcd"T" is communicated from a place as part of
+this reduction process.
+
+\paragraph{Scans}\label{ArrayScans}\index{array!scans}
+
+Let \xcd"f" be a reduction operator defined on type \xcd"T". Let
+\xcd"a" be a value or reference array over base type \xcd"T" and
+distribution \xcd"D". Then the operation \xcd"a||f()" returns an array
+of base type \xcd"T" and distribution \xcd"D" whose $i$th element
+(in canonical order) is obtained by performing the reduction \xcd"f"
+on the first $i$ elements of \xcd"a" (in canonical order).
+
+This operation involves communication between the places over which
+the array is distributed. The \Xten{} implementation will endeavour to
+minimize the communication between places to implement this operation.
+
+Other operations on arrays may be found in \xcd"x10.lang.Array" and
+other related classes.

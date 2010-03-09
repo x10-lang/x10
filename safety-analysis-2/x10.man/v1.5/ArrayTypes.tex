@@ -1,0 +1,51 @@
+\section{Array Type Constructors}
+\label{ArrayypeConstructors}\index{array types}
+
+{}\XtenCurrVer{} does not have array class declarations
+(\S~\ref{XtenArrays}). This means that user cannot define new array
+class types. Instead arrays are created as instances of array types
+constructed through the application of {\em array type constructors}
+(\S~\ref{XtenArrays}).
+
+The array type constructor takes as argument a type (the {\em base
+type}), an optional distribution (\S~\ref{XtenDistributions}), and
+optionally either the keyword {\cf reference} or {\cf value} (the
+default is reference):
+\begin{x10}
+18    ArrayType ::= Type [ ]
+438   ArrayType ::= X10ArrayType
+439   X10ArrayType ::= Type [ . ]
+440     | Type reference [ . ]
+441     | Type value [ . ]
+442     | Type [ DepParameterExpr ]
+443     | Type reference [ DepParameterExpr ]
+444     | Type value [ DepParameterExpr ]
+\end{x10}
+
+The array type {\cf Type[ ] } is the type of all arrays of base
+type {\tt Type} defined over the distribution {\tt 0:N -> here}
+for some positive integer {\tt N}.
+
+The qualifier {\tt value} ({\tt reference}) specifies that the array
+is a {\tt value}({\tt reference}) array. The array elements of a {\tt
+value} array are all {\tt final}.\footnote{Note that the base type of a {\tt value} array can be a value class or a reference class, just as the 
+type of a {\tt final} variable can be a value class or a reference class.
+}If the qualifier is not specified,
+the array is a {\tt reference} array.
+
+The array type {\cf Type reference [.]} is the type of all (reference)
+arrays of basetype {\tt Type}. Such an array can take on any
+distribution, over any region. Similarly, {\cf Type value [.]} is the
+type of all value arrays of basetype {\tt Type}.
+
+\XtenCurrVer{} also allows a distribution to be specified between {\tt
+[} and {\tt ]}. The distribution must be an expression of type
+{\tt distribution} (e.g.{} a {\tt final} variable) whose
+value does not depend on the value of any mutable variable.
+
+Future extensions to \Xten{} will support a more general syntax for
+arrays which allows for the specification of dependent types, 
+e.g.{} {\tt double[:rank 3]}, the type of all arrays of 
+{\tt double} of rank {\tt 3}.
+
+

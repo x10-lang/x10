@@ -1,0 +1,455 @@
+Jun 9 2004
+
+Reference Manual organization
+
+Intended for programmers
+
+Questions
+o Should there be a formal operationals semantics?
+o Should the syntax be based on C/C++/Java or Fortran? (NO Pascal!)
+  o e.g. : for extent
+
+  [Decision (Vivek, 06/11/2004): Syntax based on Java, with gratuitous
+   incompatibilities tending to zero.]
+
+o Should async be made explicit in the syntax?
+  o How much inferencing should we allow?
+
+  o Need to change the name async to something else, which reflects
+    the idea of execution at a different place.
+
+o Find out about IEEE Floating Point standard. What chipsets support
+  it. What stance do we need to take about it.
+
+o Compilation.
+  o Separate compilation. What is the unit of compilation?
+  o What is the output of compilation.
+  o What is the runtime loading and linking model.
+
+o Do we need to support broadcast of data?
+o Do we need to support caching of data?
+o Should we use = and :=? Idea: = is used for assignments to finals;
+  this value will never change. := is used for assignment to mutable
+  locations. (cf ZPL)
+
+  (vj thinking: this could be interesting if 
+
+o Can a value instance contain a reference? (then it must be the case
+  thta the reference can be freely copied.)
+
+o We should prolly introduce the notion of a reference that cannot be
+  freely copied. This may be a reference to an object that has other
+  references outstanding -- some of which could be freely
+  copied. Recall red pointers. An object can have only one red pointer
+  outstanding. (Need to use sole type annotations to pass such a value
+  around.)
+
+o We should prolly introduce the notion of flow variables. Method
+  parameters declared as flow can only be stored in stack variables, or
+  passed in flow method parameters. Cannot be stored in object (or
+  array) fields.
+
+  The primary use is for distributing clocks. We need to detect when
+  an activity does not reference a clock.
+
+o What other qualifiers do we need? 
+
+o Clocks
+  o Clocks are value types. Clock variables are implicitly declared to
+    be final. 
+
+  o Need to have a cost-model for clocks. Should ensure that this
+    reflects a hierarchical quiescence detection, cf. short circuits.
+
+o Clock phases will be important. We could use them to declare
+  properties of variables in that phase. For instance, a variable that
+  can be assigned only once per time instant (phased final).
+
+o What does Esterel have (as the imperative synchronous language) that
+  we might want to introduce in X10?
+
+o Need to discuss compilation framework.
+  o Compilation model should be transparent.
+  o (Here translation to a virtual abstract machine may help.)
+
+  o In particular, is the aggregation of activities into threads of
+    execution to be done by the static compiler, or by the dynamic
+    compiler?
+
+o Need transparent computation cost model.
+  o (cf ZPL, unlike HPF)
+o Need an algebra of user-defined distributions. (Domains, Regions) 
+  o Should work for dense and sparse matrices
+  o The same idea should work for graph-based data-structures
+  o Should be functional in nature
+  o Should be possible to tie to a localization function, which maps
+    the distribution to a place
+  o Should have clocked functional type
+  o Should be tied in with user-defined enumerations
+  o Should be able to support irregular data distributions
+  o Should support data-parallelism on the region (regardless of the
+    localization function). i.e. should be possible to do a forall on
+    a domain, and let it spawn activities in all relevant places.
+  o Should be statically analyzable. Need to determine what compilers
+    need to know about distributions to produce efficient code.
+http://portal.acm.org/citation.cfm?id=277721&dl=ACM&coll=portal
+
+o The filled modifier is added for variable declarations at reference
+  types.  Indicates that the value is non-null.
+
+o null is not a valid value at any value type. Hence variable
+  declarations at value types are always implicitly filled.
+
+o Need to create syntax that allows dependent types.  Let t be a type
+  with fields final (instance) fields fi (i < k). Let the type of each
+  field be ti and let vi be a literal of type ti (or a final
+  variable), for i < k. Then the expression t{f1=v1,...,fk=vk} denotes
+  a type. A value v of type t is of this type if v.fi=vi (for i <
+  k). 
+
+  (Here we have to be careful to figure out how to typecheck given
+   that the value of vi may not be known at compile time.)
+
+o Make sure the language allows the declaration of an aggregate type
+  of fixed size, e.g. int[32] A;
+
+o Why does Java not allow a method parameter to be typed at multiple
+  interfaces?
+
+o Is this time to introduce the idea that only interfaces are types,
+  and that a class definition automatically defines an interface if it
+  has a public signature?
+
+o Types
+
+  Only interfaces define types.  Each class automatically defines a
+  type, its public type. All instances of the class have that type.
+  An interace can extend multiple interfaces.
+
+  A class can implement multiple interfaces (have multiple types).
+
+  A class can extend only a single other class. A class may not extend
+  any other class.
+
+  The key flexibility one is giving up is the flexibility of hiding
+  contracts in code, as opposed to explicating them through
+  interfaces. Contracts can only be specified by interfaces. They are
+  implemented by a class. No construct of the language lets you
+  distinguish between two instances of two different classes that
+  implement the same interfaces and are behaviorally
+  indistinguishable.
+
+  Question is: Are we ready for it? I see...
+
+  So the idea would be that value is an interface. that simply is a
+  tagging interface, an explicit declaration by the user that this
+  class and all its descendants are intended to have all non-final
+  fields. But the interface generated by the value class int does not
+  require that it be implemented only by value classes!! 
+
+  Thus the value class int generates an interface automatically that
+  can be implemented by any other class. Some of these classes may be
+  of value type and some may be of reference type (e.g. maintain
+  internal state). 
+
+  A user of the type can always require that the parameter be passed
+  to it at a value int type (for instance). 
+
+  Or pure int. (Because it wants a functioncal computation.)
+
+So we simply define some of these built in interfaces to specify
+certain contracts.
+
+  exact: this value is exactly of this type
+  pure:  this is a recursively immutable type.
+  immutable: this is top-level immutable type.
+  bound: for reference types only. the value is not null.
+  final: (type specifier) this variable is once-assignable only.
+
+(final modifier to class says that this is not extensible. Thats about
+code inheritance, not about subtyping.)
+
+Language requirements
+  o Should support task parallelism  (lacking in HPF)
+  o Should support high performance parallel I/O (lacking in HPF)
+  o Need diagnostic tools for performance and correctness.
+
+Need to know and issues to think about
+  o What is "out of core" data distribution (Kennedy HPF2000 Keynote)?
+  o What techniques have been developed for loop parallelization? What
+    lessons do we need to learn from this work?
+
+JSRs to look at
+ o enhanced for. Need this.
+ o enum types. Need this. Should be ok.
+ o static imports. Should be ok.
+ o varargs. Should be ok.
+ o Generics + Auto unboxing. 
+   Need design that works well with value types.
+ o Metadata
+ o Isolates
+ o Concurrency APIs.
+
+Decisions
+
+  
+ o 
+
+I. Introduction
+
+II. Basic concepts of the language
+
+  Parallel computation, communication, cost model.
+
+  Locales
+  Distribution of aggregate data
+  Activities
+  Clocks
+
+  Statically typed language.
+
+III. Lexical conventions
+
+IV. Naming, Scope, Variables, Values and Types
+   Numeric types
+   IEEE Floating point model
+   Generic types
+
+V. Places
+   Distribution of aggregate data
+   Domains
+
+VI. Classes 
+  Value classes
+    Enumerations
+
+  Reference classes
+
+VII. Interfaces
+
+VIII. Statements
+  if/while/repeat
+  for/forall
+  try/catch 
+
+  Aggregate operations
+
+  Relaxed Exception model
+
+IX. Expressions
+
+X. Arrays
+XI. Clocks
+
+XII Runtime execution model
+  Language Interoparability
+
+XIII Programming Environment
+
+-------------------------------------------------------
+
+Vector: immutable indexable thing
+
+Leakage of this pointer...an object cannot be leaked before it is fully formed.
+Axiom, scratchpad... language develpoed here..
+
+
+--------------------------------------------------------
+
+Clocks.
+
+Try and find a static discipline which ensures no deadlock.
+
+How about split-phase clocks.
+
+An activity can signal that it is done with the current phase of a
+clock and go on and do other things. But it cannot access any data
+that is declared clocked final during this phase.
+
+At a later point in time it may execute a next c
+
+Current description (conntinue + 0-arg next) does not work that nicely
+for libraries... basically it blocks on all clocks for the
+activity. Now this does not allow nesting of clocks,
+e.g. allowing many ticks of one clock to happen nested within another.
+
+===================================================
+
+talk about config parameters. Say something about CPO
+
+call an asynch expression a future. 
+
+future T f = future(
+
+================================================
+7/18/2004
+Vivek
+
+Rewriting MPI programs in X10 -- say something about that.
+
+Focus on explaining clocks as barriers.
+
+MPI process -> place
+MPI barrier -> X10 clock
+
+enforcing single assignment in a phase
+barrier.
+
+(put urself in the shoes of a programmer...as a progg lang. guide)
+
+Mutual exclusion -- atomic section
+Directed kind -- clocks.
+
+Goal to develop them is Guaranteed to avoid deadlocks.
+
+Say that a notation which allows one to retain determinacy and
+deadlock-freedom would be attractive.
+
+err on the side of including less. 
+
+If you have too many section that say TBD, then it is an uncomfortable
+feeling. OK if document is shorter.
+
+Something needs to be said about hierarchical levels of paralellism
+and non-uniform data access in the hardware.
+
+Future development of hierarchical.
+
+Deployment optimization and CPO to cluster places to nodes.
+Say this in the places section. 
+Hierarchical notion.
+
+Raising the level of abstraction compared with threads and
+processes. Superior on functional complexity beause it is
+superior. More concrete around placement of data.
+
+More abstract in expressing threads. (e.g. assembly, low-level
+threads, async operations.)
+
+Transparency of non-functional attributes, like performance.
+
+Assembly: high transparency, low abstraction
+
+HPF: medium abstraction, low transparency.
+
+high transparencyand high abstraction
+
+Why are places being made explicit. 
+
+Contradictory.
+
+Recommended way of multiple activities in a single place. and then
+distribute them out.
+
+How does this differ from X and Y.
+
+Kemal: Increase the number of examples.
+
+Ownership. Should it be mentioned anywhere. 
+
+Non-escaping objects, thread local, method local.
+
+where is ownership being discussed? ---> type system
+make flow arguments implicit? (issue about writing library code otherwise).
+
+o MPI motivation...tree structure of clocks. Kathy Yellick .. functional decomposition. Barrier approach is very convenient if u have one homogeneous computation, but if it has two parts, like finite element, and fluid, u divide it up but they interrelate.. barriers from one end up being barriers in the other. complicated programming, because this is the only way to do it. 
+
+Divide and conquer... once u fork, and then u join, no further coordination. Cilk. Fork/join in Cilk was very restrictive, algorithms had to be rewrittent to fit that that model.
+
+Flash Gordon, Lauren Smith. 
+They had hard a presentation that mentioned X10. 
+
+Lauren is the UPC contact. Once this is finalized we can send this to her.
+Vickie may have a process.
+
+Vas Bala -- single rectangles..regular section descriptors. 
+Have to take convex hull.
+Things get more challenging to implement. Things to be explored.
+
+We have good experience with Fortran Array Languages. That has to be
+the guide. Very compact expression, but not going to be transparent
+for the user how this is to perform.
+
+java-spec stuff...defer it as becessary.
+
+put ur name as contact.
+
+Best way: 
+Mark as IBM Confidential. 
+
+Below that list everybody's name.
+
+k, vivek, rob
+
+rajan...
+
+external..IP..confirm terms of IP.
+-------------------------
+7/19/2004
+
+Dont want to introduce + on Strings and special case its semantics.
+
+
+-------------------------
+8/2/2005
+
+Would like the underlying point set for regions to be drawn from
+different types. Why shouldw e make any assumption that points are
+always integers? Could be long's! Should be any type. What operations
+do we want to allow?
+
+-- The type should have some underlying order.
+-- The type should support: min, max. 
+-- Hence a region (set of points) should always support 
+   -- convex
+   -- unique
+
+o Clear up the issue about distributions and regions.
+
+ foreach should take as argument any set. Therefore it can take a
+ region as argument. 
+  
+  A distribution is coerced to a region.
+  An array is coerced to the underlying region.
+
+ ateach should take as argument a distribution.
+
+ ateach (i : D) S =>= foreach(i : D.region) async (D[i]) {S}
+
+ Have to work out overloading syntax.
+
+
+Make sure that you say that a[r] = v allows for arrays to be assigned. But the region
+must name variables in the same location.
+
+----
+
+change clock(C) description: clock(C) (async P S) ensures that the
+async activity is registered with clock C before it spawns.
+
+------
+
+The user does not have to write force future (p){data-read}, he can
+just write data-read. The compiler will automatically add the rest.
+
+
+By default local reads and writes are atomic, unless there is an
+explicit atomic surrounding them.
+
+
+
+---------------------------
+
+Distribution and components is not necessarily relevant to PERCS
+Service oriented architecture
+
+
+Virtualization
+Reliability
+
+David Jensen --- math grid
+Lorraine Herger --- distributed computing project... ?
+
+clusters of commodity servers are really important for IBM's future.
+
+crossing trust boundaries, system management.
