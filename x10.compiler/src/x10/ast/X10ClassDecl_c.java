@@ -463,19 +463,29 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         			if (ci != null) {
         				CConstraint xi = ci.valueConstraint().get();
         				x.addIn(xi);
+        				if (! xi.consistent())
+        				    x.setInconsistent();
         				TypeConstraint ti = ci.typeConstraint().get();
         			}
         			if (nn.superClass != null) {
         				Type t = nn.superClass.type();
         				CConstraint tc = X10TypeMixin.xclause(t);
-        				if (tc != null)
+        				if (tc != null) {
         					x.addIn(tc);
+        					if (! tc.consistent()) {
+        					    x.setInconsistent();
+        					}
+        				}
         			}
         			for (TypeNode tn : nn.interfaces) {
         				Type t = tn.type();
         				CConstraint tc = X10TypeMixin.xclause(t);
-        				if (tc != null)
+        				if (tc != null) {
         					x.addIn(tc);
+        					if (! tc.consistent()) {
+                                                    x.setInconsistent();
+                                                }
+        				}
         			}
         		}
         		catch (XFailure e) {
@@ -918,6 +928,12 @@ X10ClassDecl_c n = this;
     	X10ClassDecl_c result = (X10ClassDecl_c) superConformanceCheck(tc);
     	X10Context context = (X10Context) tc.context();
     	
+    	X10ClassDef cd = (X10ClassDef) classDef();
+        CConstraint c = cd.classInvariant().get();
+        if (c != null && ! c.consistent()) {
+            throw new Errors.InconsistentInvariant(cd, this.position());
+        }
+    
     	// Check that we're in the right file.
     	if (flags.flags().isPublic() && type.isTopLevel()) {
     	    Job job = tc.job();

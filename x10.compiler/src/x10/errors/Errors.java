@@ -35,6 +35,7 @@ import x10.ast.X10FieldAssign_c;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;
 import x10.types.ParameterType;
+import x10.types.X10ClassDef;
 import x10.types.X10FieldInstance;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
@@ -55,7 +56,7 @@ import x10.types.constraints.XConstrainedTerm;
  */
 public class Errors {
 	
-	public static interface DepTypeException  {}
+    public static interface DepTypeException  {}
 	public static interface PlaceTypeException {}
 	public static interface ProtoTypeException {}
 	public static interface ConversionException {}
@@ -507,6 +508,20 @@ public class Errors {
 			return((ConstructorReturnTypeNotEntailed)o).position().equals(position());
 		}
 	}
+	public static class InconsistentInvariant extends SemanticException {
+        private static final long serialVersionUID = 243905319528026232L;
+            public InconsistentInvariant(X10ClassDef cd,  Position pos) {
+                    super("Class invariant is inconsistent."
+                                    + "\n\t Invariant: "  + cd.classInvariant()
+                                    + "\n\t Class: " + cd,
+                                    pos);
+            }
+            public boolean equals(Object o) {
+                    if (o==null || ! (o instanceof InconsistentInvariant) )
+                            return false;
+                    return((InconsistentInvariant)o).position().equals(position());
+            }
+    }
 	
 	
 }

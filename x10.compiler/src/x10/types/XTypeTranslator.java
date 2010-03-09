@@ -649,7 +649,8 @@ public class XTypeTranslator {
                 c.addTerm(t);
             }
             catch (XFailure e) {
-                throw new SemanticException(e.getMessage());
+                c.setInconsistent();
+               // throw new SemanticException(e.getMessage());
             }
             return c;
 	}
