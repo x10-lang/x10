@@ -69,6 +69,7 @@
             hasPages="true"
             id="org.eclipse.imp.x10dt.core.wizards.NewX10PackageWizard">
       </wizard>
+<!--
       <wizard
             name="X10 Project (Java back-end)"
             canFinishEarly="false"
@@ -79,6 +80,7 @@
             project="true"
             id="org.eclipse.imp.x10dt.core.wizards.NewX10Project">
       </wizard>
+-->
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">
