@@ -41,7 +41,7 @@ public final class Cell[T] {
      */
     public global safe def toString() {
         if (!at(here)) throw new UnsupportedOperationException();
-        return "Cell(" + (this as Cell!).value.toString() + ")";
+        return "Cell(" + (this as Cell[T]!).value.toString() + ")";
     }
 
 
