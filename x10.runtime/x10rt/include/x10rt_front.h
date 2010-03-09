@@ -433,6 +433,8 @@ X10RT_C void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
 
 /** Allocate memory at a remote place.
  *
+ * \bug This is a blocking API.
+ *
  * \param place The location where memory will be allocated.
  * \param sz The amount of memory to allocate
  * \returns A pointer that is valid on the remote place only.
