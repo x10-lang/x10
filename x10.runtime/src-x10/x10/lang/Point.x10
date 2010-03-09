@@ -38,12 +38,12 @@ final public class Point(rank: Int) implements (Int) => Int {
     /**
      * Constructs a Point from a ValRail[int].
      */
-    public static global safe def make(cs: ValRail[int]): Point(cs.length) = new Point(cs);
+    public static global safe def make(cs: ValRail[int]): Point(cs.length)! = new Point(cs);
 
     /**
      * Constructs a Point from a Rail[int]
      */
-    public static global safe def make(cs: Rail[int]!): Point(cs.length) {
+    public static global safe def make(cs: Rail[int]!): Point(cs.length)! {
 	val a = ValRail.make[int](cs.length, (i:Int)=>cs(i));
         return make(a);
     }
@@ -51,7 +51,7 @@ final public class Point(rank: Int) implements (Int) => Int {
     /**
      * Returns a <code>Point p</code> of rank <code>rank</code> with <code>p(i)=init(i)</code>.
      */
-    public static global safe def make(rank:Int, init:(i:Int)=>int):Point(rank) {
+    public static global safe def make(rank:Int, init:(i:Int)=>int):Point(rank)! {
         val a = ValRail.make[int](rank, init);
         return make(a);
     }
@@ -66,12 +66,12 @@ final public class Point(rank: Int) implements (Int) => Int {
     /** A <code>Rail</code> <code>r</code> of size <code>k</code> can be converted to a point <code>p</code>
 	of the same rank with <code>p(i)=r(i)</code>.
      */
-    public static global safe operator (r: Rail[int]): Point(r.length) = make(r);
+    public static global safe operator (r: Rail[int]!): Point(r.length)! = make(r);
 
     /** A <code>ValRail</code> <code>r</code> of size <code>k</code> can be converted to a point <code>p</code>
 	of the same rank with <code>p(i)=r(i)</code>.
      */
-    public static global safe operator (r: ValRail[int]): Point(r.length) = make(r);
+    public static global safe operator (r: ValRail[int]): Point(r.length)! = make(r);
 
 
     /**  The point <code>+p</code> is the same as <code>p</code>.
