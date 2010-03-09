@@ -97,7 +97,8 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		Expr newDomain = domain;
 		X10Type domainType = (X10Type) domain.type();
 		if (ts.isX10Array(domainType))
-			newDomain = (Expr) nf.Field(position(), domain, nf.Id(position(), "distribution")).del().typeCheck(tc);
+            newDomain = (Expr) nf.Field(domain.position(), domain, nf.Id(domain.position(), "distribution")).del().typeCheck(tc);
+//			newDomain = (Expr) nf.Field(position(), domain, nf.Id(position(), "distribution")).del().typeCheck(tc);
 		return domain(newDomain);
 	}
 
