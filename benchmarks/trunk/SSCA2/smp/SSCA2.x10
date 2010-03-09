@@ -42,7 +42,7 @@ class SSCA2 {
 			 * x10.io.Console.OUT.println("edge " + tmp(i).e + "( " + tmp(i).w + " ) " + " : " + "[ " + tmp(i).startVertex + " , " + tmp(i).endVertex + "]");
 		* }  */
 		
-		val findRet = findSubGraphs.compute(compRet.second, getRet.second);
+		val findRet = findSubGraphs.compute(compRet.second, getRet.second as Rail[defs.edge]!);
 		x10.io.Console.OUT.println("Time taken for kernel 3 is" + findRet);
 	}
 	

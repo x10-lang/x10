@@ -20,9 +20,9 @@ public class computeGraph  {
 		//x10.io.Console.OUT.println("computeGraph " + "loop 1");
 		finish {
 			
-			c: Clock = Clock.make();
+			//c: Clock = Clock.make();
 		
-		foreach((tid) in 0..nthreads-1) clocked(c) {
+		foreach((tid) in 0..nthreads-1) /* clocked(c) */ {
 			
 			val chunkSize = m/nthreads;
 			
@@ -31,12 +31,12 @@ public class computeGraph  {
 				atomic {pos(i) = degree(u); degree(u)++;}
 			}
 			
-			next;
+			//next;
 			
 			util.prefix_sums(degree, numEdges, pSums,n, tid);
 			//x10.io.Console.OUT.println("computeGraph " + "loop 2 " + " " + numEdges);
 			
-			next;
+			//next;
 			
 			//x10.io.Console.OUT.println("computeGraph " + "loop 3");
 			for ((i) in tid*chunkSize..(tid+1)*chunkSize-1) {
@@ -46,9 +46,9 @@ public class computeGraph  {
 				w(j) = (SDGdata.weight as Rail[types.LONG_T])(i);
 			}
 			
-			next;
+			//next;
 		}
-		c.drop();
+		//c.drop();
 		}
 		
 		

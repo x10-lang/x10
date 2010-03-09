@@ -11,10 +11,10 @@ class findSubGraphs  {
 		val n = GLOBALS.N;
 		val nthreads = util.x10_get_num_threads();
 		val numPhases = GLOBALS.SubGraphPathLength + 1;
-		val S = Rail.make[types.VERT_T](n);
-		val visited = Rail.make[AtomicBoolean](n, (Int)=>new AtomicBoolean(false));
-		val start = Rail.make[types.LONG_T](numPhases+2);
-		val pSCount = Rail.make[types.LONG_T](nthreads+1);
+		val S: Rail[types.VERT_T]! = Rail.make[types.VERT_T](n);
+		val visited: Rail[AtomicBoolean!]! = Rail.make[AtomicBoolean!](n, (Int)=>new AtomicBoolean(false));
+		val start: Rail[types.LONG_T]! = Rail.make[types.LONG_T](numPhases+2);
+		val pSCount: Rail[types.LONG_T]! = Rail.make[types.LONG_T](nthreads+1);
 		
 		val maxIntWtListSize = maxIntWtList.length;
 		
@@ -27,14 +27,14 @@ class findSubGraphs  {
 			val sync: Clock = Clock.make();
 		
 		//x10.io.Console.OUT.println("before for");
-		foreach ((tid) in 0..nthreads-1) clocked(sync)  {
+		foreach ((tid) in 0..nthreads-1) /* clocked(sync) */  {
 			
 			//x10.io.Console.OUT.println("enter");
 			
 			
 			for ((search_num) in 0..maxIntWtListSize-1) {
 				
-				next;
+				//next;
 				if(tid==0) { 
 					for((i) in 0..visited.length-1) visited(i).set(false);
 					S(0) = maxIntWtList(search_num).startVertex;
@@ -48,7 +48,7 @@ class findSubGraphs  {
 					start(2) = 2;
 				}
 				
-				next;
+				//next;
 				
 				while (phase_num(0) <= GLOBALS.SubGraphPathLength) {
 					val  pS = new GrowableRail[types.VERT_T]();
@@ -89,11 +89,11 @@ class findSubGraphs  {
 						}
 					}
 					
-					next;
+					//next;
 					
 					pSCount(tid+1) = pCount;
 					
-					next;
+					//next;
 					
 					if (tid==0) {
 						pSCount(0) = start(phase_num(0)+1);
@@ -103,22 +103,22 @@ class findSubGraphs  {
 						phase_num(0)++;
 					}
 					
-					next;
+					//next;
 					
 					for ((k) in pSCount(tid)..pSCount(tid+1)-1) {
 						S(k) = pS(k-pSCount(tid));
 					}
 					
-					next;
+					//next;
 				} /* End of search */
 				
 				if (tid==0) {
 					x10.io.Console.OUT.println("Search from <" + S(0) + " ," + S(1) + " > " + "number of vertices visited: " + count(0));
 				}
 			}
-			next;
+			//next;
 		}
-		sync.drop();
+		//sync.drop();
 		}
 		
 		elapsed_time = util.get_seconds() - elapsed_time;
