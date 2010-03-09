@@ -70,7 +70,8 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 		X10Type type = (X10Type) newDomain.type();
 		// FIXME: [IP] remove desugaring
 		if (ts.isDistribution(type))
-			newDomain = (Expr) tc.nodeFactory().Field(n.position(), newDomain, tc.nodeFactory().Id(n.position(), "region")).del().typeCheck(tc);
+			newDomain = (Expr) tc.nodeFactory().Field(domain.position(), newDomain, tc.nodeFactory().Id(domain.position(), "region")).del().typeCheck(tc);
+//        newDomain = (Expr) tc.nodeFactory().Field(n.position(), newDomain, tc.nodeFactory().Id(n.position(), "region")).del().typeCheck(tc);
 		return n.domain(newDomain);
 	}
 
