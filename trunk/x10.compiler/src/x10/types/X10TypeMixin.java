@@ -51,6 +51,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.TypeConstraint;
@@ -1025,5 +1026,17 @@ public class X10TypeMixin {
 	    return true;
 	}
 	
-	
+	public static void checkMissingParameters(Type xt) throws SemanticException {
+		if (xt == null) return;
+		xt = baseType(xt);
+		
+		if (xt instanceof X10ParsedClassType) {
+			X10ParsedClassType xt1 = (X10ParsedClassType) xt;
+			
+			if (xt1.subst() == null || xt1.subst().isMissingParameters()){
+			List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
+				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, xt.position());
+			}
+		}
+	}
 }

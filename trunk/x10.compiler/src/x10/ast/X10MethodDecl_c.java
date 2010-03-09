@@ -452,7 +452,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         
         X10TypeMixin.protoTypeCheck(formals(),  returnType().type(), position(),
         		true);
-
+        X10TypeMixin.checkMissingParameters(n.returnType().type());
         return n;
     }
 

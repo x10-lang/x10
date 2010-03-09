@@ -49,6 +49,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
@@ -161,6 +162,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		Type type = type().type();
 
+		X10TypeMixin.checkMissingParameters(type);
 		type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
 	    Ref<Type> r = (Ref<Type>) type().typeRef();
         r.update(type);

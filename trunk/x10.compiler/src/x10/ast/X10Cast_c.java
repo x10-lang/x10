@@ -34,6 +34,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
@@ -85,6 +86,8 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     }
 
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    	if (castType()!= null)
+    		X10TypeMixin.checkMissingParameters(castType().type());
         Expr e = Converter.converterChain(this, tc);
         assert e.type() != null;
         assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).convert != Converter.ConversionType.UNKNOWN_CONVERSION;

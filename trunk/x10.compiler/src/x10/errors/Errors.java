@@ -11,6 +11,8 @@
 
 package x10.errors;
 
+import java.util.List;
+
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -26,10 +28,12 @@ import polyglot.types.VarInstance;
 import polyglot.util.Position;
 import x10.ast.SemanticError;
 import x10.ast.X10Call;
+import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldAssign_c;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;
+import x10.types.ParameterType;
 import x10.types.X10FieldInstance;
 import x10.types.X10ProcedureInstance;
 import x10.types.checker.Converter;
@@ -422,7 +426,8 @@ public class Errors {
 			return((VarMustBeAccessibleInTypeDef)o).position().equals(position());
 		}
 	}
-	public static class CannotExtendTwoInstancesSameInterfaceLimitation extends SemanticException {
+	
+		public static class CannotExtendTwoInstancesSameInterfaceLimitation extends SemanticException {
 		private static final long serialVersionUID = -1984266198367743732L;
 		public CannotExtendTwoInstancesSameInterfaceLimitation(Type t1, Type t2, Position pos) {
 			super("LIMITATION: Cannot extend different instantiations of the same type."
@@ -434,6 +439,22 @@ public class Errors {
 			if (o==null || ! (o instanceof CannotExtendTwoInstancesSameInterfaceLimitation) )
 				return false;
 			return((CannotExtendTwoInstancesSameInterfaceLimitation)o).position().equals(position());
+		}
+	}
+	
+
+	public static class TypeIsMissingParameters extends SemanticException {
+		private static final long serialVersionUID = 1254563921501323608L;
+		public TypeIsMissingParameters(Type t1, List<ParameterType> t2, Position pos) {
+			super("Type is missing parameters."
+					+ "\n\t Type: " + t1 
+					+ "\n\t Expected parameters: " + t2,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof TypeIsMissingParameters) )
+				return false;
+			return((TypeIsMissingParameters)o).position().equals(position());
 		}
 	}
 	

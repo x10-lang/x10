@@ -79,9 +79,11 @@ public class X10Field_c extends Field_c {
 	}
 
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+		
 		Node n = typeCheck1(tc);
 		// Keep this at the very end. This is caught by 
 		// handle proto.
+		X10TypeMixin.checkMissingParameters(type());
 		if (! ((X10Context) tc.context()).inAssignment()) {
 			if (n instanceof X10Field_c) {
 				Field nf = (Field) n;
