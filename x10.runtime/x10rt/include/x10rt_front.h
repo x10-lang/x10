@@ -55,7 +55,7 @@
  * 
  * During the execution of an X10 program, messages are exchanged between places. Messages have a
  * type/length/value format, where the type is a number in the range 0-65535. Messages are
- * registered by the X10 program but X10RT chooses the message type value that identifies messages.
+ * registered by the X10 program but X10RT chooses the message type values that identify messages.
  * Messages can have arbitrary size, and two messages with the same type need not be the same size.
  * In all cases, individual messages may be re-ordered but delivery must be guaranteed.
  *
@@ -87,14 +87,18 @@
  * x10rt_logical.h, which deals only with communication.  The goal of the Logical Layer to join
  * together the various backend networking libraries presenting a uniform set of places.  It exports
  * functions that allow communication to and from these places no matter where they are found in the
- * topology.  Underneath the Logical Layer are the networking layers.  There is a Core Networking
- * Layer x10rt_net.h which provides the links between hosts.  There are currently many
- * implementations of this:  There is a standalone implementation that only supports a single host
+ * topology.
+ *
+ * Underneath the Logical Layer are the networking layers.  There is a Core Networking Layer
+ * x10rt_net.h which provides the links between hosts.  There are currently many implementations of
+ * the core networking layer:  There is a standalone implementation that only supports a single host
  * place.  There is an MPI implementation that uses MPI for communication between hosts.  There is
  * also a proprietary implementation on top of the PGAS library, which internally supports many HPC
  * libraries and also has a sockets implementation.  All of these implement the symbols in
- * x10rt_net.h so they cannot currently be used together.  However one can link against which ever
- * one is preferred in order to allow hosts to communicate.
+ * x10rt_net.h so they cannot currently be used simultaneously.  However one can link against
+ * whichever implementation is preferred for inter-host communication.  Details on the available
+ * implementations of the Core Networking Layer can be found <a
+ * href=http://x10.codehaus.org/X10RT+Implementations>here</a>.
  *
  * In addition to the Core Networking Layer x10rt_net.h there is a layer for CUDA, which is intended
  * to wrap the NVidia CUDA API in a way that provides an interface that is very similar to
@@ -103,9 +107,9 @@
  * distinct symbols.  It is the job of the Logical Layer to take the Core Networking Layer and allow
  * crosstalk between this and the various accelerator places by connecting these distinct APIs
  * together and dispatching messages accordingly.
+ *
+ * \image html cake.png "X10RT structural diagram"
  * 
- * Details on the available implementations of the Core Networking Layer can be found <a
- * href=http://x10.codehaus.org/X10RT+Implementations>here</a>.
  *
  * @subsection performance Performance Notes
  *
