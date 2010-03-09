@@ -19,6 +19,7 @@ import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.New;
 import polyglot.ast.Receiver;
+import polyglot.frontend.Globals;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -36,6 +37,8 @@ import x10.constraint.XTerm;
 import x10.types.ParameterType;
 import x10.types.X10FieldInstance;
 import x10.types.X10ProcedureInstance;
+import x10.types.X10TypeMixin;
+import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.Converter.ConversionType;
@@ -455,6 +458,37 @@ public class Errors {
 			if (o==null || ! (o instanceof TypeIsMissingParameters) )
 				return false;
 			return((TypeIsMissingParameters)o).position().equals(position());
+		}
+	}
+	
+	public static class CannotAssignToElement extends SemanticException {
+		private static final long serialVersionUID = -9118489907802078734L;
+		public CannotAssignToElement(String leftString, boolean arrayP,  Expr right, Type t,  Position pos) {
+			super("Cannot assign expression to " + (arrayP ? "array " : "rail ") + "element of given type." 
+					+ "\n\t Expression: " + right
+					+ "\n\t Type: " + right.type()
+					+ "\n\t " + (arrayP ? "Array ": "Rail ") +"element: "  + leftString
+					+ "\n\t Type: " + t,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotAssignToElement) )
+				return false;
+			return((CannotAssignToElement)o).position().equals(position());
+		}
+	}
+	public static class AssignSetMethodCantBeStatic extends SemanticException {
+		private static final long serialVersionUID = 2179749179921672516L;
+		public AssignSetMethodCantBeStatic(MethodInstance mi, Expr array,  Position pos) {
+			super("The set method for array cannot be static."
+					+ "\n\t Array: "  + array
+					+ "\n\t Method: " + mi,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotAssignToElement) )
+				return false;
+			return((CannotAssignToElement)o).position().equals(position());
 		}
 	}
 	
