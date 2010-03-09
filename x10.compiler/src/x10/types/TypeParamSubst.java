@@ -47,8 +47,10 @@ public class TypeParamSubst {
 	List<ParameterType> typeParameters;
 	X10TypeSystem ts;
 
+	final boolean missingArgs;
 	public TypeParamSubst(X10TypeSystem ts, List<Type> typeArguments2, 
 			List<ParameterType> typeParameters2) {
+		missingArgs = typeParameters2 != null && typeParameters2.size() > 0 && typeArguments2 == null;
 		typeArguments2 = typeArguments2 == null ? (List) typeParameters2 : (List) typeArguments2; 
 		assert (typeParameters2 == null ? typeArguments2 == null 
 				: typeArguments2.size() == typeParameters2.size());
@@ -162,6 +164,9 @@ public class TypeParamSubst {
 		return false;
 	}
 
+	public boolean isMissingParameters() {
+		return missingArgs;
+	}
 	public boolean isIdentityInstantiation() {
 		if (typeArguments == null) return true;
 		int n = typeParameters.size();

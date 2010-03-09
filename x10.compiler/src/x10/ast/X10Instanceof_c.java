@@ -21,6 +21,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 /**
@@ -49,9 +50,9 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
 
         if (! xts.isCastValid(fromType, toType, tc.context())) {
             throw new Errors.InstanceofError(fromType, toType, position());
-          
         }
         
+        X10TypeMixin.checkMissingParameters(toType);
 
         return n.type(xts.Boolean());
 	}

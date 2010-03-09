@@ -431,6 +431,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			if (((ClosureCall) cc).target() instanceof Local) {
 				// cc is of the form r() where r is a local variable.
 				// This overrides any other possibility for this call, e.g. a static or an instance method call.
+				X10TypeMixin.checkMissingParameters(cc.type());
 				return cc;
 
 
@@ -459,8 +460,13 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				
 			}
 			catch (SemanticException e) {
-				if (cc != null)
-					return cc.typeCheck(tc);
+				if (cc != null) {
+					Node result = cc.typeCheck(tc);
+					if (result instanceof Expr) {
+						X10TypeMixin.checkMissingParameters(((Expr) result).type());
+					}
+					return result;
+				}
 				throw new SemanticException("Method or static constructor not found for " +
 						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c),
 						position());
@@ -481,6 +487,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				
 			}
 				
+			if (n instanceof Expr) {
+				X10TypeMixin.checkMissingParameters(((Expr) n).type());
+			}
 			return n;
 		}
 
@@ -519,8 +528,13 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		            args = p.snd();
 		        }
 		        catch (SemanticException e2) {
-		            if (cc != null)
-		                return cc.typeCheck(tc);
+		            if (cc != null) {
+		            	Node result = cc.typeCheck(tc);
+		            	if (result instanceof Expr) {
+		            		X10TypeMixin.checkMissingParameters(((Expr) result).type());
+		            	}
+		                return result;
+		            }
 		           
 		            throw e;
 		        }
@@ -567,6 +581,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		//	        	result = result.adjustMI(tc);
 		//	        	result.checkWhereClause(tc);
 		result.checkAnnotations(tc);
+		X10TypeMixin.checkMissingParameters(result.type());
 
 		return result;
 	}

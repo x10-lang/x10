@@ -338,6 +338,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	if (f.isGlobal() && ! f.isFinal()) {
 	    		throw new Errors.GlobalFieldIsVar(this);
 	    	}
+	    	X10TypeMixin.checkMissingParameters(type);
 	    	
 	    	// Need to replace here by current placeTerm in type, 
 	    	// since the field of this type can be referenced across
@@ -406,7 +407,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    			return n.init(newInit);
 	    		}
 	    		catch (SemanticException e) {
-	    			throw new Errors.FieldInitTypeWrong(init, type, init.position());
+	    			throw new Errors.FieldInitTypeWrong(n.init, type, n.init.position());
 	    		}
 	    	}
 
