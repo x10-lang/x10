@@ -17,6 +17,7 @@ import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
+import polyglot.ast.Formal;
 import polyglot.ast.New;
 import polyglot.ast.Receiver;
 import polyglot.frontend.Globals;
@@ -509,19 +510,32 @@ public class Errors {
 		}
 	}
 	public static class InconsistentInvariant extends SemanticException {
-        private static final long serialVersionUID = 243905319528026232L;
-            public InconsistentInvariant(X10ClassDef cd,  Position pos) {
-                    super("Class invariant is inconsistent."
-                                    + "\n\t Invariant: "  + cd.classInvariant()
-                                    + "\n\t Class: " + cd,
-                                    pos);
-            }
-            public boolean equals(Object o) {
-                    if (o==null || ! (o instanceof InconsistentInvariant) )
-                            return false;
-                    return((InconsistentInvariant)o).position().equals(position());
-            }
-    }
+	    private static final long serialVersionUID = 243905319528026232L;
+	    public InconsistentInvariant(X10ClassDef cd,  Position pos) {
+	        super("Class invariant is inconsistent."
+	              + "\n\t Invariant: "  + cd.classInvariant()
+	              + "\n\t Class: " + cd,
+	              pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof InconsistentInvariant) )
+	            return false;
+	        return((InconsistentInvariant)o).position().equals(position());
+	    }
+	}
+	public static class ThisNotPermittedInConstructorFormals extends SemanticException {
+	    private static final long serialVersionUID = -7998660806293584830L;
+	    public ThisNotPermittedInConstructorFormals(List<Formal> formals,  Position pos) {
+	        super("This or super cannot be used (implicitly or explicitly) in a constructor formal type."
+	              + "\n\t Formals: "  + formals,
+	                pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof ThisNotPermittedInConstructorFormals ) )
+	            return false;
+	        return((ThisNotPermittedInConstructorFormals )o).position().equals(position());
+	    }
+	}
 	
 	
 }

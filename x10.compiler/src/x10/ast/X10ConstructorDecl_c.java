@@ -23,6 +23,7 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
@@ -52,6 +53,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.X10ClassDef;
@@ -65,6 +67,8 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
+import x10.types.checker.ThisChecker;
+import x10.types.checker.VarChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -434,6 +438,14 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10ConstructorDecl_c n = this;
+        
+        ThisChecker thisC = (ThisChecker) new ThisChecker(tc.job()).context(tc.context());
+       if (formals != null) {
+           visitList(formals, thisC);
+           if (thisC.error()) {
+                   throw new Errors.ThisNotPermittedInConstructorFormals(formals, position());
+           }
+       }
         
         for (TypeNode type : n.throwTypes()) {
             CConstraint rc = X10TypeMixin.xclause(type.type());
