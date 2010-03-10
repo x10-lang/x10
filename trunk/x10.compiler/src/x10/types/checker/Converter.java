@@ -42,6 +42,7 @@ import polyglot.types.Type;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.ast.SemanticError;
 import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10New_c;
@@ -49,6 +50,8 @@ import x10.ast.X10NodeFactory;
 import x10.ast.X10ProcedureCall;
 import x10.ast.X10New_c.MatcherMaker;
 import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
+import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
@@ -359,8 +362,18 @@ public class Converter {
 			throw new Errors.CannotConvertToType(fromType, toType, cast.position());
 
 		if (ts.isSubtype(fromType, toType, context)) {
-			X10Cast n =  cast.conversionType(ConversionType.SUBTYPE);
-			return n.type(toType);
+		    // Add the clause self==x if the fromType's self binding is x,
+		    // since for these casts we know the result is identical to expr.
+		    XVar sv = X10TypeMixin.selfVarBinding(fromType);
+		    if (sv != null) 
+		        try {
+		        toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
+		        } catch (XFailure f) {
+		            throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+		        }
+
+		    X10Cast n =  cast.conversionType(ConversionType.SUBTYPE);
+		    return n.type(toType);
 		}
 
 		Type baseFrom = X10TypeMixin.baseType(fromType);
@@ -373,6 +386,13 @@ public class Converter {
 					&& ! ts.isParameterType(toType) 
 					&& ts.isCastValid(fromType, toType, context)) {
 				X10Cast n = cast.conversionType(ConversionType.CHECKED); 
+				XVar sv = X10TypeMixin.selfVarBinding(fromType);
+				if (sv != null) 
+				    try {
+				        toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
+				    } catch (XFailure f) {
+				        throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+				    }
 				return n.type(toType);
 			}
 		}
