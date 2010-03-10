@@ -30,7 +30,7 @@ public class ListTest extends x10Test {
 			value=0;
 			tail=null;
 		}
-		public def append(l: List!) = {
+		public def append(l: List!):List! = {
 			return (n==0)? l : new List(value, tail.append(l)); // this cast should not be needed.
 		}
 		public def nth(k: int): Int = {
