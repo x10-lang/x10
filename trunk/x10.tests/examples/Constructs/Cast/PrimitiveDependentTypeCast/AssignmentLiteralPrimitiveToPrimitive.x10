@@ -18,11 +18,11 @@ import harness.x10Test;
 public class AssignmentLiteralPrimitiveToPrimitive extends x10Test {
 
 	 public def run(): boolean = {
-		var bb: byte{self==b1} = 1;
+		var bb: byte{self==1} = 1;
 		var ss: short{self==10} = 10;
 		var ii: int{self==20} = 20;
 		var iii: int{self==-2} = -2;
-		var ll: long{self==30} = 30;
+		var ll: long{self==30L} = 30L;
 		var ff: float{self==0.001F} = 0.001F;
 		var i: double{self == 0.001} = 0.001;
 		var cc: char{self=='c'} = 'c';
