@@ -210,7 +210,7 @@ $\mathit{op}$,
 the
 $\mathit{op}$-assignment expression \xcdmath"x $\mathit{op}$= e"
 evaluates \xcd"x" to a memory location, then evaluates \xcd"e",
-applies the operation \xcdmath"x \mathit{op} e", and assigns the
+applies the operation \xcdmath"x $\mathit{op}$ e", and assigns the
 result into the location computed for \xcd"x".
 The expression is equivalent to \xcdmath"x = x $\mathit{op}$ e"
 except that any subexpressions of \xcd"x" are evaluated only
@@ -463,7 +463,7 @@ If the operands both have struct type, then they must be structurally equal;
 that is, they must be instances of the same struct
 and all their fields or components must be \xcd"==". 
 
-The definition of equality for function types is specified in \S{FunctionEquality}.
+The definition of equality for function types is specified in \Sref{FunctionEquality}.
 
 If the operands both have numeric type, binary promotion
 (\Sref{XtenPromotions}) is performed on the operands before the

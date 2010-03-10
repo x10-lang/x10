@@ -236,7 +236,7 @@ presentation of a classname \xcd"C". The class must have a
 exception is thrown
 and the computation terminates.  The single statement
 \begin{xten}
-finish async (place.FIRST_PLACE) {
+finish async (Place.FIRST_PLACE) {
   C.main(s);
 }
 \end{xten} 
@@ -294,7 +294,7 @@ in all other cases.
 This statement differs from \xcd"foreach" only in
 that each activity is spawned at the place specified by the
 distribution for the point. That is, 
-\xcd"ateach(p(i1,...,ik): point in D) S" may
+\xcd"ateach(p(i1,...,ik): Point in D) S" may
 be thought of as standing for:
 \begin{xten}
 foreach (p(i1,...,ik): point in D.region) 
