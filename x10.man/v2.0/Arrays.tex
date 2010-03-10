@@ -12,8 +12,6 @@ Each array has a field \xcd"a.dist" which may be used to
 obtain the underlying
 distribution.\index{arrays!distribution@{\tt distribution}}
 
-The distribution underlying an array \xcd"a" may be obtained through
-the field \xcd"a.dist".
 
 \section{Points}\label{point-syntax}\index{point syntax}
 
@@ -42,7 +40,7 @@ p: Point = Point.make([1,2]);
 \end{xten}
 
 Points implement the function type \xcd"(Int) => Int"; thus, the
-\xcd"i"the element of a point \xcd"p" may be accessed as \xcd"p(i)".
+\xcd"i"th element of a point \xcd"p" may be accessed as \xcd"p(i)".
 
 \input{Regions}
 \input{Distributions}
@@ -98,7 +96,7 @@ val result : Array[Float]
 
 \section{Operations on arrays}
 In the following let \xcd"a" be an array with distribution \xcd"D" and
-base type \xcd"T". \xcd"a".
+base type \xcd"T". 
 
 \subsection{Element operations}\index{array!access}
 The value of \xcd"a" at a point \xcd"p" in its region of definition is
