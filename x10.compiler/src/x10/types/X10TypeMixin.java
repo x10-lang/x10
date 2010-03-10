@@ -17,8 +17,10 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Unary;
+import polyglot.ast.Unary_c;
 import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
@@ -41,7 +43,9 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.ast.ParExpr;
 import x10.ast.SemanticError;
+import x10.ast.SubtypeTest;
 import x10.ast.X10ClassDecl_c;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
@@ -1049,5 +1053,15 @@ public class X10TypeMixin {
 			}
 		}
 		return null;
+	}
+	
+	public static boolean isTypeConstraintExpression(Expr e) {
+	    if (e instanceof ParExpr) 
+	        return isTypeConstraintExpression(((ParExpr) e).expr());
+	    else if (e instanceof Unary_c)
+	        return isTypeConstraintExpression(((Unary) e).expr());
+	    else if (e instanceof SubtypeTest)
+	        return true;
+	    return false;
 	}
 }
