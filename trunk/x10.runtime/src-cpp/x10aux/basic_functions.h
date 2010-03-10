@@ -15,20 +15,26 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 #include <x10aux/hash.h>
-#include <x10/lang/String.h>
+#include <x10aux/string_utils.h>
 
 #include <x10/lang/IBox.struct_h>
+
+namespace x10 {
+    namespace lang {
+        class String;
+    }
+}
 
 namespace x10aux {
 
     /******* type_name ********/
     
     template<class T> inline ref<x10::lang::String> type_name(ref<T> x) {
-        return x10::lang::String::Lit((ref<x10::lang::Reference>(x))->_type()->name());
+        return string_utils::lit((ref<x10::lang::Reference>(x))->_type()->name());
     }
 
     template<typename T> inline ref<x10::lang::String> type_name(T x) {
-        return x10::lang::String::Lit(getRTT<T>()->name());
+        return string_utils::lit(getRTT<T>()->name());
     }
 
     /******* get_location ********/
