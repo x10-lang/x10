@@ -52,10 +52,10 @@ public class RailCopy extends x10Test {
         failures += verify(at (there) remote as ValRail[T], master2, prefix+": Remote rail initialization");
 
         val c = new Cell[Boolean](false); // for notifiers
-        printPtr(c);
-        printName(c);
-        val update = (c2:Cell[Boolean]!) => { atomic { c2.value = true; c.value = true; } ; printPtr(c2); printPtr(c); printName(c) };
-        val notifier = () => { printRemotePtr(c); if (here==c.home) update(c); else Runtime.runAtNative(c.home.id, ()=>update(c)); };
+        //printPtr(c);
+        //printName(c);
+        val update = (c2:Cell[Boolean]!) => { atomic { c2.value = true; c.value = true; } ; /*printPtr(c2); printPtr(c); printName(c)*/ };
+        val notifier = () => { /*printRemotePtr(c); */ if (here==c.home) update(c); else Runtime.runAtNative(c.home.id, ()=>update(c)); };
 
 ///* temporarily commented out
         finish local.copyTo(0,remote,0,sz);
