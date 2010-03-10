@@ -51,8 +51,10 @@ import org.eclipse.jdt.ui.wizards.JavaCapabilityConfigurationPage;
 
 final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPage {
 
-  CppProjectPropertiesWizardPage(final CppProjectNameDefWizardPage firstPage) {
+  CppProjectPropertiesWizardPage(final CppProjectNameDefWizardPage firstPage, 
+                                 final CppProjectX10PlatformWizardPage secondPage) {
     this.fFirstPage = firstPage;
+    this.fSecondPage = secondPage;
 
     setTitle(LaunchMessages.PWSP_PageTitle);
     setDescription(LaunchMessages.PWSP_PageDescription);
@@ -264,6 +266,8 @@ final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPa
       }
 
       createProject(this.fCurrProject, this.fCurrProjectLocation, new SubProgressMonitor(monitor, 2));
+      
+      this.fSecondPage.attachConnectionParameters(this.fCurrProject);
 
       if (monitor.isCanceled()) {
         throw new OperationCanceledException();
@@ -281,6 +285,8 @@ final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPa
   // --- Fields
 
   private final CppProjectNameDefWizardPage fFirstPage;
+  
+  private final CppProjectX10PlatformWizardPage fSecondPage;
 
   private IFile fCreatedFile;
 

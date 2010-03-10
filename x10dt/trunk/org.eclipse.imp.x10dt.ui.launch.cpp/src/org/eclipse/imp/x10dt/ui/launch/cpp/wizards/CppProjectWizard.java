@@ -49,7 +49,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
   public CppProjectWizard() {
     this.fFirstPage = new CppProjectNameDefWizardPage();
     this.fSecondPage = new CppProjectX10PlatformWizardPage(this.fFirstPage);
-    this.fThirdPage = new CppProjectPropertiesWizardPage(this.fFirstPage);
+    this.fThirdPage = new CppProjectPropertiesWizardPage(this.fFirstPage, this.fSecondPage);
 
     addPage(this.fFirstPage);
     addPage(this.fSecondPage);
