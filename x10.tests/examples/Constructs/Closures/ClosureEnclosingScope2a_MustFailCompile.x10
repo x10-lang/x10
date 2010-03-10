@@ -22,10 +22,10 @@ import harness.x10Test;
 
 public class ClosureEnclosingScope2a_MustFailCompile extends ClosureTest {
 
-    var a:int = 1;
+    
 
     public def run(): boolean = {
-        
+    		var a:int = 1;
         check("(()=>a)()", (()=>a)(), 1);
 
         return result;
