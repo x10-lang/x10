@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,6 +59,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeChecker;
 import x10.ast.X10NodeFactory_c;
@@ -83,7 +85,6 @@ import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.RewriteExternVisitor;
 import x10.visit.StaticNestedClassRemover;
-import x10.visit.WSCodeGenerator;
 import x10.visit.X10Caster;
 import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InitChecker;
@@ -342,7 +343,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(CheckNativeAnnotations(job));
            
            if (x10.Configuration.WORK_STEALING) {
-               goals.add(WSCodeGenerator(job));
+               Goal wsCodeGenGoal = WSCodeGenerator(job);
+               if(wsCodeGenGoal != null){
+                   goals.add(wsCodeGenGoal);                   
+               }
            }
            goals.add(InnerClassRemover(job));
            goals.addAll(Optimizer.goals(this, job));
@@ -518,7 +522,27 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal WSCodeGenerator(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("WSCodeGenerator", job, new WSCodeGenerator(job, ts, nf)).intern(this);
+
+           Goal result = null;          
+                      
+           try{
+               //Use reflect to load the class from
+               ClassLoader cl = Thread.currentThread().getContextClassLoader();
+               Class<?> c = cl
+               .loadClass("x10.compiler.ws.visit.WSCodeGenerator");
+               Constructor<?> con = c.getConstructor(Job.class,
+                                                     TypeSystem.class,
+                                                     NodeFactory.class);
+               ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf);
+               result = new VisitorGoal("WSCodeGenerator", job, wsvisitor).intern(this);
+           }
+           catch (ClassNotFoundException e) {
+               System.err.println("[X10_WS_ERR]Cannot load Work-Stealing code gen class. Ignore Work-Stealing transform.");
+           } catch (Throwable e) {
+               System.err.println("[X10_WS_ERR]Error in load Work-Stealing code gen class. Ignore Work-Stealing transform.");
+               e.printStackTrace();
+           }
+           return result;
        }
        
        public Goal Desugarer(Job job) {
