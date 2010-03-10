@@ -99,7 +99,7 @@ import x10.util.Pair;
                                               dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
                                               len:Int) : Void;
 
-        @Native("c++", "(#4)->copyTo(#5,#6,#7,#8)")
+        @Native("c++", "(#4)->copyFrom(#5,#6,#7,#8)")
         @Native("java", "java.lang.System.out.println(\"Should never occur, see Rail.x10\")")
         public static  native def copyFrom_[T] (src: Rail[T]!, src_off:Int,
                                                 dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
