@@ -408,6 +408,13 @@ public class X10TypeMixin {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
         }
     }
+    public static Type addSelfBinding(Type t, XTerm t1) throws XFailure {
+        assert (! (t instanceof UnknownType));
+            CConstraint c = xclause(t);
+            c = c == null ? new CConstraint_c() :c.copy();
+            c.addSelfBinding(t1);
+            return xclause(X10TypeMixin.baseType(t), c); 
+    }
     
     public static Type addDisBinding(Type t, XTerm t1, XTerm t2) {
      	assert (! (t instanceof UnknownType));
