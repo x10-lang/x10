@@ -2404,12 +2404,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    // TODO
 //	    // Boolean short-circuiting operators are ok
-//	    // FIXME: [IP] string concatenation are ok for now
 //	    Assign_c n = asgn;
-//	    assert (opString.equals("&&") || opString.equals("||") ||
-//	            (opString.equals("+") &&
-//	             (n.left(nf).type().isSubtype(xts.String(), context)) ||
-//	              n.right().type().isSubtype(xts.String(), context)))
+//	    assert (opString.equals("&&") || opString.equals("||"))
 //	        : "visiting "+n.getClass()+" at "+n.position()+": "+n;
 
 	    if (opString.equals(">>>=")) {
@@ -4647,12 +4643,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String opString = n.operator().toString();
 
 		// Boolean short-circuiting operators are ok
-		// FIXME: [IP] string concatenation are ok for now
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		assert (opString.equals("&&") || opString.equals("||") ||
-		        (opString.equals("+") &&
-		         (n.left().type().isSubtype(xts.String(), tr.context())) ||
-		          n.right().type().isSubtype(xts.String(), tr.context())))
+		assert (opString.equals("&&") || opString.equals("||"))
 		    : "visiting "+n.getClass()+" at "+n.position()+": "+n;
 
 		n.printSubExpr(n.left(), true, sw, tr);

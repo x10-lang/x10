@@ -11,6 +11,8 @@
 
 package x10.lang;
 
+import x10.util.Ordered;
+
 /**
  * The type <code>Point(rank)</code> represents a point in a
  * rank-dimensional space. The coordiIntes of a point <code>p</code>
@@ -22,7 +24,7 @@ package x10.lang;
  * @author bdlucas
  * @author vj
  */
-final public class Point(rank: Int) implements (Int) => Int {
+final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)] {
 
     /**
      * Returns the value of the ith coordiInte.
