@@ -51,6 +51,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -405,7 +406,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			if (e != null) {
 				assert typeArguments().size() == 0;
 				ClosureCall ccx = nf.ClosureCall(position(), e,  arguments());
-				X10MethodInstance ci = (X10MethodInstance) ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking closure call."));
+				X10MethodInstance ci = 
+				    (X10MethodInstance) ts.createMethodInstance(position(), 
+				                                                new ErrorRef_c<MethodDef>(ts, position(), 
+				                                                        "Cannot get MethodDef before type-checking closure call."));
 				ccx = ccx.closureInstance(ci);
 				Node n = ccx;
 				try {
@@ -467,9 +471,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 					}
 					return result;
 				}
-				throw new SemanticException("Method or static constructor not found for " +
-						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c),
-						position());
+				MethodMatcher matcher = ((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c);
+				throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
+				                                                   
 			}
 			
 			if (n instanceof X10Call_c)
@@ -478,13 +482,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			
 			// We have both!
 			if (cc != null) {
-			
-				throw new SemanticException("Ambiguous call; both " + 
-						((n instanceof X10New) 
-								? ((X10New) n).constructorInstance().toString()
-										: ((X10Call) n).methodInstance().toString()) 
-										+ " and closure " + cc + " match.", position());
-				
+			    throw new Errors.AmbiguousCall(((n instanceof X10New) 
+                                                           ? ((X10New) n).constructorInstance() 
+                                                                   : ((X10Call) n).methodInstance()), cc, position());
 			}
 				
 			if (n instanceof Expr) {
