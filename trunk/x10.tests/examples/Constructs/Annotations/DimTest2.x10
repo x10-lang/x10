@@ -22,15 +22,15 @@ public class DimTest2 extends harness.x10Test {
 	var meltF: double = 32;
 	var boilF: double = 212;
 	
-	var a: boolean = meltC as @Unit(Temperature.F) as int == meltF as int;
-	var b: boolean = boilC as @Unit(Temperature.F) as int == boilF as int;
-	var c: boolean = meltF as @Unit(Temperature.C) as int == meltC as int;
-	var d: boolean = boilF as @Unit(Temperature.C) as int == boilC as int;
+	var a: boolean = (meltC as double@Unit(Temperature.F)) as int == meltF as int;
+	var b: boolean = (boilC as double@Unit(Temperature.F)) as int == boilF as int;
+	var c: boolean = (meltF doubles @Unit(Temperature.C)) as int == meltC as int;
+	var d: boolean = (boilF as double@Unit(Temperature.C)) as int == boilC as int;
 
 	return a && b && c && d;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String]) {
         new DimTest2().execute();
     }
 }
