@@ -380,7 +380,7 @@
                toolbarPath="Normal/X10Wizards"
                tooltip="%new.package.tooltip">
          </action>
- <!--
+ 
          <action
                class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10ProjectJavaBCWizardToolbarAction"
                icon="icons/newx10prj_java.gif"
@@ -390,7 +390,7 @@
                toolbarPath="Normal/X10Wizards"
                tooltip="%new.project.java.tooltip">
          </action>
--->
+
       </actionSet>
    </extension>
    <extension
