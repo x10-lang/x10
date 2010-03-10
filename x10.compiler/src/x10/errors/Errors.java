@@ -14,6 +14,7 @@ package x10.errors;
 import java.util.List;
 
 import polyglot.ast.Call;
+import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
@@ -24,9 +25,11 @@ import polyglot.frontend.Globals;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
+import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.Position;
 import x10.ast.SemanticError;
 import x10.ast.X10Call;
@@ -536,6 +539,32 @@ public class Errors {
 	        return((ThisNotPermittedInConstructorFormals )o).position().equals(position());
 	    }
 	}
-	
+	public static class MethodOrStaticConstructorNotFound extends SemanticException {
+	    private static final long serialVersionUID = -6230289868576516608L;
+	    public MethodOrStaticConstructorNotFound(MethodMatcher mm,  Position pos) {
+	        super("Method or static constructor not found for given matcher."
+	              + "\n\t Matcher: "  + mm,
+	              pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof MethodOrStaticConstructorNotFound ) )
+	            return false;
+	        return((MethodOrStaticConstructorNotFound )o).position().equals(position());
+	    }
+	}
+	public static class AmbiguousCall extends SemanticException {
+	    private static final long serialVersionUID = 2449179239460432298L;
+	    public AmbiguousCall(ProcedureInstance<?> pi,  Expr cc, Position pos) {
+	        super("Ambiguous call: the given procedure and closure match."
+	              + "\n\t Procedure: "  + pi
+	              + "\n\t Closure: "  + cc,
+	              pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof AmbiguousCall ) )
+	            return false;
+	        return((AmbiguousCall )o).position().equals(position());
+	    }
+	}
 	
 }
