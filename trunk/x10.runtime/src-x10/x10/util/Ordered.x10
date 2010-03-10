@@ -24,7 +24,7 @@ public interface Ordered[T] {
      * @param that the other entity
      * @return true if the current entity is strictly less than the other entity.
      */
-    operator this <  (that: T): Boolean;
+    global operator this <  (that: T): Boolean;
     /**
      * A binary greater-than operator.
      * Compares the two operands and returns true if the left-hand operand
@@ -33,7 +33,7 @@ public interface Ordered[T] {
      * @param that the other entity
      * @return true if the current entity is strictly greater than the other entity.
      */
-    operator this >  (that: T): Boolean;
+    global operator this >  (that: T): Boolean;
     /**
      * A binary less-than-or-equal-to operator.
      * Compares the two operands and returns true if the left-hand operand
@@ -42,7 +42,7 @@ public interface Ordered[T] {
      * @param that the other entity
      * @return true if the current entity is less than or equal to the other entity.
      */
-    operator this <= (that: T): Boolean;
+    global operator this <= (that: T): Boolean;
     /**
      * A binary greater-than-or-equal-to operator.
      * Compares the two operands and returns true if the left-hand operand
@@ -51,5 +51,5 @@ public interface Ordered[T] {
      * @param that the other entity
      * @return true if the current entity is greater than or equal to the other entity.
      */
-    operator this >= (that: T): Boolean;
+    global operator this >= (that: T): Boolean;
 }

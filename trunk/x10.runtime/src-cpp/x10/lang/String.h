@@ -19,6 +19,7 @@
 
 #include <x10/lang/Object.h>
 #include <x10/lang/Fun_0_1.h>
+#include <x10/lang/Comparable.h>
 
 #ifdef __CYGWIN__
 extern "C" char *strdup (const char *);
@@ -42,8 +43,9 @@ namespace x10 {
 
             RTT_H_DECLS_CLASS;
 
-            static Fun_0_1<x10_int/*nat*/, x10_char>::itable<String> _itable_Fun_0_1;
-            static x10aux::itable_entry _itables[2];
+            static Fun_0_1<x10_int, x10_char>::itable<String> _itable_Fun_0_1;
+            static Comparable<x10aux::ref<String> >::itable<String> _itable_Comparable;
+            static x10aux::itable_entry _itables[3];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
             
             // Set steal to true if you have just allocated the char * with
@@ -141,6 +143,16 @@ namespace x10 {
                                               x10aux::ref<Rail<x10aux::ref<Any> > > parms);
 
             virtual x10_boolean equals(x10aux::ref<x10::lang::Any> p0);
+
+            x10_boolean equalsIgnoreCase(x10aux::ref<x10::lang::String> s);
+
+            x10aux::ref<String> toLowerCase();
+
+            x10aux::ref<String> toUpperCase();
+
+            x10_int compareTo(x10aux::ref<x10::lang::String> s);
+
+            x10_int compareToIgnoreCase(x10aux::ref<x10::lang::String> s);
 
             String () : FMGL(content)(NULL) { }
             virtual ~String () {
