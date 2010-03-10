@@ -15,30 +15,31 @@ import x10.errors.Errors;
 import x10.types.X10TypeEnv_c;
 
 /**
+ * Flags an error if visited node contsains a mutable variable or field.
  * @author vj
  *
  */
 public class VarChecker extends ContextVisitor {
-		public VarChecker(Job job, TypeSystem ts, polyglot.ast.NodeFactory nf) {
-			super(job, ts, nf);
-		}
-		public SemanticException error = null;
-		@Override
-		public Node override(Node n) {
-			if (n instanceof NamedVariable) {
-				NamedVariable e = (NamedVariable) n;
-				if (! e.flags().isFinal())
-				    error = new Errors.VarMustBeFinalInTypeDef(e.name().toString(), e.position()); 
-				
-				if (n instanceof Field) {
-					Field l = (Field) n;
-					if (! new X10TypeEnv_c(context).isAccessible(l.fieldInstance())) {
-						 error = new Errors.VarMustBeAccessibleInTypeDef(l.fieldInstance(), e.position()); 
-					}
-				}
-				return n;
-			}
+    public VarChecker(Job job, TypeSystem ts, polyglot.ast.NodeFactory nf) {
+        super(job, ts, nf);
+    }
+    public SemanticException error = null;
+    @Override
+    public Node override(Node n) {
+        if (n instanceof NamedVariable) {
+            NamedVariable e = (NamedVariable) n;
+            if (! e.flags().isFinal())
+                error = new Errors.VarMustBeFinalInTypeDef(e.name().toString(), e.position()); 
 
-			return null;
-		}
-	}
+            if (n instanceof Field) {
+                Field l = (Field) n;
+                if (! new X10TypeEnv_c(context).isAccessible(l.fieldInstance())) {
+                    error = new Errors.VarMustBeAccessibleInTypeDef(l.fieldInstance(), e.position()); 
+                }
+            }
+            return n;
+        }
+
+        return null;
+    }
+}
