@@ -95,7 +95,7 @@
          id="org.eclipse.imp.x10dt.refactoring"
          download-size="0"
          install-size="0"
-         version="2.0.1.qualifier"
+         version="2.0.2.qualifier"
          unpack="false"/>
 
    <plugin
@@ -168,6 +168,7 @@
          id="polyglot.bytecode"
          download-size="0"
          install-size="0"
-         version="1.0.0"/>
+         version="1.0.0"
+         unpack="false"/>
 
 </feature>
