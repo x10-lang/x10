@@ -55,8 +55,9 @@
                 <include name="lib*pgas*.a"/>  <!-- changed for 2.0.1 -->
                 <include name="libx10.a"/>
                 <include name="libx10.mft"/>
-                <include name="libgc.a"/>
-                <exclude name="dummy.file"/>
+                <include name="libgc*.a"/>  <!-- cygwin has libgc.dll.a  -->
+            	<include name="lib*.so*"/>  <!-- 2.0.2: linux now has shared libs not .a's -->
+            	<exclude name="dummy.file"/>
             </fileset>
         </delete>
         <delete>
@@ -101,8 +102,9 @@
                 <include name="include/**"/>
                 <include name="lib/libx10.a"/>
                 <include name="lib/libx10.mft"/>
-                <include name="lib/libgc.a"/>
+                <include name="lib/libgc*.a"/><!--  2.0.2 cygwin has libgc.dll.a-->
             	<include name="lib/libx10rt_pgas_sockets.a"/> <!-- added/changed for 2.0.1 -->
+            	<include name="lib/lib*.so*"/>  <!-- 2.0.2: linux now has shared libs not .a's -->
             </patternset>
         </untar>
     </target>
@@ -113,8 +115,8 @@
         <copy todir="${incdir}">
             <fileset dir="${x10.dist.location}/include" includes="**"/>
         </copy>
-        <copy todir="${lib}">
-            <fileset dir="${x10.dist.location}/lib" includes="libx10.a,libx10.mft,libgc.a,libx10rt_pgas_sockets.a"/><!-- 2.0.1-->
+        <copy todir="${lib}"> <!-- 2.0.2: copy .so files too - linux uses shared lib .so* files -->
+            <fileset dir="${x10.dist.location}/lib" includes="libx10.a,libx10.mft,libgc.a,libx10rt_pgas_sockets.a,lib*.so*"/><!-- 2.0.2-->
             <!-- <fileset dir="${pgas.location}/lib" includes="libxlpgas_${x10.transport}.a"/> omit for 2.0.1 -->
         </copy>
     </target>
