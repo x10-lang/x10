@@ -12,28 +12,24 @@
 import harness.x10Test;
 
 /**
- * Two remote references to the same object must be equal.
+ * Sending two remote references back to their home place should work.
  * @author igor 03/2010
  */
-class RemoteRefEquality extends x10Test {
-
-    val rr:RemoteRefEquality;
-
-    public def this(v:RemoteRefEquality) { rr = v; }
-
-    public def this() { this(null); }
+class MultiRefRoundtrip extends x10Test {
 
     public def run(): boolean {
         chk(Place.places.length > 1, "This test must be run with multiple places");
-        val local = new RemoteRefEquality();
-        val remote = at (here.next()) new RemoteRefEquality(local);
-        Console.OUT.println(local == (at (remote) remote.rr)); // workaround XTENLANG-1124
-        Console.OUT.println(at (remote) remote.rr == local);
-        return at (remote) remote.rr == local;
+        val local = new MultiRefRoundtrip();
+        val second = local;
+        at (here.next()) {
+            at (local) {
+                Console.OUT.println(local == second);
+            }
+        }
+        return at (here.next()) at (local) second == local;
     }
 
     public static def main(Rail[String]) {
-        new RemoteRefEquality().execute();
+        new MultiRefRoundtrip().execute();
     }
 }
-
