@@ -698,14 +698,18 @@ public final class Runtime {
         }
 
         public def probe () : Void {
+            // process all queued activities
+            val tmp = activity; // save current activity
+            while (true) {
                 activity = poll();
                 if (activity == null) {
-                    activity = Runtime.scan(random, latch, false);
-                    if (activity == null) return;
+                    activity = tmp; // restore current activity
+                    return;
                 }
                 debug.add(pretendLocal(activity));
                 runAtLocal(activity.home.id, (activity as Activity!).run.());
                 debug.removeLast();
+            }
         }
 
         def dump(id:Int, thread:Thread!) {
@@ -718,6 +722,10 @@ public final class Runtime {
         }
     }
 
+    public static def probe () {
+        event_probe();
+        worker().probe();
+    }
 
     static class Pool implements ()=>Void {
         private val latch:Latch!;
