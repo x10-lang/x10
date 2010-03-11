@@ -34,7 +34,7 @@ class BangAcrossPlaces2_MustFailCompile  extends x10Test {
     }
     public static def main(Rail[String]) {
 	  new 
-	  BangAcrossPlaces_MustFailCompile2().execute();
+	  BangAcrossPlaces2_MustFailCompile().execute();
     }
 
 }
