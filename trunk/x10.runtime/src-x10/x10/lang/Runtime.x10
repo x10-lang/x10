@@ -618,7 +618,7 @@ public final class Runtime {
     }
 
 
-    final static class Worker implements ()=>Void {
+    public final static class Worker implements ()=>Void {
         val latch:Latch!;
         // release the latch to stop the worker
 
@@ -695,6 +695,17 @@ public final class Runtime {
                 debug.removeLast();
             }
             return true;
+        }
+
+        public def probe () : Void {
+                activity = poll();
+                if (activity == null) {
+                    activity = Runtime.scan(random, latch, false);
+                    if (activity == null) return;
+                }
+                debug.add(pretendLocal(activity));
+                runAtLocal(activity.home.id, (activity as Activity!).run.());
+                debug.removeLast();
         }
 
         def dump(id:Int, thread:Thread!) {
