@@ -265,6 +265,10 @@ public class X10Builder extends IncrementalProjectBuilder {
 
                 if (errorFile != null)
                     addProblemMarkerTo(errorFile, "Probable missing package declaration", IMarker.SEVERITY_ERROR, "", IMarker.PRIORITY_NORMAL, 0, 0, 0);
+            } else {
+                String msg= ice.getMessage();
+                X10DTCorePlugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + (msg != null ? msg : ice.getClass().getName()));
+                addProblemMarkerTo(fProject, "An internal X10 compiler error occurred; see the Error Log for more details.", IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
             }
         } catch (final Error error) {
             String msg= error.getMessage();
@@ -796,7 +800,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (runtimeIdx >= 0) {
                 IPath entryPath= entries[runtimeIdx].getPath();
                 File entryFile= new File(entryPath.makeAbsolute().toOSString());
-
+                if(traceOn)System.out.println("X10Builder.checkclasspathForRuntime(), found entryFile: "+entryFile+"; exists="+entryFile.exists());
                 if (!entryFile.exists()) {
                     postQuestionDialog(ClasspathError + fProject.getName(),
                             "The X10 runtime entry in the project's classpath does not exist: " + entryPath.toOSString() + "; shall I update the project's classpath with the runtime installed as part of the X10DT?",
@@ -805,7 +809,13 @@ public class X10Builder extends IncrementalProjectBuilder {
                     return; // found a runtime entry but it is/was broken
                 }
                 String currentVersion= X10RuntimeUtils.getCurrentRuntimeVersion();
-
+                if(traceOn)System.out.println("   currentVersion: "+currentVersion);
+                /*
+                int qidx=currentVersion.indexOf("qualifier");
+                if(qidx>=0){
+                	currentVersion=currentVersion.substring(0,qidx-1);
+                }
+*/
                 // TODO Only insist that a jar file whose name embeds the version has the right version.
                 // Jar files whose names don't embed a version number won't be checked.
                 if (entryFile.getPath().endsWith(".jar") && entryFile.getAbsolutePath().indexOf(currentVersion) < 0) {
