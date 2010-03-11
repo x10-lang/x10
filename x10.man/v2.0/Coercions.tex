@@ -28,6 +28,45 @@ satisfied.
 \index{casting}
 \index{\Xcd{as}}
 
+\paragraph{Effects of explicit numeric coercion}
+\label{sec:effects-of-explicit-numeric-coercions}
+
+Coercing a number of one type to another type gives the best approximation of
+the number in the result type, or a suitable disaster value if no
+approximation is good enough.  
+
+\begin{itemize}
+\item Casting a number to a {\em wider} numeric type is safe and effective,
+      and can be done by an implicit conversion as well as an explicit
+      coercion.  For example, \xcd`4 as Long` produces the \xcd`Long` value of
+      4. 
+\item Casting a floating-point value to an integer value truncates the digits
+      after the decimal point, thereby rounding the number towards zero.  
+      \xcd`54.321 as Int` is \xcd`54`, and 
+      \xcd`-54.321 as Int` is \xcd`-54`.
+      If the floating-point value is too large to represent as that kind of
+      integer, the coercion returns the largest or smallest value of that type
+      instead: \xcd`1e110 as Int` is 
+      \xcd`Int.MAX_VALUE`, \xcd`2147483647`. 
+
+\item Casting a \xcd`Double` to a \xcd`Float` normally truncates digits: 
+      \xcd`0.12345678901234567890 as Float` is \xcd`0.12345679f`.  This can
+      turn a nonzero \xcd`Double` into \xcd`0.0f`, the zero of type
+      \xcd`Float`: \xcd`1e-100 as Float` is \xcd`0.0f`.  Since 
+      \xcd`Double`s can be as large as about \xcd`1.79E308` and \xcd`Float`s
+      can only be as large as about \xcd`3.4E38f`, a large \xcd`Double` will
+      be converted to the special \xcd`Float` value of \xcd`Infinity`: 
+      \xcd`1e100 as Float` is \xcd`Infinity`.
+\item Integers are coerced to smaller integer types by truncating the
+      high-order bits. If the value of the large integer fits into the smaller
+      integer's range, this gives the same number in the smaller type: \xcd`12 as Byte` is the \xcd`Byte`-sized 12, \xcd`-12 as Byte` is -12. 
+      However, if the larger integer {\em doesn't} fit in the smaller type,
+      the numeric value and even the sign can change: \xcd`254 as Byte` is
+      \xcd`Byte`-sized \xcd`-2`.  
+
+
+\end{itemize}
+
 \subsection{Conversions}
 
 \paragraph{Widening numeric conversion.}
