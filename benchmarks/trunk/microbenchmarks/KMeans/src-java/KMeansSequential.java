@@ -1,5 +1,3 @@
-import java.util.Random;
-
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -20,37 +18,36 @@ import java.util.Random;
  * A translation of the x10.dist/samples/KMeans.x10 program to Java
  */
 public class KMeansSequential {
+    final int myK;
+    final int numIterations;
+    final float EPS;
     
-    public static final int DIM=2;
-    public static final int K=4;
-    public static final int POINTS=2000;
-    public static final int ITERATIONS=50;
-    public static final float EPS=0.01f;
-    
-    final int myDim;
-    
-    KMeansSequential(int md) {
-      this.myDim = md;
+    KMeansSequential(int myK, int numIterations, float EPS) {
+        this.myK = myK;
+        this.numIterations = numIterations;
+        this.EPS = EPS;
     }
     
     /**
      * Compute myK means for the given set of points of dimension myDim.
      */
     SumVector[] computeMeans(int myK, final float[][] points) {
+        int numPoints = points.length;
+        int numDimensions = points[0].length;
         SumVector[] redCluster = new SumVector[myK];
         for (int i=0; i<myK; i++) {
             redCluster[i] = new SumVector(points[i]);
         }
         SumVector[] blackCluster = new SumVector[myK];
         for (int i=0; i<myK; i++) {
-            blackCluster[i] = new SumVector(myDim);
+            blackCluster[i] = new SumVector(numDimensions);
         }
         
-        for (int i = 1; i <= ITERATIONS; i++) {
+        for (int i = 1; i <= numIterations; i++) {
             SumVector[] tmp = redCluster;
             redCluster = blackCluster;
             blackCluster = tmp;
-            for (int p= 0; p<POINTS; p++) {
+            for (int p= 0; p<numPoints; p++) {
                 int closest = -1;
                 float closestDist = Float.MAX_VALUE;
                 float[] point = points[p];
@@ -84,8 +81,28 @@ public class KMeansSequential {
     }
     
     public static void main (String[] args) {
-        float[][] points = PointsFactory.generateRandomPoints(POINTS, DIM);
-        SumVector[] result =  new KMeansSequential(DIM).computeMeans(K, points);
+        String fileName = "points.dat";
+        int K = 4;
+        int iterations = 50;
+        float EPS = 0.1f;
+        int argIndex = 0;
+        
+        while (argIndex < args.length) {
+            String arg = args[argIndex++];
+            if (arg.equals("-k")) {
+                K = Integer.parseInt(args[argIndex++]);   
+            } else if (arg.equals("-i")) {
+                iterations = Integer.parseInt(args[argIndex++]);
+            } else if (arg.equals("-e")) {
+                EPS = Float.parseFloat(args[argIndex++]);
+            } else {
+                fileName = arg;
+            }
+        }
+    
+        
+        float[][] points = PointsFactory.readPointsFromFile(fileName);
+        SumVector[] result =  new KMeansSequential(K, iterations, EPS).computeMeans(K, points);
         for (int k=0; k<K; k++) {
             result[k].print();
         }
