@@ -194,7 +194,7 @@ namespace x10 {
             if (rr.ref != 0) {
                 this_ = String::_deserializer<String>(buf);
             }
-            return Object::_finalize_reference<T>(this_, rr);
+            return Object::_finalize_reference<T>(this_, rr, buf);
         }
 
     } // namespace x10::lang

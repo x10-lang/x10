@@ -148,6 +148,7 @@ namespace x10aux {
         void _add(const void* ptr);
         int _find(const void* ptr);
         const void* _get(int pos);
+        const void* _set(int pos, const void* ptr);
         int _position(const void* p);
     public:
         addr_map(int init_size = 4) :
@@ -169,6 +170,11 @@ namespace x10aux {
         template<class T> ref<T> get_at_position(int pos) {
             T* val = (T*)_get(pos);
             _S_("\t\tRetrieving repeated reference "<<((void*) val)<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos)<<" (absolute) in map: "<<this);
+            return ref<T>(val);
+        }
+        template<class T> ref<T> set_at_position(int pos, ref<T> newval) {
+            T* val = (T*)_set(pos, newval.operator->());
+            _S_("\t\tReplacing repeated reference "<<((void*) val)<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos)<<" (absolute) in map: "<<this<<" by "<<((void*) newval.operator->()));
             return ref<T>(val);
         }
         void reset() { _top = 0; assert (false); }
@@ -334,6 +340,8 @@ namespace x10aux {
         // before the rest of the object is deserialized!
         template<typename T> bool record_reference(ref<T> ref);
 
+        template<typename T> void update_reference(ref<T> ref, ref<T> newref);
+
         // So it can access the addr_map
         template<class T> friend struct Read;
     };
@@ -344,6 +352,14 @@ namespace x10aux {
             _S_("\t"<<ANSI_SER<<ANSI_BOLD<<"OOPS!"<<ANSI_RESET<<" Attempting to repeatedly record a reference "<<((void*)ref.operator->())<<" (already found at position "<<pos<<") in buf: "<<this);
         }
         return !pos;
+    }
+
+    template<typename T> void deserialization_buffer::update_reference(ref<T> ref, ref<T> newref) {
+        int pos = map.previous_position(ref);
+        if (pos == 0) {
+            _S_("\t"<<ANSI_SER<<ANSI_BOLD<<"OOPS!"<<ANSI_RESET<<" Attempting to update a nonexistent reference "<<((void*)ref.operator->())<<" in buf: "<<this);
+        }
+        map.set_at_position(pos, newref);
     }
     
     // Case for non-refs (includes simple primitives like x10_int and all structs)

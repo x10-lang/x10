@@ -1034,7 +1034,7 @@ public class Emitter {
             sw.write("this_ = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
             sw.end(); sw.newline();
             sw.writeln("}");
-            sw.write("return x10::lang::Object::_finalize_reference"+chevrons("__T")+"(this_, rr);");
+            sw.write("return x10::lang::Object::_finalize_reference"+chevrons("__T")+"(this_, rr, buf);");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
             sw.popCurrentStream();
