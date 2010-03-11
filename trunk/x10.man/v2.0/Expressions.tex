@@ -525,6 +525,12 @@ CastExpression \: UnaryExpression \xcd"as" Type \\
 The result of this operation is a value of the given type if the cast
 is permissible at run time.
 
+\bard{This section need serious whomping.  The Java mention needs to go.  The
+rules for coercions are given in \Sref{effects-of-explicit-numeric-coercions}.
+If the \xcd`Type` has a constraint, the constraint will be checked at runtime. 
+We need to give examples. 
+}
+
 Type conversion is checked according to the
 rules of the \java{} language (e.g., \cite[\S 5.5]{jls2}).
 For constrained types, both the base
@@ -533,6 +539,13 @@ If the
 value cannot be cast to the appropriate type, a
 \xcd"ClassCastException"
 is thrown. 
+
+
+
+{\bf Conversions of numeric values}
+{\bf Can't do (a as T) if a can't be a T.}
+
+
 %If the value cannot be cast to the
 %appropriate place type a \xcd"BadPlaceException" is thrown. 
 
