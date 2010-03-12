@@ -523,27 +523,67 @@ CastExpression \: UnaryExpression \xcd"as" Type \\
 \end{grammar}
 
 The result of this operation is a value of the given type if the cast
-is permissible at run time.
+is permissible at run time, and either a compile-time error or a runtime
+exception (\xcd`x10.lang.TypeCastException`) if it is not.  
 
-\bard{This section need serious whomping.  The Java mention needs to go.  The
-rules for coercions are given in \Sref{effects-of-explicit-numeric-coercions}.
-If the \xcd`Type` has a constraint, the constraint will be checked at runtime. 
-We need to give examples. 
-}
-
-Type conversion is checked according to the
-rules of the \java{} language (e.g., \cite[\S 5.5]{jls2}).
-For constrained types, both the base
-type and the constraint are checked.
-If the
-value cannot be cast to the appropriate type, a
-\xcd"ClassCastException"
-is thrown. 
+When evaluating \xcd`E as T{c}`, first the value of \xcd`E` is converted to
+type \xcd`T` (which may fail), and then the constraint \xcd`{c}` is checked. 
 
 
 
-{\bf Conversions of numeric values}
-{\bf Can't do (a as T) if a can't be a T.}
+\begin{itemize}
+\item If \xcd`T` is a primitive type, then \xcd`E`'s value is converted to type
+      \xcd`T` according to the rules of
+      \Sref{sec:effects-of-explicit-numeric-coercions}. 
+      
+\item If \xcd`T` is a class, then the first half of the cast succeeds if the
+      run-time value of \xcd`E` is an instance of class \xcd`T`, or of a
+      subclass 
+
+\item If \xcd`T` is an interface, then the first half of the cast succeeds if
+      the run-time value of \xcd`E` is an instance of a class implementing
+      \xcd`T`. 
+
+\item If \xcd`T` is a struct type, then the first half of the cast succeeds if
+      the run-time value of \xcd`E` is an instance of \xcd`T`.  
+
+\item If \xcd`T` is a function type, then the first half of the cast succeeds
+      if the run-time value of \xcd`X` is a function of precisely that type.
+\end{itemize}
+
+If the first half of the cast succeeds, the second half -- the constraint
+\xcd`{c}` -- must be checked.  In general this will be done at runtime, though
+in special cases it can be checked at compile time.   For example, 
+\xcd`n as Int{self != w}` succeeds if \xcd`n != w` --- even if \xcd`w` is a value
+read from input, and thus not determined at compile time.
+
+The compiler may forbid casts that it knows cannot possibly work. If there is
+no way for the value of \xcd`E` to be of type \xcd`T{c}`, then 
+\xcd`E as T{c}` can result in a static error, rather than a runtime error.  
+For example, \xcd`1 as Int{self==2}` may fail to compile, because the compiler
+knows that \xcd`1`, which has type \xcd`Int{self==1}`, cannot possibly be of
+type \xcd`Int{self==2}`. 
+
+
+%BB% \bard{This section need serious whomping.  The Java mention needs to go.  The
+%BB% rules for coercions are given in \Sref{sec:effects-of-explicit-numeric-coercions}.
+%BB% If the \xcd`Type` has a constraint, the constraint will be checked at runtime. 
+%BB% We need to give examples. 
+%BB% }
+%BB% 
+%BB% Type conversion is checked according to the
+%BB% rules of the \java{} language (e.g., \cite[\S 5.5]{jls2}).
+%BB% For constrained types, both the base
+%BB% type and the constraint are checked.
+%BB% If the
+%BB% value cannot be cast to the appropriate type, a
+%BB% \xcd"ClassCastException"
+%BB% is thrown. 
+
+
+
+% {\bf Conversions of numeric values}
+% {\bf Can't do (a as T) if a can't be a T.}
 
 
 %If the value cannot be cast to the
