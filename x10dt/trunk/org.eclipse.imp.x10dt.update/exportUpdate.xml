@@ -16,7 +16,7 @@
 
 		<property name="update.name"        value="org.eclipse.imp.x10dt.update"/>
 <!--    <property name="update.version"     value="${x10dt.feature(version)}"/> -->
-		<propertyRegexp name="update.version" input="${x10dt.feature(version)}" regexp="(.*).qualifier" value="\1.${x10dt.build.qualifier}"/>
+		<propertyRegexp name="update.version" input="${x10dt.feature(version)}" regexp="(.*).qualifier" value="\1.${build.qualifier}"/>
 		<property name="update.temp.folder" value="${basedir}/update.temp.folder"/>
 	    <property name="update.destination" value="${basedir}"/>
 	    <property name="zip.file"           value="${update.destination}/${update.name}_${update.version}.${build.qualifier}.zip"/>
@@ -36,7 +36,7 @@
 	<target name="collect.update" depends="init" description="Builds and collects all the feature and plugin components for the update site.">
         <delete dir="${update.temp.folder}"/>
         <mkdir dir="${update.temp.folder}"/>
-        <antcall target="export.features"/>
+        <antcall target="build.features"/>
         <for param="feature" values="${feature.list}">
             <antcall target="copy.feature">
                 <param name="feature.name"    value="${feature}"/>
@@ -58,23 +58,24 @@
     </target>
 
     <target name="build.site.xml" depends="init">
-    	<property name="site.xml" value="${update.temp.folder}/site.xml"/>
+    	<property name="site" value="${update.temp.folder}/site.xml"/>
 
-    	<echo file="${site.xml}" append="false" message="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>${line.separator}"/>
-    	<echo file="${site.xml}" append="true" message="&lt;site>${line.separator}" />
-        <echo file="${site.xml}" append="true" message="    &lt;description url=&quot;${update.site.url}&quot;>${line.separator}"/>
-    	<echo file="${site.xml}" append="true" message="        ${update.site.description}${line.separator}"/>
-        <echo file="${site.xml}" append="true" message="    &lt;/description>${line.separator}"/>
+    	<echo file="${site}" append="false">&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;site>
+    &lt;description url="${update.site.url}">
+        ${update.site.description}
+    &lt;/description>
+    	</echo>
 
         <antcall target="add.site.categories"/>
-        <antcall target="add.all.features.to.site.xml"/>
+        <antcall target="add.all.features"/>
 
-    	<echo file="${site.xml}" append="true" message="&lt;/site>${line.separator}"/>
+    	<echo file="${site}" append="true" message="&lt;/site>${line.separator}"/>
     </target>
 
     <target name="add.site.categories">
         <for param="category" values="${update.site.categories}" separator=",">
-            <echo file="${site.xml}" append="true" message="&lt;category-def name=&quot;${category}&quot; label=&quot;${category}&quot;/>${line.separator}"/>
+            <echo file="${site}" append="true" message="&lt;category-def name=&quot;${category}&quot; label=&quot;${category}&quot;/>${line.separator}"/>
         </for>
     </target>
 
@@ -86,7 +87,7 @@
         <antcall target="add.bin.src.features">
             <param name="feature.id"      value="${feature.id}"/>
             <param name="feature.version" value="${feature.version}"/>
-            <param name="category"        value="${feature.category}"/>
+            <param name="bin.category"    value="${feature.category}"/>
             <param name="src.category"    value="${feature.src.category}"/>
         </antcall>
     </target>
@@ -95,7 +96,7 @@
         <antcall target="add.feature">
             <param name="feature.id"      value="${feature.id}"/>
             <param name="feature.version" value="${feature.version}"/>
-            <param name="category"        value="${category}"/>
+            <param name="category"        value="${bin.category}"/>
         </antcall>
         <antcall target="add.feature">
             <param name="feature.id"      value="${feature.id}.source"/>
@@ -105,7 +106,7 @@
     </target>
 
     <target name="add.feature">
-        <echo file="${site.xml}" append="true">
+        <echo file="${site}" append="true">
     &lt;feature url="features/${feature.id}_${feature.version}.jar"
         id="${feature.id}"
         version="${feature.version}">
@@ -139,11 +140,18 @@
 		</copy>
 	</target>
 
-    <target name="export.features">
+    <target name="build.features">
 		<echo message="Building feature jars for ${feature.list}..."/>
-		<for param="feature" values="${feature.list}">
-		    <echo message="*** Building feature ${feature} ***"/>
-			<ant antfile="../${feature}.feature/exportFeature.xml" target="build.feature.jar" dir="../${feature}.feature">
+		<for param="feature.id" values="${feature.list}">
+		    <echo message="*** Building feature ${feature.id} ***"/>
+	        <available file="../${feature.id}.feature/exportFeature.xml" property="feature.script" value="./exportFeature.xml"/>
+	        <condition property="feature.script" value="${default.feature.script}">
+	            <not>
+	                <isset property="feature.script"/>
+	            </not>
+	        </condition>
+	        <echo message="Using feature build script ${feature.script} for ${feature.id}"/>
+			<ant antfile="${feature.script}" target="build.feature" dir="../${feature.id}.feature">
                 <property name="build.qualifier" value="${build.qualifier}"/>
 			</ant>
 		</for>

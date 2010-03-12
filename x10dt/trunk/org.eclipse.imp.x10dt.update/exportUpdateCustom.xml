@@ -2,6 +2,9 @@
 <project name="org.eclipse.imp.x10dt.update.custom" default="build.update.zip" basedir=".">
 
     <target name="init.custom">
+        <property name="global.plugin.script" value="../org.eclipse.imp.x10dt.update/exportPlugin.xml"/>
+        <property name="default.feature.script" value="../org.eclipse.imp.x10dt.update/exportFeature.xml"/>
+
     	<property name="polyglotProjectName"   value="polyglot3"/>
         <fail unless="imp.cache.location">
             You must define the Ant property imp.cache.location to be the location of an IMP update site directory.
@@ -33,14 +36,14 @@
 
     <target name="collect.extra.artifacts">
         <antcall target="collect.lpg.artifacts"/>
-        <antcall target="collect.polyglot.artifacts"/>
+        <antcall target="collect.polyglot.artifacts"/> 
     	<antcall target="collect.imp.artifacts"/>
 		<antcall target="collect.ptp.artifacts"/>
 	</target>
 
-	<target name="add.all.features.to.site.xml">
+	<target name="add.all.features" depends="init">
         <antcall target="add.features.to.site.xml.x10dt"/>
-        <antcall target="add.features.to.site.xml.sdf"/>
+<!--    <antcall target="add.features.to.site.xml.sdf"/> -->
         <antcall target="add.features.to.site.xml.lpg"/>
         <antcall target="add.features.to.site.xml.polyglot"/>
     	<antcall target="add.features.to.site.xml.imp"/>
@@ -56,11 +59,12 @@
     </target>
 
     <target name="add.features.to.site.xml.lpg">
-        <antcall target="add.feature">
+<!--    <antcall target="add.feature">
             <param name="feature.id"      value="lpg.generator"/>
             <param name="feature.version" value="${lpg.update.version}"/>
             <param name="category"        value="${lpg.update.category}"/>
         </antcall>
+  -->
         <antcall target="add.feature">
             <param name="feature.id"      value="lpg.runtime"/>
             <param name="feature.version" value="${lpg.update.version}"/>
@@ -87,7 +91,11 @@
     </target>
 
     <target name="add.features.to.site.xml.imp">
-        <fileset id="imp.feature.jar.filelist" dir="${imp.cache.location}/features" includes="*.jar"/>
+        <fileset id="imp.feature.jar.filelist" dir="${imp.cache.location}/features">
+        	<include name="org.eclipse.imp.runtime*.jar"/>
+        	<include name="org.eclipse.imp.java.hosted*.jar"/>
+        	<!-- <include name="lpg.runtime*.jar"/> LPG is included itself, above-->
+    	</fileset>
         <pathconvert property="imp.feature.jar.list" refid="imp.feature.jar.filelist"/>
 
         <for param="feature.jar" values="${imp.feature.jar.list}" separator=":">
@@ -107,9 +115,9 @@
 			<include name="org.eclipse.ptp_*.jar"/>
 			<include name="org.eclipse.ptp.core*.jar"/>
 			<include name="org.eclipse.ptp.debug*.jar"/>
-			<include name="org.eclipse.ptp.master*.jar"/>
+			<!-- <include name="org.eclipse.ptp.master*.jar"/> -->
 			<include name="org.eclipse.ptp.external*.jar"/>
-			<include name="org.eclipse.ptp.remote*.jar"/>
+			<include name="org.eclipse.ptp.remote*.jar"/><!-- includes RSE-->
 			<include name="org.eclipse.ptp.rm*.jar"/>
 			<include name="org.eclipse.ptp.services*.jar"/>
 			<include name="org.eclipse.ptp.ui*.jar"/>
@@ -145,8 +153,12 @@
     </target>
 
 
-    <target name="collect.polyglot.artifacts">
-    	<property name="polyglotPluginId"        value="polyglot3"/>
+    <target name="collect.polyglot.artifacts" depends="init">
+    	<property name="polyglotPluginId"         value="polyglot3"/>
+    	<property name="polyglotFeatureId"        value="polyglot3"/>
+    	<property name="polyglotBytecodeProjectName" value="polyglot.bytecode"/>
+    	<property name="polyglotBytecodePluginId" value="polyglot.bytecode"/>
+    	<property name="polyglotBytecodeVersion"  value="1.0.0"/> <!-- TODO put this in update.properties -->
     	<property name="polyglotFeatureId"        value="polyglot3"/>
     	<!-- The name of the X10DT ws  project containing the Polyglot source snapshot is "polyglot3". -->
         <delete dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="*.jar"/>
@@ -154,10 +166,14 @@
 
         <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-plugin"/>
         <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-features"/>
+        <ant antfile="../${polyglotBytecodeProjectName}/build.xml" dir="../${polyglotBytecodeProjectName}" target="eclipse-jar"/>
 	    
         <copy verbose="true" todir="${update.temp.folder}/plugins" failonerror="true" overwrite="true">
            <fileset dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="${polyglotPluginId}_*.jar"/>
         </copy>
+        <copy verbose="true" failonerror="true" overwrite="true"
+    	      file="../${polyglotBytecodeProjectName}/lib/${polyglotBytecodePluginId}_${polyglotBytecodeVersion}.jar"
+        	  tofile="${update.temp.folder}/plugins/${polyglotBytecodePluginId}_${polyglotBytecodeVersion}.jar"/>
         <copy verbose="true" todir="${update.temp.folder}/features" failonerror="true" overwrite="true">
            <fileset dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="${polyglotFeatureId}_*.jar"/>
         </copy>
@@ -184,17 +200,21 @@
 
     <target name="collect.ptp.artifacts">
 		<!-- ptp.cache.location is the local cache of the (unzipped) ptp update site   
-		    which is the unzipped contents of ptp-master-*-subset-for-x10dt.zip   -->
+		    which is the unzipped contents of ptp-master-*.zip   -->
 		<copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
 			<!--
 			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp*.jar"/>
 			-->
 			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp_*.jar"/>
 			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.core*.jar"/>
-			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.debug*.jar"/>
-			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.master*.jar"/>
+	<!--		<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.debug*.jar"/>   -->
+	<!--		<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.master*.jar"/>  -->
 			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.external*.jar"/>
-			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.remote*.jar"/>
+			
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.remotetools*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.remote.remotetools*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.remote_*.jar"/>
+			
 			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.rm*.jar"/>
 			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.services*.jar"/>
 			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.ui*.jar"/>
@@ -208,18 +228,25 @@
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp_*.jar"/>
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.aix*.jar"/>
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.core*.jar"/>
-			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.debug*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.debug*.jar"/> 
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.help*.jar"/>
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.launch*.jar"/>
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.linux*.jar"/>
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.macosx*.jar"/>
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.proxy*.jar"/>
-			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.remote*.jar"/>
+			
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.remotetools*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.remote.remotetools*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.remote_*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.remote.core*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.remote.ui*.jar"/>
+			
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.rm*.jar"/>
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.services*.jar"/>
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.ui*.jar"/>
 			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.utils*.jar"/>		 
 		</copy>
+    	
 
 	</target>
 </project>

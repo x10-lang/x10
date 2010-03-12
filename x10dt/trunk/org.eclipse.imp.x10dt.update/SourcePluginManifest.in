@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: @plugin.id@.source
+Bundle-SymbolicName: @plugin.id@
 Bundle-Localization: plugin
 Bundle-Name: @plugin.name@ Source
 Bundle-Version: @plugin.version@

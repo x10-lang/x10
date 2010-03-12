@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
 <project name="org.eclipse.imp.x10dt.update" default="copyjars" basedir=".">
-		<property name="build.qualifier" value="v201001261119"/>
+		<property name="build.qualifier" value="v201003091327"/>
 
 	<target name="copyjars" description="Copy the X10 Jars to your eclipse installation for testing">
 		<echo message="BRT copyjars basedir= ${basedir}; build qualifier is ${build.qualifier}" />

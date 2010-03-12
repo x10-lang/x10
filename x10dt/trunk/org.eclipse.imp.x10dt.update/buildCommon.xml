@@ -3,11 +3,14 @@
     <tstamp>
         <format property="build.time" pattern="yyyyMMddHHmm"/> 
     </tstamp>
-    <condition property="x10dt.build.qualifier" value="v${build.time}">
+    <condition property="build.qualifier" value="v${build.time}">
         <not>
-            <isset property="x10dt.build.qualifier"/>
+            <isset property="build.qualifier"/>
         </not>
     </condition>
+
+    <taskdef resource="antlib.xml" classpath="../org.eclipse.imp.update/ant-imp.jar"/>
+    <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpath="../org.eclipse.imp.update/svnant.jar"/>
 
     <!-- Global Java compiler settings -->
     <property name="javacFailOnError" value="true"/>
@@ -45,12 +48,16 @@
 
     <property name="bootclasspath" refid="path_bootclasspath"/>
 
-    <fail unless="x10dt.eclipse.target" message="You must define x10dt.eclipse.target as the location of the Eclipse installation against which X10DT should be built."/>
+    <fail unless="eclipse.target.platform">
+        You must define the property 'eclipse.target.platform' (in the Ant runtime preferences or
+        via a "-D" option) to be the location of the Eclipse installation against which plugins
+        should be compiled.
+    </fail>
 
-<!-- <echo message="x10dt.eclipse.target = ${x10dt.eclipse.target}"/> -->
+<!-- <echo message="eclipse.target.platform = ${eclipse.target.platform}"/> -->
 
     <path id="path_eclipse.build.path">
-        <fileset dir="${x10dt.eclipse.target}/plugins">
+        <fileset dir="${eclipse.target.platform}/plugins">
             <include name="**/*.jar"/>
         </fileset>
     </path>
