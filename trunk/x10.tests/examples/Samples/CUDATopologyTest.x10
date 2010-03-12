@@ -10,13 +10,15 @@
  */
 
 import harness.x10Test;
-public class FRASimpleDistTest extends x10Test {
+
+public class CUDATopologyTestTest extends x10Test {
     public def run():boolean {
-	return new FRASimpleDist().run();
+         val args = Rail.make[String](0);
+         CUDATopologyTest.main(args);
+         return true;
     }
+
     public static def main(args:Rail[String]) {
-	new FRASimpleDistTest().execute();
+	new CUDATopologyTestTest().execute();
     }
-
-
 }

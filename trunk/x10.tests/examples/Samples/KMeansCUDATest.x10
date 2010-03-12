@@ -10,13 +10,15 @@
  */
 
 import harness.x10Test;
-public class FSSimpleDistTest extends x10Test {
+
+public class KMeansCUDATest extends x10Test {
     public def run():boolean {
-	return new FSSimpleDist().run();
-    }
-    public static def main(Rail[String]) {
-	new FSSimpleDistTest().execute();
+         val args = Rail.make[String](0);
+         KMeansCUDA.main(args);
+         return true;
     }
 
-
+    public static def main(args:Rail[String]) {
+	new KMeansCUDATest().execute();
+    }
 }

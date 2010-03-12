@@ -11,14 +11,14 @@
 
 import harness.x10Test;
 
-public class HelloWorldParTest extends x10Test {
+public class CUDAKernelTestTest extends x10Test {
     public def run():boolean {
          val args = Rail.make[String](0);
-         HelloWorldPar.main(args);
+         CUDAKernelTest.main(args);
          return true;
     }
 
     public static def main(args:Rail[String]) {
-	new HelloWorldParTest().execute();
+	new CUDAKernelTestTest().execute();
     }
 }
