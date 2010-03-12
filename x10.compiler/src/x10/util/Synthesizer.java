@@ -16,13 +16,17 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
+import polyglot.ast.ClassMember;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
@@ -32,26 +36,33 @@ import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
+import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
+import polyglot.types.ClassDef;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
+import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import x10.ast.Closure;
+import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
+import x10.ast.X10ConstructorDecl;
 import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Loop;
@@ -64,9 +75,13 @@ import x10.constraint.XTerm_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ClosureDef;
+import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Context_c;
+import x10.types.X10ClassDef;
+import x10.types.X10Def;
 import x10.types.X10FieldInstance;
+import x10.types.X10Flags;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -438,41 +453,184 @@ public class Synthesizer {
 	}
 	 
 	 
-	 public Block toBlock(Stmt body) {
-		   return body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
-	 }
-	 
-	 public Field firstPlace() {
-		 CConstraint c = new CConstraint_c();
-		 XTerm id = makeProperty(xts.Int(), c.self(), "id");
-		 try {
-			 c.addBinding(id, XTerms.makeLit(0));
-			 Type type = X10TypeMixin.xclause(xts.Place(), c);
-			 return makeStaticField(Position.COMPILER_GENERATED, xts.Place(), 
-					 Name.make("FIRST_PLACE"), type, new X10Context_c(xts));
-		 } catch (XFailure z) {
-			 // wont happen
-		 } catch (SemanticException z) {
-			 // wont happen
-		 }
-		 return null;
-		
-	 }
-	 public Field makeStaticField(Position pos, 
-				Type receiver, 
-				Name name,
-				Type returnType,
-				X10Context xc) throws SemanticException {
-		
-	        FieldInstance fi = xts.findField(receiver,
-	                xts.FieldMatcher(receiver, name, xc));
-	       Field result=  (Field) xnf.Field(pos, 
-	        		xnf.CanonicalTypeNode(pos, receiver),
-	                xnf.Id(pos, name))
-	                .fieldInstance(fi)
-	                .type(returnType);
-	        return result;
-			
-		}
+	public Block toBlock(Stmt body) {
+		return body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
+	}
 
+	public Field firstPlace() {
+		CConstraint c = new CConstraint_c();
+		XTerm id = makeProperty(xts.Int(), c.self(), "id");
+		try {
+			c.addBinding(id, XTerms.makeLit(0));
+			Type type = X10TypeMixin.xclause(xts.Place(), c);
+			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(), 
+					Name.make("FIRST_PLACE"), type, new X10Context_c(xts));
+		} catch (XFailure z) {
+			// wont happen
+		} catch (SemanticException z) {
+			// wont happen
+		}
+		return null;
+
+	}
+	public Field makeStaticField(Position pos, 
+			Type receiver, 
+			Name name,
+			Type returnType,
+			X10Context xc) throws SemanticException {
+
+		FieldInstance fi = xts.findField(receiver,
+				xts.FieldMatcher(receiver, name, xc));
+		Field result=  (Field) xnf.Field(pos, 
+				xnf.CanonicalTypeNode(pos, receiver),
+				xnf.Id(pos, name))
+				.fieldInstance(fi)
+				.type(returnType);
+		return result;
+
+	}
+
+	/**
+	 * Return the number of annotation properties.
+	 * @param def
+	 * @param name
+	 * @return 
+	 */
+	public int getPropertyNum(X10Def def, String name) throws SemanticException {
+		QName qName = QName.make(name);
+		Type t = (Type) xts.systemResolver().find(qName);
+		List<Type> ts = def.annotationsMatching(t);
+		for (Type at : ts) {
+			Type bt = X10TypeMixin.baseType(at);
+			if (bt instanceof X10ClassType) {
+				X10ClassType act = (X10ClassType) bt;
+				return act.propertyInitializers().size();
+			}
+		}
+		return 0;		
+	}
+	/**
+	 * Return the value of annotation properties for a given property and location index.
+	 * @param def
+	 * @param name
+	 * @param index
+	 * @return 
+	 */
+	public String getPropertyValue(X10Def def, String name, int index) throws SemanticException {
+		QName qName = QName.make(name);
+		Type t = (Type) xts.systemResolver().find(qName);
+		List<Type> ts = def.annotationsMatching(t);
+		for (Type at : ts) {
+			Type bt = X10TypeMixin.baseType(at);
+			if (bt instanceof X10ClassType) {
+				X10ClassType act = (X10ClassType) bt; 
+				if (index < act.propertyInitializers().size()) {
+					Expr e = act.propertyInitializer(index);
+					if (e.isConstant() && e.constantValue() instanceof String) {
+						return (String) e.constantValue();
+					}   
+				}   
+			}   
+		}
+		return null;
+	}   
+	/**
+	 * Add a field to a class.
+	 * @param cDecl
+	 * @param name
+	 * @param flag
+	 * @param t
+	 * @param p
+	 * @return 
+	 */	
+	public X10ClassDecl addClassField(Position p, X10ClassDecl cDecl, Name name, Flags flag, Type t) {
+		X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+		Id id = xnf.Id(p, name);  
+		CanonicalTypeNode tnode = xnf.CanonicalTypeNode(p, t); 
+		FlagsNode fnode = xnf.FlagsNode(p, flag);
+		FieldDef fDef = xts.fieldDef(p, Types.ref(cDef.asType()), flag, Types.ref(t), name); 
+		FieldDecl fDecl = xnf.FieldDecl(p, fnode, tnode, id).fieldDef(fDef);
+		cDef.addField(fDef);
+		List<ClassMember> cm = new ArrayList<ClassMember>();
+		cm.addAll(cDecl.body().members());
+		cm.add(fDecl);
+		ClassBody cb = cDecl.body();
+		return (X10ClassDecl) cDecl.classDef(cDef).body(cb.members(cm));
+	}   
+	
+	public FieldDef findFieldDef(ClassDef cDef, Name fName) throws SemanticException {
+	    for (FieldDef df : cDef.fields()) {
+	        if (fName.equals(df.name())) {
+	            return df;
+	        }
+	    }
+	    return null;
+	}
+	/**
+	 * Add a copy constructor to a class.
+	 * @param cDecl
+	 * @param name
+	 * @param flag
+	 * @param t
+	 * @param p
+	 * @param context
+	 * @return X10ConstructorDec
+	 * @throws SemanticException 
+	 */	
+	public X10ConstructorDecl makeClassCopyConstructor(Position p,
+			X10ClassDecl cDecl,
+			List<Name> fieldName,
+			List<Name> parmName,
+			List<Type> parmType,
+			List<Flags> parmFlags,
+			X10Context context) throws SemanticException {
+		X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+
+		// super constructor def (noarg)
+        ConstructorDef sDef = xts.findConstructor(cDecl.superClass().type(),
+                xts.ConstructorMatcher(cDecl.superClass().type(), Collections.<Type>emptyList(), context)).def();
+        Block block = xnf.Block(p,
+                xnf.SuperCall(p, Collections.<Expr>emptyList()).constructorInstance(sDef.asInstance()));
+        
+        List<Formal> fList = new ArrayList<Formal>();
+        List<Ref<? extends Type>> ftList = new ArrayList<Ref<? extends Type>>();
+        // field assign
+		for (int i=0; i<fieldName.size(); i++) {
+			Name fName = fieldName.get(i);
+			Name pName = parmName.get(i);
+			Type pType = parmType.get(i);
+			Flags pFlags = parmFlags.get(i);
+	        Id fid = xnf.Id(p, fName);
+			// Field selector
+	        Receiver receiver = xnf.This(p).type(cDef.asType());
+	        //Field field = makeStaticField(p, special, fName, pType, context);
+	        FieldDef fDef = findFieldDef(cDef, fName); 
+	        // Assign
+            LocalDef ldef = xts.localDef(p, pFlags, Types.ref(pType), pName);
+            Expr init = xnf.Local(p, xnf.Id(p, pName)).localInstance(ldef.asInstance()).type(pType);
+            Expr assign = xnf.FieldAssign(p, receiver, fid, Assign.ASSIGN, init).fieldInstance(fDef.asInstance()).type(pType);
+            Formal f = xnf.Formal(p, xnf.FlagsNode(p, pFlags), xnf.CanonicalTypeNode(p, pType), xnf.Id(p, pName)).localDef(ldef);
+            fList.add(f);
+            ftList.add(Types.ref(pType));
+            block = block.append(xnf.Eval(p, assign));
+		}
+		    
+		// constructor 
+		X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
+                xnf.FlagsNode(p, X10Flags.PRIVATE),
+                cDecl.name(),
+                fList,
+                Collections.<TypeNode>emptyList(),
+                block);
+        xd.typeParameters(cDecl.typeParameters());
+        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+
+        ConstructorDef xDef = xts.constructorDef(p,
+                Types.ref(cDef.asType()),
+                X10Flags.PRIVATE,
+                ftList,
+                Collections.<Ref<? extends Type>>emptyList());
+
+		return (X10ConstructorDecl) xd.constructorDef(xDef);
+	}
 }
