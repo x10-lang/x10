@@ -82,13 +82,17 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     protected DepParameterExpr guard; // ignored for now.
     protected TypeNode returnType;
     protected List<TypeParamNode> typeParameters;
+    protected TypeNode hasType;
     
     public X10ConstructorDecl_c(Position pos, FlagsNode flags, 
             Id name, TypeNode returnType, 
             List<TypeParamNode> typeParams, List<Formal> formals, 
             DepParameterExpr guard, List<TypeNode> throwTypes, Block body) {
         super(pos, flags,  name, formals, throwTypes, body);
-        this.returnType = returnType;
+        // null, not unknown. 
+        this.returnType = returnType instanceof HasTypeNode_c ? null : returnType; 
+        if (returnType instanceof HasTypeNode_c) 
+			hasType = ((HasTypeNode_c) returnType).typeNode();
         this.guard = guard;
         this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
     }
@@ -105,6 +109,14 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
         n.guard = e;
         return n;
+    }
+    protected X10ConstructorDecl_c hasType(TypeNode hasType) {
+    	if (this.hasType != hasType)  {
+    		X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
+    		n.hasType = hasType;
+    		return n;
+    	}
+    	return this;
     }
     
     public List<TypeParamNode> typeParameters() {
@@ -156,8 +168,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
         // Set the constructor name to the short name of the class, to shut up the Java type-checker.
         // The X10 parser has "this" for the name.
-	n = (X10ConstructorDecl_c) n.name(nf.Id(n.position(), currentClass.name()));
-        
+        n = (X10ConstructorDecl_c) n.name(nf.Id(n.position(), currentClass.name()));
+
+        TypeNode htn = (TypeNode) n.visitChild(n.hasType, tb);
+        n = (X10ConstructorDecl_c) n.hasType(htn);
         
         if (returnType == null)
         	n = (X10ConstructorDecl_c) n.returnType(nf.CanonicalTypeNode(n.position(), currentClass.asType()));
@@ -271,6 +285,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	DepParameterExpr guard = (DepParameterExpr) visitChild(result.guard, v);
     	if (guard != result.guard)
     	    result = (X10ConstructorDecl_c) result.guard(guard);
+    	TypeNode htn = (TypeNode) result.visitChild(result.hasType, v);
+    	result = (X10ConstructorDecl_c) result.hasType(htn);
     	return result;
     }
 
@@ -399,11 +415,11 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
     	Ref<? extends Type> ref = r.typeRef();
     	Type t = Types.get(ref);
-    	//t = ((X10Type) t).setFlags(X10Flags.ROOTED);
-    	//((Ref<Type>) ref).update(t);
     	if (childtc1.hasErrors()) throw new SemanticException();
         nn = (X10ConstructorDecl) nn.returnType(r);
         ((Ref<Type>) nnci.returnType()).update(r.type());
+        
+        
        // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
         
        /* Type retTypeBase =  X10TypeMixin.baseOfProto(r.type());
@@ -431,6 +447,19 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         nn = (X10ConstructorDecl) childtc2.leave(parent, old, nn, childtc2);
         
         X10MethodDecl_c.dupFormalCheck(typeParameters, formals);
+        {
+
+          	 if (hasType != null) {
+          		 final TypeNode h = (TypeNode) nn.visitChild(((X10ConstructorDecl_c) nn).hasType, childtc1);
+               	Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
+               	nn = (X10ConstructorDecl) ((X10ConstructorDecl_c) nn).hasType(h);
+               	if (! Globals.TS().isSubtype(nnci.returnType().get(), hasType,tc.context())) {
+               		throw new SemanticException("Computed type is not a subtype of  type bound." 
+               				+ "\n\t Computed Type: " + t
+               				+ "\n\t Type Bound: " + hasType, position());
+               	}
+               }
+           }
 
         return nn;
     }
@@ -480,6 +509,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10MethodDecl_c.checkVisibility(tc.typeSystem(), tc.context(), this);
 
         return n;
+    }
+    /** Visit the children of the constructor. */
+    public Node visitChildren(NodeVisitor v) {
+        X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.visitChildren(v);
+        TypeNode htn = (TypeNode) n.visitChild(n.hasType, v);
+        return n.hasType(htn);
     }
 
     public String toString() {

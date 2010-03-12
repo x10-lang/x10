@@ -22,6 +22,7 @@ import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
+import polyglot.frontend.Globals;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
@@ -48,6 +49,7 @@ import x10.extension.X10Ext;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldDef;
+import x10.types.X10Flags;
 import x10.types.X10LocalDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -58,10 +60,13 @@ import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10TypeChecker;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
-	
+	TypeNode hasType;
 	public X10LocalDecl_c(Position pos, FlagsNode flags, TypeNode type,
 			Id name, Expr init) {
-		super(pos, flags, type, name, init);
+		super(pos, flags, 
+				type instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(type.position()) : type, name, init);
+		if (type instanceof HasTypeNode_c) 
+			hasType = ((HasTypeNode_c) type).typeNode();
 	}
 
 	/**
@@ -76,8 +81,10 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
 	}
 		
+
 	@Override
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+		X10LocalDecl_c n = this;
 		if (type instanceof UnknownTypeNode) {
 			if (init == null)
 				throw new SemanticException("Cannot infer variable type; variable has no initializer.", position());
@@ -88,9 +95,9 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 			if (! flags.flags().isFinal())
 				throw new SemanticException("Cannot infer type of a mutable (non-val) variable.", position());
 		}
-			
+		
 		// This installs a LocalDef 
-		X10LocalDecl_c n = (X10LocalDecl_c) super.buildTypes(tb);
+		 n = (X10LocalDecl_c) super.buildTypes(tb);
 		X10LocalDef fi = (X10LocalDef) n.localDef();
 
 	        List<AnnotationNode> as = ((X10Del) n.del()).annotations();
@@ -105,6 +112,25 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	        return n;
 	}
 	
+	  /** Reconstruct the declaration. */
+    protected LocalDecl_c reconstruct(FlagsNode flags, TypeNode type, TypeNode htn, Id name, Expr init) {
+        if (this.flags != flags || this.type != type || this.hasType != htn || this.name != name || this.init != init) {
+        	X10LocalDecl_c n =  (X10LocalDecl_c) reconstruct(flags, type, name, init);
+        	n.hasType = htn;
+        	return n;
+        }
+
+        return this;
+    }
+    protected X10LocalDecl_c hasType(TypeNode hasType) {
+    	if (this.hasType != hasType)  {
+    		X10LocalDecl_c n = (X10LocalDecl_c) copy();
+    		n.hasType = hasType;
+    		return n;
+    	}
+    	return this;
+    }
+
 	/**
 	 * If the initializer is not null, and the type is Unknown (e.g. because the type was not explicitly
 	 * specified by the programmer, and hence must be inferred), then update the type to be the type
@@ -138,8 +164,17 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
                     FlagsNode flags = (FlagsNode) this.visitChild(flags(), childtc);
                     Id name = (Id) this.visitChild(name(), childtc);
                     TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
+                    TypeNode htn  = null;
+                    if (hasType != null) {
+                    	htn = (TypeNode) visitChild(hasType, childtc);
+                    	if (! Globals.TS().isSubtype(type().type(), htn.type(),tc.context())) {
+                    		throw new SemanticException("Computed type is not a subtype of  type bound." 
+                    				+ "\n\t Computed Type: " + type().type()
+                    				+ "\n\t Type Bound: " + htn.type(), position());
+                    	}
+                    }
                     
-                    Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init), childtc);
+                    Node n = tc.leave(parent, this, reconstruct(flags, tn, htn, name, init), childtc);
                     List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
                     if (oldAnnotations == null || oldAnnotations.isEmpty()) {
                             return n;
@@ -227,7 +262,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	}
 
 	public Context enterChildScope(Node child, Context c) {
-		if (child == this.type) {
+		if (child == this.type || child == this.hasType) {
 			X10Context xc = (X10Context) c.pushBlock();
 			LocalDef li = localDef();
 			xc.addVariable(li.asInstance());
@@ -246,4 +281,11 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
             return child.type();
         }
+        /** Visit the children of the declaration. */
+        public Node visitChildren(NodeVisitor v) {
+        	X10LocalDecl_c n = (X10LocalDecl_c) super.visitChildren(v);
+            TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
+            return n.hasType(hasType);
+        }
+
 }

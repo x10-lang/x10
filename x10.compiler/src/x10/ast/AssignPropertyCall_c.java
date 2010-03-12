@@ -25,6 +25,7 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -180,6 +181,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		
 		
 	}
+	
 	protected void checkReturnType(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties)
 	throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -195,15 +197,13 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		if (result.valid())
 			result = null;
 
-		if (result != null) {
+		 {
 			CConstraint known = Types.get(thisConstructor.supClause());
 			known = (known==null ? new CConstraint_c() : known.copy());
 			try {
 				known.addIn(Types.get(thisConstructor.guard()));
 
 				XRoot thisVar = thisConstructor.thisVar();
-				if (! XTypeTranslator.THIS_VAR)
-					thisVar = ts.xtypeTranslator().transThisWithoutTypeConstraint();
 
 				for (int i = 0; i < arguments.size(); i++) {
 					Expr initializer = arguments.get(i);
@@ -224,17 +224,22 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 				}
 
+				// Set the returntype of the enclosing constructor to be this inferred type.
+				Type inferredResultType = X10TypeMixin.addConstraint(X10TypeMixin.baseType(returnType), known);
+				Ref <? extends Type> r = thisConstructor.returnType();
+				((Ref<Type>) r).update(inferredResultType);
 				// bind this==self; sup clause may constrain this.
 				if (thisVar != null) {
 					known =known.instantiateSelf(thisVar);
-					result =  result.instantiateSelf(thisVar);
+					
 					// known.addSelfBinding(thisVar);
 					// known.setThisVar(thisVar);
 				}
-
-				
-				if (! known.entails(result, ctx.constraintProjection(known, result))) {
-					throw new Errors.ConstructorReturnTypeNotEntailed(known, result, position());
+				if (result != null) {
+					result =  result.instantiateSelf(thisVar);
+					if (! known.entails(result, ctx.constraintProjection(known, result))) {
+						throw new Errors.ConstructorReturnTypeNotEntailed(known, result, position());
+					}
 				}
 			}
 			catch (XFailure e) {

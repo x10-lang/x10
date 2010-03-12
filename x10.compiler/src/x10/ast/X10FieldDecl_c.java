@@ -26,6 +26,7 @@ import polyglot.ast.Node;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.AbstractGoal_c;
+import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
@@ -74,10 +75,17 @@ import x10.visit.X10TypeChecker;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
+	TypeNode hasType;
+	public Type hasType() {
+		return hasType==null ? null : hasType.type();
+	}
     public X10FieldDecl_c(Position pos, FlagsNode flags, TypeNode type,
             Id name, Expr init)
     {
-        super(pos, flags, type, name, init);
+        super(pos, flags, 
+        		type instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(type.position()) : type, name, init);
+        if (type instanceof HasTypeNode_c) 
+			hasType = ((HasTypeNode_c) type).typeNode();
     }
     
     @Override
@@ -87,8 +95,17 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         }
         return c;
     }
+    
+    protected X10FieldDecl_c reconstruct(TypeNode hasType) {
+    	if (this.hasType != hasType)  {
+    		X10FieldDecl_c n = (X10FieldDecl_c) copy();
+    		n.hasType = hasType;
+    		return n;
+    	}
+    	return this;
+    }
 	public Context enterChildScope(Node child, Context c) {
-		if (child == this.type) {
+		if (child == this.type || child==this.hasType) {
 			X10Context xc = (X10Context) c.pushBlock();
 			FieldDef fi = fieldDef();
 			xc.addVariable(fi.asInstance());
@@ -96,7 +113,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 			c = xc;
 		}
 				
-	    if (child == this.type || child == this.init) {
+	    if (child == this.type || child == this.init || child == this.hasType) {
 			c = PlaceChecker.pushHereTerm(fieldDef(), (X10Context) c);
 		}
 		Context cc = super.enterChildScope(child, c);
@@ -290,6 +307,9 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	        @Override
 	        public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 	        	 
+	        	if (hasType != null && ! flags().flags().isFinal()) {
+	        		throw new Errors.OnlyValMayHaveHasType(this);
+	        	}
 	            if (type() instanceof UnknownTypeNode) {
 	            	  NodeVisitor childtc = tc.enter(parent, this);
 	                
@@ -309,7 +329,18 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                    t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
 	                    LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
 	                    r.update(t);
-	                    
+	                    {
+	                    	TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
+	                    	TypeNode htn  = null;
+	                    	if (hasType != null) {
+	                    		htn = (TypeNode) visitChild(hasType, childtc);
+	                    		if (! Globals.TS().isSubtype(type().type(), htn.type(),tc.context())) {
+	                    			throw new SemanticException("Computed type is not a subtype of  type bound." 
+	                    					+ "\n\t Computed Type: " + type().type()
+	                    					+ "\n\t Type Bound: " + htn.type(), position());
+	                    		}
+	                    	}
+	                    }
 	                    FlagsNode flags = (FlagsNode) this.visitChild(flags(), childtc);
 	                    Id name = (Id) this.visitChild(name(), childtc);
 	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
@@ -422,5 +453,18 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	        return child.type();
 	    }
+	    /** Visit the children of the declaration. */
+	    public Node visitChildren(NodeVisitor v) {
+	        X10FieldDecl_c n = (X10FieldDecl_c) super.visitChildren(v);
+	        TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
+            return n.reconstruct(hasType);
+	    }
+	    
+	    public Node visitSignature(NodeVisitor v) {
+	    	X10FieldDecl_c n = (X10FieldDecl_c) super.visitSignature(v);
+	    	  TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
+	    	  return n.reconstruct(hasType);
+	        }
+	    
 }
 

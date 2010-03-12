@@ -54,6 +54,7 @@ import polyglot.visit.TypeBuilder;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.FunctionType;
+import x10.types.X10Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10MethodInstance_c;
 import x10.types.X10TypeSystem;
@@ -298,6 +299,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	    X10MethodInstance ci = ((FunctionType) mi.container()).applyMethod();
 	    ClosureCall_c n = this;
 	    n = (ClosureCall_c) n.arguments(args);
+	    ci = x10.types.matcher.Matcher.computeReturnType(mi, args, (X10Context) tc.context());
 	    return n.closureInstance(ci).type(ci.returnType());
 	}
 	else {
@@ -310,6 +312,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	    X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), 
 	    		nf.Id(position(), mi.name().toString()), Collections.EMPTY_LIST, args);
+	    mi = x10.types.matcher.Matcher.computeReturnType(mi, args, (X10Context) tc.context());
 	    n = (X10Call_c) n.methodInstance(mi);
 	    n = (X10Call_c) n.type(mi.returnType());
 	    return n;
