@@ -10,13 +10,15 @@
  */
 
 import harness.x10Test;
-public class FSSimpleTest extends x10Test {
+
+public class StructSpheresTest extends x10Test {
     public def run():boolean {
-	return new FSSimple().run();
-    }
-    public static def main(Rail[String]) {
-	new FSSimpleTest().execute();
+         val args = Rail.make[String](0);
+         StructSpheres.main(args);
+         return true;
     }
 
-
+    public static def main(args:Rail[String]) {
+	new StructSpheresTest().execute();
+    }
 }

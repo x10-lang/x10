@@ -10,13 +10,15 @@
  */
 
 import harness.x10Test;
-public class FRATest extends x10Test {
+
+public class KMeansSPMDTest extends x10Test {
     public def run():boolean {
-	return new FRA().run();
+         val args = Rail.make[String](0);
+         KMeansSPMD.main(args);
+         return true;
     }
+
     public static def main(args:Rail[String]) {
-	new FRATest().execute();
+	new KMeansSPMDTest().execute();
     }
-
-
 }

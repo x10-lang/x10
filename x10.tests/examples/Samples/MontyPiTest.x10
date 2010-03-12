@@ -9,14 +9,16 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.io.Console;
+import harness.x10Test;
 
-class HelloWorldPar {
-  public static def main(args:Rail[String]):void {
-    finish ateach (p in Dist.makeUnique()) {
-      Console.OUT.println("Hello World from Place" +p);
+public class MontyPiTest extends x10Test {
+    public def run():boolean {
+         val args = ["10000"] as Rail[String];
+         MontyPi.main(args);
+         return true;
     }
-  }
+
+    public static def main(args:Rail[String]) {
+	new MontyPiTest().execute();
+    }
 }
-
-
