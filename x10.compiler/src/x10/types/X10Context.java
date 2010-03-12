@@ -12,6 +12,7 @@
 package x10.types;
 
 import java.util.List;
+import java.util.HashMap;
 
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -37,6 +38,12 @@ public interface X10Context extends Context {
 	 */
 	String MAGIC_VAR_PREFIX = "x10$__var";
 	// Use addVariable to add a PropertyInstance to the context.
+
+	/** Context name table */
+	String MAGIC_NAME_PREFIX = "X10$";
+	HashMap<String,Name> contextNameTable = new HashMap<String,Name>();
+	/** Return the same mangled name if has been created using the same string. */ 
+	Name makeFreshName(String name);
 	
 	/** Return the locals declared in this scope (and only this scope). */
 	List<LocalDef> locals();
