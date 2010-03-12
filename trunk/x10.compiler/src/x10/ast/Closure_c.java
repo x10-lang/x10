@@ -60,10 +60,12 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerms;
 import x10.types.ClosureDef;
 import x10.types.X10ClassDef;
+import x10.types.X10Context;
 import x10.types.X10MemberDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
 import x10.util.ClosureSynthesizer;
 import x10.visit.X10TypeChecker;
@@ -95,15 +97,18 @@ public class Closure_c extends Expr_c implements Closure {
 	super(pos);
     }
 
+    TypeNode hasType;
     public Closure_c(Position pos,  List<Formal> formals, 
     		TypeNode returnType, DepParameterExpr guard, List<TypeNode> throwTypes, Block body) {
 	super(pos);
 //	this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 	this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
-	this.returnType = returnType;
+	this.returnType = returnType instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(returnType.position()) : returnType;
 	this.guard = guard;
 	this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 	this.body = body;
+	 if (returnType instanceof HasTypeNode_c) 
+			hasType = ((HasTypeNode_c) returnType).typeNode();
     }
     
    /* public List<TypeParamNode> typeParameters() {
@@ -130,6 +135,14 @@ public class Closure_c extends Expr_c implements Closure {
 	Closure_c c= (Closure_c) copy();
 	c.formals= formals;
 	return c;
+    }
+    public Closure_c hasType(TypeNode htn) {
+    	if (htn != hasType) {
+    		Closure_c c= (Closure_c) copy();
+    		c.hasType = htn;
+    		return c;
+    	}
+    	return this;
     }
 
     public TypeNode returnType() {
@@ -230,8 +243,9 @@ public class Closure_c extends Expr_c implements Closure {
 	TypeNode returnType = (TypeNode) visitChild(this.returnType, v);
 	List<TypeNode> throwTypes = visitList(this.throwTypes, v);
 	Block body = (Block) visitChild(this.body, v);
+	TypeNode htn = (TypeNode) visitChild(this.hasType, v);
 
-	return reconstruct(/*typeParams,*/ formals, guard, returnType, throwTypes, body);
+	return reconstruct(/*typeParams,*/ formals, guard, returnType, throwTypes, body).hasType(htn);
     }
 
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
@@ -413,12 +427,28 @@ public class Closure_c extends Expr_c implements Closure {
         	}
         	tr.update(t);
         	n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), t));
+        	
         }
+        
+    	
+    	
+   	 
         
         // Create an anonymous subclass of the closure type.
         ClosureDef def = n.closureDef;
         ClassDef cd = ClosureSynthesizer.closureAnonymousClassDef(xts, def);
-        return n.type(cd.asType());
+        n=(Closure_c) n.type(cd.asType());
+        if (hasType != null) {
+      		 final TypeNode h = (TypeNode) n.visitChild(n.hasType, tc);
+           	Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) tc.context());
+           	n =  n.hasType(h);
+           	if (! Globals.TS().isSubtype(n.returnType().type(), hasType,tc.context())) {
+           		throw new SemanticException("Computed type is not a subtype of  type bound." 
+           				+ "\n\t Computed Type: " + type
+           				+ "\n\t Type Bound: " + hasType, position());
+           	}
+           }
+        return n;
     }
     
     @Override

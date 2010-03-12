@@ -132,16 +132,27 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     // set by createMethodDef.
     XTerm placeTerm;
 
+    TypeNode hasType;
     public X10MethodDecl_c(Position pos, FlagsNode flags, 
             TypeNode returnType, Id name,
             List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, List<TypeNode> throwTypes, Block body) {
-        super(pos, flags, returnType, name, formals, throwTypes, body);
+        super(pos, flags, returnType instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(returnType.position()) : returnType, 
+        		name, formals, throwTypes, body);
         this.guard = guard;
         this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
+        if (returnType instanceof HasTypeNode_c) 
+			hasType = ((HasTypeNode_c) returnType).typeNode();
       
     }
 
-  
+    protected X10MethodDecl_c hasType(TypeNode hasType) {
+    	if (this.hasType != hasType)  {
+    		X10MethodDecl_c n = (X10MethodDecl_c) copy();
+    		n.hasType = hasType;
+    		return n;
+    	}
+    	return this;
+    }
     
     protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
         X10MethodDef mi = (X10MethodDef) super.createMethodDef(ts, ct, flags);
@@ -238,6 +249,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         DepParameterExpr guard = (DepParameterExpr) visitChild(result.guard, v);
         if (guard != result.guard)
             result = (X10MethodDecl_c) result.guard(guard);
+        TypeNode ht = (TypeNode) visitChild(result.hasType, v);
+        result = result.hasType(ht);
         return result;
     }
 
@@ -280,7 +293,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         // entering the body of the method, the return type and the throw type.
        
       
-        if (child == body || child == returnType || child == throwTypes || (formals != null && formals.contains(child))) {
+        if (child == body || child == returnType || child == hasType || child == throwTypes || (formals != null && formals.contains(child))) {
         	if (placeTerm != null)
         	c = ((X10Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
         	// 	PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
@@ -397,6 +410,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
         X10Flags xf = X10Flags.toX10Flags(mi.flags());
 
+        
        
         // Check these flags here rather than in checkFlags since we need the body.
         if (xf.isIncomplete() && body != null) {
@@ -891,6 +905,19 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	nn = (X10MethodDecl) nn.returnType(r);
         	Type type = PlaceChecker.ReplaceHereByPlaceTerm(r.type(), ( X10Context ) childtc1.context());
         	((Ref<Type>) nn.methodDef().returnType()).update(r.type());
+        	
+        	
+        	
+        	 if (hasType != null) {
+        		 final TypeNode h = (TypeNode) nn.visitChild(((X10MethodDecl_c) nn).hasType, childtc1);
+             	Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
+             	nn = (X10MethodDecl) ((X10MethodDecl_c) nn).hasType(h);
+             	if (! Globals.TS().isSubtype(type, hasType,tc.context())) {
+             		throw new SemanticException("Computed type is not a subtype of  type bound." 
+             				+ "\n\t Computed Type: " + type
+             				+ "\n\t Type Bound: " + hasType, position());
+             	}
+             }
         }
         // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
         // Step III. Check the body. 
@@ -927,4 +954,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
     private static final Collection<String> TOPICS = 
         CollectionUtil.list(Report.types, Report.context);
+    
+    public Node visitChildren(NodeVisitor v) {
+        X10MethodDecl_c n = (X10MethodDecl_c) super.visitChildren(v);
+        TypeNode ht  = (TypeNode) n.visitChild(this.hasType, v);
+	    return n.hasType(ht);
+    }
 }

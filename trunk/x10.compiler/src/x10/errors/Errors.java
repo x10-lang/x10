@@ -566,5 +566,18 @@ public class Errors {
 	        return((AmbiguousCall )o).position().equals(position());
 	    }
 	}
-	
+	public static class OnlyValMayHaveHasType extends SemanticException {
+		private static final long serialVersionUID = -4705861378590877043L;
+		public OnlyValMayHaveHasType(X10FieldDecl field) {
+			super("Only val fields may have a has type."
+					+ "\n\t Field: "  + field
+					+ "\n\t Field has type: " + field.hasType(),
+					field.position());
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof OnlyValMayHaveHasType) )
+				return false;
+			return((OnlyValMayHaveHasType)o).position().equals(position());
+		}
+	}
 }

@@ -13,7 +13,7 @@ package x10.parser;
 
 import lpg.runtime.*;
 
-//#line 32 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+//#line 32 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -292,7 +292,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
     //
     
 
-    //#line 327 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+    //#line 327 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -874,10 +874,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 1:  TypeName ::= TypeName . ErrorId
             //
             case 1: {
-               //#line 8 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 6 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 8 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 6 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 8 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 8 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -890,10 +890,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 2:  PackageName ::= PackageName . ErrorId
             //
             case 2: {
-               //#line 18 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 16 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 18 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 16 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
-                //#line 18 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 18 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -906,10 +906,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 3:  ExpressionName ::= AmbiguousName . ErrorId
             //
             case 3: {
-               //#line 28 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 26 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 28 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 26 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 28 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 28 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -922,10 +922,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 4:  MethodName ::= AmbiguousName . ErrorId
             //
             case 4: {
-               //#line 38 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 36 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 38 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 36 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 38 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 38 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -938,10 +938,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 5:  PackageOrTypeName ::= PackageOrTypeName . ErrorId
             //
             case 5: {
-               //#line 48 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 46 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 48 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 46 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
-                //#line 48 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 48 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -954,10 +954,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 6:  AmbiguousName ::= AmbiguousName . ErrorId
             //
             case 6: {
-               //#line 58 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 56 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 58 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 56 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 58 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 58 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -970,10 +970,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 7:  FieldAccess ::= Primary . ErrorId
             //
             case 7: {
-               //#line 68 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 66 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 68 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 66 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 68 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 68 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary,
                                       nf.Id(pos(getRightSpan()), "*")));
                       break;
@@ -983,9 +983,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 8:  FieldAccess ::= super . ErrorId
             //
             case 8: {
-               //#line 74 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 74 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 74 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 74 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())),
                                       nf.Id(pos(getRightSpan()), "*")));
                       break;
@@ -995,12 +995,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 9:  FieldAccess ::= ClassName . super$sup . ErrorId
             //
             case 9: {
-               //#line 80 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 78 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 80 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 78 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 78 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 78 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 80 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 80 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()),
                                       nf.Id(pos(getRightSpan()), "*")));
                       break;
@@ -1010,12 +1010,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 10:  MethodInvocation ::= MethodPrimaryPrefix ( ArgumentListopt )
             //
             case 10: {
-               //#line 87 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 85 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 87 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 85 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 Object MethodPrimaryPrefix = (Object) getRhsSym(1);
-                //#line 85 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 85 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 87 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 87 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr Primary = (Expr) ((Object[]) MethodPrimaryPrefix)[0];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodPrimaryPrefix)[1];
                 setResult(nf.Call(pos(), Primary, nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
@@ -1026,12 +1026,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 11:  MethodInvocation ::= MethodSuperPrefix ( ArgumentListopt )
             //
             case 11: {
-               //#line 94 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 92 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 94 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 92 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 polyglot.lex.Identifier MethodSuperPrefix = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 92 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 92 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 94 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 94 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.Identifier identifier = MethodSuperPrefix;
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
                       break;
@@ -1041,12 +1041,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 12:  MethodInvocation ::= MethodClassNameSuperPrefix ( ArgumentListopt )
             //
             case 12: {
-               //#line 100 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 98 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 100 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 98 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 Object MethodClassNameSuperPrefix = (Object) getRhsSym(1);
-                //#line 98 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 98 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 100 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 100 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName ClassName = (ParsedName) ((Object[]) MethodClassNameSuperPrefix)[0];
                 JPGPosition super_pos = (JPGPosition) ((Object[]) MethodClassNameSuperPrefix)[1];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodClassNameSuperPrefix)[2];
@@ -1058,12 +1058,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 13:  MethodPrimaryPrefix ::= Primary . ErrorId$ErrorId
             //
             case 13: {
-               //#line 109 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 107 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 109 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 107 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 107 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 107 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 109 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 109 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Object[] a = new Object[2];
                 a[0] = Primary;
                 a[1] = id(getRhsFirstTokenIndex(3));
@@ -1075,10 +1075,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 14:  MethodSuperPrefix ::= super . ErrorId$ErrorId
             //
             case 14: {
-               //#line 117 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 115 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 117 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 115 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 117 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 117 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(id(getRhsFirstTokenIndex(3)));
                       break;
             }
@@ -1087,14 +1087,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 15:  MethodClassNameSuperPrefix ::= ClassName . super$sup . ErrorId$ErrorId
             //
             case 15: {
-               //#line 122 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 120 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 122 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 120 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 120 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 120 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 120 "C:/eclipsews/head2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 120 "C:/eclipsews/head4/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(5);
-                //#line 122 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 122 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Object[] a = new Object[3];
                 a[0] = ClassName;
                 a[1] = pos(getRhsFirstTokenIndex(3));
@@ -1107,20 +1107,20 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 16:  TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
             //
             case 16: {
-               //#line 904 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 902 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 904 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 902 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 902 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 902 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 902 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 902 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 902 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 902 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 902 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 902 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 902 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 902 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 904 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 904 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
                 List annotations = extractAnnotations(TypeDefModifiersopt);
                 for (Formal v : (List<Formal>) FormalParametersopt) {
@@ -1136,18 +1136,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 17:  TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt ;
             //
             case 17: {
-               //#line 916 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 914 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 916 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 914 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 914 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 914 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 914 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 914 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 914 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 914 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 914 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 914 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 916 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 916 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
                 List annotations = extractAnnotations(TypeDefModifiersopt);
                 for (Formal v : (List<Formal>) FormalParametersopt) {
@@ -1163,10 +1163,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 18:  Properties ::= ( PropertyList )
             //
             case 18: {
-               //#line 929 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 927 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 929 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 927 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List PropertyList = (List) getRhsSym(2);
-                //#line 929 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 929 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
    setResult(PropertyList);
                  break;
             } 
@@ -1174,10 +1174,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 19:  PropertyList ::= Property
             //
             case 19: {
-               //#line 934 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 932 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 934 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 932 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(1);
-                //#line 934 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 934 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
                 l.add(Property);
                 setResult(l);
@@ -1188,12 +1188,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 20:  PropertyList ::= PropertyList , Property
             //
             case 20: {
-               //#line 941 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 939 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 941 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 939 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List PropertyList = (List) getRhsSym(1);
-                //#line 939 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 939 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(3);
-                //#line 941 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 941 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 PropertyList.add(Property);
                       break;
             }
@@ -1202,14 +1202,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 21:  Property ::= Annotationsopt Identifier ResultType
             //
             case 21: {
-               //#line 948 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 946 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 948 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 946 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 946 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 946 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 946 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 946 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(3);
-                //#line 948 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 948 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List annotations = extractAnnotations(Annotationsopt);
                 PropertyDecl cd = nf.PropertyDecl(pos(), nf.FlagsNode(pos(), Flags.PUBLIC.Final()), ResultType, Identifier);
                 cd = (PropertyDecl) ((X10Ext) cd.ext()).annotations(annotations);
@@ -1221,24 +1221,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 22:  MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 22: {
-               //#line 957 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 955 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 957 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 955 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 955 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 955 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 955 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 955 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 955 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 955 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 957 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 957 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        if (Identifier.id().toString().equals("this")) {
                    ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(MethodModifiersopt),
@@ -1269,32 +1269,32 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 23:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 23:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 23: {
-               //#line 987 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 985 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 987 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 985 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 985 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 985 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 985 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 985 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 985 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 985 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(7);
-                //#line 985 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 985 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(9);
-                //#line 985 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 985 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(11);
-                //#line 985 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(12);
-                //#line 985 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 985 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(12);
+                //#line 985 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(13);
-                //#line 985 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 985 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(14);
-                //#line 987 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 987 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(14)),
           extractFlags(MethodModifiersopt),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           nf.Id(pos(getRhsFirstTokenIndex(7)), X10Binary_c.binaryMethodName(BinOp)),
           TypeParametersopt,
           Arrays.<Formal>asList(fp1, fp2),
@@ -1309,30 +1309,30 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 24:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 24:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 24: {
-               //#line 1004 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1004 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1002 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1002 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1002 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Unary.Operator PrefixOp = (Unary.Operator) getRhsSym(4);
-                //#line 1002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1002 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(6);
-                //#line 1002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1002 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(8);
-                //#line 1002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(9);
-                //#line 1002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1002 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(9);
+                //#line 1002 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(10);
-                //#line 1002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1002 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
-                //#line 1004 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1004 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(11)),
           extractFlags(MethodModifiersopt),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           nf.Id(pos(getRhsFirstTokenIndex(4)), X10Unary_c.unaryMethodName(PrefixOp)),
           TypeParametersopt,
           Collections.<Formal>singletonList(fp2),
@@ -1347,30 +1347,30 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 25:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 25:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 25: {
-               //#line 1021 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1019 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1021 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1019 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1019 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1019 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(5);
-                //#line 1019 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(7);
-                //#line 1019 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1019 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1019 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(10);
+                //#line 1019 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1019 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1019 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1021 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1021 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(12)),
           extractFlags(MethodModifiersopt),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           nf.Id(pos(getRhsFirstTokenIndex(5)), X10Binary_c.binaryMethodName(BinOp)),
           TypeParametersopt,
           Collections.<Formal>singletonList(fp2),
@@ -1386,31 +1386,31 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 26:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 26:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 26: {
-               //#line 1039 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1037 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1039 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1037 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1037 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1037 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1037 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1037 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1037 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1037 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(7);
-                //#line 1037 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1037 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1037 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1037 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1037 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(10);
+                //#line 1037 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1037 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1037 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1039 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1039 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        Name op = X10Binary_c.invBinaryMethodName(BinOp);
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(12)),
           extractFlags(MethodModifiersopt),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           nf.Id(pos(getRhsFirstTokenIndex(7)), X10Binary_c.invBinaryMethodName(BinOp)),
           TypeParametersopt,
           Collections.<Formal>singletonList(fp1),
@@ -1426,28 +1426,28 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 27:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 27:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 27: {
-               //#line 1058 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1056 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1058 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1056 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1056 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1056 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1056 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1056 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Unary.Operator PrefixOp = (Unary.Operator) getRhsSym(4);
-                //#line 1056 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1056 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1056 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1056 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1056 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
+                //#line 1056 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1056 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1056 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 1058 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1058 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
           extractFlags(MethodModifiersopt),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           nf.Id(pos(getRhsFirstTokenIndex(4)), X10Unary_c.unaryMethodName(PrefixOp)),
           TypeParametersopt,
           Collections.EMPTY_LIST,
@@ -1462,28 +1462,28 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 28:  MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 28:  MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 28: {
-               //#line 1075 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1073 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1075 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1073 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1073 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1073 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1073 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1073 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1073 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1073 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1073 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1073 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1073 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
+                //#line 1073 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1073 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1073 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 1075 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1075 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
           extractFlags(MethodModifiersopt),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           nf.Id(pos(), Name.make("apply")),
           TypeParametersopt,
           FormalParameters,
@@ -1498,30 +1498,30 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 29:  MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 29:  MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 29: {
-               //#line 1092 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1090 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1092 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1090 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1090 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1090 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1090 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1090 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1090 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1090 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(8);
-                //#line 1090 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1090 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(10);
-                //#line 1090 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(11);
-                //#line 1090 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1090 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(11);
+                //#line 1090 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(12);
-                //#line 1090 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1090 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(13);
-                //#line 1092 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1092 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(13)),
           extractFlags(MethodModifiersopt),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           nf.Id(pos(), Name.make("set")),
           TypeParametersopt,
           CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
@@ -1539,22 +1539,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 30:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Throwsopt MethodBody
             //
             case 30: {
-               //#line 1109 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1107 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1109 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1107 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1107 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1107 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1107 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1107 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1107 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1107 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1107 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1107 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1107 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1107 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(10);
-                //#line 1107 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1107 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
-                //#line 1109 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1109 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(11)),
           extractFlags(MethodModifiersopt),
           Type,
@@ -1572,28 +1572,28 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 31:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 31:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 31: {
-               //#line 1126 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1124 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1126 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1124 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1124 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1124 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1124 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1124 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1124 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1124 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1124 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1124 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1124 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(10);
+                //#line 1124 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1124 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1124 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1126 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1126 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(12)),
           extractFlags(MethodModifiersopt),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           nf.Id(pos(), Converter.operator_as),
           TypeParametersopt,
           Collections.<Formal>singletonList(fp1),
@@ -1608,28 +1608,28 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 32:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 32:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 32: {
-               //#line 1143 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1141 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1143 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1141 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1141 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1141 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1141 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1141 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1141 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1141 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(7);
-                //#line 1141 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(8);
-                //#line 1141 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1141 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(8);
+                //#line 1141 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(9);
-                //#line 1141 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1141 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(10);
-                //#line 1143 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1143 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(10)),
           extractFlags(MethodModifiersopt),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           nf.Id(pos(), Converter.implicit_operator_as),
           TypeParametersopt,
           Collections.<Formal>singletonList(fp1),
@@ -1644,30 +1644,30 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 33:  PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 33:  PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 33: {
-               //#line 1161 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1159 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1161 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1159 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1159 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1159 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1159 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1159 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1159 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
+                //#line 1159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1159 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 1161 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1161 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
           extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           Identifier,
           TypeParametersopt,
           FormalParameters,
@@ -1680,24 +1680,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 34:  PropertyMethodDeclaration ::= MethodModifiersopt property Identifier WhereClauseopt ResultTypeopt MethodBody
+            // Rule 34:  PropertyMethodDeclaration ::= MethodModifiersopt property Identifier WhereClauseopt HasResultTypeopt MethodBody
             //
             case 34: {
-               //#line 1176 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1174 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1176 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1174 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1174 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1174 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1174 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1174 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(4);
-                //#line 1174 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 1174 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1174 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(5);
+                //#line 1174 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(6);
-                //#line 1176 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1176 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(6)),
           extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           Identifier,
           Collections.EMPTY_LIST,
           Collections.EMPTY_LIST,
@@ -1713,12 +1713,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 35:  ExplicitConstructorInvocation ::= this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 35: {
-               //#line 1192 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1190 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1192 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1190 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1190 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1190 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1192 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1192 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10ThisCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1727,12 +1727,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 36:  ExplicitConstructorInvocation ::= super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 36: {
-               //#line 1197 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1195 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1197 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1195 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1195 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1195 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1197 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1197 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10SuperCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1741,14 +1741,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 37:  ExplicitConstructorInvocation ::= Primary . this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 37: {
-               //#line 1202 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1200 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1202 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1200 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1200 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1200 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1200 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1200 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 1202 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1202 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10ThisCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1757,14 +1757,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 38:  ExplicitConstructorInvocation ::= Primary . super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 38: {
-               //#line 1207 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1205 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1207 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1205 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1205 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1205 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1205 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1205 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 1207 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1207 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10SuperCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1773,22 +1773,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 39:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
             //
             case 39: {
-               //#line 1213 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1211 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1213 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1211 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifiersopt = (List) getRhsSym(1);
-                //#line 1211 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1211 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1211 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1211 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParamsWithVarianceopt = (List) getRhsSym(4);
-                //#line 1211 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1211 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1211 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1211 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1211 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1211 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ExtendsInterfacesopt = (List) getRhsSym(7);
-                //#line 1211 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1211 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(8);
-                //#line 1213 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1213 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
       checkTypeName(Identifier);
       List TypeParametersopt = TypeParamsWithVarianceopt;
       List/*<PropertyDecl>*/ props = Propertiesopt;
@@ -1812,16 +1812,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 40:  ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 40: {
-               //#line 1234 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1232 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1234 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1232 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 1232 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1232 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(3);
-                //#line 1232 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1232 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 1232 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1232 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(7);
-                //#line 1234 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1234 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt));
                 else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
@@ -1832,18 +1832,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 41:  ClassInstanceCreationExpression ::= Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 41: {
-               //#line 1241 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1239 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1241 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1239 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1239 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1239 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1239 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1239 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 1239 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1239 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1239 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1239 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 1241 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1241 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -1855,18 +1855,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 42:  ClassInstanceCreationExpression ::= AmbiguousName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 42: {
-               //#line 1249 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1247 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1249 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1247 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 1247 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1247 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1247 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1247 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 1247 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1247 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1247 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1247 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 1249 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1249 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -1878,12 +1878,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 43:  AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 43: {
-               //#line 1258 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1256 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1258 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1256 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1256 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1256 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1258 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1258 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AssignPropertyCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1892,10 +1892,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 46:  Type ::= proto ConstrainedType
             //
             case 46: {
-               //#line 1267 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1265 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1267 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1265 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ConstrainedType = (TypeNode) getRhsSym(2);
-                //#line 1267 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1267 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
         AddFlags tn = (AddFlags) ConstrainedType;
         tn.addFlags(X10Flags.PROTO);
         setResult(tn);
@@ -1906,18 +1906,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 47:  FunctionType ::= TypeArgumentsopt ( FormalParameterListopt ) WhereClauseopt Throwsopt => Type
             //
             case 47: {
-               //#line 1275 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1273 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1275 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1273 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(1);
-                //#line 1273 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1273 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(3);
-                //#line 1273 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1273 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(5);
-                //#line 1273 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1273 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(6);
-                //#line 1273 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1273 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1275 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1275 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.FunctionTypeNode(pos(), TypeArgumentsopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt));
                       break;
             }
@@ -1926,12 +1926,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 52:  AnnotatedType ::= Type Annotations
             //
             case 52: {
-               //#line 1284 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1282 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1284 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1282 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1282 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1282 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(2);
-                //#line 1284 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1284 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeNode tn = Type;
                 tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
                 setResult(tn);
@@ -1942,10 +1942,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 55:  ConstrainedType ::= ( Type )
             //
             case 55: {
-               //#line 1294 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1292 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1294 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1292 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1294 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1294 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
@@ -1954,18 +1954,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 57:  NamedType ::= Primary . Identifier TypeArgumentsopt Argumentsopt DepParametersopt
             //
             case 57: {
-               //#line 1308 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1306 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1308 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1306 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1306 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1306 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1306 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1306 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1306 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1306 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Argumentsopt = (List) getRhsSym(5);
-                //#line 1306 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1306 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1308 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1308 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type = nf.X10AmbTypeNode(pos(), Primary, Identifier);
             // TODO: place constraint
             if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
@@ -1979,16 +1979,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 58:  NamedType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt
             //
             case 58: {
-               //#line 1319 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1317 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1319 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1317 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 1317 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1317 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1317 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1317 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Argumentsopt = (List) getRhsSym(3);
-                //#line 1317 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1317 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(4);
-                //#line 1319 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1319 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type;
             
             if (TypeName.name.id().toString().equals("void")) {
@@ -2016,12 +2016,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 59:  DepParameters ::= { ExistentialListopt Conjunctionopt }
             //
             case 59: {
-               //#line 1345 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1343 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1345 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1343 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1343 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1343 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object Conjunctionopt = (Object) getRhsSym(3);
-                //#line 1345 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1345 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, (List) Conjunctionopt));
                       break;
             }
@@ -2030,10 +2030,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 60:  DepParameters ::= ! PlaceType
             //
             case 60: {
-               //#line 1350 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1348 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1350 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1348 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceType = (Expr) getRhsSym(2);
-                //#line 1350 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1350 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), PlaceType);
                 setResult(nf.DepParameterExpr(pos(), null, Collections.singletonList(placeClause)));
                       break;
@@ -2043,9 +2043,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 61:  DepParameters ::= !
             //
             case 61: {
-               //#line 1356 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1356 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1356 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1356 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), nf.AmbHereThis(pos()));
                 setResult(nf.DepParameterExpr(pos(), null, Collections.singletonList(placeClause)));
                       break;
@@ -2055,14 +2055,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 62:  DepParameters ::= ! PlaceType { ExistentialListopt Conjunction }
             //
             case 62: {
-               //#line 1362 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1360 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1362 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1360 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceType = (Expr) getRhsSym(2);
-                //#line 1360 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1360 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(4);
-                //#line 1360 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1360 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(5);
-                //#line 1362 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1362 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), PlaceType);
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
                       break;
@@ -2072,12 +2072,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 63:  DepParameters ::= ! { ExistentialListopt Conjunction }
             //
             case 63: {
-               //#line 1368 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1366 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1368 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1366 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(3);
-                //#line 1366 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1366 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(4);
-                //#line 1368 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1368 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), nf.AmbHereThis(pos()));
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
                       break;
@@ -2087,10 +2087,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 64:  TypeParamsWithVariance ::= [ TypeParamWithVarianceList ]
             //
             case 64: {
-               //#line 1376 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1374 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1376 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1374 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParamWithVarianceList = (List) getRhsSym(2);
-                //#line 1376 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1376 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeParamWithVarianceList);
                       break;
             }
@@ -2099,10 +2099,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 65:  TypeParameters ::= [ TypeParameterList ]
             //
             case 65: {
-               //#line 1382 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1380 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1382 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1380 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(2);
-                //#line 1382 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1382 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeParameterList);
                       break;
             }
@@ -2111,10 +2111,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 66:  FormalParameters ::= ( FormalParameterListopt )
             //
             case 66: {
-               //#line 1387 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1385 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1387 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1385 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(2);
-                //#line 1387 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1387 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(FormalParameterListopt);
                       break;
             }
@@ -2123,10 +2123,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 67:  Conjunction ::= Expression
             //
             case 67: {
-               //#line 1393 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1391 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1393 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1391 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1393 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1393 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.add(Expression);
                 setResult(l);
@@ -2137,12 +2137,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 68:  Conjunction ::= Conjunction , Expression
             //
             case 68: {
-               //#line 1400 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1398 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1400 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1398 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(1);
-                //#line 1398 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1398 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1400 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1400 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Conjunction.add(Expression);
                       break;
             }
@@ -2151,12 +2151,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 69:  SubtypeConstraint ::= Type$t1 <: Type$t2
             //
             case 69: {
-               //#line 1406 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1404 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1406 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1404 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1404 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1404 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1406 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1406 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, false));
                       break;
             }
@@ -2165,12 +2165,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 70:  SubtypeConstraint ::= Type$t1 :> Type$t2
             //
             case 70: {
-               //#line 1411 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1409 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1411 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1409 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1409 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1409 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1411 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1411 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t2, t1, false));
                       break;
             }
@@ -2179,10 +2179,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 71:  WhereClause ::= DepParameters
             //
             case 71: {
-               //#line 1417 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1415 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1417 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1415 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(1);
-                //#line 1417 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1417 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(DepParameters);
                       break;
             }
@@ -2191,9 +2191,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 72:  Conjunctionopt ::= $Empty
             //
             case 72: {
-               //#line 1423 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1423 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1423 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1423 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 setResult(l);
                       break;
@@ -2203,10 +2203,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 73:  Conjunctionopt ::= Conjunction
             //
             case 73: {
-               //#line 1429 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1427 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1429 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1427 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(1);
-                //#line 1429 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1429 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(Conjunction);
                       break;
             }
@@ -2215,9 +2215,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 74:  ExistentialListopt ::= $Empty
             //
             case 74: {
-               //#line 1435 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1435 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1435 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1435 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(new ArrayList());
                       break;
             }
@@ -2226,10 +2226,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 75:  ExistentialListopt ::= ExistentialList ;
             //
             case 75: {
-               //#line 1440 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1438 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1440 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1438 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1440 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1440 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(ExistentialList);
                       break;
             }
@@ -2238,10 +2238,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 76:  ExistentialList ::= FormalParameter
             //
             case 76: {
-               //#line 1446 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1444 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1446 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1444 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 1446 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1446 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
                 setResult(l);
@@ -2252,12 +2252,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 77:  ExistentialList ::= ExistentialList ; FormalParameter
             //
             case 77: {
-               //#line 1453 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1451 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1453 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1451 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1451 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1451 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1453 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1453 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExistentialList.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -2266,24 +2266,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 80:  NormalClassDeclaration ::= ClassModifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
             //
             case 80: {
-               //#line 1464 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1462 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1464 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1462 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1462 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1462 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1462 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1462 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParamsWithVarianceopt = (List) getRhsSym(4);
-                //#line 1462 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1462 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1462 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1462 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1462 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1462 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1462 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1462 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(8);
-                //#line 1462 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1462 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
-                //#line 1464 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1464 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
       checkTypeName(Identifier);
                 List TypeParametersopt = TypeParamsWithVarianceopt;
       List/*<PropertyDecl>*/ props = Propertiesopt;
@@ -2301,22 +2301,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 81:  StructDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
             //
             case 81: {
-               //#line 1480 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1478 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1480 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1478 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1478 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1478 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1478 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1478 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParamsWithVarianceopt = (List) getRhsSym(4);
-                //#line 1478 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1478 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1478 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1478 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1478 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1478 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(7);
-                //#line 1478 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1478 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(8);
-                //#line 1480 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1480 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
     checkTypeName(Identifier);
                 List TypeParametersopt = TypeParamsWithVarianceopt;
     List props = Propertiesopt;
@@ -2330,29 +2330,29 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 82:  ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt ConstructorBody
+            // Rule 82:  ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt ConstructorBody
             //
             case 82: {
-               //#line 1494 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1492 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1494 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1492 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifiersopt = (List) getRhsSym(1);
-                //#line 1492 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1492 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1492 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1492 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1492 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1492 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1492 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1492 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1492 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
+                //#line 1492 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1492 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1492 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBody = (Block) getRhsSym(9);
-                //#line 1494 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1494 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
      ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(ConstructorModifiersopt),
                                              nf.Id(pos(3), "this"),
-                                             ResultTypeopt,
+                                             HasResultTypeopt,
                                              TypeParametersopt,
                                              FormalParameters,
                                              WhereClauseopt,
@@ -2367,10 +2367,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 83:  Super ::= extends ClassType
             //
             case 83: {
-               //#line 1510 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1508 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1510 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1508 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
-                //#line 1510 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1510 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClassType);
                       break;
             }
@@ -2379,9 +2379,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 84:  FieldKeyword ::= val
             //
             case 84: {
-               //#line 1516 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1516 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1516 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1516 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -2390,9 +2390,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 85:  FieldKeyword ::= var
             //
             case 85: {
-               //#line 1521 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1521 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1521 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1521 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                       break;
             }
@@ -2401,9 +2401,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 86:  FieldKeyword ::= const
             //
             case 86: {
-               //#line 1526 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1526 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1526 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1526 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL.Static())));
                       break;
             }
@@ -2412,9 +2412,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 87:  VarKeyword ::= val
             //
             case 87: {
-               //#line 1534 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1534 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1534 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1534 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -2423,9 +2423,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 88:  VarKeyword ::= var
             //
             case 88: {
-               //#line 1539 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1539 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1539 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1539 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                       break;
             }
@@ -2434,14 +2434,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 89:  FieldDeclaration ::= FieldModifiersopt FieldKeyword FieldDeclarators ;
             //
             case 89: {
-               //#line 1546 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1544 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1546 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1544 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(1);
-                //#line 1544 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1544 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FieldKeyword = (List) getRhsSym(2);
-                //#line 1544 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1544 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(3);
-                //#line 1546 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1546 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                     FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
     
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -2469,12 +2469,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 90:  FieldDeclaration ::= FieldModifiersopt FieldDeclarators ;
             //
             case 90: {
-               //#line 1571 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1569 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1571 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1569 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(1);
-                //#line 1569 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1569 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(2);
-                //#line 1571 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1571 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                     List FieldKeyword = Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL));
                     FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
     
@@ -2503,12 +2503,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 93:  AnnotationStatement ::= Annotationsopt NonExpressionStatement
             //
             case 93: {
-               //#line 1603 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1601 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1603 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1601 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 1601 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1601 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt NonExpressionStatement = (Stmt) getRhsSym(2);
-                //#line 1603 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1603 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (NonExpressionStatement.ext() instanceof X10Ext && Annotationsopt instanceof List) {
                     NonExpressionStatement = (Stmt) ((X10Ext) NonExpressionStatement.ext()).annotations((List) Annotationsopt);
                 }
@@ -2520,12 +2520,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 120:  IfThenStatement ::= if ( Expression ) Statement
             //
             case 120: {
-               //#line 1639 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1637 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1639 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1637 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1637 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1637 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1639 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1639 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.If(pos(), Expression, Statement));
                       break;
             }
@@ -2534,14 +2534,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 121:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
             //
             case 121: {
-               //#line 1645 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1643 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1645 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1643 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1643 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1643 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt s1 = (Stmt) getRhsSym(5);
-                //#line 1643 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1643 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt s2 = (Stmt) getRhsSym(7);
-                //#line 1645 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1645 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.If(pos(), Expression, s1, s2));
                       break;
             }
@@ -2550,9 +2550,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 122:  EmptyStatement ::= ;
             //
             case 122: {
-               //#line 1651 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1651 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1651 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1651 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Empty(pos()));
                       break;
             }
@@ -2561,12 +2561,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 123:  LabeledStatement ::= Identifier : LoopStatement
             //
             case 123: {
-               //#line 1657 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1655 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1657 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1655 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1655 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1655 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt LoopStatement = (Stmt) getRhsSym(3);
-                //#line 1657 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1657 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Labeled(pos(), Identifier, LoopStatement));
                       break;
             }
@@ -2575,10 +2575,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 129:  ExpressionStatement ::= StatementExpression ;
             //
             case 129: {
-               //#line 1669 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1667 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1669 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1667 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1669 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1669 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 boolean eval = true;
                 if (StatementExpression instanceof X10Call) {
                     X10Call c = (X10Call) StatementExpression;
@@ -2604,10 +2604,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 137:  AssertStatement ::= assert Expression ;
             //
             case 137: {
-               //#line 1700 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1698 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1700 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1698 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1700 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1700 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), Expression));
                       break;
             }
@@ -2616,12 +2616,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 138:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
             case 138: {
-               //#line 1705 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1703 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1705 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1703 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 1703 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1703 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 1705 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1705 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                       break;
             }
@@ -2630,12 +2630,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 139:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
             case 139: {
-               //#line 1711 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1709 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1711 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1709 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1709 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1709 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlock = (List) getRhsSym(5);
-                //#line 1711 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1711 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                       break;
             }
@@ -2644,12 +2644,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 140:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
             case 140: {
-               //#line 1717 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1715 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1717 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1715 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
-                //#line 1715 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1715 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List SwitchLabelsopt = (List) getRhsSym(3);
-                //#line 1717 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1717 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                       break;
@@ -2659,12 +2659,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 142:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
             case 142: {
-               //#line 1725 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1723 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1725 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1723 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
-                //#line 1723 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1723 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
-                //#line 1725 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1725 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                       break;
@@ -2674,12 +2674,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 143:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
             case 143: {
-               //#line 1732 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1730 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1732 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1730 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1730 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1730 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(2);
-                //#line 1732 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1732 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -2691,10 +2691,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 144:  SwitchLabels ::= SwitchLabel
             //
             case 144: {
-               //#line 1741 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1739 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1741 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1739 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 1741 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1741 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -2705,12 +2705,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 145:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
             case 145: {
-               //#line 1748 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1746 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1748 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1746 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1746 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1746 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 1748 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1748 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                       break;
@@ -2720,10 +2720,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 146:  SwitchLabel ::= case ConstantExpression :
             //
             case 146: {
-               //#line 1755 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1753 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1755 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1753 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 1755 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1755 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                       break;
             }
@@ -2732,9 +2732,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 147:  SwitchLabel ::= default :
             //
             case 147: {
-               //#line 1760 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1760 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1760 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1760 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Default(pos()));
                       break;
             }
@@ -2743,12 +2743,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 148:  WhileStatement ::= while ( Expression ) Statement
             //
             case 148: {
-               //#line 1766 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1764 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1766 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1764 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1764 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1764 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1766 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1766 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                       break;
             }
@@ -2757,12 +2757,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 149:  DoStatement ::= do Statement while ( Expression ) ;
             //
             case 149: {
-               //#line 1772 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1770 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1772 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1770 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1770 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1770 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1772 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1772 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                       break;
             }
@@ -2771,16 +2771,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 152:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
             case 152: {
-               //#line 1781 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1779 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1781 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1779 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1779 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1779 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1779 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1779 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1779 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1779 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 1781 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1781 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                       break;
             }
@@ -2789,10 +2789,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 154:  ForInit ::= LocalVariableDeclaration
             //
             case 154: {
-               //#line 1788 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1786 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1788 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1786 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
-                //#line 1788 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1788 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -2803,10 +2803,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 156:  StatementExpressionList ::= StatementExpression
             //
             case 156: {
-               //#line 1798 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1796 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1798 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1796 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1798 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1798 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -2817,12 +2817,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 157:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
             case 157: {
-               //#line 1805 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1803 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1805 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1803 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List StatementExpressionList = (List) getRhsSym(1);
-                //#line 1803 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1803 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 1805 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1805 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                       break;
             }
@@ -2831,10 +2831,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 158:  BreakStatement ::= break Identifieropt ;
             //
             case 158: {
-               //#line 1811 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1809 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1811 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1809 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1811 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1811 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Break(pos(), Identifieropt));
                       break;
             }
@@ -2843,10 +2843,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 159:  ContinueStatement ::= continue Identifieropt ;
             //
             case 159: {
-               //#line 1817 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1815 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1817 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1815 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1817 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1817 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Continue(pos(), Identifieropt));
                       break;
             }
@@ -2855,10 +2855,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 160:  ReturnStatement ::= return Expressionopt ;
             //
             case 160: {
-               //#line 1823 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1821 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1823 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1821 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 1823 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1823 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                       break;
             }
@@ -2867,10 +2867,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 161:  ThrowStatement ::= throw Expression ;
             //
             case 161: {
-               //#line 1829 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1827 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1829 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1827 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1829 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1829 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Throw(pos(), Expression));
                       break;
             }
@@ -2879,12 +2879,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 162:  TryStatement ::= try Block Catches
             //
             case 162: {
-               //#line 1835 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1833 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1835 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1833 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1833 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1833 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(3);
-                //#line 1835 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1835 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catches));
                       break;
             }
@@ -2893,14 +2893,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 163:  TryStatement ::= try Block Catchesopt Finally
             //
             case 163: {
-               //#line 1840 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1838 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1840 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1838 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1838 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1838 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Catchesopt = (List) getRhsSym(3);
-                //#line 1838 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1838 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block Finally = (Block) getRhsSym(4);
-                //#line 1840 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1840 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                       break;
             }
@@ -2909,10 +2909,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 164:  Catches ::= CatchClause
             //
             case 164: {
-               //#line 1846 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1844 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1846 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1844 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 1846 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1846 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -2923,12 +2923,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 165:  Catches ::= Catches CatchClause
             //
             case 165: {
-               //#line 1853 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1851 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1853 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1851 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(1);
-                //#line 1851 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1851 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 1853 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1853 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                       break;
@@ -2938,12 +2938,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 166:  CatchClause ::= catch ( FormalParameter ) Block
             //
             case 166: {
-               //#line 1860 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1858 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1860 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1858 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1858 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1858 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1860 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1860 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                       break;
             }
@@ -2952,10 +2952,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 167:  Finally ::= finally Block
             //
             case 167: {
-               //#line 1866 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1864 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1866 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1864 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1866 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1866 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
                       break;
             }
@@ -2964,12 +2964,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 168:  NowStatement ::= now ( Clock ) Statement
             //
             case 168: {
-               //#line 1872 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1870 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1872 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1870 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1870 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1870 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1872 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1872 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Now(pos(), Clock, Statement));
                       break;
             }
@@ -2978,10 +2978,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 169:  ClockedClause ::= clocked ( ClockList )
             //
             case 169: {
-               //#line 1878 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1876 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1878 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1876 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
-                //#line 1878 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1878 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClockList);
                       break;
             }
@@ -2990,14 +2990,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 170:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
             case 170: {
-               //#line 1884 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1882 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1884 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1882 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1882 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1882 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1882 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1882 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
-                //#line 1884 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1884 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -3009,12 +3009,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 171:  AtStatement ::= at PlaceExpressionSingleList Statement
             //
             case 171: {
-               //#line 1893 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1891 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1893 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1891 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 1891 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1891 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1893 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1893 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.AtStmt(pos(), PlaceExpressionSingleList, Statement));
                       break;
             }
@@ -3023,10 +3023,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 172:  AtomicStatement ::= atomic Statement
             //
             case 172: {
-               //#line 1899 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1897 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1899 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1897 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1899 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1899 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), Statement));
                       break;
             }
@@ -3035,12 +3035,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 173:  WhenStatement ::= when ( Expression ) Statement
             //
             case 173: {
-               //#line 1906 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1904 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1906 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1904 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1904 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1904 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1906 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1906 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.When(pos(), Expression, Statement));
                       break;
             }
@@ -3049,16 +3049,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 174:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
             case 174: {
-               //#line 1911 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1909 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1911 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1909 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1909 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1909 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1909 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1909 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1909 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1909 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 1911 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1911 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                       break;
@@ -3068,16 +3068,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 175:  ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
             case 175: {
-               //#line 1918 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1916 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1918 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1916 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1916 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1916 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1916 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1916 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1916 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1916 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1918 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1918 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 fn = fn.flags(f);
@@ -3096,16 +3096,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 176:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
             case 176: {
-               //#line 1934 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1932 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1934 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1932 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1932 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1932 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1932 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1932 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1932 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1932 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1934 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1934 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 fn = fn.flags(f);
@@ -3124,14 +3124,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 177:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
             //
             case 177: {
-               //#line 1950 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1948 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1950 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1948 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1948 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1948 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1948 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1948 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1950 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1950 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 if (! f.isFinal()) {
@@ -3148,10 +3148,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 178:  FinishStatement ::= finish Statement
             //
             case 178: {
-               //#line 1964 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1962 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1964 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1962 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1964 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1964 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Finish(pos(),  Statement));
                       break;
             }
@@ -3160,10 +3160,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 179:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
             case 179: {
-               //#line 1970 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1968 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1970 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1968 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 1970 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1970 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(PlaceExpression);
                       break;
             }
@@ -3172,9 +3172,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 181:  NextStatement ::= next ;
             //
             case 181: {
-               //#line 1978 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1978 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1978 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1978 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Next(pos()));
                       break;
             }
@@ -3183,10 +3183,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 182:  AwaitStatement ::= await Expression ;
             //
             case 182: {
-               //#line 1984 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1982 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1984 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1982 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1984 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1984 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Await(pos(), Expression));
                       break;
             }
@@ -3195,10 +3195,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 183:  ClockList ::= Clock
             //
             case 183: {
-               //#line 1990 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1988 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1990 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1988 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 1990 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1990 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -3209,12 +3209,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 184:  ClockList ::= ClockList , Clock
             //
             case 184: {
-               //#line 1997 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1995 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1997 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1995 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(1);
-                //#line 1995 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1995 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1997 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1997 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClockList.add(Clock);
                 setResult(ClockList);
                       break;
@@ -3224,10 +3224,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 185:  Clock ::= Expression
             //
             case 185: {
-               //#line 2005 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2003 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2005 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2003 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 2005 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2005 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
     setResult(Expression);
                       break;
             }
@@ -3236,12 +3236,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 186:  CastExpression ::= CastExpression as Type
             //
             case 186: {
-               //#line 2019 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2017 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2019 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2017 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 2017 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2017 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2019 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2019 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Cast(pos(), Type, CastExpression));
                       break;
             }
@@ -3250,10 +3250,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 188:  TypeParamWithVarianceList ::= TypeParamWithVariance
             //
             case 188: {
-               //#line 2033 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2031 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2033 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2031 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(1);
-                //#line 2033 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2033 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
                 l.add(TypeParamWithVariance);
                 setResult(l);
@@ -3264,12 +3264,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 189:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParamWithVariance
             //
             case 189: {
-               //#line 2040 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2038 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2040 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2038 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParamWithVarianceList = (List) getRhsSym(1);
-                //#line 2038 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2038 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(3);
-                //#line 2040 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2040 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParamWithVarianceList.add(TypeParamWithVariance);
                 setResult(TypeParamWithVarianceList);
                       break;
@@ -3279,10 +3279,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 190:  TypeParameterList ::= TypeParameter
             //
             case 190: {
-               //#line 2047 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2045 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2047 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2045 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(1);
-                //#line 2047 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2047 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
                 l.add(TypeParameter);
                 setResult(l);
@@ -3293,12 +3293,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 191:  TypeParameterList ::= TypeParameterList , TypeParameter
             //
             case 191: {
-               //#line 2054 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2052 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2054 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2052 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(1);
-                //#line 2052 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2052 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(3);
-                //#line 2054 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2054 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParameterList.add(TypeParameter);
                 setResult(TypeParameterList);
                       break;
@@ -3308,10 +3308,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 192:  TypeParamWithVariance ::= Identifier
             //
             case 192: {
-               //#line 2061 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2059 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2061 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2059 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2061 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2061 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.INVARIANT));
                       break;
             }
@@ -3320,10 +3320,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 193:  TypeParamWithVariance ::= + Identifier
             //
             case 193: {
-               //#line 2066 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2064 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2066 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2064 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 2066 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2066 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.COVARIANT));
                       break;
             }
@@ -3332,10 +3332,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 194:  TypeParamWithVariance ::= - Identifier
             //
             case 194: {
-               //#line 2071 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2069 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2071 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2069 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 2071 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2071 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.CONTRAVARIANT));
                       break;
             }
@@ -3344,10 +3344,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 195:  TypeParameter ::= Identifier
             //
             case 195: {
-               //#line 2077 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2075 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2077 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2075 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2077 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2077 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier));
                       break;
             }
@@ -3356,9 +3356,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 196:  Primary ::= here
             //
             case 196: {
-               //#line 2083 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2083 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2083 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2083 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(((X10NodeFactory) nf).Here(pos()));
                       break;
             }
@@ -3367,10 +3367,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 198:  RegionExpressionList ::= RegionExpression
             //
             case 198: {
-               //#line 2091 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2089 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2091 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2089 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
-                //#line 2091 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2091 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -3381,12 +3381,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 199:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
             case 199: {
-               //#line 2098 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2096 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2098 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2096 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(1);
-                //#line 2096 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2096 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
-                //#line 2098 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2098 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                       break;
@@ -3396,10 +3396,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 200:  Primary ::= [ ArgumentListopt ]
             //
             case 200: {
-               //#line 2105 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2103 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2105 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2103 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 2105 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2105 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
                 setResult(tuple);
                       break;
@@ -3409,35 +3409,35 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 201:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
             case 201: {
-               //#line 2112 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2110 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2112 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2110 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 2110 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2110 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 2112 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2112 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                       break;
             }
     
             //
-            // Rule 202:  ClosureExpression ::= FormalParameters WhereClauseopt ResultTypeopt Throwsopt => ClosureBody
+            // Rule 202:  ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Throwsopt => ClosureBody
             //
             case 202: {
-               //#line 2118 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2116 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2118 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2116 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(1);
-                //#line 2116 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2116 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(2);
-                //#line 2116 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(3);
-                //#line 2116 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2116 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(3);
+                //#line 2116 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(4);
-                //#line 2116 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2116 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 2118 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2118 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Closure(pos(), FormalParameters, WhereClauseopt, 
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt, Throwsopt, ClosureBody));
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt, Throwsopt, ClosureBody));
                       break;
             }
     
@@ -3445,10 +3445,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 203:  LastExpression ::= Expression
             //
             case 203: {
-               //#line 2125 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2123 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2125 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2123 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 2125 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2125 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Return(pos(), Expression, true));
                       break;
             }
@@ -3457,10 +3457,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 204:  ClosureBody ::= CastExpression
             //
             case 204: {
-               //#line 2131 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2129 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2131 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2129 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 2131 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2131 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), nf.X10Return(pos(), CastExpression, true)));
                       break;
             }
@@ -3469,14 +3469,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 205:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
             //
             case 205: {
-               //#line 2136 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2134 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2136 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2134 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2134 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2134 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 2134 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2134 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
-                //#line 2136 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2136 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new ArrayList<Stmt>();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -3490,12 +3490,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 206:  ClosureBody ::= Annotationsopt Block
             //
             case 206: {
-               //#line 2146 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2144 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2146 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2144 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2144 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2144 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 2146 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2146 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Block b = Block;
                 b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
                 setResult(b);
@@ -3506,12 +3506,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 207:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
             //
             case 207: {
-               //#line 2155 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2153 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2155 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2153 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2153 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2153 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2155 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2155 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AtExpr(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
@@ -3520,10 +3520,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 208:  AsyncExpression ::= async ClosureBody
             //
             case 208: {
-               //#line 2161 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2159 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2161 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 2161 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2161 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
@@ -3532,12 +3532,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 209:  AsyncExpression ::= async PlaceExpressionSingleList ClosureBody
             //
             case 209: {
-               //#line 2166 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2164 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2166 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2164 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2164 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2164 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2166 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2166 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
@@ -3546,12 +3546,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 210:  AsyncExpression ::= async [ Type ] ClosureBody
             //
             case 210: {
-               //#line 2171 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2169 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2171 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2169 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2169 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2169 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 2171 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2171 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
@@ -3560,14 +3560,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 211:  AsyncExpression ::= async [ Type ] PlaceExpressionSingleList ClosureBody
             //
             case 211: {
-               //#line 2176 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2174 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2176 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2174 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2174 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2174 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 2174 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2174 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 2176 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2176 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
@@ -3576,10 +3576,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 212:  FutureExpression ::= future ClosureBody
             //
             case 212: {
-               //#line 2182 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2180 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2182 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2180 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 2182 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2182 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
@@ -3588,12 +3588,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 213:  FutureExpression ::= future PlaceExpressionSingleList ClosureBody
             //
             case 213: {
-               //#line 2187 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2185 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2187 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2185 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2185 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2185 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2187 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2187 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
@@ -3602,12 +3602,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 214:  FutureExpression ::= future [ Type ] ClosureBody
             //
             case 214: {
-               //#line 2192 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2190 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2192 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2190 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2190 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2190 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 2192 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2192 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody));
                       break;
             }
@@ -3616,14 +3616,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 215:  FutureExpression ::= future [ Type ] PlaceExpressionSingleList ClosureBody
             //
             case 215: {
-               //#line 2197 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2195 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2197 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2195 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2195 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2195 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 2195 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2195 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 2197 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2197 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody));
                       break;
             }
@@ -3639,9 +3639,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 218:  PropertyListopt ::= $Empty
             //
             case 218: {
-               //#line 2208 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2208 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2208 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2208 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                       break;
             }
@@ -3664,9 +3664,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 224:  ClassModifiersopt ::= $Empty
             //
             case 224: {
-               //#line 2223 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2223 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2223 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2223 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
          setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                       break;
             } 
@@ -3674,9 +3674,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 226:  TypeDefModifiersopt ::= $Empty
             //
             case 226: {
-               //#line 2229 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2229 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2229 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2229 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
          setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                       break;
             } 
@@ -3691,9 +3691,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 229:  Unsafeopt ::= unsafe
             //
             case 229: {
-               //#line 2237 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2237 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2237 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2237 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 // any value distinct from null
                 setResult(this);
                       break;
@@ -3703,9 +3703,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 230:  ClockedClauseopt ::= $Empty
             //
             case 230: {
-               //#line 2244 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2244 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2244 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2244 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                       break;
             }
@@ -3714,10 +3714,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 232:  identifier ::= IDENTIFIER$ident
             //
             case 232: {
-               //#line 2255 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2253 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2255 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2253 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 2255 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2255 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                       break;
@@ -3727,10 +3727,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 233:  TypeName ::= Identifier
             //
             case 233: {
-               //#line 2262 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2260 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2262 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2260 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2262 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2262 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3739,12 +3739,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 234:  TypeName ::= TypeName . Identifier
             //
             case 234: {
-               //#line 2267 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2265 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2267 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2265 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 2265 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2265 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2267 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2267 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3757,10 +3757,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 236:  TypeArguments ::= [ TypeArgumentList ]
             //
             case 236: {
-               //#line 2279 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2277 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2279 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2277 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(2);
-                //#line 2279 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2279 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeArgumentList);
                       break;
             }
@@ -3769,10 +3769,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 237:  TypeArgumentList ::= Type
             //
             case 237: {
-               //#line 2286 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2284 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2286 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2284 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2286 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2286 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.add(Type);
                 setResult(l);
@@ -3783,12 +3783,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 238:  TypeArgumentList ::= TypeArgumentList , Type
             //
             case 238: {
-               //#line 2293 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2291 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2293 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2291 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(1);
-                //#line 2291 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2291 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2293 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2293 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeArgumentList.add(Type);
                       break;
             }
@@ -3797,10 +3797,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 239:  PackageName ::= Identifier
             //
             case 239: {
-               //#line 2303 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2301 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2303 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2301 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2303 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2303 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3809,12 +3809,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 240:  PackageName ::= PackageName . Identifier
             //
             case 240: {
-               //#line 2308 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2306 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2308 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2306 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
-                //#line 2306 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2306 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2308 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2308 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3827,10 +3827,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 241:  ExpressionName ::= Identifier
             //
             case 241: {
-               //#line 2324 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2322 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2324 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2322 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2324 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2324 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3839,12 +3839,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 242:  ExpressionName ::= AmbiguousName . Identifier
             //
             case 242: {
-               //#line 2329 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2327 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2329 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2327 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2327 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2327 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2329 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2329 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3857,10 +3857,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 243:  MethodName ::= Identifier
             //
             case 243: {
-               //#line 2339 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2337 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2339 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2337 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2339 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2339 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3869,12 +3869,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 244:  MethodName ::= AmbiguousName . Identifier
             //
             case 244: {
-               //#line 2344 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2342 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2344 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2342 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2342 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2342 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2344 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2344 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3887,10 +3887,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 245:  PackageOrTypeName ::= Identifier
             //
             case 245: {
-               //#line 2354 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2352 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2354 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2352 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2354 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2354 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3899,12 +3899,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 246:  PackageOrTypeName ::= PackageOrTypeName . Identifier
             //
             case 246: {
-               //#line 2359 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2357 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2359 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2357 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
-                //#line 2357 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2357 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2359 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2359 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3917,10 +3917,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 247:  AmbiguousName ::= Identifier
             //
             case 247: {
-               //#line 2369 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2367 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2369 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2367 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2369 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2369 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3929,12 +3929,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 248:  AmbiguousName ::= AmbiguousName . Identifier
             //
             case 248: {
-               //#line 2374 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2372 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2374 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2372 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2372 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2372 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2374 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2374 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3947,14 +3947,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 249:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
             case 249: {
-               //#line 2386 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2384 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2386 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2384 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 2384 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2384 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ImportDeclarationsopt = (List) getRhsSym(2);
-                //#line 2384 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2384 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeDeclarationsopt = (List) getRhsSym(3);
-                //#line 2386 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2386 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 // Add import x10.lang.* by default.
                 int token_pos = (ImportDeclarationsopt.size() == 0
                                      ? TypeDeclarationsopt.size() == 0
@@ -3973,10 +3973,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 250:  ImportDeclarations ::= ImportDeclaration
             //
             case 250: {
-               //#line 2402 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2400 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2402 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2400 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(1);
-                //#line 2402 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2402 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Import.class, false);
                 l.add(ImportDeclaration);
                 setResult(l);
@@ -3987,12 +3987,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 251:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
             case 251: {
-               //#line 2409 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2407 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2409 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2407 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ImportDeclarations = (List) getRhsSym(1);
-                //#line 2407 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2407 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(2);
-                //#line 2409 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2409 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ImportDeclaration != null)
                     ImportDeclarations.add(ImportDeclaration);
                 //setResult(l);
@@ -4003,10 +4003,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 252:  TypeDeclarations ::= TypeDeclaration
             //
             case 252: {
-               //#line 2417 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2415 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2417 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2415 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(1);
-                //#line 2417 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2417 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
                     l.add(TypeDeclaration);
@@ -4018,12 +4018,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 253:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
             case 253: {
-               //#line 2425 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2423 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2425 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2423 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeDeclarations = (List) getRhsSym(1);
-                //#line 2423 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2423 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(2);
-                //#line 2425 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2425 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (TypeDeclaration != null)
                     TypeDeclarations.add(TypeDeclaration);
                 //setResult(l);
@@ -4034,12 +4034,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 254:  PackageDeclaration ::= Annotationsopt package PackageName ;
             //
             case 254: {
-               //#line 2433 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2431 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2433 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2431 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2431 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2431 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(3);
-                //#line 2433 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2433 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 PackageNode pn = PackageName.toPackage();
                 pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
                 setResult(pn);
@@ -4050,10 +4050,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 257:  SingleTypeImportDeclaration ::= import TypeName ;
             //
             case 257: {
-               //#line 2447 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2445 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2447 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2445 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 2447 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2447 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
                       break;
             }
@@ -4062,10 +4062,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 258:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
             case 258: {
-               //#line 2453 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2451 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2453 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2451 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(2);
-                //#line 2453 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2453 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, QName.make(PackageOrTypeName.toString())));
                       break;
             }
@@ -4074,9 +4074,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 262:  TypeDeclaration ::= ;
             //
             case 262: {
-               //#line 2468 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2468 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2468 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2468 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(null);
                       break;
             }
@@ -4085,10 +4085,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 263:  ClassModifiers ::= ClassModifier
             //
             case 263: {
-               //#line 2476 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2474 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2476 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2474 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(1);
-                //#line 2476 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2476 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(ClassModifier);
                 setResult(l);
@@ -4099,12 +4099,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 264:  ClassModifiers ::= ClassModifiers ClassModifier
             //
             case 264: {
-               //#line 2483 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2481 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2483 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2481 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifiers = (List) getRhsSym(1);
-                //#line 2481 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2481 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(2);
-                //#line 2483 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2483 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassModifiers.addAll(ClassModifier);
                       break;
             }
@@ -4113,10 +4113,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 265:  ClassModifier ::= Annotation
             //
             case 265: {
-               //#line 2489 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2487 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2489 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2487 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2489 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2489 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
@@ -4125,9 +4125,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 266:  ClassModifier ::= public
             //
             case 266: {
-               //#line 2494 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2494 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2494 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2494 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
@@ -4136,9 +4136,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 267:  ClassModifier ::= protected
             //
             case 267: {
-               //#line 2499 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2499 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2499 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2499 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
@@ -4147,9 +4147,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 268:  ClassModifier ::= private
             //
             case 268: {
-               //#line 2504 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2504 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2504 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2504 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
@@ -4158,9 +4158,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 269:  ClassModifier ::= abstract
             //
             case 269: {
-               //#line 2509 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2509 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2509 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2509 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
@@ -4169,9 +4169,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 270:  ClassModifier ::= static
             //
             case 270: {
-               //#line 2514 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2514 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2514 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2514 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
@@ -4180,9 +4180,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 271:  ClassModifier ::= final
             //
             case 271: {
-               //#line 2519 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2519 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2519 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2519 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -4191,9 +4191,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 272:  ClassModifier ::= strictfp
             //
             case 272: {
-               //#line 2524 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2524 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2524 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2524 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                       break;
             }
@@ -4202,9 +4202,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 273:  ClassModifier ::= safe
             //
             case 273: {
-               //#line 2529 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2529 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2529 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2529 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                       break;
             }
@@ -4213,10 +4213,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 274:  TypeDefModifiers ::= TypeDefModifier
             //
             case 274: {
-               //#line 2535 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2533 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2535 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2533 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(1);
-                //#line 2535 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2535 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(TypeDefModifier);
                 setResult(l);
@@ -4227,12 +4227,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 275:  TypeDefModifiers ::= TypeDefModifiers TypeDefModifier
             //
             case 275: {
-               //#line 2542 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2540 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2542 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2540 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifiers = (List) getRhsSym(1);
-                //#line 2540 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2540 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(2);
-                //#line 2542 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2542 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeDefModifiers.addAll(TypeDefModifier);
                       break;
             }
@@ -4241,10 +4241,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 276:  TypeDefModifier ::= Annotation
             //
             case 276: {
-               //#line 2548 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2546 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2548 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2546 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2548 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2548 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
@@ -4253,9 +4253,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 277:  TypeDefModifier ::= public
             //
             case 277: {
-               //#line 2553 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2553 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2553 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2553 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
@@ -4264,9 +4264,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 278:  TypeDefModifier ::= protected
             //
             case 278: {
-               //#line 2558 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2558 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2558 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2558 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
@@ -4275,9 +4275,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 279:  TypeDefModifier ::= private
             //
             case 279: {
-               //#line 2563 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2563 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2563 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2563 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
@@ -4286,9 +4286,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 280:  TypeDefModifier ::= abstract
             //
             case 280: {
-               //#line 2568 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2568 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2568 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2568 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
@@ -4297,9 +4297,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 281:  TypeDefModifier ::= static
             //
             case 281: {
-               //#line 2573 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2573 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2573 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2573 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
@@ -4308,9 +4308,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 282:  TypeDefModifier ::= final
             //
             case 282: {
-               //#line 2578 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2578 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2578 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2578 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -4319,10 +4319,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 283:  Interfaces ::= implements InterfaceTypeList
             //
             case 283: {
-               //#line 2587 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2585 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2587 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2585 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(2);
-                //#line 2587 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2587 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(InterfaceTypeList);
                       break;
             }
@@ -4331,10 +4331,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 284:  InterfaceTypeList ::= Type
             //
             case 284: {
-               //#line 2593 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2591 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2593 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2591 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2593 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2593 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -4345,12 +4345,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 285:  InterfaceTypeList ::= InterfaceTypeList , Type
             //
             case 285: {
-               //#line 2600 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2598 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2600 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2598 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(1);
-                //#line 2598 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2598 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2600 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2600 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceTypeList.add(Type);
                 setResult(InterfaceTypeList);
                       break;
@@ -4360,10 +4360,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 286:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
             case 286: {
-               //#line 2610 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2608 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2610 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2608 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
-                //#line 2610 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2610 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                       break;
             }
@@ -4372,12 +4372,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 288:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
             case 288: {
-               //#line 2617 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2615 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2617 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2615 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClassBodyDeclarations = (List) getRhsSym(1);
-                //#line 2615 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2615 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ClassBodyDeclaration = (List) getRhsSym(2);
-                //#line 2617 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2617 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
                 // setResult(a);
                       break;
@@ -4387,10 +4387,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 290:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
             case 290: {
-               //#line 2639 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2637 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2639 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2637 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
-                //#line 2639 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2639 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
                 setResult(l);
@@ -4401,10 +4401,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 292:  ClassMemberDeclaration ::= MethodDeclaration
             //
             case 292: {
-               //#line 2648 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2646 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2648 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2646 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2648 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2648 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -4415,10 +4415,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 293:  ClassMemberDeclaration ::= PropertyMethodDeclaration
             //
             case 293: {
-               //#line 2655 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2653 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2655 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2653 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2655 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2655 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -4429,10 +4429,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 294:  ClassMemberDeclaration ::= TypeDefDeclaration
             //
             case 294: {
-               //#line 2662 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2660 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2662 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2660 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 2662 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2662 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -4443,10 +4443,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 295:  ClassMemberDeclaration ::= ClassDeclaration
             //
             case 295: {
-               //#line 2669 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2667 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2669 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2667 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2669 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2669 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -4457,10 +4457,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 296:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
             case 296: {
-               //#line 2676 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2674 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2676 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2674 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2676 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2676 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -4471,9 +4471,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 297:  ClassMemberDeclaration ::= ;
             //
             case 297: {
-               //#line 2683 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2683 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2683 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2683 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 setResult(l);
                       break;
@@ -4483,10 +4483,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 298:  FormalDeclarators ::= FormalDeclarator
             //
             case 298: {
-               //#line 2690 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2688 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2690 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2688 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(1);
-                //#line 2690 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2690 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FormalDeclarator);
                 setResult(l);
@@ -4497,12 +4497,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 299:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
             case 299: {
-               //#line 2697 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2695 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2697 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2695 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(1);
-                //#line 2695 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2695 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2697 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2697 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalDeclarators.add(FormalDeclarator);
                       break;
             }
@@ -4511,10 +4511,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 300:  FieldDeclarators ::= FieldDeclarator
             //
             case 300: {
-               //#line 2704 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2702 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2704 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2702 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(1);
-                //#line 2704 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2704 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FieldDeclarator);
                 setResult(l);
@@ -4525,12 +4525,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 301:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
             case 301: {
-               //#line 2711 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2709 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2711 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2709 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(1);
-                //#line 2709 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2709 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(3);
-                //#line 2711 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2711 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldDeclarators.add(FieldDeclarator);
                 // setResult(FieldDeclarators);
                       break;
@@ -4540,10 +4540,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 302:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
             //
             case 302: {
-               //#line 2719 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2717 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2719 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2717 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(1);
-                //#line 2719 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2719 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclaratorWithType);
                 setResult(l);
@@ -4554,12 +4554,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 303:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
             //
             case 303: {
-               //#line 2726 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2724 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2726 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2724 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(1);
-                //#line 2724 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2724 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(3);
-                //#line 2726 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2726 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclaratorsWithType.add(VariableDeclaratorWithType);
                 // setResult(VariableDeclaratorsWithType);
                       break;
@@ -4569,10 +4569,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 304:  VariableDeclarators ::= VariableDeclarator
             //
             case 304: {
-               //#line 2733 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2731 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2733 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2731 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(1);
-                //#line 2733 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2733 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclarator);
                 setResult(l);
@@ -4583,12 +4583,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 305:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
             case 305: {
-               //#line 2740 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2738 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2740 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2738 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(1);
-                //#line 2738 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2738 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(3);
-                //#line 2740 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2740 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclarators.add(VariableDeclarator);
                 // setResult(VariableDeclarators);
                       break;
@@ -4598,10 +4598,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 307:  FieldModifiers ::= FieldModifier
             //
             case 307: {
-               //#line 2749 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2747 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2749 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2747 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(1);
-                //#line 2749 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2749 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(FieldModifier);
                 setResult(l);
@@ -4612,12 +4612,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 308:  FieldModifiers ::= FieldModifiers FieldModifier
             //
             case 308: {
-               //#line 2756 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2754 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2756 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2754 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifiers = (List) getRhsSym(1);
-                //#line 2754 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2754 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(2);
-                //#line 2756 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2756 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldModifiers.addAll(FieldModifier);
                       break;
             }
@@ -4626,10 +4626,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 309:  FieldModifier ::= Annotation
             //
             case 309: {
-               //#line 2762 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2760 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2762 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2760 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2762 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2762 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
@@ -4638,9 +4638,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 310:  FieldModifier ::= public
             //
             case 310: {
-               //#line 2767 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2767 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2767 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2767 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
@@ -4649,9 +4649,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 311:  FieldModifier ::= protected
             //
             case 311: {
-               //#line 2772 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2772 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2772 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2772 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
@@ -4660,9 +4660,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 312:  FieldModifier ::= private
             //
             case 312: {
-               //#line 2777 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2777 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2777 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2777 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
@@ -4671,9 +4671,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 313:  FieldModifier ::= static
             //
             case 313: {
-               //#line 2782 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2782 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2782 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2782 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
@@ -4682,9 +4682,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 314:  FieldModifier ::= transient
             //
             case 314: {
-               //#line 2787 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2787 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2787 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2787 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.TRANSIENT)));
                       break;
             }
@@ -4693,9 +4693,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 315:  FieldModifier ::= volatile
             //
             case 315: {
-               //#line 2792 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2792 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2792 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2792 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.VOLATILE)));
                       break;
             }
@@ -4704,9 +4704,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 316:  FieldModifier ::= global
             //
             case 316: {
-               //#line 2797 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2797 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2797 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2797 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
                       break;
             }
@@ -4715,34 +4715,58 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 317:  ResultType ::= : Type
             //
             case 317: {
-               //#line 2803 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2801 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2803 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2801 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 2803 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2803 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
     
             //
-            // Rule 318:  FormalParameters ::= ( FormalParameterList )
+            // Rule 318:  HasResultType ::= : Type
             //
             case 318: {
-               //#line 2809 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2807 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2808 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2806 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(2);
+                //#line 2808 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(Type);
+                      break;
+            }
+    
+            //
+            // Rule 319:  HasResultType ::= <: Type
+            //
+            case 319: {
+               //#line 2813 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2811 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode Type = (TypeNode) getRhsSym(2);
+                //#line 2813 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(nf.HasType(Type));
+                      break;
+            }
+    
+            //
+            // Rule 320:  FormalParameters ::= ( FormalParameterList )
+            //
+            case 320: {
+               //#line 2819 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2817 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(2);
-                //#line 2809 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2819 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(FormalParameterList);
                       break;
             }
     
             //
-            // Rule 319:  FormalParameterList ::= FormalParameter
+            // Rule 321:  FormalParameterList ::= FormalParameter
             //
-            case 319: {
-               //#line 2815 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2813 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 321: {
+               //#line 2825 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2823 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 2815 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2825 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -4750,107 +4774,107 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 320:  FormalParameterList ::= FormalParameterList , FormalParameter
+            // Rule 322:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
-            case 320: {
-               //#line 2822 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2820 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 322: {
+               //#line 2832 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2830 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(1);
-                //#line 2820 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2830 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 2822 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2832 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalParameterList.add(FormalParameter);
                       break;
             }
     
             //
-            // Rule 321:  LoopIndexDeclarator ::= Identifier ResultTypeopt
-            //
-            case 321: {
-               //#line 2828 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2826 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 2826 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 2828 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, null });
-                      break;
-            }
-    
-            //
-            // Rule 322:  LoopIndexDeclarator ::= ( IdentifierList ) ResultTypeopt
-            //
-            case 322: {
-               //#line 2833 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2831 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                List IdentifierList = (List) getRhsSym(2);
-                //#line 2831 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 2833 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, null });
-                      break;
-            }
-    
-            //
-            // Rule 323:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt
+            // Rule 323:  LoopIndexDeclarator ::= Identifier HasResultTypeopt
             //
             case 323: {
-               //#line 2838 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2836 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2838 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2836 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2836 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                List IdentifierList = (List) getRhsSym(3);
-                //#line 2836 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 2838 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, null });
+                //#line 2836 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(2);
+                //#line 2838 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 324:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
+            // Rule 324:  LoopIndexDeclarator ::= ( IdentifierList ) HasResultTypeopt
             //
             case 324: {
-               //#line 2844 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2842 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2842 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
-                //#line 2844 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-            Formal f;
-                        	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
-            Object[] o = LoopIndexDeclarator;
-            Position pos = (Position) o[0];
-            Id name = (Id) o[1];
-            boolean unnamed = name == null;
-            if (name == null) name = nf.Id(pos, Name.makeFresh());
-               List exploded = (List) o[2];
-                        DepParameterExpr guard = (DepParameterExpr) o[3];
-                        TypeNode type = (TypeNode) o[4];
-                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
-                        List explodedFormals = new ArrayList();
-                        for (Iterator i = exploded.iterator(); i.hasNext(); ) {
-                        	Id id = (Id) i.next();
-                        	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
-                        }
-            f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
-            f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
-            setResult(f);
+               //#line 2843 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2841 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                List IdentifierList = (List) getRhsSym(2);
+                //#line 2841 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(4);
+                //#line 2843 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), null, IdentifierList, null, HasResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 325:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
+            // Rule 325:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) HasResultTypeopt
             //
             case 325: {
-               //#line 2867 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2865 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 2848 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2846 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 2846 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                List IdentifierList = (List) getRhsSym(3);
+                //#line 2846 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(5);
+                //#line 2848 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultTypeopt, null });
+                      break;
+            }
+    
+            //
+            // Rule 326:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
+            //
+            case 326: {
+               //#line 2854 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2852 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2865 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2852 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
+                //#line 2854 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+            Formal f;
+                        	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
+            Object[] o = LoopIndexDeclarator;
+            Position pos = (Position) o[0];
+            Id name = (Id) o[1];
+            boolean unnamed = name == null;
+            if (name == null) name = nf.Id(pos, Name.makeFresh());
+               List exploded = (List) o[2];
+                        DepParameterExpr guard = (DepParameterExpr) o[3];
+                        TypeNode type = (TypeNode) o[4];
+                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+                        List explodedFormals = new ArrayList();
+                        for (Iterator i = exploded.iterator(); i.hasNext(); ) {
+                        	Id id = (Id) i.next();
+                        	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
+                        }
+            f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
+            f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+            setResult(f);
+                      break;
+            }
+    
+            //
+            // Rule 327:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
+            //
+            case 327: {
+               //#line 2877 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2875 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                List VariableModifiersopt = (List) getRhsSym(1);
+                //#line 2875 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2865 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2875 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(3);
-                //#line 2867 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2877 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = LoopIndexDeclarator;
@@ -4874,15 +4898,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 326:  FormalParameter ::= VariableModifiersopt FormalDeclarator
+            // Rule 328:  FormalParameter ::= VariableModifiersopt FormalDeclarator
             //
-            case 326: {
-               //#line 2891 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2889 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 328: {
+               //#line 2901 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2899 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2889 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2899 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(2);
-                //#line 2891 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2901 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
             Object[] o = FormalDeclarator;
@@ -4907,17 +4931,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 327:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
+            // Rule 329:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
             //
-            case 327: {
-               //#line 2915 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2913 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 329: {
+               //#line 2925 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2923 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2913 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2923 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2913 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2923 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2915 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2925 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = FormalDeclarator;
@@ -4942,13 +4966,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 328:  FormalParameter ::= Type
+            // Rule 330:  FormalParameter ::= Type
             //
-            case 328: {
-               //#line 2939 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2937 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 330: {
+               //#line 2949 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2947 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2939 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2949 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
             f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh("id$")), Collections.EMPTY_LIST, true);
             setResult(f);
@@ -4956,13 +4980,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 329:  VariableModifiers ::= VariableModifier
+            // Rule 331:  VariableModifiers ::= VariableModifier
             //
-            case 329: {
-               //#line 2947 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2945 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 331: {
+               //#line 2957 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(1);
-                //#line 2947 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2957 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(VariableModifier);
                 setResult(l);
@@ -4970,50 +4994,50 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 330:  VariableModifiers ::= VariableModifiers VariableModifier
+            // Rule 332:  VariableModifiers ::= VariableModifiers VariableModifier
             //
-            case 330: {
-               //#line 2954 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2952 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 332: {
+               //#line 2964 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2962 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiers = (List) getRhsSym(1);
-                //#line 2952 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2962 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(2);
-                //#line 2954 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2964 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableModifiers.addAll(VariableModifier);
                       break;
             }
     
             //
-            // Rule 331:  VariableModifier ::= Annotation
+            // Rule 333:  VariableModifier ::= Annotation
             //
-            case 331: {
-               //#line 2960 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2958 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 333: {
+               //#line 2970 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2968 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2960 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2970 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 332:  VariableModifier ::= shared
+            // Rule 334:  VariableModifier ::= shared
             //
-            case 332: {
-               //#line 2965 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 334: {
+               //#line 2975 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2965 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2975 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SHARED)));
                       break;
             }
     
             //
-            // Rule 333:  MethodModifiers ::= MethodModifier
+            // Rule 335:  MethodModifiers ::= MethodModifier
             //
-            case 333: {
-               //#line 2974 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2972 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 335: {
+               //#line 2984 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2982 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(1);
-                //#line 2974 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2984 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(MethodModifier);
                 setResult(l);
@@ -5021,238 +5045,238 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 334:  MethodModifiers ::= MethodModifiers MethodModifier
+            // Rule 336:  MethodModifiers ::= MethodModifiers MethodModifier
             //
-            case 334: {
-               //#line 2981 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2979 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 336: {
+               //#line 2991 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2989 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiers = (List) getRhsSym(1);
-                //#line 2979 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2989 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(2);
-                //#line 2981 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2991 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 MethodModifiers.addAll(MethodModifier);
                       break;
             }
     
             //
-            // Rule 335:  MethodModifier ::= Annotation
+            // Rule 337:  MethodModifier ::= Annotation
             //
-            case 335: {
-               //#line 2987 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2985 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 337: {
+               //#line 2997 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2995 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2987 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2997 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 336:  MethodModifier ::= public
+            // Rule 338:  MethodModifier ::= public
             //
-            case 336: {
-               //#line 2992 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 338: {
+               //#line 3002 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2992 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3002 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 337:  MethodModifier ::= protected
+            // Rule 339:  MethodModifier ::= protected
             //
-            case 337: {
-               //#line 2997 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 339: {
+               //#line 3007 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2997 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3007 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 338:  MethodModifier ::= private
+            // Rule 340:  MethodModifier ::= private
             //
-            case 338: {
-               //#line 3002 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 340: {
+               //#line 3012 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3002 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3012 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 339:  MethodModifier ::= abstract
+            // Rule 341:  MethodModifier ::= abstract
             //
-            case 339: {
-               //#line 3007 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 341: {
+               //#line 3017 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3007 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3017 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
     
             //
-            // Rule 340:  MethodModifier ::= static
+            // Rule 342:  MethodModifier ::= static
             //
-            case 340: {
-               //#line 3012 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 342: {
+               //#line 3022 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3012 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3022 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 341:  MethodModifier ::= final
+            // Rule 343:  MethodModifier ::= final
             //
-            case 341: {
-               //#line 3017 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 343: {
+               //#line 3027 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3017 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3027 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 342:  MethodModifier ::= native
+            // Rule 344:  MethodModifier ::= native
             //
-            case 342: {
-               //#line 3022 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 344: {
+               //#line 3032 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3022 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3032 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                       break;
             }
     
             //
-            // Rule 343:  MethodModifier ::= strictfp
+            // Rule 345:  MethodModifier ::= strictfp
             //
-            case 343: {
-               //#line 3027 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 345: {
+               //#line 3037 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3027 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3037 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                       break;
             }
     
             //
-            // Rule 344:  MethodModifier ::= atomic
+            // Rule 346:  MethodModifier ::= atomic
             //
-            case 344: {
-               //#line 3032 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 346: {
+               //#line 3042 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3032 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3042 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ATOMIC)));
                       break;
             }
     
             //
-            // Rule 345:  MethodModifier ::= extern
+            // Rule 347:  MethodModifier ::= extern
             //
-            case 345: {
-               //#line 3037 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 347: {
+               //#line 3047 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3037 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3047 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN)));
                       break;
             }
     
             //
-            // Rule 346:  MethodModifier ::= safe
+            // Rule 348:  MethodModifier ::= safe
             //
-            case 346: {
-               //#line 3042 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 348: {
+               //#line 3052 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3042 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3052 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                       break;
             }
     
             //
-            // Rule 347:  MethodModifier ::= sequential
+            // Rule 349:  MethodModifier ::= sequential
             //
-            case 347: {
-               //#line 3047 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 349: {
+               //#line 3057 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3047 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3057 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SEQUENTIAL)));
                       break;
             }
     
             //
-            // Rule 348:  MethodModifier ::= nonblocking
+            // Rule 350:  MethodModifier ::= nonblocking
             //
-            case 348: {
-               //#line 3052 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 350: {
+               //#line 3062 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3052 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3062 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
                       break;
             }
     
             //
-            // Rule 349:  MethodModifier ::= incomplete
+            // Rule 351:  MethodModifier ::= incomplete
             //
-            case 349: {
-               //#line 3057 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 351: {
+               //#line 3067 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3057 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3067 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.INCOMPLETE)));
                       break;
             }
     
             //
-            // Rule 350:  MethodModifier ::= property
+            // Rule 352:  MethodModifier ::= property
             //
-            case 350: {
-               //#line 3062 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 352: {
+               //#line 3072 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3062 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3072 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
                       break;
             }
     
             //
-            // Rule 351:  MethodModifier ::= global
+            // Rule 353:  MethodModifier ::= global
             //
-            case 351: {
-               //#line 3067 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 353: {
+               //#line 3077 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3067 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3077 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
                       break;
             }
     
             //
-            // Rule 352:  MethodModifier ::= proto
+            // Rule 354:  MethodModifier ::= proto
             //
-            case 352: {
-               //#line 3072 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 354: {
+               //#line 3082 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3072 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3082 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROTO)));
                       break;
             }
     
             //
-            // Rule 353:  Throws ::= throws ExceptionTypeList
+            // Rule 355:  Throws ::= throws ExceptionTypeList
             //
-            case 353: {
-               //#line 3079 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3077 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 355: {
+               //#line 3089 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3087 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(2);
-                //#line 3079 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3089 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExceptionTypeList);
                       break;
             }
     
             //
-            // Rule 354:  ExceptionTypeList ::= ExceptionType
+            // Rule 356:  ExceptionTypeList ::= ExceptionType
             //
-            case 354: {
-               //#line 3085 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3083 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 356: {
+               //#line 3095 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3093 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 3085 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3095 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -5260,43 +5284,43 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 355:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
+            // Rule 357:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
-            case 355: {
-               //#line 3092 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3090 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 357: {
+               //#line 3102 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3100 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(1);
-                //#line 3090 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3100 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 3092 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3102 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExceptionTypeList.add(ExceptionType);
                       break;
             }
     
             //
-            // Rule 357:  MethodBody ::= = LastExpression ;
+            // Rule 359:  MethodBody ::= = LastExpression ;
             //
-            case 357: {
-               //#line 3100 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3098 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 359: {
+               //#line 3110 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3108 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(2);
-                //#line 3100 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3110 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), LastExpression));
                       break;
             }
     
             //
-            // Rule 358:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
+            // Rule 360:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
             //
-            case 358: {
-               //#line 3105 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3103 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 360: {
+               //#line 3115 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3113 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(2);
-                //#line 3103 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3113 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(4);
-                //#line 3103 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3113 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(5);
-                //#line 3105 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3115 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -5305,60 +5329,60 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 359:  MethodBody ::= = Annotationsopt Block
+            // Rule 361:  MethodBody ::= = Annotationsopt Block
             //
-            case 359: {
-               //#line 3113 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3111 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 361: {
+               //#line 3123 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3121 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(2);
-                //#line 3111 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3121 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(3);
-                //#line 3113 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3123 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt));
                       break;
             }
     
             //
-            // Rule 360:  MethodBody ::= Annotationsopt Block
+            // Rule 362:  MethodBody ::= Annotationsopt Block
             //
-            case 360: {
-               //#line 3118 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3116 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 362: {
+               //#line 3128 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3126 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 3116 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3126 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 3118 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3128 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt));
                       break;
             }
     
             //
-            // Rule 361:  MethodBody ::= ;
+            // Rule 363:  MethodBody ::= ;
             //
-            case 361:
+            case 363:
                 setResult(null);
                 break;
 
             //
-            // Rule 362:  SimpleTypeName ::= Identifier
+            // Rule 364:  SimpleTypeName ::= Identifier
             //
-            case 362: {
-               //#line 3138 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3136 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 364: {
+               //#line 3148 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3146 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3138 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3148 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 363:  ConstructorModifiers ::= ConstructorModifier
+            // Rule 365:  ConstructorModifiers ::= ConstructorModifier
             //
-            case 363: {
-               //#line 3144 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3142 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 365: {
+               //#line 3154 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3152 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(1);
-                //#line 3144 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3154 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(ConstructorModifier);
                 setResult(l);
@@ -5366,107 +5390,107 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 364:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
+            // Rule 366:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
-            case 364: {
-               //#line 3151 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3149 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 366: {
+               //#line 3161 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifiers = (List) getRhsSym(1);
-                //#line 3149 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3159 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(2);
-                //#line 3151 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3161 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ConstructorModifiers.addAll(ConstructorModifier);
                       break;
             }
     
             //
-            // Rule 365:  ConstructorModifier ::= Annotation
+            // Rule 367:  ConstructorModifier ::= Annotation
             //
-            case 365: {
-               //#line 3157 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3155 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 367: {
+               //#line 3167 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3165 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3157 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3167 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 366:  ConstructorModifier ::= public
+            // Rule 368:  ConstructorModifier ::= public
             //
-            case 366: {
-               //#line 3162 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 368: {
+               //#line 3172 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3162 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3172 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 367:  ConstructorModifier ::= protected
+            // Rule 369:  ConstructorModifier ::= protected
             //
-            case 367: {
-               //#line 3167 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 369: {
+               //#line 3177 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3167 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3177 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 368:  ConstructorModifier ::= private
+            // Rule 370:  ConstructorModifier ::= private
             //
-            case 368: {
-               //#line 3172 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 370: {
+               //#line 3182 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3172 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3182 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 369:  ConstructorModifier ::= native
+            // Rule 371:  ConstructorModifier ::= native
             //
-            case 369: {
-               //#line 3177 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 371: {
+               //#line 3187 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3177 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3187 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                       break;
             }
     
             //
-            // Rule 370:  ConstructorBody ::= = ConstructorBlock
-            //
-            case 370: {
-               //#line 3183 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3181 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Block ConstructorBlock = (Block) getRhsSym(2);
-                //#line 3183 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(ConstructorBlock);
-                      break;
-            }
-    
-            //
-            // Rule 371:  ConstructorBody ::= ConstructorBlock
-            //
-            case 371: {
-               //#line 3188 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3186 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Block ConstructorBlock = (Block) getRhsSym(1);
-                //#line 3188 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(ConstructorBlock);
-                      break;
-            }
-    
-            //
-            // Rule 372:  ConstructorBody ::= = ExplicitConstructorInvocation
+            // Rule 372:  ConstructorBody ::= = ConstructorBlock
             //
             case 372: {
-               //#line 3193 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3191 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 3193 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3191 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Block ConstructorBlock = (Block) getRhsSym(2);
+                //#line 3193 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(ConstructorBlock);
+                      break;
+            }
+    
+            //
+            // Rule 373:  ConstructorBody ::= ConstructorBlock
+            //
+            case 373: {
+               //#line 3198 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3196 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Block ConstructorBlock = (Block) getRhsSym(1);
+                //#line 3198 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(ConstructorBlock);
+                      break;
+            }
+    
+            //
+            // Rule 374:  ConstructorBody ::= = ExplicitConstructorInvocation
+            //
+            case 374: {
+               //#line 3203 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3201 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(2);
-                //#line 3193 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3203 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(ExplicitConstructorInvocation);
@@ -5475,13 +5499,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 373:  ConstructorBody ::= = AssignPropertyCall
+            // Rule 375:  ConstructorBody ::= = AssignPropertyCall
             //
-            case 373: {
-               //#line 3201 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3199 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 375: {
+               //#line 3211 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3209 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt AssignPropertyCall = (Stmt) getRhsSym(2);
-                //#line 3201 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3211 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
@@ -5491,22 +5515,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 374:  ConstructorBody ::= ;
+            // Rule 376:  ConstructorBody ::= ;
             //
-            case 374:
+            case 376:
                 setResult(null);
                 break;
 
             //
-            // Rule 375:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+            // Rule 377:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
-            case 375: {
-               //#line 3213 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3211 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 377: {
+               //#line 3223 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3221 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 3211 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3221 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 3213 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3223 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 if (ExplicitConstructorInvocationopt == null)
@@ -5523,25 +5547,25 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 376:  Arguments ::= ( ArgumentListopt )
+            // Rule 378:  Arguments ::= ( ArgumentListopt )
             //
-            case 376: {
-               //#line 3230 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3228 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 378: {
+               //#line 3240 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3238 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 3230 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3240 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ArgumentListopt);
                       break;
             }
     
             //
-            // Rule 378:  InterfaceModifiers ::= InterfaceModifier
+            // Rule 380:  InterfaceModifiers ::= InterfaceModifier
             //
-            case 378: {
-               //#line 3240 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3238 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 380: {
+               //#line 3250 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3248 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(1);
-                //#line 3240 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3250 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(InterfaceModifier);
                 setResult(l);
@@ -5549,105 +5573,105 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 379:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
+            // Rule 381:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
-            case 379: {
-               //#line 3247 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3245 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 381: {
+               //#line 3257 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3255 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifiers = (List) getRhsSym(1);
-                //#line 3245 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3255 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(2);
-                //#line 3247 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3257 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceModifiers.addAll(InterfaceModifier);
                       break;
             }
     
             //
-            // Rule 380:  InterfaceModifier ::= Annotation
+            // Rule 382:  InterfaceModifier ::= Annotation
             //
-            case 380: {
-               //#line 3253 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3251 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 382: {
+               //#line 3263 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3261 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3253 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3263 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 381:  InterfaceModifier ::= public
+            // Rule 383:  InterfaceModifier ::= public
             //
-            case 381: {
-               //#line 3258 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 383: {
+               //#line 3268 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3258 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3268 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 382:  InterfaceModifier ::= protected
+            // Rule 384:  InterfaceModifier ::= protected
             //
-            case 382: {
-               //#line 3263 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 384: {
+               //#line 3273 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3263 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3273 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 383:  InterfaceModifier ::= private
+            // Rule 385:  InterfaceModifier ::= private
             //
-            case 383: {
-               //#line 3268 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 385: {
+               //#line 3278 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3268 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3278 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 384:  InterfaceModifier ::= abstract
+            // Rule 386:  InterfaceModifier ::= abstract
             //
-            case 384: {
-               //#line 3273 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 386: {
+               //#line 3283 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3273 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3283 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
     
             //
-            // Rule 385:  InterfaceModifier ::= static
+            // Rule 387:  InterfaceModifier ::= static
             //
-            case 385: {
-               //#line 3278 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 387: {
+               //#line 3288 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3278 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3288 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 386:  InterfaceModifier ::= strictfp
+            // Rule 388:  InterfaceModifier ::= strictfp
             //
-            case 386: {
-               //#line 3283 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 388: {
+               //#line 3293 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3283 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3293 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                       break;
             }
     
             //
-            // Rule 387:  ExtendsInterfaces ::= extends Type
+            // Rule 389:  ExtendsInterfaces ::= extends Type
             //
-            case 387: {
-               //#line 3289 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3287 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 389: {
+               //#line 3299 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3297 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 3289 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3299 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -5655,54 +5679,54 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 388:  ExtendsInterfaces ::= ExtendsInterfaces , Type
+            // Rule 390:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
-            case 388: {
-               //#line 3296 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3294 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 390: {
+               //#line 3306 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3304 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ExtendsInterfaces = (List) getRhsSym(1);
-                //#line 3294 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3304 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3296 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3306 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExtendsInterfaces.add(Type);
                       break;
             }
     
             //
-            // Rule 389:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+            // Rule 391:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
-            case 389: {
-               //#line 3305 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3303 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 391: {
+               //#line 3315 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3313 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
-                //#line 3305 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3315 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                       break;
             }
     
             //
-            // Rule 391:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
+            // Rule 393:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
-            case 391: {
-               //#line 3312 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3310 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 393: {
+               //#line 3322 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3320 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
-                //#line 3310 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3320 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
-                //#line 3312 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3322 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                       break;
             }
     
             //
-            // Rule 392:  InterfaceMemberDeclaration ::= MethodDeclaration
+            // Rule 394:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
-            case 392: {
-               //#line 3319 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3317 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 394: {
+               //#line 3329 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3327 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3319 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3329 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -5710,13 +5734,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 393:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 395:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 393: {
-               //#line 3326 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3324 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 395: {
+               //#line 3336 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3334 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3326 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3336 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -5724,13 +5748,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 394:  InterfaceMemberDeclaration ::= FieldDeclaration
+            // Rule 396:  InterfaceMemberDeclaration ::= FieldDeclaration
             //
-            case 394: {
-               //#line 3333 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3331 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 396: {
+               //#line 3343 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3341 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclaration = (List) getRhsSym(1);
-                //#line 3333 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3343 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.addAll(FieldDeclaration);
                 setResult(l);
@@ -5738,13 +5762,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 395:  InterfaceMemberDeclaration ::= ClassDeclaration
+            // Rule 397:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
-            case 395: {
-               //#line 3340 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3338 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 397: {
+               //#line 3350 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3348 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3340 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3350 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -5752,13 +5776,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 396:  InterfaceMemberDeclaration ::= InterfaceDeclaration
+            // Rule 398:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
-            case 396: {
-               //#line 3347 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3345 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 398: {
+               //#line 3357 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3355 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3347 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3357 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -5766,13 +5790,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 397:  InterfaceMemberDeclaration ::= TypeDefDeclaration
+            // Rule 399:  InterfaceMemberDeclaration ::= TypeDefDeclaration
             //
-            case 397: {
-               //#line 3354 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3352 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 399: {
+               //#line 3364 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3362 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3354 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3364 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -5780,24 +5804,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 398:  InterfaceMemberDeclaration ::= ;
+            // Rule 400:  InterfaceMemberDeclaration ::= ;
             //
-            case 398: {
-               //#line 3361 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 400: {
+               //#line 3371 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3361 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3371 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 399:  Annotations ::= Annotation
+            // Rule 401:  Annotations ::= Annotation
             //
-            case 399: {
-               //#line 3367 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3365 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 401: {
+               //#line 3377 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3375 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3367 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3377 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), AnnotationNode.class, false);
                 l.add(Annotation);
                 setResult(l);
@@ -5805,63 +5829,63 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 400:  Annotations ::= Annotations Annotation
+            // Rule 402:  Annotations ::= Annotations Annotation
             //
-            case 400: {
-               //#line 3374 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3372 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 402: {
+               //#line 3384 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3382 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 3372 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3382 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(2);
-                //#line 3374 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3384 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Annotations.add(Annotation);
                       break;
             }
     
             //
-            // Rule 401:  Annotation ::= @ NamedType
+            // Rule 403:  Annotation ::= @ NamedType
             //
-            case 401: {
-               //#line 3380 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3378 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 403: {
+               //#line 3390 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3388 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode NamedType = (TypeNode) getRhsSym(2);
-                //#line 3380 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3390 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AnnotationNode(pos(), NamedType));
                       break;
             }
     
             //
-            // Rule 402:  SimpleName ::= Identifier
+            // Rule 404:  SimpleName ::= Identifier
             //
-            case 402: {
-               //#line 3386 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3384 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 404: {
+               //#line 3396 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3394 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3386 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3396 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 403:  Identifier ::= identifier
+            // Rule 405:  Identifier ::= identifier
             //
-            case 403: {
-               //#line 3392 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3390 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 405: {
+               //#line 3402 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3400 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 3392 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3402 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult( nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                       break;
             }
     
             //
-            // Rule 404:  VariableInitializers ::= VariableInitializer
+            // Rule 406:  VariableInitializers ::= VariableInitializer
             //
-            case 404: {
-               //#line 3400 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3398 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 406: {
+               //#line 3410 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3408 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
-                //#line 3400 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3410 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
                 setResult(l);
@@ -5869,40 +5893,40 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 405:  VariableInitializers ::= VariableInitializers , VariableInitializer
+            // Rule 407:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
-            case 405: {
-               //#line 3407 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3405 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 407: {
+               //#line 3417 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3415 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableInitializers = (List) getRhsSym(1);
-                //#line 3405 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3415 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 3407 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3417 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableInitializers.add(VariableInitializer);
                 //setResult(VariableInitializers);
                       break;
             }
     
             //
-            // Rule 406:  Block ::= { BlockStatementsopt }
+            // Rule 408:  Block ::= { BlockStatementsopt }
             //
-            case 406: {
-               //#line 3425 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3423 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 408: {
+               //#line 3435 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3433 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 3425 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3435 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                       break;
             }
     
             //
-            // Rule 407:  BlockStatements ::= BlockStatement
+            // Rule 409:  BlockStatements ::= BlockStatement
             //
-            case 407: {
-               //#line 3431 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3429 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 409: {
+               //#line 3441 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3439 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(1);
-                //#line 3431 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3441 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -5910,28 +5934,28 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 408:  BlockStatements ::= BlockStatements BlockStatement
+            // Rule 410:  BlockStatements ::= BlockStatements BlockStatement
             //
-            case 408: {
-               //#line 3438 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3436 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 410: {
+               //#line 3448 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3446 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(1);
-                //#line 3436 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3446 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(2);
-                //#line 3438 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3448 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                       break;
             }
     
             //
-            // Rule 410:  BlockStatement ::= ClassDeclaration
+            // Rule 412:  BlockStatement ::= ClassDeclaration
             //
-            case 410: {
-               //#line 3446 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3444 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 412: {
+               //#line 3456 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3454 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3446 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3456 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -5939,13 +5963,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 411:  BlockStatement ::= TypeDefDeclaration
+            // Rule 413:  BlockStatement ::= TypeDefDeclaration
             //
-            case 411: {
-               //#line 3453 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3451 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 413: {
+               //#line 3463 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3461 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3453 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3463 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalTypeDef(pos(), TypeDefDeclaration));
                 setResult(l);
@@ -5953,13 +5977,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 412:  BlockStatement ::= Statement
+            // Rule 414:  BlockStatement ::= Statement
             //
-            case 412: {
-               //#line 3460 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3458 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 414: {
+               //#line 3470 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3468 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 3460 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3470 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -5967,13 +5991,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 413:  IdentifierList ::= Identifier
+            // Rule 415:  IdentifierList ::= Identifier
             //
-            case 413: {
-               //#line 3468 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3466 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 415: {
+               //#line 3478 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3476 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3468 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3478 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Id.class, false);
                 l.add(Identifier);
                 setResult(l);
@@ -5981,205 +6005,205 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 414:  IdentifierList ::= IdentifierList , Identifier
+            // Rule 416:  IdentifierList ::= IdentifierList , Identifier
             //
-            case 414: {
-               //#line 3475 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3473 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 416: {
+               //#line 3485 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3483 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
-                //#line 3473 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3483 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3475 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3485 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 IdentifierList.add(Identifier);
                       break;
             }
     
             //
-            // Rule 415:  FormalDeclarator ::= Identifier ResultType
+            // Rule 417:  FormalDeclarator ::= Identifier ResultType
             //
-            case 415: {
-               //#line 3481 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3479 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 417: {
+               //#line 3491 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3489 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3479 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3489 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 3481 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3491 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, null });
                       break;
             }
     
             //
-            // Rule 416:  FormalDeclarator ::= ( IdentifierList ) ResultType
+            // Rule 418:  FormalDeclarator ::= ( IdentifierList ) ResultType
             //
-            case 416: {
-               //#line 3486 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3484 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 418: {
+               //#line 3496 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3494 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3484 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3494 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(4);
-                //#line 3486 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3496 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, null });
                       break;
             }
     
             //
-            // Rule 417:  FormalDeclarator ::= Identifier ( IdentifierList ) ResultType
+            // Rule 419:  FormalDeclarator ::= Identifier ( IdentifierList ) ResultType
             //
-            case 417: {
-               //#line 3491 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3489 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 419: {
+               //#line 3501 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3499 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3489 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3499 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3489 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3499 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(5);
-                //#line 3491 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3501 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, null });
                       break;
             }
     
             //
-            // Rule 418:  FieldDeclarator ::= Identifier ResultType
-            //
-            case 418: {
-               //#line 3497 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3495 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 3495 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 3497 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, ResultType, null });
-                      break;
-            }
-    
-            //
-            // Rule 419:  FieldDeclarator ::= Identifier ResultTypeopt = VariableInitializer
-            //
-            case 419: {
-               //#line 3502 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3500 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 3500 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3500 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3502 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, ResultTypeopt, VariableInitializer });
-                      break;
-            }
-    
-            //
-            // Rule 420:  VariableDeclarator ::= Identifier ResultTypeopt = VariableInitializer
+            // Rule 420:  FieldDeclarator ::= Identifier HasResultType
             //
             case 420: {
-               //#line 3508 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3506 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 3507 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3505 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3506 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3506 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3508 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, VariableInitializer });
+                //#line 3505 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultType = (TypeNode) getRhsSym(2);
+                //#line 3507 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, HasResultType, null });
                       break;
             }
     
             //
-            // Rule 421:  VariableDeclarator ::= ( IdentifierList ) ResultTypeopt = VariableInitializer
+            // Rule 421:  FieldDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
             case 421: {
-               //#line 3513 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3511 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                List IdentifierList = (List) getRhsSym(2);
-                //#line 3511 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 3511 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3513 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, VariableInitializer });
+               //#line 3512 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3510 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 3510 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(2);
+                //#line 3510 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Expr VariableInitializer = (Expr) getRhsSym(4);
+                //#line 3512 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 422:  VariableDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt = VariableInitializer
+            // Rule 422:  VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
             case 422: {
-               //#line 3518 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3516 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 3518 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3516 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3516 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                List IdentifierList = (List) getRhsSym(3);
-                //#line 3516 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 3516 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3518 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, VariableInitializer });
+                //#line 3516 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(2);
+                //#line 3516 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Expr VariableInitializer = (Expr) getRhsSym(4);
+                //#line 3518 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 423:  VariableDeclaratorWithType ::= Identifier ResultType = VariableInitializer
+            // Rule 423:  VariableDeclarator ::= ( IdentifierList ) HasResultTypeopt = VariableInitializer
             //
             case 423: {
-               //#line 3524 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3522 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 3522 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 3522 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3524 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, VariableInitializer });
+               //#line 3523 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3521 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                List IdentifierList = (List) getRhsSym(2);
+                //#line 3521 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(4);
+                //#line 3521 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Expr VariableInitializer = (Expr) getRhsSym(6);
+                //#line 3523 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), null, IdentifierList, null, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 424:  VariableDeclaratorWithType ::= ( IdentifierList ) ResultType = VariableInitializer
+            // Rule 424:  VariableDeclarator ::= Identifier ( IdentifierList ) HasResultTypeopt = VariableInitializer
             //
             case 424: {
-               //#line 3529 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3527 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                List IdentifierList = (List) getRhsSym(2);
-                //#line 3527 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultType = (TypeNode) getRhsSym(4);
-                //#line 3527 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3529 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, VariableInitializer });
+               //#line 3528 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3526 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 3526 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                List IdentifierList = (List) getRhsSym(3);
+                //#line 3526 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(5);
+                //#line 3526 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Expr VariableInitializer = (Expr) getRhsSym(7);
+                //#line 3528 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 425:  VariableDeclaratorWithType ::= Identifier ( IdentifierList ) ResultType = VariableInitializer
+            // Rule 425:  VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
             //
             case 425: {
-               //#line 3534 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3532 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 3534 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3532 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3532 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                List IdentifierList = (List) getRhsSym(3);
-                //#line 3532 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultType = (TypeNode) getRhsSym(5);
-                //#line 3532 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3534 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, VariableInitializer });
+                //#line 3532 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultType = (TypeNode) getRhsSym(2);
+                //#line 3532 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Expr VariableInitializer = (Expr) getRhsSym(4);
+                //#line 3534 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultType, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 427:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
+            // Rule 426:  VariableDeclaratorWithType ::= ( IdentifierList ) HasResultType = VariableInitializer
+            //
+            case 426: {
+               //#line 3539 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3537 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                List IdentifierList = (List) getRhsSym(2);
+                //#line 3537 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultType = (TypeNode) getRhsSym(4);
+                //#line 3537 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Expr VariableInitializer = (Expr) getRhsSym(6);
+                //#line 3539 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), null, IdentifierList, null, HasResultType, VariableInitializer });
+                      break;
+            }
+    
+            //
+            // Rule 427:  VariableDeclaratorWithType ::= Identifier ( IdentifierList ) HasResultType = VariableInitializer
             //
             case 427: {
-               //#line 3542 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3540 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 3544 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3542 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 3542 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                List IdentifierList = (List) getRhsSym(3);
+                //#line 3542 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                TypeNode HasResultType = (TypeNode) getRhsSym(5);
+                //#line 3542 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                Expr VariableInitializer = (Expr) getRhsSym(7);
+                //#line 3544 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultType, VariableInitializer });
+                      break;
+            }
+    
+            //
+            // Rule 429:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
+            //
+            case 429: {
+               //#line 3552 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3550 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3540 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3550 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3540 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3550 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 3542 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3552 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6213,15 +6237,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 428:  LocalVariableDeclaration ::= VariableModifiersopt VariableDeclaratorsWithType
+            // Rule 430:  LocalVariableDeclaration ::= VariableModifiersopt VariableDeclaratorsWithType
             //
-            case 428: {
-               //#line 3575 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3573 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 430: {
+               //#line 3585 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3583 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3573 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3583 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(2);
-                //#line 3575 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3585 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6256,17 +6280,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 429:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
+            // Rule 431:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
             //
-            case 429: {
-               //#line 3609 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3607 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 431: {
+               //#line 3619 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3617 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3607 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3617 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3607 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3617 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(3);
-                //#line 3609 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3619 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6301,13 +6325,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 431:  Primary ::= TypeName . class
+            // Rule 433:  Primary ::= TypeName . class
             //
-            case 431: {
-               //#line 3650 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3648 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 433: {
+               //#line 3660 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3658 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3650 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3660 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (TypeName instanceof ParsedName)
                 {
                     ParsedName a = (ParsedName) TypeName;
@@ -6318,59 +6342,59 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 432:  Primary ::= self
+            // Rule 434:  Primary ::= self
             //
-            case 432: {
-               //#line 3660 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 434: {
+               //#line 3670 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3660 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3670 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Self(pos()));
                       break;
             }
     
             //
-            // Rule 433:  Primary ::= this
+            // Rule 435:  Primary ::= this
             //
-            case 433: {
-               //#line 3665 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 435: {
+               //#line 3675 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3665 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3675 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos()));
                       break;
             }
     
             //
-            // Rule 434:  Primary ::= ClassName . this
+            // Rule 436:  Primary ::= ClassName . this
             //
-            case 434: {
-               //#line 3670 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3668 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 436: {
+               //#line 3680 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3678 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3670 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3680 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                       break;
             }
     
             //
-            // Rule 435:  Primary ::= ( Expression )
+            // Rule 437:  Primary ::= ( Expression )
             //
-            case 435: {
-               //#line 3675 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3673 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 437: {
+               //#line 3685 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3683 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 3675 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3685 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 441:  OperatorFunction ::= TypeName . +
+            // Rule 443:  OperatorFunction ::= TypeName . +
             //
-            case 441: {
-               //#line 3686 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3684 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 443: {
+               //#line 3696 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3694 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3686 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3696 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6382,13 +6406,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 442:  OperatorFunction ::= TypeName . -
+            // Rule 444:  OperatorFunction ::= TypeName . -
             //
-            case 442: {
-               //#line 3697 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3695 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 444: {
+               //#line 3707 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3705 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3697 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3707 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6400,13 +6424,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 443:  OperatorFunction ::= TypeName . *
+            // Rule 445:  OperatorFunction ::= TypeName . *
             //
-            case 443: {
-               //#line 3708 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3706 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 445: {
+               //#line 3718 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3716 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3708 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3718 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6418,13 +6442,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 444:  OperatorFunction ::= TypeName . /
+            // Rule 446:  OperatorFunction ::= TypeName . /
             //
-            case 444: {
-               //#line 3719 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3717 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 446: {
+               //#line 3729 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3727 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3719 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3729 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6436,13 +6460,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 445:  OperatorFunction ::= TypeName . %
+            // Rule 447:  OperatorFunction ::= TypeName . %
             //
-            case 445: {
-               //#line 3730 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3728 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 447: {
+               //#line 3740 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3738 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3730 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3740 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6454,13 +6478,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 446:  OperatorFunction ::= TypeName . &
+            // Rule 448:  OperatorFunction ::= TypeName . &
             //
-            case 446: {
-               //#line 3741 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3739 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 448: {
+               //#line 3751 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3749 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3741 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3751 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6472,13 +6496,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 447:  OperatorFunction ::= TypeName . |
+            // Rule 449:  OperatorFunction ::= TypeName . |
             //
-            case 447: {
-               //#line 3752 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3750 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 449: {
+               //#line 3762 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3760 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3752 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3762 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6490,13 +6514,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 448:  OperatorFunction ::= TypeName . ^
+            // Rule 450:  OperatorFunction ::= TypeName . ^
             //
-            case 448: {
-               //#line 3763 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3761 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 450: {
+               //#line 3773 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3771 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3763 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3773 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6508,13 +6532,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 449:  OperatorFunction ::= TypeName . <<
+            // Rule 451:  OperatorFunction ::= TypeName . <<
             //
-            case 449: {
-               //#line 3774 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3772 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 451: {
+               //#line 3784 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3782 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3774 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3784 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6526,13 +6550,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 450:  OperatorFunction ::= TypeName . >>
+            // Rule 452:  OperatorFunction ::= TypeName . >>
             //
-            case 450: {
-               //#line 3785 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3783 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 452: {
+               //#line 3795 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3793 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3785 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3795 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6544,13 +6568,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 451:  OperatorFunction ::= TypeName . >>>
+            // Rule 453:  OperatorFunction ::= TypeName . >>>
             //
-            case 451: {
-               //#line 3796 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3794 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 453: {
+               //#line 3806 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3804 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3796 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3806 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6562,13 +6586,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 452:  OperatorFunction ::= TypeName . <
+            // Rule 454:  OperatorFunction ::= TypeName . <
             //
-            case 452: {
-               //#line 3807 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3805 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 454: {
+               //#line 3817 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3815 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3807 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3817 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6580,13 +6604,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 453:  OperatorFunction ::= TypeName . <=
+            // Rule 455:  OperatorFunction ::= TypeName . <=
             //
-            case 453: {
-               //#line 3818 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3816 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 455: {
+               //#line 3828 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3826 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3818 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3828 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6598,13 +6622,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 454:  OperatorFunction ::= TypeName . >=
+            // Rule 456:  OperatorFunction ::= TypeName . >=
             //
-            case 454: {
-               //#line 3829 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3827 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 456: {
+               //#line 3839 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3837 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3829 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3839 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6616,13 +6640,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 455:  OperatorFunction ::= TypeName . >
+            // Rule 457:  OperatorFunction ::= TypeName . >
             //
-            case 455: {
-               //#line 3840 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3838 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 457: {
+               //#line 3850 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3848 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3840 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3850 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6634,13 +6658,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 456:  OperatorFunction ::= TypeName . ==
+            // Rule 458:  OperatorFunction ::= TypeName . ==
             //
-            case 456: {
-               //#line 3851 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3849 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 458: {
+               //#line 3861 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3859 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3851 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3861 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6652,13 +6676,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 457:  OperatorFunction ::= TypeName . !=
+            // Rule 459:  OperatorFunction ::= TypeName . !=
             //
-            case 457: {
-               //#line 3862 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3860 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 459: {
+               //#line 3872 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3870 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3862 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3872 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6670,164 +6694,164 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 458:  Literal ::= IntegerLiteral$lit
+            // Rule 460:  Literal ::= IntegerLiteral$lit
             //
-            case 458: {
-               //#line 3875 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3873 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 460: {
+               //#line 3885 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3883 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3875 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3885 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 459:  Literal ::= LongLiteral$lit
+            // Rule 461:  Literal ::= LongLiteral$lit
             //
-            case 459: {
-               //#line 3881 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3879 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 461: {
+               //#line 3891 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3889 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3881 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3891 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 460:  Literal ::= UnsignedIntegerLiteral$lit
+            // Rule 462:  Literal ::= UnsignedIntegerLiteral$lit
             //
-            case 460: {
-               //#line 3887 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3885 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 462: {
+               //#line 3897 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3895 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3887 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3897 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = uint_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), X10IntLit_c.UINT, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 461:  Literal ::= UnsignedLongLiteral$lit
+            // Rule 463:  Literal ::= UnsignedLongLiteral$lit
             //
-            case 461: {
-               //#line 3893 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3891 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 463: {
+               //#line 3903 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3901 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3893 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3903 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = ulong_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), X10IntLit_c.ULONG, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 462:  Literal ::= FloatingPointLiteral$lit
+            // Rule 464:  Literal ::= FloatingPointLiteral$lit
             //
-            case 462: {
-               //#line 3899 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3897 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 464: {
+               //#line 3909 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3907 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3899 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3909 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                       break;
             }
     
             //
-            // Rule 463:  Literal ::= DoubleLiteral$lit
+            // Rule 465:  Literal ::= DoubleLiteral$lit
             //
-            case 463: {
-               //#line 3905 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3903 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 465: {
+               //#line 3915 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3913 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3905 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3915 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                       break;
             }
     
             //
-            // Rule 464:  Literal ::= BooleanLiteral
+            // Rule 466:  Literal ::= BooleanLiteral
             //
-            case 464: {
-               //#line 3911 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3909 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 466: {
+               //#line 3921 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3919 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 3911 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3921 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                       break;
             }
     
             //
-            // Rule 465:  Literal ::= CharacterLiteral$lit
+            // Rule 467:  Literal ::= CharacterLiteral$lit
             //
-            case 465: {
-               //#line 3916 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3914 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 467: {
+               //#line 3926 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3924 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3916 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3926 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                       break;
             }
     
             //
-            // Rule 466:  Literal ::= StringLiteral$str
+            // Rule 468:  Literal ::= StringLiteral$str
             //
-            case 466: {
-               //#line 3922 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3920 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 468: {
+               //#line 3932 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3930 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 3922 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3932 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                       break;
             }
     
             //
-            // Rule 467:  Literal ::= null
+            // Rule 469:  Literal ::= null
             //
-            case 467: {
-               //#line 3928 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 469: {
+               //#line 3938 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3928 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3938 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.NullLit(pos()));
                       break;
             }
     
             //
-            // Rule 468:  BooleanLiteral ::= true$trueLiteral
-            //
-            case 468: {
-               //#line 3934 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3932 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 3934 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(boolean_lit(getRhsFirstTokenIndex(1)));
-                      break;
-            }
-    
-            //
-            // Rule 469:  BooleanLiteral ::= false$falseLiteral
-            //
-            case 469: {
-               //#line 3939 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3937 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
-                IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 3939 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(boolean_lit(getRhsFirstTokenIndex(1)));
-                      break;
-            }
-    
-            //
-            // Rule 470:  ArgumentList ::= Expression
+            // Rule 470:  BooleanLiteral ::= true$trueLiteral
             //
             case 470: {
-               //#line 3948 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3946 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+               //#line 3944 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3942 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                IToken trueLiteral = (IToken) getRhsIToken(1);
+                //#line 3944 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(boolean_lit(getRhsFirstTokenIndex(1)));
+                      break;
+            }
+    
+            //
+            // Rule 471:  BooleanLiteral ::= false$falseLiteral
+            //
+            case 471: {
+               //#line 3949 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3947 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
+                IToken falseLiteral = (IToken) getRhsIToken(1);
+                //#line 3949 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(boolean_lit(getRhsFirstTokenIndex(1)));
+                      break;
+            }
+    
+            //
+            // Rule 472:  ArgumentList ::= Expression
+            //
+            case 472: {
+               //#line 3958 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3956 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 3948 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3958 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -6835,115 +6859,115 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 471:  ArgumentList ::= ArgumentList , Expression
+            // Rule 473:  ArgumentList ::= ArgumentList , Expression
             //
-            case 471: {
-               //#line 3955 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3953 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 473: {
+               //#line 3965 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3963 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 3953 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3963 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 3955 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3965 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ArgumentList.add(Expression);
                       break;
             }
     
             //
-            // Rule 472:  FieldAccess ::= Primary . Identifier
+            // Rule 474:  FieldAccess ::= Primary . Identifier
             //
-            case 472: {
-               //#line 3961 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3959 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 474: {
+               //#line 3971 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3969 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3959 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3969 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3961 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3971 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, Identifier));
                       break;
             }
     
             //
-            // Rule 473:  FieldAccess ::= super . Identifier
+            // Rule 475:  FieldAccess ::= super . Identifier
             //
-            case 473: {
-               //#line 3966 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3964 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 475: {
+               //#line 3976 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3974 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3966 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3976 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
                       break;
             }
     
             //
-            // Rule 474:  FieldAccess ::= ClassName . super$sup . Identifier
+            // Rule 476:  FieldAccess ::= ClassName . super$sup . Identifier
             //
-            case 474: {
-               //#line 3971 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3969 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 476: {
+               //#line 3981 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3979 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3969 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3979 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3969 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3979 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3971 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3981 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                       break;
             }
     
             //
-            // Rule 475:  FieldAccess ::= Primary . class$c
+            // Rule 477:  FieldAccess ::= Primary . class$c
             //
-            case 475: {
-               //#line 3976 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3974 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 477: {
+               //#line 3986 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3984 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3974 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3984 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 3976 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3986 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
     
             //
-            // Rule 476:  FieldAccess ::= super . class$c
+            // Rule 478:  FieldAccess ::= super . class$c
             //
-            case 476: {
-               //#line 3981 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3979 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 478: {
+               //#line 3991 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3989 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 3981 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3991 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
     
             //
-            // Rule 477:  FieldAccess ::= ClassName . super$sup . class$c
+            // Rule 479:  FieldAccess ::= ClassName . super$sup . class$c
             //
-            case 477: {
-               //#line 3986 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3984 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 479: {
+               //#line 3996 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3994 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3984 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3994 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3984 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3994 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
-                //#line 3986 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3996 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
                       break;
             }
     
             //
-            // Rule 478:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
+            // Rule 480:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
-            case 478: {
-               //#line 3992 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3990 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 480: {
+               //#line 4002 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4000 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3990 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4000 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3990 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4000 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3992 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4002 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt));
@@ -6951,71 +6975,71 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 479:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 481:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 479: {
-               //#line 3999 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3997 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 481: {
+               //#line 4009 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4007 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3997 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4007 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3997 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4007 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3997 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4007 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3999 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4009 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 480:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 482:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 480: {
-               //#line 4004 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 482: {
+               //#line 4014 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4012 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 4002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4012 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 4002 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4012 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 4004 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4014 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 481:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 483:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 481: {
-               //#line 4009 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4007 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 483: {
+               //#line 4019 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4017 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 4007 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4017 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 4007 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4017 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 4007 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4017 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(6);
-                //#line 4007 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4017 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(8);
-                //#line 4009 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4019 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 482:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
+            // Rule 484:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
-            case 482: {
-               //#line 4014 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4012 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 484: {
+               //#line 4024 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4022 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 4012 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4022 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 4012 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4022 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 4014 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4024 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (Primary instanceof Field) {
                     Field f = (Field) Primary;
                     setResult(nf.X10Call(pos(), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt));
@@ -7035,15 +7059,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 483:  MethodSelection ::= MethodName . ( FormalParameterListopt )
+            // Rule 485:  MethodSelection ::= MethodName . ( FormalParameterListopt )
             //
-            case 483: {
-               //#line 4034 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4032 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 485: {
+               //#line 4044 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4042 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 4032 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4042 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(4);
-                //#line 4034 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4044 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7057,17 +7081,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 484:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
+            // Rule 486:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
             //
-            case 484: {
-               //#line 4047 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4045 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 486: {
+               //#line 4057 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4055 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 4045 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4055 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 4045 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4055 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(6);
-                //#line 4047 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4057 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                  List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7080,15 +7104,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 485:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
+            // Rule 487:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
             //
-            case 485: {
-               //#line 4059 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4057 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 487: {
+               //#line 4069 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4067 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 4057 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4067 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(6);
-                //#line 4059 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4069 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7101,19 +7125,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 486:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
+            // Rule 488:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
             //
-            case 486: {
-               //#line 4071 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4069 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 488: {
+               //#line 4081 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4079 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 4069 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4079 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 4069 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4079 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 4069 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4079 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(8);
-                //#line 4071 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4081 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7127,111 +7151,111 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 488:  PostfixExpression ::= ExpressionName
+            // Rule 490:  PostfixExpression ::= ExpressionName
             //
-            case 488: {
-               //#line 4086 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4084 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 490: {
+               //#line 4096 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4094 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 4086 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4096 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
                       break;
             }
     
             //
-            // Rule 491:  PostIncrementExpression ::= PostfixExpression ++
+            // Rule 493:  PostIncrementExpression ::= PostfixExpression ++
             //
-            case 491: {
-               //#line 4094 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4092 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 493: {
+               //#line 4104 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4102 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 4094 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4104 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                       break;
             }
     
             //
-            // Rule 492:  PostDecrementExpression ::= PostfixExpression --
+            // Rule 494:  PostDecrementExpression ::= PostfixExpression --
             //
-            case 492: {
-               //#line 4100 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4098 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 494: {
+               //#line 4110 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4108 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 4100 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4110 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                       break;
             }
     
             //
-            // Rule 495:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
+            // Rule 497:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
             //
-            case 495: {
-               //#line 4108 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4106 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 497: {
+               //#line 4118 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4116 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4108 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4118 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 496:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
+            // Rule 498:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
             //
-            case 496: {
-               //#line 4113 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4111 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 498: {
+               //#line 4123 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4121 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4113 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4123 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 498:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
+            // Rule 500:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
-            case 498: {
-               //#line 4120 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4118 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 500: {
+               //#line 4130 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4128 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4120 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4130 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 499:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
+            // Rule 501:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
-            case 499: {
-               //#line 4126 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4124 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 501: {
+               //#line 4136 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4134 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4126 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4136 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 501:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
+            // Rule 503:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
-            case 501: {
-               //#line 4133 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4131 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 503: {
+               //#line 4143 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4141 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4133 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4143 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 502:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
+            // Rule 504:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
             //
-            case 502: {
-               //#line 4138 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4136 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 504: {
+               //#line 4148 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4146 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 4136 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4146 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4138 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4148 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr e = UnaryExpression;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e);
@@ -7239,1185 +7263,1192 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 503:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
+            // Rule 505:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
-            case 503: {
-               //#line 4145 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4143 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 505: {
+               //#line 4155 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4153 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4145 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4155 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 505:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
+            // Rule 507:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
-            case 505: {
-               //#line 4152 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4150 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 507: {
+               //#line 4162 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4160 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4150 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4160 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4152 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4162 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 506:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
+            // Rule 508:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
-            case 506: {
-               //#line 4157 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4155 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 508: {
+               //#line 4167 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4165 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4155 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4165 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4157 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4167 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 507:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
+            // Rule 509:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
-            case 507: {
-               //#line 4162 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4160 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 509: {
+               //#line 4172 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4170 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4160 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4170 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4162 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4172 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 509:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
+            // Rule 511:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
-            case 509: {
-               //#line 4169 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4167 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 511: {
+               //#line 4179 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4177 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4167 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4177 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 4169 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4179 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                       break;
             }
     
             //
-            // Rule 510:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
+            // Rule 512:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
-            case 510: {
-               //#line 4174 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4172 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 512: {
+               //#line 4184 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4182 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4172 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4182 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 4174 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4184 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                       break;
             }
     
             //
-            // Rule 512:  ShiftExpression ::= ShiftExpression << AdditiveExpression
+            // Rule 514:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
-            case 512: {
-               //#line 4181 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4179 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 514: {
+               //#line 4191 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4189 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4179 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4189 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4181 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4191 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 513:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
+            // Rule 515:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
-            case 513: {
-               //#line 4186 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4184 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 515: {
+               //#line 4196 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4194 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4184 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4194 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4186 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4196 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 514:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
+            // Rule 516:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
-            case 514: {
-               //#line 4191 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4189 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 516: {
+               //#line 4201 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4199 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4189 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4199 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4191 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4201 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 516:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
+            // Rule 518:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
             //
-            case 516: {
-               //#line 4198 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4196 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 518: {
+               //#line 4208 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4206 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 4196 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4206 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 4198 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4208 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
                 setResult(regionCall);
                       break;
             }
     
             //
-            // Rule 519:  RelationalExpression ::= RelationalExpression < RangeExpression
+            // Rule 521:  RelationalExpression ::= RelationalExpression < RangeExpression
             //
-            case 519: {
-               //#line 4207 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4205 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 521: {
+               //#line 4217 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4215 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4205 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4215 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4207 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4217 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, RangeExpression));
                       break;
             }
     
             //
-            // Rule 520:  RelationalExpression ::= RelationalExpression > RangeExpression
+            // Rule 522:  RelationalExpression ::= RelationalExpression > RangeExpression
             //
-            case 520: {
-               //#line 4212 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4210 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 522: {
+               //#line 4222 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4220 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4210 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4220 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4212 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4222 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, RangeExpression));
                       break;
             }
     
             //
-            // Rule 521:  RelationalExpression ::= RelationalExpression <= RangeExpression
+            // Rule 523:  RelationalExpression ::= RelationalExpression <= RangeExpression
             //
-            case 521: {
-               //#line 4217 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4215 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 523: {
+               //#line 4227 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4225 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4215 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4225 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4217 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4227 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, RangeExpression));
                       break;
             }
     
             //
-            // Rule 522:  RelationalExpression ::= RelationalExpression >= RangeExpression
+            // Rule 524:  RelationalExpression ::= RelationalExpression >= RangeExpression
             //
-            case 522: {
-               //#line 4222 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4220 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 524: {
+               //#line 4232 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4230 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4220 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4230 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4222 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4232 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, RangeExpression));
                       break;
             }
     
             //
-            // Rule 523:  RelationalExpression ::= RelationalExpression instanceof Type
+            // Rule 525:  RelationalExpression ::= RelationalExpression instanceof Type
             //
-            case 523: {
-               //#line 4227 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4225 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 525: {
+               //#line 4237 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4235 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4225 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4235 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 4227 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4237 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                       break;
             }
     
             //
-            // Rule 524:  RelationalExpression ::= RelationalExpression in ShiftExpression
+            // Rule 526:  RelationalExpression ::= RelationalExpression in ShiftExpression
             //
-            case 524: {
-               //#line 4232 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4230 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 526: {
+               //#line 4242 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4240 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4230 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4240 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 4232 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4242 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
                       break;
             }
     
             //
-            // Rule 526:  EqualityExpression ::= EqualityExpression == RelationalExpression
+            // Rule 528:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
-            case 526: {
-               //#line 4239 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4237 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 528: {
+               //#line 4249 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4247 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4237 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4247 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 4239 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4249 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                       break;
             }
     
             //
-            // Rule 527:  EqualityExpression ::= EqualityExpression != RelationalExpression
+            // Rule 529:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
-            case 527: {
-               //#line 4244 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4242 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 529: {
+               //#line 4254 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4252 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4242 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4252 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 4244 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4254 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                       break;
             }
     
             //
-            // Rule 528:  EqualityExpression ::= Type$t1 == Type$t2
+            // Rule 530:  EqualityExpression ::= Type$t1 == Type$t2
             //
-            case 528: {
-               //#line 4249 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4247 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 530: {
+               //#line 4259 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4257 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 4247 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4257 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 4249 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4259 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, true));
                       break;
             }
     
             //
-            // Rule 530:  AndExpression ::= AndExpression & EqualityExpression
+            // Rule 532:  AndExpression ::= AndExpression & EqualityExpression
             //
-            case 530: {
-               //#line 4256 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4254 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 532: {
+               //#line 4266 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4264 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 4254 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4264 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 4256 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4266 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                       break;
             }
     
             //
-            // Rule 532:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
+            // Rule 534:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
-            case 532: {
-               //#line 4263 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4261 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 534: {
+               //#line 4273 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4271 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4261 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4271 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 4263 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4273 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                       break;
             }
     
             //
-            // Rule 534:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
+            // Rule 536:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
-            case 534: {
-               //#line 4270 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4268 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 536: {
+               //#line 4280 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4278 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4268 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4278 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 4270 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4280 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                       break;
             }
     
             //
-            // Rule 536:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
+            // Rule 538:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
-            case 536: {
-               //#line 4277 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4275 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 538: {
+               //#line 4287 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4285 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 4275 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4285 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 4277 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4287 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                       break;
             }
     
             //
-            // Rule 538:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
+            // Rule 540:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
-            case 538: {
-               //#line 4284 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4282 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 540: {
+               //#line 4294 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4292 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4282 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4292 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 4284 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4294 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                       break;
             }
     
             //
-            // Rule 544:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
+            // Rule 546:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
-            case 544: {
-               //#line 4296 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4294 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 546: {
+               //#line 4306 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4304 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4294 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4304 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 4294 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4304 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 4296 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4306 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                       break;
             }
     
             //
-            // Rule 547:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+            // Rule 549:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
-            case 547: {
-               //#line 4305 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4303 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 549: {
+               //#line 4315 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4313 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 4303 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4313 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 4303 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4313 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 4305 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4315 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 548:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 550:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
-            case 548: {
-               //#line 4310 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4308 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 550: {
+               //#line 4320 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4318 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName e1 = (ParsedName) getRhsSym(1);
-                //#line 4308 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4318 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4308 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4318 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4308 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4318 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4310 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4320 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 549:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 551:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
-            case 549: {
-               //#line 4315 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4313 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 551: {
+               //#line 4325 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4323 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr e1 = (Expr) getRhsSym(1);
-                //#line 4313 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4323 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4313 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4323 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4313 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4323 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4315 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4325 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 550:  LeftHandSide ::= ExpressionName
+            // Rule 552:  LeftHandSide ::= ExpressionName
             //
-            case 550: {
-               //#line 4321 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4319 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 552: {
+               //#line 4331 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4329 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 4321 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4331 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
                       break;
             }
     
             //
-            // Rule 552:  AssignmentOperator ::= =
+            // Rule 554:  AssignmentOperator ::= =
             //
-            case 552: {
-               //#line 4328 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 554: {
+               //#line 4338 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4328 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4338 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.ASSIGN);
                       break;
             }
     
             //
-            // Rule 553:  AssignmentOperator ::= *=
+            // Rule 555:  AssignmentOperator ::= *=
             //
-            case 553: {
-               //#line 4333 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 555: {
+               //#line 4343 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4333 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4343 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.MUL_ASSIGN);
                       break;
             }
     
             //
-            // Rule 554:  AssignmentOperator ::= /=
+            // Rule 556:  AssignmentOperator ::= /=
             //
-            case 554: {
-               //#line 4338 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 556: {
+               //#line 4348 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4338 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4348 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.DIV_ASSIGN);
                       break;
             }
     
             //
-            // Rule 555:  AssignmentOperator ::= %=
+            // Rule 557:  AssignmentOperator ::= %=
             //
-            case 555: {
-               //#line 4343 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 557: {
+               //#line 4353 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4343 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4353 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.MOD_ASSIGN);
                       break;
             }
     
             //
-            // Rule 556:  AssignmentOperator ::= +=
+            // Rule 558:  AssignmentOperator ::= +=
             //
-            case 556: {
-               //#line 4348 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 558: {
+               //#line 4358 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4348 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4358 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.ADD_ASSIGN);
                       break;
             }
     
             //
-            // Rule 557:  AssignmentOperator ::= -=
+            // Rule 559:  AssignmentOperator ::= -=
             //
-            case 557: {
-               //#line 4353 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 559: {
+               //#line 4363 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4353 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4363 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SUB_ASSIGN);
                       break;
             }
     
             //
-            // Rule 558:  AssignmentOperator ::= <<=
+            // Rule 560:  AssignmentOperator ::= <<=
             //
-            case 558: {
-               //#line 4358 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 560: {
+               //#line 4368 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4358 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4368 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SHL_ASSIGN);
                       break;
             }
     
             //
-            // Rule 559:  AssignmentOperator ::= >>=
+            // Rule 561:  AssignmentOperator ::= >>=
             //
-            case 559: {
-               //#line 4363 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 561: {
+               //#line 4373 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4363 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4373 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SHR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 560:  AssignmentOperator ::= >>>=
+            // Rule 562:  AssignmentOperator ::= >>>=
             //
-            case 560: {
-               //#line 4368 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 562: {
+               //#line 4378 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4368 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4378 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.USHR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 561:  AssignmentOperator ::= &=
+            // Rule 563:  AssignmentOperator ::= &=
             //
-            case 561: {
-               //#line 4373 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 563: {
+               //#line 4383 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4373 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4383 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                       break;
             }
     
             //
-            // Rule 562:  AssignmentOperator ::= ^=
+            // Rule 564:  AssignmentOperator ::= ^=
             //
-            case 562: {
-               //#line 4378 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 564: {
+               //#line 4388 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4378 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4388 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 563:  AssignmentOperator ::= |=
+            // Rule 565:  AssignmentOperator ::= |=
             //
-            case 563: {
-               //#line 4383 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 565: {
+               //#line 4393 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4383 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4393 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 566:  PrefixOp ::= +
+            // Rule 568:  PrefixOp ::= +
             //
-            case 566: {
-               //#line 4394 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 568: {
+               //#line 4404 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4394 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4404 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.POS);
                       break;
             }
     
             //
-            // Rule 567:  PrefixOp ::= -
+            // Rule 569:  PrefixOp ::= -
             //
-            case 567: {
-               //#line 4399 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 569: {
+               //#line 4409 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4399 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4409 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.NEG);
                       break;
             }
     
             //
-            // Rule 568:  PrefixOp ::= !
+            // Rule 570:  PrefixOp ::= !
             //
-            case 568: {
-               //#line 4404 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 570: {
+               //#line 4414 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4404 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4414 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.NOT);
                       break;
             }
     
             //
-            // Rule 569:  PrefixOp ::= ~
+            // Rule 571:  PrefixOp ::= ~
             //
-            case 569: {
-               //#line 4409 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 571: {
+               //#line 4419 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4409 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4419 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.BIT_NOT);
                       break;
             }
     
             //
-            // Rule 570:  BinOp ::= +
+            // Rule 572:  BinOp ::= +
             //
-            case 570: {
-               //#line 4415 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 572: {
+               //#line 4425 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4415 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4425 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.ADD);
                       break;
             }
     
             //
-            // Rule 571:  BinOp ::= -
+            // Rule 573:  BinOp ::= -
             //
-            case 571: {
-               //#line 4420 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 573: {
+               //#line 4430 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4420 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4430 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SUB);
                       break;
             }
     
             //
-            // Rule 572:  BinOp ::= *
+            // Rule 574:  BinOp ::= *
             //
-            case 572: {
-               //#line 4425 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 574: {
+               //#line 4435 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4425 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4435 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.MUL);
                       break;
             }
     
             //
-            // Rule 573:  BinOp ::= /
+            // Rule 575:  BinOp ::= /
             //
-            case 573: {
-               //#line 4430 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 575: {
+               //#line 4440 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4430 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4440 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.DIV);
                       break;
             }
     
             //
-            // Rule 574:  BinOp ::= %
+            // Rule 576:  BinOp ::= %
             //
-            case 574: {
-               //#line 4435 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 576: {
+               //#line 4445 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4435 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4445 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.MOD);
                       break;
             }
     
             //
-            // Rule 575:  BinOp ::= &
+            // Rule 577:  BinOp ::= &
             //
-            case 575: {
-               //#line 4440 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 577: {
+               //#line 4450 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4440 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4450 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_AND);
                       break;
             }
     
             //
-            // Rule 576:  BinOp ::= |
+            // Rule 578:  BinOp ::= |
             //
-            case 576: {
-               //#line 4445 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 578: {
+               //#line 4455 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4445 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4455 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_OR);
                       break;
             }
     
             //
-            // Rule 577:  BinOp ::= ^
+            // Rule 579:  BinOp ::= ^
             //
-            case 577: {
-               //#line 4450 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 579: {
+               //#line 4460 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4450 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4460 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_XOR);
                       break;
             }
     
             //
-            // Rule 578:  BinOp ::= &&
+            // Rule 580:  BinOp ::= &&
             //
-            case 578: {
-               //#line 4455 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 580: {
+               //#line 4465 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4455 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4465 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.COND_AND);
                       break;
             }
     
             //
-            // Rule 579:  BinOp ::= ||
+            // Rule 581:  BinOp ::= ||
             //
-            case 579: {
-               //#line 4460 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 581: {
+               //#line 4470 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4460 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4470 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.COND_OR);
                       break;
             }
     
             //
-            // Rule 580:  BinOp ::= <<
+            // Rule 582:  BinOp ::= <<
             //
-            case 580: {
-               //#line 4465 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 582: {
+               //#line 4475 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4465 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4475 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SHL);
                       break;
             }
     
             //
-            // Rule 581:  BinOp ::= >>
+            // Rule 583:  BinOp ::= >>
             //
-            case 581: {
-               //#line 4470 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 583: {
+               //#line 4480 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4470 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4480 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SHR);
                       break;
             }
     
             //
-            // Rule 582:  BinOp ::= >>>
+            // Rule 584:  BinOp ::= >>>
             //
-            case 582: {
-               //#line 4475 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 584: {
+               //#line 4485 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4475 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4485 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.USHR);
                       break;
             }
     
             //
-            // Rule 583:  BinOp ::= >=
+            // Rule 585:  BinOp ::= >=
             //
-            case 583: {
-               //#line 4480 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 585: {
+               //#line 4490 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4480 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4490 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.GE);
                       break;
             }
     
             //
-            // Rule 584:  BinOp ::= <=
+            // Rule 586:  BinOp ::= <=
             //
-            case 584: {
-               //#line 4485 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 586: {
+               //#line 4495 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4485 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4495 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.LE);
                       break;
             }
     
             //
-            // Rule 585:  BinOp ::= >
+            // Rule 587:  BinOp ::= >
             //
-            case 585: {
-               //#line 4490 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 587: {
+               //#line 4500 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4490 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4500 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.GT);
                       break;
             }
     
             //
-            // Rule 586:  BinOp ::= <
+            // Rule 588:  BinOp ::= <
             //
-            case 586: {
-               //#line 4495 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 588: {
+               //#line 4505 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4495 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4505 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.LT);
                       break;
             }
     
             //
-            // Rule 587:  BinOp ::= ==
+            // Rule 589:  BinOp ::= ==
             //
-            case 587: {
-               //#line 4503 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 589: {
+               //#line 4513 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4503 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4513 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.EQ);
                       break;
             }
     
             //
-            // Rule 588:  BinOp ::= !=
+            // Rule 590:  BinOp ::= !=
             //
-            case 588: {
-               //#line 4508 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 590: {
+               //#line 4518 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4508 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4518 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.NE);
                       break;
             }
     
             //
-            // Rule 589:  Catchesopt ::= $Empty
+            // Rule 591:  Catchesopt ::= $Empty
             //
-            case 589: {
-               //#line 4517 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 591: {
+               //#line 4527 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4517 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4527 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                       break;
             }
     
             //
-            // Rule 591:  Identifieropt ::= $Empty
+            // Rule 593:  Identifieropt ::= $Empty
             //
-            case 591:
+            case 593:
                 setResult(null);
                 break;
 
             //
-            // Rule 592:  Identifieropt ::= Identifier
+            // Rule 594:  Identifieropt ::= Identifier
             //
-            case 592: {
-               //#line 4526 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4524 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
+            case 594: {
+               //#line 4536 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4534 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4526 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4536 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Identifier);
                       break;
             }
     
             //
-            // Rule 593:  ForUpdateopt ::= $Empty
+            // Rule 595:  ForUpdateopt ::= $Empty
             //
-            case 593: {
-               //#line 4532 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 595: {
+               //#line 4542 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4532 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4542 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                       break;
             }
     
             //
-            // Rule 595:  Expressionopt ::= $Empty
+            // Rule 597:  Expressionopt ::= $Empty
             //
-            case 595:
+            case 597:
                 setResult(null);
                 break;
 
             //
-            // Rule 597:  ForInitopt ::= $Empty
+            // Rule 599:  ForInitopt ::= $Empty
             //
-            case 597: {
-               //#line 4543 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 599: {
+               //#line 4553 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4543 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4553 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                       break;
             }
     
             //
-            // Rule 599:  SwitchLabelsopt ::= $Empty
+            // Rule 601:  SwitchLabelsopt ::= $Empty
             //
-            case 599: {
-               //#line 4550 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 601: {
+               //#line 4560 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4550 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4560 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                       break;
             }
     
             //
-            // Rule 601:  SwitchBlockStatementGroupsopt ::= $Empty
+            // Rule 603:  SwitchBlockStatementGroupsopt ::= $Empty
             //
-            case 601: {
-               //#line 4557 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 603: {
+               //#line 4567 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4557 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4567 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                       break;
             }
     
             //
-            // Rule 603:  VariableModifiersopt ::= $Empty
+            // Rule 605:  VariableModifiersopt ::= $Empty
             //
-            case 603: {
-               //#line 4564 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 605: {
+               //#line 4574 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4564 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4574 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 605:  VariableInitializersopt ::= $Empty
+            // Rule 607:  VariableInitializersopt ::= $Empty
             //
-            case 605:
+            case 607:
                 setResult(null);
                 break;
 
             //
-            // Rule 607:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 609:  InterfaceMemberDeclarationsopt ::= $Empty
             //
-            case 607: {
-               //#line 4575 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 609: {
+               //#line 4585 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4575 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4585 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                       break;
             }
     
             //
-            // Rule 609:  ExtendsInterfacesopt ::= $Empty
+            // Rule 611:  ExtendsInterfacesopt ::= $Empty
             //
-            case 609: {
-               //#line 4582 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 611: {
+               //#line 4592 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4582 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4592 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 611:  InterfaceModifiersopt ::= $Empty
+            // Rule 613:  InterfaceModifiersopt ::= $Empty
             //
-            case 611: {
-               //#line 4589 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 613: {
+               //#line 4599 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4589 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4599 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 613:  ClassBodyopt ::= $Empty
+            // Rule 615:  ClassBodyopt ::= $Empty
             //
-            case 613:
+            case 615:
                 setResult(null);
                 break;
 
             //
-            // Rule 615:  Argumentsopt ::= $Empty
-            //
-            case 615: {
-               //#line 4600 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 4600 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new TypedList(new LinkedList(), Expr.class, false));
-                      break;
-            }
-    
-            //
-            // Rule 617:  ArgumentListopt ::= $Empty
+            // Rule 617:  Argumentsopt ::= $Empty
             //
             case 617: {
-               //#line 4607 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4610 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4607 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4610 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                       break;
             }
     
             //
-            // Rule 619:  BlockStatementsopt ::= $Empty
+            // Rule 619:  ArgumentListopt ::= $Empty
             //
             case 619: {
-               //#line 4614 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4617 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4614 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4617 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new TypedList(new LinkedList(), Expr.class, false));
+                      break;
+            }
+    
+            //
+            // Rule 621:  BlockStatementsopt ::= $Empty
+            //
+            case 621: {
+               //#line 4624 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 4624 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                       break;
             }
     
             //
-            // Rule 621:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 623:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 621:
+            case 623:
                 setResult(null);
                 break;
 
             //
-            // Rule 623:  ConstructorModifiersopt ::= $Empty
+            // Rule 625:  ConstructorModifiersopt ::= $Empty
             //
-            case 623: {
-               //#line 4625 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 625: {
+               //#line 4635 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4625 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4635 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 625:  FormalParameterListopt ::= $Empty
+            // Rule 627:  FormalParameterListopt ::= $Empty
             //
-            case 625: {
-               //#line 4632 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 627: {
+               //#line 4642 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4632 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4642 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                       break;
             }
     
             //
-            // Rule 627:  Throwsopt ::= $Empty
+            // Rule 629:  Throwsopt ::= $Empty
             //
-            case 627: {
-               //#line 4639 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 629: {
+               //#line 4649 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4639 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4649 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 629:  MethodModifiersopt ::= $Empty
-            //
-            case 629: {
-               //#line 4646 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 4646 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(Collections.EMPTY_LIST);
-                      break;
-            }
-    
-            //
-            // Rule 631:  TypeModifieropt ::= $Empty
+            // Rule 631:  MethodModifiersopt ::= $Empty
             //
             case 631: {
-               //#line 4653 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4656 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4653 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4656 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 633:  FieldModifiersopt ::= $Empty
+            // Rule 633:  TypeModifieropt ::= $Empty
             //
             case 633: {
-               //#line 4660 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4663 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4660 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4663 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 635:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 635:  FieldModifiersopt ::= $Empty
             //
             case 635: {
-               //#line 4667 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4670 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4667 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4670 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(Collections.EMPTY_LIST);
+                      break;
+            }
+    
+            //
+            // Rule 637:  ClassBodyDeclarationsopt ::= $Empty
+            //
+            case 637: {
+               //#line 4677 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 4677 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                       break;
             }
     
             //
-            // Rule 637:  Interfacesopt ::= $Empty
+            // Rule 639:  Interfacesopt ::= $Empty
             //
-            case 637: {
-               //#line 4674 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 639: {
+               //#line 4684 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4674 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4684 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 639:  Superopt ::= $Empty
+            // Rule 641:  Superopt ::= $Empty
             //
-            case 639:
+            case 641:
                 setResult(null);
                 break;
 
             //
-            // Rule 641:  TypeParametersopt ::= $Empty
+            // Rule 643:  TypeParametersopt ::= $Empty
             //
-            case 641: {
-               //#line 4685 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 643: {
+               //#line 4695 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4685 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4695 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                       break;
             }
     
             //
-            // Rule 643:  FormalParametersopt ::= $Empty
+            // Rule 645:  FormalParametersopt ::= $Empty
             //
-            case 643: {
-               //#line 4692 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 645: {
+               //#line 4702 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4692 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4702 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                       break;
             }
     
             //
-            // Rule 645:  Annotationsopt ::= $Empty
+            // Rule 647:  Annotationsopt ::= $Empty
             //
-            case 645: {
-               //#line 4699 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 647: {
+               //#line 4709 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4699 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4709 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
                       break;
             }
     
             //
-            // Rule 647:  TypeDeclarationsopt ::= $Empty
+            // Rule 649:  TypeDeclarationsopt ::= $Empty
             //
-            case 647: {
-               //#line 4706 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 649: {
+               //#line 4716 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4706 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4716 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                       break;
             }
     
             //
-            // Rule 649:  ImportDeclarationsopt ::= $Empty
+            // Rule 651:  ImportDeclarationsopt ::= $Empty
             //
-            case 649: {
-               //#line 4713 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 651: {
+               //#line 4723 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4713 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4723 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                       break;
             }
     
             //
-            // Rule 651:  PackageDeclarationopt ::= $Empty
-            //
-            case 651:
-                setResult(null);
-                break;
-
-            //
-            // Rule 653:  ResultTypeopt ::= $Empty
+            // Rule 653:  PackageDeclarationopt ::= $Empty
             //
             case 653:
                 setResult(null);
                 break;
 
             //
-            // Rule 655:  TypeArgumentsopt ::= $Empty
+            // Rule 655:  ResultTypeopt ::= $Empty
             //
-            case 655: {
-               //#line 4728 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 655:
+                setResult(null);
+                break;
+
+            //
+            // Rule 657:  HasResultTypeopt ::= $Empty
+            //
+            case 657:
+                setResult(null);
+                break;
+
+            //
+            // Rule 659:  TypeArgumentsopt ::= $Empty
+            //
+            case 659: {
+               //#line 4741 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4728 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4741 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 657:  TypeParamsWithVarianceopt ::= $Empty
+            // Rule 661:  TypeParamsWithVarianceopt ::= $Empty
             //
-            case 657: {
-               //#line 4735 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 661: {
+               //#line 4748 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4735 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4748 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                       break;
             }
     
             //
-            // Rule 659:  Propertiesopt ::= $Empty
+            // Rule 663:  Propertiesopt ::= $Empty
             //
-            case 659: {
-               //#line 4742 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 663: {
+               //#line 4755 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4742 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4755 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                       break;
             }
     
             //
-            // Rule 661:  ,opt ::= $Empty
+            // Rule 665:  ,opt ::= $Empty
             //
-            case 661:
+            case 665:
                 setResult(null);
                 break;
 

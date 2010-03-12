@@ -174,4 +174,5 @@ public interface X10NodeFactory extends NodeFactory {
     LocalTypeDef LocalTypeDef(Position pos, TypeDecl typeDefDeclaration);
     
     Closure Closure(Closure c, Position pos);
+    TypeNode HasType(TypeNode tn);
 }
