@@ -10,17 +10,16 @@
  */
 
 import harness.x10Test;
-public class IntegrateTest extends x10Test {
+
+public class FibTest extends x10Test {
     public def run():boolean {
-        val obj = new Integrate((x:double)=>(x*x + 1.0) * x);
-        val area = obj.computeArea(0, 10);
-	Console.OUT.println("Computed area is "+area);
-	chk(area > 2549.999);
-	chk(area < 2550.001);
+        val f = new Fib(12);
+	f.run();
+	chk(f.r == 144);
 	return true;
     }
 
     public static def main(args:Rail[String]) {
-	new IntegrateTest().execute();
+	new FibTest().execute();
     }
 }
