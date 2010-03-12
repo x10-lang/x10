@@ -567,7 +567,7 @@ public class Synthesizer {
 	    return null;
 	}
 	/**
-	 * Add a copy constructor to a class.
+	 * Create a copy constructor decl.
 	 * @param cDecl
 	 * @param name
 	 * @param flag
@@ -633,4 +633,62 @@ public class Synthesizer {
 
 		return (X10ConstructorDecl) xd.constructorDef(xDef);
 	}
+	/**
+     * Create a method decl.
+     * @param cDecl
+     * @param flag
+     * @param returnType
+     * @param name 
+     * @param formals
+     * @param throwTypes
+     * @param body
+     * @return X10ClassDecl
+     * @throws SemanticException 
+     */ 
+    public X10ClassDecl addClassMethod(Position p, 
+            X10ClassDecl cDecl, 
+            Flags flag,
+            Type returnType, 
+            Name name,
+            List<Formal> formals,
+            List<Type> throwTypes,
+            Block body) throws SemanticException {
+        
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+        
+        // Method Decl
+        List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
+        for (Type t : throwTypes) {
+            throwTypeNodes.add(xnf.CanonicalTypeNode(p, t));
+        }
+        FlagsNode flagNode = xnf.FlagsNode(p, flag);
+        TypeNode returnTypeNode = xnf.CanonicalTypeNode(p, returnType);
+        
+        MethodDecl mDecl = xnf.MethodDecl(p, flagNode, returnTypeNode, xnf.Id(p, name), 
+                formals, throwTypeNodes, body);
+        // Method def
+        List<Ref<? extends Type>> formalTypeRefs = new ArrayList<Ref<? extends Type>>();
+        List<Ref<? extends Type>> throwTypeRefs = new ArrayList<Ref<? extends Type>>();
+        for (Formal f : formals) {
+            formalTypeRefs.add(f.type().typeRef());
+        }
+        for (Type t : throwTypes) {
+            throwTypeRefs.add(Types.ref(t));
+        }
+        MethodDef mDef = xts.methodDef(p, 
+                Types.ref(cDef.asType()),                
+                flag, 
+                Types.ref(returnType), 
+                name, 
+                formalTypeRefs, 
+                throwTypeRefs);
+        // Add to Class
+        
+        cDef.addMethod(mDef);
+        List<ClassMember> cm = new ArrayList<ClassMember>();
+        cm.addAll(cDecl.body().members());
+        cm.add(mDecl);
+        ClassBody cb = cDecl.body();
+        return (X10ClassDecl) cDecl.classDef(cDef).body(cb.members(cm));
+    }
 }
