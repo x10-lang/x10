@@ -26,7 +26,9 @@ import org.eclipse.imp.x10dt.ui.launch.core.preferences.X10PlatformConfiguration
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
-import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.IPreferencePage;
@@ -39,6 +41,7 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
+import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
@@ -56,6 +59,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.WorkbenchException;
 
@@ -106,6 +110,7 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
     createTargetWorkspace(workspaceGroup);
     
     updateDisablingPart();
+    updateMessage();
     
     setControl(composite);
   }
@@ -126,6 +131,9 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
   // --- Private code
   
   private void createResourceManager(final Composite parent) {
+    final Label message = new Label(parent, SWT.NONE);
+    message.setText("A resource manager defines a communication interface (e.g., OpenMPI) in order to run the\ngenerated C++ program and also potentially an SSH connection to a remote machine.");
+    
     final Composite composite = new Composite(parent, SWT.NONE);
     composite.setFont(parent.getFont());
     composite.setLayout(new GridLayout(2, false));
@@ -143,7 +151,7 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
       }
     }
     final Link link = new Link(parent, SWT.NONE);
-    link.setFont(composite.getFont());
+    link.setFont(parent.getFont());
     link.setData(new GridData(SWT.FILL, SWT.NONE, true, false));
     if (startedResManagerList.isEmpty()) {
       if (stoppedResManagerList.isEmpty()) {
@@ -160,35 +168,38 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
       
       public void widgetSelected(final SelectionEvent event) {
         if (event.text.equals(LaunchMessages.CPWSP_ResourceManager)) {
-          final RMServicesConfigurationWizard wizard = new RMServicesConfigurationWizard();
-          final WizardDialog dialog = new WizardDialog(getShell(), wizard);
-          dialog.open();
+          boolean leave = false;
+          IResourceManagerControl rmControl = null;
+          do {
+            final RMServicesConfigurationWizard wizard;
+            if (rmControl == null) {
+              wizard = new RMServicesConfigurationWizard();
+            } else {
+              wizard = new RMServicesConfigurationWizard(rmControl);
+            }
+            final WizardDialog dialog = new WizardDialog(getShell(), wizard);
+            dialog.open();
           
-          final Collection<String> failedRMs = new ArrayList<String>();
-          for (final IResourceManager rmManager : universe.getResourceManagers()) {
-            if (rmManager.getState() != ResourceManagerAttributes.State.STARTED) {
+            rmControl = wizard.getConfiguration().createResourceManager();
+            try {
+              rmControl.startUp(new NullProgressMonitor());
+              leave = true;
+            } catch (CoreException except) {
+              final Dialog errorDialog = new CancelableErrorDialog(getShell(), "Resource Manager Error", "The new resource manager ended up in error state (see exception below). Clicking Ok will redirect you to the resource manager creation wizard in order to fix the problem. Clicking Cancel will bring you back to the Target Environment Project Configuration dialog page.", 
+                                                                   except.getStatus());
+              if (errorDialog.open() == Window.CANCEL) {
+                leave = true;
+              }
               try {
-                rmManager.startUp(new NullProgressMonitor());
-              } catch (CoreException except) {
-                failedRMs.add(rmManager.getName());
+                rmControl.shutdown();
+              } catch (CoreException except2) {
+                ErrorDialog.openError(getShell(), "Resource Manager Error", "We could not stop the resource manager in Error state", 
+                                      except.getStatus());
+                // We give up!
+                leave = true;
               }
             }
-          }
-          if (! failedRMs.isEmpty()) {
-            final StringBuilder sb = new StringBuilder();
-            sb.append('[');
-            int i = 0;
-            for (final String failedRM : failedRMs) {
-              if (i == 0) {
-                i = 1;
-              } else {
-                sb.append(',');
-              }
-              sb.append(failedRM);
-            }
-            sb.append(']');
-            setMessage(NLS.bind(LaunchMessages.CPWSP_RMStartFailure, sb.toString()), IMessageProvider.WARNING);
-          }
+          } while (! leave);
         } else {
           if (stoppedResManagerList.isEmpty()) {
             MessageDialog.openInformation(getShell(), Messages.RMSD_DialogTitle, LaunchMessages.CPWSP_NoStoppedRM);
@@ -198,12 +209,18 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
         }
         
         CppProjectX10PlatformWizardPage.this.fResManagerCombo.removeAll();
+        int nb = 0;
         for (final IResourceManager resManager : universe.getResourceManagers()) {
           if (resManager.getState() == ResourceManagerAttributes.State.STARTED) {
+            ++nb;
             CppProjectX10PlatformWizardPage.this.fResManagerCombo.add(resManager.getName());
             CppProjectX10PlatformWizardPage.this.fResManagerCombo.setData(resManager.getName(), resManager.getUniqueName());
           }
         }
+        if (nb == 1) {
+          CppProjectX10PlatformWizardPage.this.fResManagerCombo.select(0);
+        }
+        updateMessage();
       }
       
       public void widgetDefaultSelected(final SelectionEvent event) {
@@ -302,6 +319,7 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
                   CppProjectX10PlatformWizardPage.this.fX10PlatformCombo.add(x10Conf.getName());
                 }
               }
+              updateMessage();
             } catch (Exception except) {
               setErrorMessage(Messages.XPCPP_LoadingErrorMsg);
               CppLaunchCore.log(IStatus.ERROR, org.eclipse.imp.x10dt.ui.launch.core.Messages.XPCPP_LoadingErrorLogMsg, except);
@@ -376,7 +394,7 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
       }
     }
     boolean isComplete = (! this.fWorkspaceLocText.isEnabled() || this.fWorkspaceLocText.getText().trim().length() > 0) &&
-                         this.fX10PlatformCombo.getSelectionIndex() > -1;
+                         this.fX10PlatformCombo.getSelectionIndex() > -1 && this.fResManagerCombo.getSelectionIndex() > -1;
     setPageComplete(isComplete);
   }
   
@@ -421,6 +439,24 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
     
     public void modifyText(final ModifyEvent event) {
       updateMessage();
+    }
+    
+  }
+  
+  private final class CancelableErrorDialog extends ErrorDialog {
+
+    public CancelableErrorDialog(final Shell parentShell, final String dialogTitle, final String message, 
+                                 final IStatus status) {
+      super(parentShell, dialogTitle, message, status, IStatus.OK | IStatus.INFO | IStatus.WARNING | IStatus.ERROR);
+    }
+    
+    // --- Overridden methods
+    
+    protected void createButtonsForButtonBar(Composite parent) {
+      // create OK and Cancel buttons by default
+      createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+      createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+      createDetailsButton(parent);
     }
     
   }
