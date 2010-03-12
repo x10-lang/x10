@@ -53,7 +53,7 @@ public class X10RuntimeUtils {
         }
 
         public boolean accept(File dir, String name) {
-            return name.contains(fBundle.getSymbolicName()) && name.endsWith(".jar"); //PORT1.7 use constant
+            return name.contains(fBundle.getSymbolicName() + "_") && name.endsWith(".jar"); //PORT1.7 use constant
         }
     }
 
@@ -88,7 +88,8 @@ public class X10RuntimeUtils {
 
 	                if (entryFile.isDirectory()) {
 	                	//PORT1.7 -- ask bob: why look for Object here and 'Type' Below?
-	                    File x10ObjFile= new File(entryFile.getPath() + File.separator + "x10" + File.separator + "lang" + File.separator + "Object.class");//PORT1.7 -- ?
+	                    //File x10ObjFile= new File(entryFile.getPath() + File.separator + "x10" + File.separator + "lang" + File.separator + "Object.class");//PORT1.7 -- ?
+	                    File x10ObjFile= new File(entryFile.getPath() + X10_LANG_SYSTEM_CLASS);//2.0.2
 
 	                    if (x10ObjFile.exists()) {
 	                        return i;
@@ -99,7 +100,8 @@ public class X10RuntimeUtils {
 	                    	boolean exists = entryFile.exists();
 	                        JarFile x10Jar= new JarFile(entryFile);//PORT1.7 -- todo ask bob: do what?
 	                        String jarName = x10Jar.getName();
-	                        if (jarName.contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID)) {
+	                        // 2.0.2 append "_" so the .source plugins are not mistaken 
+	                        if (jarName.contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID/*+"_"*/)) {//2.0.2
 	                        	// Look for a type we expect to find in the x10 runtime
 	                        	ZipEntry x10ObjEntry = x10Jar.getEntry(X10_LANG_SYSTEM_CLASS); 
 								if (x10ObjEntry != null) {
