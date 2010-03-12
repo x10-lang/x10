@@ -914,5 +914,18 @@ public class X10Context_c extends Context_c implements X10Context {
 		return Name.make(MAGIC_VAR_PREFIX + (varCount++));
 	}
 	
+	static protected int nameCount = 0;
+	
+	public Name makeFreshName(String name) {
+		synchronized (contextNameTable) {
+			Name n = contextNameTable.get(name);
+			if (n == null) {
+				String fresh = MAGIC_NAME_PREFIX + name + (nameCount++);
+				n = Name.make(fresh);
+				contextNameTable.put(name,n);
+			}
+			return n;
+		}
+	}		
 	
 }
