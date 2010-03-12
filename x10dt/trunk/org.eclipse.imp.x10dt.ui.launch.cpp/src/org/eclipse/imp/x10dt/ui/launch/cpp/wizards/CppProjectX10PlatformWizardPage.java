@@ -181,10 +181,12 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
             dialog.open();
           
             rmControl = wizard.getConfiguration().createResourceManager();
+            PTPCorePlugin.getDefault().getModelManager().addResourceManager(rmControl);
             try {
               rmControl.startUp(new NullProgressMonitor());
               leave = true;
             } catch (CoreException except) {
+              PTPCorePlugin.getDefault().getModelManager().removeResourceManager(rmControl);
               final Dialog errorDialog = new CancelableErrorDialog(getShell(), "Resource Manager Error", "The new resource manager ended up in error state (see exception below). Clicking Ok will redirect you to the resource manager creation wizard in order to fix the problem. Clicking Cancel will bring you back to the Target Environment Project Configuration dialog page.", 
                                                                    except.getStatus());
               if (errorDialog.open() == Window.CANCEL) {
