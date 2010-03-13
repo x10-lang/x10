@@ -16,12 +16,12 @@ import harness.x10Test;
  *
  * @author vj
  */
-public class HasTypeMethod_MustFailCompile extends x10Test {
+public class HasTypeMethod1_MustFailCompile extends x10Test {
 
-	def m(x:Int{self==1}) <: Boolean {return x;}
+	def m(x:Int{self==1}) <: Boolean =x;
 	public def run() = true;
 
 	public static def main(Rail[String])  {
-		new HasTypeMethod_MustFailCompile().execute();
+		new HasTypeMethod1_MustFailCompile().execute();
 	}
 }
