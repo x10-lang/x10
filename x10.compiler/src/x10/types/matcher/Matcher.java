@@ -104,7 +104,7 @@ public class Matcher {
 	 * @return  -- An instantiated version of me, with actuals substituted for formals in actual types and return types. 
 	 * @throws SemanticException
 	 */
-	public static <PI extends X10ProcedureInstance<?>> PI instantiate2(final X10Context context, final PI me, 
+	static <PI extends X10ProcedureInstance<?>> PI instantiate2(final X10Context context, final PI me, 
 	    		/*inout*/ Type[] thisTypeArray,  
 	    		List<Type> typeActuals, 
 	    		List<Type> actuals, 
