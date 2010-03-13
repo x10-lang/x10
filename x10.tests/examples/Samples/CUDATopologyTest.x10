@@ -11,14 +11,14 @@
 
 import harness.x10Test;
 
-public class CUDATopologyTestTest extends x10Test {
+public class CUDATopologyTest extends x10Test {
     public def run():boolean {
          val args = Rail.make[String](0);
-         CUDATopologyTest.main(args);
+         CUDATopology.main(args);
          return true;
     }
 
     public static def main(args:Rail[String]) {
-	new CUDATopologyTestTest().execute();
+	new CUDATopologyTest().execute();
     }
 }
