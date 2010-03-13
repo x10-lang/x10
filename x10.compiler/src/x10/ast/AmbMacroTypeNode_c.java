@@ -449,7 +449,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
     	 {
           	
 
-          	VarChecker ac = new VarChecker(childtc.job(), Globals.TS(), Globals.NF());
+          	VarChecker ac = (VarChecker) new VarChecker(childtc.job(), Globals.TS(), Globals.NF()).context(childtc.context());
           	result.visit(ac);
           	
           	if (ac.error != null) {
