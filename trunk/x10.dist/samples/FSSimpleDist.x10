@@ -27,7 +27,7 @@ public class FSSimpleDist {
 
     const NUM_PLACES = Place.MAX_PLACES;
 
-    public static def main(args:Rail[String]!){here == Place.FIRST_PLACE} {
+    public static def main(args:Rail[String]!) {
         val verified: Rail[boolean]! = [true];
         val times = Rail.make[double](NUM_TIMES);
         val N0 = args.length > 0 ? int.parse(args(0)) : DEFAULT_SIZE;
