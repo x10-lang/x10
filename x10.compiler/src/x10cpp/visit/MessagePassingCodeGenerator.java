@@ -129,6 +129,7 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.FunctionDef;
 import polyglot.types.InitializerInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -2425,7 +2426,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(" ");
 	    // [IP] Are all the operators the same?
 	    sw.write(opString);
-        sw.allowBreak(2, 2, " ", 1);
+	    sw.allowBreak(2, 2, " ", 1);
 
 	    Type aType = lhs.type();
 	    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, rhs.type(), context);
@@ -2439,8 +2440,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    asgn.printSubExpr(rhs, true, sw, tr);
 	    if (unsigned_op)
 	        sw.write("))");
-        if (rhsNeedsCast)
-            sw.write(")");
+	    if (rhsNeedsCast) {
+	        sw.write(")");
+	    }
 	}
 
 
@@ -2449,8 +2451,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (e == null) {
 			sw.write("return;");
 		} else {
+			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+			Context context = tr.context();
 			sw.write("return ");
+			assert (context.currentCode() instanceof FunctionDef);
+			FunctionDef container = (FunctionDef) context.currentCode();
+			Type rType = container.returnType().get();
+			boolean rhsNeedsCast = !xts.typeDeepBaseEquals(rType, e.type(), context);
+			if (rhsNeedsCast) {
+			    // Cast is needed to ensure conversion/autoboxing.
+			    // However, it is statically correct to do the assignment, therefore it can be unchecked.
+			    sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(rType, true)) + "(");
+			}
 			ret.print(e, sw, tr);
+			if (rhsNeedsCast) {
+			    sw.write(")");
+			}
 			sw.write(";"); sw.newline();
 		}
 	}
