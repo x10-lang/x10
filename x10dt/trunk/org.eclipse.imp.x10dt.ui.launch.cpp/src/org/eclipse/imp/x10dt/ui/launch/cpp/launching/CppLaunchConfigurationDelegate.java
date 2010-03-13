@@ -10,6 +10,7 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.launching;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,6 +26,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -35,17 +37,20 @@ import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IInputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.attributes.AttributeManager;
+import org.eclipse.ptp.core.attributes.IAttribute;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPJob;
 import org.eclipse.ptp.core.elements.IPQueue;
@@ -59,6 +64,7 @@ import org.eclipse.ptp.remote.core.IRemoteProcess;
 import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.rm.mpi.mpich2.core.MPICH2LaunchAttributes;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.console.MessageConsole;
@@ -85,7 +91,28 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     final AttributeManager attrMgr = new AttributeManager();
 
     // Collects attributes from Resource tab
-    attrMgr.addAttributes(getResourceAttributes(configuration, mode));
+    // Let's update the args for MPICH with Cygwin
+    final IAttribute<?, ?, ?>[] resourceAttributes = getResourceAttributes(configuration, mode);
+    if (this.fIsWindows) {
+      final IRemoteConnection rmConn = PTPUtils.getConnectionAndFileManager(resourceManager).first;
+      final StringBuilder pathBuilder = new StringBuilder();
+      pathBuilder.append(rmConn.getEnv(PATH_ENV)); 
+      for (final String x10Lib : this.fX10LibsLocs) {
+        pathBuilder.append(File.pathSeparatorChar).append(x10Lib);
+      }
+      final String cygdrivePrefix = "/cygdrive"; //$NON-NLS-1$// FIXME: get the remote cygdrive prefix from invoking remote mount 
+      final String newPath = pathBuilder.toString().replaceAll("\\b([A-Za-z]):", cygdrivePrefix+"/$1") //$NON-NLS-1$//$NON-NLS-2$
+                                        .replace(File.separatorChar, '/').replace(File.pathSeparatorChar, ':');
+      for (int i = 0; i < resourceAttributes.length; ++i) {
+        if (MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().equals(resourceAttributes[i].getDefinition())) {
+          final String curValue = resourceAttributes[i].getValueAsString();
+          final StringBuilder newArgs = new StringBuilder();
+          newArgs.append("-gpath '").append(newPath).append("' ").append(curValue); //$NON-NLS-1$//$NON-NLS-2$
+          resourceAttributes[i] = MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().create(newArgs.toString());
+        }
+      }
+    }
+    attrMgr.addAttributes(resourceAttributes);
 
     // Makes sure there is a queue, even if the resources tab doesn't require one to be specified.
     if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
@@ -97,8 +124,11 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     final IPath programPath = verifyExecutablePath(configuration);
     attrMgr.addAttribute(JobAttributes.getExecutableNameAttributeDefinition().create(programPath.lastSegment()));
 
-    final String path = programPath.removeLastSegments(1).toString();
+    String path = programPath.removeLastSegments(1).toString();
     if (path != null) {
+      if (this.fIsWindows) {
+        path = '"' + path + '"';
+      }
       attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(path));
     }
 
@@ -155,6 +185,10 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       monitor.done();
     }
   }
+  
+  protected IPath verifyResource(final String path, final ILaunchConfiguration configuration) throws CoreException {
+    return new Path(path);
+  }
 
   // --- Private code
   
@@ -168,6 +202,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       final String platformConfName = project.getPersistentProperty(Constants.X10_PLATFORM_CONF);
       final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
       final IX10PlatformConfiguration platform = platforms.get(platformConfName);
+      this.fX10LibsLocs = platform.getX10LibsLocations();
+      this.fIsWindows = platform.getTargetOS() == ETargetOS.WINDOWS;
       final String execPath = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
       final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
       
@@ -286,10 +322,16 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   // --- Fields
   
+  private String[] fX10LibsLocs;
+  
+  private boolean fIsWindows;
+  
   private static final String MAIN_FILE_NAME = "/xxx_main_xxx.cc"; //$NON-NLS-1$
   
   private static final String INCLUDE_OPT = "-I"; //$NON-NLS-1$
   
   private static final String LIB_OPT = "-L"; //$NON-NLS-1$
+  
+  private static final String PATH_ENV = "PATH"; //$NON-NLS-1$
   
 }

@@ -32,7 +32,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jdt.debug.ui,
  org.eclipse.imp.x10dt.ui.launch.core,
  org.eclipse.ptp.ui,
- lpg.runtime
+ lpg.runtime,
+ org.eclipse.ptp.rm.mpi.mpich2.core
 Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.imp.x10dt.ui.launch.cpp;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug",
