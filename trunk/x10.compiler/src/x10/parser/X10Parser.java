@@ -1218,7 +1218,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 22:  MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
+            // Rule 22:  MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt MethodBody
             //
             case 22: {
                //#line 957 "C:/eclipsews/head4/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -1233,7 +1233,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
                 //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
+                TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
                 //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
                 //#line 955 "C:/eclipsews/head4/x10.compiler/src/x10/parser/x10.g"
@@ -1243,7 +1243,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                    ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(MethodModifiersopt),
                                              nf.Id(pos(3), "this"),
-                                             ResultTypeopt,
+                                             HasResultTypeopt,
                                              TypeParametersopt,
                                              FormalParameters,
                                              WhereClauseopt,
@@ -1255,7 +1255,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
           else {
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
           extractFlags(MethodModifiersopt),
-          ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+          HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           Identifier,
           TypeParametersopt,
           FormalParameters,

@@ -952,13 +952,13 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
+    MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt MethodBody
         /.$BeginJava
            if (Identifier.id().toString().equals("this")) {
                        ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                                  extractFlags(MethodModifiersopt),
                                                  nf.Id(pos(3), "this"),
-                                                 ResultTypeopt,
+                                                 HasResultTypeopt,
                                                  TypeParametersopt,
                                                  FormalParameters,
                                                  WhereClauseopt,
@@ -970,7 +970,7 @@ public static class MessageHandler implements IMessageHandler {
               else {
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
-              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               Identifier,
               TypeParametersopt,
               FormalParameters,
