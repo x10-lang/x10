@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//LIMITATION: no plugins in dims
 //OPTIONS: -PLUGINS=dims.plugin.DimensionTypePlugin
 
 import harness.x10Test;
@@ -22,10 +23,10 @@ public class DimTest2 extends harness.x10Test {
 	var meltF: double = 32;
 	var boilF: double = 212;
 	
-	var a: boolean = (meltC as double@Unit(Temperature.F)) as int == meltF as int;
-	var b: boolean = (boilC as double@Unit(Temperature.F)) as int == boilF as int;
-	var c: boolean = (meltF doubles @Unit(Temperature.C)) as int == meltC as int;
-	var d: boolean = (boilF as double@Unit(Temperature.C)) as int == boilC as int;
+	var a: boolean = ((meltC as double@Unit(Temperature.F)) as int) == (meltF as int); // XTENLANG-1124
+	var b: boolean = ((boilC as double@Unit(Temperature.F)) as int) == (boilF as int); // XTENLANG-1124
+	var c: boolean = ((meltF as double@Unit(Temperature.C)) as int) == (meltC as int); // XTENLANG-1124
+	var d: boolean = ((boilF as double@Unit(Temperature.C)) as int) == (boilC as int); // XTENLANG-1124
 
 	return a && b && c && d;
     }
