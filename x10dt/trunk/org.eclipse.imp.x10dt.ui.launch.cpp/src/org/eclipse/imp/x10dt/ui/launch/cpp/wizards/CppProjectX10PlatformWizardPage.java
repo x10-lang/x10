@@ -41,6 +41,7 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
+import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
@@ -169,31 +170,29 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
       public void widgetSelected(final SelectionEvent event) {
         if (event.text.equals(LaunchMessages.CPWSP_ResourceManager)) {
           boolean leave = false;
-          IResourceManagerControl rmControl = null;
+          IResourceManager resourceManager = null;
           do {
             final RMServicesConfigurationWizard wizard;
-            if (rmControl == null) {
+            if (resourceManager == null) {
               wizard = new RMServicesConfigurationWizard();
             } else {
-              wizard = new RMServicesConfigurationWizard(rmControl);
+              wizard = new RMServicesConfigurationWizard((IResourceManagerControl) resourceManager);
             }
             final WizardDialog dialog = new WizardDialog(getShell(), wizard);
             dialog.open();
           
-            rmControl = wizard.getConfiguration().createResourceManager();
-            PTPCorePlugin.getDefault().getModelManager().addResourceManager(rmControl);
+            resourceManager = modelManager.getResourceManagerFromUniqueName(wizard.getConfiguration().getUniqueName());
             try {
-              rmControl.startUp(new NullProgressMonitor());
+              resourceManager.startUp(new NullProgressMonitor());
               leave = true;
             } catch (CoreException except) {
-              PTPCorePlugin.getDefault().getModelManager().removeResourceManager(rmControl);
               final Dialog errorDialog = new CancelableErrorDialog(getShell(), "Resource Manager Error", "The new resource manager ended up in error state (see exception below). Clicking Ok will redirect you to the resource manager creation wizard in order to fix the problem. Clicking Cancel will bring you back to the Target Environment Project Configuration dialog page.", 
                                                                    except.getStatus());
               if (errorDialog.open() == Window.CANCEL) {
                 leave = true;
               }
               try {
-                rmControl.shutdown();
+                resourceManager.shutdown();
               } catch (CoreException except2) {
                 ErrorDialog.openError(getShell(), "Resource Manager Error", "We could not stop the resource manager in Error state", 
                                       except.getStatus());
