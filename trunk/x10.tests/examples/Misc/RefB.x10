@@ -13,7 +13,7 @@ import harness.x10Test;
 	
 public class RefB(f2: RefA) extends x10Test {
 	public def this(f2: RefA) { 
-		this.f2=f2;
+		property(f2);
 	}
 	
 	public def run(): boolean { return true;}

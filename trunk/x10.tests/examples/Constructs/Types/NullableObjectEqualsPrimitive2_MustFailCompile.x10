@@ -16,7 +16,7 @@ import x10.util.Box;
  *
  * @author vcave
  */
-public class NullableObjectEqualsPrimitive_MustFailCompile extends x10Test {
+public class NullableObjectEqualsPrimitive2_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
 		var x: Box[Any] = null;
@@ -27,6 +27,6 @@ public class NullableObjectEqualsPrimitive_MustFailCompile extends x10Test {
 	}
 
 	public static def main(Rail[String]) {
-		new NullableObjectEqualsPrimitive_MustFailCompile().execute();
+		new NullableObjectEqualsPrimitive2_MustFailCompile().execute();
 	}
 }

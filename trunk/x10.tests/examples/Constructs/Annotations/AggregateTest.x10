@@ -10,9 +10,10 @@
  */
 
 //LIMITATION: aggregate interface not found
+
 import harness.x10Test;
 
-public class AggregateTest extends harness.x10Test {
+public class AggregateTest extends x10Test {
     var x: int = 1;
     public def run(): boolean = {
 	finish @aggregate { async { this.x=2;}}

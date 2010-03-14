@@ -16,7 +16,7 @@ import harness.x10Test;
  * Issue: Value to cast does not meet constraint requirement of target type.
  * @author vcave
  **/
-public class CastPrimitiveConstrainedToPrimitiveConstrained_MustFailCompile extends x10Test {
+public class CastPrimitiveConstrainedToPrimitiveConstrained2_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
 		
@@ -31,7 +31,7 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained_MustFailCompile exte
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new CastPrimitiveConstrainedToPrimitiveConstrained_MustFailCompile().execute();
+		new CastPrimitiveConstrainedToPrimitiveConstrained2_MustFailCompile().execute();
 	}
 
 }
