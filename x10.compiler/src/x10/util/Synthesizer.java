@@ -682,6 +682,7 @@ public class Synthesizer {
                 name, 
                 formalTypeRefs, 
                 throwTypeRefs);
+        mDecl = mDecl.methodDef(mDef); //Need set the method def to the method instance
         // Add to Class
         
         cDef.addMethod(mDef);
