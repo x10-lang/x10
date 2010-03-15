@@ -21,7 +21,7 @@ package jgfutil;
   */
  public interface JGFSection3 {
  public def JGFsetsize(size: int): void;
- public def JGFinitialise(): void;;
+ public def JGFinitialise(): void;
  public def JGFapplication(): void;
   public def JGFvalidate(): void;
   public def JGFtidyup(): void;  
