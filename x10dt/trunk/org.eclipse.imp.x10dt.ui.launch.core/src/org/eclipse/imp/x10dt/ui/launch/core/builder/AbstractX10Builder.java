@@ -29,10 +29,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.imp.builder.DependencyInfo;
-import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.core.builder.PolyglotDependencyInfo;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
@@ -53,10 +54,16 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.IModelManager;
+import org.eclipse.ptp.core.PTPCorePlugin;
+import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
+import org.eclipse.ptp.remote.core.IRemoteServices;
+import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.WorkbenchException;
 
@@ -85,8 +92,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       if (this.fProjectWrapper == null) {
         return new IProject[0];
       }
-      this.fDependencyInfo.clearAllDependencies();
-      this.fSourcesToCompile.clear();
+      if (this.fSourcesToCompile.isEmpty()) {
+        collectSourceFilesToCompile(kind, this.fDependentProjects, monitor);
+      }
       final IPath outpuLoc = this.fProjectWrapper.getOutputLocation();
       final IContainer binaryContainer = ResourcesPlugin.getWorkspace().getRoot().getFolder(outpuLoc);
 
@@ -128,17 +136,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       } else {
         monitor.worked(3);
       }
-      
-      // Let's clean the target workspace directory.
-      final String resManagerID = getProject().getPersistentProperty(Constants.RES_MANAGER_ID);
-      final Pair<IRemoteConnection, IRemoteFileManager> pair = PTPUtils.getConnectionAndFileManager(resManagerID);
-      final String workspaceDir = JavaProjectUtils.getTargetWorkspaceDir(getProject());
-      final IFileStore wDirFileStore = pair.second.getResource(workspaceDir);
-      if (wDirFileStore.fetchInfo().exists()) {
-        wDirFileStore.delete(EFS.NONE, new SubProgressMonitor(monitor, 3));
-      }
-      wDirFileStore.mkdir(EFS.NONE, new SubProgressMonitor(monitor, 3));
-      
+            
       // Let's get the platform configuration
       final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
       final String platformConfName = getProject().getPersistentProperty(Constants.X10_PLATFORM_CONF);
@@ -150,22 +148,16 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         return new IProject[0];
       }
       
-      // Let's collect the source files and clear the markers.
-      final Set<IProject> dependentProjects = new HashSet<IProject>();
-      collectSourceFilesToCompile(kind, dependentProjects, new SubProgressMonitor(monitor, 4));
+      // Let's clear the markers.
       clearMarkers(kind);
       
       // Let's compile the X10 files.
-      final File outputDir;
-      if (platform.isLocal()) {
-        outputDir = new File(workspaceDir);
-      } else {
-        outputDir = new File(binaryContainer.getLocationURI());
-      }
+      final String workspaceDir = JavaProjectUtils.getWorkspaceDirValue(getProject());
+      final File outputDir = new File(binaryContainer.getLocationURI());
       compileX10Files(outputDir.getAbsolutePath(), new SubProgressMonitor(monitor, 27));
       
       // Finally, let's compile the generated files.
-      return compileGeneratedFiles(resourceManager, dependentProjects, workspaceDir, platform, binaryContainer,
+      return compileGeneratedFiles(resourceManager, this.fDependentProjects, workspaceDir, platform, binaryContainer,
                                    new SubProgressMonitor(monitor, 60));
     } catch (IOException except) {
       IResourceUtils.addMarkerTo(getProject(), Messages.XPCPP_LoadingErrorMsg,
@@ -174,6 +166,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       LaunchCore.log(IStatus.ERROR, Messages.XPCPP_LoadingErrorLogMsg, except);
       return new IProject[0];
     } finally {
+      this.fDependencyInfo.clearAllDependencies();
+      this.fSourcesToCompile.clear();
+      this.fRootFileNames.clear();
+
       monitor.done();
     }
   }
@@ -188,18 +184,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         if (this.fProjectWrapper == null) {
           this.fProjectWrapper = JavaCore.create(getProject());
         }
+        collectSourceFilesToCompile(INCREMENTAL_BUILD, this.fDependentProjects, new SubProgressMonitor(monitor, 1));
         
-        final IPath outpuLoc = this.fProjectWrapper.getOutputLocation();
-        final IContainer binaryContainer = ResourcesPlugin.getWorkspace().getRoot().getFolder(outpuLoc);
-        if (binaryContainer != null) {
-        	binaryContainer.refreshLocal(IResource.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
-        	final IResource[] members = binaryContainer.members();
-        	monitor.beginTask(Messages.CPPB_DeletingTaskName, members.length);
-        	for (final IResource member : members) {
-        		member.delete(true /* force */, null /* monitor */);
-        	}
-        	monitor.worked(1);
-        }
+        clearGeneratedAndCompiledFiles(new SubProgressMonitor(monitor, 1));
       }
     } finally {
       monitor.done();
@@ -218,6 +205,49 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   }
   
   // --- Private code
+  
+  private void clearGeneratedAndCompiledFiles(final IProgressMonitor monitor) throws CoreException {
+    final String resManagerID = getProject().getPersistentProperty(Constants.RES_MANAGER_ID);
+    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+    final IResourceManager rmManager = modelManager.getResourceManagerFromUniqueName(resManagerID);
+    final IResourceManagerControl rmControl = (IResourceManagerControl) rmManager;
+    final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
+    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
+    final IRemoteConnection rmConnection = remoteServices.getConnectionManager().getConnection(rmc.getConnectionName());
+    final IRemoteFileManager fileManager = remoteServices.getFileManager(rmConnection);
+    
+    final IProgressMonitor nullMonitor = new NullProgressMonitor();
+    try {
+      monitor.beginTask(null, this.fSourcesToCompile.size() + 1);
+      final String workspaceDir = JavaProjectUtils.getWorkspaceDirValue(getProject());      
+      final IPath wDirPath = new Path(workspaceDir);
+      
+      for (final IFile sourceFile : this.fSourcesToCompile) {
+        final String rootName = sourceFile.getFullPath().removeFileExtension().lastSegment();
+        
+        this.fRootFileNames.add(rootName);
+        
+        fileManager.getResource(wDirPath.append(rootName + ".cc").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
+        fileManager.getResource(wDirPath.append(rootName + ".h").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
+        fileManager.getResource(wDirPath.append(rootName + ".inc").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
+        fileManager.getResource(wDirPath.append(rootName + ".o").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
+      
+        monitor.worked(1);
+      }
+      
+      final IFileStore parentStore = fileManager.getResource(workspaceDir);
+      parentStore.getChild("xxx_main_xxx.cc").delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
+      parentStore.getChild("lib" + getProject().getName() + ".a").delete(EFS.NONE, nullMonitor); //$NON-NLS-1$ //$NON-NLS-2$
+      
+      final String execPath = getProject().getPersistentProperty(Constants.EXEC_PATH);
+      if (execPath != null) {
+        fileManager.getResource(execPath).delete(EFS.NONE, nullMonitor);
+      }
+      monitor.worked(1);
+    } finally {
+      monitor.done();
+    }
+  }
   
   private void clearMarkers(final int kind) throws CoreException {
     if (kind == IncrementalProjectBuilder.INCREMENTAL_BUILD) {
@@ -249,9 +279,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     try {
       final IX10BuilderOp builderOp;
       if (platform.isLocal()) {
-        builderOp = new LocalX10BuilderOp(getProject(), workspaceDir, resourceManager);
+        builderOp = new LocalX10BuilderOp(getProject(), workspaceDir, resourceManager, this.fRootFileNames);
       } else {
-        builderOp = new RemoteX10BuilderOp(getProject(), workspaceDir, resourceManager, platform.getTargetOS());
+        builderOp = new RemoteX10BuilderOp(getProject(), workspaceDir, resourceManager, platform.getTargetOS(), 
+                                           this.fRootFileNames);
       }
       
       builderOp.transfer(binaryContainer, new SubProgressMonitor(monitor, 10));
@@ -316,7 +347,11 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   private IJavaProject fProjectWrapper;
   
-  private Collection<IFile> fSourcesToCompile = new HashSet<IFile>();  
+  private Collection<IFile> fSourcesToCompile = new HashSet<IFile>();
+  
+  private Set<IProject> fDependentProjects = new HashSet<IProject>();
+  
+  private Set<String> fRootFileNames = new HashSet<String>();
   
   
   private static final String PROBLEMS_VIEW_ID = "org.eclipse.ui.views.ProblemView"; //$NON-NLS-1$

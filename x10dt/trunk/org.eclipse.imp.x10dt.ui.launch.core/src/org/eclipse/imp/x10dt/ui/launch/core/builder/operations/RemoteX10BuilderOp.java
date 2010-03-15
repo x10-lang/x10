@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.builder.operations;
 
+import java.util.Set;
+
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
@@ -34,11 +36,13 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
    * @param workspaceDir The workspace directory.
    * @param resourceManager The resource manager to consider.
    * @param targetOS The target OS for the remote system.
+   * @param rootFileNames The list of source root names that we need to take into account.
    */
   public RemoteX10BuilderOp(final IProject project, final String workspaceDir, final IResourceManager resourceManager,
-                            final ETargetOS targetOS) {
+                            final ETargetOS targetOS, final Set<String> rootFileNames) {
     super(resourceManager, project, workspaceDir);
     this.fTargetOS = targetOS;
+    this.fRootFileNames = rootFileNames;
   }
 
   // --- Interface methods implementation
@@ -65,14 +69,18 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
       if (fileStore.fetchInfo().isDirectory()) {
         copyGeneratedFiles(destDir.getChild(name), srcDir.append(name), new SubProgressMonitor(monitor, 1));
       } else {
-        final IFileStore destFile = destDir.getChild(name);
-        fileStore.copy(destFile, EFS.OVERWRITE, null);
-        if (name.endsWith(CC_EXT)) {
-          String destPath = destFile.toURI().getPath();
-          if (this.fTargetOS == ETargetOS.WINDOWS && destPath.startsWith("/")) { //$NON-NLS-1$
-        	  destPath = destPath.substring(1);
+        final String rootName = name.substring(0, name.lastIndexOf('.'));
+        if (this.fRootFileNames.contains(rootName)) {
+          final IFileStore destFile = destDir.getChild(name);
+          fileStore.copy(destFile, EFS.OVERWRITE, null);
+          if (name.endsWith(CC_EXT)) {
+            String destPath = destFile.toURI().getPath();
+            if (this.fTargetOS == ETargetOS.WINDOWS && destPath.startsWith("/")) { //$NON-NLS-1$
+              destPath = destPath.substring(1);
+            }
+            addCompiledFile(fileStore.toLocalFile(EFS.NONE, null), destPath);
           }
-          addCompiledFile(fileStore.toLocalFile(EFS.NONE, null), destPath);
+          fileStore.delete(EFS.NONE, null);
         }
         monitor.worked(1);
       }
@@ -82,5 +90,7 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
   // --- Fields
   
   private final ETargetOS fTargetOS;
+  
+  private final Set<String> fRootFileNames;
   
 }

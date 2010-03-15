@@ -8,6 +8,7 @@
 package org.eclipse.imp.x10dt.ui.launch.core.builder.operations;
 
 import java.io.File;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
@@ -28,9 +29,12 @@ public final class LocalX10BuilderOp extends AbstractX10BuilderOp implements IX1
    * @param project The project associated with the compilation.
    * @param workspaceDir The workspace directory.
    * @param resourceManager The resource manager to consider.
+   * @param rootFileNames The list of source root names that we need to take into account.
    */
-  public LocalX10BuilderOp(final IProject project, final String workspaceDir, final IResourceManager resourceManager) {
+  public LocalX10BuilderOp(final IProject project, final String workspaceDir, final IResourceManager resourceManager,
+                           final Set<String> rootFileNames) {
     super(resourceManager, project, workspaceDir);
+    this.fRootFileNames = rootFileNames;
   }
   
   // --- Interface methods implementation
@@ -46,11 +50,16 @@ public final class LocalX10BuilderOp extends AbstractX10BuilderOp implements IX1
   		if (file.isDirectory()) {
   			collectFilesToCompile(file);
   		} else {
-  			if (file.getName().endsWith(CC_EXT)) {
+  		  final String rootName = file.getName().substring(0, file.getName().lastIndexOf('.'));
+  			if (this.fRootFileNames.contains(rootName) && file.getName().endsWith(CC_EXT)) {
   				addCompiledFile(file, file.getAbsolutePath());
   			}
   		}
   	}
   }
+  
+  // --- Fields
+  
+  private final Set<String> fRootFileNames;
   
 }

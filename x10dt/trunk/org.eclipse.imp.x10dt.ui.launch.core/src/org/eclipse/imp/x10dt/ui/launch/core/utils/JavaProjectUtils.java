@@ -61,24 +61,35 @@ public final class JavaProjectUtils {
   }
   
   /**
-   * Returns the target workspace directory from the one saved in the project properties.
+   * Returns the local directory under project output directory where generated files can be created.
+   * 
+   * @param project The project to consider.
+   * @return A non-null value.
+   * @throws CoreException Occurs if we could not access the output directory for the given project.
+   */
+  public static String getLocalOutputDirForGeneratedFiles(final IProject project) throws CoreException {
+    final IJavaProject javaProject = JavaCore.create(project);
+    final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+    final URI outputFolderURI = root.getFolder(javaProject.getOutputLocation()).getLocationURI();
+    final File outputDirFile = EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor());
+    return outputDirFile.getAbsolutePath();
+  }
+  
+  /**
+   * Returns the workspace directory from the one saved in the project properties.
    * 
    * @param project The project of interest.
    * @return A non-null string identifying the target workspace directory.
    * @throws CoreException Occurs if we could not access the persisted property for the project transmitted.
    */
-  public static String getTargetWorkspaceDir(final IProject project) throws CoreException {
-    final String targetWorkspaceDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
-    if (targetWorkspaceDir == null) {
-      final IJavaProject javaProject = JavaCore.create(project);
-      final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-      final URI outputFolderURI = root.getFolder(javaProject.getOutputLocation()).getLocationURI();
-      final File outputDirFile = EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor());
-      final String wDir = new File(outputDirFile, X10_GENERATED_DIR).getAbsolutePath();
+  public static String getWorkspaceDirValue(final IProject project) throws CoreException {
+    final String workspaceDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
+    if (workspaceDir == null) {
+      final String wDir = getLocalOutputDirForGeneratedFiles(project);
       project.setPersistentProperty(Constants.WORKSPACE_DIR, wDir);
       return wDir;
     } else {
-      return targetWorkspaceDir;
+      return workspaceDir;
     }
   }
   
@@ -124,9 +135,5 @@ public final class JavaProjectUtils {
       return root.getLocation().append(path);
     }
   }
-  
-  // --- Fields
-  
-  private static final String X10_GENERATED_DIR = "x10-generated-dir"; //$NON-NLS-1$
 
 }

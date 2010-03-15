@@ -28,6 +28,7 @@ public final class Constants {
   public static final QualifiedName RES_MANAGER_ID = new QualifiedName(LaunchCore.PLUGIN_ID, "resource.manager"); //$NON-NLS-1$
   public static final QualifiedName WORKSPACE_DIR = new QualifiedName(LaunchCore.PLUGIN_ID, "target.workspace-dir"); //$NON-NLS-1$
   public static final QualifiedName X10_PLATFORM_CONF = new QualifiedName(LaunchCore.PLUGIN_ID, "x10.platform.conf"); //$NON-NLS-1$
+  public static final QualifiedName EXEC_PATH = new QualifiedName(LaunchCore.PLUGIN_ID, "exec.path"); //$NON-NLS-1$
 
   // --- Plugin ID
   

@@ -198,13 +198,14 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
     final IRemoteFileManager fileManager = remoteServices.getFileManager(connection);
     try {
-      final String workspaceDir = JavaProjectUtils.getTargetWorkspaceDir(project);
+      final String workspaceDir = JavaProjectUtils.getWorkspaceDirValue(project);
       final String platformConfName = project.getPersistentProperty(Constants.X10_PLATFORM_CONF);
       final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
       final IX10PlatformConfiguration platform = platforms.get(platformConfName);
       this.fX10LibsLocs = platform.getX10LibsLocations();
       this.fIsWindows = platform.getTargetOS() == ETargetOS.WINDOWS;
       final String execPath = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
+      project.setPersistentProperty(Constants.EXEC_PATH, execPath);
       final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
       
       final IFileStore mainClassFileStore = fileManager.getResource(execPath);

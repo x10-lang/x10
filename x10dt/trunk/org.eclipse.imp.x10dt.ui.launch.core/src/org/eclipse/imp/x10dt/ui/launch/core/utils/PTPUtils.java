@@ -202,41 +202,36 @@ public final class PTPUtils {
   }
   
   /**
-   * Determines the workspace directory for the given resource manager and project name provided. Typically it will be the
-   * project name appended to the user home directory. If we fail to get the user home directory for some strange reasons,
-   * we will add the project name to the TEMP directory. If we fail to read the TEMP directory also, the method will return
-   * an empty string.
+   * Determines the remote workspace directory for the given resource manager and project name provided. Typically it will 
+   * be the project name appended to the user home directory. If we fail to get the user home directory for some 
+   * strange reasons, we will add the project name to the TEMP directory. If we fail to read the TEMP directory also, 
+   * the method will return an empty string.
    * 
    * @param resourceManagerId The unique resource manager id.
    * @param projectName The project name to consider.
    * @return The workspace directory or an empty string if we could not identify one.
    */
-  public static String getTargetWorkspaceDirectory(final String resourceManagerId, final String projectName) {
+  public static String getRemoteTargetWorkspaceDirectory(final String resourceManagerId, final String projectName) {
     final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
     final IResourceManager resourceManager = modelManager.getResourceManagerFromUniqueName(resourceManagerId);
     final IResourceManagerControl rmControl = (IResourceManagerControl) resourceManager;
     final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
     final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
-    final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(rmServices);
 
     final StringBuilder wDirPathBuilder = new StringBuilder();
-    if (isLocal) {
-      wDirPathBuilder.append(System.getProperty("user.home").replace('\\', '/')); //$NON-NLS-1$
-    } else {
-      final IRemoteConnection connection = rmServices.getConnectionManager().getConnection(rmc.getConnectionName());
-      final String userHome = PTPUtils.getUserHomeDirectoryFromEnvVariables(connection);
-      if (userHome == null) {
-        // Somehow we can't get access to user home through the classical environment variables !?
-        final IRemoteFileManager rmFileManager = rmServices.getFileManager(connection);
-        final String tmpDir = getTempDirectory(connection, rmFileManager);
-        if (tmpDir == null) {
-          return ""; //$NON-NLS-1$
-        } else {
-          wDirPathBuilder.append(tmpDir);
-        }
+    final IRemoteConnection connection = rmServices.getConnectionManager().getConnection(rmc.getConnectionName());
+    final String userHome = PTPUtils.getUserHomeDirectoryFromEnvVariables(connection);
+    if (userHome == null) {
+      // Somehow we can't get access to user home through the classical environment variables !?
+      final IRemoteFileManager rmFileManager = rmServices.getFileManager(connection);
+      final String tmpDir = getTempDirectory(connection, rmFileManager);
+      if (tmpDir == null) {
+        return ""; //$NON-NLS-1$
       } else {
-        wDirPathBuilder.append(userHome);
+        wDirPathBuilder.append(tmpDir);
       }
+    } else {
+      wDirPathBuilder.append(userHome);
     }
     wDirPathBuilder.append('/').append(projectName);
     return wDirPathBuilder.toString();

@@ -10,8 +10,6 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.properties;
 import java.io.IOException;
 import java.util.Map;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
@@ -21,7 +19,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
@@ -31,11 +28,10 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -115,11 +111,14 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
     final IProject project = (IProject) getElement().getAdapter(IProject.class);
     
     try {
+      boolean shouldRebuild = false;
       if (this.fX10PlatformCombo.getSelectionIndex() == -1) {
         setErrorMessage(LaunchMessages.XTEPP_MissingX10PlatformError);
         return false;
       } else {
+        final String storedPlatformConf = project.getPersistentProperty(Constants.X10_PLATFORM_CONF);
         final String platformConf = this.fX10PlatformCombo.getItem(this.fX10PlatformCombo.getSelectionIndex());
+        shouldRebuild = (storedPlatformConf == null) || (! storedPlatformConf.equals(platformConf));
         project.setPersistentProperty(Constants.X10_PLATFORM_CONF, platformConf);
       }
       
@@ -127,8 +126,13 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
         setErrorMessage(LaunchMessages.XTEPP_MissingRMError);
         return false;
       } else {
+        final String storedResId = project.getPersistentProperty(Constants.RES_MANAGER_ID);
         final String resManagerName = this.fResManagerCombo.getItem(this.fResManagerCombo.getSelectionIndex());
         final String resManagerId = (String) this.fResManagerCombo.getData(resManagerName);
+        if (storedResId != resManagerId) {
+          project.build(IncrementalProjectBuilder.CLEAN_BUILD, new NullProgressMonitor());
+          project.setPersistentProperty(Constants.EXEC_PATH, null);
+        }
         project.setPersistentProperty(Constants.RES_MANAGER_ID, resManagerId);
       }
       
@@ -137,24 +141,17 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
         return false;
       } else {
         final String newWDir = this.fWorkspaceLocText.getText().trim();
-        final String curWDir = JavaProjectUtils.getTargetWorkspaceDir(project);
+        final String curWDir = JavaProjectUtils.getWorkspaceDirValue(project);
         project.setPersistentProperty(Constants.WORKSPACE_DIR, newWDir);
+        shouldRebuild = shouldRebuild || ! newWDir.equals(curWDir);
         
-        if (! newWDir.equals(curWDir)) {
+        if (shouldRebuild) {
           final Job job = new Job(LaunchMessages.XTEPP_RebuildTargetWorkspace) {
             
             public IStatus run(final IProgressMonitor monitor) {
+              monitor.beginTask(null, 3);
               try {
-                monitor.beginTask(null, 3);
-                monitor.subTask(LaunchMessages.XTEPP_CleanPreviousWDir);
-                final String resManagerId = project.getPersistentProperty(Constants.RES_MANAGER_ID);
-                final Pair<IRemoteConnection, IRemoteFileManager> pair = PTPUtils.getConnectionAndFileManager(resManagerId);
-                final IFileStore curWDirFileStore = pair.second.getResource(curWDir);
-                if (curWDirFileStore.fetchInfo().exists()) {
-                  curWDirFileStore.delete(EFS.NONE, new SubProgressMonitor(monitor, 1));
-                }
-                
-                monitor.subTask(LaunchMessages.XTEPP_RebuildProject);
+                project.build(IncrementalProjectBuilder.CLEAN_BUILD, new SubProgressMonitor(monitor, 1));
                 project.build(IncrementalProjectBuilder.FULL_BUILD, new SubProgressMonitor(monitor, 2));
                 
                 return Status.OK_STATUS;
@@ -285,7 +282,7 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
         }
       }
       
-      final String targetWorkspace = JavaProjectUtils.getTargetWorkspaceDir(project);
+      final String targetWorkspace = JavaProjectUtils.getWorkspaceDirValue(project);
       if (targetWorkspace != null) {
         this.fWorkspaceLocText.setText(targetWorkspace);
       }
@@ -326,9 +323,20 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
     public void widgetSelected(final SelectionEvent event) {
       final Combo combo = X10TargetEnvironmentPropertyPage.this.fResManagerCombo;
       final String resManagerId = (String) combo.getData(combo.getItem(combo.getSelectionIndex()));
+      final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+      final IResourceManager resourceManager = modelManager.getResourceManagerFromUniqueName(resManagerId);
       final IProject project = (IProject) getElement().getAdapter(IProject.class);
-      final String workspaceDir = PTPUtils.getTargetWorkspaceDirectory(resManagerId, project.getName());
-      X10TargetEnvironmentPropertyPage.this.fWorkspaceLocText.setText(workspaceDir);
+      try {
+        final String workspaceDir;
+        if (PTPUtils.isLocal(resourceManager)) {
+          workspaceDir = JavaProjectUtils.getLocalOutputDirForGeneratedFiles(project);
+        } else {
+          workspaceDir = PTPUtils.getRemoteTargetWorkspaceDirectory(resManagerId, project.getName());
+        }
+        X10TargetEnvironmentPropertyPage.this.fWorkspaceLocText.setText(workspaceDir);
+      } catch (CoreException except) {
+        // Simply forgets
+      }
     }
     
   }

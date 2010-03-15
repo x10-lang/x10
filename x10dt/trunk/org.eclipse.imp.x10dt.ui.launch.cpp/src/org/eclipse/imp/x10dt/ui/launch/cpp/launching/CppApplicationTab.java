@@ -146,7 +146,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         configuration.setAttribute(Constants.ATTR_MAIN_TYPE_PATH, mainTypeFilePath);
         String workspaceDir = null;
         try {
-          workspaceDir = JavaProjectUtils.getTargetWorkspaceDir(project);
+          workspaceDir = JavaProjectUtils.getWorkspaceDirValue(project);
         } catch (CoreException except) {
           final int slashIndex = mainTypeFilePath.lastIndexOf('/');
           if (slashIndex == -1) {
@@ -229,7 +229,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         if (resourceManager != null) {
           final Pair<IRemoteConnection, IRemoteFileManager> pair = PTPUtils.getConnectionAndFileManager(resourceManager);
           try {
-            pair.second.setWorkingDirectory(JavaProjectUtils.getTargetWorkspaceDir(project));
+            pair.second.setWorkingDirectory(JavaProjectUtils.getWorkspaceDirValue(project));
           } catch (CoreException except) {
             // Simply forgets.
           }
@@ -463,7 +463,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   
   private void setMainType(final IProject project, final IResourceManager resourceManager,
                            final ClassType mainType) throws CoreException {
-    final String workspaceDir = JavaProjectUtils.getTargetWorkspaceDir(project);
+    final String workspaceDir = JavaProjectUtils.getWorkspaceDirValue(project);
     final IRemoteFileManager fileManager = PTPUtils.getConnectionAndFileManager(resourceManager).second;
     final IFileStore wDirStore = fileManager.getResource(workspaceDir);
     

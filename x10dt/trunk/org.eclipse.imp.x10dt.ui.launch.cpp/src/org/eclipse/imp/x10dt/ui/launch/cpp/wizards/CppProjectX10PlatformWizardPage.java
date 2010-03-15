@@ -41,7 +41,6 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
@@ -122,8 +121,8 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
     final String resName = this.fResManagerCombo.getItem(this.fResManagerCombo.getSelectionIndex());
     final String resID = (String) this.fResManagerCombo.getData(resName);
     project.setPersistentProperty(Constants.RES_MANAGER_ID, resID);
-    if (this.fTargetWorkspaceDir != null) {
-      project.setPersistentProperty(Constants.WORKSPACE_DIR, this.fTargetWorkspaceDir);
+    if (this.fWorkspaceLocText.getText().trim().length() > 0) {
+      project.setPersistentProperty(Constants.WORKSPACE_DIR, this.fWorkspaceLocText.getText().trim());
     }
     final String platformConfName = this.fX10PlatformCombo.getItem(this.fX10PlatformCombo.getSelectionIndex());
     project.setPersistentProperty(Constants.X10_PLATFORM_CONF, platformConfName);
@@ -376,8 +375,8 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
     this.fBrowseBt.setEnabled(selectionIndex != -1 && ! isLocal);
     
     if (this.fWorkspaceLocText.isEnabled()) {
-      this.fWorkspaceLocText.setText(PTPUtils.getTargetWorkspaceDirectory(resManagerId, this.fFirstPage.getProjectName()));
-      this.fTargetWorkspaceDir = this.fWorkspaceLocText.getText().trim();
+      this.fWorkspaceLocText.setText(PTPUtils.getRemoteTargetWorkspaceDirectory(resManagerId, 
+                                                                                this.fFirstPage.getProjectName()));
     }
   }
   
@@ -473,8 +472,6 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
   private Button fBrowseBt;
     
   private Text fWorkspaceLocText;
-  
-  private String fTargetWorkspaceDir;
   
   private Map<String, IX10PlatformConfiguration> fX10Platforms;
   
