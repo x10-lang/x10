@@ -91,14 +91,15 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     try {
       if (this.fProjectWrapper == null) {
         return new IProject[0];
-      }
-      if (this.fSourcesToCompile.isEmpty()) {
-        collectSourceFilesToCompile(kind, this.fDependentProjects, monitor);
-      }
+      }      
       final IPath outpuLoc = this.fProjectWrapper.getOutputLocation();
       final IContainer binaryContainer = ResourcesPlugin.getWorkspace().getRoot().getFolder(outpuLoc);
 
       monitor.beginTask(null, 100);
+      
+      collectSourceFilesToCompile(INCREMENTAL_BUILD, this.fDependentProjects, new SubProgressMonitor(monitor, 5));
+      
+      clearGeneratedAndCompiledFiles(new SubProgressMonitor(monitor, 5));
       
       // Let's get the resource manager.
       final IWorkbench workbench = LaunchCore.getInstance().getWorkbench();
@@ -154,11 +155,11 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       // Let's compile the X10 files.
       final String workspaceDir = JavaProjectUtils.getWorkspaceDirValue(getProject());
       final File outputDir = new File(binaryContainer.getLocationURI());
-      compileX10Files(outputDir.getAbsolutePath(), new SubProgressMonitor(monitor, 27));
+      compileX10Files(outputDir.getAbsolutePath(), new SubProgressMonitor(monitor, 22));
       
       // Finally, let's compile the generated files.
       return compileGeneratedFiles(resourceManager, this.fDependentProjects, workspaceDir, platform, binaryContainer,
-                                   new SubProgressMonitor(monitor, 60));
+                                   new SubProgressMonitor(monitor, 55));
     } catch (IOException except) {
       IResourceUtils.addMarkerTo(getProject(), Messages.XPCPP_LoadingErrorMsg,
       										       IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);

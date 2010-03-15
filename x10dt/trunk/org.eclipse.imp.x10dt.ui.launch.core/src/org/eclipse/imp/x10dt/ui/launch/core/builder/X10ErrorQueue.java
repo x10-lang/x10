@@ -45,7 +45,7 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
       final int severity = (error.getErrorKind() == ErrorInfo.WARNING) ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR;
       final Position position = error.getPosition();
       try {
-        final IFile[] files = this.fRoot.findFilesForLocationURI(new URI(position.file()));
+        final IFile[] files = this.fRoot.findFilesForLocationURI(new URI(position.file().replace('\\', '/')));
         if (files.length == 0) {
           // We could not find the associated resource. So we add a marker to the project.
           IResourceUtils.addMarkerTo(this.fProject, error.getMessage(), severity, position.file(), IMarker.PRIORITY_NORMAL, 

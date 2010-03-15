@@ -72,7 +72,7 @@ public final class JavaProjectUtils {
     final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
     final URI outputFolderURI = root.getFolder(javaProject.getOutputLocation()).getLocationURI();
     final File outputDirFile = EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor());
-    return outputDirFile.getAbsolutePath();
+    return outputDirFile.getAbsolutePath().replace('\\', '/');
   }
   
   /**

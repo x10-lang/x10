@@ -18,8 +18,10 @@ import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
@@ -61,19 +63,19 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
     final List<String> archiveCmd = new ArrayList<String>();
     archiveCmd.add(platform.getArchiver());
     archiveCmd.addAll(X10BuilderUtils.getAllTokens(platform.getArchivingOpts(true)));
-    final StringBuilder libName = new StringBuilder();
-    libName.append(this.fWorkspaceDir).append("/lib").append(this.fProject.getName()).append(".a"); //$NON-NLS-1$//$NON-NLS-2$
-    archiveCmd.add(libName.toString());
+    final IPath libPath = new Path(this.fWorkspaceDir).append("lib" + this.fProject.getName() + ".a");
+    archiveCmd.add(libPath.toString());
     for (final String objectFile : this.fObjectFiles) {
-      archiveCmd.add(objectFile);
+      archiveCmd.add(objectFile.replace('\\', '/'));
     }
 
     try {
+      final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+      final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+
       final IRemoteProcessBuilder archiveProcessBuilder = getProcessBuilder(archiveCmd);
       final IRemoteProcess process = archiveProcessBuilder.start();
       
-      final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
-      final MessageConsoleStream mcStream = messageConsole.newMessageStream();
       UIUtils.printStream(process.getInputStream(), process.getErrorStream(), new IInputListener() {
         
         public void after() {
@@ -91,9 +93,8 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
         
       });
 
-      process.waitFor();
-    
-      final int returnCode = process.exitValue();
+      final int returnCode = process.waitFor();
+
       process.destroy();
     
       if (returnCode != 0) {
@@ -133,11 +134,12 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
         command.add("-o"); //$NON-NLS-1$
         command.add(objectFile);
         
+        final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+        messageConsole.clearConsole();
+        
         final IRemoteProcessBuilder processBuilder = getProcessBuilder(command);
         final IRemoteProcess process = processBuilder.start();
         
-        final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
-        messageConsole.clearConsole();
         final MessageConsoleStream mcStream = messageConsole.newMessageStream();
         UIUtils.printStream(process.getInputStream(), process.getErrorStream(), new IInputListener() {
           
@@ -145,29 +147,18 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
           }
           
           public void before() {
-            this.fCounter = 0;
           }
 
           public void read(final String line) {
           }
           
           public void readError(final String line) {
-            if (this.fCounter == 0) {
-              
-              this.fCounter = 1;
-            }
             mcStream.println(line);
           }
-          
-          // --- Fields
-          
-          int fCounter;
-          
+                    
         });
         
-        process.waitFor();
-        
-        final int returnCode = process.exitValue();
+        final int returnCode = process.waitFor();
         process.destroy();
         
         monitor.worked(1);
