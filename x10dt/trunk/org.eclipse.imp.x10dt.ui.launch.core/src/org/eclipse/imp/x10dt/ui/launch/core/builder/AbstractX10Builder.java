@@ -71,6 +71,7 @@ import polyglot.frontend.Compiler;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Source;
+import polyglot.util.ErrorQueue;
 import x10.ExtensionInfo;
 
 /**
@@ -96,10 +97,6 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       final IContainer binaryContainer = ResourcesPlugin.getWorkspace().getRoot().getFolder(outpuLoc);
 
       monitor.beginTask(null, 100);
-      
-      collectSourceFilesToCompile(INCREMENTAL_BUILD, this.fDependentProjects, new SubProgressMonitor(monitor, 5));
-      
-      clearGeneratedAndCompiledFiles(new SubProgressMonitor(monitor, 5));
       
       // Let's get the resource manager.
       final IWorkbench workbench = LaunchCore.getInstance().getWorkbench();
@@ -137,6 +134,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       } else {
         monitor.worked(3);
       }
+      
+      collectSourceFilesToCompile(INCREMENTAL_BUILD, this.fDependentProjects, new SubProgressMonitor(monitor, 5));
+      
+      clearGeneratedAndCompiledFiles(resourceManager, new SubProgressMonitor(monitor, 5));
             
       // Let's get the platform configuration
       final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
@@ -187,7 +188,24 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         }
         collectSourceFilesToCompile(INCREMENTAL_BUILD, this.fDependentProjects, new SubProgressMonitor(monitor, 1));
         
-        clearGeneratedAndCompiledFiles(new SubProgressMonitor(monitor, 1));
+        final String resManagerID = getProject().getPersistentProperty(Constants.RES_MANAGER_ID);
+        final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+        final IResourceManager rmManager = modelManager.getResourceManagerFromUniqueName(resManagerID);
+        if (rmManager != null) {
+          if (rmManager.getState() != ResourceManagerAttributes.State.STARTED) {
+            try {
+              rmManager.startUp(new SubProgressMonitor(monitor, 3));
+              clearGeneratedAndCompiledFiles(rmManager, new SubProgressMonitor(monitor, 1));
+            } catch (CoreException except) {
+              IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.AXB_ResManagerStartFailure, rmManager.getName()), 
+                                         IMarker.SEVERITY_ERROR, 
+                                         getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+              UIUtils.showView(PROBLEMS_VIEW_ID);
+            }
+          } else {
+            clearGeneratedAndCompiledFiles(rmManager, new SubProgressMonitor(monitor, 1));
+          }
+        }
       }
     } finally {
       monitor.done();
@@ -207,10 +225,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   // --- Private code
   
-  private void clearGeneratedAndCompiledFiles(final IProgressMonitor monitor) throws CoreException {
-    final String resManagerID = getProject().getPersistentProperty(Constants.RES_MANAGER_ID);
-    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
-    final IResourceManager rmManager = modelManager.getResourceManagerFromUniqueName(resManagerID);
+  private void clearGeneratedAndCompiledFiles(final IResourceManager rmManager, 
+                                              final IProgressMonitor monitor) throws CoreException {
     final IResourceManagerControl rmControl = (IResourceManagerControl) rmManager;
     final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
     final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
@@ -322,10 +338,15 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     final ExtensionInfo extInfo = compilerExtInfo.createExtensionInfo(cpBuilder.toString(), sourcePath, outputDir, 
                                                                       false /* withMainMethod */, monitor);
     
-    final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(1000000, getProject(), extInfo.compilerName()));
+    final ErrorQueue errorQueue = new X10ErrorQueue(1000000, getProject(), extInfo.compilerName());
+    final Compiler compiler = new Compiler(extInfo, errorQueue);
     Globals.initialize(compiler);
     
     compiler.compile(toSources(this.fSourcesToCompile));
+    
+    if (errorQueue.hasErrors()) {
+      UIUtils.showView(PROBLEMS_VIEW_ID);
+    }
   }
   
   private Collection<Source> toSources(final Collection<IFile> sources) throws CoreException {
