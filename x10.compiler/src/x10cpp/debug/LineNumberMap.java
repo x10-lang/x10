@@ -639,6 +639,45 @@ public class LineNumberMap extends StringTable {
 	    }
 	    w.writeln("};");
         }
+
+        // A meta-structure that refers to all of the above
+        w.write("static const struct _MetaDebugInfo_t _MetaDebugInfo __attribute__((used)) = {");
+        w.newline(4); w.begin(0);
+        w.writeln("sizeof(struct _MetaDebugInfo_t),");
+        w.writeln("X10_META_LANG,");
+        w.writeln("0,");
+        w.writeln("sizeof(_X10strings),");
+        if (!m.isEmpty()) {
+            w.writeln("sizeof(_X10sourceList),");
+            w.writeln("sizeof(_X10toCPPlist),");
+            w.writeln("sizeof(_CPPtoX10xrefList),");
+        } else {
+            w.writeln("0,");
+            w.writeln("0,");
+            w.writeln("0,");
+        }
+        if (!m.methods.isEmpty()) {
+            w.writeln("sizeof(_X10methodNameList),");
+        } else {
+            w.writeln("0,");
+        }
+        w.writeln("_X10strings,");
+        if (!m.isEmpty()) {
+            w.writeln("_X10sourceList,");
+            w.writeln("_X10toCPPlist,");
+            w.writeln("_CPPtoX10xrefList,");
+        } else {
+            w.writeln("NULL,");
+            w.writeln("NULL,");
+            w.writeln("NULL,");
+        }
+        if (!m.methods.isEmpty()) {
+            w.write("_X10methodNameList,");
+        } else {
+            w.write("NULL,");
+        }
+        w.end(); w.newline();
+        w.writeln("};");
 	}
 
 	private static String encodeIntAsChars(int i) {
