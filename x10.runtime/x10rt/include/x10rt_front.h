@@ -459,6 +459,10 @@ X10RT_C void x10rt_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long lo
  */
 X10RT_C void x10rt_remote_op_fence (void);
 
+/** Perform a global SPMD-style barrier. Blocks until every place calls the barrier operation
+ */
+X10RT_C void x10rt_barrier (void);
+
 
 /** Automatically configure a CUDA kernel.  By studying the characteristics of the hardware upon
  * which the kernel will be executed, and the kernel itself, we can traverse a list of supported
