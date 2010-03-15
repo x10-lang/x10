@@ -126,6 +126,9 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
 
     String path = programPath.removeLastSegments(1).toString();
     if (path != null) {
+      if (this.fIsWindows) {
+        path = '"' + path + '"'; // Required for PTP 3.0.1. 
+      }
       attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(path));
     }
 
