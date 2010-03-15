@@ -70,9 +70,9 @@ public class SerializationTest {
         X10RT.barrier();
 
         if(0 == X10RT.here().getId()) {
-            msg.send(X10RT.getNode(0), obj);
+            msg.send(X10RT.getPlace(0), obj);
             
-            msg2.send(X10RT.getNode(0), obj);
+            msg2.send(X10RT.getPlace(0), obj);
         }
 
         X10RT.barrier();
