@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;;
+import harness.x10Test;
 
 public interface X10InterfaceOne {
 
