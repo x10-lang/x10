@@ -46,7 +46,7 @@ public class SerializationTest {
         public void printFields() {
             System.out.println("fa = "+firstAttribute);
             System.out.println("sa = "+secondAttribute);
-            System.out.println("ta = " +thirdAttribute);
+            System.out.printf("ta = [%d, %d, %d, %d]\n", thirdAttribute[0], thirdAttribute[1], thirdAttribute[2], thirdAttribute[3]);
         }
     }
 
@@ -70,9 +70,9 @@ public class SerializationTest {
         X10RT.barrier();
 
         if(0 == X10RT.here().getId()) {
-            msg.send(X10RT.getPlace(0), obj);
+            msg.send(X10RT.getPlace(1), obj);
             
-            msg2.send(X10RT.getPlace(0), obj);
+            msg2.send(X10RT.getPlace(1), obj);
         }
 
         X10RT.barrier();
