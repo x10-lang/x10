@@ -1618,6 +1618,4 @@ public class ActiveMessage {
     private static native void sendArrayRemote(int place, int messageId, int start, int end, int[] array);
 
     private static native void sendGeneralRemote(int place, int messageId, int arraylen, byte[] rawBytes);
-
-    static native void processQueue();
 }
