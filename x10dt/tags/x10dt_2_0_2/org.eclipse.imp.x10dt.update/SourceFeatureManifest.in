@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="@feature.id@.source"
+         version="@feature.version@"
+         label="@feature.id@ Source"
+         provider-name="@provider.name@"
+         image="eclipse_update_120.jpg">
+    <description >
+        %description
+    </description>
+    <copyright >
+        %copyright
+    </copyright>
+    <license url="%licenseURL">
+        %license
+    </license>
+    <url>
+        <update url="http://dist.codehaus.org/x10/x10dt/2.0/updateSite/" label="X10DT Update Site"/>
+        <discovery url="http://dist.codehaus.org/x10/x10dt/2.0/updateSite/" label="X10DT Update Site"/>
+    </url>
