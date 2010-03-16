@@ -57,7 +57,7 @@ EOF
     exit 1
 fi
 
-[ -z "$DEXT" ] && DEXT="x10.ExtensionInfo"
+[ -z "$DEXT" ] && DEXT="x10c.ExtensionInfo"
 [ -z "$ext" ] && ext="$DEXT"
 
 CONFIG_DIR="${TOP}${FILE_SEP}etc"
@@ -95,7 +95,7 @@ if [[ "$optimize" = "true" ]]; then
   args=" -BAD_PLACE_RUNTIME_CHECK=false -OPTIMIZE=true $args"
 fi
 
-if [[ "$ext" = "x10.ExtensionInfo" ]]; then
+if [[ "$ext" = "x10c.ExtensionInfo" ]]; then
   # Java backend
   command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post 'java -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.5 -nowarn' -extclass $ext $extargs $args"
 else
