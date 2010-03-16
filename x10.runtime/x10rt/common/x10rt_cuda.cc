@@ -139,17 +139,19 @@ namespace {
         virtual bool is_copy() { return false; }
     };
 
+    #define CUDA_PARAM_SZ 80
     struct x10rt_cuda_kernel : x10rt_cuda_base_op<x10rt_cuda_kernel> {
         size_t blocks;
         size_t threads;
         size_t shm;
         size_t argc;
-        const char *argv;
+        char param_data[CUDA_PARAM_SZ];
+        char *argv;
         size_t cmemc;
-        const char *cmemv;
+        char *cmemv;
         x10rt_cuda_kernel (x10rt_msg_params &p_)
           : x10rt_cuda_base_op<x10rt_cuda_kernel>(p_), blocks(0), threads(0), shm(0),
-            argc(0), argv(0), cmemc(0), cmemv(0)
+            argc(CUDA_PARAM_SZ), argv(param_data), cmemc(0), cmemv(0)
         { }
         virtual bool is_kernel() { return true; }
     };

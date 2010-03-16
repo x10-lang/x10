@@ -286,7 +286,7 @@ static void receive_async (const x10rt_msg_params *p) {
 }
 
 static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads, size_t *shm,
-                      size_t *argc, const char **argv, size_t *cmemc, const char **cmemv)
+                      size_t *argc, char **argv, size_t *cmemc, char **cmemv)
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
