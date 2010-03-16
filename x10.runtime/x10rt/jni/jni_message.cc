@@ -54,7 +54,16 @@ static x10rt_msg_type JD_Handler;
 static x10rt_msg_type DI_Handler;
 static x10rt_msg_type DF_Handler;
 static x10rt_msg_type DJ_Handler;
-// static x10rt_msg_type ArrayHandler;
+
+//static x10rt_msg_type ZArray_Handler;
+//static x10rt_msg_type BArray_Handler;
+//static x10rt_msg_type CArray_Handler;
+//static x10rt_msg_type SArray_Handler;
+static x10rt_msg_type IArray_Handler;
+//static x10rt_msg_type FArray_Handler;
+//static x10rt_msg_type JArray_Handler;
+//static x10rt_msg_type DArray_Handler;
+
 // static x10rt_msg_type GenericHandler;
 
 
@@ -165,6 +174,11 @@ public:
         cursor = (void*) (((char*)cursor)+sizeof(jdouble));
         return ans;
     }
+
+    void endianSwapIfNeeded(int numElems, int elemSizeInBytes) {
+        // TODO: Proper endian encoding/decoding.
+    }
+    
 };
 
 
@@ -215,6 +229,10 @@ public:
         // TODO: Proper endian encoding/decoding
         *((jdouble*)cursor) = val;
         cursor = (void*) (((char*)cursor)+sizeof(jdouble));
+    }
+
+    void endianSwapIfNeeded(int numElems, int elemSizeInBytes) {
+        // TODO: Proper endian encoding/decoding.
     }
 };
 
@@ -567,6 +585,32 @@ void jni_messageReceiver_DJ(const x10rt_msg_params *msg) {
     
     env->CallStaticVoidMethod(targetClass, targetMethod, arg1, arg2);
 }    
+
+
+
+
+
+void jni_messageReceiver_IArray(const x10rt_msg_params *msg) {
+    JNIEnv *env = getEnv();
+    MessageReader reader(msg);
+
+    int messageId = reader.readJInt();
+    jclass targetClass = registeredMethods[messageId].targetClass;
+    jmethodID targetMethod = registeredMethods[messageId].targetMethod;
+
+    jint numElems = reader.readJInt();
+    reader.endianSwapIfNeeded(numElems, sizeof(jint));
+
+    jintArray arg = env->NewIntArray(numElems);
+    if (NULL == arg) {
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", numElems);
+        abort();
+    }
+
+    env->SetIntArrayRegion(arg, 0, numElems, (jint*)reader.cursor);
+    env->CallStaticVoidMethod(targetClass, targetMethod, arg);
+}
+
 
 
 /**********************************************************************************************************************
@@ -1009,8 +1053,16 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3C(JNIE
  * Signature: (III[I)V
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3I(JNIEnv *env, jclass klazz, jint place, jint messageId,
-                                                                            jint arraylen, jintArray) {
-    fprintf(stderr, "Unimplemented native function\n");
+                                                                            jint arrayLen, jintArray array) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jint) + arrayLen * sizeof(jint);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJInt(arrayLen);
+    env->GetIntArrayRegion(array, 0, arrayLen, (jint*)writer.cursor);
+    writer.endianSwapIfNeeded(arrayLen, sizeof(jint));
+    
+    x10rt_msg_params msg = {place, IArray_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -1140,11 +1192,9 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_initializeMessageHandlers(JN
     DF_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_DF, NULL, NULL, NULL, NULL);
     DJ_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_DJ, NULL, NULL, NULL, NULL);
 
-    /*
-    Array_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_array, NULL, NULL, NULL, NULL);
-
-    Generic_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_general, NULL, NULL, NULL, NULL);
-    */
+    IArray_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_IArray, NULL, NULL, NULL, NULL);
+    
+    // Generic_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_general, NULL, NULL, NULL, NULL);
 }
 
 

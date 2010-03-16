@@ -42,7 +42,7 @@ public class SimpleMessageTest {
         ping.send(where);
         add.send(where, 10+i, 20+i);
         // addScaled.send(where, new int[] { 1, 2, 3, 4, 5 }, 10);
-        // addMany.send(where, new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, i*100});
+        addMany.send(where, new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, i*100});
         // addManyD.send(where, new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, i*100});
         // addManyS.send(where, new short[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, (short)(i*100)});
         max.send(where, (short)100, (double)200);
