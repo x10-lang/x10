@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="org.eclipse.imp.x10dt.feature" default="build.feature.jar" basedir=".">
-	<import file="../org.eclipse.imp.x10dt.update/buildCommon.xml"/>
-	<import file="../org.eclipse.imp.x10dt.update/buildFeatureCommon.xml"/>
-
-</project>

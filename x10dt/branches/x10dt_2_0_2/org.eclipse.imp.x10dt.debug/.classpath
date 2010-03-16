@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry excluding="org/eclipse/imp/x10dt/debug/model/impl/stub/SampleX10ActivityAsThreadProxy.java|org/eclipse/imp/x10dt/debug/ui/launching/X10VMRunnerDelegate.java|org/eclipse/imp/x10dt/debug/model/impl/jdi/|org/eclipse/imp/x10dt/debug/model/impl/stub/|org/eclipse/imp/x10dt/debug/model/unused/|org/eclipse/imp/x10dt/debug/ui/presentation/CopyOfX10ModelPresentation.java|org/eclipse/imp/x10dt/debug/model/impl/CopyOfX10DebugTargetAlt.java|org/eclipse/imp/x10dt/debug/model/impl/CopyOfX10Thread.java" kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
