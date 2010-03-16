@@ -1441,7 +1441,7 @@ public class ActiveMessage {
             for (Class<?> p : message.method.getParameterTypes()) {
                 parameterTypes[idx++] = p;
             }
-            wrappedArgs = new Object[parameterTypes.length+1];
+            wrappedArgs = new Object[parameterTypes.length];  
         }
         
         for (int i=0; i<parameterTypes.length; i++) {
@@ -1511,7 +1511,6 @@ public class ActiveMessage {
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
                         }
-                        //assert false : "implement me " + type;
                     }
                 } else {
                     if (type.equals(Boolean.TYPE)) {
@@ -1531,7 +1530,6 @@ public class ActiveMessage {
                     } else if (type.equals(Double.TYPE)) {
                         wrappedArgs[i] = Double.valueOf(objStream.readDouble());
                     } else {
-                        //assert false : "implement me " + type;
                         try {
                             wrappedArgs[i] = objStream.readObject();
                         } catch (ClassNotFoundException e) {
