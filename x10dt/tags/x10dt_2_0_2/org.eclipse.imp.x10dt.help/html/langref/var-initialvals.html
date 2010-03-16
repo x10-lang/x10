@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Initial values of variables</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Initial values of variables</h2>
+<a name="NullaryConstructor">
+</a>
+
+<div class="p"><!----></div>
+Every variable declared at a type must always contain a value of that type.
+
+<div class="p"><!----></div>
+Every class variable must be initialized before it is read, through
+the execution of an explicit initializer or a static block. Every
+instance variable must be initialized before it is read, through the
+execution of an explicit initializer or a constructor.
+Non-final instance variables of class type are initialized to 
+to "null".
+Non-final instance variables of struct type are 
+assumed to have an initializer that sets the value to the
+result of invoking the nullary constructor on the class. 
+An initializer is required if the default initial value is not
+assignable to the variable's type.
+
+<div class="p"><!----></div>
+Each method and constructor parameter is initialized to the
+corresponding argument value provided by the invoker of the method. An
+exception-handling parameter is initialized to the object thrown by
+the exception. A local variable must be explicitly given a value by
+initialization or assignment, in a way that the compiler can verify
+using the rules for definite assignment {jls2}.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

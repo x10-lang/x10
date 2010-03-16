@@ -1,0 +1,44 @@
+package org.eclipse.imp.x10dt.core.preferences.generated;
+
+details off;
+
+page X10 {
+    tabs {
+    	default out { }
+    	configuration out { }
+    	instance in {  }
+    	project out { } 
+    }
+    
+    fields {
+        int TabSize {
+            tooltip "The number of spaces equivalent to one tab in the source editor";
+            range 0 ..20;
+            defvalue 4; }
+        font SourceFont {
+            tooltip "The font to use in the source code editor";
+            defvalue "courier" 10 normal; }
+        directory DefaultRuntime {
+            emptyallowed true ""; 
+            label "Default runtime";
+            tooltip "Folder containing the default X10 runtime libraries";
+}
+        boolean BadPlaceRuntimeCheck {
+            tooltip "Enable the generation of code to check for direct accesses to data at another place";
+            defvalue true; }
+        boolean LoopOptimizations { defvalue true; }
+        boolean ArrayOptimizations { defvalue true; }
+        boolean PermitAssert { label "Permit asserts"; defvalue true; }
+
+        boolean EchoCompileArgumentsToConsole { 
+            tooltip "The arguments to x10 compile command will be echoed in the console view.";
+            defvalue false; } 
+        int NumPlaces {
+            tooltip "The number of logical places upon which the application is executed";
+            range 1 ..50;
+            defvalue 4; }
+        string AdditionalCompilerOptions {
+            defvalue "-commandlineonly"; 
+            validator "org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsValidator"; }
+    }
+}
