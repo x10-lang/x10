@@ -62,7 +62,7 @@ typedef void x10rt_handler(const x10rt_msg_params *);
  * captured state).  \todo work in progress
  */
 typedef void x10rt_cuda_pre(const x10rt_msg_params *, size_t *blocks, size_t *threads, size_t *shm,
-                            size_t *argc, const char **argv, size_t *cmemc, const char **cmemv);
+                            size_t *argc, char **argv, size_t *cmemc, char **cmemv);
 
 /** A callback that runs on the CPU on behalf of the GPU, just after a kernel
  * has completed.  This is used for updating finish states and other things
