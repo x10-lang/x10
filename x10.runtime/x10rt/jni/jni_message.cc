@@ -634,7 +634,15 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIII(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIII(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                       jint arg1, jint arg2, jint arg3) {
-
+    unsigned long numBytes = sizeof(jint) + 3*sizeof(jint);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJInt(arg1);
+    writer.writeJInt(arg2);
+    writer.writeJInt(arg3);
+    
+    x10rt_msg_params msg = {place, III_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -644,7 +652,16 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIII(JNIEnv *en
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIIII(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                        jint arg1, jint arg2, jint arg3, jint arg4) {
-
+    unsigned long numBytes = sizeof(jint) + 4*sizeof(jint);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJInt(arg1);
+    writer.writeJInt(arg2);
+    writer.writeJInt(arg3);
+    writer.writeJInt(arg4);
+    
+    x10rt_msg_params msg = {place, IIII_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }
 
 /*
@@ -654,7 +671,13 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIIII(JNIEnv *e
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJ(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                     jlong arg1) {
-
+    unsigned long numBytes = sizeof(jint) + sizeof(jlong);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJLong(arg1);
+    
+    x10rt_msg_params msg = {place, J_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -664,7 +687,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJ(JNIEnv *env,
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJJ(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jlong arg1, jlong arg2) {
-
+    unsigned long numBytes = sizeof(jint) + sizeof(jlong) + sizeof(jlong);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJLong(arg1);
+    writer.writeJLong(arg2);
+    
+    x10rt_msg_params msg = {place, JJ_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -674,7 +704,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJJ(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIJ(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jint arg1, jlong arg2) {
-
+    unsigned long numBytes = sizeof(jint) + sizeof(jint) + sizeof(jlong);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJInt(arg1);
+    writer.writeJLong(arg2);
+    
+    x10rt_msg_params msg = {place, IJ_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -684,7 +721,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIJ(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJI(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jlong arg1, jint arg2) {
-
+    unsigned long numBytes = sizeof(jint) + sizeof(jlong) + sizeof(jint);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJLong(arg1);
+    writer.writeJInt(arg2);
+    
+    x10rt_msg_params msg = {place, JI_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -694,6 +738,13 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJI(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIF(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                     jfloat arg1) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jfloat);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJInt(arg1);
+    
+    x10rt_msg_params msg = {place, F_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -703,7 +754,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIF(JNIEnv *env,
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFF(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jfloat arg1, jfloat arg2) {
-
+    unsigned long numBytes = sizeof(jint) + sizeof(jfloat) + sizeof(jfloat);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJFloat(arg1);
+    writer.writeJFloat(arg2);
+    
+    x10rt_msg_params msg = {place, FF_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -713,6 +771,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFF(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIF(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jint arg1, jfloat arg2) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jint) + sizeof(jfloat);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJInt(arg1);
+    writer.writeJFloat(arg2);
+    
+    x10rt_msg_params msg = {place, IF_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -722,7 +788,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIF(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJF(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jlong arg1, jfloat arg2) {
-
+    unsigned long numBytes = sizeof(jint) + sizeof(jlong) + sizeof(jfloat);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJLong(arg1);
+    writer.writeJFloat(arg2);
+    
+    x10rt_msg_params msg = {place, JF_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -732,6 +805,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJF(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFI(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jfloat arg1, jint arg2) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jfloat) + sizeof(jint);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJFloat(arg1);
+    writer.writeJInt(arg2);
+    
+    x10rt_msg_params msg = {place, FI_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -741,6 +822,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFI(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFJ(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jfloat arg1, jlong arg2) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jfloat) + sizeof(jlong);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJFloat(arg1);
+    writer.writeJLong(arg2);
+    
+    x10rt_msg_params msg = {place, FJ_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }
 
 /*
@@ -750,7 +839,13 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFJ(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IID(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                     jdouble arg1) {
-
+    unsigned long numBytes = sizeof(jint) + sizeof(jdouble);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJDouble(arg1);
+    
+    x10rt_msg_params msg = {place, D_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -760,7 +855,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IID(JNIEnv *env,
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDD(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jdouble arg1, jdouble arg2) {
-
+    unsigned long numBytes = sizeof(jint) + sizeof(jdouble) + sizeof(jdouble);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJDouble(arg1);
+    writer.writeJDouble(arg2);
+    
+    x10rt_msg_params msg = {place, DD_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -770,6 +872,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDD(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIID(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jint arg1, jdouble arg2) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jint) + sizeof(jdouble);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJInt(arg1);
+    writer.writeJDouble(arg2);
+    
+    x10rt_msg_params msg = {place, ID_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -779,7 +889,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIID(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFD(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jfloat arg1, jdouble arg2) {
-
+    unsigned long numBytes = sizeof(jint) + sizeof(jfloat) + sizeof(jdouble);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJFloat(arg1);
+    writer.writeJDouble(arg2);
+    
+    x10rt_msg_params msg = {place, FD_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -789,6 +906,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFD(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJD(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jlong arg1, jdouble arg2) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jlong) + sizeof(jdouble);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJLong(arg1);
+    writer.writeJDouble(arg2);
+    
+    x10rt_msg_params msg = {place, JD_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -798,6 +923,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJD(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDI(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jdouble arg1, jint arg2) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jdouble) + sizeof(jint);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJDouble(arg1);
+    writer.writeJInt(arg2);
+    
+    x10rt_msg_params msg = {place, DI_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -807,6 +940,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDI(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDJ(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jdouble arg1, jlong arg2) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jdouble) + sizeof(jlong);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJDouble(arg1);
+    writer.writeJLong(arg2);
+    
+    x10rt_msg_params msg = {place, DJ_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -816,6 +957,14 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDJ(JNIEnv *env
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDF(JNIEnv *env, jclass klazz, jint place, jint messageId,
                                                                      jdouble arg1, jfloat arg2) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jdouble) + sizeof(jfloat);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJDouble(arg1);
+    writer.writeJFloat(arg2);
+    
+    x10rt_msg_params msg = {place, DF_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
 }    
 
 /*
@@ -859,7 +1008,8 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3C(JNIE
  * Method:    sendArrayRemote
  * Signature: (III[I)V
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3I(JNIEnv *env, jclass klazz, jint, jint, jint, jintArray) {
+JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3I(JNIEnv *env, jclass klazz, jint place, jint messageId,
+                                                                            jint arraylen, jintArray) {
     fprintf(stderr, "Unimplemented native function\n");
 }    
 
