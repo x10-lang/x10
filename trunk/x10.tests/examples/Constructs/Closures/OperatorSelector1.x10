@@ -18,7 +18,7 @@ import harness.x10Test;
 
 public class OperatorSelector1 extends ClosureTest {
 // WAS:     const add = Double.$plus.(Double,Double);
-    val add = Double.+(Double,Double);
+    const add = Double.+.(Double,Double);
     def m(x:(double,double)=>double):void={}
     public def run(): boolean = {
        m(add);
