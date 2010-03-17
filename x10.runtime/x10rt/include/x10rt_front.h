@@ -459,7 +459,9 @@ X10RT_C void x10rt_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long lo
  */
 X10RT_C void x10rt_remote_op_fence (void);
 
-/** Perform a global SPMD-style barrier. Blocks until every place calls the barrier operation
+/** Perform a global SPMD-style barrier. Blocks until every place calls the barrier operation.
+ * \bug Should be a non-blocking operation. \bug Should allow a subset of places. \bug Should be
+ * distinguishable from other concurrent barriers in the system.
  */
 X10RT_C void x10rt_barrier (void);
 
