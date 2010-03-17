@@ -457,7 +457,23 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 
 
-	    /**
+	public boolean isValInScopeInClass(Name name) {
+	    if (isClass()) {
+	        return false;
+	    }
+
+	    if ((isBlock() || isCode()) &&
+	            (findVariableInThisScope(name) != null)) {
+	        return true;
+	    }
+
+	    if (outer instanceof X10Context) {
+	        return ((X10Context_c) outer).isValInScopeInClass(name);
+	    }
+	    return false;
+	}
+
+        /**
 	     * Looks up a method with name "name" and arguments compatible with
 	     * "argTypes".
 	     */
