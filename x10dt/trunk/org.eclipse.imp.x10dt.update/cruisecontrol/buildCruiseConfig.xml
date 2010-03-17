@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="build.cruise.config" default="build.config.xml" basedir=".">
+    <taskdef resource="antlib.xml" classpath="../ant-imp.jar"/>
+
+    <property file="../update.properties"/>
+    <property name="config.file" value="x10dt-config.xml"/>
+    <property name="eclipse.install.location" value="/usr/lib/eclipse-3.5"/>
+
+    <target name="build.config.xml">
+        <antcall target="build.prologue"/>
+        <antcall target="build.project.descriptors"/>
+        <antcall target="build.epilogue"/>
+    </target>
+
+    <target name="build.prologue">
+        <echo file="${config.file}">&lt;cruisecontrol>
+    &lt;!-- ============================================= -->
+    &lt;!-- THIS FILE IS GENERATED; DO NOT EDIT!!!        -->
+    &lt;!-- ============================================= -->
+    &lt;property name="cruise.home" value="/usr/src/cruisecontrol"/>
+    &lt;system>
+        &lt;configuration>
+            &lt;threads count="3"/>
+        &lt;/configuration>
+    &lt;/system>
+        </echo>
+    </target>
+
+    <target name="build.project.descriptors">
+        <antcall target="build.feature.descriptors"/>
+    </target>
+
+    <target name="build.feature.descriptors">
+        <for param="feature.id" values="${feature.list}" separator=",">
+            <echo file="${config.file}" append="true">
+    &lt;!-- ============================================= -->
+    &lt;!-- Feature ${feature.id}                         -->
+    &lt;!-- ============================================= -->
+            </echo>
+            <echo file="${config.file}" append="true">
+    &lt;project name="${feature.id}.feature">
+        &lt;listeners>
+            &lt;currentbuildstatuslistener file="logs/${feature.id}.feature/status.txt"/>
+        &lt;/listeners>
+
+        &lt;bootstrappers>
+            &lt;svnbootstrapper localWorkingCopy="projects/${feature.id}.feature" />
+        &lt;/bootstrappers>
+
+        &lt;modificationset quietperiod="30">
+            &lt;svn localWorkingCopy="projects/${feature.id}.feature"/>
+        &lt;/modificationset>
+
+        &lt;schedule interval="900">
+            &lt;ant antWorkingDir="projects/${feature.id}.feature"
+                    buildfile="../org.eclipse.imp.update/exportFeature.xml"
+                    target="build.feature.jar"
+                    saveLogDir="logs/${feature.id}.feature">
+                &lt;property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
+                &lt;property name="eclipse.target.platform" value="${eclipse.install.location}"/>
+                &lt;property name="basedir" value="."/>
+            &lt;/ant>
+        &lt;/schedule>
+
+        &lt;publishers>
+            &lt;onsuccess>
+                &lt;antpublisher
+                   buildfile="projects/org.eclipse.imp.update/exportFeature.xml"
+                   target="cruise.publish"/>
+            &lt;/onsuccess>
+        &lt;/publishers>
+    &lt;/project>
+            </echo>
+            <antcall target="build.plugin.descriptors.for.feature"/>
+        </for>
+    </target>
+
+    <target name="build.plugin.descriptors">
+        <for param="feature.id" values="${feature.list}" separator=",">
+            <antcall target="build.plugin.descriptors.for.feature"/>
+        </for>
+    </target>
+
+    <target name="build.plugin.descriptors.for.feature">
+        <loadfile property="plugins.ids" srcfile="../../${feature.id}.feature/feature.xml">
+            <filterchain>
+                <!-- Sometimes the PDE splits <plugin> elements into several lines, but the
+                     subsequent filters assume the entire <plugin> element is all on one line. -->
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replaceregex pattern="[ \t]*(&lt;plugin)[ \t\r\n]*" replace="\1 " flags="gs"/>
+                </tokenfilter>
+                <!-- Grab only the <plugin> elements from the feature manifest -->
+                <containsregex pattern="&lt;plugin"/>
+                <!-- Grab the plugin ID from the <plugin> element -->
+                <replaceregex pattern="[ \t]*&lt;plugin .*id=&quot;([^&quot;]*)&quot;.*" replace="\1,"/>
+                <!-- Now concatenate all of the plugin IDs into a single comma-separated value, with
+                     no intervening line separators. The trailing comma seems to do no harm. -->
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replaceregex pattern=",[\r\n]* *" replace="," flags="gs"/>
+                </tokenfilter>
+                <replaceregex pattern=",$" replace=""/>
+            </filterchain>
+        </loadfile>
+        <echo message="Feature contains the following plugins: ${plugins.ids}"/>
+        <echo file="${config.file}" append="true">
+    &lt;!-- ============================================= -->
+    &lt;!-- Plugin projects for feature ${feature.id}     -->
+    &lt;!-- ============================================= -->
+        </echo>
+        <for param="plugin.id" values="${plugins.ids}" separator=",">
+            <antcall target="build.plugin.descriptor">
+                <param name="plugin.id" value="${plugin.id}"/>
+            </antcall>
+        </for>
+    </target>
+
+    <target name="build.plugin.descriptor">
+        <echo message="plugin.id = ${plugin.id}"/>
+        <loadfile property="plugin.dependencies" srcfile="../../${plugin.id}/META-INF/MANIFEST.MF">
+            <filterchain>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replaceregex pattern=",[\r\n]* *" replace="," flags="gs"/>
+                </tokenfilter>
+                <containsregex pattern="Require-Bundle: "/>
+                <replaceregex pattern="Require-Bundle: (.*)" replace="\1"/>
+                <!-- Filter out Eclipse plugins that are handled by eclipse.build.path -->
+                <replaceregex pattern="com\.ibm\.icu[^,]*,?"         replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.compare[^,]*,?" replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.core[^,]*,?"    replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.debug[^,]*,?"   replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.help[^,]*,?"    replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.jdt[^,]*,?"     replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.jface[^,]*,?"   replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.ltk[^,]*,?"     replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.pde[^,]*,?"     replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.search[^,]*,?"  replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.team[^,]*,?"    replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.text[^,]*,?"    replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.ui[^,]*,?"      replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.zest[^,]*,?"    replace="" flags="g"/>
+                <replaceregex pattern="org\.junit[^,]*,?"            replace="" flags="g"/>
+                <replaceregex pattern="sdf.*"                        replace="" flags="g"/>
+                <replaceregex pattern="org.eclipse.ptp[^,]*,?"       replace="" flags="g"/>
+
+                <replaceregex pattern="(,)?lpg.runtime,?" replace="\1lpg.runtime.java,"/>
+              	<replaceregex pattern=";bundle-version=&quot;[.0-9]+&quot;" replace="" flags="gs"/>
+                <replaceregex pattern="[\r\n]+" replace="" flags="gs"/>
+                <replaceregex pattern=",$" replace=""/>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+        <condition property="plugin.dependencies" value="">
+            <not>
+                <isset property="plugin.dependencies"/>
+            </not>
+        </condition>
+        <echo message="plugin.dependencies = ${plugin.dependencies}"/>
+
+            <echo file="${config.file}" append="true">
+    &lt;!-- ============================================= -->
+
+    &lt;project name="${plugin.id}">
+        &lt;listeners>
+            &lt;currentbuildstatuslistener file="logs/${plugin.id}/status.txt"/>
+        &lt;/listeners>
+
+        &lt;bootstrappers>
+            &lt;svnbootstrapper localWorkingCopy="projects/${plugin.id}" />
+        &lt;/bootstrappers>
+
+        &lt;modificationset quietperiod="30">
+            &lt;svn localWorkingCopy="projects/${plugin.id}"/>
+            </echo>
+
+            <for param="dep.plugin.id" values="${plugin.dependencies}" separator=",">
+                <echo file="${config.file}" append="true">   &lt;buildstatus logdir="logs/${dep.plugin.id}"/>
+                </echo>
+            </for>
+
+            <echo file="${config.file}" append="true">&lt;/modificationset>
+
+        &lt;schedule interval="900">
+            &lt;ant antWorkingDir="projects/${plugin.id}"
+                    buildfile="../org.eclipse.imp.update/exportPlugin.xml"
+                    target="cruise.update.and.build"
+                    saveLogDir="logs/${plugin.id}">
+                &lt;property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
+                &lt;property name="eclipse.target.platform" value="${eclipse.install.location}"/>
+                &lt;property name="basedir" value="."/>
+            &lt;/ant>
+        &lt;/schedule>
+
+        &lt;publishers>
+            &lt;onsuccess>
+                &lt;antpublisher
+                   buildfile="projects/org.eclipse.imp.update/exportPlugin.xml"
+                   target="cruise.publish"/>
+            &lt;/onsuccess>
+        &lt;/publishers>
+    &lt;/project>
+            </echo>
+    </target>
+
+    <target name="build.epilogue">
+        <echo append="true" file="${config.file}">
+&lt;/cruisecontrol>
+        </echo>
+    </target>
+</project>
