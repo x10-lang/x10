@@ -43,6 +43,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
+import polyglot.ast.Import.Kind;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
@@ -692,4 +693,63 @@ public class Synthesizer {
         ClassBody cb = cDecl.body();
         return (X10ClassDecl) cDecl.classDef(cDef).body(cb.members(cm));
     }
+    /**
+     * Create a class decl.
+     * @param flag
+     * @param kind : TOP_LEVEL, LOCAL, MEMBER?
+     * @param name 
+     * @param supert
+     * @param interfaces
+     * @return X10ClassDecl
+     * @throws SemanticException 
+     */ 
+    public X10ClassDecl createClass(Position p, 
+            Flags flag,
+            ClassDef.Kind kind,
+            Name name,
+            Type supert,
+            List<Type> interfaces,
+            X10Context context) throws SemanticException {
+
+        FlagsNode fNode = xnf.FlagsNode(p, flag);
+        Id id = xnf.Id(p, name);
+        TypeNode superTN = (TypeNode)xnf.CanonicalTypeNode(p, supert);
+        List<ClassMember> cmembers = new ArrayList<ClassMember>();
+        ClassBody body = xnf.ClassBody(p, cmembers);
+        List<TypeNode> interfaceTN = new ArrayList<TypeNode>();
+        for (Type t : interfaces) {
+            interfaceTN.add((TypeNode) xnf.CanonicalTypeNode(p, t));
+        }
+       
+        X10ClassDecl cDecl = (X10ClassDecl) xnf.ClassDecl(p, fNode, id, superTN, interfaceTN, body);
+        
+        X10ClassDef cDef = (X10ClassDef) xts.createClassDef();
+        cDef.name(name);
+        cDef.setFlags(flag);
+        cDef.kind(kind); // important to set kind
+
+        X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
+                xnf.FlagsNode(p, X10Flags.PUBLIC),
+                cDecl.name(),
+                Collections.<Formal>emptyList(),
+                Collections.<TypeNode>emptyList(),
+                xnf.Block(p));
+        xd.typeParameters(cDecl.typeParameters());
+        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+
+        ConstructorDef xDef = xts.constructorDef(p,
+                Types.ref(cDef.asType()),
+                X10Flags.PRIVATE,
+                Collections.<Ref<? extends Type>>emptyList(),
+                Collections.<Ref<? extends Type>>emptyList());
+
+        List<ClassMember> cm = new ArrayList<ClassMember>();
+        cm.add(xd.constructorDef(xDef));
+        ClassBody cb = cDecl.body();
+        cDef.addConstructor(xDef);
+        
+        return (X10ClassDecl) cDecl.classDef(cDef).body(cb.members(cm));
+      
+    }
+              
 }
