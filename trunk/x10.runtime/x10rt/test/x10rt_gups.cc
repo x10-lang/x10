@@ -266,9 +266,19 @@ int main(int argc, char **argv)
     unsigned long long numUpdates = updates * tableSize;
 
     localTable = (unsigned long long*) malloc(localTableSize*sizeof(unsigned long long));
+    if (localTable == NULL) {
+        std::cerr<<"Could not allocate memory for local table ("
+                 << localTableSize*sizeof(unsigned long long) << " bytes)" << std::endl;
+        abort();
+    }
     for (unsigned int i=0 ; i<localTableSize ; ++i) localTable[i] = i;
 
     globalTable = (unsigned long long*) malloc(x10rt_nhosts() * sizeof(*globalTable));
+    if (globalTable == NULL) {
+        std::cerr<<"Could not allocate memory for global table ("
+                 << x10rt_nhosts() * sizeof(*globalTable) << " bytes)" << std::endl;
+        abort();
+    }
 
     x10rt_registration_complete();
 
@@ -291,6 +301,16 @@ int main(int argc, char **argv)
     while (pongs_outstanding) {
         x10rt_probe();
     }
+
+    x10rt_barrier();
+
+/*
+    std::cerr << "globalTable = { ";
+    for (unsigned long i=0 ; i<x10rt_nhosts() ; ++i) {
+        std::cerr << (i==0?"":", ") << globalTable[i];
+    }
+    std::cerr << " }\n" << std::endl;
+*/
 
     if (x10rt_here()==0) {
         std::cout<<"Main table size:   2^"<<logLocalTableSize<<"*"<<x10rt_nhosts()
