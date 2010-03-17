@@ -25,7 +25,7 @@ class B extends A {}
 class XTENLANG_242 extends x10Test {
 
     public def run():boolean {
-        return new B().name1.equals("class B") && new B().name2().equals("class B");
+        return new B().name1.equals("B") && new B().name2().equals("B");
     }
 
     public static def main(Rail[String]) {
