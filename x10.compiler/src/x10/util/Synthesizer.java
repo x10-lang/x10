@@ -45,6 +45,7 @@ import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
 import polyglot.ast.Import.Kind;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
@@ -86,6 +87,7 @@ import x10.types.X10Flags;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 
@@ -634,6 +636,89 @@ public class Synthesizer {
 
 		return (X10ConstructorDecl) xd.constructorDef(xDef);
 	}
+	
+    /**
+     * Create a copy constructor decl.
+     * @param cDecl
+     * @param name
+     * @param flag
+     * @param t
+     * @param p
+     * @param context
+     * @return X10ConstructorDec
+     * @throws SemanticException 
+     */ 
+    public X10ClassDecl addClassSuperConstructor(Position p,
+            X10ClassDecl cDecl,
+            //List<Name> fieldName,
+            List<Name> parmName,
+            List<Type> parmType,
+            List<Flags> parmFlags,
+            X10Context context) throws SemanticException {
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+        ClassType cType = cDef.asType();
+
+        // super constructor def (args)
+        Type sType = cDecl.superClass().type();
+        Type scType = PlaceChecker.AddIsHereClause(sType, context);
+        //Context ctxt = context.pushClass(cDef, cType);
+        /*
+        ConstructorDef sDef = xts.findConstructor(sType,
+                xts.ConstructorMatcher(sType, 
+                        //parmType,
+                        Collections.singletonList(scType),
+                        context)).def();
+                        */
+        //System.out.println("here");
+        //context.pop();
+        
+        // reference to formal
+        List<Expr> eSuper = new ArrayList<Expr>();
+        List<Formal> fList = new ArrayList<Formal>();
+        List<Ref<? extends Type>> ftList = new ArrayList<Ref<? extends Type>>();
+        /*
+        for (int i=0; i<parmName.size(); i++) {
+            Name pName = parmName.get(i);
+            Type pType = parmType.get(i);
+            Flags pFlags = parmFlags.get(i);
+            Type ccType = PlaceChecker.AddIsHereClause(pType, context);
+            // reference
+            LocalDef ldef = xts.localDef(p, pFlags, Types.ref(ccType), pName);
+            Expr ref = xnf.Local(p, xnf.Id(p, pName)).localInstance(ldef.asInstance()).type(ccType);
+            eSuper.add(ref);
+            Formal f = xnf.Formal(p, xnf.FlagsNode(p, pFlags), xnf.CanonicalTypeNode(p, ccType), xnf.Id(p, pName)).localDef(ldef);
+            fList.add(f);
+            ftList.add(Types.ref(ccType));
+        }
+        */
+
+        Block block = xnf.Block(p);
+                //xnf.SuperCall(p, eSuper).constructorInstance(sDef.asInstance()));
+    
+             
+        // constructor 
+        X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
+                xnf.FlagsNode(p, X10Flags.PRIVATE),
+                cDecl.name(),
+                fList,
+                Collections.<TypeNode>emptyList(),
+                block);
+        xd.typeParameters(cDecl.typeParameters());
+        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+
+        ConstructorDef xDef = xts.constructorDef(p,
+                Types.ref(cDef.asType()),
+                X10Flags.PRIVATE,
+                ftList,
+                Collections.<Ref<? extends Type>>emptyList());
+
+        List<ClassMember> cm = new ArrayList<ClassMember>();
+        cm.add(xd.constructorDef(xDef));
+        ClassBody cb = cDecl.body();
+        cDef.addConstructor(xDef);
+                
+        return cDecl;
+    }	
 	/**
      * Create a method decl.
      * @param cDecl
