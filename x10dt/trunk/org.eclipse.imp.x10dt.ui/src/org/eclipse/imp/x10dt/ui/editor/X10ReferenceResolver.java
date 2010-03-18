@@ -18,6 +18,7 @@ import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 
 import polyglot.ast.Ambiguous;
 import polyglot.ast.Call;
+import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
 import polyglot.ast.Id;
@@ -45,9 +46,10 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
         }
         if (node instanceof TypeNode) {
             Object grandparent = findParent((Node)node, parseController);
-            if (grandparent instanceof ConstructorDecl) {
+            if (grandparent instanceof ConstructorDecl || grandparent instanceof ClassDecl) { //MV
                 node=grandparent;
             }
+            
         }
         if (node instanceof TypeNode) {
             TypeNode typeNode= (TypeNode) node;
@@ -56,7 +58,7 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
 
             if (parent instanceof New) {
                 New n= (New) parent;
-                return n.constructorInstance();
+                return n.constructorInstance().def();
             }
             return typeNode.type();
         } else if (node instanceof Call) {
@@ -76,7 +78,8 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
             if (li != null)
                 return li.def();  //PORT1.7 li.declaration() -> li.def();
         }
-        return null; // If it's not something we know how to resolve, just return the node itself
+        //return null; // If it's not something we know how to resolve, just return the node itself
+        return node;
     }
 
     private Object findParent(Node node, IParseController parseController) {
