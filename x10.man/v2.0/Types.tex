@@ -23,12 +23,11 @@ objects may be compared for equality (\Xcd{==}) in constant time by
 simply containing references to the memory used to represent the
 objects.
 
-Structs are instances of {\em struct classes}
-(\Sref{StructClasses}). They are immutable and may be freely copied
-from place to place.  Further, they may be allocated inline, i.e.{}
-using only as much memory as necessary to hold the fields of the
-struct (and any additional memory necessary to satisfy alignment
-constraints for data layout. 
+Structs are instances of {\em struct types} (\Sref{StructClasses}). They are
+immutable and may be freely copied from place to place. Further, they may be
+allocated inline, \ie, using only as much memory as necessary to hold the
+fields of the struct (and any additional memory necessary to satisfy alignment
+constraints for data layout).
 
 Functions are instances of {\em function types|} {\Sref{Functions})
   and are created using function literals

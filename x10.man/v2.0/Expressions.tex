@@ -524,7 +524,8 @@ CastExpression \: UnaryExpression \xcd"as" Type \\
 
 The result of this operation is a value of the given type if the cast
 is permissible at run time, and either a compile-time error or a runtime
-exception (\xcd`x10.lang.TypeCastException`) if it is not.  
+exception 
+(\xcd`x10.lang.TypeCastException`) if it is not.  
 
 When evaluating \xcd`E as T{c}`, first the value of \xcd`E` is converted to
 type \xcd`T` (which may fail), and then the constraint \xcd`{c}` is checked. 
