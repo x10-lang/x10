@@ -313,7 +313,7 @@
 	<!-- from x10dt.update/buildPluginCommon.xml-->
     <target name="build.source.plugin" depends="init,javaInit">
         <mkdir dir="${build.result.folder}"/>
-        <filter token="plugin.id" value="${plugin.id}.source"/>
+    	<filter token="plugin.id" value="${plugin.id}"/>
         <filter token="plugin.version" value="${plugin.version}"/>
         <filter token="plugin.name" value="${plugin.name}"/>
         <filter token="provider.name" value="tibbitts@us.ibm.com"/>
