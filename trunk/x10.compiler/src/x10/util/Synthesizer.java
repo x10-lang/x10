@@ -582,6 +582,7 @@ public class Synthesizer {
 
         for (X10ClassDecl icDecl : innerClasses) {
             X10ClassDef icDef = (X10ClassDef) icDecl.classDef();
+            icDef.kind(ClassDef.MEMBER);
             icDef.setPackage(cDef.package_());
             icDef.outer(Types.<ClassDef> ref(cDef));
 
@@ -673,17 +674,15 @@ public class Synthesizer {
     /**
      * Create a copy constructor decl.
      * @param cDecl
-     * @param name
-     * @param flag
-     * @param t
-     * @param p
+     * @param parmName
+     * @param parmtype
+     * @param parmFlags
      * @param context
-     * @return X10ConstructorDec
+     * @return X10ClassDecl
      * @throws SemanticException 
      */ 
     public X10ClassDecl addClassSuperConstructor(Position p,
             X10ClassDecl cDecl,
-            //List<Name> fieldName,
             List<Name> parmName,
             List<Type> parmType,
             List<Flags> parmFlags,
@@ -694,63 +693,60 @@ public class Synthesizer {
         // super constructor def (args)
         Type sType = cDecl.superClass().type();
         Type scType = PlaceChecker.AddIsHereClause(sType, context);
-        //Context ctxt = context.pushClass(cDef, cType);
-        /*
-        ConstructorDef sDef = xts.findConstructor(sType,
+       
+        ConstructorDef sDef = xts.findConstructor(sType,    // receiver's type
                 xts.ConstructorMatcher(sType, 
-                        //parmType,
-                        Collections.singletonList(scType),
+                        Collections.singletonList(scType),  // constraint's type (!)
                         context)).def();
-                        */
-        //System.out.println("here");
-        //context.pop();
-        
+                                
         // reference to formal
         List<Expr> eSuper = new ArrayList<Expr>();
         List<Formal> fList = new ArrayList<Formal>();
-        List<Ref<? extends Type>> ftList = new ArrayList<Ref<? extends Type>>();
-        /*
+        List<TypeNode> ftList = new ArrayList<TypeNode>();
+        List<Ref<? extends Type>> frList = new ArrayList<Ref<? extends Type>>();
+       
         for (int i=0; i<parmName.size(); i++) {
             Name pName = parmName.get(i);
             Type pType = parmType.get(i);
             Flags pFlags = parmFlags.get(i);
-            Type ccType = PlaceChecker.AddIsHereClause(pType, context);
             // reference
-            LocalDef ldef = xts.localDef(p, pFlags, Types.ref(ccType), pName);
-            Expr ref = xnf.Local(p, xnf.Id(p, pName)).localInstance(ldef.asInstance()).type(ccType);
+            LocalDef ldef = xts.localDef(p, pFlags, Types.ref(pType), pName);
+            Expr ref = xnf.Local(p, xnf.Id(p, pName)).localInstance(ldef.asInstance()).type(pType);
             eSuper.add(ref);
-            Formal f = xnf.Formal(p, xnf.FlagsNode(p, pFlags), xnf.CanonicalTypeNode(p, ccType), xnf.Id(p, pName)).localDef(ldef);
+            Formal f = xnf.Formal(p, xnf.FlagsNode(p, pFlags), 
+                    xnf.CanonicalTypeNode(p, pType), 
+                    xnf.Id(p, pName)).localDef(ldef);
             fList.add(f);
-            ftList.add(Types.ref(ccType));
+            ftList.add(xnf.CanonicalTypeNode(p, pType));
+            frList.add(Types.ref(pType));
         }
-        */
 
-        Block block = xnf.Block(p);
-                //xnf.SuperCall(p, eSuper).constructorInstance(sDef.asInstance()));
-    
+        Block block = xnf.Block(p,
+                xnf.SuperCall(p, eSuper).constructorInstance(sDef.asInstance()));
              
         // constructor 
         X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
-                xnf.FlagsNode(p, X10Flags.PRIVATE),
+                xnf.FlagsNode(p, X10Flags.PUBLIC),
                 cDecl.name(),
-                fList,
-                Collections.<TypeNode>emptyList(),
+                fList,                              // formal types
+                Collections.<TypeNode>emptyList(),  // throw types
                 block);
         xd.typeParameters(cDecl.typeParameters());
         xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
         ConstructorDef xDef = xts.constructorDef(p,
                 Types.ref(cDef.asType()),
-                X10Flags.PRIVATE,
-                ftList,
-                Collections.<Ref<? extends Type>>emptyList());
+                X10Flags.PUBLIC,
+                frList,                                         // formal types
+                Collections.<Ref<? extends Type>>emptyList());  // throw types
 
         List<ClassMember> cm = new ArrayList<ClassMember>();
-        cm.add(xd.constructorDef(xDef));
         ClassBody cb = cDecl.body();
+        cm.addAll(cb.members());
+        cm.add(xd.constructorDef(xDef));
         cDef.addConstructor(xDef);
                 
-        return cDecl;
+        return (X10ClassDecl)cDecl.classDef(cDef).body(cb.members(cm));
     }	
 	/**
      * Create a method decl.
