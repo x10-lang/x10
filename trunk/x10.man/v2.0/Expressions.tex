@@ -12,19 +12,28 @@ Evaluation is strict and is performed left to right.
 
 \section{Literals}
 
-\Xten{} supports the following literal expressions: 
-\begin{itemize}
-\item An 32-bit integer literal is a value of type \xcd"x10.lang.Int".
-\item An 64-bit long literal is a value of type \xcd"x10.lang.Long".
-\item A 32-bit floating-point literal is a value of type \xcd"x10.lang.Float".
-\item A 64-bit floating-point literal is a value of type \xcd"x10.lang.Double".
-\item A character literal is a value of type \xcd"x10.lang.Char".
-\item A string literal is a value of type \xcd"x10.lang.String".
-\item The boolean literals \xcd"true" and \xcd"false" are of type
-\xcd"x10.lang.Boolean".
-\item The \xcd"null" literal is of the null type,
-a subtype of all reference types.
-\end{itemize}
+The syntax for literals is given in \Sref{Literals}. 
+
+The type that \Xten{} gives a literal includes its value.  \Eg, \xcd`1` is of
+type \xcd`Int{self==1}`, and \xcd`true` is of type \xcd`Boolean{self==true}`.
+
+
+%LIT%  \Xten{} supports the following literal expressions: 
+%LIT%  \begin{itemize}
+%LIT%  \item An 32-bit integer literal is a value of type \xcd"x10.lang.Int".
+%LIT%  \item An 64-bit long literal is a value of type \xcd"x10.lang.Long".
+%LIT%  \item A 32-bit floating-point literal is a value of type \xcd"x10.lang.Float".
+%LIT%  \item A 64-bit floating-point literal is a value of type \xcd"x10.lang.Double".
+%LIT%  \item A character literal is a value of type \xcd"x10.lang.Char".
+%LIT%  \item A string literal is a value of type \xcd"x10.lang.String".
+%LIT%  \item The boolean literals \xcd"true" and \xcd"false" are of type
+%LIT%  \xcd"x10.lang.Boolean".
+%LIT%  \item The \xcd"null" literal is of the null type,
+%LIT%  a subtype of all reference types.
+%LIT%  \end{itemize}
+
+
+
 
 \section{\Xcd{this}}
 
