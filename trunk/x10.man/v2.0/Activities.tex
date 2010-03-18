@@ -285,21 +285,37 @@ AtEachStatement \:
 \end{grammar}
 
 The \xcd"ateach" statement is similar to the \xcd"foreach"
-statement.  The collection must be of type \xcd"Dist"
-and the formal parameter of type \xcd"Point".
-Expressions \xcd"e" of type \xcd"Array" are also accepted, and treated
-as if they were \xcd"e.dist". The compiler reports a type error
-in all other cases.
+statement, but it spawns activites at each place of a distribution rather than
+simply \xcd`here`.
+In \xcd`ateach(p in D) S`, 
+\xcd`D` must be either of type \xcd"Dist" or of type
+\xcd`Array[T]`, 
+and \xcd`p` will be of type \xcd"Point".
 
 This statement differs from \xcd"foreach" only in
 that each activity is spawned at the place specified by the
-distribution for the point. That is, 
-\xcd"ateach(p(i1,...,ik): Point in D) S" may
-be thought of as standing for:
+distribution for the point. That is, if \xcd`D` is a \xcd`Dist`, 
+\xcd"ateach(p in D) S" could be implemented as:
 \begin{xten}
-foreach (p(i1,...,ik): point in D.region) 
+foreach (p in D.region) 
   async (D(p)) S
 \end{xten}
+
+However, the compiler may implement it more efficiently to avoid extraneous
+communications.  In particular, it is recommended that \xcd`ateach(p in D)S`
+be implemented as the following code, which coordinates with each place of
+\xcd`D` just once, rather than once per element of \xcd`D` at that place: 
+\begin{xten}
+foreach (p in D.places()) at (p) {
+    foreach (pt in D|here) {
+        S
+    }
+}
+\end{xten}
+
+If \xcd`e` is an \xcd`Array[T]`, then \xcd`ateach (p in e)S` is identical to
+\xcd`ateach(p in e.dist)S`; the iteration is over the array's underlying
+distribution. 
 
 \section{Futures}\label{XtenFutures}
 
