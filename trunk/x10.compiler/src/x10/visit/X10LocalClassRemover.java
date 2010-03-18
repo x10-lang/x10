@@ -157,6 +157,14 @@ public class X10LocalClassRemover extends LocalClassRemover {
                         neu = neu.objectType(nf.CanonicalTypeNode(neu.objectType().position(), subst.reinstantiate(neu.objectType().type())));
                         neu = (New) neu.type(subst.reinstantiate(neu.type()));
                     }
+                    // FIX:XTENLANG-949 (for mismatch between neu.argument and neu.ci.formalTypes)
+                    if (neu.arguments().size() > ci.formalTypes().size()) {
+                        List<Type> newFormalTypes = new ArrayList<Type>();
+                        for (Expr arg : neu.arguments()) {
+                            newFormalTypes.add(arg.type());
+                        }
+                        neu = neu.constructorInstance(ci.formalTypes(newFormalTypes));
+                    }
                 }
                 
                 return neu;
