@@ -107,6 +107,7 @@ import x10.ast.SubtypeTest_c;
 import x10.ast.Tuple_c;
 import x10.ast.TypeDecl_c;
 import x10.ast.X10Binary_c;
+import x10.ast.X10Call;
 import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast_c;
@@ -373,6 +374,16 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         ForInit j_ = loop.inits().get(1);
         assert j_ instanceof LocalDecl : j_.getClass();
         LocalDecl j = (LocalDecl) j_;
+        assert loop.cond() instanceof X10Call : loop.cond().getClass();
+        X10Call cond = (X10Call) loop.cond();
+        assert cond.name().id() == X10Binary_c.binaryMethodName(Binary.LE) : cond.name();
+        List<Expr> args = cond.arguments();
+        assert args.size() == 2 : args.size();
+        assert args.get(0) instanceof Local : args.get(0).getClass();
+        Local cond_left = (Local) args.get(0);
+        assert args.get(1) instanceof Local : args.get(1).getClass();
+        Local cond_right = (Local) args.get(1);
+        /*
         assert loop.cond() instanceof Binary : loop.cond().getClass();
         Binary cond = (Binary) loop.cond();
         assert cond.operator() == Binary.LE : cond.operator();
@@ -381,6 +392,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         assert cond_left.name().id() == i.name().id() : cond_left;
         assert cond.right() instanceof Local : cond.right().getClass();
         Local cond_right = (Local) cond.right();
+        */
         assert cond_right.name().id() == j.name().id() : cond_right;
         Expr from_ = i.init();
         Expr to_ = j.init();
