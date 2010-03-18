@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -560,6 +561,38 @@ public class Synthesizer {
 		ClassBody cb = cDecl.body();
 		return (X10ClassDecl) cDecl.classDef(cDef).body(cb.members(cm));
 	}   
+	
+	
+    /**
+     * This method could be moved into Synthesizer
+     * 
+     * @param cDecl
+     *            The original class with parallel methods
+     * @param innerClasses
+     *            the inner classes to be inserted into the class
+     * @return A newly created class with inner classes as members
+     */
+    public X10ClassDecl addInnerClasses(X10ClassDecl cDecl, Set<X10ClassDecl> innerClasses) {
+
+        List<ClassMember> cMembers = new ArrayList<ClassMember>();
+        ClassBody body = cDecl.body();
+        cMembers.addAll(body.members());
+
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+
+        for (X10ClassDecl icDecl : innerClasses) {
+            X10ClassDef icDef = (X10ClassDef) icDecl.classDef();
+            icDef.setPackage(cDef.package_());
+            icDef.outer(Types.<ClassDef> ref(cDef));
+
+            cMembers.add(icDecl);
+            cDef.addMemberClass(Types.<ClassType> ref(icDef.asType()));
+
+        }
+
+        return (X10ClassDecl) cDecl.body(body.members(cMembers));
+    }
+	
 	
 	public FieldDef findFieldDef(ClassDef cDef, Name fName) throws SemanticException {
 	    for (FieldDef df : cDef.fields()) {
