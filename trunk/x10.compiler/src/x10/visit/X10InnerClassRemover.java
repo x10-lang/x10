@@ -65,7 +65,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 for (ClassMember classMember : members) {
                     if (classMember instanceof X10FieldDecl_c) {
                         X10FieldDecl_c fieldD = (X10FieldDecl_c) classMember;
-                        if (fieldD.fieldDef().flags().isFinal() && fieldD.init() != null) {
+                        if (fieldD.fieldDef().flags().isFinal() && !fieldD.fieldDef().flags().isStatic() && fieldD.init() != null) {
                             fieldDs.add(fieldD);
                             newMember.add(fieldD.init(null));
                             continue;
