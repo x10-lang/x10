@@ -51,6 +51,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.Matcher;
+import x10.effects.constraints.Effect;
 
 /**
  * A representation of a MethodInstance. This implements the requirement that method
@@ -416,5 +417,13 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     		for (XVar x : ys) s += x.toString() + " ";
     		return s;
     }
+    protected Ref<? extends Effect> effect;
+    public x10.effects.constraints.Effect effect() {
+        if (effect == null) {
+                return ((X10MethodDef) def()).effect().get();
+        }
+        return Types.get(effect);
+    }
+
 
 }

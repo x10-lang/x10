@@ -75,6 +75,8 @@ import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
+import x10.effects.constraints.Effect;
+import x10.effects.constraints.Effects;
 
 /**
  * A TypeSystem implementation for X10.
@@ -2119,5 +2121,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    return mj;
 	}
 
+
+   public Effect followedBy(Effect e1, Effect e2) throws XFailure {
+        if (e1 == null) return e2;
+        if (e2 == null) return e1;
+        X10Context xc = (X10Context) context;
+        return e1.followedBy(e2, xc.currentConstraint());
+    }
+
+	
   
 }
