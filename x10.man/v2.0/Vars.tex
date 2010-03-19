@@ -146,13 +146,20 @@ FormalModifier \: Annotation \\
               \| \xcd"shared" \\
 \end{grammar}
 
-\section{Local variables}
-Local variable declarations may have optional
-initializer expressions.  The initializer must be a subtype of
+\xcd`var`, \xcd`val`, and \xcd`shared` behave just as they do for local
+variables, \Sref{local-variables}.
+
+\section{Local variables}\label{local-variables}
+Local variable declarations may have
+initializer expressions: \xcd`var i:Int = 1;` introduces 
+a variable \xcd`i` and initializes it to 1.
+The initializer must be a subtype of
 the declared type of the variable.  If the variable is immutable
 (\xcd"val")
 the type may be omitted and
 inferred from the initializer type (\Sref{TypeInference}).
+Variables marked \xcd`shared` can be used by many activities at once; see
+\Sref{Shared}.
 
 \begin{grammar}
 LocalDeclaration
@@ -213,6 +220,8 @@ FieldDeclaratorsWithType
 FieldModifier \: Annotation \\
                 \| \xcd"static" \\
 \end{grammar}
+
+
 
 \section{Properties}
 Property declarations are always declared with a type and are
