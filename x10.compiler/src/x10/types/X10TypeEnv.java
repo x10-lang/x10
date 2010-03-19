@@ -22,6 +22,8 @@ import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
 import x10.types.X10TypeSystem_c.Kind;
 import x10.types.constraints.CConstraint;
+import x10.effects.constraints.Effect;
+import x10.constraint.XFailure;
 
 public interface X10TypeEnv extends TypeEnv {
     public void checkOverride(ClassType thisType, MethodInstance mi, MethodInstance mj) throws SemanticException;
@@ -70,6 +72,7 @@ public interface X10TypeEnv extends TypeEnv {
     
     boolean numericConversionValid(Type toType, Type fromType, Object value);
     
+    Effect followedBy(Effect e1, Effect e2) throws XFailure ; /* throws SemanticException;  nv:FIXME */
     
     
 

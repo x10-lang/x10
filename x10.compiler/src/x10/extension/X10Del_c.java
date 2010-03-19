@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
+import polyglot.types.SemanticException;
 import polyglot.ast.JL_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -28,6 +28,8 @@ import x10.ast.AnnotationNode;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
+import x10.effects.EffectComputer;
+import x10.effects.constraints.Effect;
 
 /**
  * @author nystrom
@@ -130,4 +132,18 @@ public class X10Del_c extends JL_c implements X10Del {
 		}
 		return n;
 	}
+	
+	  public Node computeEffectsOverride(Node n, EffectComputer ec) throws SemanticException {
+                return ((X10Ext) node().ext()).computeEffectsOverride(n, ec);
+        }
+        public EffectComputer computeEffectsEnter(EffectComputer ec) {
+                return ((X10Ext) node().ext()).computeEffectsEnter(ec);
+        }
+        public Node computeEffects(EffectComputer ec) {
+                return ((X10Ext) node().ext()).computeEffects(ec);
+        }
+        public Effect effect() {
+                return ((X10Ext) node().ext()).effect();
+        }
+
 }

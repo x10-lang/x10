@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry excluding="src/" including="data/**" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="src/" including="data/**" kind="src" path=""/>
+	<classpathentry kind="lib" path="/x10.dist/lib/asm.jar"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/ecj.jar"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/lpg.jar"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/polyglot-bytecode.jar"/>
+	<classpathentry kind="lib" path="/x10.dist/lib/polyglot3.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/polyglot3"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/x10.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/x10.constraints"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/x10.effects"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

@@ -185,7 +185,9 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	public Node computeEffects(EffectComputer ec) {
 	      Effect result= null;
 	      Node n = node();
-	      /* System.out.print("Here: "); */
+	      System.out.print("Here: "); 
+	      
+	      System.exit(0);
 	        try {
 	            if (n instanceof Async) {
 	                result=computeEffect((Async) n, ec);
@@ -279,9 +281,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 
   private Effect computeEffect(LocalAssign la, EffectComputer ec) throws XFailure {
       Local l= la.local();
-     
       X10LocalInstance li= (X10LocalInstance) l.localInstance();
-      System.out.println("in local assign " + li + li.x10Def().type().get());
+      System.out.println("in local assign " +li.x10Def().type().get());
       Expr rhs= la.right();
       X10TypeSystem ts = ec.typeSystem();
       if (ts.isValVariable(li)) {
@@ -291,7 +292,6 @@ public class X10Ext_c extends Ext_c implements X10Ext {
           Effect writeEff= Effects.makeSafe();
          if (li.x10Def().type().get() instanceof AnnotatedType) {
 			AnnotatedType at = (AnnotatedType) li.x10Def().type().get(); 
-			
 			for (Type an: at.annotations()) {
       	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
 					System.out.println("Here");
@@ -314,9 +314,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       X10FieldInstance fi= (X10FieldInstance) fa.fieldInstance();
       Receiver target= fa.target();
       Expr rhs= fa.right();
-    
-      System.out.println("in field assign " + fi + (Type) (fi.x10Def().type().get()));
       X10TypeSystem ts = ec.typeSystem();
+      System.out.println("in field assign " + fi.x10Def().type());
 
       if (ts.isValVariable(fi)) {
 		return effect(rhs);
@@ -357,7 +356,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
      if (arrayExpr instanceof Local) {
 	Local l = (Local) arrayExpr;
 	X10LocalInstance li= (X10LocalInstance) l.localInstance();
-	Type t = (X10TypeMixin.baseType((Type)li.x10Def().type()));	
+	Type t = (X10TypeMixin.baseType(li.x10Def().type().get()));	
 	 X10ClassType cd = ((X10ClassType) t);
 	//System.out.println(li.x10Def().type().get());
         if (li.x10Def().type().get() instanceof AnnotatedType) {
