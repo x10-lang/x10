@@ -30,7 +30,7 @@ import x10.constraint.XVar;
  */
 public class Effect_c implements Effect {
 
-	protected Set<Locs> readSet, writeSet, atomicIncSet;
+	protected Set<Locs> readSet, writeSet, atomicIncSet, clockedVarSet, mustClockSet;
 	protected Safety safety;
 
 	public Effect_c(Safety s) {
@@ -38,6 +38,8 @@ public class Effect_c implements Effect {
 		readSet = new HashSet<Locs>();
 		writeSet = new HashSet<Locs>();
 		atomicIncSet = new HashSet<Locs>();
+		clockedVarSet = new HashSet<Locs>();
+		mustClockSet = new HashSet<Locs>();
 	}
 	
 	public Effect_c clone() {
@@ -52,6 +54,13 @@ public class Effect_c implements Effect {
 
 			result.atomicIncSet = new HashSet<Locs>();
 			result.atomicIncSet.addAll(atomicIncSet());
+			
+			result.clockedVarSet = new HashSet<Locs>();
+			result.clockedVarSet.addAll(clockedVarSet());
+			
+			result.mustClockSet = new HashSet<Locs>();
+			result.mustClockSet.addAll(mustClockSet());
+			
 			return result;
 
 		} catch (CloneNotSupportedException z) {
@@ -65,6 +74,14 @@ public class Effect_c implements Effect {
 	 */
 	public Set<Locs> atomicIncSet() {
 		return atomicIncSet;
+	}
+	
+	public Set<Locs> clockedVarSet() {
+		return clockedVarSet;
+	}
+
+	public Set<Locs> mustClockSet() {
+		return mustClockSet;
 	}
 
 	/* (non-Javadoc)
@@ -485,6 +502,12 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	public void addAtomicInc(Locs t) {
 		atomicIncSet.add(t);
 	}
+	public void addClockedVar(Locs t) {
+		clockedVarSet.add(t);
+	}
+	public void addMustClock(Locs t) {
+		mustClockSet.add(t);
+	}
 
 	public Effect union(Effect e) {
 		Effect_c result = clone();
@@ -492,6 +515,8 @@ public boolean commutesWith(Effect e, XConstraint c) {
 		result.readSet.addAll(e.readSet());
 		result.writeSet.addAll(e.writeSet());
 		result.atomicIncSet.addAll(e.atomicIncSet());
+		result.clockedVarSet.addAll(e.clockedVarSet());
+		result.mustClockSet.addAll(e.mustClockSet());
 		return result;
 	}
 
@@ -505,6 +530,10 @@ public boolean commutesWith(Effect e, XConstraint c) {
         sb.append(writeSet.toString());
         sb.append(", a: ");
         sb.append(atomicIncSet.toString());
+        sb.append(", cv: ");
+        sb.append(clockedVarSet.toString());
+        sb.append(", mc: ");
+        sb.append(mustClockSet.toString());
         sb.append(" }");
         return sb.toString();
     }

@@ -31,7 +31,7 @@ public class ArrayLocs_c extends RigidTerm_c implements ArrayLocs {
 				ArrayLocs_c o = (ArrayLocs_c) other;
 				return c.disEntails(designator(), o.designator());
 			}
-		} catch (XFailure z) {
+		} catch (Exception z) {
 			return false;
 		}
 		return true;
