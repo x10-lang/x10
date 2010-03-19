@@ -1,0 +1,35 @@
+%V. Conclusion and future work. (0.5 page)
+%
+%state-dependent constrained types.
+%
+%use of dependent types for optimization. 
+%
+%type-inference.
+%
+%Bibliography (1.5 page)
+
+We are actively writing programs with constrained types in
+\Xten{} and 
+working to extend the expressive power of the type system.
+In particular, we are focusing on the following extensions:
+
+\paragraph{Driving optimization.}
+\paragraph{Clocks.}
+\paragraph{Type constraints.}
+By allowing classes to have type properties as well as value properties,
+and by incorporating subtyping constraints into the language, we believe we can achieve the expressive power of generics.
+
+\paragraph{Type inference.}  Constrainted types can be burdensome for
+programmer to write down.  A type inference algorithm for constrained types.
+
+\paragraph{Flow sensitivity.}  The following code should type-check:
+\begin{xten}
+int x = ...;
+int(:self >= 0) y;
+if (x >= 0) {
+    y = x;
+}
+\end{xten}
+
+\paragraph{State-dependent constrained types.}
+
