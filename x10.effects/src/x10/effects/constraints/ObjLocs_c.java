@@ -28,7 +28,7 @@ public class ObjLocs_c extends RigidTerm_c implements ObjLocs {
 			if (other instanceof ObjLocs) {
 				return c.disEntails(designator(), ((ObjLocs) other).designator());
 			}
-		} catch (XFailure z) {
+		} catch (Exception z) {
 			return false;
 		}
 		return true;

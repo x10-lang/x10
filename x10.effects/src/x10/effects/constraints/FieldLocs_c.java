@@ -38,7 +38,7 @@ public class FieldLocs_c extends RigidTerm_c implements FieldLocs {
 					return true;
 				return ! fieldName.equals(o.field());
 			}
-		} catch (XFailure f) {
+		} catch (Exception f) {
 			//hmm this should be an error.
 			return false;
 		}

@@ -39,6 +39,8 @@ public interface Effect extends Cloneable {
 	Set<Locs> readSet();
 	Set<Locs> writeSet();
 	Set<Locs> atomicIncSet();
+	Set<Locs> clockedVarSet();
+	Set<Locs> mustClockSet();
 
 	/**
 	 * Same as commutesWith(e, XTerms.makeTrueConstraint())
@@ -178,6 +180,18 @@ public interface Effect extends Cloneable {
 	 * @param t
 	 */
 	void addAtomicInc(Locs t);
+	
+	/**
+	 * Add t to the clocked variables for this. Modified in place.
+	 * @param t
+	 */
+	void addClockedVar(Locs t);
+	
+	/**
+	 * Add t to the mustClock set for this. Modified in place.
+	 * @param t
+	 */
+	void addMustClock(Locs t);
 	
 	Effect substitute(XTerm t, XRoot r);
 	Pair<XLocal,Effect> freshSubst(XLocal x);
