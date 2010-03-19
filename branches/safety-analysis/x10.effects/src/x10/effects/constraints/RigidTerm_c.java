@@ -28,7 +28,7 @@ public class RigidTerm_c implements RigidTerm {
 		RigidTerm_c o = (RigidTerm_c) other;
 		try {
 			return c.entails(designator(), o.designator());
-		} catch (XFailure z) {
+		} catch (Exception e) {
 			return false;
 		}
 	}

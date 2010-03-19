@@ -49,7 +49,7 @@ public class ArrayElementLocs_c extends RigidTerm_c implements ArrayElementLocs 
 					return true;
 				return c.disEntails(index(), o.index());
 			}
-		} catch (XFailure z) {
+		} catch (Exception e) {
 			// hmm should not happen
 			return false;
 		}
