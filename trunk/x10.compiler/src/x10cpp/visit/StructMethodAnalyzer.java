@@ -1,4 +1,17 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
 package x10cpp.visit;
+
+import com.ibm.xylem.ISpecialForm;
 
 import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit;
@@ -12,22 +25,30 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.NullLit;
 import polyglot.ast.NumLit;
+import polyglot.ast.Return;
 import polyglot.frontend.Job;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.ParExpr_c;
+import x10.ast.X10Binary_c;
 import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10FieldAssign_c;
+import x10.ast.X10Field_c;
 import x10.ast.X10Formal_c;
+import x10.ast.X10If_c;
+import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
 import x10.ast.X10MethodDecl_c;
+import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special_c;
 import x10.types.X10ClassType;
@@ -39,10 +60,9 @@ public class StructMethodAnalyzer extends ContextVisitor {
     private final X10TypeSystem xts;
     private final X10ClassType myContainer;
     
-    // GACK:  This is ridiculous.  This should be a simple boolean field,
+    // GACK:  This is ridiculous.  canGoInHeaderStream should be a simple boolean field,
     //        but polyglot insists on doing copying/cloning under the covers
-    //        and a simple instance field which is set to false deep in leaveCall
-    //        still remains true up at the "top" of the visit.
+    //        and the update to a simple instance field within leaveCall get lost.
     boolean[] canGoInHeaderStream = new boolean[] { true };
     
     public StructMethodAnalyzer(Job job, TypeSystem ts, NodeFactory nf, X10ClassType container) {
@@ -52,6 +72,21 @@ public class StructMethodAnalyzer extends ContextVisitor {
     }
     
     public boolean canGoInHeaderStream() { return canGoInHeaderStream[0]; }
+    
+    private boolean isBuiltInNumeric(Type t) {
+        return xts.typeBaseEquals(xts.Boolean(), t, context) || 
+        xts.typeBaseEquals(xts.Byte(), t, context) || 
+        xts.typeBaseEquals(xts.UByte(), t, context) || 
+        xts.typeBaseEquals(xts.Char(), t, context) || 
+        xts.typeBaseEquals(xts.Short(), t, context) || 
+        xts.typeBaseEquals(xts.UShort(), t, context) || 
+        xts.typeBaseEquals(xts.Int(), t, context) || 
+        xts.typeBaseEquals(xts.UInt(), t, context) || 
+        xts.typeBaseEquals(xts.Float(), t, context) || 
+        xts.typeBaseEquals(xts.Long(), t, context) || 
+        xts.typeBaseEquals(xts.ULong(), t, context) || 
+        xts.typeBaseEquals(xts.Double(), t, context);
+    }
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         // Boilerplate to get to the body of the constructor/method
@@ -61,7 +96,8 @@ public class StructMethodAnalyzer extends ContextVisitor {
         }
         
         // Wrapper expressions/statements that by themselves are not a problem
-        if (n instanceof Conditional || n instanceof Branch) {
+        if (n instanceof Conditional || n instanceof Branch || n instanceof Return || 
+                n instanceof X10If_c || n instanceof X10Binary_c || n instanceof ParExpr_c) {
             return n;
         }
         
@@ -82,8 +118,17 @@ public class StructMethodAnalyzer extends ContextVisitor {
         // constructor.  Any other constructor call will require us to set canBeInlined to false.
         if (n instanceof X10ConstructorCall_c) {
             StructType container = ((X10ConstructorCall_c)n).constructorInstance().container();
-            if (!(container.typeEquals(xts.Struct(), context) || container.typeEquals(myContainer, context))) {
+            if (!(xts.typeBaseEquals(container, xts.Struct(), context) || xts.typeBaseEquals(container, myContainer, context))) {
                 canGoInHeaderStream[0] = false;
+            }
+            return n;
+        }
+        
+        // Can allow X10New_c of our container type, but nothing else
+        if (n instanceof X10New_c) {
+            X10New_c ne = (X10New_c)n;
+            if (!xts.typeBaseEquals(ne.objectType().type(), myContainer, context)) {
+                canGoInHeaderStream[0] = false;                
             }
             return n;
         }
@@ -91,9 +136,26 @@ public class StructMethodAnalyzer extends ContextVisitor {
         // Only allow field assignments to fields of the current container; since those decls must be available.
         if (n instanceof X10FieldAssign_c) {
             X10FieldAssign_c fa = (X10FieldAssign_c)n;
-            if (!fa.fieldInstance().container().typeEquals(myContainer, context)) {
+            if (!xts.typeBaseEquals(fa.fieldInstance().container(), myContainer, context)) {
                 canGoInHeaderStream[0] = false;
-                System.out.println("field assignment to another type");
+            }
+            return n;
+        }
+        
+        // Only allow LocalDecls of the type of the current container or a built-in primitive
+        if (n instanceof X10LocalDecl_c) {
+            Type decType =  ((X10LocalDecl_c)n).type().type();
+            if (!(xts.typeBaseEquals(decType, myContainer, context) || isBuiltInNumeric(decType))) {
+                canGoInHeaderStream[0] = false;
+            }
+            return n;
+        }
+        
+        // Only allow field reads of fields of the current container; those decls must be available.
+        if (n instanceof X10Field_c) {
+            X10Field_c fr = (X10Field_c)n;
+            if (!xts.typeBaseEquals(fr.fieldInstance().container(), myContainer, context)) {
+                canGoInHeaderStream[0] = false;
             }
             return n;
         }
@@ -101,24 +163,11 @@ public class StructMethodAnalyzer extends ContextVisitor {
         // Only allow calls to methods of the current container and to methods of built-in numeric types.
         if (n instanceof X10Call_c) {
             StructType methodType = ((X10Call_c)n).methodInstance().container();
-            if (!(methodType.typeEquals(myContainer, context) ||
-                    xts.typeBaseEquals(xts.Boolean(), methodType, context) || 
-                    xts.typeBaseEquals(xts.Byte(), methodType, context) || 
-                    xts.typeBaseEquals(xts.UByte(), methodType, context) || 
-                    xts.typeBaseEquals(xts.Char(), methodType, context) || 
-                    xts.typeBaseEquals(xts.Short(), methodType, context) || 
-                    xts.typeBaseEquals(xts.UShort(), methodType, context) || 
-                    xts.typeBaseEquals(xts.Int(), methodType, context) || 
-                    xts.typeBaseEquals(xts.UInt(), methodType, context) || 
-                    xts.typeBaseEquals(xts.Float(), methodType, context) || 
-                    xts.typeBaseEquals(xts.Long(), methodType, context) || 
-                    xts.typeBaseEquals(xts.ULong(), methodType, context) || 
-                    xts.typeBaseEquals(xts.Double(), methodType, context))) {
+            if (!(xts.typeBaseEquals(methodType, myContainer, context) || isBuiltInNumeric(methodType))) {
                 canGoInHeaderStream[0] = false;
             }
             return n;    
         }
-        
         
         // Discovering any other AST in the body means that we don't want to put the method in the header file.
         canGoInHeaderStream[0] = false;
