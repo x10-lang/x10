@@ -116,7 +116,7 @@ namespace x10 {
         }
 
         template<class T> void GrowableRail<T>::removeLast() {
-            (*_array)[_len-1] = (T)0;
+            memset(&(*_array)[_len-1], 0, sizeof(T));
             _len--;
             shrink(_len+1);
         }
