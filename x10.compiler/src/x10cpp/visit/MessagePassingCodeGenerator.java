@@ -1804,11 +1804,32 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// we sometimes need to use a more general return type as c++ does not support covariant smartptr return types
 		Type ret_type = emitter.findRootMethodReturnType(def, dec.position(), mi);
 		String methodName = mi.name().toString();
+		
+        boolean inlined = false;
+        try {
+            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Inline"));
+            if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
+                inlined = true;
+            }
+        } catch (SemanticException e) { 
+            /* Ignore exception when looking for annotation */  
+        }
+        // Attempt to make it easy for the post compiler to inline trivial struct methods
+        // by putting them in the h stream instead of the sw stream whenever possible. 
+        // Don't bother doing this for generic structs the body stream is already in the header file.
+        if (!inlined && container.isX10Struct() && def.typeParameters().size() == 0) {
+            StructMethodAnalyzer analyze = new StructMethodAnalyzer(tr.job(), xts, tr.nodeFactory(), container);
+            dec.visit(analyze.begin());
+            inlined = analyze.canGoInHeaderStream();
+        }		
+		
         sw.pushCurrentStream(h);
         emitter.printHeader(dec, sw, tr, methodName, ret_type, false);
-        sw.popCurrentStream();
-        h.write(";");
-        h.newline();
+        if (!inlined) {
+            sw.popCurrentStream();
+            h.write(";");
+            h.newline();
+        }
 
 		if (dec.body() != null) {
 			if (!flags.isStatic()) {
@@ -1816,7 +1837,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						Types.ref(container), Name.make(THIS)).asInstance();
 				context.addVariable(ti);
 			}
-			emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
+			if (!inlined) {
+			    emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
+			}
 			dec.printSubStmt(dec.body(), sw, tr);
 			sw.newline();
 		} else {
@@ -1826,7 +1849,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				if (fi != null) {
 					//assert (X10Flags.toX10Flags(fi.flags()).isProperty()); // FIXME: property fields don't seem to have the property flag set
 					// This is a property method in an interface.  Give it a body.
-					emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
+				    if (!inlined) {
+				        emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
+				    }
 					sw.write(" {");
 					sw.allowBreak(0, " ");
 					sw.write("return "+mangled_field_name(fi.name().toString())+";");
@@ -1835,6 +1860,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				}
 			}
 		}
+		
+		if (inlined) {
+		    sw.popCurrentStream();
+		}
+		
 		if (def.typeParameters().size() != 0) {
 		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
 		    sw.write("#endif // "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
@@ -1873,15 +1903,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    } catch (SemanticException e) { 
 	        /* Ignore exception when looking for annotation */  
 	    }
-	    
-            // Attempt to make it easy for the post compiler to inline trivial struct constructors
-            // by putting them in the h stream instead of the sw stream whenever possible. 
+
+	    // Attempt to make it easy for the post compiler to inline trivial struct constructors
+	    // by putting them in the h stream instead of the sw stream whenever possible. 
 	    if (!inlined && container.isX10Struct()) {
 	        StructMethodAnalyzer analyze = new StructMethodAnalyzer(tr.job(), xts, tr.nodeFactory(), container);
 	        dec.visit(analyze.begin());
 	        inlined = analyze.canGoInHeaderStream();
 	    }
-	    
+
 	    sw.pushCurrentStream(h);
 	    emitter.printHeader(dec, sw, tr, false, false, "void");
 	    if (!inlined) {
