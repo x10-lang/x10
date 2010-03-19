@@ -13,7 +13,7 @@ package x10.types;
 
 import java.util.List;
 import java.util.Set;
-
+import polyglot.types.VarInstance;
 import polyglot.ast.Binary;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
@@ -45,6 +45,8 @@ import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.effects.constraints.Effect;
+import polyglot.ast.VarDecl;
 
 /**
  * Parts of this code are taken from the pao extension in the polyglot
@@ -176,7 +178,8 @@ public interface X10TypeSystem extends TypeSystem {
 
   
     
-    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
+    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Ref<? extends Effect> effect,
+	    Name name,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
 	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
 
@@ -409,4 +412,7 @@ public interface X10TypeSystem extends TypeSystem {
     LazyRef<Type> lazyAny();
     
     ClassType load(String name);
+    boolean isValVariable(VarInstance<?> vi);
+    boolean isValVariable(VarDecl vd);
+
 }

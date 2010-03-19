@@ -47,6 +47,7 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.effects.constraints.Effects;
 
 public class Struct {
     public static X10ClassDef makeDef(final X10TypeSystem_c xts) {
@@ -129,6 +130,7 @@ public class Struct {
        mi = xts.methodDef(pos, Types.ref(ct), 
                X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Global().Safe(), 
                PLACE,
+	       Types.ref(Effects.makeSafe()), // no effects
                xts.homeName(), 
                Collections.EMPTY_LIST, 
                Collections.EMPTY_LIST, 
@@ -157,6 +159,7 @@ public class Struct {
        mi = xts.methodDef(pos, Types.ref(ct), 
                X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Safe(), 
                BOOLEAN,
+	       Types.ref(Effects.makeSafe()), // no effects
                Name.make("at"), 
                Collections.EMPTY_LIST, 
                Collections.<Ref<? extends Type>> singletonList(OBJECT),
@@ -186,6 +189,7 @@ public class Struct {
                Types.ref(ct),
                X10Flags.toX10Flags(Flags.PUBLIC.Native().Final()).Global().Safe(), 
                STRING,
+	       Types.ref(Effects.makeSafe()), // no effects
                Name.make("typeName"),
                Collections.EMPTY_LIST, 
                Collections.EMPTY_LIST,
@@ -230,6 +234,7 @@ public class Struct {
                Types.ref(ct),
                X10Flags.toX10Flags(Flags.PUBLIC.Native()).Global().Safe(), 
                STRING,
+	       Types.ref(Effects.makeSafe()), // no effects
                Name.make("toString"),
                Collections.EMPTY_LIST, 
                Collections.EMPTY_LIST,
@@ -260,6 +265,7 @@ public class Struct {
        mi = xts.methodDef(pos, Types.ref(ct), 
                X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Safe(), 
                BOOLEAN,
+	       Types.ref(Effects.makeSafe()), // no effects
                Name.make("at"), 
                Collections.EMPTY_LIST, 
                Collections.<Ref<? extends Type>> singletonList(PLACE),

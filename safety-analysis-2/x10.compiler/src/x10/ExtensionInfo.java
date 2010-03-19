@@ -11,7 +11,7 @@
 
 package x10;
 
-
+import x10.effects.EffectComputer;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -315,7 +315,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(PreTypeCheck(job));
            goals.add(TypesInitializedForCommandLine());
            goals.add(TypeChecked(job));
-           goals.add(ReassembleAST(job));
+        
+           if (job.userSpecified() && Configuration.SAFE_PARALLELIZATION_CHECK) {
+                   goals.add(EffectsCalculated(job));
+           }
+
+	   goals.add(ReassembleAST(job));
            
         //   goals.add(X10Boxed(job));
            goals.add(X10Casted(job));
@@ -421,7 +426,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            return g2;
        }
-       
+      
+      public Goal EffectsCalculated(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new VisitorGoal("CalculateEffects", job, new EffectComputer(job, ts, nf));
+       }
+
+
        public Goal PropagateAnnotations(Job job) {
            // ###
            return new VisitorGoal("PropagateAnnotations", job, new PruningVisitor()).intern(this);

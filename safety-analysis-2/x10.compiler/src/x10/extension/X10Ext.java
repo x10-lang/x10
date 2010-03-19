@@ -20,10 +20,13 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.ast.AnnotationNode;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
+import x10.effects.EffectComputer;
+import x10.effects.constraints.Effect;
 
 public interface X10Ext extends Ext {
     /**
@@ -60,4 +63,11 @@ public interface X10Ext extends Ext {
      * @return
      */
     public Node annotations(List<AnnotationNode> annotations);
+
+	Node computeEffectsOverride(Node n, EffectComputer ec) throws SemanticException;
+        EffectComputer computeEffectsEnter(EffectComputer ec);
+        Node computeEffects(EffectComputer ec);
+        Effect effect();
+	
+	
 }

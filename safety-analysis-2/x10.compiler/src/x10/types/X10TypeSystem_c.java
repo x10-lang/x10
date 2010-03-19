@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import polyglot.ast.VarDecl;
+import polyglot.types.VarInstance;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Expr;
@@ -107,6 +109,8 @@ import x10.types.matcher.X10MemberTypeMatcher;
 import x10.types.matcher.X10MethodMatcher;
 import x10.types.matcher.X10TypeMatcher;
 import x10.util.ClosureSynthesizer;
+import x10.effects.constraints.Effect;
+import x10.effects.constraints.Effects;
 
 /**
  * A TypeSystem implementation for X10.
@@ -968,13 +972,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         
 
         // set up null thisVar for method def's, so the outer contexts are searched for thisVar.
-        return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, 
+        return methodDef(pos, container, flags, returnType,
+        		Types.ref(Effects.makeUnsafe()), 
+ 			name, Collections.EMPTY_LIST, argTypes, 
         		name.toString().contains(DUMMY_ASYNC) ? null : thisVar, dummyLocalDefs(argTypes), null, null, excTypes,
                          null);
     }
 
     public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, 
-    		Flags flags, Ref<? extends Type> returnType, Name name,
+    		Flags flags, Ref<? extends Type> returnType, Ref<? extends Effect> effect,
+    		Name name,
             List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, 
             XRoot thisVar, List<LocalDef> formalNames, 
             Ref<CConstraint> guard,
@@ -986,7 +993,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         assert_(typeParams);
         assert_(argTypes);
         assert_(excTypes);
-        return new X10MethodDef_c(this, pos, container, flags, returnType, name, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes, body);
+        return new X10MethodDef_c(this, pos, container, flags, returnType, effect, name, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes, body);
     }
 
     /**
@@ -2303,6 +2310,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   }
 	   return result;
    }
+
+  public boolean isValVariable(VarInstance<?> vi) {
+       return X10Flags.toX10Flags(vi.flags()).isValue();
+   }
+
+   public boolean isValVariable(VarDecl vd) {
+       return X10Flags.toX10Flags(vd.flags().flags()).isValue();
+   }
+
+
    
    Name homeName = Name.make("home");
    public Name homeName() { return homeName;}

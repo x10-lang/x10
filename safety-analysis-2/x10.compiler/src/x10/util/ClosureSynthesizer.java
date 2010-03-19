@@ -50,6 +50,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
+import x10.effects.constraints.Effects;
 
 public class ClosureSynthesizer {
 
@@ -265,6 +266,7 @@ public class ClosureSynthesizer {
         }
         X10MethodDef mi = xts.methodDef(pos, Types.ref(ct), 
         		Flags.PUBLIC.Abstract(), Types.ref(rt),
+	       		Types.ref(Effects.makeSafe()), // no effects nv: FIXME
         		Name.make("apply"), 
         		typeParams, 
         		argTypes, 
