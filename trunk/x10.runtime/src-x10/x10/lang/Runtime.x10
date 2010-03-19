@@ -898,7 +898,14 @@ public final class Runtime {
     /**
      * Return the current place
      */
+    @Native("c++", "x10::lang::Place_methods::_make(x10aux::here)")
     public static def here():Place = Thread.currentThread().home;
+
+    /**
+     * Return the id of the current place
+     */
+    @Native("c++", "x10aux::here")
+    static def hereInt():int = Thread.currentThread().locInt();
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.
@@ -921,7 +928,7 @@ public final class Runtime {
                 }
             }
             registerHandlers();
-            if (Thread.currentThread().locInt() == 0) {
+            if (hereInt() == 0) {
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
                 pool();
                 if (!isLocal(Place.MAX_PLACES - 1)) {
@@ -955,7 +962,7 @@ public final class Runtime {
         val state = currentState();
         val phases = clockPhases().register(clocks);
         state.notifySubActivitySpawn(place);
-        if (place.id == Thread.currentThread().locInt()) {
+        if (place.id == hereInt()) {
             execute(new Activity(body, state, clocks, phases));
         } else {
             val c = ()=>execute(new Activity(body, state, clocks, phases));
@@ -967,7 +974,7 @@ public final class Runtime {
         val state = currentState();
         state.notifySubActivitySpawn(place);
         val ok = safe();
-        if (place.id == Thread.currentThread().locInt()) {
+        if (place.id == hereInt()) {
             execute(new Activity(body, state, ok));
         } else {
             var closure:()=>Void;
