@@ -247,7 +247,7 @@ designated by \xcd"P" to execute statement \xcd"S".
 An asynchronous expression of type \xcd"Future[T]" has the form
 \xcd"future (p) e" where \xcd"e" is an expression of type
 \xcd"T".  The expression \xcd"e"
-may reference final and shared variables declared in the lexically
+may reference \xcd`val`s and shared \xcd`var`s declared in the lexically
 enclosing environment.  It executes the expression \xcd"e" at the
 place \xcd"p" as an asynchronous activity, immediately returning with
 a future. The future may later be forced causing the activity to be
@@ -284,7 +284,7 @@ deadlock.
 
 \futureext{In future versions of the language,
 clocks will be integrated into the \Xten{} type system,
-permitting variables to be declared so that they are final in each
+permitting variables to be declared so that they are \xcd`val` in each
 phase of a clock.}
 
 \section{Arrays, regions and distributions}

@@ -81,7 +81,7 @@ Clocks are created using a factory method on \xcd"x10.lang.Clock":
 timeSynchronizer: Clock = Clock.make();
 \end{xten}
 
-\eat{All clocked variables are implicitly final. The initializer for a
+\eat{All clocked variables are implicitly \xcd`val`. The initializer for a
 local variable declaration of type \xcd"Clock" must be a new clock
 expression. Thus \Xten{} does not permit aliasing of clocks.
 Clocks are created in the place global heap and hence outlive the

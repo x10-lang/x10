@@ -215,7 +215,7 @@ and properties defined in the interface.
 \index{properties}
 \label{properties}
         Classes and interfaces may have {\em properties},
-        public final instance fields bound on object creation.  
+        public \xcd`val` instance fields bound on object creation.  
 %
         For example, the following code declares a class named
         \xcd"Point" with properties \xcd"x" and \xcd"y"
@@ -457,9 +457,9 @@ rules on escaping of \Xcd{this} (\Sref{protorules}) before the invocation of
 \begin{staticrule}{Variable occurrence}
 In a dependent type \xcd"T" = \xcd"C{c}", the only variables that may
 occur in \xcd"c" are (a)
-\xcd"self", (b) properties visible at \xcd"T", (c) final local variables, final
-method parameters or final constructor parameters visible at \xcd"T", (d)
-final fields visible at \xcd"T"'s lexical place in the source program.  
+\xcd"self", (b) properties visible at \xcd"T", (c)  local \xcd`val`s, \xcd`val`
+method parameters or \xcd`val` constructor parameters visible at \xcd"T", (d)
+\xcd`val` fields visible at \xcd"T"'s lexical place in the source program.  
 \end{staticrule}
 
 \begin{staticrule}{Restrictions on \xcd"this"}

@@ -42,7 +42,7 @@ ThisExpression \: \xcd"this" \\
 \| ClassName \xcd"." \xcd"this" \\
 \end{grammar}
 
-The expression \xcd"this" is a final local variable containing a reference
+The expression \xcd"this" is a  local \xcd`val` containing a reference
 to an instance of the lexically enclosing class.
 It may be used only within the body of an instance method, a
 constructor, or in the initializer of a instance field.
@@ -233,7 +233,7 @@ once.
 \section{Increment and decrement}
 
 The operators \xcd"++" and \xcd"--" increment and decrement
-a variable, respectively.  The variable must be non-final
+a variable, respectively.  The variable must be \xcd`var`
 and of numeric type.
 
 When the operator is prefix, the variable is
