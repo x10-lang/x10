@@ -9,7 +9,7 @@
     <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime_2.0.17.jar"/>
+    <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime.java_2.0.17.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
     <property name="ecj.jar.url" value="http://dist.codehaus.org/x10/dependencies/ecj-3.5.1.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
@@ -107,7 +107,15 @@
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
+        <!--<get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>-->
+        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/lpg-plugin.jar"/>
+        <unjar src="${lib}/lpg-plugin.jar" dest="${lib}">
+            <patternset>
+                <include name="lpgruntime.jar"/>
+            </patternset>
+        </unjar>
+        <copy file="${lib}/lpgruntime.jar" tofile="${lib}/${lpg.jar}"/>
+        <delete file="${lib}/lpgruntime.jar"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>
     </target>
