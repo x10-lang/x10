@@ -26,8 +26,8 @@ namespace x10aux {
     typedef ref<x10::lang::Object> (*Deserializer)(deserialization_buffer &buf);
     template<> inline const char *typeName<Deserializer>() { return "Deserializer"; }
 
-    typedef x10_ulong (*CUDAPre)(deserialization_buffer &buf, place p,
-                                           size_t &blocks, size_t &threads, size_t &shm);
+    typedef void (*CUDAPre)(deserialization_buffer &buf, place p,
+                            size_t &blocks, size_t &threads, size_t &shm, size_t &argc, char *&argv, size_t &cmemc, char *&cmemv);
     template<> inline const char *typeName<CUDAPre>() { return "CUDAPre"; }
 
     typedef void *(*BufferFinder)(deserialization_buffer &buf, x10_int len);

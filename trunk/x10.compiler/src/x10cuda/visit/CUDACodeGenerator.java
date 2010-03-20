@@ -579,7 +579,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
         if (nodeHasCUDAAnnotation(block)) {
         
-            inc.write("static x10_ulong "+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+"("+DESERIALIZATION_BUFFER+" &__buf, x10aux::place __gpu, size_t &__blocks, size_t &__threads, size_t &__shm) {");
+            inc.write("static void "+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+"("+DESERIALIZATION_BUFFER+" &__buf, x10aux::place __gpu, size_t &__blocks, size_t &__threads, size_t &__shm, size_t &argc, char *&argv, size_t &cmemc, char *&cmemv) {");
             inc.newline(4); inc.begin(0);
     
             inc.write(make_ref(cnamet)+" __this = "+cnamet+"::"+DESERIALIZE_METHOD+"<"+cnamet+">(__buf);");
@@ -647,10 +647,16 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 inc.write(";");
                 inc.newline();
             }
-            inc.write("x10_ulong __remote_env = x10aux::remote_alloc(__gpu, sizeof(__env));"); inc.newline();
-            inc.write("x10aux::cuda_put(__gpu, __remote_env, &__env, sizeof(__env));"); inc.newline();
-            inc.write("return __remote_env;"); inc.end(); inc.newline();
-            inc.write("}"); inc.newline(); inc.forceNewline();
+            if (true) { 
+	            inc.write("x10_ulong __remote_env = x10aux::remote_alloc(__gpu, sizeof(__env));"); inc.newline();
+	            inc.write("x10aux::cuda_put(__gpu, __remote_env, &__env, sizeof(__env));"); inc.newline();
+	            inc.write("::memcpy(argv, &__remote_env, sizeof (void*));"); inc.newline();
+	            inc.write("argc = sizeof(void*);"); inc.end(); inc.newline();
+            } else {
+	            inc.write("memcpy(argv, __env, sizeof(__env));"); inc.newline();
+	            inc.write("argc = sizeof(__env);"); inc.end(); inc.newline();
+            }
+	        inc.write("}"); inc.newline(); inc.forceNewline();
         }
     }    
     
@@ -660,14 +666,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     }
 
     @Override
-    public void visit(ArrayInit_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
     public void visit(Assert_c n) {
-        // TODO Auto-generated method stub
+        assert !generatingKernel() : "Throwing exceptions not allowed in @CUDA code.";
         super.visit(n);
     }
 
@@ -685,7 +685,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     @Override
     public void visit(Await_c n) {
-        // TODO Auto-generated method stub
+        assert !generatingKernel() : "Await not allowed in @CUDA code.";
         super.visit(n);
     }
 
@@ -715,7 +715,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     @Override
     public void visit(Catch_c n) {
-        // TODO Auto-generated method stub
+        assert !generatingKernel() : "Catching exceptions not allowed in @CUDA code.";
         super.visit(n);
     }
 
@@ -726,14 +726,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     }
 
     @Override
-    public void visit(ClassBody_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
     public void visit(ClosureCall_c c) {
-        // TODO Auto-generated method stub
+        assert !generatingKernel() : "Closure calls not allowed in @CUDA code.";
         super.visit(c);
     }
 
@@ -741,18 +735,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     public void visit(Conditional_c n) {
         // TODO Auto-generated method stub
         super.visit(n);
-    }
-
-    @Override
-    public void visit(ConstantDistMaker_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(ConstructorDecl_c dec) {
-        // TODO Auto-generated method stub
-        super.visit(dec);
     }
 
     @Override
@@ -777,12 +759,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     public void visit(Field_c n) {
         // TODO Auto-generated method stub
         super.visit(n);
-    }
-
-    @Override
-    public void visit(FieldDecl_c dec) {
-        // TODO Auto-generated method stub
-        super.visit(dec);
     }
 
     @Override
@@ -817,12 +793,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     @Override
     public void visit(If_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(Import_c n) {
         // TODO Auto-generated method stub
         super.visit(n);
     }
@@ -877,55 +847,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     }
 
     @Override
-    public void visit(LocalClassDecl_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(LocalDecl_c dec) {
-        // TODO Auto-generated method stub
-        super.visit(dec);
-    }
-
-    @Override
-    public void visit(MethodDecl_c dec) {
-        // TODO Auto-generated method stub
-        super.visit(dec);
-    }
-
-    @Override
-    public void visit(Node n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
     public void visit(NullLit_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(PackageNode_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(ParExpr_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(PropertyDecl_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
-
-    @Override
-    public void visit(RegionMaker_c n) {
         // TODO Auto-generated method stub
         super.visit(n);
     }
@@ -962,13 +884,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     @Override
     public void visit(Throw_c n) {
-        // TODO Auto-generated method stub
+        assert !generatingKernel() : "Throwing exceptions not allowed in @CUDA code.";
         super.visit(n);
     }
 
     @Override
     public void visit(Try_c n) {
-        // TODO Auto-generated method stub
+        assert !generatingKernel() : "Catching exceptions not allowed in @CUDA code.";
         super.visit(n);
     }
 
@@ -1004,7 +926,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     @Override
     public void visit(X10Call_c n) {
-        // TODO Auto-generated method stub
+    	// In fact they are allowed, as long as they are implemented with @Native 
+        //assert !generatingKernel() : "Calling functions not allowed in @CUDA code.";
         super.visit(n);
     }
 
@@ -1028,7 +951,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     @Override
     public void visit(X10Instanceof_c n) {
-        // TODO Auto-generated method stub
+        assert !generatingKernel() : "Runtime types not available in @CUDA code.";
         super.visit(n);
     }
 

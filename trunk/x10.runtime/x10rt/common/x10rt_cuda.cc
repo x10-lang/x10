@@ -22,7 +22,7 @@ namespace {
     // TODO: fine grained synchronisation, lock free datastructures
     pthread_mutex_t big_lock_of_doom;
 
-    static inline void DEBUG(const char *fmt, ...) {
+    inline void DEBUG(const char *fmt, ...) {
         (void) fmt;
         va_list ap;
         va_start(ap, fmt);
@@ -108,7 +108,7 @@ namespace {
     /* }}} */
 
 
-    static size_t dma_slice_sz (void) {
+    size_t dma_slice_sz (void) {
         static size_t sz = 0;
         if (sz == 0) {
             const char *env_var = "X10RT_CUDA_DMA_SLICE";
@@ -275,6 +275,7 @@ struct x10rt_cuda_ctx {
     void *pinned_mem2;
     void *front;
     void *back;
+    size_t commit;
     op_queue<x10rt_cuda_kernel> kernel_q;
     op_queue<x10rt_cuda_copy> dma_q;
     Table<x10rt_functions> cbs;
@@ -433,7 +434,6 @@ void x10rt_cuda_registration_complete (x10rt_cuda_ctx *ctx)
 #endif
 }
 
-
 void *x10rt_cuda_device_alloc (x10rt_cuda_ctx *ctx,
                                size_t len)
 {
@@ -441,6 +441,8 @@ void *x10rt_cuda_device_alloc (x10rt_cuda_ctx *ctx,
     pthread_mutex_lock(&big_lock_of_doom);
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
     CUdeviceptr ptr;
+    ctx->commit += len;
+    //fprintf(stderr,"CUDA committed memory: %llu bytes\n", (unsigned long long)ctx->commit);
     CU_SAFE(cuMemAlloc(&ptr, len));
     CU_SAFE(cuCtxPopCurrent(NULL));
     pthread_mutex_unlock(&big_lock_of_doom);
@@ -684,7 +686,8 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                 CUfunction k = ctx->cbs[type].kernel_cbs.kernel;
                 // y and z params we leave as 1, as threads can vary from 1 to 512
                 CU_SAFE(cuFuncSetBlockShape(k, kop->threads, 1, 1));
-                CU_SAFE(cuParamSetv(k, 0, &kop->argv, kop->argc));
+                //fprintf(stderr,"%p<<<%d,%d,%d>>> argc: %d  argv: %p\n", (void*)k, kop->blocks, kop->threads, kop->shm, kop->argc, *(void**)kop->argv);
+                CU_SAFE(cuParamSetv(k, 0, &kop->argv[0], kop->argc));
                 CU_SAFE(cuParamSetSize(k, kop->argc));
                 CU_SAFE(cuFuncSetSharedSize(k, kop->shm));
                 CU_SAFE(cuLaunchGridAsync(k, kop->blocks, 1, ctx->kernel_q.stream));
