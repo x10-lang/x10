@@ -294,16 +294,14 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::CUDAPre pre = x10aux::DeserializationDispatcher::getCUDAPre(sid);
-    x10_ulong env = pre(buf, p->dest_place, *blocks, *threads, *shm);
+    pre(buf, p->dest_place, *blocks, *threads, *shm, *argc, *argv, *cmemc, *cmemv);
     assert(buf.consumed() <= p->len);
-    *argv = (char*)(size_t)env;
-    *argc = sizeof(void*);
 }
 
 static void cuda_post (const x10rt_msg_params *p, void *env)
 {
     _X_(ANSI_X10RT<<"Receiving a kernel post callback, deserialising..."<<ANSI_RESET);
-    remote_free(p->dest_place, (x10_ulong)(size_t)env);
+    //remote_free(p->dest_place, (x10_ulong)(size_t)env);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
     x10aux::ref<x10::lang::Reference> fs = buf.read<x10aux::ref<x10::lang::Reference> >();
     x10aux::ref<x10::lang::Runtime> rt = x10::lang::PlaceLocalHandle_methods<x10aux::ref<x10::lang::Runtime> >::apply(x10::lang::Runtime::FMGL(runtime));
