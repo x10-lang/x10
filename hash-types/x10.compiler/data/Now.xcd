@@ -1,7 +1,0 @@
-// SYNOPSIS: now(#0) #1
-x10.runtime.Runtime.runNow(#0, 
-	new x10.core.fun.VoidFun_0_0() {
-		public void apply() {
-			#2
-		}
-	});
