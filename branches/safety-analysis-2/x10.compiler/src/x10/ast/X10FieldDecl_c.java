@@ -307,6 +307,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                    }
 	                    X10Context xc = (X10Context) enterChildScope(type(), tc.context());
 	                    t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
+	                    
 	                    LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
 	                    r.update(t);
 	                    

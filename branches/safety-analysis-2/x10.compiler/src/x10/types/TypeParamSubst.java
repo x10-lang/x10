@@ -264,7 +264,7 @@ public class TypeParamSubst {
 		final LazyRef r = Types.lazyRef(null);
 		r.setResolver(new Runnable() {
 			public void run() {
-				r.update(reinstantiate(t.get()));
+				//r.update(reinstantiate(t.get()));
 			}
 		});
 		return r;
