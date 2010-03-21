@@ -55,15 +55,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.ast.Ext_c;
 import polyglot.ast.Unary.Operator;
-import x10.ast.AnnotationNode;
-import x10.ast.Async;
-import x10.ast.Finish;
-import x10.ast.AtStmt;
-import x10.ast.Atomic;
-import x10.ast.ForEach;
-import x10.ast.ForLoop;
 import x10.ast.*;
-import x10.ast.SettableAssign;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -77,10 +69,13 @@ import x10.effects.constraints.FieldLocs;
 import x10.effects.constraints.LocalLocs;
 import x10.effects.constraints.Locs;
 import x10.effects.constraints.Safety;
+import x10.types.ConstrainedType;
+import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.X10LocalDef;
+import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeEnv;
@@ -220,6 +215,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            } else if (n instanceof LocalAssign) {
 	                 result=computeEffect((LocalAssign) n, ec);
 	            } else if (n instanceof LocalDecl) {
+	            	 LocalDecl x = (LocalDecl)n;
 	                 result=computeEffect((LocalDecl) n, ec);
 	            } else if (n instanceof LocalAssign) {
 	            } else if (n instanceof New) {
@@ -357,17 +353,20 @@ public class X10Ext_c extends Ext_c implements X10Ext {
      if (arrayExpr instanceof Local) {
 	Local l = (Local) arrayExpr;
 	X10LocalInstance li= (X10LocalInstance) l.localInstance();
-	Type t = (X10TypeMixin.baseType((Type)li.x10Def().type()));	
-	 X10ClassType cd = ((X10ClassType) t);
-	//System.out.println(li.x10Def().type().get());
-        if (li.x10Def().type().get() instanceof AnnotatedType) {
-			AnnotatedType at = (AnnotatedType) li.x10Def().type().get(); 
+
+	System.out.println(li.x10Def().type().get());
+	ConstrainedType ct = (ConstrainedType) li.x10Def().type().get();
+	X10ParsedClassType pct = (X10ParsedClassType) ct.baseType().get();
+	Type it = pct.typeArguments().get(0);
+	if (it instanceof AnnotatedType) {
+			AnnotatedType at = (AnnotatedType) it; 
+		
 			for (Type an: at.annotations()) {
       	  			if (an.toString().contains("clocked.Clocked")) { 
               				X10ClassType anc = (X10ClassType) an;
-					Expr e = anc.propertyInitializer(0);
+              				Expr e = anc.propertyInitializer(0);
                   	        	Locs mc = computeLocFor(e, ec);
-                  	        	Locs cv = computeLocFor(indexExpr, ec);
+                  	        	Locs cv = computeLocFor(l, ec);
           				result.addClockedVar(cv);
           				result.addMustClock(mc);
 			}

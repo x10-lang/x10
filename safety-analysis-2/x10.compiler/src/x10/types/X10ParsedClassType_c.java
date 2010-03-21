@@ -305,7 +305,8 @@ implements X10ParsedClassType
 	
 	public List<Type> typeArguments() {
 	    if (typeArguments == null) {
-		return TypedList.copyAndCheck((List) x10Def().typeParameters(), Type.class, true);
+	       TypedList x = TypedList.copyAndCheck((List) x10Def().typeParameters(), Type.class, true);
+	       return x;
 	    }
 	    return typeArguments;
 	}

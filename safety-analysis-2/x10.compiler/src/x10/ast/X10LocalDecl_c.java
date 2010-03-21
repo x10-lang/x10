@@ -161,14 +161,11 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		Type type = type().type();
-		
-	   	Type oldType = (Type)type.copy();
-	   	
+        Type oldType = (Type) type.copy();
 		X10TypeMixin.checkMissingParameters(type);
-		X10Context xc = (X10Context) enterChildScope(type(), tc.context());
-		type = PlaceChecker.ReplaceHereByPlaceTerm(type, xc);
+		type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
 	    Ref<Type> r = (Ref<Type>) type().typeRef();
-        r.update(type);
+//        r.update(type);
         
 	    if (type.isVoid())
 	        throw new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
@@ -188,9 +185,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	    // or can be implicitly coerced to the type.
 	    if (n.init != null) {
 	            try {
-	            	  xc = (X10Context) n.enterChildScope(n.init, tc.context());
-		    	    	ContextVisitor childtc = tc.context(xc);
-	                Expr newInit = Converter.attemptCoercion(childtc, n.init, oldType);
+	                Expr newInit = Converter.attemptCoercion(tc, n.init, type);
 	                return n.init(newInit);
 	            }
 	            catch (SemanticException e) {
