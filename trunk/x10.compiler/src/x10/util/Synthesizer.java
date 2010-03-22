@@ -13,7 +13,6 @@ package x10.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +23,6 @@ import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
-import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
@@ -37,18 +35,13 @@ import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
-import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.ast.Binary.Operator;
-import polyglot.ast.Import.Kind;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
-import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -66,22 +59,17 @@ import x10.ast.Closure;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl;
-import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
-import x10.ast.X10Loop;
 import x10.ast.X10NodeFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
-import x10.constraint.XRoot;
 import x10.constraint.XTerm;
-import x10.constraint.XTerm_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.types.ClosureDef;
+import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Context_c;
-import x10.types.X10ClassDef;
 import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
@@ -331,6 +319,96 @@ public class Synthesizer {
 		 .type(fi.type());
 		 return result;
 	}
+	
+	/**
+	 * Make a field to field assign: leftReceiver.leftName = rightReceiver.rightName
+	 * @param pos
+	 * @param leftReceiver
+	 * @param leftName
+	 * @param rightReceiver
+	 * @param rightName
+         * @param context
+	 * @return
+	 * @throws SemanticException 
+	 */
+	public Expr makeFieldToFieldAssign(Position pos, Receiver leftReceiver, Name leftName,
+	                                   Receiver rightReceiver, Name rightName, X10Context context) throws SemanticException{
+	    
+
+            Expr rightExpr = makeFieldAccess(pos, rightReceiver, rightName, context);
+
+            Field field = makeStaticField(pos, leftReceiver.type(), 
+                                                leftName,
+                                                xts.Int(),
+                                                context);
+            // assign
+            Expr assign = xnf.FieldAssign(pos, 
+                    leftReceiver, xnf.Id(pos, leftName), 
+                    Assign.ASSIGN, rightExpr)
+                    .fieldInstance(field.fieldInstance())
+                    .type(rightExpr.type());
+	    
+	    
+	    return assign;
+	}
+	
+	/**
+	 * Make a local to field assign: leftReceiver.leftName = local (localName/localType)
+	 * @param pos
+	 * @param leftReceiver
+	 * @param leftName
+	 * @param localName
+	 * @param localType
+	 * @param localFlags
+         * @param context
+	 * @return
+	 * @throws SemanticException 
+	 */
+	public Expr makeLocalToFieldAssign(Position pos, Receiver leftReceiver, Name leftName,
+                                           Name localName, Type localType, Flags localFlags, X10Context context) throws SemanticException{
+	    
+	    
+            LocalDef ldef = xts.localDef(pos, localFlags, Types.ref(localType), localName);
+            Expr init = xnf.Local(pos, xnf.Id(pos, localName)).localInstance(ldef.asInstance()).type(localType);
+            
+            Field field = makeStaticField(pos, leftReceiver.type(), 
+                                          leftName,
+                                          xts.Int(),
+                                          context);
+            Expr assign = xnf.FieldAssign(pos, leftReceiver, xnf.Id(pos, leftName), Assign.ASSIGN, init)
+                        .fieldInstance(field.fieldInstance())
+                        .type(localType);
+	    
+	    return assign;
+	}
+	
+	/**
+	 * Make a field to local assign: local(localName/localType) = rightReceiver.rightName
+	 * @param pos
+	 * @param localName
+	 * @param localType
+	 * @param rightReceiver
+	 * @param rightName
+         * @param context
+	 * @return
+	 * @throws SemanticException 
+	 */
+	public Expr makeFieldToLocalAssign(Position pos, Name localName, Type localType, Flags localFlags, Receiver rightReceiver, Name rightName
+	                                   , X10Context context) throws SemanticException{
+	    
+	    //right 
+	    Expr rightExpr = makeFieldAccess(pos, rightReceiver, rightName, context);
+	    
+	    //locals
+	    LocalDef ldef = xts.localDef(pos, localFlags, Types.ref(localType), localName);
+            Local local = xnf.Local(pos, xnf.Id(pos, localName)).localInstance(ldef.asInstance());
+	    
+            //assign
+            Expr assign = xnf.LocalAssign(pos, local, Assign.ASSIGN, rightExpr).type(rightExpr.type());
+            
+	    return assign;
+	}
+	
 	
 	public Call makeStaticCall(Position pos, 
 			Type receiver, 
