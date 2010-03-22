@@ -151,8 +151,8 @@ else
       else
         ifeq ($(shell uname -s),Darwin)
           export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
-          override CXXFLAGS_SHARED += -shared -undefined dynamic_lookup -fPIC
-          override LDFLAGS_SHARED += -Wl,-install_name,'@rpath/$@'
+          override CXXFLAGS_SHARED += -fPIC
+          override LDFLAGS_SHARED += -dynamiclib -undefined dynamic_lookup -install_name '@rpath/$@'
           export X10RT_TEST_LDFLAGS = -Wl,-rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib -Wl,-rpath -Wl,$(X10_HOME)/x10.runtime/x10rt
           ifdef USE_32BIT
             override CXXFLAGS += -arch i386
