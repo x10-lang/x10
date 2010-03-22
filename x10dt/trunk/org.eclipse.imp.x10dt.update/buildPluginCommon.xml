@@ -184,6 +184,7 @@
             <classpath>
                 <pathelement path="${plugin.dependencies}"/>
                 <pathelement path="${eclipse.build.path}"/>
+                <pathelement path="${extra.build.path}"/>
             </classpath>
             <src path="${plugin.src.path}/"/>
         </javac>
