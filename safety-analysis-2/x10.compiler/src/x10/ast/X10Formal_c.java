@@ -50,6 +50,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.extension.X10Del;
+import x10.extension.X10Ext;
 import x10.types.FunctionType;
 import x10.types.X10Context;
 import x10.types.X10LocalDef;
@@ -125,6 +126,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 */
 	public void addDecls(Context c) {
 		c.addVariable(li.asInstance());
+	
 		for (Iterator<Formal> j = this.vars().iterator(); j.hasNext(); ) {
 			Formal fj = (Formal) j.next();
 			fj.addDecls(c);
@@ -147,8 +149,10 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	     X10Formal_c n = (X10Formal_c) super.buildTypes(tb);
 
 	     X10LocalDef fi = (X10LocalDef) n.localDef();
-
+	     X10Ext  ex = (X10Ext) n.ext();
 	     List<AnnotationNode> as = ((X10Del) n.del()).annotations();
+
+    	
 	     if (as != null) {
 	         List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
 	         for (AnnotationNode an : as) {
@@ -156,7 +160,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	         }
 	         fi.setDefAnnotations(ats);
 	     }
-	     
+	   
 	     return n;
 	 }
 	 
@@ -168,7 +172,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 
 	     Formal f = (Formal) this;
 	     X10LocalDef li = (X10LocalDef) f.localDef();
-	  
+	    
 	     if (f.type() instanceof UnknownTypeNode && parent instanceof Formal) {
 	    	   // We infer the types of exploded formals
 	         final UnknownTypeNode tn = (UnknownTypeNode) f.type();

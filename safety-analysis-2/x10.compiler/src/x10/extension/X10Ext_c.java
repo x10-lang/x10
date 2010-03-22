@@ -448,6 +448,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
                       analyzeClockedArrays (result, targetExpr, args.get(0), ec);
                   } else if (call.name().id().toString().equals("set")) {
                       result= computeEffectOfArrayWrite(call, targetExpr, args.get(0), args.get(1), ec);
+                      analyzeClockedArrays (result, targetExpr, args.get(0), ec);
                   }
                  
                 }
@@ -532,10 +533,11 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
 	  		Local l = (Local) array;
 	  		X10LocalInstance li= (X10LocalInstance) l.localInstance();
 
-	  		System.out.println(li.x10Def().type().get());
+	  		//System.out.println(li.x10Def().type().get());
 	  		ConstrainedType ct = (ConstrainedType) li.x10Def().type().get();
 	  		X10ParsedClassType pct = (X10ParsedClassType) ct.baseType().get();
 	  		Type it = pct.typeArguments().get(0);
+	  		
 	  		if (it instanceof AnnotatedType) {
 	  				AnnotatedType at = (AnnotatedType) it; 
 	  			
@@ -734,7 +736,7 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       } else if (expr instanceof Call) {
           Call call= (Call) expr;
           MethodInstance mi= call.methodInstance();
-	      System.out.println(call.arguments().get(0));
+	      //System.out.println(call.arguments().get(0));
           if (mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.lang.Rail") &&
               mi.name().toString().equals("apply") && mi.formalTypes().size() == 1) { // an array ref
               List<Expr> args= call.arguments();
