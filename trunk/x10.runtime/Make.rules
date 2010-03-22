@@ -154,6 +154,12 @@ else
           override CXXFLAGS_SHARED += -shared -undefined dynamic_lookup -fPIC
           override LDFLAGS_SHARED += -Wl,-install_name,'@rpath/$@'
           export X10RT_TEST_LDFLAGS = -Wl,-rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib -Wl,-rpath -Wl,$(X10_HOME)/x10.runtime/x10rt
+          ifdef USE_32BIT
+            override CXXFLAGS += -arch i386
+          endif
+          ifdef USE_64BIT
+            override CXXFLAGS += -arch x86_64
+          endif
           AR = libtool
           ARFLAGS = -static -o
         else

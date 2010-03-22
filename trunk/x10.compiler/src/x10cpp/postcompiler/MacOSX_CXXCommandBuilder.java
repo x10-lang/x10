@@ -17,6 +17,8 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 
 public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
+    public static final boolean USE_32BIT = System.getenv("USE_32BIT")!=null;
+    public static final boolean USE_64BIT = System.getenv("USE_64BIT")!=null;
 
     public MacOSX_CXXCommandBuilder(Options options, ErrorQueue eq) {
         super(options,eq);
@@ -27,6 +29,14 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
+        if (USE_32BIT) {
+            cxxCmd.add("-arch");
+            cxxCmd.add("i386");
+        }
+        if (USE_64BIT) {
+            cxxCmd.add("-arch");
+            cxxCmd.add("x86_64");
+        }
     }
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
