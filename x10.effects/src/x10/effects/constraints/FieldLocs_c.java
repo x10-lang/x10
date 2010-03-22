@@ -1,6 +1,7 @@
 package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
 import x10.constraint.XName;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
@@ -26,16 +27,21 @@ public class FieldLocs_c extends RigidTerm_c implements FieldLocs {
 	public XTerm obj() { return designator();}
 	
 	public boolean disjointFrom(Locs other, XConstraint c){
-		if (other instanceof ObjLocs) {
-        	ObjLocs o = (ObjLocs) other;
-        	return (c.disEntails(obj(), o.designator()));
-        }
-        if  (other instanceof FieldLocs) {
-        	FieldLocs o = (FieldLocs) other;
-        	if (c.disEntails(obj(), o.obj()))
-        		return true;
-        	return ! fieldName.equals(o.field());
-        }
+		try {
+			if (other instanceof ObjLocs) {
+				ObjLocs o = (ObjLocs) other;
+				return (c.disEntails(obj(), o.designator()));
+			}
+			if  (other instanceof FieldLocs) {
+				FieldLocs o = (FieldLocs) other;
+				if (c.disEntails(obj(), o.obj()))
+					return true;
+				return ! fieldName.equals(o.field());
+			}
+		} catch (Exception f) {
+			//hmm this should be an error.
+			return false;
+		}
 		return true;
 	}
 
