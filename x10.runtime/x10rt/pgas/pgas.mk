@@ -158,11 +158,11 @@ endif
 
 ifdef X10_STATIC_LIB
 $(PGAS_DYNLIB_SOCKETS): $(COMMON_OBJS) lib/libxlpgas_sockets.a
-	$(CP) lib/libxlpgas_sockets.a $@
-	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+#	$(CP) lib/libxlpgas_sockets.a $@
+	$(AR) $(ARFLAGS) $@ lib/libxlpgas_sockets.a $(COMMON_OBJS)
 else
 $(PGAS_DYNLIB_SOCKETS): $(COMMON_OBJS) lib/libxlpgas_sockets.a
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
 endif
 
 

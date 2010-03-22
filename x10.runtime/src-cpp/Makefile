@@ -160,7 +160,7 @@ $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
             $(ALL_MANUAL_OBJECTS)
 else
 $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ \
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ \
 	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
             $(ALL_MANUAL_OBJECTS) \
 	    $(XRX_DEP_LIBS)
