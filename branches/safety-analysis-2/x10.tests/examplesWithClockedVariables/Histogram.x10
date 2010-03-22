@@ -12,12 +12,12 @@ public class Histogram {
 	val op = Int.+;
 	static type cl = int @  Clocked[Int] (c,op);
     val b : Rail [int @ Clocked [int] (c, op)]! = Rail.make[int](S);
-	foreach((i) in a.region) clocked (c) {
+	foreach((i) in a.region) {
 	       val bin = a(i)% S;
 	       b(bin) = 1;
 	    
 	}
 	next;
-        Console.OUT.println("Test ok." + b(0));
+    Console.OUT.println("Test ok." + b(0));
     }
 }

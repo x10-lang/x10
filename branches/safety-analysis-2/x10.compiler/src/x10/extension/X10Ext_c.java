@@ -277,7 +277,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       Local l= la.local();
      
       X10LocalInstance li= (X10LocalInstance) l.localInstance();
-      System.out.println("in local assign " + li + li.x10Def().type().get());
+      //System.out.println("in local assign " + li + li.x10Def().type().get());
       Expr rhs= la.right();
       X10TypeSystem ts = ec.typeSystem();
       if (ts.isValVariable(li)) {
@@ -285,22 +285,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       } else {
           Effect rhsEff= effect(rhs);
           Effect writeEff= Effects.makeSafe();
-         if (li.x10Def().type().get() instanceof AnnotatedType) {
-			AnnotatedType at = (AnnotatedType) li.x10Def().type().get(); 
-			
-			for (Type an: at.annotations()) {
-      	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
-					System.out.println("Here");
-              				X10ClassType anc = (X10ClassType) an;
-					Expr e = anc.propertyInitializer(0);
-                  	        	Locs mc = computeLocFor(e, ec);
-                  	        	Locs cv = computeLocFor(l, ec);
-          				writeEff.addClockedVar(cv);
-          				writeEff.addMustClock(mc);
-			}
-		}
-	}
-	writeEff.addWrite(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(l))));
+          analyzeClockedLocal (writeEff, li, l, ec);
+          writeEff.addWrite(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(l))));
           return ts.env(ec.context()).followedBy(rhsEff, writeEff);
       }  
   }
@@ -311,7 +297,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       Receiver target= fa.target();
       Expr rhs= fa.right();
     
-      System.out.println("in field assign " + fi + (Type) (fi.x10Def().type().get()));
+     // System.out.println("in field assign " + fi + (Type) (fi.x10Def().type().get()));
       X10TypeSystem ts = ec.typeSystem();
 
       if (ts.isValVariable(fi)) {
@@ -320,19 +306,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
           Effect rhsEff= effect(rhs);
           Effect writeEff= Effects.makeSafe();
           writeEff.addWrite(Effects.makeFieldLocs(createTermForReceiver(target, ec), new XVarDefWrapper(fi.def())));
-		if (fi.x10Def().type().get() instanceof AnnotatedType) {
-			AnnotatedType at = (AnnotatedType) fi.x10Def().type().get(); 
-			for (Type an: at.annotations()) {
-      	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
-              				X10ClassType anc = (X10ClassType) an;
-					Expr e = anc.propertyInitializer(0);
-                  	        	Locs locs= computeLocFor(e, ec);
-          				writeEff.addClockedVar(Effects.makeFieldLocs(createTermForReceiver(target, ec), new XVarDefWrapper(fi.def())));
-          				writeEff.addMustClock(locs);
-				}
-			}
-			
-		}
+          analyzeClockedField (writeEff, fi, target, ec);
           return ec.env().followedBy(rhsEff, writeEff);
       } 
       // return Effects.makeUnsafe();
@@ -350,30 +324,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       writeEff.addWrite(createArrayLoc(arrayExpr, indexExpr));
       X10TypeEnv env = ec.env();
       Effect result= env.followedBy(arrayEff, indexEff);
-     if (arrayExpr instanceof Local) {
-	Local l = (Local) arrayExpr;
-	X10LocalInstance li= (X10LocalInstance) l.localInstance();
-
-	System.out.println(li.x10Def().type().get());
-	ConstrainedType ct = (ConstrainedType) li.x10Def().type().get();
-	X10ParsedClassType pct = (X10ParsedClassType) ct.baseType().get();
-	Type it = pct.typeArguments().get(0);
-	if (it instanceof AnnotatedType) {
-			AnnotatedType at = (AnnotatedType) it; 
-		
-			for (Type an: at.annotations()) {
-      	  			if (an.toString().contains("clocked.Clocked")) { 
-              				X10ClassType anc = (X10ClassType) an;
-              				Expr e = anc.propertyInitializer(0);
-                  	        	Locs mc = computeLocFor(e, ec);
-                  	        	Locs cv = computeLocFor(l, ec);
-          				result.addClockedVar(cv);
-          				result.addMustClock(mc);
-			}
-		}
-	}
-     } 
-
+      analyzeClockedArrays (result, arrayExpr, indexExpr, ec);
       result= env.followedBy(result, rhsEff);
       result= env.followedBy(result, writeEff);
       return result;
@@ -485,7 +436,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
           ClassType ownerClassType = (ClassType) methodOwner;
           String ownerClassName = ownerClassType.fullName().toString();
 
-          if (ownerClassName.equals("x10.lang.Array")) {
+          if (ownerClassName.equals("x10.lang.Array") || ownerClassName.equals("x10.lang.Rail")) {
               if (methodInstance.flags().isStatic()) {
                   if (call.name().id().toString().equals("make")) {
                       
@@ -494,10 +445,12 @@ public class X10Ext_c extends Ext_c implements X10Ext {
                   Expr targetExpr= (Expr) target;
                   if (call.name().id().toString().equals("apply")) {
                       result= computeEffectOfArrayRead(call, targetExpr, args.get(0), ec);
+                      analyzeClockedArrays (result, targetExpr, args.get(0), ec);
                   } else if (call.name().id().toString().equals("set")) {
                       result= computeEffectOfArrayWrite(call, targetExpr, args.get(0), args.get(1), ec);
                   }
-              }
+                 
+                }
           } else {
               // First compute the effects of argument evaluation
               result= effect(target);
@@ -538,6 +491,68 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     
       return result;
   }
+  
+  private void analyzeClockedField (Effect result, X10FieldInstance fi, Receiver target, EffectComputer ec )  {
+	if (fi.x10Def().type().get() instanceof AnnotatedType) {
+		AnnotatedType at = (AnnotatedType) fi.x10Def().type().get(); 
+		for (Type an: at.annotations()) {
+  	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
+          				X10ClassType anc = (X10ClassType) an;
+				Expr e = anc.propertyInitializer(0);
+              	        	Locs locs= computeLocFor(e, ec);
+              	        	result.addClockedVar(Effects.makeFieldLocs(createTermForReceiver(target, ec), new XVarDefWrapper(fi.def())));
+              	        	result.addMustClock(locs);
+			}
+		}
+		
+	}
+} 
+  
+private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, EffectComputer ec) {  
+  if (li.x10Def().type().get() instanceof AnnotatedType) {
+		AnnotatedType at = (AnnotatedType) li.x10Def().type().get(); 
+		
+		for (Type an: at.annotations()) {
+	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
+				// System.out.println("Here");
+        				X10ClassType anc = (X10ClassType) an;
+				Expr e = anc.propertyInitializer(0);
+            	        	Locs mc = computeLocFor(e, ec);
+            	        	Locs cv = computeLocFor(l, ec);
+    				result.addClockedVar(cv);
+    				result.addMustClock(mc);
+		}
+	}
+  }
+}  
+  
+  
+  private void analyzeClockedArrays (Effect result, Expr array, Expr index, EffectComputer ec) {
+	  if (array instanceof Local) {
+	  		Local l = (Local) array;
+	  		X10LocalInstance li= (X10LocalInstance) l.localInstance();
+
+	  		System.out.println(li.x10Def().type().get());
+	  		ConstrainedType ct = (ConstrainedType) li.x10Def().type().get();
+	  		X10ParsedClassType pct = (X10ParsedClassType) ct.baseType().get();
+	  		Type it = pct.typeArguments().get(0);
+	  		if (it instanceof AnnotatedType) {
+	  				AnnotatedType at = (AnnotatedType) it; 
+	  			
+	  				for (Type an: at.annotations()) {
+	  	      	  			if (an.toString().contains("clocked.Clocked")) { 
+	  	              				X10ClassType anc = (X10ClassType) an;
+	  	              				Expr e = anc.propertyInitializer(0);
+	  	                  	        Locs mc = computeLocFor(e, ec);             
+	  	                  	        Locs cv =(createArrayLoc(array, index));
+	  	                  	        result.addClockedVar(cv);
+	  	                  	        result.addMustClock(mc);
+	  				}
+	  			}
+	  		 }
+	  	   } 
+  }
+  
 
   // ============
   // Statements
@@ -590,18 +605,18 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       }
 
       for (Locs mc: bodyEff.mustClockSet()) {
-	boolean found = false;
-      	for (Locs rc: registeredClocks) {
-		if (mc.equals(rc)) {
-			found = true;
-			break;
-		}
-	}
-	if (found == false)
+    	  	boolean found = false;
+      		for (Locs rc: registeredClocks) {
+      			if (mc.equals(rc)) {
+      				found = true;
+      				break;
+      			}
+      		}
+      		if (found == false)
 	        ec.emitMessage( mc + " is not in registeredClocks " + registeredClocks, fe.position());
       }		
       return bodyEff.makeParSafe();
-  }
+  	}
 
 
   private Effect computeEffect(Finish f, EffectComputer ec) {
