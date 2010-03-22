@@ -1969,6 +1969,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             TypeNode type = nf.X10AmbTypeNode(pos(), Primary, Identifier);
             // TODO: place constraint
             if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
+            	 
                 type = nf.AmbDepTypeNode(pos(), Primary, Identifier, TypeArgumentsopt, Argumentsopt, DepParametersopt);
             }
             setResult(type);
@@ -2006,6 +2007,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
             // TODO: place constraint
             if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
+            	//System.out.println("Here" + TypeArgumentsopt);
                 type = nf.AmbDepTypeNode(pos(), TypeName.prefix != null ? TypeName.prefix.toPrefix() : null, TypeName.name, TypeArgumentsopt, Argumentsopt, DepParametersopt);
             }
             setResult(type);
@@ -4890,6 +4892,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             Id name = (Id) o[1];
             boolean unnamed = name == null;
             if (name == null) name = nf.Id(pos, Name.makeFresh());
+          
                List exploded = (List) o[2];
                         DepParameterExpr guard = (DepParameterExpr) o[3];
                         TypeNode type = (TypeNode) o[4];
@@ -4901,8 +4904,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
                         	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                         }
             f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
+          if (name.toString().contains("myA")) {
+        	  
+        	  int x = 1;
+          }
             f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
             setResult(f);
+          
                       break;
             }
     
@@ -4936,6 +4944,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                         	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                         }
             f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
+          
             f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
             setResult(f);
                       break;
@@ -4951,6 +4960,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 2939 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
             f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh("id$")), Collections.EMPTY_LIST, true);
+       
             setResult(f);
                       break;
             }
@@ -6001,9 +6011,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
                //#line 3481 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3479 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
+                
                 //#line 3479 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
                 //#line 3481 "C:/eclipsews/head2/lpg.generator/templates/java/btParserTemplateF.gi"
+            
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, null });
                       break;
             }

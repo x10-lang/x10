@@ -84,6 +84,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
         super(pos);
         this.prefix = prefix;
         this.name = name;
+      
         this.typeArgs = TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
         this.args = TypedList.copyAndCheck(args, Expr.class, true);
     }
