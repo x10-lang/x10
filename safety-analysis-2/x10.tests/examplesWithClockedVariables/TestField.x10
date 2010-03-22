@@ -1,6 +1,6 @@
 import clocked.*;
 
-public class Test {
+public class TestField {
 
 	var c: Clock;
 	var d: Clock;
@@ -18,7 +18,7 @@ public class Test {
 			z = 3;
 			async {
 				finish  async clocked(c) { x = 3;}
-				finish  async  { x = 3;}
+				finish  async  { x = 3; z = 2;}
 			}
 			// atomic x = 3;
 			val l = y;	
@@ -28,6 +28,6 @@ public class Test {
 	}
 
 	public static def main(args: Rail[String]) {
-	      new Test().run();
+	      new TestField().run();
 	}
 }
