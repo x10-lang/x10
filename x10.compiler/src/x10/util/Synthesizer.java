@@ -103,15 +103,13 @@ public class Synthesizer {
    * the constructed method will not duplicate an existing method.
    * 
    * Should be called after the class has been typechecked.
-   * @param ct  -- The clas to which this code has to be added
+   * @param ct  -- The class to which this code has to be added
    * @param flags -- The flags for the method
    * @param name -- The name of the method
    * @param fmls -- A list of LocalDefs specifying the parameters to the method.
    * @param returnType -- The return type of this method.
    * @param trow  -- The types of throwables from the method.
    * @param block -- The body of the method
-   * @param xnf -- The X10NodeFactory to be used to create new AST nodes.
-   * @param xts  -- The X10TypeSystem object to be used to create new types.
    * @return  this, with the method added.
    * 
    * TODO: Ensure that type parameters and a guard can be supplied as well.
@@ -127,13 +125,29 @@ public class Synthesizer {
 	    	ct.classDef().addMethod(result.methodDef());
 	    	return (X10ClassDecl_c) ct.body(b);
 	 }
-	 public  MethodDecl makeSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
+	 
+	  /**
+	   * Create a synthetic MethodDecl from the given data and return
+	   * the MethodDecl 
+	   * Should be called after the class has been type-checked.
+	   * 
+	   * @param ct  -- The class to which this code has to be added
+	   * @param flags -- The flags for the method
+	   * @param name -- The name of the method
+	   * @param fmls -- A list of LocalDefs specifying the parameters to the method.
+	   * @param returnType -- The return type of this method.
+	   * @param trow  -- The types of throwables from the method.
+	   * @param block -- The body of the method
+	   * @return  this, with the method added.
+	   * 
+	   */
+	public  MethodDecl makeSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
 			 Name name, List<LocalDef> fmls, 
 			 Type returnType, List<Type> trow, Block block) {
 	    	
 	    	
 	    	Position CG = Position.COMPILER_GENERATED;
-	    	List<Expr> args = new ArrayList<Expr>();
+	    	List<Expr> args = new ArrayList<Expr>(); //FIXME: what's the usage of the args?
 	    	List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 	    	List<Formal> formals = new ArrayList<Formal>(fmls.size());
 	    	for (LocalDef f : fmls) {
@@ -396,6 +410,7 @@ public class Synthesizer {
 	public Expr makeFieldToLocalAssign(Position pos, Name localName, Type localType, Flags localFlags, Receiver rightReceiver, Name rightName
 	                                   , X10Context context) throws SemanticException{
 	    
+	    //FIXME: need check whether this method returns correct expr
 	    //right 
 	    Expr rightExpr = makeFieldAccess(pos, rightReceiver, rightName, context);
 	    
@@ -642,7 +657,7 @@ public class Synthesizer {
 	
 	
     /**
-     * This method could be moved into Synthesizer
+     * Insert inner classes to the given x10 class. Return a new class with the inner classes added in.
      * 
      * @param cDecl
      *            The original class with parallel methods
@@ -743,13 +758,13 @@ public class Synthesizer {
     }
 
     /**
-     * Create a copy constructor decl.
+     * Create a class's constructor with the input parameters. Return a new class with the new constructor.
      * 
      * @param cDecl
      * @param parmName
      * @param parmtype
      * @param parmFlags
-     * @param stmts     Statements of the constructor
+     * @param stmts     Statements of the constructor. It should contains the call to super class's constructor.
      * @param context
      * @return X10ClassDecl
      * @throws SemanticException
@@ -810,6 +825,24 @@ public class Synthesizer {
         cDef.addConstructor(xDef);
                 
         return (X10ClassDecl)cDecl.classDef(cDef).body(cb.members(cm));
+    }
+    
+    
+    /**
+     * Create a formal from given type/name/flags
+     * @param pos
+     * @param formalType
+     * @param formalName
+     * @param formalFlags
+     * @return
+     */
+    public Formal createFormal(Position pos, Type formalType, Name formalName, Flags formalFlags){
+        LocalDef ldef = xts.localDef(pos, formalFlags, Types.ref(formalType), formalName);
+        Expr ref = xnf.Local(pos, xnf.Id(pos, formalName)).localInstance(ldef.asInstance()).type(formalType);
+        Formal f = xnf.Formal(pos, xnf.FlagsNode(pos, formalFlags), 
+                xnf.CanonicalTypeNode(pos, formalType), 
+                xnf.Id(pos, formalName)).localDef(ldef);
+        return f;
     }
 
     /**
@@ -938,8 +971,49 @@ public class Synthesizer {
         ClassBody cb = cDecl.body();
         return (X10ClassDecl) cDecl.classDef(cDef).body(cb.members(cm));
     }
+    
+    
+    
     /**
-     * Create a class decl.
+     * Create a class decl, with no constructor
+     * 
+     * @param p
+     * @param flag
+     * @param kind
+     * @param name
+     * @param supert
+     * @param interfaces
+     * @param context
+     * @return
+     * @throws SemanticException
+     */
+    public X10ClassDecl createClass(Position p, Flags flag, ClassDef.Kind kind, Name name, Type supert,
+                                    List<Type> interfaces, X10Context context) throws SemanticException {
+
+        FlagsNode fNode = xnf.FlagsNode(p, flag);
+        Id id = xnf.Id(p, name);
+        TypeNode superTN = (TypeNode) xnf.CanonicalTypeNode(p, supert);
+        List<ClassMember> cmembers = new ArrayList<ClassMember>();
+        ClassBody body = xnf.ClassBody(p, cmembers);
+        List<TypeNode> interfaceTN = new ArrayList<TypeNode>();
+        for (Type t : interfaces) {
+            interfaceTN.add((TypeNode) xnf.CanonicalTypeNode(p, t));
+        }
+
+        X10ClassDecl cDecl = (X10ClassDecl) xnf.ClassDecl(p, fNode, id, superTN, interfaceTN, body);
+
+        X10ClassDef cDef = (X10ClassDef) xts.createClassDef();
+        cDef.name(name);
+        cDef.setFlags(flag);
+        cDef.kind(kind); // important to set kind
+
+        return (X10ClassDecl) cDecl.classDef(cDef);
+    }
+    
+    
+    /**
+     * Create a class decl, and add a default constructor to it.
+     * Return the class with the default constructor
      * @param flag
      * @param kind : TOP_LEVEL, LOCAL, MEMBER?
      * @param name 
@@ -948,7 +1022,7 @@ public class Synthesizer {
      * @return X10ClassDecl
      * @throws SemanticException 
      */ 
-    public X10ClassDecl createClass(Position p, 
+    public X10ClassDecl createClassWithConstructor(Position p, 
             Flags flag,
             ClassDef.Kind kind,
             Name name,
@@ -956,23 +1030,11 @@ public class Synthesizer {
             List<Type> interfaces,
             X10Context context) throws SemanticException {
 
-        FlagsNode fNode = xnf.FlagsNode(p, flag);
-        Id id = xnf.Id(p, name);
-        TypeNode superTN = (TypeNode)xnf.CanonicalTypeNode(p, supert);
-        List<ClassMember> cmembers = new ArrayList<ClassMember>();
-        ClassBody body = xnf.ClassBody(p, cmembers);
-        List<TypeNode> interfaceTN = new ArrayList<TypeNode>();
-        for (Type t : interfaces) {
-            interfaceTN.add((TypeNode) xnf.CanonicalTypeNode(p, t));
-        }
        
-        X10ClassDecl cDecl = (X10ClassDecl) xnf.ClassDecl(p, fNode, id, superTN, interfaceTN, body);
+        X10ClassDecl cDecl = createClass(p, flag, kind, name, supert, interfaces, context);
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
         
-        X10ClassDef cDef = (X10ClassDef) xts.createClassDef();
-        cDef.name(name);
-        cDef.setFlags(flag);
-        cDef.kind(kind); // important to set kind
-
+        //add default constructor
         X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
                 xnf.FlagsNode(p, X10Flags.PUBLIC),
                 cDecl.name(),
@@ -993,7 +1055,7 @@ public class Synthesizer {
         ClassBody cb = cDecl.body();
         cDef.addConstructor(xDef);
         
-        return (X10ClassDecl) cDecl.classDef(cDef).body(cb.members(cm));
+        return (X10ClassDecl) cDecl.body(cb.members(cm));
       
     }
               
