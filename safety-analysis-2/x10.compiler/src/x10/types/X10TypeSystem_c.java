@@ -1500,8 +1500,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public Type expandMacros(Type t) {
-        if (t instanceof AnnotatedType)
-            return expandMacros(((AnnotatedType) t).baseType());
+        if (t instanceof AnnotatedType) {
+        	  AnnotatedType at = (AnnotatedType) t;
+              Type base = at.baseType();
+              Type ebase = expandMacros(base);
+              if (base == ebase)
+                  return t;
+              CConstraint c = (CConstraint) at.annotations().get(0);
+              return X10TypeMixin.xclause(ebase, c);
+            //return expandMacros(((AnnotatedType) t).baseType());
+        }
         if (t instanceof MacroType)
             return expandMacros(((MacroType) t).definedType());
         if (t instanceof ConstrainedType) {

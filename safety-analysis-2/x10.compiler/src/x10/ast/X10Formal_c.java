@@ -84,10 +84,12 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		if (vars == null) vars = Collections.EMPTY_LIST;
 		this.vars = TypedList.copyAndCheck(vars, Formal.class, true);
 		this.unnamed = unnamed;
+		
 		assert vars != null;
 	}
 	
 	public Node visitChildren(NodeVisitor v) {
+	
 		X10Formal_c n = (X10Formal_c) super.visitChildren(v);
 		List l = visitList(vars, v);
 		if (! CollectionUtil.allEqual(l, this.vars)) {
@@ -147,7 +149,8 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 @Override
 	 public Node buildTypes(TypeBuilder tb) throws SemanticException {
 	     X10Formal_c n = (X10Formal_c) super.buildTypes(tb);
-
+	  
+	     
 	     X10LocalDef fi = (X10LocalDef) n.localDef();
 	     X10Ext  ex = (X10Ext) n.ext();
 	     List<AnnotationNode> as = ((X10Del) n.del()).annotations();
