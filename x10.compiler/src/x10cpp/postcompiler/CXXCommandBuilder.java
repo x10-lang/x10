@@ -67,7 +67,8 @@ public class CXXCommandBuilder {
     public static final String X10_DIST = System.getenv("X10_DIST");
     protected static final String X10GC = System.getenv("X10GC")==null?null:System.getenv("X10GC").replace(File.separatorChar, '/');
     protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
-
+    protected static final boolean ENABLE_PROFLIB = System.getenv("X10_ENABLE_PROFLIB") != null;
+    
     public static final String MANIFEST = "libx10.mft";
     public static final String[] MANIFEST_LOCATIONS = new String[] { X10_DIST+"/lib" };
 
@@ -153,6 +154,11 @@ public class CXXCommandBuilder {
         cxxCmd.add("-ldl");
         cxxCmd.add("-lm");
         cxxCmd.add("-lpthread");
+        
+        if (ENABLE_PROFLIB) {
+            cxxCmd.add("-lprofiler");
+        }
+        
     }
 
     protected void addExecutablePath(ArrayList<String> cxxCmd) {

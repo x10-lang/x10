@@ -13,22 +13,22 @@ SRCS = 	SerializationTest.java \
 CLASSES = ${SRCS:.java=.class}
 
 
-default: compile tests
+default: compile test
 
 compile: $(CLASSES)
 
 test: serializationtest countplaces simplemessagetest latency
 
 serializationtest: SerializationTest.class
-	mpirun -n 2 java -cp $(X10RT_JAR):. -Djava.library.path=$(X10RT_LIBS) SerializationTest
+	mpirun -n 2 $(X10_DIST)/bin/java_x10rt SerializationTest
 
 countplaces: CountPlaces.class
-	mpirun -n 4 java -cp $(X10RT_JAR):. -Djava.library.path=$(X10RT_LIBS) CountPlaces
+	mpirun -n 4 $(X10_DIST)/bin/java_x10rt CountPlaces
 
 simplemessagetest: SimpleMessageTest.class
-	mpirun -n 4 java -cp $(X10RT_JAR):. -Djava.library.path=$(X10RT_LIBS) SimpleMessageTest
+	mpirun -n 4 $(X10_DIST)/bin/java_x10rt SimpleMessageTest
 
 latency: Latency.class
-	mpirun -n 2 java -cp $(X10RT_JAR):. -Djava.library.path=$(X10RT_LIBS) Latency
+	mpirun -n 2 $(X10_DIST)/bin/java_x10rt Latency
 
 .PHONY:	compile test 

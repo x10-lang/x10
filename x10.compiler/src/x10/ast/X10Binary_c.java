@@ -355,7 +355,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                  ! xts.typeBaseEquals(rbase, promoted, context))) {
                 Expr el = Converter.attemptCoercion(tc, left, promoted);
                 Expr er = Converter.attemptCoercion(tc, right, promoted);
-                return Converter.check(left(el).right(er), tc);
+                if (el != left || er != right)
+                	return Converter.check(left(el).right(er), tc);
             }
         }
         

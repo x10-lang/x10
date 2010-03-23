@@ -23,12 +23,11 @@ objects may be compared for equality (\Xcd{==}) in constant time by
 simply containing references to the memory used to represent the
 objects.
 
-Structs are instances of {\em struct classes}
-(\Sref{StructClasses}). They are immutable and may be freely copied
-from place to place.  Further, they may be allocated inline, i.e.{}
-using only as much memory as necessary to hold the fields of the
-struct (and any additional memory necessary to satisfy alignment
-constraints for data layout. 
+Structs are instances of {\em struct types} (\Sref{StructClasses}). They are
+immutable and may be freely copied from place to place. Further, they may be
+allocated inline, \ie, using only as much memory as necessary to hold the
+fields of the struct (and any additional memory necessary to satisfy alignment
+constraints for data layout).
 
 Functions are instances of {\em function types|} {\Sref{Functions})
   and are created using function literals
@@ -216,7 +215,7 @@ and properties defined in the interface.
 \index{properties}
 \label{properties}
         Classes and interfaces may have {\em properties},
-        public final instance fields bound on object creation.  
+        public \xcd`val` instance fields bound on object creation.  
 %
         For example, the following code declares a class named
         \xcd"Point" with properties \xcd"x" and \xcd"y"
@@ -458,9 +457,9 @@ rules on escaping of \Xcd{this} (\Sref{protorules}) before the invocation of
 \begin{staticrule}{Variable occurrence}
 In a dependent type \xcd"T" = \xcd"C{c}", the only variables that may
 occur in \xcd"c" are (a)
-\xcd"self", (b) properties visible at \xcd"T", (c) final local variables, final
-method parameters or final constructor parameters visible at \xcd"T", (d)
-final fields visible at \xcd"T"'s lexical place in the source program.  
+\xcd"self", (b) properties visible at \xcd"T", (c)  local \xcd`val`s, \xcd`val`
+method parameters or \xcd`val` constructor parameters visible at \xcd"T", (d)
+\xcd`val` fields visible at \xcd"T"'s lexical place in the source program.  
 \end{staticrule}
 
 \begin{staticrule}{Restrictions on \xcd"this"}

@@ -39,6 +39,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.types.X10Context;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
@@ -228,7 +229,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 
             NodeFactory nf = tc.nodeFactory();
             
-            if (e instanceof SubtypeTest) {
+            if (X10TypeMixin.isTypeConstraintExpression(e)) {
                 if (types == null)
                     types = e;
                 else

@@ -1,7 +1,7 @@
 \chapter{Clocks}\label{XtenClocks}\index{clocks}
 
-The standard library for \Xten{}, \xcd"x10.lang" defines a
-final class", \xcd"Clock" intended for repeated quiescence detection
+The standard library for \Xten{}, \xcd"x10.lang", defines a
+class \xcd"Clock" intended for repeated quiescence detection
 of arbitrary, data-dependent collection of activities. Clocks are a
 generalization of {\em barriers}. They permit dynamically created
 activities to register and deregister. An activity may be registered
@@ -81,7 +81,7 @@ Clocks are created using a factory method on \xcd"x10.lang.Clock":
 timeSynchronizer: Clock = Clock.make();
 \end{xten}
 
-\eat{All clocked variables are implicitly final. The initializer for a
+\eat{All clocked variables are implicitly \xcd`val`. The initializer for a
 local variable declaration of type \xcd"Clock" must be a new clock
 expression. Thus \Xten{} does not permit aliasing of clocks.
 Clocks are created in the place global heap and hence outlive the
@@ -102,7 +102,7 @@ with on termination (normal or abrupt).
 The programmer may specify which clocks a new activity is to be
 registered with using the \xcd"clocked" clause.
 
-An activity may transmit only those clocks that is registered with and
+An activity may transmit only those clocks that are registered with and
 has not quiesced on (\Sref{resume}). 
 A \xcd"ClockUseException"\index{clock!ClockUseException} is
 thrown if (and when) this condition is violated.

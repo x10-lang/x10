@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.ClassDecl;
-import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.Node;
@@ -23,7 +22,6 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
@@ -49,9 +47,8 @@ import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
-import x10.types.X10Context;
+import x10.types.X10Context_c;
 import x10.types.X10TypeSystem;
-import x10.types.ParameterType.Variance;
 
 public class X10LocalClassRemover extends LocalClassRemover {
 
@@ -160,6 +157,14 @@ public class X10LocalClassRemover extends LocalClassRemover {
                         neu = neu.objectType(nf.CanonicalTypeNode(neu.objectType().position(), subst.reinstantiate(neu.objectType().type())));
                         neu = (New) neu.type(subst.reinstantiate(neu.type()));
                     }
+                    // FIX:XTENLANG-949 (for mismatch between neu.argument and neu.ci.formalTypes)
+                    if (neu.arguments().size() > ci.formalTypes().size()) {
+                        List<Type> newFormalTypes = new ArrayList<Type>();
+                        for (Expr arg : neu.arguments()) {
+                            newFormalTypes.add(arg.type());
+                        }
+                        neu = neu.constructorInstance(ci.formalTypes(newFormalTypes));
+                    }
                 }
                 
                 return neu;
@@ -262,7 +267,8 @@ public class X10LocalClassRemover extends LocalClassRemover {
 
     @Override
     protected boolean isLocal(Context c, Name name) {
-        CodeDef ci = ((X10Context) c).definingCodeDef(name);
+        X10Context_c xcon = (X10Context_c)c;
+        CodeDef ci = xcon.definingCodeDef(name);
         if (ci == null) return false;
         while (c != null) {
             CodeDef curr = c.currentCode();
@@ -270,11 +276,14 @@ public class X10LocalClassRemover extends LocalClassRemover {
             // Allow closures, asyncs
             if (curr instanceof MethodDef && ((MethodDef) curr).name().equals(Name.make("$dummyAsync$")))
                 ;
-            else
-                return false;
+            else {
+                // FIX:XTENLANG-1159
+                return xcon.isValInScopeInClass(name);
+            }
             c = c.pop();
         }
-        return false;
+        // FIX:XTENLANG-1159
+        return xcon.isValInScopeInClass(name);
     }
     
     @Override
@@ -283,18 +292,4 @@ public class X10LocalClassRemover extends LocalClassRemover {
         Node r = s.visit(new X10ConstructorCallRewriter(fields, ct));
         return r;
     }
-
-/*
-
-    @Override
-    protected Node leaveCall(Node n) throws SemanticException {
-        Node m = super.leaveCall(n);
-
-        if (m instanceof New) {
-            return m;
-        }
-
-        return m;
-    }
-    */
 }

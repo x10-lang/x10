@@ -30,6 +30,7 @@ import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10FieldDecl_c;
 import x10.ast.X10MethodDecl_c;
+import x10.extension.X10Ext;
 import x10.parser.X10Parser;
 import x10.types.ParameterType;
 import x10.types.TypeDef;
@@ -78,31 +79,41 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		}
 
 		// List<TopLevelDecl> decls = n.decls();
-        // X10ClassDoc[] classes = new X10ClassDoc[decls.size()];
+		// X10ClassDoc[] classes = new X10ClassDoc[decls.size()];
 		this.rootDoc = X10RootDoc.getRootDoc(job.extensionInfo().getOptions().output_directory.getPath());
 		this.stack = new Stack<X10ClassDoc>();
 		for (TopLevelDecl td: n.decls()) {
-			System.out.println("in visit(SourceFile_c): topleveldecl.getClass() = " + 
-					td.getClass());
+			// System.out.println("in visit(SourceFile_c): topleveldecl.getClass() = " + td.getClass());
 			visitAppropriate(td);
 		}
 		((ExtensionInfo) job.extensionInfo()).setRoot(this.rootDoc);
 
-		rootDoc.printStats();
+		// rootDoc.printStats();
 		this.parser = null;
+	}
+
+	private String getDocComments(Node n) {
+		String s = ((X10Ext) n.ext()).comment();
+		if (s != null)
+			return s;
+		return printDocComments(n.position().offset());
 	}
 
 	@Override
 	public void visit(X10ClassDecl_c n) {
-		String comments = printDocComments(n.position().offset());
+		String comments = getDocComments(n);
+
+		/*
 		System.out.println("visit(X10ClassDecl_c): Extracted comment text follows.");
 		System.out.println(X10Doc.rawCommentToText(comments));
+		*/
 
 		// the following obtains an x10doc-specific context 
 		// X10DocData data = ((X10DocContext) tr.context()).getData();
 		// if (n.flags().flags().isPrivate())
 		// 	return;
-
+		
+		/*
 		System.out.print("Class: " + n.name() + "[");
 		for (ParameterType p: ((X10ClassDef) n.classDef()).typeParameters()) {
 			// param name, bounds
@@ -123,6 +134,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 			X10ClassDef iClassDef = (X10ClassDef) i.type().toClass().def();
 		}
 		System.out.println();
+		*/
 
 		X10ClassDoc containingClass = (stack.isEmpty() ? null : stack.peek());
 		X10ClassDef classDef = (X10ClassDef) n.classDef();
@@ -174,14 +186,16 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
 	@Override
 	public void visit(X10FieldDecl_c n) {
-		String comments = printDocComments(n.position().offset());
+		String comments = getDocComments(n);
 		
+		FieldDef fd = n.fieldDef();
+
+		/*
 		if (!n.flags().flags().isPrivate()) {
 			System.out.println("  Field: " + n.flags().flags() + " " +
 					n.type().toString() + " " + n.name());
 		}
 		
-		FieldDef fd = n.fieldDef();
 		System.out.println("    fd.toString() = " + fd);
 		System.out.println("    fd = n.fieldDef(); fd.name().toString() = " + fd.name());
 		System.out.println("    fd.type().toString() = " + fd.type().toString());
@@ -190,6 +204,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 			System.out.println("    fd.type().get().toArray().dims() = " + 
 					fd.type().get().toArray().dims());
 		}
+		*/
 
 		X10ClassDoc cd = stack.peek();
 		// cd.addField(new X10FieldDoc((X10FieldDef) fd, cd, comments));
@@ -198,8 +213,9 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
 	@Override
 	public void visit(X10ConstructorDecl_c n) {
-		String comments = printDocComments(n.position().offset());
+		String comments = getDocComments(n);
 
+		/*
 		System.out.print("  Constructor: " + n.returnType().nameString() + " " + n.name() + "(");
 		boolean first = true;
 	    for (Formal f: n.formals()) {
@@ -212,6 +228,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 	    	}
 	    }
 	    System.out.println(")");
+	    */
 	    
 	    X10ClassDoc cd = stack.peek();
 	    // cd.addConstructor(new X10ConstructorDoc(((X10ConstructorDef) n.constructorDef()), cd, comments));
@@ -221,8 +238,9 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
 	@Override
 	public void visit(X10MethodDecl_c n) {
-		String comments = printDocComments(n.position().offset());
+		String comments = getDocComments(n);
 
+		/*
 		System.out.print("  Method: " + n.returnType().nameString() + " " + n.name() + "(");
 		boolean first = true;
 	    for (Formal f: n.formals()) {
@@ -235,7 +253,8 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 	    	}
 	    }
 	    System.out.println(")");
-	    
+	    */
+
 	    X10ClassDoc cd = stack.peek();
 	    // cd.addMethod(new X10MethodDoc(((X10MethodDef) n.methodDef()), cd, comments));
 	    // X10MethodDoc md = new X10MethodDoc(((X10MethodDef) n.methodDef()), cd, comments);
@@ -245,7 +264,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 	@Override
 	public void visit(TypeDecl_c n) {
 		// System.out.println("visit(TypeDecl_c{" + n + "}: node not handled");
-		String comments = printDocComments(n.position().offset());
+		String comments = getDocComments(n);
 		TypeDef def = n.typeDef();
 		X10ClassDoc cd = stack.peek();
 		cd.updateTypeDef(def, comments);
@@ -258,7 +277,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		for (IToken t: parser.getIPrsStream().getTokenAtCharacter(offset).getPrecedingAdjuncts()) {
 			String str = t.toString().trim();
 			if (str.startsWith("/**")) {
-				System.out.println("adjunct: " + t);
+				// System.out.println("adjunct: " + t);
 				retVal = str;
 			}
 		}

@@ -26,7 +26,9 @@ import harness.x10Test;
  */
 public class DepTypeVariableVisibility_MustFailCompile extends x10Test {
    private val traceOn = true;
-   public def m(var t: boolean(traceOn)): boolean(traceOn) = t;
+   public def m(t: boolean(traceOn))
+      : boolean(traceOn) 
+      = t;
 	public def run(): boolean = {
 	   m(traceOn); 
 	   return true;

@@ -51,6 +51,7 @@ namespace x10 {
             RTT_H_DECLS_CLASS;
 
             typedef x10aux::ref<Rail<T> > R;
+            typedef x10aux::ref<ValRail<T> > V;
 
             static typename Iterable<T>::template itable<Rail<T> > _itable_iterable;
             static typename Settable<x10_int, T>::template itable<Rail<T> > _itable_settable;
@@ -153,6 +154,11 @@ namespace x10 {
                                  x10_int len);
 
             virtual void copyTo (x10_int src_off,
+                                 R dst, x10_int dst_off,
+                                 x10_int len,
+                                 x10aux::ref<VoidFun_0_0> notifier);
+
+            virtual void copyTo (x10_int src_off,
                                  x10::lang::Place dst_place,
                                  x10aux::ref<Fun_0_0<x10::util::Pair<R, x10_int> > > dst_finder,
                                  x10_int len,
@@ -173,6 +179,10 @@ namespace x10 {
 
             virtual void copyFrom (x10_int dst_off, x10::lang::Place src_place,
                                    x10aux::ref<Fun_0_0<x10::util::Pair<R, x10_int> > > src_finder,
+                                   x10_int len);
+
+            virtual void copyFrom (x10_int dst_off, x10::lang::Place src_place,
+                                   x10aux::ref<Fun_0_0<x10::util::Pair<V, x10_int> > > src_finder,
                                    x10_int len);
 
             virtual x10aux::ref<String> toString();
@@ -220,6 +230,7 @@ namespace x10 {
     namespace lang {
 
         template<class T> void Rail<T>::_initRTT() {
+            if (rtt.initStageOne(x10aux::getRTT<Rail<void> >())) return;
             x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(),
                                            x10aux::getRTT<Settable<x10_int,T> >(),
                                            x10aux::getRTT<Iterable<T> >());
@@ -359,12 +370,12 @@ namespace x10 {
             x10_int dst_off;
             _X_("Finding a rail for copyTo ("<<(int)code<<")");
             switch (code) {
-                case 0: { // get rail+offset explicitly
+                case 0: case 2: { // get rail+offset explicitly
                     this_ = buf.read<R>();
                     dst_off = buf.read<x10_int>();
                     break;
                 }
-                case 1: case 2: { // get closure with which to find rail+offset
+                case 1: case 3: { // get closure with which to find rail+offset
                     x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
                     P pair = (bf.operator->()->*(x10aux::findITable<Fun_0_0<P> >(bf->_getITables())->apply))();
                     this_ = pair.FMGL(first);
@@ -404,6 +415,14 @@ namespace x10 {
                     break;
                 }
                 case 2: {
+                    buf.read<R>();
+                    buf.read<x10_int>();
+                    x10aux::ref<Reference> vf = buf.read<x10aux::ref<VoidFun_0_0> >();
+                    (vf.operator->()->*(x10aux::findITable<VoidFun_0_0>(vf->_getITables())->apply))();
+                    x10aux::dealloc(vf.operator->());
+                    break;
+                }
+                case 3: {
                     x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
                     x10aux::dealloc(bf.operator->());
                     x10aux::ref<Reference> vf = buf.read<x10aux::ref<VoidFun_0_0> >();
@@ -479,6 +498,7 @@ namespace x10 {
             x10aux::checkRailBounds(src_off, FMGL(length));
             x10aux::checkRailBounds(src_off+len-1, FMGL(length));
             x10aux::place dst_place = x10aux::location(dst);
+            (void) dst_place;
             assert(dst_place != x10aux::here); // handle in X10 code wrapper
             x10aux::serialization_buffer buf;
             buf.realloc_func = x10aux::put_realloc;
@@ -501,18 +521,41 @@ namespace x10 {
         {
             typedef x10::util::Pair<R,x10_int> P;
             R this_ = this;
-            x10aux::place dst_place = dst_place_.FMGL(id);
-
             // check beginning and end of range
             x10aux::checkRailBounds(src_off, FMGL(length));
             x10aux::checkRailBounds(src_off+len-1, FMGL(length));
             x10aux::ref<Reference> df = dst_finder;
-            assert(dst_place != x10aux::here); // handle in X10 code wrapper
+            assert(dst_place_.FMGL(id) != x10aux::here); // handle in X10 code wrapper
             Rail_serializeAndSendPut(dst_place_, df, 1, _copy_to_serialization_id,
                                      &_data[src_off], len * sizeof(T));
         } // }}}
 
-        // CLOSURE NOTIFIER (2) (this one designed for LU) {{{
+        // RAIL NOTIFIER (2) (this one designed for LU) {{{
+        template <class T> void Rail<T>::copyTo (x10_int src_off, R dst, x10_int dst_off,
+                                                 x10_int len,
+                                                 x10aux::ref<VoidFun_0_0> notifier)
+        {
+            typedef x10::util::Pair<R,x10_int> P;
+            x10aux::ref<Reference> n = notifier;
+            x10aux::place dst_place = x10aux::location(dst);
+
+            // check beginning and end of range
+            x10aux::checkRailBounds(src_off, FMGL(length));
+            x10aux::checkRailBounds(src_off+len-1, FMGL(length));
+            assert(dst_place != x10aux::here); // handle in X10 code wrapper
+            x10aux::serialization_buffer buf;
+            buf.realloc_func = x10aux::put_realloc;
+            x10_ubyte code = 2;
+            buf.write(code);
+            buf.write(dst);
+            buf.write(dst_off);
+            buf.write(n);
+            x10aux::send_put(dst_place, _copy_to_serialization_id,
+                             buf, &_data[src_off], len * sizeof(T));
+
+        } // }}}
+
+        // CLOSURE NOTIFIER (3) (this one designed for LU) {{{
         template <class T> void Rail<T>::copyTo (x10_int src_off,
                                                  x10::lang::Place dst_place_,
                                                  x10aux::ref<Fun_0_0<x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> > > dst_finder,
@@ -520,7 +563,6 @@ namespace x10 {
                                                  x10aux::ref<VoidFun_0_0> notifier)
         {
             typedef x10::util::Pair<R,x10_int> P;
-            R this_ = this;
             x10aux::place dst_place = dst_place_.FMGL(id);
 
             // check beginning and end of range
@@ -531,7 +573,7 @@ namespace x10 {
             assert(dst_place != x10aux::here); // handle in X10 code wrapper
             x10aux::serialization_buffer buf;
             buf.realloc_func = x10aux::put_realloc;
-            x10_ubyte code = 2;
+            x10_ubyte code = 3;
             buf.write(code);
             buf.write(df);
             buf.write(n);
@@ -551,25 +593,41 @@ namespace x10 {
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
-            typedef x10::util::Pair<R,x10_int> P;
+            typedef x10::util::Pair<R,x10_int> PR;
+            typedef x10::util::Pair<V,x10_int> PV;
             assert(len%sizeof(T) == 0); // we can only transmit whole array elements
             len /= sizeof(T);
             x10_ubyte code = buf.read<x10_ubyte>();
-            R this_;
             x10_int src_off;
+            x10_int length;
+            void *ptr;
             _X_("Finding a rail for copyFrom ("<<(int)code<<")");
             switch (code) {
                 case 0: { // get rail+offset explicitly
-                    this_ = buf.read<R>();
+                    R this_ = buf.read<R>();
                     src_off = buf.read<x10_int>();
+                    length = this_->FMGL(length);
+                    ptr = &this_->_data[src_off];
                     break;
                 }
                 case 1: { // get rail+offset from closure
-                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
-                    P pair = (bf.operator->()->*(x10aux::findITable<Fun_0_0<P> >(bf->_getITables())->apply))();
-                    this_ = pair.FMGL(first);
+                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<PR> > >();
+                    PR pair = (bf.operator->()->*(x10aux::findITable<Fun_0_0<PR> >(bf->_getITables())->apply))();
+                    R this_ = pair.FMGL(first);
                     src_off = pair.FMGL(second);
                     x10aux::dealloc(bf.operator->());
+                    length = this_->FMGL(length);
+                    ptr = &this_->_data[src_off];
+                    break;
+                }
+                case 2: { // get valrail+offset from closure
+                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<PV> > >();
+                    PV pair = (bf.operator->()->*(x10aux::findITable<Fun_0_0<PV> >(bf->_getITables())->apply))();
+                    V this_ = pair.FMGL(first);
+                    src_off = pair.FMGL(second);
+                    x10aux::dealloc(bf.operator->());
+                    length = this_->FMGL(length);
+                    ptr = &this_->_data[src_off];
                     break;
                 }
                 default:
@@ -577,10 +635,10 @@ namespace x10 {
             }
 
             // FIXME: should catch exception here, add to finish state, return NULL
-            x10aux::checkRailBounds(src_off, this_->FMGL(length));
-            x10aux::checkRailBounds(src_off+len-1, this_->FMGL(length));
+            x10aux::checkRailBounds(src_off, length);
+            x10aux::checkRailBounds(src_off+len-1, length);
 
-            return &this_->_data[src_off];
+            return ptr;
         } // }}}
                                                                                            
         // nf {{{
@@ -588,7 +646,8 @@ namespace x10 {
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
-            typedef x10::util::Pair<R,x10_int> P;
+            typedef x10::util::Pair<R,x10_int> PR;
+            typedef x10::util::Pair<V,x10_int> PV;
             x10_ubyte code = buf.read<x10_ubyte>();
             _X_("Completing a rail copyFrom ("<<(int)code<<")");
             switch (code) {
@@ -598,7 +657,13 @@ namespace x10 {
                     Rail_notifyEnclosingFinish(buf);
                 } break;
                 case 1: {
-                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
+                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<PR> > >();
+                    x10aux::dealloc(bf.operator->());
+                    Rail_notifyEnclosingFinish(buf);
+                    break;
+                }
+                case 2: {
+                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<PV> > >();
                     x10aux::dealloc(bf.operator->());
                     Rail_notifyEnclosingFinish(buf);
                     break;
@@ -669,6 +734,7 @@ namespace x10 {
             x10aux::checkRailBounds(dst_off, FMGL(length));
             x10aux::checkRailBounds(dst_off+len-1, FMGL(length));
             x10aux::place src_place = x10aux::location(src);
+            (void) src_place;
             assert(src_place != x10aux::here);
             x10aux::serialization_buffer buf;
             buf.realloc_func = x10aux::get_realloc;
@@ -685,19 +751,36 @@ namespace x10 {
         template <class T>
         void Rail<T>::copyFrom (x10_int dst_off, x10::lang::Place src_place_,
                                 x10aux::ref<Fun_0_0<x10::util::Pair<x10aux::ref<Rail<T> >,
-                                                                    x10_int> > > dst_finder,
+                                                                    x10_int> > > src_finder,
                                 x10_int len)
         {
             typedef x10::util::Pair<R,x10_int> P;
             R this_ = this;
-            x10aux::place src_place = src_place_.FMGL(id);
-            assert(src_place != x10aux::here);
+            assert(src_place_.FMGL(id) != x10aux::here);
             // check beginning and end of range
             x10aux::checkRailBounds(dst_off, FMGL(length));
             x10aux::checkRailBounds(dst_off+len-1, FMGL(length));
-            x10aux::ref<Reference> df = dst_finder;
-            assert(src_place!=x10aux::here);
+            x10aux::ref<Reference> df = src_finder;
             Rail_serializeAndSendGet(src_place_, df, 1, _copy_from_serialization_id,
+                                     &_data[dst_off], len * sizeof(T));
+        } // }}}
+
+        // CLOSURE FINISH VALRAIL (4) {{{
+        template <class T>
+        void Rail<T>::copyFrom (x10_int dst_off,
+                                x10::lang::Place src_place_,
+                                x10aux::ref<Fun_0_0<x10::util::Pair<x10aux::ref<ValRail<T> >,
+                                                                    x10_int> > > src_finder,
+                                x10_int len)
+        {
+            typedef x10::util::Pair<V,x10_int> P;
+            R this_ = this;
+            // check beginning and end of range
+            x10aux::checkRailBounds(dst_off, FMGL(length));
+            x10aux::checkRailBounds(dst_off+len-1, FMGL(length));
+            x10aux::ref<Reference> df = src_finder;
+            assert(src_place_.FMGL(id) != x10aux::here); // handle in X10 code wrapper
+            Rail_serializeAndSendGet(src_place_, df, 2, _copy_from_serialization_id,
                                      &_data[dst_off], len * sizeof(T));
         } // }}}
 
@@ -747,7 +830,7 @@ namespace x10 {
             if (rr.ref != 0) {
                 this_ = Rail<T>::template _deserializer<Rail<T> >(buf);
             }
-            return Object::_finalize_reference<T>(this_, rr);
+            return Object::_finalize_reference<S>(this_, rr, buf);
         }
     }
 }

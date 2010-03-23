@@ -47,6 +47,6 @@ public class PlaceCheckInRail2_MustFailCompile extends x10Test {
 	}
 
     public static def main(Rail[String]) {
-        new PlaceCheckInRail_MustFailCompile2().execute();
+        new PlaceCheckInRail2_MustFailCompile().execute();
     }
 }

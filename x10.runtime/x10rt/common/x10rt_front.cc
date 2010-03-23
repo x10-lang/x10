@@ -3,8 +3,8 @@
 
 static x10rt_msg_type counter = 0;
 
-void x10rt_init (int &argc, char **&argv)
-{ x10rt_lgl_init(argc, argv, counter); }
+void x10rt_init (int *argc, char ***argv)
+{ x10rt_lgl_init(argc, argv, &counter); }
 
 x10rt_msg_type x10rt_register_msg_receiver (x10rt_handler *cb,
                                             x10rt_cuda_pre *pre, x10rt_cuda_post *post,
@@ -70,17 +70,17 @@ x10rt_place x10rt_child_index (x10rt_place child)
 
 void *x10rt_msg_realloc (void *old, size_t old_sz, size_t new_sz)
 { return x10rt_lgl_msg_realloc(old, old_sz, new_sz); }
-void x10rt_send_msg (x10rt_msg_params &p)
+void x10rt_send_msg (x10rt_msg_params *p)
 { return x10rt_lgl_send_msg(p); }
 
 void *x10rt_get_realloc (void *old, size_t old_sz, size_t new_sz)
 { return x10rt_lgl_get_realloc(old, old_sz, new_sz); }
-void x10rt_send_get (x10rt_msg_params &p, void *buf, x10rt_copy_sz len)
+void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 { return x10rt_lgl_send_get(p, buf, len); }
 
 void *x10rt_put_realloc (void *old, size_t old_sz, size_t new_sz)
 { return x10rt_lgl_put_realloc(old, old_sz, new_sz); }
-void x10rt_send_put (x10rt_msg_params &p, void *buf, x10rt_copy_sz len)
+void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 { return x10rt_lgl_send_put(p, buf, len); }
 
 x10rt_remote_ptr x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz)
@@ -95,9 +95,11 @@ void x10rt_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long updat
 void x10rt_remote_op_fence (void)
 { x10rt_lgl_remote_op_fence(); }
 
+void x10rt_barrier (void)
+{ x10rt_lgl_internal_barrier(); }
 
 void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
-                           int &blocks, int &threads, const int *cfg)
+                           int *blocks, int *threads, const int *cfg)
 { x10rt_lgl_blocks_threads (d, type, dyn_shm, blocks, threads, cfg); }
 
 

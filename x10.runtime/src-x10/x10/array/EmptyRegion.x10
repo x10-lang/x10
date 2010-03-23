@@ -15,6 +15,11 @@ package x10.array;
  * Represents and empty region, implemented as a UnionRegion with no
  * regions.
  *
+ *TODO (vj): This way of implementing EmptyRegion sets the rect property to false.
+ *This is incorrect. An EmptyRegion should be immutable -- there should be no way
+ *of mutating it into a non-empty region, and its rect property should be set.
+ *To be taken care of in the rewrite of the Array library.
+ *
  * @author bdlucas
  */
 

@@ -19,9 +19,10 @@ import harness.x10Test;
 public class NullToRegularType_MustFailCompile extends x10Test {
 
     // X10 forbids an instanceof test where the types are statically known to be incompatible.
-    public def run(): Boolean = !(null instanceof X10DepTypeClassOne{self!=null});
+    public def run(): Boolean 
+        = !(null instanceof X10DepTypeClassOne{self!=null});
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String]) {
         new NullToRegularType_MustFailCompile().execute();
     }
 }

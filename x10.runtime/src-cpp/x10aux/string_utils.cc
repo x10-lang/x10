@@ -53,4 +53,12 @@ ref<String> x10aux::vrc_to_string(ref<ValRail<x10_char> > v) {
     return String::Steal(str);
 }
 
+ref<String> x10aux::string_utils::lit(const char* s) {
+    return String::Lit(s);
+}
+
+const char* x10aux::string_utils::cstr(ref<String> s) {
+    return s->c_str();
+}
+
 // vim:tabstop=4:shiftwidth=4:expandtab

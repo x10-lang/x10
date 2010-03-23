@@ -16,12 +16,12 @@ public class CountPlaces {
 
     X10RT.barrier();
 
-    if (X10RT.here() == X10RT.getNode(X10RT.numNodes()-1)) {
+    if (X10RT.here() == X10RT.getPlace(X10RT.numPlaces()-1)) {
       System.out.println(X10RT.here()+" is about to sleep for 1 second...");
       Thread.sleep(1000);
       System.out.println("Hello world: I am the tardy node "+X10RT.here());
     } else {
-      System.out.println("Hello world: There are " +X10RT.numNodes()+" Nodes and I am "+X10RT.here());
+      System.out.println("Hello world: There are " +X10RT.numPlaces()+" Places and I am "+X10RT.here());
     }
 
     X10RT.barrier();

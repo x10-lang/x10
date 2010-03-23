@@ -236,7 +236,7 @@ presentation of a classname \xcd"C". The class must have a
 exception is thrown
 and the computation terminates.  The single statement
 \begin{xten}
-finish async (place.FIRST_PLACE) {
+finish async (Place.FIRST_PLACE) {
   C.main(s);
 }
 \end{xten} 
@@ -247,8 +247,7 @@ places.)
 
 %% Say something about configuration information? 
 
-\section{Foreach statements}
-+\index{\Xcd{foreach}}\label{ForLoop}
+\section{Foreach statements}\index{\Xcd{foreach}}\label{foreach-section}
 
 
 \begin{grammar}
@@ -258,24 +257,46 @@ ForEachStatement \:
           Statement 
 \end{grammar}
 
-The \xcd"foreach" statement is similar to the enhanced \xcd"for"
-statement (\Sref{ForAllLoop}).
 
-An activity executes a \xcd"foreach" statement in a similar fashion
-except that separate \xcd"async" activities are launched in parallel
-in the local place of each object returned by the iteration.
-The statement
-terminates locally when all the activities have been spawned. It never
-throws an exception, though exceptions thrown by the spawned
-activities are propagated through to the root activity.
+The \xcd"foreach" statement is a parallel version of the enhanced \xcd"for"
+statement (\Sref{ForAllLoop}). \xcd`for(x in C)S` executes \xcd`S` {\em
+  sequentially}, with everything happening \xcd`here`. \xcd`foreach(x in C)S`
+executes \xcd`S` for each iteration of the loop {\em in parallel}, located at
+\xcd`x.home`. It is thus equivalent to:
+\begin{xten}
+foreach (x in C)
+  async at (x.home) S
+\end{xten}
 
-In a common case, the
-the collection is intended to be of type
-\xcd"Region" and the formal parameter is of type \xcd"Point".  Expressions \xcd"e" of type \xcd"Dist" and
-\xcd"Array" are also accepted, and treated as if they were \xcd"e.region".
+As a common and useful special case, \xcd`C` may be a \xcd`Dist` or an
+\xcd`Array`.  For both of these, \xcd`foreach(x in C)S` is treated just like 
+\xcd`foreach(x in C.region)S`.  \xcd`x` ranges over the \xcd`Point`s of the
+region.  Each activity that \xcd`foreach` starts is located at \xcd`here` --
+the same place that the \xcd`foreach` statement itself is executing.  (If you
+want to start an activity at the place where the array element \xcd`C(p)` is
+located, use \xcd`ateach` (\Sref{ateach-section}) instead of \xcd`foreach`.)
+
+Exceptions thrown by \xcd`S`, like other exceptions in \xcd`async`s, are
+propagated to the root activity of the \xcd`foreach`.  
+
+%FOREACH%  An activity executes a \xcd"foreach" statement in a similar fashion
+%FOREACH%  except that separate \xcd"async" activities are launched in parallel
+%FOREACH%  in the local place of each object returned by the iteration.
+%FOREACH%  The statement
+%FOREACH%  terminates locally when all the activities have been spawned. It never
+%FOREACH%  throws an exception, though exceptions thrown by the spawned
+%FOREACH%  activities are propagated through to the root activity.
+%FOREACH%  
+%FOREACH%  In a common case, the
+%FOREACH%  the collection is intended to be of type
+%FOREACH%  \xcd"Region" and the formal parameter is of type \xcd"Point".  Expressions \xcd"e" of type \xcd"Dist" and
+%FOREACH%  \xcd"Array" are also accepted, and treated as if they were \xcd"e.region".
 
 
-\section{Ateach statements}
+
+
+
+\section{Ateach statements}\index{\Xcd{ateach}}\label{ateach-section}
 
 \begin{grammar}
 Statement \: AtEachStatement \\
@@ -285,21 +306,39 @@ AtEachStatement \:
 \end{grammar}
 
 The \xcd"ateach" statement is similar to the \xcd"foreach"
-statement.  The collection must be of type \xcd"Dist"
-and the formal parameter of type \xcd"Point".
-Expressions \xcd"e" of type \xcd"Array" are also accepted, and treated
-as if they were \xcd"e.dist". The compiler reports a type error
-in all other cases.
+statement, but it spawns activites at each place of a distribution. 
+In \xcd`ateach(p in D) S`, 
+\xcd`D` must be either of type \xcd"Dist" or of type
+\xcd`Array[T]`, 
+and \xcd`p` will be of type \xcd"Point".
 
 This statement differs from \xcd"foreach" only in
 that each activity is spawned at the place specified by the
-distribution for the point. That is, 
-\xcd"ateach(p(i1,...,ik): point in D) S" may
-be thought of as standing for:
+distribution for the point. That is, if \xcd`D` is a \xcd`Dist`, 
+\xcd"ateach(p in D) S" could be implemented as:
 \begin{xten}
-foreach (p(i1,...,ik): point in D.region) 
+foreach (p in D.region) 
   async (D(p)) S
 \end{xten}
+
+However, the compiler may implement it more efficiently to avoid extraneous
+communications.  In particular, it is recommended that \xcd`ateach(p in D)S`
+be implemented as the following code, which coordinates with each place of
+\xcd`D` just once, rather than once per element of \xcd`D` at that place: 
+\begin{xten}
+foreach (p in D.places()) at (p) {
+    foreach (pt in D|here) {
+        S
+    }
+}
+\end{xten}
+
+If \xcd`e` is an \xcd`Array[T]`, then \xcd`ateach (p in e)S` is identical to
+\xcd`ateach(p in e.dist)S`; the iteration is over the array's underlying
+distribution.   \xcd`ateach(p in A)dealWith(A(p));` is a common and generally
+efficient idiom for working with the elements of an array.
+
+
 
 \section{Futures}\label{XtenFutures}
 
@@ -320,7 +359,7 @@ In more detail, in an expression \xcd"future (Q) e", the place
 expression \xcd"Q" is treated as in an \xcd"async" statement. \xcd"e"
 is an expression of some type \xcd"T". \xcd"e" may reference only
 those variables in the enclosing lexical environment which are
-declared to be \xcd"final".
+declared to be \xcd"val".
 
 If the type of \xcd"e" is \xcd"T" then the type of
 \xcd"future (Q) e" is \xcd"Future[T]".  This 

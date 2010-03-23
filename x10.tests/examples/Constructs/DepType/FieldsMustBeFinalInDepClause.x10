@@ -25,10 +25,10 @@ import harness.x10Test;
  */
 public class FieldsMustBeFinalInDepClause extends x10Test {
 	class Test(i:int, c:boolean) {
-	   val b:boolean{self==c};
+	   val b:Boolean(c);
 	   public def this(ii:int, bb:boolean):Test = {
 	     property(ii,bb);
-	     b=bb;
+	     b=bb as Boolean(c); // necessary, typechecker does not know this is true.
 	   }
 	   def m():Test{self.c==this.b}=this;
 	}

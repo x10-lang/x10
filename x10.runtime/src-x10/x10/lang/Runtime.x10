@@ -618,7 +618,7 @@ public final class Runtime {
     }
 
 
-    final static class Worker implements ()=>Void {
+    public final static class Worker implements ()=>Void {
         val latch:Latch!;
         // release the latch to stop the worker
 
@@ -697,6 +697,21 @@ public final class Runtime {
             return true;
         }
 
+        public def probe () : Void {
+            // process all queued activities
+            val tmp = activity; // save current activity
+            while (true) {
+                activity = poll();
+                if (activity == null) {
+                    activity = tmp; // restore current activity
+                    return;
+                }
+                debug.add(pretendLocal(activity));
+                runAtLocal(activity.home.id, (activity as Activity!).run.());
+                debug.removeLast();
+            }
+        }
+
         def dump(id:Int, thread:Thread!) {
             Runtime.printf(@NativeString "WORKER %d", id);
             Runtime.printf(@NativeString " = THREAD %#lx\n", tid);
@@ -707,6 +722,10 @@ public final class Runtime {
         }
     }
 
+    public static def probe () {
+        event_probe();
+        worker().probe();
+    }
 
     static class Pool implements ()=>Void {
         private val latch:Latch!;
@@ -879,7 +898,14 @@ public final class Runtime {
     /**
      * Return the current place
      */
+    @Native("c++", "x10::lang::Place_methods::_make(x10aux::here)")
     public static def here():Place = Thread.currentThread().home;
+
+    /**
+     * Return the id of the current place
+     */
+    @Native("c++", "x10aux::here")
+    static def hereInt():int = Thread.currentThread().locInt();
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.
@@ -902,7 +928,7 @@ public final class Runtime {
                 }
             }
             registerHandlers();
-            if (Thread.currentThread().locInt() == 0) {
+            if (hereInt() == 0) {
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
                 pool();
                 if (!isLocal(Place.MAX_PLACES - 1)) {
@@ -936,7 +962,7 @@ public final class Runtime {
         val state = currentState();
         val phases = clockPhases().register(clocks);
         state.notifySubActivitySpawn(place);
-        if (place.id == Thread.currentThread().locInt()) {
+        if (place.id == hereInt()) {
             execute(new Activity(body, state, clocks, phases));
         } else {
             val c = ()=>execute(new Activity(body, state, clocks, phases));
@@ -948,7 +974,7 @@ public final class Runtime {
         val state = currentState();
         state.notifySubActivitySpawn(place);
         val ok = safe();
-        if (place.id == Thread.currentThread().locInt()) {
+        if (place.id == hereInt()) {
             execute(new Activity(body, state, ok));
         } else {
             var closure:()=>Void;

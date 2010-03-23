@@ -24,8 +24,8 @@ It is a limitation of \XtenCurrVer{} that functions do not support
 type arguments. This limitation may be removed in future versions of
 the language.
 
-A \emph{function literal} \xcd"(x1:T1,..,xn:Tn)\{c\}:T=>e" creates a
-function of type \xcd"(x1:T1,...,xn:Tn)\{c\}:T"
+A \emph{function literal} \xcd"(x1:T1,..,xn:Tn){c}:T=>e" creates a
+function of type\\ \xcd"(x1:T1,...,xn:Tn){c}=>T"
 (\Sref{FunctionType}). The body \Xcd{e} of such an expression is
 type-checked in an environment in which \Xcd{c} is true. At runtime,
 function execution results in the evaluation of \Xcd{e} in an
@@ -95,7 +95,7 @@ be replaced by just \Xcd{Ti}.
 As with methods, a function may declare a guard to
 constrain the actual parameters with which it may be invoked.
 The guard may refer to the type parameters, formal parameters,
-and any final variables in scope at the function expression.
+and any \xcd`val`s in scope at the function expression.
 
 The body of the function is evaluated when the function is
 invoked by a call expression (\Sref{Call}), not at the function's
@@ -142,7 +142,7 @@ parameters declared in an outer scope.
 
 Recall that languages such as \java{} require that methods may
 access only those local variables declared in an enclosing scope
-(``outer variables'') which are final. This is valuable in
+(``outer variables'') which are \xcd`val`. This is valuable in
 preventing accidental races between multiple functions reading
 and writing the same outer variable. At the same time, it is
 desirable to support the following common idiom of expression:
@@ -160,7 +160,7 @@ This motivates the following rule:
 \begin{staticrule*}
 In an expression
 \xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => e",
-any outer local variable accessed by \xcd"e" must be final or
+any outer local variable accessed by \xcd"e" must be \xcd`val` or
 must be declared
 as \xcd"shared" (\Sref{Shared}).
 \end{staticrule*}
@@ -282,8 +282,8 @@ For example, the following equivalences hold:
 
 \begin{xtenmath}
 String.+             $\equiv$ (x: String, y: String): String => x + y
-Long.-               $\equiv$ (x: Long, y: Long): Int => x - y
-Float.-(Float,Float) $\equiv$ (x: Float, y: Float): Int => x - y
+Long.-               $\equiv$ (x: Long, y: Long): Long => x - y
+Float.-(Float,Float) $\equiv$ (x: Float, y: Float): Float => x - y
 Int.-(Int)           $\equiv$ (x: Int): Int => -x
 Boolean.&            $\equiv$ (x: Boolean, y: Boolean): Boolean => x & y
 Boolean.!            $\equiv$ (x: Boolean): Boolean => !x
@@ -344,7 +344,7 @@ environment are comparable).
 
 
 Every function type implements all the methods of \Xcd{Any}.
-For a value \Xcd{f} of a function type \Xcd{((x1:T1,...xn:Tn):T}, 
+For a value \Xcd{f} of a function type \Xcd{(x1:T1,...xn:Tn)=>T}, 
 the expression \Xcd{f.equals(g)} is of type \Xcd{Boolean}.
 It succeeds if and only if \Xcd{f==g} succeeds. Similarly, the 
 expression \Xcd{f.hashCode()} is of type \Xcd{Int} and returns

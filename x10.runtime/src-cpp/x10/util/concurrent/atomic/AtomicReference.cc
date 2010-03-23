@@ -25,8 +25,7 @@ namespace x10 {
                     const RuntimeType* parents[1] = { Object::getRTT() };
                     const RuntimeType* params[1] = { rtt };
                     RuntimeType::Variance variances[1] = { RuntimeType::invariant };
-                    const RuntimeType *canonical = x10aux::getRTT<AtomicReference<void> >();
-                    location->init(canonical, "x10.util.concurrent.atomic.AtomicReference", 1, parents, 1, params, variances);
+                    location->initStageTwo("x10.util.concurrent.atomic.AtomicReference", 1, parents, 1, params, variances);
                 }
             }
         }

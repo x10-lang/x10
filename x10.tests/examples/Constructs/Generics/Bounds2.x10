@@ -22,11 +22,9 @@ public class Bounds2 extends x10Test {
                 def this(y: T) = { x = y; }
         }
 
-	public def run(): boolean = {
-                return new C[String]("").x.equals("");
-	}
+	public def run()=new C[String]("").x.equals("");
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new Bounds2().execute();
 	}
 }

@@ -9,7 +9,7 @@
     <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime_2.0.17.jar"/>
+    <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime.java_2.0.17.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
     <property name="ecj.jar.url" value="http://dist.codehaus.org/x10/dependencies/ecj-3.5.1.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
@@ -62,6 +62,7 @@
             <fileset dir="${bin}">
                 <include name="defs"/>
                 <include name="setupX10"/>
+                <include name="java_x10rt"/>
                 <include name="x10"/>
                 <include name="x10c"/>
             </fileset>
@@ -81,6 +82,7 @@
                 <include name="*.so"/>
                 <include name="*.dll"/>
                 <include name="*.mft"/>
+                <include name="x10*.jar"/>
             </fileset>
         </delete>
         <!-- TODO: remove generated libs, but not downloaded ones
@@ -105,7 +107,15 @@
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
+        <!--<get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>-->
+        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/lpg-plugin.jar"/>
+        <unjar src="${lib}/lpg-plugin.jar" dest="${lib}">
+            <patternset>
+                <include name="lpgruntime.jar"/>
+            </patternset>
+        </unjar>
+        <copy file="${lib}/lpgruntime.jar" tofile="${lib}/${lpg.jar}"/>
+        <delete file="${lib}/lpgruntime.jar"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>
     </target>
@@ -221,6 +231,7 @@
         <antcall target="setupX10"/>
         <antcall target="x10"/>
         <antcall target="x10c"/>
+        <antcall target="java_x10rt"/>
     </target>
 
     <target name="etc"
@@ -250,11 +261,16 @@
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/x10c.in"/>
         </uptodate>
+        <uptodate property="java_x10rt.up-to-date" targetfile="${bin}/java_x10rt">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/java_x10rt.in"/>
+        </uptodate>
         <condition property="bin.up-to-date">
             <and>
                 <isset property="setupX10.up-to-date"/>
                 <isset property="x10.up-to-date"/>
                 <isset property="x10c.up-to-date"/>
+                <isset property="java_x10rt.up-to-date"/>
             </and>
         </condition>
     </target>
@@ -408,6 +424,22 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         </concat>
 
         <chmod perm="+x" file="${bin}/x10"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
+    <target name="java_x10rt" unless="java_x10rt.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script x10">
+        <echo message="Creating ${bin}/java_x10rt"/>
+        <concat destfile="${bin}/java_x10rt" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/java_x10rt" append="yes">
+            <filelist dir="${bin}" files="java_x10rt.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/java_x10rt"/>
 
         <delete file="${bin}/defs"/>
     </target>

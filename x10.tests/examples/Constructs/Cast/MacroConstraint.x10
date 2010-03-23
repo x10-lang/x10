@@ -17,7 +17,7 @@ import harness.x10Test;
 public class MacroConstraint extends x10Test {
 	public def run()  {
 	    val v:Object = 0..5;
-	    var result:boolean=false;
+	    var result:boolean=true;
 	    val c = v instanceof Region(1);
 	    if (!c) {
 		Console.OUT.println("Failed v instanceof Region(1)");

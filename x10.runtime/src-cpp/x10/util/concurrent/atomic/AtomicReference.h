@@ -134,6 +134,7 @@ namespace x10 {
                 }
                 
                 template<class T> void AtomicReference<T>::_initRTT() {
+                    if (rtt.initStageOne(x10aux::getRTT<AtomicReference<void> >())) return;
                     x10::util::concurrent::atomic::_initRTTHelper_AtomicReference(&rtt, x10aux::getRTT<T>());
                 }
 

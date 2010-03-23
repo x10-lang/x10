@@ -623,94 +623,96 @@ public class Emitter {
 		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
 	}
 
-    void printRTTDefn(X10ClassType ct, CodeWriter h) {
-        X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
-		String x10name = ct.fullName().toString();
-		int numParents = 0;
-		if (ct.superClass() != null) {
-		    numParents++;
-		}
-		numParents += ct.interfaces().size();
-		
-		if (ct.typeArguments().isEmpty()) {
-		  boolean first = true;
-          h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
-          h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
-          if (numParents > 0) { 
-              h.write("const x10aux::RuntimeType* parents["+numParents+"] = { ");
-              if (ct.superClass() != null) {
-                  h.write("x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
-                  first = false;
-              }
-              for (Type iface : ct.interfaces()) {
-                  if (!first) h.write(", ");
-                  h.write("x10aux::getRTT"+chevrons(translateType(iface))+"()");
-                  first = false;
-              }
-              h.write("};"); h.newline();
-          } else {
-              h.write("const x10aux::RuntimeType** parents = NULL; "); h.newline();
-          }
-          h.write("rtt.init(&rtt, \""+ct.fullName()+"\", "+numParents+ ", parents, 0, NULL, NULL);");
-          if (ct.isX10Struct() && isPointerless(ct)) {
-              h.newline(); h.write("rtt.containsPtrs = false;");
-          }
-          h.end(); h.newline();
-          h.write("}"); h.newline();
-		} else {
-		    boolean first = true;
-		    int numTypeParams = ct.typeArguments().size();
-            printTemplateSignature(ct.typeArguments(), h);
-            h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
+	void printRTTDefn(X10ClassType ct, CodeWriter h) {
+	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
+	    String x10name = ct.fullName().toString();
+	    int numParents = 0;
+	    if (ct.superClass() != null) {
+	        numParents++;
+	    }
+	    numParents += ct.interfaces().size();
 
-            printTemplateSignature(ct.typeArguments(), h);
-            h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
-            if (numParents > 0) {
-                h.write("const x10aux::RuntimeType* parents["+numParents+"] = { ");
-                if (ct.superClass() != null) {
-                    h.write("x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
-                    first = false;
-                }
-                for (Type iface : ct.interfaces()) {
-                    if (!first) h.write(", ");
-                    h.write("x10aux::getRTT"+chevrons(translateType(iface))+"()");
-                    first = false;
-                }
-                h.write("};"); h.newline();
-            } else {
-                h.write("const x10aux::RuntimeType** parents = NULL; "); h.newline();                
-            }
-            h.write("const x10aux::RuntimeType* params["+numTypeParams+"] = { ");
-            first = true;
-            for (Type param : ct.typeArguments()) {
-            	if (!first) h.write(", ");
-                h.write("x10aux::getRTT"+chevrons(translateType(param))+"()");
-                first = false;
-            }
-            h.write("};"); h.newline();
-            
-            h.write("x10aux::RuntimeType::Variance variances["+numTypeParams+"] = { ");
-            first = true;
-            for (ParameterType.Variance v : ct.x10Def().variances()) {
-            	if (!first) h.write(", ");
-            	switch(v) {
-            	case COVARIANT: h.write("x10aux::RuntimeType::covariant"); break;
-            	case CONTRAVARIANT: h.write("x10aux::RuntimeType::contravariant"); break;
-            	case INVARIANT: h.write("x10aux::RuntimeType::invariant"); break;
-            	default: assert false : "Unexpected Variance";
-            	}
-                first = false;
-            }
-            h.write("};"); h.newline();
-            
-            h.write("const x10aux::RuntimeType *canonical = x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(ct),false))+"();");
-            h.newline();
-            
-            h.write("const char *baseName = \""+x10name+"\";"); h.newline();
-            h.write("rtt.init(canonical, baseName, "+numParents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
-            h.write("}"); h.newline();
-		}
-		h.newline();
+	    if (ct.typeArguments().isEmpty()) {
+	        boolean first = true;
+	        h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
+	        h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
+	        h.write("if (rtt.initStageOne(&rtt)) return;"); h.newline();
+	        if (numParents > 0) { 
+	            h.write("const x10aux::RuntimeType* parents["+numParents+"] = { ");
+	            if (ct.superClass() != null) {
+	                h.write("x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
+	                first = false;
+	            }
+	            for (Type iface : ct.interfaces()) {
+	                if (!first) h.write(", ");
+	                h.write("x10aux::getRTT"+chevrons(translateType(iface))+"()");
+	                first = false;
+	            }
+	            h.write("};"); h.newline();
+	        } else {
+	            h.write("const x10aux::RuntimeType** parents = NULL; "); h.newline();
+	        }
+	        h.write("rtt.initStageTwo(\""+ct.fullName()+"\", "+numParents+ ", parents, 0, NULL, NULL);");
+	        if (ct.isX10Struct() && isPointerless(ct)) {
+	            h.newline(); h.write("rtt.containsPtrs = false;");
+	        }
+	        h.end(); h.newline();
+	        h.write("}"); h.newline();
+	    } else {
+	        boolean first = true;
+	        int numTypeParams = ct.typeArguments().size();
+	        printTemplateSignature(ct.typeArguments(), h);
+	        h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
+
+	        printTemplateSignature(ct.typeArguments(), h);
+	        h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
+                h.write("const x10aux::RuntimeType *canonical = x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(ct),false))+"();");
+                h.newline();
+                h.write("if (rtt.initStageOne(canonical)) return;"); h.newline();
+	        
+	        if (numParents > 0) {
+	            h.write("const x10aux::RuntimeType* parents["+numParents+"] = { ");
+	            if (ct.superClass() != null) {
+	                h.write("x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
+	                first = false;
+	            }
+	            for (Type iface : ct.interfaces()) {
+	                if (!first) h.write(", ");
+	                h.write("x10aux::getRTT"+chevrons(translateType(iface))+"()");
+	                first = false;
+	            }
+	            h.write("};"); h.newline();
+	        } else {
+	            h.write("const x10aux::RuntimeType** parents = NULL; "); h.newline();                
+	        }
+	        h.write("const x10aux::RuntimeType* params["+numTypeParams+"] = { ");
+	        first = true;
+	        for (Type param : ct.typeArguments()) {
+	            if (!first) h.write(", ");
+	            h.write("x10aux::getRTT"+chevrons(translateType(param))+"()");
+	            first = false;
+	        }
+	        h.write("};"); h.newline();
+
+	        h.write("x10aux::RuntimeType::Variance variances["+numTypeParams+"] = { ");
+	        first = true;
+	        for (ParameterType.Variance v : ct.x10Def().variances()) {
+	            if (!first) h.write(", ");
+	            switch(v) {
+	            case COVARIANT: h.write("x10aux::RuntimeType::covariant"); break;
+	            case CONTRAVARIANT: h.write("x10aux::RuntimeType::contravariant"); break;
+	            case INVARIANT: h.write("x10aux::RuntimeType::invariant"); break;
+	            default: assert false : "Unexpected Variance";
+	            }
+	            first = false;
+	        }
+	        h.write("};"); h.newline();
+
+	        h.write("const char *baseName = \""+x10name+"\";"); h.newline();
+	        h.write("rtt.initStageTwo(baseName, "+numParents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
+	        h.write("}"); h.newline();
+	    }
+	    h.newline();
 	}
 
     // Helper method to recursively examine the fields of a struct and determine if they
@@ -1032,7 +1034,7 @@ public class Emitter {
             sw.write("this_ = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
             sw.end(); sw.newline();
             sw.writeln("}");
-            sw.write("return x10::lang::Object::_finalize_reference"+chevrons("__T")+"(this_, rr);");
+            sw.write("return x10::lang::Object::_finalize_reference"+chevrons("__T")+"(this_, rr, buf);");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
             sw.popCurrentStream();

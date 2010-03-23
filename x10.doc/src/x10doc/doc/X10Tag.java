@@ -86,7 +86,7 @@ public class X10Tag implements Tag {
 
 	public SourcePosition position() {
 		// TODO Auto-generated method stub
-		System.out.println("Tag.position() called.");
+		// System.out.println("Tag.position() called.");
 		return null;
 	}
 
@@ -106,8 +106,8 @@ public class X10Tag implements Tag {
         if (m.find()) {
             String name = m.group(1);
             String rest = m.group(2);
-            System.out.println("m.group() = \"" + m.group() + "\"");
-            System.out.println("tag = \"" + name + "\", rest = \"" + rest + "\"");
+            // System.out.println("m.group() = \"" + m.group() + "\"");
+            // System.out.println("tag = \"" + name + "\", rest = \"" + rest + "\"");
             if (!inlineTagTypes.contains(name)) {
             	return new X10Tag(TEXT, text, holder);
             	

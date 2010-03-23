@@ -13,16 +13,19 @@ package x10.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
+import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
-import polyglot.ast.Eval_c;
+import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
@@ -32,44 +35,48 @@ import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
-import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.ast.Binary.Operator;
-import polyglot.types.Context;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
+import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import x10.ast.Closure;
+import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
-import x10.ast.X10Field_c;
+import x10.ast.X10ConstructorDecl;
 import x10.ast.X10Formal;
-import x10.ast.X10Loop;
 import x10.ast.X10NodeFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
-import x10.constraint.XRoot;
 import x10.constraint.XTerm;
-import x10.constraint.XTerm_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.types.ClosureDef;
+import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Context_c;
+import x10.types.X10Def;
 import x10.types.X10FieldInstance;
+import x10.types.X10Flags;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 
@@ -96,15 +103,13 @@ public class Synthesizer {
    * the constructed method will not duplicate an existing method.
    * 
    * Should be called after the class has been typechecked.
-   * @param ct  -- The clas to which this code has to be added
+   * @param ct  -- The class to which this code has to be added
    * @param flags -- The flags for the method
    * @param name -- The name of the method
    * @param fmls -- A list of LocalDefs specifying the parameters to the method.
    * @param returnType -- The return type of this method.
    * @param trow  -- The types of throwables from the method.
    * @param block -- The body of the method
-   * @param xnf -- The X10NodeFactory to be used to create new AST nodes.
-   * @param xts  -- The X10TypeSystem object to be used to create new types.
    * @return  this, with the method added.
    * 
    * TODO: Ensure that type parameters and a guard can be supplied as well.
@@ -120,13 +125,29 @@ public class Synthesizer {
 	    	ct.classDef().addMethod(result.methodDef());
 	    	return (X10ClassDecl_c) ct.body(b);
 	 }
-	 public  MethodDecl makeSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
+	 
+	  /**
+	   * Create a synthetic MethodDecl from the given data and return
+	   * the MethodDecl 
+	   * Should be called after the class has been type-checked.
+	   * 
+	   * @param ct  -- The class to which this code has to be added
+	   * @param flags -- The flags for the method
+	   * @param name -- The name of the method
+	   * @param fmls -- A list of LocalDefs specifying the parameters to the method.
+	   * @param returnType -- The return type of this method.
+	   * @param trow  -- The types of throwables from the method.
+	   * @param block -- The body of the method
+	   * @return  this, with the method added.
+	   * 
+	   */
+	public  MethodDecl makeSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
 			 Name name, List<LocalDef> fmls, 
 			 Type returnType, List<Type> trow, Block block) {
 	    	
 	    	
 	    	Position CG = Position.COMPILER_GENERATED;
-	    	List<Expr> args = new ArrayList<Expr>();
+	    	List<Expr> args = new ArrayList<Expr>(); //FIXME: what's the usage of the args?
 	    	List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 	    	List<Formal> formals = new ArrayList<Formal>(fmls.size());
 	    	for (LocalDef f : fmls) {
@@ -313,6 +334,97 @@ public class Synthesizer {
 		 return result;
 	}
 	
+	/**
+	 * Make a field to field assign: leftReceiver.leftName = rightReceiver.rightName
+	 * @param pos
+	 * @param leftReceiver
+	 * @param leftName
+	 * @param rightReceiver
+	 * @param rightName
+         * @param context
+	 * @return
+	 * @throws SemanticException 
+	 */
+	public Expr makeFieldToFieldAssign(Position pos, Receiver leftReceiver, Name leftName,
+	                                   Receiver rightReceiver, Name rightName, X10Context context) throws SemanticException{
+	    
+
+            Expr rightExpr = makeFieldAccess(pos, rightReceiver, rightName, context);
+
+            Field field = makeStaticField(pos, leftReceiver.type(), 
+                                                leftName,
+                                                xts.Int(),
+                                                context);
+            // assign
+            Expr assign = xnf.FieldAssign(pos, 
+                    leftReceiver, xnf.Id(pos, leftName), 
+                    Assign.ASSIGN, rightExpr)
+                    .fieldInstance(field.fieldInstance())
+                    .type(rightExpr.type());
+	    
+	    
+	    return assign;
+	}
+	
+	/**
+	 * Make a local to field assign: leftReceiver.leftName = local (localName/localType)
+	 * @param pos
+	 * @param leftReceiver
+	 * @param leftName
+	 * @param localName
+	 * @param localType
+	 * @param localFlags
+         * @param context
+	 * @return
+	 * @throws SemanticException 
+	 */
+	public Expr makeLocalToFieldAssign(Position pos, Receiver leftReceiver, Name leftName,
+                                           Name localName, Type localType, Flags localFlags, X10Context context) throws SemanticException{
+	    
+	    
+            LocalDef ldef = xts.localDef(pos, localFlags, Types.ref(localType), localName);
+            Expr init = xnf.Local(pos, xnf.Id(pos, localName)).localInstance(ldef.asInstance()).type(localType);
+            
+            Field field = makeStaticField(pos, leftReceiver.type(), 
+                                          leftName,
+                                          xts.Int(),
+                                          context);
+            Expr assign = xnf.FieldAssign(pos, leftReceiver, xnf.Id(pos, leftName), Assign.ASSIGN, init)
+                        .fieldInstance(field.fieldInstance())
+                        .type(localType);
+	    
+	    return assign;
+	}
+	
+	/**
+	 * Make a field to local assign: local(localName/localType) = rightReceiver.rightName
+	 * @param pos
+	 * @param localName
+	 * @param localType
+	 * @param rightReceiver
+	 * @param rightName
+         * @param context
+	 * @return
+	 * @throws SemanticException 
+	 */
+	public Expr makeFieldToLocalAssign(Position pos, Name localName, Type localType, Flags localFlags, Receiver rightReceiver, Name rightName
+	                                   , X10Context context) throws SemanticException{
+	    
+	    //FIXME: need check whether this method returns correct expr
+	    //right 
+	    Expr rightExpr = makeFieldAccess(pos, rightReceiver, rightName, context);
+	    
+	    //locals
+	    LocalDef ldef = xts.localDef(pos, localFlags, Types.ref(localType), localName);
+            Local local = xnf.Local(pos, xnf.Id(pos, localName)).localInstance(ldef.asInstance());
+	    
+            //assign
+            Expr assign = xnf.LocalAssign(pos, local, Assign.ASSIGN, rightExpr).type(rightExpr.type());
+            
+	    return assign;
+	}
+	
+	
 	public Call makeStaticCall(Position pos, 
 			Type receiver, 
 			Name name,
@@ -438,41 +550,513 @@ public class Synthesizer {
 	}
 	 
 	 
-	 public Block toBlock(Stmt body) {
-		   return body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
-	 }
-	 
-	 public Field firstPlace() {
-		 CConstraint c = new CConstraint_c();
-		 XTerm id = makeProperty(xts.Int(), c.self(), "id");
-		 try {
-			 c.addBinding(id, XTerms.makeLit(0));
-			 Type type = X10TypeMixin.xclause(xts.Place(), c);
-			 return makeStaticField(Position.COMPILER_GENERATED, xts.Place(), 
-					 Name.make("FIRST_PLACE"), type, new X10Context_c(xts));
-		 } catch (XFailure z) {
-			 // wont happen
-		 } catch (SemanticException z) {
-			 // wont happen
-		 }
-		 return null;
-		
-	 }
-	 public Field makeStaticField(Position pos, 
-				Type receiver, 
-				Name name,
-				Type returnType,
-				X10Context xc) throws SemanticException {
-		
-	        FieldInstance fi = xts.findField(receiver,
-	                xts.FieldMatcher(receiver, name, xc));
-	       Field result=  (Field) xnf.Field(pos, 
-	        		xnf.CanonicalTypeNode(pos, receiver),
-	                xnf.Id(pos, name))
-	                .fieldInstance(fi)
-	                .type(returnType);
-	        return result;
-			
-		}
+	public Block toBlock(Stmt body) {
+		return body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
+	}
 
+	public Field firstPlace() {
+		CConstraint c = new CConstraint_c();
+		XTerm id = makeProperty(xts.Int(), c.self(), "id");
+		try {
+			c.addBinding(id, XTerms.makeLit(0));
+			Type type = X10TypeMixin.xclause(xts.Place(), c);
+			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(), 
+					Name.make("FIRST_PLACE"), type, new X10Context_c(xts));
+		} catch (XFailure z) {
+			// wont happen
+		} catch (SemanticException z) {
+			// wont happen
+		}
+		return null;
+
+	}
+	public Field makeStaticField(Position pos, 
+			Type receiver, 
+			Name name,
+			Type returnType,
+			X10Context xc) throws SemanticException {
+
+		FieldInstance fi = xts.findField(receiver,
+				xts.FieldMatcher(receiver, name, xc));
+		Field result=  (Field) xnf.Field(pos, 
+				xnf.CanonicalTypeNode(pos, receiver),
+				xnf.Id(pos, name))
+				.fieldInstance(fi)
+				.type(returnType);
+		return result;
+
+	}
+
+	/**
+	 * Return the number of annotation properties.
+	 * @param def
+	 * @param name
+	 * @return 
+	 */
+	public int getPropertyNum(X10Def def, String name) throws SemanticException {
+		QName qName = QName.make(name);
+		Type t = (Type) xts.systemResolver().find(qName);
+		List<Type> ts = def.annotationsMatching(t);
+		for (Type at : ts) {
+			Type bt = X10TypeMixin.baseType(at);
+			if (bt instanceof X10ClassType) {
+				X10ClassType act = (X10ClassType) bt;
+				return act.propertyInitializers().size();
+			}
+		}
+		return 0;		
+	}
+	/**
+	 * Return the value of annotation properties for a given property and location index.
+	 * @param def
+	 * @param name
+	 * @param index
+	 * @return 
+	 */
+	public String getPropertyValue(X10Def def, String name, int index) throws SemanticException {
+		QName qName = QName.make(name);
+		Type t = (Type) xts.systemResolver().find(qName);
+		List<Type> ts = def.annotationsMatching(t);
+		for (Type at : ts) {
+			Type bt = X10TypeMixin.baseType(at);
+			if (bt instanceof X10ClassType) {
+				X10ClassType act = (X10ClassType) bt; 
+				if (index < act.propertyInitializers().size()) {
+					Expr e = act.propertyInitializer(index);
+					if (e.isConstant() && e.constantValue() instanceof String) {
+						return (String) e.constantValue();
+					}   
+				}   
+			}   
+		}
+		return null;
+	}   
+	/**
+	 * Add a field to a class.
+	 * @param cDecl
+	 * @param name
+	 * @param flag
+	 * @param t
+	 * @param p
+	 * @return 
+	 */	
+	public X10ClassDecl addClassField(Position p, X10ClassDecl cDecl, Name name, Flags flag, Type t) {
+		X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+		Id id = xnf.Id(p, name);  
+		CanonicalTypeNode tnode = xnf.CanonicalTypeNode(p, t); 
+		FlagsNode fnode = xnf.FlagsNode(p, flag);
+		FieldDef fDef = xts.fieldDef(p, Types.ref(cDef.asType()), flag, Types.ref(t), name); 
+		FieldDecl fDecl = xnf.FieldDecl(p, fnode, tnode, id).fieldDef(fDef);
+		cDef.addField(fDef);
+		List<ClassMember> cm = new ArrayList<ClassMember>();
+		cm.addAll(cDecl.body().members());
+		cm.add(fDecl);
+		ClassBody cb = cDecl.body();
+		return (X10ClassDecl) cDecl.classDef(cDef).body(cb.members(cm));
+	}   
+	
+	
+    /**
+     * Insert inner classes to the given x10 class. Return a new class with the inner classes added in.
+     * 
+     * @param cDecl
+     *            The original class with parallel methods
+     * @param innerClasses
+     *            the inner classes to be inserted into the class
+     * @return A newly created class with inner classes as members
+     */
+    public X10ClassDecl addInnerClasses(X10ClassDecl cDecl, Set<X10ClassDecl> innerClasses) {
+
+        List<ClassMember> cMembers = new ArrayList<ClassMember>();
+        ClassBody body = cDecl.body();
+        cMembers.addAll(body.members());
+
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+
+        for (X10ClassDecl icDecl : innerClasses) {
+            X10ClassDef icDef = (X10ClassDef) icDecl.classDef();
+            icDef.kind(ClassDef.MEMBER);
+            icDef.setPackage(cDef.package_());
+            icDef.outer(Types.<ClassDef> ref(cDef));
+
+            cMembers.add(icDecl);
+            cDef.addMemberClass(Types.<ClassType> ref(icDef.asType()));
+
+        }
+
+        return (X10ClassDecl) cDecl.body(body.members(cMembers));
+    }
+	
+	
+	public FieldDef findFieldDef(ClassDef cDef, Name fName) throws SemanticException {
+	    for (FieldDef df : cDef.fields()) {
+	        if (fName.equals(df.name())) {
+	            return df;
+	        }
+	    }
+	    return null;
+	}
+	/**
+	 * Create a copy constructor decl.
+	 * @param cDecl
+	 * @param name
+	 * @param flag
+	 * @param t
+	 * @param p
+	 * @param context
+	 * @return X10ConstructorDec
+	 * @throws SemanticException 
+	 */	
+    public X10ConstructorDecl makeClassCopyConstructor(Position p, X10ClassDecl cDecl, List<Name> fieldName,
+                                                       List<Name> parmName, List<Type> parmType, List<Flags> parmFlags,
+                                                       X10Context context) throws SemanticException {
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+
+        // super constructor def (noarg)
+        ConstructorDef sDef = xts.findConstructor(
+                                                  cDecl.superClass().type(),
+                                                  xts.ConstructorMatcher(cDecl.superClass().type(), Collections
+                                                          .<Type> emptyList(), context)).def();
+        Block block = xnf.Block(p, xnf.SuperCall(p, Collections.<Expr> emptyList())
+                .constructorInstance(sDef.asInstance()));
+
+        List<Formal> fList = new ArrayList<Formal>();
+        List<Ref<? extends Type>> ftList = new ArrayList<Ref<? extends Type>>();
+        // field assign
+        for (int i = 0; i < fieldName.size(); i++) {
+            Name fName = fieldName.get(i);
+            Name pName = parmName.get(i);
+            Type pType = parmType.get(i);
+            Flags pFlags = parmFlags.get(i);
+            Id fid = xnf.Id(p, fName);
+            // Field selector
+            Receiver receiver = xnf.This(p).type(cDef.asType());
+            // Field field = makeStaticField(p, special, fName, pType, context);
+            FieldDef fDef = findFieldDef(cDef, fName);
+            // Assign
+            LocalDef ldef = xts.localDef(p, pFlags, Types.ref(pType), pName);
+            Expr init = xnf.Local(p, xnf.Id(p, pName)).localInstance(ldef.asInstance()).type(pType);
+            Expr assign = xnf.FieldAssign(p, receiver, fid, Assign.ASSIGN, init).fieldInstance(fDef.asInstance())
+                    .type(pType);
+            Formal f = xnf.Formal(p, xnf.FlagsNode(p, pFlags), xnf.CanonicalTypeNode(p, pType), xnf.Id(p, pName))
+                    .localDef(ldef);
+            fList.add(f);
+            ftList.add(Types.ref(pType));
+            block = block.append(xnf.Eval(p, assign));
+        }
+
+        // constructor
+        X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p, xnf.FlagsNode(p, X10Flags.PRIVATE), cDecl
+                .name(), fList, Collections.<TypeNode> emptyList(), block);
+        xd.typeParameters(cDecl.typeParameters());
+        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+
+        ConstructorDef xDef = xts.constructorDef(p, Types.ref(cDef.asType()), X10Flags.PRIVATE, ftList, Collections
+                .<Ref<? extends Type>> emptyList());
+
+        return (X10ConstructorDecl) xd.constructorDef(xDef);
+    }
+
+    /**
+     * Create a class's constructor with the input parameters. Return a new class with the new constructor.
+     * 
+     * @param cDecl
+     * @param parmName
+     * @param parmtype
+     * @param parmFlags
+     * @param stmts     Statements of the constructor. It should contains the call to super class's constructor.
+     * @param context
+     * @return X10ClassDecl
+     * @throws SemanticException
+     */
+    public X10ClassDecl addClassConstructor(Position p,
+                                            X10ClassDecl cDecl,
+                                            List<Name> parmName,
+                                            List<Type> parmType,
+                                            List<Flags> parmFlags,
+                                            List<Stmt> stmts,
+                                            X10Context context) throws SemanticException {
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+        ClassType cType = cDef.asType();
+
+      
+                                
+        // reference to formal
+        List<Formal> fList = new ArrayList<Formal>();
+        List<Ref<? extends Type>> frList = new ArrayList<Ref<? extends Type>>();
+       
+        for (int i=0; i<parmName.size(); i++) {
+            Name pName = parmName.get(i);
+            Type pType = parmType.get(i);
+            Flags pFlags = parmFlags.get(i);
+            // reference
+            LocalDef ldef = xts.localDef(p, pFlags, Types.ref(pType), pName);
+            Expr ref = xnf.Local(p, xnf.Id(p, pName)).localInstance(ldef.asInstance()).type(pType);
+            Formal f = xnf.Formal(p, xnf.FlagsNode(p, pFlags), 
+                    xnf.CanonicalTypeNode(p, pType), 
+                    xnf.Id(p, pName)).localDef(ldef);
+            fList.add(f);
+            frList.add(Types.ref(pType));
+        }
+
+        Block block = xnf.Block(p,
+                stmts);
+             
+        // constructor 
+        X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
+                xnf.FlagsNode(p, X10Flags.PUBLIC),
+                cDecl.name(),
+                fList,                              // formal types
+                Collections.<TypeNode>emptyList(),  // throw types
+                block);
+        xd.typeParameters(cDecl.typeParameters());
+        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+
+        ConstructorDef xDef = xts.constructorDef(p,
+                Types.ref(cDef.asType()),
+                X10Flags.PUBLIC,
+                frList,                                         // formal types
+                Collections.<Ref<? extends Type>>emptyList());  // throw types
+
+        List<ClassMember> cm = new ArrayList<ClassMember>();
+        ClassBody cb = cDecl.body();
+        cm.addAll(cb.members());
+        cm.add(xd.constructorDef(xDef));
+        cDef.addConstructor(xDef);
+                
+        return (X10ClassDecl)cDecl.classDef(cDef).body(cb.members(cm));
+    }
+    
+    
+    /**
+     * Create a formal from given type/name/flags
+     * @param pos
+     * @param formalType
+     * @param formalName
+     * @param formalFlags
+     * @return
+     */
+    public Formal createFormal(Position pos, Type formalType, Name formalName, Flags formalFlags){
+        LocalDef ldef = xts.localDef(pos, formalFlags, Types.ref(formalType), formalName);
+        Expr ref = xnf.Local(pos, xnf.Id(pos, formalName)).localInstance(ldef.asInstance()).type(formalType);
+        Formal f = xnf.Formal(pos, xnf.FlagsNode(pos, formalFlags), 
+                xnf.CanonicalTypeNode(pos, formalType), 
+                xnf.Id(pos, formalName)).localDef(ldef);
+        return f;
+    }
+
+    /**
+     * 
+     * Use the input parameters to generate the corresponding super call with all parameters
+     * 
+     * @param p
+     * @param cDecl
+     * @param parmName
+     * @param parmType
+     * @param parmFlags
+     * @param context
+     * @return
+     * @throws SemanticException
+     */
+    public Stmt makeSuperCallStatement(Position p, X10ClassDecl cDecl,
+                                       List<Name> parmName,
+                                       List<Type> parmType,
+                                       List<Flags> parmFlags,
+                                       X10Context context) throws SemanticException{
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+        ClassType cType = cDef.asType();
+
+        // Find the right super constructor: def (args)
+        Type sType = cDecl.superClass().type();
+        Type scType = PlaceChecker.AddIsHereClause(sType, context);
+       
+        ConstructorDef sDef = xts.findConstructor(sType,    // receiver's type
+                xts.ConstructorMatcher(sType, 
+                        Collections.singletonList(scType),  // constraint's type (!)
+                        context)).def();
+                                
+        // reference to formal
+        List<Expr> eSuper = new ArrayList<Expr>();      
+        
+        //find the right 
+        for (int i=0; i<parmName.size(); i++) {
+            Name pName = parmName.get(i);
+            Type pType = parmType.get(i);
+            Flags pFlags = parmFlags.get(i);
+            // reference
+            LocalDef ldef = xts.localDef(p, pFlags, Types.ref(pType), pName);
+            Expr ref = xnf.Local(p, xnf.Id(p, pName)).localInstance(ldef.asInstance()).type(pType);
+            eSuper.add(ref);
+        }
+
+        return xnf.SuperCall(p, eSuper).constructorInstance(sDef.asInstance());
+    }
+    
+    /**
+     * Create a copy constructor decl.
+     * @param cDecl
+     * @param parmName
+     * @param parmtype
+     * @param parmFlags
+     * @param context
+     * @return X10ClassDecl
+     * @throws SemanticException 
+     */ 
+    public X10ClassDecl addClassSuperConstructor(Position p,
+            X10ClassDecl cDecl,
+            List<Name> parmName,
+            List<Type> parmType,
+            List<Flags> parmFlags,
+            X10Context context) throws SemanticException {
+       
+        Stmt s = makeSuperCallStatement(p, cDecl, parmName, parmType, parmFlags, context);                   
+        return addClassConstructor(p, cDecl, parmName, parmType, parmFlags, Collections.singletonList(s), context);
+    }	
+	/**
+     * Create a method decl.
+     * @param cDecl
+     * @param flag
+     * @param returnType
+     * @param name 
+     * @param formals
+     * @param throwTypes
+     * @param body
+     * @return X10ClassDecl
+     * @throws SemanticException 
+     */ 
+    public X10ClassDecl addClassMethod(Position p, 
+            X10ClassDecl cDecl, 
+            Flags flag,
+            Type returnType, 
+            Name name,
+            List<Formal> formals,
+            List<Type> throwTypes,
+            Block body) throws SemanticException {
+        
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+        
+        // Method Decl
+        List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
+        for (Type t : throwTypes) {
+            throwTypeNodes.add(xnf.CanonicalTypeNode(p, t));
+        }
+        FlagsNode flagNode = xnf.FlagsNode(p, flag);
+        TypeNode returnTypeNode = xnf.CanonicalTypeNode(p, returnType);
+        
+        MethodDecl mDecl = xnf.MethodDecl(p, flagNode, returnTypeNode, xnf.Id(p, name), 
+                formals, throwTypeNodes, body);
+        // Method def
+        List<Ref<? extends Type>> formalTypeRefs = new ArrayList<Ref<? extends Type>>();
+        List<Ref<? extends Type>> throwTypeRefs = new ArrayList<Ref<? extends Type>>();
+        for (Formal f : formals) {
+            formalTypeRefs.add(f.type().typeRef());
+        }
+        for (Type t : throwTypes) {
+            throwTypeRefs.add(Types.ref(t));
+        }
+        MethodDef mDef = xts.methodDef(p, 
+                Types.ref(cDef.asType()),                
+                flag, 
+                Types.ref(returnType), 
+                name, 
+                formalTypeRefs, 
+                throwTypeRefs);
+        mDecl = mDecl.methodDef(mDef); //Need set the method def to the method instance
+        // Add to Class
+        
+        cDef.addMethod(mDef);
+        List<ClassMember> cm = new ArrayList<ClassMember>();
+        cm.addAll(cDecl.body().members());
+        cm.add(mDecl);
+        ClassBody cb = cDecl.body();
+        return (X10ClassDecl) cDecl.classDef(cDef).body(cb.members(cm));
+    }
+    
+    
+    
+    /**
+     * Create a class decl, with no constructor
+     * 
+     * @param p
+     * @param flag
+     * @param kind
+     * @param name
+     * @param supert
+     * @param interfaces
+     * @param context
+     * @return
+     * @throws SemanticException
+     */
+    public X10ClassDecl createClass(Position p, Flags flag, ClassDef.Kind kind, Name name, Type supert,
+                                    List<Type> interfaces, X10Context context) throws SemanticException {
+
+        FlagsNode fNode = xnf.FlagsNode(p, flag);
+        Id id = xnf.Id(p, name);
+        TypeNode superTN = (TypeNode) xnf.CanonicalTypeNode(p, supert);
+        List<ClassMember> cmembers = new ArrayList<ClassMember>();
+        ClassBody body = xnf.ClassBody(p, cmembers);
+        List<TypeNode> interfaceTN = new ArrayList<TypeNode>();
+        for (Type t : interfaces) {
+            interfaceTN.add((TypeNode) xnf.CanonicalTypeNode(p, t));
+        }
+
+        X10ClassDecl cDecl = (X10ClassDecl) xnf.ClassDecl(p, fNode, id, superTN, interfaceTN, body);
+
+        X10ClassDef cDef = (X10ClassDef) xts.createClassDef();
+        cDef.name(name);
+        cDef.setFlags(flag);
+        cDef.kind(kind); // important to set kind
+
+        return (X10ClassDecl) cDecl.classDef(cDef);
+    }
+    
+    
+    /**
+     * Create a class decl, and add a default constructor to it.
+     * Return the class with the default constructor
+     * @param flag
+     * @param kind : TOP_LEVEL, LOCAL, MEMBER?
+     * @param name 
+     * @param supert
+     * @param interfaces
+     * @return X10ClassDecl
+     * @throws SemanticException 
+     */ 
+    public X10ClassDecl createClassWithConstructor(Position p, 
+            Flags flag,
+            ClassDef.Kind kind,
+            Name name,
+            Type supert,
+            List<Type> interfaces,
+            X10Context context) throws SemanticException {
+
+       
+        X10ClassDecl cDecl = createClass(p, flag, kind, name, supert, interfaces, context);
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+        
+        //add default constructor
+        X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
+                xnf.FlagsNode(p, X10Flags.PUBLIC),
+                cDecl.name(),
+                Collections.<Formal>emptyList(),
+                Collections.<TypeNode>emptyList(),
+                xnf.Block(p));
+        xd.typeParameters(cDecl.typeParameters());
+        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+
+        ConstructorDef xDef = xts.constructorDef(p,
+                Types.ref(cDef.asType()),
+                X10Flags.PRIVATE,
+                Collections.<Ref<? extends Type>>emptyList(),
+                Collections.<Ref<? extends Type>>emptyList());
+
+        List<ClassMember> cm = new ArrayList<ClassMember>();
+        cm.add(xd.constructorDef(xDef));
+        ClassBody cb = cDecl.body();
+        cDef.addConstructor(xDef);
+        
+        return (X10ClassDecl) cDecl.body(cb.members(cm));
+      
+    }
+              
 }

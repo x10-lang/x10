@@ -47,9 +47,13 @@ namespace x10 {
                 x10aux::ref<x10::lang::String> (I::*toString)();
                 x10aux::ref<x10::lang::String> (I::*typeName)();
             };
+
+            X10_IFACE_THUNK_DEF_1(VoidFun_0_1<P1>, apply, P1)
+
         };
 
         template<class P1> void VoidFun_0_1<P1>::_initRTT() {
+            if (rtt.initStageOne(x10aux::getRTT<VoidFun_0_1<void> >())) return;
             x10::lang::_initRTTHelper_VoidFun_0_1(&rtt, x10aux::getRTT<P1>());
         }
 

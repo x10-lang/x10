@@ -45,92 +45,108 @@ public class Types {
     public static Type<Float> FLOAT = new FloatType();
     public static Type<Double> DOUBLE = new DoubleType();
     
-    public static <T> T conversion(Class<T> dep, Object typeParam) {
-        if(dep == java.lang.Byte.class) return (T)conversion(BYTE, typeParam);
-        if(dep == java.lang.Short.class) return (T)conversion(SHORT, typeParam);
-        if(dep == java.lang.Character.class) return (T)conversion(CHAR, typeParam);
-        if(dep == java.lang.Integer.class) return (T)conversion(INT, typeParam);
-        if(dep == java.lang.Long.class) return (T)conversion(LONG, typeParam);
-        if(dep == java.lang.Float.class) return (T)conversion(FLOAT, typeParam);
-        if(dep == java.lang.Double.class) return (T)conversion(DOUBLE, typeParam);
-        return (T)typeParam;
+    private static boolean isStruct(Type<?> rtt) {
+        if (
+            rtt == BOOLEAN
+            || rtt == BYTE  || rtt == SHORT  || rtt == CHAR || rtt == INT   || rtt == LONG
+            || rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG
+            || rtt == FLOAT || rtt == DOUBLE
+            ) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean asboolean(Object typeParamOrAny) {
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
+        throw new ClassCastException();
     }
     
-    public static Object conversion(Type rtt, Object primOrTypeParam) {
-        if (rtt == BOOLEAN) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
-        }
+    public static byte asbyte(Object typeParamOrAny){
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).byteValue();}
+        throw new ClassCastException();
+    }
+    
+    public static short asshort(Object typeParamOrAny){
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).shortValue();}
+        throw new ClassCastException();
+    }
+    
+    public static int asint(Object typeParamOrAny){
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).intValue();}
+        throw new ClassCastException();
+    }
+    
+    public static long aslong(Object typeParamOrAny){
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).longValue();}
+        throw new ClassCastException();
+    }
+    
+    public static float asfloat(Object typeParamOrAny){
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).floatValue();}
+        throw new ClassCastException();
+    }
+
+    public static double asdouble(Object typeParamOrAny){
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).doubleValue();}
+        throw new ClassCastException();
+    }
+
+    public static char aschar(Object typeParamOrAny) {
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
+        throw new ClassCastException();
+    }
+    
+    
+    public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
+        if (primOrTypeParam == null && isStruct(rtt)) {nullIsCastedToStruct();}
+        
         if (rtt == BYTE) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).byteValue();
             if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Character) return (byte)((java.lang.Character) primOrTypeParam).charValue();
             return primOrTypeParam;
         }
         if (rtt == SHORT) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).shortValue();
             if (primOrTypeParam instanceof java.lang.Short) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Character) return (short)((java.lang.Character) primOrTypeParam).charValue();
-            return primOrTypeParam;
-        }
-        if (rtt == CHAR) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
-            if (primOrTypeParam instanceof java.lang.Byte) return (char)(byte)((java.lang.Byte) primOrTypeParam);
-            if (primOrTypeParam instanceof java.lang.Short) return (char)(short)((java.lang.Short) primOrTypeParam);
-            if (primOrTypeParam instanceof java.lang.Character) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Integer) return (char)(int)((java.lang.Integer) primOrTypeParam);
-            if (primOrTypeParam instanceof java.lang.Long) return (char)(long)((java.lang.Long) primOrTypeParam);
-            if (primOrTypeParam instanceof java.lang.Float) return (char)(float)((java.lang.Float) primOrTypeParam);
-            if (primOrTypeParam instanceof java.lang.Double) return (char)(double)((java.lang.Double) primOrTypeParam);
             return primOrTypeParam;
         }
         if (rtt == INT) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).intValue();
-            if (primOrTypeParam instanceof java.lang.Character) return (int)((java.lang.Character) primOrTypeParam).charValue();
             if (primOrTypeParam instanceof java.lang.Integer) return primOrTypeParam;
             return primOrTypeParam;
         }
         if (rtt == LONG) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).longValue();
-            if (primOrTypeParam instanceof java.lang.Character) return (long)((java.lang.Character) primOrTypeParam).charValue();
             if (primOrTypeParam instanceof java.lang.Long) return primOrTypeParam;
             return primOrTypeParam;
         }
         if (rtt == FLOAT) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).floatValue();
-            if (primOrTypeParam instanceof java.lang.Character) return (float)((java.lang.Character) primOrTypeParam).charValue();
             if (primOrTypeParam instanceof java.lang.Float) return primOrTypeParam;
             return primOrTypeParam;
         }
         if (rtt == DOUBLE) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).doubleValue();
-            if (primOrTypeParam instanceof java.lang.Character) return (double)((java.lang.Character) primOrTypeParam).charValue();
             if (primOrTypeParam instanceof java.lang.Double) return primOrTypeParam;
             return primOrTypeParam;
         }
         
         // unimplemented
-        if (rtt == UBYTE) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
-            return primOrTypeParam;
-        }
-        if (rtt == USHORT) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
-            return primOrTypeParam;
-        }
-        if (rtt == UINT) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
-            return primOrTypeParam;
-        }
-        if (rtt == ULONG) {
-            if (primOrTypeParam == null) {throw new ClassCastException();}
-            return primOrTypeParam;
-        }
+        if (rtt == UBYTE) {return primOrTypeParam;}
+        if (rtt == USHORT) {return primOrTypeParam;}
+        if (rtt == UINT) {return primOrTypeParam;}
+        if (rtt == ULONG) {return primOrTypeParam;}
         return primOrTypeParam;
     }
+
+    public static void nullIsCastedToStruct(){throw new java.lang.ClassCastException();}
 }
