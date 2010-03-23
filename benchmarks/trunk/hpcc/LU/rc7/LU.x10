@@ -182,7 +182,9 @@ class LU {
 
     def triSolve(J:Int, timer:Timer!) {
         if (A_here.hasRow(J)) {
-            val diag = A_here.hasCol(J) ? A_here.block(J, J).raw : colBuffer;
+            var tmp:Rail[Double]!;
+            if (A_here.hasCol(J)) tmp = A_here.block(J, J).raw; else tmp = colBuffer;
+            val diag = tmp;
             timer.start(10);
             row.broadcast_d(diag, J%py);
             timer.stop(10);
@@ -283,7 +285,9 @@ class LU {
                 if (A_here.hasRow(I)) {
                     blockBackSolve(A_here.block(I, NB).raw, memget(I, I), B);
                 }
-                val bufferY = A_here.hasRow(I) ? A_here.block(I, NB).raw : colBuffer;
+                var tmp:Rail[Double]!;
+                if (A_here.hasRow(I)) tmp = A_here.block(I, NB).raw; else tmp = colBuffer;
+                val bufferY = tmp;
                 col.broadcast_d(bufferY, I%px);
                 for (var ci:Int = 0; ci < I; ++ci) if (A_here.hasRow(ci)) {
                     blockMulSub(A_here.block(ci, NB).raw, memget(ci, I), bufferY, B);
@@ -340,8 +344,8 @@ class LU {
         row = world.split(pi, pj);
         pivot = Rail.make[Int](B);
         rowForBroadcast = Rail.make[Double](B);
-        val rowBuffers = ValRail.make[Rail[Double]](M / B / px + 1, (Int)=>Rail.make[Double](B * B));
-        val colBuffers = ValRail.make[Rail[Double]](N / B / py + 1, (Int)=>Rail.make[Double](B * B));
+        val rowBuffers = ValRail.make[Rail[Double]!](M / B / px + 1, (Int)=>Rail.make[Double](B * B));
+        val colBuffers = ValRail.make[Rail[Double]!](N / B / py + 1, (Int)=>Rail.make[Double](B * B));
         this.rowBuffers = rowBuffers;
         this.colBuffers = colBuffers;
         rowBuffer = rowBuffers(0);
