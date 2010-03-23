@@ -18,7 +18,8 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 	X10ClassDoc[] includedClasses;
 
 	public X10PackageDoc(String name) {
-		super("");
+	//super("");
+		
 		this.name = name;
 		this.rootDoc = X10RootDoc.getRootDoc();
 		this.classes = new ArrayList<X10ClassDoc>();
@@ -26,6 +27,7 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 		                       // command-line and that pass through the access modifier filter; at present, x10doc
 		                       // does not handle command-line specified packages, so X10PackageDoc.included is
 		                       // false for all packages
+		super.processComment("");
 	}
 	
 	public void addClass(X10ClassDoc cd) {

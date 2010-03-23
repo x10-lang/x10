@@ -17,7 +17,7 @@ public class X10FieldDoc extends X10Doc implements FieldDoc {
 	boolean included;
 	
 	public X10FieldDoc(X10FieldDef fd, X10ClassDoc containingClass, String comment) {
-		super(comment);
+		//super(comment);
 		this.fieldDef = fd;
 		this.containingClass = containingClass;
 		this.rootDoc = X10RootDoc.getRootDoc();
@@ -26,13 +26,14 @@ public class X10FieldDoc extends X10Doc implements FieldDoc {
 		// X10Doc.isIncluded(..., this) valid only if this.{isPublic(),...,isPrivate()} are valid, which requires
 		// this.fieldDef to have been set appropriately
 		this.included = X10Doc.isIncluded(this.rootDoc.accessModFilter(), this);
+		super.processComment(comment);
 	}
 
 	public void addDeclTag(String declString) {
 		if (declString == null) {
 			return;
 		}
-		X10Tag[] declTags = createInlineTags(declString);
+		X10Tag[] declTags = createInlineTags(declString, this).toArray(new X10Tag[0]);
 
 		// place declaration before the first sentence of the existing comment so that
 		// the declaration is displayed in the "Fields Summary" table before the first sentence

@@ -30,7 +30,7 @@ public class X10TypeDefDoc extends X10Doc implements MethodDoc {
 // 	String descriptor;
 
 	public X10TypeDefDoc(TypeDef typeDef, X10ClassDoc containingClass, String comments) {
-		super(comments);
+		//super(comments);
 		this.typeDef = typeDef;
 		this.containingClass = containingClass;
 		this.rootDoc = X10RootDoc.getRootDoc();
@@ -49,6 +49,7 @@ public class X10TypeDefDoc extends X10Doc implements MethodDoc {
 			polyglot.types.Type paramType = ld.type().get();
 			parameters.add(new X10Parameter(paramName, rootDoc.getType(paramType, typeParams)));
 		}
+		super.processComment(comments);
 	}
 
 	void initTypeParameters() {
@@ -125,7 +126,7 @@ public class X10TypeDefDoc extends X10Doc implements MethodDoc {
 		if (declString == null) {
 			return;
 		}
-		X10Tag[] declTags = createInlineTags(declString);
+		X10Tag[] declTags = createInlineTags(declString, this).toArray(new X10Tag[0]);
 
 		// place declaration before the first sentence of the existing comment so that
 		// the declaration is displayed in the "Methods Summary" table before the first sentence
