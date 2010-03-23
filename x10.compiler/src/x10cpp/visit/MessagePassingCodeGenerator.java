@@ -4434,6 +4434,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // Enter the context of the body
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    X10CPPContext_c ctx = (X10CPPContext_c) closure.del().enterScope(context);
+	    boolean oldSemiColon = tr.appendSemicolon(true);
+	    boolean oldPrintType = tr.printType(true);
 	    ((X10CPPTranslator)tr).setContext(ctx); // FIXME
 	    i = 0;
 	    for (Expr a : args) {
@@ -4470,6 +4472,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	    ctx.finalizeClosureInstance();
 	    ((X10CPPTranslator)tr).setContext(context); // FIXME
+	    tr.printType(oldPrintType);
+	    tr.appendSemicolon(oldSemiColon);
 	    sw.end(); sw.newline();
 	    sw.write("}))"); sw.newline();
 	    return true;
