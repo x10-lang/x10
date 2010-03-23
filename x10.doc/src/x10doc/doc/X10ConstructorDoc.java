@@ -30,11 +30,12 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 	private boolean included;
 	
 	public X10ConstructorDoc() {
-		super("");
+		super();
+		processComment("");
 	}
 
 	public X10ConstructorDoc(X10ConstructorDef constrDef, X10ClassDoc containingClass, String comment) {
-		super(comment);
+		//super(comment);
 		this.constrDef = constrDef;
 		this.containingClass = containingClass;
 		this.rootDoc = X10RootDoc.getRootDoc();
@@ -66,6 +67,7 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 		// X10Doc.isIncluded(..., this) valid only if this.{isPublic(),...,isPrivate()} are valid, which requires
 		// this.constrDef to have been set appropriately
 		this.included = X10Doc.isIncluded(rootDoc.accessModFilter(), this);
+		super.processComment(comment);
 	}
 	
 	void initTypeParameters() {
@@ -89,7 +91,7 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 		if (declString == null) {
 			return;
 		}
-		X10Tag[] declTags = createInlineTags(declString);
+		X10Tag[] declTags = createInlineTags(declString, this).toArray(new X10Tag[0]);
 
 		// place declaration before the first sentence of the existing comment so that
 		// the declaration is displayed in the "Methods Summary" table before the first sentence
