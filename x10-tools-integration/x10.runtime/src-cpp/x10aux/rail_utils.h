@@ -21,7 +21,8 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 
-namespace x10 { namespace lang {
+namespace x10 {
+    namespace lang {
         class String;
     }
 }
@@ -51,7 +52,8 @@ namespace x10aux {
     template<class T, class R> R *alloc_rail(x10_int length, T v0, T v1, T v2, T v3, T v4, T v5, T v6, ...);
 }
 
-#include <x10/lang/String.h>
+#include <x10aux/string_utils.h>
+#include <x10/lang/Object.h>
 
 namespace x10aux {
 
@@ -75,7 +77,7 @@ namespace x10aux {
         }
         return railToStringFinalize(ss); // NOTE: Finalize is responsible for calling dealloc.
         #else
-        return x10::lang::String::Lit("[NO_IOSTREAM: not printing rail contents]");
+        return string_utils::lit("[NO_IOSTREAM: not printing rail contents]");
         #endif
     }
 

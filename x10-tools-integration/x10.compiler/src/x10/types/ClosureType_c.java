@@ -47,6 +47,14 @@ import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.constraint.XConstraint;
 
+/**
+ * A representation of the type of a closure. Treated as a ClassType implementing a FunctionType, with 
+ * the signature for the function type retrieved from the sole method (the apply method) defined on the
+ * class type.
+ * @author nystrom
+ * @author vj
+ *
+ */
 public class ClosureType_c extends X10ParsedClassType_c implements FunctionType {
     private static final long serialVersionUID = 2768150875334536668L;
 
@@ -88,11 +96,15 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
     public String toString() {
         X10MethodInstance mi = applyMethod();
         StringBuilder sb = new StringBuilder();
-        for (Type t : mi.formalTypes()) {
-            if (sb.length() > 0)
-                sb.append(", ");
-            sb.append(t);
+        List<LocalInstance> formals = mi.formalNames();
+        for (LocalInstance f : formals) {
+        	 if (sb.length() > 0)
+                 sb.append(", ");
+             sb.append(f.name());
+             sb.append(':');
+             sb.append(f.type());
         }
+      
         XConstraint guard = guard();
         return "(" + sb.toString() + ")" + (guard==null? "" : guard) + "=> " + mi.returnType();
     }

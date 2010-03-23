@@ -1,6 +1,8 @@
 package x10doc.doc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationTypeDoc;
@@ -12,22 +14,28 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 	ArrayList<X10ClassDoc> classes;
 	X10RootDoc rootDoc;
 	boolean included;
+	
+	X10ClassDoc[] includedClasses;
 
 	public X10PackageDoc(String name) {
 		super("");
 		this.name = name;
 		this.rootDoc = X10RootDoc.getRootDoc();
 		this.classes = new ArrayList<X10ClassDoc>();
-		this.included = false; // included is set to true when an included class is added to
-		                       // the package for the first time
+		this.included = false; // defn of included: set of entities (classes/packages) that are specified on the
+		                       // command-line and that pass through the access modifier filter; at present, x10doc
+		                       // does not handle command-line specified packages, so X10PackageDoc.included is
+		                       // false for all packages
 	}
 	
 	public void addClass(X10ClassDoc cd) {
 		classes.add(cd);
+		/*
 		if (!included && cd.isIncluded()) {
 			included = true;
-			rootDoc.makePackageIncluded(name);
+			// rootDoc.makePackageIncluded(name);
 		}
+		*/
 	}
 	
 	@Override
@@ -39,14 +47,49 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 		return included;
 	}
 
+	// returns all *included* classes and interfaces, as per definition
 	public ClassDoc[] allClasses() {
-		System.out.println("PackageDoc.allClasses() called.");
-		return classes.toArray(new X10ClassDoc[0]);
+		// System.out.println("PackageDoc.allClasses() called.");
+		// return classes.toArray(new X10ClassDoc[0]);
+		if (includedClasses != null) {
+			return includedClasses;
+		}
+		int size = 0;
+		for (X10ClassDoc cd: classes) {
+			if (cd.isIncluded()) {
+				size++;
+			}
+		}
+		includedClasses = new X10ClassDoc[size];
+		int i = 0;
+		for (X10ClassDoc cd: classes) {
+			if (cd.isIncluded()) {
+				includedClasses[i++] = cd;
+			}
+		}
+		Comparator<X10ClassDoc> cmp =
+			new Comparator<X10ClassDoc>() {
+			  public int compare(X10ClassDoc first, X10ClassDoc second) {
+				  return first.name().compareTo(second.name());
+			  }
+			  
+			  public boolean equals(Object other) {
+				  return false;
+			  }
+		    };
+		Arrays.sort(includedClasses, cmp);
+		return includedClasses;
 	}
 
 	public ClassDoc[] allClasses(boolean arg0) {
-		System.out.println("PackageDoc.allClasses() called.");
+		System.out.println("PackageDoc.allClasses(boolean) called.");
+		return allClasses();
+		/*
+		if (arg0) {
+			return allClasses();
+		}
 		return classes.toArray(new X10ClassDoc[0]);
+		*/
 	}
 
 	public AnnotationTypeDoc[] annotationTypes() {
@@ -57,7 +100,7 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 
 	public AnnotationDesc[] annotations() {
 		// TODO Auto-generated method stub
-		System.out.println("PackageDoc.annotations() called.");
+		// System.out.println("PackageDoc.annotations() called.");
 		return new AnnotationDesc[0];
 	}
 

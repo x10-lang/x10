@@ -44,6 +44,14 @@ const void* addr_map::_get(int pos) {
     return _ptrs[_top+pos];
 }
 
+const void* addr_map::_set(int pos, const void* ptr) {
+    if (pos < -_top || pos >= 0)
+        return NULL;
+    const void* old = _ptrs[_top+pos];
+    _ptrs[_top+pos] = ptr;
+    return old;
+}
+
 int addr_map::_position(const void* p) {
     int pos = _find(p);
     if (pos != 0) {

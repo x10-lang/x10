@@ -20,7 +20,7 @@ import harness.x10Test;
 public class NullableObjectToBoxConstrainedType2 extends x10Test {
 	 
 	public def run(): boolean = {
-		var nullableVarNotNull: Box[ValueClass] = new ValueClass(1);
+		var nullableVarNotNull: Box[ValueClass] = ValueClass(1);
 		return nullableVarNotNull instanceof Box[ValueClass{p==1}];
 	}
 	

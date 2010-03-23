@@ -46,9 +46,10 @@ implementation should try to ensure that the creation of a second or
 subsequent reference to the same remote object at a given place does
 not incur any (additional) communication cost.
 
-A reference to an object carries with it the values of final \Xcd{global} fields
+A reference to an object carries with it the values of  \Xcd{global} \xcd`val`
+fields
 of the object. The implementation should try to ensure that the cost
-of communicating the values of final fields of an object from the
+of communicating the values of \xcd`val` fields of an object from the
 place where it is hosted to any other place is not incurred more than
 once for each target place.
 
@@ -67,7 +68,7 @@ since structs can be copied freely from place to place.).  The
 implementation should try to ensure that the cost of copying the field
 from the place where the object was created to the referencing place
 will be incurred at most once per referencing place, according to the
-rule for final fields discussed above.
+rule for \xcd`val` fields discussed above.
 
 {}\item Method invocation (\Sref{MethodInvocation}).  A method may be
 marked \Xcd{global}. A \Xcd{global} method may be invoked at any

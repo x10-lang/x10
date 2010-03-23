@@ -41,6 +41,14 @@ namespace x10aux {
 
     // Used by x10/util/StringBuilder.x10
     ref<x10::lang::String> vrc_to_string(x10aux::ref<x10::lang::ValRail<x10_char> > v);
+
+    namespace string_utils {
+
+        ref<x10::lang::String> lit(const char*);
+
+        const char* cstr(ref<x10::lang::String>);
+
+    }
 }
 
     

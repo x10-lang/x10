@@ -17,6 +17,7 @@
 #include <x10aux/basic_functions.h>
 #include <x10aux/throw.h>
 #include <x10aux/hash.h>
+#include <x10aux/char_utils.h>
 
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
@@ -44,7 +45,15 @@ String::_make(x10aux::ref<String> s) {
 }
 
 x10_int String::hashCode() {
-    return x10aux::hash(reinterpret_cast<const unsigned char*>(FMGL(content)), length());
+    //return x10aux::hash(reinterpret_cast<const unsigned char*>(FMGL(content)), length());
+    x10_int hc = 0;
+    x10_int l = length();
+    const unsigned char* k = reinterpret_cast<const unsigned char*>(FMGL(content));
+    for (; l > 0; k++, l--) {
+        hc *= 31;
+        hc += (x10_int) *k;
+    }
+    return hc;
 }
 
 x10_int String::indexOf(ref<String> str, x10_int i) {
@@ -268,9 +277,81 @@ x10_boolean String::equals(ref<Any> p0) {
     if (ref<String>(p0).operator->() == this) return true; // short-circuit trivial equality
     if (!x10aux::instanceof<ref<x10::lang::String> >(p0)) return false;
     ref<String> that = (ref<String>) p0;
+    if (this->FMGL(content_length) != that->FMGL(content_length)) return false; // short-circuit trivial dis-equality
     if (strcmp(this->FMGL(content), that->FMGL(content)))
         return false;
     return true;
+}
+
+#ifdef __CYGWIN__
+extern "C" int strcasecmp(const char *, const char *);
+#endif
+
+/* FIXME: Unicode support */
+x10_boolean String::equalsIgnoreCase(ref<String> s) {
+    nullCheck(s);
+    if (ref<String>(s).operator->() == this) return true; // short-circuit trivial equality
+    if (this->FMGL(content_length) != s->FMGL(content_length)) return false; // short-circuit trivial dis-equality
+    if (strcasecmp(this->FMGL(content), s->FMGL(content)))
+        return false;
+    return true;
+}
+
+/* FIXME: Unicode support */
+ref<String> String::toLowerCase() {
+    char *str = x10aux::alloc<char>(FMGL(content_length)+1);
+    bool all_lower = true;
+    for (std::size_t i=0 ; i<FMGL(content_length) ; ++i) {
+        x10_char c = FMGL(content)[i];
+        if (!x10aux::char_utils::isLowerCase(c))
+            all_lower = false;
+        x10_char l = x10aux::char_utils::toLowerCase(c);
+        str[i] = (char)l.v;
+    }
+    if (all_lower) {
+        x10aux::dealloc(str);
+        return this;
+    }
+    str[FMGL(content_length)] = '\0';
+    return String::Steal(str);
+}
+
+/* FIXME: Unicode support */
+ref<String> String::toUpperCase() {
+    char *str = x10aux::alloc<char>(FMGL(content_length)+1);
+    bool all_upper = true;
+    for (std::size_t i=0 ; i<FMGL(content_length) ; ++i) {
+        x10_char c = FMGL(content)[i];
+        if (!x10aux::char_utils::isUpperCase(c))
+            all_upper = false;
+        x10_char u = x10aux::char_utils::toUpperCase(c);
+        str[i] = (char)u.v;
+    }
+    if (all_upper) {
+        x10aux::dealloc(str);
+        return this;
+    }
+    str[FMGL(content_length)] = '\0';
+    return String::Steal(str);
+}
+
+x10_int String::compareTo(ref<String> s) {
+    nullCheck(s);
+    if (ref<String>(s).operator->() == this) return 0; // short-circuit trivial equality
+    int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
+    if (length_diff != 0)
+        return length_diff;
+    return (x10_int) strcmp(this->FMGL(content), s->FMGL(content));
+}
+
+/* FIXME: Unicode support */
+x10_int String::compareToIgnoreCase(ref<String> s) {
+    nullCheck(s);
+    if (ref<String>(s).operator->() == this) return 0; // short-circuit trivial equality
+    int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
+    if (length_diff != 0)
+        return length_diff;
+    return (x10_int) strcasecmp(this->FMGL(content), s->FMGL(content));
 }
 
 const serialization_id_t String::_serialization_id =
@@ -315,9 +396,13 @@ void String::_deserialize_body(x10aux::deserialization_buffer &buf) {
 Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::apply, &String::at, &String::at,
                                                                    &String::equals, &String::hashCode,
                                                                    &String::home, &String::toString, &String::typeName);
-        
-x10aux::itable_entry String::_itables[2] = {
+Comparable<ref<String> >::itable<String> String::_itable_Comparable(&String::at, &String::at, &String::compareTo,
+                                                                   &String::equals, &String::hashCode,
+                                                                   &String::home, &String::toString, &String::typeName);
+
+x10aux::itable_entry String::_itables[3] = {
     x10aux::itable_entry(&Fun_0_1<x10_int, x10_char>::rtt, &String::_itable_Fun_0_1),
+    x10aux::itable_entry(&Comparable<ref<String> >::rtt, &String::_itable_Comparable),
     x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<String>())
 };
 

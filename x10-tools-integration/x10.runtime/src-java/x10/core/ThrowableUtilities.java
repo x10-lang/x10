@@ -11,7 +11,11 @@
 
 package x10.core;
 
-import x10.rtt.*;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
+
+import x10.rtt.RuntimeType;
 
 public class ThrowableUtilities {
 
@@ -22,5 +26,33 @@ public class ThrowableUtilities {
             str[i] = elements[i].toString();
         }
         return new ValRail<String>(new RuntimeType<String>(String.class),str.length,(Object)str);
+    }
+    
+    public static void printStackTrace(Throwable t, Object/*x10.io.Printer*/ p) {
+        Class<?> x10_io_Printer = null;
+        try {
+            x10_io_Printer = Class.forName("x10.io.Printer");
+        } catch (Exception e) {
+        }
+        Method printStackTrace = null;
+        if (x10_io_Printer != null) {
+            try {
+                printStackTrace = t.getClass().getMethod("printStackTrace", x10_io_Printer);
+            } catch (Exception e) {
+            }
+        }
+        if (printStackTrace != null) {
+            try {
+                printStackTrace.invoke(t, p);
+            } catch (Exception e) {
+            }
+        } else {
+            try {
+                Method getNativeOutputStream = x10_io_Printer.getMethod("getNativeOutputStream");
+                PrintWriter printWriter = new java.io.PrintWriter((OutputStream) getNativeOutputStream.invoke(p));
+                t.printStackTrace(printWriter);
+            } catch (Exception e) {
+            }
+        }
     }
 }

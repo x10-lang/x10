@@ -287,7 +287,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
 
     protected static def onePlace(places: Rail[Place]!): Place {
-        return places(0);
+        return places.length==0? here : places(0);
     }
 
     public global safe def equals(thatObj:Any): boolean {

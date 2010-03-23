@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-// LIMITATION:
+//LIMITATION:
 
 import harness.x10Test;
 

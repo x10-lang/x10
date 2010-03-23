@@ -19,7 +19,6 @@ import java.util.Map;
 
 import polyglot.types.LazyRef;
 import polyglot.types.Ref;
-import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Pair;
@@ -47,8 +46,10 @@ public class TypeParamSubst {
 	List<ParameterType> typeParameters;
 	X10TypeSystem ts;
 
+	final boolean missingArgs;
 	public TypeParamSubst(X10TypeSystem ts, List<Type> typeArguments2, 
 			List<ParameterType> typeParameters2) {
+		missingArgs = typeParameters2 != null && typeParameters2.size() > 0 && typeArguments2 == null;
 		typeArguments2 = typeArguments2 == null ? (List) typeParameters2 : (List) typeArguments2; 
 		assert (typeParameters2 == null ? typeArguments2 == null 
 				: typeArguments2.size() == typeParameters2.size());
@@ -84,45 +85,7 @@ public class TypeParamSubst {
 		if (t instanceof MacroType) {
 			MacroType mt = (MacroType) t;
 			final MacroType fi = mt;
-			return new MacroType_c(ts, mt.position(), Types.ref(mt.def())) {
-				@Override
-				public Ref<? extends Type> returnTypeRef() {
-					if (definedType == null)
-						return reinstantiate(fi.returnTypeRef());
-					return definedType;
-				}
-				@Override
-				public Type returnType() {
-					if (definedType == null)
-						return reinstantiate(fi.returnType());
-					return definedType.get();
-				}
-				@Override
-				public Ref<? extends Type> definedTypeRef() {
-					if (definedType == null)
-						return reinstantiate(fi.definedTypeRef());
-					return definedType;
-				}
-				@Override
-				public Type definedType() {
-					if (definedType == null)
-						return reinstantiate(fi.definedType());
-					return definedType.get();
-				}
-				@Override
-				public List<Type> formalTypes() {
-					if (formalTypes == null)
-						return reinstantiate(fi.formalTypes());
-					return formalTypes;
-				}
-				@Override
-				public CConstraint guard() {
-					if (guard == null)
-						return reinstantiate(fi.guard());
-					return guard;
-				}
-
-			};
+			return new ReinstantiatedMacroType(this, ts, mt.position(), Types.ref(mt.def()), fi);
 		}
 		//	if (t instanceof ClosureType) {
 			//	    ClosureType ct = (ClosureType) t;
@@ -162,6 +125,9 @@ public class TypeParamSubst {
 		return false;
 	}
 
+	public boolean isMissingParameters() {
+		return missingArgs;
+	}
 	public boolean isIdentityInstantiation() {
 		if (typeArguments == null) return true;
 		int n = typeParameters.size();
@@ -218,38 +184,7 @@ public class TypeParamSubst {
 //		res = (ClosureInstance) res.throwTypes(reinstantiate(fi.throwTypes()));
 //		res = (ClosureInstance) res.guard(reinstantiate(fi.guard()));
 //		return res;
-		return new ClosureInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.def())) {
-			@Override
-			public Ref<? extends Type> returnTypeRef() {
-				if (returnType == null)
-					return reinstantiate(fi.returnTypeRef());
-				return returnType;
-			}
-			@Override
-			public Type returnType() {
-				if (returnType == null)
-					return reinstantiate(fi.returnType());
-				return returnType.get();
-			}
-			@Override
-			public List<Type> formalTypes() {
-				if (formalTypes == null)
-					return reinstantiate(fi.formalTypes());
-				return formalTypes;
-			}
-			@Override
-			public List<Type> throwTypes() {
-				if (throwTypes == null)
-					return reinstantiate(fi.throwTypes());
-				return throwTypes;
-			}
-			@Override
-			public CConstraint guard() {
-				if (guard == null)
-					return reinstantiate(fi.guard());
-				return guard;
-			}
-		};
+		return new ReinstantiatedClosureInstance_c(this, fi.typeSystem(), fi.position(), Types.ref(fi.def()), fi);
 	}
 
 	public Ref reinstantiateRef(final Ref t) {
@@ -388,44 +323,8 @@ public class TypeParamSubst {
 //		res = (X10ConstructorInstance) res.container(reinstantiate(fi.container()));
 //		res = (X10ConstructorInstance) res.guard(reinstantiate(fi.guard()));
 //		return res;
-		return new X10ConstructorInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.x10Def())) {
-			@Override
-			public Ref<? extends Type> returnTypeRef() {
-				if (returnType == null)
-					return reinstantiate(fi.returnTypeRef());
-				return returnType;
-			}
-			@Override
-			public Type returnType() {
-				if (returnType == null)
-					return reinstantiate(fi.returnType());
-				return returnType.get();
-			}
-			@Override
-			public List<Type> formalTypes() {
-				if (formalTypes == null)
-					return reinstantiate(fi.formalTypes());
-				return formalTypes;
-			}
-			@Override
-			public List<Type> throwTypes() {
-				if (throwTypes == null)
-					return reinstantiate(fi.throwTypes());
-				return throwTypes;
-			}
-			@Override
-			public CConstraint guard() {
-				if (guard == null)
-					return reinstantiate(fi.guard());
-				return guard;
-			}
-			@Override
-			public StructType container() {
-				if (container == null)
-					return reinstantiate(fi.container());
-				return container;
-			}
-		};
+		return new ReinstantiatedConstructorInstance(this, fi.typeSystem(), fi.position(), Types.ref(fi.x10Def()),
+				fi);
 	}
 
 	public X10MethodInstance reinstantiateMI(X10MethodInstance t) {
@@ -437,44 +336,7 @@ public class TypeParamSubst {
 //		res = (X10MethodInstance) res.container(reinstantiate(fi.container()));
 //		res = (X10MethodInstance) res.guard(reinstantiate(fi.guard()));
 //		return res;
-		return new X10MethodInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.x10Def())) {
-			@Override
-			public Ref<? extends Type> returnTypeRef() {
-				if (returnType == null)
-					return reinstantiate(fi.returnTypeRef());
-				return returnType;
-			}
-			@Override
-			public Type returnType() {
-				if (returnType == null)
-					return reinstantiate(fi.returnType());
-				return returnType.get();
-			}
-			@Override
-			public List<Type> formalTypes() {
-				if (formalTypes == null)
-					return reinstantiate(fi.formalTypes());
-				return formalTypes;
-			}
-			@Override
-			public List<Type> throwTypes() {
-				if (throwTypes == null)
-					return reinstantiate(fi.throwTypes());
-				return throwTypes;
-			}
-			@Override
-			public CConstraint guard() {
-				if (guard == null)
-					return reinstantiate(fi.guard());
-				return guard;
-			}
-			@Override
-			public StructType container() {
-				if (container == null)
-					return reinstantiate(fi.container());
-				return container;
-			}
-		};
+		return new ReinstantiatedMethodInstance(this, fi.typeSystem(), fi.position(), Types.ref(fi.x10Def()), fi);
 	}
 
 	public X10FieldInstance reinstantiateFI(X10FieldInstance t) {
@@ -484,26 +346,7 @@ public class TypeParamSubst {
 //		res = (X10FieldInstance) res.container(reinstantiate(fi.container()));
 //		res = (X10FieldInstance) res.guard(reinstantiate(fi.guard()));
 //		return res;
-		return new X10FieldInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.x10Def())) {
-			@Override
-			public Type type() {
-				if (type == null)
-					return reinstantiate(fi.type());
-				return type;
-			}
-			@Override
-			public CConstraint guard() {
-				if (guard == null)
-					return reinstantiate(fi.guard());
-				return guard;
-			}
-			@Override
-			public StructType container() {
-				if (container == null)
-					return reinstantiate(fi.container());
-				return container;
-			}
-		};
+		return new ReinstantiatedFieldInstance(this, fi.typeSystem(), fi.position(), Types.ref(fi.x10Def()), fi);
 	}
 
 	public <T> List<T> reinstantiate(List<T> list) {

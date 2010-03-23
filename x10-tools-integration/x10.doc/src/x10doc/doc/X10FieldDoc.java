@@ -14,6 +14,7 @@ public class X10FieldDoc extends X10Doc implements FieldDoc {
 	Type type;
 	X10ClassDoc containingClass;
 	X10RootDoc rootDoc;
+	boolean included;
 	
 	public X10FieldDoc(X10FieldDef fd, X10ClassDoc containingClass, String comment) {
 		super(comment);
@@ -21,8 +22,12 @@ public class X10FieldDoc extends X10Doc implements FieldDoc {
 		this.containingClass = containingClass;
 		this.rootDoc = X10RootDoc.getRootDoc();
 		this.type = rootDoc.getType(fieldDef.type().get());
+
+		// X10Doc.isIncluded(..., this) valid only if this.{isPublic(),...,isPrivate()} are valid, which requires
+		// this.fieldDef to have been set appropriately
+		this.included = X10Doc.isIncluded(this.rootDoc.accessModFilter(), this);
 	}
-	
+
 	public void addDeclTag(String declString) {
 		if (declString == null) {
 			return;
@@ -67,7 +72,8 @@ public class X10FieldDoc extends X10Doc implements FieldDoc {
 
 	@Override
 	public boolean isIncluded() {
-		return true;
+		// return true;
+		return included;
 	}
 
 	public boolean isTransient() {
@@ -139,7 +145,7 @@ public class X10FieldDoc extends X10Doc implements FieldDoc {
 
 	public String qualifiedName() {
 		String str = fieldDef.type().toString();
-		System.out.println("FieldDoc.qualifiedName() called. fieldDef.type().toString() = " + str); 
+		// System.out.println("FieldDoc.qualifiedName() called. fieldDef.type().toString() = " + str); 
 		return str;
 	}
 }

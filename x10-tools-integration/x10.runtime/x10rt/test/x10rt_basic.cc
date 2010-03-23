@@ -24,22 +24,22 @@ bool finished = false;
 
 
 // {{{ msg handlers
-static void recv_msg_ping (const x10rt_msg_params &p)
+static void recv_msg_ping (const x10rt_msg_params *p)
 {
-    if (validate && (p.len > 0) && memcmp(buf, (const char*)p.msg, p.len)) {
-        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p.len);
+    if (validate && (p->len > 0) && memcmp(buf, (const char*)p->msg, p->len)) {
+        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p->len);
         abort();
     }
-    void *tmp = x10rt_msg_realloc(NULL,0,p.len);
-    memcpy(tmp,p.msg,p.len);
-    x10rt_msg_params p2 = {0, PONG_ID, tmp, p.len};
-    x10rt_send_msg(p2);
+    void *tmp = x10rt_msg_realloc(NULL,0,p->len);
+    memcpy(tmp,p->msg,p->len);
+    x10rt_msg_params p2 = {0, PONG_ID, tmp, p->len};
+    x10rt_send_msg(&p2);
 }
 
-static void recv_msg_pong (const x10rt_msg_params &p)
+static void recv_msg_pong (const x10rt_msg_params *p)
 {
-    if (validate && (p.len > 0) && memcmp(buf, (const char*)p.msg, p.len)) {
-        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p.len);
+    if (validate && (p->len > 0) && memcmp(buf, (const char*)p->msg, p->len)) {
+        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p->len);
         abort();
     }
     pongs_outstanding--;
@@ -47,29 +47,29 @@ static void recv_msg_pong (const x10rt_msg_params &p)
 
 
 // {{{ put handlers
-static void *recv_put_ping_hh (const x10rt_msg_params &, unsigned long len)
+static void *recv_put_ping_hh (const x10rt_msg_params *, unsigned long len)
 {
     if(validate) memset(ping_buf, 0, len);
     return ping_buf;
 }
-static void recv_put_ping (const x10rt_msg_params &p, unsigned long len)
+static void recv_put_ping (const x10rt_msg_params *p, unsigned long len)
 {
-    if (validate && (p.len > 0) && memcmp(buf, ping_buf, len)) {
-        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p.len);
+    if (validate && (p->len > 0) && memcmp(buf, ping_buf, len)) {
+        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p->len);
         abort();
     }
     x10rt_msg_params p2 = {0, PONG_PUT_ID, NULL, 0};
-    x10rt_send_put(p2, buf, len);
+    x10rt_send_put(&p2, buf, len);
 }
 
-static void *recv_put_pong_hh (const x10rt_msg_params &, unsigned long)
+static void *recv_put_pong_hh (const x10rt_msg_params *, unsigned long)
 {
     return pong_buf;
 }
-static void recv_put_pong (const x10rt_msg_params &p, unsigned long)
+static void recv_put_pong (const x10rt_msg_params *p, unsigned long)
 {
-    if (validate && (p.len > 0) && memcmp(buf, pong_buf, p.len)) {
-        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p.len);
+    if (validate && (p->len > 0) && memcmp(buf, pong_buf, p->len)) {
+        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p->len);
         abort();
     }
     pongs_outstanding--;
@@ -77,36 +77,36 @@ static void recv_put_pong (const x10rt_msg_params &p, unsigned long)
 
 
 // {{{ get handlers
-static void *recv_get_ping_hh (const x10rt_msg_params &, unsigned long)
+static void *recv_get_ping_hh (const x10rt_msg_params *, unsigned long)
 {
     return buf;
 }
-static void recv_get_ping (const x10rt_msg_params &p, unsigned long len)
+static void recv_get_ping (const x10rt_msg_params *p, unsigned long len)
 {
-    if (validate && (p.len > 0) && memcmp(buf, ping_buf, len)) {
-        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p.len);
+    if (validate && (p->len > 0) && memcmp(buf, ping_buf, len)) {
+        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p->len);
         abort();
     }
     // send to dest place again
-    x10rt_msg_params p2 = {p.dest_place, PONG_GET_ID, NULL, 0};
-    x10rt_send_get(p2, pong_buf, len);
+    x10rt_msg_params p2 = {p->dest_place, PONG_GET_ID, NULL, 0};
+    x10rt_send_get(&p2, pong_buf, len);
 }
 
-static void *recv_get_pong_hh (const x10rt_msg_params &, unsigned long)
+static void *recv_get_pong_hh (const x10rt_msg_params *, unsigned long)
 {
     return buf;
 }
-static void recv_get_pong (const x10rt_msg_params &p, unsigned long len)
+static void recv_get_pong (const x10rt_msg_params *p, unsigned long len)
 {
-    if (validate && (p.len > 0) && memcmp(buf, pong_buf, len)) {
-        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p.len);
+    if (validate && (p->len > 0) && memcmp(buf, pong_buf, len)) {
+        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p->len);
         abort();
     }
     pongs_outstanding--;
 } // }}}
 
 
-void recv_quit(const x10rt_msg_params &) { finished = true; }
+void recv_quit(const x10rt_msg_params *) { finished = true; }
 
 
 // {{{ show_help
@@ -146,16 +146,16 @@ long long run_test(unsigned long iters,
             for (unsigned long k=1 ; k<x10rt_nhosts() ; ++k) {
                 if (put) {
                     x10rt_msg_params p = {k, PING_PUT_ID, NULL, 0};
-                    x10rt_send_put(p, buf, len);
+                    x10rt_send_put(&p, buf, len);
                 } else if (get) {
                     x10rt_msg_params p = {k, PING_GET_ID, NULL, 0};
                     if(validate) memset(ping_buf, 0, len);
-                    x10rt_send_get(p, ping_buf, len);
+                    x10rt_send_get(&p, ping_buf, len);
                 } else {
                     void *tmp = x10rt_msg_realloc(NULL,0,len);
                     memcpy(tmp,buf,len);
                     x10rt_msg_params p = {k, PING_ID, tmp, len};
-                    x10rt_send_msg(p);
+                    x10rt_send_msg(&p);
                 }
                 pongs_outstanding++;
             }
@@ -170,7 +170,7 @@ long long run_test(unsigned long iters,
 // {{{ main
 int main(int argc, char **argv)
 {
-    x10rt_init(argc, argv);
+    x10rt_init(&argc, &argv);
 
     PING_ID = x10rt_register_msg_receiver(&recv_msg_ping, NULL, NULL, NULL, NULL);
     PONG_ID = x10rt_register_msg_receiver(&recv_msg_pong, NULL, NULL, NULL, NULL);
@@ -300,7 +300,7 @@ int main(int argc, char **argv)
 
         for (unsigned long i=1 ; i<x10rt_nhosts() ; ++i) {
             x10rt_msg_params p = {i, QUIT_ID, NULL, 0};
-            x10rt_send_msg(p);
+            x10rt_send_msg(&p);
         }
         finished = true;
     }

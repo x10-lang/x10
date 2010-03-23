@@ -68,7 +68,7 @@ public class X10Local_c extends Local_c {
 				}
 			}
 			
-			X10Local_c result = (X10Local_c) super.typeCheck(tc);
+			X10Local_c result = (X10Local_c) localInstance(li).type(li.type());
 			
 			VarDef dli = context.varWhoseTypeIsBeingElaborated();
 			if (context.inDepType()) {

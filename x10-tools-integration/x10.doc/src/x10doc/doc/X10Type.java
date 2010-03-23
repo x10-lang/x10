@@ -25,6 +25,18 @@ public class X10Type implements Type {
 		}
 		return ((X10Type)t).isX10Specific();
 	}
+	
+	public static String descriptor(Type t) {
+		if ((t == null) || !(t instanceof X10Type)) {
+			// meant to handle the case when t is of type X10ClassDoc
+			return "";
+		}
+		return ((X10Type)t).descriptor();
+	}
+	
+	public String descriptor() {
+		return pType.toString();
+	}
 
 	public static String toString(Type t) {
 		if (t instanceof X10ClassDoc) {

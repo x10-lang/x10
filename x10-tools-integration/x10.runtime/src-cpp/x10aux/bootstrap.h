@@ -21,7 +21,6 @@
 #include <x10aux/deserialization_dispatcher.h>
 
 #include <x10/lang/VoidFun_0_0.h>
-#include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
 
 #include <x10/lang/Throwable.h>
@@ -58,7 +57,7 @@ namespace x10aux {
         const x10aux::RuntimeType *_type() const {return x10aux::getRTT<x10::lang::VoidFun_0_0>();}
 
         ref<x10::lang::String> toString() {
-            return x10::lang::String::Lit("x10aux::StaticInitClosure ("__FILELINE__")");
+            return x10aux::string_utils::lit("x10aux::StaticInitClosure ("__FILELINE__")");
         }
 
         virtual x10aux::serialization_id_t _get_serialization_id() {
@@ -100,7 +99,7 @@ namespace x10aux {
         const x10aux::RuntimeType *_type() const {return x10aux::getRTT<x10::lang::VoidFun_0_0>();}
 
         ref<x10::lang::String> toString() {
-            return x10::lang::String::Lit("x10aux::BootStrapClosure ("__FILELINE__")");
+            return x10aux::string_utils::lit("x10aux::BootStrapClosure ("__FILELINE__")");
         }
 
         virtual x10aux::serialization_id_t _get_serialization_id() {
@@ -132,7 +131,7 @@ namespace x10aux {
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
-            x10::lang::Thread::_make(x10aux::null, x10::lang::String::Lit("thread-main"));
+            x10::lang::Thread::_make(x10aux::null, x10aux::string_utils::lit("thread-main"));
             x10aux::initialize_xrx();
 
             args = x10aux::convert_args(ac, av);
@@ -166,7 +165,7 @@ namespace x10aux {
                 static_cast<x10aux::ref<x10::lang::Throwable>&>(e);
 
             fprintf(stderr, "Uncaught exception at place %ld: %s\n", (long)x10aux::here,
-                    nullCheck(nullCheck(e_)->toString())->c_str());
+                    x10aux::string_utils::cstr(nullCheck(nullCheck(e_)->toString())));
 
             e_->printStackTrace();
 

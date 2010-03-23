@@ -21,24 +21,33 @@ import harness.x10Test;
 
 public class ClosureEnclosingScope5 extends ClosureTest {
 
-    val a = 1;
+	global val a = 1;
 
-    class C(a:int) {
-        def this(x:int) = property(x);
-        class D(a:int) {
-            def this(x:int) = property(x);
-            val sum = (()=>(ClosureEnclosingScope5.this.a+C.this.a+D.this.a+a))();
-        }
-    }
+	class C(a:int) {
+		def this(x:int) { 
+			property(x);
+		}
+		class D(a:int) {
+			def this(x:int) { 
+				property(x);
+			}
+			def sum() {
+				val a1 = ClosureEnclosingScope5.this.a;
+				val a2 = C.this.a;
+				val a3 = D.this.a;
+				return a1 + a2 + a3 + a;
+			}
+		}
+	}
 
-    public def run(): boolean = {
-        
-        check("new C(2).new D(4).sum", new C(2).new D(4).sum, 11);
+	public def run(): boolean = {
 
-        return result;
-    }
+			check("new C(2).new D(4).sum", new C(2).new D(4).sum(), 11);
 
-    public static def main(var args: Rail[String]): void = {
-        new ClosureEnclosingScope5().execute();
-    }
+			return result;
+	}
+
+	public static def main(Rail[String])  {
+		new ClosureEnclosingScope5().execute();
+	}
 }

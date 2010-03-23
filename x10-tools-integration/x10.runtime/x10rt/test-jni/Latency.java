@@ -11,7 +11,7 @@
 
 import x10.x10rt.ActiveMessage;
 import x10.x10rt.MessageRegistry;
-import x10.x10rt.Node;
+import x10.x10rt.Place;
 import x10.x10rt.X10RT;
 import x10.x10rt.UnknownMessageException;
 
@@ -26,9 +26,9 @@ public class Latency {
         int [] sbuf = new int[MAXBUFSIZE];
 
         int rank = X10RT.here().getId();
-        Node otherNode = X10RT.getNode(rank^1);
+        Place otherPlace = X10RT.getPlace(rank^1);
 
-        if(2 != X10RT.numNodes()) {
+        if(2 != X10RT.numPlaces()) {
             System.err.println("This test requires exactly 2 processes");
             System.exit(1);
         }
@@ -51,15 +51,15 @@ public class Latency {
         for(int buflen=1; buflen <= MAXBUFSIZE; buflen <<= 1) {
             X10RT.barrier();
             ++ _g_flagcntr;
-            ping.send(otherNode, 0, buflen-1, sbuf);
-            while(_g_flag < _g_flagcntr) X10RT.poll();
+            ping.send(otherPlace, 0, buflen-1, sbuf);
+            while(_g_flag < _g_flagcntr) X10RT.probe();
             int niters = (buflen > 10000) ? 10 : 100;
             X10RT.barrier();
             long t0 = System.nanoTime();
             for(int i=0; i < niters; ++i) {
                 ++ _g_flagcntr;
-                ping.send(otherNode, 0, buflen-1, sbuf);
-                while (_g_flag < _g_flagcntr) X10RT.poll();
+                ping.send(otherPlace, 0, buflen-1, sbuf);
+                while (_g_flag < _g_flagcntr) X10RT.probe();
             }
             long t1 = System.nanoTime();
             if (rank == 0) {

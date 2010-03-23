@@ -27,4 +27,5 @@ import x10.types.constraints.CConstraint;
 public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10NamedType, X10ThisVar {
 
 	 CConstraint getXClause();
+	 TypeParamSubst subst();
 }

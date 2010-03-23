@@ -78,7 +78,14 @@
             </or>
         </and>
     </condition>
-    <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
+    <!-- darwin architectures -->
+	<condition property="darwin.32" value="-arch i386 " else="">
+        <istrue value="${env.USE_32BIT}" />
+    </condition>
+    <condition property="darwin.64" value="-arch x86_64 " else="">
+        <istrue value="${env.USE_64BIT}" />
+    </condition>
+	<condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
         <isset property="bdwgc.enabled" />
     </condition>
     <condition property="cppmake.optimize" value="OPTIMIZE=1" else="DEBUG=1">
@@ -316,7 +323,8 @@
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
                   <arg value="-enable-thread-local-alloc" />
-                  <arg value="CFLAGS=-D_XOPEN_SOURCE" />
+                  <arg value="--disable-dependency-tracking" />
+                  <env key="CFLAGS" value="${darwin.32}${darwin.64}-D_XOPEN_SOURCE" />
                   <arg value="--prefix=${bdwgc.platform.dir}/install" />
                 </exec>
               </sequential>
@@ -366,7 +374,7 @@
         <mkdir dir="${lib}"/>
         <copy todir="${lib}" preservelastmodified="true" flatten="true" >
            <!--<fileset dir="${bdwgc.dir}/install/lib" includes="libgc.a"/>-->
-           <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*"/>
+           <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*,lib/*gc*.dylib"/>
            <fileset dir="${bdwgc.dir}/install" includes="bin/*.dll"/> <!-- Cygwin -->
         </copy>
         <copy todir="${inc}">

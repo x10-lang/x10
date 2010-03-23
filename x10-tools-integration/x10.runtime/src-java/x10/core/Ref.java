@@ -12,7 +12,6 @@
 package x10.core;
 
 import x10.rtt.RuntimeType;
-import x10.rtt.Type;
 import x10.runtime.impl.java.Thread;
 
 
@@ -90,7 +89,7 @@ public class Ref implements Any {
         }
     }
     public static String typeName(Object obj) {
-        String s = obj.getClass().toString();
-    	return s.equals("class java.lang.Object") ? "class x10.lang.Object" : s;
+        String s = obj.getClass().toString().substring(6);      // drop the beginning "class "
+        return s.equals("java.lang.Object") ? "x10.lang.Object" : s;
     }
 }

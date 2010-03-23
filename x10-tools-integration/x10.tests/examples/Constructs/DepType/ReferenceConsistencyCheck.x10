@@ -45,8 +45,8 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
 	public static def main(Rail[String]) = {
 //		set up a test problem
 		val size=10;
-		val R:Region{rank==2} =[0..size-1,0..size-1];
-		val D:Dist{region==R} = Dist.makeCyclic(R);
+		val R =[0..size-1,0..size-1];
+		val D = Dist.makeCyclic(R);
 		val A:Array[double]{dist==D} = 
 			   Array.make[double](D, ((i,j):Point) => 
 			      { var res: int=i%2;

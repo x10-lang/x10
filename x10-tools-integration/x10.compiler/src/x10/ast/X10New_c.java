@@ -44,6 +44,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.errors.Errors;
 import x10.extension.X10Del_c;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -221,7 +222,7 @@ public class X10New_c extends New_c implements X10New {
                 throw new SemanticException("Cannot instantiate member class of non-class type.", n.position());
             }
 
-            Type t = ts.findMemberType(qualifier.type(), name, c);
+            Type t = ts.findMemberType(X10TypeMixin.baseType(qualifier.type()), name, c);
             t = ts.expandMacros(t);
 
             CConstraint xc = X10TypeMixin.xclause(t);
@@ -279,7 +280,14 @@ public class X10New_c extends New_c implements X10New {
         });
     }
 
-    
+    protected void typeCheckFlags(ContextVisitor tc) throws SemanticException {
+    	super.typeCheckFlags(tc);
+       ClassType ct = tn.type().toClass();
+    	  if (X10Flags.toX10Flags(ct.flags()).isStruct() && ! isStructConstructorCall) {
+    			throw new Errors.NewOfStructNotPermitted(this);
+    	  }
+    	  
+    }
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         final X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 

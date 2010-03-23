@@ -44,10 +44,10 @@
 package jgfutil; 
 
 public interface JGFSection2 {
-  public def JGFsetsize(size: Int): void;;
-  public def JGFinitialise(): void;;
-  public def JGFkernel(): void;;
-  public def JGFvalidate(): void;;
-  public def JGFtidyup(): void;;  
-  public def JGFrun(size: Int): void;; 
+  public def JGFsetsize(size: Int): void;
+  public def JGFinitialise(): void;
+  public def JGFkernel(): void;
+  public def JGFvalidate(): void;
+  public def JGFtidyup(): void;  
+  public def JGFrun(size: Int): void; 
 }

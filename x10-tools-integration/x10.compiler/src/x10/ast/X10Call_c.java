@@ -51,6 +51,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -405,7 +406,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			if (e != null) {
 				assert typeArguments().size() == 0;
 				ClosureCall ccx = nf.ClosureCall(position(), e,  arguments());
-				X10MethodInstance ci = (X10MethodInstance) ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking closure call."));
+				X10MethodInstance ci = 
+				    (X10MethodInstance) ts.createMethodInstance(position(), 
+				                                                new ErrorRef_c<MethodDef>(ts, position(), 
+				                                                        "Cannot get MethodDef before type-checking closure call."));
 				ccx = ccx.closureInstance(ci);
 				Node n = ccx;
 				try {
@@ -431,6 +435,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			if (((ClosureCall) cc).target() instanceof Local) {
 				// cc is of the form r() where r is a local variable.
 				// This overrides any other possibility for this call, e.g. a static or an instance method call.
+				X10TypeMixin.checkMissingParameters(cc.type());
 				return cc;
 
 
@@ -459,11 +464,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				
 			}
 			catch (SemanticException e) {
-				if (cc != null)
-					return cc.typeCheck(tc);
-				throw new SemanticException("Method or static constructor not found for " +
-						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c),
-						position());
+				if (cc != null) {
+					Node result = cc.typeCheck(tc);
+					if (result instanceof Expr) {
+						X10TypeMixin.checkMissingParameters(((Expr) result).type());
+					}
+					return result;
+				}
+				MethodMatcher matcher = ((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c);
+				throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
+				                                                   
 			}
 			
 			if (n instanceof X10Call_c)
@@ -472,15 +482,14 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			
 			// We have both!
 			if (cc != null) {
-			
-				throw new SemanticException("Ambiguous call; both " + 
-						((n instanceof X10New) 
-								? ((X10New) n).constructorInstance().toString()
-										: ((X10Call) n).methodInstance().toString()) 
-										+ " and closure " + cc + " match.", position());
-				
+			    throw new Errors.AmbiguousCall(((n instanceof X10New) 
+                                                           ? ((X10New) n).constructorInstance() 
+                                                                   : ((X10Call) n).methodInstance()), cc, position());
 			}
 				
+			if (n instanceof Expr) {
+				X10TypeMixin.checkMissingParameters(((Expr) n).type());
+			}
 			return n;
 		}
 
@@ -519,8 +528,13 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		            args = p.snd();
 		        }
 		        catch (SemanticException e2) {
-		            if (cc != null)
-		                return cc.typeCheck(tc);
+		            if (cc != null) {
+		            	Node result = cc.typeCheck(tc);
+		            	if (result instanceof Expr) {
+		            		X10TypeMixin.checkMissingParameters(((Expr) result).type());
+		            	}
+		                return result;
+		            }
 		           
 		            throw e;
 		        }
@@ -567,6 +581,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		//	        	result = result.adjustMI(tc);
 		//	        	result.checkWhereClause(tc);
 		result.checkAnnotations(tc);
+		X10TypeMixin.checkMissingParameters(result.type());
 
 		return result;
 	}

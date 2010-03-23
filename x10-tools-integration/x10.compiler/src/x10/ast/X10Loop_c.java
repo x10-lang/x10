@@ -49,6 +49,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;
@@ -394,54 +395,52 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 					public void run() {
 						Type domainType = domainTypeRef.get();
 						Type indexType = getIndexType(domainType);    
+						if (indexType == null) 
+						    return;
 
 						Type base = X10TypeMixin.baseType(domainType);
 						CConstraint c = X10TypeMixin.xclause(domainType);
-						
+
 						XVar selfValue = X10TypeMixin.selfVarBinding(domainType);
 						XVar selfVar = c != null ? c.self() : null;
 						XRoot thisVar = base instanceof X10ClassType ? 
-								((X10ClassType) base).x10Def().thisVar() 
-								: null;
-					
-						if (thisVar != null && selfVar != null)
-							try {
-								
-								// Generate a new local variable if needed
-								XVar var = selfValue != null ? selfValue : XTerms.makeUQV();
-								// And substitute it for this in indexType
-								indexType = Subst.subst(indexType, var, thisVar);
-								if (ts.isSubtype(indexType, ts.Point(),tcp.context())) {
-									int length = ((X10Formal) f).vars().size();
-									if (length > 0) {
-										// Add a self.rank=n clause, if the formal
-										// has n components.
-										XVar self = X10TypeMixin.xclause(indexType).self();
-										Synthesizer synth = new Synthesizer(nf, ts);
-										XTerm v = synth.makeRegionRankTerm((XVar) self);
-										XTerm rank = XTerms.makeLit(new Integer(length));
-										indexType = X10TypeMixin.addBinding(indexType, v, rank);
-					
-									}
-					
-					
-								}
-										
-								// and add self=this in domainType, updating domainTypeRef.
-								if (selfValue == null) {
-									domainType = X10TypeMixin.addBinding(domainType, var, selfVar);
-									domainTypeRef.update(domainType);
-								}
-							}
-						catch (SemanticException e) {
-						}
+								((X10ClassType) base).x10Def().thisVar() :null;
 
-						if (indexType != null) {
-							r.update(indexType);
-						}
+								if (thisVar != null && selfVar != null)
+									try {
+
+										// Generate a new local variable if needed
+										XVar var = selfValue != null ? selfValue : XTerms.makeUQV();
+										// And substitute it for this in indexType
+										indexType = Subst.subst(indexType, var, thisVar);
+										if (ts.isSubtype(indexType, ts.Point(),tcp.context())) {
+											int length = ((X10Formal) f).vars().size();
+											if (length > 0) {
+												// Add a self.rank=n clause, if the formal
+												// has n components.
+												XVar self = X10TypeMixin.xclause(indexType).self();
+												Synthesizer synth = new Synthesizer(nf, ts);
+												XTerm v = synth.makeRegionRankTerm((XVar) self);
+												XTerm rank = XTerms.makeLit(new Integer(length));
+												indexType = X10TypeMixin.addBinding(indexType, v, rank);
+
+											}
+
+
+										}
+
+										// and add self=this in domainType, updating domainTypeRef.
+										if (selfValue == null) {
+											domainType = X10TypeMixin.addBinding(domainType, var, selfVar);
+											domainTypeRef.update(domainType);
+										}
+									}
+								catch (SemanticException e) {
+								}
+								r.update(indexType);
 					}
-				});
-			}
+					});
+				}
 		}
 
 		return super.setResolverOverride(parent, v);

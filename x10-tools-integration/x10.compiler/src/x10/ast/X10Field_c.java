@@ -22,6 +22,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
+import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
@@ -44,6 +45,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
+import x10.types.ParametrizedType_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;
@@ -77,9 +79,11 @@ public class X10Field_c extends Field_c {
 	}
 
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+		
 		Node n = typeCheck1(tc);
 		// Keep this at the very end. This is caught by 
 		// handle proto.
+		X10TypeMixin.checkMissingParameters(type());
 		if (! ((X10Context) tc.context()).inAssignment()) {
 			if (n instanceof X10Field_c) {
 				Field nf = (Field) n;
@@ -93,6 +97,32 @@ public class X10Field_c extends Field_c {
 		}
 		return n;
 	}
+	
+    // Fix XTENLANG-945
+    public static boolean isInterfaceProperty(Type targetType, FieldInstance fi) {
+        boolean isInterfaceProperty = false;
+
+        if (X10Flags.toX10Flags(fi.flags()).isProperty()) {
+            // check if the target is interface
+            Type baseType = targetType;
+            while (baseType instanceof ConstrainedType) {
+                baseType = ((ConstrainedType) baseType).baseType().get();
+            }
+            Flags flags = null;
+            if (baseType instanceof ClassType) {
+                flags = ((ClassType) baseType).flags();
+            } else if (baseType instanceof ParametrizedType_c) {
+                // TODO add flags() to ParametrizedType and use it
+                flags = ((ParametrizedType_c) baseType).flags();
+            }
+            if (flags != null) {
+                isInterfaceProperty = flags.isInterface();
+            }
+        }
+
+        return isInterfaceProperty;
+    }
+	
 	public Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		final X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
@@ -145,6 +175,12 @@ public class X10Field_c extends Field_c {
 						" on node of type " + target.getClass().getName() + ".",
 						position());
 			}
+
+//			// Fix XTENLANG-945 (alternative common fix)
+//			if (isInterfaceProperty(tType, fi)) {
+//				throw new NoMemberException(NoMemberException.FIELD, "interface property access will be translated to property method call");
+//			}
+
 			X10Field_c result = this;
 			Type type = c.inDepType()? rightType(fi.rightType(), fi.x10Def(), target, c) :
 				fieldRightType(fi.rightType(), fi.x10Def(), target, c);

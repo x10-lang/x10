@@ -11,27 +11,43 @@
 
 package x10.errors;
 
+import java.util.List;
+
 import polyglot.ast.Call;
+import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
+import polyglot.ast.Formal;
+import polyglot.ast.New;
 import polyglot.ast.Receiver;
+import polyglot.frontend.Globals;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.VarInstance;
+import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.Position;
 import x10.ast.SemanticError;
 import x10.ast.X10Call;
+import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldAssign_c;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;
+import x10.types.ParameterType;
+import x10.types.X10ClassDef;
 import x10.types.X10FieldInstance;
 import x10.types.X10ProcedureInstance;
+import x10.types.X10TypeMixin;
+import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.Converter.ConversionType;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -44,7 +60,7 @@ import x10.types.constraints.XConstrainedTerm;
  */
 public class Errors {
 	
-	public static interface DepTypeException  {}
+    public static interface DepTypeException  {}
 	public static interface PlaceTypeException {}
 	public static interface ProtoTypeException {}
 	public static interface ConversionException {}
@@ -366,6 +382,202 @@ public class Errors {
 			return((StructMustBeStatic)o).position().equals(position());
 		}
 	}
+	public static class NewOfStructNotPermitted extends SemanticException {
+		private static final long serialVersionUID = 2484875712265904017L;
+		public NewOfStructNotPermitted(New n) {
+			super("Struct constructor invocations must not use \"new\"."
+					+ "\n\t Struct: " + n.toString(),
+					n.position());
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof NewOfStructNotPermitted) )
+				return false;
+			return((NewOfStructNotPermitted)o).position().equals(position());
+		}
+	}
+	public static class InstanceofError extends SemanticException {
+		private static final long serialVersionUID = -3026696944876868780L;
+		public InstanceofError(Type left, Type right, Position pos) {
+			super("Left operand of instanceof must be castable to right type."
+					+ "\n\t Left type: " + left
+					+ "\n\t Right type: " + right,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof InstanceofError) )
+				return false;
+			return((InstanceofError)o).position().equals(position());
+		}
+	}
+	public static class VarMustBeFinalInTypeDef extends SemanticException {
+		private static final long serialVersionUID = -1828548933164244089L;
+		public VarMustBeFinalInTypeDef(String name, Position pos) {
+			super("Variable must be immutable (val) in type def."
+					+ "\n\t Variable: " + name,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof VarMustBeFinalInTypeDef) )
+				return false;
+			return((VarMustBeFinalInTypeDef)o).position().equals(position());
+		}
+	}
+	public static class VarMustBeAccessibleInTypeDef extends SemanticException {
+		private static final long serialVersionUID = -1984266198367743732L;
+		public VarMustBeAccessibleInTypeDef(VarInstance<?> var, Position pos) {
+			super("Variable must be accessible in type."
+					+ "\n\t Variable: " + var,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof VarMustBeAccessibleInTypeDef) )
+				return false;
+			return((VarMustBeAccessibleInTypeDef)o).position().equals(position());
+		}
+	}
 	
+		public static class CannotExtendTwoInstancesSameInterfaceLimitation extends SemanticException {
+		private static final long serialVersionUID = -1984266198367743732L;
+		public CannotExtendTwoInstancesSameInterfaceLimitation(Type t1, Type t2, Position pos) {
+			super("LIMITATION: Cannot extend different instantiations of the same type."
+					+ "\n\t Type 1: " + t1 
+					+ "\n\t Type 2: " + t2,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotExtendTwoInstancesSameInterfaceLimitation) )
+				return false;
+			return((CannotExtendTwoInstancesSameInterfaceLimitation)o).position().equals(position());
+		}
+	}
 	
+
+	public static class TypeIsMissingParameters extends SemanticException {
+		private static final long serialVersionUID = 1254563921501323608L;
+		public TypeIsMissingParameters(Type t1, List<ParameterType> t2, Position pos) {
+			super("Type is missing parameters."
+					+ "\n\t Type: " + t1 
+					+ "\n\t Expected parameters: " + t2,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof TypeIsMissingParameters) )
+				return false;
+			return((TypeIsMissingParameters)o).position().equals(position());
+		}
+	}
+	
+	public static class CannotAssignToElement extends SemanticException {
+		private static final long serialVersionUID = -9118489907802078734L;
+		public CannotAssignToElement(String leftString, boolean arrayP,  Expr right, Type t,  Position pos) {
+			super("Cannot assign expression to " + (arrayP ? "array " : "rail ") + "element of given type." 
+					+ "\n\t Expression: " + right
+					+ "\n\t Type: " + right.type()
+					+ "\n\t " + (arrayP ? "Array ": "Rail ") +"element: "  + leftString
+					+ "\n\t Type: " + t,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotAssignToElement) )
+				return false;
+			return((CannotAssignToElement)o).position().equals(position());
+		}
+	}
+	public static class AssignSetMethodCantBeStatic extends SemanticException {
+		private static final long serialVersionUID = 2179749179921672516L;
+		public AssignSetMethodCantBeStatic(MethodInstance mi, Expr array,  Position pos) {
+			super("The set method for array cannot be static."
+					+ "\n\t Array: "  + array
+					+ "\n\t Method: " + mi,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotAssignToElement) )
+				return false;
+			return((CannotAssignToElement)o).position().equals(position());
+		}
+	}
+	
+	public static class ConstructorReturnTypeNotEntailed extends SemanticException {
+		private static final long serialVersionUID = -4705861378590877043L;
+		public ConstructorReturnTypeNotEntailed(CConstraint known, CConstraint ret,  Position pos) {
+			super("Instances created by this constructor do not satisfy return type"
+					+ "\n\t Constraint satisfied: "  + known
+					+ "\n\t Constraint required: " + ret,
+					pos);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof ConstructorReturnTypeNotEntailed) )
+				return false;
+			return((ConstructorReturnTypeNotEntailed)o).position().equals(position());
+		}
+	}
+	public static class InconsistentInvariant extends SemanticException {
+	    private static final long serialVersionUID = 243905319528026232L;
+	    public InconsistentInvariant(X10ClassDef cd,  Position pos) {
+	        super("Class invariant is inconsistent."
+	              + "\n\t Invariant: "  + cd.classInvariant()
+	              + "\n\t Class: " + cd,
+	              pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof InconsistentInvariant) )
+	            return false;
+	        return((InconsistentInvariant)o).position().equals(position());
+	    }
+	}
+	public static class ThisNotPermittedInConstructorFormals extends SemanticException {
+	    private static final long serialVersionUID = -7998660806293584830L;
+	    public ThisNotPermittedInConstructorFormals(List<Formal> formals,  Position pos) {
+	        super("This or super cannot be used (implicitly or explicitly) in a constructor formal type."
+	              + "\n\t Formals: "  + formals,
+	                pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof ThisNotPermittedInConstructorFormals ) )
+	            return false;
+	        return((ThisNotPermittedInConstructorFormals )o).position().equals(position());
+	    }
+	}
+	public static class MethodOrStaticConstructorNotFound extends SemanticException {
+	    private static final long serialVersionUID = -6230289868576516608L;
+	    public MethodOrStaticConstructorNotFound(MethodMatcher mm,  Position pos) {
+	        super("Method or static constructor not found for given matcher."
+	              + "\n\t Matcher: "  + mm,
+	              pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof MethodOrStaticConstructorNotFound ) )
+	            return false;
+	        return((MethodOrStaticConstructorNotFound )o).position().equals(position());
+	    }
+	}
+	public static class AmbiguousCall extends SemanticException {
+	    private static final long serialVersionUID = 2449179239460432298L;
+	    public AmbiguousCall(ProcedureInstance<?> pi,  Expr cc, Position pos) {
+	        super("Ambiguous call: the given procedure and closure match."
+	              + "\n\t Procedure: "  + pi
+	              + "\n\t Closure: "  + cc,
+	              pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof AmbiguousCall ) )
+	            return false;
+	        return((AmbiguousCall )o).position().equals(position());
+	    }
+	}
+	public static class OnlyValMayHaveHasType extends SemanticException {
+		private static final long serialVersionUID = -4705861378590877043L;
+		public OnlyValMayHaveHasType(X10FieldDecl field) {
+			super("Only val fields may have a has type."
+					+ "\n\t Field: "  + field
+					+ "\n\t Field has type: " + field.hasType(),
+					field.position());
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof OnlyValMayHaveHasType) )
+				return false;
+			return((OnlyValMayHaveHasType)o).position().equals(position());
+		}
+	}
 }

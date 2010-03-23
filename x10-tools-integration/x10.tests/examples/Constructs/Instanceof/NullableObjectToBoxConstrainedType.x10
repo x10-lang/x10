@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 
+import x10.util.Box;
 /**
  * Purpose: 
  * @author vcave
@@ -18,12 +19,13 @@ import harness.x10Test;
 public class NullableObjectToBoxConstrainedType extends x10Test {
 	 
 	public def run(): boolean = {
-		var nullableVarNotNull: Box[ValueClass] = new ValueClass(1)
-                        as Box[ValueClass{p==1}];
+		var nullableVarNotNull: Box[ValueClass] = 
+			ValueClass(1)
+                  as Box[ValueClass{p==1}];
 		return nullableVarNotNull instanceof Box[ValueClass{p==1}];
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new NullableObjectToBoxConstrainedType().execute();
 	}
 }

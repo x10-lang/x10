@@ -899,7 +899,7 @@ public class Inliner extends ContextVisitor {
             if (eval.expr() instanceof Assign) {
                 Assign a = (Assign) eval.expr();
                 if (a.operator() == Assign.ASSIGN) {
-                    Expr result = a.left(nf);
+                    Expr result = (a instanceof SettableAssign_c) ? ((SettableAssign_c)a).left(nf, this) : a.left(nf);
                     Expr call = a.right();
                     s = attemptInlineCall(eval, call, result);
                 }

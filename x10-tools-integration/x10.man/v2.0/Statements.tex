@@ -241,6 +241,9 @@ The condition must be of type \xcd"Boolean".
 The initializer and iterator are statements, not expressions
 and so do not have types.
 
+In X10, unlike C, there is no provision multiple statements in the
+initialization or update clauses.  
+
 \label{ForAllLoop}
 
 % XXX REGION
@@ -291,7 +294,7 @@ if (i < 0 || i > x.length)
 
 \begin{grammar}
 Statement \: TryStatement \\
-TryStatement \: \xcd"try" BlockStatement Catch\plus Finally\opt \\
+TryStatement \: \xcd"try" BlockStatement Catch\plus  \\
              \| \xcd"try" BlockStatement Catch\star Finally \\
 Catch \: \xcd"catch" \xcd"(" Formal \xcd")" BlockStatement \\
 Finally \: \xcd"finally" BlockStatement \\

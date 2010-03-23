@@ -15,8 +15,8 @@ public class X10RT {
     private enum State { UNINITIALIZED, BOOTED, TEARING_DOWN, TORN_DOWN };
 
     private static State state = State.UNINITIALIZED;
-    private static Node[] nodes;
-    private static Node here;
+    private static Place[] places;
+    private static Place here;
     private static int numProgressThreads;
 
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;
@@ -32,27 +32,32 @@ public class X10RT {
      */
     static {
       assert state.compareTo(State.TEARING_DOWN) < 0 : "X10RT is shutting down";
-      assert state != State.BOOTED;
+      assert state != State.BOOTED : "X10RT is already booted!";
 
       String libName = System.getProperty("X10RT_IMPL", "x10rt_pgas_sockets");
       System.loadLibrary(libName);
 
-      initializeImpl();
+      // TODO: For now we are not trying to plumb the command line arguments from
+      //       the program's main method into X10RT.  We really can't easily do this
+      //       unless we change this code to be run via an explicit static method in
+      //       X10RT instead of doing it in the class initializer.  
+      //       Consider whether or not we should make this change....
+      x10rt_init(0, null);
 
       ActiveMessage.initializeMessageHandlers();
 
-      nodes = new Node[numNodesImpl()];
-      for (int i=0; i<nodes.length; i++) {
-        nodes[i] = new Node(i);
+      places = new Place[x10rt_nplaces()];
+      for (int i=0; i<places.length; i++) {
+        places[i] = new Place(i);
       }
-      here = nodes[hereImpl()];
+      here = places[x10rt_here()];
 
       // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
       Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
         public void run() {
           synchronized(X10RT.class) {
             state = State.TEARING_DOWN;
-            finalizeImpl();
+            x10rt_finalize();
             state = State.TORN_DOWN;
             System.err.flush();
             System.out.flush();
@@ -83,21 +88,21 @@ public class X10RT {
 
     /**
      * This is a blocking call.
-     * All nodes must participate, and nobody returns from the call
-     * until every node has entered.
+     * All places must participate, and nobody returns from the call
+     * until every place has entered.
      */
     public static void barrier() {
       assert state.compareTo(State.BOOTED) >= 0;
-      barrierImpl();
+      x10rt_barrier();
     }
 
     /**
      * This is a blocking call.
-     * Returns when all outstanding operations on this Node complete.
+     * Returns when all outstanding communication operations on this Place locally complete.
      */
     public static void fence() {
       assert state.compareTo(State.BOOTED) >= 0;
-      fenceImpl();
+      x10rt_remote_op_fence();
     }
 
     /**
@@ -106,40 +111,40 @@ public class X10RT {
      */
     public static void probe() {
         assert state.compareTo(State.BOOTED) >= 0;
-        probeImpl();
+        x10rt_probe();
     }
 
     /**
-     * Get the Node object that represents the Node where this process is executing.
-     * @return the Node object that represents the Node where this process is executing.
+     * Get the Place object that represents the Place where this process is executing.
+     * @return the Place object that represents the Place where this process is executing.
      */
-    public static Node here() {
+    public static Place here() {
       assert state.compareTo(State.BOOTED) >= 0;
       return here;
     }
 
     /**
-     * Return the number of nodes in the computation.
-     * @return the number of nodes in the computation.
+     * Return the number of places in the computation.
+     * @return the number of places in the computation.
      */
-    public static int numNodes() {
+    public static int numPlaces() {
       assert state.compareTo(State.BOOTED) >= 0;
-      return nodes.length;
+      return places.length;
     }
 
     /**
-     * Get the Node object that represents Node nodeId
-     * @param nodeId the numeric id for the desired node.
-     * @return the Node object that represents nodeId
-     * @throws IllegalArgumentException if nodeId is not valid.
+     * Get the Place object that represents Place placeId
+     * @param placeId the numeric id for the desired place.
+     * @return the Place object that represents placeId
+     * @throws IllegalArgumentException if placeId is not valid.
      */
-    public static Node getNode(int nodeId) throws IllegalArgumentException {
+    public static Place getPlace(int placeId) throws IllegalArgumentException {
       assert state.compareTo(State.BOOTED) >= 0;
 
       try {
-        return nodes[nodeId];
+        return places[placeId];
       } catch (ArrayIndexOutOfBoundsException e) {
-        throw new IllegalArgumentException("Invalid node id "+nodeId);
+        throw new IllegalArgumentException("Invalid place id "+placeId);
       }
     }
 
@@ -148,19 +153,45 @@ public class X10RT {
     }
 
     /*
-     * Native methods exported from x10rt.
+     * Native methods exported from x10rt_front.h that are 
+     * related to initialization and finalization of the X10RT library.
+     * See X10RT API at x10-lang.org for semantics. 
      */
-    private static native int initializeImpl();
-
-    private static native int hereImpl();
-
-    private static native int finalizeImpl();
-
-    private static native int numNodesImpl();
-
-    private static native void barrierImpl();
-
-    private static native void fenceImpl();
-
-    private static native void probeImpl();
+    private static native int x10rt_init(int numArgs, String[] args);
+    
+    private static native int x10rt_finalize();
+    
+    /*
+     * Native method exported from x10rt_front.h that are related to Places
+     */
+    private static native int x10rt_nplaces();
+    
+    private static native int x10rt_nhosts();
+    
+    private static native int x10rt_here();
+    
+    private static native boolean x10rt_is_host(int place);
+    
+    private static native boolean x10rt_is_cuda(int place);
+    
+    private static native boolean x10rt_is_spe(int place);
+    
+    private static native int x10rt_parent(int place);
+    
+    private static native int x10rt_nchildren(int place);
+    
+    private static native int x10rt_child(int host, int index);
+    
+    private static native int x10rt_child_index(int child);
+    
+    /*
+     * Subset of x10rt_front.h API related to messages that actually needs
+     * to be exposed at the Java level (as opposed to being used
+     * in the native code backing the native messages of ActiveMessage.
+     */
+    private static native void x10rt_probe();
+    
+    private static native void x10rt_remote_op_fence();
+    
+    private static native void x10rt_barrier();
 }
