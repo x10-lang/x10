@@ -26,6 +26,7 @@ import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
+import com.sun.javadoc.Tag;
 import com.sun.javadoc.ThrowsTag;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
@@ -40,11 +41,11 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	private boolean included; 
 
 	public X10MethodDoc() {
-		super("");
+		super.processComment("");
 	}
 
 	public X10MethodDoc(X10MethodDef methodDef, X10ClassDoc containingClass, String comment) {
-		super(comment);
+		//super(comment);
 		this.methodDef = methodDef;
 		this.containingClass = containingClass;
 		this.rootDoc = X10RootDoc.getRootDoc();
@@ -82,6 +83,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		// X10Doc.isIncluded(..., this) valid only if this.{isPublic(),...,isPrivate()} are valid, which requires
 		// this.methodDef to have been set appropriately
 		this.included = X10Doc.isIncluded(rootDoc.accessModFilter(), this);
+		super.processComment(comment);
 	}
 	
 	void initTypeParameters() {
@@ -109,7 +111,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		if (declString == null) {
 			return;
 		}
-		X10Tag[] declTags = createInlineTags(declString);
+		X10Tag[] declTags = createInlineTags(declString, this).toArray(new X10Tag[0]);
 
 		// place declaration before the first sentence of the existing comment so that
 		// the declaration is displayed in the "Methods Summary" table before the first sentence
@@ -231,7 +233,6 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	}
 	
 	public String flatSignature() {
-		// System.out.println(name() + ".flatSignature() called.");
 		return signature();
 	}
 
@@ -253,8 +254,10 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	public ParamTag[] paramTags() {
 		// TODO Auto-generated method stub
 		// System.out.println(name() + ".paramTags() called.");
-		return new ParamTag[0];
+		return paramTags.toArray(new ParamTag[0]);
 	}
+	
+
 
 	public Parameter[] parameters() {
 		// System.out.println(name() + ".parameters() called.");

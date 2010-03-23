@@ -86,7 +86,7 @@ else
       endif
       override CXXFLAGS += -maix64
       MPICXX ?= mpicxx
-    else	
+    else
       export X10RT_PLATFORM=aix_xlc
       CXX = mpCC_r
       MPICXX ?= mpCC_r
@@ -161,6 +161,7 @@ else
             override CXXFLAGS += -arch x86_64
           endif
           AR = libtool
+          # Warning: Order matters!  The "-o" has to be at the end.
           ARFLAGS = -static -o
         else
           ifeq ($(shell uname -s),SunOS)

@@ -2,6 +2,7 @@ package x10doc.doc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,15 +13,21 @@ import com.sun.javadoc.SourcePosition;
 import com.sun.javadoc.Tag;
 
 public class X10Tag implements Tag {
-    public static final String DOCROOT = "@docRoot";
-    public static final String INHERITDOC = "@inheritDoc";
-    public static final String CODE = "@code";
-    public static final String LITERAL = "@literal";
+    public static final String DOCROOT = "docRoot";
+    public static final String INHERITDOC = "inheritDoc";
+    public static final String CODE = "code";
+    public static final String LITERAL = "literal";
     public static final String LINK = "@link";
     public static final String LINKPLAIN = "@linkplain";
     public static final String SEE = "@see";
-    public static final String TEXT = "Text";
     
+    public static final String TEXT = "Text";
+    public static final String AUTHOR = "author";
+    public static final String PARAM = "param";
+    public static final String RETURN = "return";
+    public static final String DEPRECATED = "deprecated";
+    public static final String THROWS = "throws";
+
 	public static final ArrayList<String> inlineTagTypes = new ArrayList<String>();
 	static {
 		inlineTagTypes.add(DOCROOT);
@@ -32,14 +39,15 @@ public class X10Tag implements Tag {
 	}
 
     String kind, name, text;
-	final Doc holder;
+	final X10Doc holder;
+
 	
-	public X10Tag(String name, String text, Doc holder) {
+	public X10Tag(String name, String text, X10Doc holder) {
 		if (name.equals(DOCROOT) || name.equals(INHERITDOC)) {
 			this.kind = this.name = name;
 			this.text = "";
 		}
-		else if (name.equals(CODE) || name.equals(LITERAL)) {
+		else if (name.equals(CODE) || name.equals(LITERAL) || name.equals(AUTHOR) || name.equals(PARAM) || name.equals(RETURN) || name.equals(DEPRECATED) || name.equals(THROWS)) {
 			this.kind = this.name = name;
 			this.text = text;
 		}
@@ -53,6 +61,7 @@ public class X10Tag implements Tag {
 			this.text = text;
 		}
 		this.holder = holder;
+		
 	}
 	
 	public void setText(String text) {
@@ -71,9 +80,7 @@ public class X10Tag implements Tag {
 	}
 
 	public Tag[] inlineTags() {
-		// TODO Auto-generated method stub
-		System.out.println("Tag.inlineTags() called.");
-		return new Tag[0];
+		return X10Doc.createInlineTags(text, holder).toArray(new X10Tag[0]);
 	}
 
 	public String kind() {
@@ -100,7 +107,9 @@ public class X10Tag implements Tag {
 	}
 	
     public static X10Tag processInlineTag(String text, X10Doc holder) {
-        Pattern p = Pattern.compile("\\{\\s*(@[^\\s\\}]+)\\s*([^\\}]*)\\s*}");
+        //Pattern p = Pattern.compile("\\{\\s*(@[^\\s\\}]+)\\s*([^\\}]*)\\s*}");
+        Pattern p = Pattern.compile("\\{\\s*(@[^\\s]+)\\s*([^}]*)\\s*\\}");
+        
         Matcher m = p.matcher(text);
 
         if (m.find()) {
@@ -113,7 +122,7 @@ public class X10Tag implements Tag {
             	
             }
             if (name.equals(LINK) || name.equals(LINKPLAIN)) {
-                return new X10SeeTag(name, text, holder);
+                return new X10SeeTag(name, rest, text, holder);
             }
             else {
             	return new X10Tag(name, text, holder);
@@ -121,4 +130,7 @@ public class X10Tag implements Tag {
         }
         return new X10Tag(TEXT, text, holder);
     }
+    
+    
+   
 }

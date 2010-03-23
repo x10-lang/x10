@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import polyglot.types.ClassType;
 import polyglot.types.Ref;
@@ -24,6 +26,7 @@ import com.sun.javadoc.AnnotationTypeDoc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.ConstructorDoc;
 import com.sun.javadoc.FieldDoc;
+import com.sun.javadoc.MemberDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.ParamTag;
@@ -56,7 +59,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	X10ClassDoc[] includedInnerClasses;
 	
 	public X10ClassDoc(X10ClassDef classDef, X10ClassDoc containingClass, String comment) {
-		super(comment);
+		//super(comment);
 		this.classDef = classDef;
 		this.containingClass = containingClass;
 		this.rootDoc = X10RootDoc.getRootDoc();
@@ -73,10 +76,53 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		this.superclassType = null;
 		
 		initTypeParameters();
-		
+		super.processComment(comment);
 		// addDeclTag(declString());
 	}
 	
+	public MemberDoc getMemberDoc(String name){
+		for(X10FieldDoc doc: fields.values()){
+			if (doc.name().equals(name))
+				return doc;
+		}
+		String shortname = "";
+		String signature = "";
+		int index = name.indexOf("(");
+		if (index != -1) {
+			shortname = name.substring(0,name.indexOf("("));
+			signature = name.substring(index);
+			signature = makeQualifiedParams(signature);
+		}
+		for(X10ConstructorDoc doc: constructors.values()){
+			if (doc.name().equals(shortname) 
+				&& doc.signature().equals(signature)){
+				return doc;
+			}
+		}
+		for(MethodDoc doc: methods.values()){
+			String n = doc.name();
+			String s= doc.signature();
+			if (doc.name().equals(shortname)
+				&& doc.signature().equals(signature)){
+				return doc;
+			}
+		}
+		return null;
+	}
+	
+	private String makeQualifiedParams(String signature){
+		String sig= "(";
+		Pattern p = Pattern.compile("[^,)]*");
+		Matcher m = p.matcher(signature.substring(1));
+		while(m.find()){
+			String s = m.group();
+			if (s.equals("")) continue; //Hack
+			if (!s.contains("."))
+				s =  "x10.lang." + s;
+			if (sig.equals("(")) sig += s; else sig += ", " + s;
+		}
+		return sig + ")";
+	}
 	public void setSuperclass(X10ClassDoc superclass) {
 		this.superclass = superclass;
 	}

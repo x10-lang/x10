@@ -69,19 +69,37 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		return globalRootDoc;
 	}
 
+	public static String getContainingClass(X10Doc holder){
+		if (holder instanceof X10FieldDoc){
+			return ((X10FieldDoc) holder).containingClass().qualifiedName();
+		} else if (holder instanceof X10MethodDoc){
+			return ((X10MethodDoc) holder).containingClass().qualifiedName();
+		} else if (holder instanceof X10ConstructorDoc){
+			return ((X10ConstructorDoc) holder).containingClass().qualifiedName();
+		} else if (holder instanceof X10TypeDefDoc){
+			return ((X10TypeDefDoc) holder).containingClass().qualifiedName();
+		} else if (holder instanceof X10ClassDoc){
+			return ((X10ClassDoc) holder).containingClass().qualifiedName();
+		}
+		return null;
+	}
+	
+
+	
 	public static X10RootDoc getRootDoc() {
 		assert (globalRootDoc != null) : "getRootDoc: rootDoc not set.";
 		return globalRootDoc;
 	}
 
 	public X10RootDoc(String outputDir) {
-		super("");
+
 		this.specClasses = new HashMap<String, X10ClassDoc>();
 		this.specPackages = new HashMap<String, X10PackageDoc>();
 		this.otherClasses = new HashMap<String, X10ClassDoc>();
 		this.otherPackages = new HashMap<String, X10PackageDoc>();
 		this.primitiveTypes = new HashMap<String, X10Type>();
 		this.outputDir = outputDir;
+		super.processComment("");
 	}
 
 	public static String classKey(X10ClassDef cd) {
