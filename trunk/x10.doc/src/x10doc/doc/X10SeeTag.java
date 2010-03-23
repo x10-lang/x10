@@ -14,17 +14,18 @@ import com.sun.javadoc.Tag;
 public class X10SeeTag extends X10Tag implements SeeTag {
 	String label, itemName;
 	X10RootDoc rootDoc;
-	X10PackageDoc pkgDoc;
+	PackageDoc pkgDoc;
 	X10ClassDoc classDoc;
 	MemberDoc memberDoc;
 
-	public X10SeeTag(String name, String text, Doc holder) {
+	public X10SeeTag(String name, String label, String text, X10Doc holder) {
 		super(name, text, holder);
 		rootDoc = X10RootDoc.getRootDoc();
-		pkgDoc = null;
-		classDoc = null;
-		memberDoc = null;
-		label = itemName = "";
+		processText(label);
+//		pkgDoc = null;
+//		classDoc = null;
+//		memberDoc = null;
+		this.label = itemName = label;
 //		int i = text.indexOf(tag);
 //		assert (i > 0) : "X10SeeTag constructor: " + text + "does not contain " + tag;
 //		BreakIterator b = BreakIterator.getWordInstance();
@@ -37,6 +38,22 @@ public class X10SeeTag extends X10Tag implements SeeTag {
 //		if (start <= end) {
 //			this.label = bText.substring(start, end).trim();
 //		}
+	}
+	
+	private void processText(String text){
+		int index = text.indexOf("#");
+		if (index == -1)
+			return;
+		String classname = text.substring(0,index);
+		String  member = text.substring(index+1);
+		if (classname.equals("")) {
+			classname = X10RootDoc.getContainingClass(holder);
+		}
+		classDoc = (X10ClassDoc) rootDoc.classNamed(classname);
+		index = classname.lastIndexOf(".");
+		String pkgname = classname.substring(0,index);
+		pkgDoc = rootDoc.packageNamed(pkgname);
+		memberDoc = classDoc.getMemberDoc(member);
 	}
 	
 	public X10ClassDoc holderClass() {
@@ -169,7 +186,9 @@ public class X10SeeTag extends X10Tag implements SeeTag {
 
 	@Override
 	public Tag[] inlineTags() {
-		return firstSentenceTags();
+		X10Tag[] result = new X10Tag[1];
+		result[0] = new X10Tag("Text", text, holder);
+		return result;
 	}
 
 	public String label() {
