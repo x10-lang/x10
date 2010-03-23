@@ -233,8 +233,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            	} else if (isMainMethod(pd, ec) && !result.safe()) {
 	            		ec.emitMessage("Main method is not safely parallelized; effect is: " + result, pd.position());
 	            	} else {
-				//  System.out.println("Method " + pd.name() + " is "+ result);
-			}
+				       //System.out.println("Method " + pd.name() + " is "+ result);
+	            	}
 
 	            } else if (n instanceof SettableAssign) {
 	                result=computeEffect((SettableAssign) n, ec);
@@ -517,7 +517,7 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
 	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
 				// System.out.println("Here");
         				X10ClassType anc = (X10ClassType) an;
-				Expr e = anc.propertyInitializer(0);
+        				Expr e = anc.propertyInitializer(0);
             	        	Locs mc = computeLocFor(e, ec);
             	        	Locs cv = computeLocFor(l, ec);
     				result.addClockedVar(cv);
@@ -582,19 +582,20 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
        for (Expr c: async.clocks()) {
                   Locs locs= computeLocFor(c, ec);
 		  registeredClocks.add(locs);
-      }
-
+       }
+       ec.emitMessage("Async is " + bodyEff, async.position());
       for (Locs mc: bodyEff.mustClockSet()) {
-	boolean found = false;
-      	for (Locs rc: registeredClocks) {
-		if (mc.equals(rc)) {
-			found = true;
-			break;
-		}
-	}
-	if (found == false)
-	        ec.emitMessage( mc + " is not in registeredClocks " + registeredClocks, async.position());
-      }		
+    	  	boolean found = false;
+      		for (Locs rc: registeredClocks) {
+      			if (mc.equals(rc)) {
+      				found = true;
+      				break;
+      			}
+      		}
+      	if (found == false)
+      			ec.emitMessage( mc + " is not in registeredClocks " + registeredClocks, async.position());
+      }	
+        
       return bodyEff.makeParSafe();
   }
 

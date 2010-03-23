@@ -7,7 +7,7 @@ public class Histogram {
     public static def main(args:Rail[String]!) {
     val c = Clock.make();
     val op = Float.+;
-    val b :Rail[float @ Clocked[float] (c,op)]! = Rail.make[float](5);
+    val b = Rail.make[float @ Clocked[float](c,op)](5);
 	b(0) = 1;
     
     }

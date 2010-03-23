@@ -113,7 +113,7 @@ AddFlags {
 		xt = X10TypeMixin.processFlags(X10Flags.toX10Flags(flags), xt);
 		flags = null;
 	}
-	((Ref<Type>) type).update(xt);
+	((Ref<Type>) type).update(xt); 
 	
 	
 	
