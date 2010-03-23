@@ -1,0 +1,183 @@
+\documentclass[preprint,nocopyrightspace,9pt]{sigplanconf}
+%\documentclass{llncs}
+
+\newif\iflncs
+\lncsfalse
+
+\usepackage{times-lite}
+\usepackage{mathptm}
+\usepackage{txtt}
+\usepackage{stmaryrd}
+\usepackage{code}
+\usepackage{bcprules}
+%\usepackage{ttquot}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{afterpage}
+\usepackage{balance}
+\usepackage{floatflt}
+\usepackage{defs}
+\usepackage{utils}
+\usepackage{graphicx}
+\usepackage{xspace}
+\usepackage{ifpdf}
+\usepackage{listings}
+\usepackage{x10}
+\usepackage{color}
+
+\ifpreprint
+\newcommand\todo[1]{\textcolor{red}{#1}}
+\else
+\newcommand\todo[1]{}
+\fi
+\renewcommand\todo[1]{}
+
+  %\hyphenpenalty=1000
+
+
+\newif\ifsemantics
+%\semanticsfalse
+\semanticstrue
+
+\hfuzz=1pt
+
+\pagestyle{plain}
+
+
+\ifpdf
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+\fi
+
+\newcommand\val{\mbox{\tt val}}
+\newcommand\klass{\mbox{\sf class}}
+\newcommand\var{\mbox{\tt var}}
+\newcommand\self{\mbox{\tt self}}
+\newcommand\this{\mbox{\tt this}}
+\newcommand\new{\mbox{\tt new}}
+%\newcommand\extends{\unlhd}
+%\newcommand\super{\unrhd}
+\newcommand\extends{\mathrel{\mbox{\tt \textlt=}}}
+\newcommand\super{\mathrel{\mbox{\tt \textgt=}}}
+\newcommand\return{\mbox{\tt return}}
+\newcommand\true{\mbox{\tt true}}
+\newcommand\false{\mbox{\tt false}}
+\newcommand\Object{\mbox{\tt Object}}
+\newcommand\as{\mbox{\tt as}}
+\newcommand\fields{\mbox{\sf fields}}
+\newcommand\methods{\mbox{\sf methods}}
+\newcommand\type{\mbox{\tt type}}
+\newcommand\mtype{\mbox{\sf mtype}}
+\newcommand\field{\mbox{\sf field}}
+\newcommand\CFJ{{\sf CFJ}\xspace}
+\newcommand\FJ{{\sf FJ}\xspace}
+\newcommand\Java{Java\xspace}
+
+\newcommand\Xten{{\sf X10}\xspace}
+\newcommand\csharp{C$^{\sharp}$\xspace}
+\newcommand\hmx{$\mathrm{HM}(X)$\xspace}
+\newcommand\clpx{$\mathrm{CLP}(X)$\xspace}
+
+\newcommand\xbar[1]{\ensuremath{\bar{\Xcd{#1}}}}
+\newcommand\tbar[1]{\ensuremath{\bar{\tt {#1}}}}
+\newcommand\exc[2]{\ensuremath{\exists}#1.~#2}
+\newcommand\exty[3]{\ensuremath{\exists}#1\ty#2.~#3}
+\newcommand\extyty[5]{\ensuremath{\exists}#1\ty#2,#3\ty#4.~#5}
+\newcommand\extytyty[7]{\ensuremath{\exists}#1\ty#2,#3\ty#4,#5\ty#6.~#7}
+\def\inv{\mathit{inv}}
+
+\def\FGJ{{\sf FGJ}\xspace}
+
+\newcommand\IXGL[1]{{\sf IXG(${\cal #1}$)}}
+\def\IXGZ{\IXGL{\cdot}}
+\def\IXGD{\IXGL{Q}}
+\def\IXG{{\sf IXG}\xspace}
+\def\FXG{{\sf FXG}\xspace}
+
+\def\has{\mbox{\tt has}}
+\def\TConstr{\mbox{\sc T-Constr}}
+\def\TInv{\mbox{\sc T-Inv}}
+\def\TVar{\mbox{\sc T-Var}}
+\def\TField{\mbox{\sc T-Field}}
+\def\TInvk{\mbox{\sc T-Invk}}
+\def\TNew{\mbox{\sc T-New}}
+\def\TCast{\mbox{\sc T-Cast}}
+\def\TUCast{\mbox{\sc T-UCast}}
+\def\TDCast{\mbox{\sc T-DCast}}
+\def\TSCast{\mbox{\sc T-SCast}}
+
+\def\RField{\mbox{\sc R-Field}}
+\def\RCField{\mbox{\sc RC-Field}}
+\def\RInvk{\mbox{\sc R-Invk}}
+\def\RCInvkRecv{\mbox{\sc RC-Invk-Recv}}
+\def\RCInvkArg{\mbox{\sc RC-Invk-Arg}}
+\def\RCNewArg{\mbox{\sc RC-New-Arg}}
+\def\RCast{\mbox{\sc R-Cast}}
+\def\RNew{\mbox{\sc R-New}}
+\def\RCCast{\mbox{\sc RC-Cast}}
+\def\RAss{\mbox{\sc R-Asst}}
+\def\RCAssLHS{\mbox{\sc RC-Ass-LHS}}
+\def\RCAssRHS{\mbox{\sc RC-Ass-RHS}}
+\newcommand\tuple[1]{\langle #1 \rangle}
+\def\uhas{\underline{\has}}
+
+\DeclareTextCommand{\textbraceleft}{OT1}{\texttt{\symbol{`\{}}}
+\DeclareTextCommand{\textbraceright}{OT1}{\texttt{\symbol{`\}}}}
+
+% \input{../../../../vj/res/pagesizes}
+% \input{../../../../vj/res/vijay-macros}
+\newcommand\alt{\bnf}
+
+\newcommand\Implies{\Rightarrow}
+
+\iflncs
+\else
+\newtheorem{example}{Example}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newenvironment{proof}{
+\trivlist
+\item[\hskip \labelsep \textsc{Proof.}]
+\selectfont
+\ignorespaces}{$\Box$}
+
+%\newtheorem{proof}[theorem]{Proof}
+\fi
+\begin{document}
+\title{Imperative \FXG}
+\authorinfo{Nathaniel Nystrom}{University of Texas, Arlington}
+  {nystrom@uta.edu}
+
+\eat{
+\authorinfo{Olivier Tardieu}{IBM Research}
+  {tardieu@us.ibm.com}
+        
+\authorinfo{Igor Peshansky}{IBM Research}
+  {igorp@us.ibm.com}
+
+\authorinfo{Vijay Saraswat}{IBM Research}
+  {vsaraswa@us.ibm.com}
+  }
+
+\authorinfo{Olivier Tardieu \and Igor Peshansky \and Vijay
+Saraswat}{IBM T.J.~Watson Research Center}
+  {\{tardieu,igorp,vsaraswa\}@us.ibm.com}
+
+\maketitle
+
+%\section{Semantics}
+\label{sec:semantics}
+\include{imperative-semantics}
+
+
+\bibliographystyle{plain}
+\bibliography{master}
+
+% \appendix
+% \onecolumn
+
+% \section{An extended example}
+% \input{longex}
+
+\end{document}
