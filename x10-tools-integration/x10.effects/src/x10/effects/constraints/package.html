@@ -1,0 +1,31 @@
+<h2>x10.effects.constraints</h2>
+
+An effect systems reasons about <em> disjointness </em> of <em>
+locations</em>. A <code>Locs</code> encodes a single source language 
+expression that represents sets of mutable runtime locations. 
+
+<p>
+We have the following kinds of <code>Locs</code>.
+
+<ol>
+<li> <code>ObjLocs</code>. An <code>ObjLocs</code> is created with an 
+<code>XTerm t</code> whose type is an object type
+which has some mutable field. (Hence, not an array, not a primitive type.) It
+represents the set of locations corresponding to the mutable fields
+of the object designated by t.
+<li> <code>ArrayLocs</code>. An <code>ArrayLocs</code> is created with an 
+<code>Xterm t</code> whose type is a mutable
+array type. (Hence, not an object, not a primitive type.) It represents
+the set of locations corresponding to the elements of the array.
+<li> <code>LocalLocs</code>. A <code>LocalLocs</code> is created with an 
+<code> XLocal t</code> -- it represents the location associated with the local
+variable designated by <code>t</code>.
+<li> <code>FieldLocs</code>. A <code>FieldLocs</code>  is created with
+an <code> ObjLocs t</code> and an <code>XName g</code> corresponding to 
+an object with mutable fields and one of its mutable fields respectively. 
+It represents the singleton location corresponding to <code>t.f</code>
+<li><code>ArrayElementLocs</code>. A <code>ArrayElementLocs</code> is 
+created with an <code>ArrayLocs a</code> and an <code>Index t</code>
+corresponding to a mutable array and an index respectively. It 
+represents the singleton location corresponding to <code>a(t)</code>.
+</ol>
