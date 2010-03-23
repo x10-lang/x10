@@ -157,9 +157,14 @@ lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
 endif
 
 ifdef X10_STATIC_LIB
+# On the Mac, AR=libtool, and the target library is overwritten, so the initial $(CP) is harmless.
+# However, we do need to link in the original archive.
+ifeq ($(subst 64,,$(X10RT_PLATFORM)),darwin)
+DARWIN_EXTRA_LIB:=lib/libxlpgas_sockets.a
+endif
 $(PGAS_DYNLIB_SOCKETS): $(COMMON_OBJS) lib/libxlpgas_sockets.a
-#	$(CP) lib/libxlpgas_sockets.a $@
-	$(AR) $(ARFLAGS) $@ lib/libxlpgas_sockets.a $(COMMON_OBJS)
+	$(CP) lib/libxlpgas_sockets.a $@
+	$(AR) $(ARFLAGS) $@ $(DARWIN_EXTRA_LIB) $(COMMON_OBJS)
 else
 $(PGAS_DYNLIB_SOCKETS): $(COMMON_OBJS) lib/libxlpgas_sockets.a
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
