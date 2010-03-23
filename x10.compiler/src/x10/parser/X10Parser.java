@@ -4903,11 +4903,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                         	Id id = (Id) i.next();
                         	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                         }
-            f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
-          if (name.toString().contains("myA")) {
-        	  
-        	  int x = 1;
-          }
+            f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed); /* */
             f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
             setResult(f);
           
