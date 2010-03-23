@@ -1,7 +1,7 @@
 /**
  * 
  */
-package x10.refactorings;
+package x10.refactorings.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;

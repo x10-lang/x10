@@ -1,4 +1,4 @@
-package x10.refactorings;
+package x10.refactorings.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +23,7 @@ import polyglot.ext.x10.ast.X10ArrayAccessAssign;
 import polyglot.ext.x10.ast.X10Loop;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
+import x10.refactorings.RefactoringPosition;
 
 import com.ibm.wala.cast.tree.CAstNode;
 
@@ -37,26 +38,26 @@ public class ExtractVarsVisitor extends NodeVisitor {
 		
 		// Variable type flags - for mapping Polyglot Variable
 		// to WALA PointerKey
-		public static final int NONE = 1;
-		public static final int LVAL = 2;
-		public static final int RVAL = 4;
-		public static final int LEFT = 8;
-		public static final int RIGHT = 16;
+		public static final int NONE = 1<<0;
+		public static final int LVAL = 1<<1;
+		public static final int RVAL = 1<<2;
+		public static final int LEFT = 1<<3;
+		public static final int RIGHT = 1<<4;
 
-		public static final int PUTFIELD = 32;
-		public static final int GETFIELD = 64;
+		public static final int PUTFIELD = 1<<5;
+		public static final int GETFIELD = 1<<6;
 
-		public static final int DREF = 128;
-		public static final int PARAM = 256;
+		public static final int DREF = 1<<7;
+		public static final int PARAM = 1<<8;
 		
-		public static final int ARRAY = 512;
-		public static final int X10ARRAY = 1024;
-		public static final int X10ARRAY1 = 2048;
-		public static final int POINT = 4096;
+		public static final int ARRAY = 1<<9;
+		public static final int X10ARRAY = 1<<10;
+		public static final int X10ARRAY1 = 1<<11;
+		public static final int POINT = 1<<12;
 		
-		public static final int INVOKE_TARGET = 8192;
-		public static final int DECL = 16384;
-		public static final int LOOP_VAR = 32768;
+		public static final int INVOKE_TARGET = 1<<13;
+		public static final int DECL = 1<<14;
+		public static final int LOOP_VAR = 1<<15;
 		
 		/**
 		 * For a given refactoring, constructor will generate
@@ -185,6 +186,10 @@ public class ExtractVarsVisitor extends NodeVisitor {
 		evMap = null;
 	}
 
+	public VarUseType getVUType() {
+		return vutype;
+	}
+	
 	/**
 	 * Populates evCol and evMap. Also, generates parameter information
 	 * and basic derefence information.

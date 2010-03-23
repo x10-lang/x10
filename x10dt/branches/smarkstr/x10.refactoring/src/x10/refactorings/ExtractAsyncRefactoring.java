@@ -1,10 +1,10 @@
 package x10.refactorings;
 
-import static x10.refactorings.ExtractAsyncStaticTools.IFilePathtoCAstPath;
-import static x10.refactorings.ExtractAsyncStaticTools.dumpIR;
-import static x10.refactorings.ExtractAsyncStaticTools.extractArrayName;
-import static x10.refactorings.ExtractAsyncStaticTools.extractAsyncEntities;
-import static x10.refactorings.ExtractAsyncStaticTools.extractProcEntities;
+import static x10.refactorings.utils.ExtractAsyncStaticTools.IFilePathtoCAstPath;
+import static x10.refactorings.utils.ExtractAsyncStaticTools.dumpIR;
+import static x10.refactorings.utils.ExtractAsyncStaticTools.extractArrayName;
+import static x10.refactorings.utils.ExtractAsyncStaticTools.extractAsyncEntities;
+import static x10.refactorings.utils.ExtractAsyncStaticTools.extractProcEntities;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
-import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -46,8 +45,8 @@ import polyglot.ast.Assign;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.CompoundStmt;
+import polyglot.ast.Eval;
 import polyglot.ast.Expr;
-import polyglot.ast.Expr_c;
 import polyglot.ast.Field;
 import polyglot.ast.Local;
 import polyglot.ast.Loop;
@@ -56,6 +55,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Node_c;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Stmt;
+import polyglot.ast.Stmt_c;
 import polyglot.ast.VarDecl;
 import polyglot.ast.Variable;
 import polyglot.ext.x10.ast.Atomic;
@@ -70,9 +70,13 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
 import polyglot.visit.NodeVisitor;
-import x10.refactorings.ExtractVarsVisitor.VarUseType;
+import x10.refactorings.utils.ExtractAsyncStaticTools;
+import x10.refactorings.utils.ExtractVarsVisitor;
+import x10.refactorings.utils.NodePathComputer;
+import x10.refactorings.utils.NodeTypeFindingVisitor;
+import x10.refactorings.utils.PolyglotUtils;
+import x10.refactorings.utils.ExtractVarsVisitor.VarUseType;
 
-import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.loader.AstMethod;
 import com.ibm.wala.cast.tree.CAstEntity;
@@ -94,7 +98,6 @@ import com.ibm.wala.classLoader.IField;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.classLoader.JarFileModule;
 import com.ibm.wala.classLoader.SourceDirectoryTreeModule;
-import com.ibm.wala.classLoader.SourceFileModule;
 import com.ibm.wala.client.AbstractAnalysisEngine;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.CGNode;
@@ -130,7 +133,6 @@ import com.ibm.wala.types.Selector;
 import com.ibm.wala.types.TypeName;
 import com.ibm.wala.util.CancelException;
 import com.ibm.wala.util.debug.Assertions;
-import com.ibm.wala.util.debug.Trace;
 import com.ibm.wala.util.intset.OrdinalSet;
 
 
@@ -142,7 +144,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 	private final Node fNode;
 
-	private Expr fPivot;
+	private Stmt fPivot;
 
 	private ProcedureDecl fNodeMethod;
 
@@ -160,7 +162,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 	// Debug flag
 	
-	private static final boolean debugOutput = false;
+	static final boolean debugOutput = false;
 
 	
 	/**
@@ -179,6 +181,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	// return fVarDecl;
 	// }
 	// }
+	@SuppressWarnings("serial")
 	private static class ThrowableStatus extends Exception {
 		public RefactoringStatus status;
 
@@ -267,61 +270,27 @@ public class ExtractAsyncRefactoring extends Refactoring {
 //		SourceFile_c root = (SourceFile_c) parseController.getCurrentAst();
 		ISourcePositionLocator locator = parseController.getSourcePositionLocator();
 
-		Node_c retNode = (Node_c) locator.findNode(root, sel.x);
-		Expr_c innerExprNode = (retNode instanceof Expr_c)?(Expr_c)retNode:null;
+		Node_c retNode = (Node_c) locator.findNode(root, sel.x, sel.x+sel.y);
+		Stmt_c innerStmtNode = (retNode instanceof Stmt_c)?(Stmt_c)retNode:null;
 		Node_c tmp;
 		Node_c last = null;
 		for (int pos_index = sel.x; pos_index >= 0; pos_index--) {
-			tmp = (Node_c) locator.findNode(root, pos_index, sel.x);
+			tmp = (Node_c) locator.findNode(root, pos_index, sel.x+sel.y);
 			if (!tmp.equals(last)) {System.out.println(tmp + " "+ tmp.getClass()); last = tmp;}
-			if (innerExprNode == null && tmp instanceof Expr_c)
-				innerExprNode = (Expr_c) tmp;
+			if (innerStmtNode == null && tmp instanceof Stmt_c)
+				innerStmtNode = (Stmt_c) tmp;
 			if (tmp instanceof ProcedureDecl) {
 				fNodeMethod = (ProcedureDecl) tmp;
 				break;
 			}
 		}
-
-		return innerExprNode;
-	}
-
-	private static class VarWithFirstUse {
-		private VarInstance fVarInstance;
-
-		private Expr fFirstUseExpr;
-
-		private PointerKey fPtrKeyOfFirstUse;
-
-		public VarWithFirstUse(VarInstance vi, Expr firstUse,
-				PointerKey ptrKeyOfFirstUse) {
-			fVarInstance = vi;
-			fFirstUseExpr = firstUse;
-			fPtrKeyOfFirstUse = ptrKeyOfFirstUse;
-		}
-
-		public Expr getFirstUse() {
-			return fFirstUseExpr;
-		}
-
-		public VarInstance getVarInstance() {
-			return fVarInstance;
-		}
-
-		public PointerKey getPtrKeyOfFirstUse() {
-			return fPtrKeyOfFirstUse;
-		}
 		
-		public boolean equals(Object o) {
-			return o!=null && (o instanceof VarWithFirstUse) && (((VarWithFirstUse) o).getVarInstance() == null)?(fVarInstance == null && ((VarWithFirstUse)o).getFirstUse().equals(fFirstUseExpr)):((VarWithFirstUse) o).getVarInstance().equals(fVarInstance);
-		}
+		NodePathComputer pathSaver = new NodePathComputer(innerStmtNode, retNode);
+		List<Node> path = pathSaver.getPath();
+
+		innerStmtNode = (Stmt_c) PolyglotUtils.findInnermostNodeOfTypes(path, new Class[] { Stmt_c.class });
 		
-		public String debug() {
-			return "{{"+fVarInstance+","+fFirstUseExpr+","+fPtrKeyOfFirstUse+"}}";
-		}
-		
-		public String toString() {
-			return debugOutput?debug():fFirstUseExpr.toString();
-		}
+		return innerStmtNode;
 	}
 
 	/*
@@ -611,7 +580,6 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * @param loop
 	 */
 	private void calculateInfoFlow(Stmt loop,
-//			Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo) {
 			Map<VarWithFirstUse, Collection<InstanceKey>> aliasInfo) {
 		fPhi = new HashMap<Stmt, Set<Expr>>();
 		fRho = new HashMap<Expr, Boolean>();
@@ -684,7 +652,10 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		private final Set<Expr> fEffects = new HashSet<Expr>();
 
 		public EffectsVisitor(Set<Expr> lvalsToWatch) {
-			fLValsToWatch = lvalsToWatch;
+			if (lvalsToWatch != null)
+				fLValsToWatch = lvalsToWatch;
+			else
+				fLValsToWatch = Collections.emptySet();
 		}
 
 		@Override
@@ -698,6 +669,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		}
 
 		public Set<Expr> getEffects() {
+			fEffects.retainAll(fLValsToWatch);
 			return fEffects;
 		}
 	}
@@ -712,7 +684,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return (ev.getEffects().size() > 0);
 	}
 
-	private boolean preconditionsHold(Stmt loop, Expr pivot,
+	private boolean preconditionsHold(Stmt loop, Stmt pivot,
 			ProcedureDecl method) {
 		if (hasEffectsOn(pivot, null))
 			return false;
@@ -783,9 +755,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 */
 	private void buildCast2PolyglotVariableMap(ExtractVarsVisitor ev, Map<RefactoringPosition, Variable> evMap, HashMap<CAstNode, Variable> cast2VarMap, Collection<CAstEntity> procEntities, RefactoringMap<RefactoringPosition, CAstNode> castNodeVarMap, Map<CAstNode, NodeType> castNodeType) {
 		for (CAstEntity procEntity : procEntities) {
-			for (Iterator i = procEntity.getSourceMap().getMappedNodes(); i
+			for (Iterator<CAstNode> i = procEntity.getSourceMap().getMappedNodes(); i
 			.hasNext();) {
-				CAstNode c = (CAstNode) i.next();
+				CAstNode c = i.next();
 				CAstSourcePositionMap.Position p = procEntity.getSourceMap()
 				.getPosition(c);
 				
@@ -816,8 +788,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 								// Add mapping from CAstNode to VarUseType value
 								castNodeType.put(c, new NodeType(type,
-										((type & VarUseType.PARAM)!=0)?ev.vutype.getParamNumber(testVar):-1,
-												((type & VarUseType.DREF)!=0)?ev.vutype.getDrefNumber(testVar):-1));
+										((type & VarUseType.PARAM)!=0)?ev.getVUType().getParamNumber(testVar):-1,
+												((type & VarUseType.DREF)!=0)?ev.getVUType().getDrefNumber(testVar):-1));
 							}
 						} else {
 							// add mapping from current CAstNode to associated Polyglot Variable
@@ -827,8 +799,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 							// Add mapping from CAstNode to VarUseType value
 							castNodeType.put(c, new NodeType(type,
-									((type & VarUseType.PARAM)!=0)?ev.vutype.getParamNumber(testVar):-1,
-											((type & VarUseType.DREF)!=0)?ev.vutype.getDrefNumber(testVar):-1));
+									((type & VarUseType.PARAM)!=0)?ev.getVUType().getParamNumber(testVar):-1,
+											((type & VarUseType.DREF)!=0)?ev.getVUType().getDrefNumber(testVar):-1));
 						}
 
 //						// add mapping from current CAstNode to associated Polyglot Variable
@@ -1096,7 +1068,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				fEngine.addX10SystemModule(new JarFileModule(new JarFile(libFile)));
 			}
 		}
-		Assertions._assert(foundLib);
+		Assertions.productionAssertion(foundLib);
 
 		for(String srcFilePath: sources) { // HACK Just add the parent directory of each file in 'sources'
 //			String srcFileName = srcFilePath.substring(srcFilePath.lastIndexOf(File.separator) + 1);
@@ -1136,7 +1108,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		// Our main concern is the method in which the selected text is located.
 		// Below code prints out information specific to that method.
 
-		Trace.println(fCallGraph.toString());
+		System.err.println(fCallGraph.toString());
 
 		ProcedureInstance srcMethod = fNodeMethod.procedureInstance();
 
@@ -1164,9 +1136,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		IR methIR = fMethodIR;
 		System.out.println(((com.ibm.wala.cast.loader.AstMethod) srcNode
 				.getMethod()).getSourcePosition(0));
-		for (Iterator irIter = methIR.iterateAllInstructions(); irIter
+		for (Iterator<SSAInstruction> irIter = methIR.iterateAllInstructions(); irIter
 		.hasNext();) {
-			SSAInstruction sa = (SSAInstruction) irIter.next();
+			SSAInstruction sa = irIter.next();
 			for (int i = 0; i < sa.getNumberOfUses(); i++)
 				pointerKeys.add(new LocalPointerKey(srcNode, sa.getUse(i)));
 		}
@@ -1199,10 +1171,10 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		}
 		x10RTJars.add(ExtractAsyncStaticTools.getLanguageRuntimePath(javaProject).toString());
 
-		if (!(fNode instanceof Expr))
+		if (!(fNode instanceof Stmt))
 			return RefactoringStatus.createFatalErrorStatus("Extract Async is only valid for expressions");
 
-		fPivot = (Expr) fNode;
+		fPivot = (Stmt) fNode;
 
 		NodeTypeFindingVisitor typeFinder = new NodeTypeFindingVisitor(ClassDecl.class);
 		fNodeMethod.visit(typeFinder);
@@ -1244,7 +1216,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		TextFileChange tfc = new TextFileChange("Extract Async", fSourceFile);
 		tfc.setEdit(new MultiTextEdit());
 		tfc.addEdit(new ReplaceEdit(startOffset, endOffset - startOffset + 1,
-				"async (" + place + ") {" + fPivot + "}"));
+				"async (" + place + ") {" + ((fPivot instanceof Eval)?fPivot.firstChild():fPivot) + ";}"));
 
 		return tfc;
 	}
@@ -1311,8 +1283,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			ProcedureInstance[] processedProcs = new ProcedureInstance[procs
 			                                                           .toArray().length];
 			int j = 0;
-			for (Iterator i = procs.iterator(); i.hasNext();) {
-				processedProcs[j++] = (ProcedureInstance) i.next();
+			for (Iterator<ProcedureInstance> i = procs.iterator(); i.hasNext();) {
+				processedProcs[j++] = i.next();
 			}
 			return processedProcs;
 		}
@@ -1321,8 +1293,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			ProcedureDecl[] processedProcs = new ProcedureDecl[procDecls
 			                                                   .toArray().length];
 			int j = 0;
-			for (Iterator i = procDecls.iterator(); i.hasNext();) {
-				processedProcs[j++] = (ProcedureDecl) i.next();
+			for (Iterator<ProcedureDecl> i = procDecls.iterator(); i.hasNext();) {
+				processedProcs[j++] = i.next();
 			}
 			return processedProcs;
 		}

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package x10.refactorings;
+package x10.refactorings.utils;
 
 import polyglot.ast.Node;
 import polyglot.visit.NodeVisitor;
