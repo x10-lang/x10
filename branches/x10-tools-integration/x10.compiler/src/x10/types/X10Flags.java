@@ -45,6 +45,7 @@ public class X10Flags extends Flags {
     public static final Flags STRUCT = createFlag("struct", null);
     public static final Flags PROTO = createFlag("proto", null);
     public static final Flags PINNED = createFlag("pinned", null);
+    public static final Flags HASTYPE = createFlag("hastype", null); // can only be created through a <: Type declaration.
 
     /**
      * Return a new Flags object with a new name. Should be called only once per
@@ -613,6 +614,38 @@ public class X10Flags extends Flags {
      */
     public boolean isPinned() {
         return contains(PINNED);
+    }
+    /**
+     * Return a copy of this <code>this</code> with the <code>hasType</code>
+     * flag set.
+     * 
+     * @param flags
+     *            TODO
+     */
+    public X10Flags HasType() {
+        return setX(HASTYPE);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>hasType</code>
+     * flag clear.
+     * 
+     * @param flags
+     *            TODO
+     */
+    public X10Flags clearHasType() {
+        return clearX(HASTYPE);
+    }
+
+    /**
+     * Return true if <code>this</code> has the <code>hasType/code> flag
+     * set.
+     * 
+     * @param flags
+     *            TODO
+     */
+    public boolean isHasType() {
+        return contains(HASTYPE);
     }
     /**
      * Return "" if no flags set, or toString() + " " if some flags are set.

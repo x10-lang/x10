@@ -62,7 +62,7 @@ public class Throwable {
     @Native("c++", "(#0)->printStackTrace()")
     public global native def printStackTrace() : Void;
     
-    @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
+    @Native("java", "x10.core.ThrowableUtilities.printStackTrace(#0, #1)")
     @Native("c++",  "(#0)->printStackTrace(#1)")
     public global native def printStackTrace(p: Printer) : Void;
 

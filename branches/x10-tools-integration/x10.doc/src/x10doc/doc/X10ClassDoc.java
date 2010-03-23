@@ -2,40 +2,33 @@ package x10doc.doc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import polyglot.types.ClassType;
-import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.SemanticException;
 import x10.types.ParameterType;
-import x10.types.constraints.SubtypeConstraint;
-import x10.types.constraints.TypeConstraint;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
-import x10.types.X10ClassDef_c;
 import x10.types.X10ConstructorDef;
 import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.SubtypeConstraint;
+import x10.types.constraints.TypeConstraint;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationTypeDoc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.ConstructorDoc;
-import com.sun.javadoc.ExecutableMemberDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.ParameterizedType;
-import com.sun.javadoc.SeeTag;
-import com.sun.javadoc.SourcePosition;
-import com.sun.javadoc.Tag;
+import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
 import com.sun.javadoc.WildcardType;
@@ -55,7 +48,13 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	ArrayList<X10ClassDoc> interfaces;
 	ArrayList<Type> interfaceTypes;
 	boolean included;
-
+	
+	X10FieldDoc[] includedFields;
+	X10ConstructorDoc[] includedConstructors;
+	MethodDoc[] includedMethods; // MethodDoc not X10MethodDoc, because X10TypeDefDoc (which implements MethodDoc) 
+	                             // objects are also methods; applies to field "methods" also
+	X10ClassDoc[] includedInnerClasses;
+	
 	public X10ClassDoc(X10ClassDef classDef, X10ClassDoc containingClass, String comment) {
 		super(comment);
 		this.classDef = classDef;
@@ -68,6 +67,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		this.interfaces = new ArrayList<X10ClassDoc>();
 		this.interfaceTypes = new ArrayList<Type>();
 		this.included = false;
+		this.includedFields = null;
 
 		this.superclass = null;
 		this.superclassType = null;
@@ -105,8 +105,11 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		}
 	}
 
-	// initializations that are common to specified and unspecified classes 
-	public void initialize() {
+	// initializations that are common to specified and unspecified classes; this method initializes classes, interfaces
+	// and packages related to this class, e.g., super classes, implemented interfaces, containing package; calls from 
+	// here may set off a chain of recursive calls, e.g., creation of ClassDoc objects for all ancestor classes of this 
+	// class
+	public void initializeRelatedEntities() {
 		// set package of class
 		this.containingPackage = rootDoc.getPackage(classDef.package_());
 		this.containingPackage.addClass(this);
@@ -239,9 +242,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		}
 
 		result += ".</TT><PRE>\n</PRE>"; // the period before <TT> is required because the declaration string is 
-                                         // added as a prefix to the first sentence, and is displayed in the 
-                                         // "Class Summary" table, where newlines are replaced with single spaces;
-                                         // the period separates the declaration from the first sentence in the 
+		                                 // added as a prefix to the first sentence, and is displayed in the 
+		                                 // "Class Summary" table, where newlines are replaced with single spaces;
+		                                 // the period separates the declaration from the first sentence in the 
 		                                 // "Class Summary" section
 		return result;
 	}
@@ -331,6 +334,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			fields.put(fieldKey(fdef), fd);
 		}
 		else {
+			String existingCmnt = fd.commentText();
+			assert(existingCmnt.equals("") || existingCmnt.equals(comments)) : "X10ClassDoc.updateField(" + 
+				fieldKey(fdef) + ",...): mismatch between existing and given comments";
 			// fd.setIncluded(true);
 			fd.setRawCommentText(comments);
 		}
@@ -344,6 +350,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			constructors.put(methodKey(cdef), cd);
 		}
 		else {
+			String existingCmnt = cd.commentText();
+			assert(existingCmnt.equals("") || existingCmnt.equals(comments)) : "X10ClassDoc.updateConstructor(" + 
+				methodKey(cdef) + ",...): mismatch between existing and given comments";
 			// cd.setIncluded(true);
 			cd.setRawCommentText(comments);
 		}
@@ -357,10 +366,13 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			methods.put(methodKey(mdef), md);
 		}
 		else {
+			String existingCmnt = md.commentText();
+			assert(existingCmnt.equals("") || existingCmnt.equals(comments)) : "X10ClassDoc.updateMethod(" + 
+				methodKey(mdef) + ",...): mismatch between existing and given comments";
 			// md.setIncluded(true);
 			// commented to avoid duplicate addition of declaration comments
 			// TODO: determine what needs to be done here or use another method/method name
-			// md.setRawCommentText(comments);
+			md.setRawCommentText(comments);
 		}
 		return md;
 	}
@@ -372,10 +384,13 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			methods.put(methodKey(tdef), td);
 		}
 		else {
-			// md.setIncluded(true);
+			String existingCmnt = td.commentText();
+			assert(existingCmnt.equals("") || existingCmnt.equals(comments)) : "X10ClassDoc.updateTypeDef(" + 
+				methodKey(tdef) + ",...): mismatch between existing and given comments";
+			// td.setIncluded(true);
 			// commented to avoid duplicate addition of declaration comments
 			// TODO: determine what needs to be done here or use another method/method name
-			// md.setRawCommentText(comments);
+			td.setRawCommentText(comments);
 		}
 		return td;
 	}
@@ -391,8 +406,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		interfaces.add(intClassDoc);
 	}
 
-	public void setIncluded(boolean included) {
-		this.included = included;
+	// set this.included according to the access modifier filter
+	public void setIncluded() {
+		this.included = X10Doc.isIncluded(rootDoc.accessModFilter(), this);
 	}
 
 	public void setPackage(X10PackageDoc pkg) {
@@ -461,12 +477,36 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	public ConstructorDoc[] constructors() {
 		if (X10RootDoc.printSwitch)
 			System.out.println("ClassDoc.constructors() called for "+name());
-		return constructors.values().toArray(new ConstructorDoc[0]);
+		// return constructors.values().toArray(new ConstructorDoc[0]);
+
+		// HACK: it seems that the standard doclet does not call X10ClassDoc.constructors(boolean) for the desired
+		// set of included constructors; so, force a call to it from here
+		return constructors(true);
 	}
 
 	public ConstructorDoc[] constructors(boolean arg0) {
 		if (X10RootDoc.printSwitch)
 			System.out.println("ClassDoc.constructors(boolean) called for "+name());
+		if (arg0) {
+			if (includedConstructors != null) {
+				return includedConstructors;
+			}
+			int size = 0;
+			Collection<X10ConstructorDoc> constrSet = constructors.values();
+			for (ConstructorDoc cd: constrSet) {
+				if (cd.isIncluded()) {
+					size++;
+				}
+			}
+			includedConstructors = new X10ConstructorDoc[size];
+			int i = 0;
+			for (X10ConstructorDoc cd: constrSet) {
+				if (cd.isIncluded()) {
+					includedConstructors[i++] = cd;
+				}
+			}
+			return includedConstructors;
+		}
 		return constructors();
 	}
 
@@ -507,6 +547,26 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	public FieldDoc[] fields(boolean arg0) {
 		if (X10RootDoc.printSwitch)
 			System.out.println("ClassDoc.fields(boolean) called for "+name());
+		if (arg0) {
+			if (includedFields != null) {
+				return includedFields;
+			}
+			int size = 0;
+			Collection<X10FieldDoc> fieldsSet = fields.values();
+			for (X10FieldDoc fd: fieldsSet) {
+				if (fd.isIncluded()) {
+					size++;
+				}
+			}
+			includedFields = new X10FieldDoc[size];
+			int i = 0;
+			for (X10FieldDoc fd: fieldsSet) {
+				if (fd.isIncluded()) {
+					includedFields[i++] = fd;
+				}
+			}
+			return includedFields;
+		}
 		return fields();
 	}
 
@@ -540,7 +600,29 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		if (X10RootDoc.printSwitch)
 			System.out.println("" + name() + ".innerClasses() called; innerClasses.size() = " + 
 					innerClasses.size());
-		return innerClasses.toArray(new ClassDoc[0]);
+		// return innerClasses.toArray(new ClassDoc[0]);
+
+		if (arg0) {
+			if (includedInnerClasses != null) {
+				return includedInnerClasses;
+			}
+			int size = 0;
+			// Collection<X10ClassDoc> classes = innerClasses.values();
+			for (X10ClassDoc cd: innerClasses) {
+				if (cd.isIncluded()) {
+					size++;
+				}
+			}
+			includedInnerClasses = new X10ClassDoc[size];
+			int i = 0;
+			for (X10ClassDoc cd: innerClasses) {
+				if (cd.isIncluded()) {
+					includedInnerClasses[i++] = cd;
+				}
+			}
+			return includedInnerClasses;
+		}
+		return innerClasses();
 	}
 
 	/**
@@ -656,6 +738,26 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	public MethodDoc[] methods(boolean arg0) {
 		if (X10RootDoc.printSwitch)
 			System.out.println("ClassDoc.methods(boolean) called for "+name());
+		if (arg0) {
+			if (includedMethods != null) {
+				return includedMethods;
+			}
+			int size = 0;
+			Collection<MethodDoc> methodsSet = methods.values();
+			for (MethodDoc md: methodsSet) {
+				if (md.isIncluded()) {
+					size++;
+				}
+			}
+			includedMethods = new MethodDoc[size];
+			int i = 0;
+			for (MethodDoc md: methodsSet) {
+				if (md.isIncluded()) {
+					includedMethods[i++] = (MethodDoc)md;
+				}
+			}
+			return includedMethods;
+		}
 		return methods();
 	}
 
@@ -819,4 +921,25 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 //		return md;
 //	}
 //}
+
+	// this method is intended to initialize fields such as includedFields, includedMethods, but class cast exceptions
+	// were thrown when converting ProgramElementDoc[] to X10FieldDoc[] in 
+	// "includedFields = (X10FieldDoc[]) includedMembers(fields.values())"
+	public static ProgramElementDoc[] includedMembers(Collection<? extends ProgramElementDoc> values) {
+		int size = 0;
+		for (ProgramElementDoc pd: values) {
+			if (pd.isIncluded()) {
+				size++;
+			}
+		}
+		ProgramElementDoc[] result = new ProgramElementDoc[size];
+		int i = 0;
+		for (ProgramElementDoc pd: values) {
+			if (pd.isIncluded()) {
+				result[i++] = pd;
+			}
+		}
+		return result;
+	}
+	
 }

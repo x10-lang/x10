@@ -84,12 +84,14 @@ void *x10aux::realloc_internal (void *src, size_t dsz) {
 }
 
 void x10aux::dealloc_internal (const void *obj_) {
-    void *obj = const_cast<void*>(obj_); // free does not take const void *
+    if (!x10aux::disable_dealloc_) {
+        void *obj = const_cast<void*>(obj_); // free does not take const void *
 #ifdef X10_USE_BDWGC
-    GC_FREE(obj);
+        GC_FREE(obj);
 #else
-    ::free(obj);
+        ::free(obj);
 #endif        
+    }
 }
 
 size_t x10aux::heap_size() {

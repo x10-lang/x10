@@ -87,6 +87,7 @@ InitDispatcher::runInitializers_() {
         x10::lang::Runtime::runAsync(init_closure);
     }
     initc = -1;
+    _S_("====================== STATIC INITIALIZATION DONE ======================");
 }
 
 void *

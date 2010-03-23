@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Purpose: Checks dynamic cast should fail at runtime.

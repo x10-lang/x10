@@ -31,8 +31,7 @@ namespace x10 {
             const RuntimeType *parents[3] = { Object::getRTT(), p1, p2 };
             const RuntimeType *params[1] = { element };
             RuntimeType::Variance variances[1] = { RuntimeType::invariant };
-            const RuntimeType *canonical = x10aux::getRTT<Rail<void> >();
-            location->init(canonical, "x10.lang.Rail", 3, parents, 1, params, variances);
+            location->initStageTwo("x10.lang.Rail", 3, parents, 1, params, variances);
         }
     }
 }
@@ -71,7 +70,7 @@ void x10::lang::Rail_serializeAndSendGet(Place src_place_, ref<Reference> df, x1
                                          serialization_id_t _id, void* data, size_t size)
 {
     serialization_buffer buf;
-    buf.realloc_func = x10aux::put_realloc;
+    buf.realloc_func = x10aux::get_realloc;
     buf.write(code);
     buf.write(df);
     Rail_serialize_finish_state (x10aux::here, buf);

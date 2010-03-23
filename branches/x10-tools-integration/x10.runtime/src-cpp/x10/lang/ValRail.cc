@@ -29,8 +29,7 @@ namespace x10 {
             const RuntimeType *parents[3] = { Object::getRTT(), p1, p2 };
             const RuntimeType *params[1] = { element };
             RuntimeType::Variance variances[1] = { RuntimeType::covariant };
-            const RuntimeType *canonical = x10aux::getRTT<ValRail<void> >();
-            location->init(canonical, "x10.lang.ValRail", 3, parents, 1, params, variances);
+            location->initStageTwo("x10.lang.ValRail", 3, parents, 1, params, variances);
         }
     }
 }

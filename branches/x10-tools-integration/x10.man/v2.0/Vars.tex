@@ -26,11 +26,11 @@ All variables are initialized with a value and cannot be observed without
 a value. 
 
 Variables whose value may not be changed after initialization
-are said to be {\em final} or {\em immutable}, or {\em constants} (\Sref{FinalVariables}).
-The programmer indicates that a variable is final by declaring
+are said to be  {\em immutable}, or {\em constants} (\Sref{FinalVariables}).
+The programmer indicates that a variable is immutable by declaring
 it with the \xcd"val" keyword rather than the \xcd"var" keyword.
 Variables that are annotated neither \xcd"val" nor \xcd"var"
-are considered final.
+are considered immutable.
 
 A variable of a reference data type \xcd"T" where \xcd"T" is the name
 of a reference class (possibly with type arguments) always holds a
@@ -63,11 +63,11 @@ A variable of a function type always holds a reference to enough
 memory to represent the constants accessed within the body of the
 function.
 
-\section{Final variables}
+\section{Immutable variables}
 \label{FinalVariables}
-\index{variable!final}
-\index{final variable}
-A final variable satisfies two conditions: 
+\index{variable!immutable}
+\index{immutable variable}
+An immutable variable satisfies two conditions: 
 \begin{itemize}
 \item it can be assigned to at most once, 
 \item it must be assigned to before use. 
@@ -77,8 +77,8 @@ A final variable satisfies two conditions:
 4.5.4,8.3.1.2,16]{jls2}. Briefly, the compiler must undertake a
 specific analysis to statically guarantee the two properties above.
 
-Final local variables and fields are defined by the \xcd"val"
-keyword.  Elements of value arrays are also final.
+Immutable local variables and fields are defined by the \xcd"val"
+keyword.  Elements of value arrays are also immutable.
 
 \oldtodo{Check if this analysis needs to be revisited.}
 
@@ -91,9 +91,9 @@ Every class variable must be initialized before it is read, through
 the execution of an explicit initializer or a static block. Every
 instance variable must be initialized before it is read, through the
 execution of an explicit initializer or a constructor.
-Non-final instance variables of class type are initialized to 
+Mutable instance variables of class type are initialized to 
 to \xcd"null".
-Non-final instance variables of struct type are 
+Mutable instance variables of struct type are 
 assumed to have an initializer that sets the value to the
 result of invoking the nullary constructor on the class. 
 An initializer is required if the default initial value is not
@@ -146,13 +146,20 @@ FormalModifier \: Annotation \\
               \| \xcd"shared" \\
 \end{grammar}
 
-\section{Local variables}
-Local variable declarations may have optional
-initializer expressions.  The initializer must be a subtype of
-the declared type of the variable.  If the variable is final
+\xcd`var`, \xcd`val`, and \xcd`shared` behave just as they do for local
+variables, \Sref{local-variables}.
+
+\section{Local variables}\label{local-variables}
+Local variable declarations may have
+initializer expressions: \xcd`var i:Int = 1;` introduces 
+a variable \xcd`i` and initializes it to 1.
+The initializer must be a subtype of
+the declared type of the variable.  If the variable is immutable
 (\xcd"val")
 the type may be omitted and
 inferred from the initializer type (\Sref{TypeInference}).
+Variables marked \xcd`shared` can be used by many activities at once; see
+\Sref{Shared}.
 
 \begin{grammar}
 LocalDeclaration
@@ -173,8 +180,8 @@ Init \: \xcd"=" Expression \\
 \end{grammar}
 
 \section{Fields}
-Fields are declared either \xcd"var" (non-final, non-static),
-\xcd"val" (final, non-static), or \xcd"const" (final, static);
+Fields are declared either \xcd"var" (mutable, non-static),
+\xcd"val" (immutable, non-static), or \xcd"const" (immutable, static);
 the default is \xcd"val".
 Field declarations may have optional
 initializer expressions.  The initializer must be a subtype of
@@ -189,7 +196,7 @@ if a \xcd"Long",
 default value is not a member of the type (e.g., it is a static
 error to elide the initializer for \xcd"Int{self==1}").
 
-If the variable is final,
+If the variable is immutable,
 the type may be omitted and
 inferred from the initializer type (\Sref{TypeInference}).
 Mutable fields must be declared with a type.
@@ -214,9 +221,11 @@ FieldModifier \: Annotation \\
                 \| \xcd"static" \\
 \end{grammar}
 
+
+
 \section{Properties}
 Property declarations are always declared with a type and are
-always final (either declared \xcd"val" or by default).
+always immutable (either explicitly declared \xcd"val" or implicitly by default).
 
 \begin{grammar}
 Property

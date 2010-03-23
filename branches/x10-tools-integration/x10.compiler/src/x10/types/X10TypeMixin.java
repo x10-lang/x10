@@ -17,8 +17,10 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Unary;
+import polyglot.ast.Unary_c;
 import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
@@ -41,7 +43,9 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.ast.ParExpr;
 import x10.ast.SemanticError;
+import x10.ast.SubtypeTest;
 import x10.ast.X10ClassDecl_c;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
@@ -51,6 +55,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.TypeConstraint;
@@ -403,6 +408,13 @@ public class X10TypeMixin {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
         }
     }
+    public static Type addSelfBinding(Type t, XTerm t1) throws XFailure {
+        assert (! (t instanceof UnknownType));
+            CConstraint c = xclause(t);
+            c = c == null ? new CConstraint_c() :c.copy();
+            c.addSelfBinding(t1);
+            return xclause(X10TypeMixin.baseType(t), c); 
+    }
     
     public static Type addDisBinding(Type t, XTerm t1, XTerm t2) {
      	assert (! (t instanceof UnknownType));
@@ -670,6 +682,12 @@ public class X10TypeMixin {
 			 c = new CConstraint_c();
 		 return c.disEntails(t1, t2);
 	  }
+	  public static boolean disEntailsSelf(Type t, XTerm t2) {
+			 CConstraint c = realX(t);
+			 if (c==null) 
+				 c = new CConstraint_c();
+			 return c.disEntails(c.self(), t2);
+		  }
 
 	 
 	protected static boolean amIProperty(Type t, Name propName, X10Context context) {
@@ -912,7 +930,14 @@ public class X10TypeMixin {
 	*/
 	
 	public static boolean permitsNull(Type t) {
-		return ! isX10Struct(t);
+		if (isX10Struct(t))
+			return false;
+		if (X10TypeMixin.disEntailsSelf(t, XTerms.NULL))
+			return false;
+		if (((X10TypeSystem) t.typeSystem()).isParameterType(t))
+			return false;
+		return true;
+		
 	}
 
 	public static XRoot thisVar(XRoot xthis, Type thisType) {
@@ -1012,5 +1037,38 @@ public class X10TypeMixin {
 	    return true;
 	}
 	
+	public static void checkMissingParameters(Type xt) throws SemanticException {
+		if (xt == null) return;
+		xt = baseType(xt);
+		
+		if (xt instanceof X10ParsedClassType) {
+			X10ParsedClassType xt1 = (X10ParsedClassType) xt;
+			
+			if (xt1.subst() == null || xt1.subst().isMissingParameters()){
+			List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
+				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, xt.position());
+			}
+		}
+	}
+	public static Type arrayElementType(Type t) {
+		t = baseType(t);
+		X10TypeSystem xt = (X10TypeSystem) t.typeSystem();
+		if (xt.isX10Array(t) || xt.isRail(t)) {
+			if (t instanceof X10ParsedClassType) {
+				Type result = ((X10ParsedClassType) t).typeArguments().get(0);
+				return result;
+			}
+		}
+		return null;
+	}
 	
+	public static boolean isTypeConstraintExpression(Expr e) {
+	    if (e instanceof ParExpr) 
+	        return isTypeConstraintExpression(((ParExpr) e).expr());
+	    else if (e instanceof Unary_c)
+	        return isTypeConstraintExpression(((Unary) e).expr());
+	    else if (e instanceof SubtypeTest)
+	        return true;
+	    return false;
+	}
 }

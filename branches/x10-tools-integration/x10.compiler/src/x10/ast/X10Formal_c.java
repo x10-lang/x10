@@ -369,7 +369,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			cxt.addVariable(li.asInstance());
 			cxt.setVarWhoseTypeIsBeingElaborated(li);
 		}
-		Context cc = super.enterChildScope(child, c);
+		Context cc = super.enterChildScope(child, cxt);
 		return cc;
 	}
 	/**

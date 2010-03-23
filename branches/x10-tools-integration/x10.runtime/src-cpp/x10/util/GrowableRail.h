@@ -116,7 +116,7 @@ namespace x10 {
         }
 
         template<class T> void GrowableRail<T>::removeLast() {
-            (*_array)[_len-1] = (T)0;
+            memset(&(*_array)[_len-1], 0, sizeof(T));
             _len--;
             shrink(_len+1);
         }
@@ -187,6 +187,7 @@ namespace x10 {
         template<class T> x10_int GrowableRail<T>::size() { return _array->FMGL(length); }
 
         template<class T> void GrowableRail<T>::_initRTT() {
+            if (rtt.initStageOne(x10aux::getRTT<GrowableRail<void> >())) return;
             x10::util::_initRTTHelper_GrowableRail(&rtt, x10aux::getRTT<T>());
         }
         

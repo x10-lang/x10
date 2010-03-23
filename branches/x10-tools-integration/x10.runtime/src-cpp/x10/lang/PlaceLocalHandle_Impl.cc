@@ -27,8 +27,7 @@ namespace x10 {
         _initRTTHelper_PlaceLocalHandle_Impl(RuntimeType *location, const RuntimeType *rtt) {
             const RuntimeType* params[1] = { rtt };
             RuntimeType::Variance variances[1] = { RuntimeType::invariant };
-            const RuntimeType *canonical = x10aux::getRTT<PlaceLocalHandle_Impl<void> >();
-            location->init(canonical, "x10.lang.PlaceLocalHandle_Impl", 0, NULL, 1, params, variances);
+            location->initStageTwo("x10.lang.PlaceLocalHandle_Impl", 0, NULL, 1, params, variances);
         }
     }
 }

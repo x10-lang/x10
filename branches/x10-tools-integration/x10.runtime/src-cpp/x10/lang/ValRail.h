@@ -126,6 +126,7 @@ namespace x10 {
                 ::addDeserializer(ValRail<T>::template _deserializer<Object>);
 
         template<class T> void ValRail<T>::_initRTT() {
+            if (rtt.initStageOne(x10aux::getRTT<ValRail<void> >())) return;
             x10::lang::_initRTTHelper_ValRail(&rtt, x10aux::getRTT<T>(),
                                               x10aux::getRTT<Fun_0_1<x10_int,T> >(),
                                               x10aux::getRTT<Iterable<T> >());
@@ -254,7 +255,7 @@ namespace x10 {
             if (rr.ref != 0) {
                 this_ = ValRail<T>::template _deserializer<ValRail<T> >(buf);
             }
-            return Object::_finalize_reference<T>(this_, rr);
+            return Object::_finalize_reference<S>(this_, rr, buf);
         }
     }
 }

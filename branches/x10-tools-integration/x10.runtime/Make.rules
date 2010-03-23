@@ -75,8 +75,9 @@ ifdef ENABLE_CROSS_COMPILE_BGP
 else
 
   ifeq ($(shell uname -s),AIX)
-    export X10_STATIC_LIB=1
-    LIBSUFFIX := .a
+    ifndef X10_SHARED_LIB_DEFAULT_OVERRIDE
+      export X10_STATIC_LIB=1
+    endif
 
     ifdef USE_GCC
       export X10RT_PLATFORM=aix_gcc
@@ -137,6 +138,9 @@ else
       endif
     else
       ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
+        ifndef X10_SHARED_LIB_DEFAULT_OVERRIDE
+          export X10_STATIC_LIB=1
+        endif
         export X10RT_PLATFORM=cygwin
         override CXXFLAGS_SHARED += -shared -Wl,--export-all-symbols -Wl,--enable-auto-import
         LIBPREFIX :=
@@ -147,13 +151,23 @@ else
       else
         ifeq ($(shell uname -s),Darwin)
           export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
-          override CXXFLAGS_SHARED += -shared -undefined dynamic_lookup -fPIC -install_name '@rpath/$@'
+          override CXXFLAGS_SHARED += -fPIC
+          override LDFLAGS_SHARED += -dynamiclib -undefined dynamic_lookup -install_name '@rpath/$@'
           export X10RT_TEST_LDFLAGS = -Wl,-rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib -Wl,-rpath -Wl,$(X10_HOME)/x10.runtime/x10rt
+          ifdef USE_32BIT
+            override CXXFLAGS += -arch i386
+          endif
+          ifdef USE_64BIT
+            override CXXFLAGS += -arch x86_64
+          endif
+          AR = libtool
+          ARFLAGS = -static -o
         else
           ifeq ($(shell uname -s),SunOS)
+            ifndef X10_SHARED_LIB_DEFAULT_OVERRIDE
+              export X10_STATIC_LIB=1
+            endif
             export X10RT_PLATFORM=sunos
-            export X10_STATIC_LIB=1
-            LIBSUFFIX := .a
           endif
         endif
       endif
@@ -161,8 +175,12 @@ else
   endif
 endif
 
+ifdef X10_STATIC_LIB
+  LIBPREFIX := lib
+  LIBSUFFIX := .a
 endif
 
+endif
 
 
 

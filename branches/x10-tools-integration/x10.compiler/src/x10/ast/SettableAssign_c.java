@@ -54,6 +54,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
+import x10.errors.Errors;
 import x10.types.X10ClassDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
@@ -221,7 +222,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	            n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
 	        }
 	        catch (SemanticException e) {
-	            throw new SemanticException("Cannot assign to element of " + array.type() + "; " + e.getMessage(), position()); 
+	        	boolean arrayP = xts.isX10Array(X10TypeMixin.baseType(array.type()));
+	            throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
 	        }
 	    }
 	    
@@ -236,7 +238,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	        n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
 	    }
 	    catch (SemanticException e) {
-	        throw new SemanticException("Cannot assign to element of " + array.type() + "; " + e.getMessage(), position()); 
+	       	boolean arrayP = xts.isX10Array(X10TypeMixin.baseType(array.type()));
+	    	  throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
 	    }
 
 	    X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
@@ -249,7 +252,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	        return a;
 	    }
 	    
-	    throw new SemanticException("Cannot assign to element of " + array.type() + "; " + mi + " cannot be static.", position()); 
+	    throw new Errors.AssignSetMethodCantBeStatic(mi, array, position()); 
 	}	
 	
 	@Override
@@ -325,6 +328,10 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
       w.write (")");
  	}
   
+  public String leftToString() {
+	  String arg = index.toString();
+	  return array.toString() + "(" + arg.substring(1, arg.length()-1) + ")";
+  }
 	
     public static Binary.Operator binaryOp(Assign.Operator op) {
         Map<Assign.Operator, Binary.Operator> map = new HashMap<Assign.Operator, Binary.Operator>();

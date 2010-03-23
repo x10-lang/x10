@@ -407,4 +407,6 @@ public interface X10TypeSystem extends TypeSystem {
     Name homeName();
     
     LazyRef<Type> lazyAny();
+    
+    ClassType load(String name);
 }

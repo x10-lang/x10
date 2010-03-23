@@ -25,6 +25,7 @@ type Nat = UInt{self!=0};
 type Int(x: Int) = Int{self==x};
 type Dist(r: Int) = Dist{self.rank==r};
 type Dist(r: Region) = Dist{self.region==r};
+type Redund(n:Int, r:Region){r.rank==n} = Dist{rank==n && region==r};
 \end{xten}
 \label{TypeDefGuard}
 As the two definitions of \xcd"Dist" demonstrate, type definitions may 

@@ -97,6 +97,7 @@ import x10.ast.X10Cast_c;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
+import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
@@ -155,6 +156,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	final public Translator tr;
 	final public Emitter er;
 
+	private static final String X10_RTT_TYPES = "x10.rtt.Types";
+	
 	private static int nextId_;
 	/* to provide a unique name for local variables introduce in the templates */
 	public static Integer getUniqueId_() {
@@ -171,14 +174,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		this.er = new Emitter(w,tr);
 	}
 
-    public void visit(Block_c n) {
-        String s = er.getJavaImplForStmt(n, (X10TypeSystem) tr.typeSystem());
-        if (s != null) {
-            w.write(s);
-        } else {
+	public void visit(Block_c n) {
+	    String s = er.getJavaImplForStmt(n, (X10TypeSystem) tr.typeSystem());
+	      if (s != null) {
+	          w.write(s);
+	      } else {
             super.visit(n);
-        }
-    }
+	      }
+	}
 
 	public void visit(Node n) {
 		// Don't call through del; that would be recursive.
@@ -642,45 +645,35 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					xct.setAnonObjectScope();
 					new Template(er, template, ex, expr, rt, new Join(er, " && ", conds)).expand();
 					xct.restoreAnonObjectScope(inAnonObjectScope);
-				} else if (((X10TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type))
-	                       && (t.isBoolean() || t.isNumeric())) { /* special path for "Any as Numeric" */
-					/* XTENLANG-964: if expr==null, explicitly throw ClassCastException. otherwise, NullPointerException is thrown */
-					er.dumpCodeString("((#0)==null) ? " +
-							"(new java.lang.Object(){ final #1 nullIsCasted(){throw new java.lang.ClassCastException();} }).nullIsCasted() : ",
-							expr, new TypeExpander(er, t, 0));
-					if (t.isBoolean()) {
-						er.dumpCodeString("((Boolean) #0).booleanValue()", expr);
-					} else if (t.isInt()) {
-						er.dumpCodeString("((Number) #0).intValue()", expr);
-					} else if (t.isShort()) {
-						er.dumpCodeString("((Number) #0).shortValue()", expr);
-					} else if (t.isByte()) {
-						er.dumpCodeString("((Number) #0).byteValue()", expr);
-					} else if (t.isLong()) {
-						er.dumpCodeString("((Number) #0).longValue()", expr);
-					} else if (t.isFloat()) {
-						er.dumpCodeString("((Number) #0).floatValue()", expr);
-					} else if (t.isDouble()) {
-						er.dumpCodeString("((Number) #0).doubleValue()", expr);
-					} else if (t.isChar()) {
-						er.dumpCodeString("((Char) #0).charValue()", expr);
-					}
-				} else if (t.isBoolean() || t.isNumeric() || t.isChar() || type.isSubtype(t, tr.context())) {
+				} 
+				else if (
+				        (X10TypeMixin.baseType(type) instanceof ParameterType || ((X10TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type)))
+				        && (t.isBoolean() || t.isNumeric() || t.isChar())
+				) { // e.g. any as Int (any:Any), t as Int (t:T)
+                                    w.write(X10_RTT_TYPES + ".as");
+                                    new TypeExpander(er, t, 0).expand(tr);
+                                    w.write("(");
+                                    c.printSubExpr(expr, w, tr);
+                                    w.write(")");
+				}
+				else if (t.isBoolean() || t.isNumeric() || t.isChar() || type.isSubtype(t, tr.context())) {
 					w.begin(0);
 					w.write("("); // put "(Type) expr" in parentheses.
 					w.write("(");
 					ex.expand(tr);
 					w.write(")");
+					// e.g. d as Int (d:Double) -> (int)(double)(Double)d 
 					if (type.isBoolean() || type.isNumeric() || type.isChar()) {
-						w.write(" ");
-						w.write("(");
-						new TypeExpander(er, type, BOX_PRIMITIVES).expand(tr);
-						w.write(")");
 						w.write(" ");
 						w.write("(");
 						new TypeExpander(er, type, 0).expand(tr);
 						w.write(")");
+						w.write(" ");
+						w.write("(");
+						new TypeExpander(er, type, BOX_PRIMITIVES).expand(tr);
+						w.write(")");
 						// Fix XTENLANG-804
+						// e.g. b as Int (b:Byte) -> (int)(byte)(Byte)(byte)b (in case b is int literal in jvava (e.g. 0))
 						if (type.isByte() || type.isShort()) {
 							w.write("(");
 							new TypeExpander(er, type, 0).expand(tr);
@@ -692,23 +685,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					//       doesn't parse correctly, but
 					//       (java.lang.Integer) (-1)
 					//       does
-					if (X10TypeMixin.baseType(type) instanceof ParameterType && (t.isNumeric() || t.isChar())) {
-					        TypeExpander te = new TypeExpander(er, t, BOX_PRIMITIVES);
-					        w.write("x10.rtt.Types.conversion(");
-                                                te.expand(tr);
-					        w.write(".class");
-					        w.write(",");
-					}
 					if (expr instanceof Unary || expr instanceof Lit)
 						w.write("(");
 					c.printSubExpr(expr, w, tr);
 					if (expr instanceof Unary || expr instanceof Lit)
 						w.write(")");
-	                                if (X10TypeMixin.baseType(type) instanceof ParameterType && (t.isNumeric() || t.isChar()))
-	                                        w.write(")");
 					w.write(")");
 					w.end();
-				} else if (t instanceof ParameterType) {
+				} else if (t instanceof ParameterType) { // e.g. i as T (T is parameterType)
 				        new Template(er, "cast_deptype_primitive_param", ex, expr, rt, "true").expand();
 				} else {
 					new Template(er, template, ex, expr, rt, "true").expand();
@@ -748,6 +732,123 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		Type t = tn.type();
+		
+		// Fix for XTENLANG-1099
+                X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+                if (xts.typeEquals(xts.Object(), t, tr.context())) {
+		    /*
+		     * Because @NativeRep of x10.lang.Object is java.lang.Object,
+		     * we cannot compile "instanceof x10.lang.Object" as "instanceof @NativeRep".
+		     */
+
+                    w.write("(!");
+                    w.write("(");
+
+                    w.write("(null == ");
+                    w.write("(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+                    w.write(")");
+                    
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Struct()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Byte()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Short()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+                    
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Int()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Long()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Float()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Double()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Char()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.Boolean()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    // Java representation of unsigned types are same as signed ones.
+                    /*
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.UByte()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.UShort()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+                    
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.UInt()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+
+                    w.write(" || ");
+                    new RuntimeTypeExpander(er, xts.ULong()).expand(tr);
+                    w.write(".");
+                    w.write("instanceof$(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+                    */
+                    
+                    w.write(")");
+                    w.write(")");
+		    return;
+		}
+                
 		new RuntimeTypeExpander(er, t).expand(tr);
 		w.write(".");
 		w.write("instanceof$(");
@@ -1487,6 +1588,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				visit((Node)n);
 
 		}
+
+		// Fix XTENLANG-945 (Java backend only fix)
+	        // Change field access to method access
+	        if (X10Field_c.isInterfaceProperty(target.type(), fi)) {
+	            w.write("()");
+	        }
 	}
 
 	public void visit(IntLit_c n) {

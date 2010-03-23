@@ -20,6 +20,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.errors.Errors;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 /**
@@ -47,11 +49,10 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
         if (! xts.isCastValid(fromType, toType, tc.context())) {
-            throw new SemanticException(
-                      "Left operand of \"instanceof\", " + fromType + ", must be castable to "
-                      + "the right operand " + toType + ".");
+            throw new Errors.InstanceofError(fromType, toType, position());
         }
         
+        X10TypeMixin.checkMissingParameters(toType);
 
         return n.type(xts.Boolean());
 	}

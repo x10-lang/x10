@@ -12,10 +12,12 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 
+import x10.constraint.XConstraint;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
+import x10.types.X10TypeMixin;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ProgramElementDoc;
@@ -35,7 +37,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	private X10RootDoc rootDoc;
 	private Type returnType;
 	private ArrayList<X10Parameter> parameters;
-	// private LinkedHashMap<String, X10TypeVariable> typeParams;
+	private boolean included; 
 
 	public X10MethodDoc() {
 		super("");
@@ -76,6 +78,10 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 			polyglot.types.Type paramType = ld.type().get();
 			parameters.add(new X10Parameter(paramName, rootDoc.getType(paramType, typeParams)));
 		}
+
+		// X10Doc.isIncluded(..., this) valid only if this.{isPublic(),...,isPrivate()} are valid, which requires
+		// this.methodDef to have been set appropriately
+		this.included = X10Doc.isIncluded(rootDoc.accessModFilter(), this);
 	}
 	
 	void initTypeParameters() {
@@ -126,6 +132,29 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 				return "";
 			}
 		}
+
+		// code to generate compact constraints; at present, simply prints to console
+        String desc = this.name() + "(";
+        boolean first = true;
+		for (X10Parameter p: parameters) {
+			if (first) {
+				first = false;
+			}
+			else {
+				desc += ", ";
+			}
+			desc += p.name() + ": " + p.typeName();
+			if (p.isX10Specific()) {
+				desc += X10Type.descriptor(p.type());
+			}
+		}
+		desc += "): " + methodDef.returnType();
+		if (X10Type.isX10Specific(returnType)) {
+			desc += X10Type.descriptor(returnType);
+		}
+//		System.out.println("X10MethodDoc{" + methodDef.signature() + "}.declString(): descriptor = " + desc);
+
+		// construct result from X10 compiler method signatures and toString functions
 		String result = "<B>Declaration</B>: <TT>" + methodDef.signature() + ": " + 
 		                methodDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
 			// earlier: ... + X10Doc.toString(this.returnType)
@@ -142,7 +171,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	public boolean isIncluded() {
 		if (X10RootDoc.printSwitch)
 			System.out.println(name() + ".isIncluded() called.");
-		return true;
+		return this.included;
 	}
 
 	@Override

@@ -107,13 +107,13 @@ namespace {
                                                   sizeof(counter_addr));
         memcpy(buf, &counter_addr, sizeof(counter_addr));
         x10rt_msg_params p = { to, send_finish_id, buf, sizeof(counter_addr) };
-        x10rt_net_send_msg(p);
+        x10rt_net_send_msg(&p);
     }
 
-    void recv_finish (const x10rt_msg_params &p)
+    void recv_finish (const x10rt_msg_params *p)
     {
         x10rt_remote_ptr counter_addr;
-        char *buf = (char*) p.msg;
+        char *buf = (char*) p->msg;
         ::memcpy(&counter_addr, buf, sizeof(counter_addr));
         (*(x10rt_place*)(size_t)counter_addr)--;
     }
@@ -132,15 +132,15 @@ namespace {
         memcpy(buf+so_far, &num, sizeof(num)); so_far+=sizeof(num);
         memcpy(buf+so_far, &counter_addr, sizeof(counter_addr)); so_far+=sizeof(counter_addr);
         x10rt_msg_params p = { to, send_naccels_id, buf, so_far };
-        x10rt_net_send_msg(p);
+        x10rt_net_send_msg(&p);
     }
 
-    void recv_naccels (const x10rt_msg_params &p)
+    void recv_naccels (const x10rt_msg_params *p)
     {
         x10rt_place from;
         x10rt_place num;
         x10rt_remote_ptr counter_addr;
-        char *buf = (char*) p.msg;
+        char *buf = (char*) p->msg;
         size_t so_far = 0;
         memcpy(&from, buf+so_far, sizeof(from)); so_far+=sizeof(from);
         memcpy(&num, buf+so_far, sizeof(num)); so_far+=sizeof(num);
@@ -169,16 +169,16 @@ namespace {
         memcpy(buf+so_far, &cat, sizeof(cat)); so_far+=sizeof(cat);
         memcpy(buf+so_far, &counter_addr, sizeof(counter_addr)); so_far+=sizeof(counter_addr);
         x10rt_msg_params p = { to, send_cat_id, buf, so_far };
-        x10rt_net_send_msg(p);
+        x10rt_net_send_msg(&p);
     }
 
-    void recv_cat (const x10rt_msg_params &p)
+    void recv_cat (const x10rt_msg_params *p)
     {
         x10rt_place from;
         x10rt_place child;
         unsigned long cat;
         x10rt_remote_ptr counter_addr;
-        char *buf = (char*) p.msg;
+        char *buf = (char*) p->msg;
         size_t so_far = 0;
         memcpy(&from, buf+so_far, sizeof(from)); so_far+=sizeof(from);
         memcpy(&child, buf+so_far, sizeof(child)); so_far+=sizeof(child);
@@ -193,7 +193,7 @@ namespace {
         send_finish(from, counter_addr);
     }
 
-    void x10rt_lgl_internal_init (x10rt_lgl_cfg_accel *cfgv, x10rt_place cfgc, x10rt_msg_type &counter)
+    void x10rt_lgl_internal_init (x10rt_lgl_cfg_accel *cfgv, x10rt_place cfgc, x10rt_msg_type *counter)
     {
         g.nhosts = x10rt_net_nhosts();
 
@@ -257,10 +257,10 @@ namespace {
         g.naccels = safe_malloc<x10rt_place>(x10rt_lgl_nhosts());
         assert(g.naccels!=NULL);
 
-        send_naccels_id = counter++;
-        send_cat_id = counter++;
-        send_finish_id = counter++;
-        
+        send_naccels_id = (*counter)++;
+        send_cat_id = (*counter)++;
+        send_finish_id = (*counter)++;
+
         x10rt_net_register_msg_receiver(send_naccels_id, recv_naccels);
         x10rt_net_register_msg_receiver(send_cat_id, recv_cat);
         x10rt_net_register_msg_receiver(send_finish_id, recv_finish);
@@ -341,8 +341,8 @@ namespace {
 
 }
 
-void x10rt_lgl_init (int &argc, char **&argv,
-                     x10rt_lgl_cfg_accel *cfgv, x10rt_place cfgc, x10rt_msg_type &counter)
+void x10rt_lgl_init (int *argc, char ***argv,
+                     x10rt_lgl_cfg_accel *cfgv, x10rt_place cfgc, x10rt_msg_type *counter)
 {
     x10rt_net_init(argc, argv, counter);
     x10rt_lgl_internal_init(cfgv, cfgc, counter);
@@ -350,7 +350,7 @@ void x10rt_lgl_init (int &argc, char **&argv,
 
 #define ENV "X10RT_ACCELS"
 
-void x10rt_lgl_init (int &argc, char **&argv, x10rt_msg_type &counter)
+void x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
     x10rt_net_init(argc, argv, counter);
     char env[1024] = "";
@@ -517,9 +517,9 @@ void x10rt_lgl_internal_barrier (void)
 
 void *x10rt_lgl_msg_realloc (void *old, size_t old_sz, size_t new_sz)
 { return x10rt_net_msg_realloc(old, old_sz, new_sz); }
-void x10rt_lgl_send_msg (x10rt_msg_params &p)
+void x10rt_lgl_send_msg (x10rt_msg_params *p)
 {
-    x10rt_place d = p.dest_place;
+    x10rt_place d = p->dest_place;
 
     assert(d < x10rt_lgl_nplaces());
 
@@ -549,9 +549,9 @@ void x10rt_lgl_send_msg (x10rt_msg_params &p)
 
 void *x10rt_lgl_get_realloc (void *old, size_t old_sz, size_t new_sz)
 { return x10rt_net_get_realloc(old, old_sz, new_sz); }
-void x10rt_lgl_send_get (x10rt_msg_params &p, void *buf, x10rt_copy_sz len)
+void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
-    x10rt_place d = p.dest_place;
+    x10rt_place d = p->dest_place;
 
     assert(d < x10rt_lgl_nplaces());
 
@@ -581,9 +581,9 @@ void x10rt_lgl_send_get (x10rt_msg_params &p, void *buf, x10rt_copy_sz len)
 
 void *x10rt_lgl_put_realloc (void *old, size_t old_sz, size_t new_sz)
 { return x10rt_net_put_realloc(old, old_sz, new_sz); }
-void x10rt_lgl_send_put (x10rt_msg_params &p, void *buf, x10rt_copy_sz len)
+void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
-    x10rt_place d = p.dest_place;
+    x10rt_place d = p->dest_place;
 
     assert(d < x10rt_lgl_nplaces());
 
@@ -706,12 +706,12 @@ void x10rt_lgl_remote_op_fence (void)
 }
 
 void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
-                               int &blocks, int &threads, const int *cfg)
+                               int *blocks, int *threads, const int *cfg)
 {
     assert(d < x10rt_lgl_nplaces());
 
     if (d < x10rt_lgl_nhosts()) {
-        blocks = 8; threads = 1;
+        *blocks = 8; *threads = 1;
     } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
         // local accelerator
         switch (x10rt_lgl_type(d)) {
@@ -720,7 +720,7 @@ void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                 x10rt_cuda_blocks_threads(cctx, type, dyn_shm, blocks, threads, cfg);
             } break;
             case X10RT_LGL_SPE: {
-                blocks = 8; threads = 1;
+                *blocks = 8; *threads = 1;
             } break;
             default: {
                 fprintf(stderr,"Place %lu has invalid type %d in remote_op_xor.\n",

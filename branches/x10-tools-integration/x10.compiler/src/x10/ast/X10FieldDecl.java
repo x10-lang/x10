@@ -12,6 +12,9 @@
 package x10.ast;
 
 import polyglot.ast.FieldDecl;
+import polyglot.types.Type;
 
 public interface X10FieldDecl extends FieldDecl {
+	
+	Type hasType();
 }

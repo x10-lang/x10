@@ -24,7 +24,7 @@ public class ASTTraversalGoal extends SourceGoal_c {
 	@Override
 	public boolean runTask() {
 		Node n = job().ast();
-		System.out.println("n.getClass() = " + n.getClass());
+		// System.out.println("n.getClass() = " + n.getClass());
 		v.visitAppropriate(n);
 		return true;
 	}

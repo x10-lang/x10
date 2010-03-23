@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 /**
+ * Simple test to check that List compiles and runs.
 This produces an infinite loop for the type checker, on 06/25/06
 */
 
@@ -30,8 +31,8 @@ public class ListTest extends x10Test {
 			value=0;
 			tail=null;
 		}
-		public def append(l: List!) = {
-			return (n==0)? l : new List(value, tail.append(l)); // this cast should not be needed.
+		public def append(l: List!):List! = {
+			return (n==0)? l : new List(value, tail.append(l)); 
 		}
 		public def nth(k: int): Int = {
 			return k==1 ? value : tail.nth(k-1);

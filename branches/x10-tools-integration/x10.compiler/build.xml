@@ -4,10 +4,7 @@
     &buildfile;
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
-    <property name="lpg.location" location="${x10.home}/../cvs/org.eclipse.imp.lpg.metatooling"/>
-    <!--<property name="lpg.location" value="${x10.home}/org.eclipse.imp.lpg.metatooling"/>-->
-    <!--<property name="lpg.executable.location" location="${x10.home}/lpg.generator.${platform}_${os.arch}/lpgexe"/>-->
-    <property name="x10.runtime.location" value="${x10.home}/x10.runtime.x10"/>
+    <property name="lpg.location" location="${x10.home}/lpg.generator"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="build" location="${basedir}/classes"/>
@@ -117,7 +114,8 @@
     </target>
     <target name="grammar" depends="init">
         <property name="grammar.file" location="${src}/x10/parser/x10.g"/>
-        <property name="include.dir" location="${lpg.location}/templates"/>
+        <property name="templates.dir" location="${lpg.location}/templates/java"/>
+        <property name="include.dir" location="${lpg.location}/include/java"/>
         <condition property="platform" value="win32"><os family="windows"/></condition>
         <condition property="platform" value="linux"><os name="Linux"/></condition>
         <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
@@ -136,7 +134,7 @@
         </echo>
         -->
         <exec dir="${src}/x10/parser" executable="${lpg.executable}" failonerror="true">
-            <arg value="-include-directory=${include.dir}"/>
+            <arg value="-include-directory=${templates.dir};${include.dir};"/>
             <arg value="${grammar.file}"/>
         </exec>
     </target>

@@ -47,7 +47,7 @@ void StaticInitBroadcastDispatcher::doBroadcast(serialization_id_t id, char* the
         // Save the buffer for the rest of the broadcast
         the_buf = (char*)x10rt_msg_realloc(NULL, 0, sz);
         ::memmove(the_buf, p.msg, sz);
-        x10rt_send_msg(p);
+        x10rt_send_msg(&p);
     }
     // Free the buffer
     x10rt_msg_realloc(the_buf, sz, 0);

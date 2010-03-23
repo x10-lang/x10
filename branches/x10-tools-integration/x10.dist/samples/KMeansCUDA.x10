@@ -110,7 +110,7 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
             }
             //next; // every place has transmitted contents to master
             val handle = data; // avoid 'this' being serialised
-            finish local_.copyFrom[T](0, firstPlace, ()=>Pair[Rail[T],Int](handle(),0), local_.length);
+            finish local_.copyFrom(0, firstPlace, ()=>Pair[Rail[T],Int](handle(),0), local_.length);
         } else {
             //next;
         }

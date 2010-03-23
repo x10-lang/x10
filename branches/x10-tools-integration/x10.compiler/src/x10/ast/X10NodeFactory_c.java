@@ -191,6 +191,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (UnknownTypeNode_c)n.del(delFactory().delTypeNode());
 		return n;
 	}
+	public TypeNode HasType(TypeNode tn) {
+		HasTypeNode_c n = new HasTypeNode_c(tn);
+		n = (HasTypeNode_c)n.ext(extFactory().extTypeNode());
+		n = (HasTypeNode_c)n.del(delFactory().delTypeNode());
+		return n;
+	}
 
 	public Return X10Return(Position pos, Expr expr, boolean implicit) {
 		Return n = new X10Return_c(pos, expr, implicit);

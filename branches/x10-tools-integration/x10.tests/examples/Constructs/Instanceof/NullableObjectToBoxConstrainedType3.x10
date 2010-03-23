@@ -20,7 +20,7 @@ public class NullableObjectToBoxConstrainedType3 extends x10Test {
 	 
 	public def run(): boolean = {
 			try {
-		var nullableVarNotNull: Box[ValueClass] = new ValueClass(2);
+		var nullableVarNotNull: Box[ValueClass] = ValueClass(2);
 		return ! (nullableVarNotNull instanceof Box[ValueClass{p==1}]);
 		
 			} catch (z: Exception) {

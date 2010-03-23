@@ -11,6 +11,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/basic_functions.h>
+#include <x10aux/string_utils.h>
 #include <x10aux/math.h>
 #include <stdio.h>
 
@@ -27,7 +28,7 @@ ref<String> x10aux::to_string(T v) { \
     int amt = ::snprintf(buf, sizeof(buf), FMT, (C)v); \
     (void)amt; \
     assert((size_t)amt<sizeof(buf) && "buf too small "__TOKEN_STRING(SZ)" for "__TOKEN_STRING(T)); \
-    return String::Lit(buf); \
+    return x10aux::string_utils::lit(buf); \
 }
 
 // hh is C99, not ansi c, so we use h instead.
@@ -90,19 +91,19 @@ ref<String> x10aux::to_string(x10_double v_) {
         char *rest = buf + strlen(buf);
         ::snprintf(rest, sizeof(buf) + buf - rest, "E%d", e);
     }   
-    return String::Lit(buf);
+    return x10aux::string_utils::lit(buf);
 }   
     
 
 ref<String> x10aux::to_string(x10_boolean v) {
-    static ref<String> t = String::Lit("true");
-    static ref<String> f = String::Lit("false");
+    static ref<String> t = x10aux::string_utils::lit("true");
+    static ref<String> f = x10aux::string_utils::lit("false");
     return ((bool)v) ? t : f;
 }   
     
 ref<String> x10aux::to_string(x10_char v) {
     char v_[] = {(char)v.v,'\0'};
-    return String::Lit(v_);
+    return x10aux::string_utils::lit(v_);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -158,7 +158,18 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
 	
     public String signature() {
-        return name + (typeParameters.isEmpty() ? "" : typeParameters.toString()) + "(" + CollectionUtil.listToString(formalTypes) + ")";
+    	StringBuilder sb = new StringBuilder(name.toString());
+    	if (! typeParameters.isEmpty()){
+    		sb.append(typeParameters.toString());
+    	}
+    	sb.append('(');
+    	for (LocalDef l : formalNames()) {
+    		sb.append(l.name().toString())
+    		.append(':')
+    		.append(l.type().get().toString());
+    	}
+       sb.append(')');
+       return sb.toString();
     }
 
     @Override
@@ -193,7 +204,9 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
     
 	public String toString() {
-		String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + signature() + (guard() != null ? guard() : "") + ": " + returnType();
+		String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + 
+		signature() + (guard() != null ? guard() : "") 
+		+ ": " + returnType();
 
 		if (!throwTypes().isEmpty()) {
 			s += " throws " + CollectionUtil.listToString(throwTypes());

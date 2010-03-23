@@ -24,7 +24,7 @@ $(STANDALONE_DYNLIB): standalone/x10rt_standalone.o $(COMMON_OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 else
 $(STANDALONE_DYNLIB): standalone/x10rt_standalone.o $(COMMON_OBJS)
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
 endif
 
 etc/x10rt_standalone.properties:

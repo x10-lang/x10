@@ -11,7 +11,7 @@
 
 import x10.x10rt.ActiveMessage;
 import x10.x10rt.MessageRegistry;
-import x10.x10rt.Node;
+import x10.x10rt.Place;
 import x10.x10rt.X10RT;
 import x10.x10rt.UnknownMessageException;
 
@@ -36,19 +36,18 @@ public class SimpleMessageTest {
 
     X10RT.barrier();
 
-    if (X10RT.here() == X10RT.getNode(0)) {
-      for (int i=0; i<X10RT.numNodes(); i++) {
-        Node where = X10RT.getNode(i);
+    if (X10RT.here() == X10RT.getPlace(0)) {
+      for (int i=0; i<X10RT.numPlaces(); i++) {
+        Place where = X10RT.getPlace(i);
         ping.send(where);
         add.send(where, 10+i, 20+i);
-        addScaled.send(where, new int[] { 1, 2, 3, 4, 5 }, 10);
+        // addScaled.send(where, new int[] { 1, 2, 3, 4, 5 }, 10);
         addMany.send(where, new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, i*100});
-        addManyD.send(where, new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, i*100});
-        addManyS.send(where, new short[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, (short)(i*100)});
+        // addManyD.send(where, new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, i*100});
+        // addManyS.send(where, new short[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, (short)(i*100)});
         max.send(where, (short)100, (double)200);
         smallStuff.send(where, (short)10, (float)20);
-     }
-      X10RT.fence();
+      }
     }
 
     X10RT.barrier();
@@ -85,7 +84,7 @@ public class SimpleMessageTest {
 
   public static void ping() throws UnknownMessageException, IllegalArgumentException {
     System.out.println(X10RT.here()+ ": PING");
-    MessageRegistry.lookup(SimpleMessageTest.class, "pong", Integer.TYPE).send(X10RT.getNode(0), X10RT.here().getId());
+    MessageRegistry.lookup(SimpleMessageTest.class, "pong", Integer.TYPE).send(X10RT.getPlace(0), X10RT.here().getId());
   }
 
   public static void pong(int where) {
