@@ -1,0 +1,68 @@
+\documentclass[nocopyrightspace,preprint,9pt]{sigplanconf}
+
+\usepackage{times-lite}
+\usepackage{mathptm}
+\usepackage{txtt}
+\usepackage{stmaryrd}
+\usepackage{code}
+%\usepackage{ttquot}
+\usepackage{bcprules}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{afterpage}
+\usepackage{balance}
+\usepackage{defs}
+\usepackage{pldefs}
+\usepackage{utils}
+\usepackage[pdftex]{graphicx}
+\usepackage{ifpdf}
+
+\ifpdf
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+\fi
+
+
+% \input{../../../../vj/res/pagesizes}
+% \input{../../../../vj/res/vijay-macros}
+\newcommand\alt{\bnf}
+
+\newcommand\Implies{\Rightarrow}
+
+\newtheorem{example}{Example}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\newcommand\Xten{{X10}}
+\newcommand\java{{Java}}
+\newcommand\Java{{\java}}
+\newcommand\csharp{{C$\sharp$}}
+\newcommand\FXten{{FX10}}
+
+\begin{document}
+\title{Constrained Types for Object-Oriented Languages}
+\authorinfo{Vijay Saraswat}
+  {IBM T.~J. Watson Research Center \\
+   P.O. Box 704 \\
+   Yorktown Heights, NY 10598}
+  {vsaraswa@us.ibm.com}
+\authorinfo{Nathaniel Nystrom}
+  {IBM T.~J. Watson Research Center \\
+   P.O. Box 704 \\
+   Yorktown Heights, NY 10598}
+  {nystrom@us.ibm.com}
+\authorinfo{Radha Jagadeesan}
+  {Depaul University}
+  {rjagadeesan@cs.depaul.edu}
+\authorinfo{Jens Palsberg}
+  {University of California--Los Angeles}
+  {palsberg@cs.ucla.edu}
+\authorinfo{Christian Grothoff}
+  {University of Denver}
+  {christian@grothoff.org}
+
+\maketitle
+
+\input{semantics}
+\input{proof}
+\end{document}
