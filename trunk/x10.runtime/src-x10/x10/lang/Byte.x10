@@ -270,7 +270,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * @param x the given Float
      * @return the given Float converted to a Byte.
      */
-    @Native("java", "((byte)(float)(#1))")
+    @Native("java", "x10.core.Floats.toByte(#1)")
     @Native("c++",  "((x10_byte) (#1))")
     public native static safe operator (x:Float) as Byte;
 
@@ -279,7 +279,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * @param x the given Double
      * @return the given Double converted to a Byte.
      */
-    @Native("java", "((byte)(double)(#1))")
+    @Native("java", "x10.core.Floats.toByte(#1)")
     @Native("c++",  "((x10_byte) (#1))")
     public native static safe operator (x:Double) as Byte;
 
