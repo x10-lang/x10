@@ -42,7 +42,7 @@ public class _ {
     public static type Float(b:Float) = Float{self==b};
     public static type Double(b:Double) = Double{self==b};
     public static type String(s:String) = String{self==s};
-    public static type Any(x:Any) = Any{self==x};
+    public static type Any(x:Any#) = Any{self==x};
    
 
     public static type signed = Int;
@@ -69,27 +69,27 @@ public class _ {
     public static type int32 = int;
     public static type int64 = long;
     
-    public static type Point(r: Int) = Point{self.rank==r};
-    public static type Place(id:Int) = Place{self.id==id};
-    public static type Place(p:Place) = Place{self==p};
+    public static type Point(r: Int) = Point#{self.rank==r};
+    public static type Place(id:Int) = Place#{self.id==id};
+    public static type Place(p:Place) = Place#{self==p};
     
-    public static type Region(r:Int) = Region{self.rank==r};
-    public static type Region(r:Region) = Region{self==r};
-    public static type RectRegion(r:Int) = Region{self.rect && self.rank==r};
-    public static type Range = Region{self.rect && self.rank==1};
+    public static type Region(r:Int) = Region#{self.rank==r};
+    public static type Region(r:Region#) = Region#{self==r};
+    public static type RectRegion(r:Int) = Region#{self.rect && self.rank==r};
+    public static type Range = Region#{self.rect && self.rank==1};
     
-    public static type Dist(r:Int)   = Dist{self.rank==r};
-    public static type Dist(r:Region) = Dist{self.region==r};
-    public static type Dist(d:Dist) = Dist{self==d};
+    public static type Dist(r:Int)   = Dist#{self.rank==r};
+    public static type Dist(r:Region#) = Dist#{self.region==r};
+    public static type Dist(d:Dist#) = Dist#{self==d};
     
-    public static type Array[T](r:Int) = Array[T]{self.rank==r};
-    public static type Array[T](r:Region) = Array[T]{self.region==r};
-    public static type Array[T](d:Dist) = Array[T]{self.dist==d};
-    public static type Array[T](a:Array[T]) = Array[T]{self==a};
+    public static type Array[T#](r:Int) = Array[T#]#{self.rank==r};
+    public static type Array[T#](r:Region#) = Array[T#]#{self.region==r};
+    public static type Array[T#](d:Dist#) = Array[T#]#{self.dist==d};
+    public static type Array[T#](a:Array[T#]#) = Array[T#]#{self==a};
 
 
-    public static type ValRail[T](n:Int) = ValRail[T]{self.length==n};
-    public static type Rail[T](n:Int) = Rail[T]{self.length==n};
+    public static type ValRail[T#](n:Int) = ValRail[T#]#{self.length==n};
+    public static type Rail[T#](n:Int) = Rail[T#]#{self.length==n};
 
     public static type Console = x10.io.Console;
 }

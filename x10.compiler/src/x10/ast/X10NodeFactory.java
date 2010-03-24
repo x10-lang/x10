@@ -81,8 +81,8 @@ public interface X10NodeFactory extends NodeFactory {
     Return X10Return(Position pos, Expr expr, boolean implicit);
 
     UnknownTypeNode UnknownTypeNode(Position pos);
-    TypeParamNode TypeParamNode(Position pos, Id name);
-    TypeParamNode TypeParamNode(Position pos, Id name, ParameterType.Variance variance);
+    TypeParamNode TypeParamNode(Position pos, Boolean sharp, Id name);
+    TypeParamNode TypeParamNode(Position pos, Boolean sharp, Id name, ParameterType.Variance variance);
     TypeNode FunctionTypeNode(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes);   
     Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals);
     Expr Contains(Position pos, Expr item, Expr collection);
@@ -159,8 +159,7 @@ public interface X10NodeFactory extends NodeFactory {
     AnnotationNode AnnotationNode(Position pos, TypeNode tn);
     
     AmbMacroTypeNode AmbMacroTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args);
-    TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep);
-    TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep);
+    TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, boolean sharp, List<Expr> args, DepParameterExpr dep);
 
 	AssignPropertyBody AssignPropertyBody(Position position, List<Stmt> statements, X10ConstructorDef ci, List<FieldInstance> fi);
 

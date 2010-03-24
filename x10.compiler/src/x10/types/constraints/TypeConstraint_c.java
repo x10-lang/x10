@@ -318,7 +318,8 @@ public class TypeConstraint_c implements TypeConstraint {
 	        Type ytype = new ParameterType_c(xts, me.position(), Name.makeFresh(), Types.ref((X10ProcedureDef) me.def()));
 	
 	        // TODO: should enforce this statically
-	        assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " + (xtype != null ? xtype.getClass().getName() : "null");
+	        assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " 
+	        + (xtype != null ? xtype.getClass().getName() : "null");
 	
 	        tenv.addTerm(new SubtypeConstraint_c(xtype, ytype, true));
 	

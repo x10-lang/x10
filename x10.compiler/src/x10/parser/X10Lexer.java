@@ -982,9 +982,17 @@ public class X10Lexer implements RuleAction
             }
     
             //
-            // Rule 373:  IntLiteralAndRange ::= Integer . .
+            // Rule 373:  Token ::= #
             //
             case 373: { 
+                makeToken(X10Parsersym.TK_SHARP);
+                  break;
+            }
+    
+            //
+            // Rule 374:  IntLiteralAndRange ::= Integer . .
+            //
+            case 374: { 
                  makeToken(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(1), X10Parsersym.TK_IntegerLiteral);
                  makeToken(getToken(2), getToken(3), X10Parsersym.TK_RANGE);
                    break;

@@ -115,6 +115,12 @@ public class Struct {
                OBJECT.update((X10ParsedClassType) xts.Object());
            }
        });
+       final LazyRef<X10ParsedClassType> ANY = Types.lazyRef(null);
+       ANY.setResolver(new Runnable() {
+           public void run() {
+               ANY.update((X10ParsedClassType) xts.Any());
+           }
+       });
        X10ConstructorDef ci = (X10ConstructorDef) xts.constructorDef(pos, Types.ref(ct), Flags.PUBLIC.Native(), 
                Collections.EMPTY_LIST, 
                Collections.EMPTY_LIST);
@@ -159,7 +165,7 @@ public class Struct {
                BOOLEAN,
                Name.make("at"), 
                Collections.EMPTY_LIST, 
-               Collections.<Ref<? extends Type>> singletonList(OBJECT),
+               Collections.<Ref<? extends Type>> singletonList(ANY),
                thisVar,
                parameters,
                null, 

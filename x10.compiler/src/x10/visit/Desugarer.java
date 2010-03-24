@@ -758,7 +758,7 @@ public class Desugarer extends ContextVisitor {
      * Any occurrence of "self" in the list of clauses is replaced by self.
      */
     private Expr conjunction(Position pos, List<Expr> clauses, Expr self) {
-        assert clauses.size() > 0;
+        assert clauses.size() >= 0;
         Substitution<Expr> subst = new Substitution<Expr>(Expr.class, Collections.singletonList(self)) {
             protected Expr subst(Expr n) {
                 if (n instanceof X10Special_c && ((X10Special_c) n).kind() == X10Special_c.SELF)
@@ -806,7 +806,7 @@ public class Desugarer extends ContextVisitor {
         Type ot = tn.type();
         DepParameterExpr depClause = getClause(tn);
         tn = stripClause(tn);
-        if (depClause == null || Configuration.NO_CHECKS)
+        if (depClause == null || depClause.condition().isEmpty() || Configuration.NO_CHECKS)
             return n;
         Name xn = getTmp();
         Type t = tn.type(); // the base type of the cast
@@ -841,7 +841,7 @@ public class Desugarer extends ContextVisitor {
         TypeNode tn = n.compareType();
         DepParameterExpr depClause = getClause(tn);
         tn = stripClause(tn);
-        if (depClause == null)
+        if (depClause == null || depClause.condition().isEmpty())
             return n;
         Name xn = getTmp();
         Type et = e.type();

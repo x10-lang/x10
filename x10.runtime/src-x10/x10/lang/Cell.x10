@@ -17,19 +17,19 @@ package x10.lang;
  *
  * @param T the type of the stored value
  */
-public final class Cell[T] {
+public final class Cell[T#] {
 
     /**
      * The value stored in this cell.
      */
-    public var value:T;
+    public var value:T#;
 
     /**
      * Construct a cell with the given value.
      *
      * @param x the given value
      */
-    public def this(x:T) { value = x; }
+    public def this(x:T#) { value = x; }
 
     /**
      * Return a string representation of the Cell.
@@ -41,7 +41,7 @@ public final class Cell[T] {
      */
     public global safe def toString() {
         if (!at(here)) throw new UnsupportedOperationException();
-        return "Cell(" + (this as Cell[T]!).value.toString() + ")";
+        return "Cell(" + (this as Cell[T#]!).value.toString() + ")";
     }
 
 
@@ -59,7 +59,7 @@ public final class Cell[T] {
      *
      * @param x the new value
      */
-    public global def apply(x:T) { at (this) value = x; }
+    public global def apply(x:T#) { at (this) value = x; }
 
     /**
      * Set the value stored in the Cell to the new value.
@@ -68,7 +68,7 @@ public final class Cell[T] {
      * @param x the new value
      * @return the new value stored in the Cell.
      */
-    public global def set(x:T) { at (this) value = x; return x; }
+    public global def set(x:T#) { at (this) value = x; return x; }
 
 
     /**
@@ -78,7 +78,7 @@ public final class Cell[T] {
      * @param x the given value
      * @return a new Cell with the given value stored in it.
      */
-    public static def make[T](x:T)= new Cell[T](x);
+    public static def make[S#](x:S#)= new Cell[S#](x);
 
 
     /**
@@ -89,7 +89,7 @@ public final class Cell[T] {
      * @param x the given Cell
      * @return the value stored in the given Cell.
      */
-    public static operator[T](x:Cell[T]) = x();
+    public static operator[S#](x:Cell[S#]) = x();
 
     /**
      * Create a new Cell with the given value stored in it.
@@ -98,7 +98,7 @@ public final class Cell[T] {
      * @param x the given value
      * @return a new Cell with the given value stored in it.
      */
-    public static operator[T](x:T) = make[T](x);
+    public static operator[S#](x:S#) = make[S#](x);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

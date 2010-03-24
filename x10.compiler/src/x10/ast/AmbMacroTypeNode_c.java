@@ -313,6 +313,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
 	AmbMacroTypeNode_c n = this;
 	
 	LazyRef<Type> sym = (LazyRef<Type>) n.type;
+	if (sym == null)
 	assert sym != null;
 
         final TypeChecker childtc = (TypeChecker) tc.enter(parent, n);

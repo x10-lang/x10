@@ -22,6 +22,7 @@ import polyglot.ast.New;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
+import polyglot.frontend.SetResolverGoal;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -89,10 +90,11 @@ public class X10New_c extends New_c implements X10New {
     @Override
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10New_c n = (X10New_c) super.buildTypesOverride(tb);
+        TypeNode tn = (TypeNode) n.visitChild(n.tn, tb);
         List<TypeNode> typeArgs = (List<TypeNode>) n.visitList(n.typeArguments(), tb);
         n = (X10New_c) n.typeArguments(typeArgs);
         n = (X10New_c) X10Del_c.visitAnnotations(n, tb);
-        return n;
+        return n.reconstruct(qualifier, tn, arguments, body);
     }
 
     List<TypeNode> typeArguments;
@@ -163,7 +165,9 @@ public class X10New_c extends New_c implements X10New {
             if (typeArguments.size() > 0) {
                 if (tn instanceof AmbTypeNode) {
                     AmbTypeNode atn = (AmbTypeNode) tn;
-                    tn = nf.AmbDepTypeNode(atn.position(), atn.prefix(), atn.name(), typeArguments, Collections.EMPTY_LIST, null);
+                    AmbDepTypeNode ttn = (AmbDepTypeNode) nf.AmbDepTypeNode(atn.position(), atn.prefix(), atn.name(), typeArguments, true, Collections.EMPTY_LIST, null);
+                    tn  = (TypeNode) n.visitChild(ttn, new TypeBuilder(childtc.job(), ts, nf));
+                    //tn =  ttn.base(ttn.base().typeRef(Types.lazyRef(ts.unknownType(position()), new SetResolverGoal(childtc.job()))));
                     tn = tn.typeRef(atn.typeRef());
                 }
                 else {

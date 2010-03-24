@@ -49,7 +49,7 @@ public class Object (
      */
     @Native("java", "((Object)#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public global safe native def equals(that:Any): boolean;
+    public global safe native def equals(that:Any#): boolean;
 
     /**
      * Return the implementation-defined hash code of this object.
@@ -102,7 +102,7 @@ public class Object (
      */
     @Native("java", "x10.core.Ref.at(#0, #1)")
     @Native("c++", "(#0)->at(#1)")
-    public property safe def at(r:Object) = home==r.home;
+    public property safe def at(r:Any#) = home==r.home;
     
     /**
      * Return a string representation of the run-time type of this object.

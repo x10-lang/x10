@@ -27,6 +27,15 @@ import x10.types.constraints.TypeConstraint;
  * [T](e){x:T; c}
  */
 public interface DepParameterExpr extends Ambiguous {
+	
+	/** Add the place clause self.at(here) to the conditions
+	 * unless the conditions already have a place clause. 
+	 * 
+	 * This must be called only from within the parser.
+	 * @param e
+	 */
+	void addPlaceClauseIfNeeded();
+	
 	List<Formal> formals();
 	DepParameterExpr formals(List<Formal> formals);
 

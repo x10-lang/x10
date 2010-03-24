@@ -50,7 +50,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "(#0).equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public native global safe def equals(Any): boolean;
+    public native global safe def equals(Any#): boolean;
 
     // FIXME: Locale sensitivity
     /**
@@ -244,7 +244,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "java.lang.String.valueOf(#4)")
     @Native("c++", "x10aux::safe_to_string(#4)")
-    public native static def valueOf[T](v: T): String;
+    public native static def valueOf[T#](v: T#): String;
 
 
     /**
@@ -259,7 +259,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "java.lang.String.format(#1,(#2).getBoxedArray())")
     @Native("c++", "x10::lang::String::format(#1,#2)")
-    public native static def format(fmt: String, args: ValRail[Any]): String;
+    public native static def format(fmt: String, args: ValRail[Any#]): String;
 
 
     // FIXME: Locale sensitivity

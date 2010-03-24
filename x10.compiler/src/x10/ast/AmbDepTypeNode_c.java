@@ -53,13 +53,15 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
    
     protected TypeNode base;
     protected DepParameterExpr dep;
+    boolean sharp;
     
-    public AmbDepTypeNode_c(Position pos, TypeNode base, DepParameterExpr d) {
+    public AmbDepTypeNode_c(Position pos, TypeNode base, boolean sharp, DepParameterExpr d) {
         super(pos);
         assert base != null;
         assert d != null;
         this.base = base;
         this.dep = d;
+        this.sharp = sharp;
     }
     
 //    public void setResolver(Node parent, final TypeCheckPreparer v) {
@@ -73,6 +75,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
 	if (base == this.base)  return this;
 	AmbDepTypeNode_c n = (AmbDepTypeNode_c) copy();
 	n.base = base;
+	n.sharp=sharp;
 	return n;
     } 
     
@@ -81,6 +84,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         if (expr == this.dep)  return this;
         AmbDepTypeNode_c n = (AmbDepTypeNode_c) copy();
         n.dep = expr;
+        n.sharp=sharp;
         return n;
     }
     
@@ -89,6 +93,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         AmbDepTypeNode_c n = (AmbDepTypeNode_c) copy();
         n.base = base;
         n.dep=d;
+        n.sharp=sharp;
         return n;
     }
     
@@ -138,11 +143,22 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
             sym.update(ts.unknownType(position()));
             return postprocess(nf.CanonicalTypeNode(position(), sym), n, childtc);
         }
-        
+        // Add placeClause (if needed) to dep, provided that the target type is not a struct.
+        if ((!sharp) && ! X10TypeMixin.isX10Struct(t) && ! ts.isVoid(t)) {
+        	Position pos = position();
+        	if (n.dep == null) {
+        		Expr placeClause = nf.Call(pos, nf.Self(pos), nf.Id(pos, "at"), nf.AmbHereThis(pos));
+        		n.dep = nf.DepParameterExpr(pos, Collections.singletonList(placeClause));
+        	} else {
+        		n.dep.addPlaceClauseIfNeeded();
+        	}
+        }
         DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);
         
         CConstraint c = Types.get(dep.valueConstraint());
-        t = X10TypeMixin.xclause(t, c);
+        // Ignore the constraint if it is valid (e.g. dep may have an empty list of constraints).
+        if (! c.valid())
+        	t = X10TypeMixin.xclause(t, c);
         if (flags != null) {
         	t = X10TypeMixin.processFlags(flags, t);
         	flags = null;
