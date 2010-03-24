@@ -26,7 +26,7 @@ public abstract class Dist(
     /**
      * The region this distribution is defined over.
      */
-    region: Region,
+    region: Region#,
     /**
      * Is this distribution "unique" (at most one point per place)?
      */
@@ -38,11 +38,11 @@ public abstract class Dist(
     /**
      * If this distribution is "constant", the place all points map to (or null).
      */
-    onePlace: Place
+    onePlace: Place#
 ) implements
-    (Point/*(region.rank)*/)=>Place
+    (Point#/*(region.rank)*/)=>Place
     // (Place)=>Region XTENLANG-60
-    , Iterable[Point(region.rank)]
+    , Iterable[Point#(region.rank)]#
 {
 
     /**
@@ -278,7 +278,7 @@ public abstract class Dist(
      * @param pt the given point
      * @return the place that this distribution maps pt to.
      */
-    abstract public global def apply(pt: Point/*(rank)*/): Place;
+    abstract public global def apply(pt: Point#/*(rank)*/): Place;
 
     /**
      * Return the place which this distribution maps the specified index to.
@@ -345,7 +345,8 @@ public abstract class Dist(
      * @return an iterator over the points in the region of this distribution.
      * @see x10.lang.Iterable[T]#iterator()
      */
-    public global def iterator(): Iterator[Point{self.rank==region.rank}] = region.iterator() as Iterator[Point{self.rank==region.rank}];
+    public global def iterator(): Iterator[Point#(region.rank)]# 
+            = region.iterator() as Iterator[Point#(region.rank)]#;
 
 
     //

@@ -210,12 +210,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return X10Return(pos, expr, false);
 	}
 
-	public TypeParamNode TypeParamNode(Position pos, Id name) {
-	    return TypeParamNode(pos, name, ParameterType.Variance.INVARIANT);
+	public TypeParamNode TypeParamNode(Position pos, Boolean sharp, Id name) {
+	    return TypeParamNode(pos, sharp, name, ParameterType.Variance.INVARIANT);
 	}
 	
-	public TypeParamNode TypeParamNode(Position pos, Id name, ParameterType.Variance variance) {
-		TypeParamNode_c n = new TypeParamNode_c(pos, name, variance);
+	public TypeParamNode TypeParamNode(Position pos, Boolean sharp, Id name, ParameterType.Variance variance) {
+		TypeParamNode_c n = new TypeParamNode_c(pos, name, sharp, variance);
 		n = (TypeParamNode_c) n.ext(extFactory().extNode());
 		n = (TypeParamNode_c) n.del(delFactory().delNode());
 		return n;
@@ -256,17 +256,24 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    n = (AmbMacroTypeNode)n.del(delFactory().delTypeNode());
 	    return n;
 	}
-	public TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep) {
-	    if (dep == null) {
-	        return AmbMacroTypeNode(pos, prefix, name, typeArgs, args);
+	public TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, boolean sharp, List<Expr> args, DepParameterExpr dep) {
+	// Postpone this until we know whether name names a struct or not.
+		/*if (!sharp) {
+	    	if (dep == null) {
+	    		Expr placeClause = Call(pos, Self(pos), Id(pos, "at"), AmbHereThis(pos));
+	    	    dep = DepParameterExpr(pos, Collections.singletonList(placeClause));
+	    	} else {
+	    		dep.addPlaceClauseIfNeeded();
+	    	}
 	    }
-		AmbDepTypeNode n = new AmbDepTypeNode_c(pos, AmbMacroTypeNode(pos, prefix, name, typeArgs, args), dep);
+		if (dep == null) {
+	        return AmbMacroTypeNode(pos, prefix, name, typeArgs, args);
+	    }*/
+		dep = DepParameterExpr(pos,  Collections.EMPTY_LIST);
+		AmbDepTypeNode n = new AmbDepTypeNode_c(pos, AmbMacroTypeNode(pos, prefix, name, typeArgs, args), sharp, dep);
 		n = (AmbDepTypeNode)n.ext(extFactory().extTypeNode());
 		n = (AmbDepTypeNode)n.del(delFactory().delTypeNode());
 		return n;
-	}
-	public TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep) {
-		return AmbDepTypeNode(pos, prefix, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, dep);
 	}
 
 	public Instanceof Instanceof(Position pos, Expr expr, TypeNode type) {

@@ -170,10 +170,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
         X10TypeSystem xts = (X10TypeSystem) ref.typeSystem();
         X10Context context = (X10Context) tc.context();
-   /*     if (xts.isValueType(ref, context) && !fi.flags().isFinal()) {
-            throw new SemanticException("Cannot declare a non-final field in a value class.", position());
-        }
-*/
         	if (X10TypeMixin.isX10Struct(ref) && !isMutable(xts, ref)) {
         		X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
         		if (! x10flags.isFinal()) 
@@ -329,7 +325,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                    t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
 	                    LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
 	                    r.update(t);
-	                    {
+	                    {  // Implementation of has types.
 	                    	TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
 	                    	TypeNode htn  = null;
 	                    	if (hasType != null) {

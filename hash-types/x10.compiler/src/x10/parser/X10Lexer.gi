@@ -169,7 +169,7 @@
     DOT
     EQUAL
     ELLIPSIS
-
+    SHARP
 %End
 
 %Terminals
@@ -305,6 +305,7 @@
                     makeToken($_DIVIDE);
           $EndAction
         ./
+
 
     Token ::= '('
         /.$BeginAction
@@ -785,11 +786,18 @@
           $EndAction
         ./
 
+    Token ::= '#' 
+        /.$BeginAction
+                    makeToken($_SHARP);
+          $EndAction
+        ./
+        
     IntLiteralAndRange ::= Integer '.' '.'
          /.$BeginAction
                      makeToken(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(1), $_IntegerLiteral);
                      makeToken(getToken(2), getToken(3), $_RANGE);
            $EndAction
          ./
+
 %End
 

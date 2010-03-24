@@ -24,7 +24,7 @@ import x10.compiler.NativeRep;
  * are abnormal conditions that should never occur.
  */
 @NativeRep("java", "java.lang.Error", null, null)
-public class Error extends Throwable {
+public class Error extends Throwable# {
 
     /**
      * Construct an Error with no detail message and no cause.

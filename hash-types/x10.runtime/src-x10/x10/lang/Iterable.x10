@@ -19,7 +19,7 @@ import x10.compiler.NativeRep;
  * parameter of type T, and if s implements Iterable[T].
  */
 @NativeRep("java", "x10.core.Iterable<#1 >", null, null)
-public interface Iterable[+T] {
+public interface Iterable[+T#] {
     @Native("java", "(#0).iterator()")
-    def iterator(): Iterator[T];
+    def iterator(): Iterator[T#]#;
 }

@@ -297,6 +297,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	if (child != this.body ) {
     		
     		X10ClassDef_c type = (X10ClassDef_c) this.type;
+    		if (type == null)
+    			assert type != null;
     		if (child == this.classInvariant) {
         		xc = (X10Context) xc.pushClass(type, type.asType());
         		// Add type parameters
@@ -323,31 +325,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     			xc.addVariable(fd.asInstance());
     		}
 
-    		//               for (ClassMember cm : body.members()) {
-    		//        	   if (cm instanceof PropertyDecl) {
-    		//        	       PropertyDecl pd = (PropertyDecl) cm;
-    		//        	       FieldDef fd = pd.fieldDef();
-    		//        	       xc.addVariable(fd.asInstance());
-    		//        	   }
-    		//               }
-
-    		//               for (FieldDef f : type.properties()) {
-    		//                   xc.addVariable(f.asInstance());
-    		//               }
-
     		return child.del().enterScope(xc); 
     	}
-
-    	//    	   if (child == this.classInvariant) {
-    	//    	       X10ClassDef_c type = (X10ClassDef_c) this.type;
-    	//    	       xc = (X10Context) xc.pushClass(type, type.asType());
-    	//               // Add type parameters
-    	//               for (ParameterType t : type.typeParameters()) {
-    	//        	   xc.addNamed(t);
-    	//               }
-    	//    	       return child.del().enterScope(xc); 
-    	//    	   }
-
+    	
     	if (child == this.body || child == this.properties || (this.properties != null && this.properties.contains(child))) {
     		X10ClassDef_c type = (X10ClassDef_c) this.type;
     		xc = (X10Context) xc.pushClass(type, type.asType());
@@ -362,14 +342,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             		    xc.setCurrentTypeConstraint(tc);
             	   }
                }
-    		 
-    		// Now add this.home == currentHome
-/*    		XConstrainedTerm placeTerm = xc.currentPlaceTerm().copy();
-    		XRoot thisVar = type.thisVar();
-    		XTerm placeVar = ((X10TypeSystem) type.typeSystem()).locVar(type.thisVar(), xc);
-    		assert placeVar != null;
-    		placeTerm.addBinding(placeTerm.term(), placeVar);
-    		xc = (X10Context) xc.pushPlace(placeTerm); */
     		
     		return child.del().enterScope(xc); 
     	}
@@ -404,7 +376,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 X10NodeFactory nf = (X10NodeFactory) tb.nodeFactory();
                 for (int i = 0; i < outer.typeParameters().size(); i++) {
                     ParameterType pt = outer.typeParameters().get(i);
-                    TypeParamNode tpn = nf.TypeParamNode(pt.position(), nf.Id(pt.position(), pt.name()));
+                    TypeParamNode tpn = nf.TypeParamNode(pt.position(), ! pt.isHere(), nf.Id(pt.position(), pt.name()));
                     tpn = tpn.variance(outer.variances().get(i));
                     tpn = (TypeParamNode) n.visitChild(tpn, childTb);
                     pas.add(tpn);

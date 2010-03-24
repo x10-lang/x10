@@ -6,6 +6,7 @@ import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
@@ -21,6 +22,7 @@ import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.ContextVisitor;
 import x10.ast.X10CanonicalTypeNode_c;
+import x10.ast.X10Special;
 import x10.constraint.XEQV_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
@@ -601,7 +603,7 @@ public class PlaceChecker {
 	    	if (xmi.name().equals(Name.make("at"))
 	    			&& ts.typeEquals(xmi.def().container().get(), ts.Any(), xc)
 	    			&& t.arguments().size()==1) {
-	    		FieldInstance fi = ts.findField(ts.Any(), ts.FieldMatcher(ts.Object(), 
+	    		FieldInstance fi = ts.findField(ts.Any(), ts.FieldMatcher(ts.Any(), 
 	    				ts.homeName(), xc));
 	    		XTerm lhs =  tr.trans(c, r, fi, ts.Place());
 
@@ -620,6 +622,22 @@ public class PlaceChecker {
 	    	return xmi.body();
 	    }
 	    
+	    /** Return true iff e is a representation of a place clause, self.at(...).
+	     * 
+	     * @param e
+	     * @return
+	     */
+	    public static boolean isPlaceClause(Expr e) {
+	    	if (e instanceof Call) {
+	    		Call call = (Call) e;
+	    		Receiver target = call.target();
+	    		if (target instanceof X10Special && ((X10Special) target).isSelf()) {
+	    			if (call.name().toString().equals("at"))
+	    				return true;
+	    		}
+	    	}
+	    	return false;
+	    }
 	    
     
 }
