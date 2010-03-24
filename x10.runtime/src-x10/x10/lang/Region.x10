@@ -31,7 +31,7 @@ public abstract class Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean
-) implements Iterable[Point#(rank)]# {
+) implements Iterable[Point#(rank)] {
 
     property rail = rank==1 && rect && zeroBased;
     property region = this; // structural affinity w/ Dist, Array for compiler
@@ -79,7 +79,7 @@ public abstract class Region(
      * rails of ints.
      */
 
-    public static def makeRectangular(min: Rail[int]!, max: Rail[int]!): RectRegion(min.length)
+    public static def makeRectangular(min: Rail[int], max: Rail[int]): RectRegion(min.length)
         = BaseRegion.makeRectangular1(min, max);
 
     /**
@@ -104,8 +104,8 @@ public abstract class Region(
      * product of the specified rank-1 regions.
      */
 
-    public static def make(regions: ValRail[Region#]#): RectRegion(regions.length)
-        = BaseRegion.make1(regions as Rail[Region#]#);
+    public static def make(regions: ValRail[Region]): RectRegion(regions.length)
+        = BaseRegion.make1(regions as Rail[Region]);
 
 
     //

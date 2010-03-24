@@ -25,11 +25,11 @@ import x10.util.Pair;
  */
 @NativeRep("java", "x10.core.Rail<#1>", "x10.core.Rail.BoxedRail", "new x10.core.Rail.RTT(#2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Rail<#1 > >", "x10::lang::Rail<#1 >", null)
-public final class Rail[T](length: Int)
-    implements Settable[Int,T], Iterable[T]
+public final class Rail[T#](length: Int)
+    implements Settable[Int,T#], Iterable[T#]
 {
     // need to declare a constructor to shut up the initialization checker
-    private native def this(n: Int): Rail[T]{self.length==n};
+    private native def this(n: Int): Rail[T#]{self.length==n};
 
     /**
      * Create a Rail and initialize it by evaluating the given closure at each index.
@@ -40,7 +40,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5)")
-    public native static safe def make[S](length: Int, init: (Int) => S): Rail[S]!{self.length==length};
+    public native static safe def make[S#](length: Int, init: (Int) => S#): Rail[S#]{self.length==length};
 
     /**
      * Create a Rail and initialize it by copying elements from another Rail.
@@ -52,7 +52,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5, #6)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5, #6)")
-    public native static safe def make[S](length: Int, off:Int, init:Rail[S]): Rail[S]!{self.length==length};
+    public native static safe def make[S#](length: Int, off:Int, init:Rail[S#]): Rail[S#]{self.length==length};
 
     /**
      * Creates an unitiialized Rail, use with caution!
@@ -62,7 +62,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
-    public native static safe def make[S](length: Int): Rail[S]!{self.length==length};
+    public native static safe def make[S#](length: Int): Rail[S#]{self.length==length};
 
     /**
      * Re-initializes a Rail.
@@ -71,7 +71,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "#0.reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
-    public native safe def reset(init: (Int) => T): Void;
+    public native safe def reset(init: (Int) => T#): Void;
 
     /**
      * Re-initializes a Rail to a constant value.
@@ -80,7 +80,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "#0.reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
-    public native safe def reset(init: T): Void;
+    public native safe def reset(init: T#): Void;
 
     /**
      * Cast operator that creates a new Rail from a ValRail.
@@ -89,7 +89,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
-    public native static safe operator [U](r: ValRail[U]): Rail[U]!{self.length==r.length};
+    public native static safe operator [U#](r: ValRail[U#]): Rail[U#]{self.length==r.length};
 
     /**
      * Operator that allows access of Rail elements by index.
@@ -100,7 +100,7 @@ public final class Rail[T](length: Int)
     @Native("java", "#0.apply(#1)")
     @Native("c++", "(*#0)[#1]")
     @Native("cuda", "(#0)[#1]")
-    public native safe def apply(i: Int): T;
+    public native safe def apply(i: Int): T#;
 
     /**
      * Operator that allows assignment of Rail elements by index.
@@ -112,7 +112,7 @@ public final class Rail[T](length: Int)
     @Native("java", "#0.set(#1, #2)")
     @Native("c++", "(*#0)[#2] = #1")
     @Native("cuda", "(#0)[#2] = #1")
-    public native safe def set(v: T, i: Int): T;
+    public native safe def set(v: T#, i: Int): T#;
 
     /**
      * Get an iterator over this Rail.
@@ -121,7 +121,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "#0.iterator()")
     @Native("c++", "(#0)->iterator()")
-    public native safe def iterator(): Iterator[T];
+    public native safe def iterator(): Iterator[T#];
 
 
     /**
@@ -135,7 +135,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.lang.Rail__NativeRep.makeRemoteRail(#3, #4,#5,#6)")
     @Native("c++", "x10::lang::Rail__NativeRep::makeRemoteRail(#4,#5,#6)")
-    public native static safe def makeRemote[T] (p:Place, length:Int, init: (Int) => T) : Rail[T]!p{self.length==length};
+    public native static safe def makeRemote[T#] (p:Place, length:Int, init: (Int) => T#) : Rail[T#]{at(self,p),self.length==length};
 
     /**
      * Create a Rail in a given place and initialize it by copying from a given Rail.
@@ -148,7 +148,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.lang.Rail__NativeRep.makeRemoteRail(#3, #4,#5,#6)")
     @Native("c++", "x10::lang::Rail__NativeRep::makeRemoteRail(#4,#5,#6)")
-    public native static safe def makeRemote[T] (p:Place, length:Int, init: Rail[T]!) : Rail[T]!p{self.length==length};
+    public native static safe def makeRemote[T] (p:Place, length:Int, init: Rail[T#]) : Rail[T#]{at(self,p),self.length==length};
 
     // Transfer functions
 
@@ -164,7 +164,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.lang.Rail__NativeRep.copyTo(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyTo(#0,#1,#2,#3,#4)")
-    public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
+    public native def copyTo (src_off:Int, dst:Rail[T#], dst_off:Int, len:Int) : Void;
 
     /**
      * Copies a portion of a given Rail into a remote Rail indicated by the given closure.
@@ -181,7 +181,7 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.lang.Rail__NativeRep.copyTo(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyTo(#0,#1,#2,#3,#4)")
     public native def copyTo (src_off:Int,
-                              dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
+                              dst_place:Place, dst_finder:()=>Pair[Rail[T#],Int],
                               len:Int) : Void;
 
     /**
@@ -199,7 +199,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.lang.Rail__NativeRep.copyTo(#8, #0,#1,#2,#3,#4,#5)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyTo(#0,#1,#2,#3,#4,#5)")
-    public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int, notifier:()=>Void) : Void;
+    public native def copyTo (src_off:Int, dst:Rail[T#], dst_off:Int, len:Int, notifier:()=>Void) : Void;
 
     /**
      * Copies a portion of a given Rail into a remote Rail indicated by the given closure.
@@ -217,7 +217,7 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.lang.Rail__NativeRep.copyTo(#8, #0,#1,#2,#3,#4,#5)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyTo(#0,#1,#2,#3,#4,#5)")
     public native def copyTo (src_off:Int,
-                              dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
+                              dst_place:Place, dst_finder:()=>Pair[Rail[T#],Int],
                               len:Int, notifier:()=>Void) : Void;
 
     /**
@@ -235,7 +235,7 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.lang.Rail__NativeRep.copyTo(#8, #0,#1,#2,#3,#4,#5)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyTo(#0,#1,#2,#3,#4,#5)")
     public native def copyTo (src_off:Int,
-                              dst_place:Place, dst_handle:PlaceLocalHandle[Rail[T]], dst_off:Int,
+                              dst_place:Place, dst_handle:PlaceLocalHandle[Rail[T#]], dst_off:Int,
                               len:Int) : Void;
 
     /**
@@ -254,7 +254,7 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.lang.Rail__NativeRep.copyTo(#9, #0,#1,#2,#3,#4,#5,#6)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyTo(#0,#1,#2,#3,#4,#5,#6)")
     public native def copyTo (src_off:Int,
-                              dst_place:Place, dst_handle:PlaceLocalHandle[Rail[T]], dst_off:Int,
+                              dst_place:Place, dst_handle:PlaceLocalHandle[Rail[T#]], dst_off:Int,
                               len:Int, notifier:()=>Void) : Void;
 
 /* not implemented!
@@ -286,7 +286,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.lang.Rail__NativeRep.copyFrom(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyFrom(#0,#1,#2,#3,#4)")
-    public native def copyFrom (dst_off:Int, src:Rail[T], src_off:Int, len:Int) : Void;
+    public native def copyFrom (dst_off:Int, src:Rail[T#], src_off:Int, len:Int) : Void;
 
     /**
      * Copies a portion of a remote Rail indicated by the given closure into a given Rail (a DMA get).
@@ -303,7 +303,7 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.lang.Rail__NativeRep.copyFrom(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyFrom(#0,#1,#2,#3,#4)")
     public native def copyFrom (dst_off:Int,
-                                src_place:Place, src_finder:()=>Pair[Rail[T],Int],
+                                src_place:Place, src_finder:()=>Pair[Rail[T#],Int],
                                 len:Int) : Void;
 
     /**
@@ -318,7 +318,7 @@ public final class Rail[T](length: Int)
      */
     @Native("java", "x10.lang.Rail__NativeRep.copyFrom(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyFrom(#0,#1,#2,#3,#4)")
-    public native def copyFrom (dst_off:Int, src:ValRail[T], src_off:Int, len:Int):Void;
+    public native def copyFrom (dst_off:Int, src:ValRail[T#], src_off:Int, len:Int):Void;
 
     /** 
      * Copies a portion of a ValRail indicated by the given closure into a given Rail (a DMA get). 
@@ -335,7 +335,7 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.lang.Rail__NativeRep.copyFrom1(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyFrom1(#0,#1,#2,#3,#4)")
     public native def copyFrom (dst_off:Int,
-                                src_place:Place, src_finder:()=>Pair[ValRail[T],Int],
+                                src_place:Place, src_finder:()=>Pair[ValRail[T#],Int],
                                 len:Int) : Void;
 
     /** Creates a ValRail that shares the data of the given Rail.  This is an
@@ -349,11 +349,11 @@ public final class Rail[T](length: Int)
     @Native("c++", "#0->view()")
     public native def view(): ValRail[T]{self.length==this.length};
 
-    private static class RailIterator[S] implements Iterator[S] {
+    private static class RailIterator[S#] implements Iterator[S#] {
         private var curIndex:int = 0;
-        private val rail:Rail[S]!;
+        private val rail:Rail[S#];
 
-        private def this(r:Rail[S]!) { rail = r; }
+        private def this(r:Rail[S#]) { rail = r; }
         public def hasNext() = curIndex < rail.length;
         public def next() = rail(curIndex++);
     }

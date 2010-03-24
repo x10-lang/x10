@@ -15,7 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "x10.core.Settable<#1, #2>", null, null)
-public interface Settable[-I,V] {
+public interface Settable[-I#,V#] {
     @Native("java", "(#0).set(#1, #2)")
-    def set(v: V, i: I): V;
+    def set(v: V#, i: I#): V#;
 }
