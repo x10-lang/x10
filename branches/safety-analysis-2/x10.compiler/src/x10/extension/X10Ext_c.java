@@ -33,6 +33,7 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.ProcedureCall;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
@@ -233,7 +234,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            	} else if (isMainMethod(pd, ec) && !result.safe()) {
 	            		ec.emitMessage("Main method is not safely parallelized; effect is: " + result, pd.position());
 	            	} else {
-				       //System.out.println("Method " + pd.name() + " is "+ result);
+				       System.out.println("Method " + pd.name() + " is "+ result);
 	            	}
 
 	            } else if (n instanceof SettableAssign) {
@@ -243,15 +244,12 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            } else if (n instanceof While) {
 	            	// vj: this is odd.
 	                result = Effects.makeUnsafe();
-	            } else {
+	            } else if (n instanceof ProcedureCall) {
 			/* nv: FIXME */
-			/* System.out.println(n);
-				if (n instanceof AnnotationNode)
-					System.out.println("AnnotationNode");
-				if (n instanceof FieldDecl)
-					System.out.println("FieldDecl"); */
+	            	//System.out.println(n);
+	            } else {
 	                result = Effects.makeSafe();
-		    }
+		        }
 	            return node().ext(effect(result));
 
 	        } catch (XFailure f) {
@@ -372,6 +370,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       Effect result= Effects.makeSafe();
 
       result.addRead(Effects.makeFieldLocs(createTermForReceiver(rcvr, ec), new XVarDefWrapper(field)));
+      analyzeClockedField(result, (X10FieldInstance) field.fieldInstance(), field.target(), ec);
       return result;
   }
 
@@ -457,6 +456,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
               result= effect(target);
               X10TypeEnv env = ec.env();
               result= env.followedBy(result, computeEffect(args, ec));
+              if (call.toString().contains("search"))
+            	  System.out.println("search" + getMethodEffects(methodInstance,ec));
               result= env.followedBy(result, getMethodEffects(methodInstance, ec));
           }
       }
