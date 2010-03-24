@@ -1,0 +1,313 @@
+\chapter{Clocks}\label{XtenClocks}\index{clocks}
+
+The standard library for \Xten{}, {\cf x10.lang} defines a {\cf final
+value class}, {\tt clock} intended for repeated quiescence detection
+of arbitrary, data-dependent collection of activities.
+
+This chapter describes the syntax and semantics of clocks and
+statements in the language that have parameters of type {\cf clock}. 
+
+At any stage of the computation, a clock has zero or more {\em
+registered} activities. An activity may use only those clocks it is
+registered with. An activity may be subscribed to zero or more
+clocks. An activity is registered with a clock when it is created.
+During its lifetime the only additional clocks it is registered with
+are exactly those that it creates. In particular it is not possible
+for an activity to obtain access to a clock by reading a
+data-structure. This is accomplished by requiring that clocks cannot
+be stored in objects, only in ``flow'' variables that live on the
+stack.
+
+An activity may perform the following operations on a clock {\cf
+c}. It may {\em unregister} with {\cf c}; after this, it may perform
+no further actions on {\cf c}. It may {\em check} to see if it is
+unregistered on a clock. It may {\em register} a newly forked activity
+with {\cf c}.  It may {\em mark} a statement {\cf S} for completion in
+the current phase by executing the statement {\cf now(c) S}. It may
+{\em continue} the clock by executing {\cf c.continue();}. This
+indicate to {\cf c} that it has finished marking all statements it
+wishes to perform in the current phase. Finally, it may {\em block}
+(through the statement {\cf next}) on all the clocks that it is
+registered with. (This operation implicitly {\cf continue}'s all
+clocks for the activity.) It will resume from this statement only when
+all these clocks are ready to advance to the next phase.
+
+A clock becomes ready to advance to the next phase when every activity
+registered with the clock has executed at least one {\cf continue}
+operation on that clock and all statements marked for completion in
+the current phase have been completed.
+
+Though clocks introduce a blocking statement ({\cf next}) an important
+property of \Xten{} is that clocks cannot introduce deadlocks. That is,
+the system cannot reach a quiescent state (in which no activity is
+progressing) from which it is unable to progress. For, before blocking
+each activity continues all clocks it is registered with. Thus if a
+configuration were to be stuck (that is, no activity can progress) all
+clocks will have been continued. But this implies that all activities
+blocked on {\cf next} may continue and the configuration is not stuck.
+
+\section{Clock operations}
+\subsection{Creating new clocks}\index{clock!creation}
+
+Clocks are created using the nullary constructor for {\cf clock}
+
+\begin{x10}
+clock timeSynchronizer = new clock();
+\end{x10}
+
+The current activity is automatically registered with the clock.
+
+\subsection{Transmission of clocks}
+Clocks may only be stored in {\em flow} variables\index{flow
+variables}, i.e.{} local variables and parameters to methods (that are
+marked with the {\cf flow} modifier).  Values received by a method in
+a {\cf flow} argument or stored in a {\cf flow} local variable may not
+be assigned to fields of objects.
+
+\todo{Perhaps we can say: may not be assigned to fields of objects that are not {\tt threadlocal}?}
+
+Each activity is initiated with zero or more clocks, namely those
+available in its lexically enclosing environment that are referenced
+by the activity.  Because of the condition above, an activity cannot
+acquire any new clocks during its lifetime (except by creating
+them). Therefore for each activity we can statically determine (a
+superset of) the clocks used by that activity through a simple flow
+analysis.
+
+\todo{We need to have a cost-model for clocks. Should ensure that this
+model reflects hierarchical quiescence detection, cf trees of short
+circuits.}
+
+\subsection{Marking clocks referenced in statements}\index{clock!clocked statements}
+The programmer may explicitly indicate the set of currently visible
+clocks that are to be used inside a statement using the
+clocked statement:
+\begin{x10}
+  {\tt\em{}Statement::}
+     clock (c1,...,ck) {\tt\em{}Statement}
+\end{x10}
+
+The \Xten{} compiler throws an error if the statement statically
+references any clock other than the ones enumerated. The \Xten{}
+compiler also performs ``type reconstruction'' on such clock
+assertions so that often the user may omit the {\cf clock (c1,...,ck)}
+prefix. Nevertheless the programmer may wish to use this form of the
+statement to explicitly document the programmer's intention.
+
+The statement may create and use clocks internally.
+
+\subsection{Clocking statements}\index{clock!now}
+An activity may execute the statement
+\begin{x10}
+  now (c) S;
+\end{x10}
+\noindent (for {\cf c} a clock and {\cf S} is a statement). Execution
+of this statement causes {\cf S} to be executed. The clock {\cf c}
+cannot advance as long as {\cf S} (and any asynchronous activity it
+has spawned) is executing. The statement {\cf S} is said to be {\em
+clocked} on {\cf c}. 
+
+{\tt S} may not suspend on {\tt c} or any other clock
+visible to {\tt now (c) S}. (It may create new clocks and
+suspend on them.) If it is desired to spawn a new activity and allow
+it to suspend on {\tt c} (or any other clock visible to {\tt now (c)
+S} then that activity should not be spawned within the scope of {\tt
+now (c)}. Instead it should internally use {\tt now(c)} as appropriate.
+
+\subsection{Continuing clocks}\index{clock!continue}
+An activity may execute the statement
+\begin{x10}
+  c.continue();
+\end{x10}
+\noindent on a clock it is registered with. Execution of this
+statement indicates that the activity will clock no further statements
+on {\cf c} until the clock has advanced.
+
+The compiler should issue an error if any activity has a potentially
+live execution path from a {\cf continue} statement to a {\cf now}
+statement on the same clock that does not go through a {\cf next}
+statement.
+
+\subsection{Advancing clocks}\index{clock!next}
+An activity may execute the statement
+\begin{x10}
+  next c1,...,ck;
+\end{x10}
+
+\noindent 
+It is a compile time error for the body of an activity to contain such
+a statement if the clocks registered for that activity are not the clocks
+{\tt c1,...,ck} (in some order).
+
+
+Execution of this statement blocks until all the clocks that the
+activity is registered with (if any) have advanced. The activity
+implicitly issues a {\cf continue} on all clocks it is registered
+with, before suspending.
+
+An \Xten{} computation is said to be {\em quiescent} on a clock {\cf
+c} if each activity registered with {\cf c} has continued {\cf c}.
+Note that once the system is quiescent on {\cf c}, it will remain
+quiescent on $c$ forever (unless the system takes some action), since
+no other activity can become registered with {\cf c}.  That is,
+quiescence on a clock is a {\em stable property}.
+
+Once the implementation has detected quiecence on {\cf c}, the system
+marks all activities registered with {\cf c} as being able to progress
+on {\cf c}. An activity blocked on {\cf next} resumes execution once
+it is marked for progress by all the clocks it is registered with.
+
+\todo{Present a simple example of clock advance.}
+
+\subsection{Dropping clocks}\index{clock!drop}
+An activity may drop a clock by executing:
+\begin{x10}
+c.drop();
+\end{x10}
+
+\noindent{} 
+This statement does nothing if the activity has already dropped {\cf c}. 
+The compiler must ensure conservatively that after dropping {\cf c} no
+activity can mark a statement current on {\tt c} or continue {\cf c}.
+
+\subsection{Checking for dropped clocks}\index{clock!dropped}
+An activity may check that a clock is dropped by executing:
+\begin{x10}
+c.dropped()
+\end{x10}
+\noindent This call returns a {\cf boolean} value: {\cf true} iff the activity has already executed {\cf c.drop()}.
+
+\subsection{Program equivalences}
+
+From the discussion above it should be clear that the following
+equivalences hold:
+
+\begin{eqnarray}
+ {\cf now(c)\, now(d)\,S} &=& {\cf now(d)\, now(c)\,S}\\
+ {\cf now(c)\, now(c)\,S} &=& {\cf now(c)\,S}\\
+ {\cf c.continue();  next;} &=& {\cf next;}\\
+\begin{array}{l}
+ {\cf c.continue();}\\
+ {\cf d.continue();}
+\end{array}  &=& 
+\begin{array}{l}
+{\cf d.continue();}\\
+{\cf c.continue;}
+\end{array}
+\end{eqnarray}
+
+Note that {\cf next; next;} is not the same as {\cf next;}. The
+first will wait for clocks to advance twice, and the second
+once.  
+
+\subsection{Implementation Notes}
+Clocks may be implemented efficiently with message passing, e.g.{} by
+using short-circuit ideas in \cite{SaraswatPODC88}.  Recall that every
+activity is spawned with references to a fixed number of clocks. Each
+reference should be thought of as a global pointer to a location in
+some place representing the clock. (We shall discuss a further
+optimization below.) Each clock keeps two counters: the total number
+of outstanding references to the clock, and the number of activities
+that are currently suspended on the clock.
+
+When an activity $A$ spawns another activity $B$ that will reference a
+clock $c$ referenced by $A$, $A$ {\em splits} the reference by sending
+a message to the clock. Whenever an activity drops a reference to a
+clock, or suspends on it, it sends a message to the clock. 
+
+The optimization is that the clock can be represented in a distributed
+fashion. Each place keeps a local counter for each clock that is
+referenced by an activity in that place. The global location for the
+clock simply keeps track of the places that have references and that
+are quiescent. This can reduce the inter-place message traffic
+significantly.
+
+
+\section{Clocked types}\index{types!clocked}
+
+%We allow types to specify clocks, via a {\cf clocked(c)} modifier,
+%e.g.{}
+
+%\begin{x10}
+%  clocked(c) int r;
+%\end{x10}
+
+%This declaration asserts that {\cf r} is accessible
+%(readable/writable) only by those statements that are clocked on {\cf
+%c}. Thus propagation of the clock provides some control over the
+%``visibility'' of {\cf r}.
+
+The declaration 
+
+\begin{x10}
+  clocked(c) final int l = r;
+\end{x10}
+
+\noindent asserts additionally that in each clock instant {\cf l} is final, 
+i.e.{} the value of {\cf l} may be reset at the beginning of each phase
+of {\tt c} but stays constant during the phase.
+
+This statement terminates when the computation of {\tt r} has
+terminated and the assignment has been performed.
+
+\todo{Generalize the syntax so that aggregate variables can be clocked with an aggregate clock of the same shape.}
+
+\subsection{Clocked assignment}\index{assignment!clocked}
+We expect that most arrays containing application data will be
+declared to be {\cf clocked final}. We support this very powerful type
+declaration by providing a new statement:
+{\footnotesize
+\begin{verbatim}
+  next(c) l = r; 
+\end{verbatim}}
+
+
+\noindent 
+for a variable $l$ declared to be clocked on $c$. The statement
+assigns $r$ to the {\em next} value of $l$. There may be multiple such
+assignments before the clock advances. The last such assignment
+specifies the value of the variable that will be visible after the
+clock has advanced.  If the variable is {\cf clocked final} it is
+guaranteed that {\em all} readers of the variable throughout this
+phase will see the value $r$.
+
+The expression {\tt r} is implicitly treated as {\tt now(c) r}. That
+is, the clock {\tt c} will not advance until the computation of {\tt r} has
+terminated.
+
+\section{Examples}
+
+Consider the core of the ASCI Benchmark Sweep3D program for computing
+solutions to mass transport problems.
+
+In a nutshell the core computation is a triply nested sequential loop
+in which the value of a variable in the current iteration is dependent
+on the values of neighboring variables in a past iteration. Such a
+problem can be parallelized through pipelining. One visualizes a
+diagonal wavefront sweeping through the array. An MPI version of the
+program may be described as follows. There is a two dimensional grid
+of processors which performs the following computation
+repeatedly. Each processor synchronously receives a value from the
+processor to its west, then to its north, then computes some function
+of these values and computes a new value to be sent to the processor
+to its east and then to its south.  Ignoring the behavior of the
+boundary processors for the moment such a computation may be described
+by the following \Xten{} program:
+
+\begin{x10}
+region R = [1..n0,1..m0];
+clock[R] W,N;
+clock(W) final double [cyclic(R)] A; 
+for (int t : 1..TMax) \{
+  ateach( i,j:A) 
+    clock (W[i-1,j],N[i,j-1],W[i,j],N[i,j]) \{
+      double west = now (W[i-1,j]) future\{A[i-1,j]\}; 
+      W[i-1,j].continue();           
+      double north = now (N[i,j-1]) future\{A[i,j-1]\}; 
+      N[i,j-1].continue();
+      next(W[i,j]) A[i,j] = compute(west, north);
+      next W[i-1,j],N[i,j-1],W[i,j],N[i,j];
+  \}
+\}
+\end{x10}
+
