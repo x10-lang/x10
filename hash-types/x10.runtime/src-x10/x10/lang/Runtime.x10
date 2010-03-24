@@ -29,7 +29,7 @@ public final class Runtime {
 
     @Native("java", "java.lang.System.out.println(#1)")
     @Native("c++", "x10aux::system_utils::println((#1)->toString()->c_str())")
-    public native static def println(o:Object) : Void;
+    public native static def println(o:Object#) : Void;
 
     @Native("java", "java.lang.System.out.println()")
     @Native("c++", "x10aux::system_utils::println(\"\")")
@@ -37,13 +37,13 @@ public final class Runtime {
 
     @Native("java", "java.lang.System.out.printf(#4, #5)")
     @Native("c++", "x10aux::system_utils::printf(#4, #5)")
-    public native static def printf[T](fmt:String, t:T) : Void;
+    public native static def printf[T#](fmt:String#, t:T#) : Void;
 
     @Native("c++", "(#1)._val")
-    public static def nativeThis(x:Object) = 0L;
+    public static def nativeThis(x:Object#) = 0L;
 
     @Native("c++", "((x10aux::ref<x10::lang::Closure>)(#4))->toNativeString()")
-    public static def nativeClosureName[T](cl:T) = cl.toString();
+    public static def nativeClosureName[T#](cl:T#) = cl.toString();
 
     // Configuration options
 
@@ -79,7 +79,7 @@ public final class Runtime {
      * Java: pretend receiver is local.
      */
     @Native("java", "#4")
-    public static def pretendLocal[T](x:T):T! = x as T!;
+    public static def pretendLocal[T#](x:T#):T = x as T;
 
     /**
      * Return true if place(id) is in the current node.
@@ -139,11 +139,11 @@ public final class Runtime {
 
         public native def size():Int;
 
-        public native def poll():Object;
+        public native def poll():Object#;
 
-        public native def push(t:Object):Void;
+        public native def push(t:Object#):Void;
 
-        public native def steal():Object;
+        public native def steal():Object#;
     }
 
 
@@ -166,7 +166,7 @@ public final class Runtime {
         /**
          * Parked threads
          */
-        private val threads = new Stack[Thread]();
+        private val threads = new Stack[Thread#]();
 
         /**
          * Park calling thread
@@ -227,7 +227,7 @@ public final class Runtime {
     static class Semaphore {
         private val lock = new Lock();
 
-        private val threads = new Stack[Thread]();
+        private val threads = new Stack[Thread#]();
 
         private var permits:Int;
 
@@ -276,14 +276,14 @@ public final class Runtime {
     }
 
 
-    static class ClockPhases extends HashMap[Clock,Int] {
-        static def make(clocks:ValRail[Clock], phases:ValRail[Int]):ClockPhases! {
+    static class ClockPhases extends HashMap[Clock#,Int] {
+        static def make(clocks:ValRail[Clock#], phases:ValRail[Int]):ClockPhases! {
             val clockPhases = new ClockPhases();
             for(var i:Int = 0; i < clocks.length; i++) clockPhases.put(clocks(i), phases(i));
             return clockPhases;
         }
 
-        def register(clocks:ValRail[Clock]) {
+        def register(clocks:ValRail[Clock#]) {
             return ValRail.make[Int](clocks.length, (i:Int)=>(clocks(i)).register());
         }
 
@@ -1043,8 +1043,8 @@ public final class Runtime {
         val latch = new Latch();
     }
 
-    public static def evalAt[T](place:Place, eval:()=>T):T {
-        val box = new Remote[T]();
+    public static def evalAt[T#](place:Place, eval:()=>T#):T# {
+        val box = new Remote[T#]();
         async (place) {
             try {
                 val result = eval();
@@ -1074,9 +1074,9 @@ public final class Runtime {
     /**
      * Eval future expression
      */
-    public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
+    public static def evalFuture[T#](place:Place, eval:()=>T#):Future[T#] {
         val f = at (place) {
-        val f1 = new Future[T](eval);
+        val f1 = new Future[T#](eval);
                 async f1.run();
                 f1
         };
@@ -1116,7 +1116,7 @@ public final class Runtime {
     /**
      * Return the clock phases for the current activity
      */
-    static def clockPhases():ClockPhases! {
+    static def clockPhases():ClockPhases {
         val a = activity();
         if (null == a.clockPhases)
             a.clockPhases = new ClockPhases();
@@ -1134,7 +1134,7 @@ public final class Runtime {
     /**
      * Return the innermost finish state for the current activity
      */
-    private static def currentState():FinishState {
+    private static def currentState():FinishState#{
         val a = activity();
         if (null == a.finishStack || a.finishStack.isEmpty())
             return a.finishState;
@@ -1169,7 +1169,7 @@ public final class Runtime {
      * Push the exception thrown while executing s in a finish s,
      * onto the finish state.
      */
-    public static def pushException(t:Throwable):Void  {
+    public static def pushException(t:Throwable#):Void  {
         currentState().pushException(t);
     }
 
@@ -1179,13 +1179,13 @@ public final class Runtime {
     }
 
 
-    static def scan(random:Random!, latch:Latch!, block:Boolean):Activity {
+    static def scan(random:Random, latch:Latch, block:Boolean):Activity# {
         return runtime().pool.scan(random, latch, block);
     }
 
 
     // submit an activity to the pool
-    private static def execute(activity:Activity!):Void {
+    private static def execute(activity:Activity):Void {
         worker().push(activity);
     }
 

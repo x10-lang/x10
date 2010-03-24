@@ -39,7 +39,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     /**
      * Copy constructor.
      */
-    public native def this(String): String;
+    public native def this(String#): String;
 
 
     /**
@@ -84,7 +84,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "(#0).toString()")
     @Native("c++", "x10aux::to_string(#0)")
-    public native global safe def toString(): String;
+    public native global safe def toString(): String#;
 
 
     /**

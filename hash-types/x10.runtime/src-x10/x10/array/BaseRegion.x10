@@ -27,11 +27,11 @@ import x10.io.Printer;
 abstract public class BaseRegion extends Region {
 
     // XTENLANG-49
-    static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
-    static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
-    static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
-    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
-    static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
+    static type PolyRegion(rank:Int) = PolyRegion#{self.rank==rank};
+    static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder#{self.rank==rank};
+    static type PolyRow(rank:Int) = PolyRow#{self.rank==rank};
+    static type PolyMat(rank:Int) = PolyMat#{self.rank==rank};
+    static type BaseRegion(rank:int) = BaseRegion#{self.rank==rank};
 
 
     //
@@ -59,7 +59,7 @@ abstract public class BaseRegion extends Region {
         return PolyRegion.make(pm) as Region(normal.rank); // XXXX
     }
 
-    public static def makeRectangular1(min: Rail[int]!, max: Rail[int]!): RectRegion(min.length) { // XTENLANG-4
+    public static def makeRectangular1(min: Rail[int], max: Rail[int]): RectRegion(min.length) { // XTENLANG-4
         return RectRegion.make1(min, max);
     }        
 
@@ -82,7 +82,7 @@ abstract public class BaseRegion extends Region {
     public static def makeLowerTriangular1(rowMin: int, colMin: int, size: int): Region(2)
         = PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
     
-    public static def make1(regions: Rail[Region]!): RectRegion(regions.length) { // XTENLANG-4
+    public static def make1(regions: Rail[Region]): RectRegion(regions.length) { // XTENLANG-4
         var r: Region = regions(0);
         for (var i: int = 1; i<regions.length; i++)
             r = r.product(regions(i));
@@ -220,7 +220,7 @@ abstract public class BaseRegion extends Region {
     // PolyRegion.Iterator gives us a BaseRegion.Iterator
     //
 
-    public global def scanners(): Iterator[Scanner]! {
+    public global def scanners(): Iterator[Scanner] {
         throw U.unsupported(this, "scanners()");
     }
 
