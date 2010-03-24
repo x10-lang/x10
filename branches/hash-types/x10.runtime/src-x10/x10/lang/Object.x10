@@ -82,7 +82,7 @@ public class Object (
      */
     @Native("java", "((Object)#0).toString()")
     @Native("c++", "(#0)->toString()")
-    public global safe native def toString() : String;
+    public global safe native def toString() : String#;
 
     /**
      * Return true if the home location of this object is the given place.
