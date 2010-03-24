@@ -1,0 +1,36 @@
+XtenDistribution{s}
+
+A distribution is a mapping from an XtenRegion to the set of places. Each program runs in a fixed number of places, determined  by runtime parameters. The static constant place.MAX_PLACES specifies the maximum number of places. The collection of places is assumed to be totally ordered.
+
+When operated on as a distribution, a region R implicitly behaves as the distribution mapping each item in R to "here".
+
+    region R = [100]
+    distribution D = R block N;
+    distribution D = R cycle N;
+    distribution D = R here;
+    distribution D = R random N;
+
+The distribution "R block N" distributes the elements of R (in order) over the set of places in blocks of size N, starting with the first place and wrapping around if there are still elements in R. Similarly for cycle. The distribution R random N randomly allocates N-sized blocks of points in R to places.
+
+X10 will allow for user-defined distributions, and for composition of distributions.
+
+Distributions may be dense or sparse. 
+
+Sparse distributions 
+
+----
+
+Random thoughts.
+
+Need to be able to specify various properties of distributions and regions, when specifying them as generic parameters.
+
+e.g.
+
+   Dimensionality of the distribution.
+   Whether the distribution is square or not?
+   Triangular?
+   Enumeration subrange on a dimension.
+   That a dimension is 0..N+1 (here N is always positive).
+
+
+   

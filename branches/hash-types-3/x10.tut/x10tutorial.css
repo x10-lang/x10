@@ -1,0 +1,17 @@
+.ex{
+  background-color: #dff;
+}
+.output{
+  background-color: #fdf;
+}
+.todo{
+  background-color: #faa;
+}
+.xiom {
+  background-color: #f88;
+}
+table.ex, th.ex, td.ex{
+  padding: 0px;
+  margin: 0px;
+  border: 0px;
+}
