@@ -27,13 +27,13 @@ import x10.array.FastArray;
  *
  * @author bdlucas
  */
-public abstract class Array[T](
+public abstract class Array[T#](
     /**
      * The distribution of this array.
      */
-    dist:Dist
-) implements (Point(dist.region.rank))=>T,
-             Iterable[Point(dist.region.rank)]
+    dist:Dist#
+) implements (Point#(dist.region.rank))=>T#,
+             Iterable[Point#(dist.region.rank)]#
 {
     //
     // properties
@@ -43,7 +43,7 @@ public abstract class Array[T](
     /**
      * The region this array is defined over.
      */
-    public global property region: Region(rank) = dist.region;
+    public global property region: Region#(rank) = dist.region;
 
     /**
      * The rank of this array.
@@ -95,7 +95,7 @@ public abstract class Array[T](
      * @see #make[T](Dist)
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](region:Region)= makeVar[T](region);
+    public static def make[T#](region:Region)= makeVar[T#](region);
 
     /**
      * Create a mutable array over the given distribution and default initial values for elements.
@@ -106,7 +106,7 @@ public abstract class Array[T](
      * @see #make[T](Region)
      * @see #make[T](Dist, (Point)=>T)
      */
-    public static def make[T](dist: Dist)= makeVar[T](dist);
+    public static def make[T#](dist: Dist)= makeVar[T#](dist);
 
     /**
      * Create a mutable local array over the given region.
@@ -119,7 +119,7 @@ public abstract class Array[T](
      * @see #make[T](Region)
      * @see #make[T](Dist, (Point)=>T)
      */
-    public static def make[T](region:Region, init: (Point(region.rank))=>T)= makeVar[T](region, init);
+    public static def make[T#](region:Region, init: (Point#(region.rank))=>T)= makeVar[T#](region, init);
 
     /**
      * Create a mutable array over the given distribution.
@@ -132,36 +132,36 @@ public abstract class Array[T](
      * @see #make[T](Dist)
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](dist: Dist, init: (Point(dist.rank))=>T)= makeVar[T](dist, init);
+    public static def make[T#](dist: Dist, init: (Point#(dist.rank))=>T#)= makeVar[T#](dist, init);
 
     // TODO: [IP] made private for now; remove
-    private static def makeVar[T](region: Region)= BaseArray.makeVar1[T](region);
+    private static def makeVar[T#](region: Region#)= BaseArray.makeVar1[T#](region);
     // TODO: [IP] made private for now; remove
-    private static def makeVar[T](region: Region, init: (Point(region.rank))=>T): Array[T](region)
-        = BaseArray.makeVar1[T](region, init) as Array[T](region);
+    private static def makeVar[T#](region: Region, init: (Point(region.rank))=>T#): Array[T#]#(region)
+        = BaseArray.makeVar1[T#](region, init) as Array[T#](region);
 
     // TODO: [IP] made private for now; remove
-    private static def makeVar[T](dist: Dist, init:(Point(dist.rank))=>T): Array[T](dist)
-        = BaseArray.makeVar1[T](dist, init);
+    private static def makeVar[T#](dist: Dist#, init:(Point#(dist.rank))=>T): Array[T#]#(dist)
+        = BaseArray.makeVar1[T#](dist, init);
     // TODO: [IP] made private for now; remove
-    private static def makeVar[T](dist: Dist): Array[T](dist)
-        = BaseArray.makeVar1[T](dist);
+    private static def makeVar[T#](dist: Dist#): Array[T#](dist)
+        = BaseArray.makeVar1[T#](dist);
 
     // TODO: [IP] made private for now; remove
-    private static def makeVal[T](region: Region): Array[T](region)
-        = BaseArray.makeVal1[T](region) as Array[T](region);
+    private static def makeVal[T#](region: Region#): Array[T#]#(region)
+        = BaseArray.makeVal1[T#](region) as Array[T#]#(region);
 
     // TODO: [IP] made private for now; remove
-    private static def makeVal[T](dist: Dist): Array[T](dist)
-        = BaseArray.makeVal1[T](dist) as Array[T](dist);
+    private static def makeVal[T#](dist: Dist#): Array[T#]#(dist)
+        = BaseArray.makeVal1[T#](dist) as Array[T#]#(dist);
 
     // TODO: [IP] made private for now; remove
-    private static def makeVal[T](region: Region, init: (Point(region.rank))=>T): Array[T](region)
-        = BaseArray.makeVal1[T](region, init) as Array[T](region);
+    private static def makeVal[T#](region: Region#, init: (Point#(region.rank))=>T#): Array[T#]#(region)
+        = BaseArray.makeVal1[T#](region, init) as Array[T#]#(region);
 
     // TODO: [IP] made private for now; remove
-    private static def makeVal[T](dist: Dist, init: (Point(dist.rank))=>T): Array[T](dist)
-        = BaseArray.makeVal1[T](dist, init) as Array[T](dist);
+    private static def makeVal[T#](dist: Dist#, init: (Point#(dist.rank))=>T#): Array[T#](dist)
+        = BaseArray.makeVal1[T#](dist, init) as Array[T#]#(dist);
 
     /**
      * Create a mutable local array with the shape and values of the given Rail.
@@ -173,8 +173,8 @@ public abstract class Array[T](
      * @see #make[T](ValRail[T])
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](rail: Rail[T]): Array[T]{rank==1&&rect&&zeroBased}
-        = BaseArray.makeVar1[T](rail);
+    public static def make[T#](rail: Rail[T#]): Array[T#]#{rank==1&&rect&&zeroBased}
+        = BaseArray.makeVar1[T#](rail);
 
     /**
      * Create a mutable local array with the shape and values of the given ValRail.
@@ -186,8 +186,8 @@ public abstract class Array[T](
      * @see #make[T](Rail[T])
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](rail: ValRail[T]): Array[T]{rank==1&&rect&&zeroBased}
-        = BaseArray.makeVar1[T](rail);
+    public static def make[T#](rail: ValRail[T#]): Array[T#]{rank==1&&rect&&zeroBased}
+        = BaseArray.makeVar1[T#](rail);
 
     /**
      * Create a mutable local one-dimensional zero-based array of the given size.
@@ -202,8 +202,8 @@ public abstract class Array[T](
      * @see #make[T](ValRail[T])
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](size: Int, init: (Point(1))=>T): Array[T](1)
-        = makeVar[T](0..size-1, init);
+    public static def make[T#](size: Int, init: (Point#(1))=>T#): Array[T#](1)
+        = makeVar[T#](0..size-1, init);
 
 
     /**
@@ -219,9 +219,9 @@ public abstract class Array[T](
      * @see #makeFast[T](Region, (Point)=>T)
      */
     // TODO: [IP] remove
-    public static def makeFast[T](region: Region)
-        = makeVar[T](region)
-            as FastArray[T]{region==region};
+    public static def makeFast[T#](region: Region#)
+        = makeVar[T#](region)
+            as FastArray[T#]{region==region};
 
     /**
      * HACK: Create a "fast" mutable array over the given distribution and default initial values for elements.
@@ -236,9 +236,9 @@ public abstract class Array[T](
      * @see #makeFast[T](Dist, (Point)=>T)
      */
     // TODO: [IP] remove
-    public static def makeFast[T](dist: Dist)
-        = makeVar[T](dist)
-            as FastArray[T]{dist==dist};
+    public static def makeFast[T#](dist: Dist#)
+        = makeVar[T#](dist)
+            as FastArray[T#]{dist==dist};
 
     /**
      * HACK: Create a "fast" mutable local array over the given region.
@@ -255,9 +255,9 @@ public abstract class Array[T](
      * @see #makeFast[T](Dist, (Point)=>T)
      */
     // TODO: [IP] remove
-    public static def makeFast[T](region: Region, init: (Point(region.rank))=>T)
-        = BaseArray.makeVar1[T](region, init)
-            as FastArray[T]{region==region};
+    public static def makeFast[T#](region: Region#, init: (Point#(region.rank))=>T#)
+        = BaseArray.makeVar1[T#](region, init)
+            as FastArray[T#]{region==region};
 
     /**
      * HACK: Create a "fast" mutable array over the given distribution.
@@ -274,9 +274,9 @@ public abstract class Array[T](
      * @see #makeFast[T](Region, (Point)=>T)
      */
     // TODO: [IP] remove
-    public static def makeFast[T](dist: Dist, init: (Point(dist.rank))=>T)
-        = BaseArray.makeVar1[T](dist, init)
-            as FastArray[T]{dist==dist};
+    public static def makeFast[T#](dist: Dist#, init: (Point#(dist.rank))=>T#)
+        = BaseArray.makeVar1[T#](dist, init)
+            as FastArray[T#]{dist==dist};
 
 
     //
@@ -292,7 +292,7 @@ public abstract class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    public abstract safe global def apply(pt: Point(rank)): T;
+    public abstract safe global def apply(pt: Point#(rank)): T#;
 
     /**
      * Return the element of this array corresponding to the given index.
@@ -304,7 +304,7 @@ public abstract class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    public abstract safe global def apply(i0: int) {rank==1}: T;
+    public abstract safe global def apply(i0: int) {rank==1}: T#;
 
     /**
      * Return the element of this array corresponding to the given pair of indices.
@@ -317,7 +317,7 @@ public abstract class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int)
      */
-    public abstract safe global def apply(i0: int, i1: int) {rank==2}: T;
+    public abstract safe global def apply(i0: int, i1: int) {rank==2}: T#;
 
     /**
      * Return the element of this array corresponding to the given triple of indices.
@@ -331,7 +331,7 @@ public abstract class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int)
      */
-    public abstract safe global def apply(i0: int, i1: int, i2: int) {rank==3}: T;
+    public abstract safe global def apply(i0: int, i1: int, i2: int) {rank==3}: T#;
 
     /**
      * Return the element of this array corresponding to the given quartet of indices.
@@ -346,7 +346,7 @@ public abstract class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int, Int)
      */
-    public abstract safe global def apply(i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
+    public abstract safe global def apply(i0: int, i1: int, i2: int, i3:int) {rank==4}: T#;
 
 
     /**
@@ -360,7 +360,7 @@ public abstract class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    public abstract safe global def set(v:T, pt: Point(rank)): T;
+    public abstract safe global def set(v:T, pt: Point(rank)): T#;
 
     /**
      * Set the element of this array corresponding to the given index to the given value.
@@ -374,7 +374,7 @@ public abstract class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    public abstract safe global def set(v:T, i0: int) {rank==1}: T;
+    public abstract safe global def set(v:T, i0: int) {rank==1}: T#;
 
     /**
      * Set the element of this array corresponding to the given pair of indices to the given value.
@@ -389,7 +389,7 @@ public abstract class Array[T](
      * @see #apply(Int, Int)
      * @see #set(T, Point)
      */
-    public abstract safe global def set(v:T, i0: int, i1: int) {rank==2}: T;
+    public abstract safe global def set(v:T, i0: int, i1: int) {rank==2}: T#;
 
     /**
      * Set the element of this array corresponding to the given triple of indices to the given value.
@@ -405,7 +405,7 @@ public abstract class Array[T](
      * @see #apply(Int, Int, Int)
      * @see #set(T, Point)
      */
-    public abstract safe global def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T;
+    public abstract safe global def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T#;
 
     /**
      * Set the element of this array corresponding to the given quartet of indices to the given value.
@@ -422,7 +422,7 @@ public abstract class Array[T](
      * @see #apply(Int, Int, Int, Int)
      * @see #set(T, Point)
      */
-    public abstract safe global def set(v:T, i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
+    public abstract safe global def set(v:T, i0: int, i1: int, i2: int, i3:int) {rank==4}: T#;
 
 
     /**
@@ -438,7 +438,7 @@ public abstract class Array[T](
      *         region of this array.
      * @see #restriction(Place)
      */
-    public abstract safe global def restriction(r: Region(rank)): Array[T](rank);
+    public abstract safe global def restriction(r: Region#(rank)): Array[T#]#(rank);
 
     /**
      * Restrict this array to the given place.
@@ -450,7 +450,7 @@ public abstract class Array[T](
      * @return a copy of the portion of this array that resides in the given place.
      * @see #restriction(Region)
      */
-    public abstract safe global def restriction(p: Place): Array[T](rank);
+    public abstract safe global def restriction(p: Place): Array[T#]#(rank);
 
 
     /**
@@ -465,7 +465,7 @@ public abstract class Array[T](
      *         region of this array.
      * @see #restriction(Region)
      */
-    public abstract safe global operator this | (r: Region(rank)): Array[T](rank);
+    public abstract safe global operator this | (r: Region#(rank)): Array[T#]#(rank);
 
     /**
      * Restrict this array to the given place.
@@ -476,7 +476,7 @@ public abstract class Array[T](
      * @return a copy of the portion of this array that resides in the given place.
      * @see #restriction(Place)
      */
-    public abstract safe global operator this | (p: Place): Array[T](rank);
+    public abstract safe global operator this | (p: Place): Array[T#]#(rank);
 
 
     //
@@ -495,7 +495,7 @@ public abstract class Array[T](
      * @see #reduce((T,T)=>T,T)
      * @see #scan((T,T)=>T,T)
      */
-    public abstract global def lift(op:(T)=>T): Array[T](dist);
+    public abstract global def lift(op:(T)=>T): Array[T#]#(dist);
 
     /**
      * Reduce this array using the given binary operation and the given initial value.
@@ -525,7 +525,7 @@ public abstract class Array[T](
      * @see #lift((T)=>T)
      * @see #reduce((T,T)=>T,T)
      */
-    public abstract global def scan(op:(T,T)=>T, unit:T): Array[T](dist);
+    public abstract global def scan(op:(T,T)=>T, unit:T): Array[T#]#(dist);
 
 
     /**
@@ -538,7 +538,7 @@ public abstract class Array[T](
      * @return a new array with the same distribution as this array.
      * @see #lift((T)=>T)
      */
-    public abstract safe global operator + this: Array[T](rank);
+    public abstract safe global operator + this: Array[T#]#(rank);
 
     /**
      * Apply unary minus pointwise to the elements of this array.
@@ -550,7 +550,7 @@ public abstract class Array[T](
      * @return a new array with the same distribution as this array.
      * @see #lift((T)=>T)
      */
-    public abstract safe global operator - this: Array[T](rank);
+    public abstract safe global operator - this: Array[T#]#(rank);
 
 
     /**
@@ -564,7 +564,7 @@ public abstract class Array[T](
      * @param that the given array
      * @return a new array with the same distribution as this array.
      */
-    public abstract safe global operator this + (that: Array[T](dist)): Array[T](dist);
+    public abstract safe global operator this + (that: Array[T#]#(dist)): Array[T#]#(dist);
 
     /**
      * Subtract elements of this array and the given array pointwise.
@@ -577,7 +577,7 @@ public abstract class Array[T](
      * @param that the given array
      * @return a new array with the same distribution as this array.
      */
-    public abstract safe global operator this - (that: Array[T](dist)): Array[T](dist);
+    public abstract safe global operator this - (that: Array[T#]#(dist)): Array[T#]#(dist);
 
     /**
      * Multiply elements of this array and the given array pointwise.
@@ -590,7 +590,7 @@ public abstract class Array[T](
      * @param that the given array
      * @return a new array with the same distribution as this array.
      */
-    public abstract safe global operator this * (that: Array[T](dist)): Array[T](dist);
+    public abstract safe global operator this * (that: Array[T#]#(dist)): Array[T#]#(dist);
 
     /**
      * Divide elements of this array and the given array pointwise.
@@ -603,7 +603,7 @@ public abstract class Array[T](
      * @param that the given array
      * @return a new array with the same distribution as this array.
      */
-    public abstract safe global operator this / (that: Array[T](dist)): Array[T](dist);
+    public abstract safe global operator this / (that: Array[T#]#(dist)): Array[T#]#(dist);
 
     //
     // further generalizations TBD:
@@ -633,7 +633,7 @@ public abstract class Array[T](
      *         to 'here' and the values from the corresponding elements of r.
      * @see #make[T](Rail[T])
      */
-    public static operator [T](r: Rail[T]): Array[T](1) = make(r);
+    public static operator [T#](r: Rail[T#]): Array[T#](1) = make(r);
 
     /**
      * Convert the given ValRail to an array.
@@ -645,7 +645,7 @@ public abstract class Array[T](
      *         to 'here' and the values from the corresponding elements of r.
      * @see #make[T](ValRail[T])
      */
-    public static operator [T](r: ValRail[T]): Array[T](1) = make(r);
+    public static operator [T#](r: ValRail[T#]): Array[T#](1) = make(r);
 
 
     /**
@@ -654,7 +654,7 @@ public abstract class Array[T](
      * @return an iterator over the points in the region of this array.
      * @see x10.lang.Iterable[T]#iterator()
      */
-    public global def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
+    public global def iterator(): Iterator[Point#(rank)]# = region.iterator() as Iterator[Point#(rank)]#;
 
 
     //
@@ -666,7 +666,7 @@ public abstract class Array[T](
      *
      * @param dist the given distribution
      */
-    protected def this(dist: Dist) = property(dist);
+    protected def this(dist: Dist#) = property(dist);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -677,6 +677,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      * @see x10.types.X10TypeEnv#isSubtype(polyglot.types.Type, polyglot.types.Type, boolean)
      */
     boolean isSubtype(XVar x, Type t1, Type t2) {
+    	if (t1 == null)
     	assert t1 != null;
     	assert t2 != null;
     	t1 = ts.expandMacros(t1);
@@ -702,6 +703,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	{
     		boolean isStruct1 = X10TypeMixin.isX10Struct(t1);
     		boolean isStruct2 = X10TypeMixin.isX10Struct(t2);
+    		
 
 
     		if (isStruct2) {

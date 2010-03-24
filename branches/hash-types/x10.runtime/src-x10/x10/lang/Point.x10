@@ -24,7 +24,7 @@ import x10.util.Ordered;
  * @author bdlucas
  * @author vj
  */
-final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)] {
+final public class Point(rank: Int) implements (Int) => Int, Ordered[Point#(rank)] {
 
     /**
      * Returns the value of the ith coordiInte.

@@ -1270,9 +1270,9 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    FunctionType ::= TypeArgumentsopt ( FormalParameterListopt ) WhereClauseopt Throwsopt => Type
+    FunctionType ::=  ( FormalParameterListopt ) WhereClauseopt Throwsopt => Type
         /.$BeginJava
-                    setResult(nf.FunctionTypeNode(pos(), TypeArgumentsopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt));
+                    setResult(nf.FunctionTypeNode(pos(), Collections.EMPTY_LIST, FormalParameterListopt, WhereClauseopt, Type, Throwsopt));
           $EndJava
         ./
 
@@ -1303,18 +1303,20 @@ public static class MessageHandler implements IMessageHandler {
 --          $EndJava
 --        ./
 
-    NamedType ::= Primary . Identifier TypeArgumentsopt Argumentsopt DepParametersopt 
+    NamedType ::= Primary . Identifier TypeArgumentsopt Sharpopt Argumentsopt DepParametersopt 
         /.$BeginJava
                 TypeNode type = nf.X10AmbTypeNode(pos(), Primary, Identifier);
                 // TODO: place constraint
-                if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
-                    type = nf.AmbDepTypeNode(pos(), Primary, Identifier, TypeArgumentsopt, Argumentsopt, DepParametersopt);
+                if (DepParametersopt != null || ! Sharpopt  || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) 
+                    || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
+                    type = nf.AmbDepTypeNode(pos(), Primary, Identifier, TypeArgumentsopt, 
+                                             Sharpopt, Argumentsopt, DepParametersopt);
                 }
                 setResult(type);
           $EndJava
         ./
 
-    NamedType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt 
+    NamedType ::= TypeName TypeArgumentsopt Sharpopt Argumentsopt DepParametersopt 
         /.$BeginJava
                 TypeNode type;
                 
@@ -1332,8 +1334,11 @@ public static class MessageHandler implements IMessageHandler {
                     type = TypeName.toType();
                 }
                 // TODO: place constraint
-                if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
-                    type = nf.AmbDepTypeNode(pos(), TypeName.prefix != null ? TypeName.prefix.toPrefix() : null, TypeName.name, TypeArgumentsopt, Argumentsopt, DepParametersopt);
+                if (DepParametersopt != null || ! Sharpopt  || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) 
+                    || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
+                    type = nf.AmbDepTypeNode(pos(), TypeName.prefix != null ? TypeName.prefix.toPrefix() : null, 
+                                             TypeName.name, TypeArgumentsopt, 
+                                             Sharpopt, Argumentsopt, DepParametersopt);
                 }
                 setResult(type);
           $EndJava
@@ -1354,19 +1359,21 @@ public static class MessageHandler implements IMessageHandler {
                     | ! 
          /.$BeginJava
                     Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), nf.AmbHereThis(pos()));
-                    setResult(nf.DepParameterExpr(pos(), null, Collections.singletonList(placeClause)));
-          $EndJava
+                   setResult(nf.DepParameterExpr(pos(), null, Collections.singletonList(placeClause)));
+         $EndJava
         ./
                     | ! PlaceType { ExistentialListopt Conjunction } 
          /.$BeginJava
                     Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), PlaceType);
-                    setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
+                    setResult(nf.DepParameterExpr(pos(), ExistentialListopt, 
+                              CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
           $EndJava
         ./
                     | ! { ExistentialListopt Conjunction } 
          /.$BeginJava
                     Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), nf.AmbHereThis(pos()));
-                    setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
+                    setResult(nf.DepParameterExpr(pos(), ExistentialListopt, 
+                              CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
           $EndJava
         ./
 
@@ -2056,25 +2063,25 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
         
-    TypeParamWithVariance ::= Identifier
+    TypeParamWithVariance ::= Identifier Sharpopt
         /.$BeginJava
-                    setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.INVARIANT));
+                    setResult(nf.TypeParamNode(pos(), Sharpopt, Identifier, ParameterType.Variance.INVARIANT));
           $EndJava
         ./
-                   | + Identifier
+                   | + Identifier Sharpopt
         /.$BeginJava
-                    setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.COVARIANT));
+                    setResult(nf.TypeParamNode(pos(), Sharpopt, Identifier, ParameterType.Variance.COVARIANT));
           $EndJava
         ./
-                   | - Identifier
+                   | - Identifier Sharpopt
         /.$BeginJava
-                    setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.CONTRAVARIANT));
+                    setResult(nf.TypeParamNode(pos(), Sharpopt, Identifier, ParameterType.Variance.CONTRAVARIANT));
           $EndJava
         ./
         
-    TypeParameter ::= Identifier
+    TypeParameter ::= Identifier Sharpopt
         /.$BeginJava
-                    setResult(nf.TypeParamNode(pos(), Identifier));
+                    setResult(nf.TypeParamNode(pos(), Sharpopt, Identifier));
           $EndJava
         ./
 
@@ -4756,7 +4763,16 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
                        | Properties
-
+    Sharpopt ::= %Empty
+        /.$BeginJava
+                    setResult(Boolean.FALSE);
+          $EndJava
+        ./
+                       | SHARP
+        /.$BeginJava
+                    setResult(Boolean.TRUE);
+          $EndJava
+        ./
     ,opt ::= %Empty
         /.$NullAction./
                        | ,
@@ -4913,6 +4929,7 @@ public static class MessageHandler implements IMessageHandler {
     For ::= BasicForStatement
     For ::= EnhancedForStatement
     polyglot.lex.BooleanLiteral ::= BooleanLiteral
+    Boolean ::= Sharpopt
     TypeNode ::= ConstrainedType
     Expr ::= PlaceExpression
     DepParameterExpr ::= WhereClauseopt

@@ -40,11 +40,13 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	protected Id name;
 	protected ParameterType type;
 	ParameterType.Variance variance;
+	boolean sharp;
 
-	public TypeParamNode_c(Position pos, Id name, ParameterType.Variance variance) {
+	public TypeParamNode_c(Position pos, Id name, boolean sharp, ParameterType.Variance variance) {
 		super(pos);
 		this.name = name;
 		this.variance = variance;
+		this.sharp = sharp;
 	}
 
 	public Id name() {
@@ -87,7 +89,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 //	            throw new SemanticException("Type parameter cannot occur outside method, constructor, closure, or type definition.", position());
 //	        }
 	        
-	        ParameterType t = new ParameterType_c(xts, position(), name.id(), Types.ref(def));
+	        ParameterType t = new ParameterType_c(xts, position(), sharp, name.id(), Types.ref(def));
 	        return type(t);
 	}
 

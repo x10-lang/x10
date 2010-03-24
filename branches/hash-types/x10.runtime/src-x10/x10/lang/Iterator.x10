@@ -15,10 +15,10 @@ import x10.compiler.NativeRep;
 import x10.compiler.Native;
 
 @NativeRep("java", "x10.core.Iterator<#1>", null, null)
-public interface Iterator[+T] {
+public interface Iterator[+T#] {
     @Native("java", "#0.hasNext()")
     public def hasNext(): boolean;
     
     @Native("java", "#0.next()")
-    public def next():T;
+    public def next():T#;
 }

@@ -381,9 +381,12 @@ public class Closure_c extends Expr_c implements Closure {
 		    if (childv instanceof TypeCheckPreparer) {
 		    	TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
 		    	final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
+		    	if (r != null) {
+		    		
 		    	TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 		    	tc = (TypeChecker) tc.context(tcp.context().freeze());
 		    	r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r, true));
+		    	}
 		    }
 	    }
 	    return super.setResolverOverride(parent, v);

@@ -22,6 +22,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Node_c;
 import polyglot.ast.TypeCheckFragmentGoal;
+import polyglot.frontend.Globals;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.types.Context;
 import polyglot.types.LazyRef;
@@ -41,6 +42,7 @@ import polyglot.visit.TypeChecker;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.TypeConstraint;
@@ -75,7 +77,25 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 	    else
 		    this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 	    assert e != null;
-	    this.condition = TypedList.copyAndCheck(e, Expr.class, true);
+	    this.condition = TypedList.copyAndCheck(e, Expr.class, false);
+    }
+    
+    public void addPlaceClauseIfNeeded() {
+    	if (this.condition == null) {
+    		this.condition = Collections.EMPTY_LIST;
+    	}
+    	boolean hasPlaceClause = false;
+    	for (Expr e : condition) {
+    		hasPlaceClause = hasPlaceClause || PlaceChecker.isPlaceClause(e);
+    		if (hasPlaceClause)
+    			break;
+    	}
+    	if (! hasPlaceClause) {
+    		X10NodeFactory nf = (X10NodeFactory) Globals.NF();
+    		Position pos = position();
+    		Expr placeClause = nf.Call(pos, nf.Self(pos), nf.Id(pos, "at"), nf.AmbHereThis(pos));
+    		this.condition.add(placeClause);
+    	}
     }
     public DepParameterExpr_c(Position pos, List<Expr> e) {
 	    this(pos, null, e);
@@ -170,13 +190,17 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 
     	  {
     	      LazyRef<CConstraint> xr = (LazyRef<CConstraint>) valueConstraint;
+    	      if (xr != null) {
     	      assert xr != null : "setResolver pass run before buildTypes for " + this;
     	      xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr, false));
+    	      }
     	  }
     	  {
     	      LazyRef<TypeConstraint> xr = (LazyRef<TypeConstraint>) typeConstraint;
+    	      if (xr != null) {
     	      assert xr != null : "setResolver pass run before buildTypes for " + this;
     	      xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr, false));
+    	      }
     	  }
       }
     

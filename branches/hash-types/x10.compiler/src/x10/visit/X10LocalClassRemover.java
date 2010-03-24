@@ -195,7 +195,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                     ParameterType.Variance v = outer.variances().get(i);
 
                     X10NodeFactory xnf = (X10NodeFactory) nf;
-                    TypeParamNode pn = xnf.TypeParamNode(n.position(), xnf.Id(n.position(), Name.makeFresh(p.name())), v);
+                    TypeParamNode pn = xnf.TypeParamNode(n.position(), ! p.isHere(), xnf.Id(n.position(), Name.makeFresh(p.name())), v);
                     TypeBuilder tb = new TypeBuilder(job, ts, nf);
                     try {
                         tb = tb.pushClass(outer);

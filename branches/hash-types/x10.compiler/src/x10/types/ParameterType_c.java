@@ -27,13 +27,18 @@ import polyglot.util.Position;
 public class ParameterType_c extends Type_c implements ParameterType {
     Name name;
 	Ref<? extends Def> def;
-	
-	public ParameterType_c(X10TypeSystem ts, Position pos, Name name, Ref<? extends Def> def) {
+	boolean sharp;
+	public ParameterType_c(X10TypeSystem ts, Position pos, Name name,  Ref<? extends Def> def) {
+		this(ts, pos, true, name, def);
+	}
+	public ParameterType_c(X10TypeSystem ts, Position pos,  boolean sharp, Name name,  Ref<? extends Def> def) {
 		super(ts, pos);
 		this.name = name;
 		this.def = def;
+		this.sharp = sharp;
 	}
 	
+	public boolean sharp() { return sharp;}
 	public boolean isGloballyAccessible() {
 	    return false;
 	}
@@ -48,7 +53,7 @@ public class ParameterType_c extends Type_c implements ParameterType {
 
 	@Override
 	public String toString() {
-	    return name.toString();
+	    return name.toString() + (sharp? "#" :"");
 	}
 
 	@Override
@@ -64,7 +69,7 @@ public class ParameterType_c extends Type_c implements ParameterType {
 	public boolean equalsImpl(TypeObject t) {
 		if (t instanceof ParameterType) {
 			ParameterType pt = (ParameterType) t;
-			return def == pt.def() && name.equals(pt.name());
+			return def == pt.def() && name.equals(pt.name()) && sharp == pt.sharp();
 		}
 		return false;
 	}
@@ -80,6 +85,7 @@ public class ParameterType_c extends Type_c implements ParameterType {
 	}
 
     public boolean permitsNull() { return false;}
+    public boolean isHere() { return ! sharp;}
 
     
 }

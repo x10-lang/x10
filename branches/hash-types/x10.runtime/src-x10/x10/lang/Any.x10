@@ -33,7 +33,7 @@ public interface Any(
      */
     @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
     @Native("c++", "x10::lang::Place_methods::place(x10aux::get_location(#0))")
-    home: Place
+    home: Place#
 ) {
 
     /**
@@ -43,7 +43,7 @@ public interface Any(
      
     @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
     @Native("c++", "x10::lang::Place_methods::place(x10aux::get_location(#0))")
-    property def home():Place;
+    property def home():Place#;
 */
     /**
      * Return true if this entity is in the same home location as the given object.
@@ -53,7 +53,7 @@ public interface Any(
      */
     @Native("java", "x10.core.Ref.at(#0, #1)")
     @Native("c++", "(x10aux::get_location(#0) == (#1)->location)")
-    property def at(r:Object):Boolean;
+    property def at(r:Any#):Boolean;
 
     /**
      * Return true if the home location of this entity is the given place.
@@ -78,7 +78,7 @@ public interface Any(
      */
     @Native("java", "((Object)#0).toString()")
     @Native("c++", "x10aux::to_string(#0)")
-    global safe def toString():String;
+    global safe def toString():String#;
 
     /**
      * Return a string representation of the run-time type of this entity.
@@ -88,7 +88,7 @@ public interface Any(
      */
     @Native("java", "x10.core.Ref.typeName(#0)")
     @Native("c++", "x10aux::type_name(#0)")
-    global safe def typeName():String;
+    global safe def typeName():String#;
 
     /**
      * Return true if this entity is equal to the given entity in an
@@ -108,8 +108,8 @@ public interface Any(
      * @return true if this entity is equal to the given entity.
      */
     @Native("java", "((Object)#0).equals(#1)")
-    @Native("c++", "x10aux::equals(#0,#1)")
-    global safe def equals(that:Any):Boolean;
+   @Native("c++", "x10aux::equals(#0,#1)")
+    global safe def equals(that:Any#):Boolean;
 
     /**
      * Return the implementation-defined hash code of this entity.
@@ -126,7 +126,7 @@ public interface Any(
      * @return the hash code of this entity.
      */
     @Native("java", "((Object)#0).hashCode()")
-    @Native("c++", "x10aux::hash_code(#0)")
+  @Native("c++", "x10aux::hash_code(#0)")
     global safe def hashCode():Int;
 }
 
