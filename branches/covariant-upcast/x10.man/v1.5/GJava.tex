@@ -1,0 +1,2825 @@
+
+    identifier ::= IDENTIFIER
+    -- Chapter 4
+
+    PrimitiveType ::= NumericType
+                    | boolean
+
+    NumericType ::= IntegralType
+                  | FloatingPointType
+
+    IntegralType ::= byte
+                   | char
+                   | short
+                   | int
+                   | long
+
+    FloatingPointType ::= float
+                        | double
+
+    ReferenceType ::= ClassOrInterfaceType
+                    | ArrayType
+
+    ClassType ::= TypeName 
+
+    InterfaceType ::= TypeName 
+
+    TypeName ::= identifier
+               | TypeName . identifier
+
+    ClassName ::= TypeName
+
+    TypeVariable ::= identifier
+
+    ArrayType ::= Type [ ]
+
+    TypeParameter ::= TypeVariable TypeBoundopt
+
+    TypeBound ::= extends ClassOrInterfaceType AdditionalBoundListopt
+
+    AdditionalBoundList ::= AdditionalBound
+                          | AdditionalBoundList AdditionalBound
+
+    AdditionalBound ::= & InterfaceType
+
+    TypeArguments ::= < ActualTypeArgumentList >
+
+    ActualTypeArgumentList ::= ActualTypeArgument
+        /.$BadAction./
+                             | ActualTypeArgumentList , ActualTypeArgument
+        /.$BadAction./
+
+--
+-- See X10 definition
+--
+--    ActualTypeArgument ::= ReferenceType
+--                         | Wildcard
+
+    Wildcard ::= ? WildcardBoundsOpt
+        /.$BadAction./
+
+    WildcardBounds ::= extends ReferenceType
+        /.$BadAction./
+                     | super ReferenceType
+        /.$BadAction./
+
+    -- Chapter 5
+
+    -- Chapter 6
+
+    PackageName ::= identifier
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    $setSym1(new Name(nf, ts, pos(), a.getIdentifier()));
+          $EndAction
+        ./
+                  | PackageName . identifier
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+                    polyglot.lex.Identifier b = id($getToken(3));
+                    $setSym1(new Name(nf,
+                                      ts,
+                                      pos($getLeftSpan(), $getRightSpan()),
+                                      a,
+                                      b.getIdentifier()));
+          $EndAction
+        ./
+
+    --
+    -- See Chapter 4
+    --
+    -- TypeName ::= identifier
+    --           | PackageOrTypeName . identifier
+    --
+    ExpressionName ::= identifier
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    $setSym1(new Name(nf, ts, pos(), a.getIdentifier()));
+          $EndAction
+        ./
+                     | here 
+        /.$BeginAction
+                    $setSym1(new Name(nf, ts, pos(), "here"){
+                                public Expr toExpr() {
+                                  return ((X10NodeFactory) nf).Here(pos);
+                                }
+                             });
+          $EndAction
+        ./
+                     | AmbiguousName . identifier
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+                    polyglot.lex.Identifier b = id($getToken(3));
+                    $setSym1(new Name(nf,
+                                      ts,
+                                      pos($getLeftSpan(), $getRightSpan()),
+                                      a,
+                                      b.getIdentifier()));
+          $EndAction
+        ./
+
+    MethodName ::= identifier
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    $setSym1(new Name(nf, ts, pos(), a.getIdentifier()));
+          $EndAction
+        ./
+                 | AmbiguousName . identifier
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+                    polyglot.lex.Identifier b = id($getToken(3));
+                    $setSym1(new Name(nf,
+                                      ts,
+                                      pos($getLeftSpan(), $getRightSpan()),
+                                      a,
+                                      b.getIdentifier()));
+          $EndAction
+        ./
+
+    PackageOrTypeName ::= identifier
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    $setSym1(new Name(nf, ts, pos(), a.getIdentifier()));
+          $EndAction
+        ./
+                        | PackageOrTypeName . identifier
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+                    polyglot.lex.Identifier b = id($getToken(3));
+                    $setSym1(new Name(nf,
+                                      ts,
+                                      pos($getLeftSpan(), $getRightSpan()),
+                                      a,
+                                      b.getIdentifier()));
+          $EndAction
+        ./
+
+    AmbiguousName ::= identifier
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    $setSym1(new Name(nf, ts, pos(), a.getIdentifier()));
+          $EndAction
+        ./
+                    | AmbiguousName . identifier
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+                    polyglot.lex.Identifier b = id($getToken(3));
+                    $setSym1(new Name(nf,
+                                      ts,
+                                      pos($getLeftSpan(), $getRightSpan()),
+                                      a,
+                                      b.getIdentifier()));
+         $EndAction
+        ./
+
+    -- Chapter 7
+
+    CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+        /.$BeginAction
+                    PackageNode a = (PackageNode) $getSym(1);
+                    List b = (List) $getSym(2),
+                         c = (List) $getSym(3);
+                    // Add import x10.lang.* by default.
+                    Name x10 = new Name(nf, ts, pos(), "x10");
+                    Name x10Lang = new Name(nf, ts, pos(), x10, "lang");
+                    Import x10LangImport = 
+                    nf.Import(pos($getLeftSpan(), $getRightSpan()), Import.PACKAGE, x10Lang.toString());
+                    b.add(x10LangImport);
+                    $setSym1(nf.SourceFile(pos($getLeftSpan(), $getRightSpan()), a, b, c));
+          $EndAction
+        ./
+
+    ImportDeclarations ::= ImportDeclaration
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Import.class, false);
+                    Import a = (Import) $getSym(1);
+                    l.add(a);
+                    $setSym1(l);
+          $EndAction
+        ./
+                         | ImportDeclarations ImportDeclaration
+        /.$BeginAction
+                    List l = (TypedList) $getSym(1);
+                    Import b = (Import) $getSym(2);
+                    if (b != null)
+                        l.add(b);
+                    //$setSym1(l);
+          $EndAction
+        ./
+
+    TypeDeclarations ::= TypeDeclaration
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
+                    TopLevelDecl a = (TopLevelDecl) $getSym(1);
+                    if (a != null)
+                        l.add(a);
+                    $setSym1(l);
+          $EndAction
+        ./
+                       | TypeDeclarations TypeDeclaration
+        /.$BeginAction
+                    List l = (TypedList) $getSym(1);
+                    TopLevelDecl b = (TopLevelDecl) $getSym(2);
+                    if (b != null)
+                        l.add(b);
+                    //$setSym1(l);
+          $EndAction
+        ./
+
+    PackageDeclaration ::= -- vj Annotationsopt 
+          package PackageName ;
+        /.$BeginAction
+//vj                    assert($getSym(1) == null); // generic not yet supported
+                    Name a = (Name) $getSym(2);
+                    $setSym1(a.toPackage());
+          $EndAction
+        ./
+
+    ImportDeclaration ::= SingleTypeImportDeclaration
+        /.$NoAction./
+                        | TypeImportOnDemandDeclaration
+        /.$NoAction./
+                        | SingleStaticImportDeclaration
+        /.$NoAction./
+                        | StaticImportOnDemandDeclaration
+        /.$NoAction./
+
+    SingleTypeImportDeclaration ::= import TypeName ;
+        /.$BeginAction
+                    Name a = (Name) $getSym(2);
+                    $setSym1(nf.Import(pos($getLeftSpan(), $getRightSpan()), Import.CLASS, a.toString()));
+          $EndAction
+        ./
+
+    TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
+        /.$BeginAction
+                    Name a = (Name) $getSym(2);
+                    $setSym1(nf.Import(pos($getLeftSpan(), $getRightSpan()), Import.PACKAGE, a.toString()));
+          $EndAction
+        ./
+    
+    SingleStaticImportDeclaration ::= import static TypeName . identifier ;
+        /.$BadAction./
+
+    StaticImportOnDemandDeclaration ::= import static TypeName . * ;
+        /.$BadAction./
+
+    TypeDeclaration ::= ClassDeclaration
+        /.$NoAction./
+                      | InterfaceDeclaration
+        /.$NoAction./
+                      | ;
+        /.$BeginAction
+                    $setSym1(null);
+          $EndAction
+        ./
+
+    -- Chapter 8
+
+    ClassDeclaration ::= NormalClassDeclaration
+        /.$NoAction./
+--vj                       | EnumDeclaration
+--vj        /.$BadAction./
+
+--vj    NormalClassDeclaration ::= ClassModifiersopt class identifier TypeParametersopt Superopt Interfacesopt ClassBody
+    NormalClassDeclaration ::= ClassModifiersopt class identifier Superopt Interfacesopt ClassBody
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1);
+                    polyglot.lex.Identifier b = id($getToken(3));
+//vj                    assert($getSym(4) == null);
+                    TypeNode c = (TypeNode) $getSym(4);
+                    // by default extend x10.lang.Object
+                    if (c == null) {
+                      c= new Name(nf, ts, pos(), "x10.lang.Object").toType();
+                    }
+                    List d = (List) $getSym(5);
+                    ClassBody e = (ClassBody) $getSym(6);
+                    $setSym1(a.isValue()
+                                 ? nf.ValueClassDecl(pos($getLeftSpan(), $getRightSpan()), 
+                                                     a, b.getIdentifier(), c, d, e) 
+                                 : nf.ClassDecl(pos($getLeftSpan(), $getRightSpan()), 
+                                                a, b.getIdentifier(), c, d, e));
+          $EndAction
+        ./
+
+    ClassModifiers ::= ClassModifier
+        /.$NoAction./
+                     | ClassModifiers ClassModifier
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1),
+                          b = (Flags) $getSym(2);
+                    $setSym1(a.set(b));
+          $EndAction
+        ./
+
+    ClassModifier ::= 
+--vj Annotation
+--vj        /.$BadAction./
+--vj                    | 
+                       public
+        /.$BeginAction
+                    $setSym1(Flags.PUBLIC);
+          $EndAction
+        ./
+                    | protected
+        /.$BeginAction
+                    $setSym1(Flags.PROTECTED);
+          $EndAction
+        ./
+                    | private
+        /.$BeginAction
+                    $setSym1(Flags.PRIVATE);
+          $EndAction
+        ./
+                    | abstract
+        /.$BeginAction
+                    $setSym1(Flags.ABSTRACT);
+          $EndAction
+        ./
+                    | static
+        /.$BeginAction
+                    $setSym1(Flags.STATIC);
+          $EndAction
+        ./
+                    | final
+        /.$BeginAction
+                    $setSym1(Flags.FINAL);
+          $EndAction
+        ./
+                    | strictfp
+        /.$BeginAction
+                    $setSym1(Flags.STRICTFP);
+          $EndAction
+        ./
+
+    TypeParameters ::= < TypeParameterList >
+        /.$BadAction./
+    
+    TypeParameterList ::= TypeParameter
+        /.$BadAction./
+                        | TypeParameterList , TypeParameter
+        /.$BadAction./
+
+    Super ::= extends ClassType
+        /.$BeginAction
+                    $setSym1($getSym(2));
+          $EndAction
+        ./
+
+    --
+    -- See Chapter 4
+    --
+    --ClassType ::= TypeName TypeArgumentsopt
+    --
+    Interfaces ::= implements InterfaceTypeList
+        /.$BeginAction
+                    $setSym1($getSym(2));
+          $EndAction
+        ./
+
+    InterfaceTypeList ::= InterfaceType
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), TypeNode.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                        | InterfaceTypeList , InterfaceType
+        /.$BeginAction
+                    List l = (TypedList) $getSym(1);
+                    l.add($getSym(2));
+                    $setSym1(l);
+          $EndAction
+        ./
+
+    --
+    -- See Chapter 4
+    --
+    --InterfaceType ::= TypeName TypeArgumentsopt
+    --
+    ClassBody ::= { ClassBodyDeclarationsopt }
+        /.$BeginAction
+                    $setSym1(nf.ClassBody(pos($getLeftSpan(), $getRightSpan()), (List) $getSym(2)));
+          $EndAction
+        ./
+
+    ClassBodyDeclarations ::= ClassBodyDeclaration
+        /.$NoAction./
+                            | ClassBodyDeclarations ClassBodyDeclaration
+        /.$BeginAction
+                    List a = (List) $getSym(1),
+                         b = (List) $getSym(2);
+                    a.addAll(b);
+                    // $setSym1(a);
+          $EndAction
+        ./
+
+    ClassBodyDeclaration ::= ClassMemberDeclaration
+        /.$NoAction./
+                           | InstanceInitializer
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    Block a = (Block) $getSym(1);
+                    l.add(nf.Initializer(pos(), Flags.NONE, a));
+                    $setSym1(l);
+          $EndAction
+        ./
+                           | StaticInitializer
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    Block a = (Block) $getSym(1);
+                    l.add(nf.Initializer(pos(), Flags.STATIC, a));
+                    $setSym1(l);
+          $EndAction
+        ./
+                           | ConstructorDeclaration
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+
+    ClassMemberDeclaration ::= FieldDeclaration
+        /.$NoAction./
+                             | MethodDeclaration
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                             | ClassDeclaration
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                             | InterfaceDeclaration
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                             | ;
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    $setSym1(l);
+          $EndAction
+        ./
+    
+    FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators ;
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    Flags a = (Flags) $getSym(1);
+                    TypeNode b = (TypeNode) $getSym(2);
+                    List c = (List) $getSym(3);
+                    for (Iterator i = c.iterator(); i.hasNext();)
+                    {
+                        X10VarDeclarator d = (X10VarDeclarator) i.next();
+                        if (d.hasExplodedVars())
+                          // TODO: Report this exception correctly.
+                          throw new Error("Field Declarations may not have exploded variables." + pos());
+                        d.setFlag(a);
+                        l.add(nf.FieldDecl(pos($getLeftSpan(2), $getRightSpan()),
+                                           d.flags,
+                                           nf.array(b, pos($getLeftSpan(2), $getRightSpan(2)), d.dims),
+                                           d.name,
+                                           d.init));
+                    }
+                    $setSym1(l);
+          $EndAction
+        ./
+    
+    VariableDeclarators ::= VariableDeclarator
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), X10VarDeclarator.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                          | VariableDeclarators , VariableDeclarator
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    l.add($getSym(3));
+                    // $setSym1(l);
+          $EndAction
+        ./
+    
+    VariableDeclarator ::= VariableDeclaratorId
+        /.$NoAction./
+                         | VariableDeclaratorId = VariableInitializer
+        /.$BeginAction
+                    X10VarDeclarator a = (X10VarDeclarator) $getSym(1);
+                    Expr b = (Expr) $getSym(3);
+                    a.init = b; 
+                    // $setSym1(a); 
+          $EndAction
+        ./
+    
+    VariableDeclaratorId ::= identifier
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    $setSym1(new X10VarDeclarator(pos(), a.getIdentifier()));
+          $EndAction
+        ./
+                           | VariableDeclaratorId [ ]
+        /.$BeginAction
+                    X10VarDeclarator a = (X10VarDeclarator) $getSym(1);
+                    a.dims++;
+                    // $setSym1(a);
+          $EndAction
+        ./
+                           | identifier [ IdentifierList ] 
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    List paramList = (List) $getSym(3);
+                    $setSym1(new X10VarDeclarator(pos(), a.getIdentifier(), paramList));
+          $EndAction
+        ./
+                           | [ IdentifierList ] 
+        /.$BeginAction
+                    String name = polyglot.ext.x10.visit.X10PrettyPrinterVisitor.getId();
+                    List paramList = (List) $getSym(2);
+                    $setSym1(new X10VarDeclarator(pos(), name, paramList));
+          $EndAction
+        ./
+    
+    VariableInitializer ::= Expression
+        /.$NoAction./
+                          | ArrayInitializer
+        /.$NoAction./
+    
+    FieldModifiers ::= FieldModifier
+        /.$NoAction./
+                     | FieldModifiers FieldModifier
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1),
+                          b = (Flags) $getSym(2);
+                    $setSym1(a.set(b));
+          $EndAction
+        ./
+    
+    FieldModifier ::= 
+--vj Annotation
+--vj        /.$BadAction./
+--vj                    | 
+                     public
+        /.$BeginAction
+                    $setSym1(Flags.PUBLIC);
+          $EndAction
+        ./
+                    | protected
+        /.$BeginAction
+                    $setSym1(Flags.PROTECTED);
+          $EndAction
+        ./
+                    | private
+        /.$BeginAction
+                    $setSym1(Flags.PRIVATE);
+          $EndAction
+        ./
+                    | static
+        /.$BeginAction
+                    $setSym1(Flags.STATIC);
+          $EndAction
+        ./
+                    | final
+        /.$BeginAction
+                    $setSym1(Flags.FINAL);
+          $EndAction
+        ./
+                    | transient
+        /.$BeginAction
+                    $setSym1(Flags.TRANSIENT);
+          $EndAction
+        ./
+                    | volatile
+        /.$BeginAction
+                    $setSym1(Flags.VOLATILE);
+          $EndAction
+        ./
+    
+    MethodDeclaration ::= MethodHeader MethodBody
+        /.$BeginAction
+                    MethodDecl a = (MethodDecl) $getSym(1);
+                    List l = a.formals();
+                    List s = new TypedList(new LinkedList(), Stmt.class, false);
+                    Block b = (Block) $getSym(2);
+                    
+                    for (Iterator i = l.iterator(); i.hasNext(); ) {
+                       X10Formal d = (X10Formal) i.next();
+                       if (d.hasExplodedVars())
+                         s.addAll( d.explode());
+                    }
+                    if (! s.isEmpty()) {
+                      s.addAll(b.statements());
+                      b = b.statements(s);
+                    }
+                    Flags f = a.flags();
+                    if (f.contains(Flags.ATOMIC)) {
+                       List ss = new TypedList(new LinkedList(), Stmt.class, false);
+                       ss.add(nf.Atomic(pos(), nf.Here(pos()), b));
+                       b = b.statements(ss);
+                       a = a.flags(f.clear(Flags.ATOMIC));
+                    }
+                    $setSym1(a.body(b));
+          $EndAction
+        ./
+    
+--vj    MethodHeader ::= MethodModifiersopt TypeParametersopt ResultType MethodDeclarator Throwsopt
+    MethodHeader ::= MethodModifiersopt  ResultType MethodDeclarator Throwsopt
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1);
+//vj                    assert($getSym(2) == null);
+                    TypeNode b = (TypeNode) $getSym(2);
+                    Object[] o = (Object []) $getSym(3);
+                        Name c = (Name) o[0];
+                        List d = (List) o[1];
+                        Integer e = (Integer) o[2];
+                    List f = (List) $getSym(4);
+
+                    if (b.type() == ts.Void() && e.intValue() > 0)
+                    {
+                        // TODO: error!!!
+                        assert(false);
+                    }
+
+                    $setSym1(nf.MethodDecl(pos($getLeftSpan(2), $getRightSpan(3)),
+                                           a,
+                                           nf.array((TypeNode) b, pos($getLeftSpan(2), $getRightSpan(2)), e.intValue()),
+                                           c.toString(),
+                                           d,
+                                           f,
+                                           null));
+          $EndAction
+        ./
+    
+    ResultType ::= Type
+        /.$NoAction./
+                 | void
+        /.$BeginAction
+                    $setSym1(nf.CanonicalTypeNode(pos(), ts.Void()));
+          $EndAction
+        ./
+    
+    MethodDeclarator ::= identifier ( FormalParameterListopt )
+        /.$BeginAction
+                    Object[] a = new Object[3];
+                    a[0] =  new Name(nf, ts, pos(), id($getToken(1)).getIdentifier());
+                    a[1] = $getSym(3);
+                    a[2] = new Integer(0);
+                    $setSym1(a);
+          $EndAction
+        ./
+                       | MethodDeclarator [ ]
+        /.$BeginAction
+                    Object[] a = (Object []) $getSym(1);
+                    a[2] = new Integer(((Integer) a[2]).intValue() + 1);
+                    // $setSym1(a);
+          $EndAction
+        ./
+    
+    FormalParameterList ::= LastFormalParameter
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Formal.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                          | FormalParameters , LastFormalParameter
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    l.add($getSym(3));
+                    // $setSym1(l);
+          $EndAction
+        ./
+    
+    FormalParameters ::= FormalParameter
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Formal.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                       | FormalParameters , FormalParameter
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    l.add($getSym(3));
+                    // $setSym1(l);
+          $EndAction
+        ./
+    
+    FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
+        /.$BeginAction
+                    Flags f = (Flags) $getSym(1);
+                    TypeNode a = (TypeNode) $getSym(2);
+                    X10VarDeclarator b = (X10VarDeclarator) $getSym(3);
+                    b.setFlag(f);
+                    $setSym1(nf.Formal(pos(), nf.array(a, pos($getLeftSpan(2), $getRightSpan(2)), b.dims), b));
+          $EndAction
+        ./
+    
+    VariableModifiers ::= VariableModifier
+                        | VariableModifiers VariableModifier
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1),
+                          b = (Flags) $getSym(2);
+                    $setSym1(a.set(b));
+          $EndAction
+        ./
+    
+    VariableModifier ::= final
+        /.$BeginAction
+                    $setSym1(Flags.FINAL);
+          $EndAction
+        ./
+--vj                       | Annotations
+--vj        /.$BadAction./
+    
+    LastFormalParameter ::= VariableModifiersopt Type ...opt VariableDeclaratorId
+        /.$BeginAction
+                    Flags f = (Flags) $getSym(1);
+                    TypeNode a = (TypeNode) $getSym(2);
+                    assert($getSym(3) == null);
+                    X10VarDeclarator b = (X10VarDeclarator) $getSym(4);
+                    b.setFlag(f);
+                    $setSym1(nf.Formal(pos(), nf.array(a, pos($getLeftSpan(2), $getRightSpan(2)), b.dims), b));
+          $EndAction
+        ./
+
+    --
+    -- See above
+    --
+    --VariableDeclaratorId ::= identifier
+    --                       | VariableDeclaratorId [ ]
+    --    
+    MethodModifiers ::= MethodModifier
+        /.$NoAction./
+                      | MethodModifiers MethodModifier
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1),
+                          b = (Flags) $getSym(2);
+                    $setSym1(a.set(b));
+          $EndAction
+        ./
+    
+    MethodModifier ::= 
+--vj Annotations
+--vj        /.$BadAction./
+--vj                  | 
+                        public
+        /.$BeginAction
+                    $setSym1(Flags.PUBLIC);
+          $EndAction
+        ./
+                     | protected
+        /.$BeginAction
+                    $setSym1(Flags.PROTECTED);
+          $EndAction
+        ./
+                     | private
+        /.$BeginAction
+                    $setSym1(Flags.PRIVATE);
+          $EndAction
+        ./
+                     | abstract
+        /.$BeginAction
+                    $setSym1(Flags.ABSTRACT);
+          $EndAction
+        ./
+                     | static
+        /.$BeginAction
+                    $setSym1(Flags.STATIC);
+          $EndAction
+        ./
+                     | final
+        /.$BeginAction
+                    $setSym1(Flags.FINAL);
+          $EndAction
+        ./
+                     | synchronized
+        /.$BeginAction
+                    $setSym1(Flags.SYNCHRONIZED);
+          $EndAction
+        ./
+                     | native
+        /.$BeginAction
+                    $setSym1(Flags.NATIVE);
+          $EndAction
+        ./
+                     | strictfp
+        /.$BeginAction
+                    $setSym1(Flags.STRICTFP);
+          $EndAction
+        ./
+    
+    Throws ::= throws ExceptionTypeList
+        /.$BeginAction
+                    $setSym1($getSym(2));
+          $EndAction
+        ./
+    
+    ExceptionTypeList ::= ExceptionType
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), TypeNode.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                        | ExceptionTypeList , ExceptionType
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    l.add($getSym(3));
+                    // $setSym1(l);
+          $EndAction
+        ./
+    
+    ExceptionType ::= ClassType
+        /.$NoAction./
+--
+--pc
+--
+-- TypeVariable is subsumed by ClassType
+--
+--                    | TypeVariable
+--        /.$NoAction./
+    
+    MethodBody ::= Block
+        /.$NoAction./
+                 | ;
+        /.$NullAction./
+    
+    InstanceInitializer ::= Block
+        /.$NoAction./
+    
+    StaticInitializer ::= static Block
+        /.$BeginAction
+                    $setSym1($getSym(2));
+          $EndAction
+        ./
+    
+    ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
+        /.$BeginAction
+                    Flags m = (Flags) $getSym(1);
+                    Object[] o = (Object []) $getSym(2);
+                        Name a = (Name) o[1];
+                        List b = (List) o[2];
+                    List c = (List) $getSym(3);
+                    Block d = (Block) $getSym(4);
+
+                    $setSym1(nf.ConstructorDecl(pos(), m, a.toString(), b, c, d));
+          $EndAction
+        ./
+    
+--vj    ConstructorDeclarator ::= TypeParametersopt SimpleTypeName ( FormalParameterListopt )
+    ConstructorDeclarator ::=  SimpleTypeName ( FormalParameterListopt )
+        /.$BeginAction
+//vj                    assert($getSym(1) == null);
+                    Object[] a = new Object[3];
+//vj                    a[0] = $getSym(1);
+                    a[1] = $getSym(1);
+                    a[2] = $getSym(3);
+                    $setSym1(a);
+          $EndAction
+        ./
+    
+    SimpleTypeName ::= identifier
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    $setSym1(new Name(nf, ts, pos(), a.getIdentifier()));
+          $EndAction
+        ./
+
+    ConstructorModifiers ::= ConstructorModifier
+        /.$NoAction./
+                           | ConstructorModifiers ConstructorModifier
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1),
+                          b = (Flags) $getSym(2);
+                    $setSym1(a.set(b));
+          $EndAction
+        ./
+    
+    ConstructorModifier ::= 
+--vj Annotations
+--vj        /.$BadAction./
+--vj                     | 
+                            public
+        /.$BeginAction
+                    $setSym1(Flags.PUBLIC);
+          $EndAction
+        ./
+                          | protected
+        /.$BeginAction
+                    $setSym1(Flags.PROTECTED);
+          $EndAction
+        ./
+                          | private
+        /.$BeginAction
+                    $setSym1(Flags.PRIVATE);
+          $EndAction
+        ./
+    
+    ConstructorBody ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+        /.$BeginAction
+                    Stmt a = (Stmt) $getSym(2);
+                    List l;
+                    if (a == null)
+                        l = (List) $getSym(3);
+                    else
+                    {
+                        l = new TypedList(new LinkedList(), Stmt.class, false);
+                         List l2 = (List) $getSym(3);
+                        l.add(a);
+                        l.addAll(l2);
+                    }
+                    $setSym1(nf.Block(pos(), l));
+          $EndAction
+        ./
+    
+    ExplicitConstructorInvocation ::= --vj TypeArgumentsopt 
+                                      this ( ArgumentListopt ) ;
+        /.$BeginAction
+//vj                    assert($getSym(1) == null);
+                    List b = (List) $getSym(3);
+                    $setSym1(nf.ThisCall(pos(), b));
+          $EndAction
+        ./
+                                    | --vj TypeArgumentsopt 
+                                       super ( ArgumentListopt ) ;
+        /.$BeginAction
+//vj                    assert($getSym(1) == null);
+                    List b = (List) $getSym(3);
+                    $setSym1(nf.SuperCall(pos(), b));
+          $EndAction
+        ./
+--vj                                    | Primary . TypeArgumentsopt this ( ArgumentListopt ) ;
+                                    | Primary .  this ( ArgumentListopt ) ;
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1);
+//vj                    assert($getSym(2) == null);
+                    List b = (List) $getSym(5);
+                    $setSym1(nf.ThisCall(pos(), a, b));
+          $EndAction
+        ./
+--vj                                    | Primary . TypeArgumentsopt super ( ArgumentListopt ) ;
+                                    | Primary . super ( ArgumentListopt ) ;
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1);
+//vj                    assert($getSym(2) == null);
+                    List b = (List) $getSym(5);
+                    $setSym1(nf.SuperCall(pos(), a, b));
+          $EndAction
+        ./
+    
+    EnumDeclaration ::= ClassModifiersopt enum identifier Interfacesopt EnumBody
+        /.$BadAction./
+    
+    EnumBody ::= { EnumConstantsopt ,opt EnumBodyDeclarationsopt }
+        /.$BadAction./
+    
+    EnumConstants ::= EnumConstant
+        /.$BadAction./
+                    | EnumConstants , EnumConstant
+        /.$BadAction./
+    
+    EnumConstant ::=  --vj Annotationsopt 
+         identifier Argumentsopt ClassBodyopt
+        /.$BadAction./
+    
+    Arguments ::= ( ArgumentListopt )
+        /.$BeginAction
+                    $setSym1($getSym(2));
+          $EndAction
+        ./
+    
+    EnumBodyDeclarations ::= ; ClassBodyDeclarationsopt
+        /.$BadAction./
+    
+    -- chapter 9
+    
+    InterfaceDeclaration ::= NormalInterfaceDeclaration
+        /.$NoAction./
+--vj                           | AnnotationTypeDeclaration
+--vj        /.$BadAction./
+    
+--vj    NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier TypeParametersopt ExtendsInterfacesopt InterfaceBody
+    NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier  ExtendsInterfacesopt InterfaceBody
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1);
+                    polyglot.lex.Identifier b = id($getToken(3));
+//vj                    assert($getSym(4) == null);
+                    List c = (List) $getSym(4);
+                    ClassBody d = (ClassBody) $getSym(5);
+                    $setSym1(nf.ClassDecl(pos(), a.Interface(), b.getIdentifier(), null, c, d));
+          $EndAction
+        ./
+    
+    InterfaceModifiers ::= InterfaceModifier
+        /.$NoAction./
+                         | InterfaceModifiers InterfaceModifier
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1),
+                          b = (Flags) $getSym(2);
+                    $setSym1(a.set(b));
+          $EndAction
+        ./
+    
+    InterfaceModifier ::= 
+--vj Annotation
+--vj        /.$BadAction./
+--vj                    | 
+                          public
+        /.$BeginAction
+                    $setSym1(Flags.PUBLIC);
+          $EndAction
+        ./
+                        | protected
+        /.$BeginAction
+                    $setSym1(Flags.PROTECTED);
+          $EndAction
+        ./
+                        | private
+        /.$BeginAction
+                    $setSym1(Flags.PRIVATE);
+          $EndAction
+        ./
+                        | abstract
+        /.$BeginAction
+                    $setSym1(Flags.ABSTRACT);
+          $EndAction
+        ./
+                        | static
+        /.$BeginAction
+                    $setSym1(Flags.STATIC);
+          $EndAction
+        ./
+                        | strictfp
+        /.$BeginAction
+                    $setSym1(Flags.STRICTFP);
+          $EndAction
+        ./
+    
+    ExtendsInterfaces ::= extends InterfaceType
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), TypeNode.class, false);
+                    l.add($getSym(2));
+                    $setSym1(l);
+          $EndAction
+        ./
+                        | ExtendsInterfaces , InterfaceType
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    l.add($getSym(3));
+                    // $setSym1(l);
+          $EndAction
+        ./
+    
+    --
+    -- See Chapter 4
+    --
+    --InterfaceType ::= TypeName TypeArgumentsOpt
+    
+    InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+        /.$BeginAction
+                    List a = (List)$getSym(2);
+                    $setSym1(nf.ClassBody(pos(), a));
+          $EndAction
+        ./
+    
+    InterfaceMemberDeclarations ::= InterfaceMemberDeclaration
+        /.$NoAction./
+                                  | InterfaceMemberDeclarations InterfaceMemberDeclaration
+        /.$BeginAction
+                    List l = (List) $getSym(1),
+                         l2 = (List) $getSym(2);
+                    l.addAll(l2);
+                    // $setSym1(l);
+          $EndAction
+        ./
+    
+    InterfaceMemberDeclaration ::= ConstantDeclaration
+        /.$NoAction./
+                                 | AbstractMethodDeclaration
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                                 | ClassDeclaration
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                                 | InterfaceDeclaration
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                                 | ;
+        /.$BeginAction
+                    $setSym1(Collections.EMPTY_LIST);
+          $EndAction
+        ./
+    
+    ConstantDeclaration ::= ConstantModifiersopt Type VariableDeclarators
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    Flags a = (Flags) $getSym(1);
+                    TypeNode b = (TypeNode) $getSym(2);
+                    List c = (List) $getSym(3);
+                    for (Iterator i = c.iterator(); i.hasNext();)
+                    {
+                        X10VarDeclarator d = (X10VarDeclarator) i.next();
+                        if (d.hasExplodedVars())
+                          // TODO: Report this exception correctly.
+                          throw new Error("Field Declarations may not have exploded variables." + pos());
+                        l.add(nf.FieldDecl(pos($getLeftSpan(2), $getRightSpan()),
+                                           a,
+                                           nf.array(b, pos($getLeftSpan(2), $getRightSpan(2)), d.dims),
+                                           d.name,
+                                           d.init));
+                    }
+                    $setSym1(l);
+          $EndAction
+        ./
+    
+    ConstantModifiers ::= ConstantModifier
+        /.$NoAction./
+                        | ConstantModifiers ConstantModifier
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1),
+                          b = (Flags) $getSym(2);
+                    $setSym1(a.set(b));
+          $EndAction
+        ./
+    
+    ConstantModifier ::= 
+--vj Annotation
+--vj        /.$BadAction./
+--vj                       | 
+                            public
+        /.$BeginAction
+                    $setSym1(Flags.PUBLIC);
+          $EndAction
+        ./
+                       | static
+        /.$BeginAction
+                    $setSym1(Flags.STATIC);
+          $EndAction
+        ./
+                       | final
+        /.$BeginAction
+                    $setSym1(Flags.FINAL);
+          $EndAction
+        ./
+    
+--vj    AbstractMethodDeclaration ::= AbstractMethodModifiersopt TypeParametersopt ResultType MethodDeclarator Throwsopt ;
+    AbstractMethodDeclaration ::= AbstractMethodModifiersopt  ResultType MethodDeclarator Throwsopt ;
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1);
+//vj                    assert($getSym(2) == null);
+                    TypeNode b = (TypeNode) $getSym(2);
+                    Object[] o = (Object []) $getSym(3);
+                        Name c = (Name) o[0];
+                        List d = (List) o[1];
+                        Integer e = (Integer) o[2];
+                    List f = (List) $getSym(4);
+
+                    if (b.type() == ts.Void() && e.intValue() > 0)
+                    {
+                        // TODO: error!!!
+                        assert(false);
+                    }
+
+                    $setSym1(nf.MethodDecl(pos($getLeftSpan(2), $getRightSpan(3)),
+                                           a,
+                                           nf.array((TypeNode) b, pos($getLeftSpan(2), $getRightSpan(2)), e.intValue()),
+                                           c.toString(),
+                                           d,
+                                           f,
+                                           null));
+          $EndAction
+        ./
+    
+    AbstractMethodModifiers ::= AbstractMethodModifier
+        /.$NoAction./
+                              | AbstractMethodModifiers AbstractMethodModifier
+        /.$BeginAction
+                    Flags a = (Flags) $getSym(1),
+                          b = (Flags) $getSym(2);
+                    $setSym1(a.set(b));
+          $EndAction
+        ./
+    
+    AbstractMethodModifier ::= 
+--vj Annotations
+--vj        /.$BadAction./
+--vj                             | 
+                               public
+        /.$BeginAction
+                    $setSym1(Flags.PUBLIC);
+          $EndAction
+        ./
+                             | abstract
+        /.$BeginAction
+                    $setSym1(Flags.ABSTRACT);
+          $EndAction
+        ./
+    
+    AnnotationTypeDeclaration ::= InterfaceModifiersopt @ interface identifier AnnotationTypeBody
+        /.$BadAction./
+    
+    AnnotationTypeBody ::= { AnnotationTypeElementDeclarationsopt }
+        /.$BadAction./
+    
+    AnnotationTypeElementDeclarations ::= AnnotationTypeElementDeclaration
+        /.$BadAction./
+                                        | AnnotationTypeElementDeclarations AnnotationTypeElementDeclaration
+        /.$BadAction./
+    
+    AnnotationTypeElementDeclaration ::= AbstractMethodModifiersopt Type identifier ( ) DefaultValueopt ;
+        /.$BadAction./
+                                       | ConstantDeclaration
+        /.$BadAction./
+                                       | ClassDeclaration
+        /.$BadAction./
+                                       | InterfaceDeclaration
+        /.$BadAction./
+                                       | EnumDeclaration
+        /.$BadAction./
+                                       | AnnotationTypeDeclaration
+        /.$BadAction./
+                                       | ;
+        /.$BadAction./
+    
+    DefaultValue ::= default ElementValue
+        /.$BadAction./
+    
+    Annotations ::= Annotation
+        /.$BadAction./
+                  | Annotations Annotation
+        /.$BadAction./
+    
+    Annotation ::= NormalAnnotation
+        /.$BadAction./
+                 | MarkerAnnotation
+        /.$BadAction./
+                 | SingleElementAnnotation
+        /.$BadAction./
+    
+    NormalAnnotation ::= @ TypeName ( ElementValuePairsopt )
+        /.$BadAction./
+    
+    ElementValuePairs ::= ElementValuePair
+        /.$BadAction./
+                        | ElementValuePairs , ElementValuePair
+        /.$BadAction./
+    
+    ElementValuePair ::= SimpleName = ElementValue
+        /.$BadAction./
+    
+    SimpleName ::= identifier
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    $setSym1(new Name(nf, ts, pos(), a.getIdentifier()));
+          $EndAction
+        ./
+
+    ElementValue ::= ConditionalExpression
+        /.$BadAction./
+                   | Annotation
+        /.$BadAction./
+                   | ElementValueArrayInitializer
+        /.$BadAction./
+    
+    ElementValueArrayInitializer ::= { ElementValuesopt ,opt }
+        /.$BadAction./
+    
+    ElementValues ::= ElementValue
+        /.$BadAction./
+                    | ElementValues , ElementValue
+        /.$BadAction./
+    
+    MarkerAnnotation ::= @ TypeName
+        /.$BadAction./
+    
+    SingleElementAnnotation ::= @ TypeName ( ElementValue )
+        /.$BadAction./
+    
+    -- Chapter 10
+    
+    ArrayInitializer ::= { VariableInitializersopt ,opt }
+        /.$BeginAction
+                    List a = (List) $getSym(2);
+                    if (a == null)
+                         $setSym1(nf.ArrayInit(pos()));
+                    else $setSym1(nf.ArrayInit(pos(), a));
+          $EndAction
+        ./
+    
+    VariableInitializers ::= VariableInitializer
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Expr.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                           | VariableInitializers , VariableInitializer
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    l.add($getSym(3));
+                    //$setSym1(l);
+          $EndAction
+        ./
+    
+    --
+    -- See Chapter 8
+    --
+    --VariableInitializer ::= Expression
+    --                      | ArrayInitializer
+    
+    -- Chapter 11
+    
+    -- Chapter 12
+    
+    -- Chapter 13
+    
+    -- Chapter 14
+    
+    Block ::= { BlockStatementsopt }
+        /.$BeginAction
+                    List l = (List) $getSym(2);
+                    $setSym1(nf.Block(pos(), l));
+          $EndAction
+        ./
+    
+    BlockStatements ::= BlockStatement
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Stmt.class, false),
+                         l2 = (List) $getSym(1);
+                    l.addAll(l2);
+                    $setSym1(l);
+          $EndAction
+        ./
+                      | BlockStatements BlockStatement
+        /.$BeginAction
+                    List l = (List) $getSym(1),
+                         l2 = (List) $getSym(2);
+                    l.addAll(l2);
+                    //$setSym1(l);
+          $EndAction
+        ./
+    
+    BlockStatement ::= LocalVariableDeclarationStatement
+        /.$NoAction./
+                     | ClassDeclaration
+        /.$BeginAction
+                    ClassDecl a = (ClassDecl) $getSym(1);
+                    List l = new TypedList(new LinkedList(), Stmt.class, false);
+                    l.add(nf.LocalClassDecl(pos(), a));
+                    $setSym1(l);
+          $EndAction
+        ./
+                     | Statement
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Stmt.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+    
+    LocalVariableDeclarationStatement ::= LocalVariableDeclaration ;
+        /.$NoAction./
+    
+    LocalVariableDeclaration ::= VariableModifiersopt Type VariableDeclarators
+        /.$BeginAction
+                    Flags flags = (Flags) $getSym(1);
+                    TypeNode a = (TypeNode) $getSym(2);
+                    List b = (List) $getSym(3);
+
+                    List l = new TypedList(new LinkedList(), LocalDecl.class, false);
+                    List s = new TypedList(new LinkedList(), Stmt.class, false);
+                    for (Iterator i = b.iterator(); i.hasNext(); )
+                    {
+                        X10VarDeclarator d = (X10VarDeclarator) i.next();
+                        d.setFlag( flags ); 
+                        // use d.flags below and not flags, setFlag may change it.
+                        l.add(nf.LocalDecl(d.pos,  d.flags,
+                                           nf.array(a, pos(d), d.dims), d.name, d.init));
+                        if (d.hasExplodedVars())
+                           s.addAll( d.explode() );
+                    }
+                    l.addAll(s); 
+                    $setSym1(l);
+          $EndAction
+        ./
+    
+    --
+    -- See Chapter 8
+    --
+    --VariableDeclarators ::= VariableDeclarator
+    --                      | VariableDeclarators , VariableDeclarator
+    --
+    --VariableDeclarator ::= VariableDeclaratorId
+    --                     | VariableDeclaratorId = VariableInitializer
+    --
+    --VariableDeclaratorId ::= identifier
+    --                       | VariableDeclaratorId [ ]
+    --
+    --VariableInitializer ::= Expression
+    --                      | ArrayInitializer
+    
+    Statement ::= StatementWithoutTrailingSubstatement
+        /.$NoAction./
+                | LabeledStatement
+        /.$NoAction./
+                | IfThenStatement
+        /.$NoAction./
+                | IfThenElseStatement
+        /.$NoAction./
+                | WhileStatement
+        /.$NoAction./
+                | ForStatement
+        /.$NoAction./
+    
+    StatementWithoutTrailingSubstatement ::= Block
+        /.$NoAction./
+                                           | EmptyStatement
+        /.$NoAction./
+                                           | ExpressionStatement
+        /.$NoAction./
+                                           | AssertStatement
+        /.$NoAction./
+                                           | SwitchStatement
+        /.$NoAction./
+                                           | DoStatement
+        /.$NoAction./
+                                           | BreakStatement
+        /.$NoAction./
+                                           | ContinueStatement
+        /.$NoAction./
+                                           | ReturnStatement
+        /.$NoAction./
+                                           | SynchronizedStatement
+        /.$NoAction./
+                                           | ThrowStatement
+        /.$NoAction./
+                                           | TryStatement
+        /.$NoAction./
+    
+    StatementNoShortIf ::= StatementWithoutTrailingSubstatement
+        /.$NoAction./
+                         | LabeledStatementNoShortIf
+        /.$NoAction./
+                         | IfThenElseStatementNoShortIf
+        /.$NoAction./
+                         | WhileStatementNoShortIf
+        /.$NoAction./
+                         | ForStatementNoShortIf
+        /.$NoAction./
+    
+    IfThenStatement ::= if ( Expression ) Statement
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(3);
+                    Stmt b = (Stmt) $getSym(5);
+                    $setSym1(nf.If(pos(), a, b));
+          $EndAction
+        ./
+    
+    IfThenElseStatement ::= if ( Expression ) StatementNoShortIf else Statement
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(3);
+                    Stmt b = (Stmt) $getSym(5);
+                    Stmt c = (Stmt) $getSym(7);
+                    $setSym1(nf.If(pos(), a, b, c));
+          $EndAction
+        ./
+    
+    IfThenElseStatementNoShortIf ::= if ( Expression ) StatementNoShortIf else StatementNoShortIf
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(3);
+                    Stmt b = (Stmt) $getSym(5);
+                    Stmt c = (Stmt) $getSym(7);
+                    $setSym1(nf.If(pos(), a, b, c));
+          $EndAction
+        ./
+    
+    EmptyStatement ::= ;
+        /.$BeginAction
+                    $setSym1(nf.Empty(pos()));
+          $EndAction
+        ./
+    
+    LabeledStatement ::= identifier : Statement
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    Stmt b = (Stmt) $getSym(3);
+                    $setSym1(nf.Labeled(pos(), a.getIdentifier(), b));
+          $EndAction
+        ./
+    
+    LabeledStatementNoShortIf ::= identifier : StatementNoShortIf
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    Stmt b = (Stmt) $getSym(3);
+                    $setSym1(nf.Labeled(pos(), a.getIdentifier(), b));
+          $EndAction
+        ./
+    
+    ExpressionStatement ::= StatementExpression ;
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1);
+                    $setSym1(nf.Eval(pos(), a));
+          $EndAction
+        ./
+    
+    StatementExpression ::= Assignment
+        /.$NoAction./
+                          | PreIncrementExpression
+        /.$NoAction./
+                          | PreDecrementExpression
+        /.$NoAction./
+                          | PostIncrementExpression
+        /.$NoAction./
+                          | PostDecrementExpression
+        /.$NoAction./
+                          | MethodInvocation
+        /.$NoAction./
+                          | ClassInstanceCreationExpression
+        /.$NoAction./
+    
+    --
+    -- Already specified above
+    --
+    --IfThenStatement ::= if ( Expression ) Statement
+    --
+    --IfThenElseStatement ::= if ( Expression ) StatementNoShortIf else Statement
+    --
+    --IfThenElseStatementNoShortIf ::= if ( Expression ) StatementNoShortIf else StatementNoShortIf
+    
+    AssertStatement ::= assert Expression ;
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(nf.Assert(pos(), a));
+          $EndAction
+        ./
+                      | assert Expression : Expression ;
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2),
+                         b = (Expr) $getSym(4);
+                    $setSym1(nf.Assert(pos(), a, b));
+          $EndAction
+        ./
+    
+    SwitchStatement ::= switch ( Expression ) SwitchBlock
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(3);
+                    List b = (List) $getSym(5);
+                    $setSym1(nf.Switch(pos(), a, b));
+          $EndAction
+        ./
+    
+    SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
+        /.$BeginAction
+                    List l = (List) $getSym(2),
+                         l2 = (List) $getSym(3);
+                    l.addAll(l2);
+                    $setSym1(l);
+          $EndAction
+        ./
+    
+    SwitchBlockStatementGroups ::= SwitchBlockStatementGroup
+        /.$NoAction./
+                                 | SwitchBlockStatementGroups SwitchBlockStatementGroup
+        /.$BeginAction
+                    List l = (List) $getSym(1),
+                         l2 = (List) $getSym(2);
+                    l.addAll(l2);
+                    // $setSym1(l);
+          $EndAction
+        ./
+    
+    SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), SwitchElement.class, false);
+
+                    List l1 = (List) $getSym(1),
+                         l2 = (List) $getSym(2);
+                    l.addAll(l1);
+                    l.add(nf.SwitchBlock(pos(), l2));
+                    $setSym1(l);
+          $EndAction
+        ./
+    
+    SwitchLabels ::= SwitchLabel
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Case.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                   | SwitchLabels SwitchLabel
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    l.add($getSym(2));
+                    //$setSym1(l);
+          $EndAction
+        ./
+    
+    SwitchLabel ::= case ConstantExpression :
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(nf.Case(pos(), a));
+          $EndAction
+        ./
+                  | case EnumConstant :
+        /.$BadAction./
+                  | default :
+        /.$BeginAction
+                    $setSym1(nf.Default(pos()));
+          $EndAction
+        ./
+
+    EnumConstant ::= identifier
+        /.$BadAction./
+    
+    WhileStatement ::= while ( Expression ) Statement
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(3);
+                    Stmt b = (Stmt) $getSym(5);
+                    $setSym1(nf.While(pos(), a, b));
+          $EndAction
+        ./
+    
+    WhileStatementNoShortIf ::= while ( Expression ) StatementNoShortIf
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(3);
+                    Stmt b = (Stmt) $getSym(5);
+                    $setSym1(nf.While(pos(), a, b));
+          $EndAction
+        ./
+    
+    DoStatement ::= do Statement while ( Expression ) ;
+        /.$BeginAction
+                    Stmt a = (Stmt) $getSym(2);
+                    Expr b = (Expr) $getSym(5);
+                    $setSym1(nf.Do(pos(), a, b));
+          $EndAction
+        ./
+    
+    ForStatement ::= BasicForStatement
+        /.$NoAction./
+                   | EnhancedForStatement
+        /.$NoAction./
+    
+    BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
+        /.$BeginAction
+                    List a = (List) $getSym(3);
+                    Expr b = (Expr) $getSym(5);
+                    List c = (List) $getSym(7);
+                    Stmt d = (Stmt) $getSym(9);
+                    $setSym1(nf.For(pos(), a, b, c, d));
+          $EndAction
+        ./
+    
+    ForStatementNoShortIf ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) StatementNoShortIf
+        /.$BeginAction
+                    List a = (List) $getSym(3);
+                    Expr b = (Expr) $getSym(5);
+                    List c = (List) $getSym(7);
+                    Stmt d = (Stmt) $getSym(9);
+                    $setSym1(nf.For(pos(), a, b, c, d));
+          $EndAction
+        ./
+    
+    ForInit ::= StatementExpressionList
+        /.$NoAction./
+              | LocalVariableDeclaration
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), ForInit.class, false),
+                         l2 = (List) $getSym(1);
+                    l.addAll(l2);
+                    //$setSym1(l);
+          $EndAction
+        ./
+    
+    ForUpdate ::= StatementExpressionList
+        /.$NoAction./
+    
+    StatementExpressionList ::= StatementExpression
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Eval.class, false);
+                    Expr a = (Expr) $getSym(1);
+                    l.add(nf.Eval(pos(), a));
+                    $setSym1(l);
+          $EndAction
+        ./
+                              | StatementExpressionList , StatementExpression
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    Expr a = (Expr) $getSym(3);
+                    l.add(nf.Eval(pos(), a));
+                    //$setSym1(l);
+          $EndAction
+        ./
+    
+--    EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
+--        /.$BadAction./
+    
+    BreakStatement ::= break identifieropt ;
+        /.$BeginAction
+                    Name a = (Name) $getSym(2);
+                    if (a == null)
+                         $setSym1(nf.Break(pos()));
+                    else $setSym1(nf.Break(pos(), a.toString()));
+          $EndAction
+        ./
+    
+    ContinueStatement ::= continue identifieropt ;
+        /.$BeginAction
+                    Name a = (Name) $getSym(2);
+                    if (a == null)
+                         $setSym1(nf.Continue(pos()));
+                    else $setSym1(nf.Continue(pos(), a.toString()));
+          $EndAction
+        ./
+    
+    ReturnStatement ::= return Expressionopt ;
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(nf.Return(pos(), a));
+          $EndAction
+        ./
+    
+    ThrowStatement ::= throw Expression ;
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(nf.Throw(pos(), a));
+          $EndAction
+        ./
+    
+    SynchronizedStatement ::= synchronized ( Expression ) Block
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(3);
+                    Block b = (Block) $getSym(5);
+                    $setSym1(nf.Synchronized(pos(), a, b));
+          $EndAction
+        ./
+    
+    TryStatement ::= try Block Catches
+        /.$BeginAction
+                    Block a = (Block) $getSym(2);
+                    List b = (List) $getSym(3);
+                    $setSym1(nf.Try(pos(), a, b));
+          $EndAction
+        ./
+                   | try Block Catchesopt Finally
+        /.$BeginAction
+                    Block a = (Block) $getSym(2);
+                    List b = (List) $getSym(3);
+                    Block c = (Block) $getSym(4);
+                    $setSym1(nf.Try(pos(), a, b, c));
+          $EndAction
+        ./
+    
+    Catches ::= CatchClause
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Catch.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+              | Catches CatchClause
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    l.add($getSym(2));
+                    //$setSym1(l);
+          $EndAction
+        ./
+    
+    CatchClause ::= catch ( FormalParameter ) Block
+        /.$BeginAction
+                    Formal a = (Formal) $getSym(3);
+                    Block b = (Block) $getSym(5);
+                    $setSym1(nf.Catch(pos(), a, b));
+          $EndAction
+        ./
+    
+    Finally ::= finally Block
+        /.$BeginAction
+                    $setSym1($getSym(2));
+          $EndAction
+        ./
+    
+    --
+    -- See Chapter 8
+    --
+    --FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
+    --
+    --VariableDeclaratorId ::= identifier
+    --                       | VariableDeclaratorId [ ]
+    
+    -- Chapter 15
+    
+    Primary ::= PrimaryNoNewArray
+        /.$NoAction./
+              | ArrayCreationExpression
+        /.$NoAction./
+    
+    PrimaryNoNewArray ::= Literal
+        /.$NoAction./
+                        | Type . class
+        /.$BeginAction
+                    Object o = $getSym(1);
+                    if (o instanceof Name)
+                    {
+                        Name a = (Name) o;
+                        $setSym1(nf.ClassLit(pos(), a.toType()));
+                    }
+                    else if (o instanceof TypeNode)
+                    {
+                        TypeNode a = (TypeNode) o;
+                        $setSym1(nf.ClassLit(pos(), a));
+                    }
+                    else if (o instanceof CanonicalTypeNode)
+                    {
+                        CanonicalTypeNode a = (CanonicalTypeNode) o;
+                        $setSym1(nf.ClassLit(pos(), a));
+                    }
+                    else assert(false);
+          $EndAction
+        ./
+                        | void . class
+        /.$BeginAction
+                    $setSym1(nf.ClassLit(pos(),
+                                         nf.CanonicalTypeNode(pos($getToken(1)), ts.Void())));
+          $EndAction
+        ./
+                        | this
+        /.$BeginAction
+                    $setSym1(nf.This(pos()));
+          $EndAction
+        ./
+                        | ClassName . this
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+                    $setSym1(nf.This(pos(), a.toType()));
+          $EndAction
+        ./
+                        | ( Expression )
+        /.$BeginAction
+                    Expr e = (Expr) $getSym(2);
+                    $setSym1(nf.ParExpr(pos(), e));
+          $EndAction
+        ./
+                        | ClassInstanceCreationExpression
+        /.$NoAction./
+                        | FieldAccess
+        /.$NoAction./
+                        | MethodInvocation
+        /.$NoAction./
+                        | ArrayAccess
+        /.$NoAction./
+    
+    Literal ::= IntegerLiteral
+        /.$BeginAction
+                    polyglot.lex.IntegerLiteral a = int_lit($getToken(1));
+                    $setSym1(nf.IntLit(pos(), IntLit.INT, a.getValue().intValue()));
+          $EndAction
+        ./
+              | LongLiteral
+        /.$BeginAction
+                    polyglot.lex.LongLiteral a = long_lit($getToken(1));
+                    $setSym1(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
+          $EndAction
+        ./
+              | FloatingPointLiteral
+        /.$BeginAction
+                    polyglot.lex.FloatLiteral a = float_lit($getToken(1));
+                    $setSym1(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
+          $EndAction
+        ./
+              | DoubleLiteral
+        /.$BeginAction
+                    polyglot.lex.DoubleLiteral a = double_lit($getToken(1));
+                    $setSym1(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
+          $EndAction
+        ./
+              | BooleanLiteral
+        /.$BeginAction
+                    polyglot.lex.BooleanLiteral a = boolean_lit($getToken(1));
+                    $setSym1(nf.BooleanLit(pos(), a.getValue().booleanValue()));
+          $EndAction
+        ./
+              | CharacterLiteral
+        /.$BeginAction
+                    polyglot.lex.CharacterLiteral a = char_lit($getToken(1));
+                    $setSym1(nf.CharLit(pos(), a.getValue().charValue()));
+          $EndAction
+        ./
+              | StringLiteral
+        /.$BeginAction
+                    polyglot.lex.StringLiteral a = string_lit($getToken(1));
+                    $setSym1(nf.StringLit(pos(), a.getValue()));
+          $EndAction
+        ./
+              | null
+        /.$BeginAction
+                    $setSym1(nf.NullLit(pos()));
+          $EndAction
+        ./
+
+    BooleanLiteral ::= true
+        /.$NoAction./
+                     | false
+        /.$NoAction./
+
+    --
+    -- The following case appeared to be missing from the spec:
+    --
+    --                                | identifier . new TypeArgumentsopt identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+    --
+--vj    ClassInstanceCreationExpression ::=  new TypeArgumentsopt ClassOrInterfaceType TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+    ClassInstanceCreationExpression ::=  new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
+        /.$BeginAction
+//vj                    assert($getSym(2) == null);
+                    TypeNode a = (TypeNode) $getSym(2);
+//vj                    assert($getSym(4) == null);
+                    List b = (List) $getSym(4);
+                    ClassBody c = (ClassBody) $getSym(6);
+                    if (c == null)
+                         $setSym1(nf.New(pos(), a, b));
+                    else $setSym1(nf.New(pos(), a, b, c));
+          $EndAction
+        ./
+--vj                                      | Primary . new TypeArgumentsopt identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+                                      | Primary . new identifier  ( ArgumentListopt ) ClassBodyopt
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1);
+//vj                    assert($getSym(2) == null);
+                    Name b = new Name(nf, ts, pos(), id($getToken(4)).getIdentifier());
+//vj                    assert($getSym(4) == null);
+                    List c = (List) $getSym(6);
+                    ClassBody d = (ClassBody) $getSym(8);
+                    if (d == null)
+                         $setSym1(nf.New(pos(), a, b.toType(), c));
+                    else $setSym1(nf.New(pos(), a, b.toType(), c, d));
+          $EndAction
+        ./
+--vj                                      | AmbiguousName . new TypeArgumentsopt identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+                                      | AmbiguousName . new identifier ( ArgumentListopt ) ClassBodyopt
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+//vj                    assert($getSym(4) == null);
+                    Name b = new Name(nf, ts, pos(), id($getToken(4)).getIdentifier());
+//vj                    assert($getSym(6) == null);
+                    List c = (List) $getSym(6);
+                    ClassBody d = (ClassBody) $getSym(8);
+                    if (d == null)
+                         $setSym1(nf.New(pos(), a.toExpr(), b.toType(), c));
+                    else $setSym1(nf.New(pos(), a.toExpr(), b.toType(), c, d));
+          $EndAction
+        ./
+    
+    ArgumentList ::= Expression
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Expr.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+                   | ArgumentList , Expression
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    l.add($getSym(3));
+                    //$setSym1(l);
+          $EndAction
+        ./
+
+--
+-- The rules below were specified however, from some examples,
+-- it would appear that ClassOrInterfaceType is expected instead
+-- of TypeName
+--
+--                              | new TypeName DimExprs Dimsopt
+--                              | new TypeName Dims ArrayInitializer
+--
+--    ArrayCreationExpression ::= new PrimitiveType DimExprs Dimsopt
+--        /.$BeginAction
+--                    CanonicalTypeNode a = (CanonicalTypeNode) $getSym(2);
+--                    List b = (List) $getSym(3);
+--                    Integer c = (Integer) $getSym(4);
+--                    $setSym1(nf.NewArray(pos(), a, b, c.intValue()));
+--          $EndAction
+--        ./
+--                              | new ClassOrInterfaceType DimExprs Dimsopt
+--        /.$BeginAction
+--                    TypeNode a = (TypeNode) $getSym(2);
+--                    List b = (List) $getSym(3);
+--                    Integer c = (Integer) $getSym(4);
+--                    $setSym1(nf.NewArray(pos(), a, b, c.intValue()));
+--          $EndAction
+--        ./
+--                              | new PrimitiveType Dims ArrayInitializer
+--        /.$BeginAction
+--                    CanonicalTypeNode a = (CanonicalTypeNode) $getSym(2);
+--                    Integer b = (Integer) $getSym(3);
+--                    ArrayInit c = (ArrayInit) $getSym(4);
+--                    $setSym1(nf.NewArray(pos(), a, b.intValue(), c));
+--          $EndAction
+--        ./
+--                              | new ClassOrInterfaceType Dims ArrayInitializer
+--        /.$BeginAction
+--                    TypeNode a = (TypeNode) $getSym(2);
+--                    Integer b = (Integer) $getSym(3);
+--                    ArrayInit c = (ArrayInit) $getSym(4);
+--                    $setSym1(nf.NewArray(pos(), a, b.intValue(), c));
+--          $EndAction
+--        ./
+    
+    DimExprs ::= DimExpr
+        /.$BeginAction
+                    List l = new TypedList(new LinkedList(), Expr.class, false);
+                    l.add($getSym(1));
+                    $setSym1(l);
+          $EndAction
+        ./
+               | DimExprs DimExpr
+        /.$BeginAction
+                    List l = (List) $getSym(1);
+                    l.add($getSym(2));
+                    //$setSym1(l);
+          $EndAction
+        ./
+    
+    DimExpr ::= [ Expression ]
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(a.position(pos()));
+          $EndAction
+        ./
+    
+    Dims ::= [ ]
+        /.$BeginAction
+                    $setSym1(new Integer(1));
+          $EndAction
+        ./
+           | Dims [ ]
+        /.$BeginAction
+                    Integer a = (Integer) $getSym(1);
+                    $setSym1(new Integer(a.intValue() + 1));
+          $EndAction
+        ./
+    
+    FieldAccess ::= Primary . identifier
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1);
+                    polyglot.lex.Identifier b = id($getToken(3));
+                    $setSym1(nf.Field(pos(), a, b.getIdentifier()));
+          $EndAction
+        ./
+                  | super . identifier
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(3));
+                    $setSym1(nf.Field(pos($getRightSpan()), nf.Super(pos($getLeftSpan())), a.getIdentifier()));
+          $EndAction
+        ./
+                  | ClassName . super . identifier
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+                    polyglot.lex.Identifier b = id($getToken(3));
+                    $setSym1(nf.Field(pos($getRightSpan()), nf.Super(pos($getLeftSpan(3)), a.toType()), b.getIdentifier()));
+          $EndAction
+        ./
+    
+    MethodInvocation ::= MethodName ( ArgumentListopt )
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+                    List b = (List) $getSym(3);
+                    $setSym1(nf.Call(pos(), a.prefix == null ? null : a.prefix.toReceiver(), a.name, b));
+          $EndAction
+        ./
+--vj                       | Primary . TypeArgumentsopt identifier ( ArgumentListopt )
+                       | Primary .  identifier ( ArgumentListopt )
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1);
+//vj                    assert($getSym(3) == null);
+                    polyglot.lex.Identifier b = id($getToken(3));
+                    List c = (List) $getSym(5);
+                    $setSym1(nf.Call(pos(), a, b.getIdentifier(), c));
+          $EndAction
+        ./
+--vj                       | super . TypeArgumentsopt identifier ( ArgumentListopt )
+                       | super .  identifier ( ArgumentListopt )
+        /.$BeginAction
+//vj                    assert($getSym(3) == null);
+                    polyglot.lex.Identifier b = id($getToken(3));
+                    List c = (List) $getSym(5);
+                    $setSym1(nf.Call(pos(), nf.Super(pos($getLeftSpan())), b.getIdentifier(), c));
+          $EndAction
+        ./
+--vj                       | ClassName . super . TypeArgumentsopt identifier ( ArgumentListopt )
+                       | ClassName . super .  identifier ( ArgumentListopt )
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+//vj                    assert($getSym(5) == null);
+                    polyglot.lex.Identifier b = id($getToken(5));
+                    List c = (List) $getSym(7);
+                    $setSym1(nf.Call(pos(), nf.Super(pos($getLeftSpan(3)), a.toType()), b.getIdentifier(), c));
+          $EndAction
+        ./
+--vj                       | TypeName . TypeArguments identifier ( ArgumentListopt )
+--                       | TypeName .  identifier ( ArgumentListopt )
+--       /.$BadAction
+--        ./
+    --
+    -- See above
+    --
+    --ArgumentList ::= Expression
+    --               | ArgumentList , Expression
+    --
+--
+-- See X10 definition
+--
+--    ArrayAccess ::= ExpressionName [ Expression ]
+--                  | PrimaryNoNewArray [ Expression ]
+    
+    PostfixExpression ::= Primary
+        /.$NoAction./
+                        | ExpressionName
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+                    $setSym1(a.toExpr());
+          $EndAction
+        ./
+                        | PostIncrementExpression
+        /.$NoAction./
+                        | PostDecrementExpression
+        /.$NoAction./
+    
+    PostIncrementExpression ::= PostfixExpression ++
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1);
+                    $setSym1(nf.Unary(pos(), a, Unary.POST_INC));
+          $EndAction
+        ./
+    
+    PostDecrementExpression ::= PostfixExpression '--'
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1);
+                    $setSym1(nf.Unary(pos(), a, Unary.POST_DEC));
+          $EndAction
+        ./
+    
+    UnaryExpression ::= PreIncrementExpression
+        /.$NoAction./
+                      | PreDecrementExpression
+        /.$NoAction./
+                      | + UnaryExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(nf.Unary(pos(), Unary.POS, a));
+          $EndAction
+        ./
+                      | - UnaryExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(nf.Unary(pos(), Unary.NEG, a));
+          $EndAction
+        ./
+                      | UnaryExpressionNotPlusMinus
+    
+    PreIncrementExpression ::= ++ UnaryExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(nf.Unary(pos(), Unary.PRE_INC, a));
+          $EndAction
+        ./
+    
+    PreDecrementExpression ::= '--' UnaryExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(nf.Unary(pos(), Unary.PRE_DEC, a));
+          $EndAction
+        ./
+    
+    UnaryExpressionNotPlusMinus ::= PostfixExpression
+        /.$NoAction./
+                                  | ~ UnaryExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(nf.Unary(pos(), Unary.BIT_NOT, a));
+          $EndAction
+        ./
+                                  | ! UnaryExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(2);
+                    $setSym1(nf.Unary(pos(), Unary.NOT, a));
+          $EndAction
+        ./
+                                  | CastExpression
+    
+--
+-- See X10 definition
+--
+--    CastExpression ::= ( PrimitiveType Dimsopt ) UnaryExpression
+--                     | ( ReferenceType ) UnaryExpressionNotPlusMinus
+    
+    MultiplicativeExpression ::= UnaryExpression
+        /.$NoAction./
+                               | MultiplicativeExpression * UnaryExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.MUL, b));
+          $EndAction
+        ./
+                               | MultiplicativeExpression / UnaryExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.DIV, b));
+          $EndAction
+        ./
+                               | MultiplicativeExpression % UnaryExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.MOD, b));
+          $EndAction
+        ./
+    
+    AdditiveExpression ::= MultiplicativeExpression
+        /.$NoAction./
+                         | AdditiveExpression + MultiplicativeExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.ADD, b));
+          $EndAction
+        ./
+                         | AdditiveExpression - MultiplicativeExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.SUB, b));
+          $EndAction
+        ./
+    
+    ShiftExpression ::= AdditiveExpression
+        /.$NoAction./
+                      | ShiftExpression << AdditiveExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.SHL, b));
+          $EndAction
+        ./
+                      | ShiftExpression > > AdditiveExpression
+        /.$BeginAction
+                    // TODO: make sure that there is no space between the ">" signs
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(4);
+                    $setSym1(nf.Binary(pos(), a, Binary.SHR, b));
+          $EndAction
+        ./
+                      | ShiftExpression > > > AdditiveExpression
+        /.$BeginAction
+                    // TODO: make sure that there is no space between the ">" signs
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(5);
+                    $setSym1(nf.Binary(pos(), a, Binary.USHR, b));
+          $EndAction
+        ./
+    
+    RelationalExpression ::= ShiftExpression
+        /.$NoAction./
+                           | RelationalExpression < ShiftExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.LT, b));
+          $EndAction
+        ./
+                           | RelationalExpression > ShiftExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.GT, b));
+          $EndAction
+        ./
+                           | RelationalExpression <= ShiftExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.LE, b));
+          $EndAction
+        ./
+                           | RelationalExpression > = ShiftExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(4);
+                    $setSym1(nf.Binary(pos(), a, Binary.GE, b));
+          $EndAction
+        ./
+--
+-- See X10 definition
+--
+--                           | RelationalExpression instanceof ReferenceType
+--        /.$BeginAction
+--                    Expr a = (Expr) $getSym(1);
+--                    TypeNode b = (TypeNode) $getSym(3);
+--                    $setSym1(nf.Instanceof(pos(), a, b));
+--          $EndAction
+--        ./
+    
+    EqualityExpression ::= RelationalExpression
+        /.$NoAction./
+                         | EqualityExpression == RelationalExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.EQ, b));
+          $EndAction
+        ./
+                         | EqualityExpression != RelationalExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.NE, b));
+          $EndAction
+        ./
+    
+    AndExpression ::= EqualityExpression
+        /.$NoAction./
+                    | AndExpression & EqualityExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.BIT_AND, b));
+          $EndAction
+        ./
+    
+    ExclusiveOrExpression ::= AndExpression
+        /.$NoAction./
+                            | ExclusiveOrExpression ^ AndExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.BIT_XOR, b));
+          $EndAction
+        ./
+    
+    InclusiveOrExpression ::= ExclusiveOrExpression
+        /.$NoAction./
+                            | InclusiveOrExpression '|' ExclusiveOrExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.BIT_OR, b));
+          $EndAction
+        ./
+    
+    ConditionalAndExpression ::= InclusiveOrExpression
+        /.$NoAction./
+                               | ConditionalAndExpression && InclusiveOrExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.COND_AND, b));
+          $EndAction
+        ./
+    
+    ConditionalOrExpression ::= ConditionalAndExpression
+        /.$NoAction./
+                              | ConditionalOrExpression || ConditionalAndExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3);
+                    $setSym1(nf.Binary(pos(), a, Binary.COND_OR, b));
+          $EndAction
+        ./
+    
+    ConditionalExpression ::= ConditionalOrExpression
+        /.$NoAction./
+                            | ConditionalOrExpression ? Expression : ConditionalExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1),
+                         b = (Expr) $getSym(3),
+                         c = (Expr) $getSym(5);
+                    $setSym1(nf.Conditional(pos(), a, b, c));
+          $EndAction
+        ./
+    
+    AssignmentExpression ::= ConditionalExpression
+        /.$NoAction./
+                           | Assignment
+        /.$NoAction./
+    
+    Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+        /.$BeginAction
+                    Expr a = (Expr) $getSym(1);
+                    Assign.Operator b = (Assign.Operator) $getSym(2);
+                    Expr c = (Expr) $getSym(3);
+                    $setSym1(nf.Assign(pos(), a, b, c));
+          $EndAction
+        ./
+    
+    LeftHandSide ::= ExpressionName
+        /.$BeginAction
+                    Name a = (Name) $getSym(1);
+                    $setSym1(a.toExpr());
+          $EndAction
+        ./
+                   | FieldAccess
+        /.$NoAction./
+                   | ArrayAccess
+        /.$NoAction./
+    
+    AssignmentOperator ::= =
+        /.$BeginAction
+                    $setSym1(Assign.ASSIGN);
+          $EndAction
+        ./
+                         | *=
+        /.$BeginAction
+                    $setSym1(Assign.MUL_ASSIGN);
+          $EndAction
+        ./
+                         | /=
+        /.$BeginAction
+                    $setSym1(Assign.DIV_ASSIGN);
+          $EndAction
+        ./
+                         | %=
+        /.$BeginAction
+                    $setSym1(Assign.MOD_ASSIGN);
+          $EndAction
+        ./
+                         | +=
+        /.$BeginAction
+                    $setSym1(Assign.ADD_ASSIGN);
+          $EndAction
+        ./
+                         | -=
+        /.$BeginAction
+                    $setSym1(Assign.SUB_ASSIGN);
+          $EndAction
+        ./
+                         | <<=
+        /.$BeginAction
+                    $setSym1(Assign.SHL_ASSIGN);
+          $EndAction
+        ./
+                         | > > =
+        /.$BeginAction
+                    // TODO: make sure that there is no space between the ">" signs
+                    $setSym1(Assign.SHR_ASSIGN);
+          $EndAction
+        ./
+                         | > > > =
+        /.$BeginAction
+                    // TODO: make sure that there is no space between the ">" signs
+                    $setSym1(Assign.USHR_ASSIGN);
+          $EndAction
+        ./
+                         | &=
+        /.$BeginAction
+                    $setSym1(Assign.BIT_AND_ASSIGN);
+          $EndAction
+        ./
+                         | ^=
+        /.$BeginAction
+                    $setSym1(Assign.BIT_XOR_ASSIGN);
+          $EndAction
+        ./
+                         | |=
+        /.$BeginAction
+                    $setSym1(Assign.BIT_OR_ASSIGN);
+          $EndAction
+        ./
+    
+    Expression ::= AssignmentExpression
+        /.$NoAction./
+    
+    ConstantExpression ::= Expression
+        /.$NoAction./
+    
+    --
+    -- Optional rules
+    --
+    Dimsopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new Integer(0));
+          $EndAction
+        ./
+              | Dims
+        /.$NoAction./
+
+    Catchesopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), Catch.class, false));
+          $EndAction
+        ./
+                 | Catches
+        /.$NoAction./
+
+    identifieropt ::= $Empty
+        /.$NullAction./
+                    | identifier
+        /.$BeginAction
+                    polyglot.lex.Identifier a = id($getToken(1));
+                    $setSym1(new Name(nf, ts, pos(), a.getIdentifier()));
+          $EndAction
+        ./
+
+    ForUpdateopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), ForUpdate.class, false));
+          $EndAction
+        ./
+                   | ForUpdate
+        /.$NoAction./
+
+    Expressionopt ::= $Empty
+        /.$NullAction./
+                    | Expression
+        /.$NoAction./
+
+    ForInitopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), ForInit.class, false));
+          $EndAction
+        ./
+                 | ForInit
+        /.$NoAction./
+
+    SwitchLabelsopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), Case.class, false));
+          $EndAction
+        ./
+                      | SwitchLabels
+        /.$NoAction./
+
+    SwitchBlockStatementGroupsopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), SwitchElement.class, false));
+          $EndAction
+        ./
+                                    | SwitchBlockStatementGroups
+        /.$NoAction./
+
+    VariableModifiersopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(Flags.NONE);
+          $EndAction
+        ./
+                           | VariableModifiers
+        /.$NoAction./
+
+    VariableInitializersopt ::= $Empty
+        /.$NullAction./
+                              | VariableInitializers
+        /.$NoAction./
+
+    ElementValuesopt ::= $Empty
+        /.$NullAction./
+                       | ElementValues
+        /.$BadAction./
+
+    ElementValuePairsopt ::= $Empty
+        /.$NullAction./
+                           | ElementValuePairs
+        /.$BadAction./
+
+    DefaultValueopt ::= $Empty
+        /.$NullAction./
+                      | DefaultValue
+        /.$NoAction./
+
+    AnnotationTypeElementDeclarationsopt ::= $Empty
+        /.$NullAction./
+                                           | AnnotationTypeElementDeclarations
+        /.$BadAction./
+
+    AbstractMethodModifiersopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(Flags.NONE);
+          $EndAction
+        ./
+                                 | AbstractMethodModifiers
+        /.$NoAction./
+
+    ConstantModifiersopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(Flags.NONE);
+          $EndAction
+        ./
+                           | ConstantModifiers
+        /.$NoAction./
+
+    InterfaceMemberDeclarationsopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), ClassMember.class, false));
+          $EndAction
+        ./
+                                     | InterfaceMemberDeclarations
+        /.$NoAction./
+
+    ExtendsInterfacesopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), TypeNode.class, false));
+          $EndAction
+        ./
+                           | ExtendsInterfaces
+        /.$NoAction./
+
+    InterfaceModifiersopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(Flags.NONE);
+          $EndAction
+        ./
+                            | InterfaceModifiers
+        /.$NoAction./
+
+    ClassBodyopt ::= $Empty
+        /.$NullAction./
+                   | ClassBody
+        /.$NoAction./
+
+    Argumentsopt ::= $Empty
+        /.$NullAction./
+                   | Arguments
+        /.$BadAction./
+
+    EnumBodyDeclarationsopt ::= $Empty
+        /.$NullAction./
+                              | EnumBodyDeclarations
+        /.$BadAction./
+
+    ,opt ::= $Empty
+        /.$NullAction./
+           | ,
+        /.$NoAction./
+
+    EnumConstantsopt ::= $Empty
+        /.$NullAction./
+                       | EnumConstants
+        /.$BadAction./
+
+    ArgumentListopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), Catch.class, false));
+          $EndAction
+        ./
+                      | ArgumentList
+        /.$NoAction./
+
+    BlockStatementsopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), Stmt.class, false));
+          $EndAction
+        ./
+                         | BlockStatements
+        /.$NoAction./
+
+    ExplicitConstructorInvocationopt ::= $Empty
+        /.$NullAction./
+                                       | ExplicitConstructorInvocation
+        /.$NoAction./
+
+    ConstructorModifiersopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(Flags.NONE);
+          $EndAction
+        ./
+                              | ConstructorModifiers
+        /.$NoAction./
+
+    ...opt ::= $Empty
+        /.$NullAction./
+             | ...
+        /.$NoAction./
+
+    FormalParameterListopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), Formal.class, false));
+          $EndAction
+        ./
+                             | FormalParameterList
+        /.$NoAction./
+
+    Throwsopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), TypeNode.class, false));
+          $EndAction
+        ./
+                | Throws
+        /.$NoAction./
+
+    MethodModifiersopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(Flags.NONE);
+          $EndAction
+        ./
+                         | MethodModifiers
+        /.$NoAction./
+
+    FieldModifiersopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(Flags.NONE);
+          $EndAction
+        ./
+                        | FieldModifiers
+        /.$NoAction./
+
+    ClassBodyDeclarationsopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), ClassMember.class, false));
+          $EndAction
+        ./
+                               | ClassBodyDeclarations
+        /.$NoAction./
+
+    Interfacesopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), TypeNode.class, false));
+          $EndAction
+        ./
+                    | Interfaces
+        /.$NoAction./
+
+    Superopt ::= $Empty
+        /.$NullAction./
+               | Super
+        /.$NoAction./
+
+    TypeParametersopt ::= $Empty
+        /.$NullAction./
+                        | TypeParameters
+        /.$NoAction./
+
+    ClassModifiersopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(Flags.NONE);
+          $EndAction
+        ./
+                        | ClassModifiers
+        /.$NoAction./
+
+    Annotationsopt ::= $Empty
+        /.$NullAction./
+                     | Annotations
+        /.$BadAction./
+
+    TypeDeclarationsopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), TopLevelDecl.class, false));
+          $EndAction
+        ./
+                          | TypeDeclarations
+        /.$NoAction./
+
+    ImportDeclarationsopt ::= $Empty
+        /.$BeginAction
+                    $setSym1(new TypedList(new LinkedList(), Import.class, false));
+          $EndAction
+        ./
+                            | ImportDeclarations
+        /.$NoAction./
+
+    PackageDeclarationopt ::= $Empty
+        /.$NullAction./
+                            | PackageDeclaration
+        /.$NoAction./
+
+    WildcardBoundsOpt ::= $Empty
+        /.$NullAction./
+                        | WildcardBounds
+        /.$BadAction./
+
+    AdditionalBoundListopt ::= $Empty
+        /.$NullAction./
+                             | AdditionalBoundList
+        /.$BadAction./
+
+    TypeBoundopt ::= $Empty
+        /.$NullAction./
+                   | TypeBound
+        /.$BadAction./
+
+    TypeArgumentsopt ::= $Empty
+        /.$NullAction./
+                       | TypeArguments
+        /.$BadAction./
+$End
