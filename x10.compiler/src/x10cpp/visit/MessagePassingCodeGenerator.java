@@ -3842,7 +3842,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                                          Collections.EMPTY_LIST, context));
 		    assert (mi != null);
 		    assert (mi.returnType().isClass());
-		    List<Type> typeArgs = ((X10ClassType)mi.returnType()).typeArguments();
+		    List<Type> typeArgs = ((X10ClassType)X10TypeMixin.baseType(mi.returnType())).typeArguments();
 		    assert (typeArgs.size() == 1);
 		    itType = typeArgs.get(0);
 		} catch (SemanticException e) {
