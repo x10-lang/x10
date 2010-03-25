@@ -11,6 +11,8 @@
 
 package x10.array;
 
+import x10.compiler.Inline;
+
 /**
  * This class represents an array whose data is in a single place,
  * which is the same place as the LocalRectArray's home.
@@ -123,7 +125,7 @@ public final class LocalRectArray[T](region:RectRegion) implements (Point(region
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    public safe def apply(i0:int){this.rank==1}:T {
+    public safe @Inline def apply(i0:int){this.rank==1}:T {
         if (checkBounds) region.check(bounds, i0);
         return raw(layout.offset(i0));
     }
@@ -139,7 +141,7 @@ public final class LocalRectArray[T](region:RectRegion) implements (Point(region
      * @see #apply(Point)
      * @see #set(T, Int, Int)
      */
-    public safe def apply(i0:int, i1:int){this.rank==2}:T {
+    public safe @Inline def apply(i0:int, i1:int){this.rank==2}:T {
         if (checkBounds) region.check(bounds, i0, i1);
         return raw(layout.offset(i0,i1));
     }
@@ -156,7 +158,7 @@ public final class LocalRectArray[T](region:RectRegion) implements (Point(region
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int)
      */
-    public safe def apply(i0:int, i1:int, i2:int){this.rank==3}:T {
+    public safe @Inline def apply(i0:int, i1:int, i2:int){this.rank==3}:T {
         if (checkBounds) region.check(bounds, i0, i1, i2);
         return raw(layout.offset(i0, i1, i2));
     }
@@ -174,7 +176,7 @@ public final class LocalRectArray[T](region:RectRegion) implements (Point(region
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int, Int)
      */
-    public safe def apply(i0:int, i1:int, i2:int, i3:int){this.rank==4}:T {
+    public safe @Inline def apply(i0:int, i1:int, i2:int, i3:int){this.rank==4}:T {
         if (checkBounds) region.check(bounds, i0, i1, i2, i3);
         return raw(layout.offset(i0, i1, i2, i3));
     }
@@ -188,7 +190,7 @@ public final class LocalRectArray[T](region:RectRegion) implements (Point(region
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    public safe def apply(pt:Point{self.rank==this.rank}):T {
+    public safe @Inline def apply(pt:Point{self.rank==this.rank}):T {
         if (checkBounds) {
             throw new UnsupportedOperationException("Haven't implemented bounds checking for general Points on LocalRectArray");
             // TODO: SHOULD BE: region.check(pt);
@@ -209,7 +211,7 @@ public final class LocalRectArray[T](region:RectRegion) implements (Point(region
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    public safe def set(v:T, i0:int){this.rank==1}:T {
+    public safe @Inline def set(v:T, i0:int){this.rank==1}:T {
         if (checkBounds) region.check(bounds, i0);
         raw(layout.offset(i0)) = v;
         return v;
@@ -228,7 +230,7 @@ public final class LocalRectArray[T](region:RectRegion) implements (Point(region
      * @see #apply(Int, Int)
      * @see #set(T, Point)
      */
-    public safe def set(v:T, i0:int, i1:int){this.rank==2}:T {
+    public safe @Inline def set(v:T, i0:int, i1:int){this.rank==2}:T {
         if (checkBounds) region.check(bounds, i0, i1);
         raw(layout.offset(i0,i1)) = v;
         return v;
@@ -248,7 +250,7 @@ public final class LocalRectArray[T](region:RectRegion) implements (Point(region
      * @see #apply(Int, Int, Int)
      * @see #set(T, Point)
      */
-    public safe def set(v:T, i0:int, i1:int, i2:int){this.rank==3}:T {
+    public safe @Inline def set(v:T, i0:int, i1:int, i2:int){this.rank==3}:T {
         if (checkBounds) region.check(bounds, i0, i1, i2);
         raw(layout.offset(i0, i1, i2)) = v;
         return v;
@@ -269,7 +271,7 @@ public final class LocalRectArray[T](region:RectRegion) implements (Point(region
      * @see #apply(Int, Int, Int, Int)
      * @see #set(T, Point)
      */
-    public safe def set(v:T, i0:int, i1:int, i2:int, i3:int){this.rank==4}:T {
+    public safe @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){this.rank==4}:T {
         if (checkBounds) region.check(bounds, i0, i1, i2, i3);
         raw(layout.offset(i0, i1, i2, i3)) = v;
         return v;
@@ -286,7 +288,7 @@ public final class LocalRectArray[T](region:RectRegion) implements (Point(region
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    public safe def set(v:T, p:Point{self.rank==this.region.rank}):T {
+    public safe @Inline def set(v:T, p:Point{self.rank==this.region.rank}):T {
         if (checkBounds) {
             throw new UnsupportedOperationException("Haven't implemented bounds checking for general Points on LocalRectArray");
             // TODO: SHOULD BE: region.check(p);

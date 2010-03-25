@@ -11,17 +11,15 @@
 
 package x10.array;
 
+import x10.compiler.Inline;
+
 /**
  * A RectLayout represents a rectangular memory layout for a
  * region. It provides efficient access but wastes storage for
  * non-rectangular regions.
  *
- * Artificially generic to work around XTENLANG-327 (allows methods to
- * be inlined).
- *
  * @author bdlucas
  */
-
 final class RectLayout(rank: int) extends Layout {
 
     global val size: int;
@@ -71,7 +69,7 @@ final class RectLayout(rank: int) extends Layout {
     // Layout
     //
 
-    final global def size(): int {
+    final global @Inline def size(): int {
         return size;
     }
 
@@ -82,25 +80,25 @@ final class RectLayout(rank: int) extends Layout {
         return offset;
     }
 
-    final global def offset(i0: int): int  {
+    final global @Inline def offset(i0: int): int  {
         var offset:int = i0 - min0;
         return offset;
     }
 
-    final global def offset(i0: int, i1: int): int {
+    final global @Inline def offset(i0: int, i1: int): int {
         var offset:int  = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         return offset;
     }
 
-    final global def offset(i0: int, i1: int, i2: int): int {
+    final global @Inline def offset(i0: int, i1: int, i2: int): int {
         var offset:int = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         offset = offset*delta2 + i2 - min2;
         return offset;
     }
 
-    final global def offset(i0: int, i1: int, i2: int, i3: int): int {
+    final global @Inline def offset(i0: int, i1: int, i2: int, i3: int): int {
         var offset:int = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         offset = offset*delta2 + i2 - min2;
