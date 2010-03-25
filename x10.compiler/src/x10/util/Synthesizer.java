@@ -220,6 +220,18 @@ public class Synthesizer {
 			return X10TypeMixin.addBinding(type, v, rank);
 		 
 	 }
+	 public Type addRankConstraintToSelf(Type type,  int n, X10TypeSystem ts) {
+		 XVar receiver = X10TypeMixin.self(type);
+		 if (receiver == null) {
+			 CConstraint c = new CConstraint_c();
+			 type = X10TypeMixin.xclause(type, c);
+			 receiver = c.self();
+		 }
+		 XTerm v = makeRegionRankTerm(receiver);
+		 XTerm rank = XTerms.makeLit(new Integer(n));
+		 return X10TypeMixin.addBinding(type, v, rank);
+
+	 }
 	 
 	 /**
 	  * If formal = p(x) construct
