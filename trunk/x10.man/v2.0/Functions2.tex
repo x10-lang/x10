@@ -195,7 +195,7 @@ simultaneously. Without \xcd`atomic`, it would no longer be concurrency-safe.
       shared var a : Int = 0;
        return [
           () => {atomic a ++;},
-          () => {return a;}
+          () => {atomic return a;}
           ];
    }
 \end{xten}
