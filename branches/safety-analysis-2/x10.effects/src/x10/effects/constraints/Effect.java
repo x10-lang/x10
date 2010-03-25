@@ -138,7 +138,7 @@ public interface Effect extends Cloneable {
 	 * @param x
 	 * @return
 	 */
-	Effect exists(LocalLocs x);
+	Effect exists(XLocal x);
 	
 	/**
 	 * Given constraint c, return the effect this; e, using the rules for sequential composition of effect annotations.

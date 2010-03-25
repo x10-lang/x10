@@ -33,6 +33,7 @@ import polyglot.types.UnknownType;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.ast.AnnotationNode;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -56,6 +57,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     List<LocalDef> formalNames;
     Ref<XTerm> body;
     protected Ref<? extends Effect> effect;
+    List<AnnotationNode> bodyAnnotations;
 
     public X10MethodDef_c(TypeSystem ts, Position pos,
             Ref<? extends StructType> container,
@@ -151,6 +153,15 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     public void setTypeGuard(Ref<TypeConstraint> s) {
         this.typeGuard = s;
     }
+    
+    public void setBodyAnnotations(List<AnnotationNode> bodyAnnotations) {
+    	this.bodyAnnotations = bodyAnnotations;
+    }
+    
+    public List<AnnotationNode> bodyAnnotations() {
+    	return bodyAnnotations;
+    }
+    
     
     public List<Ref<? extends Type>> typeParameters() {
 	        return Collections.unmodifiableList(typeParameters);
