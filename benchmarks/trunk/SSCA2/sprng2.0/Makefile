@@ -1,4 +1,4 @@
-include ../arch/aix.mk
+#include ../arch/aix.mk
 LIBDIR = lib
 
 CC=${POSTCOMPILE_CXX}

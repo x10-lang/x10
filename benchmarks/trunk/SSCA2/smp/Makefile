@@ -1,4 +1,4 @@
-include ../arch/aix.mk
+#include ../arch/aix.mk
 
 SRCS	:= SSCA2.x10 runtime_consts.x10 types.x10 defs.x10 util.x10 genScaleData.x10 computeGraph.x10 getStartLists.x10 findSubGraphs.x10
 
