@@ -22,6 +22,7 @@ import polyglot.types.UnknownType;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
@@ -170,8 +171,7 @@ class Subst {
             
             Type base = X10TypeMixin.baseType(t);
             CConstraint c = X10TypeMixin.xclause(t);
-            
-            
+                  
             if (t instanceof X10ParsedClassType) {
                 X10ParsedClassType ct = (X10ParsedClassType) t;
                 List<Type> newArgs = new ArrayList<Type>();
@@ -192,7 +192,11 @@ class Subst {
                 }
                 catch (XFailure e) {
                     throw new SemanticException("Cannot instantiate formal parameters on actuals.");
+            
+                
                 }
+                
+                
                 
                 return X10TypeMixin.xclause(base, c);
             }

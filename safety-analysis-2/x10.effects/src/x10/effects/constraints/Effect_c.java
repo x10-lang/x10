@@ -398,11 +398,13 @@ public boolean commutesWith(Effect e, XConstraint c) {
 		return result;
 	}
 
-	public Effect exists(LocalLocs x) {
+	public Effect exists(XLocal x) {
 		Effect_c result = clone();
 		result.readSet().remove(x);
 		result.writeSet().remove(x);
 		result.atomicIncSet().remove(x);
+		result.clockedVarSet().remove(x);
+		result.mustClockSet().remove(x);
 		return result;
 	}
 	/* (non-Javadoc)

@@ -92,6 +92,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
+import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
@@ -102,6 +103,7 @@ import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
+import x10.types.X10MethodDef_c;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeEnv_c;
@@ -145,7 +147,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     
     protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
         X10MethodDef mi = (X10MethodDef) super.createMethodDef(ts, ct, flags);
+       
         mi.setThisVar(((X10ClassDef) ct).thisVar());
+       
         this.placeTerm = PlaceChecker.methodPT(flags, ct);
         return mi;
     }
@@ -155,7 +159,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         X10MethodDecl_c n = (X10MethodDecl_c) super.buildTypesOverride(tb);
 
         X10MethodDef mi = (X10MethodDef) n.methodDef();
-
+       
         n = (X10MethodDecl_c) X10Del_c.visitAnnotations(n, tb);
 
         List<AnnotationNode> as = ((X10Del) n.del()).annotations();
@@ -167,6 +171,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             mi.setDefAnnotations(ats);
         }
 
+       
+        
         // Enable return type inference for this method declaration.
         if (n.returnType() instanceof UnknownTypeNode) {
             mi.inferReturnType(true);
@@ -199,6 +205,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             mi.body(bodyRef);
         }
 
+    
         // property implies public, final
         if (xf.isProperty()) {
             if (xf.isAbstract())
@@ -383,6 +390,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     	 X10MethodDecl_c n = this;
         NodeFactory nf = tc.nodeFactory();
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        if (this.body() != null && this.body().ext() != null) {
+        	((X10MethodDef_c)mi).setBodyAnnotations(((X10Ext)this.body().ext()).annotations());
+        }
+        
         if (((X10TypeSystem) tc.typeSystem()).isStructType(mi.container().get())) {
         	Flags xf = X10Flags.toX10Flags(mi.flags()).Global().Final();
         	 mi.setFlags(xf);
@@ -816,6 +827,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
             //List newFormals = new ArrayList(formals.size());
             X10ProcedureDef pi = (X10ProcedureDef) nn.memberDef();
+            
+          
             CConstraint c = pi.guard().get();
             try {
                 if (c != null) {
