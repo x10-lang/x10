@@ -24,13 +24,48 @@ It is a limitation of \XtenCurrVer{} that functions do not support
 type arguments. This limitation may be removed in future versions of
 the language.
 
-A \emph{function literal} \xcd"(x1:T1,..,xn:Tn){c}:T=>e" creates a
-function of type\\ \xcd"(x1:T1,...,xn:Tn){c}=>T"
-(\Sref{FunctionType}). The body \Xcd{e} of such an expression is
-type-checked in an environment in which \Xcd{c} is true. At runtime,
-function execution results in the evaluation of \Xcd{e} in an
-environment in which each formal is bound to the given actual
-parameter.
+A \emph{function literal} \xcd"(x1:T1,..,xn:Tn){c}:T=>e" creates a function of
+type\\ \xcd"(x1:T1,...,xn:Tn){c}=>T" (\Sref{FunctionType}). The body \Xcd{e}
+of such an expression is type-checked in an environment in which \Xcd{c} is
+true. 
+
+A function literal evaluates to a function entity {$\phi$}. When {$\phi$} is
+applied to a suitable list of actual parameters \xcd`a1`-\xcd`an`, it
+evaluates \xcd`e` with the formal parameters bound to the actual parameters.
+So, the following are equivalent, where \xcd`e` is an expression involving
+\xcd`x1` and \xcd`x2`\footnote{Strictly, there are a few other requirements;
+  \eg, \xcd`result` must be a \xcd`var` of type \xcd`T` defined outside the
+  outer block, the variables \xcd`a1` and \xcd`a2` had better not appear in
+  \xcd`e`, and everything in sight had better typecheck properly.}
+\begin{xten}
+{
+  val f = (x1:T1,x2:T2){true}:T => e;
+  val a1 : T1 = arg1();
+  val a2 : T2 = arg2();
+  result = f(a1,a2);
+}
+\end{xten}
+and 
+\begin{xten}
+{
+  val a1 : T1 = arg1();
+  val a2 : T2 = arg2();
+  {
+     val x1 : T1 = a1;
+     val x2 : T2 = a2;
+     result = e;
+  }  
+}
+\end{xten}
+
+
+%FUNCY% At runtime,
+%FUNCY% function execution results in the evaluation of \Xcd{e} in an
+%FUNCY% environment in which each formal is bound to the given actual
+%FUNCY% parameter.
+
+
+
 
 The \emph{method selector expression} \Xcd{e.m.(x1:T1,...,xn:Tn)} (\Sref{MethodSelectors})
 permits the specification of the function underlying
