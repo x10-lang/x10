@@ -32,7 +32,7 @@ double genScalData(graphSDG* SDGdata) {
     elapsed_time = get_seconds();
 
 #ifdef _OPENMP
-#if PARALLEL_SDG
+#if  PARALLEL_SDG
     omp_set_num_threads(omp_get_max_threads());
     // omp_set_num_threads(16);
 #else
@@ -127,7 +127,7 @@ double genScalData(graphSDG* SDGdata) {
                 u += step;
                 v += step;
             }
-           //printf ("u v %d %d %f %d\n", u, v, p, SCALE);
+           //printf ("u v %d %d %d %f %d\n",tid,  u, v, p, SCALE);
         }
      } while (u == v);           
         
@@ -182,8 +182,9 @@ double genScalData(graphSDG* SDGdata) {
     }
 
 #endif
-    
-#ifdef _OPENMP
+  
+  
+#ifdef _OPENMP 
 #pragma omp for
 #endif    
     for (i=0; i<n; i++) {
@@ -220,6 +221,7 @@ double genScalData(graphSDG* SDGdata) {
     }
 #endif
 
+
 #ifdef _OPENMP
 #pragma omp for
 #endif    
@@ -227,6 +229,7 @@ double genScalData(graphSDG* SDGdata) {
         src[i] = permV[src[i]];
         dest[i] = permV[dest[i]];
     } 
+
 
 #ifdef DIAGNOSTIC
     if (tid == 0) {

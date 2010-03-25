@@ -1,6 +1,11 @@
-include Makefile.var
+include ../arch/aix.mk
 
 TARGET = SSCA2
+
+CC=${POSTCOMPILE_CXX}
+CFLAGS=${POSTCOMPILE_NATIVE_LIB_FLAGS} -qsmp=omp
+INC=-I../sprng2.0/include
+LIB=-L../sprng2.0/lib -lsprng
 
 OBJS = SSCA2.o init.o utils.o genScalData.o gen2DTorus.o \
     computeGraph.o getStartLists.o findSubGraphs.o  \
@@ -10,14 +15,12 @@ OBJS = SSCA2.o init.o utils.o genScalData.o gen2DTorus.o \
 	$(CC) $(INC) $(CFLAGS) -c $<
 
 
-all: sprng $(OBJS) defs.h Makefile
+all: $(OBJS) defs.h Makefile
 	$(CC) $(INC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIB)
 
 sprng: 
 	(cd sprng2.0; $(MAKE); cd ..)
 
-cleansprng: 
-	(cd sprng2.0; $(MAKE) clean; cd ..)
 
-clean: cleansprng
+clean: 
 	rm -f *.o *~ $(TARGET) core*
