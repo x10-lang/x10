@@ -1,10 +1,20 @@
 import x10.io.Console;
-import clocked.Clocked;
+import clocked.*;
 
-class nSol {
-    public var c: Clock;
+class NSol {
+    public val c: Clock;
+    public val d: Clock;
     val op = Int.+;
+    
+    def this () {
+    	c = Clock.make();
+    }
+    
 	public var nSolutions: int @ Clocked[int](c,op) = 0;
+	
+	public def incr () @ ClockedM (c) {
+		nSolutions = 1;
+	}
 
 }
 
@@ -20,7 +30,7 @@ public class NQueensPar {
     def this(N:Int, P:Int) { this.N=N; this.P=P;}
 
     def start() {
-        finish async new Board().search();
+        finish new Board().search();
     }
 
 
@@ -39,7 +49,7 @@ public class NQueensPar {
 
     class Board {
 
-       public static val nSol = new nSol();
+       public static val nSol = new NSol();
         
         val q: Rail[Int]{self.at(this)};
 
@@ -62,10 +72,10 @@ public class NQueensPar {
         }
   
   
-      def search()  {
+      def search() @ClockedM(nSol.c)  {
             if (q.length == N) {
                
-                nSol.nSolutions++;
+                nSol.incr();
                 return;
             }
             if (q.length == 0) {
@@ -76,7 +86,7 @@ public class NQueensPar {
         }
   
   
-    def search(R: Region(1)) {
+    def search(R: Region(1)) @ ClockedM (nSol.c) {
             for ((k) in R)
                 if (safe(k))
                     new Board(q, k).search();

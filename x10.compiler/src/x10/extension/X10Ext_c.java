@@ -29,6 +29,7 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.Loop;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
@@ -37,6 +38,7 @@ import polyglot.ast.ProcedureCall;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
+import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.VarDecl;
 import polyglot.ast.While;
@@ -58,6 +60,7 @@ import polyglot.ast.Ext_c;
 import polyglot.ast.Unary.Operator;
 import x10.ast.*;
 import x10.constraint.XFailure;
+import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.effects.EffectComputer;
@@ -76,6 +79,7 @@ import x10.types.X10ClassType;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.X10LocalDef;
+import x10.types.X10MethodDef_c;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
@@ -205,6 +209,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	                result=computeEffect((Field) n, ec);
 	            } else if (n instanceof FieldAssign) {
 	                result=computeEffect((FieldAssign) n, ec);
+	            } else if (n instanceof FieldDecl) {
+	                result=computeEffect((FieldDecl) n, ec);
 	            } else if (n instanceof ForEach) {
 	                 result=computeEffect((ForEach) n, ec);
 	            } else if (n instanceof ForLoop) {
@@ -223,10 +229,34 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	                 result=computeEffect((New) n, ec);
 	            } else if (n instanceof ProcedureDecl) {
 	            	ProcedureDecl pd= (ProcedureDecl) n;
-		
+	            	
 	            	// vj: This doesnt make sense, need to set up effects separately, just like return types of methods.
 	            	result= effect(pd.body());
-
+	            	
+	            	Set<Locs> methodClocks = new HashSet<Locs>();
+	            	List<AnnotationNode> methodAnnotations = ((X10Ext)pd.body().ext()).annotations();
+	        		for (AnnotationNode an: methodAnnotations) {
+	      	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
+	              				X10ParsedClassType anc = (X10ParsedClassType)an.annotationType().type();
+	              				Expr e = anc.propertyInitializer(0);
+	                  	        	Locs locs= computeLocFor(e, ec);
+	                  	        	methodClocks.add(locs);
+	      	  			}
+	        		}
+	         
+	        
+	        for (Locs mc: result.mustClockSet()) {
+	      	  	boolean found = false;
+	        		for (Locs rc: methodClocks) {
+	        			if (mc.equals(rc)) {
+	        				found = true;
+	        				break;
+	        			}
+	        		}
+	        	if (found == false)
+	        			ec.emitMessage( mc + " is not clocked on the method " + pd.name(), pd.position());
+	        }	
+	         
 	            	if (result == null) {
 	            		ec.emitMessage("Unable to compute effects of method " + pd.name(), pd.position());
 	            	} else if (result.unsafe()) {
@@ -244,10 +274,11 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            } else if (n instanceof While) {
 	            	// vj: this is odd.
 	                result = Effects.makeUnsafe();
-	            } else if (n instanceof ProcedureCall) {
-			/* nv: FIXME */
-	            	//System.out.println(n);
+	            } else if (n instanceof Loop) {
+	            	result = computeEffect((Loop) n, ec); 
+	            
 	            } else {
+	                //System.out.println(n);
 	                result = Effects.makeSafe();
 		        }
 	            return node().ext(effect(result));
@@ -331,10 +362,21 @@ public class X10Ext_c extends Ext_c implements X10Ext {
   // ============
   // Declarations
   // ============
+  private Effect computeEffect(FieldDecl fieldDecl, EffectComputer ec) throws XFailure {
+    
+     Effect result= Effects.makeParSafe();
+     TypeNode t = fieldDecl.type();
+     if (t.toString().contentEquals("x10.lang.Clock") && !fieldDecl.fieldDef().flags().isFinal())
+    	 	ec.emitMessage("Clock " + fieldDecl.fieldDef().name() + " should be declared final", fieldDecl.position());
+      return result;
+  }
+  
   private Effect computeEffect(LocalDecl localDecl, EffectComputer ec) throws XFailure {
       Expr init = localDecl.init();
       Effect result= null;
-
+     TypeNode t = localDecl.type();
+     if (t.toString().contentEquals("x10.lang.Clock") && !localDecl.localDef().flags().isFinal())
+    	 	ec.emitMessage("Clock " + localDecl.localDef().name() + " should be declared final", localDecl.position());
       if (init != null) {
           Effect initEff= effect(init);
           Effect write= Effects.makeSafe();
@@ -343,6 +385,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       }
       return result;
   }
+  
+  
 
   private Locs computeLocFor(VarDecl vd) {
       if (vd instanceof LocalDecl) {
@@ -456,8 +500,6 @@ public class X10Ext_c extends Ext_c implements X10Ext {
               result= effect(target);
               X10TypeEnv env = ec.env();
               result= env.followedBy(result, computeEffect(args, ec));
-              if (call.toString().contains("search"))
-            	  System.out.println("search" + getMethodEffects(methodInstance,ec));
               result= env.followedBy(result, getMethodEffects(methodInstance, ec));
           }
       }
@@ -500,7 +542,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 		for (Type an: at.annotations()) {
   	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
           				X10ClassType anc = (X10ClassType) an;
-				Expr e = anc.propertyInitializer(0);
+          				Expr e = anc.propertyInitializer(0);
               	        	Locs locs= computeLocFor(e, ec);
               	        	result.addClockedVar(Effects.makeFieldLocs(createTermForReceiver(target, ec), new XVarDefWrapper(fi.def())));
               	        	result.addMustClock(locs);
@@ -594,7 +636,7 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       			}
       		}
       	if (found == false)
-      			ec.emitMessage( mc + " is not in registeredClocks " + registeredClocks, async.position());
+      			ec.emitMessage( mc + " is not in registered clocks of async ", async.position());
       }	
         
       return bodyEff.makeParSafe();
@@ -617,7 +659,7 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       			}
       		}
       		if (found == false)
-	        ec.emitMessage( mc + " is not in registeredClocks " + registeredClocks, fe.position());
+      			ec.emitMessage( mc + " is not in registered clocks of async", fe.position());
       }		
       return bodyEff.makeParSafe();
   	}
@@ -645,7 +687,22 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       return bodyEff.forall(XTerms.makeLocal(new XVarDefWrapper(loopVar.localDef())));
   }
 
-  private Effect computeEffect(Block b, EffectComputer ec) throws XFailure {
+
+  private Effect computeEffect(Loop loop, EffectComputer ec) {
+      Effect bodyEff= effect(loop.body());
+      // Abstract any effects that involve the loop induction variable
+      // TODO How to properly bound the domain of the loop induction variable?
+      // It isn't quite correct to use universal quantification for that...
+      //Formal loopVar= Loop.
+      /* FIXME - need to deal with init, cond, etc */
+      return bodyEff;
+      
+  }
+  
+  
+  
+  
+  Effect computeEffect(Block b, EffectComputer ec) throws XFailure {
       Effect result= null;
       // aggregate effects of the individual statements.
       // prune out the effects on local vars whose scope is this block.
@@ -672,9 +729,16 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
           if (ec.typeSystem().isValVariable(ld)) {
               Expr init= ld.init();
               XTerm initTerm= createTermForExpr(init);
-              result= result.exists(XTerms.makeLocal(localName), initTerm);
+             // result= result.exists(XTerms.makeLocal(localName), initTerm);
+         	  //result= result.exists(XTerms.makeLocal(localName));
           } else {
-              // FIXME result= result.exists(Effects.makeLocalLocs(XTerms.makeLocal(localName)));
+        	  // FIXME
+               //result= result.exists(Effects.makeLocalLocs(XTerms.makeLocal(localName)));
+        	  XLocal l = XTerms.makeLocal(localName);
+        	  if (result != null)
+        		  result= result.exists(l);
+
+        	  
           }
       }
       return result;
@@ -753,9 +817,12 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       X10ProcedureInstance xpi= (X10ProcedureInstance) procInstance;
       X10ProcedureDef xpd= (X10ProcedureDef) xpi.def();
       List<Type> annotations= xpd.annotations();
+      if (xpd.toString().contains("incr")) {
+    	  int x = 1;
+      }
       boolean foundAnnotation= false;
       Effect e= Effects.makeParSafe();
-
+      
       for (Type annoType : annotations) {
           if (annoType instanceof ClassType) {
               X10ClassType annoClassType = (X10ClassType) annoType;
@@ -778,6 +845,19 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
               foundAnnotation= true;
           }
       }
+      
+   //	Set<Locs> methodClocks = new HashSet<Locs>();
+	if (xpd instanceof X10MethodDef_c && ((X10MethodDef_c)xpd).bodyAnnotations()!=null)
+		for (AnnotationNode an: ((X10MethodDef_c)xpd).bodyAnnotations()) {
+			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
+  				X10ParsedClassType anc = (X10ParsedClassType)an.annotationType().type();
+  				Expr expr = anc.propertyInitializer(0);
+              	Locs locs= computeLocFor(expr, ec);
+   	        	//methodClocks.add(locs);
+   	        	e.addMustClock(locs);
+			}
+	}
+      
       return e; // foundAnnotation ? e : Effects.BOTTOM_EFFECT; // return 'bottom' here - don't know what the effects are, so be safe
   }
 

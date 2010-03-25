@@ -45,6 +45,7 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
+import x10.types.AnnotatedType;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldDef;
@@ -162,10 +163,15 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		Type type = type().type();
         Type oldType = (Type) type.copy();
+        /*if (oldType instanceof AnnotatedType) {
+        	 ((AnnotatedType) type).annotations(((AnnotatedType) oldType).annotations());
+        }*/
 		X10TypeMixin.checkMissingParameters(type);
 		type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
-	    Ref<Type> r = (Ref<Type>) type().typeRef();
-//        r.update(type);
+	
+	    Ref<Type> r =  (Ref<Type>) type().typeRef();
+	    //r.update(type); /*FIXME */
+	    
         
 	    if (type.isVoid())
 	        throw new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
