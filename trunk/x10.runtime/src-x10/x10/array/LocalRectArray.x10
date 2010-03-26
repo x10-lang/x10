@@ -47,6 +47,9 @@ public final class LocalRectArray[T](dist:Dist)
     private val layout:RectLayout!;
     private val checkBounds:boolean;
 
+    // TODO: very short term hack while playing with copyTo implementations for ANU code.
+    public def raw():Rail[T]! = raw;
+
     // TODO: This is a hack around the way regions are currently defined.
     //       Even when we compile with NO_CHECKS, we still have to have
     //       the checking code inlined. or the presence of the call in a loop
