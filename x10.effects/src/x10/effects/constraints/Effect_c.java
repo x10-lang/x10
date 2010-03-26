@@ -30,7 +30,7 @@ import x10.constraint.XVar;
  */
 public class Effect_c implements Effect {
 
-	protected Set<Locs> readSet, writeSet, atomicIncSet, clockedVarSet, mustClockSet;
+	protected Set<Locs> readSet, writeSet, atomicIncSet, clockedVarSet, mustClockSet, initializedClockSet;
 	protected Safety safety;
 
 	public Effect_c(Safety s) {
@@ -40,6 +40,7 @@ public class Effect_c implements Effect {
 		atomicIncSet = new HashSet<Locs>();
 		clockedVarSet = new HashSet<Locs>();
 		mustClockSet = new HashSet<Locs>();
+		initializedClockSet = new HashSet<Locs>();
 	}
 	
 	public Effect_c clone() {
@@ -60,6 +61,9 @@ public class Effect_c implements Effect {
 			
 			result.mustClockSet = new HashSet<Locs>();
 			result.mustClockSet.addAll(mustClockSet());
+			
+			result.initializedClockSet = new HashSet<Locs>();
+			result.initializedClockSet.addAll(initializedClockSet());
 			
 			return result;
 
@@ -82,6 +86,10 @@ public class Effect_c implements Effect {
 
 	public Set<Locs> mustClockSet() {
 		return mustClockSet;
+	}
+	
+	public Set<Locs> initializedClockSet() {
+		return initializedClockSet;
 	}
 
 	/* (non-Javadoc)
@@ -398,13 +406,14 @@ public boolean commutesWith(Effect e, XConstraint c) {
 		return result;
 	}
 
-	public Effect exists(XLocal x) {
+	public Effect exists(LocalLocs x) {
 		Effect_c result = clone();
 		result.readSet().remove(x);
 		result.writeSet().remove(x);
 		result.atomicIncSet().remove(x);
 		result.clockedVarSet().remove(x);
 		result.mustClockSet().remove(x);
+		result.initializedClockSet().remove(x);
 		return result;
 	}
 	/* (non-Javadoc)
@@ -510,6 +519,11 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	public void addMustClock(Locs t) {
 		mustClockSet.add(t);
 	}
+	
+	public void addInitializedClock(Locs t) {
+		initializedClockSet.add(t);
+	}
+
 
 	public Effect union(Effect e) {
 		Effect_c result = clone();
@@ -519,6 +533,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 		result.atomicIncSet.addAll(e.atomicIncSet());
 		result.clockedVarSet.addAll(e.clockedVarSet());
 		result.mustClockSet.addAll(e.mustClockSet());
+		result.initializedClockSet.addAll(e.initializedClockSet());
 		return result;
 	}
 
@@ -536,6 +551,8 @@ public boolean commutesWith(Effect e, XConstraint c) {
         sb.append(clockedVarSet.toString());
         sb.append(", mc: ");
         sb.append(mustClockSet.toString());
+        sb.append(", ic: ");
+        sb.append(initializedClockSet.toString());
         sb.append(" }");
         return sb.toString();
     }

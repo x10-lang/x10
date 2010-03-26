@@ -137,8 +137,8 @@ public class XTerms {
 	 */
 
 	public static XTerm makeAtom(XName op, boolean atomicFormula, List<XTerm> terms) {
-		assert op != null;
-		assert terms != null;
+		//assert op != null;
+		//assert terms != null;
 		XFormula f = new XFormula_c(op, terms);
 		if (atomicFormula) {
 			f.markAsAtomicFormula();
