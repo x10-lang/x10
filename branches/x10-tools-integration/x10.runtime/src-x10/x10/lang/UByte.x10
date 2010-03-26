@@ -413,7 +413,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      * @param x the given Float
      * @return the given Float converted to a UByte.
      */
-    @Native("java", "((byte)(float)(#1))")
+    @Native("java", "x10.core.Floats.toUByte(#1)")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:Float) as UByte;
 
@@ -422,7 +422,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      * @param x the given Double
      * @return the given Double converted to a UByte.
      */
-    @Native("java", "((byte)(double)(#1))")
+    @Native("java", "x10.core.Floats.toUByte(#1)")
     @Native("c++",  "((x10_ubyte) (#1))")
     public native static safe operator (x:Double) as UByte;
 
@@ -446,7 +446,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
     /**
      * A constant holding the maximum value a UByte can have, 2<sup>8</sup>-1.
      */
-    @Native("java", "0xff")
+    @Native("java", "((byte)0xff)")
     @Native("c++", "0xffU")
     public const MAX_VALUE = 0xff as UByte;
 

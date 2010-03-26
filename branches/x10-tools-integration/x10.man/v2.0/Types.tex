@@ -367,23 +367,42 @@ If the parameter of \xcd"Cell" is invariant, then
 \index{types!dependent types}
 \index{types!generic types}
 
-        Given a type \xcd"T", a {\em constrained type}
-        \xcd"T{e}" may be
-        constructed by constraining its
-        properties with a
-        boolean expression \xcd"e".
+        
+Given a type \xcd"T", a {\em constrained type} \xcd"T{e}" may be constructed
+by constraining its properties with a boolean expression of a limited sort
+\xcd"e". The values of \xcd`T{e}` are those values of type \xcd`T` for which
+\xcd`e` evaluates to \xcd`true`.  \Eg, \xcd`Point` has a property
+\xcd`rank:Int`.  If \xcd`p : Point`, \xcd`p` may have any \xcd`rank`.
+\xcd`Point{rank == 3}` is the point type constrained to only those values
+whose \xcd`rank` property is 3.   
 
-        \xcd"T{e}" is a {\em dependent type}, that is, a type
-        dependent on values.
-        The type \xcd"T" is called the
-        {\em base type} and \xcd"e" is called the {\em constraint}.
-        For reference types, the constraint may
-        specify the places at which the object resides.
+A common use of constrained types is to explain where objects are located.
+Every object has a \xcd`home` property. If \xcd`Person` is a type of people,
+then \xcd`Person{home==here}` is the type of people whose data is stored at
+the current location.  As explained in \Sref{XtenPlaces}, certain operations
+can only be performed at an object's home, so having this expressible as a
+type is crucial.
+
+
+\xcd"T{e}" is a {\em dependent type}, that is, a type dependent on values. The
+type \xcd"T" is called the {\em base type} and \xcd"e" is called the {\em
+constraint}. 
 
 For brevity, the constraint may be omitted and
 interpreted as \xcd"true".
 
-
+Constraints may refer to values in the local environment: 
+\begin{xten}
+     val n = 1;
+     var p : Point{rank == n};
+\end{xten}
+Indeed, there is technically no need for a constraint to refer to the
+properties of its type; it can refer entirely to the environment, thus: 
+\begin{xten}
+     val m = 1;
+     val n = 2;
+     var p : Point{m != n};
+\end{xten}
 
 Constraints on properties induce a natural subtyping relationship:
 \xcd"C{c}" is a subtype of
@@ -422,8 +441,17 @@ which these constraints are specified include literals and
 constants {\tt here}, {\tt self}, and {\tt this}. Additionally, place
 types are permitted (\Sref{PlaceTypes}).
 
+
 Type constraints may be subtyping and supertyping (\xcd"<:" and
 \xcd":>") expressions over types.
+
+The static constraint checker approximates computational reality in some
+cases.  For example, it assumes that built-in types are infinite. This is a
+good approximation for \xcd`Int`.  It is a poor approximation for \xcd`Boolean`,
+as the checker believes that \xcd`a != b && a != c && b != c` is satisfiable
+over \xcd`Boolean`, which it is not.  However, the checker is always correct
+when computing the truth or falsehood of a constraint.
+
 
 % //, and existential quantification over typed variables.
 

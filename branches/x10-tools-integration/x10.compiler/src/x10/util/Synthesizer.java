@@ -220,6 +220,18 @@ public class Synthesizer {
 			return X10TypeMixin.addBinding(type, v, rank);
 		 
 	 }
+	 public Type addRankConstraintToSelf(Type type,  int n, X10TypeSystem ts) {
+		 XVar receiver = X10TypeMixin.self(type);
+		 if (receiver == null) {
+			 CConstraint c = new CConstraint_c();
+			 type = X10TypeMixin.xclause(type, c);
+			 receiver = c.self();
+		 }
+		 XTerm v = makeRegionRankTerm(receiver);
+		 XTerm rank = XTerms.makeLit(new Integer(n));
+		 return X10TypeMixin.addBinding(type, v, rank);
+
+	 }
 	 
 	 /**
 	  * If formal = p(x) construct
@@ -987,11 +999,11 @@ public class Synthesizer {
      * @return
      * @throws SemanticException
      */
-    public X10ClassDecl createClass(Position p, Flags flag, ClassDef.Kind kind, Name name, Type supert,
+    public X10ClassDecl createClass(Position p, X10ClassDef cDef, Type supert,
                                     List<Type> interfaces, X10Context context) throws SemanticException {
 
-        FlagsNode fNode = xnf.FlagsNode(p, flag);
-        Id id = xnf.Id(p, name);
+        FlagsNode fNode = xnf.FlagsNode(p, cDef.flags());
+        Id id = xnf.Id(p, cDef.name());
         TypeNode superTN = (TypeNode) xnf.CanonicalTypeNode(p, supert);
         List<ClassMember> cmembers = new ArrayList<ClassMember>();
         ClassBody body = xnf.ClassBody(p, cmembers);
@@ -1002,12 +1014,22 @@ public class Synthesizer {
 
         X10ClassDecl cDecl = (X10ClassDecl) xnf.ClassDecl(p, fNode, id, superTN, interfaceTN, body);
 
+        return (X10ClassDecl) cDecl.classDef(cDef);
+    }
+    
+    /**
+     * Create a class def with the input parameters
+     * @param flag
+     * @param kind
+     * @param name
+     * @return
+     */
+    public X10ClassDef createClassDef(Flags flag, ClassDef.Kind kind, Name name){
         X10ClassDef cDef = (X10ClassDef) xts.createClassDef();
         cDef.name(name);
         cDef.setFlags(flag);
         cDef.kind(kind); // important to set kind
-
-        return (X10ClassDecl) cDecl.classDef(cDef);
+        return cDef;
     }
     
     
@@ -1023,16 +1045,13 @@ public class Synthesizer {
      * @throws SemanticException 
      */ 
     public X10ClassDecl createClassWithConstructor(Position p, 
-            Flags flag,
-            ClassDef.Kind kind,
-            Name name,
-            Type supert,
-            List<Type> interfaces,
-            X10Context context) throws SemanticException {
+                                                   X10ClassDef cDef,
+                                                   Type supert,
+                                                   List<Type> interfaces,
+                                                   X10Context context) throws SemanticException {
 
        
-        X10ClassDecl cDecl = createClass(p, flag, kind, name, supert, interfaces, context);
-        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+        X10ClassDecl cDecl = createClass(p, cDef, supert, interfaces, context);
         
         //add default constructor
         X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
