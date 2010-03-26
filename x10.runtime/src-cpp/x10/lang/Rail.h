@@ -82,7 +82,7 @@ namespace x10 {
             
             Rail(x10_int length_, T* storage) : FMGL(length)(length_),  _data(storage) { }
 
-            GPUSAFE virtual T set(T v, x10_int index) { 
+            GPUSAFE T set(T v, x10_int index) { 
                 return (*this)[index] = v; 
             } 
 

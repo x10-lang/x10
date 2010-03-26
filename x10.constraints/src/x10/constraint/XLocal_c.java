@@ -62,7 +62,12 @@ public class XLocal_c extends XVar_c implements XLocal {
 	}
 
 	public String toString() {
-		return name.toString();
+		String s = name.toString();
+		if (s.startsWith("self"))
+			return "self";
+		if (s.startsWith("this"))
+			return "this";
+		return s;
 	}
 
 	public boolean prefixes(XTerm t) {

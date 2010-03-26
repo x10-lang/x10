@@ -270,7 +270,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      * @param x the given Float
      * @return the given Float converted to a Short.
      */
-    @Native("java", "((short)(float)(#1))")
+    @Native("java", "x10.core.Floats.toShort(#1)")
     @Native("c++",  "((x10_short) (#1))")
     public native static safe operator (x:Float) as Short;
 
@@ -279,7 +279,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      * @param x the given Double
      * @return the given Double converted to a Short.
      */
-    @Native("java", "((short)(double)(#1))")
+    @Native("java", "x10.core.Floats.toShort(#1)")
     @Native("c++",  "((x10_short) (#1))")
     public native static safe operator (x:Double) as Short;
 
