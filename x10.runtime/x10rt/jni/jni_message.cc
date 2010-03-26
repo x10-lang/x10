@@ -87,7 +87,7 @@ static JNIEnv* getEnv() {
     if (JNI_EDETACHED == rc) {
         JavaVMAttachArgs args;
         args.version = JNI_VERSION_1_4;
-        args.name = "X10RT Attached Thread";
+        args.name = const_cast<char*>("X10RT Attached Thread");
         args.group = NULL;
         // Not attached to JVM.  Attempt to attach
         rc = theJVM->AttachCurrentThread((void**)&env, &args);
