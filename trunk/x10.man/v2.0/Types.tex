@@ -391,7 +391,18 @@ constraint}.
 For brevity, the constraint may be omitted and
 interpreted as \xcd"true".
 
-
+Constraints may refer to values in the local environment: 
+\begin{xten}
+     val n = 1;
+     var p : Point{rank == n};
+\end{xten}
+Indeed, there is technically no need for a constraint to refer to the
+properties of its type; it can refer entirely to the environment, thus: 
+\begin{xten}
+     val m = 1;
+     val n = 2;
+     var p : Point{m != n};
+\end{xten}
 
 Constraints on properties induce a natural subtyping relationship:
 \xcd"C{c}" is a subtype of
