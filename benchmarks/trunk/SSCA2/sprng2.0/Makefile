@@ -1,7 +1,12 @@
-#include ../arch/aix.mk
 LIBDIR = lib
 
+ifeq ($(shell uname -s),AIX)
 CC=${POSTCOMPILE_CXX}
+endif
+ifeq ($(shell uname -s),Linux)
+   CC=gcc
+endif
+
 CFLAGS=$(POSTCOMPILE_NATIVE_LIB_FLAGS)
 AR=${POSTCOMPILE_AR}
 ARFLAGS=${POSTCOMPILE_ARFLAGS}

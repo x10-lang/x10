@@ -34,3 +34,4 @@ export POSTCOMPILE_ARFLAGS	?= rv
 export POSTCOMPILE_RANLIB   	?= ranlib
 export MKDIR	?= mkdir -p
 export CP	?= cp -r
+export OUTDIR    ?= out
