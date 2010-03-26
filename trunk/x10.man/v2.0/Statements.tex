@@ -66,12 +66,12 @@ allocation, or a call.
 
 \begin{grammar}
 Statement \: LabeledStatement \\
-LabeledStatement \: Identifier \xcd":" Statement \\
+LabeledStatement \: Identifier \xcd":" LoopStatement \\
 \end{grammar}
 
-Statements may be labeled.  The label may be used as the target
-of a break or continue statement.  The scope of a label is the
-statement labeled.
+Loop statements (\xcd`for`, \xcd`while`, \xcd`do`, \xcd`ateach`,
+\xcd`foreach`) may be labeled. The label may be used as the target of a break
+or continue statement. The scope of a label is the statement labeled.
 
 \section{Break statement}
 
