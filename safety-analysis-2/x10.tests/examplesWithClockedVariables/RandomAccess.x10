@@ -1,10 +1,12 @@
 import x10.util.Timer;
 import x10.compiler.Immediate;
+import clocked.*;
 
 class RandomAccess {
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
+    static val op = Int.^;
 
     // Utility routine to start random number generator at Nth step
     static def HPCC_starts(var n:Long): Long {
@@ -32,7 +34,7 @@ class RandomAccess {
         return ran;
     }
 
-    static def runBenchmark(rails: ValRail[Rail[Long]],
+    static def runBenchmark(c: Clock, rails: ValRail[Rail[Long @Clocked[int](c,op)]],
         logLocalTableSize: Int, numUpdates: Long) {
         val mask = (1<<logLocalTableSize)-1;
         val local_updates = numUpdates / Place.MAX_PLACES;
@@ -111,6 +113,8 @@ class RandomAccess {
         val numUpdates = updates_*tableSize;
 
         // create local rails
+        val c = Clock.make();
+     
         val rails_ = Rail.make[Rail[Long]](Place.MAX_PLACES); //, (p:Int) => null);
         
         finish for ((p) in 0..Place.MAX_PLACES-1) {
@@ -119,7 +123,7 @@ class RandomAccess {
                 at (rails_) rails_(p) = tmp;
             }
         }
-        val rails = rails_ as ValRail[Rail[Long]];
+        val rails = rails_ as ValRail[Rail[Long  @ Clocked[int](c, op)]];
 
         // print some info
         Console.OUT.println("Main table size:   2^"+logLocalTableSize+"*"+Place.MAX_PLACES
@@ -129,7 +133,7 @@ class RandomAccess {
 
         // time it
         var cpuTime:Double = -Timer.nanoTime() * 1e-9D;
-        runBenchmark(rails, logLocalTableSize, numUpdates);
+        runBenchmark(c, rails, logLocalTableSize, numUpdates);
         cpuTime += Timer.nanoTime() * 1e-9D;
 
         // print statistics
@@ -138,8 +142,8 @@ class RandomAccess {
         Console.OUT.println(GUPs+" Billion(10^9) Updates per second (GUP/s)");
 
         // repeat for testing.
-        runBenchmark(rails, logLocalTableSize, numUpdates);
-        for ((i) in 0..Place.MAX_PLACES-1) {
+        runBenchmark(c, rails, logLocalTableSize, numUpdates);
+       /* for ((i) in 0..Place.MAX_PLACES-1) {
             async (Place.places(i)) {
                 val rail : Rail[Long]! = rails(i) as Rail[Long]!;
                 var err:Int = 0;
@@ -147,7 +151,7 @@ class RandomAccess {
                     if (rail(j) != j) err++;
                 Console.OUT.println("Found " + err + " errors.");
             }
-        }
+        }*/
     }
 }
 

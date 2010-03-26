@@ -41,6 +41,8 @@ public interface Effect extends Cloneable {
 	Set<Locs> atomicIncSet();
 	Set<Locs> clockedVarSet();
 	Set<Locs> mustClockSet();
+	Set<Locs> initializedClockSet();
+	
 
 	/**
 	 * Same as commutesWith(e, XTerms.makeTrueConstraint())
@@ -138,7 +140,7 @@ public interface Effect extends Cloneable {
 	 * @param x
 	 * @return
 	 */
-	Effect exists(XLocal x);
+	Effect exists(LocalLocs x);
 	
 	/**
 	 * Given constraint c, return the effect this; e, using the rules for sequential composition of effect annotations.
@@ -192,6 +194,8 @@ public interface Effect extends Cloneable {
 	 * @param t
 	 */
 	void addMustClock(Locs t);
+	void addInitializedClock(Locs t);
+	
 	
 	Effect substitute(XTerm t, XRoot r);
 	Pair<XLocal,Effect> freshSubst(XLocal x);

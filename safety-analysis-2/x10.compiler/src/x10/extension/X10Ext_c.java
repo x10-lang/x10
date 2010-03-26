@@ -19,12 +19,15 @@ import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.ConstructorCall;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Formal;
 import polyglot.ast.If;
+import polyglot.ast.Initializer;
+import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
@@ -45,6 +48,8 @@ import polyglot.ast.While;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.FieldInstance;
+import polyglot.types.InitializerDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
@@ -227,12 +232,13 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            } else if (n instanceof LocalAssign) {
 	            } else if (n instanceof New) {
 	                 result=computeEffect((New) n, ec);
+	                 //System.out.println("***" + result);
 	            } else if (n instanceof ProcedureDecl) {
 	            	ProcedureDecl pd= (ProcedureDecl) n;
 	            	
 	            	// vj: This doesnt make sense, need to set up effects separately, just like return types of methods.
 	            	result= effect(pd.body());
-	            	
+	            
 	            	Set<Locs> methodClocks = new HashSet<Locs>();
 	            	List<AnnotationNode> methodAnnotations = ((X10Ext)pd.body().ext()).annotations();
 	        		for (AnnotationNode an: methodAnnotations) {
@@ -244,7 +250,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	      	  			}
 	        		}
 	         
-	        
+
+	        		
 	        for (Locs mc: result.mustClockSet()) {
 	      	  	boolean found = false;
 	        		for (Locs rc: methodClocks) {
@@ -264,7 +271,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            	} else if (isMainMethod(pd, ec) && !result.safe()) {
 	            		ec.emitMessage("Main method is not safely parallelized; effect is: " + result, pd.position());
 	            	} else {
-				       System.out.println("Method " + pd.name() + " is "+ result);
+				       System.out.println(pd.position() + ": Method " + pd.name() + " is "+ result);
 	            	}
 
 	            } else if (n instanceof SettableAssign) {
@@ -325,8 +332,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       X10FieldInstance fi= (X10FieldInstance) fa.fieldInstance();
       Receiver target= fa.target();
       Expr rhs= fa.right();
-    
-     // System.out.println("in field assign " + fi + (Type) (fi.x10Def().type().get()));
+      //System.out.println("in field assign " + fi + (Type) (fi.x10Def().type().get()));
       X10TypeSystem ts = ec.typeSystem();
 
       if (ts.isValVariable(fi)) {
@@ -334,8 +340,12 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	} else {
           Effect rhsEff= effect(rhs);
           Effect writeEff= Effects.makeSafe();
+          if (fa.type().toString().contentEquals("x10.lang.Clock")) {
+        	  writeEff.addInitializedClock(Effects.makeFieldLocs(createTermForReceiver(target, ec), new XVarDefWrapper(fi.def())));
+          }
           writeEff.addWrite(Effects.makeFieldLocs(createTermForReceiver(target, ec), new XVarDefWrapper(fi.def())));
           analyzeClockedField (writeEff, fi, target, ec);
+         // System.out.println(writeEff);
           return ec.env().followedBy(rhsEff, writeEff);
       } 
       // return Effects.makeUnsafe();
@@ -366,22 +376,30 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     
      Effect result= Effects.makeParSafe();
      TypeNode t = fieldDecl.type();
-     if (t.toString().contentEquals("x10.lang.Clock") && !fieldDecl.fieldDef().flags().isFinal())
-    	 	ec.emitMessage("Clock " + fieldDecl.fieldDef().name() + " should be declared final", fieldDecl.position());
-      return result;
+     if (t.toString().contentEquals("x10.lang.Clock")) {
+    	  if (!fieldDecl.fieldDef().flags().isFinal())
+    		  ec.emitMessage("Clock " + fieldDecl.fieldDef().name() + " should be declared final", fieldDecl.position());
+    	  else if (fieldDecl.fieldDef().initializer() == null)
+    		  ec.emitMessage("Clock " + fieldDecl.fieldDef().name() + " should be initialized", fieldDecl.position());
+     }
+     return result;
   }
   
   private Effect computeEffect(LocalDecl localDecl, EffectComputer ec) throws XFailure {
       Expr init = localDecl.init();
       Effect result= null;
      TypeNode t = localDecl.type();
-     if (t.toString().contentEquals("x10.lang.Clock") && !localDecl.localDef().flags().isFinal())
+     boolean isClockType = t.toString().contentEquals("x10.lang.Clock");
+     if (isClockType && !localDecl.localDef().flags().isFinal())
     	 	ec.emitMessage("Clock " + localDecl.localDef().name() + " should be declared final", localDecl.position());
       if (init != null) {
           Effect initEff= effect(init);
           Effect write= Effects.makeSafe();
           write.addWrite(computeLocFor(localDecl));
           result= ec.env().followedBy(initEff, write);
+      } else {
+    	  if (isClockType) 
+    		  ec.emitMessage("Clock " + localDecl.localDef().name() + " should be initialized at declaration", localDecl.position());
       }
       return result;
   }
@@ -422,13 +440,22 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       Effect result= null;
       ConstructorInstance ctorInstance = neew.constructorInstance();
       List<Expr> args = neew.arguments();
-
       result= computeEffect(args, ec);
       result= ec.env().followedBy(result, getMethodEffects(ctorInstance, ec));
+      List<FieldInstance> fields = neew.constructorInstance().def().container().get().fields();
+      for (FieldInstance fi: fields) {
+    	  if (fi.type().toString().contentEquals("x10.lang.Clock"))
+    		  result.addInitializedClock(Effects.makeFieldLocs(createTermForReceiver(neew.type(), ec), new XVarDefWrapper(fi.def())));
+    	  		//fi.def().initializer();
+    	  // computeEffect(fi.def().initializer().container(), ec);
+      }
       return result;
   }
 
-  private Effect computeEffect(Unary unary, EffectComputer ec) {
+
+
+
+private Effect computeEffect(Unary unary, EffectComputer ec) {
       Effect result = null;
       Expr opnd= unary.expr();
       Operator op= unary.operator();
@@ -626,7 +653,7 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
                   Locs locs= computeLocFor(c, ec);
 		  registeredClocks.add(locs);
        }
-       ec.emitMessage("Async is " + bodyEff, async.position());
+      System.out.println(async.position() + ": Async is " + bodyEff);
       for (Locs mc: bodyEff.mustClockSet()) {
     	  	boolean found = false;
       		for (Locs rc: registeredClocks) {
@@ -647,7 +674,7 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       Set<Locs> registeredClocks = new HashSet<Locs>(); 
        for (Expr c: fe.clocks()) {
                   Locs locs= computeLocFor(c, ec);
-		  registeredClocks.add(locs);
+                  registeredClocks.add(locs);
       }
 
       for (Locs mc: bodyEff.mustClockSet()) {
@@ -708,14 +735,20 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       // prune out the effects on local vars whose scope is this block.
       ec.diag("Computing effect of block " + b);
       List<LocalDecl> blockDecls= collectDecls(b);
+ 
+     
       for(Stmt s: b.statements()) {
           Effect stmtEffect= effect(s);
+          //System.out.println(stmtEffect);
           ec.diag("   statement = " + s + "; effect = " + stmtEffect);
+          
           Effect filteredEffect= removeLocalVarsFromEffect(blockDecls, stmtEffect, ec);
           ec.diag("             filtered effect = " + filteredEffect);
           result= ec.env().followedBy(result, filteredEffect);
+          //System.out.println(stmtEffect + " After: " + result);
           ec.diag("   aggregate effect = " + result);
       }
+     //System.out.println("---- Start of Block " + b + result );
       return result;
   }
 
@@ -732,13 +765,10 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
              // result= result.exists(XTerms.makeLocal(localName), initTerm);
          	  //result= result.exists(XTerms.makeLocal(localName));
           } else {
-        	  // FIXME
-               //result= result.exists(Effects.makeLocalLocs(XTerms.makeLocal(localName)));
-        	  XLocal l = XTerms.makeLocal(localName);
+        	  // FIXME 
         	  if (result != null)
-        		  result= result.exists(l);
-
-        	  
+        		  result= result.exists(Effects.makeLocalLocs(XTerms.makeLocal(localName)));
+        	 // System.out.println(localName + " " + result);
           }
       }
       return result;
@@ -753,6 +783,8 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       }        
       return result;
   }
+  
+
 
  
   private static Effect effect(Node n) {
@@ -773,15 +805,32 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       return tc.getTerm();
   }
 
+  private XTerm createTermForReceiver(Type type, EffectComputer ec) {
+		// TODO Auto-generated method stub
+	  XTypeTranslator xtt= new XTypeTranslator(ec.typeSystem());
+	  if (type instanceof ConstrainedType)
+    	  return xtt.trans(((ConstrainedType)type).baseType().get());
+		return null;
+	}
+  
+  
   private XTerm createTermForReceiver(Receiver r, EffectComputer ec) {
-      if (r instanceof Expr) {
-          return createTermForExpr((Expr) r);
-      }
+   
+	  XTypeTranslator xtt= new XTypeTranslator(ec.typeSystem());
       // must be a CanonicalTypeNode
-      CanonicalTypeNode typeNode= (CanonicalTypeNode) r;
-      XTypeTranslator xtt= new XTypeTranslator(ec.typeSystem());
-      return xtt.trans(typeNode.type());
-//    throw new UnsupportedOperationException("Can't produce an XTerm for type references.");
+     if (r instanceof TypeNode) {
+    	TypeNode typeNode= (TypeNode) r;
+    	
+    	 return xtt.trans(typeNode.type());
+    }  else if (r.type() instanceof ConstrainedType)
+    	  return xtt.trans(((ConstrainedType)r.type()).baseType().get());
+    	
+      // (r instanceof Expr) {
+
+       return createTermForExpr((Expr) r);
+    
+     
+    //  throw new UnsupportedOperationException("Can't produce an XTerm for type references.");
   }
 
   private Locs computeLocFor(Expr expr, EffectComputer ec) {
