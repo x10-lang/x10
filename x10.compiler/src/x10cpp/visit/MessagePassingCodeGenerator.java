@@ -3760,14 +3760,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type dType = domain.type();
 		if (Configuration.LOOP_OPTIMIZATIONS &&
 		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
-		        (X10TypeMixin.isRect(dType, context)))
+		        (X10TypeMixin.isRect(dType, context)) &&
+		        (xts.isX10Array(dType) || xts.isX10ArrayV2(dType) || xts.isDistribution(dType) || xts.isRegion(dType)))
+		        
 		{
-		    assert (xts.isPoint(form.type().type()));
-		    assert (xts.isX10Array(dType) || xts.isDistribution(dType) || xts.isRegion(dType));
-
 		    // TODO: move this to the Desugarer
 		    X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
-		    if (xts.isX10Array(dType)) {
+		    if (xts.isX10Array(dType) || xts.isX10ArrayV2(dType)) {
 		        Position pos = domain.position();
 		        FieldInstance fDist = dType.toClass().fieldNamed(Name.make("dist"));
 		        dType = fDist.type();

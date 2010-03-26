@@ -400,6 +400,8 @@ public interface X10TypeSystem extends TypeSystem {
     
     boolean isX10Array(Type me);
     
+    boolean isX10ArrayV2(Type me);
+    
     Context emptyContext();
     Type Struct();
     boolean isExactlyFunctionType(Type t);
