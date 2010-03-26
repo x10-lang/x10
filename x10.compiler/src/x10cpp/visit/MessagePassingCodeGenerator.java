@@ -224,6 +224,7 @@ import x10.util.ClassifiedStream;
 import x10.util.ClosureSynthesizer;
 import x10.util.StreamWrapper;
 import x10.util.Synthesizer;
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.extension.X10ClassBodyExt_c;
 import x10cpp.types.X10CPPContext_c;
 import x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
@@ -685,6 +686,38 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("#define __"+cguard); h.newline();
         h.forceNewline(0);
         h.write("#include <x10rt.h>"); h.newline();
+        h.forceNewline(0);
+        // process annotations relating to additional h/c++ files
+        X10Ext ext = (X10Ext) n.ext();
+        try {
+        	List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
+        	for (Type at : as) {
+				ASTQuery.assertNumberOfInitializers(at, 1);
+				String include = getStringPropertyInit(at, 0);
+		        h.write("#include <"+include+">"); h.newline();
+			}
+        	as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPCompilationUnit")));
+        	for (Type at : as) {
+				ASTQuery.assertNumberOfInitializers(at, 1);
+				String compilation_unit = getStringPropertyInit(at, 0);
+				tr.job().compiler().outputFiles().add(compilation_unit);
+			}
+        	X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+        	as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPIncludeOpt")));
+        	for (Type at : as) {
+				ASTQuery.assertNumberOfInitializers(at, 1);
+				String str = getStringPropertyInit(at, 0);
+				opts.extraIncOpts().add(str);
+			}
+        	as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPLibOpt")));
+        	for (Type at : as) {
+				ASTQuery.assertNumberOfInitializers(at, 1);
+				String str = getStringPropertyInit(at, 0);
+				opts.extraLibOpts().add(str);
+			}
+        } catch (SemanticException e) {
+            assert false : e;
+        }
         h.forceNewline(0);
 
         g.write("#ifndef "+cguard+"_GENERICS"); g.newline();

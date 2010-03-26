@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
 
 import polyglot.main.Options;
 import polyglot.util.ErrorInfo;
@@ -53,9 +54,10 @@ public class CXXCommandBuilder {
                 properties.load(new FileInputStream(filename));
             } catch(IOException e) {
                 eq.enqueue(ErrorInfo.IO_ERROR, "Error finding X10RT properties file: "+ e.getMessage());
+                System.exit(1); // [DC] proceeding from here will just yield a load of incomprehensible postcompile errors
             }                
             String s = properties.getProperty("CXX");
-            cxx = s==null ? "g++" : s; //fallback if above error occured or CXX not given in properties file
+            cxx = s==null ? "g++" : s; //fallback if CXX not given in properties file
             String regex = " +";
             cxxFlags = split(properties.getProperty("CXXFLAGS"));
             libs     = split(properties.getProperty("LDLIBS"));
@@ -77,6 +79,8 @@ public class CXXCommandBuilder {
     
     protected X10RTPostCompileOptions x10rtOpts;
     
+    protected Set<String> extraLibOpts, extraIncOpts;
+    
     public CXXCommandBuilder(Options options, ErrorQueue eq) {
         assert (options != null);
         assert (options.post_compiler != null);
@@ -95,6 +99,9 @@ public class CXXCommandBuilder {
             rtimpl = X10_DIST + "/etc/x10rt_"+rtimpl+".properties";
         }
         x10rtOpts = new X10RTPostCompileOptions(eq, rtimpl);
+        X10CPPCompilerOptions opts = (X10CPPCompilerOptions) options; 
+        this.extraLibOpts = opts.extraLibOpts();
+        this.extraIncOpts = opts.extraIncOpts();
     }
 
     /** Is GC enabled on this platform? */
@@ -129,6 +136,10 @@ public class CXXCommandBuilder {
             }
         }
         
+        for (String opt : extraIncOpts) {
+        	cxxCmd.add(opt);
+        }
+
         if (x10.Configuration.NO_CHECKS) {
             cxxCmd.add("-DNO_CHECKS");
         }
@@ -150,6 +161,10 @@ public class CXXCommandBuilder {
 
         cxxCmd.addAll(x10rtOpts.ldFlags);
         cxxCmd.addAll(x10rtOpts.libs);
+        
+        for (String opt : extraLibOpts) {
+        	cxxCmd.add(opt);
+        }
 
         cxxCmd.add("-ldl");
         cxxCmd.add("-lm");

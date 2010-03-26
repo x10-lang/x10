@@ -19,10 +19,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
@@ -66,6 +70,7 @@ import x10.types.X10ClassDef;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.util.WriterStreams;
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.debug.LineNumberMap;
 import x10cpp.postcompiler.AIX_CXXCommandBuilder;
 import x10cpp.postcompiler.CXXCommandBuilder;
@@ -500,6 +505,7 @@ public class X10CPPTranslator extends Translator {
 
 	public static final String postcompile = "postcompile";
 
+
     /**
 	 * The post-compiler option has the following structure:
 	 * "[pre-command with options (usually g++)] [(#|%) [post-options (usually extra files)] [(#|%) [library options]]]".
@@ -510,7 +516,8 @@ public class X10CPPTranslator extends Translator {
 			return false;
 
 		if (options.post_compiler != null && !options.output_stdout) {
-            Collection<String> outputFiles = compiler.outputFiles();
+			// use set to avoid duplicates
+            Set<String> outputFiles = new HashSet<String>(compiler.outputFiles());
             CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, eq);
             String[] cxxCmd = ccb.buildCXXCommandLine(outputFiles);
 
