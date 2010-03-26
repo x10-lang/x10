@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -79,7 +80,7 @@ public class CXXCommandBuilder {
     
     protected X10RTPostCompileOptions x10rtOpts;
     
-    protected Set<String> extraLibOpts, extraIncOpts;
+    protected List<String> extraLibOpts, extraIncOpts;
     
     public CXXCommandBuilder(Options options, ErrorQueue eq) {
         assert (options != null);
