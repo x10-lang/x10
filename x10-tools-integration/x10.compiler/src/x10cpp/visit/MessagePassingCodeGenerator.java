@@ -393,7 +393,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     				MethodDecl_c md = (MethodDecl_c) dec;
     				((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
     				sw.pushCurrentStream(h);
-    				emitter.printHeader(md, sw, tr, false);
+    				emitter.printHeader(md, sw, tr, false, false);
     				sw.popCurrentStream();
     				h.write(";");
     				((X10CPPTranslator)tr).setContext(context); // FIXME
@@ -1805,11 +1805,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type ret_type = emitter.findRootMethodReturnType(def, dec.position(), mi);
 		String methodName = mi.name().toString();
 		
-        boolean inlined = false;
+        boolean inlineInClassDecl = false;
+        boolean inlineDirective = false;
         try {
             Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Inline"));
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
-                inlined = true;
+                if (container.x10Def().typeParameters().size() == 0) {
+                    inlineInClassDecl = true;
+                } else {
+                    inlineDirective = true;
+                }
             }
         } catch (SemanticException e) { 
             /* Ignore exception when looking for annotation */  
@@ -1817,15 +1822,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // Attempt to make it easy for the post compiler to inline trivial struct methods
         // by putting them in the h stream instead of the sw stream whenever possible. 
         // Don't bother doing this for generic structs the body stream is already in the header file.
-        if (!inlined && container.isX10Struct() && def.typeParameters().size() == 0) {
+        if (!inlineInClassDecl && container.isX10Struct() && container.x10Def().typeParameters().size() == 0) {
             StructMethodAnalyzer analyze = new StructMethodAnalyzer(tr.job(), xts, tr.nodeFactory(), container);
             dec.visit(analyze.begin());
-            inlined = analyze.canGoInHeaderStream();
+            inlineInClassDecl = analyze.canGoInHeaderStream();
         }		
 		
         sw.pushCurrentStream(h);
-        emitter.printHeader(dec, sw, tr, methodName, ret_type, false);
-        if (!inlined) {
+        emitter.printHeader(dec, sw, tr, methodName, ret_type, false, false);
+        if (!inlineInClassDecl) {
             sw.popCurrentStream();
             h.write(";");
             h.newline();
@@ -1837,8 +1842,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						Types.ref(container), Name.make(THIS)).asInstance();
 				context.addVariable(ti);
 			}
-			if (!inlined) {
-			    emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
+			if (!inlineInClassDecl) {
+			    emitter.printHeader(dec, sw, tr, methodName, ret_type, true, inlineDirective);
 			}
 			dec.printSubStmt(dec.body(), sw, tr);
 			sw.newline();
@@ -1849,8 +1854,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				if (fi != null) {
 					//assert (X10Flags.toX10Flags(fi.flags()).isProperty()); // FIXME: property fields don't seem to have the property flag set
 					// This is a property method in an interface.  Give it a body.
-				    if (!inlined) {
-				        emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
+				    if (!inlineInClassDecl) {
+				        emitter.printHeader(dec, sw, tr, methodName, ret_type, true, inlineDirective);
 				    }
 					sw.write(" {");
 					sw.allowBreak(0, " ");
@@ -1861,7 +1866,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 		}
 		
-		if (inlined) {
+		if (inlineInClassDecl) {
 		    sw.popCurrentStream();
 		}
 		
@@ -1894,11 +1899,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    String typeName = Emitter.translateType(container.def().asType());
 	    X10TypeSystem xts = (X10TypeSystem)context.typeSystem();
 
-	    boolean inlined = false;
+	    boolean inlineInClassDecl = false;
 	    try {
 	        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Inline"));
 	        if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
-	            inlined = true;
+	            inlineInClassDecl = true;
 	        }
 	    } catch (SemanticException e) { 
 	        /* Ignore exception when looking for annotation */  
@@ -1906,15 +1911,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    // Attempt to make it easy for the post compiler to inline trivial struct constructors
 	    // by putting them in the h stream instead of the sw stream whenever possible. 
-	    if (!inlined && container.isX10Struct()) {
+	    if (!inlineInClassDecl && container.isX10Struct()) {
 	        StructMethodAnalyzer analyze = new StructMethodAnalyzer(tr.job(), xts, tr.nodeFactory(), container);
 	        dec.visit(analyze.begin());
-	        inlined = analyze.canGoInHeaderStream();
+	        inlineInClassDecl = analyze.canGoInHeaderStream();
 	    }
 
 	    sw.pushCurrentStream(h);
 	    emitter.printHeader(dec, sw, tr, false, false, "void");
-	    if (!inlined) {
+	    if (!inlineInClassDecl) {
 	        h.write(";") ; h.newline();
 	        h.forceNewline();
 	        sw.popCurrentStream();
@@ -2002,7 +2007,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.end(); sw.newline();
 	    sw.write("}");
 	    sw.newline();
-	    if (inlined) {
+	    if (inlineInClassDecl) {
 	        sw.popCurrentStream();
 	    }
 
@@ -3842,7 +3847,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                                          Collections.EMPTY_LIST, context));
 		    assert (mi != null);
 		    assert (mi.returnType().isClass());
-		    List<Type> typeArgs = ((X10ClassType)mi.returnType()).typeArguments();
+		    List<Type> typeArgs = ((X10ClassType)X10TypeMixin.baseType(mi.returnType())).typeArguments();
 		    assert (typeArgs.size() == 1);
 		    itType = typeArgs.get(0);
 		} catch (SemanticException e) {

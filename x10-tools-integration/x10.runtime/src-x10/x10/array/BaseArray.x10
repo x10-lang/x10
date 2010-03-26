@@ -143,9 +143,11 @@ public abstract class BaseArray[T] extends Array[T] {
     const checkBounds = !x10NoChecks;
     const checkPlace = !x10NoChecks;
 
+    // TODO: XTENLANG-1188;  This field should be a const, but C++ backend generates bad code if it is
     global val bounds = (pt:Point):RuntimeException =>
         new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
 
+    // TODO: XTENLANG-1188;  This field should be a const, but C++ backend generates bad code if it is
     global val place = (pt:Point):RuntimeException =>
         new BadPlaceException("point " + pt + " not defined at " + here);
 

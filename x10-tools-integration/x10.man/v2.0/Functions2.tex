@@ -24,13 +24,48 @@ It is a limitation of \XtenCurrVer{} that functions do not support
 type arguments. This limitation may be removed in future versions of
 the language.
 
-A \emph{function literal} \xcd"(x1:T1,..,xn:Tn){c}:T=>e" creates a
-function of type\\ \xcd"(x1:T1,...,xn:Tn){c}=>T"
-(\Sref{FunctionType}). The body \Xcd{e} of such an expression is
-type-checked in an environment in which \Xcd{c} is true. At runtime,
-function execution results in the evaluation of \Xcd{e} in an
-environment in which each formal is bound to the given actual
-parameter.
+A \emph{function literal} \xcd"(x1:T1,..,xn:Tn){c}:T=>e" creates a function of
+type\\ \xcd"(x1:T1,...,xn:Tn){c}=>T" (\Sref{FunctionType}). The body \Xcd{e}
+of such an expression is type-checked in an environment in which \Xcd{c} is
+true. 
+
+A function literal evaluates to a function entity {$\phi$}. When {$\phi$} is
+applied to a suitable list of actual parameters \xcd`a1`-\xcd`an`, it
+evaluates \xcd`e` with the formal parameters bound to the actual parameters.
+So, the following are equivalent, where \xcd`e` is an expression involving
+\xcd`x1` and \xcd`x2`\footnote{Strictly, there are a few other requirements;
+  \eg, \xcd`result` must be a \xcd`var` of type \xcd`T` defined outside the
+  outer block, the variables \xcd`a1` and \xcd`a2` had better not appear in
+  \xcd`e`, and everything in sight had better typecheck properly.}
+\begin{xten}
+{
+  val f = (x1:T1,x2:T2){true}:T => e;
+  val a1 : T1 = arg1();
+  val a2 : T2 = arg2();
+  result = f(a1,a2);
+}
+\end{xten}
+and 
+\begin{xten}
+{
+  val a1 : T1 = arg1();
+  val a2 : T2 = arg2();
+  {
+     val x1 : T1 = a1;
+     val x2 : T2 = a2;
+     result = e;
+  }  
+}
+\end{xten}
+
+
+%FUNCY% At runtime,
+%FUNCY% function execution results in the evaluation of \Xcd{e} in an
+%FUNCY% environment in which each formal is bound to the given actual
+%FUNCY% parameter.
+
+
+
 
 The \emph{method selector expression} \Xcd{e.m.(x1:T1,...,xn:Tn)} (\Sref{MethodSelectors})
 permits the specification of the function underlying
@@ -137,45 +172,77 @@ clause.
 In a function
 \xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => { s }"
 the types \xcdmath"T$_i$", the guard \xcd"c" and the body \xcd"s"
-may access fields of enclosing classes and local variables and type
-parameters declared in an outer scope.
+may access many, though not all, sorts of variables from outer scopes.  
+Specifically, they can access: 
+\begin{itemize}
+\item All fields of the enclosing object and class;
+\item All type parameters;
+\item All \xcd`val` variables;
+\item \xcd`var` variables with the \xcd`shared` annotation. 
+\end{itemize}
 
-Recall that languages such as \java{} require that methods may
-access only those local variables declared in an enclosing scope
-(``outer variables'') which are \xcd`val`. This is valuable in
-preventing accidental races between multiple functions reading
-and writing the same outer variable. At the same time, it is
-desirable to support the following common idiom of expression:
 
-\begin{xten}
-def allPositive(c: Collection): Boolean {
-  shared var result: Boolean = true;
-  c.applyToAll((x: Int) => { if (x < 0) atomic {result=false;}});
-  return result;
-}
-\end{xten}
-
-This motivates the following rule:
-
-\begin{staticrule*}
-In an expression
-\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => e",
-any outer local variable accessed by \xcd"e" must be \xcd`val` or
-must be declared
-as \xcd"shared" (\Sref{Shared}).
-\end{staticrule*}
+\limitation{\xcd`shared` is not currently supported.}
 
 The function body may refer to instances of enclosing classes using
 the syntax \xcd"C.this", where \xcd"C" is the name of the
-enclosing class.
+enclosing class.  \xcd`this` refers to the instance of the immediately
+enclosing class, as usual.
+
+For example, the following is legal.  However, it would not be legal to add
+\xcd`e` or \xcd`h` to the sum; they are non-\xcd`shared` \xcd`var`s from the
+surrounding scope.
+\begin{xten}
+public class Lambda {
+   var a : Int = 0;
+   val b = 0;
+   def m(var c : Int, shared var d : Int,  val e : Int) {
+      var f : Int = 0;
+      shared var g : Int = 0;
+      val h : Int = 0;
+      val closure = (var i: Int, val j: Int) => {
+    	  return a + b + d + e + g + h + i + j + this.a + Lambda.this.a;
+      };
+      return closure;
+   }
+}
+\end{xten}
+
+{\bf Rationale:} Non-\xcd`shared` \xcd`var`s like \xcd`e` and \xcd`h` are
+excluded in X10, as in many other languages, for practical implementation
+reasons. They are allocated on the stack, which is desirable for efficiency.
+However, the closure may exist for long after the stack frame containing
+\xcd`e` and \xcd`h` has been freed, so those storage locations are no longer
+valid for those variables. \xcd`shared var`s are heap-allocated, which is less
+efficient but allows them to exist after \xcd`m` returns. 
 
 \begin{note}
-The main activity may run in parallel with any
-functions it creates. Hence even the read of an outer variable by the
-body of a function may result in a race condition. Since functions are
-first-class, the analysis of whether a function may execute in parallel
-with the activity that created it may be difficult.
+\xcd`shared` does not guarantee {\bf atomic} access to the shared variable. As
+with any code that might mutate shared data concurrently, be sure to protect
+references to mutable shared state with \xcd`atomic`. For example, the
+following code returns a pair of closures which operate on the same shared
+variable \xcd`a`, which are concurrency-safe---even if invoked many times
+simultaneously. Without \xcd`atomic`, it would no longer be concurrency-safe.
 \end{note}
+
+\begin{xten}
+  def counters() {
+      shared var a : Int = 0;
+       return [
+          () => {atomic a ++;},
+          () => {atomic return a;}
+          ];
+   }
+\end{xten}
+
+
+%SHARED% \begin{note}
+%SHARED% The main activity may run in parallel with any
+%SHARED% functions it creates. Hence even the read of an outer variable by the
+%SHARED% body of a function may result in a race condition. Since functions are
+%SHARED% first-class, the analysis of whether a function may execute in parallel
+%SHARED% with the activity that created it may be difficult.
+%SHARED% \end{note}
 
 %% vj: This should be verified.
 %\begin{note}

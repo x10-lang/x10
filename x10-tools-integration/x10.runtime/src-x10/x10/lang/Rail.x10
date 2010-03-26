@@ -69,7 +69,7 @@ public final class Rail[T](length: Int)
      *
      * @param init Evaluated once per element to reinitialize the Rail.
      */
-    @Native("java", "#0.reset(#1)")
+    @Native("java", "(#0).reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
     public native safe def reset(init: (Int) => T): Void;
 
@@ -78,7 +78,7 @@ public final class Rail[T](length: Int)
      *
      * @param init Every element will be set to this value
      */
-    @Native("java", "#0.reset(#1)")
+    @Native("java", "(#0).reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
     public native safe def reset(init: T): Void;
 
@@ -97,8 +97,8 @@ public final class Rail[T](length: Int)
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "#0.apply(#1)")
-    @Native("c++", "(*#0)[#1]")
+    @Native("java", "(#0).apply(#1)")
+    @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
     public native safe def apply(i: Int): T;
 
@@ -109,9 +109,9 @@ public final class Rail[T](length: Int)
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    @Native("java", "#0.set(#1, #2)")
-    @Native("c++", "(*#0)[#2] = #1")
-    @Native("cuda", "(#0)[#2] = #1")
+    @Native("java", "(#0).set(#1, #2)")
+    @Native("c++", "(#0)->set(#1, #2)")
+    @Native("cuda", "(#0)[#2] = #1") // FIXME: evaluation order
     public native safe def set(v: T, i: Int): T;
 
     /**
@@ -119,7 +119,7 @@ public final class Rail[T](length: Int)
      *
      * @return A new iterator instance.
      */
-    @Native("java", "#0.iterator()")
+    @Native("java", "(#0).iterator()")
     @Native("c++", "(#0)->iterator()")
     public native safe def iterator(): Iterator[T];
 
@@ -345,7 +345,7 @@ public final class Rail[T](length: Int)
      * remote place.  You may find copyTo/copyFrom are a better choice as they are
      * faster and safer.
      */ 
-    @Native("java", "#0.view()")
+    @Native("java", "(#0).view()")
     @Native("c++", "#0->view()")
     public native def view(): ValRail[T]{self.length==this.length};
 

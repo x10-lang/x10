@@ -738,9 +738,21 @@ considerations motivated by type parameters and dependent types.
 
 Two or more methods of a class or interface may have the same
 name if they have a different number of type parameters, or
-they have value parameters of different types.
+they have formal parameters of different types.  \Eg, the following is legal: 
+\begin{xten}
+   def m() = 1;
+   def m[T]() = 2;
+   def m(x:Int) = 3;
+   def m[T](x:Int) = 4;
+\end{xten}
 
-\XtenCurrVer{} does not permit overloading based on constraints. 
+\XtenCurrVer{} does not permit overloading based on constraints. That is, the
+following is {\em not} legal, although either method definition individually
+is legal:
+\begin{xten}
+   def n(x:Int){x==1} = "one";
+   def n(x:Int){x!=1} = "not";
+\end{xten}
 
 
 The definition of a method declaration \xcdmath"m$_1$" ``having the same signature

@@ -11,6 +11,7 @@
 
 import x10.io.Console;
 import x10.compiler.CUDA;
+import x10.compiler.CUDADirectParams;
 import x10.compiler.CUDAUtilities;
 import x10.compiler.Native;
 import x10.util.Random;
@@ -35,7 +36,7 @@ public class CUDABlackScholes {
             V:Float) {
         val blocks = 480;
         val threads = 128;
-        at (p) @CUDA {
+        finish async (p) @CUDA @CUDADirectParams {
             //val blocks = CUDAUtilities.autoBlocks(),
             //    threads = CUDAUtilities.autoThreads();
             for ((block) in 0..blocks-1) {

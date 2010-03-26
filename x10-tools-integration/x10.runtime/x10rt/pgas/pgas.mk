@@ -10,7 +10,7 @@
 #
 
 X10_VERSION=svn head
-VERSION=20100309
+VERSION=20100323
 SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
 LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
 BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
@@ -78,7 +78,7 @@ ifeq ($(X10RT_PLATFORM), darwin)
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), darwin64)
-  WPLATFORM      := macos_x86_64_g++4
+  WPLATFORM      := macos_x86_g++4
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), sunos)
