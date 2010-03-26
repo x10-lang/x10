@@ -9,15 +9,14 @@ public class Pipeline {
    		val op = Int.+;
       	shared var a: int @ Clocked[int] (c, op);
    		shared var b: int @ Clocked[int] (c, op);
- 
-                async clocked(c)  {
+ 	    async clocked(c)  {
                         var i: int;
                         for (i = 0; i < 10; i++)  {
                                 a = i;
                                 next;  /*write phase over */
                         }
                 }
-                async clocked(c) {
+                async clocked (c) {
                         var i: int;
                         for (i = 0; i < 10; i++)  {
                                 next; /*write phase over */

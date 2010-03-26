@@ -2,13 +2,11 @@ import x10.io.Console;
 import clocked.*;
 
 class NSol {
-    public val c: Clock;
-    public val d: Clock;
+    public val c = Clock.make();
+ 
     val op = Int.+;
     
-    def this () {
-    	c = Clock.make();
-    }
+  
     
 	public var nSolutions: int @ Clocked[int](c,op) = 0;
 	
@@ -20,7 +18,7 @@ class NSol {
 
 public class NQueensPar {
 
-   
+
 
     public static val expectedSolutions =
         [0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512];
@@ -51,6 +49,7 @@ public class NQueensPar {
 
        public static val nSol = new NSol();
         
+        
         val q: Rail[Int]{self.at(this)};
 
         def this() {
@@ -61,6 +60,8 @@ public class NQueensPar {
             val n = old.length;
             q = Rail.make[Int](n+1, (i:int)=> (i < n? old(i) : newItem));
         }
+		
+	
 
         def safe(j: int) {
             val n = q.length;
@@ -72,16 +73,18 @@ public class NQueensPar {
         }
   
   
-      def search() @ClockedM(nSol.c)  {
+      def search() @ ClockedM (nSol.c) {
             if (q.length == N) {
                
                 nSol.incr();
+          
+              
                 return;
             }
             if (q.length == 0) {
                 val R = block(0..N-1, P);
                 for ((q) in 0..P-1)
-                  async search(R(q));
+                  async clocked(nSol.c) search(R(q));
             } else search(0..N-1);
         }
   

@@ -2,14 +2,13 @@ import clocked.*;
 
 public class TestField {
 
-	val c: Clock;
+	val c: Clock = Clock.make();
 	val d: Clock;
 	var x: int @ Clocked[Int] (c, op);
 	val op = Int.+;
 	var y: int = 0;
 
 	def this() {
- 	   c = Clock.make();
  	   d = Clock.make();
 	   x = 0;	
 	}

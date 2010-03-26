@@ -1,10 +1,10 @@
-import clocked.Clocked;
+import clocked.*;
 
 public class AllReduceParallel {
   
   static val P = Place.MAX_PLACES;
 
-  public static def allReduce(c: Clock, op: (int,int)=>int, myA:Rail[int @ Clocked[int](c,op)]!) {
+  public static def allReduce(c: Clock, op: (int,int)=>int, myA:Rail[int @ Clocked[int](c,op)]!) @ClockedM(c) {
     val phases = Math.log2(P);
 	var i : Int = 0;
     finish  for(i = 0; i < P; i++)  {

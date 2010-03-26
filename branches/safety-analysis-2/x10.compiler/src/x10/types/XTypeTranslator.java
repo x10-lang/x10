@@ -268,7 +268,7 @@ public class XTypeTranslator {
 	public XTerm trans(Type t) {
 		if (t instanceof ParameterType)
 			return transTypeParam((ParameterType) t);
-//		if (t instanceof X10ClassType)
+//	if (t instanceof X10ClassType)
 //		    return transClassType((X10ClassType) t);
 //		if (t instanceof ConstrainedType)
 //		    return transConstrainedType((ConstrainedType) t);
@@ -276,8 +276,8 @@ public class XTypeTranslator {
 		    MacroType pt = (MacroType) t;
 		    return trans(pt.definedType());
 		}
-		return new XTypeLit_c(t);
-//		return XTerms.makeLit(t);
+//		return new XTypeLit_c(t);
+		return XTerms.makeLit(t);
 	}
 	
 	public static Type subst(Type t, XTerm y, XRoot x) throws SemanticException {
