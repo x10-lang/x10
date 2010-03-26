@@ -441,8 +441,17 @@ which these constraints are specified include literals and
 constants {\tt here}, {\tt self}, and {\tt this}. Additionally, place
 types are permitted (\Sref{PlaceTypes}).
 
+
 Type constraints may be subtyping and supertyping (\xcd"<:" and
 \xcd":>") expressions over types.
+
+The static constraint checker approximates computational reality in some
+cases.  For example, it assumes that built-in types are infinite. This is a
+good approximation for \xcd`Int`.  It is a poor approximation for \xcd`Boolean`,
+as the checker believes that \xcd`a != b && a != c && b != c` is satisfiable
+over \xcd`Boolean`, which it is not.  However, the checker is always correct
+when computing the truth or falsehood of a constraint.
+
 
 % //, and existential quantification over typed variables.
 
