@@ -9,8 +9,8 @@
         </not>
     </condition>
 
-    <taskdef resource="antlib.xml" classpath="../org.eclipse.imp.update/ant-imp.jar"/>
-    <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpath="../org.eclipse.imp.update/svnant.jar"/>
+    <taskdef resource="antlib.xml" classpath="./lib/ant-imp.jar"/>
+    <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpath="./lib/svnant.jar;./lib/svnClientAdapter.jar"/>
 
     <!-- Global Java compiler settings -->
     <property name="javacFailOnError" value="true"/>
@@ -61,5 +61,5 @@
             <include name="**/*.jar"/>
         </fileset>
     </path>
-    <pathconvert property="eclipse.build.path" refid="path_eclipse.build.path" targetos="windows"/>
+    <pathconvert property="eclipse.build.path" refid="path_eclipse.build.path" targetos="unix"/>
 </project>
