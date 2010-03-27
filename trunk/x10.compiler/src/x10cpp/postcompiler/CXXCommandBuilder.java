@@ -80,8 +80,6 @@ public class CXXCommandBuilder {
     
     protected X10RTPostCompileOptions x10rtOpts;
     
-    protected List<String> extraLibOpts, extraIncOpts;
-    
     public CXXCommandBuilder(Options options, ErrorQueue eq) {
         assert (options != null);
         assert (options.post_compiler != null);
@@ -100,9 +98,6 @@ public class CXXCommandBuilder {
             rtimpl = X10_DIST + "/etc/x10rt_"+rtimpl+".properties";
         }
         x10rtOpts = new X10RTPostCompileOptions(eq, rtimpl);
-        X10CPPCompilerOptions opts = (X10CPPCompilerOptions) options; 
-        this.extraLibOpts = opts.extraLibOpts();
-        this.extraIncOpts = opts.extraIncOpts();
     }
 
     /** Is GC enabled on this platform? */
@@ -120,6 +115,7 @@ public class CXXCommandBuilder {
         cxxCmd.add("-I"+X10_DIST+"/include");
         
         // headers generated from user input
+        cxxCmd.add("-I"+options.output_directory);
         cxxCmd.add("-I.");
 
         if (!Configuration.DISABLE_GC && gcEnabled()) {
@@ -137,7 +133,7 @@ public class CXXCommandBuilder {
             }
         }
         
-        for (String opt : extraIncOpts) {
+        for (String opt : options.extraIncOpts()) {
         	cxxCmd.add(opt);
         }
 
@@ -163,7 +159,7 @@ public class CXXCommandBuilder {
         cxxCmd.addAll(x10rtOpts.ldFlags);
         cxxCmd.addAll(x10rtOpts.libs);
         
-        for (String opt : extraLibOpts) {
+        for (String opt : options.extraLibOpts()) {
         	cxxCmd.add(opt);
         }
 
