@@ -378,7 +378,8 @@ public class X10CPPTranslator extends Translator {
                 sw.getNewStream(StreamWrapper.Header, true);
 				opfPath = tf.outputName(pkg, decl.name().toString());
 				assert (!opfPath.endsWith("$"));
-				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
+				X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
+				if (!opfPath.endsWith("$")) outputFiles.add(opts.output_directory + File.separator + opfPath);
 				if (x10.Configuration.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap = (HashMap<String, LineNumberMap>)c.getData(FILE_TO_LINE_NUMBER_MAP);
 					String closures = wstreams.getStreamName(StreamWrapper.Closures);
@@ -539,7 +540,7 @@ public class X10CPPTranslator extends Translator {
 
         try {
             Runtime runtime = Runtime.getRuntime();
-        	Process proc = runtime.exec(cxxCmd, null, options.output_directory);
+        	Process proc = runtime.exec(cxxCmd, null, null);
 
         	InputStreamReader err = new InputStreamReader(proc.getErrorStream());
 
