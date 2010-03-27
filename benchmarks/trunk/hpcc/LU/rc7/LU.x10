@@ -1,7 +1,10 @@
 package rc7;
 
-import x10.compiler.Native;
+import x10.compiler.*;
 
+@NativeCPPInclude("essl_natives.h")
+@NativeCPPCompilationUnit("essl_natives.cc")
+@NativeCPPLibOpt("-lblas")
 class LU {
 
     @Native("c++", "blockTriSolve((#1)->raw(), (#2)->raw(), #3)")

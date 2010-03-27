@@ -1,7 +1,8 @@
 package rc7;
 
-import x10.compiler.Native;
+import x10.compiler.*;
 
+@NativeCPPInclude("essl_natives.h")
 final public class Comm {
 
     private global val my_id:Int;

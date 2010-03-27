@@ -1,3 +1,4 @@
+#define TRANSPORT lapi
 #include <pgasrt.h>
 
 extern "C" {
