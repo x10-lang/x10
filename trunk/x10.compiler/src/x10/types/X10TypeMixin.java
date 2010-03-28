@@ -1053,7 +1053,7 @@ public class X10TypeMixin {
 	public static Type arrayElementType(Type t) {
 		t = baseType(t);
 		X10TypeSystem xt = (X10TypeSystem) t.typeSystem();
-		if (xt.isX10Array(t) || xt.isRail(t) || xt.isX10ArrayV2(t)) {
+		if (xt.isX10Array(t) || xt.isRail(t)) {
 			if (t instanceof X10ParsedClassType) {
 				Type result = ((X10ParsedClassType) t).typeArguments().get(0);
 				return result;
