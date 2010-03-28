@@ -1427,15 +1427,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return arrayType_;
     }
 
-    // TODO: Staging while working on array library redesign.
-    protected ClassType localRectArrayType_ = null;
-    
-    public Type LocalRectArray() {
-        if (localRectArrayType_ == null)
-            localRectArrayType_ = load("x10.array.LocalRectArray");
-        return localRectArrayType_;
-    }
-
     // RMF 11/1/2005 - Not having the "static" qualifier on interfaces causes
     // problems,
     // e.g. for New_c.disambiguate(AmbiguityRemover), which assumes that
@@ -1619,11 +1610,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public boolean isX10Array(Type me) {
-        return hasSameClassDef(me, Array());
-    }
-
-    public boolean isX10ArrayV2(Type me) {
-        return hasSameClassDef(me, LocalRectArray());
+        if (hasSameClassDef(me, Array())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isX10Array(parent);
+        } else {
+            return false;
+        }
     }
 
     public boolean isTypeConstrained(Type me) {
