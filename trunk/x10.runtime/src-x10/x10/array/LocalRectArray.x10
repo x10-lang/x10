@@ -30,91 +30,40 @@ import x10.compiler.Inline;
  *          is stubbed out here (and may eventually 
  *          by removed from x10.lang.Array).  This 
  *          will be resolved by X10 2.1<p>
- * 
- * TODO: I refuse to make the methods of LocalRectArray global so
- *       that this class could be a subclass of x10.lang.Array.
- *       Migration plan.  We introduce a DistributedArray 
- *       abstract sub-class of Array, make it's apply/set methods
- *       global and people simply have to either be working with
- *       Array! types, or with distrbuted arrays. 
- *       I see no reasonable alternative to this.
  */
-public final class LocalRectArray[T](dist:Dist) 
-    implements (Point(dist.rank))=>T,
-               Iterable[Point(dist.rank)] {
+public final class LocalRectArray[T] extends Array[T] {
 
-    private val raw:Rail[T]!;
-    private val layout:RectLayout!;
-    private val checkBounds:boolean;
+    private global val raw:Rail[T]!; // TODO: Should not be global
+    private global val layout:RectLayout!;  // TODO: Should not be global
+    private global val checkBounds:boolean; // TODO: Should not be global
 
-    // TODO: very short term hack while playing with copyTo implementations for ANU code.
-    public def raw():Rail[T]! = raw;
+    // TODO: very short term hack until I re-do x10.lang.Array
+    //       so that set/apply are not global.
+    // TODO: made public for experimentation in ANU code until proper copyTo is implemented.
+    public global @Inline def raw():Rail[T]! = raw as Rail[T]!;
+   
 
     // TODO: This is a hack around the way regions are currently defined.
     //       Even when we compile with NO_CHECKS, we still have to have
     //       the checking code inlined. or the presence of the call in a loop
-    //       blows register allocation and we get lousy performance.
-    private val baseRegion:BaseRegion(rank);
+    //       blows register allocation significantly impacts performance.
+    // TODO: Should not be global
+    private global val baseRegion:BaseRegion(rank);
 
     // TODO: XTENLANG-1188 this should be a const (static) field, but working around C++ backend bug
-    private val bounds = (pt:Point):RuntimeException => new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
+    // TODO: Should not be global
+    private global val bounds = (pt:Point):RuntimeException => new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
 
     // XTENLANG-49
     static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
-
-    // BEGIN CODE COPIED FROM ARRAY.  WILL EVENTUALLY BE INHERITED FROM ARRAY
-    /**
-     * The region this array is defined over.
-     */
-    public property region:Region(rank) = dist.region;
-
-    /**
-     * The rank of this array.
-     */
-    public property rank:int = dist.rank;
-
-    /**
-     * Is this array defined over a rectangular region?
-     */
-    public property rect:boolean = dist.rect;
-
-    /**
-     * Is this array's region zero-based?
-     */
-    public property zeroBased:boolean = dist.zeroBased;
-
-    /**
-     * Is this array's region a "rail" (one-dimensional contiguous zero-based)?
-     */
-    public property rail:boolean = dist.rail;
-
-    /**
-     * Is this array's distribution "unique" (at most one point per place)?
-     */
-    public property unique:boolean = false;
-
-    /**
-     * Is this array's distribution "constant" (all points map to the same place)?
-     */
-    public property constant:boolean = true;
-
-    /**
-     * If this array's distribution is "constant", the place all points map to (or null).
-     */
-    public property onePlace:Place = home;
-
-
-    // END CODE COPIED FROM ARRAY.  WILL EVENTUALLY BE INHERITED FROM ARRAY
-
-
 
     /**
      * Construct an uninitialized LocalRectArray over the region reg.
      *
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region):LocalRectArray{self.dist.region==reg} {
-        property(Dist.makeConstant(reg));
+    public def this(reg:Region):LocalRectArray{self.dist.region==reg,rect} {
+        super(Dist.makeConstant(reg));
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
@@ -131,8 +80,8 @@ public final class LocalRectArray[T](dist:Dist)
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:(Point(reg.rank))=>T):LocalRectArray{self.dist.region==reg} {
-        property(Dist.makeConstant(reg));
+    public def this(reg:Region, init:(Point(reg.rank))=>T):LocalRectArray{self.dist.region==reg,rect} {
+        super(Dist.makeConstant(reg));
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
@@ -159,21 +108,25 @@ public final class LocalRectArray[T](dist:Dist)
      * Return the element of this array corresponding to the given index.
      * Only applies to one-dimensional arrays.
      * Functionally equivalent to indexing the array via a one-dimensional point.
+     * 
+     * TODO: This method should not be global.
      *
      * @param i0 the given index in the first dimension
      * @return the element of this array corresponding to the given index.
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    public safe @Inline def apply(i0:int){dist.region.rank==1}:T {
+    public safe global @Inline def apply(i0:int){dist.region.rank==1}:T {
         if (checkBounds) baseRegion.check(bounds, i0);
-        return raw(layout.offset(i0));
+        return raw()(layout.offset(i0));
     }
 
     /**
      * Return the element of this array corresponding to the given pair of indices.
      * Only applies to two-dimensional arrays.
      * Functionally equivalent to indexing the array via a two-dimensional point.
+     * 
+     * TODO: This method should not be global.
      *
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
@@ -181,15 +134,17 @@ public final class LocalRectArray[T](dist:Dist)
      * @see #apply(Point)
      * @see #set(T, Int, Int)
      */
-    public safe @Inline def apply(i0:int, i1:int){region.rank==2}:T {
+    public safe global @Inline def apply(i0:int, i1:int){region.rank==2}:T {
         if (checkBounds) baseRegion.check(bounds, i0, i1);
-        return raw(layout.offset(i0,i1));
+        return raw()(layout.offset(i0,i1));
     }
 
     /**
      * Return the element of this array corresponding to the given triple of indices.
      * Only applies to three-dimensional arrays.
      * Functionally equivalent to indexing the array via a three-dimensional point.
+     * 
+     * TODO: This method should not be global.
      *
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
@@ -198,15 +153,17 @@ public final class LocalRectArray[T](dist:Dist)
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int)
      */
-    public safe @Inline def apply(i0:int, i1:int, i2:int){region.rank==3}:T {
+    public safe global @Inline def apply(i0:int, i1:int, i2:int){region.rank==3}:T {
         if (checkBounds) baseRegion.check(bounds, i0, i1, i2);
-        return raw(layout.offset(i0, i1, i2));
+        return raw()(layout.offset(i0, i1, i2));
     }
 
     /**
      * Return the element of this array corresponding to the given quartet of indices.
      * Only applies to four-dimensional arrays.
      * Functionally equivalent to indexing the array via a four-dimensional point.
+     * 
+     * TODO: This method should not be global.
      *
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
@@ -216,26 +173,28 @@ public final class LocalRectArray[T](dist:Dist)
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int, Int)
      */
-    public safe @Inline def apply(i0:int, i1:int, i2:int, i3:int){region.rank==4}:T {
+    public safe global @Inline def apply(i0:int, i1:int, i2:int, i3:int){region.rank==4}:T {
         if (checkBounds) baseRegion.check(bounds, i0, i1, i2, i3);
-        return raw(layout.offset(i0, i1, i2, i3));
+        return raw()(layout.offset(i0, i1, i2, i3));
     }
 
     /**
      * Return the element of this array corresponding to the given point.
      * The rank of the given point has to be the same as the rank of this array.
+     * 
+     * TODO: This method should not be global.
      *
      * @param pt the given point
      * @return the element of this array corresponding to the given point.
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    public safe @Inline def apply(pt:Point{self.rank==dist.region.rank}):T {
+    public safe global @Inline def apply(pt:Point{self.rank==dist.region.rank}):T {
         if (checkBounds) {
             throw new UnsupportedOperationException("Haven't implemented bounds checking for general Points on LocalRectArray");
             // TODO: SHOULD BE: region.check(pt);
         }
-        return raw(layout.offset(pt));
+        return raw()(layout.offset(pt));
     }
 
  
@@ -244,6 +203,8 @@ public final class LocalRectArray[T](dist:Dist)
      * Return the new value of the element.
      * Only applies to one-dimensional arrays.
      * Functionally equivalent to setting the array via a one-dimensional point.
+     * 
+     * TODO: This method should not be global.
      *
      * @param v the given value
      * @param i0 the given index in the first dimension
@@ -251,9 +212,9 @@ public final class LocalRectArray[T](dist:Dist)
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    public safe @Inline def set(v:T, i0:int){region.rank==1}:T {
+    public safe global @Inline def set(v:T, i0:int){region.rank==1}:T {
         if (checkBounds) baseRegion.check(bounds, i0);
-        raw(layout.offset(i0)) = v;
+        raw()(layout.offset(i0)) = v;
         return v;
     }
 
@@ -262,6 +223,8 @@ public final class LocalRectArray[T](dist:Dist)
      * Return the new value of the element.
      * Only applies to two-dimensional arrays.
      * Functionally equivalent to setting the array via a two-dimensional point.
+     * 
+     * TODO: This method should not be global.
      *
      * @param v the given value
      * @param i0 the given index in the first dimension
@@ -270,9 +233,9 @@ public final class LocalRectArray[T](dist:Dist)
      * @see #apply(Int, Int)
      * @see #set(T, Point)
      */
-    public safe @Inline def set(v:T, i0:int, i1:int){region.rank==2}:T {
+    public safe global @Inline def set(v:T, i0:int, i1:int){region.rank==2}:T {
         if (checkBounds) baseRegion.check(bounds, i0, i1);
-        raw(layout.offset(i0,i1)) = v;
+        raw()(layout.offset(i0,i1)) = v;
         return v;
     }
 
@@ -281,6 +244,8 @@ public final class LocalRectArray[T](dist:Dist)
      * Return the new value of the element.
      * Only applies to three-dimensional arrays.
      * Functionally equivalent to setting the array via a three-dimensional point.
+     * 
+     * TODO: This method should not be global.
      *
      * @param v the given value
      * @param i0 the given index in the first dimension
@@ -290,9 +255,9 @@ public final class LocalRectArray[T](dist:Dist)
      * @see #apply(Int, Int, Int)
      * @see #set(T, Point)
      */
-    public safe @Inline def set(v:T, i0:int, i1:int, i2:int){region.rank==3}:T {
+    public safe global @Inline def set(v:T, i0:int, i1:int, i2:int){region.rank==3}:T {
         if (checkBounds) baseRegion.check(bounds, i0, i1, i2);
-        raw(layout.offset(i0, i1, i2)) = v;
+        raw()(layout.offset(i0, i1, i2)) = v;
         return v;
     }
 
@@ -301,6 +266,8 @@ public final class LocalRectArray[T](dist:Dist)
      * Return the new value of the element.
      * Only applies to four-dimensional arrays.
      * Functionally equivalent to setting the array via a four-dimensional point.
+     * 
+     * TODO: This method should not be global.
      *
      * @param v the given value
      * @param i0 the given index in the first dimension
@@ -311,9 +278,9 @@ public final class LocalRectArray[T](dist:Dist)
      * @see #apply(Int, Int, Int, Int)
      * @see #set(T, Point)
      */
-    public safe @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){region.rank==4}:T {
+    public safe global @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){region.rank==4}:T {
         if (checkBounds) baseRegion.check(bounds, i0, i1, i2, i3);
-        raw(layout.offset(i0, i1, i2, i3)) = v;
+        raw()(layout.offset(i0, i1, i2, i3)) = v;
         return v;
     }
 
@@ -321,6 +288,8 @@ public final class LocalRectArray[T](dist:Dist)
      * Set the element of this array corresponding to the given point to the given value.
      * Return the new value of the element.
      * The rank of the given point has to be the same as the rank of this array.
+     * 
+     * TODO: This method should not be global.
      *
      * @param v the given value
      * @param pt the given point
@@ -328,12 +297,44 @@ public final class LocalRectArray[T](dist:Dist)
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    public safe @Inline def set(v:T, p:Point{self.rank==region.rank}):T {
+    public safe global @Inline def set(v:T, p:Point{self.rank==region.rank}):T {
         if (checkBounds) {
             throw new UnsupportedOperationException("Haven't implemented bounds checking for general Points on LocalRectArray");
             // TODO: SHOULD BE: region.check(p);
         }
-        raw(layout.offset(p)) = v;
+        raw()(layout.offset(p)) = v;
         return v;
     }
+
+    /*
+     * TODO: Cruft inherited from Array but not yet implemented.
+     *       Some of this will get implemented, other parts will
+     *       get removed from Array.
+     */
+
+    public incomplete safe global def restriction(r: Region(rank)): Array[T](rank);    
+
+    public incomplete safe global def restriction(p: Place): Array[T](rank);
+
+    public incomplete safe global operator this | (r: Region(rank)): Array[T](rank);
+
+    public incomplete safe global operator this | (p: Place): Array[T](rank);
+
+    public incomplete global def lift(op:(T)=>T): Array[T](dist);
+
+    public incomplete global def reduce(op:(T,T)=>T, unit:T): T;
+
+    public incomplete global def scan(op:(T,T)=>T, unit:T): Array[T](dist);
+
+    public incomplete safe global operator + this: Array[T](rank);
+
+    public incomplete safe global operator - this: Array[T](rank);
+
+    public incomplete safe global operator this + (that: Array[T](dist)): Array[T](dist);
+
+    public incomplete safe global operator this - (that: Array[T](dist)): Array[T](dist);
+
+    public incomplete safe global operator this * (that: Array[T](dist)): Array[T](dist);
+
+    public incomplete safe global operator this / (that: Array[T](dist)): Array[T](dist);
 }
