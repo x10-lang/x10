@@ -111,7 +111,7 @@ class FRASimpleDist {
         val numUpdates = updates_*tableSize;
 
         // create local rails
-        val rails_ = Rail.make[Rail[Long]!](Place.MAX_PLACES, (p:Int) => null);
+        val rails_ = Rail.make[Rail[Long]](Place.MAX_PLACES, (p:Int) => null);
         finish for ((p) in 0..Place.MAX_PLACES-1) {
             async (Place.places(p)) {
                 val tmp = Rail.make(localTableSize, (i:Int)=>i as Long);
@@ -140,7 +140,7 @@ class FRASimpleDist {
         runBenchmark(rails, logLocalTableSize, numUpdates);
         for ((i) in 0..Place.MAX_PLACES-1) {
             async (Place.places(i)) {
-                val rail = rails(i);
+                val rail = rails(i) as Rail[Long]{self.at(here)};
                 var err:Int = 0;
                 for (var j:Int=0; j<rail.length; j++)
                     if (rail(j) != j) err++;

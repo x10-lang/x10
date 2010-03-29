@@ -24,7 +24,7 @@ export USE_MEDIUM_PAGES ?= 1
 # AIX with G++
 #
 #export POSTCOMPILE_CXX		?= mpCC
-#export POSTCOMPILE_CXXFLAGS 	?= -w -q64 -DTRANSPORT=${X10TRANSPORT}
+#export POSTCOMPILE_CXXFLAGS 	?= -w -q64 -DTRANSPORT=${PGASTRANSPORT}
 
 #export POSTCOMPILE_OPTFLAGS	?= -O3 -qarch=pwr5 -qtune=pwr5 -qhot -qinline -qrtti=all -DNDEBUG -DNO_CHECKS
 #export POSTCOMPILE_DBGFLAGS	?= -g

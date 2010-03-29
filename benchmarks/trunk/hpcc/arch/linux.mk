@@ -2,7 +2,7 @@
 #
 # Linux with G++
 #
-ifeq ($(PGASTRANSPORT), mpi)
+ifeq ($(X10RTTRANSPORT), mpi)
 export POSTCOMPILE_CXX		?= mpicxx
 export POSTCOMPILE_CXXFLAGS 	?= -I/usr/local/mpi/include -I$(HOME)/mpi/libnbc-install/include
 export POSTCOMPILE_LDFLAGS	?= -L$(HOME)/mpi/libnbc-install/lib

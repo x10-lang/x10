@@ -2,13 +2,13 @@
 #ifdef __cplusplus
 extern "C"
 #endif
-void dtrsm_(char *, char *, char *, char *, 
+void dtrsm_(const char *, const char *, const char *, const char *, 
 	   int *, int *, double *, void *, int *, void *, int *);
 
 #ifdef __cplusplus
 extern "C"
 #endif
-void dgemm_(char *, char *, int *, int *, int *, double *, void *,
+void dgemm_(const char *, const char *, int *, int *, int *, double *, void *,
 	   int *, void *, int *, double *, void *, int *);
 
 

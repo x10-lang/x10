@@ -83,9 +83,9 @@ void FT::Comm::_deserialize_body(x10aux::deserialization_buffer& buf) {
 
 x10aux::RuntimeType FT::Comm::rtt;
 void FT::Comm::_initRTT() {
-    rtt.canonical = &rtt;
+    if (rtt.initStageOne(&rtt)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Object>()};
-    rtt.init(&rtt, "FT.Comm", 1, parents, 0, NULL, NULL);
+    rtt.initStageTwo("FT.Comm", 1, parents, 0, NULL, NULL);
 }
 
 extern "C" { const char* LNMAP_FT_Comm_cc = "N{\"FT/Comm.cc\"} F{0:\"/vol/x10/users/ganesh/work-17/hpcc/hpcc/FT/Comm.x10\",1:\"FT.Comm\",2:\"this\",3:\"\",4:\"x10.lang.Int\",5:\"FT::Comm\",6:\"_constructor\",7:\"void\",8:\"x10_int\",} L{17->0:3,29->0:4,13->0:3,31->0:5,} M{7 5.6(8)->3 1.2(4);}"; }
