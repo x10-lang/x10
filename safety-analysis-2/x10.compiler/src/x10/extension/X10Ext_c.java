@@ -50,6 +50,7 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.InitializerDef;
+import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
@@ -441,7 +442,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       ConstructorInstance ctorInstance = neew.constructorInstance();
       List<Expr> args = neew.arguments();
       result= computeEffect(args, ec);
-      result= ec.env().followedBy(result, getMethodEffects(ctorInstance, ec));
+      result= ec.env().followedBy(result, getMethodEffects(ctorInstance, args, ec));
       List<FieldInstance> fields = neew.constructorInstance().def().container().get().fields();
       for (FieldInstance fi: fields) {
     	  if (fi.type().toString().contentEquals("x10.lang.Clock"))
@@ -527,7 +528,7 @@ private Effect computeEffect(Unary unary, EffectComputer ec) {
               result= effect(target);
               X10TypeEnv env = ec.env();
               result= env.followedBy(result, computeEffect(args, ec));
-              result= env.followedBy(result, getMethodEffects(methodInstance, ec));
+              result= env.followedBy(result, getMethodEffects(methodInstance, args, ec));
           }
       }
       
@@ -862,7 +863,7 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       return null;
   }
 
-  private Effect getMethodEffects(ProcedureInstance procInstance, EffectComputer ec) {
+  private Effect getMethodEffects(ProcedureInstance procInstance, List<Expr> formalArgs, EffectComputer ec) {
       X10ProcedureInstance xpi= (X10ProcedureInstance) procInstance;
       X10ProcedureDef xpd= (X10ProcedureDef) xpi.def();
       List<Type> annotations= xpd.annotations();
@@ -901,9 +902,24 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
 			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
   				X10ParsedClassType anc = (X10ParsedClassType)an.annotationType().type();
   				Expr expr = anc.propertyInitializer(0);
-              	Locs locs= computeLocFor(expr, ec);
-   	        	//methodClocks.add(locs);
-   	        	e.addMustClock(locs);
+  				Locs locs= computeLocFor(expr, ec);
+  				int index = -1;
+  				if (expr instanceof Local) {
+              		Local l = (Local) expr;
+              	
+              		LocalDef clockDef = l.localInstance().def();
+              	
+              		for (LocalDef f : xpd.formalNames()) {
+              			index++;
+              			if (f == clockDef)  {
+              				locs = computeLocFor (formalArgs.get(index), ec);
+             
+              				break;
+              			}
+              		}
+              	}
+             
+             	e.addMustClock(locs);
 			}
 	}
       
