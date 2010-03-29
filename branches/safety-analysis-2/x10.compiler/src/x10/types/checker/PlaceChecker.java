@@ -31,6 +31,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
+import x10.types.AnnotatedType;
 import x10.types.ClosureType_c;
 import x10.types.X10ClassDef;
 import x10.types.X10Context;
@@ -132,6 +133,7 @@ public class PlaceChecker {
     	return type;
 	}
 	public static Type ReplaceHereByPlaceTerm(Type type, X10Context xct) {
+		Type oldType = (Type) type.copy();
 		if (xct.currentPlaceTerm() == null)
 			assert true;
 		try {
@@ -140,22 +142,27 @@ public class PlaceChecker {
 		} catch (SemanticException z) {
 			throw new InternalError("Unexpectedly inconsistent constraint.");
 		}
-		return type;
+	
+		 if(oldType instanceof AnnotatedType) {
+            AnnotatedType aot = (AnnotatedType) oldType;
+            aot.baseType(type);
+        	return aot;	
+        } 
 		/*CConstraint xclause = X10TypeMixin.xclause(type);
 		if (xclause == null || xclause.valid())
 			return type;
 		xclause = xclause.copy();
-		XConstrainedTerm pt = 
-		try {
-			if (pt != null) {
-				xclause = xclause.substitute(pt.term(), here());
-				//xclause.addIn(xclause.self(), pt.constraint());
-			}
-		} catch (XFailure z) {
-			throw new InternalError("Unexpectedly inconsistent constraint.");
-		}
-		type = X10TypeMixin.constrainedType(X10TypeMixin.baseType(type), xclause);
-		return type;*/
+		//XConstrainedTerm pt = 
+		//try {
+		//	if (pt != null) {
+		//		xclause = xclause.substitute(pt.term(), here());
+		//		//xclause.addIn(xclause.self(), pt.constraint());
+		//	}
+		//} catch (XFailure z) {
+		//	throw new InternalError("Unexpectedly inconsistent constraint.");
+		//}
+		type = X10TypeMixin.constrainedType(X10TypeMixin.baseType(type), xclause);*/
+		return type;
 	}
 	public static Type ReplaceHereByPlaceTerm(Type type, XTerm term) {
 		// Do not replace for closure types. The ! in such types is 
