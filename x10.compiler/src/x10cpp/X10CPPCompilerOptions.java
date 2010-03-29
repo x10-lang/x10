@@ -14,7 +14,6 @@ package x10cpp;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -89,7 +88,7 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 	}
 	
 	private List<String> extraLibOpts = new ArrayList<String>();
-    private List<String> extraIncOpts = new ArrayList<String>();
+	private List<String> extraIncOpts = new ArrayList<String>();
     
 	public List<String> extraLibOpts() { return extraLibOpts; }
 	public List<String> extraIncOpts() { return extraIncOpts; }	
