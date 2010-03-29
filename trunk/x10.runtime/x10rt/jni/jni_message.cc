@@ -95,7 +95,7 @@ static JNIEnv* getEnv() {
         fprintf(stderr, "Failed to attach unattached thread to JavaVM\n");
         abort();
     }
-    fprintf(stderr, "GetEnv failed with return code %d\n", rc);
+    fprintf(stderr, "GetEnv failed with return code %d\n", (int)rc);
     abort();
 
     return NULL;
@@ -589,7 +589,7 @@ void jni_messageReceiver_ZArray(const x10rt_msg_params *msg) {
 
     jbooleanArray arg = env->NewBooleanArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", numElems);
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
         abort();
     }
 
@@ -611,7 +611,7 @@ void jni_messageReceiver_BArray(const x10rt_msg_params *msg) {
     
     jbyteArray arg = env->NewByteArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", numElems);
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
         abort();
     }
 
@@ -633,7 +633,7 @@ void jni_messageReceiver_CArray(const x10rt_msg_params *msg) {
 
     jcharArray arg = env->NewCharArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", numElems);
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
         abort();
     }
 
@@ -655,7 +655,7 @@ void jni_messageReceiver_SArray(const x10rt_msg_params *msg) {
 
     jshortArray arg = env->NewShortArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", numElems);
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
         abort();
     }
 
@@ -677,7 +677,7 @@ void jni_messageReceiver_IArray(const x10rt_msg_params *msg) {
 
     jintArray arg = env->NewIntArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", numElems);
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
         abort();
     }
 
@@ -699,7 +699,7 @@ void jni_messageReceiver_FArray(const x10rt_msg_params *msg) {
 
     jfloatArray arg = env->NewFloatArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", numElems);
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
         abort();
     }
 
@@ -721,7 +721,7 @@ void jni_messageReceiver_JArray(const x10rt_msg_params *msg) {
 
     jlongArray arg = env->NewLongArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", numElems);
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
         abort();
     }
 
@@ -743,7 +743,7 @@ void jni_messageReceiver_DArray(const x10rt_msg_params *msg) {
 
     jdoubleArray arg = env->NewDoubleArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", numElems);
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
         abort();
     }
 
@@ -759,7 +759,7 @@ void jni_messageReceiver_general(const x10rt_msg_params *msg) {
     jint numElems = reader.readJInt();
     jbyteArray arg = env->NewByteArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", numElems);
+        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
         abort();
     }
 
