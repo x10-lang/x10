@@ -32,9 +32,11 @@ import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
+import polyglot.ast.IntLit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
+import polyglot.ast.New;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
@@ -42,6 +44,7 @@ import polyglot.ast.Unary;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -54,7 +57,9 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.util.Pair;
 import polyglot.util.Position;
+import x10.ast.AnnotationNode;
 import x10.ast.Closure;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
@@ -66,6 +71,7 @@ import x10.constraint.XName;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.extension.X10Del;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -294,6 +300,42 @@ public class Synthesizer {
 		return ld;
 	}
 	
+	
+	
+    /**
+     * Create a new local variable with the given flags, with initializer e. 
+     * Return a Pair<LocalDecl, Local>, which includes the statement of the local variable and the reference to the variable
+     * @param pos
+     * @param flags
+     * @param initializer
+     * @param context
+     * @return
+     */
+    public Pair<LocalDecl, Local> makeLocalVar(Position pos, Flags flags, Expr initializer, List<AnnotationNode> annotations, X10Context context) {
+
+        LocalDecl localDecl = null;
+        Local ldRef = null;
+        if (flags == null) {
+            flags = Flags.NONE;
+        }
+        // has been converted to a variable reference.
+        final Type type = initializer.type();
+        if (!xts.typeEquals(type, xts.Void(), context)) {
+            final Name varName = context.getNewVarName();
+            final TypeNode tn = xnf.CanonicalTypeNode(pos, type);
+            final LocalDef li = xts.localDef(pos, flags, Types.ref(type), varName);
+            final Id varId = xnf.Id(pos, varName);
+            localDecl = xnf.LocalDecl(pos, xnf.FlagsNode(pos, flags), tn, varId, initializer).localDef(li);
+            if(annotations != null && annotations.size() > 0){
+                localDecl = (LocalDecl)((X10Del) localDecl.del()).annotations(annotations); 
+            }
+            ldRef = (Local) xnf.Local(pos, varId).localInstance(li.asInstance()).type(type);
+
+        }
+        return new Pair<LocalDecl, Local>(localDecl, ldRef);
+
+    }
+	
 	/**
 	 * Create a new local variable with the given flags, with initializer e. Add the variable declaration to stmtList.
 	 * Return a reference to the variable.
@@ -346,6 +388,44 @@ public class Synthesizer {
 		 return result;
 	}
 	
+	/**
+	 * Make a field access for ((SuperType)r).name
+	 * Current X10 type system doesn't support find a field from its super type
+	 * @param pos
+	 * @param superType
+	 * @param r
+	 * @param name
+	 * @param context
+	 * @return
+	 * @throws SemanticException
+	 */
+	public Expr makeSuperTypeFieldAccess(Position pos, Type superType, Receiver r, Name name, X10Context context) throws SemanticException {
+            FieldInstance fi = xts.findField(superType, xts.FieldMatcher(superType, name, context));
+            Expr result = xnf.Field(pos, r, xnf.Id(pos, name)).fieldInstance(fi)
+            .type(fi.type());
+            return result;
+	}
+	
+    /**
+     * Make a field assign, leftReceier.leftName = rightExpr;
+     * @param pos
+     * @param leftReceiver
+     * @param leftName
+     * @param rightExpr
+     * @param context
+     * @return
+     * @throws SemanticException
+     */
+    public Expr makeFieldAssign(Position pos, Receiver leftReceiver, Name leftName, Expr rightExpr, X10Context context)
+            throws SemanticException {
+        Field field = makeStaticField(pos, leftReceiver.type(), leftName, xts.Int(), context);
+        // assign
+        Expr assign = xnf.FieldAssign(pos, leftReceiver, xnf.Id(pos, leftName), Assign.ASSIGN, rightExpr)
+                .fieldInstance(field.fieldInstance()).type(rightExpr.type());
+
+        return assign;
+    }
+
 	/**
 	 * Make a field to field assign: leftReceiver.leftName = rightReceiver.rightName
 	 * @param pos
@@ -839,6 +919,44 @@ public class Synthesizer {
         return (X10ClassDecl)cDecl.classDef(cDef).body(cb.members(cm));
     }
     
+    /**
+     * According to the input parameters, create a new instance of the type classDef
+     * 
+     * @param pos
+     * @param classDef The class def
+     * @param args expressions or values of the input parameters
+     * @param annotations annotation of the new instance, could be null
+     * @param context
+     * @return the expression of the new instance
+     * @throws SemanticException
+     */
+    public Expr makeNewInstance(Position pos, X10ClassDef classDef, List<Type> formalTypes, List<Expr> args, List<AnnotationNode> annotations,
+                                X10Context context) throws SemanticException {
+
+        //It's possible we need use formal types to look for the constructor
+        //not from the input expressions
+        
+        // Prepare args' type
+        Type classType = classDef.asType();
+
+        ConstructorDef constructorDef = xts.findConstructor(classType, // receiver's
+                                                                       // type
+                                                            xts.ConstructorMatcher(classType, formalTypes, context))
+                .def();
+
+
+        ConstructorInstance constructorIns = constructorDef.asInstance();
+
+        New aNew = xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(classType)), args);
+        // Add annotations to New
+        if (annotations != null && annotations.size() > 0) {
+            aNew = (New) ((X10Del) aNew.del()).annotations(annotations);
+        }
+        Expr construct = aNew.constructorInstance(constructorIns).type(classType);
+
+        return construct;
+    }
+    
     
     /**
      * Create a formal from given type/name/flags
@@ -850,10 +968,26 @@ public class Synthesizer {
      */
     public Formal createFormal(Position pos, Type formalType, Name formalName, Flags formalFlags){
         LocalDef ldef = xts.localDef(pos, formalFlags, Types.ref(formalType), formalName);
-        Expr ref = xnf.Local(pos, xnf.Id(pos, formalName)).localInstance(ldef.asInstance()).type(formalType);
         Formal f = xnf.Formal(pos, xnf.FlagsNode(pos, formalFlags), 
                 xnf.CanonicalTypeNode(pos, formalType), 
                 xnf.Id(pos, formalName)).localDef(ldef);
+        return f;
+    }
+    
+    /**
+     * Create a formal from a given local def
+     * @param localDef the local def
+     * @return the formal corresponding to the local
+     */
+    public Formal createFormal(LocalDef localDef){
+        Position pos = localDef.position();
+        Flags formalFlags = localDef.flags();
+        Type formalType = localDef.type().get();
+        Name formalName = localDef.name();
+        Formal f = xnf.Formal(pos,
+                              xnf.FlagsNode(pos, formalFlags), 
+                              xnf.CanonicalTypeNode(pos, formalType), 
+                              xnf.Id(pos, formalName)).localDef(localDef);
         return f;
     }
 
