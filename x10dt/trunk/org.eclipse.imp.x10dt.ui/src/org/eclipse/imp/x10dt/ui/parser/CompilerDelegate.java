@@ -41,7 +41,10 @@ import polyglot.frontend.Source;
 import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.main.UsageError;
+import polyglot.util.AbstractErrorQueue;
+import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
+import polyglot.util.Position;
 import polyglot.util.SilentErrorQueue;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -52,12 +55,18 @@ public class CompilerDelegate {
 
     private final IJavaProject fX10Project;
 
-    CompilerDelegate(Monitor monitor, IMessageHandler handler, IProject project) {
+    CompilerDelegate(Monitor monitor, final IMessageHandler handler, IProject project) {
         this.fX10Project= (project != null) ? JavaCore.create(project) : null;
 
         fExtInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapter(handler));
         buildOptions(fExtInfo);
-        ErrorQueue eq= new SilentErrorQueue(100, "stderr");
+       // ErrorQueue eq= new SilentErrorQueue(100, "stderr");
+        ErrorQueue eq = new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
+            protected void displayError(ErrorInfo error) {
+            	Position pos = error.getPosition();
+                handler.handleSimpleMessage(error.getMessage(), pos.offset(), pos.endOffset(), pos.column(), pos.endColumn(), pos.line(), pos.endLine());
+            }
+        };
         fCompiler = new polyglot.frontend.Compiler(fExtInfo, eq);
     	Globals.initialize(fCompiler); //PORT1.7 must initialize before jobs/goals are added to queue (change for Polyglot v3)
         Report.setQueue(eq);
