@@ -380,12 +380,11 @@ public class X10Builder extends IncrementalProjectBuilder {
 
         for(Iterator<IPath> iter= pathList.iterator(); iter.hasNext();) {
             IPath path= iter.next();
-
-            if (wsLoc.isPrefixOf(path)) {
-            	buff.append(wsLoc.append(path).toOSString());
-            } else {
+            if (path.isAbsolute()){
             	buff.append(path.toOSString());
-            }
+            } else { //if (!wsLoc.isPrefixOf(path)) {
+            	buff.append(wsLoc.append(path).toOSString());
+            } 
             if (iter.hasNext())
                 buff.append(File.pathSeparatorChar);
         }
@@ -405,7 +404,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             IClasspathEntry e= classPath[i];
 
             if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
-                srcPath.add(e.getPath());
+                srcPath.add(e.getPath().makeRelative());
             else if (e.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
             	//PORT1.7 Compiler needs to see X10 source for all referenced compilation units,
             	// so add source path entries of referenced projects to this project's sourcepath.
