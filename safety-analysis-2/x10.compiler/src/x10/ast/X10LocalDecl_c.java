@@ -162,7 +162,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		Type type = type().type();
-        Type oldType = (Type) type.copy();
+     
         /*if (oldType instanceof AnnotatedType) {
         	 ((AnnotatedType) type).annotations(((AnnotatedType) oldType).annotations());
         }*/
@@ -170,7 +170,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
 	
 	    Ref<Type> r =  (Ref<Type>) type().typeRef();
-	  //  r.update(type); /*FIXME */
+	    r.update(type); /*FIXME */
 	    
         
 	    if (type.isVoid())

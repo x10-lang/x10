@@ -72,12 +72,10 @@ public class KMeans {
                } // end for 
             next;  // Main activity waits for all the activities to finish
             for ((k) in 0..K-1) {
-            		
-                     // redCluster(k) = Rail.make[Double](DIM, (i:int) => (redClusterK(i)/count(k)));
                      var j: Int;
             			for (j = 0; j <= DIM-1; j++) {
             			   val redClusterK = redCluster(k) as Rail[Double]!;
-            			   redClusterK(i) = redClusterK(j)/count(k);
+            			   redClusterK(j) = redClusterK(j)/count(k);
             			}
                       }
            

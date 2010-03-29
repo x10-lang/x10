@@ -1508,7 +1508,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                   return t;
               CConstraint c = (CConstraint) at.annotations().get(0);
               return X10TypeMixin.xclause(ebase, c);*/
+        	//AnnotatedType rt = (AnnotatedType) t.copy();
+        	
             return expandMacros(((AnnotatedType) t).baseType());
+            //rt.baseType(et);
+            //return rt;
         }
         if (t instanceof MacroType)
             return expandMacros(((MacroType) t).definedType());
