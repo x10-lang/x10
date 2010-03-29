@@ -691,37 +691,35 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // process annotations relating to additional h/c++ files
         X10Ext ext = (X10Ext) n.ext();
         try {
-        	String path = new File(n.position().file()).getParent();
-        	if (path==null) path = ""; else path = path + File.separator;
-        	List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
-        	for (Type at : as) {
-				ASTQuery.assertNumberOfInitializers(at, 1);
-				String include = getStringPropertyInit(at, 0);
-				if (new File(path+include).exists()) {
-					h.write("#include \""+path+include+"\""); h.newline();
-				} else {
-					h.write("#include <"+include+">"); h.newline();
-				}
-			}
-        	as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPCompilationUnit")));
-        	for (Type at : as) {
-				ASTQuery.assertNumberOfInitializers(at, 1);
-				String compilation_unit = getStringPropertyInit(at, 0);
-				tr.job().compiler().outputFiles().add(path+compilation_unit);
-			}
-        	X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
-        	as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPIncludeOpt")));
-        	for (Type at : as) {
-				ASTQuery.assertNumberOfInitializers(at, 1);
-				String str = getStringPropertyInit(at, 0);
-				opts.extraIncOpts().add(str);
-			}
-        	as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPLibOpt")));
-        	for (Type at : as) {
-				ASTQuery.assertNumberOfInitializers(at, 1);
-				String str = getStringPropertyInit(at, 0);
-				opts.extraLibOpts().add(str);
-			}
+            X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+            String path = new File(n.position().file()).getParent();
+            if (path==null) path = ""; else path = path + File.separator;
+            List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
+            for (Type at : as) {
+                ASTQuery.assertNumberOfInitializers(at, 1);
+                String include = getStringPropertyInit(at, 0);
+                h.write("#include <"+include+">"); h.newline();
+                if (!opts.extraIncOpts().contains("-I"+path))
+                    opts.extraIncOpts().add("-I"+path);
+            }
+            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPCompilationUnit")));
+            for (Type at : as) {
+                ASTQuery.assertNumberOfInitializers(at, 1);
+                String compilation_unit = getStringPropertyInit(at, 0);
+                tr.job().compiler().outputFiles().add(path+compilation_unit);
+            }
+            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPIncludeOpt")));
+            for (Type at : as) {
+                ASTQuery.assertNumberOfInitializers(at, 1);
+                String str = getStringPropertyInit(at, 0);
+                opts.extraIncOpts().add(str);
+            }
+            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPLibOpt")));
+            for (Type at : as) {
+                ASTQuery.assertNumberOfInitializers(at, 1);
+                String str = getStringPropertyInit(at, 0);
+                opts.extraLibOpts().add(str);
+            }
         } catch (SemanticException e) {
             assert false : e;
         }
