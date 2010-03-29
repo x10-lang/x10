@@ -80,6 +80,7 @@
                 <include name="*.a"/>
                 <include name="*.la"/>
                 <include name="*.so"/>
+                <include name="*.dylib"/>
                 <include name="*.dll"/>
                 <include name="*.mft"/>
                 <include name="x10*.jar"/>
