@@ -161,7 +161,7 @@ class Subst {
     public
         static Type subst(Type t, XTerm[] y, XRoot[] x) throws SemanticException {
             assert y.length == x.length;
-            
+            Type oldType = (Type) t.copy();
             if (t == null)
                 return null;
             
@@ -196,9 +196,16 @@ class Subst {
                 
                 }
                 
+                Type rt =  X10TypeMixin.xclause(base, c);
                 
+                /*if (oldType instanceof AnnotatedType) {
+                	((AnnotatedType)oldType).baseType(rt);
+                	rt = oldType;
+                	
+                }*/
                 
-                return X10TypeMixin.xclause(base, c);
+                return rt;
+              
             }
 
             
