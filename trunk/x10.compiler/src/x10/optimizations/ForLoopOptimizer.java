@@ -74,11 +74,8 @@ public class ForLoopOptimizer extends ContextVisitor {
 	 public Node visitForLoop(ForLoop_c loop) throws SemanticException {
 		    Synthesizer syn = new Synthesizer(xnf, xts);
 			Type domainType = loop.domainType();
-			XVar var = XTerms.makeEQV("self");
-			Type regionType =  syn.addRankConstraint(xts.Region(), var, 1, xts);
-			regionType = syn.addRectConstraint(regionType, var);
-			X10TypeMixin.setSelfVar(regionType, var);
-			
+	        Type regionType = syn.addRankConstraintToSelf(xts.Region(), 1, xts);
+	        regionType = syn.addRectConstraintToSelf(regionType);
 			
 			if (xts.isSubtype(domainType, regionType, context())) {
 				// Now check if domain is actually a RegionMaker, i.e. a parsing of e1..e2
