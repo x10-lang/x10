@@ -85,7 +85,7 @@ public class KMeans {
         
         } // end for
          
-       //for ((k) in 0..K-1) this.print(redCluster(k));
+       for ((k) in 0..K-1) this.print(redCluster(k));
        
     }
   

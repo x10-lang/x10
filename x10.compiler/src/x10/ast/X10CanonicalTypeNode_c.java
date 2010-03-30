@@ -41,6 +41,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.extension.X10Del;
+import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -106,14 +107,16 @@ AddFlags {
 
 	// Expand, and transfer flags from the type node to the type.
 	Type t = Types.get(type);
-	
+	Type oldType = (Type) t.copy();
 	t = ts.expandMacros(t);
 	Type xt =  t;
 	if (flags != null) {
 		xt = X10TypeMixin.processFlags(X10Flags.toX10Flags(flags), xt);
 		flags = null;
 	}
-	((Ref<Type>) type).update(xt); 
+	 if(oldType instanceof AnnotatedType)
+     	t = ts.AnnotatedType(xt.position(), xt, ((AnnotatedType) oldType).annotations());
+	((Ref<Type>) type).update(t); 
 	
 	
 	

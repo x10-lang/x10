@@ -33,6 +33,8 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.InvalidParameter;
+import x10.types.AnnotatedType;
+import x10.types.AnnotatedType;
 import x10.types.ParameterType;
 import x10.types.X10Context;
 import x10.types.X10ProcedureDef;
@@ -169,13 +171,15 @@ public class Matcher {
 	        final ParameterType[] X = new ParameterType[typeFormals.size()];
 	        final Type[] Y = new Type[typeFormals.size()];
 	        for (int i = 0; i < typeFormals.size(); i++) {
-	            Type xtype = xts.expandMacros(typeFormals.get(i));
+	        	Type xtype = xts.expandMacros(typeFormals.get(i));
+	        	Type oldType = (Type) typeActuals.get(i).copy();
 	            Y[i] = xts.expandMacros(typeActuals.get(i));
-	           
+	            ;
 	            // TODO: should enforce this statically
-	            assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " 
-	            + (xtype != null ? xtype.getClass().getName() : "null");
+	           // broken assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " 
+	           // + (xtype != null ? xtype.getClass().getName() : "null");
 	            X[i] = (ParameterType) xtype;
+	           
 	        }
 
 

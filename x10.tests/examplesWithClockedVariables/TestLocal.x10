@@ -10,7 +10,7 @@ public class TestLocal{
     val op = int.+;
  
     val a: int @ Clocked[int](c, op);
-    async { a = 5;}
+    async clocked(c){ a = 5;}
     
   
   }

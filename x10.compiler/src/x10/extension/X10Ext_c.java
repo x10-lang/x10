@@ -654,7 +654,7 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
                   Locs locs= computeLocFor(c, ec);
 		  registeredClocks.add(locs);
        }
-      System.out.println(async.position() + ": Async is " + bodyEff);
+      System.out.println(async.position() + ":Body of async is " + bodyEff);
       for (Locs mc: bodyEff.mustClockSet()) {
     	  	boolean found = false;
       		for (Locs rc: registeredClocks) {
@@ -688,7 +688,8 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
       		}
       		if (found == false)
       			ec.emitMessage( mc + " is not in registered clocks of async", fe.position());
-      }		
+      }
+      System.out.println(fe.position() + ": ForEach is " + bodyEff);
       return bodyEff.makeParSafe();
   	}
 
