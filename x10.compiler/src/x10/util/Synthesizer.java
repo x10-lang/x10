@@ -311,7 +311,7 @@ public class Synthesizer {
      * @param context
      * @return
      */
-    public Pair<LocalDecl, Local> makeLocalVar(Position pos, Flags flags, Expr initializer, List<AnnotationNode> annotations, X10Context context) {
+    public Pair<LocalDecl, Local> makeLocalVarWithAnnotation(Position pos, Flags flags, Expr initializer, List<AnnotationNode> annotations, X10Context context) {
 
         LocalDecl localDecl = null;
         Local ldRef = null;
