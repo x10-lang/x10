@@ -79,6 +79,7 @@ import x10.types.X10Context_c;
 import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
+import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -591,6 +592,37 @@ public class Synthesizer {
 		
 	}
 	
+    /**
+     * Make a instance call: ((superType)receiver).name(args)
+     * It's different with the makeInstaceCall in the case the method is in super class, not in the receiver's type
+     * @param pos the position
+     * @param superType the super-type which contains the method
+     * @param receiver the instance it self
+     * @param name methodName
+     * @param typeArgsN type nodes for the method
+     * @param args arguments
+     * @param returnType return type
+     * @param argTypes arguments' type
+     * @param xc
+     * @return
+     * @throws SemanticException
+     */
+    public Call makeSuperTypeInstanceCall(Position pos, Type superType, Receiver receiver, Name name, List<TypeNode> typeArgsN,
+                                       List<Expr> args, Type returnType, List<Type> argTypes, X10Context xc)
+            throws SemanticException {
+
+        List<Type> typeArgs = new ArrayList<Type>();
+        for (TypeNode t : typeArgsN)
+            typeArgs.add(t.type());
+        MethodInstance mi = xts.findMethod(superType, xts.MethodMatcher(superType, name, typeArgs,
+                                                                              argTypes, xc));
+        Call result = (Call) xnf.X10Call(pos, receiver, xnf.Id(pos, name), typeArgsN, args).methodInstance(mi)
+                .type(returnType);
+        return result;
+
+    }
+	
+	
 	public Call makeInstanceCall(Position pos, 
 			Receiver receiver, 
 			Name name,
@@ -1057,41 +1089,29 @@ public class Synthesizer {
        
         Stmt s = makeSuperCallStatement(p, cDecl, parmName, parmType, parmFlags, context);                   
         return addClassConstructor(p, cDecl, parmName, parmType, parmFlags, Collections.singletonList(s), context);
-    }	
-	/**
-     * Create a method decl.
-     * @param cDecl
+    }
+    
+    
+    
+    /**
+     * Create a method def in a class def
+     * @param p
+     * @param classDef
      * @param flag
      * @param returnType
-     * @param name 
+     * @param name
      * @param formals
      * @param throwTypes
-     * @param body
-     * @return X10ClassDecl
-     * @throws SemanticException 
-     */ 
-    public X10ClassDecl addClassMethod(Position p, 
-            X10ClassDecl cDecl, 
-            Flags flag,
-            Type returnType, 
-            Name name,
-            List<Formal> formals,
-            List<Type> throwTypes,
-            Block body) throws SemanticException {
-        
-        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
-        
-        // Method Decl
-        List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
-        for (Type t : throwTypes) {
-            throwTypeNodes.add(xnf.CanonicalTypeNode(p, t));
-        }
-        FlagsNode flagNode = xnf.FlagsNode(p, flag);
-        TypeNode returnTypeNode = xnf.CanonicalTypeNode(p, returnType);
-        
-        MethodDecl mDecl = xnf.MethodDecl(p, flagNode, returnTypeNode, xnf.Id(p, name), 
-                formals, throwTypeNodes, body);
-        // Method def
+     * @return
+     */
+    public X10MethodDef createMethodDef(Position p, X10ClassDef classDef,
+                                       Flags flag,
+                                       Type returnType,
+                                       Name name,
+                                       List<Formal> formals,
+                                       List<Type> throwTypes
+                                       ){
+       // Method def
         List<Ref<? extends Type>> formalTypeRefs = new ArrayList<Ref<? extends Type>>();
         List<Ref<? extends Type>> throwTypeRefs = new ArrayList<Ref<? extends Type>>();
         for (Formal f : formals) {
@@ -1100,17 +1120,47 @@ public class Synthesizer {
         for (Type t : throwTypes) {
             throwTypeRefs.add(Types.ref(t));
         }
-        MethodDef mDef = xts.methodDef(p, 
-                Types.ref(cDef.asType()),                
+        X10MethodDef mDef = (X10MethodDef) xts.methodDef(p, 
+                Types.ref(classDef.asType()),                
                 flag, 
                 Types.ref(returnType), 
                 name, 
                 formalTypeRefs, 
                 throwTypeRefs);
-        mDecl = mDecl.methodDef(mDef); //Need set the method def to the method instance
-        // Add to Class
+        classDef.addMethod(mDef);
+        return mDef;
+    }
+    
+
+    /**
+     * Create a method decl with a given mDef. The mDef is in cDecl.classDef() yet
+     * @param cDecl
+     * @param mDef
+     * @param formals
+     * @param body
+     * @return
+     * @throws SemanticException
+     */
+    public X10ClassDecl addClassMethod(X10ClassDecl cDecl, 
+                                       X10MethodDef mDef,
+                                       List<Formal> formals,
+            Block body) throws SemanticException {
         
-        cDef.addMethod(mDef);
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+        Position p = mDef.position();
+        // Method Decl
+        List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
+        for (Ref<? extends Type> t : mDef.throwTypes()) {
+            throwTypeNodes.add(xnf.CanonicalTypeNode(p, t.get()));
+        }
+        FlagsNode flagNode = xnf.FlagsNode(p, mDef.flags());
+        TypeNode returnTypeNode = xnf.CanonicalTypeNode(p, mDef.returnType());
+        
+        MethodDecl mDecl = xnf.MethodDecl(p, flagNode, returnTypeNode, xnf.Id(p, mDef.name()), 
+                formals, throwTypeNodes, body);
+
+        mDecl = mDecl.methodDef(mDef); //Need set the method def to the method instance
+
         List<ClassMember> cm = new ArrayList<ClassMember>();
         cm.addAll(cDecl.body().members());
         cm.add(mDecl);
