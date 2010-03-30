@@ -508,10 +508,10 @@ public class Emitter {
 		return returnType != null ? returnType : from.returnType();
 	}
 
-	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
-		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify);
+	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify, boolean inlineDirective) {
+		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify, inlineDirective);
 	}
-	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, boolean qualify) {
+	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, boolean qualify, boolean inlineDirective) {
 		X10Flags flags = X10Flags.toX10Flags(n.flags().flags());
 		X10MethodDef def = (X10MethodDef) n.methodDef();
 		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
@@ -522,6 +522,10 @@ public class Emitter {
 
 		if (qualify) {
 			printTemplateSignature(((X10ClassType)n.methodDef().container().get()).typeArguments(), h);
+		}
+		
+		if (inlineDirective) {
+		    h.write("inline ");
 		}
 
 		printTemplateSignature(toTypeList(def.typeParameters()), h);

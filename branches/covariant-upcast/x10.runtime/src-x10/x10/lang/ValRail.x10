@@ -52,8 +52,8 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "#0.apply(#1)")
-    @Native("c++", "(*#0)[#1]")
+    @Native("java", "(#0).apply(#1)")
+    @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
     public global native safe def apply(i: Int): T;
     
@@ -62,7 +62,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      *
      * @return A new iterator instance.
      */
-    @Native("java", "#0.iterator()")
+    @Native("java", "(#0).iterator()")
     @Native("c++", "(#0)->iterator()")
     public global native def iterator(): Iterator[T];
 
@@ -75,7 +75,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      * @return <code>true</code> if <code>this</code> is equal
      * to <code>other</code> and <code>false</code> otherwise.
      */
-    @Native("java", "#0.equals(#1)")
+    @Native("java", "(#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
     public global safe native def equals(other:Any):boolean;
 
