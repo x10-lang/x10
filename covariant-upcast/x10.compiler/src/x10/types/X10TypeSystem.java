@@ -395,9 +395,7 @@ public interface X10TypeSystem extends TypeSystem {
      * @throws SemanticException
      */
     void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException;
-    
-  
-    
+   
     boolean isX10Array(Type me);
     
     Context emptyContext();

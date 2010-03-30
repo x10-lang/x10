@@ -48,6 +48,7 @@ import static x10cpp.visit.SharedVarsMethods.getUniqueId_;
 import static x10cpp.visit.SharedVarsMethods.make_ref;
 import static x10cpp.visit.SharedVarsMethods.refsAsPointers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -224,6 +225,7 @@ import x10.util.ClassifiedStream;
 import x10.util.ClosureSynthesizer;
 import x10.util.StreamWrapper;
 import x10.util.Synthesizer;
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.extension.X10ClassBodyExt_c;
 import x10cpp.types.X10CPPContext_c;
 import x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
@@ -393,7 +395,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     				MethodDecl_c md = (MethodDecl_c) dec;
     				((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
     				sw.pushCurrentStream(h);
-    				emitter.printHeader(md, sw, tr, false);
+    				emitter.printHeader(md, sw, tr, false, false);
     				sw.popCurrentStream();
     				h.write(";");
     				((X10CPPTranslator)tr).setContext(context); // FIXME
@@ -685,6 +687,42 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("#define __"+cguard); h.newline();
         h.forceNewline(0);
         h.write("#include <x10rt.h>"); h.newline();
+        h.forceNewline(0);
+        // process annotations relating to additional h/c++ files
+        X10Ext ext = (X10Ext) n.ext();
+        try {
+            X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+            String path = new File(n.position().file()).getParent();
+            if (path==null) path = ""; else path = path + File.separator;
+            List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
+            for (Type at : as) {
+                ASTQuery.assertNumberOfInitializers(at, 1);
+                String include = getStringPropertyInit(at, 0);
+                h.write("#include <"+include+">"); h.newline();
+                if (!opts.extraIncOpts().contains("-I"+path))
+                    opts.extraIncOpts().add("-I"+path);
+            }
+            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPCompilationUnit")));
+            for (Type at : as) {
+                ASTQuery.assertNumberOfInitializers(at, 1);
+                String compilation_unit = getStringPropertyInit(at, 0);
+                tr.job().compiler().outputFiles().add(path+compilation_unit);
+            }
+            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPIncludeOpt")));
+            for (Type at : as) {
+                ASTQuery.assertNumberOfInitializers(at, 1);
+                String str = getStringPropertyInit(at, 0);
+                opts.extraIncOpts().add(str);
+            }
+            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPLibOpt")));
+            for (Type at : as) {
+                ASTQuery.assertNumberOfInitializers(at, 1);
+                String str = getStringPropertyInit(at, 0);
+                opts.extraLibOpts().add(str);
+            }
+        } catch (SemanticException e) {
+            assert false : e;
+        }
         h.forceNewline(0);
 
         g.write("#ifndef "+cguard+"_GENERICS"); g.newline();
@@ -1805,11 +1843,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type ret_type = emitter.findRootMethodReturnType(def, dec.position(), mi);
 		String methodName = mi.name().toString();
 		
-        boolean inlined = false;
+        boolean inlineInClassDecl = false;
+        boolean inlineDirective = false;
         try {
             Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Inline"));
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
-                inlined = true;
+                if (container.x10Def().typeParameters().size() == 0) {
+                    inlineInClassDecl = true;
+                } else {
+                    inlineDirective = true;
+                }
             }
         } catch (SemanticException e) { 
             /* Ignore exception when looking for annotation */  
@@ -1817,15 +1860,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // Attempt to make it easy for the post compiler to inline trivial struct methods
         // by putting them in the h stream instead of the sw stream whenever possible. 
         // Don't bother doing this for generic structs the body stream is already in the header file.
-        if (!inlined && container.isX10Struct() && def.typeParameters().size() == 0) {
+        if (!inlineInClassDecl && container.isX10Struct() && container.x10Def().typeParameters().size() == 0) {
             StructMethodAnalyzer analyze = new StructMethodAnalyzer(tr.job(), xts, tr.nodeFactory(), container);
             dec.visit(analyze.begin());
-            inlined = analyze.canGoInHeaderStream();
+            inlineInClassDecl = analyze.canGoInHeaderStream();
         }		
 		
         sw.pushCurrentStream(h);
-        emitter.printHeader(dec, sw, tr, methodName, ret_type, false);
-        if (!inlined) {
+        emitter.printHeader(dec, sw, tr, methodName, ret_type, false, false);
+        if (!inlineInClassDecl) {
             sw.popCurrentStream();
             h.write(";");
             h.newline();
@@ -1837,8 +1880,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						Types.ref(container), Name.make(THIS)).asInstance();
 				context.addVariable(ti);
 			}
-			if (!inlined) {
-			    emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
+			if (!inlineInClassDecl) {
+			    emitter.printHeader(dec, sw, tr, methodName, ret_type, true, inlineDirective);
 			}
 			dec.printSubStmt(dec.body(), sw, tr);
 			sw.newline();
@@ -1849,8 +1892,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				if (fi != null) {
 					//assert (X10Flags.toX10Flags(fi.flags()).isProperty()); // FIXME: property fields don't seem to have the property flag set
 					// This is a property method in an interface.  Give it a body.
-				    if (!inlined) {
-				        emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
+				    if (!inlineInClassDecl) {
+				        emitter.printHeader(dec, sw, tr, methodName, ret_type, true, inlineDirective);
 				    }
 					sw.write(" {");
 					sw.allowBreak(0, " ");
@@ -1861,7 +1904,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 		}
 		
-		if (inlined) {
+		if (inlineInClassDecl) {
 		    sw.popCurrentStream();
 		}
 		
@@ -1894,11 +1937,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    String typeName = Emitter.translateType(container.def().asType());
 	    X10TypeSystem xts = (X10TypeSystem)context.typeSystem();
 
-	    boolean inlined = false;
+	    boolean inlineInClassDecl = false;
 	    try {
 	        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Inline"));
 	        if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
-	            inlined = true;
+	            inlineInClassDecl = true;
 	        }
 	    } catch (SemanticException e) { 
 	        /* Ignore exception when looking for annotation */  
@@ -1906,15 +1949,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    // Attempt to make it easy for the post compiler to inline trivial struct constructors
 	    // by putting them in the h stream instead of the sw stream whenever possible. 
-	    if (!inlined && container.isX10Struct()) {
+	    if (!inlineInClassDecl && container.isX10Struct()) {
 	        StructMethodAnalyzer analyze = new StructMethodAnalyzer(tr.job(), xts, tr.nodeFactory(), container);
 	        dec.visit(analyze.begin());
-	        inlined = analyze.canGoInHeaderStream();
+	        inlineInClassDecl = analyze.canGoInHeaderStream();
 	    }
 
 	    sw.pushCurrentStream(h);
 	    emitter.printHeader(dec, sw, tr, false, false, "void");
-	    if (!inlined) {
+	    if (!inlineInClassDecl) {
 	        h.write(";") ; h.newline();
 	        h.forceNewline();
 	        sw.popCurrentStream();
@@ -2002,7 +2045,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.end(); sw.newline();
 	    sw.write("}");
 	    sw.newline();
-	    if (inlined) {
+	    if (inlineInClassDecl) {
 	        sw.popCurrentStream();
 	    }
 
@@ -3722,16 +3765,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type dType = domain.type();
 		if (Configuration.LOOP_OPTIMIZATIONS &&
 		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
-		        (X10TypeMixin.isRect(dType, context)))
+		        (X10TypeMixin.isRect(dType, context)) &&
+		        (xts.isX10Array(dType) || xts.isDistribution(dType) || xts.isRegion(dType)))
 		{
-		    assert (xts.isPoint(form.type().type()));
-		    assert (xts.isX10Array(dType) || xts.isDistribution(dType) || xts.isRegion(dType));
-
 		    // TODO: move this to the Desugarer
 		    X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
 		    if (xts.isX10Array(dType)) {
 		        Position pos = domain.position();
-		        FieldInstance fDist = dType.toClass().fieldNamed(Name.make("dist"));
+		        FieldInstance fDist = null;
+		        while (true) {
+		            fDist = dType.toClass().fieldNamed(Name.make("dist"));
+		            if (fDist != null) break;
+		            dType = dType.toClass().superClass();
+		        } 
 		        dType = fDist.type();
 		        domain = xnf.Field(pos, domain, xnf.Id(pos, Name.make("dist"))).fieldInstance(fDist).type(dType);
 		    }

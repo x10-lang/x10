@@ -1610,7 +1610,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public boolean isX10Array(Type me) {
-        return hasSameClassDef(me, Array());
+        if (hasSameClassDef(me, Array())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isX10Array(parent);
+        } else {
+            return false;
+        }
     }
 
     public boolean isTypeConstrained(Type me) {

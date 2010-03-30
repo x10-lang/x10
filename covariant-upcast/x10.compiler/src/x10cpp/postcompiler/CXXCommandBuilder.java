@@ -21,11 +21,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import polyglot.main.Options;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.QuotedStringTokenizer;
 import x10cpp.Configuration;
 import x10cpp.X10CPPCompilerOptions;
@@ -47,15 +49,17 @@ public class CXXCommandBuilder {
             return l;
         }
         
-        public X10RTPostCompileOptions (ErrorQueue eq, String filename) {
+        public X10RTPostCompileOptions(String filename) {
             Properties properties = new Properties();
             try {
                 properties.load(new FileInputStream(filename));
             } catch(IOException e) {
-                eq.enqueue(ErrorInfo.IO_ERROR, "Error finding X10RT properties file: "+ e.getMessage());
+                // [DC] proceeding from here will just yield a load of incomprehensible postcompile errors
+                throw new InternalCompilerError(
+                        "Error finding X10RT properties file: "+ e.getMessage(), e);
             }                
             String s = properties.getProperty("CXX");
-            cxx = s==null ? "g++" : s; //fallback if above error occured or CXX not given in properties file
+            cxx = s==null ? "g++" : s; //fallback if CXX not given in properties file
             String regex = " +";
             cxxFlags = split(properties.getProperty("CXXFLAGS"));
             libs     = split(properties.getProperty("LDLIBS"));
@@ -94,7 +98,7 @@ public class CXXCommandBuilder {
         if (!rtimpl.endsWith(".properties")) {
             rtimpl = X10_DIST + "/etc/x10rt_"+rtimpl+".properties";
         }
-        x10rtOpts = new X10RTPostCompileOptions(eq, rtimpl);
+        x10rtOpts = new X10RTPostCompileOptions(rtimpl);
     }
 
     /** Is GC enabled on this platform? */
@@ -112,6 +116,7 @@ public class CXXCommandBuilder {
         cxxCmd.add("-I"+X10_DIST+"/include");
         
         // headers generated from user input
+        cxxCmd.add("-I"+options.output_directory);
         cxxCmd.add("-I.");
 
         if (!Configuration.DISABLE_GC && gcEnabled()) {
@@ -129,6 +134,10 @@ public class CXXCommandBuilder {
             }
         }
         
+        for (String opt : options.extraIncOpts()) {
+            cxxCmd.add(opt);
+        }
+
         if (x10.Configuration.NO_CHECKS) {
             cxxCmd.add("-DNO_CHECKS");
         }
@@ -150,6 +159,10 @@ public class CXXCommandBuilder {
 
         cxxCmd.addAll(x10rtOpts.ldFlags);
         cxxCmd.addAll(x10rtOpts.libs);
+        
+        for (String opt : options.extraLibOpts()) {
+            cxxCmd.add(opt);
+        }
 
         cxxCmd.add("-ldl");
         cxxCmd.add("-lm");

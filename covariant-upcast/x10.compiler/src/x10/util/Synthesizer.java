@@ -32,9 +32,11 @@ import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
+import polyglot.ast.IntLit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
+import polyglot.ast.New;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
@@ -42,6 +44,7 @@ import polyglot.ast.Unary;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -54,7 +57,9 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.util.Pair;
 import polyglot.util.Position;
+import x10.ast.AnnotationNode;
 import x10.ast.Closure;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
@@ -66,6 +71,7 @@ import x10.constraint.XName;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.extension.X10Del;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -73,6 +79,7 @@ import x10.types.X10Context_c;
 import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
+import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -220,6 +227,18 @@ public class Synthesizer {
 			return X10TypeMixin.addBinding(type, v, rank);
 		 
 	 }
+	 public Type addRankConstraintToSelf(Type type,  int n, X10TypeSystem ts) {
+		 XVar receiver = X10TypeMixin.self(type);
+		 if (receiver == null) {
+			 CConstraint c = new CConstraint_c();
+			 type = X10TypeMixin.xclause(type, c);
+			 receiver = c.self();
+		 }
+		 XTerm v = makeRegionRankTerm(receiver);
+		 XTerm rank = XTerms.makeLit(new Integer(n));
+		 return X10TypeMixin.addBinding(type, v, rank);
+
+	 }
 	 
 	 /**
 	  * If formal = p(x) construct
@@ -282,6 +301,42 @@ public class Synthesizer {
 		return ld;
 	}
 	
+	
+	
+    /**
+     * Create a new local variable with the given flags, with initializer e. 
+     * Return a Pair<LocalDecl, Local>, which includes the statement of the local variable and the reference to the variable
+     * @param pos
+     * @param flags
+     * @param initializer
+     * @param context
+     * @return
+     */
+    public Pair<LocalDecl, Local> makeLocalVarWithAnnotation(Position pos, Flags flags, Expr initializer, List<AnnotationNode> annotations, X10Context context) {
+
+        LocalDecl localDecl = null;
+        Local ldRef = null;
+        if (flags == null) {
+            flags = Flags.NONE;
+        }
+        // has been converted to a variable reference.
+        final Type type = initializer.type();
+        if (!xts.typeEquals(type, xts.Void(), context)) {
+            final Name varName = context.getNewVarName();
+            final TypeNode tn = xnf.CanonicalTypeNode(pos, type);
+            final LocalDef li = xts.localDef(pos, flags, Types.ref(type), varName);
+            final Id varId = xnf.Id(pos, varName);
+            localDecl = xnf.LocalDecl(pos, xnf.FlagsNode(pos, flags), tn, varId, initializer).localDef(li);
+            if(annotations != null && annotations.size() > 0){
+                localDecl = (LocalDecl)((X10Del) localDecl.del()).annotations(annotations); 
+            }
+            ldRef = (Local) xnf.Local(pos, varId).localInstance(li.asInstance()).type(type);
+
+        }
+        return new Pair<LocalDecl, Local>(localDecl, ldRef);
+
+    }
+	
 	/**
 	 * Create a new local variable with the given flags, with initializer e. Add the variable declaration to stmtList.
 	 * Return a reference to the variable.
@@ -334,6 +389,44 @@ public class Synthesizer {
 		 return result;
 	}
 	
+	/**
+	 * Make a field access for ((SuperType)r).name
+	 * Current X10 type system doesn't support find a field from its super type
+	 * @param pos
+	 * @param superType
+	 * @param r
+	 * @param name
+	 * @param context
+	 * @return
+	 * @throws SemanticException
+	 */
+	public Expr makeSuperTypeFieldAccess(Position pos, Type superType, Receiver r, Name name, X10Context context) throws SemanticException {
+            FieldInstance fi = xts.findField(superType, xts.FieldMatcher(superType, name, context));
+            Expr result = xnf.Field(pos, r, xnf.Id(pos, name)).fieldInstance(fi)
+            .type(fi.type());
+            return result;
+	}
+	
+    /**
+     * Make a field assign, leftReceier.leftName = rightExpr;
+     * @param pos
+     * @param leftReceiver
+     * @param leftName
+     * @param rightExpr
+     * @param context
+     * @return
+     * @throws SemanticException
+     */
+    public Expr makeFieldAssign(Position pos, Receiver leftReceiver, Name leftName, Expr rightExpr, X10Context context)
+            throws SemanticException {
+        Field field = makeStaticField(pos, leftReceiver.type(), leftName, xts.Int(), context);
+        // assign
+        Expr assign = xnf.FieldAssign(pos, leftReceiver, xnf.Id(pos, leftName), Assign.ASSIGN, rightExpr)
+                .fieldInstance(field.fieldInstance()).type(rightExpr.type());
+
+        return assign;
+    }
+
 	/**
 	 * Make a field to field assign: leftReceiver.leftName = rightReceiver.rightName
 	 * @param pos
@@ -498,6 +591,37 @@ public class Synthesizer {
         return result;
 		
 	}
+	
+    /**
+     * Make a instance call: ((superType)receiver).name(args)
+     * It's different with the makeInstaceCall in the case the method is in super class, not in the receiver's type
+     * @param pos the position
+     * @param superType the super-type which contains the method
+     * @param receiver the instance it self
+     * @param name methodName
+     * @param typeArgsN type nodes for the method
+     * @param args arguments
+     * @param returnType return type
+     * @param argTypes arguments' type
+     * @param xc
+     * @return
+     * @throws SemanticException
+     */
+    public Call makeSuperTypeInstanceCall(Position pos, Type superType, Receiver receiver, Name name, List<TypeNode> typeArgsN,
+                                       List<Expr> args, Type returnType, List<Type> argTypes, X10Context xc)
+            throws SemanticException {
+
+        List<Type> typeArgs = new ArrayList<Type>();
+        for (TypeNode t : typeArgsN)
+            typeArgs.add(t.type());
+        MethodInstance mi = xts.findMethod(superType, xts.MethodMatcher(superType, name, typeArgs,
+                                                                              argTypes, xc));
+        Call result = (Call) xnf.X10Call(pos, receiver, xnf.Id(pos, name), typeArgsN, args).methodInstance(mi)
+                .type(returnType);
+        return result;
+
+    }
+	
 	
 	public Call makeInstanceCall(Position pos, 
 			Receiver receiver, 
@@ -827,6 +951,44 @@ public class Synthesizer {
         return (X10ClassDecl)cDecl.classDef(cDef).body(cb.members(cm));
     }
     
+    /**
+     * According to the input parameters, create a new instance of the type classDef
+     * 
+     * @param pos
+     * @param classDef The class def
+     * @param args expressions or values of the input parameters
+     * @param annotations annotation of the new instance, could be null
+     * @param context
+     * @return the expression of the new instance
+     * @throws SemanticException
+     */
+    public Expr makeNewInstance(Position pos, X10ClassDef classDef, List<Type> formalTypes, List<Expr> args, List<AnnotationNode> annotations,
+                                X10Context context) throws SemanticException {
+
+        //It's possible we need use formal types to look for the constructor
+        //not from the input expressions
+        
+        // Prepare args' type
+        Type classType = classDef.asType();
+
+        ConstructorDef constructorDef = xts.findConstructor(classType, // receiver's
+                                                                       // type
+                                                            xts.ConstructorMatcher(classType, formalTypes, context))
+                .def();
+
+
+        ConstructorInstance constructorIns = constructorDef.asInstance();
+
+        New aNew = xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(classType)), args);
+        // Add annotations to New
+        if (annotations != null && annotations.size() > 0) {
+            aNew = (New) ((X10Del) aNew.del()).annotations(annotations);
+        }
+        Expr construct = aNew.constructorInstance(constructorIns).type(classType);
+
+        return construct;
+    }
+    
     
     /**
      * Create a formal from given type/name/flags
@@ -838,10 +1000,26 @@ public class Synthesizer {
      */
     public Formal createFormal(Position pos, Type formalType, Name formalName, Flags formalFlags){
         LocalDef ldef = xts.localDef(pos, formalFlags, Types.ref(formalType), formalName);
-        Expr ref = xnf.Local(pos, xnf.Id(pos, formalName)).localInstance(ldef.asInstance()).type(formalType);
         Formal f = xnf.Formal(pos, xnf.FlagsNode(pos, formalFlags), 
                 xnf.CanonicalTypeNode(pos, formalType), 
                 xnf.Id(pos, formalName)).localDef(ldef);
+        return f;
+    }
+    
+    /**
+     * Create a formal from a given local def
+     * @param localDef the local def
+     * @return the formal corresponding to the local
+     */
+    public Formal createFormal(LocalDef localDef){
+        Position pos = localDef.position();
+        Flags formalFlags = localDef.flags();
+        Type formalType = localDef.type().get();
+        Name formalName = localDef.name();
+        Formal f = xnf.Formal(pos,
+                              xnf.FlagsNode(pos, formalFlags), 
+                              xnf.CanonicalTypeNode(pos, formalType), 
+                              xnf.Id(pos, formalName)).localDef(localDef);
         return f;
     }
 
@@ -911,41 +1089,29 @@ public class Synthesizer {
        
         Stmt s = makeSuperCallStatement(p, cDecl, parmName, parmType, parmFlags, context);                   
         return addClassConstructor(p, cDecl, parmName, parmType, parmFlags, Collections.singletonList(s), context);
-    }	
-	/**
-     * Create a method decl.
-     * @param cDecl
+    }
+    
+    
+    
+    /**
+     * Create a method def in a class def
+     * @param p
+     * @param classDef
      * @param flag
      * @param returnType
-     * @param name 
+     * @param name
      * @param formals
      * @param throwTypes
-     * @param body
-     * @return X10ClassDecl
-     * @throws SemanticException 
-     */ 
-    public X10ClassDecl addClassMethod(Position p, 
-            X10ClassDecl cDecl, 
-            Flags flag,
-            Type returnType, 
-            Name name,
-            List<Formal> formals,
-            List<Type> throwTypes,
-            Block body) throws SemanticException {
-        
-        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
-        
-        // Method Decl
-        List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
-        for (Type t : throwTypes) {
-            throwTypeNodes.add(xnf.CanonicalTypeNode(p, t));
-        }
-        FlagsNode flagNode = xnf.FlagsNode(p, flag);
-        TypeNode returnTypeNode = xnf.CanonicalTypeNode(p, returnType);
-        
-        MethodDecl mDecl = xnf.MethodDecl(p, flagNode, returnTypeNode, xnf.Id(p, name), 
-                formals, throwTypeNodes, body);
-        // Method def
+     * @return
+     */
+    public X10MethodDef createMethodDef(Position p, X10ClassDef classDef,
+                                       Flags flag,
+                                       Type returnType,
+                                       Name name,
+                                       List<Formal> formals,
+                                       List<Type> throwTypes
+                                       ){
+       // Method def
         List<Ref<? extends Type>> formalTypeRefs = new ArrayList<Ref<? extends Type>>();
         List<Ref<? extends Type>> throwTypeRefs = new ArrayList<Ref<? extends Type>>();
         for (Formal f : formals) {
@@ -954,17 +1120,47 @@ public class Synthesizer {
         for (Type t : throwTypes) {
             throwTypeRefs.add(Types.ref(t));
         }
-        MethodDef mDef = xts.methodDef(p, 
-                Types.ref(cDef.asType()),                
+        X10MethodDef mDef = (X10MethodDef) xts.methodDef(p, 
+                Types.ref(classDef.asType()),                
                 flag, 
                 Types.ref(returnType), 
                 name, 
                 formalTypeRefs, 
                 throwTypeRefs);
-        mDecl = mDecl.methodDef(mDef); //Need set the method def to the method instance
-        // Add to Class
+        classDef.addMethod(mDef);
+        return mDef;
+    }
+    
+
+    /**
+     * Create a method decl with a given mDef. The mDef is in cDecl.classDef() yet
+     * @param cDecl
+     * @param mDef
+     * @param formals
+     * @param body
+     * @return
+     * @throws SemanticException
+     */
+    public X10ClassDecl addClassMethod(X10ClassDecl cDecl, 
+                                       X10MethodDef mDef,
+                                       List<Formal> formals,
+            Block body) throws SemanticException {
         
-        cDef.addMethod(mDef);
+        X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
+        Position p = mDef.position();
+        // Method Decl
+        List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
+        for (Ref<? extends Type> t : mDef.throwTypes()) {
+            throwTypeNodes.add(xnf.CanonicalTypeNode(p, t.get()));
+        }
+        FlagsNode flagNode = xnf.FlagsNode(p, mDef.flags());
+        TypeNode returnTypeNode = xnf.CanonicalTypeNode(p, mDef.returnType());
+        
+        MethodDecl mDecl = xnf.MethodDecl(p, flagNode, returnTypeNode, xnf.Id(p, mDef.name()), 
+                formals, throwTypeNodes, body);
+
+        mDecl = mDecl.methodDef(mDef); //Need set the method def to the method instance
+
         List<ClassMember> cm = new ArrayList<ClassMember>();
         cm.addAll(cDecl.body().members());
         cm.add(mDecl);

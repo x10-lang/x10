@@ -66,12 +66,12 @@ allocation, or a call.
 
 \begin{grammar}
 Statement \: LabeledStatement \\
-LabeledStatement \: Identifier \xcd":" Statement \\
+LabeledStatement \: Identifier \xcd":" LoopStatement \\
 \end{grammar}
 
-Statements may be labeled.  The label may be used as the target
-of a break or continue statement.  The scope of a label is the
-statement labeled.
+Loop statements (\xcd`for`, \xcd`while`, \xcd`do`, \xcd`ateach`,
+\xcd`foreach`) may be labeled. The label may be used as the target of a break
+or continue statement. The scope of a label is the statement labeled.
 
 \section{Break statement}
 
@@ -163,7 +163,8 @@ a \xcd"break" statement.
 
 The index expression must be of type \xcd"Int".
 
-Case labels must be of type \xcd"Int" and must be compile-time
+Case labels must be of type \xcd"Int", \xcd`Byte`, \xcd`Short`, or \xcd`Char`
+and must be compile-time 
 constants.  Case labels cannot be duplicated within the
 \xcd"switch" statement.
 
@@ -212,6 +213,8 @@ ForInit \:
         StatementExpression ( \xcd"," StatementExpression )\star
         \\
       \| LocalVariableDeclaration \\
+ForUpdate \:
+        StatementExpression ( \xcd"," StatementExpression )\star\\
 EnhancedForStatement \: \xcd"for" \xcd"("
         Formal \xcd"in" Expression 
         \xcd")" Statement \\
@@ -220,29 +223,63 @@ EnhancedForStatement \: \xcd"for" \xcd"("
 \Xten{} provides two forms of for statement: a basic for
 statement and an enhanced for statement.
 
-A basic for statement consists of an initializer, a condition, an
-iterator, and a body.  First, the initializer is evaluated.
-The initializer may introduce local variables that are in scope
-throughout the for statement.  An empty initializer is
-permitted.
-Next, the condition is evaluated.  If \xcd"true", the loop body
-is executed; otherwise, the loop exits.
-The condition may be omitted, in which case the condition is
-considered \xcd"true".
-If the loop completes normally (either by reaching the end
-or via a \xcd"continue" statement with the loop header as
-target),
-the iterator is evaluated and then the condition is reevaluated
-and the loop repeats if
-\xcd"true".  If the condition is \xcd"false", the loop
-exits.
+A basic \xcd`for` statement provides for arbitrary iteration in a somewhat
+more organized fashion than a \xcd`while`.  \xcd`for(init; test; step)body` is
+equivalent to: 
+\begin{xten}
+{
+   init;
+   while(test) {
+      body;
+      step;
+   }
+}
+\end{xten}
 
-The condition must be of type \xcd"Boolean".
-The initializer and iterator are statements, not expressions
-and so do not have types.
+\xcd`init` is performed before the loop, and is traditionally used to declare
+and/or initialize the loop variables. It may be a single variable binding
+statement, such as \xcd`var i:Int = 0` or \xcd`var i:Int=0, j:Int=100`. (Note
+that a single variable binding statement may bind multiple variables.)
+Variables introduced by \xcd`init` may appear anywhere in the \xcd`for`
+statement, but not outside of it.  Or, it may be a sequence of expression
+statements, such as \xcd`i=0, j=100`, operating on already-defined variables.
+If omitted, \xcd`init` does nothing.
 
-In X10, unlike C, there is no provision multiple statements in the
-initialization or update clauses.  
+\xcd`test` is a Boolean-valued expression; an iteration of the loop will only
+proceed if \xcd`test` is true at the beginning of the loop, after \xcd`init`
+on the first iteration or or \xcd`step` on later ones. If omitted, \xcd`test`
+defaults to \xcd`true`, giving a loop that will run until stopped by some
+other means such as \xcd`break`, \xcd`return`, or \xcd`throw`.
+
+\xcd`step` is performed after the loop body, between one iteration and the
+next. It traditionally updates the loop variables from one iteration to the
+next: \eg, \xcd`i++` and \xcd`i++,j--`.  If omitted, \xcd`step` does nothing.
+
+\xcd`body` is a statement, often a code block, which is performed whenever
+\xcd`test` is true.  If omitted, \xcd`body` does nothing.
+
+
+%BASICFOR% First, the initializer is evaluated.
+%BASICFOR% The initializer may introduce local variables that are in scope
+%BASICFOR% throughout the for statement.  An empty initializer is
+%BASICFOR% permitted.
+%BASICFOR% Next, the condition is evaluated.  If \xcd"true", the loop body
+%BASICFOR% is executed; otherwise, the loop exits.
+%BASICFOR% The condition may be omitted, in which case the condition is
+%BASICFOR% considered \xcd"true".
+%BASICFOR% If the loop completes normally (either by reaching the end
+%BASICFOR% or via a \xcd"continue" statement with the loop header as
+%BASICFOR% target),
+%BASICFOR% the iterator is evaluated and then the condition is reevaluated
+%BASICFOR% and the loop repeats if
+%BASICFOR% \xcd"true".  If the condition is \xcd"false", the loop
+%BASICFOR% exits.
+%BASICFOR% 
+%BASICFOR% The condition must be of type \xcd"Boolean".
+%BASICFOR% The initializer and iterator are statements, not expressions
+%BASICFOR% and so do not have types.
+%BASICFOR% 
+
 
 \label{ForAllLoop}
 

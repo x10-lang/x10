@@ -13,6 +13,8 @@ package x10cpp;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import polyglot.frontend.ExtensionInfo;
@@ -84,4 +86,10 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 	    }
 	    super.usageForFlag(out, flag, description);
 	}
+	
+	private List<String> extraLibOpts = new ArrayList<String>();
+	private List<String> extraIncOpts = new ArrayList<String>();
+    
+	public List<String> extraLibOpts() { return extraLibOpts; }
+	public List<String> extraIncOpts() { return extraIncOpts; }	
 }
