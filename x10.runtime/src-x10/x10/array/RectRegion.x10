@@ -183,42 +183,34 @@ final class RectRegion extends PolyRegion{rect} {
     // specialized bounds checking for performance
     // 
 
-    //const doChecks = Runtime.ARRAY_BOUNDS_RUNTIME_CHECK;
-    const doChecks = true;
-
     global def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
-        if (doChecks && (
-            i0<min0 || i0>max0
-        ))
-            throw err([i0] as Point);
+        if (i0<min0 || i0>max0) {
+            throw err(Point.make(i0));
+        }
     }
 
     global def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
-        if (doChecks && (
-            i0<min0 || i0>max0 ||
-            i1<min1 || i1>max1
-        ))
-            throw err([i0,i1] as Point);
+        if (i0<min0 || i0>max0 ||
+            i1<min1 || i1>max1) {
+            throw err(Point.make(i0,i1));
+        }
     }
 
     global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
-        if (doChecks && (
-            i0<min0 || i0>max0 ||
+        if (i0<min0 || i0>max0 ||
             i1<min1 || i1>max1 ||
-            i2<min2 || i2>max2
-        ))
-            throw err([i0,i1,i2] as Point);
+            i2<min2 || i2>max2) {
+            throw err(Point.make(i0,i1,i2));
+        }
     }
 
     global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
-        if (doChecks && (
-            i0<min0 || i0>max0 ||
+        if (i0<min0 || i0>max0 ||
             i1<min1 || i1>max1 ||
             i2<min2 || i2>max2 ||
-            i3<min3 || i3>max3
-        ))
+            i3<min3 || i3>max3) {
             throw err([i0,i1,i2,i3] as Point);
-
+        }
     }
 
 
