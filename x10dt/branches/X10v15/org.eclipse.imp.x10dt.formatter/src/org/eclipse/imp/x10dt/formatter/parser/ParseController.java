@@ -27,6 +27,7 @@ import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.formatter.parser.ast.ASTNode;
+import org.eclipse.imp.x10dt.ui.parser.X10SyntaxProperties;
 
 public class ParseController extends SimpleLPGParseController implements
 		IParseController, ILanguageService {
@@ -97,12 +98,17 @@ public class ParseController extends SimpleLPGParseController implements
 
 	public ISourcePositionLocator getNodeLocator() {
 		// TODO Auto-generated method stub
-		return null;
+		return getSourcePositionLocator();
 	}
 
 	public ILanguageSyntaxProperties getSyntaxProperties() {
 		// TODO Auto-generated method stub
-		return null;
+		return new X10SyntaxProperties();
+	}
+
+	public Object parse(String input, IProgressMonitor monitor) {
+		// TODO Auto-generated method stub
+		return parse(input, false, monitor);
 	}
 
 }
