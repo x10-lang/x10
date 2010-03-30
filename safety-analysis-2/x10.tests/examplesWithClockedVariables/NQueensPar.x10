@@ -1,24 +1,14 @@
 import x10.io.Console;
 import clocked.*;
 
-class NSol {
-    public val c = Clock.make();
- 
-    val op = Int.+;
-    
-  
-    
-	public var nSolutions: int @ Clocked[int](c,op) = 0;
-	
-	public def incr () @ ClockedM (c) {
-		nSolutions = 1;
-	}
 
-}
 
 public class NQueensPar {
 
-
+	val op = Int.+;
+	public val c = Clock.make();
+    public var nSolutions : int   @ Clocked[int] (c, op) = 0;
+    
 
     public static val expectedSolutions =
         [0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512];
@@ -30,7 +20,7 @@ public class NQueensPar {
     def start() {
         finish new Board().search();
     }
-
+    
 
     /**
      * Return an array of P regions, which together block divide the 1-D region R.
@@ -46,14 +36,13 @@ public class NQueensPar {
     }
 
     class Board {
-
-       public static val nSol = new NSol();
-        
         
         val q: Rail[Int]{self.at(this)};
+    
 
         def this() {
             q = Rail.make[Int](0, (int)=>0);
+         
         }
 
         def this(old: Rail[Int]!, newItem:Int) {
@@ -73,23 +62,22 @@ public class NQueensPar {
         }
   
   
-      def search() @ ClockedM (nSol.c) {
+      def search()   {
             if (q.length == N) {
-               
-                nSol.incr();
-          
+            	at (NQueensPar.this) nSolutions = 1;
               
                 return;
             }
             if (q.length == 0) {
                 val R = block(0..N-1, P);
+                val d = at (NQueensPar.this) c;
                 for ((q) in 0..P-1)
-                  async clocked(nSol.c) search(R(q));
+                  async (d) search(R(q));
             } else search(0..N-1);
         }
   
   
-    def search(R: Region(1)) @ ClockedM (nSol.c) {
+    def search(R: Region(1))  {
             for ((k) in R)
                 if (safe(k))
                     new Board(q, k).search();
@@ -107,11 +95,11 @@ public class NQueensPar {
             val nq = new NQueensPar(n,ps(i));
             var start:Long = -System.nanoTime();
             nq.start();
-            val result = Board.nSol.nSolutions==expectedSolutions(nq.N);
+            val result = nq.nSolutions==expectedSolutions(nq.N);
             start += System.nanoTime();
             start /= 1000000;
             println("NQueensPar " + nq.N + "(P=" + ps(i) +
-                    ") has " + Board.nSol.nSolutions + " solutions" +
+                    ") has " + nq.nSolutions + " solutions" +
                     (result? " (ok)." : " (wrong).") + "time=" + start + "ms");
         }
     }
