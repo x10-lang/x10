@@ -143,11 +143,11 @@ public class PlaceChecker {
 			throw new InternalError("Unexpectedly inconsistent constraint.");
 		}
 	
-		 if(oldType instanceof AnnotatedType) {
+		 /*if(oldType instanceof AnnotatedType) {
             AnnotatedType aot = (AnnotatedType) oldType;
             aot.baseType(type);
         	return aot;	
-        } 
+        } */
 		/*CConstraint xclause = X10TypeMixin.xclause(type);
 		if (xclause == null || xclause.valid())
 			return type;

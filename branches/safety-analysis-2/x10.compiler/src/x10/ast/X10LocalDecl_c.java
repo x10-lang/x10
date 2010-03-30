@@ -163,9 +163,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		Type type = type().type();
      
-        /*if (oldType instanceof AnnotatedType) {
-        	 ((AnnotatedType) type).annotations(((AnnotatedType) oldType).annotations());
-        }*/
+    
 		X10TypeMixin.checkMissingParameters(type);
 		type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
 	

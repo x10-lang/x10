@@ -8,7 +8,7 @@ class Convolve {
              val op = Int.+;
              val yi: Rail[int @ Clocked[int] (c, op)]! = Rail.make[Int](w.length, (Int)=>0);
              val xz: int @ Clocked[int] (c, op);
-             async clocked (c) {
+             async clocked(c)  {
                        for (v in x) {
                                 xz = v;
                                 next; // end of one phase, now you can read the values

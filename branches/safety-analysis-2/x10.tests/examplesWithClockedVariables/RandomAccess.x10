@@ -143,7 +143,7 @@ class RandomAccess {
 
         // repeat for testing.
         runBenchmark(c, rails, logLocalTableSize, numUpdates);
-       /* for ((i) in 0..Place.MAX_PLACES-1) {
+       for ((i) in 0..Place.MAX_PLACES-1) {
             async (Place.places(i)) {
                 val rail : Rail[Long]! = rails(i) as Rail[Long]!;
                 var err:Int = 0;
@@ -151,7 +151,7 @@ class RandomAccess {
                     if (rail(j) != j) err++;
                 Console.OUT.println("Found " + err + " errors.");
             }
-        }*/
+        }
     }
 }
 
