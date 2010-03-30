@@ -69,7 +69,6 @@ public class CXXCommandBuilder {
     
     protected static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String X10_DIST = System.getenv("X10_DIST");
-    protected static final String X10GC = System.getenv("X10GC")==null?null:System.getenv("X10GC").replace(File.separatorChar, '/');
     protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
     protected static final boolean ENABLE_PROFLIB = System.getenv("X10_ENABLE_PROFLIB") != null;
     
@@ -121,7 +120,6 @@ public class CXXCommandBuilder {
 
         if (!Configuration.DISABLE_GC && gcEnabled()) {
             cxxCmd.add("-DX10_USE_BDWGC");
-            cxxCmd.add("-I"+X10GC+"/include");
         }
         
         if (x10.Configuration.OPTIMIZE) {
@@ -151,11 +149,6 @@ public class CXXCommandBuilder {
         // prebuilt XRX
         cxxCmd.add("-L"+X10_DIST+"/lib");
         cxxCmd.add("-lx10");
-
-        if (!Configuration.DISABLE_GC && gcEnabled()) {
-            cxxCmd.add("-L"+X10GC+"/lib");
-            cxxCmd.add("-lgc");
-        }
 
         cxxCmd.addAll(x10rtOpts.ldFlags);
         cxxCmd.addAll(x10rtOpts.libs);

@@ -324,6 +324,7 @@
                   <arg value="-enable-threads=posix" />
                   <arg value="-enable-thread-local-alloc" />
                   <arg value="--disable-dependency-tracking" />
+                  <arg value="--disable-shared" />
                   <env key="CFLAGS" value="${darwin.32}${darwin.64}-D_XOPEN_SOURCE" />
                   <arg value="--prefix=${bdwgc.platform.dir}/install" />
                 </exec>
@@ -372,11 +373,6 @@
     <target name="dist-bdwgc" depends="build-bdwgc" if="bdwgc.enabled">
       <sequential>
         <mkdir dir="${lib}"/>
-        <copy todir="${lib}" preservelastmodified="true" flatten="true" >
-           <!--<fileset dir="${bdwgc.dir}/install/lib" includes="libgc.a"/>-->
-           <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*,lib/*gc*.dylib"/>
-           <fileset dir="${bdwgc.dir}/install" includes="bin/*.dll"/> <!-- Cygwin -->
-        </copy>
         <copy todir="${inc}">
            <fileset dir="${bdwgc.dir}/install/include" includes="**/*.h"/>
         </copy>
