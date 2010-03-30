@@ -78,7 +78,11 @@ namespace x10 {
             virtual x10_boolean _struct_equals(x10aux::ref<Reference> other) {
                 return other == x10aux::ref<Reference>(this);
             }
-            
+
+            virtual x10aux::ref<Reference> _getWrappedObject() {
+                return x10aux::null;
+            }
+
             virtual x10_int hashCode() = 0;
 
             virtual x10::lang::Place home();
