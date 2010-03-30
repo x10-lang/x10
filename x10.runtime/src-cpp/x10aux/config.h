@@ -12,6 +12,8 @@
 #ifndef X10AUX_CONFIG_H
 #define X10AUX_CONFIG_H
 
+#include <x10aux/bdwgc.h>
+
 /*
  * The following performance macros are supported:
  *   NO_EXCEPTIONS     - remove all exception-related code
