@@ -420,7 +420,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 												// has n components.
 												XVar self = X10TypeMixin.xclause(indexType).self();
 												Synthesizer synth = new Synthesizer(nf, ts);
-												XTerm v = synth.makeRegionRankTerm((XVar) self);
+												XTerm v = synth.makePointRankTerm((XVar) self);
 												XTerm rank = XTerms.makeLit(new Integer(length));
 												indexType = X10TypeMixin.addBinding(indexType, v, rank);
 

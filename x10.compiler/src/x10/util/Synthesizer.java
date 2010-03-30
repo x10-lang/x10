@@ -207,10 +207,14 @@ public class Synthesizer {
 			
 	 }
 	 
-	 public XTerm makeRegionRankTerm(XVar receiver) {
+	 public XTerm makePointRankTerm(XVar receiver) {
 		 return makeProperty(xts.Point(), receiver, "rank");
 	 }
-	 
+
+	   public XTerm makeRegionRankTerm(XVar receiver) {
+	         return makeProperty(xts.Region(), receiver, "rank");
+	     }
+
 	 public XTerm makeRectTerm(XVar receiver) {
 		 return makeProperty(xts.Region(), receiver, "rect");
 	 }
@@ -220,7 +224,17 @@ public class Synthesizer {
 			return X10TypeMixin.addTerm(type, v);
 		 
 	 }
-	 
+	 public Type addRectConstraintToSelf(Type type) {
+	     XVar receiver = X10TypeMixin.self(type);
+	     if (receiver == null) {
+	         CConstraint c = new CConstraint_c();
+	         type = X10TypeMixin.xclause(type, c);
+	         receiver = c.self();
+	     }
+         XTerm v = makeRectTerm(receiver);
+         return X10TypeMixin.addTerm(type, v);
+	 }
+
 	 public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
 			XTerm v = makeRegionRankTerm(receiver);
 			XTerm rank = XTerms.makeLit(new Integer(n));
