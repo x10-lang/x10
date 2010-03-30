@@ -92,6 +92,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * Provides javadoc-like info (if available) and more for a variety of entities
 	 */
 	public String getHelpForEntity(Object target, IParseController parseController) {
+		try {
 		Node root = (Node) parseController.getCurrentAst();
 
 		if (target instanceof Id) {
@@ -353,6 +354,10 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		// }
 		
 		// return "This is a " + target.getClass().getCanonicalName();
+		} catch (NullPointerException e){
+			//If this exception is thrown, it means that there was a compilation error in the file, silently ignore
+			return "";
+		}
 		return "";
 	}
 
