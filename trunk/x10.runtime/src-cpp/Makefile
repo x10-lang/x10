@@ -6,10 +6,13 @@ include ../Make.rules
 
 INCLUDE_DIRS += -I. -I../x10rt/include
 
+BDWGC_CONFIG=bdwgc_off.h
+
 ifdef ENABLE_GC
   override CXXFLAGS += -DX10_USE_BDWGC
   BDWGC_INCLUDE_DIR= ./bdwgc/install/include
   INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
+  BDWGC_CONFIG=bdwgc_on.h
 endif
 
 override CXXFLAGS += $(INCLUDE_DIRS) -Igen
@@ -199,6 +202,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	@cp -p x10rt.h $(INSTDIR)/include
 	@cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	@cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
+	@cp -p $(INSTDIR)/include/x10aux/$(BDWGC_CONFIG) $(INSTDIR)/include/x10aux/bdwgc.h
 
 .PHONY: install
 
