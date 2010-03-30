@@ -65,7 +65,7 @@ namespace x10 {
             ValRail() : FMGL(length)(0),  _data(NULL) { }
             ValRail(x10_int length_, T* storage) : FMGL(length)(length_),  _data(storage) {}
 
-            GPUSAFE T apply(x10_int index) {
+            GPUSAFE virtual T apply(x10_int index) {
                 return operator[](index);
             }   
 
@@ -105,8 +105,57 @@ namespace x10 {
             template<class S> static x10aux::ref<S> _deserializer(x10aux::deserialization_buffer &buf);
 
             template<class S> static x10aux::ref<S> _deserialize(x10aux::deserialization_buffer &buf);
+
+            template<class F> class Wrapper;
+
+            virtual x10_boolean _struct_equals(x10aux::ref<Reference> other) {
+                if (other == x10aux::ref<Reference>(this))
+                    return true;
+                x10aux::ref<Reference> unwrapped = other->_getWrappedObject();
+                if (!unwrapped.isNull())
+                    return _struct_equals(unwrapped);
+                return false;
+            }
         };
 
+        template<class T> template<class F> class ValRail<T>::Wrapper : public ValRail<T> {
+
+            private:
+            Wrapper(const Wrapper<F>& arr); // disabled
+            ValRail<F>* _ref;
+
+            public:
+            Wrapper(ValRail<F>* r) : ValRail<T>((x10_int)-1, (T*)NULL), _ref(r) { }
+
+            x10::lang::Place home() { return _ref->home(); }
+            x10_boolean at(x10::lang::Place p) { return _ref->at(p); }
+            x10_boolean at(x10aux::ref<x10::lang::Object> o) { return _ref->at(o); }
+            x10_boolean _struct_equals(x10aux::ref<x10::lang::Reference> other) { return _ref->_struct_equals(other); }
+            GPUSAFE x10_int length() { return _ref->length(); }
+            GPUSAFE T apply(x10_int index) { return x10aux::class_cast_unchecked<T>(_ref->apply(index)); }
+            //GPUSAFE T& operator[](x10_int index) { return _ref->operator[](index); } //???
+            //T* raw() { return _ref->raw(); } //???
+            x10aux::ref<x10::lang::Iterator<T> > iterator() { return /*class_cast_unchecked<x10aux::ref<x10::lang::Iterator<T> > >(*/_ref->iterator()/*)*/; }
+            x10_int hashCode() { return _ref->hashCode(); }
+            x10_boolean equals(x10aux::ref<x10::lang::Any> other) { return _ref->equals(other); }
+            x10aux::ref<x10::lang::String> toString() { return _ref->toString(); }
+            x10aux::ref<x10::lang::String> typeName() { return _ref->typeName(); }
+            x10aux::serialization_id_t _get_serialization_id() { return _ref->_get_serialization_id(); };
+            void _serialize_body(x10aux::serialization_buffer &buf) { _ref->_serialize_body(buf); }
+            void _deserialize_body(x10aux::deserialization_buffer &buf) { _ref->_deserialize_body(buf); }
+
+            const x10aux::RuntimeType* _type() const { return _ref->_type(); }
+
+            static x10aux::ref<Wrapper<F> > make(ValRail<F>* _r);
+
+            static char* fullTypeName;
+
+            static char* getFullTypeName();
+
+            virtual x10aux::ref<Reference> _getWrappedObject() {
+                return _ref;
+            }
+        };
     }
 }
 #endif
@@ -257,7 +306,45 @@ namespace x10 {
             }
             return Object::_finalize_reference<S>(this_, rr, buf);
         }
+
+        template<class T> template<class F> char* ValRail<T>::Wrapper<F>::fullTypeName = NULL;
+
+        template<class T> template<class F>
+        x10aux::ref<typename ValRail<T>::template Wrapper<F> > ValRail<T>::Wrapper<F>::make(ValRail<F>* _r) {
+            return new (x10aux::alloc<typename ValRail<T>::template Wrapper<F> >()) typename ValRail<T>::template Wrapper<F>(_r);
+        }
+
+        template<class T> template<class F> char* ValRail<T>::Wrapper<F>::getFullTypeName() {
+            if (NULL == fullTypeName) {
+                std::ostringstream ss;
+                ss << "wrapper from ";
+                ss << x10aux::typeName<ValRail<F> >();
+                ss << " to ";
+                ss << x10aux::typeName<ValRail<T> >();
+                fullTypeName = ::strdup(ss.str().c_str());
+            }
+            return fullTypeName;
+        }
     }
+}
+
+namespace x10aux {
+    template<class T> template<class F> struct TypeName<typename x10::lang::ValRail<T>::template Wrapper<F> > { static const char *_() {
+        return x10::lang::ValRail<T>::template Wrapper<F>::getFullTypeName();
+    } };
+
+    template<class T, class F> struct ClassCast<ref<x10::lang::ValRail<T> >,ref<x10::lang::ValRail<F> > > { static GPUSAFE ref<x10::lang::ValRail<T> > _ (ref<x10::lang::ValRail<F> > obj, bool checked) {
+        assert (!checked);
+        return ref<x10::lang::ValRail<T> >(x10::lang::ValRail<T>::template Wrapper<F>::make(obj.operator->()));
+    } };
+
+//    template<template<typename A> class C, class T, class F> struct ClassCast<ref<C<T> >,ref<C<F> > > { static GPUSAFE ref<C<T> > _ (ref<C<F> > obj, bool checked) {
+//        assert (!checked);
+//        return ref<C<T> >(/*C<T>::*/Wrapper<T, F>::make(obj.operator->()));
+//    } };
+//    template<template<typename A> class C, typename T, typename F> GPUSAFE ref<C<T> > class_cast_unchecked(ref<C<F> > obj) {
+//      return C<T>::typename Wrapper<F>(obj);
+//    }
 }
 
 #endif
