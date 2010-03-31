@@ -111,6 +111,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/io/FILEPtrOutputStream.o \
 	x10aux/io/FILEPtrStream.o \
 	x10aux/float_utils.o \
+	x10aux/lock.o \
 	x10aux/long_utils.o \
 	x10aux/network.o \
 	x10aux/place_local.o \

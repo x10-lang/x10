@@ -15,6 +15,7 @@
 #include <x10aux/config.h>
 #include <assert.h>
 #include <pthread.h>
+#include <x10aux/lock.h>
 
 /* Macro to use in class declaration for boilerplate RTT junk */
 #define RTT_H_DECLS_CLASS \
@@ -44,7 +45,6 @@
 namespace x10 {
     namespace lang {
         class Reference;
-        class Lock__ReentrantLock;
     }
 }
 
@@ -54,7 +54,7 @@ namespace x10aux {
 
     class RuntimeType {
     private:
-        static volatile x10::lang::Lock__ReentrantLock *initRTTLock;
+        static volatile x10aux::reentrant_lock *initRTTLock;
         
     public:
         /*
@@ -224,6 +224,7 @@ namespace x10aux {
     // This is different to getRTT because it distinguishes between T and ref<T>
     template<class T> struct TypeName { static const char *_() {
         const RuntimeType *t = getRTT<T>();
+        if (NULL == t || !t->isInitialized) return "uninitialized RTT";
         assert(NULL != t);
         return t->name();
     } };
@@ -237,6 +238,7 @@ namespace x10aux {
     template<> inline const char *typeName<InitDispatcher>() { return "InitDispatcher"; }
     class remote_ref;
     template<> inline const char *typeName<remote_ref>() { return "remote_ref"; }
+    template<> inline const char *typeName<reentrant_lock>() { return "reentrant_lock"; }
     template<> inline const char *typeName<void (*)()>() { return "void (*)()"; }
     template<> inline const char *typeName<void*>() { return "void *"; }
     template<> inline const char *typeName<const void*>() { return "const void *"; }
