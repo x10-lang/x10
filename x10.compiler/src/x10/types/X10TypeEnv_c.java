@@ -679,6 +679,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      * @see x10.types.X10TypeEnv#isSubtype(polyglot.types.Type, polyglot.types.Type, boolean)
      */
     boolean isSubtype(XVar x, Type t1, Type t2) {
+    	if (t1 instanceof AnnotatedType)
+    			t1 = ((AnnotatedType)t1).baseType();
+    	if (t2 instanceof AnnotatedType)
+			t2 = ((AnnotatedType)t2).baseType();
+    	
     	assert t1 != null;
     	assert t2 != null;
     	t1 = ts.expandMacros(t1);
@@ -968,7 +973,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      */
     @Override
     public boolean typeEquals(Type t1, Type t2) {
-    	
+
+    	if (t1 instanceof AnnotatedType)
+    		t1 = ((AnnotatedType) t1).baseType();
+    	if (t2 instanceof AnnotatedType)
+    		t2 = ((AnnotatedType) t2).baseType();
         t1 = ts.expandMacros(t1);
         t2 = ts.expandMacros(t2);
 
