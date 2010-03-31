@@ -14,7 +14,7 @@ public class AllReduceDistributed {
     val P = Place.MAX_PLACES;
     val phases = Math.log2(P);
 
-        finish  ateach ((p) in myA.dist)  {
+        finish  ateach ((p) in myA.dist) clocked(c) {
         var shift_:Int=1;
         for ((phase) in 0..phases-1) {
                 val destId = (p+shift_)% P;

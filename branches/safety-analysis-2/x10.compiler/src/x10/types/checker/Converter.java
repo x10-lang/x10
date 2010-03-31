@@ -50,6 +50,7 @@ import x10.ast.X10ProcedureCall;
 import x10.ast.X10New_c.MatcherMaker;
 import x10.constraint.XConstraint;
 import x10.errors.Errors;
+import x10.types.AnnotatedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -351,6 +352,7 @@ public class Converter {
 	public  static Expr checkCast(X10Cast_c cast, ContextVisitor tc) throws SemanticException {
 		Type toType = cast.castType().type();
 		Type fromType = cast.expr().type();
+	
 		X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		X10Context context = (X10Context) tc.context();
@@ -407,7 +409,7 @@ public class Converter {
 				try {
 					mi = ts.findMethod(toType, ts.MethodMatcher(toType, Converter.implicit_operator_as, 
 							Collections.singletonList(fromType), context));
-					//Type baseMiType = X10TypeMixin.baseType(mi.returnType());
+					//Type iType = X10TypeMixin.baseType(mi.returnType());
 					Type miType = mi.returnType();
 					if (mi.flags().isStatic() && miType.isSubtype(baseTo, context)) {
 						converter = mi;

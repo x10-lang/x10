@@ -174,7 +174,8 @@ public class Matcher {
 	        	Type xtype = xts.expandMacros(typeFormals.get(i));
 	        	Type oldType = (Type) typeActuals.get(i).copy();
 	            Y[i] = xts.expandMacros(typeActuals.get(i));
-	            ;
+	          
+	        
 	            // TODO: should enforce this statically
 	           // broken assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " 
 	           // + (xtype != null ? xtype.getClass().getName() : "null");

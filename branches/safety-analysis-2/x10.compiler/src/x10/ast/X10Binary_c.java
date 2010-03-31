@@ -49,6 +49,7 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.types.AnnotatedType;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -431,6 +432,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         
         Type l = left.type();
         Type r = right.type();
+        
+        if (l instanceof AnnotatedType)
+        		l = ((AnnotatedType) l).baseType();
+        if (r instanceof AnnotatedType)
+    		l = ((AnnotatedType) r).baseType();
         
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         Name methodName = X10Binary_c.binaryMethodName(op);
