@@ -29,16 +29,16 @@
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">MethodCall &nbsp;TypeName "." Identifier TypeArguments<sup>?</sup>&nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")" </td></tr>
-<tr><td align="right">\ -  "super" "." Identifier TypeArguments<sup>?</sup>&nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")" </td></tr>
-<tr><td align="right">\ -  ClassName "." "super" "." Identifier TypeArguments<sup>?</sup>&nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")" </td></tr>
-<tr><td align="right">Call &nbsp;Primary TypeArguments<sup>?</sup>&nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")" </td></tr>
-<tr><td align="right">TypeArguments &nbsp;"[" Type ( "," Type )<sup>*</sup>&nbsp;"]" </td></tr>
+<tr><td align="right">MethodCall ::= TypeName <b>.</b> Identifier TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Identifier TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b> <b>.</b> Identifier TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">Call ::= Primary TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">TypeArguments ::= <b>[</b> Type ( <b>,</b> Type )<sup>*</sup>&nbsp;<b>]</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-A <em>MethodCall</em> may be to either "static" or to
+A <em>MethodCall</em> may be to either <b>static</b> or to
 instance methods.  A <em>Call</em> may to either a method
 or a closure.  The syntax is ambiguous; the target must be
 type-checked to determine if it is the name of a method or if it
@@ -49,7 +49,7 @@ It is a static error if a call may resolve to both a closure
 call or to a method call.  
 
 <div class="p"><!----></div>
-A closure call "e(...)" is shorthand for a method call "e.apply(...)".
+A closure call &#235;(...)" is shorthand for a method call &#235;.apply(...)".
 
 <div class="p"><!----></div>
 Method selection rules are similar to that of Java.

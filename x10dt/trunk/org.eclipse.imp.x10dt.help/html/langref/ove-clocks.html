@@ -38,7 +38,7 @@ statement (possibly involving execution of new async activities) be
 executed to completion before the clock can advance.  At any given
 step of the execution a clock is in a given phase. It advances to the
 next phase only when all its registered activities have <em>quiesced</em>
-(by executing a "next" operation on the clock).
+(by executing a <b>next</b> operation on the clock).
 When a clock advances, all its activities may now resume execution.
 
 <div class="p"><!----></div>
@@ -52,7 +52,7 @@ deadlock.
 <em>
 <b>Future Extensions.&nbsp;&nbsp;</b>In future versions of the language,
 clocks will be integrated into the X10 type system,
-permitting variables to be declared so that they are final in each
+permitting variables to be declared so that they are <b>val</b> in each
 phase of a clock.</em>
 
 <div class="p"><!----></div>

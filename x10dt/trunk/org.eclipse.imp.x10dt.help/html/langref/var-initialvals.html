@@ -23,16 +23,16 @@
 </a>
 
 <div class="p"><!----></div>
-Every variable declared at a type must always contain a value of that type.
+Every variable declared to be a given type must always contain a value of that type.
 
 <div class="p"><!----></div>
 Every class variable must be initialized before it is read, through
 the execution of an explicit initializer or a static block. Every
 instance variable must be initialized before it is read, through the
 execution of an explicit initializer or a constructor.
-Non-final instance variables of class type are initialized to 
-to "null".
-Non-final instance variables of struct type are 
+Mutable instance variables of class type are initialized to 
+to <b>null</b>.
+Mutable instance variables of struct type are 
 assumed to have an initializer that sets the value to the
 result of invoking the nullary constructor on the class. 
 An initializer is required if the default initial value is not
@@ -44,7 +44,7 @@ corresponding argument value provided by the invoker of the method. An
 exception-handling parameter is initialized to the object thrown by
 the exception. A local variable must be explicitly given a value by
 initialization or assignment, in a way that the compiler can verify
-using the rules for definite assignment {jls2}.
+using the rules for definite assignment [,&#167;&#126;16].
 
 <div class="p"><!----></div>
 

@@ -19,24 +19,24 @@
 <body>
  <h2><a name="tth_sEc6">
 6</a>&nbsp;&nbsp;Fields</h2>
-Fields are declared either "var" (non-final, non-static),
-"val" (final, non-static), or "const" (final, static);
-the default is "val".
+Fields are declared either <b>var</b> (mutable, non-static),
+<b>val</b> (immutable, non-static), or <b>const</b> (immutable, static);
+the default is <b>val</b>.
 Field declarations may have optional
 initializer expressions.  The initializer must be a subtype of
 the declared type of the variable.
-For "var" fields,
+For <b>var</b> fields,
 if the initializer is omitted, the constructor must initialize
 the field, or else the field is initialized with
-"null" if a reference type, "0" if an "Int", "0L"
-if a "Long",
-"0.0F" if a "Float", "0.0" if a "Double", or
-"false" if a "Boolean".  It is a static error if the
+<b>null</b> if a reference type, <b>0</b> if an <b>Int</b>, <b>0L</b>
+if a <b>Long</b>,
+<b>0.0F</b> if a <b>Float</b>, <b>0.0</b> if a <b>Double</b>, or
+<b>false</b> if a <b>Boolean</b>.  It is a static error if the
 default value is not a member of the type (e.g., it is a static
-error to elide the initializer for "Int{self==1}").
+error to elide the initializer for <b>Int{self==1}</b>).
 
 <div class="p"><!----></div>
-If the variable is final,
+If the variable is immutable,
 the type may be omitted and
 inferred from the initializer type (&#167;).
 Mutable fields must be declared with a type.
@@ -45,26 +45,26 @@ Mutable fields must be declared with a type.
   :  |        <em>  
 <table>
 <tr><td align="right">FieldDeclaration
-        &nbsp;FieldModifier<sup>*</sup>&nbsp;"var" FieldDeclaratorsWithType </td></tr>
-<tr><td align="right"></td><td align="center">&amp; ( "," FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">\ -  FieldModifier<sup>*</sup>&nbsp;"const" FieldDeclarators </td></tr>
-<tr><td align="right"></td><td align="center">&amp; ( "," FieldDeclarators )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">\ -  FieldModifier<sup>*</sup>&nbsp;"val" FieldDeclarators </td></tr>
-<tr><td align="right"></td><td align="center">&amp; ( "," FieldDeclarators )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">\ -  FieldModifier<sup>*</sup>&nbsp;FieldDeclaratorsWithType </td></tr>
-<tr><td align="right"></td><td align="center">&amp; ( "," FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+        ::= FieldModifier<sup>*</sup>&nbsp;<b>var</b> FieldDeclaratorsWithType </td></tr>
+<tr><td align="right">&amp;&amp; ( <b>,</b> FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; FieldModifier<sup>*</sup>&nbsp;<b>const</b> FieldDeclarators </td></tr>
+<tr><td align="right">&amp;&amp; ( <b>,</b> FieldDeclarators )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; FieldModifier<sup>*</sup>&nbsp;<b>val</b> FieldDeclarators </td></tr>
+<tr><td align="right">&amp;&amp; ( <b>,</b> FieldDeclarators )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; FieldModifier<sup>*</sup>&nbsp;FieldDeclaratorsWithType </td></tr>
+<tr><td align="right">&amp;&amp; ( <b>,</b> FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right">FieldDeclarators
-        &nbsp;FieldDeclaratorsWithType </td></tr>
-<tr><td align="right">&nbsp;FieldDeclaratorWithInit </td></tr>
+        ::= FieldDeclaratorsWithType </td></tr>
+<tr><td align="right">::= FieldDeclaratorWithInit </td></tr>
 <tr><td align="right">FieldDeclaratorId
-        &nbsp;Identifier  </td></tr>
+        ::= Identifier  </td></tr>
 <tr><td align="right">FieldDeclaratorWithInit
-        &nbsp;FieldDeclaratorId Init </td></tr>
-<tr><td align="right">\ -  FieldDeclaratorId ResultType Init </td></tr>
+        ::= FieldDeclaratorId Init </td></tr>
+<tr><td align="right">&#124; FieldDeclaratorId ResultType Init </td></tr>
 <tr><td align="right">FieldDeclaratorsWithType
-        &nbsp;FieldDeclaratorId ( "," FieldDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
-<tr><td align="right">FieldModifier &nbsp;Annotation </td></tr>
-<tr><td align="right">\ -  "static" </td></tr>
+        ::= FieldDeclaratorId ( <b>,</b> FieldDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
+<tr><td align="right">FieldModifier ::= Annotation </td></tr>
+<tr><td align="right">&#124; <b>static</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

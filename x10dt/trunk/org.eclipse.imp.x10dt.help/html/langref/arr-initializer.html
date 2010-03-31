@@ -23,13 +23,13 @@
 </a>
 
 <div class="p"><!----></div>
-Arrays are instantiated by invoking one of the "make" factory
-methods of the "Array" class.
+Arrays are instantiated by invoking one of the <b>make</b> factory
+methods of the <b>Array</b> class.
 
 <div class="p"><!----></div>
 An array creation 
-must take either an "Int" as an argument or a "Dist". In the first
-case an array is created over the distribution "[0:N-1]-&#62;here";
+must take either an <b>Int</b> as an argument or a <b>Dist</b>. In the first
+case an array is created over the distribution <b>[0:N-1]-&#62;here</b>;
 in the second over the given distribution. 
 
 <div class="p"><!----></div>
@@ -46,19 +46,19 @@ For instance:
 <pre>
 val data : Array[Int]
     = Array.make[Int](1..1000-&#62;here, ((i):Point) =&#62; i);
-val data2 : Array[Int,Int]
+val data2 : Array[Int]
     = Array.make[Int]([1..1000,1..1000]-&#62;here, ((i,j):Point) =&#62; i*j);
 </pre>
 
 <div class="p"><!----></div>
- The first declaration stores in "data" a reference to a mutable
-array with "1000" elements each of which is located in the
-same place as the array. Each array component is initialized to "i".
+ The first declaration stores in <b>data</b> a reference to a mutable
+array with <b>1000</b> elements each of which is located in the
+same place as the array. Each array component is initialized to <b>i</b>.
 
 <div class="p"><!----></div>
-The second declaration stores in "data2" a reference to a mutable
-2-d array over "[1:1000, 1:1000]" initialized with "i*j"
-at point "[i,j]".
+The second declaration stores in <b>data2</b> a reference to a mutable
+2-d array over <b>[1..1000, 1..1000]</b> initialized with <b>i*j</b>
+at point <b>[i,j]</b>.
 
 <div class="p"><!----></div>
 Other examples:

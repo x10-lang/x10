@@ -18,35 +18,40 @@
 
 <body>
  <h2><a name="tth_sEc5">
-5</a>&nbsp;&nbsp;Local variables</h2>
-Local variable declarations may have optional
-initializer expressions.  The initializer must be a subtype of
-the declared type of the variable.  If the variable is final
-("val")
+5</a>&nbsp;&nbsp;Local variables</h2><a name="local-variables">
+</a>
+Local variable declarations may have
+initializer expressions: <b>var i:Int = 1;</b> introduces 
+a variable <b>i</b> and initializes it to 1.
+The initializer must be a subtype of
+the declared type of the variable.  If the variable is immutable
+(<b>val</b>)
 the type may be omitted and
 inferred from the initializer type (&#167;).
+Variables marked <b>shared</b> can be used by many activities at once; see
+&#167;.
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
 <tr><td align="right">LocalDeclaration
-        &nbsp;LocalModifier<sup>*</sup>&nbsp;"var" LocalDeclaratorsWithType </td></tr>
-<tr><td align="right"></td><td align="center">&amp; ( "," LocalDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">\ -  LocalModifier<sup>*</sup>&nbsp;"val" LocalDeclarators </td></tr>
-<tr><td align="right"></td><td align="center">&amp; ( "," LocalDeclarators )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">\ -  LocalModifier<sup>*</sup>&nbsp;LocalDeclaratorsWithType </td></tr>
-<tr><td align="right"></td><td align="center">&amp; ( "," LocalDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+        ::= LocalModifier<sup>*</sup>&nbsp;<b>var</b> LocalDeclaratorsWithType </td></tr>
+<tr><td align="right">&amp;&amp; ( <b>,</b> LocalDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; LocalModifier<sup>*</sup>&nbsp;<b>val</b> LocalDeclarators </td></tr>
+<tr><td align="right">&amp;&amp; ( <b>,</b> LocalDeclarators )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; LocalModifier<sup>*</sup>&nbsp;LocalDeclaratorsWithType </td></tr>
+<tr><td align="right">&amp;&amp; ( <b>,</b> LocalDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right">LocalDeclarators
-        &nbsp;LocalDeclaratorsWithType </td></tr>
-<tr><td align="right">&nbsp;LocalDeclaratorWithInit </td></tr>
+        ::= LocalDeclaratorsWithType </td></tr>
+<tr><td align="right">::= LocalDeclaratorWithInit </td></tr>
 <tr><td align="right">LocalDeclaratorWithInit
-        &nbsp;VarDeclarator Init </td></tr>
+        ::= VarDeclarator Init </td></tr>
 <tr><td align="right">LocalDeclaratorsWithType
-        &nbsp;VarDeclaratorId
-                ( "," VarDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
-<tr><td align="right">LocalModifier &nbsp;Annotation </td></tr>
-<tr><td align="right">\ -  "shared" </td></tr>
-<tr><td align="right">Init &nbsp;"=" Expression </td></tr>
+        ::= VarDeclaratorId
+                ( <b>,</b> VarDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
+<tr><td align="right">LocalModifier ::= Annotation </td></tr>
+<tr><td align="right">&#124; <b>shared</b> </td></tr>
+<tr><td align="right">Init ::= <b>=</b> Expression </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

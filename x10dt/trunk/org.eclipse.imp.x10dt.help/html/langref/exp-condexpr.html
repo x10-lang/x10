@@ -25,20 +25,20 @@
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">ConditionalExpression &nbsp;Expression
-                "?" Expression
-                ":" Expression 
+<tr><td align="right">ConditionalExpression ::= Expression
+                <b>?</b> Expression
+                <b>:</b> Expression 
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 A conditional expression evaluates its first subexpression (the
-condition); if "true"
+condition); if <b>true</b>
 the second subexpression (the consequent) is evaluated; otherwise,
 the third subexpression (the alternative) is evaluated.
 
 <div class="p"><!----></div>
-The type of the condition must be "Boolean".
+The type of the condition must be <b>Boolean</b>.
 The type of the conditional expression is the least common
 ancestor (&#167;) of the types of the consequent and the alternative.
 

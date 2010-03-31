@@ -69,18 +69,18 @@ places.
 <b>Place casts.&nbsp;&nbsp;</b>
 The programmer may use the standard type cast mechanism
 (&#167;) to cast a value to a located type. A
-"BadPlaceException" is thrown if the value is not of the given
-type. This is the only language construct that throws a "BadPlaceException".
+<b>BadPlaceException</b> is thrown if the value is not of the given
+type. This is the only language construct that throws a <b>BadPlaceException</b>.
 
 <div class="p"><!----></div>
 
 <b>Atomic blocks.&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-X10 introduces statements of the form "atomic S" where "S"
+X10 introduces statements of the form <b>atomic S</b> where <b>S</b>
 is a statement.  The type system ensures that such a statement will
 dynamically access only local data. (The statement may throw
-a "BadPlaceException"-but only because of a failed place cast.)
+a <b>BadPlaceException</b>-but only because of a failed place cast.)
 Such a statement is executed by the activity as if in a single step
 during which all other activities are frozen.
 
@@ -89,18 +89,18 @@ during which all other activities are frozen.
 <b>Asynchronous activities.&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-An asynchronous activity is created by a statement "async (P) S"
-where "P" is a place expression and "S" is a statement.  Such
+An asynchronous activity is created by a statement <b>async (P) S</b>
+where <b>P</b> is a place expression and <b>S</b> is a statement.  Such
 a statement is executed by spawning an activity at the place
-designated by "P" to execute statement "S".
+designated by <b>P</b> to execute statement <b>S</b>.
 
 <div class="p"><!----></div>
-An asynchronous expression of type "Future[T]" has the form
-"future (p) e" where "e" is an expression of type
-"T".  The expression "e"
-may reference final and shared variables declared in the lexically
-enclosing environment.  It executes the expression "e" at the
-place "p" as an asynchronous activity, immediately returning with
+An asynchronous expression of type <b>Future[T]</b> has the form
+<b>future (p) e</b> where <b>e</b> is an expression of type
+<b>T</b>.  The expression <b>e</b>
+may reference <b>val</b>s and shared <b>var</b>s declared in the lexically
+enclosing environment.  It executes the expression <b>e</b> at the
+place <b>p</b> as an asynchronous activity, immediately returning with
 a future. The future may later be forced causing the activity to be
 blocked until the return value has been computed by the asynchronous
 activity.

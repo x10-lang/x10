@@ -25,15 +25,15 @@ The special statements introduced for clock operations are listed below.
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;ClockedStatement </td></tr>
-<tr><td align="right">ClockedStatement &nbsp;"clocked" "(" ClockList ")" Statement </td></tr>
-<tr><td align="right">NextStatement &nbsp;"next" ";" </td></tr>
+<tr><td align="right">Statement ::= ClockedStatement </td></tr>
+<tr><td align="right">ClockedStatement ::= <b>clocked</b> <b>(</b> ClockList <b>)</b> Statement </td></tr>
+<tr><td align="right">NextStatement ::= <b>next</b> <b>;</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-Note that "x10.lang.Clock" provides several useful methods on
-clocks (e.g. "drop").
+Note that <b>x10.lang.Clock</b> provides several useful methods on
+clocks (e.g. <b>drop</b>).
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.1">
@@ -41,7 +41,7 @@ clocks (e.g. "drop").
 </a>
 
 <div class="p"><!----></div>
-Clocks are created using a factory method on "x10.lang.Clock":
+Clocks are created using a factory method on <b>x10.lang.Clock</b>:
 
 <div class="p"><!----></div>
 <pre>
@@ -50,8 +50,8 @@ timeSynchronizer: Clock = Clock.make();
 
 <div class="p"><!----></div>
 The current activity is automatically registered with the newly
-created clock.  It may deregister using the "drop" method on
-clocks (see the documentation of "x10.lang.Clock"). All activities
+created clock.  It may deregister using the <b>drop</b> method on
+clocks (see the documentation of <b>x10.lang.Clock</b>). All activities
 are automatically deregistered from all clocks they are registered
 with on termination (normal or abrupt).
 
@@ -63,22 +63,22 @@ with on termination (normal or abrupt).
 
 <div class="p"><!----></div>
 The programmer may specify which clocks a new activity is to be
-registered with using the "clocked" clause.
+registered with using the <b>clocked</b> clause.
 
 <div class="p"><!----></div>
-An activity may transmit only those clocks that is registered with and
+An activity may transmit only those clocks that are registered with and
 has not quiesced on (&#167;). 
-A "ClockUseException" is
+A <b>ClockUseException</b> is
 thrown if (and when) this condition is violated.
 
 <div class="p"><!----></div>
-An activity may check that it is registered on a clock "c" by
+An activity may check that it is registered on a clock <b>c</b> by
 executing:
 <pre>
 c.registered()
 </pre>
- This call returns the "Boolean" value "true" iff the
-activity is registered on "c"; otherwise it returns "false".
+ This call returns the <b>Boolean</b> value <b>true</b> iff the
+activity is registered on <b>c</b>; otherwise it returns <b>false</b>.
 
 <div class="p"><!----></div>
  Note:
@@ -96,7 +96,7 @@ activity and read from that by another, the new activity cannot
 </a>
 X10 permits <em>split phase</em> clocks. An activity may wish
 to indicate that it has completed whatever work it wishes to perform
-in the current phase of a  clock "c" it is registered with, without
+in the current phase of a  clock <b>c</b> it is registered with, without
 suspending all activity. It may do so  by executing the method
 invocation:
 <pre>
@@ -105,23 +105,23 @@ c.resume();
 
 <div class="p"><!----></div>
 An activity may invoke this method only on a clock it is registered
-with, and has not yet dropped (&#167;). A "ClockUseException" is thrown if (and
+with, and has not yet dropped (&#167;). A <b>ClockUseException</b> is thrown if (and
 when) this condition is violated.  Nothing happens if the activity has
-already invoked a "resume" on this clock in the current phase.
+already invoked a <b>resume</b> on this clock in the current phase.
 Otherwise execution of this statement indicates that the activity will
-not transmit "c" to an "async" (through a "clocked"
+not transmit <b>c</b> to an <b>async</b> (through a <b>clocked</b>
 clause),
-until it terminates, drops "c" or executes a "next". 
+until it terminates, drops <b>c</b> or executes a <b>next</b>. 
 
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 The compiler should issue an error if any activity has a potentially
-live execution path from a "resume" statement on a clock "c"
+live execution path from a <b>resume</b> statement on a clock <b>c</b>
 to a
 async spawn statement (which registers the new
-activity on "c") unless the path goes through a "next"
-statement. (A "c.drop()" following a "c.resume()" is legal,
-as is "c.resume()" following a "c.resume()".)
+activity on <b>c</b>) unless the path goes through a <b>next</b>
+statement. (A <b>c.drop()</b> following a <b>c.resume()</b> is legal,
+as is <b>c.resume()</b> following a <b>c.resume()</b>.)
 
 
 <div class="p"><!----></div>
@@ -136,21 +136,21 @@ next;
 <div class="p"><!----></div>
  Execution of this statement blocks until all the clocks that the
 activity is registered with (if any) have advanced. (The activity
-implicitly issues a "resume" on all clocks it is registered
+implicitly issues a <b>resume</b> on all clocks it is registered
 with before suspending.)
 
 <div class="p"><!----></div>
 An X10 computation is said to be <em>quiescent</em> on a clock
-"c" if each activity registered with "c" has resumed "c".
-Note that once a computation is quiescent on "c", it will remain
-quiescent on "c" forever (unless the system takes some action),
-since no other activity can become registered with "c".  That is,
+<b>c</b> if each activity registered with <b>c</b> has resumed <b>c</b>.
+Note that once a computation is quiescent on <b>c</b>, it will remain
+quiescent on <b>c</b> forever (unless the system takes some action),
+since no other activity can become registered with <b>c</b>.  That is,
 quiescence on a clock is a <em>stable property</em>.
 
 <div class="p"><!----></div>
-Once the implementation has detected quiescence on "c", the system
-marks all activities registered with "c" as being able to progress
-on "c". An activity blocked on "next" resumes execution once
+Once the implementation has detected quiescence on <b>c</b>, the system
+marks all activities registered with <b>c</b> as being able to progress
+on <b>c</b>. An activity blocked on <b>next</b> resumes execution once
 it is marked for progress by all the clocks it is registered with.
 
 <div class="p"><!----></div>
@@ -164,8 +164,8 @@ c.drop();
 
 <div class="p"><!----></div>
  The activity is no longer considered registered with this
-clock.  A "ClockUseException" is thrown if the activity has
-already dropped "c".
+clock.  A <b>ClockUseException</b> is thrown if the activity has
+already dropped <b>c</b>.
 
 <div class="p"><!----></div>
 

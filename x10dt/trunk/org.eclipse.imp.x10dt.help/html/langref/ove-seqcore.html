@@ -23,26 +23,26 @@
 <div class="p"><!----></div>
 
 <b>Control flow.&nbsp;&nbsp;</b>  X10 supports standard sequential control flow
-constructs: "if" statements, "while" loops, "for" loops,
-"switch" statements, etc.  X10 also supports exceptions: exceptions are
-raised by "throw" statements and are handled by "try"-"catch"
+constructs: <b>if</b> statements, <b>while</b> loops, <b>for</b> loops,
+<b>switch</b> statements, etc.  X10 also supports exceptions: exceptions are
+raised by <b>throw</b> statements and are handled by <b>try</b>-<b>catch</b>
 statements.
 
 <div class="p"><!----></div>
 
 <b>Primitive operations.&nbsp;&nbsp;</b>  The language provides syntax for performing
 binary and unary operations on values. The programmer may specify code
-by using "operator" definitions. 
+by using <b>operator</b> definitions. 
 
 <div class="p"><!----></div>
 
 <b>Allocation.&nbsp;&nbsp;</b>
-Objects are allocated with the "new" operator
+Objects are allocated with the <b>new</b> operator
 (&#167;), which takes a class name and type and value
 arguments to pass to the class's constructor.  The constructor must
 ensure that all properties of the class and its superclasses are
 bound. Structs are created through the invocation of a constructor
-without using the "new" operator and live on the heap only in 
+without using the <b>new</b> operator and live on the heap only in 
 the fields of objects.
 
 <div class="p"><!----></div>
@@ -53,13 +53,13 @@ conversions (&#167;).
 
 <div class="p"><!----></div>
 Values of one type can be converted to another type using the
-"as" operation:
+<b>as</b> operation:
 <pre>
 val x: Int = 65535;
 val y: Byte = x as Byte; // convert to Byte,
                          // retaining the lower 8 bits
 </pre>
-The "as" operation does not necessarily preserve equality
+The <b>as</b> operation does not necessarily preserve equality
 and for numeric values may 
 result in a loss of precision.
 
@@ -67,15 +67,13 @@ result in a loss of precision.
 References may be coerced to another type, preserving object
 identity.  A run-time check is performed to ensure the reference
 is to an object of the target type.  If not,
-a "ClassCastException" is thrown.
+a <b>ClassCastException</b> is thrown.
 <pre>
 // C and D are immediate subclasses of B.
 val x: B = new C();
 val y: C = x as C; // run-time check succeeds
 val z: D = x as D; // run-time check fails
 </pre>
-For reference types a "to" conversion behaves identically to
-an "as" coercion.
 
 <div class="p"><!----></div>
 

@@ -28,11 +28,11 @@ Chapter 1 </a><br />Structs</h1>
 
 
 <div class="p"><!----></div>
-An instance of a class "C" (an <em>object</em> ) is represented in X10 as
+An instance of a class <b>C</b> (an <em>object</em> ) is represented in X10 as
 a contiguously allocated chunk of words in the heap, containing the
 fields of the object as well as one or more words used in method
-lookup (itable/vtable). Variables with base type "C" (or a supertype of
-"C") are implemented as cells with enough memory to hold a
+lookup (itable/vtable). Variables with base type <b>C</b> (or a supertype of
+<b>C</b>) are implemented as cells with enough memory to hold a
 <em>reference</em> to the object. The size of a reference (32 bits or 64
 bits) depends on the underlying operating system.
 
@@ -40,10 +40,10 @@ bits) depends on the underlying operating system.
 For many high-performance programming idioms, the overhead of one
 extra level of indirection represented by an object is not
 acceptable. For instance, a programmer may wish to define a type
-"Complex" (consisting of two double fields) and require that instances
+<b>Complex</b> (consisting of two double fields) and require that instances
 of this type be represented precisely as these two fields. A variable
 or field of type complex should, therefore, contain enough space to
-store two doubles. An array of complex of size "N" should store "2*N"
+store two doubles. An array of complex of size <b>N</b> should store <b>2*N</b>
 doubles. Method invocations should be resolved statically so that
 there is no need to store vtable/itable words with each
 instance. Parameters of type complex should be passed inline to a
@@ -58,6 +58,14 @@ objects that can be implemented inline with a contiguous chunk of
 memory representing their fields, without any vtable/itable. Structs
 are introduced by struct definitions. struct definitions look very
 similar to class definitions, but have additional restrictions.
+
+<div class="p"><!----></div>
+
+<b>Implementation Note&nbsp;&nbsp;</b> In X10 v2.0, structs are
+only implemented as inline headerless objects when using the C++
+backend. In the Java backend, structs are mapped directly to Java
+classes and therefore have the same space and indirection
+characteristics as classes. 
 
 <div class="p"><!----></div>
 

@@ -27,28 +27,16 @@ equivalences hold:
 <br clear="all" /><table border="0" width="100%"><tr><td>
 <table border="0" cellspacing="0" cellpadding="0">
  <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
- \xcd"<span class="roman">c</span><span class="roman">.</span><span class="roman">resume</span><span class="roman">(</span><span class="roman">)</span><span class="roman">;</span> <span class="roman">next</span><span class="roman">;</span>" </td></tr></table></td><td nowrap="nowrap" align="left">
-<table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
-=</td></tr></table></td><td nowrap="nowrap" align="left">
-<table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
-\xcd"<span class="roman">next</span><span class="roman">;</span>"</td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr>
+ <b><b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b> <b>next</b><b>;</b></b> &amp;=&amp; <b><b>next</b><b>;</b></b></td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr>
  <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
- \xcd"<span class="roman">c</span><span class="roman">.</span><span class="roman">resume</span><span class="roman">(</span><span class="roman">)</span><span class="roman">;</span> <span class="roman">d</span><span class="roman">.</span><span class="roman">resume</span><span class="roman">(</span><span class="roman">)</span><span class="roman">;</span>" </td></tr></table></td><td nowrap="nowrap" align="left">
-<table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
-=</td></tr></table></td><td nowrap="nowrap" align="left">
-<table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
-\xcd"<span class="roman">d</span><span class="roman">.</span><span class="roman">resume</span><span class="roman">(</span><span class="roman">)</span><span class="roman">;</span> <span class="roman">c</span><span class="roman">.</span><span class="roman">resume</span><span class="roman">(</span><span class="roman">)</span><span class="roman">;</span>"</td></tr></table></td><td width="50%"></td><td width="1" align="right">(2)</td></tr>
- <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
- \xcd"<span class="roman">c</span><span class="roman">.</span><span class="roman">resume</span><span class="roman">(</span><span class="roman">)</span><span class="roman">;</span> <span class="roman">c</span><span class="roman">.</span><span class="roman">resume</span><span class="roman">(</span><span class="roman">)</span><span class="roman">;</span>" </td></tr></table></td><td nowrap="nowrap" align="left">
-<table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
-=</td></tr></table></td><td nowrap="nowrap" align="left">
-<table><tr><td nowrap="nowrap" align="right" colspan="1">\xcd"<span class="roman">c</span><span class="roman">.</span><span class="roman">resume</span><span class="roman">(</span><span class="roman">)</span><span class="roman">;</span>"</td></tr></table></td><td width="50%"></td><td width="1" align="right">(3)</td></tr></table>
+ <b><b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b> <b>d</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b></b> &amp;=&amp; <b><b>d</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b> <b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b></b></td></tr></table></td><td width="50%"></td><td width="1" align="right">(2)</td></tr>
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table><tr><td nowrap="nowrap" align="right" colspan="1"> <b><b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b> <b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b></b> &amp;=&amp; <b><b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b></b></td></tr></table></td><td width="50%"></td><td width="1" align="right">(3)</td></tr></table>
 </td></tr></table>
 
 
 
 <div class="p"><!----></div>
-Note that "next; next;" is not the same as "next;". The
+Note that <b>next; next;</b> is not the same as <b>next;</b>. The
 first will wait for clocks to advance twice, and the second
 once.  
 

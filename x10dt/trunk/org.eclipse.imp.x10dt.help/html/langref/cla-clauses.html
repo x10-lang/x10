@@ -18,7 +18,7 @@
 
 <body>
  <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;"implements" and "extends" clauses</h2><a name="DepType:Implements">
+2</a>&nbsp;&nbsp;<b>implements</b> and <b>extends</b> clauses</h2><a name="DepType:Implements">
 </a>
 <a name="DepType:Extends">
 </a>
@@ -28,10 +28,10 @@
 
 Consider a class definition
 <pre>
-<em>ClassModifiers</em><sup>?</sup>
+{<em>{</em>ClassModifiers}}<sup>{</sup>{?}}
 class C(x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>) extends D{d}
    implements I<sub>1</sub>{c<sub>1</sub>}, ..., I<sub>k</sub>{c<sub>k</sub>}
-<em>ClassBody</em>
+{<em>{</em>ClassBody}}
 </pre>
 
 <div class="p"><!----></div>
@@ -39,14 +39,14 @@ Each of the following static semantics rules must be satisfied:
 
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Int-implements):
-The type invariant "<i>inv</i>(C)" of "C" must entail
+The type invariant  of <b>C</b> must entail
 "c<sub>i</sub>[this/self]" for each i in {1, ..., k}
 
 
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Super-extends):
-The return type "c" of each constructor in <em>ClassBody</em>
-must entail "d".
+The return type <b>c</b> of each constructor in <em>ClassBody</em>
+must entail <b>d</b>.
 
 
 <div class="p"><!----></div>

@@ -25,10 +25,10 @@
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">FieldExpression &nbsp;Expression "." Identifier </td></tr>
-<tr><td align="right">\ -  "super" "." Identifier </td></tr>
-<tr><td align="right">\ -  ClassName "." Identifier </td></tr>
-<tr><td align="right">\ -  ClassName "." "super" "." Identifier </td></tr>
+<tr><td align="right">FieldExpression ::= Expression <b>.</b> Identifier </td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Identifier </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> Identifier </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b> <b>.</b> Identifier </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -38,20 +38,20 @@ with a field access expression.
 
 <div class="p"><!----></div>
 The type of the access is the declared type of the field with the
-actual target substituted for "this" in the type. 
+actual target substituted for <b>this</b> in the type. 
 
 <div class="p"><!----></div>
 The field accessed is selected from the fields and value properties
 of the static type of the target and its superclasses.
 
 <div class="p"><!----></div>
-If the field target is given by the keyword "super",
+If the field target is given by the keyword <b>super</b>,
 the target's type is
 the superclass of the enclosing class, as
 constrained by the superclass's class invariant, if any.
 
 <div class="p"><!----></div>
-If the field target is "null", a "NullPointerException"
+If the field target is <b>null</b>, a <b>NullPointerException</b>
 is thrown.
 
 <div class="p"><!----></div>

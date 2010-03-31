@@ -23,10 +23,10 @@
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;IfThenStatement </td></tr>
-<tr><td align="right">\ -  IfThenElseStatement </td></tr>
-<tr><td align="right">IfThenStatement &nbsp;"if" "(" Expression ")" Statement </td></tr>
-<tr><td align="right">IfThenElseStatement &nbsp;"if" "(" Expression ")" Statement "else" Statement </td></tr>
+<tr><td align="right">Statement ::= IfThenStatement </td></tr>
+<tr><td align="right">&#124; IfThenElseStatement </td></tr>
+<tr><td align="right">IfThenStatement ::= <b>if</b> <b>(</b> Expression <b>)</b> Statement </td></tr>
+<tr><td align="right">IfThenElseStatement ::= <b>if</b> <b>(</b> Expression <b>)</b> Statement <b>else</b> Statement </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -37,17 +37,17 @@ clause.
 <div class="p"><!----></div>
 The if-then statement evaluates a condition expression and 
 evaluates the consequent expression if the condition is
-"true".  If the 
-condition is "false",
+<b>true</b>.  If the 
+condition is <b>false</b>,
 the if-then statement completes normally.
 
 <div class="p"><!----></div>
 The if-then-else statement evaluates a condition expression and 
 evaluates the consequent expression if the condition is
-"true"; otherwise, the alternative statement is evaluated.
+<b>true</b>; otherwise, the alternative statement is evaluated.
 
 <div class="p"><!----></div>
-The condition must be of type "Boolean".
+The condition must be of type <b>Boolean</b>.
 
 <div class="p"><!----></div>
 

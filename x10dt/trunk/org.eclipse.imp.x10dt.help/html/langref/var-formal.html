@@ -27,14 +27,18 @@ scope of the declaration.
   :  |        <em>  
 <table>
 <tr><td align="right">Formal
-        &nbsp;FormalModifier<sup>*</sup>&nbsp;"var" VarDeclaratorWithType </td></tr>
-<tr><td align="right">\ -  FormalModifier<sup>*</sup>&nbsp;"val" VarDeclaratorWithType </td></tr>
-<tr><td align="right">\ -  FormalModifier<sup>*</sup>&nbsp;VarDeclaratorWithType </td></tr>
-<tr><td align="right">\ -  Type </td></tr>
-<tr><td align="right">FormalModifier &nbsp;Annotation </td></tr>
-<tr><td align="right">\ -  "shared" </td></tr>
+        ::= FormalModifier<sup>*</sup>&nbsp;<b>var</b> VarDeclaratorWithType </td></tr>
+<tr><td align="right">&#124; FormalModifier<sup>*</sup>&nbsp;<b>val</b> VarDeclaratorWithType </td></tr>
+<tr><td align="right">&#124; FormalModifier<sup>*</sup>&nbsp;VarDeclaratorWithType </td></tr>
+<tr><td align="right">&#124; Type </td></tr>
+<tr><td align="right">FormalModifier ::= Annotation </td></tr>
+<tr><td align="right">&#124; <b>shared</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
+
+<div class="p"><!----></div>
+<b>var</b>, <b>val</b>, and <b>shared</b> behave just as they do for local
+variables, &#167;.
 
 <div class="p"><!----></div>
 

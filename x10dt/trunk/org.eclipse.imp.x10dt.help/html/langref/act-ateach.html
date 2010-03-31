@@ -18,36 +18,56 @@
 
 <body>
  <h2><a name="tth_sEc7">
-7</a>&nbsp;&nbsp;Ateach statements</h2>
+7</a>&nbsp;&nbsp;Ateach statements</h2><a name="ateach-section">
+</a>
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;AtEachStatement </td></tr>
-<tr><td align="right">AtEachStatement &nbsp;
-      "ateach" "(" Formal "in" Expression ")"
+<tr><td align="right">Statement ::= AtEachStatement </td></tr>
+<tr><td align="right">AtEachStatement ::=
+      <b>ateach</b> <b>(</b> Formal <b>in</b> Expression <b>)</b>
          Statement 
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The "ateach" statement is similar to the "foreach"
-statement.  The collection must be of type "Dist"
-and the formal parameter of type "Point".
-Expressions "e" of type "Array" are also accepted, and treated
-as if they were "e.dist". The compiler reports a type error
-in all other cases.
+The <b>ateach</b> statement is similar to the <b>foreach</b>
+statement, but it spawns activites at each place of a distribution. 
+In <b>ateach(p in D) S</b>, 
+<b>D</b> must be either of type <b>Dist</b> or of type
+<b>Array[T]</b>, 
+and <b>p</b> will be of type <b>Point</b>.
 
 <div class="p"><!----></div>
-This statement differs from "foreach" only in
+This statement differs from <b>foreach</b> only in
 that each activity is spawned at the place specified by the
-distribution for the point. That is, 
-"ateach(p(i1,...,ik): point in D) S" may
-be thought of as standing for:
+distribution for the point. That is, if <b>D</b> is a <b>Dist</b>, 
+<b>ateach(p in D) S</b> could be implemented as:
 <pre>
-foreach (p(i1,...,ik): point in D.region) 
+foreach (p in D.region) 
   async (D(p)) S
 </pre>
+
+<div class="p"><!----></div>
+However, the compiler may implement it more efficiently to avoid extraneous
+communications.  In particular, it is recommended that <b>ateach(p in D)S</b>
+be implemented as the following code, which coordinates with each place of
+<b>D</b> just once, rather than once per element of <b>D</b> at that place: 
+<pre>
+foreach (p in D.places()) at (p) {
+    foreach (pt in D</td><td width="150">
+&#124;here) {
+        S
+    }
+}
+</pre>
+
+<div class="p"><!----></div>
+If <b>e</b> is an <b>Array[T]</b>, then <b>ateach (p in e)S</b> is identical to
+<b>ateach(p in e.dist)S</b>; the iteration is over the array's underlying
+distribution.   <b>ateach(p in A)dealWith(A(p));</b> is a common and generally
+efficient idiom for working with the elements of an array.
 
 <div class="p"><!----></div>
 

@@ -23,10 +23,10 @@
 </a>
 
 Every operator (e.g.,
-"+",
-"-",
-"*",
-"/",
+<b>+</b>,
+<b>-</b>,
+<b>*</b>,
+<b>/</b>,
 ...) has a family of functions, one for
 each type on which the operator is defined. The function can be
 selected using the "." syntax:
@@ -35,36 +35,30 @@ selected using the "." syntax:
   :  |        <em>  
 <table>
 <tr><td align="right">OperatorFunction
-        &nbsp;TypeName "." Operator "(" Formals<sup>?</sup>&nbsp;")" </td></tr>
-<tr><td align="right">\ -  TypeName "." Operator </td></tr>
+        ::= TypeName <b>.</b> Operator <b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> Operator </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 If an operator has more than one arity (e.g., unary and binary
-"-"), the appropriate version may be selected by giving the
+<b>-</b>), the appropriate version may be selected by giving the
 formal parameter types.  The binary version is selected by
 default.
 For example, the following equivalences hold:
 
 <div class="p"><!----></div>
 <pre>
-String.+              <font face="symbol">º</font
->  (x: String, y: String): String =&#62; x + y
-Long.-                <font face="symbol">º</font
->  (x: Long, y: Long): Int =&#62; x - y
-Float.-(Float,Float)  <font face="symbol">º</font
->  (x: Float, y: Float): Int =&#62; x - y
-Int.-(Int)            <font face="symbol">º</font
->  (x: Int): Int =&#62; -x
-Boolean.&amp;             <font face="symbol">º</font
->  (x: Boolean, y: Boolean): Boolean =&#62; x &amp; y
-Boolean.!             <font face="symbol">º</font
->  (x: Boolean): Boolean =&#62; !x
-Int.&lt;(Int,Int)        <font face="symbol">º</font
->  (x: Int, y: Int): Boolean =&#62; x &lt; y
-Dist.|(Place)         <font face="symbol">º</font
->  (d: Dist, p: Place): Dist =&#62; d | p
+String.+              &#8801;  (x: String, y: String): String =&#62; x + y
+Long.-                &#8801;  (x: Long, y: Long): Long =&#62; x - y
+Float.-(Float,Float)  &#8801;  (x: Float, y: Float): Float =&#62; x - y
+Int.-(Int)            &#8801;  (x: Int): Int =&#62; -x
+Boolean.&amp;             &#8801;  (x: Boolean, y: Boolean): Boolean =&#62; x &amp; y
+Boolean.!             &#8801;  (x: Boolean): Boolean =&#62; !x
+Int.&lt;(Int,Int)        &#8801;  (x: Int, y: Int): Boolean =&#62; x &lt; y
+Dist.</td><td width="150">
+&#124;(Place)         &#8801;  (d: Dist, p: Place): Dist =&#62; d </td><td width="150">
+&#124; p
 </pre>
 
 <div class="p"><!----></div>
@@ -74,9 +68,9 @@ operations; instead, the operands are coerced individually via implicit
 coercions (&#167;), as appropriate.
 
 <div class="p"><!----></div>
-Additionally, for every expression "e" of a type "T" at which a binary
-operator "OP" is defined, the expression "e.OP" or
-"e.OP(T)" represents the function
+Additionally, for every expression <b>e</b> of a type <b>T</b> at which a binary
+operator <b>OP</b> is defined, the expression <b>e.OP</b> or
+<b>e.OP(T)</b> represents the function
 defined by:
 
 <div class="p"><!----></div>
@@ -87,19 +81,21 @@ defined by:
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">Primary &nbsp;Expr "." Operator "(" Formals<sup>?</sup>&nbsp;")" </td></tr>
-<tr><td align="right">\ -  Expr "." Operator </td></tr>
+<tr><td align="right">Primary ::= Expr <b>.</b> Operator <b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; Expr <b>.</b> Operator </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
+<pre>
+</pre>
 
 <div class="p"><!----></div>
 For example,
 one may write an expression that adds one to each member of a
-list "xs" by:
+list <b>xs</b> by:
 
 <div class="p"><!----></div>
 <pre>

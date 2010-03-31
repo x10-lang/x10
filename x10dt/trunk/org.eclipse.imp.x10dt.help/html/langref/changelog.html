@@ -27,11 +27,11 @@ Chapter 1 </a><br />Change Log</h1>
 <div class="p"><!----></div>
 
 <ul>
-<li> "Any" is now the top of the type hierarchy (every object,
+<li> <b>Any</b> is now the top of the type hierarchy (every object,
   struct and function has a type that is a subtype of
-  "Any"). "Any" defines "home", "at", "toString",
-  "typeName", "equals" and "hashCode". "Any" also defines the methods
-  of "Equals", so "Equals" is not needed any more.
+  <b>Any</b>). <b>Any</b> defines <b>home</b>, <b>at</b>, <b>toString</b>,
+  <b>typeName</b>, <b>equals</b> and <b>hashCode</b>. <b>Any</b> also defines the methods
+  of <b>Equals</b>, so <b>Equals</b> is not needed any more.
 <div class="p"><!----></div>
 </li>
 
@@ -60,7 +60,7 @@ The language has changed in the following way:
   Class and struct types are called <em>container types</em> in that they
   specify a collection of fields and methods. Container types have a
   name and a signature (the collection of members accessible on that
-  type). Collection types support primitive equality "==" and may
+  type). Collection types support primitive equality <b>==</b> and may
   support user-defined equality if they implement the <tt>
     x10.lang.Equals</tt> interface. 
 
@@ -73,7 +73,7 @@ The language has changed in the following way:
   result type, and (optionally) a guard. A function application
   type-checks if the arguments are of the given type and the guard is
   satisfied, and the return value is of the given type.  A function
-  type does not permit "==" checks. Closure literals create
+  type does not permit <b>==</b> checks. Closure literals create
   instances of the corresponding function type.
 
 <div class="p"><!----></div>
@@ -89,23 +89,23 @@ The language has changed in the following way:
   instantiate a generic type. 
 
 <div class="p"><!----></div>
-  There is no longer any notion of "value" classes. "value"
+  There is no longer any notion of <b>value</b> classes. <b>value</b>
   classes must be re-written into structs or (reference) classes.
 <div class="p"><!----></div>
 </li>
 
 <li> <b>Global object model</b>: Objects are instances of
   classes. Each object is associated with a globally unique
-  identifier. Two objects are considered identical "==" if their
-  ids are identical. Classes may specify "global" fields and
-  methods. These can be accessed at any place. ("global" fields
+  identifier. Two objects are considered identical <b>==</b> if their
+  ids are identical. Classes may specify <b>global</b> fields and
+  methods. These can be accessed at any place. (<b>global</b> fields
   must be immutable.)
 <div class="p"><!----></div>
 </li>
 
 <li><b>Proto types.</b> For the decidability of dependent type
   checking it is necessary that the property graph is acyclic. This is
-  ensured by enforcing rules on the leakage of "this" in
+  ensured by enforcing rules on the leakage of <b>this</b> in
   constructors. The rules are flexible enough to permit cycles to be
   created with normal fields, but not with properties.
 <div class="p"><!----></div>
@@ -130,6 +130,8 @@ Projects Agency (DARPA) under contract No. NBCH30390004.</em>
 <div class="p"><!----></div>
 <em>Java and all Java-based trademarks are trademarks of Sun Microsystems,
 Inc. in the United States, other countries, or both.</em>
+
+<div class="p"><!----></div>
 
 </body>
 </html>

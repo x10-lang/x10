@@ -38,13 +38,13 @@ at (P) {
       // In the body x contains a remote reference to o
       val f = new D();
       f.x1  = x; // remote reference stored in f.x1
-      Console.OUT.println((f.x1 == x);       // must print true
-      Console.OUT.println((x == x);          // must print true
+      Console.OUT.println(f.x1 == x);       // must print true
+      Console.OUT.println(x == x);          // must print true
       at (Q) { 
          // x continues to be a remote reference to o1.
          at (P) {  
              Console.OUT.println(f.x1 == x);   // must print true
-             Console.OUT.println((x == x);   // must print true
+             Console.OUT.println(x == x);   // must print true
          }
       }
 }
@@ -55,7 +55,7 @@ Here is another example.
 <pre>
 val x = new C(..); 
 // C object o created, reference stored in x. 
-// type of x is rooted C{c} if the return type 
+// type of x is C{c}! if the return type 
 // of the constructor is C{c}. 
 at (P) { 
     val x1 = x; 
@@ -64,9 +64,9 @@ at (P) {
   at (x.home()) {
         // x is now bound to o through a local reference. So is x1.
     Console.out.println(x1==x); // Must print true.
-      // rooted methods can be invoked on x or x1 and will 
+      // non-global methods can be invoked on x or x1 and will 
       // execute locally on o
-      // type of both x and x1 is rooted C{c}.
+      // type of both x and x1 is C{c}!.
   }
 }
 </pre>
@@ -76,7 +76,7 @@ at (P) {
 2.1</a>&nbsp;&nbsp;Programming Methodology</h3>
 
 <div class="p"><!----></div>
-A programmer wishing to ensure that a "val" field is not serialized when
+A programmer wishing to ensure that a <b>val</b> field is not serialized when
 the containing object is serialized (e.g. because it contains a large
 cache which makes sense only in the current place) must ensure the
 field is <em>not</em> marked global.

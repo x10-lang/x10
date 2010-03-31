@@ -45,7 +45,7 @@ variable is the computed type of the initializer.
 
 <div class="p"><!----></div>
 The return type of a method can be omitted if the method has a
-body (i.e., is not "abstract" or "extern").  The
+body (i.e., is not <b>abstract</b> or <b>extern</b>).  The
 inferred return type is the computed type of the body.
 
 <div class="p"><!----></div>
@@ -54,37 +54,39 @@ The inferred return type is the computed type of the body.
 
 <div class="p"><!----></div>
 The return type of a constructor can be omitted if the
-constructor has a body (i.e., is not "extern").
+constructor has a body (i.e., is not <b>extern</b>).
 The inferred return type is the enclosing class type with
-properties bound to the arguments in the constructor's "property"
+properties bound to the arguments in the constructor's <b>property</b>
 statement, if any, or to the unconstrained class type.
 
 <div class="p"><!----></div>
 The inferred type of a method or closure body is the least common ancestor
-of the types of the expressions in "return" statements
+of the types of the expressions in <b>return</b> statements
 in the body.  If the method does not return a value, the
-inferred type is "Void".
+inferred type is <b>Void</b>.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc11.3">
 11.3</a>&nbsp;&nbsp;Type arguments</h3>
 
 <div class="p"><!----></div>
-A call to a polymorphic method may omit the
+A call to a polymorphic method %, closure, or constructor 
+may omit the
 explicit type arguments.  If the method has a type parameter
-"T", the type argument corresponding to "T" is inferred
+<b>T</b>, the type argument corresponding to <b>T</b> is inferred
 to be the least common ancestor of the types of any formal
-parameters of type "T".
+parameters of type <b>T</b>.
 
 <div class="p"><!----></div>
 Consider the following method:
 <pre>
 def choose[T](a: T, b: T): T { ... }
 </pre>
-Given "Set[T] &lt;: Collection[T]"
-and "List[T] &lt;: Collection[T]",
+Given <b>Set[T] &lt;: Collection[T]</b>, 
+<b>List[T] &lt;: Collection[T]</b>,
+and <b>SubClass &lt;: SuperClass</b>,
 in the following snippet, the algorithm will infer the type
-"Collection[Any]" for "x".
+<b>Collection[Any]</b> for <b>x</b>.
 <pre>
 def m(intSet: Set[Int], stringList: List[String]) {
   val x = choose(intSet, stringList);
@@ -92,7 +94,7 @@ def m(intSet: Set[Int], stringList: List[String]) {
 }
 </pre>
 And in this snippet, the algorithm should infer the type
-"Collection[Int]" for "y".
+<b>Collection[Int]</b> for <b>y</b>.
 <pre>
 def m(intSet: Set[Int], intList: List[Int]) {
   val y = choose(intSet, intList);
@@ -100,9 +102,9 @@ def m(intSet: Set[Int], intList: List[Int]) {
 }
 </pre>
 Finally, in this snippet, the algorithm should infer the type
-"Collection{T &lt;: Number}" for "z".
+<b>CollectionT &lt;: SuperClass</b> for <b>z</b>.
 <pre>
-def m(intSet: Set[Int], numList: List{T &lt;: Number}) {
+def m(intSet: Set[SubClass], numList: List{T &lt;: SuperClass}) {
   val z = choose(intSet, numList);
   ...
 }

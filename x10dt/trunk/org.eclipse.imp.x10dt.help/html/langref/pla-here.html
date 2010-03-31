@@ -18,14 +18,14 @@
 
 <body>
  <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;"here"</h2><a name="Here">
+2</a>&nbsp;&nbsp;<b>here</b></h2><a name="Here">
 </a>
-X10 supports a special indexical constant<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> "here":
+X10 supports a special indexical constant<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> <b>here</b>:
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">ExpressionName &nbsp;"here" </td></tr>
+<tr><td align="right">ExpressionName ::= <b>here</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -40,9 +40,9 @@ The code:
 <pre>
 public class F {
   public def m(a: F) {
-    val OldHere: place = here;
+    val OldHere: Place = here;
     async (a) {
-      System.out.println("OldHere == here:" 
+      Console.OUT.println(&#214;ldHere == here:" 
                          + (OldHere == here));
     }
   }
@@ -53,8 +53,8 @@ public class F {
 </pre>
 
 <div class="p"><!----></div>
- will print out "true" iff the computation was configured
-to start with the number of places set to "1". 
+ will print out <b>true</b> iff the computation was configured
+to start with the number of places set to <b>1</b>. 
 
 
 <div class="p"><!----></div>

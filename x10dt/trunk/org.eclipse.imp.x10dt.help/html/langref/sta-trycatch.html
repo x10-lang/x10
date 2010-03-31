@@ -23,39 +23,39 @@
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;TryStatement </td></tr>
-<tr><td align="right">TryStatement &nbsp;"try" BlockStatement Catch<sup>+</sup>&nbsp;Finally<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">\ -  "try" BlockStatement Catch<sup>*</sup>&nbsp;Finally </td></tr>
-<tr><td align="right">Catch &nbsp;"catch" "(" Formal ")" BlockStatement </td></tr>
-<tr><td align="right">Finally &nbsp;"finally" BlockStatement </td></tr>
+<tr><td align="right">Statement ::= TryStatement </td></tr>
+<tr><td align="right">TryStatement ::= <b>try</b> BlockStatement Catch<sup>+</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; <b>try</b> BlockStatement Catch<sup>*</sup>&nbsp;Finally </td></tr>
+<tr><td align="right">Catch ::= <b>catch</b> <b>(</b> Formal <b>)</b> BlockStatement </td></tr>
+<tr><td align="right">Finally ::= <b>finally</b> BlockStatement </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-Exceptions are handled with a "try" statement.
-A "try" statement consists of a "try" block, zero or more
-"catch" blocks, and an optional "finally" block.
+Exceptions are handled with a <b>try</b> statement.
+A <b>try</b> statement consists of a <b>try</b> block, zero or more
+<b>catch</b> blocks, and an optional <b>finally</b> block.
 
 <div class="p"><!----></div>
-First, the "try" block is evaluated.  If the block throws an
-exception, control transfers to the first matching "catch"
-block, if any.  A "catch" matches if the value of the
-exception thrown is a subclass of the "catch" block's formal
+First, the <b>try</b> block is evaluated.  If the block throws an
+exception, control transfers to the first matching <b>catch</b>
+block, if any.  A <b>catch</b> matches if the value of the
+exception thrown is a subclass of the <b>catch</b> block's formal
 parameter type.
 
 <div class="p"><!----></div>
-The "finally" block, if present, is evaluated on all normal
-and exceptional control-flow paths from the "try" block.
-If the "try" block completes normally
-or via a "return", a "break", or a
-"continue" statement, 
-the "finally"
+The <b>finally</b> block, if present, is evaluated on all normal
+and exceptional control-flow paths from the <b>try</b> block.
+If the <b>try</b> block completes normally
+or via a <b>return</b>, a <b>break</b>, or a
+<b>continue</b> statement, 
+the <b>finally</b>
 block is evaluated, and then control resumes at
-the statement following the "try" statement, at the branch target, or at
+the statement following the <b>try</b> statement, at the branch target, or at
 the caller as appropriate.
-If the "try" block completes
-exceptionally, the "finally" block is evaluated after the
-matching "catch" block, if any, and then the
+If the <b>try</b> block completes
+exceptionally, the <b>finally</b> block is evaluated after the
+matching <b>catch</b> block, if any, and then the
 exception is rethrown.
 
 <div class="p"><!----></div>

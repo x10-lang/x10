@@ -23,12 +23,12 @@
 
 <div class="p"><!----></div>
 Arrays are indexed by points-n-dimensional tuples of
-integers, implemented by the value class "x10.lang.Point".
+integers, implemented by the class <b>x10.lang.Point</b>.
 X10 specifies a simple syntax for the construction of points.
-A rail constructor (&#167;) of type "ValRail[Int]"
+A rail constructor (&#167;) of type <b>ValRail[Int]</b>
 of length n
-can be implicitly coerced to a "Point" of rank n.  For
-example, the following code initializes "p" to a point of
+can be implicitly coerced to a <b>Point</b> of rank n.  For
+example, the following code initializes <b>p</b> to a point of
 rank two using a rail constructor:
 
 <div class="p"><!----></div>
@@ -38,7 +38,7 @@ p: Point(2) = [1,2];
 </pre>
 
 <div class="p"><!----></div>
-The "Point" factory method "make" can take a rail constructor as
+The <b>Point</b> factory method <b>make</b> can take a rail constructor as
 argument.  The assignment above can be written, without
 implicit coercion, as:
 
@@ -48,8 +48,8 @@ p: Point = Point.make([1,2]);
 </pre>
 
 <div class="p"><!----></div>
-Points implement the function type "(Int) =&#62; Int"; thus, the
-"i"the element of a point "p" may be accessed as "p(i)".
+Points implement the function type <b>(Int) =&#62; Int</b>; thus, the
+<b>i</b>th element of a point <b>p</b> may be accessed as <b>p(i)</b>.
 
 <div class="p"><!----></div>
 

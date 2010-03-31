@@ -50,58 +50,60 @@ Function types are covariant on their return type and
 contravariant on their argument types.
 For instance,
 a function type
-"(S1) =&#62; T1" 
+<b>(S1) =&#62; T1</b> 
 is a subtype of another function type
-"(S2) =&#62; T2" 
-if "S2" is a subtype of "S1"
-and "T1" is a subtype of "T2".
+<b>(S2) =&#62; T2</b> 
+if <b>S2</b> is a subtype of <b>S1</b>
+and <b>T1</b> is a subtype of <b>T2</b>.
 
 <div class="p"><!----></div>
 
 <b>Constrained types.&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-Two dependent types "C{c}" and "C{d}" are said to be <em>equivalent</em> if 
-"c" is true whenever "d" is, and vice versa. Thus, 
-\relax[["C{c}"]] = \relax[["C{d}"]].
+Two dependent types <b>C{c}</b> and <b>C{d}</b> are said to be <em>equivalent</em> if 
+<b>c</b> is true whenever <b>d</b> is, and vice versa. Thus, 
+\relax[[C{c}]] = \relax[[C{d}]].
 
 <div class="p"><!----></div>
 Note that two dependent type that are syntactically different may be
-equivalent. For instance, "Int{self &#62;= 0}" and
-"Int{self == 0 || self &#62; 0}" are equivalent though they are syntactically
+equivalent. For instance, <b>Int{self &#62;= 0}</b> and
+<b>Int{self == 0 </td><td width="150">
+&#124;</td><td width="150">
+&#124; self &#62; 0}</b> are equivalent though they are syntactically
 distinct. The Java type system is essentially a nominal system-two
 types are the same if and only if they have the same name. The X10
 type system extends the nominal type system of Java to permit
 constraint-based equivalence.
 
 <div class="p"><!----></div>
-A dependent type "C{c}" is a subtype of a type "C{d}" if
-"c" implies "d".  In such a case we have
-\relax[["C{c}"]] is a
-subset of \relax[["C{d}"]]. All dependent types
-defined on a class "C"
-refine the unconstrained class type "C"; "C" is
-equivalent to "C{true}".
+A dependent type <b>C{c}</b> is a subtype of a type <b>C{d}</b> if
+<b>c</b> implies <b>d</b>.  When this subtyping relationship holds, 
+\relax[[C{c}]] is a
+subset of \relax[[C{d}]]. All dependent types
+defined on a class <b>C</b>
+refine the unconstrained class type <b>C</b>; <b>C</b> is
+equivalent to <b>C{true}</b>.
 
 <div class="p"><!----></div>
 
 <b>Type parameters.&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-A type parameter "X" of a class or interface "C"
-is a subtype of a type "T" if
+A type parameter <b>X</b> of a class or interface <b>C</b>
+is a subtype of a type <b>T</b> if
 the 
-class invariant of "C" implies that "X" is a subtype of "T".
-Similarly, "T" is a subtype of parameter "X" if the
+class invariant of <b>C</b> implies that <b>X</b> is a subtype of <b>T</b>.
+Similarly, <b>T</b> is a subtype of parameter <b>X</b> if the
 class invariant implies the relationship.
 
 <div class="p"><!----></div>
-A type parameter "X" of a method
-"m"
-is a subtype of a type "T" if
+A type parameter <b>X</b> of a method
+<b>m</b>
+is a subtype of a type <b>T</b> if
 the 
-guard of "m" implies that "X" is a subtype of "T".
-Similarly, "T" is a subtype of parameter "X" if the
+guard of <b>m</b> implies that <b>X</b> is a subtype of <b>T</b>.
+Similarly, <b>T</b> is a subtype of parameter <b>X</b> if the
 guard implies the relationship.
 
 <div class="p"><!----></div>

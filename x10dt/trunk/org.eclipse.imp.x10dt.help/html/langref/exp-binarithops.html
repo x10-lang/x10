@@ -25,18 +25,20 @@ The binary arithmetic operations apply binary numeric promotion
 to their operands. The operands must be of numeric type.
 The type of the result is the promoted type.
 The
-"+" operator adds the promoted operands. The "-" operator
-subtracts the second operand from the first. The "*" operator
-multiplies the  promoted  operands. The "/" operator
+<b>+</b> operator adds the promoted operands. The <b>-</b> operator
+subtracts the second operand from the first. The <b>*</b> operator
+multiplies the  promoted  operands. The <b>/</b> operator
 divides the
 first  operand  by the second.
-The "the remainder of the division of the first operand by the
+The <b>%</b> operator evaluates to
+the remainder of the division of the first operand by the
 second.
 
 <div class="p"><!----></div>
 Floating point operations are determined by the IEEE 754
 standard. 
-The integer "/" and "if the right operand is zero.
+The integer <b>/</b> and <b>%</b> throw a <b>DivideByZeroException</b>
+if the right operand is zero.
 
 <div class="p"><!----></div>
 

@@ -36,8 +36,8 @@ types on top of interfaces and not just classes.
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">NormalInterfaceDeclaration &nbsp;
-      InterfaceModifiers<sup>?</sup>&nbsp;"interface" Identifier  </td></tr>
+<tr><td align="right">NormalInterfaceDeclaration ::=
+      InterfaceModifiers<sup>?</sup>&nbsp;<b>interface</b> Identifier  </td></tr>
 <tr><td align="right">&amp;&amp; TypePropertyList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Constraint<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right">&amp;&amp; ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
 <tr><td align="right"></td></tr></table>
@@ -55,7 +55,7 @@ The compiler declares an error if this constraint
 
 <div class="p"><!----></div>
 Each interface implicitly defines a nullary getter method
-"def p(): T" for each property "p: T". 
+<b>def p(): T</b> for each property <b>p: T</b>. 
 
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
@@ -64,16 +64,16 @@ The compiler issues a warning if an interface body
 
 
 <div class="p"><!----></div>
-A class "C" (with properties) is said to implement an interface "I" if
+A class <b>C</b> (with properties) is said to implement an interface <b>I</b> if
 
 <ul>
-<li> its properties contains all the properties of "I",
+<li> its properties contains all the properties of <b>I</b>,
 <div class="p"><!----></div>
 </li>
 
 <li> its class invariant
-<i>inv</i>("C") implies
-<i>inv</i>("I").
+<i>inv</i>(<b>C</b>) implies
+<i>inv</i>(<b>I</b>).
 <div class="p"><!----></div>
 </li>
 </ul>

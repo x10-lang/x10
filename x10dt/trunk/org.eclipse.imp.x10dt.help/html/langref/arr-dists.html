@@ -24,12 +24,13 @@
 
 <div class="p"><!----></div>
 A <em>distribution</em> is a mapping from a region to a set of places.
-X10 provides a built-in value class, "x10.lang.Dist", to allow the creation of new distributions and
-to perform operations on distributions. This class is "final" in
+X10 provides a built-in class, <b>x10.lang.Dist</b>, to allow the creation of new distributions and
+to perform operations on distributions. This class is <b>final</b> in
 X10 v2.0; future versions of the language may permit
 user-definable distributions. Since distributions play a dual role
-(values as well as types), variables of type "Dist" must
-be initialized and are implicitly "final".
+(values as well as types), variables of type <b>Dist</b> must
+be initialized and are implicitly <b>val</b>.
+
 
 <div class="p"><!----></div>
 The <em>rank</em> of a distribution is the rank of the underlying region.
@@ -46,108 +47,118 @@ D: Dist = Dist.random(R);
 </pre>
 
 <div class="p"><!----></div>
-Let "D" be a distribution. "D.region" denotes the underlying
-region. "D.places" is the set of places constituting the range of
-"D" (viewed as a function). Given a point "p", the expression
-"D(p)" represents the application of "D" to "p", that is,
-the place that "p" is mapped to by "D". The evaluation of the
-expression "D(p)" throws an "ArrayIndexOutofBoundsException"
-if "p" does not lie in the underlying region.
+Let <b>D</b> be a distribution. <b>D.region</b> denotes the underlying
+region. <b>D.places</b> is the set of places constituting the range of
+<b>D</b> (viewed as a function). Given a point <b>p</b>, the expression
+<b>D(p)</b> represents the application of <b>D</b> to <b>p</b>, that is,
+the place that <b>p</b> is mapped to by <b>D</b>. The evaluation of the
+expression <b>D(p)</b> throws an <b>ArrayIndexOutofBoundsException</b>
+if <b>p</b> does not lie in the underlying region.
 
 <div class="p"><!----></div>
-When operated on as a distribution, a region "R" implicitly
-behaves as the distribution mapping each item in "R" to "here"
-(i.e., "R-&#62;here", see below). Conversely, when used in a context
-expecting a region, a distribution "D" should be thought of as
-standing for "D.region".
+When operated on as a distribution, a region <b>R</b> implicitly
+behaves as the distribution mapping each item in <b>R</b> to <b>here</b>
+(i.e., <b>R-&#62;here</b>, see below). Conversely, when used in a context
+expecting a region, a distribution <b>D</b> should be thought of as
+standing for <b>D.region</b>.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc3.1">
 3.1</a>&nbsp;&nbsp;Operations returning distributions</h3>
 
 <div class="p"><!----></div>
-Let "R" be a region, "Q" a set of places {"p1", ..., "pk"}
-(enumerated in canonical order), and "P" a place. All the operations
-described below may be performed on "Dist.factory".
+Let <b>R</b> be a region, <b>Q</b> a set of places {<b>p1</b>, ..., <b>pk</b>}
+(enumerated in canonical order), and <b>P</b> a place. All the operations
+described below may be performed on <b>Dist.factory</b>.
 
 <div class="p"><!----></div>
 
 <b>Unique distribution&nbsp;&nbsp;</b> 
-The distribution "unique(Q)" is the unique distribution from the
-region "1..k" to "Q" mapping each point "i" to "pi".
+The distribution <b>unique(Q)</b> is the unique distribution from the
+region <b>1..k</b> to <b>Q</b> mapping each point <b>i</b> to <b>pi</b>.
 
 <div class="p"><!----></div>
 
 <b>Constant distributions.&nbsp;&nbsp;</b> 
-The distribution "R-&#62;P" maps every point in "R" to "P".
+The distribution <b>R-&#62;P</b> maps every point in <b>R</b> to <b>P</b>.
 
 <div class="p"><!----></div>
 
 <b>Block distributions.&nbsp;&nbsp;</b>
-The distribution "block(R, Q)" distributes the elements of "R"
-(in order) over the set of places "Q" in blocks  as
-follows. Let p equal "\ - R\ -  div N" and q equal "\ - R\ -  mod N",
-where "N" is the size of "Q", and 
-"\ - R\ - " is the size of "R".  The first q places get
+The distribution <b>block(R, Q)</b> distributes the elements of <b>R</b>
+(in order) over the set of places <b>Q</b> in blocks  as
+follows. Let p equal <b></td><td width="150">
+&#124;R</td><td width="150">
+&#124; div N</b> and q equal <b></td><td width="150">
+&#124;R</td><td width="150">
+&#124; mod N</b>,
+where <b>N</b> is the size of <b>Q</b>, and 
+<b></td><td width="150">
+&#124;R</td><td width="150">
+&#124;</b> is the size of <b>R</b>.  The first q places get
 successive blocks of size (p+1) and the remaining places get blocks of
 size p.
 
 <div class="p"><!----></div>
-The distribution "block(R)" is the same distribution as <tt>
+The distribution <b>block(R)</b> is the same distribution as <tt>
 block(R, Place.places)</tt>.
 
 <div class="p"><!----></div>
 
 <b>Cyclic distributions.&nbsp;&nbsp;</b> 
-The distribution "cyclic(R, Q)" distributes the points in "R"
-cyclically across places in "Q" in order.
+The distribution <b>cyclic(R, Q)</b> distributes the points in <b>R</b>
+cyclically across places in <b>Q</b> in order.
 
 <div class="p"><!----></div>
-The distribution "cyclic(R)" is the same distribution as "cyclic(R, Place.places)".
+The distribution <b>cyclic(R)</b> is the same distribution as <b>cyclic(R, Place.places)</b>.
 
 <div class="p"><!----></div>
-Thus the distribution "cyclic(Place.MAX_PLACES)" provides a 1-1
-mapping from the region "Place.MAX_PLACES" to the set of all
-places and is the same as the distribution "unique(Place.places)".
+Thus the distribution <b>cyclic(Place.MAX_PLACES)</b> provides a 1-1
+mapping from the region <b>Place.MAX_PLACES</b> to the set of all
+places and is the same as the distribution <b>unique(Place.places)</b>.
 
 <div class="p"><!----></div>
 
 <b>Block cyclic distributions.&nbsp;&nbsp;</b>
-The distribution "blockCyclic(R, N, Q)" distributes the elements
-of "R" cyclically over the set of places "Q" in blocks of size
-"N".
+The distribution <b>blockCyclic(R, N, Q)</b> distributes the elements
+of <b>R</b> cyclically over the set of places <b>Q</b> in blocks of size
+<b>N</b>.
 
 <div class="p"><!----></div>
 
 <b>Arbitrary distributions.&nbsp;&nbsp;</b> 
-The distribution "arbitrary(R,Q)" arbitrarily allocates points in <tt>
-R</tt> to "Q". As above, "arbitrary(R)" is the same distribution as
-"arbitrary(R, Place.places)".
+The distribution <b>arbitrary(R,Q)</b> arbitrarily allocates points in <tt>
+R</tt> to <b>Q</b>. As above, <b>arbitrary(R)</b> is the same distribution as
+<b>arbitrary(R, Place.places)</b>.
 
 <div class="p"><!----></div>
 
 <b>Domain Restriction.&nbsp;&nbsp;</b> 
 
 <div class="p"><!----></div>
-If "D" is a distribution and "R" is a sub-region of <tt>
-D.region</tt>, then "D | R" represents the restriction of "D" to
-"R".  The compiler throws an error if it cannot determine that
-"R" is a sub-region of "D.region".
+If <b>D</b> is a distribution and <b>R</b> is a sub-region of <tt>
+D.region</tt>, then <b>D </td><td width="150">
+&#124; R</b> represents the restriction of <b>D</b> to
+<b>R</b>.  The compiler throws an error if it cannot determine that
+<b>R</b> is a sub-region of <b>D.region</b>.
 
 <div class="p"><!----></div>
 
 <b>Range Restriction.&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-If "D" is a distribution and "P" a place expression, the term
-"D | P" denotes the sub-distribution of "D" defined over all the
-points in the region of "D" mapped to "P".
+If <b>D</b> is a distribution and <b>P</b> a place expression, the term
+<b>D </td><td width="150">
+&#124; P</b> denotes the sub-distribution of <b>D</b> defined over all the
+points in the region of <b>D</b> mapped to <b>P</b>.
 
 <div class="p"><!----></div>
-Note that "D | here" does not necessarily contain adjacent points
-in "D.region". For instance, if "D" is a cyclic distribution,
-"D | here" will typically contain points that are "P" apart,
-where "P" is the number of places. An implementation may find a
+Note that <b>D </td><td width="150">
+&#124; here</b> does not necessarily contain adjacent points
+in <b>D.region</b>. For instance, if <b>D</b> is a cyclic distribution,
+<b>D </td><td width="150">
+&#124; here</b> will typically contain points that are <b>P</b> apart,
+where <b>P</b> is the number of places. An implementation may find a
 way to still represent them in contiguous memory, e.g., using a
 complex arithmetic function to map from the region index to an index
 into the array.
@@ -165,11 +176,11 @@ a way that supports static reasoning.
 3.3</a>&nbsp;&nbsp;Operations on distributions</h3>
 
 <div class="p"><!----></div>
-A <em>sub-distribution</em> of "D" is
-any distribution "E" defined on some subset of the region of
-"D", which agrees with "D" on all points in its region.
-We also say that "D" is a <em>super-distribution</em> of
-"E". A distribution "D<sub>1</sub>" <em>is larger than</em>
+A <em>sub-distribution</em> of <b>D</b> is
+any distribution <b>E</b> defined on some subset of the region of
+<b>D</b>, which agrees with <b>D</b> on all points in its region.
+We also say that <b>D</b> is a <em>super-distribution</em> of
+<b>E</b>. A distribution  <em>is larger than</em>
 "D<sub>2</sub>" if "D<sub>1</sub>" is a super-distribution of
 "D<sub>2</sub>".
 
@@ -189,15 +200,17 @@ and "D<sub>2</sub>", is the largest common sub-distribution of
 "D<sub>1</sub>.overlay(D<sub>2</sub>)", the asymmetric union of
 "D<sub>1</sub>" and "D<sub>2</sub>", is the distribution whose
 region is the union of the regions of "D<sub>1</sub>" and
-"D<sub>2</sub>", and whose value at each point "p" in its
+, and whose value at each point <b>p</b> in its
 region is "D<sub>2</sub>(p)" if "p" lies in
-"D.region" otherwise it is "D<sub>1</sub>(p)".
+"D<sub>2</sub>.region" otherwise it is "D<sub>1</sub>(p)".
 ("D<sub>1</sub>" provides the defaults.)
 
 <div class="p"><!----></div>
 
 <b>Disjoint union of distributions.&nbsp;&nbsp;</b>
-"D<sub>1</sub> || D<sub>2</sub>", the disjoint union of "D<sub>1</sub>"
+"D<sub>1</sub> </td><td width="150">
+&#124;</td><td width="150">
+&#124; D<sub>2</sub>", the disjoint union of "D<sub>1</sub>"
 and "D<sub>2</sub>", is defined only if the regions of
 "D<sub>1</sub>" and "D<sub>2</sub>" are disjoint. Its value is
 "D<sub>1</sub>.overlay(D<sub>2</sub>)" (or equivalently
@@ -217,17 +230,18 @@ super-distribution of "D<sub>1</sub>" and "D<sub>2</sub>".)
 <pre>
 def dotProduct(a: Array[T](D), b: Array[T](D)): Array[Double](D) =
   (new Array[T]([1:D.places],
-      (Point) =&#62; (new Array[T](D | here,
+      (Point) =&#62; (new Array[T](D </td><td width="150">
+&#124; here,
                     (i): Point) =&#62; a(i)*b(i)).sum())).sum();
 </pre>
 
 <div class="p"><!----></div>
-This code returns the inner product of two "T" vectors defined
+This code returns the inner product of two <b>T</b> vectors defined
 over the same (otherwise unknown) distribution. The result is the sum
-reduction of an array of "T" with one element at each place in the
-range of "D". The value of this array at each point is the sum
+reduction of an array of <b>T</b> with one element at each place in the
+range of <b>D</b>. The value of this array at each point is the sum
 reduction of the array formed by multiplying the corresponding
-elements of "a" and "b" in the local sub-array at the current
+elements of <b>a</b> and <b>b</b> in the local sub-array at the current
 place.
 
 <div class="p"><!----></div>

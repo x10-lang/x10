@@ -20,50 +20,50 @@
  <h2><a name="tth_sEc4">
 4</a>&nbsp;&nbsp;Finish</h2><a name="finish">
 </a>
-The statement "finish S" converts global termination to local
+The statement <b>finish S</b> converts global termination to local
 termination and introduces a root activity. 
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;FinishStatement </td></tr>
-<tr><td align="right">FinishStatement &nbsp;"finish" Statement 
+<tr><td align="right">Statement ::= FinishStatement </td></tr>
+<tr><td align="right">FinishStatement ::= <b>finish</b> Statement 
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-An activity A executes "finish S" by executing "S".  The
-execution of "S" may spawn other asynchronous activities (here or
+An activity A executes <b>finish S</b> by executing <b>S</b>.  The
+execution of <b>S</b> may spawn other asynchronous activities (here or
 at other places).  Uncaught exceptions thrown or propagated by any
-activity spawned by "S" are accumulated at "finish S".
-"finish S" terminates locally when all activities spawned by
-"S" terminate globally (either abruptly or normally). If "S"
-terminates normally, then "finish S" terminates normally and A
-continues execution with the next statement after "finish S".  If
-"S" terminates abruptly, then "finish S" terminates abruptly
-and throws a single exception, "x10.lang.MultipleExceptions"
-formed from the collection of exceptions accumulated at "finish S".
+activity spawned by <b>S</b> are accumulated at <b>finish S</b>.
+<b>finish S</b> terminates locally when all activities spawned by
+<b>S</b> terminate globally (either abruptly or normally). If <b>S</b>
+terminates normally, then <b>finish S</b> terminates normally and A
+continues execution with the next statement after <b>finish S</b>.  If
+<b>S</b> terminates abruptly, then <b>finish S</b> terminates abruptly
+and throws a single exception, <b>x10.lang.MultipleExceptions</b>
+formed from the collection of exceptions accumulated at <b>finish S</b>.
 
 <div class="p"><!----></div>
-Thus a "finish S" statement serves as a collection point for
-uncaught exceptions generated during the execution of "S".
+Thus a <b>finish S</b> statement serves as a collection point for
+uncaught exceptions generated during the execution of <b>S</b>.
 
 <div class="p"><!----></div>
-Note that repeatedly "finish"ing a statement has no effect after
-the first "finish": "finish finish S" is indistinguishable
-from "finish S".
+Note that repeatedly <b>finish</b>ing a statement has no effect after
+the first <b>finish</b>: <b>finish finish S</b> is indistinguishable
+from <b>finish S</b>.
 
 <div class="p"><!----></div>
 
 <b>Interaction with clocks.&nbsp;&nbsp;</b><a name="sec:finish:clock-rule">
 </a>
-"finish S" interacts with clocks (&#167;). 
+<b>finish S</b> interacts with clocks (&#167;). 
 
 <div class="p"><!----></div>
-While executing "S", an activity must not spawn any "clocked"
-asyncs. (Asyncs spawned during the execution of "S" may spawn
+While executing <b>S</b>, an activity must not spawn any <b>clocked</b>
+asyncs. (Asyncs spawned during the execution of <b>S</b> may spawn
 clocked asyncs.) A
-"ClockUseException" is thrown
+<b>ClockUseException</b> is thrown
 if (and when) this condition is violated.
 
 <div class="p"><!----></div>
@@ -74,13 +74,13 @@ this condition to be checked statically.
 <div class="p"><!----></div>
 <em>
 <b>Future Extensions.&nbsp;&nbsp;</b>
-The semantics of "finish S" is conjunctive; it terminates when all
-the activities created during the execution of "S" (recursively)
+The semantics of <b>finish S</b> is conjunctive; it terminates when all
+the activities created during the execution of <b>S</b> (recursively)
 terminate. In many situations (e.g., nondeterministic search) it is
 natural to require a statement to terminate when any <em>one</em> of the
 activities it has spawned succeeds. The other activities may then be
 safely aborted. Future versions of the language may introduce a
-"finishone S" construct to support such speculative or nondeterministic
+<b>finishone S</b> construct to support such speculative or nondeterministic
 computation.
 </em>
 

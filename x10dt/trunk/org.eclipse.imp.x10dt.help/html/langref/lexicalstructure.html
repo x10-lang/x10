@@ -37,11 +37,11 @@ terminators constitute white space.
 <div class="p"><!----></div>
 
 <b>Comments&nbsp;&nbsp;</b>
-All text included within the ASCII characters ""/*''' and
-""*/''' is
+All text included within the ASCII characters "<b>/*</b>" and
+"<b>*/</b>" is
 considered a comment and ignored; nested comments are not
 allowed.  All text from the ASCII characters
-""//''' to the end of line is considered a comment and is ignored.
+"<b>//</b>" to the end of line is considered a comment and is ignored.
 
 <div class="p"><!----></div>
 
@@ -52,8 +52,8 @@ Identifiers  are defined as in Java.
 Identifiers consist of a single letter followed by zero or more
 letters or digits.
 Letters are defined as the characters for which the Java
-method "Character.isJavaIdentifierStart" returns true.
-Digits are defined as the ASCII characters "0" through "9".
+method <b>Character.isJavaIdentifierStart</b> returns true.
+Digits are defined as the ASCII characters <b>0</b> through <b>9</b>.
 
 <div class="p"><!----></div>
 
@@ -81,7 +81,7 @@ val             value           var             when
 while
 </pre>
 Note that the primitive types are not considered keywords.
-The keyword "goto" is reserved, but not used.
+The keyword  is reserved, but not used.
 
 <div class="p"><!----></div>
 
@@ -89,10 +89,152 @@ The keyword "goto" is reserved, but not used.
 </a>
 
 <div class="p"><!----></div>
-Literals are either integers, unsigned integers, floating point numbers, booleans,
-characters, strings, and "null".
-X10 v2.0 defines literal syntax in the same way as Java does
-except that the suffix 'u' or 'U' is used for unsigned integers.
+Briefly, X10 v2.0 uses fairly standard syntax for its literals:
+integers, unsigned integers, floating point numbers, booleans, 
+characters, strings, and <b>null</b>.  The most exotic points are (1) unsigned
+numbers are marked by a <b>u</b> and cannot have a sign; (2) <b>true</b> and
+<b>false</b> are the literals for the booleans; and (3) floating point numbers
+are <b>Double</b> unless marked with an <b>f</b> for <b>Float</b>. 
+
+<div class="p"><!----></div>
+Less briefly, we use the following abbreviations: 
+
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+</td><td nowrap="nowrap" align="center">
+<table>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#948; = <span class="roman">one</span> <span class="roman">or</span> <span class="roman">more</span> <span class="roman">decimal</span> <span class="roman">digits</span></td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#948;<sub>8</sub> = <span class="roman">one</span> <span class="roman">or</span> <span class="roman">more</span> <span class="roman">octal</span> <span class="roman">digits</span></td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#948;<sub>16</sub> = <span class="roman">one</span> <span class="roman">or</span> <span class="roman">more</span> <span class="roman">hexadecimal</span> <span class="roman">digits</span><span class="roman">,</span> <span class="roman">using</span> <b><b>a</b></b>&#8722;<b><b>f</b></b><span class="roman">for</span> <span class="roman">10</span>&#8722;<span class="roman">15</span></td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#953; = &#948; </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; <tt>0</tt> &#948;<sub>8</sub>  </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; <tt>0</tt><tt>x</tt> &#948;<sub>16</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; <tt>0</tt><tt>X</tt> &#948;<sub>16</sub></td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#963; = <span class="roman">optional</span> <b><b>+</b></b> <span class="roman">or</span> <b>&#8722;</b></td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#946; = &#948; </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; &#948;<tt>.</tt> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; &#948;<tt>.</tt> &#948; </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; <tt>.</tt> &#948;</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#958; = (<tt>e</tt>  </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; <tt>E</tt>) &#963; &#948;</td></tr></table></td></tr>
+<tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#981; = &#946;&#958;</td></tr></table></td></tr></table>
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td></tr></table>
+
+
+
+<div class="p"><!----></div>
+
+<ul>
+<li> <b>true</b> and <b>false</b> are the <b>Boolean</b> literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>null</b> is a literal for the null value.  It has type
+      <b>Anyself==null</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Int</b> literals have the form &#963;&#953;; , <b>123</b>,
+      <b>-321</b> are decimal <b>Int</b>s, <b>0123</b> and <b>-0321</b> are octal
+      <b>Int</b>s, and <b>0x123</b>, <b>-0X321</b>,  <b>0xBED</b>, and <b>0XEBEC</b> are
+      hexadecimal <b>Int</b>s.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Long</b> literals have the form &#963;&#953;<tt>l</tt> or
+      &#963;&#953;<tt>L</tt>. , <b>1234567890L</b>  and <b>0xBAGEL</b> are <b>Long</b> literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>UInt</b> literals have the form &#953;<tt>u</tt> or &#953;<tt>U</tt>.
+      , <b>123u</b>, <b>0123u</b>, and <b>0xBEAU</b> are <b>UInt</b> literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>ULong</b> literals have the form &#953;<tt>ul</tt> or &#953; <tt>lu</tt>, or capital versions of those.  For example, 
+      <b>123ul</b>, <b>0124567012ul</b>,  <b>0xFLU</b>, <b>OXba1eful</b>, and <b>0xDecafC0ffeefUL</b> are <b>ULong</b>
+      literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Float</b> literals have the form &#963;&#981;<tt>f</tt> or  &#963; &#981;<tt>F</tt>.  Note that the floating-point marker letter <b>f</b> is
+      required: unmarked floating-point-looking literals are <b>Double</b>. 
+      , <b>1f</b>, <b>6.023E+32f</b>, <b>6.626068E-34F</b> are <b>Float</b>
+      literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Double</b> literals have the form &#963;&#981;<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>, &#963;&#981; <tt>D</tt>, and &#963;&#981;<tt>d</tt>.  
+      , <b>0.0</b>, <b>0e100</b>, <b>229792458d</b>, and <b>314159265e-8</b>
+      are <b>Double</b> literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Char</b> literals have one of the following forms: 
+      
+<ul>
+<li> <b>'</b><i>c</i><b>'</b> where <em>c</em> is any printing ASCII
+            character other than 
+            <b>} or <b>'</b>, representing the character <em>c</em> itself; 
+            , <b>'!'</b>;</b>
+<li> <b>'\b'</b>, representing backspace;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>'\t'</b>, representing tab;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>'\n'</b>, representing newline;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>'\f'</b>, representing form feed;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>'\r'</b>, representing return;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>'\''</b>, representing single-quote;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>'\"'</b>, representing double-quote;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>'\\'</b>, representing backslash;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>'\<em>dd</em><b>'</b>, where <em>dd</em> is one or more octal
+            digits, representing the one-byte character numbered <em>dd</em>; it
+            is an error if <em>dd</em> &gt; 255.</b></ul>
+<div class="p"><!----></div>
+</li>
+
+<li> <b>String</b> literals consist of a double-quote <b>"</b>, followed by
+      zero or more of the contents of a <b>Char</b> literal, followed by
+      another double quote.  , <b>"hi!"</b>, <b>""</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> There are no literals of type <b>Byte</b> or <b>UByte</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
 
@@ -108,11 +250,11 @@ X10 has the following separators and delimiters:
 X10 has the following operators:
 <pre>
 ==  !=  &lt;   &#62;   &lt;=  &#62;=
-&amp;&amp;   ||   &amp;    |    ^
+&amp;&amp;  &#124;&#124;  &amp;   &#124;   ^
 &lt;&lt;  &#62;&#62;  &#62;&#62;&#62;
 +   -   *   /   %
 ++  --  !   &#126;
-&amp;=  |=  ^=
+&amp;=  &#124;=  ^=
 &lt;&lt;= &#62;&#62;= &#62;&#62;&#62;=
 +=  -=  *=  /=  %=
 =   ?   :   =&#62;  -&#62;
@@ -121,5 +263,16 @@ X10 has the following operators:
 
 <div class="p"><!----></div>
 
+<div class="p"><!----></div>
+</li>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Except that
+      literals like <b>1</b> 
+      which match both &#953; and &#981; are counted as
+      integers, not <b>Double</b>; <b>Double</b>s require a decimal
+      point, an exponent, or the <b>d</b> marker.
+      
 </body>
 </html>

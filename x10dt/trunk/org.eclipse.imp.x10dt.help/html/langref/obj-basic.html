@@ -26,16 +26,17 @@ created by using an allocation expression
 initializer. 
 
 <div class="p"><!----></div>
-All classes subclass from "x10.lang.Object".
-This class has one property "home" of type
-"x10.lang.Place".  Thus all objects in X10
+All classes subclass from <b>x10.lang.Object</b>.
+This class has one property <b>home</b> of type
+<b>x10.lang.Place</b>.  Thus all objects in X10
 are located (have a place). 
 
 <div class="p"><!----></div>
 In X10 v2.0 an object stays resident at the place at
 which it was created for its entire lifetime. However, the
 programmer may designate certain immutable field of an object
-as "global". The value of these fields is accessible at every place the object can be referenced.
+as <b>global</b>. The value of these fields is accessible 
+at every place the object can be referenced.
 
 <div class="p"><!----></div>
 X10 has no operation to dispose of a reference.  Instead, the
@@ -57,22 +58,23 @@ one reference is visible through another reference.
 
 <div class="p"><!----></div>
 Note that the creation of a remote async activity
-(&#167;) "A" at "P" may cause the automatic creation of
-references to remote objects at "P". (A reference to a remote
+(&#167;) <b>A</b> at <b>P</b> may cause the automatic creation of
+references to remote objects at <b>P</b>. (A reference to a remote
 object is called a <em>remote object reference</em>, to a local object a
-<em>local object reference</em>.)  For instance "A" may be created
-with a reference to an object at "P" held in a variable referenced
-by the statement in "A".  Similarly the return of a value by a
-"future" may cause the automatic creation of a remote object
+<em>local object reference</em>.)  For instance <b>A</b> may be created
+with a reference to an object at <b>P</b> held in a variable referenced
+by the statement in <b>A</b>.  Similarly the return of a value by a
+<b>future</b> may cause the automatic creation of a remote object
 reference, incurring some communication cost.  An X10
 implementation should try to ensure that the creation of a second or
 subsequent reference to the same remote object at a given place does
 not incur any (additional) communication cost.
 
 <div class="p"><!----></div>
-A reference to an object carries with it the values of final "global" fields
+A reference to an object carries with it the values of  <b>global</b> <b>val</b>
+fields
 of the object. The implementation should try to ensure that the cost
-of communicating the values of final fields of an object from the
+of communicating the values of <b>val</b> fields of an object from the
 place where it is hosted to any other place is not incurred more than
 once for each target place.
 
@@ -85,34 +87,28 @@ objects and object references include:
 
 <ul>
 <li> Field access (&#167;). An activity holding a
-reference to a reference object may perform this operation only if the
-object is local.  An activity holding a reference to a value object
-may perform this operation regardless of the location of the object
-(since value objects can be copied freely from place to place).  The
+reference to an object may perform this operation only if the
+object is local.  (By contrast, an activity holding a reference to a struct
+may perform this operation regardless of the location of the struct, 
+since structs can be copied freely from place to place.).  The
 implementation should try to ensure that the cost of copying the field
 from the place where the object was created to the referencing place
 will be incurred at most once per referencing place, according to the
-rule for final fields discussed above.
+rule for <b>val</b> fields discussed above.
+
+<div class="p"><!----></div>
+
 <div class="p"><!----></div>
 </li>
 
 <li> Method invocation (&#167;).  A method may be
-  marked "global". A "global" method may be invoked at any
-  place. It may access only the global fields of the object. The
-  mutable fields of an object may be accessed only by activities
-  operating in its home.  Any activity may use an "at" statement
-  to place-shift to the place of the object. Methods may also be
-  marked "pinned", "nonblocking", "sequential",
-  "safe", and "pure".
-
-<div class="p"><!----></div>
-A method may be marked "nonblocking".  A "nonblocking" method
-may not contain any "when" statement whose condition is not
-statically equivalent to "true"m, and must call only
-"nonblocking" methods.
-
-<div class="p"><!----></div>
-A method may be marked "sequential". A "sequential" method 
+marked <b>global</b>. A <b>global</b> method may be invoked at any
+place. It may access only the global fields of the object. The
+mutable fields of an object may be accessed only by activities
+operating in its home.  Any activity may use an <b>at</b> statement
+to place-shift to the place of the object. Methods may also be
+marked <b>pinned</b>, <b>nonblocking</b>, <b>sequential</b>,
+<b>safe</b>, and <b>pure</b> (&#167;)..
 
 <div class="p"><!----></div>
 
@@ -129,16 +125,16 @@ per place.
 <div class="p"><!----></div>
 </li>
 
-<li> "instanceof" operator (&#167;).  An activity
+<li> <b>instanceof</b> operator (&#167;).  An activity
 can perform this operation on local or remote objects, and should not
 incur communication costs (to bring over type information) more than
 once per place.
 <div class="p"><!----></div>
 </li>
 
-<li> The equality operators "==" and "!="
+<li> The equality operators <b>==</b> and <b>!=</b>
 (&#167;). On creation, each object is associated with a globally
-unique identifier (guid). Two object references are "==" iff they refer to objects
+unique identifier (guid). Two object references are <b>==</b> iff they refer to objects
 with the  same guid.
 <div class="p"><!----></div>
 </li>
@@ -149,27 +145,27 @@ X10 has a rather simple <em>distributed object model</em>.
 
 <div class="p"><!----></div>
 The state of an object is partitioned into <em>global</em> state (a
-programmer defined subset of "val" fields, &#167;) and
+programmer defined subset of <b>val</b> fields, &#167;) and
 <em>non-global</em> state.
 
 <div class="p"><!----></div>
  
 <ul>
-<li> Field definitions are marked with the qualifier "global" if
+<li> Field definitions are marked with the qualifier <b>global</b> if
   they are intended to be included in the global state.
 <div class="p"><!----></div>
 </li>
 
-<li> If the "global" qualifier is omitted, the field is
+<li> If the <b>global</b> qualifier is omitted, the field is
   considered non-global.
 <div class="p"><!----></div>
 </li>
 
-<li> Properties and static fields are implicitly marked "global".
+<li> Properties and static fields are implicitly marked <b>global</b>.
 <div class="p"><!----></div>
 </li>
 
-<li> "var" fields cannot be marked "global".
+<li> <b>var</b> fields cannot be marked <b>global</b>.
 
 <div class="p"><!----></div>
 </li>
@@ -177,18 +173,18 @@ programmer defined subset of "val" fields, &#167;) and
 
 <div class="p"><!----></div>
 Similarly, the methods of an object may be qualified as
-"global"(&#167;) ; if they are not global they are
+<b>global</b>(&#167;) ; if they are not global they are
 said to be <em>non-global</em>. 
 Global methods cannot be overridden by non-global methods.
 
 <div class="p"><!----></div>
-Consider the execution of an "at (P) S" statement at a place
-"Q" different from "P". Suppose "x" is an in-scope
-immutable local variable and contains a reference to an object "o"
-created at "Q". Then within "S", "x" is said to be a
-<em>remote reference</em> to "o". References to "o" from place
-"Q" are said to be <em>local references</em>. X10 permits
-"global" fields to be read and "global" methods to be invoked
+Consider the execution of an <b>at (P) S</b> statement at a place
+<b>Q</b> different from <b>P</b>. Suppose <b>x</b> is an in-scope
+immutable local variable and contains a reference to an object <b>o</b>
+created at <b>Q</b>. Then within <b>S</b>, <b>x</b> is said to be a
+<em>remote reference</em> to <b>o</b>. References to <b>o</b> from place
+<b>Q</b> are said to be <em>local references</em>. X10 permits
+<b>global</b> fields to be read and <b>global</b> methods to be invoked
 through a remote reference.
 
 <div class="p"><!----></div>
@@ -197,27 +193,27 @@ they may be passed as arguments to methods, returned from methods,
 stored in fields of objects.
 
 <div class="p"><!----></div>
-Remote references may also be compared for equality ("=="). Two
+Remote references may also be compared for equality (<b>==</b>). Two
 remote reference are equal if they are references to the same
 object. Equality is guaranteed to be a constant-time operation and not
 involve any communication.
 
 <div class="p"><!----></div>
-When a remote reference to an object "o" located at place "P" is
-transmitted to "P" it automatically becomes a local reference to
-"o". Therefore the situation in which a local reference can be compared
+When a remote reference to an object <b>o</b> located at place <b>P</b> is
+transmitted to <b>P</b> it automatically becomes a local reference to
+<b>o</b>. Therefore the situation in which a local reference can be compared
 to a remote reference simply cannot arise.
 
 <div class="p"><!----></div>
-The X10 compiler ensures that non-global methods on "o" can
-only be invoked in a place where "here== o.home()", i.e. the place
-where "o" was created.
+The X10 compiler ensures that non-global methods on <b>o</b> can
+only be invoked in a place where <b>here== o.home()</b>, i.e. the place
+where <b>o</b> was created.
 
 <div class="p"><!----></div>
 
 <b>Implementation notes&nbsp;&nbsp;</b>
-Remote references to an object "o" are intended to be implemented
-by serializing the global state of "o" across the network,
+Remote references to an object <b>o</b> are intended to be implemented
+by serializing the global state of <b>o</b> across the network,
 together with a globally unique id (guid). The data is deserialized at
 the receiver to create an implementation-level entity that is the
 remote reference. There is no requirement that the implementation
@@ -230,11 +226,11 @@ There is no requirement that a remote reference use only as much space as a loca
 <div class="p"><!----></div>
   
 <b>Local execution&nbsp;&nbsp;</b>
- The semantics of "atomic" and "when" constructs requires that their
- bodies do not execute any "at" operations, implicitly or
+ The semantics of <b>atomic</b> and <b>when</b> constructs requires that their
+ bodies do not execute any <b>at</b> operations, implicitly or
  explicitly. Hence the compiler must establish that if a non-global method
-"m" is being invoked on a reference "o" in the body of such a construct,
- then "o" is a local reference. This can be done using place types (&#167;).
+<b>m</b> is being invoked on a reference <b>o</b> in the body of such a construct,
+ then <b>o</b> is a local reference. This can be done using place types (&#167;).
 
 <div class="p"><!----></div>
 

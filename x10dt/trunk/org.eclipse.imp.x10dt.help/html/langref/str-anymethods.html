@@ -18,18 +18,18 @@
 
 <body>
  <h2><a name="tth_sEc3">
-3</a>&nbsp;&nbsp;Implementation of "Any" methods</h2>
+3</a>&nbsp;&nbsp;Implementation of <b>Any</b> methods</h2>
 <a name="StructAnyMethods">
 </a>
 
 
 <div class="p"><!----></div>
 Unlike objects, structs do not have global identity. Instead, two
-structs are equal ("==") if and only if their corresponding fields
-are equal ("=="). This is the central property of structs.
+structs are equal (<b>==</b>) if and only if their corresponding fields
+are equal (<b>==</b>). This is the central property of structs.
 
 <div class="p"><!----></div>
-All structs implement "x10.lang.Any". All 
+All structs implement <b>x10.lang.Any</b>. All 
 structs have the following methods implicitly defined on them:
 <pre>
   property def home()=here;
@@ -41,7 +41,7 @@ structs have the following methods implicitly defined on them:
 <div class="p"><!----></div>
 Structs are required to implement the following methods: 
 <pre>
-  public global safe def equals(Any):boolean;
+  public global safe def equals(Any):Boolean;
   public global safe def hashCode():Int;
   public global safe def typeName():String;
   public global safe def toString():String;  
@@ -50,14 +50,14 @@ Structs are required to implement the following methods:
 <div class="p"><!----></div>
 These methods are defined automatically if they are not supplied by
 the programmer.  A programmer who provides an explicit implementation
-of "equals(Any)" for a struct "S" should also consider
-supplying a definition for "equals(S):Boolean". This will often
-yield better performance since the cost of an upcast to "Any" and
-then a downcast to "S" can be avoided.
+of <b>equals(Any)</b> for a struct <b>S</b> should also consider
+supplying a definition for <b>equals(S):Boolean</b>. This will often
+yield better performance since the cost of an upcast to <b>Any</b> and
+then a downcast to <b>S</b> can be avoided.
 
 <div class="p"><!----></div>
-Expressions of a struct type may be used in "instanceof" and
-"class-cast" tests.
+Expressions of a struct type may be used in <b>instanceof</b> and
+<b>as</b> expressions.
 
 <div class="p"><!----></div>
 

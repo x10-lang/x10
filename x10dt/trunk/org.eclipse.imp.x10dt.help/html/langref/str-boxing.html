@@ -19,21 +19,21 @@
 <body>
  <h2><a name="tth_sEc2">
 2</a>&nbsp;&nbsp;Boxing of structs</h2>
-If a struct "S" implements an interface "I" (e.g., "Any"),
-a value "v" of type "S" can be assigned to a variable of type
-"I". The implementation creates an object "o" that is an
-instance of an anonymous class implementing "I" and containing
-"v".  The result of invoking a method of "I" on "o" is the
-same as invoking it on "v". This operation is termed <em>auto-boxing</em>
+If a struct <b>S</b> implements an interface <b>I</b> (e.g., <b>Any</b>),
+a value <b>v</b> of type <b>S</b> can be assigned to a variable of type
+<b>I</b>. The implementation creates an object <b>o</b> that is an
+instance of an anonymous class implementing <b>I</b> and containing
+<b>v</b>.  The result of invoking a method of <b>I</b> on <b>o</b> is the
+same as invoking it on <b>v</b>. This operation is termed <em>auto-boxing</em>
 
 <a name="auto-boxing">
 </a>
 
 <div class="p"><!----></div>
 In a generic class or struct obtained by instantiating a type parameter
-"T" with a struct "S", variables declared at type "T" in the body
+<b>T</b> with a struct <b>S</b>, variables declared at type <b>T</b> in the body
 of the class are not boxed. Rather they are implemented as if they were declared at
-type "S". 
+type <b>S</b>. 
 
 <div class="p"><!----></div>
 

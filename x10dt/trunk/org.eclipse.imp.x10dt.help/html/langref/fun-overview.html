@@ -41,22 +41,22 @@ type arguments. This limitation may be removed in future versions of
 the language.
 
 <div class="p"><!----></div>
-A <em>function literal</em> "(x1:T1,..,xn:Tn){c}:T=&#62;e" creates a
-function of type "(x1:T1,...,xn:Tn){c}:T"
-(&#167;). The body "e" of such an expression is
-type-checked in an environment in which "c" is true. At runtime,
-function execution results in the evaluation of "e" in an
+A <em>function literal</em> <b>(x1:T1,..,xn:Tn){c}:T=&#62;e</b> creates a
+function of type<br /><b>(x1:T1,...,xn:Tn){c}=&#62;T</b>
+(&#167;). The body {e} of such an expression is
+type-checked in an environment in which {c} is true. At runtime,
+function execution results in the evaluation of {e} in an
 environment in which each formal is bound to the given actual
 parameter.
 
 <div class="p"><!----></div>
-The <em>method selector expression</em> "e.m.(x1:T1,...,xn:Tn)" (&#167;)
+The <em>method selector expression</em> <b>e.m.(x1:T1,...,xn:Tn)</b> (&#167;)
 permits the specification of the function underlying
-the method "m", which takes arguments of type "(x1:T1,..., xn:Tn)".
-Within this function, "this" is bound to the result of evaluating "e".
+the method <b>m</b>, which takes arguments of type <b>(x1:T1,..., xn:Tn)</b>.
+Within this function, <b>this</b> is bound to the result of evaluating {e}.
 
 <div class="p"><!----></div>
-Function types may be used in "implements" clauses of class
+Function types may be used in <b>implements</b> clauses of class
 definitions. Instances of such classes may be used as functions of the
 given type.  Indeed, an object may behave like any (fixed) number of
 functions, since the class it is an instance of may implement any

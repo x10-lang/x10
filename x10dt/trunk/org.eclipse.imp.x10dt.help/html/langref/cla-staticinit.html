@@ -27,8 +27,8 @@ reliable initialization of the static state of classes.
 
 <div class="p"><!----></div>
 Execution commences with a single thread executing the
-<em>initialization</em> phase of an X10 computation at place "0". This
-phase must complete successfully before the body of the "main" method is
+<em>initialization</em> phase of an X10 computation at place <b>0</b>. This
+phase must complete successfully before the body of the <b>main</b> method is
 executed.
 
 <div class="p"><!----></div>
@@ -53,8 +53,8 @@ async {
 </pre>
 
 <div class="p"><!----></div>
-During this phase, any read of a static field "C.f" (declared at type "T")
-is replaced by a call to the method "C.read_f():T" defined on class "C"
+During this phase, any read of a static field <b>C.f</b> (where <b>f</b> is of type <b>T</b>)
+is replaced by a call to the method <b>C.read_f():T</b> defined on class <b>C</b>
 as follows
 
 <div class="p"><!----></div>
@@ -81,27 +81,26 @@ In all cases, the main method is executed only once all static fields
 have been initialized correctly.
 
 <div class="p"><!----></div>
-Since static state is immutable, it can be accessed from any
-place.
-
-<div class="p"><!----></div>
+Since static state is immutable and is replicated to all places via 
+the initialization phase as described above, it can be accessed from
+any place.
 <hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
 <a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>(Mutable
-       graphs can be created without escaping  "this" 
-    by initializing the backpointer to  "null" and then
+       graphs can be created without escaping <b>this</b> 
+    by initializing the backpointer to <b>null</b> and then
     changing it later.
 <div class="p"><!----></div>
 <a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>Clearly, a value of type
-   "proto T" cannot be used anywhere that a  "T" is needed,
+  <b>proto T</b> cannot be used anywhere that a <b>T</b> is needed,
   since its fields cannot be read.  As discussed below, an incomplete
-  value  "v" can be assigned to a field <tt>f</tt> of an object <tt>
-    o</tt> only if <tt>o</tt> is incomplete. This ensures that  "v" cannot
-  escape through this assignment. A completed value  "p" cannot be
-  substituted for  "o" - it may permit  "v" to escape through
-  an assignment to its field. Therefore  "T" cannot be a subtype of
-   "proto T".
+  value <b>v</b> can be assigned to a field <tt>f</tt> of an object <tt>
+    o</tt> only if <tt>o</tt> is incomplete. This ensures that <b>v</b> cannot
+  escape through this assignment. A completed value <b>p</b> cannot be
+  substituted for <b>o</b> - it may permit <b>v</b> to escape through
+  an assignment to its field. Therefore <b>T</b> cannot be a subtype of
+  <b>proto T</b>.
 
 </body>
 </html>

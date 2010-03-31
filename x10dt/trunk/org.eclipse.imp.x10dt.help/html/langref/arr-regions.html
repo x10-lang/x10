@@ -23,13 +23,11 @@
 
 <div class="p"><!----></div>
 A region is a set of points.  X10
-provides a built-in class, "x10.lang.Region", to allow the
-creation of new regions and to perform operations on regions. This
-class is <tt>final</tt> in X10 v2.0; future versions of the
-language may permit user-definable regions.
+provides a built-in class, <b>x10.lang.Region</b>, to allow the
+creation of new regions and to perform operations on regions. 
 
 <div class="p"><!----></div>
-Each region "R" has a constant integer rank, "R.rank".
+Each region <b>R</b> has a constant integer rank, <b>R.rank</b>.
 
 <div class="p"><!----></div>
 Here are several examples of region declarations:
@@ -44,23 +42,25 @@ val R3 = (0..99) * (-1..MAX_HEIGHT);
 val R4 = [0..99, -1..MAX_HEIGHT] as Region(2); // same as R3  
 val R5 = Region.makeUpperTriangular(N);
 val R7 = R4 &amp;&amp; R5; // intersection of two regions
-val R8 = R4 || R5; // union of two regions
+val R8 = R4 </td><td width="150">
+&#124;</td><td width="150">
+&#124; R5; // union of two regions
 </pre>
 
 <div class="p"><!----></div>
-The expression "a<sub>1</sub>..a<sub>2</sub>"
+The expression &#228;<sub>1</sub>..a<sub>2</sub>"
 is shorthand for the rectangular, rank-1 region
 consisting of the points
 {"[a<sub>1</sub>]", ..., "[a<sub>2</sub>]"}.
-Each subexpression of "a<sub>i</sub>" must be of type "Int".
-If "a<sub>1</sub>"
-is greater than "a<sub>2</sub>", the region is empty.
+Each subexpression of  must be of type <b>Int</b>.
+If &#228;<sub>1</sub>"
+is greater than &#228;<sub>2</sub>", the region is empty.
 
 <div class="p"><!----></div>
 A region may be constructed by converting from a rail of
 regions or a rail of points, typically using a rail constructor
 (&#167;)
-(e.g., "R4" above).
+(e.g., <b>R4</b> above).
 The region constructed from a rail of points represents the
 region containing just those points.
 The region constructed from a rail of regions
@@ -70,45 +70,48 @@ X10 v2.0 does not (yet) support hierarchical regions.
 
 <div class="p"><!----></div>
 Various built-in regions are provided through  factory
-methods on "Region".  For instance:
+methods on <b>Region</b>.  For instance:
 
 <ul>
-<li> "Region.makeUpperTriangular(N)" returns a region corresponding
-to the non-zero indices in an upper-triangular "N x N" matrix.
+<li> <b>Region.makeUpperTriangular(N)</b> returns a region corresponding
+to the non-zero indices in an upper-triangular <b>N x N</b> matrix.
 <div class="p"><!----></div>
 </li>
 
-<li> "Region.makeLowerTriangular(N)" returns a region corresponding
-to the non-zero indices in a lower-triangular "N x N" matrix.
+<li> <b>Region.makeLowerTriangular(N)</b> returns a region corresponding
+to the non-zero indices in a lower-triangular <b>N x N</b> matrix.
 <div class="p"><!----></div>
 </li>
 </ul>
 
 <div class="p"><!----></div>
 All the points in a region are ordered canonically by the
-lexicographic total order. Thus the points of a region "R=(1..2)*(1..2)"
+lexicographic total order. Thus the points of a region <b>R=(1..2)*(1..2)</b>
 are ordered as 
 <pre>
 (1,1), (1,2), (2,1), (2,2)
 </pre>
-Sequential iteration statements such as "for" (&#167;)
+Sequential iteration statements such as <b>for</b> (&#167;)
 iterate over the points in a region in the canonical order.
 
 <div class="p"><!----></div>
 A region is said to be <em>rectangular</em> if it is of
-the form "(T<sub>1</sub> * <font face="symbol">¼</font
-> * T<sub>k</sub>)" for some set of regions
+the form "(T<sub>1</sub> * &#8230; * T<sub>k</sub>)" for some set of regions
 "T<sub>i</sub>". Such a
 region satisfies the property that if two points p<sub>1</sub> and p<sub>3</sub> are
 in the region, then so is every point p<sub>2</sub> between them (that is, it is <em>convex</em>). 
-(Note that "\ - \ - " may produce non-convex regions from convex regions, e.g.,
-"[1,1] \ - \ -  [3,3]" is a non-convex region.)
+(Note that <b></td><td width="150">
+&#124;</td><td width="150">
+&#124;</b> may produce non-convex regions from convex regions, e.g.,
+<b>[1,1] </td><td width="150">
+&#124;</td><td width="150">
+&#124; [3,3]</b> is a non-convex region.)
 
 <div class="p"><!----></div>
-For each region "R", the <em>rectangular closure</em> of "R" is the
-smallest rectangular region enclosing "R".  For each integer "i"
-less than "R.rank", the term "R(i)" represents the enumeration
-in the "i"th dimension of the rectangular closure of "R". It may be
+For each region <b>R</b>, the <em>rectangular closure</em> of <b>R</b> is the
+smallest rectangular region enclosing <b>R</b>.  For each integer <b>i</b>
+less than <b>R.rank</b>, the term <b>R(i)</b> represents the enumeration
+in the <b>i</b>th dimension of the rectangular closure of <b>R</b>. It may be
 used in a type expression wherever an enumeration may be used.
 
 <div class="p"><!----></div>
@@ -119,7 +122,7 @@ provided on regions. These allow the programmer to express sparse as
 well as dense regions.
 
 <div class="p"><!----></div>
-Let "R" be a region. A subset of "R" is also called a
+Let <b>R</b> be a region. A subset of <b>R</b> is also called a
 <em>sub-region</em>.
 
 <div class="p"><!----></div>
@@ -132,7 +135,9 @@ establishes that they are of the same rank. Let
 "R<sub>2</sub>". 
 
 <div class="p"><!----></div>
-"R<sub>1</sub> || R<sub>2</sub>" is the union of the "R<sub>1</sub>" and
+"R<sub>1</sub> </td><td width="150">
+&#124;</td><td width="150">
+&#124; R<sub>2</sub>" is the union of the "R<sub>1</sub>" and
 "R<sub>2</sub>".
 
 <div class="p"><!----></div>
@@ -143,11 +148,11 @@ establishes that they are of the same rank. Let
 "R<sub>1</sub> * S" is the Cartesian product of "R<sub>1</sub>" and
 "S",  formed by pairing each point in "R<sub>1</sub>" with every the point in "S".
 
-Thus, "([1..2,3..4] as Region 2) * (5..6)"
-is the region of rank "3" containing the points "(x,y,z)"
-where "x" is "1" or "2", 
-"y" is "3" or "4", and
-"z" is "5" or "6". 
+Thus, <b>([1..2,3..4] as Region 2) * (5..6)</b>
+is the region of rank <b>3</b> containing the points <b>(x,y,z)</b>
+where <b>x</b> is <b>1</b> or <b>2</b>, 
+<b>y</b> is <b>3</b> or <b>4</b>, and
+<b>z</b> is <b>5</b> or <b>6</b>. 
 
 <div class="p"><!----></div>
 For a region "R" and point "p" of the same rank 
@@ -166,50 +171,6 @@ consult the API documentation.
 
 
 
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-  
-
-<div class="p"><!----></div>
-    
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-`\`=13
-
-
-<div class="p"><!----></div>
-`^^M=13 
-
-<div class="p"><!----></div>
-`^^I=13 
-
-<div class="p"><!----></div>
-}}
-
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-  
-
-
-
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-  
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 

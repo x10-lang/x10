@@ -24,38 +24,38 @@
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">Expression &nbsp;Assignment </td></tr>
-<tr><td align="right">Assignment &nbsp;SimpleAssignment </td></tr>
-<tr><td align="right">\ -  OpAssignment </td></tr>
-<tr><td align="right">SimpleAssignment &nbsp;LeftHandSide "=" Expression </td></tr>
-<tr><td align="right">OpAssignment &nbsp;LeftHandSide "+=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide "-=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide "*=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide "/=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide "%=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide "&amp;=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide "|=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide "^=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide &lt;&lt;=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide &#62;&#62;=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide &#62;&#62;&#62;=" Expression </td></tr>
-<tr><td align="right">LeftHandSide &nbsp;Identifier </td></tr>
-<tr><td align="right">\ -  Primary "." Identifier </td></tr>
-<tr><td align="right">\ -  Primary "(" Expression ")" </td></tr>
+<tr><td align="right">Expression ::= Assignment </td></tr>
+<tr><td align="right">Assignment ::= SimpleAssignment </td></tr>
+<tr><td align="right">&#124; OpAssignment </td></tr>
+<tr><td align="right">SimpleAssignment ::= LeftHandSide <b>=</b> Expression </td></tr>
+<tr><td align="right">OpAssignment ::= LeftHandSide <b>+=</b> Expression </td></tr>
+<tr><td align="right">::= LeftHandSide <b>-=</b> Expression </td></tr>
+<tr><td align="right">::= LeftHandSide <b>*=</b> Expression </td></tr>
+<tr><td align="right">::= LeftHandSide <b>/=</b> Expression </td></tr>
+<tr><td align="right">::= LeftHandSide <b>%=</b> Expression </td></tr>
+<tr><td align="right">::= LeftHandSide <b>&amp;=</b> Expression </td></tr>
+<tr><td align="right">::= LeftHandSide <b></td><td align="center">&#124;=</b> Expression </td></tr>
+<tr><td align="right">::= LeftHandSide <b>^=</b> Expression </td></tr>
+<tr><td align="right">::= LeftHandSide <b>&lt;&lt;=</b> Expression </td></tr>
+<tr><td align="right">::= LeftHandSide <b>&#62;&#62;=</b> Expression </td></tr>
+<tr><td align="right">::= LeftHandSide <b>&#62;&#62;&#62;=</b> Expression </td></tr>
+<tr><td align="right">LeftHandSide ::= Identifier </td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> Identifier </td></tr>
+<tr><td align="right">&#124; Primary <b>(</b> Expression <b>)</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-The assignment expression "x = e" assigns a value given by
-expression "e"
-to a mutable variable "x".  There are three forms of
-assignment: "x" may be a local variable, it may be a field
-"y.f", or it may be the variable obtained by evaluating the expression "a(i)".
-In the last case, "a" must be an instance of a class implementing the interface
- "x10.lang.Settable[S,T]", where 
-"S" and "T" are the types of "i" and "e", respectively.
+The assignment expression <b>x = e</b> assigns a value given by
+expression <b>e</b>
+to a mutable variable <b>x</b>.  There are three forms of
+assignment: <b>x</b> may be a local variable, it may be a field
+<b>y.f</b>, or it may be the variable obtained by evaluating the expression <b>a(i)</b>.
+In the last case, <b>a</b> must be an instance of a class implementing the interface
+ <b>x10.lang.Settable[S,T]</b>, where 
+<b>S</b> and <b>T</b> are the types of <b>i</b> and <b>e</b>, respectively.
 
 <div class="p"><!----></div>
 This interface is defined thus:
@@ -65,8 +65,8 @@ public interface Settable[S,T] {
     def set[S,T](i: S, v: T): T;
 }
 </pre>
-The assignment "a(i) = e" is equivalent to the call
-"a.set(i, e)".
+The assignment <b>a(i) = e</b> is equivalent to the call
+<b>a.set(i, e)</b>.
 
 <div class="p"><!----></div>
 
@@ -75,11 +75,11 @@ For a binary operator
 <i>op</i>,
 the
 <i>op</i>-assignment expression "x <i>op</i>= e"
-evaluates "x" to a memory location, then evaluates "e",
-applies the operation "x  e", and assigns the
-result into the location computed for "x".
+evaluates <b>x</b> to a memory location, then evaluates <b>e</b>,
+applies the operation "x <i>op</i> e", and assigns the
+result into the location computed for <b>x</b>.
 The expression is equivalent to "x = x <i>op</i> e"
-except that any subexpressions of "x" are evaluated only
+except that any subexpressions of <b>x</b> are evaluated only
 once.
 
 <div class="p"><!----></div>

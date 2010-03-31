@@ -18,12 +18,12 @@
 
 <body>
  <h2><a name="tth_sEc1">
-1</a>&nbsp;&nbsp;Final variables</h2>
+1</a>&nbsp;&nbsp;Immutable variables</h2>
 <a name="FinalVariables">
 </a>
 
 
-A final variable satisfies two conditions: 
+An immutable variable satisfies two conditions: 
 
 <ul>
 <li> it can be assigned to at most once,
@@ -36,12 +36,13 @@ A final variable satisfies two conditions:
 </ul>
 
 <div class="p"><!----></div>
-X10 follows Java language rules in this respect {jls2}. Briefly, the compiler must undertake a
+X10 follows Java language rules in this respect [,&#167;
+4.5.4,8.3.1.2,16]. Briefly, the compiler must undertake a
 specific analysis to statically guarantee the two properties above.
 
 <div class="p"><!----></div>
-Final local variables and fields are defined by the "val"
-keyword.  Elements of value arrays are also final.
+Immutable local variables and fields are defined by the <b>val</b>
+keyword.  Elements of value arrays are also immutable.
 
 <div class="p"><!----></div>
 

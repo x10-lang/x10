@@ -25,10 +25,10 @@ A class may have zero or more mutable or immutable fields.
 No two fields declared in a class may have the same name. 
 
 <div class="p"><!----></div>
-Fields may be marked "static". Only one instance of such a field
+Fields may be marked . Only one instance of such a field
 exists, and it may be accessed through the name of the class in which
 it is defined (&#167;).  Fields not marked
-"static" are said to be <em>instance</em> fields. One copy of such a
+ are said to be <em>instance</em> fields. One copy of such a
 field exists for every instance of the class.
 
 <div class="p"><!----></div>
@@ -41,10 +41,10 @@ the same name and signature  as a method of the same class.
 5.1</a>&nbsp;&nbsp;Field hiding</h3>
 
 <div class="p"><!----></div>
-A subclass that defines a field "f" hides any field "f"
+A subclass that defines a field <b>f</b> hides any field <b>f</b>
 declared in a superclass, regardless of their types.  The
-superclass field "f" may be accessed within the body of
-the subclass via the reference "super.f".
+superclass field <b>f</b> may be accessed within the body of
+the subclass via the reference <b>super.f</b>.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.2">
@@ -55,26 +55,26 @@ the subclass via the reference "super.f".
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc5.2.1">
-5.2.1</a>&nbsp;&nbsp;"global" qualifier</h4>
+5.2.1</a>&nbsp;&nbsp;<b>global</b> qualifier</h4>
 
 <a name="GlobalField">
 </a>
 
 <div class="p"><!----></div>
-A field may be declared "global".
+A field may be declared <b>global</b>.
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">FieldModifier &nbsp;"global"  
+<tr><td align="right">FieldModifier ::= <b>global</b>  
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-A "global" field must be immutable. It may be read from any place.
-Properties and static fields are implicitly marked "global".
-Fields not marked "global" cannot be overridden by fields marked
-"global".
+A <b>global</b> field must be immutable. It may be read from any place.
+Properties and static fields are implicitly marked <b>global</b>.
+Fields not marked <b>global</b> cannot be overridden by fields marked
+<b>global</b>.
 
 <div class="p"><!----></div>
 

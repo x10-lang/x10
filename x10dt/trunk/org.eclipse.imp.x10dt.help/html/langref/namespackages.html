@@ -24,17 +24,17 @@ Chapter 1 </a><br />Names and packages</h1>
 
 <div class="p"><!----></div>
 X10 supports Java's mechanisms for names and packages [,&#167;
-6,&#167; 7], including "public", "protected", "private"
+6,&#167; 7], including <b>public</b>, <b>protected</b>, <b>private</b>
 and package-specific access control.
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">TypeName   &nbsp;Identifier </td></tr>
-<tr><td align="right">\ -  TypeName "." Identifier </td></tr>
-<tr><td align="right">\ -  PackageName "." Identifier </td></tr>
-<tr><td align="right">PackageName   &nbsp;Identifier </td></tr>
-<tr><td align="right">\ -  PackageName "." Identifier </td></tr>
+<tr><td align="right">TypeName   ::= Identifier </td></tr>
+<tr><td align="right">&#124; TypeName <b>.</b> Identifier </td></tr>
+<tr><td align="right">&#124; PackageName <b>.</b> Identifier </td></tr>
+<tr><td align="right">PackageName   ::= Identifier </td></tr>
+<tr><td align="right">&#124; PackageName <b>.</b> Identifier </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -47,13 +47,12 @@ parameters, and types specified by type definitions-are in
 CamelCase and begin with an uppercase letter.  For backward
 compatibility with languages such as C and Java, type
 definitions are provided to allow primitive types
-such as "int" and "boolean" to be written in lowercase.
+such as <b>int</b> and <b>boolean</b> to be written in lowercase.
 Names of methods, fields, value properties, and packages are in camelCase and begin with a lowercase letter.
-Names of "const" fields are in all uppercase with words
-separated by an ""_'''.
+Names of <b>const</b> fields are in all uppercase with words
+separated by an "<b>_</b>".
 
 <div class="p"><!----></div>
-
 
 </body>
 </html>

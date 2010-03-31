@@ -39,9 +39,9 @@ atomic block</em>:
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;AtomicStatement </td></tr>
-<tr><td align="right">AtomicStatement &nbsp;"atomic"  Statement </td></tr>
-<tr><td align="right">MethodModifier &nbsp;"atomic" </td></tr>
+<tr><td align="right">Statement ::= AtomicStatement </td></tr>
+<tr><td align="right">AtomicStatement ::= <b>atomic</b>  Statement </td></tr>
+<tr><td align="right">MethodModifier ::= <b>atomic</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -60,14 +60,14 @@ Such a statement is executed by an activity as if in a single step
 during which all other concurrent activities in the same place are
 suspended. If execution of the statement may throw an exception, it is
 the programmer's responsibility to wrap the atomic block within a
-"try"/"finally" clause and include undo code in the finally
-clause. Thus the "atomic" statement only guarantees atomicity on
+<b>try</b>/<b>finally</b> clause and include undo code in the finally
+clause. Thus the <b>atomic</b> statement only guarantees atomicity on
 successful execution, not on a faulty execution.
 
 <div class="p"><!----></div>
-We allow methods of an object to be annotated with "atomic". Such
+We allow methods of an object to be annotated with <b>atomic</b>. Such
 a method is taken to stand for a method whose body is wrapped within an
-"atomic" statement.
+<b>atomic</b> statement.
 
 <div class="p"><!----></div>
 Atomic blocks are closely related to non-blocking synchronization
@@ -76,17 +76,17 @@ non-blocking concurrent algorithms.
 
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-In "atomic S", "S" may include method calls,
+In <b>atomic S</b>, <b>S</b> may include method calls,
 conditionals, etc.
 
 <div class="p"><!----></div>
-It may <em>not</em> include an "async" activity (such as creation
-of a "future").
+It may <em>not</em> include an <b>async</b> activity (such as creation
+of a <b>future</b>).
 
 <div class="p"><!----></div>
 It may <em>not</em> include any statement that may potentially block at
-runtime (e.g., "when", "force" operations, "next"
-operations on clocks, "finish"). 
+runtime (e.g., <b>when</b>, <b>force</b> operations, <b>next</b>
+operations on clocks, <b>finish</b>). 
 
 <div class="p"><!----></div>
 All locations accessed in an atomic block must statically satisfy the
@@ -96,7 +96,7 @@ activity.<a name="LocalityCondition">
 
 <div class="p"><!----></div>
 The compiler checks for this condition by checking whether the statement
-could be the body of a "void" method annotated with "safe" at
+could be the body of a <b>void</b> method annotated with <b>safe</b> at
 that point in the code (&#167;).
 
 <div class="p"><!----></div>
@@ -108,11 +108,7 @@ Note an important property of an (unconditional) atomic block:
 
 <br clear="all" /><table border="0" width="100%"><tr><td>
 <table border="0" cellspacing="0" cellpadding="0">
- <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
- \xcd"a<span class="roman">tomic</span> {<span class="roman">s</span><span class="roman">1</span><span class="roman">;</span> <span class="roman">atomic</span> <span class="roman">s</span><span class="roman">2</span>}" </td></tr></table></td><td nowrap="nowrap" align="left">
-<table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
-=</td></tr></table></td><td nowrap="nowrap" align="left">
-<table><tr><td nowrap="nowrap" align="right" colspan="1">\xcd"a<span class="roman">tomic</span> {<span class="roman">s</span><span class="roman">1</span><span class="roman">;</span> <span class="roman">s</span><span class="roman">2</span>}"</td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr></table>
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table><tr><td nowrap="nowrap" align="right" colspan="1"> <b><b>atomic</b> {<b>s</b><b>1</b><b>;</b> <b>atomic</b> <b>s</b><b>2</b>}</b> &amp;=&amp; <b><b>atomic</b> {<b>s</b><b>1</b><b>;</b> <b>s</b><b>2</b>}</b></td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr></table>
 </td></tr></table>
 
 
@@ -150,15 +146,15 @@ Conditional atomic blocks are of the form:
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;WhenStatement </td></tr>
-<tr><td align="right">WhenStatement &nbsp;"when" "(" Expression ")" Statement </td></tr>
-<tr><td align="right">\ -  WhenStatement "or" "(" Expression ")" Statement 
+<tr><td align="right">Statement ::=  WhenStatement </td></tr>
+<tr><td align="right">WhenStatement ::=  <b>when</b> <b>(</b> Expression <b>)</b> Statement </td></tr>
+<tr><td align="right">&#124; WhenStatement <b>or</b> <b>(</b> Expression <b>)</b> Statement 
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 In such a statement the one or more expressions are called <em>
-guards</em> and must be "Boolean" expressions. The statements are the
+guards</em> and must be <b>Boolean</b> expressions. The statements are the
 corresponding <em>guarded statements</em>. The first pair of expression
 and statement is called the <em>main clause</em> and the additional pairs
 are called <em>auxiliary clauses</em>. A statement must have a main
@@ -185,21 +181,21 @@ to not hold any more).
 
 <div class="p"><!----></div>
  Rationale:
-The guarantee provided by "wait"/"notify" in Java is no
+The guarantee provided by <b>wait</b>/<b>notify</b> in Java is no
 stronger. Indeed conditional atomic blocks may be thought of as a
 replacement for Java's wait/notify functionality.
  
 
 <div class="p"><!----></div>
-We note two common abbreviations. The statement "when (true) S" is
-behaviorally identical to "atomic S": it never suspends. Second,
-"when (c) ;" may be abbreviated to "await(c);"-it
+We note two common abbreviations. The statement <b>when (true) S</b> is
+behaviorally identical to <b>atomic S</b>: it never suspends. Second,
+<b>when (c) ;</b> may be abbreviated to <b>await(c);</b>-it
 simply indicates that the thread must await the occurrence of a
-certain condition before proceeding.  Finally note that a "when"
+certain condition before proceeding.  Finally note that a <b>when</b>
 statement with multiple branches is behaviorally identical to a
-"when" statement with a single branch that checks the disjunction of
+<b>when</b> statement with a single branch that checks the disjunction of
 the condition of each branch, and whose body contains an
-"if"/"then"/"else" checking each of the branch conditions.
+<b>if</b>/<b>then</b>/<b>else</b> checking each of the branch conditions.
 
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
@@ -215,8 +211,8 @@ bound on their execution. These conditions are expected to be checked
 statically by the compiler.
 
 <div class="p"><!----></div>
-The body of a "when" statement must satisfy the conditions
-for the body of an "atomic" block.
+The body of a <b>when</b> statement must satisfy the conditions
+for the body of an <b>atomic</b> block.
 
 <div class="p"><!----></div>
 Note that this implies that guarded statements are required to be <em>
@@ -265,6 +261,25 @@ class OneBuffer {
 
 
 <div class="p"><!----></div>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Note that depending on the state of the computation
+the activation path may traverse activities that are running,
+suspended or terminated.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>In X10 v2.0 the <b>finish</b>
+statement is the only statement that marks its activity as a root
+activity. Future versions of the language may introduce more such
+statements.
+<div class="p"><!----></div>
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>X10 v2.0 does
+not specify a particular algorithm; this will be fixed in future
+versions.
+<div class="p"><!----></div>
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>A static bound is a constant
+that depends only on the program text, and is independent 
+of any runtime parameters. 
 
 </body>
 </html>

@@ -23,15 +23,17 @@
 </a>
 
 <div class="p"><!----></div>
-<b>Compiler Limitation: Shared variables are not implemented.</b>
+<b>Compiler Limitation: Shared variables are not currently implemented.</b>
 
 <div class="p"><!----></div>
-A shared local variable is declared with the annotation
-"shared".  It may be thought of as being accessible by any spawned
-activity in its lexical scope.  Final variables are implicitly
-shared.  An implementation may consider boxing shared 
-variables and making a reference to the boxed value available to
-any closures that use the variable.
+A <em>shared local variable</em> is declared with the annotation <b>shared</b>.
+It can be accessed within any control construct in its scope, including
+<b>async</b>, <b>at</b>, <b>future</b> and closures.
+
+<div class="p"><!----></div>
+Note that the lifetime of some of these constructs may outlast the
+lifetime of the scope - requiring the implementation to allocate them
+outside the current stack frame.
 
 <div class="p"><!----></div>
 

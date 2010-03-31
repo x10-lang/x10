@@ -25,30 +25,29 @@
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">RailConstructor &nbsp;"[" Expressions "]" </td></tr>
-<tr><td align="right">Expressions &nbsp;Expression ( "," Expression )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">RailConstructor ::= <b>[</b> Expressions <b>]</b> </td></tr>
+<tr><td align="right">Expressions ::= Expression ( <b>,</b> Expression )<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The rail constructor "[a<sub>0</sub>, ..., a<sub>k<font face="symbol">-</font
->1</sub>]"
-creates an instance of "ValRail" with length k
+The rail constructor "[a<sub>0</sub>, ..., a<sub>k&#8722;1</sub>]"
+creates an instance of <b>ValRail</b> with length k
 where the ith element is
-"a<sub>i</sub>".  The element type of the array ("T") is
+.  The element type of the array (<b>T</b>) is
 bound to the least common ancestor of the types of the
-"a<sub>i</sub>" (&#167;).
+&#228;<sub>i</sub>" (&#167;).
 
 <div class="p"><!----></div>
-Since arrays are subtypes of "(Point) =&#62; T",
-rail constructors can be passed into the "Array" and
-"ValArray" constructors as initializer functions.
+Since arrays are subtypes of <b>(Point) =&#62; T</b>,
+rail constructors can be passed into the <b>Array</b> and
+<b>ValArray</b> constructors as initializer functions.
 
 <div class="p"><!----></div>
-Rail constructors of type "ValRail[Int]" and length "n" 
-may be implicitly converted to type "Point{rank==n}".
-Rail constructors of type "ValRail[Region]" and length "n" 
-may be implicitly converted to type "Region{rank==n}".
+Rail constructors of type <b>ValRail[Int]</b> and length <b>n</b> 
+may be implicitly converted to type <b>Point{rank==n}</b>.
+Rail constructors of type <b>ValRail[Region]</b> and length <b>n</b> 
+may be implicitly converted to type <b>Region{rank==n}</b>.
 
 <div class="p"><!----></div>
 

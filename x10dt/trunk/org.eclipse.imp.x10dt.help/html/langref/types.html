@@ -39,41 +39,41 @@ contains a reference to the memory containing the declared state of
 the object (and other meta-information such as the list of methods of
 the object). Thus objects are represented through an extra level of
 indirection. A consequence of this flexibility is that every class
-type contains the value "null" corresponding to the invalid
-reference. "null" is often useful as a default value. Further, two
-objects may be compared for equality ("==") in constant time by
+type contains the value <b>null</b> corresponding to the invalid
+reference. <b>null</b> is often useful as a default value. Further, two
+objects may be compared for equality (<b>==</b>) in constant time by
 simply containing references to the memory used to represent the
 objects.
 
 <div class="p"><!----></div>
-Structs are instances of <em>struct classes</em>
-(&#167;). They are immutable and may be freely copied
-from place to place.  Further, they may be allocated inline, i.e.{}
-using only as much memory as necessary to hold the fields of the
-struct (and any additional memory necessary to satisfy alignment
-constraints for data layout. 
+Structs are instances of <em>struct types</em> (&#167;). They are
+immutable and may be freely copied from place to place. Further, they may be
+allocated inline, , using only as much memory as necessary to hold the
+fields of the struct (and any additional memory necessary to satisfy alignment
+constraints for data layout).
 
 <div class="p"><!----></div>
-Functions are instances of <em>function types - </em> &#167;)
+Functions are instances of <em>function types</td><td width="150">
+&#124;</em> &#167;)
   and are created using function literals
-  "(x1:T1,...,xn:Tn){c}:T =&#62; e". Functions contain no
+  <b>(x1:T1,...,xn:Tn){c}:T =&#62; e</b>. Functions contain no
   user-visible mutable or immutable state; their representation,
   however, contains enough memory to hold the values of the variables
   in the environment that are referenced in the body of the function
-  ("e"). Functions may be freely copied from place to place and
+  ({e}). Functions may be freely copied from place to place and
   may be repeatedly applied to a set of arguments, provided that the
-  precondition "c" is satisfied.
+  precondition {c} is satisfied.
 
 <div class="p"><!----></div>
 These runtime entities are classified into different groups using <em>
   types</em>.  Types are used in variable declarations, explicit coercions
 and conversions, object creation, array creation, class literals,
-static state and method accessors, and "instanceof"
+static state and method accessors, and <b>instanceof</b>
 expressions.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
 
 <div class="p"><!----></div>
 X10 has a unified type system. The top of the type hierarchy
-is the interface "x10.lang.Any". This specifies the following signature:
+is the interface <b>x10.lang.Any</b>. This specifies the following signature:
 <pre>
 package x10.lang;
 public interface Any {
@@ -81,6 +81,7 @@ public interface Any {
   property def at(p:Object):Boolean;
   property def at(p:Place):Boolean;
   global safe def toString():String;
+  global safe def typeName():String;
   global safe def equals(Any):Boolean;
   global safe def hashCode():Int;
 }
@@ -91,8 +92,8 @@ Properties are described in (&#167;): in brief they are
 immutable instance fields of objects and structs that can be used to
 construct types through constraints. Property methods (&#167;) permit
 more complex expressions to be defined using properties and other property methods.
-A method is "safe" if it has certain behavioral characteristics &#167;.
-It is "global" if it can be invoked at any place.
+A method is <b>safe</b> if it has certain behavioral characteristics &#167;.
+It is <b>global</b> if it can be invoked at any place.
 
 <div class="p"><!----></div>
 Types in X10 are specified through declarations and through
@@ -158,29 +159,29 @@ may be processed by compiler plugins.
   
 <table>
 
-<tr><td align="right">Type &nbsp;FunctionType </td></tr>
-<tr><td align="right">\ -  ConstrainedType  </td></tr>
-<tr><td align="right">FunctionType &nbsp;TypeParameters<sup>?</sup>&nbsp;"(" Formals<sup>?</sup>&nbsp;")"
-Constraint<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;"=&#62;" Type </td></tr>
-<tr><td align="right">TypeParameters &nbsp;"[" TypeParameter ( "," TypeParameter )<sup>*</sup>&nbsp;"]" </td></tr>
-<tr><td align="right">TypeParameter &nbsp;Identifier </td></tr>
-<tr><td align="right">Throws &nbsp;"throws" ( TypeName "," TypeName )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">ConstrainedType &nbsp;Annotation<sup>*</sup>&nbsp;BaseType Constraint<sup>?</sup>&nbsp;
+<tr><td align="right">Type ::= FunctionType </td></tr>
+<tr><td align="right">&#124; ConstrainedType  </td></tr>
+<tr><td align="right">FunctionType ::= TypeParameters<sup>?</sup>&nbsp;<b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b>
+Constraint<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;<b>=&#62;</b> Type </td></tr>
+<tr><td align="right">TypeParameters ::= <b>[</b> TypeParameter ( <b>,</b> TypeParameter )<sup>*</sup>&nbsp;<b>]</b> </td></tr>
+<tr><td align="right">TypeParameter ::= Identifier </td></tr>
+<tr><td align="right">Throws ::= <b>throws</b> TypeName ( <b>,</b> TypeName )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">ConstrainedType ::= Annotation<sup>*</sup>&nbsp;BaseType Constraint<sup>?</sup>&nbsp;
 PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">BaseType &nbsp;ClassBaseType </td></tr>
-<tr><td align="right">\ -  InterfaceBaseType </td></tr>
-<tr><td align="right">\ -  PathType </td></tr>
-<tr><td align="right">\ -  "(" Type ")" </td></tr>
-<tr><td align="right">ClassType &nbsp;Annotation<sup>*</sup>&nbsp;ClassBaseType Constraint<sup>?</sup>&nbsp;
+<tr><td align="right">BaseType ::= ClassBaseType </td></tr>
+<tr><td align="right">&#124; InterfaceBaseType </td></tr>
+<tr><td align="right">&#124; PathType </td></tr>
+<tr><td align="right">&#124; <b>(</b> Type <b>)</b> </td></tr>
+<tr><td align="right">ClassType ::= Annotation<sup>*</sup>&nbsp;ClassBaseType Constraint<sup>?</sup>&nbsp;
 PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">InterfaceType &nbsp;Annotation<sup>*</sup>&nbsp;InterfaceBaseType Constraint<sup>?</sup>&nbsp;
+<tr><td align="right">InterfaceType ::= Annotation<sup>*</sup>&nbsp;InterfaceBaseType Constraint<sup>?</sup>&nbsp;
 PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">PathType &nbsp;Expression "." Identifier </td></tr>
-<tr><td align="right">Annotation &nbsp;"@" InterfaceBaseType Constraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">ClassOrInterfaceType &nbsp;ClassType </td></tr>
-<tr><td align="right">\ -  InterfaceType </td></tr>
-<tr><td align="right">ClassBaseType &nbsp;TypeName </td></tr>
-<tr><td align="right">InterfaceBaseType &nbsp;TypeName </td></tr>
+<tr><td align="right">PathType ::= Expression <b>.</b> Identifier </td></tr>
+<tr><td align="right">Annotation ::= <b>@</b> InterfaceBaseType Constraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">ClassOrInterfaceType ::= ClassType </td></tr>
+<tr><td align="right">&#124; InterfaceType </td></tr>
+<tr><td align="right">ClassBaseType ::= TypeName </td></tr>
+<tr><td align="right">InterfaceBaseType ::= TypeName </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -189,6 +190,7 @@ PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
+
 
 </body>
 </html>

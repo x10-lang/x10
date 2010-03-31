@@ -31,26 +31,26 @@ first-class function.
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">MethodSelector &nbsp;
-        Primary "."
-        MethodName "."
-                TypeParameters<sup>?</sup>&nbsp;"(" Formals<sup>?</sup>&nbsp;")" </td></tr>
-<tr><td align="right">\ - 
-        TypeName "."
-        MethodName "."
-                TypeParameters<sup>?</sup>&nbsp;"(" Formals<sup>?</sup>&nbsp;")" </td></tr>
+<tr><td align="right">MethodSelector ::=
+        Primary <b>.</b>
+        MethodName <b>.</b>
+                TypeParameters<sup>?</sup>&nbsp;<b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124;
+        TypeName <b>.</b>
+        MethodName <b>.</b>
+                TypeParameters<sup>?</sup>&nbsp;<b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The <em>method selector expression</em> "e.m.(T1,...,Tn)" is type
-correct only if it is the case that the static type of "e" is a
+The <em>method selector expression</em> <b>e.m.(T1,...,Tn)</b> is type
+correct only if it is the case that the static type of {e} is a
 class or struct or interface with a method
-"m(x1:T1,...xn:Tn){c}:T" defined on it (for some
-"x1,...,xn,c,T)". At runtime the evaluation of this expression
-evaluates "e" to a value "v" and creates a function "f"
-which, when applied to an argument list "(a1,...,an)" (of the right
-type) yields the value obtained by evaluating "v.m(a1,...,an)".
+<b>m(x1:T1,...xn:Tn){c}:T</b> defined on it (for some
+<b>x1,...,xn,c,T)</b>. At runtime the evaluation of this expression
+evaluates {e} to a value <b>v</b> and creates a function <b>f</b>
+which, when applied to an argument list <b>(a1,...,an)</b> (of the right
+type) yields the value obtained by evaluating <b>v.m(a1,...,an)</b>.
 
 <div class="p"><!----></div>
 Thus, the method selector
@@ -62,7 +62,7 @@ e.m.[X<sub>1</sub>, ..., X<sub>m</sub>](T<sub>1</sub>, ..., T<sub>n</sub>)
  behaves as if it were the function
 <pre>
 ((v:T)=&#62;
-  (X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>) =&#62; v.m[X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>, ..., x<sub>n</sub>))
+  [X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>) =&#62; v.m[X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>, ..., x<sub>n</sub>))
 (e)
 </pre>
 
@@ -71,9 +71,9 @@ e.m.[X<sub>1</sub>, ..., X<sub>m</sub>](T<sub>1</sub>, ..., T<sub>n</sub>)
 Because of overloading, a method name is not sufficient to
 uniquely identify a function for a given class (in Java-like languages).
 One needs the argument type information as well.
-The selector syntax (dot) is used to distinguish "e.m()" (a
-method invocation on "e" of method named "m" with no arguments)
-from "e.m.()"
+The selector syntax (dot) is used to distinguish <b>e.m()</b> (a
+method invocation on <b>e</b> of method named <b>m</b> with no arguments)
+from <b>e.m.()</b>
 (the function bound to the method). 
 
 
@@ -82,9 +82,9 @@ A static method provides a binding from a name to a function that is
 independent of any instance of a class; rather it is associated with the
 class itself. The static function selector
 "T.m.(T<sub>1</sub>, ..., T<sub>n</sub>)" denotes the
-function bound to the static method named "m", with argument types
-"(T<sub>1</sub>, ..., T<sub>n</sub>)" for the type "T". The return type
-of the function is specified by the declaration of "T.m".
+function bound to the static method named <b>m</b>, with argument types
+ for the type <b>T</b>. The return type
+of the function is specified by the declaration of <b>T.m</b>.
 
 <div class="p"><!----></div>
 Users of a function type do not care whether a function was defined
@@ -95,8 +95,8 @@ instance) function selectors.
  Note:
 Design note: The function selector syntax is consistent with the
 reinterpretation of the usual method invocation syntax
-"e.m(e<sub>1</sub>,..., e<sub>n</sub>)"
-into a function specifier, "e.m", applied to a tuple of arguments
+&#235;.m(e<sub>1</sub>,..., e<sub>n</sub>)"
+into a function specifier, <b>e.m</b>, applied to a tuple of arguments
 "(e<sub>1</sub>,..., e<sub>n</sub>)". Note that the receiver is not
 treated as "an extra argument" to the
 function. That would break the above approach.

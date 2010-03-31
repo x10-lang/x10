@@ -23,10 +23,10 @@
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;SwitchStatement </td></tr>
-<tr><td align="right">SwitchStatement &nbsp;"switch" "(" Expression ")" "{" Case<sup>+</sup>&nbsp;"}" </td></tr>
-<tr><td align="right">Case &nbsp;"case" Expression ":" Statement<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">\ -  "default" ":" Statement<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">Statement ::= SwitchStatement </td></tr>
+<tr><td align="right">SwitchStatement ::= <b>switch</b> <b>(</b> Expression <b>)</b> <b> Case<sup>+</sup>&nbsp;<b></b></b> </td></tr>
+<tr><td align="right">Case ::= <b>case</b> Expression <b>:</b> Statement<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; <b>default</b> <b>:</b> Statement<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -34,23 +34,24 @@
 A switch statement evaluates an index expression and then branches to
 a case whose value equal to the value of the index expression.
 If no such case exists, the switch branches to the 
-"default" case, if any.
+<b>default</b> case, if any.
 
 <div class="p"><!----></div>
 Statements in each case branch evaluated in sequence.  At the
 end of the branch, normal control-flow falls through to the next case, if
 any.  To prevent fall-through, a case branch may be exited using
-a "break" statement.
+a <b>break</b> statement.
 
 <div class="p"><!----></div>
-The index expression must be of type "Int".
+The index expression must be of type <b>Int</b>.
 
 <div class="p"><!----></div>
-Case labels must be of type "Int" and must be compile-time
+Case labels must be of type <b>Int</b> and must be compile-time
 constants.  Case labels cannot be duplicated within the
-"switch" statement.
+<b>switch</b> statement.
 
 <div class="p"><!----></div>
+
 
 </body>
 </html>

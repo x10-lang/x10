@@ -18,7 +18,7 @@
 
 <body>
  <h2><a name="tth_sEc4">
-4</a>&nbsp;&nbsp;" proto" qualifier on types</h2>
+4</a>&nbsp;&nbsp;<b> proto</b> qualifier on types</h2>
 <a name="Prototypes">
 </a>
 
@@ -35,9 +35,9 @@ consistent with the static type of the variable.
 For fields, this is ensured by introducing a form of ownership types
 called <em>incomplete types</em> to address the <em>escaping-this</em>
 problem.  To permit flexibility in writing constructors, X10 v1.7
-permits "this" to be used in a constructor as a reference to the
+permits <b>this</b> to be used in a constructor as a reference to the
 object currently being constructed. Unfortunately there are no
-restrictions on the usage of "this". In particular, this reference
+restrictions on the usage of <b>this</b>. In particular, this reference
 can be permitted to escape: it may be stored in variables on the heap
 (thereby permitting concurrently executing activities to read the
 value of fields that may not yet have been initialized), passed as an
@@ -54,7 +54,7 @@ returned.
 Incomplete types are designed with the following goals:
  
 <ul>
-<li> Guarantee that fields are read only after they are initialized.
+<li> Guarantee that fields are not read before they are initialized.
 <div class="p"><!----></div>
 </li>
 
@@ -82,14 +82,14 @@ Incomplete types are designed with the following goals:
 
 <div class="p"><!----></div>
 These goals are met by introducing incomplete types through the type
-qualifier "proto". Types of the form "proto T" are said to be
+qualifier <b>proto</b>. Types of the form <b>proto T</b> are said to be
 <em>incomplete types</em>; types that do not have the qualifier are said to be
 <em>complete</em>.
- Say that an object "o" is <em>confined</em>
-to a given activity "A" if it can be reached only from stack
-frames of "A" or from objects which are, recursively, confined to
-"A". Thus confined objects cannot be accessed by activities other
-than "A".
+ Say that an object <b>o</b> is <em>confined</em>
+to a given activity <b>A</b> if it can be reached only from stack
+frames of <b>A</b> or from objects which are, recursively, confined to
+<b>A</b>. Thus confined objects cannot be accessed by activities other
+than <b>A</b>.
 
 <div class="p"><!----></div>
 Incomplete types ensure that objects whose construtors have not exited
@@ -101,15 +101,15 @@ while ensuring that these objects are confined and their fields are not
 read during construction. 
 
 <div class="p"><!----></div>
-The return value of a constructor for class "C" that takes no
-incomplete arguments is (a subtype of) "C", that is, a complete
+The return value of a constructor for class <b>C</b> that takes no
+incomplete arguments is (a subtype of) <b>C</b>, that is, a complete
 type. It will point only to completed objects. It can now be
 assigned to any (type-consistent) field of any object, that is, it is
 now allowed to escape.
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc4.0.1">
-4.0.1</a>&nbsp;&nbsp;"proto" Rules</h4>
+4.0.1</a>&nbsp;&nbsp;<b>proto</b> Rules</h4>
 <a name="protorules">
 </a>
 <a name="ProtoRules">
@@ -117,79 +117,79 @@ now allowed to escape.
 
 
 <div class="p"><!----></div>
-For every type "T" (where "T" is not a type variable), we
-introduce the type "proto T". 
+For every type <b>T</b> (where <b>T</b> is not a type variable), we
+introduce the type <b>proto T</b>. 
 
 <div class="p"><!----></div>
-There is no relationship between types "T" and "proto T" -
+There is no relationship between types <b>T</b> and <b>proto T</b> -
 neither is a subtype of the other.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
 
 <div class="p"><!----></div>
 Incomplete types are permitted to occur only as types of method
 parameters or local variables or as return types for methods and
 constructors. They may not occur in (the source or target of) cast
-statements, "extends" or "implements" clauses, "catch"
+statements, <b>extends</b> or <b>implements</b> clauses, <b>catch</b>
 clauses, or as types of class fields.
 
 <div class="p"><!----></div>
-Within the body of a class "C" the type of "this" in
+Within the body of a class <b>C</b> the type of <b>this</b> in
 constructors, instance initializers and instance variable initializers
-is "proto C".
+is <b>proto C</b>.
 
 <div class="p"><!----></div>
-Let "v" be a value of type "proto C", for some class "C". 
+Let <b>v</b> be a value of type <b>proto C</b>, for some class <b>C</b>. 
 
 <div class="p"><!----></div>
-No fields of "v" can be read.  (This is the defining property of
-"proto" types.)  However, "v''s (accessible) instance fields
+No fields of <b>v</b> can be read.  (This is the defining property of
+<b>proto</b> types.)  However, <b>v</b>'s (accessible) instance fields
 can be assigned.
 
 <div class="p"><!----></div>
-"v" can be assigned to an instance field "o.f" only if "f"
-is of some type "S" such that "T &lt;: S" and "o" has an
+<b>v</b> can be assigned to an instance field <b>o.f</b> only if <b>f</b>
+is of some type <b>S</b> such that <b>T &lt;: S</b> and <b>o</b> has an
 incomplete type.
 
 <div class="p"><!----></div>
-"v" can be assigned to local variables  only if they are of some type
-"proto S" (such that "T &lt;: S").
+<b>v</b> can be assigned to local variables  only if they are of some type
+<b>proto S</b> (such that <b>T &lt;: S</b>).
 
 <div class="p"><!----></div>
-Instance methods of class "C" may be qualified with "proto"
-(these methods are called <em>incomplete methods</em>). The type of "this"
-in incomplete methods is "proto C". Incomplete methods can be
+Instance methods of class <b>C</b> may be qualified with <b>proto</b>
+(these methods are called <em>incomplete methods</em>). The type of <b>this</b>
+in incomplete methods is <b>proto C</b>. Incomplete methods can be
 overridden only by incomplete methods.  Only incomplete methods can be
-invoked on "v". Incomplete methods which do not take an argument of incomplete
+invoked on <b>v</b>. Incomplete methods which do not take an argument of incomplete
 type can be invoked on completed values. 
 
 <div class="p"><!----></div>
-"v" can be passed as argument into a constructor or method call,
+<b>v</b> can be passed as argument into a constructor or method call,
 or returned from a method.  The return type of a method taking an
-argument at an incomplete type must be "void" or incomplete.  The
-return type of a constructor taking an argument at a "proto" type
+argument at an incomplete type must be <b>void</b> or incomplete.  The
+return type of a constructor taking an argument at a <b>proto</b> type
 must be incomplete.
 
 <div class="p"><!----></div>
-A generic class (method) type parameter "T" can be
-  instantiated with the type "proto S" (where "S" is not a type
+A generic class (method) type parameter <b>T</b> can be
+  instantiated with the type <b>proto S</b> (where <b>S</b> is not a type
   parameter itself), provided that the class (method) body satisfies
-  the conditions above for "proto S".
+  the conditions above for <b>proto S</b>.
 
 <div class="p"><!----></div>
-During code generation, the type "proto T" is treated as if it were
-"T". That is, there is no run-time cost to "proto" types.
+During code generation, the type <b>proto T</b> is treated as if it were
+<b>T</b>. That is, there is no run-time cost to <b>proto</b> types.
 
 <div class="p"><!----></div>
 The invariants maintained by the design are as follows.  Say that an
 object field or stack variable (local variable) contains an incomplete
-value if a value of type "proto T" (for some "T") was written
+value if a value of type <b>proto T</b> (for some <b>T</b>) was written
 into it.
 
 <div class="p"><!----></div>
 
 <ul>
-<li> If an object "o" has a field containing an incomplete value "v",
-then either "v''s constructor has exited or "o" is confined.
-Further, every reference to "o" on the stack is held at an incomplete type.
+<li> If an object <b>o</b> has a field containing an incomplete value <b>v</b>,
+then either <b>v</b>'s constructor has exited or <b>o</b> is confined.
+Further, every reference to <b>o</b> on the stack is held at an incomplete type.
 <div class="p"><!----></div>
 </li>
 
@@ -200,14 +200,14 @@ Further, every reference to "o" on the stack is held at an incomplete type.
 </ul>
 
 <div class="p"><!----></div>
-Say that a constructor invocation for a class "C" on the call
+Say that a constructor invocation for a class <b>C</b> on the call
 stack is a <em>root</em> if it takes no incomplete arguments. Such a
-constructor invocation will return an object of type "C" whose
+constructor invocation will return an object of type <b>C</b> whose
 fields may point to an arbitrary graph of newly created objects
 (objects created by the activity after the constructor
-invocation). Since the object returned is at type "C" - and not
-"proto C" - It may be assigned to any field of any object on the
-heap of type "D" such that "C &lt;: D".  It is no longer
+invocation). Since the object returned is at type <b>C</b> - and not
+<b>proto C</b> - It may be assigned to any field of any object on the
+heap of type <b>D</b> such that <b>C &lt;: D</b>.  It is no longer
 confined. Thus the "magic moment" when an incomplete value becomes
 complete is when the last constructor for any incomplete value it
 references (including itself) returns.

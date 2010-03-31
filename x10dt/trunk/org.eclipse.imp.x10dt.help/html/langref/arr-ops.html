@@ -19,26 +19,26 @@
 <body>
  <h2><a name="tth_sEc5">
 5</a>&nbsp;&nbsp;Operations on arrays</h2>
-In the following let "a" be an array with distribution "D" and
-base type "T". "a".
+In the following let <b>a</b> be an array with distribution <b>D</b> and
+base type <b>T</b>. 
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.1">
 5.1</a>&nbsp;&nbsp;Element operations</h3>
-The value of "a" at a point "p" in its region of definition is
-obtained by using the indexing operation "a(p)". This operation
+The value of <b>a</b> at a point <b>p</b> in its region of definition is
+obtained by using the indexing operation <b>a(p)</b>. This operation
 may be used on the left hand side of an assignment operation to update
-the value. The operator assignments "a(i) op= e" are also available
+the value. The operator assignments <b>a(i) op= e</b> are also available
 in X10.
 
 <div class="p"><!----></div>
 For array variables, the right-hand-side of an assignment must
-have the same distribution "D" as an array being assigned. This
+have the same distribution <b>D</b> as an array being assigned. This
 assignment involves
-control communication between the sites hosting "D". Each
+control communication between the sites hosting <b>D</b>. Each
 site performs the assignment(s) of array components locally. The
 assignment terminates when assignment has terminated at all
-sites hosting "D".
+sites hosting <b>D</b>.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.2">
@@ -46,10 +46,10 @@ sites hosting "D".
 </a>
 
 <div class="p"><!----></div>
-For a distribution "D" and a constant or final variable "v" of
-type "T" the expression "new Array[T](D, (p: Point) =&#62; v)"
+For a distribution <b>D</b> and a val <b>v</b> of
+type <b>T</b> the expression <b>new Array[T](D, (p: Point) =&#62; v)</b>
 denotes the mutable array with
-distribution "D" and base type "T" initialized with "v"
+distribution <b>D</b> and base type <b>T</b> initialized with <b>v</b>
 at every point.
 
 <div class="p"><!----></div>
@@ -57,8 +57,9 @@ at every point.
 5.3</a>&nbsp;&nbsp;Restriction of an array</h3>
 
 <div class="p"><!----></div>
-Let "D1" be a sub-distribution of "D". Then "a | D1"
-represents the sub-array of "a" with the distribution "D1".
+Let <b>D1</b> be a sub-distribution of <b>D</b>. Then <b>a </td><td width="150">
+&#124; D1</b>
+represents the sub-array of <b>a</b> with the distribution <b>D1</b>.
 
 <div class="p"><!----></div>
 Recall that a rich set of operators are available on distributions
@@ -68,35 +69,39 @@ Recall that a rich set of operators are available on distributions
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.4">
 5.4</a>&nbsp;&nbsp;Assembling an array</h3>
-Let "a1,a2" be arrays of the same base type "T" defined over
-distributions "D1" and "D2" respectively. Assume that both
+Let <b>a1,a2</b> be arrays of the same base type <b>T</b> defined over
+distributions <b>D1</b> and <b>D2</b> respectively. Assume that both
 arrays are value or reference arrays. 
 
 <div class="p"><!----></div>
 <b>Assembling arrays over disjoint regions&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-If "D1" and "D2" are disjoint then the expression "a1 || a2" denotes the unique array of base type "T" defined over the
-distribution "D1 || D2" such that its value at point "p" is
-"a1(p)" if "p" lies in "D1" and "a2(p)"
-otherwise. This array is a reference (value) array if "a1" is.
+If <b>D1</b> and <b>D2</b> are disjoint then the expression <b>a1 </td><td width="150">
+&#124;</td><td width="150">
+&#124; a2</b> denotes the unique array of base type <b>T</b> defined over the
+distribution <b>D1 </td><td width="150">
+&#124;</td><td width="150">
+&#124; D2</b> such that its value at point <b>p</b> is
+<b>a1(p)</b> if <b>p</b> lies in <b>D1</b> and <b>a2(p)</b>
+otherwise. This array is a reference (value) array if <b>a1</b> is.
 
 <div class="p"><!----></div>
 
 <b>Overlaying an array on another&nbsp;&nbsp;</b>
 The expression
-"a1.overlay(a2)" (read: the array "a1" <em>overlaid with</em> "a2")
+<b>a1.overlay(a2)</b> (read: the array <b>a1</b> <em>overlaid with</em> <b>a2</b>)
 represents an array whose underlying region is the union of that of
-"a1" and "a2" and whose distribution maps each point "p"
-in this region to "D2(p)" if that is defined and to "D1(p)"
-otherwise. The value "a1.overlay(a2)(p)" is "a2(p)" if it is defined and "a1(p)" otherwise.
+<b>a1</b> and <b>a2</b> and whose distribution maps each point <b>p</b>
+in this region to <b>D2(p)</b> if that is defined and to <b>D1(p)</b>
+otherwise. The value <b>a1.overlay(a2)(p)</b> is <b>a2(p)</b> if it is defined and <b>a1(p)</b> otherwise.
 
 <div class="p"><!----></div>
-This array is a reference (value) array if "a1" is.
+This array is a reference (value) array if <b>a1</b> is.
 
 <div class="p"><!----></div>
-The expression "a1.update(a2)" updates the array "a1" in place
-with the result of "a1.overlay(a2)".
+The expression <b>a1.update(a2)</b> updates the array <b>a1</b> in place
+with the result of <b>a1.overlay(a2)</b>.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.5">
@@ -106,22 +111,22 @@ with the result of "a1.overlay(a2)".
 
 <b>Pointwise operations&nbsp;&nbsp;</b><a name="ArrayPointwise">
 </a>
-The unary "lift" operation applies a function to each element of
+The unary <b>lift</b> operation applies a function to each element of
 an array, returning a new array with the same distribution.
-The "lift" operation is implemented by the following method
-in "Array[T]":
+The <b>lift</b> operation is implemented by the following method
+in <b>Array[T]</b>:
 <pre>
 def lift[S](f: (T) =&#62; S): Array[S](dist);
 </pre>
 
 <div class="p"><!----></div>
-The binary "lift" operation takes a binary function and
+The binary <b>lift</b> operation takes a binary function and
 another
 array over the same distribution and applies the function
 pointwise to corresponding elements of the two arrays, returning
 a new array with the same distribution.
-The "lift" operation is implemented by the following method
-in "Array[T]":
+The <b>lift</b> operation is implemented by the following method
+in <b>Array[T]</b>:
 <pre>
 def lift[S,R](f: (T,S) =&#62; R, Array[S](dist)): Array[R](dist);
 </pre>
@@ -132,20 +137,20 @@ def lift[S,R](f: (T,S) =&#62; R, Array[S](dist)): Array[R](dist);
 </a>
 
 <div class="p"><!----></div>
-Let "f" be a function of type "(T,T)=&#62;T".  Let
-"a" be a value or reference array over base type "T".
-Let "unit" be a value of type "T".
+Let <b>f</b> be a function of type <b>(T,T)=&#62;T</b>.  Let
+<b>a</b> be a value or reference array over base type <b>T</b>.
+Let <b>unit</b> be a value of type <b>T</b>.
 Then the
-operation "a.reduce(f, unit)" returns a value of type "T" obtained
-by performing "f" on all points in "a" in some order, and in
-parallel.  The function "f" must be associative and
-commutative.  The value "unit" should satisfy
-"f(unit,x)" "==" "x" "==" "f(x,unit)".
+operation <b>a.reduce(f, unit)</b> returns a value of type <b>T</b> obtained
+by performing <b>f</b> on all points in <b>a</b> in some order, and in
+parallel.  The function <b>f</b> must be associative and
+commutative.  The value <b>unit</b> should satisfy
+<b>f(unit,x)</b> <b>==</b> <b>x</b> <b>==</b> <b>f(x,unit)</b>.
 
 <div class="p"><!----></div>
 This operation involves communication between the places over which
 the array is distributed. The X10 implementation guarantees that
-only one value of type "T" is communicated from a place as part of
+only one value of type <b>T</b> is communicated from a place as part of
 this reduction process.
 
 <div class="p"><!----></div>
@@ -154,12 +159,14 @@ this reduction process.
 </a>
 
 <div class="p"><!----></div>
-Let "f" be a reduction operator defined on type "T". Let
-"a" be a value or reference array over base type "T" and
-distribution "D". Then the operation "a\ - \ - f()" returns an array
-of base type "T" and distribution "D" whose ith element
-(in canonical order) is obtained by performing the reduction "f"
-on the first i elements of "a" (in canonical order).
+Let <b>f</b> be a reduction operator defined on type <b>T</b>. Let
+<b>a</b> be a value or reference array over base type <b>T</b> and
+distribution <b>D</b>. Then the operation <b>a</td><td width="150">
+&#124;</td><td width="150">
+&#124;f()</b> returns an array
+of base type <b>T</b> and distribution <b>D</b> whose ith element
+(in canonical order) is obtained by performing the reduction <b>f</b>
+on the first i elements of <b>a</b> (in canonical order).
 
 <div class="p"><!----></div>
 This operation involves communication between the places over which
@@ -167,9 +174,8 @@ the array is distributed. The X10 implementation will endeavour to
 minimize the communication between places to implement this operation.
 
 <div class="p"><!----></div>
-Other operations on arrays may be found in "x10.lang.Array" and
+Other operations on arrays may be found in <b>x10.lang.Array</b> and
 other related classes.
-
 
 </body>
 </html>

@@ -25,9 +25,9 @@
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">NewExpression &nbsp;"new" ClassName TypeArguments<sup>?</sup>&nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")"
+<tr><td align="right">NewExpression ::= <b>new</b> ClassName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b>
         ClassBody<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">\ -  "new" InterfaceName TypeArguments<sup>?</sup>&nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")"
+<tr><td align="right">&#124; <b>new</b> InterfaceName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b>
         ClassBody
 </td></tr></table>
 </em>
@@ -43,7 +43,7 @@ The allocation expression may have an optional class body.
 In this case, an anonymous subclass of the given class is
 allocated.   An anonymous class allocation may also specify a
 single super-interface rather than a superclass; the superclass
-of the anonymous class is "x10.lang.Object".
+of the anonymous class is <b>x10.lang.Object</b>.
 
 <div class="p"><!----></div>
 If the class is anonymous-that is, if a class body is
@@ -58,7 +58,7 @@ substitutions  of actual arguments for formal parameters, as
 specified in &#167;<a href="#MethodInvocationSubstitution">6</a>.
 
 <div class="p"><!----></div>
-It is illegal to allocate an instance of an "abstract" class.
+It is illegal to allocate an instance of an <b>abstract</b> class.
 It is illegal to allocate an instance of a class or to invoke a
 constructor that is not visible at
 the allocation expression.

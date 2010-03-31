@@ -38,7 +38,7 @@ distributed X10 arrays.
 <div class="p"><!----></div>
 The interface consists of two parts. First, an array intended to be
 communicated to native code must be created as an unsafe array
-via the "unsafe" annotation.
+via the <b>unsafe</b> annotation.
 <pre>
 new unsafe Array[T](dist)
 </pre>
@@ -46,7 +46,7 @@ Unsafe arrays can be of any dimension. However, X10 v2.0
 requires that unsafe arrays be of a primitive type, and local
 (i.e.,
 with an underlying distribution that maps all elements in its region
-to "here").
+to <b>here</b>).
 
 <div class="p"><!----></div>
 Unsafe arrays are allocated in a special array of memory that permits
@@ -54,23 +54,23 @@ their efficient transmission to natively linked code.
 
 <div class="p"><!----></div>
 Second, the X10 programmer may specify that certain methods are to
-be implemented natively by using the modifier "extern":
+be implemented natively by using the modifier <b>extern</b>:
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">MethodModifier &nbsp;"extern"
+<tr><td align="right">MethodModifier ::= <b>extern</b>
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-Such a method must be declared "static" and may not have a
+Such a method must be declared <b>static</b> and may not have a
 method body.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>  Primitive types in
 the method argument are translated to their corresponding JNI type
 (e.g., <tt>Float</tt> is translated to <tt>jfloat</tt>, <tt>Double</tt> to
 <tt>jdouble</tt>, etc.).  The only non-primitive type permitted in an
-"extern" method is an unsafe array. This is passed at type
-"jlong" as an eight-byte address into the unsafe region that contains
+<b>extern</b> method is an unsafe array. This is passed at type
+<b>jlong</b> as an eight-byte address into the unsafe region that contains
 the data for the array.  Note that <tt>jlong</tt> is not the same as <tt>long</tt> on
 32-bit machines.
 
@@ -83,18 +83,18 @@ arrays are created in row-major order, and so any native routine must
 also access them in the same order.
 
 <div class="p"><!----></div>
-For each class "C" that contains an "extern" method, the
+For each class <b>C</b> that contains an <b>extern</b> method, the
 X10 compiler generates a text file <tt>C_x10stub.c</tt>.  This file
-contains generated "C" stub functions that are called from the
-"extern" routines.  The name of the stub function is derived from
-the name of the "extern" method. If the method is
+contains generated <b>C</b> stub functions that are called from the
+<b>extern</b> routines.  The name of the stub function is derived from
+the name of the <b>extern</b> method. If the method is
 <tt>C.process()</tt>, the stub function will be
 <tt>Java_C_C_process()</tt>. The name is suffixed with the signature of the
 method if the method is overloaded.
 
 <div class="p"><!----></div>
 The programmer must write C code to implement the native method,
-using the methods in the "C" stub file to call the actual native
+using the methods in the <b>C</b> stub file to call the actual native
 method.  The programmer must compile these files and link them into a
 dynamically linked library (DLL).  Note that the <tt>jni.h</tt> header file
 must be in the include path.  The programmer must ensure this library
@@ -104,17 +104,17 @@ adding a
 X10 class).
 
 <div class="p"><!----></div>
-The following class illustrates the use of "unsafe" and native
+The following class illustrates the use of <b>unsafe</b> and native
 linking. 
 <pre>
 public class IntArrayExternUnsafe {
   public static extern 
       def process(yy: unsafe Rail[Int], size: Int);
-  static { System.loadLibrary("IntArrayExternUnsafe"); }
+  static { System.loadLibrary(&#207;ntArrayExternUnsafe"); }
   public static def main(args: Rail[String]) {
      val b = (new IntArrayExternUnsafe()).run();
      System.out.println("++++++ Test "
-                         +(b?"succeeded.":"failed."));
+                         +(b?&#223;ucceeded.":"failed."));
      System.exit(b?0:1);
   }
   public def run() : Boolean {
@@ -127,14 +127,13 @@ public class IntArrayExternUnsafe {
     for (val (j) in y.region) {
       val expected = j+100;
       if(y(j) != expected) {
-        System.out.println("y("+j+")="
+        System.out.println(&#255;("+j+")="
                            +y(j)+" != "+expected);
         return false;
        }
     }
     return true;
   }
-}
 }
 </pre>
 

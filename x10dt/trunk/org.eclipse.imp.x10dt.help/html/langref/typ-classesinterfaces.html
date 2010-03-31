@@ -55,13 +55,13 @@ singleton classes to carry mutable static state.
         Classes
         are structured in a
         single-inheritance hierarchy.  All classes
-        extend the class "x10.lang.Object".
+        extend the class <b>x10.lang.Object</b>.
         Classes are declared to extend a single
-        superclass (except for "Object", which extends
+        superclass (except for <b>Object</b>, which extends
         no other class).
 
 <div class="p"><!----></div>
-Variables of class type may contain the value "null". 
+Variables of class type may contain the value <b>null</b>. 
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.2">
@@ -73,7 +73,7 @@ Variables of class type may contain the value "null".
         An <em>interface declaration</em> (&#167;)
         defines an <em>interface type</em>, which specifies a set of
         methods, type members, and properties to be implemented by any class
-        declared to implement the interface.  Interfaces also
+        declared to implement the interface.  Interfaces can also
         have static members: constant fields, type definitions,
         and member classes and interfaces.
 
@@ -94,11 +94,11 @@ and properties defined in the interface.
 <a name="properties">
 </a>
         Classes and interfaces may have <em>properties</em>,
-        public final instance fields bound on object creation.  
+        public <b>val</b> instance fields bound on object creation.  
         For example, the following code declares a class named
-        "Point" with properties "x" and "y"
-        and a "move" method.  The properties are bound
-        using the "property" statement in the constructor.
+        <b>Point</b> with properties <b>x</b> and <b>y</b>
+        and a <b>move</b> method.  The properties are bound
+        using the <b>property</b> statement in the constructor.
 
 <div class="p"><!----></div>
 <pre>
@@ -111,8 +111,8 @@ class Point(x: Int, y: Int) {
 <div class="p"><!----></div>
         The properties of a class or interface may be
         constrained with a boolean expression.  The type
-        "Point{x==0}" is the set of all points whose "x"
-        property is "0".
+        <b>Point{x==0}</b> is the set of all points whose <b>x</b>
+        property is <b>0</b>.
 
 <div class="p"><!----></div>
 

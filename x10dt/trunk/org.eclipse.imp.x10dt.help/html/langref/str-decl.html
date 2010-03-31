@@ -25,67 +25,56 @@ X10 supports user-defined primitives (called
 <em>structs</em>). Like classes, structs define zero or more fields and
 zero or more methods, and may implement zero or more interfaces. A
 struct has the same modifiers as a class. However, structs are
-implicitly final and do <em>not</em> participate in any code
+implicitly <b>val</b> and do <em>not</em> participate in any code
 inheritance relation. (This makes structs very easy to implement,
 without vtables.)
 
 <div class="p"><!----></div>
 <pre>
-<em>StructModifiers</em><sup>?</sup>
-struct C[X<sub>1</sub>, <font face="symbol">¼</font
->, X<sub>n</sub>](p<sub>1</sub>:T<sub>1</sub>, <font face="symbol">¼</font
->, p<sub>n</sub>:T<sub>n</sub>){c} 
-   implements I<sub>1</sub>, <font face="symbol">¼</font
->, I<sub>k</sub> {
-<em>StructBody</em>
+{<em>{</em>StructModifiers}}<sup>{</sup>{?}}
+struct C[X<sub>1</sub>, &#8230;, X<sub>n</sub>](p<sub>1</sub>:T<sub>1</sub>, &#8230;, p<sub>n</sub>:T<sub>n</sub>){c} 
+   implements I<sub>1</sub>, &#8230;, I<sub>k</sub> {
+{<em>{</em>StructBody}}
 }
 </pre>
 
 <div class="p"><!----></div>
-Each field and method in a struct is implicitly marked "global".  
+Each field and method in a struct is implicitly marked <b>global</b>.  
 
 <div class="p"><!----></div>
-The size of a variable of struct type "C" is the size of the fields
-defined at "C" (up to alignment considerations). No extra space is
+The size of a variable of struct type <b>C</b> is the size of the fields
+defined at <b>C</b> (up to alignment considerations). No extra space is
 allocated for a vtable or an itable. This means that unlike classes,
-structs cannot be defined recursively. That is, a struct "S" cannot
-contain a field of type "S", or a field of struct type "T" which,
-recursively, contains a field of type "S".
+structs cannot be defined recursively. That is, a struct <b>S</b> cannot
+contain a field of type <b>S</b>, or a field of struct type <b>T</b> which,
+recursively, contains a field of type <b>S</b>.
 
 <div class="p"><!----></div>
 
 <ul>
 <li> More precisely, we require that the set of <em>size equations</em>
   for all structs and classes must have a unique solution. A size
-  equation for a struct "S" is defined as follows. Assume "S" has m fields
-  of type "S"<sub>i</sub> (for i in 0,<font face="symbol">¼</font
->,m<font face="symbol">-</font
->1), and n fields of type (class) "C"<sub>j</sub>
-  (for j in 0,<font face="symbol">¼</font
->,n<font face="symbol">-</font
->1). Then the size equation for "S" is 
+  equation for a struct <b>S</b> is defined as follows. Assume <b>S</b> has m fields
+  of type <b>S</b><sub>i</sub> (for i in 0,&#8230;,m&#8722;1), and n fields of type (class) <b>C</b><sub>j</sub>
+  (for j in 0,&#8230;,n&#8722;1). Then the size equation for <b>S</b> is 
 <pre>
-size(S) = size(S<sub>0</sub>)+<font face="symbol">¼</font
->+size(S<sub>m<font face="symbol">-</font
->1</sub>)+size(C<sub>0</sub>)+<font face="symbol">¼</font
->+size(C<sub>n<font face="symbol">-</font
->1</sub>) 
+size(S) = size(S<sub>0</sub>)+&#8230;+size(S<sub>{m</sub>&#8722;1})+size(C<sub>0</sub>)+&#8230;+size(C<sub>{n</sub>&#8722;1}) 
 </pre>
 The size
-equation for a class "C" is just "size(C) = AddressSize", where
-"AddressSize" is a compile-time parameter.
+equation for a class <b>C</b> is just <b>size(C) = AddressSize</b>, where
+<b>AddressSize</b> is a compile-time parameter.
 <div class="p"><!----></div>
 </li>
 </ul>
 
 <div class="p"><!----></div>
-Values of a struct "C" type can be created by invoking a constructor
-defined in "C", but without prefixing it with "new".
+Values of a struct <b>C</b> type can be created by invoking a constructor
+defined in <b>C</b>, but without prefixing it with <b>new</b>.
 
 <div class="p"><!----></div>
-Constrained types can be built on top of the base "C" in the same way as
-they can be built on top of a class "D". In struct "C[T1,..., Tn]{c}",
-the type of "self" in "c" is "C[T1,..., Tn]".
+Constrained types can be built on top of the base <b>C</b> in the same way as
+they can be built on top of a class <b>D</b>. In struct <b>C[T1,..., Tn]{c}</b>,
+the type of <b>self</b> in {c} is <b>C[T1,..., Tn]</b>.
 
 <div class="p"><!----></div>
 

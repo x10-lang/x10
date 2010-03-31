@@ -20,15 +20,15 @@
  <h2><a name="tth_sEc7">
 7</a>&nbsp;&nbsp;Properties</h2>
 Property declarations are always declared with a type and are
-always final (either declared "val" or by default).
+always immutable (either explicitly declared <b>val</b> or implicitly by default).
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
 <tr><td align="right">Property
-        &nbsp;PropertyModifier<sup>*</sup>&nbsp;"val" Identifier ResultType </td></tr>
-<tr><td align="right">\ -  PropertyModifier<sup>*</sup>&nbsp;Identifier ResultType </td></tr>
-<tr><td align="right">PropertyModifier &nbsp;Annotation </td></tr>
+        ::= PropertyModifier<sup>*</sup>&nbsp;<b>val</b> Identifier ResultType </td></tr>
+<tr><td align="right">&#124; PropertyModifier<sup>*</sup>&nbsp;Identifier ResultType </td></tr>
+<tr><td align="right">PropertyModifier ::= Annotation </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

@@ -34,11 +34,11 @@ Type definitions have the following syntax:
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">TypeDefinition &nbsp;
-                "type"&nbsp;Identifier
-                           ( "[" TypeParameters "]" )<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">&amp;&amp; ( "(" Formals ")" )<sup>?</sup>&nbsp;
-Constraint<sup>?</sup>&nbsp;"=" Type </td></tr>
+<tr><td align="right">TypeDefinition ::= 
+                <b>type</b>&#126;Identifier
+                           ( <b>[</b> TypeParameters <b>]</b> )<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; ( <b>(</b> Formals <b>)</b> )<sup>?</sup>&nbsp;
+Constraint<sup>?</sup>&nbsp;<b>=</b> Type </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -53,10 +53,11 @@ type Nat = UInt{self!=0};
 type Int(x: Int) = Int{self==x};
 type Dist(r: Int) = Dist{self.rank==r};
 type Dist(r: Region) = Dist{self.region==r};
+type Redund(n:Int, r:Region){r.rank==n} = Dist{rank==n &amp;&amp; region==r};
 </pre>
 <a name="TypeDefGuard">
 </a>
-As the two definitions of "Dist" demonstrate, type definitions may 
+As the two definitions of <b>Dist</b> demonstrate, type definitions may 
 be overloaded: two type definitions with different numbers of type
 parameters or with different types of value
 parameters, according to the method overloading rules
@@ -79,7 +80,7 @@ b: B = new C("Hi");
 c: C = b + ", Mom!";
 </pre>
 If a type definition has no type parameters and no value
-parameters and is an alias for a class type, a "new"
+parameters and is an alias for a class type, a <b>new</b>
 expression may be used to create an instance of the class using
 the type definition's name.
 Given the following type definition:
@@ -93,7 +94,7 @@ class type, a constructor of "C" may be invoked with
 invocation
 "new C[T<sub>1</sub>, ..., T<sub>k</sub>](e<sub>1</sub>, ..., e<sub>n</sub>)" is
 legal and if the constructor return type is a subtype of
-"A".
+<b>A</b>.
 
 <div class="p"><!----></div>
 The collection of type definitions in

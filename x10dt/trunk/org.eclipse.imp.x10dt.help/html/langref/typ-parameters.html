@@ -39,8 +39,8 @@
         &#167;,&#167;).
         The type parameters of classes and interfaces must be
         bound to concrete types (possibly to a type parameter)
-        for the type to be legal; thus "List[int]" and
-        "List[C]" are legal types, but "List" alone is
+        for the type to be legal; thus <b>List[int]</b> and
+        <b>List[C]</b> are legal types, but <b>List</b> alone is
         not.
         The type parameters of
         methods and closures
@@ -62,30 +62,30 @@
         parameters of the base type.
 
 <div class="p"><!----></div>
-Consider the following declaration of a "Cell" class.
+Consider the following declaration of a <b>Cell</b> class.
 <pre>
 class Cell[X] {
     var x: X;
     def this(x: X) { this.x = x; }
     def get(): X = x;
-    def set(x: X) = { this.x = x: }
+    def set(x: X) = { this.x = x; }
 }
 </pre>
 
 <div class="p"><!----></div>
-This declares a class "Cell" with a type parameter "X".
-"Cell" may be used as a type by instantiating "X".
+This declares a class <b>Cell</b> with a type parameter <b>X</b>.
+<b>Cell</b> may be used as a type by instantiating <b>X</b>.
 
 <div class="p"><!----></div>
-"Cell[Int]" is the type of all "Cell" containing an
-"Int".  The "get" method returns an "Int"; the
-"set" method takes an "Int" as argument.  Note that
-"Cell" alone is not a legal type because the parameter is
+<b>Cell[Int]</b> is the type of all <b>Cell</b> containing an
+<b>Int</b>.  The <b>get</b> method returns an <b>Int</b>; the
+<b>set</b> method takes an <b>Int</b> as argument.  Note that
+<b>Cell</b> alone is not a legal type because the parameter is
 not bound.
 
 <div class="p"><!----></div>
 Parameters may be declares as <em>invariant</em>, <em>covariant</em>, or
-<em>contravariant</em>.  The "X" parameter of "Cell" above is
+<em>contravariant</em>.  The <b>X</b> parameter of <b>Cell</b> above is
 invariant.  
 Consider the following classes:
 <pre>
@@ -102,8 +102,8 @@ class Set[-X] {
     def set(x: X) = { this.x = x: }
 }
 </pre>
-The "X" parameter of the "Get" class is covariant;
-the "X" parameter of the "Set" class is contravariant.
+The <b>X</b> parameter of the <b>Get</b> class is covariant;
+the <b>X</b> parameter of the <b>Set</b> class is contravariant.
 
 <div class="p"><!----></div>
 A covariant type parameter is permitted to appear only in covariant type positions,
@@ -118,34 +118,34 @@ and a contravariant type parameter in contravariant positions.
 <div class="p"><!----></div>
 </li>
 
-<li> Whether a type argument position of a generic class, interface or struct type "C"
-is covariant or contravariant is determined by the "+" or "-" annotation
-at that position in the declaration of "C".
+<li> Whether a type argument position of a generic class, interface or struct type <b>C</b>
+is covariant or contravariant is determined by the <b>+</b> or <b>-</b> annotation
+at that position in the declaration of <b>C</b>.
 <div class="p"><!----></div>
 </li>
 </ul>
 
 <div class="p"><!----></div>
-Given types "S" and "T".
+Given types <b>S</b> and <b>T</b>.
 
 <ul>
-<li>If the parameter of "Get" is covariant, then
-"Get[S]" is a subtype of "Get[T]" if
-"S" is a <em>subtype</em> of "T".
+<li>If the parameter of <b>Get</b> is covariant, then
+<b>Get[S]</b> is a subtype of <b>Get[T]</b> if
+<b>S</b> is a <em>subtype</em> of <b>T</b>.
 <div class="p"><!----></div>
 </li>
 
 <li>
-If the parameter of "Set" is covariant, then
-"Set[S]" is a subtype of "Set[T]" if
-"S" is a <em>supertype</em> of "T".
+If the parameter of <b>Set</b> is contravariant, then
+<b>Set[S]</b> is a subtype of <b>Set[T]</b> if
+<b>S</b> is a <em>supertype</em> of <b>T</b>.
 <div class="p"><!----></div>
 </li>
 
 <li>
-If the parameter of "Cell" is invariant, then
-"Cell[S]" is a subtype of "Cell[T]" if
-"S" is a <em>equal</em> to "T".
+If the parameter of <b>Cell</b> is invariant, then
+<b>Cell[S]</b> is a subtype of <b>Cell[T]</b> if
+<b>S</b> is a <em>equal</em> to <b>T</b>.
 <div class="p"><!----></div>
 </li>
 </ul>

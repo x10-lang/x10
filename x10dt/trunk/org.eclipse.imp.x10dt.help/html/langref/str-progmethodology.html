@@ -47,7 +47,7 @@ A value class in X10 v1.7 can often be translated into a struct in X10 2.0. The 
 
 <div class="p"><!----></div>
 If these conditions are not met, the value class should be converted
-into a class with "global" fields and methods.
+into a class with <b>global</b> fields and methods.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc6.2">
@@ -77,21 +77,17 @@ struct Pair[S,T]  {
 The following types all make sense: 
 
 <ul>
-<li> "Pair[Complex, String]": A struct with two fields, one inlined field of type "Complex" and another of type "String".
+<li> <b>Pair[Complex, String]</b>: A struct with two fields, one inlined field of type <b>Complex</b> and another of type <b>String</b>.
 <div class="p"><!----></div>
 </li>
 
-<li> "Pair[Complex, Int]": A class whose objects have size
-  "sizeof(Complex)+sizeof(Ref)" (the state of complex is
-  "inlined"). <em><b></b></em>FIXME
+<li> <b>Pair[Complex, Int]</b>: A struct with two fields, one inlined field of type <b>Complex</b> and another of type <b>Int</b>.
 <div class="p"><!----></div>
 </li>
 </ul>
-<em>EndOfExample.</em>
 
 <div class="p"><!----></div>
-The definition of "x10.lang.Complex" provides a good example of the use of structs.
-
+The definition of <b>x10.lang.Complex</b> provides a good example of the use of structs.
 
 </body>
 </html>

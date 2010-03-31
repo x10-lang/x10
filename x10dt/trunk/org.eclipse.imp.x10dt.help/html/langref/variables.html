@@ -34,13 +34,13 @@ Variables are declared thus:
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">VarDeclaratorWithType &nbsp;VarDeclaratorId ResultType </td></tr>
-<tr><td align="right">VarDeclarator &nbsp;VarDeclaratorId ResultType<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">VarDeclaratorId &nbsp;Annotation<sup>*</sup>&nbsp;Identifier </td></tr>
-<tr><td align="right">\ -  Annotation<sup>*</sup>&nbsp;Identifier "(" VarDeclaratorList ")" </td></tr>
-<tr><td align="right">\ -  Annotation<sup>*</sup>&nbsp;"(" VarDeclaratorList ")" </td></tr>
-<tr><td align="right">VarDeclaratorList &nbsp;VarDeclarator ( "," VarDeclarator )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">ResultType &nbsp;":" Type </td></tr>
+<tr><td align="right">VarDeclaratorWithType ::= VarDeclaratorId ResultType </td></tr>
+<tr><td align="right">VarDeclarator ::= VarDeclaratorId ResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">VarDeclaratorId ::= Annotation<sup>*</sup>&nbsp;Identifier </td></tr>
+<tr><td align="right">&#124; Annotation<sup>*</sup>&nbsp;Identifier <b>(</b> VarDeclaratorList <b>)</b> </td></tr>
+<tr><td align="right">&#124; Annotation<sup>*</sup>&nbsp;<b>(</b> VarDeclaratorList <b>)</b> </td></tr>
+<tr><td align="right">VarDeclaratorList ::= VarDeclarator ( <b>,</b> VarDeclarator )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">ResultType ::= <b>:</b> Type </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -52,36 +52,36 @@ a value.
 
 <div class="p"><!----></div>
 Variables whose value may not be changed after initialization
-are said to be <em>final</em> or <em>immutable</em>, or <em>constants</em> (&#167;).
-The programmer indicates that a variable is final by declaring
-it with the "val" keyword rather than the "var" keyword.
-Variables that are annotated neither "val" nor "var"
-are considered final.
+are said to be  <em>immutable</em>, or <em>constants</em> (&#167;).
+The programmer indicates that a variable is immutable by declaring
+it with the <b>val</b> keyword rather than the <b>var</b> keyword.
+Variables that are annotated neither <b>val</b> nor <b>var</b>
+are considered immutable.
 
 <div class="p"><!----></div>
-A variable of a reference data type "T" where "T" is the name
+A variable of a reference data type <b>T</b> where <b>T</b> is the name
 of a reference class (possibly with type arguments) always holds a
-reference to an instance of the class "T" or a class that is a
-subclass of "T", or a "null" reference.
+reference to an instance of the class <b>T</b> or a class that is a
+subclass of <b>T</b>, or a <b>null</b> reference.
 
 <div class="p"><!----></div>
-A variable of a rail type "Rail[T]" has
+A variable of a rail type <b>Rail[T]</b> has
 as many variables as the size of the rail.
-A variable of a rail type "ValRail[T]" has
+A variable of a rail type <b>ValRail[T]</b> has
 as many variables as the size of the rail.
-Each of these variables is immutable and has the type "T".
+Each of these variables is immutable and has the type <b>T</b>.
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-A variable of an interface type "I" always holds either a
-reference to a reference class implementing "I" (including possibly
-a boxed value class that implements "I"), or a "null"
+A variable of an interface type <b>I</b> always holds either a
+reference to a reference class implementing <b>I</b> (including possibly
+a boxed struct that implements <b>I</b>), or a <b>null</b>
 reference.
 
 <div class="p"><!----></div>
-A variable of a struct data type "T"  always takes as much
-space as necessary to represent an instance of "T". That is
+A variable of a struct data type <b>T</b>  always takes as much
+space as necessary to represent an instance of <b>T</b>. That is
 structs are implemented "inline" or in an unboxed fashion.
 
 <div class="p"><!----></div>

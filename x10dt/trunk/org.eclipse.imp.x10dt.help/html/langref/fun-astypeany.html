@@ -18,13 +18,13 @@
 
 <body>
  <h2><a name="tth_sEc5">
-5</a>&nbsp;&nbsp;Functions as objects of type "Any"</h2>
+5</a>&nbsp;&nbsp;Functions as objects of type <b>Any</b></h2>
 <a name="FunctionAnyMethods">
 </a>
 
 <div class="p"><!----></div>
 <a name="FunctionEquality">
-</a>Two functions "f" and "g" are equal (""==''') if both are
+</a>Two functions <b>f</b> and <b>g</b> are equal ("<b>==</b>") if both are
 instances of classes and the same object, or if both were obtained by
 the same evaluation of a function literal.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> Further, it is guaranteed that if two functions are
 equal then they refer to the same locations in the environment and
@@ -33,28 +33,28 @@ environment are comparable).
 
 
 <div class="p"><!----></div>
-Every function type implements all the methods of "Any".
-For a value "f" of a function type "((x1:T1,...xn:Tn):T", 
-the expression "f.equals(g)" is of type "Boolean".
-It succeeds if and only if "f==g" succeeds. Similarly, the 
-expression "f.hashCode()" is of type "Int" and returns
+Every function type implements all the methods of <b>Any</b>.
+For a value <b>f</b> of a function type <b>(x1:T1,...xn:Tn)=&#62;T</b>, 
+the expression <b>f.equals(g)</b> is of type <b>Boolean</b>.
+It succeeds if and only if <b>f==g</b> succeeds. Similarly, the 
+expression <b>f.hashCode()</b> is of type <b>Int</b> and returns
 an implementation defined hash code which is guaranteed to be the
-same for two values that are "equal". The expression
-"f.toString()" returns an implementation-dependent string.
-Two strings returned on different evaluations are "equal" to each other. 
-Similarly, "f.typeName()"  returns an implementation-dependent string.
-Two strings returned on different evaluations are "equal" to each other. 
+same for two values that are <b>equal</b>. The expression
+<b>f.toString()</b> returns an implementation-dependent string.
+Two strings returned on different evaluations are <b>equal</b> to each other. 
+Similarly, <b>f.typeName()</b>  returns an implementation-dependent string.
+Two strings returned on different evaluations are <b>equal</b> to each other. 
 
 
 
 
 
 <div class="p"><!----></div>
-The method "f.home()" always returns "here". The call
-"f.at(p)" for "p" a value of type "Place" always returns
-"true". The call 
-"f.at(o)" for "o" a value of type "Object" always returns
-"true"
+The method <b>f.home()</b> always returns <b>here</b>. The call
+<b>f.at(p)</b> for <b>p</b> a value of type <b>Place</b> always returns
+{true}. The call 
+<b>f.at(o)</b> for <b>o</b> a value of type <b>Object</b> always returns
+{true}
 
 
 

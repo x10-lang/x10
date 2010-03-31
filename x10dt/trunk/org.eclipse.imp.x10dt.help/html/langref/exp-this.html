@@ -18,40 +18,40 @@
 
 <body>
  <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;"this"</h2>
+2</a>&nbsp;&nbsp;<b>this</b></h2>
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">ThisExpression &nbsp;"this" </td></tr>
-<tr><td align="right">\ -  ClassName "." "this" </td></tr>
+<tr><td align="right">ThisExpression ::= <b>this</b> </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>this</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The expression "this" is a final local variable containing a reference
+The expression <b>this</b> is a  local <b>val</b> containing a reference
 to an instance of the lexically enclosing class.
 It may be used only within the body of an instance method, a
 constructor, or in the initializer of a instance field.
 
 <div class="p"><!----></div>
-Within an inner class, "this" may be qualified with the
+Within an inner class, <b>this</b> may be qualified with the
 name of a lexically enclosing class.  In this case, it
 represents an instance of that enclosing class.
 
 <div class="p"><!----></div>
-The type of a "this" expression is the
+The type of a <b>this</b> expression is the
 innermost enclosing class, or the qualifying class,
 constrained by the class invariant and the
 method guard, if any.
 
 <div class="p"><!----></div>
-The "this" expression may also be used within constraints in
+The <b>this</b> expression may also be used within constraints in
 a class or interface header (the class invariant and
-"extends" and "implements" clauses).  Here, the type of
-"this" is restricted so that only properties declared in the
+<b>extends</b> and <b>implements</b> clauses).  Here, the type of
+<b>this</b> is restricted so that only properties declared in the
 class header itself, and specifically not any members declared in the class
-body or in supertypes, are accessible through "this".
+body or in supertypes, are accessible through <b>this</b>.
 
 <div class="p"><!----></div>
 

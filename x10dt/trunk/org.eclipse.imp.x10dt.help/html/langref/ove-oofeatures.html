@@ -53,7 +53,7 @@ There are two kinds of concrete containers: <em>classes</em>
 (&#167;). Containers may have type parameters, have fields,
 methods and inner containing types and can implement one or more
 interfaces. A method or an immutable field of a
-container may be marked "global".  For a given entity (instance of
+container may be marked <b>global</b>.  For a given entity (instance of
 a container), global fields and methods may be accessed from any
 place. Otherwise they may be accessed only in the place in which they
 were created.
@@ -63,15 +63,14 @@ Classes are organized in a single-inheritance tree. Classes may have
 mutable fields.  Instances of classes with mutable fields may not be
 freely copied from place to place. Non-global methods may be invoked
 on such an object only by an activity in the same place as the object.
-The "null" reference is a value of any reference type.
+The <b>null</b> reference is a value of any reference type.
 
 <div class="p"><!----></div>
 In contrast, structs are "headerless" objects that can be onlined in
 the containing object.  Structs cannot inherit code - hence a
 variable of a struct type contains an instance of precisely that
 struct. Structs may not be recursive, i.e. there can be no cycles in
-the graph whose nodes are structs and edges s <font face="symbol">®</font
-> t reflect
+the graph whose nodes are structs and edges s &#8594; t reflect
 that struct s has a field of (struct) type t. Thus a struct
 instance may be represented with exactly as much space as necessary to
 store the fields of that struct (modulo alignment considerations). Structs
@@ -79,9 +78,9 @@ can be copied freely.
 
 <div class="p"><!----></div>
 X10 has no primitive classes. However, the standard library
-"x10.lang" supplies structs "Boolean", "Byte",
-"Short", "Char", "Int", "Long", "Float",
-"Double", "Complex" and "String". The user may defined
+<b>x10.lang</b> supplies structs <b>Boolean</b>, <b>Byte</b>,
+<b>Short</b>, <b>Char</b>, <b>Int</b>, <b>Long</b>, <b>Float</b>,
+<b>Double</b>, <b>Complex</b> and <b>String</b>. The user may defined
 additional arithmetic structs using the facilities of the
 language.
 
@@ -112,17 +111,17 @@ Properties enable the definition of <em>dependent types</em>.
 
 <div class="p"><!----></div>
 For example, the following code declares a class for a two-dimensional 
-"Point" class with an "add" method.
+<b>Point</b> class with an <b>add</b> method.
 <pre>
 struct Point(x: Int, y: Int) {
     def add(p: Point) = Point(x+p.x,y+p.y); 
 }
 </pre>
-The class has integer value properties "x" and "y".
-The "add" method creates and returns a new point by
+The class has integer value properties <b>x</b> and <b>y</b>.
+The <b>add</b> method creates and returns a new point by
 element-wise addition.
-The dependent type "Point{x==0}" is the type of all points 
-with "x" set to "0"; that is, all points along the y-axis.
+The dependent type <b>Point{x==0}</b> is the type of all points 
+with <b>x</b> set to <b>0</b>; that is, all points along the y-axis.
 
 <div class="p"><!----></div>
 
@@ -135,8 +134,8 @@ container type or a function type.
 
 <div class="p"><!----></div>
 For example,
-the following code declares a simple "List" class with a
-type parameter "T".
+the following code declares a simple <b>List</b> class with a
+type parameter <b>T</b>.
 
 <div class="p"><!----></div>
 <pre>
@@ -152,13 +151,13 @@ class List[T] {
     }
 }
 </pre>
-The constructor ("def this") initializes the fields of the new object.
-The "add" method appends an element to the list.
-"List" is a generic type.  When  instances of "List" are
-allocated, the type parameter "T" must be bound to a concrete
-type.  "List[Int]" is the type of lists of element type
-"Int", "List[String]" is the type of lists of element
-type "String".
+The constructor (<b>def this</b>) initializes the fields of the new object.
+The <b>add</b> method appends an element to the list.
+<b>List</b> is a generic type.  When  instances of <b>List</b> are
+allocated, the type parameter <b>T</b> must be bound to a concrete
+type.  <b>List[Int]</b> is the type of lists of element type
+<b>Int</b>, <b>List[String]</b> is the type of lists of element
+type <b>String</b>.
 
 <div class="p"><!----></div>
 
