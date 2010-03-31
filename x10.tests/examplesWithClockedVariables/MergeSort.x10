@@ -67,7 +67,9 @@ public class MergeSort{
     }
     
     public def merge (c: Clock, a: Rail[int @ Clocked[int] (c, op)]!, b: Rail[int @ Clocked[int] (c, op)]!, fstart: int, fend: int,
-    		sstart: int, ssend: int) {
+    		sstart: int, ssend: int) @ ClockedM (c) {
+   // public def merge (c: Clock, a: Rail[int]!, b: Rail[int]!, fstart: int, fend: int,
+   // 		sstart: int, ssend: int) @ ClockedM (c) {
     	
     var x: int = fstart;
     var y: int = sstart;

@@ -14,7 +14,6 @@ Histogram.x10
 Convolve.x10 
 KMeansScalar.x10
 MergeSort.x10
-MontiPiParallel.x10
 Pipeline.x10
 Stream.x10
 
@@ -25,6 +24,7 @@ TestArray.x10 /* Annotations are lost for arrays */
 TestRail.x10 /* Annotation is lost if the it is specified in Rail.make */
 KMeans.x10 /* Place error during compilation */
 NQueensPar.x10 /* Place error during compilation */
+MontiPiParallel.x10 /* Type compatibility error */
 
 
 I am looking at:
