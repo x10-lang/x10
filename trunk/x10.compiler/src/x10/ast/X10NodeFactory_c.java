@@ -556,7 +556,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type, DepParameterExpr e) {
+	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type) {
 	    X10CanonicalTypeNode tn = (X10CanonicalTypeNode) CanonicalTypeNode(pos, type);
 	    return tn;
 	}

@@ -27,11 +27,13 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
+import polyglot.ast.FloatLit;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
+import polyglot.ast.IntLit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
@@ -40,6 +42,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -58,15 +61,27 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
+import polyglot.visit.TypeBuilder;
 import x10.ast.AnnotationNode;
 import x10.ast.Closure;
+import x10.ast.DepParameterExpr;
+import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10Formal;
 import x10.ast.X10NodeFactory;
+import x10.ast.X10Special;
+import x10.constraint.XDisEquals;
+import x10.constraint.XEQV_c;
+import x10.constraint.XEquals;
 import x10.constraint.XFailure;
+import x10.constraint.XField;
+import x10.constraint.XLit;
+import x10.constraint.XLocal_c;
 import x10.constraint.XName;
+import x10.constraint.XNot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -82,6 +97,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
@@ -100,6 +116,10 @@ public class Synthesizer {
 	public Synthesizer(X10NodeFactory nf, X10TypeSystem ts) {
 		xts=ts;
 		xnf=nf;
+	}
+	public Synthesizer() {
+		xts=(X10TypeSystem) Globals.TS();
+		xnf=(X10NodeFactory) Globals.NF();
 	}
 
 	  /**
@@ -1273,5 +1293,168 @@ public class Synthesizer {
         return (X10ClassDecl) cDecl.body(cb.members(cm));
       
     }
-              
+            
+    /**
+     * Create a synthetic X10CanonicalTypeNode from the given Type. This node must have the property that if the type has a 
+     * constraints clause c, then the depParameterExpr associated with the node must represent an AST that when translated to
+     * a constraint would yield c.
+     * @param pos
+     * @param type
+     * @param tc
+     * @return
+     * @throws SemanticException
+     */
+    public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) throws SemanticException {
+    	X10NodeFactory nf = ((X10NodeFactory) Globals.NF());
+		CConstraint c = X10TypeMixin.xclause(type);
+		if (c == null || c.valid())
+			return nf.X10CanonicalTypeNode(pos, type);
+		Type base = X10TypeMixin.baseType(type);
+		String typeName = base.toString();
+		List<Type> types = Collections.EMPTY_LIST;
+		List<TypeNode> typeArgs = Collections.EMPTY_LIST;
+		if (base instanceof X10ClassType) {
+			X10ClassType xc = (X10ClassType) base;
+			types = xc.typeArguments();
+			if (! types.isEmpty()) {
+				typeName = xc.def().toString();
+				typeArgs = new ArrayList<TypeNode>(types.size());
+			}
+		}
+	
+		if (!types.isEmpty()) {
+			for (Type t : types)
+				typeArgs.add(nf.X10CanonicalTypeNode(pos, t));
+		}
+
+		DepParameterExpr dep = nf.DepParameterExpr(pos, makeExpr(c, pos));
+		
+		QName qName = QName.make(typeName);
+		QName qual = qName.qualifier();
+		TypeNode tn =  nf.AmbDepTypeNode(pos, qual==null ? null : nf.PrefixFromQualifiedName(pos, qual), 
+				nf.Id(pos, qName.name()), typeArgs, Collections.EMPTY_LIST, dep);
+		TypeBuilder tb = new TypeBuilder(tc.job(),  tc.typeSystem(), nf);
+		tn = (TypeNode) tn.visit(tb);
+		tn = (X10CanonicalTypeNode) tn.visit(tc);
+		if (! (tn instanceof X10CanonicalTypeNode))
+			assert tn instanceof X10CanonicalTypeNode;
+		return (X10CanonicalTypeNode) tn;
+	
+    }
+	   /**
+     * Return a synthesized AST for a constraint. Used when generating code from implicit casts.
+     * @param c -- the constraint
+     * @return -- the expr corresponding to the constraint
+     * @seeAlso -- X10TypeTransltor.constraint(...): it generates a constraint from an AST.
+     */
+	Expr makeExpr(XTerm t, Position pos) {
+		if (t instanceof XField) 
+			return makeExpr((XField) t, pos);
+		if (t instanceof XLit)
+			return makeExpr((XLit) t, pos);
+		if (t instanceof XEquals)
+			return makeExpr((XEquals) t, pos);
+		if (t instanceof XDisEquals)
+			return makeExpr((XDisEquals) t, pos);
+		if (t instanceof XEQV_c)
+			return makeExpr((XEQV_c) t, pos); // this must occur before XLocal_c
+		if (t instanceof XLocal_c)
+			return makeExpr((XLocal_c) t, pos);
+		if (t instanceof XNot)
+			return makeExpr((XNot) t, pos);
+		return null;
+	}
+	Expr makeExpr(XField t, Position pos) {
+		Expr r = makeExpr(t.receiver(), pos);
+		Name n = Name.make(t.field().toString());
+		return xnf.Field(pos, r, xnf.Id(pos, n));
+	}
+	Expr makeExpr(XEQV_c t, Position pos) {
+		String str = t.toString();
+		//if (str.startsWith("_place"))
+		//	assert ! str.startsWith("_place");
+		int i = str.indexOf("#");
+		TypeNode tn = null;
+		if (i > 0) {
+			String typeName = str.substring(0, i);
+			tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
+			str = str.substring(i+1);
+		}
+		if (str.equals("self"))
+			return tn == null ? xnf.Special(pos, X10Special.SELF) : xnf.Special(pos, X10Special.SELF, tn);
+		if (str.equals("this"))
+			return tn == null ? xnf.Special(pos, X10Special.THIS) : xnf.Special(pos, X10Special.THIS, tn);
+		
+		return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
+	}
+	Expr makeExpr(XLocal_c t, Position pos) {
+		String str = t.name().toString();
+		//if (str.startsWith("_place"))
+		//	assert ! str.startsWith("_place");
+		if (str.equals("here"))
+			return xnf.Here(pos);
+		int i = str.indexOf("#");
+		TypeNode tn = null;
+		if (i > 0) {
+			String typeName = str.substring(0, i);
+			tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
+			str = str.substring(i+1);
+		}
+		if (str.equals("self"))
+			return tn == null ? xnf.Special(pos, X10Special.SELF) : xnf.Special(pos, X10Special.SELF, tn);
+		if (str.equals("this"))
+			return tn == null ? xnf.Special(pos, X10Special.THIS) : xnf.Special(pos, X10Special.THIS, tn);
+		return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
+	}
+	
+	Expr makeExpr(XNot t, Position pos) {
+		return xnf.Unary(pos, makeExpr(t.arguments().get(0), pos), Unary.NOT);
+	}
+	
+	Expr makeExpr(XLit t, Position pos) {
+		 Object val = t.val();
+		 if (val== null)
+			 return xnf.NullLit(pos);
+		 if (val instanceof String) 
+			 return xnf.StringLit(pos, (String) val);
+		 if (val instanceof Integer) 
+			 return xnf.IntLit(pos,  IntLit.INT, ((Integer) val).intValue());
+		 if (val instanceof Long) 
+			 return xnf.IntLit(pos,  IntLit.LONG, ((Long) val).longValue());
+		 if (val instanceof Boolean) 
+			 return xnf.BooleanLit(pos,   ((Boolean) val).booleanValue());
+		 if (val instanceof Character) 
+			 return xnf.CharLit(pos,   ((Character) val).charValue());
+		 if (val instanceof Float) 
+			 return xnf.FloatLit(pos,  FloatLit.DOUBLE, ((Double) val).doubleValue());
+		 return null;
+	}
+	Expr makeExpr(XEquals t, Position pos) {
+		Expr left = makeExpr(t.arguments().get(0), pos);
+		 Expr right = makeExpr(t.arguments().get(1), pos);
+		 if (left == null)
+			 assert left != null;
+		 if (right == null)
+			 assert right != null;
+		 return xnf.Binary(pos, left, Binary.EQ, right);
+	}
+	Expr makeExpr(XDisEquals t, Position pos) {
+		Expr left = makeExpr(t.arguments().get(0), pos);
+		 Expr right = makeExpr(t.arguments().get(1), pos);
+		 return xnf.Binary(pos, left, Binary.NE, right);
+	}
+	
+	
+	
+    public List<Expr> makeExpr(CConstraint c, Position pos) {
+    	List<Expr> es = new ArrayList<Expr>();
+    	if (c==null)
+    		return es;
+    	List<XTerm> terms  = c.extConstraints();
+   
+    	for (XTerm term : terms) {
+    		es.add(makeExpr(term, pos));
+    	}
+    	return es;
+    }
 }

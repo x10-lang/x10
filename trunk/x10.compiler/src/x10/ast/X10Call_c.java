@@ -66,6 +66,7 @@ import x10.constraint.XConstraint;
 import x10.constraint.XLocal;
 import x10.constraint.XRoot;
 import x10.errors.Errors;
+import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.parser.X10ParsedName;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
@@ -82,6 +83,7 @@ import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbMethodMatcher;
+import x10cpp.postcompiler.CXXCommandBuilder;
 
 
 /**
@@ -295,7 +297,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		 if (n != null)
 			 return n;
 		// Otherwise try and find the usual null target method.
-		return typeCheckNullTargetForMethod(tc, typeArgs, argTypes);
+		 
+			 n = typeCheckNullTargetForMethod(tc, typeArgs, argTypes);
+			 return n;
+		
 	}
 	
 	
@@ -456,28 +461,62 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    Type et = e.type();
 		    argTypes.add(et);
 		}
-
+		// TODO: Need to try struct call with implicit conversions as well.
 		if (this.target == null) {
 			Node n =  null;
+			// First try to find the method without implicit conversions.
 			try {
 				n=this.typeCheckNullTarget(tc, typeArgs, argTypes, arguments);
-				
+				// Success! n has the answer.
 			}
 			catch (SemanticException e) {
-				if (cc != null) {
-					Node result = cc.typeCheck(tc);
-					if (result instanceof Expr) {
-						X10TypeMixin.checkMissingParameters(((Expr) result).type());
-					}
-					return result;
-				}
-				MethodMatcher matcher = ((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c);
-				throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
-				                                                   
+				// OK that didnt work. Try implicit conversions.
+				X10MethodInstance mi = null;
+				List<Expr> args = null;
+				 // Now, try to find the method with implicit conversions, making them explicit.
+				 try {
+					 Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, null, typeArgs, argTypes);
+					 mi = (X10MethodInstance) p.fst();
+					 args = p.snd();
+				 } catch (SemanticException e2) {
+					 // Nothing worked. If you have a cc, thats the one. Exit with cc.
+					 if (cc != null) {
+						 Node result = cc.typeCheck(tc);
+						 if (result instanceof Expr) {
+							 X10TypeMixin.checkMissingParameters(((Expr) result).type());
+						 }
+						 return result;
+					 }
+					 // otherwise error.
+					 MethodMatcher matcher = ((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c);
+						throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
+				 }
+				 
+				 // OK so now we have mi and args that correspond to a success.    
+				 // Copy the method instance so we can modify it.
+				 assert mi != null && args != null;
+				 Type rt = mi.rightType(); // X10Field_c.rightType(mi.rightType(), mi.x10Def(), n.target, c);
+				 X10Call_c result = (X10Call_c) methodInstance(mi).type(rt);
+				 // Set up n with the answer.
+				 n = result.arguments(args);
 			}
 			
-			if (n instanceof X10Call_c)
-			 PlaceChecker.checkLocalReceiver((Call) n, tc);
+			if (n instanceof X10Call_c) {
+				try {
+					PlaceChecker.checkLocalReceiver((Call) n, tc);
+				} catch (PlaceTypeErrorMethodShouldBeLocalOrGlobal z) {
+					// ok, compensate by generating a dynamic cast.
+					X10Call_c result = (X10Call_c) n;
+					Receiver r = result.target();
+					if (r instanceof Expr) {
+						Expr target = (Expr) r;
+						Type type = PlaceChecker.AddIsHereClause(target.type(), tc.context());
+						target = Converter.attemptCoercion(tc, target, type);
+						n = result.reconstruct(target, result.name(), result.arguments());
+					}
+					
+				}
+			}
 			
 			
 			// We have both!
@@ -494,16 +533,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		}
 
 		Node structCall = null;
-    		if (target instanceof TypeNode) {
-    		    Type t = ((TypeNode) target).type();
-    		    t = X10TypeMixin.baseType(t);
-    		    if (t instanceof ParameterType) {
-    		        throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
-    		    }
-    		    structCall = tryStructConstructor(tc, target, typeArgs, argTypes, arguments);
-    		    if (structCall != null)
-    		    	return structCall;
-    		}
+		if (target instanceof TypeNode) {
+			Type t = ((TypeNode) target).type();
+			t = X10TypeMixin.baseType(t);
+			if (t instanceof ParameterType) {
+				throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
+			}
+			structCall = tryStructConstructor(tc, target, typeArgs, argTypes, arguments);
+			if (structCall != null)
+				return structCall;
+		}
 
 		X10Call_c n = this;
 
