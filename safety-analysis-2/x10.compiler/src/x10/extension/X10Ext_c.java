@@ -199,6 +199,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	                result=computeEffect((ForEach) n, ec);
 		    } else if (n instanceof Finish) {
 	                result=computeEffect((Finish) n, ec);
+	                //System.out.println("Result of finish" + result);
 	            } else if (n instanceof Atomic) {
 	                result=computeEffect((Atomic) n, ec);
 	            } else if (n instanceof AtStmt) {
@@ -281,7 +282,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	                 result=computeEffect((Unary) n, ec);
 	            } else if (n instanceof While) {
 	            	// vj: this is odd.
-	                result = Effects.makeUnsafe();
+	                //result = Effects.makeUnsafe();
+	            	result  = computeEffect((While)n, ec);
 	            } else if (n instanceof Loop) {
 	            	result = computeEffect((Loop) n, ec); 
 	            
@@ -322,8 +324,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       } else {
           Effect rhsEff= effect(rhs);
           Effect writeEff= Effects.makeSafe();
-          analyzeClockedLocal (writeEff, li, l, ec);
-          writeEff.addWrite(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(l))));
+          boolean isClockedVar = analyzeClockedLocal (writeEff, li, l, ec);
+          if (!isClockedVar) writeEff.addWrite(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(l))));
           return ts.env(ec.context()).followedBy(rhsEff, writeEff);
       }  
   }
@@ -344,8 +346,10 @@ public class X10Ext_c extends Ext_c implements X10Ext {
           if (fa.type().toString().contentEquals("x10.lang.Clock")) {
         	  writeEff.addInitializedClock(Effects.makeFieldLocs(createTermForReceiver(target, ec), new XVarDefWrapper(fi.def())));
           }
-          writeEff.addWrite(Effects.makeFieldLocs(createTermForReceiver(target, ec), new XVarDefWrapper(fi.def())));
-          analyzeClockedField (writeEff, fi, target, ec);
+          boolean isClockedVar = analyzeClockedField (writeEff, fi, target, ec);
+          if (!isClockedVar)
+        	  writeEff.addWrite(Effects.makeFieldLocs(createTermForReceiver(target, ec), new XVarDefWrapper(fi.def())));
+         
          // System.out.println(writeEff);
           return ec.env().followedBy(rhsEff, writeEff);
       } 
@@ -364,9 +368,10 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       writeEff.addWrite(createArrayLoc(arrayExpr, indexExpr));
       X10TypeEnv env = ec.env();
       Effect result= env.followedBy(arrayEff, indexEff);
-      analyzeClockedArrays (result, arrayExpr, indexExpr, ec);
+      boolean isClockedVar = analyzeClockedArrays (result, arrayExpr, indexExpr, ec);
       result= env.followedBy(result, rhsEff);
-      result= env.followedBy(result, writeEff);
+      if (!isClockedVar)
+    	  result= env.followedBy(result, writeEff);
       return result;
   }
 
@@ -423,7 +428,9 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 
       if (! ec.typeSystem().isValVariable(local.localInstance())) {
           result= Effects.makeSafe();
-          result.addRead(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(local))));
+          boolean isClockedVar = analyzeClockedLocal(result, (X10LocalInstance)local.localInstance(), local, ec);
+          if (!isClockedVar)
+        	  result.addRead(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(local))));
       }
       return result;
   }
@@ -431,9 +438,10 @@ public class X10Ext_c extends Ext_c implements X10Ext {
   private Effect computeEffect(Field field, EffectComputer ec) {
       Receiver rcvr= field.target();
       Effect result= Effects.makeSafe();
-
-      result.addRead(Effects.makeFieldLocs(createTermForReceiver(rcvr, ec), new XVarDefWrapper(field)));
-      analyzeClockedField(result, (X10FieldInstance) field.fieldInstance(), field.target(), ec);
+      boolean isClockedVar = analyzeClockedField(result, (X10FieldInstance) field.fieldInstance(), field.target(), ec);
+      if (!isClockedVar)
+    	  result.addRead(Effects.makeFieldLocs(createTermForReceiver(rcvr, ec), new XVarDefWrapper(field)));
+      
       return result;
   }
 
@@ -500,7 +508,7 @@ private Effect computeEffect(Unary unary, EffectComputer ec) {
       StructType methodOwner= methodInstance.container();
       Receiver target = call.target();
       List<Expr> args = call.arguments();
-      Effect result= null;
+      Effect result= Effects.makeSafe();
 
       // TODO Perform substitutions of actual parameters for formal parameters
       if (methodOwner instanceof ClassType) {
@@ -515,11 +523,15 @@ private Effect computeEffect(Unary unary, EffectComputer ec) {
               } else {
                   Expr targetExpr= (Expr) target;
                   if (call.name().id().toString().equals("apply")) {
-                      result= computeEffectOfArrayRead(call, targetExpr, args.get(0), ec);
-                      analyzeClockedArrays (result, targetExpr, args.get(0), ec);
+                	  boolean isClockedVar = analyzeClockedArrays (result, targetExpr, args.get(0), ec);
+                	  if (!isClockedVar)
+                		  result= computeEffectOfArrayRead(call, targetExpr, args.get(0), ec);
+                      
                   } else if (call.name().id().toString().equals("set")) {
-                      result= computeEffectOfArrayWrite(call, targetExpr, args.get(0), args.get(1), ec);
-                      analyzeClockedArrays (result, targetExpr, args.get(0), ec);
+                	  boolean isClockedVar = analyzeClockedArrays (result, targetExpr, args.get(0), ec);
+                	  if (!isClockedVar)
+                		  result= computeEffectOfArrayWrite(call, targetExpr, args.get(0), args.get(1), ec);
+                    
                   }
                  
                 }
@@ -564,7 +576,8 @@ private Effect computeEffect(Unary unary, EffectComputer ec) {
       return result;
   }
   
-  private void analyzeClockedField (Effect result, X10FieldInstance fi, Receiver target, EffectComputer ec )  {
+  private boolean analyzeClockedField (Effect result, X10FieldInstance fi, Receiver target, EffectComputer ec )  {
+	boolean isClockedVar = false;
 	if (fi.x10Def().type().get() instanceof AnnotatedType) {
 		AnnotatedType at = (AnnotatedType) fi.x10Def().type().get(); 
 		for (Type an: at.annotations()) {
@@ -574,13 +587,16 @@ private Effect computeEffect(Unary unary, EffectComputer ec) {
               	        	Locs locs= computeLocFor(e, ec);
               	        	result.addClockedVar(Effects.makeFieldLocs(createTermForReceiver(target, ec), new XVarDefWrapper(fi.def())));
               	        	result.addMustClock(locs);
+              	        	isClockedVar = true;
 			}
 		}
 		
 	}
+	return isClockedVar;
 } 
   
-private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, EffectComputer ec) {  
+private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, EffectComputer ec) { 
+  boolean isClockedVar = false;
   if (li.x10Def().type().get() instanceof AnnotatedType) {
 		AnnotatedType at = (AnnotatedType) li.x10Def().type().get(); 
 		
@@ -593,13 +609,16 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
             	        	Locs cv = computeLocFor(l, ec);
     				result.addClockedVar(cv);
     				result.addMustClock(mc);
+    				isClockedVar = true;
 		}
 	}
   }
+  return isClockedVar;
 }  
   
   
-  private void analyzeClockedArrays (Effect result, Expr array, Expr index, EffectComputer ec) {
+  private boolean analyzeClockedArrays (Effect result, Expr array, Expr index, EffectComputer ec) {
+	  boolean isClockedVar = false;
 	  if (array instanceof Local) {
 	  		Local l = (Local) array;
 	  		X10LocalInstance li= (X10LocalInstance) l.localInstance();
@@ -620,10 +639,12 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
 	  	                  	        Locs cv =(createArrayLoc(array, index));
 	  	                  	        result.addClockedVar(cv);
 	  	                  	        result.addMustClock(mc);
+	  	                  	        isClockedVar = true;
 	  				}
 	  			}
 	  		 }
 	  	   } 
+	  return isClockedVar;
   }
   
 
@@ -872,7 +893,8 @@ private void analyzeClockedLocal (Effect result, X10LocalInstance li, Local l, E
     	  int x = 1;
       }
       boolean foundAnnotation= false;
-      Effect e= Effects.makeParSafe();
+      //Effect e = Effects.makeSafe(); 
+      Effect e = Effects.makeParSafe();
       
       for (Type annoType : annotations) {
           if (annoType instanceof ClassType) {
