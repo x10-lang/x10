@@ -173,7 +173,7 @@ public abstract class Array[T](
      * @see #make[T](ValRail[T])
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](rail: Rail[T]): Array[T]{rank==1&&rect&&zeroBased}
+    public static def make[T](rail: Rail[T]!): Array[T]{rank==1&&rect&&zeroBased}
         = BaseArray.makeVar1[T](rail);
 
     /**
@@ -633,7 +633,7 @@ public abstract class Array[T](
      *         to 'here' and the values from the corresponding elements of r.
      * @see #make[T](Rail[T])
      */
-    public static operator [T](r: Rail[T]): Array[T](1) = make(r);
+    public static operator [T](r: Rail[T]!): Array[T](1) = make(r);
 
     /**
      * Convert the given ValRail to an array.
