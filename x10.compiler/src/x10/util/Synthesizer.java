@@ -32,7 +32,6 @@ import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
-import polyglot.ast.IntLit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
@@ -1191,18 +1190,17 @@ public class Synthesizer {
      * @param flag
      * @param kind
      * @param name
-     * @param supert
      * @param interfaces
      * @param context
      * @return
      * @throws SemanticException
      */
-    public X10ClassDecl createClass(Position p, X10ClassDef cDef, Type supert,
+    public X10ClassDecl createClass(Position p, X10ClassDef cDef,
                                     List<Type> interfaces, X10Context context) throws SemanticException {
 
         FlagsNode fNode = xnf.FlagsNode(p, cDef.flags());
         Id id = xnf.Id(p, cDef.name());
-        TypeNode superTN = (TypeNode) xnf.CanonicalTypeNode(p, supert);
+        TypeNode superTN = (TypeNode) xnf.CanonicalTypeNode(p, cDef.superType());
         List<ClassMember> cmembers = new ArrayList<ClassMember>();
         ClassBody body = xnf.ClassBody(p, cmembers);
         List<TypeNode> interfaceTN = new ArrayList<TypeNode>();
@@ -1217,16 +1215,18 @@ public class Synthesizer {
     
     /**
      * Create a class def with the input parameters
+     * @param superType the superType for the class type
      * @param flag
      * @param kind
      * @param name
      * @return
      */
-    public X10ClassDef createClassDef(Flags flag, ClassDef.Kind kind, Name name){
+    public X10ClassDef createClassDef(Type superType, Flags flag, ClassDef.Kind kind, Name name){
         X10ClassDef cDef = (X10ClassDef) xts.createClassDef();
         cDef.name(name);
         cDef.setFlags(flag);
         cDef.kind(kind); // important to set kind
+        cDef.superType(Types.ref(superType)); //And the super Type
         return cDef;
     }
     
@@ -1237,19 +1237,17 @@ public class Synthesizer {
      * @param flag
      * @param kind : TOP_LEVEL, LOCAL, MEMBER?
      * @param name 
-     * @param supert
      * @param interfaces
      * @return X10ClassDecl
      * @throws SemanticException 
      */ 
     public X10ClassDecl createClassWithConstructor(Position p, 
                                                    X10ClassDef cDef,
-                                                   Type supert,
                                                    List<Type> interfaces,
                                                    X10Context context) throws SemanticException {
 
        
-        X10ClassDecl cDecl = createClass(p, cDef, supert, interfaces, context);
+        X10ClassDecl cDecl = createClass(p, cDef, interfaces, context);
         
         //add default constructor
         X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
