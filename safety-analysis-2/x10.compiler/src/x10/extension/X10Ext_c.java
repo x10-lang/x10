@@ -197,6 +197,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	                result=computeEffect((Async) n, ec);
 		    } else if (n instanceof ForEach) {
 	                result=computeEffect((ForEach) n, ec);
+		    } else if (n instanceof AtEach) {
+                result=computeEffect((AtEach) n, ec);
 		    } else if (n instanceof Finish) {
 	                result=computeEffect((Finish) n, ec);
 	                //System.out.println("Result of finish" + result);
@@ -714,6 +716,33 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       return bodyEff.makeParSafe();
   	}
 
+  
+
+  private Effect computeEffect(AtEach ae, EffectComputer ec) {
+      Effect bodyEff= effect(ae.body());
+      Set<Locs> registeredClocks = new HashSet<Locs>(); 
+       for (Expr c: ae.clocks()) {
+                  Locs locs= computeLocFor(c, ec);
+                  registeredClocks.add(locs);
+      }
+
+      for (Locs mc: bodyEff.mustClockSet()) {
+    	  	boolean found = false;
+      		for (Locs rc: registeredClocks) {
+      			if (mc.equals(rc)) {
+      				found = true;
+      				break;
+      			}
+      		}
+      		if (found == false)
+      			ec.emitMessage( mc + " is not in registered clocks of async", ae.position());
+      }
+      System.out.println(ae.position() + ": ForEach is " + bodyEff);
+      return bodyEff.makeParSafe();
+  	}
+  
+  
+  
 
   private Effect computeEffect(Finish f, EffectComputer ec) {
 	  Effect bodyEff= effect(f.body());

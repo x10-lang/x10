@@ -65,8 +65,9 @@ class Subst {
     	
         
         X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-        
+        Type oldType = (Type) t.copy();
         t = ts.expandMacros(t);
+       
         
         if (t instanceof NullType)
         	return t;
@@ -98,7 +99,10 @@ class Subst {
         	c = c.copy().addIn(in);
         }
        
-        return X10TypeMixin.xclause(base, c);
+       Type rt = X10TypeMixin.xclause(base, c);
+       if (t instanceof AnnotatedType)
+    	   rt = ts.AnnotatedType(rt.position(), rt, ((AnnotatedType) t).annotations());
+       return rt;
     }
     public 
     static Type project(Type t, XRoot v) {
@@ -140,7 +144,10 @@ class Subst {
         	c = c.copy().project(v);
         }
        
-        return X10TypeMixin.xclause(base, c);
+        Type rt = X10TypeMixin.xclause(base, c);
+        if (t instanceof AnnotatedType)
+     	   rt = ts.AnnotatedType(rt.position(), rt, ((AnnotatedType) t).annotations());
+        return rt;
     }
     
     /**
