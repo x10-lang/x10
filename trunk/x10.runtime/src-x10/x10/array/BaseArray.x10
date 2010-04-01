@@ -44,21 +44,6 @@ public abstract class BaseArray[T] extends Array[T] {
         return makeVar1[T](dist) as Array[T](region); // would eliminate cast here
     }
 
-    public static def makeVal1[T](region: Region, init: (Point(region.rank))=>T): Array[T](region) {
-        val dist = Dist.makeConstant(region);
-        return makeVal1[T](dist, init);
-    }
-    public static def makeVal1[T](region: Region): Array[T](region) {
-        val dist = Dist.makeConstant(region);
-        return makeVal1[T](dist);
-    }
-    public static def makeVal1[T](dist: Dist, init: (Point(dist.rank))=>T): Array[T](dist) {
-        return makeVar1[T](dist, init); // XXX for now
-    }
-    public static def makeVal1[T](dist: Dist): Array[T](dist) {
-        return makeVar1[T](dist); // XXX for now
-    }
-
     public static def makeVar1[T](dist: Dist, init: (Point(dist.rank))=>T): Array[T](dist) {
         if (dist.constant) {
            if (checkBounds || checkPlace)

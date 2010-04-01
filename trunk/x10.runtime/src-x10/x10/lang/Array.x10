@@ -95,7 +95,7 @@ public abstract class Array[T](
      * @see #make[T](Dist)
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](region:Region)= makeVar[T](region);
+    public static def make[T](region:Region)= BaseArray.makeVar1[T](region);
 
     /**
      * Create a mutable array over the given distribution and default initial values for elements.
@@ -106,7 +106,7 @@ public abstract class Array[T](
      * @see #make[T](Region)
      * @see #make[T](Dist, (Point)=>T)
      */
-    public static def make[T](dist: Dist)= makeVar[T](dist);
+    public static def make[T](dist: Dist)= BaseArray.makeVar1[T](dist);
 
     /**
      * Create a mutable local array over the given region.
@@ -119,7 +119,7 @@ public abstract class Array[T](
      * @see #make[T](Region)
      * @see #make[T](Dist, (Point)=>T)
      */
-    public static def make[T](region:Region, init: (Point(region.rank))=>T)= makeVar[T](region, init);
+    public static def make[T](region:Region, init: (Point(region.rank))=>T)= BaseArray.makeVar1[T](region, init);
 
     /**
      * Create a mutable array over the given distribution.
@@ -132,36 +132,7 @@ public abstract class Array[T](
      * @see #make[T](Dist)
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](dist: Dist, init: (Point(dist.rank))=>T)= makeVar[T](dist, init);
-
-    // TODO: [IP] made private for now; remove
-    private static def makeVar[T](region: Region)= BaseArray.makeVar1[T](region);
-    // TODO: [IP] made private for now; remove
-    private static def makeVar[T](region: Region, init: (Point(region.rank))=>T): Array[T](region)
-        = BaseArray.makeVar1[T](region, init) as Array[T](region);
-
-    // TODO: [IP] made private for now; remove
-    private static def makeVar[T](dist: Dist, init:(Point(dist.rank))=>T): Array[T](dist)
-        = BaseArray.makeVar1[T](dist, init);
-    // TODO: [IP] made private for now; remove
-    private static def makeVar[T](dist: Dist): Array[T](dist)
-        = BaseArray.makeVar1[T](dist);
-
-    // TODO: [IP] made private for now; remove
-    private static def makeVal[T](region: Region): Array[T](region)
-        = BaseArray.makeVal1[T](region) as Array[T](region);
-
-    // TODO: [IP] made private for now; remove
-    private static def makeVal[T](dist: Dist): Array[T](dist)
-        = BaseArray.makeVal1[T](dist) as Array[T](dist);
-
-    // TODO: [IP] made private for now; remove
-    private static def makeVal[T](region: Region, init: (Point(region.rank))=>T): Array[T](region)
-        = BaseArray.makeVal1[T](region, init) as Array[T](region);
-
-    // TODO: [IP] made private for now; remove
-    private static def makeVal[T](dist: Dist, init: (Point(dist.rank))=>T): Array[T](dist)
-        = BaseArray.makeVal1[T](dist, init) as Array[T](dist);
+    public static def make[T](dist: Dist, init: (Point(dist.rank))=>T)= BaseArray.makeVar1[T](dist, init);
 
     /**
      * Create a mutable local array with the shape and values of the given Rail.
@@ -203,13 +174,13 @@ public abstract class Array[T](
      * @see #make[T](Region, (Point)=>T)
      */
     public static def make[T](size: Int, init: (Point(1))=>T): Array[T](1)
-        = makeVar[T](0..size-1, init);
+        = BaseArray.makeVar1[T](0..size-1, init);
 
 
     /**
      * HACK: Create a "fast" mutable local array over the given region and default initial values for elements.
      * "Fast" arrays do not perform bounds checks or place checks on accesses.
-     * @deprecated This is a temporary hack and will go away in X10 2.1.
+     * @deprecated This is a temporary hack and will go away in X10 2.0.4
      *
      * @param T the element type
      * @param region the given region
@@ -220,13 +191,13 @@ public abstract class Array[T](
      */
     // TODO: [IP] remove
     public static def makeFast[T](region: Region)
-        = makeVar[T](region)
+        = BaseArray.makeVar1[T](region)
             as FastArray[T]{region==region};
 
     /**
      * HACK: Create a "fast" mutable array over the given distribution and default initial values for elements.
      * "Fast" arrays do not perform bounds checks or place checks on accesses.
-     * @deprecated This is a temporary hack and will go away in X10 2.1.
+     * @deprecated This is a temporary hack and will go away in X10 2.0.4
      *
      * @param T the element type
      * @param dist the given distribution
@@ -237,14 +208,14 @@ public abstract class Array[T](
      */
     // TODO: [IP] remove
     public static def makeFast[T](dist: Dist)
-        = makeVar[T](dist)
+        = BaseArray.makeVar1[T](dist)
             as FastArray[T]{dist==dist};
 
     /**
      * HACK: Create a "fast" mutable local array over the given region.
      * "Fast" arrays do not perform bounds checks or place checks on accesses.
      * Executes the given initializer function for each element of the array.
-     * @deprecated This is a temporary hack and will go away in X10 2.1.
+     * @deprecated This is a temporary hack and will go away in X10 2.0.4
      *
      * @param T the element type
      * @param region the given region
@@ -263,7 +234,7 @@ public abstract class Array[T](
      * HACK: Create a "fast" mutable array over the given distribution.
      * "Fast" arrays do not perform bounds checks or place checks on accesses.
      * Executes the given initializer function for each element of the array.
-     * @deprecated This is a temporary hack and will go away in X10 2.1.
+     * @deprecated This is a temporary hack and will go away in X10 2.0.4
      *
      * @param T the element type
      * @param dist the given distribution
