@@ -6,7 +6,7 @@ class RandomAccess {
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
-    static val op = Int.^;
+    static val op = Long.^;
 
     // Utility routine to start random number generator at Nth step
     static def HPCC_starts(var n:Long): Long {
@@ -34,12 +34,12 @@ class RandomAccess {
         return ran;
     }
 
-    static def runBenchmark(c: Clock, rails: ValRail[Rail[Long @Clocked[int](c,op)]],
-        logLocalTableSize: Int, numUpdates: Long) {
+    static def runBenchmark(c: Clock, rails: ValRail[Rail[Long /* @Clocked[Long](c,op)*/]],
+        logLocalTableSize: Int, numUpdates: Long) @ ClockedM (c) {
         val mask = (1<<logLocalTableSize)-1;
         val local_updates = numUpdates / Place.MAX_PLACES;
         finish for ((p) in 0..Place.MAX_PLACES-1) {
-            async (Place.places(p)) 
+            async (Place.places(p))  clocked(c)
             @Immediate finish {
                 var ran:Long = HPCC_starts(p*(numUpdates/Place.MAX_PLACES));
 
@@ -49,9 +49,9 @@ class RandomAccess {
                     val update = ran;
                    
                     val dest = Place.places(place_id);
-                    val rail = rails(place_id) as Rail[Long]{self.at(dest)};
-                    @Immediate async (dest) {
-                        rail(index) ^= update;
+                    val rail = rails(place_id) as Rail[Long /*@ Clocked[Long] (c,op)*/]{self.at(dest)};
+                    @Immediate async (dest) clocked(c)  {
+                        rail(index) = update;
                     } 
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
@@ -115,7 +115,7 @@ class RandomAccess {
         // create local rails
         val c = Clock.make();
      
-        val rails_ = Rail.make[Rail[Long]](Place.MAX_PLACES); //, (p:Int) => null);
+        val rails_: Rail[Rail[Long @ Clocked[Long] (c,op)]]! = Rail.make[Rail[Long @ Clocked[Long](c,op)]](Place.MAX_PLACES); //, (p:Int) => null);
         
         finish for ((p) in 0..Place.MAX_PLACES-1) {
             async (Place.places(p)) {
@@ -123,7 +123,7 @@ class RandomAccess {
                 at (rails_) rails_(p) = tmp;
             }
         }
-        val rails = rails_ as ValRail[Rail[Long  @ Clocked[int](c, op)]];
+        val rails = rails_ as ValRail[Rail[Long  /*@ Clocked[long](c, op)*/]];
 
         // print some info
         Console.OUT.println("Main table size:   2^"+logLocalTableSize+"*"+Place.MAX_PLACES
@@ -133,7 +133,7 @@ class RandomAccess {
 
         // time it
         var cpuTime:Double = -Timer.nanoTime() * 1e-9D;
-        runBenchmark(c, rails, logLocalTableSize, numUpdates);
+        runBenchmark(c, rails_, logLocalTableSize, numUpdates);
         cpuTime += Timer.nanoTime() * 1e-9D;
 
         // print statistics
@@ -144,8 +144,8 @@ class RandomAccess {
         // repeat for testing.
         runBenchmark(c, rails, logLocalTableSize, numUpdates);
        for ((i) in 0..Place.MAX_PLACES-1) {
-            async (Place.places(i)) {
-                val rail : Rail[Long]! = rails(i) as Rail[Long]!;
+            async (Place.places(i)) clocked(c) {
+                val rail : Rail[Long @ Clocked [Long] (c, op)]! = rails(i) as Rail[Long]!;
                 var err:Int = 0;
                 for (var j:Int=0; j<rail.length; j++)
                     if (rail(j) != j) err++;

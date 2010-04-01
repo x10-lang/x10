@@ -388,6 +388,8 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean numericConversionValid(Type toType, Type fromType, Object constantValue, Context context);
     
+    public boolean typeEquals(Type toType, Type fromType, Context c);
+    
     public Long size(Type t);
 
     /**

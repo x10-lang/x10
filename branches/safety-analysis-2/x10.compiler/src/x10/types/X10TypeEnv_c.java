@@ -1102,10 +1102,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean isCastValid(Type fromType, Type toType) {
         //	    if (isImplicitCastValid(fromType, toType))
         //	        return true;
-
+    	
         fromType = ts.expandMacros(fromType);
         toType =ts. expandMacros(toType);
 
+        if (fromType instanceof AnnotatedType)
+			fromType = ((AnnotatedType)fromType).baseType();
+        if (toType instanceof AnnotatedType)
+        	toType = ((AnnotatedType)toType).baseType();
+        
+      
         // Handle the rooted flag.
     /*    if (((X10Type) toType).isRooted() && ! (((X10Type) fromType).isRooted()))
         	return false;
@@ -1133,7 +1139,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Type t2 = X10TypeMixin.baseType(toType);
         CConstraint c1 = X10TypeMixin.realX(fromType);
         CConstraint c2 = X10TypeMixin.realX(toType);
-
+        
+     
 
         Type baseType1 = t1;
         Type baseType2 = t2;
@@ -1155,8 +1162,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         if (ts.isParameterType(baseType1) || ts.isParameterType(baseType2))
             return true;
-
-        return super.isCastValid(baseType1, baseType2);
+         return super.isCastValid(baseType1, baseType2);
     }
 
     public boolean isImplicitNumericCastValid(Type fromType, Type toType) {

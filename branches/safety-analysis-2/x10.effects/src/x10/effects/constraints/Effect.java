@@ -137,10 +137,10 @@ public interface Effect extends Cloneable {
 	 * can be used in effect sets, hence the only term in the effect sets
 	 * that can be affected is x itself. So this is implemented simply by 
 	 * deleting x from all the effect sets.)
-	 * @param x
+	 * @param ld
 	 * @return
 	 */
-	Effect exists(LocalLocs x);
+	Effect exists(Locs ld);
 	
 	/**
 	 * Given constraint c, return the effect this; e, using the rules for sequential composition of effect annotations.

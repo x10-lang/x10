@@ -66,6 +66,7 @@ import x10.constraint.XLocal;
 import x10.constraint.XRoot;
 import x10.errors.Errors;
 import x10.parser.X10ParsedName;
+import x10.types.AnnotatedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -592,6 +593,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	    final Context context = tc.context();
 	    ClassDef currentClassDef = context.currentClassDef();
+	    if (targetType instanceof AnnotatedType)
+	    	targetType = ((AnnotatedType)targetType).baseType();
 
 	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new DumbMethodMatcher(targetType, n.name().id(), typeArgs, argTypes, context));
 
