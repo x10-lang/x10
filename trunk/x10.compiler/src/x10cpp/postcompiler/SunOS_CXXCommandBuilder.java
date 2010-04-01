@@ -23,6 +23,8 @@ public class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
         assert (CXXCommandBuilder.PLATFORM.startsWith("sunos_"));
     }
 
+    protected boolean gcEnabled() { return false; }
+
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
         cxxCmd.add("-Wno-long-long");

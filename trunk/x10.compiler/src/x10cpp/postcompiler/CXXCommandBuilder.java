@@ -100,6 +100,9 @@ public class CXXCommandBuilder {
         x10rtOpts = new X10RTPostCompileOptions(rtimpl);
     }
 
+    /** Is GC enabled on this platform? */
+    protected boolean gcEnabled() { return false; }
+
     protected String defaultPostCompiler() { 
         return x10rtOpts.cxx;
     }
@@ -114,7 +117,7 @@ public class CXXCommandBuilder {
         // headers generated from user input
         cxxCmd.add("-I"+options.output_directory);
         cxxCmd.add("-I.");
-        
+
         if (x10.Configuration.OPTIMIZE) {
             cxxCmd.add(USE_XLC ? "-O3" : "-O2");
             cxxCmd.add("-DNDEBUG");
@@ -142,6 +145,10 @@ public class CXXCommandBuilder {
         // prebuilt XRX
         cxxCmd.add("-L"+X10_DIST+"/lib");
         cxxCmd.add("-lx10");
+
+        if (!Configuration.DISABLE_GC && gcEnabled()) {
+            cxxCmd.add("-lgc");
+        }
 
         cxxCmd.addAll(x10rtOpts.ldFlags);
         cxxCmd.addAll(x10rtOpts.libs);

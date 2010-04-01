@@ -373,6 +373,11 @@
     <target name="dist-bdwgc" depends="build-bdwgc" if="bdwgc.enabled">
       <sequential>
         <mkdir dir="${lib}"/>
+        <copy todir="${lib}" preservelastmodified="true" flatten="true" >
+           <!--<fileset dir="${bdwgc.dir}/install/lib" includes="libgc.a"/>-->
+           <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*,lib/*gc*.dylib"/>
+           <fileset dir="${bdwgc.dir}/install" includes="bin/*.dll"/> <!-- Cygwin -->
+        </copy>
         <copy todir="${inc}">
            <fileset dir="${bdwgc.dir}/install/include" includes="**/*.h"/>
         </copy>
