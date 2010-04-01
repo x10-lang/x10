@@ -114,8 +114,8 @@ AddFlags {
 		xt = X10TypeMixin.processFlags(X10Flags.toX10Flags(flags), xt);
 		flags = null;
 	}
-	 if(oldType instanceof AnnotatedType)
-     	t = ts.AnnotatedType(xt.position(), xt, ((AnnotatedType) oldType).annotations());
+	 /*if(oldType instanceof AnnotatedType)
+     	t = ts.AnnotatedType(xt.position(), xt, ((AnnotatedType) oldType).annotations());*/
 	((Ref<Type>) type).update(t); 
 	
 	

@@ -433,10 +433,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type l = left.type();
         Type r = right.type();
         
-        if (l instanceof AnnotatedType)
-        		l = ((AnnotatedType) l).baseType();
-        if (r instanceof AnnotatedType)
-    		l = ((AnnotatedType) r).baseType();
+      
         
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         Name methodName = X10Binary_c.binaryMethodName(op);

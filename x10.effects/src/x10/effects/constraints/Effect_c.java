@@ -406,7 +406,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 		return result;
 	}
 
-	public Effect exists(LocalLocs x) {
+	public Effect exists(Locs x) {
 		Effect_c result = clone();
 		result.readSet().remove(x);
 		result.writeSet().remove(x);

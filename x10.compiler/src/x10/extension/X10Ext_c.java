@@ -786,51 +786,54 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       // aggregate effects of the individual statements.
       // prune out the effects on local vars whose scope is this block.
       ec.diag("Computing effect of block " + b);
-      List<LocalDecl> blockDecls= collectDecls(b);
+      List<Locs> blockDecls= collectDecls(b);
  
      
       for(Stmt s: b.statements()) {
           Effect stmtEffect= effect(s);
           //System.out.println(stmtEffect);
           ec.diag("   statement = " + s + "; effect = " + stmtEffect);
-          
+          // Get the intitialized field clocks
+          if (stmtEffect != null)
+        	  blockDecls.addAll(stmtEffect.initializedClockSet());
           Effect filteredEffect= removeLocalVarsFromEffect(blockDecls, stmtEffect, ec);
           ec.diag("             filtered effect = " + filteredEffect);
           result= ec.env().followedBy(result, filteredEffect);
           //System.out.println(stmtEffect + " After: " + result);
           ec.diag("   aggregate effect = " + result);
       }
-     //System.out.println("---- Start of Block " + b + result );
+     // System.out.println("---- Start of Block " + b + result );
       return result;
   }
 
 
 
 
-  private Effect removeLocalVarsFromEffect(List<LocalDecl> decls, Effect effect, EffectComputer ec) {
+  private Effect removeLocalVarsFromEffect(List<Locs> decls, Effect effect, EffectComputer ec) {
       Effect result= effect;
-      for(LocalDecl ld: decls) {
-          XVarDefWrapper localName = new XVarDefWrapper(ld.localDef());
+      for(Locs ld: decls) {
+          /*XVarDefWrapper localName = new XVarDefWrapper(ld.localDef());
           if (ec.typeSystem().isValVariable(ld)) {
               Expr init= ld.init();
               XTerm initTerm= createTermForExpr(init);
              // result= result.exists(XTerms.makeLocal(localName), initTerm);
          	  //result= result.exists(XTerms.makeLocal(localName));
-          } else {
+          } else { */
         	  // FIXME 
         	  if (result != null)
-        		  result= result.exists(Effects.makeLocalLocs(XTerms.makeLocal(localName)));
-        	 // System.out.println(localName + " " + result);
-          }
+        		  result= result.exists(ld);  
       }
       return result;
   }
 
-  private List<LocalDecl> collectDecls(Block b) {
-      List<LocalDecl> result= new LinkedList<LocalDecl>();
+  private List<Locs> collectDecls(Block b) {
+      List<Locs> result= new LinkedList<Locs>();
+      
       for(Stmt s: b.statements()) {
           if (s instanceof LocalDecl) {
-              result.add((LocalDecl) s);
+        	  XVarDefWrapper localName = new XVarDefWrapper(((LocalDecl)s).localDef());
+        	  Locs locs  = Effects.makeLocalLocs(XTerms.makeLocal(localName));
+              result.add(locs);
           }
       }        
       return result;
@@ -918,9 +921,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       X10ProcedureInstance xpi= (X10ProcedureInstance) procInstance;
       X10ProcedureDef xpd= (X10ProcedureDef) xpi.def();
       List<Type> annotations= xpd.annotations();
-      if (xpd.toString().contains("incr")) {
-    	  int x = 1;
-      }
+ 
       boolean foundAnnotation= false;
       //Effect e = Effects.makeSafe(); 
       Effect e = Effects.makeParSafe();

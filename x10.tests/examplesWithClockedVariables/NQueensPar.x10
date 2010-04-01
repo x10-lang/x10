@@ -6,7 +6,7 @@ import clocked.*;
 public class NQueensPar {
 
 	val op = Int.+;
-	public val c = Clock.make();
+	global val c = Clock.make();
     public var nSolutions : int   @ Clocked[int] (c, op) = 0;
     
 
@@ -17,7 +17,7 @@ public class NQueensPar {
 
     def this(N:Int, P:Int) { this.N=N; this.P=P;}
 
-    def start() {
+    def start() @ ClockedM(c) {
         finish new Board().search();
     }
     
@@ -62,7 +62,7 @@ public class NQueensPar {
         }
   
   
-      def search()   {
+      def search() @ ClockedM (c)   {
             if (q.length == N) {
             	at (NQueensPar.this) nSolutions = 1;
               
@@ -70,14 +70,14 @@ public class NQueensPar {
             }
             if (q.length == 0) {
                 val R = block(0..N-1, P);
-                val d = at (NQueensPar.this) c;
+                //val d = at (NQueensPar.this) c;
                 for ((q) in 0..P-1)
-                  async (d) search(R(q));
+                  async clocked (c) search(R(q));
             } else search(0..N-1);
         }
   
   
-    def search(R: Region(1))  {
+    def search(R: Region(1)) @ ClockedM(c) {
             for ((k) in R)
                 if (safe(k))
                     new Board(q, k).search();

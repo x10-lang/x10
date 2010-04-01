@@ -9,7 +9,7 @@ public class Histogram {
     val op = Float.+;
     val b = Rail.make[float @ Clocked[float](c,op)](5);
    //val b: Rail[float @ Clocked [float] (c,op)]! = Rail.make[float](5); /* Works */
-	async b(0) = 1;
+	async b(0) = 1.0F;
     
     }
 }
