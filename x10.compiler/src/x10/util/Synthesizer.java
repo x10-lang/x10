@@ -1216,7 +1216,7 @@ public class Synthesizer {
      * @throws SemanticException
      */
     public X10ClassDecl createClass(Position p, X10ClassDef cDef,
-                                    List<Type> interfaces, X10Context context) throws SemanticException {
+                                    X10Context context) throws SemanticException {
 
         FlagsNode fNode = xnf.FlagsNode(p, cDef.flags());
         Id id = xnf.Id(p, cDef.name());
@@ -1224,7 +1224,7 @@ public class Synthesizer {
         List<ClassMember> cmembers = new ArrayList<ClassMember>();
         ClassBody body = xnf.ClassBody(p, cmembers);
         List<TypeNode> interfaceTN = new ArrayList<TypeNode>();
-        for (Type t : interfaces) {
+        for (Ref<? extends Type> t : cDef.interfaces()) {
             interfaceTN.add((TypeNode) xnf.CanonicalTypeNode(p, t));
         }
 
@@ -1236,17 +1236,24 @@ public class Synthesizer {
     /**
      * Create a class def with the input parameters
      * @param superType the superType for the class type
+     * @param interfaces interfaces of the class
      * @param flag
      * @param kind
      * @param name
      * @return
      */
-    public X10ClassDef createClassDef(Type superType, Flags flag, ClassDef.Kind kind, Name name){
+    public X10ClassDef createClassDef(Type superType, List<Type> interfaces, Flags flag, ClassDef.Kind kind, Name name){
         X10ClassDef cDef = (X10ClassDef) xts.createClassDef();
+        cDef.superType(Types.ref(superType)); //And the super Type
+        
+        List<Ref<? extends Type>> interfacesRef = new ArrayList<Ref<? extends Type>>();
+        for(Type t : interfaces){
+            interfacesRef.add(Types.ref(t));
+        }
+        cDef.setInterfaces(interfacesRef);
         cDef.name(name);
         cDef.setFlags(flag);
         cDef.kind(kind); // important to set kind
-        cDef.superType(Types.ref(superType)); //And the super Type
         return cDef;
     }
     
@@ -1263,11 +1270,10 @@ public class Synthesizer {
      */ 
     public X10ClassDecl createClassWithConstructor(Position p, 
                                                    X10ClassDef cDef,
-                                                   List<Type> interfaces,
                                                    X10Context context) throws SemanticException {
 
        
-        X10ClassDecl cDecl = createClass(p, cDef, interfaces, context);
+        X10ClassDecl cDecl = createClass(p, cDef, context);
         
         //add default constructor
         X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
@@ -1456,5 +1462,27 @@ public class Synthesizer {
     		es.add(makeExpr(term, pos));
     	}
     	return es;
+    }
+    
+    //Some 
+    
+    /**
+     * Get an int value expression
+     * @param value
+     * @param pos
+     * @return
+     */
+    public Expr intValueExpr(int value, Position pos){
+        return xnf.IntLit(pos, IntLit.INT, value).type(xts.Int());
+    }
+    
+    /**
+     * Get this expression, ((ClassType)this)
+     * @param classType
+     * @param pos
+     * @return
+     */
+    public Expr thisRef(Type classType, final Position pos){
+        return xnf.This(pos).type(classType);
     }
 }
