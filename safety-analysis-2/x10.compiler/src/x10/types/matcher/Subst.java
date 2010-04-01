@@ -175,10 +175,7 @@ class Subst {
             X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 
             
-            if (t instanceof AnnotatedType ) {
-            	 int z = 1;
-            	
-            }
+         
             
             t = ts.expandMacros(t);
             
@@ -194,11 +191,12 @@ class Subst {
                 }
                 if (! newArgs.isEmpty()) {
                     Type rt = ct.typeArguments(newArgs);
-                    if (oldType instanceof AnnotatedType) {
+                   /* if (oldType instanceof AnnotatedType) {
                     	return ts.AnnotatedType(t.position(), rt, ((AnnotatedType) oldType).annotations());
                     } else {
                     	return rt;
-                    }   
+                    }*/
+                    return rt;
                 }
             } else 
             if (c != null) {
@@ -226,15 +224,16 @@ class Subst {
                 	return ts.AnnotatedType(t.position(), rt, ((AnnotatedType) oldType).annotations());
                 } else {
                 	return rt;
-                }   
+                }
+                //return rt;   
                 
              
               
             }
 
-            if (oldType instanceof AnnotatedType) 
+            /* if (oldType instanceof AnnotatedType) 
             	return ts.AnnotatedType(t.position(), t, ((AnnotatedType) oldType).annotations());
-        
+        	*/
             return t;
         }
     

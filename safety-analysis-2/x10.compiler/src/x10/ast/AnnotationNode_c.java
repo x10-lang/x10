@@ -66,6 +66,8 @@ public class AnnotationNode_c extends Node_c implements AnnotationNode {
 	
 	@Override
 	public Context enterChildScope(Node child, Context c) {
+		if (c == null) 
+			return null;
 		c = c.pushBlock();
 		((X10Context) c).setAnnotation();
 		return super.enterChildScope(child, c);

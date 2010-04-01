@@ -1561,6 +1561,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return env(context).numericConversionValid(t, fromType, value);
     }
 
+    /* Hack - FIXME */
+    public boolean typeEquals(Type toType, Type fromType, Context c) {
+    	/*while (toType instanceof AnnotatedType)
+    		toType = ((AnnotatedType) toType).baseType();
+    	while (fromType instanceof AnnotatedType)
+    		fromType = ((AnnotatedType) fromType).baseType();*/
+    	return super.typeEquals(toType, fromType, c);
+    }
+    
     protected boolean typeRefListEquals(List<Ref<? extends Type>> l1, List<Ref<? extends Type>> l2, Context context) {
         return CollectionUtil.<Type> allElementwise(new TransformingList<Ref<? extends Type>, Type>(l1, new DerefTransform<Type>()),
                                                     new TransformingList<Ref<? extends Type>, Type>(l2, new DerefTransform<Type>()),

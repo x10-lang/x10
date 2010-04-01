@@ -5,6 +5,8 @@ import x10.util.Random;
 public class KMeans {
     
     static val DIM=2,  K=4, POINTS=2000, ITERATIONS=50;
+    val iop = Int.+;
+    val fop = Double.+;
   
    static def  add (r1: Rail[int]!, r2: Rail[int]!): Rail[int] {
        var r3 : Rail[int]! = Rail.make[int](DIM);
@@ -26,7 +28,7 @@ public class KMeans {
             return dist;
    }
      
-    def print(vec: Rail[Double]!) {
+    def print(c: Clock, vec: Rail[Double]!) @ClockedM(c){
           var i: Int;
             for (i = 0; i <= DIM-1; i++) {
                 Console.OUT.print((i>0? " " : "") + vec(i));
@@ -36,10 +38,9 @@ public class KMeans {
     def computeMeans() {
       val c = Clock.make();
        val rnd = new Random(0);
-       val iop = Int.+;
-       val fop = Double.+;
-       val redCluster : Rail[Rail[Double @ Clocked[Int] (c, fop)]]! =
-            Rail.make[Rail[Double]](K);
+
+       val redCluster  =
+            Rail.make[Rail[Double] @ Clocked[int] (c,fop) ](K);
        
        for ((i) in 0..K-1)
        		redCluster(i) = Rail.make[Double](DIM, (Int)=>rnd.nextDouble());
@@ -59,7 +60,7 @@ public class KMeans {
                    var closestDist:Double = Double.MAX_VALUE;
                    val point = points(p);
                    for ((k) in 0..K-1) { // compute closest mean in cluster.
-                       val distance = 0; // this.dist(point, redCluster(k));
+                       val distance = dist(point as Rail[Double]!, redCluster(k) as Rail[Double]!);
                        if (distance < closestDist) {
                           closestDist = distance;
                           closest = k;
@@ -85,7 +86,7 @@ public class KMeans {
         
         } // end for
          
-       for ((k) in 0..K-1) this.print(redCluster(k));
+       for ((k) in 0..K-1) this.print(c, redCluster(k) as Rail[Double]!);
        
     }
   
