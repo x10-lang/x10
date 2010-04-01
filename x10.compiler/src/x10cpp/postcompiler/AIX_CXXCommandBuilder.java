@@ -27,6 +27,8 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
         assert (CXXCommandBuilder.PLATFORM.startsWith("aix_"));
     }
 
+    protected boolean gcEnabled() { return false; }
+
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
         

@@ -150,9 +150,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/util/concurrent/atomic/AtomicReference.o 
 
 ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS)
-ifdef ENABLE_GC
-  ALL_MANUAL_OBJECTS+=bdwgc/install/lib/libgc.a
-endif
 
 # This target will build the XRX cc files into object files
 gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST) 
