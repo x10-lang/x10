@@ -185,6 +185,12 @@ public interface X10TypeSystem extends TypeSystem {
      */
     Type Array();
 
+    
+    /**
+     * Return the ClassType object for the x10.array.DistArray class.
+     */
+    Type DistArray();
+
     /**
      * Return the ClassType object for the x10.lang.Rail interface.
      *
@@ -397,7 +403,9 @@ public interface X10TypeSystem extends TypeSystem {
     void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException;
    
     boolean isX10Array(Type me);
-    
+
+    boolean isX10DistArray(Type me);
+
     Context emptyContext();
     Type Struct();
     boolean isExactlyFunctionType(Type t);

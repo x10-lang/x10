@@ -9,12 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.array.Array;
+
 /**
  * Basic array, c-style loop.
  *
  * @author bdlucas
  */
-
 public class SeqArray2a extends Benchmark {
 
     //
@@ -29,7 +30,7 @@ public class SeqArray2a extends Benchmark {
     // the benchmark
     //
 
-    val a = Array.make[double]([0..N-1, 0..N-1], (Point)=>0.0) as Array[double](2);
+    val a = new Array[double]([0..N-1, 0..N-1], (Point)=>0.0);
 
     def once() {
         for (var i:int=0; i<N; i++)
