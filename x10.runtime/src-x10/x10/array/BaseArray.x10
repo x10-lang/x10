@@ -265,25 +265,12 @@ public abstract class BaseArray[T] extends Array[T] {
     public safe global operator this | (r: Region(rank)) = restriction(r);
     public safe global operator this | (p: Place) = restriction(p);
 
-    incomplete public safe global operator + this: Array[T](dist);
-    incomplete public safe global operator - this: Array[T](dist);
-
-    incomplete public safe global operator this + (that: Array[T](dist)): Array[T](dist);
-    incomplete public safe global operator this - (that: Array[T](dist)): Array[T](dist);
-    incomplete public safe global operator this * (that: Array[T](dist)): Array[T](dist);
-    incomplete public safe global operator this / (that: Array[T](dist)): Array[T](dist);
-    incomplete public safe global operator this % (that: Array[T](dist)): Array[T](dist);
-
     incomplete public safe global operator this == (x: Array[T](dist)): boolean;
     incomplete public safe global operator this <  (x: Array[T](dist)): boolean;
     incomplete public safe global operator this >  (x: Array[T](dist)): boolean;
     incomplete public safe global operator this <= (x: Array[T](dist)): boolean;
     incomplete public safe global operator this >= (x: Array[T](dist)): boolean;
     incomplete public safe global operator this != (x: Array[T](dist)): boolean;
-
-    // incomplete public global def sum(): T; // XTENLANG-116
-
-
 
     /**
      * for now since we only have RectLayouts we hard-code that here
@@ -312,6 +299,5 @@ public abstract class BaseArray[T] extends Array[T] {
     public global safe def toString(): String {
         return "Array(" + dist + ")";
     }
-
 }
 
