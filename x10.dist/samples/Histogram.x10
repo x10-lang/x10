@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.array.Array;
 import x10.util.Random;
 import x10.io.Console;
 

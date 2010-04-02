@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.compiler.NativeClass;
 import x10.util.Pair;
+import x10.array.Dist;
 
 /**
  * The primary operation on a PlaceLocalHandle is to use it to access an object

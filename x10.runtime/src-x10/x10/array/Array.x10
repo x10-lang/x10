@@ -9,9 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.lang;
-
-import x10.array.BaseArray;
+package x10.array;
 
 /**
  * An array defines a mapping from points to data of some type T. An

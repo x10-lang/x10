@@ -347,7 +347,7 @@ public class LoopUnroller extends ContextVisitor {
                     fLoopParams.fMaxSymbolic= hi;
                     fLoopParams.fStride= 1;
                 }
-            } else if (mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.lang.Region") &&
+            } else if (mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.array.Region") &&
                        mi.name().toString().equals("makeRectangular")) {
                 Expr low, hi;
                 low= args.get(0);
@@ -378,7 +378,7 @@ public class LoopUnroller extends ContextVisitor {
     }
 
     private boolean isRegionConvertCall(MethodInstance mi) {
-        return mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.lang.Region") &&
+        return mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.array.Region") &&
                 mi.name().toString().equals("$convert");
     }
 
@@ -496,7 +496,7 @@ public class LoopUnroller extends ContextVisitor {
                     // that its name looks like "_selfNNNN"
 
                     boolean isSelf= typeCons.entails(typeCons.self(), leftRcvr); //leftRcvr instanceof XLocal && ((XLocal) leftRcvr).name().toString().contains("self");
-                    boolean isRank= getFQN(leftName).equals("x10.lang.Region#rank");
+                    boolean isRank= getFQN(leftName).equals("x10.array.Region#rank");
                     if (isSelf && isRank) {
                     	return term;
                     }

@@ -1383,7 +1383,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public Type Region() {
         if (regionType_ == null)
-            regionType_ = load("x10.lang.Region"); // java file
+            regionType_ = load("x10.array.Region"); // java file
         return regionType_;
     }
 
@@ -1399,7 +1399,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public Type Dist() {
         if (distributionType_ == null)
-            distributionType_ = load("x10.lang.Dist"); // java file
+            distributionType_ = load("x10.array.Dist"); // java file
         return distributionType_;
     }
 
@@ -1423,7 +1423,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public Type Array() {
         if (arrayType_ == null)
-            arrayType_ = load("x10.lang.Array");
+            arrayType_ = load("x10.array.Array");
         return arrayType_;
     }
 
