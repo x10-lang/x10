@@ -12,7 +12,6 @@
 package x10.lang;
 
 import x10.array.BaseArray;
-import x10.array.FastArray;
 
 /**
  * An array defines a mapping from points to data of some type T. An
@@ -175,79 +174,6 @@ public abstract class Array[T](
      */
     public static def make[T](size: Int, init: (Point(1))=>T): Array[T](1)
         = BaseArray.makeVar1[T](0..size-1, init);
-
-
-    /**
-     * HACK: Create a "fast" mutable local array over the given region and default initial values for elements.
-     * "Fast" arrays do not perform bounds checks or place checks on accesses.
-     * @deprecated This is a temporary hack and will go away in X10 2.0.4
-     *
-     * @param T the element type
-     * @param region the given region
-     * @return a "fast" mutable array with a constant distribution mapping all points in the given region to 'here'.
-     * @see #make[T](Region)
-     * @see #makeFast[T](Dist)
-     * @see #makeFast[T](Region, (Point)=>T)
-     */
-    // TODO: [IP] remove
-    public static def makeFast[T](region: Region)
-        = BaseArray.makeVar1[T](region)
-            as FastArray[T]{region==region};
-
-    /**
-     * HACK: Create a "fast" mutable array over the given distribution and default initial values for elements.
-     * "Fast" arrays do not perform bounds checks or place checks on accesses.
-     * @deprecated This is a temporary hack and will go away in X10 2.0.4
-     *
-     * @param T the element type
-     * @param dist the given distribution
-     * @return a "fast" mutable array with the given distribution.
-     * @see #make[T](Dist)
-     * @see #makeFast[T](Region)
-     * @see #makeFast[T](Dist, (Point)=>T)
-     */
-    // TODO: [IP] remove
-    public static def makeFast[T](dist: Dist)
-        = BaseArray.makeVar1[T](dist)
-            as FastArray[T]{dist==dist};
-
-    /**
-     * HACK: Create a "fast" mutable local array over the given region.
-     * "Fast" arrays do not perform bounds checks or place checks on accesses.
-     * Executes the given initializer function for each element of the array.
-     * @deprecated This is a temporary hack and will go away in X10 2.0.4
-     *
-     * @param T the element type
-     * @param region the given region
-     * @param init the initializer function
-     * @return a "fast" mutable array with a constant distribution mapping all points in the given region to 'here'.
-     * @see #make[T](Region, (Point)=>T)
-     * @see #makeFast[T](Region)
-     * @see #makeFast[T](Dist, (Point)=>T)
-     */
-    // TODO: [IP] remove
-    public static def makeFast[T](region: Region, init: (Point(region.rank))=>T)
-        = BaseArray.makeVar1[T](region, init)
-            as FastArray[T]{region==region};
-
-    /**
-     * HACK: Create a "fast" mutable array over the given distribution.
-     * "Fast" arrays do not perform bounds checks or place checks on accesses.
-     * Executes the given initializer function for each element of the array.
-     * @deprecated This is a temporary hack and will go away in X10 2.0.4
-     *
-     * @param T the element type
-     * @param dist the given distribution
-     * @param init the initializer function
-     * @return a "fast" mutable array with the given distribution.
-     * @see #make[T](Dist, (Point)=>T)
-     * @see #makeFast[T](Dist)
-     * @see #makeFast[T](Region, (Point)=>T)
-     */
-    // TODO: [IP] remove
-    public static def makeFast[T](dist: Dist, init: (Point(dist.rank))=>T)
-        = BaseArray.makeVar1[T](dist, init)
-            as FastArray[T]{dist==dist};
 
 
     //
