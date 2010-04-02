@@ -12,6 +12,7 @@
 package x10.array;
 
 import x10.compiler.Inline;
+import x10.compiler.Native;
 
 /**
  * This class represents a k-dimensional dense array whose 
@@ -35,7 +36,10 @@ public final class LocalRectArray[T] extends Array[T] {
 
     private global val raw:Rail[T]!; // TODO: Should not be global
     private global val layout:RectLayout!;  // TODO: Should not be global
-    private global val checkBounds:boolean; // TODO: Should not be global
+
+    @Native("java", "true") // TODO: optimize this for Java as well.
+    @Native("c++", "BOUNDS_CHECK_BOOL")
+    private native global def checkBounds():boolean;
 
     // TODO: very short term hack until I re-do x10.lang.Array
     //       so that set/apply are not global.
@@ -66,7 +70,6 @@ public final class LocalRectArray[T] extends Array[T] {
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
         raw = Rail.make[T](n);
-        checkBounds = BaseArray.checkBounds;
         baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
@@ -88,7 +91,6 @@ public final class LocalRectArray[T] extends Array[T] {
             r(layout.offset(p))= init(p);
         }
         raw = r;
-        checkBounds = BaseArray.checkBounds;
         baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
@@ -115,7 +117,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @see #set(T, Int)
      */
     public safe global @Inline def apply(i0:int){rank==1}:T {
-        if (checkBounds) baseRegion.check(bounds, i0);
+        if (checkBounds()) baseRegion.check(bounds, i0);
         return raw()(layout.offset(i0));
     }
 
@@ -133,7 +135,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @see #set(T, Int, Int)
      */
     public safe global @Inline def apply(i0:int, i1:int){rank==2}:T {
-        if (checkBounds) baseRegion.check(bounds, i0, i1);
+        if (checkBounds()) baseRegion.check(bounds, i0, i1);
         return raw()(layout.offset(i0,i1));
     }
 
@@ -152,7 +154,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @see #set(T, Int, Int, Int)
      */
     public safe global @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds) baseRegion.check(bounds, i0, i1, i2);
+        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2);
         return raw()(layout.offset(i0, i1, i2));
     }
 
@@ -172,7 +174,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @see #set(T, Int, Int, Int, Int)
      */
     public safe global @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds) baseRegion.check(bounds, i0, i1, i2, i3);
+        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2, i3);
         return raw()(layout.offset(i0, i1, i2, i3));
     }
 
@@ -188,7 +190,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @see #set(T, Point)
      */
     public safe global @Inline def apply(pt:Point{self.rank==this.rank}):T {
-        if (checkBounds) {
+        if (checkBounds()) {
             throw new UnsupportedOperationException("Haven't implemented bounds checking for general Points on LocalRectArray");
             // TODO: SHOULD BE: region.check(pt);
         }
@@ -211,7 +213,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @see #set(T, Point)
      */
     public safe global @Inline def set(v:T, i0:int){rank==1}:T {
-        if (checkBounds) baseRegion.check(bounds, i0);
+        if (checkBounds()) baseRegion.check(bounds, i0);
         raw()(layout.offset(i0)) = v;
         return v;
     }
@@ -232,7 +234,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @see #set(T, Point)
      */
     public safe global @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
-        if (checkBounds) baseRegion.check(bounds, i0, i1);
+        if (checkBounds()) baseRegion.check(bounds, i0, i1);
         raw()(layout.offset(i0,i1)) = v;
         return v;
     }
@@ -254,7 +256,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @see #set(T, Point)
      */
     public safe global @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds) baseRegion.check(bounds, i0, i1, i2);
+        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2);
         raw()(layout.offset(i0, i1, i2)) = v;
         return v;
     }
@@ -277,7 +279,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @see #set(T, Point)
      */
     public safe global @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds) baseRegion.check(bounds, i0, i1, i2, i3);
+        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2, i3);
         raw()(layout.offset(i0, i1, i2, i3)) = v;
         return v;
     }
@@ -296,7 +298,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @see #set(T, Int)
      */
     public safe global @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
-        if (checkBounds) {
+        if (checkBounds()) {
             throw new UnsupportedOperationException("Haven't implemented bounds checking for general Points on LocalRectArray");
             // TODO: SHOULD BE: region.check(p);
         }
@@ -323,16 +325,4 @@ public final class LocalRectArray[T] extends Array[T] {
     public incomplete global def reduce(op:(T,T)=>T, unit:T): T;
 
     public incomplete global def scan(op:(T,T)=>T, unit:T): Array[T](dist);
-
-    public incomplete safe global operator + this: Array[T](rank);
-
-    public incomplete safe global operator - this: Array[T](rank);
-
-    public incomplete safe global operator this + (that: Array[T](dist)): Array[T](dist);
-
-    public incomplete safe global operator this - (that: Array[T](dist)): Array[T](dist);
-
-    public incomplete safe global operator this * (that: Array[T](dist)): Array[T](dist);
-
-    public incomplete safe global operator this / (that: Array[T](dist)): Array[T](dist);
 }
