@@ -56,17 +56,6 @@ public class ArrayTypeCheck extends x10Test {
 
         if (p == q) return false;
         
-/*
-        var gotException: boolean;
-        x10.io.Console.OUT.println("5");
-        try {
-            return a1(i) == a1(i, j, k);
-        } catch (var e: RankMismatchException) {
-            gotException = true;
-            x10.io.Console.OUT.println("Caught "+e);
-        }
-        if (!gotException) return false;
-*/
         return true;
     }
 

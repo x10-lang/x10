@@ -10,6 +10,7 @@
  */
 
 import x10.io.Console;
+import x10.array.Region;
 
 public class NQueensPar {
 

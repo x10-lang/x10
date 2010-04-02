@@ -181,7 +181,7 @@ public interface X10TypeSystem extends TypeSystem {
 	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
 
     /**
-     * Return the ClassType object for the x10.lang.Array interface.
+     * Return the ClassType object for the x10.array.Array class.
      */
     Type Array();
 
