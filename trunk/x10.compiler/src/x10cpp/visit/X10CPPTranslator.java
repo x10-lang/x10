@@ -82,165 +82,26 @@ import static x10cpp.visit.ASTQuery.getCppRep;
 import static x10cpp.visit.SharedVarsMethods.*;
 
 public class X10CPPTranslator extends Translator {
-    public static final class DelegateTargetFactory extends TargetFactory {
-		protected String outputHeaderExtension;
-
-		public DelegateTargetFactory(File dir, String ext, String hExt, boolean so) {
-			super(dir, ext, so);
-			if (outputDirectory == null)
-				throw new InternalCompilerError("Output directory not set.");
-			this.outputHeaderExtension = hExt;
-		}
-
-		public static String extractName(Source source) {
-			String name = new File(source.name()).getName();
-			return name.substring(0, name.lastIndexOf('.'));
-		}
-
-		/* (non-Javadoc)
-		 * @see polyglot.frontend.TargetFactory#outputFile(java.lang.String, polyglot.frontend.Source)
-		 */
-		public File outputFile(String packageName, Source source) {
-			return outputFile(packageName, extractName(source), source);
-		}
-
-		public File outputAsyncFile(String packageName, Source source) {
-			return outputAsyncFile(packageName, extractName(source), source);
-		}
-		public File outputHeaderFile(String packageName, Source source) {
-			return outputHeaderFile(packageName, extractName(source), source);
-		}
-
-		public String outputName(String packageName, Source source) {
-			return outputName(packageName, extractName(source));
-		}
-		public String outputAsyncName(String packageName, Source source) {
-			return outputAsyncName(packageName, extractName(source));
-		}
-		public String outputHeaderName(String packageName, Source source) {
-			return outputHeaderName(packageName, extractName(source));
-		}
-
-		/* (non-Javadoc)
-		 * @see polyglot.frontend.TargetFactory#outputWriter(java.lang.String, java.lang.String, polyglot.frontend.Source)
-		 */
-		public Writer outputWriter(String packageName, String className, Source source) throws IOException {
-			// TODO Auto-generated method stub
-			assert (false);
-			return super.outputWriter(QName.make(packageName), Name.make(className), source);
-		}
-
-		/* (non-Javadoc)
-		 * @see polyglot.frontend.TargetFactory#outputCodeWriter(java.io.File, int)
-		 */
-		public CodeWriter outputCodeWriter(File f, int width) throws IOException {
-			// TODO Auto-generated method stub
-			assert (false);
-			return super.outputCodeWriter(f, width);
-		}
-
-		private String packagePath(String packageName) {
-			if (packageName == null || packageName.equals(""))
-				return "";
-			return packageName.replace('.', '/') + '/';
-		}
-
-		private String mangleClassName(String className) {
-			return Emitter.mangled_non_method_name(className);
-		}
-
-		public String outputName(String packageName, String className) {
-			return packagePath(packageName) + mangleClassName(className) + "." + outputExtension;
-		}
-
-		/* (non-Javadoc)
-		 * @see polyglot.frontend.TargetFactory#outputFile(java.lang.String, java.lang.String, polyglot.frontend.Source)
-		 */
-		public File outputFile(String packageName, String className, Source source) {
-			File outputFile = new File(outputDirectory, outputName(packageName, className));
-
-			if (source != null && outputFile.getPath().equals(source.path()))
-				throw new InternalCompilerError("The output file is the same as the source file");
-
-			return outputFile;
-		}
-
-		public String outputAsyncName(String packageName, String className) {
-			return packagePath(packageName) + className + "." + outputExtension + "_int_";
-//			return packagePath(packageName) + className + asyncExtension + "." + "inc";
-		}
-
-		public File outputAsyncFile(String packageName, String className, Source source) {
-			File outputFile = new File(outputDirectory, outputAsyncName(packageName, className));
-
-			if (source != null && outputFile.getPath().equals(source.path()))
-				throw new InternalCompilerError("The Async file is the same as the source file");
-
-			return outputFile;
-		}
-
-		public String outputHeaderName(String packageName, String className) {
-			return packagePath(packageName) + mangleClassName(className) + "." + outputHeaderExtension;
-		}
-
-		public File outputHeaderFile(String packageName, String className, Source source) {
-			File outputFile = new File(outputDirectory, outputHeaderName(packageName, className));
-
-			if (source != null && outputFile.getPath().equals(source.path()))
-				throw new InternalCompilerError("The header file is the same as the source file");
-
-			return outputFile;
-		}
-
-		public String integratedOutputName(String packageName, String className, String ext) {
-			return packagePath(packageName) + mangleClassName(className) + "." + ext;
-		}
-
-		public File integratedOutputFile(String packageName, String className, Source source, String ext) {
-			File outputFile = new File(outputDirectory,
-			                           integratedOutputName(packageName, className, ext));
-
-			if (source != null && outputFile.getPath().equals(source.path()))
-				throw new InternalCompilerError("The header file is the same as the source file");
-
-			return outputFile;
-		}
-
-		/* (non-Javadoc)
-		 * @see polyglot.frontend.TargetFactory#outputWriter(java.io.File)
-		 */
-		public Writer outputWriter(File outputFile) throws IOException {
-			// TODO Auto-generated method stub
-			if (Report.should_report(Report.frontend, 2))
-				Report.report(2, "Opening " + outputFile + " for output.");
-
-			if (outputStdout)
-				return new PrintWriter(System.out);
-
-			if (!outputFile.getParentFile().exists()) {
-				File parent = outputFile.getParentFile();
-				parent.mkdirs();
-			}
-
-			return new FileWriter(outputFile);
-		}
-	}
-
-	// FIXME: [IP] HACK - override creation of target factory in ExtensionInfo instead
+	
 	public X10CPPTranslator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
-		super(job, ts, nf, createTargetFactory(job));
+		super(job, ts, nf, tf);
 	}
-
-	private static TargetFactory createTargetFactory(Job job) {
-		Options options = job.extensionInfo().getOptions();
-		return new DelegateTargetFactory(options.output_directory,
-		                                 "cc", "h", options.output_stdout);
+    
+	/** Return the dir where classes in the given package will be compiled.  Does not include output directory prefix.  Accepts null input. */
+	public static String packagePath (String pkg) {
+		return (pkg==null ? "" : pkg.replace('.', File.separatorChar) + File.separatorChar);
 	}
-
-	public DelegateTargetFactory targetFactory() {
-	    return (DelegateTargetFactory) tf;
+	
+	/** Return the filename of the c++ file for the given class.  Does not include directory prefix.  If no package then give null. */
+	public static String outputFileName (String pkg, String c, String ext) {
+		return packagePath(pkg) + Emitter.mangled_non_method_name(c) + "." + ext;
 	}
-
+	
+	/** Return the c++ file for the given class. */
+	public static File outputFile (Options opts, String pkg, String c, String ext) {
+		return new File(opts.output_directory, outputFileName(pkg, c, ext));
+	}
+    
 	private static int adjustLNForNode(int outputLine, Node n) {
 	    // FIXME: Debugger HACK: adjust for loops
 	    if (n instanceof For || n instanceof ForLoop)
@@ -338,25 +199,24 @@ public class X10CPPTranslator extends Translator {
 	 * @see polyglot.visit.Translator#translateSource(polyglot.ast.SourceFile)
 	 */
 	protected boolean translateSource(SourceFile sfn) {
-		DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
 
 		int outputWidth = job.compiler().outputWidth();
 		Collection<String> outputFiles = job.compiler().outputFiles();
 
 		try {
-			String opfPath;
 
-			String pkg = "";
+			String pkg = null;
 			if (sfn.package_() != null) {
 				Package p = sfn.package_().package_().get();
 				pkg = p.fullName().toString();
 			}
 
 			X10CPPContext_c c = (X10CPPContext_c) context;
+			X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
+
 			if (x10.Configuration.DEBUG)
 				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());
-			WriterStreams wstreams = null;
-			StreamWrapper sw = null;
+
 			// Use the class name to derive a default output file name.
 			for (Iterator i = sfn.decls().iterator(); i.hasNext(); ) {
 				TopLevelDecl decl = (TopLevelDecl) i.next();
@@ -368,28 +228,33 @@ public class X10CPPTranslator extends Translator {
 					continue;
 				}
 				String className = cd.classDef().name().toString();
-				wstreams = new WriterStreams(className, pkg, tf, job);
-				sw = new StreamWrapper(wstreams, outputWidth);
+				WriterStreams wstreams = new WriterStreams(className, pkg, job, tf);
+				StreamWrapper sw = new StreamWrapper(wstreams, outputWidth);
 				// [DC] TODO: This hack is to ensure the .inc is always generated.
 				sw.getNewStream(StreamWrapper.Closures, true);
 				// [IP] FIXME: This hack is to ensure the .cc is always generated.
 				sw.getNewStream(StreamWrapper.CC, true);
                 // [DC] TODO: This hack is to ensure the .h is always generated.
                 sw.getNewStream(StreamWrapper.Header, true);
-				opfPath = tf.outputName(pkg, decl.name().toString());
-				assert (!opfPath.endsWith("$"));
-				X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
-				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
+
+				String closures = wstreams.getStreamName(StreamWrapper.Closures);
+				String cc = wstreams.getStreamName(StreamWrapper.CC);
+				String header = wstreams.getStreamName(StreamWrapper.Header);
+
+				outputFiles.add(closures);
+				outputFiles.add(cc);
+				outputFiles.add(header);
+				opts.compilationUnits().add(cc);
+				
 				if (x10.Configuration.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap = (HashMap<String, LineNumberMap>)c.getData(FILE_TO_LINE_NUMBER_MAP);
-					String closures = wstreams.getStreamName(StreamWrapper.Closures);
 					fileToLineNumberMap.put(closures, new LineNumberMap());
-					String cc = wstreams.getStreamName(StreamWrapper.CC);
 					fileToLineNumberMap.put(cc, new LineNumberMap());
-					String header = wstreams.getStreamName(StreamWrapper.Header);
 					fileToLineNumberMap.put(header, new LineNumberMap());
 				}
+				
 				translateTopLevelDecl(sw, sfn, decl);
+				
 				if (x10.Configuration.DEBUG) {
 					HashMap<String, LineNumberMap> fileToLineNumberMap = (HashMap<String, LineNumberMap>)c.getData(FILE_TO_LINE_NUMBER_MAP);
 //					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.Closures, false));
@@ -405,27 +270,7 @@ public class X10CPPTranslator extends Translator {
 					printLineNumberMapForCPPDebugger(sw, fileToLineNumberMap);
 					sw.popCurrentStream();
 				}
-				if (i.hasNext()) {
-					wstreams.commitStreams();
-					wstreams = null;
-				}
-			}
-
-			Iterator t = job().extensionInfo().scheduler().commandLineJobs().iterator();
-			// FIXME: [IP] The following does the same as the prior code below.  Why the change?
-			//	while (t.hasNext() && !t.next().equals(job()))
-			//		;
-			//	if (!t.hasNext())
-			boolean filefound = false;
-			while (t.hasNext()) {
-				if (t.next().equals(job())) {
-					filefound = true;
-					break;
-				}
-			}
-
-			if (wstreams != null) {
-				// wstreams will be null when the source file contains a NativeRep class
+				
 				wstreams.commitStreams();
 			}
 
@@ -500,9 +345,6 @@ public class X10CPPTranslator extends Translator {
 		}
 	}
 
-	public DelegateTargetFactory getTargetFactory() {
-		return (DelegateTargetFactory) this.tf;
-	}
 
 	public static final String postcompile = "postcompile";
 
@@ -512,17 +354,17 @@ public class X10CPPTranslator extends Translator {
 	 * "[pre-command with options (usually g++)] [(#|%) [post-options (usually extra files)] [(#|%) [library options]]]".
 	 * Using '%' instead of '#' to delimit a section will cause the default values in that section to be omitted.
 	 */
-	public static boolean postCompile(Options options, Compiler compiler, ErrorQueue eq) {
+	public static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq) {
 		if (eq.hasErrors())
 			return false;
 
 		if (options.post_compiler != null && !options.output_stdout) {
 			// use set to avoid duplicates
-            Set<String> outputFiles = new HashSet<String>(compiler.outputFiles());
+            Set<String> compilationUnits = new HashSet<String>(options.compilationUnits());
             CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, eq);
-            String[] cxxCmd = ccb.buildCXXCommandLine(outputFiles);
+            String[] cxxCmd = ccb.buildCXXCommandLine(compilationUnits);
 
-			if (!doPostCompile(options, eq, outputFiles, cxxCmd)) return false;
+			if (!doPostCompile(options, eq, compilationUnits, cxxCmd)) return false;
             
 			// FIXME: [IP] HACK: Prevent the java post-compiler from running
 			options.post_compiler = null;

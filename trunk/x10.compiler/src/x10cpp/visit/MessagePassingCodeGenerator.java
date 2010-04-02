@@ -49,6 +49,9 @@ import static x10cpp.visit.SharedVarsMethods.make_ref;
 import static x10cpp.visit.SharedVarsMethods.refsAsPointers;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -228,7 +231,6 @@ import x10.util.Synthesizer;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.extension.X10ClassBodyExt_c;
 import x10cpp.types.X10CPPContext_c;
-import x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 
 /**
  * Visitor on the AST nodes that for some X10 nodes triggers the template
@@ -620,12 +622,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     private String getHeader(ClassType ct) {
-        DelegateTargetFactory tf = ((X10CPPTranslator) tr).targetFactory();
-        String pkg = "";
+        String pkg = null;
         if (ct.package_() != null)
             pkg = ct.package_().fullName().toString();
         Name name = StaticNestedClassRemover.mangleName(ct.def());
-        String header = tf.outputHeaderName(pkg, name.toString());
+        String header = X10CPPTranslator.outputFileName(pkg, name.toString(), StreamWrapper.Header);
         return header;
     }
 
@@ -637,6 +638,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String classHeader = getHeader(ct);
         classHeader = classHeader.substring(0, classHeader.length()-StreamWrapper.Header.length());
         return classHeader+StreamWrapper.Struct;
+    }
+    
+    private static void maybeCopyTo (String file, String src_path_, String dest_path_) {
+    	{
+    		File src_path = new File(src_path_);
+	    	File dest_path = new File(dest_path_);
+	    	// don't copy if the two dirs are the same...
+	    	if (src_path.equals(dest_path)) return;
+    	}
+    	try {
+			FileInputStream src = new FileInputStream(new File(src_path_+file));
+	    	FileOutputStream dest = new FileOutputStream(new File(dest_path_+file));
+	    	int b;
+	    	while ((b = src.read()) != -1) {
+	    		dest.write(b);
+	    	}
+    	} catch (IOException e) {
+    		assert false : "Could not read: \""+file+"\" from \""+src_path_+"\"";
+    	}
     }
 
     void processClass(X10ClassDecl_c n) {
@@ -680,7 +700,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         context.hasInits = false;
 
         // Write the header for the class
-        DelegateTargetFactory tf = ((X10CPPTranslator) tr).targetFactory();
         String cheader = getHeader(def.asType());
         String cguard = getHeaderGuard(cheader);
         h.write("#ifndef __"+cguard); h.newline();
@@ -694,31 +713,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
             String path = new File(n.position().file()).getParent();
             if (path==null) path = ""; else path = path + File.separator;
+            String out_path = opts.output_directory.toString();
+            if (out_path==null) out_path = ""; else out_path = out_path + File.separator;
+            String pkg = X10CPPTranslator.packagePath(context.package_()==null?null:context.package_().toString());
             List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
             for (Type at : as) {
                 ASTQuery.assertNumberOfInitializers(at, 1);
                 String include = getStringPropertyInit(at, 0);
-                h.write("#include <"+include+">"); h.newline();
-                if (!opts.extraIncOpts().contains("-I"+path))
-                    opts.extraIncOpts().add("-I"+path);
+                h.write("#include \""+include+"\""); h.newline();
+                tr.job().compiler().outputFiles().add(pkg+include);
+                maybeCopyTo(include, path, out_path+pkg);
             }
             as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPCompilationUnit")));
             for (Type at : as) {
                 ASTQuery.assertNumberOfInitializers(at, 1);
                 String compilation_unit = getStringPropertyInit(at, 0);
-                tr.job().compiler().outputFiles().add(path+compilation_unit);
-            }
-            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPIncludeOpt")));
-            for (Type at : as) {
-                ASTQuery.assertNumberOfInitializers(at, 1);
-                String str = getStringPropertyInit(at, 0);
-                opts.extraIncOpts().add(str);
-            }
-            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPLibOpt")));
-            for (Type at : as) {
-                ASTQuery.assertNumberOfInitializers(at, 1);
-                String str = getStringPropertyInit(at, 0);
-                opts.extraLibOpts().add(str);
+                tr.job().compiler().outputFiles().add(pkg+compilation_unit);
+                opts.compilationUnits().add(pkg+compilation_unit);
+                maybeCopyTo(compilation_unit, path, out_path+pkg);
             }
         } catch (SemanticException e) {
             assert false : e;
@@ -752,8 +764,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         w.forceNewline(0);
         w.forceNewline(0);
 
-        String incfile = tf.integratedOutputName(context.package_() == null ? "" : context.package_().fullName().toString(),
-                                                 n.name().toString(), StreamWrapper.Closures);
+        String packageName = context.package_() == null ? null : context.package_().fullName().toString();
+        		
+        String incfile = X10CPPTranslator.outputFileName(packageName, n.name().toString(), StreamWrapper.Closures); 
+
         w.write("#include \""+incfile+"\""); w.newline();
         w.forceNewline(0);
 
