@@ -499,83 +499,6 @@ public abstract class Array[T](
     public abstract global def scan(op:(T,T)=>T, unit:T): Array[T](dist);
 
 
-    /**
-     * Apply unary plus pointwise to the elements of this array.
-     * Return a new array with the same distribution as this array.
-     * Each element of the new array is the result of applying unary plus to the
-     * corresponding element of this array.
-     * Note: currently unimplemented due to type system limitations.
-     *
-     * @return a new array with the same distribution as this array.
-     * @see #lift((T)=>T)
-     */
-    public abstract safe global operator + this: Array[T](rank);
-
-    /**
-     * Apply unary minus pointwise to the elements of this array.
-     * Return a new array with the same distribution as this array.
-     * Each element of the new array is the result of applying unary minus to the
-     * corresponding element of this array.
-     * Note: currently unimplemented due to type system limitations.
-     *
-     * @return a new array with the same distribution as this array.
-     * @see #lift((T)=>T)
-     */
-    public abstract safe global operator - this: Array[T](rank);
-
-
-    /**
-     * Add elements of this array and the given array pointwise.
-     * The distribution of the given array has to be the same as the distribution of this array.
-     * Return a new array with the same distribution as this array.
-     * Each element of the new array is the result of adding the corresponding elements of this
-     * array and the given array.
-     * Note: currently unimplemented due to type system limitations.
-     *
-     * @param that the given array
-     * @return a new array with the same distribution as this array.
-     */
-    public abstract safe global operator this + (that: Array[T](dist)): Array[T](dist);
-
-    /**
-     * Subtract elements of this array and the given array pointwise.
-     * The distribution of the given array has to be the same as the distribution of this array.
-     * Return a new array with the same distribution as this array.
-     * Each element of the new array is the result of subtracting the corresponding elements of this
-     * array and the given array.
-     * Note: currently unimplemented due to type system limitations.
-     *
-     * @param that the given array
-     * @return a new array with the same distribution as this array.
-     */
-    public abstract safe global operator this - (that: Array[T](dist)): Array[T](dist);
-
-    /**
-     * Multiply elements of this array and the given array pointwise.
-     * The distribution of the given array has to be the same as the distribution of this array.
-     * Return a new array with the same distribution as this array.
-     * Each element of the new array is the result of multiplying the corresponding elements of this
-     * array and the given array.
-     * Note: currently unimplemented due to type system limitations.
-     *
-     * @param that the given array
-     * @return a new array with the same distribution as this array.
-     */
-    public abstract safe global operator this * (that: Array[T](dist)): Array[T](dist);
-
-    /**
-     * Divide elements of this array and the given array pointwise.
-     * The distribution of the given array has to be the same as the distribution of this array.
-     * Return a new array with the same distribution as this array.
-     * Each element of the new array is the result of dividing the corresponding elements of this
-     * array and the given array.
-     * Note: currently unimplemented due to type system limitations.
-     *
-     * @param that the given array
-     * @return a new array with the same distribution as this array.
-     */
-    public abstract safe global operator this / (that: Array[T](dist)): Array[T](dist);
-
     //
     // further generalizations TBD:
     // - extra array arg to contain result
@@ -586,7 +509,6 @@ public abstract class Array[T](
     //   public abstract global def lift[U,V](op:(T,U)=>V, that:Array[U](dist)): Array[V](dist);
     //   public abstract global def overlay(that:Array[T](rank)): Array[T](rank);
     //   public abstract global def update(that:Array[T](rank)): Array[T](rank);
-    //   public abstract global def sum(): T;
     //
 
 
