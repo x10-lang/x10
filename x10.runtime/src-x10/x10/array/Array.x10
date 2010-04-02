@@ -18,7 +18,6 @@ package x10.array;
  * distribution determines at what place each array data item is
  * stored. Arrays may be accessed using a(p) because arrays implement
  * (Point)=>T.
- * TODO Array views are supported via the restriction function.
  *
  * @param T the element type of the array
  *
@@ -80,7 +79,7 @@ public abstract class Array[T](
 
 
     //
-    // factories
+    // factories for local arrays (no distributions)
     //
 
     /**
@@ -92,18 +91,7 @@ public abstract class Array[T](
      * @see #make[T](Dist)
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](region:Region)= BaseArray.makeVar1[T](region);
-
-    /**
-     * Create a mutable array over the given distribution and default initial values for elements.
-     *
-     * @param T the element type
-     * @param dist the given distribution
-     * @return a mutable array with the given distribution.
-     * @see #make[T](Region)
-     * @see #make[T](Dist, (Point)=>T)
-     */
-    public static def make[T](dist: Dist)= BaseArray.makeVar1[T](dist);
+    public static def make[T](region:Region)= new LocalRectArray[T](region);
 
     /**
      * Create a mutable local array over the given region.
@@ -116,20 +104,7 @@ public abstract class Array[T](
      * @see #make[T](Region)
      * @see #make[T](Dist, (Point)=>T)
      */
-    public static def make[T](region:Region, init: (Point(region.rank))=>T)= BaseArray.makeVar1[T](region, init);
-
-    /**
-     * Create a mutable array over the given distribution.
-     * Executes the given initializer function for each element of the array.
-     *
-     * @param T the element type
-     * @param dist the given distribution
-     * @param init the initializer function
-     * @return a mutable array with the given distribution.
-     * @see #make[T](Dist)
-     * @see #make[T](Region, (Point)=>T)
-     */
-    public static def make[T](dist: Dist, init: (Point(dist.rank))=>T)= BaseArray.makeVar1[T](dist, init);
+    public static def make[T](region:Region, init: (Point(region.rank))=>T)= new LocalRectArray[T](region, init);
 
     /**
      * Create a mutable local array with the shape and values of the given Rail.
@@ -141,8 +116,7 @@ public abstract class Array[T](
      * @see #make[T](ValRail[T])
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](rail: Rail[T]!): Array[T]{rank==1&&rect&&zeroBased}
-        = BaseArray.makeVar1[T](rail);
+    public static def make[T](rail: Rail[T]!) = new LocalRectArray[T](rail);
 
     /**
      * Create a mutable local array with the shape and values of the given ValRail.
@@ -154,8 +128,7 @@ public abstract class Array[T](
      * @see #make[T](Rail[T])
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](rail: ValRail[T]): Array[T]{rank==1&&rect&&zeroBased}
-        = BaseArray.makeVar1[T](rail);
+    public static def make[T](rail: ValRail[T]) = new LocalRectArray[T](rail);
 
     /**
      * Create a mutable local one-dimensional zero-based array of the given size.
@@ -170,9 +143,37 @@ public abstract class Array[T](
      * @see #make[T](ValRail[T])
      * @see #make[T](Region, (Point)=>T)
      */
-    public static def make[T](size: Int, init: (Point(1))=>T): Array[T](1)
-        = BaseArray.makeVar1[T](0..size-1, init);
+    public static def make[T](size: Int, init: (Point(1))=>T) = new LocalRectArray[T](size-1, init);
 
+
+
+    //
+    // factories for dist arrays 
+    //
+
+    /**
+     * Create a mutable array over the given distribution and default initial values for elements.
+     *
+     * @param T the element type
+     * @param dist the given distribution
+     * @return a mutable array with the given distribution.
+     * @see #make[T](Region)
+     * @see #make[T](Dist, (Point)=>T)
+     */
+    public static def make[T](dist: Dist)= new DistArray[T](dist);
+
+    /**
+     * Create a mutable array over the given distribution.
+     * Executes the given initializer function for each element of the array.
+     *
+     * @param T the element type
+     * @param dist the given distribution
+     * @param init the initializer function
+     * @return a mutable array with the given distribution.
+     * @see #make[T](Dist)
+     * @see #make[T](Region, (Point)=>T)
+     */
+    public static def make[T](dist: Dist, init: (Point(dist.rank))=>T)= new DistArray[T](dist, init);
 
     //
     // operations
@@ -326,10 +327,9 @@ public abstract class Array[T](
      * Return a copy of this array whose region is the intersection of the given region and the
      * region of this array.
      * Also available as operator '|'.
-     * TODO: create an array view instead.
      *
      * @param r the given region
-     * @return a copy of this array whose region is the intersection of the given region and the
+     * @return a view this array whose region is the intersection of the given region and the
      *         region of this array.
      * @see #restriction(Place)
      */
@@ -339,10 +339,9 @@ public abstract class Array[T](
      * Restrict this array to the given place.
      * Return a copy of the portion of this array that resides in the given place.
      * Also available as operator '|'.
-     * TODO: create an array view instead.
      *
      * @param p the given place
-     * @return a copy of the portion of this array that resides in the given place.
+     * @return a view of the portion of this array that resides in the given place.
      * @see #restriction(Region)
      */
     public abstract safe global def restriction(p: Place): Array[T](rank);
@@ -353,10 +352,9 @@ public abstract class Array[T](
      * The rank of the given region has to be the same as the rank of this array.
      * Return a copy of this array whose region is the intersection of the given region and the
      * region of this array.
-     * TODO: create an array view instead.
      *
      * @param r the given region
-     * @return a copy of this array whose region is the intersection of the given region and the
+     * @return a view of this array whose region is the intersection of the given region and the
      *         region of this array.
      * @see #restriction(Region)
      */
@@ -365,10 +363,9 @@ public abstract class Array[T](
     /**
      * Restrict this array to the given place.
      * Return a copy of the portion of this array that resides in the given place.
-     * TODO: create an array view instead.
      *
      * @param p the given place
-     * @return a copy of the portion of this array that resides in the given place.
+     * @return a view of the portion of this array that resides in the given place.
      * @see #restriction(Place)
      */
     public abstract safe global operator this | (p: Place): Array[T](rank);

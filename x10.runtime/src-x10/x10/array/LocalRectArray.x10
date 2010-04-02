@@ -64,7 +64,7 @@ public final class LocalRectArray[T] extends Array[T] {
      *
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region):LocalRectArray{self.dist.region==reg} {
+    public def this(reg:Region):LocalRectArray[T]{self.dist.region==reg} {
         super(Dist.makeConstant(reg));
 
         layout = new RectLayout(reg.min(), reg.max());
@@ -81,7 +81,7 @@ public final class LocalRectArray[T] extends Array[T] {
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:(Point(reg.rank))=>T):LocalRectArray{self.dist.region==reg} {
+    public def this(reg:Region, init:(Point(reg.rank))=>T):LocalRectArray[T]{self.dist.region==reg} {
         super(Dist.makeConstant(reg));
 
         layout = new RectLayout(reg.min(), reg.max());
@@ -93,6 +93,59 @@ public final class LocalRectArray[T] extends Array[T] {
         raw = r;
         baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
+
+    /**
+     * Construct LocalRectArray over the region 0..rail.length-1 whose
+     * values are initialized to the corresponding values in the 
+     * argument Rail.
+     *
+     */    
+    public def this(rail:Rail[T]!):LocalRectArray[T]{self.rank==1,rect,zeroBased} {
+        // TODO: could make this more efficient by optimizing rail copy.
+	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
+    }
+
+
+    /**
+     * Construct LocalRectArray over the region 0..rail.length-1 whose
+     * values are initialized to the corresponding values in the 
+     * argument ValRail.
+     *
+     * TODO: rail is declared to be a ValRail[T]! as a hack around
+     *       a compiler bug.  Without the !, the front-end complains that you
+     *       can't refer to "T" in a static context, which is complete nonsense
+     *       since this is a constructor.
+     */    
+    public def this(rail:ValRail[T]!):LocalRectArray[T]{self.rank==1,rect,zeroBased} {
+        // TODO: could make this more efficient by optimizing rail copy.
+	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
+    }
+
+
+    /**
+     * Construct LocalRectArray over the region 0..rail.length-1 whose
+     * values are uninitialized
+     */    
+    public def this(size:int):LocalRectArray[T]{self.rank==1,rect,zeroBased} {
+	this(Region.makeRectangular(0, size-1));
+    }
+
+
+    /**
+     * Construct LocalRectArray over the region reg whose
+     * values are initialized as specified by the init function.
+     *
+     * @param reg The region over which to construct the array.
+     * @param init The function to use to initialize the array.
+     */    
+    public def this(size:int, init:(Point(1))=>T):LocalRectArray[T]{self.rank==1,rect,zeroBased} {
+	this(Region.makeRectangular(0, size-1), init);
+    }
+
+
+
+
+
 
 
     /**
