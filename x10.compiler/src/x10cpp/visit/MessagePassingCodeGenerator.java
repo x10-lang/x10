@@ -3766,11 +3766,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (Configuration.LOOP_OPTIMIZATIONS &&
 		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
 		        (X10TypeMixin.isRect(dType, context)) &&
-		        (xts.isX10Array(dType) || xts.isDistribution(dType) || xts.isRegion(dType)))
+		        (xts.isX10Array(dType) || xts.isX10DistArray(dType) || xts.isDistribution(dType) || xts.isRegion(dType)))
 		{
 		    // TODO: move this to the Desugarer
 		    X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
-		    if (xts.isX10Array(dType)) {
+		    if (xts.isX10DistArray(dType)) {
 		        Position pos = domain.position();
 		        FieldInstance fDist = null;
 		        while (true) {

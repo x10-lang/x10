@@ -9,8 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.Array;
 import x10.array.Dist;
+import x10.array.DistArray;
 import x10.util.Random;
 import x10.io.Console;
 
@@ -31,7 +31,7 @@ public class MontyPi {
             }
             result
         };
-        val result = Array.make[Double](Dist.makeUnique(), initializer);
+        val result = DistArray.make[Double](Dist.makeUnique(), initializer);
         val pi = 4*result.reduce(Double.+,0)/(N*Place.MAX_PLACES);
         Console.OUT.println("The value of pi is " + pi);
     }

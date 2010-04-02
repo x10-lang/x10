@@ -1427,6 +1427,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return arrayType_;
     }
 
+    protected ClassType distArrayType_ = null;
+
+    public Type DistArray() {
+        if (distArrayType_ == null)
+            distArrayType_ = load("x10.array.DistArray");
+        return distArrayType_;
+    }
+    
+    
     // RMF 11/1/2005 - Not having the "static" qualifier on interfaces causes
     // problems,
     // e.g. for New_c.disambiguate(AmbiguityRemover), which assumes that
@@ -1620,6 +1629,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
     }
 
+    public boolean isX10DistArray(Type me) {
+        if (hasSameClassDef(me, DistArray())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isX10DistArray(parent);
+        } else {
+            return false;
+        }
+    }
+
     public boolean isTypeConstrained(Type me) {
         return me instanceof ConstrainedType;
     }
@@ -1653,7 +1673,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public boolean isDistributedArray(Type me) {
-        return isX10Array(me);
+        return isX10DistArray(me);
     }
 
     public boolean isComparable(Type me) {

@@ -19,8 +19,14 @@ import x10.compiler.Native;
  *
  * @author bdlucas
  */
-
-public class DistArray[T] extends Array[T] {
+public class DistArray[T] (
+    /**
+     * The distribution of this array.
+     */
+    dist:Dist
+) implements (Point(dist.region.rank))=>T,
+             Iterable[Point(dist.region.rank)]
+{
 
     // XTENLANG-49
     static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
@@ -34,6 +40,87 @@ public class DistArray[T] extends Array[T] {
             raw = r;
         }
     };
+
+
+   //
+    // properties
+    //
+
+    // region via dist
+    /**
+     * The region this array is defined over.
+     */
+    public global property region: Region(rank) = dist.region;
+
+    /**
+     * The rank of this array.
+     */
+    public global property rank: int = dist.rank;
+
+    /**
+     * Is this array defined over a rectangular region?
+     */
+    public global property rect: boolean = dist.rect;
+
+    /**
+     * Is this array's region zero-based?
+     */
+    public global property zeroBased: boolean = dist.zeroBased;
+
+    // dist
+    /**
+     * Is this array's region a "rail" (one-dimensional contiguous zero-based)?
+     */
+    public global property rail: boolean = dist.rail;
+
+    /**
+     * Is this array's distribution "unique" (at most one point per place)?
+     */
+    public global property unique: boolean = dist.unique;
+
+    /**
+     * Is this array's distribution "constant" (all points map to the same place)?
+     */
+    public global property constant: boolean = dist.constant;
+
+    /**
+     * If this array's distribution is "constant", the place all points map to (or null).
+     */
+    public global property onePlace: Place = dist.onePlace;
+
+
+ 
+
+    //
+    // factories for dist arrays 
+    //
+
+    /**
+     * Create a mutable array over the given distribution and default initial values for elements.
+     *
+     * @param T the element type
+     * @param dist the given distribution
+     * @return a mutable array with the given distribution.
+     * @see #make[T](Region)
+     * @see #make[T](Dist, (Point)=>T)
+     */
+    public static def make[T](dist: Dist)= new DistArray[T](dist);
+
+    /**
+     * Create a mutable array over the given distribution.
+     * Executes the given initializer function for each element of the array.
+     *
+     * @param T the element type
+     * @param dist the given distribution
+     * @param init the initializer function
+     * @return a mutable array with the given distribution.
+     * @see #make[T](Dist)
+     * @see #make[T](Region, (Point)=>T)
+     */
+    public static def make[T](dist: Dist, init: (Point(dist.rank))=>T)= new DistArray[T](dist, init);
+
+
+
 
     private global val localHandle:PlaceLocalHandle[LocalState[T]];
     final protected global def raw():Rail[T]! = localHandle().raw;
@@ -103,7 +190,7 @@ public class DistArray[T] extends Array[T] {
     }
 
     def this(dist: Dist, init: (Point(dist.rank))=>T): DistArray[T]{self.dist==dist} {
-        super(dist);
+        property(dist);
 
         val plsInit:()=>LocalState[T]! = () => {
             val region = dist.get(here);
@@ -120,7 +207,7 @@ public class DistArray[T] extends Array[T] {
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
     }
     def this(dist: Dist): DistArray[T]{self.dist==dist} {
-        super(dist);
+        property(dist);
 
         val plsInit:()=>LocalState[T]! = () => {
             val region = dist.get(here);
@@ -139,11 +226,11 @@ public class DistArray[T] extends Array[T] {
      */
 
     public safe global def restriction(d: Dist(rank)) {
-        return new DistArray[T](this, d) as Array[T](rank);
+        return new DistArray[T](this, d) as DistArray[T](rank);
     }
 
     def this(a: DistArray[T], d: Dist):DistArray{self.dist==d} {
-    	super(d);
+    	property(d);
     	localHandle = PlaceLocalHandle.make[LocalState[T]](d,
     			() => a.localHandle());
     }
@@ -232,11 +319,11 @@ public class DistArray[T] extends Array[T] {
     // views
     //
 
-    public safe global def restriction(r: Region(rank)): Array[T](rank) {
+    public safe global def restriction(r: Region(rank)): DistArray[T](rank) {
         return restriction(dist.restriction(r));
     }
 
-    public safe global def restriction(p: Place): Array[T](rank) {
+    public safe global def restriction(p: Place): DistArray[T](rank) {
         return restriction(dist.restriction(p));
     }
 
@@ -245,8 +332,8 @@ public class DistArray[T] extends Array[T] {
     // operations
     //
 
-    public global def lift(op:(T)=>T): Array[T](dist)
-        = Array.make[T](dist, ((p:Point)=>op(this(p as Point(rank)))));
+    public global def lift(op:(T)=>T): DistArray[T](dist)
+        = make[T](dist, ((p:Point)=>op(this(p as Point(rank)))));
 
     //    incomplete public global def reduce(op:(T,T)=>T, unit:T):T;
 
@@ -265,7 +352,7 @@ public class DistArray[T] extends Array[T] {
 	finish foreach (p:Point(1)  in r) {
         	results(p(0)) = at (ps(p(0))) {
         	    var result: T = unit;
-                val a = (this | here) as Array[T](rank);
+                val a = (this | here) as DistArray[T](rank);
                 for (pt:Point(dist.region.rank)  in a.region)
                     result = op(result, a(pt));
                 return result;
@@ -288,7 +375,7 @@ public class DistArray[T] extends Array[T] {
         val results = ValRail.make[Future[T]](ps.length, (p:Int) => {
             future(ps(p)) {
                 var result: T = unit;
-                val a = (this | here) as Array[T](rank);
+                val a = (this | here) as DistArray[T](rank);
                 for (pt:Point(rank) in a)
                     result = op(result, a(pt));
                 return result;
@@ -304,8 +391,7 @@ public class DistArray[T] extends Array[T] {
     }            
 */
 
-    // LocalArray only for now!
-    incomplete public global def scan(op:(T,T)=>T, unit:T): Array[T](dist);
+    incomplete public global def scan(op:(T,T)=>T, unit:T): DistArray[T](dist);
 
 
     //
@@ -341,4 +427,16 @@ public class DistArray[T] extends Array[T] {
         return "Array(" + dist + ")";
     }
 
+
+    /**
+     * Return an iterator over the points in the region of this array.
+     *
+     * @return an iterator over the points in the region of this array.
+     * @see x10.lang.Iterable[T]#iterator()
+     */
+    public global def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
+
+
 }
+
+// vim:tabstop=4:shiftwidth=4:expandtab

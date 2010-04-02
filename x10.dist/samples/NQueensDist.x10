@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.Array;
+import x10.array.DistArray;
 import x10.array.Region;
 import x10.array.Dist;
 import x10.io.Console;
@@ -26,12 +26,12 @@ public class NQueensDist {
 
     global val N:Int;
     global val P:Int;
-    global val results:Array[Int](1);
+    global val results:DistArray[Int](1);
 
     def this(N:Int, P:Int) { 
 	this.N=N; 
 	this.P=P;
-	this.results = Array.make[Int](Dist.makeUnique(), (Point)=>0);
+	this.results = DistArray.make[Int](Dist.makeUnique(), (Point)=>0);
 }
     def start() {
         new Board().search();

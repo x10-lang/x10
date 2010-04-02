@@ -11,215 +11,217 @@
 
 package x10.array;
 
+import x10.compiler.Inline;
+import x10.compiler.Native;
+
 /**
- * An array defines a mapping from points to data of some type T. An
- * array is defined over a particular region. Distributed arrays are
- * supported by defining an array over a distribution; the
- * distribution determines at what place each array data item is
- * stored. Arrays may be accessed using a(p) because arrays implement
- * (Point)=>T.
+ * This class represents a k-dimensional dense array whose 
+ * data is in a single place, which is the same place 
+ * as the Array's home.</p>
  *
- * @param T the element type of the array
- *
- * @author bdlucas
+ * Warning: This class is part of an initial prototyping
+ *          of the array library redesign targeted for 
+ *          completion in X10 2.1.  It's API is not 
+ *          likely to be stable from one release to another
+ *          until after X10 2.1.</p>
+ * 
+ * Warning:  Eventually the operations implemented by
+ *          this class will match those promised by 
+ *          x10.lang.Array, but for now some of the API
+ *          is stubbed out here (and may eventually 
+ *          by removed from x10.lang.Array).  This 
+ *          will be resolved by X10 2.1<p>
  */
-public abstract class Array[T](
+public final class Array[T](
     /**
-     * The distribution of this array.
+     * The region of this array.
      */
-    dist:Dist
-) implements (Point(dist.region.rank))=>T,
-             Iterable[Point(dist.region.rank)]
-{
+    region:Region
+)  implements (Point(region.rank))=>T,
+              Iterable[Point(region.rank)] {
+
     //
     // properties
     //
 
-    // region via dist
-    /**
-     * The region this array is defined over.
-     */
-    public global property region: Region(rank) = dist.region;
-
     /**
      * The rank of this array.
      */
-    public global property rank: int = dist.rank;
+    public property rank: int = region.rank;
 
     /**
      * Is this array defined over a rectangular region?
      */
-    public global property rect: boolean = dist.rect;
+    public property rect: boolean = region.rect;
 
     /**
      * Is this array's region zero-based?
      */
-    public global property zeroBased: boolean = dist.zeroBased;
+    public property zeroBased: boolean = region.zeroBased;
 
-    // dist
     /**
      * Is this array's region a "rail" (one-dimensional contiguous zero-based)?
      */
-    public global property rail: boolean = dist.rail;
+    public property rail: boolean = region.rail;
+
+
+
+
+    private val raw:Rail[T]!;
+    private val layout:RectLayout!;
+
+    @Native("java", "true") // TODO: optimize this for Java as well.
+    @Native("c++", "BOUNDS_CHECK_BOOL")
+    private native def checkBounds():boolean;
+
+    // TODO: made public for experimentation in ANU code until proper copyTo is implemented.
+    public @Inline def raw():Rail[T]! = raw;
+   
+
+    // TODO: This is a hack around the way regions are currently defined.
+    //       Even when we compile with NO_CHECKS, we still have to have
+    //       the checking code inlined. or the presence of the call in a loop
+    //       blows register allocation significantly impacts performance.
+    private val baseRegion:BaseRegion{self.rank==this.rank};
+
+    // TODO: XTENLANG-1188 this should be a const (static) field, but working around C++ backend bug
+    private val bounds = (pt:Point):RuntimeException => new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
+
 
     /**
-     * Is this array's distribution "unique" (at most one point per place)?
-     */
-    public global property unique: boolean = dist.unique;
-
-    /**
-     * Is this array's distribution "constant" (all points map to the same place)?
-     */
-    public global property constant: boolean = dist.constant;
-
-    /**
-     * If this array's distribution is "constant", the place all points map to (or null).
-     */
-    public global property onePlace: Place = dist.onePlace;
-
-
-    //
-    // factories for local arrays (no distributions)
-    //
-
-    /**
-     * Create a mutable local array over the given region and default initial values for elements.
+     * Construct an uninitialized Array over the region reg.
      *
-     * @param T the element type
-     * @param region the given region
-     * @return a mutable array with a constant distribution mapping all points in the given region to 'here'.
-     * @see #make[T](Dist)
-     * @see #make[T](Region, (Point)=>T)
+     * @param reg The region over which to construct the array.
      */
-    public static def make[T](region:Region)= new LocalRectArray[T](region);
+    public def this(reg:Region):Array[T]{self.region==reg} {
+	property(reg);
+
+        layout = new RectLayout(reg.min(), reg.max());
+        val n = layout.size();
+        raw = Rail.make[T](n);
+        baseRegion = reg as BaseRegion{self.rank==this.rank};
+    }
+
 
     /**
-     * Create a mutable local array over the given region.
-     * Executes the given initializer function for each element of the array.
+     * Construct Array over the region reg whose
+     * values are initialized as specified by the init function.
      *
-     * @param T the element type
-     * @param region the given region
-     * @param init the initializer function
-     * @return a mutable array with a constant distribution mapping all points in the given region to 'here'.
-     * @see #make[T](Region)
-     * @see #make[T](Dist, (Point)=>T)
-     */
-    public static def make[T](region:Region, init: (Point(region.rank))=>T)= new LocalRectArray[T](region, init);
+     * @param reg The region over which to construct the array.
+     * @param init The function to use to initialize the array.
+     */    
+    public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg} {
+        property(reg);
+
+        layout = new RectLayout(reg.min(), reg.max());
+        val n = layout.size();
+        val r  = Rail.make[T](n);
+	for (p:Point(reg.rank) in reg) {
+            r(layout.offset(p))= init(p);
+        }
+        raw = r;
+        baseRegion = reg as BaseRegion{self.rank==this.rank};
+    }
 
     /**
-     * Create a mutable local array with the shape and values of the given Rail.
+     * Construct Array over the region 0..rail.length-1 whose
+     * values are initialized to the corresponding values in the 
+     * argument Rail.
      *
-     * @param T the element type
-     * @param rail the given Rail
-     * @return a mutable array with a constant distribution mapping all points in the region
-     *         0..rail.length-1 to 'here' and the values from the corresponding elements of rail.
-     * @see #make[T](ValRail[T])
-     * @see #make[T](Region, (Point)=>T)
-     */
-    public static def make[T](rail: Rail[T]!) = new LocalRectArray[T](rail);
+     */    
+    public def this(rail:Rail[T]!):Array[T]{self.rank==1,rect,zeroBased} {
+        // TODO: could make this more efficient by optimizing rail copy.
+	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
+    }
+
 
     /**
-     * Create a mutable local array with the shape and values of the given ValRail.
+     * Construct Array over the region 0..rail.length-1 whose
+     * values are initialized to the corresponding values in the 
+     * argument ValRail.
      *
-     * @param T the element type
-     * @param rail the given ValRail
-     * @return a mutable array with a constant distribution mapping all points in the region
-     *         0..rail.length-1 to 'here' and the values from the corresponding elements of rail.
-     * @see #make[T](Rail[T])
-     * @see #make[T](Region, (Point)=>T)
-     */
-    public static def make[T](rail: ValRail[T]) = new LocalRectArray[T](rail);
+     * TODO: rail is declared to be a ValRail[T]! as a hack around
+     *       a compiler bug.  Without the !, the front-end complains that you
+     *       can't refer to "T" in a static context, which is complete nonsense
+     *       since this is a constructor.
+     */    
+    public def this(rail:ValRail[T]!):Array[T]{self.rank==1,rect,zeroBased} {
+        // TODO: could make this more efficient by optimizing rail copy.
+	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
+    }
+
 
     /**
-     * Create a mutable local one-dimensional zero-based array of the given size.
-     * Executes the given initializer function for each element of the array.
-     *
-     * @param T the element type
-     * @param size the size of the array
-     * @param init the initializer function
-     * @return a mutable array with a constant distribution mapping all points in the
-     *         region 0..size-1 to 'here'.
-     * @see #make[T](Rail[T])
-     * @see #make[T](ValRail[T])
-     * @see #make[T](Region, (Point)=>T)
-     */
-    public static def make[T](size: Int, init: (Point(1))=>T) = new LocalRectArray[T](size-1, init);
+     * Construct Array over the region 0..rail.length-1 whose
+     * values are uninitialized
+     */    
+    public def this(size:int):Array[T]{self.rank==1,rect,zeroBased} {
+	this(Region.makeRectangular(0, size-1));
+    }
 
-
-
-    //
-    // factories for dist arrays 
-    //
 
     /**
-     * Create a mutable array over the given distribution and default initial values for elements.
+     * Construct Array over the region reg whose
+     * values are initialized as specified by the init function.
      *
-     * @param T the element type
-     * @param dist the given distribution
-     * @return a mutable array with the given distribution.
-     * @see #make[T](Region)
-     * @see #make[T](Dist, (Point)=>T)
-     */
-    public static def make[T](dist: Dist)= new DistArray[T](dist);
+     * @param reg The region over which to construct the array.
+     * @param init The function to use to initialize the array.
+     */    
+    public def this(size:int, init:(Point(1))=>T):Array[T]{self.rank==1,rect,zeroBased} {
+	this(Region.makeRectangular(0, size-1), init);
+    }
+
+
+
+
+
+
 
     /**
-     * Create a mutable array over the given distribution.
-     * Executes the given initializer function for each element of the array.
+     * Return an iterator over the points in the region of this array.
      *
-     * @param T the element type
-     * @param dist the given distribution
-     * @param init the initializer function
-     * @return a mutable array with the given distribution.
-     * @see #make[T](Dist)
-     * @see #make[T](Region, (Point)=>T)
+     * @return an iterator over the points in the region of this array.
+     * @see x10.lang.Iterable[T]#iterator()
      */
-    public static def make[T](dist: Dist, init: (Point(dist.rank))=>T)= new DistArray[T](dist, init);
+    public def iterator():Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 
-    //
-    // operations
-    //
-
-    /**
-     * Return the element of this array corresponding to the given point.
-     * The rank of the given point has to be the same as the rank of this array.
-     *
-     * @param pt the given point
-     * @return the element of this array corresponding to the given point.
-     * @see #apply(Int)
-     * @see #set(T, Point)
-     */
-    public abstract safe global def apply(pt: Point(rank)): T;
 
     /**
      * Return the element of this array corresponding to the given index.
      * Only applies to one-dimensional arrays.
      * Functionally equivalent to indexing the array via a one-dimensional point.
-     *
+     * 
      * @param i0 the given index in the first dimension
      * @return the element of this array corresponding to the given index.
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    public abstract safe global def apply(i0: int) {rank==1}: T;
+    public safe @Inline def apply(i0:int){rank==1}:T {
+        if (checkBounds()) baseRegion.check(bounds, i0);
+        return raw(layout.offset(i0));
+    }
 
     /**
      * Return the element of this array corresponding to the given pair of indices.
      * Only applies to two-dimensional arrays.
      * Functionally equivalent to indexing the array via a two-dimensional point.
-     *
+     * 
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
      * @return the element of this array corresponding to the given pair of indices.
      * @see #apply(Point)
      * @see #set(T, Int, Int)
      */
-    public abstract safe global def apply(i0: int, i1: int) {rank==2}: T;
+    public safe @Inline def apply(i0:int, i1:int){rank==2}:T {
+        if (checkBounds()) baseRegion.check(bounds, i0, i1);
+        return raw(layout.offset(i0,i1));
+    }
 
     /**
      * Return the element of this array corresponding to the given triple of indices.
      * Only applies to three-dimensional arrays.
      * Functionally equivalent to indexing the array via a three-dimensional point.
-     *
+     * 
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
      * @param i2 the given index in the third dimension
@@ -227,13 +229,16 @@ public abstract class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int)
      */
-    public abstract safe global def apply(i0: int, i1: int, i2: int) {rank==3}: T;
+    public safe @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
+        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2);
+        return raw(layout.offset(i0, i1, i2));
+    }
 
     /**
      * Return the element of this array corresponding to the given quartet of indices.
      * Only applies to four-dimensional arrays.
      * Functionally equivalent to indexing the array via a four-dimensional point.
-     *
+     * 
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
      * @param i2 the given index in the third dimension
@@ -242,42 +247,53 @@ public abstract class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int, Int)
      */
-    public abstract safe global def apply(i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
-
+    public safe @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
+        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2, i3);
+        return raw(layout.offset(i0, i1, i2, i3));
+    }
 
     /**
-     * Set the element of this array corresponding to the given point to the given value.
-     * Return the new value of the element.
+     * Return the element of this array corresponding to the given point.
      * The rank of the given point has to be the same as the rank of this array.
-     *
-     * @param v the given value
+     * 
      * @param pt the given point
-     * @return the new value of the element of this array corresponding to the given point.
-     * @see #apply(Point)
-     * @see #set(T, Int)
+     * @return the element of this array corresponding to the given point.
+     * @see #apply(Int)
+     * @see #set(T, Point)
      */
-    public abstract safe global def set(v:T, pt: Point(rank)): T;
+    public safe @Inline def apply(pt:Point{self.rank==this.rank}):T {
+        if (checkBounds()) {
+            throw new UnsupportedOperationException("Haven't implemented bounds checking for general Points on Array");
+            // TODO: SHOULD BE: region.check(pt);
+        }
+        return raw(layout.offset(pt));
+    }
 
+ 
     /**
      * Set the element of this array corresponding to the given index to the given value.
      * Return the new value of the element.
      * Only applies to one-dimensional arrays.
      * Functionally equivalent to setting the array via a one-dimensional point.
-     *
+     * 
      * @param v the given value
      * @param i0 the given index in the first dimension
      * @return the new value of the element of this array corresponding to the given index.
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    public abstract safe global def set(v:T, i0: int) {rank==1}: T;
+    public safe @Inline def set(v:T, i0:int){rank==1}:T {
+        if (checkBounds()) baseRegion.check(bounds, i0);
+        raw(layout.offset(i0)) = v;
+        return v;
+    }
 
     /**
      * Set the element of this array corresponding to the given pair of indices to the given value.
      * Return the new value of the element.
      * Only applies to two-dimensional arrays.
      * Functionally equivalent to setting the array via a two-dimensional point.
-     *
+     * 
      * @param v the given value
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
@@ -285,14 +301,18 @@ public abstract class Array[T](
      * @see #apply(Int, Int)
      * @see #set(T, Point)
      */
-    public abstract safe global def set(v:T, i0: int, i1: int) {rank==2}: T;
+    public safe @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
+        if (checkBounds()) baseRegion.check(bounds, i0, i1);
+        raw(layout.offset(i0,i1)) = v;
+        return v;
+    }
 
     /**
      * Set the element of this array corresponding to the given triple of indices to the given value.
      * Return the new value of the element.
      * Only applies to three-dimensional arrays.
      * Functionally equivalent to setting the array via a three-dimensional point.
-     *
+     * 
      * @param v the given value
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
@@ -301,14 +321,18 @@ public abstract class Array[T](
      * @see #apply(Int, Int, Int)
      * @see #set(T, Point)
      */
-    public abstract safe global def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T;
+    public safe @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
+        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2);
+        raw(layout.offset(i0, i1, i2)) = v;
+        return v;
+    }
 
     /**
      * Set the element of this array corresponding to the given quartet of indices to the given value.
      * Return the new value of the element.
      * Only applies to four-dimensional arrays.
      * Functionally equivalent to setting the array via a four-dimensional point.
-     *
+     * 
      * @param v the given value
      * @param i0 the given index in the first dimension
      * @param i1 the given index in the second dimension
@@ -318,169 +342,51 @@ public abstract class Array[T](
      * @see #apply(Int, Int, Int, Int)
      * @see #set(T, Point)
      */
-    public abstract safe global def set(v:T, i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
-
-
-    /**
-     * Restrict this array to the given region.
-     * The rank of the given region has to be the same as the rank of this array.
-     * Return a copy of this array whose region is the intersection of the given region and the
-     * region of this array.
-     * Also available as operator '|'.
-     *
-     * @param r the given region
-     * @return a view this array whose region is the intersection of the given region and the
-     *         region of this array.
-     * @see #restriction(Place)
-     */
-    public abstract safe global def restriction(r: Region(rank)): Array[T](rank);
+    public safe @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
+        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2, i3);
+        raw(layout.offset(i0, i1, i2, i3)) = v;
+        return v;
+    }
 
     /**
-     * Restrict this array to the given place.
-     * Return a copy of the portion of this array that resides in the given place.
-     * Also available as operator '|'.
-     *
-     * @param p the given place
-     * @return a view of the portion of this array that resides in the given place.
-     * @see #restriction(Region)
+     * Set the element of this array corresponding to the given point to the given value.
+     * Return the new value of the element.
+     * The rank of the given point has to be the same as the rank of this array.
+     * 
+     * @param v the given value
+     * @param pt the given point
+     * @return the new value of the element of this array corresponding to the given point.
+     * @see #apply(Point)
+     * @see #set(T, Int)
      */
-    public abstract safe global def restriction(p: Place): Array[T](rank);
+    public safe @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
+        if (checkBounds()) {
+            throw new UnsupportedOperationException("Haven't implemented bounds checking for general Points on Array");
+            // TODO: SHOULD BE: region.check(p);
+        }
+        raw(layout.offset(p)) = v;
+        return v;
+    }
 
-
-    /**
-     * Restrict this array to the given region.
-     * The rank of the given region has to be the same as the rank of this array.
-     * Return a copy of this array whose region is the intersection of the given region and the
-     * region of this array.
-     *
-     * @param r the given region
-     * @return a view of this array whose region is the intersection of the given region and the
-     *         region of this array.
-     * @see #restriction(Region)
+    /*
+     * TODO: Cruft inherited from Array but not yet implemented.
+     *       Some of this will get implemented, other parts will
+     *       get removed from Array.
      */
-    public abstract safe global operator this | (r: Region(rank)): Array[T](rank);
 
-    /**
-     * Restrict this array to the given place.
-     * Return a copy of the portion of this array that resides in the given place.
-     *
-     * @param p the given place
-     * @return a view of the portion of this array that resides in the given place.
-     * @see #restriction(Place)
-     */
-    public abstract safe global operator this | (p: Place): Array[T](rank);
+    public incomplete safe def restriction(r: Region(rank)): Array[T](rank);    
 
+    public incomplete safe def restriction(p: Place): Array[T](rank);
 
-    //
-    // array operations
-    //
+    public incomplete safe operator this | (r: Region(rank)): Array[T](rank);
 
-    /**
-     * Lift this array using the given unary operation.
-     * Apply the operation pointwise to the elements of this array.
-     * Return a new array with the same distribution as this array.
-     * Each element of the new array is the result of applying the given operation to the
-     * corresponding element of this array.
-     *
-     * @param op the given unary operation
-     * @return a new array with the same distribution as this array.
-     * @see #reduce((T,T)=>T,T)
-     * @see #scan((T,T)=>T,T)
-     */
-    public abstract global def lift(op:(T)=>T): Array[T](dist);
+    public incomplete safe operator this | (p: Place): Array[T](rank);
 
-    /**
-     * Reduce this array using the given binary operation and the given initial value.
-     * Starting with the initial value, apply the operation pointwise to the current running value
-     * and each element of this array.
-     * Return the final result of the reduction.
-     *
-     * @param op the given binary operation
-     * @param unit the given initial value
-     * @return the final result of the reduction.
-     * @see #lift((T)=>T)
-     * @see #scan((T,T)=>T,T)
-     */
-    public abstract global def reduce(op:(T,T)=>T, unit:T): T;
+    public incomplete def lift(op:(T)=>T): Array[T](region);
 
-    /**
-     * Scan this array using the given binary operation and the given initial value.
-     * Starting with the initial value, apply the operation pointwise to the current running value
-     * and each element of this array.
-     * Return a new array with the same distribution as this array.
-     * Each element of the new array is the result of applying the given operation to the
-     * current running value and the corresponding element of this array.
-     *
-     * @param op the given binary operation
-     * @param unit the given initial value
-     * @return the final result of the reduction.
-     * @see #lift((T)=>T)
-     * @see #reduce((T,T)=>T,T)
-     */
-    public abstract global def scan(op:(T,T)=>T, unit:T): Array[T](dist);
+    public incomplete def reduce(op:(T,T)=>T, unit:T): T;
 
-
-    //
-    // further generalizations TBD:
-    // - extra array arg to contain result
-    // - op takes current Point
-    //
-    // also TBD:
-    //   public abstract global def lift[U](op:(T)=>U): Array[U](dist);
-    //   public abstract global def lift[U,V](op:(T,U)=>V, that:Array[U](dist)): Array[V](dist);
-    //   public abstract global def overlay(that:Array[T](rank)): Array[T](rank);
-    //   public abstract global def update(that:Array[T](rank)): Array[T](rank);
-    //
-
-
-    //
-    //
-    //
-
-    /**
-     * Convert the given Rail to an array.
-     * @deprecated Use {@link x10.lang.Array#make[T](Rail[T])} instead.
-     *
-     * @param T the element type
-     * @param r the given Rail
-     * @return a mutable array with a constant distribution mapping all points in the region 0..r.length-1
-     *         to 'here' and the values from the corresponding elements of r.
-     * @see #make[T](Rail[T])
-     */
-    public static operator [T](r: Rail[T]!): Array[T](1) = make(r);
-
-    /**
-     * Convert the given ValRail to an array.
-     * @deprecated Use {@link x10.lang.Array#make[T](ValRail[T])} instead.
-     *
-     * @param T the element type
-     * @param r the given ValRail
-     * @return a mutable array with a constant distribution mapping all points in the region 0..r.length-1
-     *         to 'here' and the values from the corresponding elements of r.
-     * @see #make[T](ValRail[T])
-     */
-    public static operator [T](r: ValRail[T]): Array[T](1) = make(r);
-
-
-    /**
-     * Return an iterator over the points in the region of this array.
-     *
-     * @return an iterator over the points in the region of this array.
-     * @see x10.lang.Iterable[T]#iterator()
-     */
-    public global def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
-
-
-    //
-    //
-    //
-
-    /**
-     * Construct an Array with the given distribution.
-     *
-     * @param dist the given distribution
-     */
-    protected def this(dist: Dist) = property(dist);
+    public incomplete def scan(op:(T,T)=>T, unit:T): Array[T](region);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

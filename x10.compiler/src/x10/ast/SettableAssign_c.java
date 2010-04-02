@@ -222,7 +222,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	            n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
 	        }
 	        catch (SemanticException e) {
-	        	boolean arrayP = xts.isX10Array(X10TypeMixin.baseType(array.type()));
+	            Type bt = X10TypeMixin.baseType(array.type());
+	        	boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
 	            throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
 	        }
 	    }
@@ -238,8 +239,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	        n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
 	    }
 	    catch (SemanticException e) {
-	       	boolean arrayP = xts.isX10Array(X10TypeMixin.baseType(array.type()));
-	    	  throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
+	        Type bt = X10TypeMixin.baseType(array.type());
+	        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+	        throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
 	    }
 
 	    X10MethodInstance mi = (X10MethodInstance) n.methodInstance();

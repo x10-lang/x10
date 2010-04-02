@@ -9,8 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.Array;
 import x10.array.Dist;
+import x10.array.DistArray;
 import x10.array.Region;
 
 /**
@@ -34,12 +34,12 @@ public class HeatTransfer_v2 {
     const BigD = Dist.makeBlock([0..n+1, 0..n+1], 0);
     const D = BigD | ([1..n, 1..n] as Region);
     const LastRow = [0..0, 1..n] as Region;
-    const A = Array.make[Real](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
-    const Temp = Array.make[Real](BigD);
+    const A = DistArray.make[Real](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
+    const Temp = DistArray.make[Real](BigD);
 
     static def stencil_1((x,y):Point(2)) = (([x-1..x+1,y..y] as Region(2)) || [x..x,y-1..y+1]) - [x..x,y..y];
 
-    static def subtract(a:Array[Real],b:Array[Real]) = Array.make[Real](a.dist, (p:Point)=>a(p as Point(a.rank))-b(p as Point(b.rank)));
+    static def subtract(a:DistArray[Real],b:DistArray[Real]) = DistArray.make[Real](a.dist, (p:Point)=>a(p as Point(a.rank))-b(p as Point(b.rank)));
 
     def run() {
 	val D_Base = Dist.makeUnique(D.places());
