@@ -155,10 +155,6 @@ public class CXXCommandBuilder {
             }
         }
         
-        for (String opt : options.extraIncOpts()) {
-            cxxCmd.add(opt);
-        }
-
         if (x10.Configuration.NO_CHECKS) {
             cxxCmd.add("-DNO_CHECKS");
         }
@@ -179,10 +175,6 @@ public class CXXCommandBuilder {
         cxxCmd.addAll(x10rtOpts.ldFlags);
         cxxCmd.addAll(x10rtOpts.libs);
         
-        for (String opt : options.extraLibOpts()) {
-            cxxCmd.add(opt);
-        }
-
         cxxCmd.add("-ldl");
         cxxCmd.add("-lm");
         cxxCmd.add("-lpthread");
