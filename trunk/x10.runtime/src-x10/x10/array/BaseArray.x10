@@ -109,24 +109,12 @@ public abstract class BaseArray[T] extends Array[T] {
         r(layout().offset(pt)) = v;
         return v;
     }
+	
+    @Native("c++", "BOUNDS_CHECK_BOOL")
+    const checkBounds = true;
 
-
-    //
-    // bounds and place checking
-    // set env variable X10_NO_CHECKS to disable checks
-    //
-
-    @Native("java", "System.getenv(#1)")
-    @Native("c++", "x10::lang::String::Lit(getenv((#1)->c_str()))")
-    public native static def getenv(String): String;
-
-    @Native("java", "(System.getenv(#1)!=null)")
-    @Native("c++", "((x10_boolean)(getenv((#1)->c_str())!=NULL))")
-    public native static def hasenv(String): boolean;
-
-    const x10NoChecks = hasenv("X10_NO_CHECKS");
-    const checkBounds = !x10NoChecks;
-    const checkPlace = !x10NoChecks;
+    @Native("c++", "PLACE_CHECK_BOOL")
+    const checkPlace = true;
 
     // TODO: XTENLANG-1188;  This field should be a const, but C++ backend generates bad code if it is
     global val bounds = (pt:Point):RuntimeException =>
