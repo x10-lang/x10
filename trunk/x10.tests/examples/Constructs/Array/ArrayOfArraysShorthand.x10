@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Array;
+import x10.array.Region;
 
 /**
  * Test the syntax for creating an array of arrays.

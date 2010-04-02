@@ -6,6 +6,7 @@
  *
  */
 import harness.x10Test;;
+import x10.array.Array;
 
 /**
  * Check that nullable int can be recognized by the compiler.

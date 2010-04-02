@@ -19,6 +19,7 @@
  *
  */
 import harness.x10Test;
+import x10.array.Array;
 
 /**
  * All non-nullable fields, array elements and local variables should

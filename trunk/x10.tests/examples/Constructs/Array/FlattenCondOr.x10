@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Array;
+import x10.array.Region;
 
 /**
  * Conditional and is evaluated, well, conditionally. So it must be

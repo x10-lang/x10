@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Dist;
+import x10.array.Array;
 
 /**
  * Test for X10 arrays -- tests arrays passed as parameters and stored in fields.

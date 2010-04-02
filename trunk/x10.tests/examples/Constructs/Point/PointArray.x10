@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.Array;
 
 /**
  * Creating an array of points and assigning to its elements should work.

@@ -11,6 +11,8 @@
 
 import x10.util.Random;
 import harness.x10Test;
+import x10.array.Dist;
+import x10.array.Array;
 
 /**
  * User defined type array bounds test - 2D.

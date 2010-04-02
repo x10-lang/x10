@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.Array;
 
 public class ArraySumTest extends x10Test {
     public def run():boolean {

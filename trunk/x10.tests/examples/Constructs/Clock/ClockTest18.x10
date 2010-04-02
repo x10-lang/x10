@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.Array;
 
 /**
  * It is not allowed to transmit a clock c to a subactivity,
