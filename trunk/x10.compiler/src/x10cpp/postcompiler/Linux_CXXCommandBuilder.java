@@ -25,8 +25,6 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
         assert (CXXCommandBuilder.PLATFORM.startsWith("linux_"));
     }
 
-    protected boolean gcEnabled() { return true; }
-
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
         cxxCmd.add("-Wno-long-long");
