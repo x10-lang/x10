@@ -46,23 +46,15 @@ public abstract class BaseArray[T] extends Array[T] {
 
     public static def makeVar1[T](dist: Dist, init: (Point(dist.rank))=>T): Array[T](dist) {
         if (dist.constant) {
-           if (checkBounds || checkPlace)
-               return at (dist.onePlace) { new LocalArray[T](dist as Dist{constant,onePlace==here,self==dist}, init) }; 
-           else
-               return at (dist.onePlace) { new FastArray[T](dist as Dist{constant,onePlace==here,self==dist}, init) }; 
-        }
-        else {
+            return at (dist.onePlace) { new LocalArray[T](dist as Dist{constant,onePlace==here,self==dist}, init) }; 
+        } else {
             return new DistArray[T](dist, init);
         }
     }
     public static def makeVar1[T](dist: Dist): Array[T](dist) {
         if (dist.constant) {
-           if (checkBounds || checkPlace)
-               return at (dist.onePlace) { new LocalArray[T](dist as Dist{constant,onePlace==here}) as Array[T](dist) }; // XXXXX ???
-           else
-               return at (dist.onePlace) { new FastArray[T](dist as Dist{constant,onePlace==here}) as Array[T](dist) }; // XXXXX ???
-        }
-        else {
+            return at (dist.onePlace) { new LocalArray[T](dist as Dist{constant,onePlace==here}) as Array[T](dist) }; // XXXXX ???
+        } else {
             return new DistArray[T](dist);
         }
     }
