@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Dist;
+import x10.array.Array;
 import x10.io.Console;
 public class PlaceCast extends x10Test {
     var nplaces: int = 0;

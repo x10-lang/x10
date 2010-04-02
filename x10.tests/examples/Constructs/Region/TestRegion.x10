@@ -17,6 +17,8 @@ import x10.array.UnboundedRegionException;
 import x10.util.Box;
 
 import harness.x10Test;
+import x10.array.Array;
+import x10.array.Region;
 
 
 abstract public class TestRegion extends x10Test {

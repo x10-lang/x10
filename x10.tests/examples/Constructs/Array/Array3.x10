@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Dist;
+import x10.array.Array;
 
 /**
  * Tests declaration of arrays, storing in local variables, accessing and

@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Array;
+import x10.array.Region;
 
 /**
  * Ensures double arrays are implemented. Tests literal occurring in RHS of an ==, with array

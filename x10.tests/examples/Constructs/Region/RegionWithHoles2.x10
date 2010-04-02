@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Array;
+import x10.array.Region;
 
 public class RegionWithHoles2 extends x10Test {
 

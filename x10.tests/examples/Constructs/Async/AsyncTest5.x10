@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Dist;
+import x10.array.Array;
 
 /**
  * When the async place is not specified, it is take to be 'here'.

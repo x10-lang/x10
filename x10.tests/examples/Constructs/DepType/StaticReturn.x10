@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.Dist;
 
 /**
  * The test checks that final fields can be accessed in a depclause.

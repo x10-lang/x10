@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Array;
+import x10.array.Region;
 
 /**
  * Simple array test #3. Tests declaration of arrays, storing in local

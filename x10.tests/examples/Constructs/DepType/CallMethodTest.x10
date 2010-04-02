@@ -17,6 +17,7 @@
  */
 
 import harness.x10Test;
+import x10.array.Region;
 
  public class CallMethodTest extends x10Test { 
   

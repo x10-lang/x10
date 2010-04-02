@@ -12,6 +12,7 @@
 //LIMITATION:
 //This test case will not meet expectations. It is a limitation of the current release.
 import harness.x10Test;
+import x10.array.Region;
 
 /**
  *Tests upper and lower triangular, and banded regions.

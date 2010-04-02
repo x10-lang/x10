@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Dist;
+import x10.array.Region;
 
 /**
  * Verifying for (point p[i,j]:R) { S; } loops can accept

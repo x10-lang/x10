@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Dist;
+import x10.array.Array;
 
 // vj Nov 9, 2009. This will throw a compiler error until we fix
 // the XTerm translator so it can accept d(p) as a term, where d is

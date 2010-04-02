@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.Array;
 
 /**
  * Test that creating an array of clocks will not work -- you need to

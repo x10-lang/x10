@@ -10,6 +10,8 @@
  */
 
 import harness.x10Test;
+import x10.array.Dist;
+import x10.array.Region;
 
 /**
  * Test for for loop with x10 for (point p: D) syntax

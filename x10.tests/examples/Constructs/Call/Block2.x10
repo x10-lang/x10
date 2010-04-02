@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.array.Dist;
 
 /**
  * Check that the dist.block method propagates region properties from arg to result

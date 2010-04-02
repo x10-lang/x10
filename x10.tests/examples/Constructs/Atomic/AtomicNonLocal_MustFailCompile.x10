@@ -19,6 +19,8 @@
  *
  */
 import harness.x10Test;
+import x10.array.Dist;
+import x10.array.Array;
 
 /**
  * Remote accesses in atomic must be checked by the compiler.
