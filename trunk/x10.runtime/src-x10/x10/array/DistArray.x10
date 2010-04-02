@@ -11,6 +11,8 @@
 
 package x10.array;
 
+import x10.compiler.Native;
+
 /**
  * This class represents an array with raw chunk in each place,
  * initialized at its place of access via a PlaceLocalHandle.
@@ -18,7 +20,10 @@ package x10.array;
  * @author bdlucas
  */
 
- final class DistArray[T] extends BaseArray[T] {
+public class DistArray[T] extends Array[T] {
+
+    // XTENLANG-49
+    static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
 
     private static class LocalState[T] {
         val layout:RectLayout;
@@ -134,16 +139,206 @@ package x10.array;
      */
 
     public safe global def restriction(d: Dist(rank)) {
-        if (d.constant)
-            return new LocalArray[T](this, d as Dist{constant, here==self.onePlace}) as Array[T](rank);
-        else
-            return new DistArray[T](this, d) as Array[T](rank);
+        return new DistArray[T](this, d) as Array[T](rank);
     }
 
     def this(a: DistArray[T], d: Dist):DistArray{self.dist==d} {
     	super(d);
     	localHandle = PlaceLocalHandle.make[LocalState[T]](d,
     			() => a.localHandle());
+    }
+
+
+///// TODO: BELOW HERE IS CODE PULLED IN FROM BaseArray.  Need to reorgzinze this.
+
+
+
+    //
+    // low-perfomance methods here
+    // high-performance methods are in subclass to facilitate inlining
+    //     
+
+    public final safe global def apply(pt: Point(rank)): T {
+        if (checkPlace) checkPlace(pt);
+        if (checkBounds) checkBounds(pt);
+        return raw()(layout().offset(pt));
+    }
+
+    public final safe global def get(pt: Point(rank)): T = apply(pt);
+
+    // XXXX settable order
+    public final safe global def set(v: T, pt: Point(rank)): T {
+        if (checkPlace) checkPlace(pt);
+        if (checkBounds) checkBounds(pt);
+        val r = raw();
+        r(layout().offset(pt)) = v;
+        return v;
+    }
+	
+    @Native("c++", "BOUNDS_CHECK_BOOL")
+    const checkBounds = true;
+
+    @Native("c++", "PLACE_CHECK_BOOL")
+    const checkPlace = true;
+
+    // TODO: XTENLANG-1188;  This field should be a const, but C++ backend generates bad code if it is
+    global val bounds = (pt:Point):RuntimeException =>
+        new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
+
+    // TODO: XTENLANG-1188;  This field should be a const, but C++ backend generates bad code if it is
+    global val place = (pt:Point):RuntimeException =>
+        new BadPlaceException("point " + pt + " not defined at " + here);
+
+    safe global def checkBounds(pt: Point(rank)) {
+        (region as BaseRegion(rank)).check(bounds, pt);
+    }
+
+    safe global def checkBounds(i0: int) {
+        (region as BaseRegion(1)).check(bounds, i0);
+    }
+
+    safe global def checkBounds(i0: int, i1: int) {
+        (region as BaseRegion(2)).check(bounds, i0, i1);
+    }
+
+    safe global def checkBounds(i0: int, i1: int, i2: int) {
+        (region as BaseRegion(3)).check(bounds, i0, i1, i2);
+    }
+
+    safe global def checkBounds(i0: int, i1: int, i2: int, i3: int) {
+        (region as BaseRegion(4)).check(bounds, i0, i1, i2, i3);
+    }
+
+    safe global def checkPlace(pt: Point(rank)) {
+        (dist.get(here) as BaseRegion(rank)).check(place, pt);
+    }
+
+    safe global def checkPlace(i0: int) {
+        (dist.get(here) as BaseRegion(1)).check(place, i0);
+    }
+
+    safe global def checkPlace(i0: int, i1: int) {
+        (dist.get(here) as BaseRegion(2)).check(place, i0, i1);
+    }
+
+    safe global def checkPlace(i0: int, i1: int, i2: int) {
+        (dist.get(here) as BaseRegion(3)).check(place, i0, i1, i2);
+    }
+
+    safe global def checkPlace(i0: int, i1: int, i2: int, i3: int) {
+        (dist.get(here) as BaseRegion(4)).check(place, i0, i1, i2, i3);
+    }
+    //
+    // views
+    //
+
+    public safe global def restriction(r: Region(rank)): Array[T](rank) {
+        return restriction(dist.restriction(r));
+    }
+
+    public safe global def restriction(p: Place): Array[T](rank) {
+        return restriction(dist.restriction(p));
+    }
+
+
+    //
+    // operations
+    //
+
+    public global def lift(op:(T)=>T): Array[T](dist)
+        = Array.make[T](dist, ((p:Point)=>op(this(p as Point(rank)))));
+
+    //    incomplete public global def reduce(op:(T,T)=>T, unit:T):T;
+
+//
+// seems to be causing non-deterministic typechecking failures in
+// a(pt).  perhaps related to XTENLANG-128 and/or XTENLANG-135
+//
+    public global def reduce(op:(T,T)=>T, unit:T):T {
+
+        // scatter
+        val ps:ValRail[Place] = dist.places();
+        val results = Rail.make[T](ps.length, (p:Int) => unit);
+        val r = 0..(ps.length-1);
+        
+        
+	finish foreach (p:Point(1)  in r) {
+        	results(p(0)) = at (ps(p(0))) {
+        	    var result: T = unit;
+                val a = (this | here) as Array[T](rank);
+                for (pt:Point(dist.region.rank)  in a.region)
+                    result = op(result, a(pt));
+                return result;
+            };
+        }
+
+        // gather
+        var result: T = unit;
+        for (var i:int = 0; i < results.length; i++) 
+            result = op(result, results(i));
+
+        return result;
+    }            
+
+/*
+    public global def reduce(op:(T,T)=>T, unit:T):T {
+
+        // scatter
+        val ps = dist.places();
+        val results = ValRail.make[Future[T]](ps.length, (p:Int) => {
+            future(ps(p)) {
+                var result: T = unit;
+                val a = (this | here) as Array[T](rank);
+                for (pt:Point(rank) in a)
+                    result = op(result, a(pt));
+                return result;
+            }
+        });
+
+        // gather
+        var result: T = unit;
+        for (var i:int = 0; i < results.length; i++) 
+            result = op(result, results(i).force());
+
+        return result;
+    }            
+*/
+
+    // LocalArray only for now!
+    incomplete public global def scan(op:(T,T)=>T, unit:T): Array[T](dist);
+
+
+    //
+    // ops
+    //
+
+    public safe global operator this | (r: Region(rank)) = restriction(r);
+    public safe global operator this | (p: Place) = restriction(p);
+
+
+
+    /**
+     * for now since we only have RectLayouts we hard-code that here
+     * for efficiency, since RectLayout is a final class.
+     *
+     * if/when we have other layouts, this might need to be a generic
+     * type parameter, i.e. BaseArray[T,L] where L is a layout class
+     */
+
+    // safe to call from witin a constructor, does not read fields.
+    protected proto global def layout(r: Region): RectLayout {
+        if (r.isEmpty()) {
+            // XXX EmptyLayout class?
+            val min = ValRail.make[int](r.rank, (Int)=>0);
+            val max = ValRail.make[int](r.rank, (Int)=>-1);
+            return new RectLayout(min, max);
+        } else {
+            return new RectLayout(r.min(), r.max());
+        }
+    }
+
+    public global safe def toString(): String {
+        return "Array(" + dist + ")";
     }
 
 }
