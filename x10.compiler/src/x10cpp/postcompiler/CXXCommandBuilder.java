@@ -67,6 +67,33 @@ public class CXXCommandBuilder {
         }
     }
     
+    protected class BDWGCPostCompileOptions {
+        
+        public final Collection<? extends String> cxxFlags;
+        public final Collection<? extends String> libs;
+        
+        private Collection<? extends String> split(String s) {
+            ArrayList<String> l = new ArrayList<String>();
+            if (s==null) return l;
+            QuotedStringTokenizer q = new QuotedStringTokenizer(s);
+            while (q.hasMoreTokens()) l.add(q.nextToken());
+            return l;
+        }
+        
+        public BDWGCPostCompileOptions(String filename) {
+            Properties properties = new Properties();
+            try {
+                properties.load(new FileInputStream(filename));
+            } catch(IOException e) {
+                // [DC] proceeding from here will just yield a load of incomprehensible postcompile errors
+                throw new InternalCompilerError(
+                        "Error finding BDWGC property file: "+ e.getMessage(), e);
+            }                
+            cxxFlags = split(properties.getProperty("CXXFLAGS"));
+            libs     = split(properties.getProperty("LDLIBS"));
+        }
+    }
+    
     protected static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String X10_DIST = System.getenv("X10_DIST");
     protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
@@ -80,6 +107,8 @@ public class CXXCommandBuilder {
     
     protected X10RTPostCompileOptions x10rtOpts;
     
+    protected BDWGCPostCompileOptions bdwgcOpts;
+
     public CXXCommandBuilder(Options options, ErrorQueue eq) {
         assert (options != null);
         assert (options.post_compiler != null);
@@ -98,10 +127,8 @@ public class CXXCommandBuilder {
             rtimpl = X10_DIST + "/etc/x10rt_"+rtimpl+".properties";
         }
         x10rtOpts = new X10RTPostCompileOptions(rtimpl);
+        bdwgcOpts = new BDWGCPostCompileOptions(X10_DIST + "/etc/bdwgc.properties");
     }
-
-    /** Is GC enabled on this platform? */
-    protected boolean gcEnabled() { return false; }
 
     protected String defaultPostCompiler() { 
         return x10rtOpts.cxx;
@@ -146,9 +173,8 @@ public class CXXCommandBuilder {
         cxxCmd.add("-L"+X10_DIST+"/lib");
         cxxCmd.add("-lx10");
 
-        if (!Configuration.DISABLE_GC && gcEnabled()) {
-            cxxCmd.add("-lgc");
-        }
+        cxxCmd.addAll(bdwgcOpts.cxxFlags);
+        cxxCmd.addAll(bdwgcOpts.libs);
 
         cxxCmd.addAll(x10rtOpts.ldFlags);
         cxxCmd.addAll(x10rtOpts.libs);
