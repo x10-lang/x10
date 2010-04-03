@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 import x10.array.Dist;
-import x10.array.Array;
+import x10.array.DistArray;
 
 /**
  * Tests conversion of arrays to regions/dists.
@@ -27,8 +27,8 @@ public class ArrayToDist extends x10Test {
 
         val R = [0..N-1, 0..N-1];
         val D  = Dist.makeBlock(R, 0);
-        val A1 = Array.make[int](D, ((i,j): Point ) => f(i, j));
-        val A2 = Array.make[foo](D, ((i,j): Point) => new foo(f(i, j)));
+        val A1 = DistArray.make[int](D, ((i,j): Point ) => f(i, j));
+        val A2 = DistArray.make[foo](D, ((i,j): Point) => new foo(f(i, j)));
 
         for (val p(i,j): Point(2) in A1.region) 
             chk(f(i, j) == (at(A1.dist(i, j)) A1(i, j)), "1");
