@@ -263,8 +263,7 @@ public final class Array[T](
      */
     public safe @Inline def apply(pt:Point{self.rank==this.rank}):T {
         if (checkBounds()) {
-            throw new UnsupportedOperationException("Haven't implemented bounds checking for general Points on Array");
-            // TODO: SHOULD BE: region.check(pt);
+	    baseRegion.check(bounds, pt);
         }
         return raw(layout.offset(pt));
     }
@@ -361,8 +360,7 @@ public final class Array[T](
      */
     public safe @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
         if (checkBounds()) {
-            throw new UnsupportedOperationException("Haven't implemented bounds checking for general Points on Array");
-            // TODO: SHOULD BE: region.check(p);
+            baseRegion.check(bounds, p);
         }
         raw(layout.offset(p)) = v;
         return v;
