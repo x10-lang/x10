@@ -12,9 +12,6 @@
 //LIMITATION:
 //This check is not being done by the compiler currently.
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.Array;
-import x10.array.Region;
 
 /**
  * This must compile and run fine. Checks that the initializer may not specify

@@ -10,8 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.Array;
 
 /**
  * A rank 2 array can be initialized with a point of rank 1. The

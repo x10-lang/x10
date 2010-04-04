@@ -11,10 +11,6 @@
 
 package x10.lang;
 
-import x10.array.Array;
-import x10.array.Dist;
-import x10.array.DistArray;
-import x10.array.Region;
 
 // Members of the class x10.lang._ are imported automatically.
 public class _ {

@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Array;
 
 /**
  * TODO: rename to ClockTest17 and check for exception

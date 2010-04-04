@@ -13,8 +13,6 @@
 //This test case will not meet expectations. It is a limitation of the current release.
 
 import harness.x10Test;
-import x10.array.Array;
-import x10.array.Region;
 
 /**
  * In an earlier implementation this would give a t0 not reachable error.

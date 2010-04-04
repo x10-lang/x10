@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
 
 public class FSSimpleDistTest extends x10Test {
     public def run():boolean {

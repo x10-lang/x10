@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Array;
 
 /**
  * Purpose: A regular java array must be initialized.

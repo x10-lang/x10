@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Region;
 
 /**
  * Check that the use of this, violating constructor context restrictions 

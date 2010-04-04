@@ -10,8 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.DistArray;
 
 
 public class ConstDist extends x10Test {

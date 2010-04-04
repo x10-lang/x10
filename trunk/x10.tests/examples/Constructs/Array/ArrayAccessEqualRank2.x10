@@ -10,9 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.Array;
-import x10.array.Region;
 
 /**
  * Test that a can be accessed through point p if p ranges over b.dist

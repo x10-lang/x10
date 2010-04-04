@@ -17,8 +17,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.Region;
 
  public class CallLaterMethod extends x10Test { 
   

@@ -1,8 +1,6 @@
 
 import x10.util.*;
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.Region;
 
 public class BlockDist2 extends x10Test.BardTest {
   public static def main(Rail[String]){

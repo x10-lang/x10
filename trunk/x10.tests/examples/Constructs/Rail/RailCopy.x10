@@ -1,7 +1,6 @@
 import x10.io.Console;
 import x10.util.Pair;
 import harness.x10Test;
-import x10.array.Dist;
 
 import x10.compiler.Native;
 

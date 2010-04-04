@@ -10,8 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Array;
-import x10.array.Region;
 
 /**
  * Test for array reference flattening. Checks that after flattening

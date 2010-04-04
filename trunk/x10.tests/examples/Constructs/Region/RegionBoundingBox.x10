@@ -10,8 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.Region;
 
 /**
  * Was "convex hull" test but that was a misnomer: convex hull was

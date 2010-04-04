@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Array;
 
 /**
  * Cannot bind point components in array declaration.

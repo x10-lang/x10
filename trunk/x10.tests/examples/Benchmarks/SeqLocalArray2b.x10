@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.LocalRectArray;
 
 /**
  * Basic array, X10-style loop

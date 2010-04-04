@@ -10,8 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.Array;
 
 /**
  * Testing arrays with user-defined element types.

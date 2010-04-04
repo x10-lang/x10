@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Region;
 
 /**
 Test that methods whose return types are deptypes are handled correctly when
