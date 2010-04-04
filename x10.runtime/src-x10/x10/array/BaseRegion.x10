@@ -160,29 +160,26 @@ abstract public class BaseRegion extends Region {
     // XXX do we care about high-performance bounds checking for
     // rectangular regions?
     //
-    // XXX in any case need mechanism to disable bounds checking for
-    // performance
-    //
 
-    global def check(err:(Point)=>RuntimeException, pt: Point(rank)) {
+    global def check(err:(Point)=>RuntimeException, pt: Point(this.rank)) {
         if (!contains(pt))
             throw err(pt);
     }
 
     global def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
-        (this as BaseRegion(1)).check(err, [i0] as Point(1)); // XXXX cast?
+        check(err, Point.make(i0)); 
     }
 
     global def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
-        (this as BaseRegion(2)).check(err, [i0,i1] as Point(2)); // XXXX cast?
+        check(err, Point.make(i0,i1)); 
     }
 
     global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
-        (this as BaseRegion(3)).check(err, [i0,i1,i2] as Point(3)); // XXXX cast?
+        check(err, Point.make(i0,i1,i2)); 
     }
 
     global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
-        (this as BaseRegion(4)).check(err, [i0,i1,i2,i3] as Point(4)); // XXXX cast?
+        check(err, Point.make(i0,i1,i2,i3)); 
     }
 
 
