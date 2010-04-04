@@ -10,9 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.DistArray;
-import x10.array.Region;
 
 /**
  * DistArray bounds test - 2D.

@@ -10,8 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Array;
-import x10.array.Region;
 
 /**
  * Implementing a 5-point stencil operation using foreach loop

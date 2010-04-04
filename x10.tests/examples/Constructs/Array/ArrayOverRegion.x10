@@ -10,9 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.Array;
-import x10.array.Region;
 
 /**
  * Region r occuring in a distribution context is converted to r->here

@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Region;
 
 /**
  * The test checks that information in the types of variables occuring in depclauses is used

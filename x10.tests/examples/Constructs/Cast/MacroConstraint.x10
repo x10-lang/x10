@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Region;
 
 /**
  * Check that a float literal can be cast as float.

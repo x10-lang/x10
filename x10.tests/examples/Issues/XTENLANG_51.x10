@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Region;
 
 /**
  * @author bdlucas 10/2008

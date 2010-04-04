@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.Array;
 import x10.util.Random;
 import x10.io.Console;
 
@@ -25,6 +24,7 @@ public class Histogram {
 	       atomic b(bin)++;
 	    }
     }
+
     public static def main(args:Rail[String]!) {
 	if (args.length != 2) {
 	    Console.OUT.println("Usage: Histogram SizeOfArray Buckets");

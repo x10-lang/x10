@@ -373,6 +373,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         List<QName> l = new ArrayList<QName>(1);
         l.add(QName.make("x10.lang"));
         l.add(QName.make("x10.lang", X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME.toString()));
+        l.add(QName.make("x10.array"));
         return l;
     }
 

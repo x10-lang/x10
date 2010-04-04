@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
 
 /**
  * Testing that disjoint union of dists

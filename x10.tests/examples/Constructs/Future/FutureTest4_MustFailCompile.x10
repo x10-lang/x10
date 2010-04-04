@@ -10,8 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Dist;
-import x10.array.Array;
 
 /**
  * Tests that free variables used in e in future { e }

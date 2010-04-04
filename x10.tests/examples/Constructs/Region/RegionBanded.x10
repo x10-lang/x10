@@ -19,7 +19,6 @@
  *
  */
 import harness.x10Test;
-import x10.array.Region;
 
 /**
  * Tests upper and lower triangular, and banded regions.

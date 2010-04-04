@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.array.Array;
 
 /**
  * Accessing p[3] in a 2D point should cause an array

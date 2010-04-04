@@ -9,9 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.Dist;
-import x10.array.DistArray;
-import x10.array.Region;
 
 /**
  * This is one of a series of programs showing how to express
