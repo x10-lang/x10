@@ -17,7 +17,7 @@ public class Histogram {
   /**
     * Compute the histogram of the array a in the rail b.
     */
-    public static def run(a:Array[int](1), b: Rail[int]!) {
+    public static def run(a:Array[int](1)!, b: Rail[int]!) {
 	finish 
 	    foreach((i) in a.region) {
 	       val bin = a(i)% b.length;
