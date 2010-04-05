@@ -61,7 +61,7 @@ public class FutureTest3 extends x10Test {
 	 * side effects and exceptions.
 	 */
 	public def run(): boolean = {
-		val A: Array[int](1) = Array.make[int](Dist.makeConstant(0..N-1, here), (Point)=>0);
+		val A = DistArray.make[int](Dist.makeConstant(0..N-1, here), (Point)=>0);
 		val K: int = 3;
 		var gotException: boolean;
 
