@@ -374,6 +374,12 @@ public class X10Builder extends IncrementalProjectBuilder {
 		plugin.showConsole();
 	}
 
+	/**
+	 * Assumes that each path is either workspace-relative or filesystem-absolute.
+	 * Note that a path starting with '/' is considered absolute.
+	 * @param pathList
+	 * @return semicolon-separated list of filesystem-absolute paths. For workspace-relative paths, adds the absolute path of the workspace.
+	 */
     private String pathListToPathString(List<IPath> pathList) {
         StringBuffer buff= new StringBuffer();
         IPath wsLoc= fProject.getWorkspace().getRoot().getLocation();
@@ -404,6 +410,9 @@ public class X10Builder extends IncrementalProjectBuilder {
             IClasspathEntry e= classPath[i];
 
             if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
+            	//The path is relative to the workspace but actually considered absolute becomes it starts with '/'
+            	//We call makeRelative() to remove the initial '/'
+            	//This will allow method pathListToPathString(...) to correctly append the absolute path of the workspace.
                 srcPath.add(e.getPath().makeRelative());
             else if (e.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
             	//PORT1.7 Compiler needs to see X10 source for all referenced compilation units,
