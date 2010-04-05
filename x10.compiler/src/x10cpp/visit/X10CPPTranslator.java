@@ -89,7 +89,7 @@ public class X10CPPTranslator extends Translator {
     
 	/** Return the dir where classes in the given package will be compiled.  Does not include output directory prefix.  Accepts null input. */
 	public static String packagePath (String pkg) {
-		return (pkg==null ? "" : pkg.replace('.', File.separatorChar) + File.separatorChar);
+		return (pkg==null ? "" : pkg.replace('.', '/') + '/');
 	}
 	
 	/** Return the filename of the c++ file for the given class.  Does not include directory prefix.  If no package then give null. */
