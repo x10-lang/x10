@@ -87,12 +87,16 @@ public class X10CPPTranslator extends Translator {
 		super(job, ts, nf, tf);
 	}
     
-	/** Return the dir where classes in the given package will be compiled.  Does not include output directory prefix.  Accepts null input. */
+	/** Return the dir where classes in the given package will be compiled.  Does not include output directory prefix.
+	 * Accepts null input.  Note that if appending more paths to this directory, it is necessary to use '/' as a
+	 * separator regardless of the platform. */
 	public static String packagePath (String pkg) {
 		return (pkg==null ? "" : pkg.replace('.', '/') + '/');
 	}
 	
-	/** Return the filename of the c++ file for the given class.  Does not include directory prefix.  If no package then give null. */
+	/** Return the filename of the c++ file for the given class.  Does not include output directory prefix.
+	 * If no package then give null.  Note that if further processing the returned value, it is necessary to use '/' as a
+	 * separator regardless of the platform. */
 	public static String outputFileName (String pkg, String c, String ext) {
 		return packagePath(pkg) + Emitter.mangled_non_method_name(c) + "." + ext;
 	}
