@@ -30,7 +30,7 @@ public class SeqArray1 extends Benchmark {
     // the benchmark
     //
 
-    val a = new LocalRectArray[double]([0..N+M-1] as Region(1){rect}, (Point(1))=>1.0);
+    val a = new Array[double](0..N+M-1, (Point(1))=>1.0);
 
     def once() {
         var sum: double = 0.0;
