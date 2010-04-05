@@ -20,7 +20,7 @@ public class AsyncTest2 extends x10Test {
 
 	public def run(): boolean = {
 		val NP: int = Place.MAX_PLACES;
-		val A: Array[int]{rank==1} = Array.make[int](Dist.makeUnique());
+		val A: DistArray[int]{rank==1} = DistArray.make[int](Dist.makeUnique());
 		finish
 			for (val (k): Point in 0..NP-1)
                                 async (A.dist(k))
