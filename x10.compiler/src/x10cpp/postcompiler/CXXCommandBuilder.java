@@ -210,7 +210,14 @@ public class CXXCommandBuilder {
         String token = "";
         for (int i = 0; i < pc_size; i++) {
             token = st.nextToken();
-            // The first '#' marks the place where the filenames go
+            // A # as the first token signifies that the default postcompiler for this platform be used
+            if (i==0 && token.equals("#")) {
+            	cxxCmd.add(defaultPostCompiler());
+            	continue;
+            }
+            
+        	// consume all tokens up until the next # (or %) whereupon we will insert (or not)
+        	// default CXXFLAGS parameters and generated compilation units
             if (token.equals("#") || token.equals("%")) {
                 break;
             }
