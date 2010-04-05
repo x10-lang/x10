@@ -19,12 +19,12 @@ import harness.x10Test;
  */
 public class FlattenPlaceCast extends x10Test {
 
-    val a: Array[Test](2);
-    val d: Array[Place](1);
+    val a: DistArray[Test](2);
+    val d: DistArray[Place](1);
 
     public def this() {
-        a = Array.make[Test](([1..10, 1..10] as Region) -> here, (Point)=>new Test());
-        d = Array.make[Place](1..10 -> here, (Point)=>here);
+        a = DistArray.make[Test](([1..10, 1..10] as Region) -> here, (Point)=>new Test());
+        d = DistArray.make[Place](1..10 -> here, (Point)=>here);
     }
    
     static class Test {};

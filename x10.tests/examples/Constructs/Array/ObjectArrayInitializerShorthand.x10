@@ -21,7 +21,7 @@ public class ObjectArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
         val d  = Dist.makeConstant([1..10, 1..10], here);
-        val ia = Array.make[Dist](d, ((i,j): Point) => d);
+        val ia = DistArray.make[Dist](d, ((i,j): Point) => d);
         for (val (i,j): Point(2) in ia.region) chk(ia(i, j) == d);
         return true;
     }
