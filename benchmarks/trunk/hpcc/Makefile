@@ -3,9 +3,12 @@
 # <BEGIN> user settings #
 
 export X10CXX 		?= x10c++
-export X10CXXFLAGS 	?= -commandlineonly -report postcompile=5 -DISABLE_GC
-export X10RTTRANSPORT	?= pgas_lapi
-export PGASTRANSPORT	?= lapi	   ### TEMPORARY! Added due to mismatch X10RT transport naming scheme and PGAS
+
+#leave blank by default, let x10c++ choose a sensible default
+#export X10RTTRANSPORT	?= -x10rt pgas_lapi
+
+export X10CXXFLAGS 	?= -report postcompile=5 $(X10RTTRANSPORT)
+
 
 
 # <END> user settings #

@@ -4,20 +4,9 @@
 
 # AIX with XLC
 #
-export POSTCOMPILE_CXX		?= mpCC_r
-export POSTCOMPILE_CXXFLAGS 	?=
-export POSTCOMPILE_LDFLAGS	?= 
-export POSTCOMPILE_LIBS		?= 
-
-export POSTCOMPILE_OPTFLAGS	?= -DNO_CHECKS
-export POSTCOMPILE_DBGFLAGS	?= -g
-
 export POSTCOMPILE_NATIVE_LIB_FLAGS ?= -O3 -q64 -qarch=pwr5 -qtune=pwr5 -qhot -qinline -qrtti=all -DNDEBUG
 
-export POSTCOMPILE_INCLUDEOPT ?= -qinclude=
-
 export BLAS_LIB		?= -lessl
-export EXTRA_LIBS	?= 
 
 export USE_MEDIUM_PAGES ?= 1
 
@@ -27,7 +16,6 @@ export USE_MEDIUM_PAGES ?= 1
 #export POSTCOMPILE_CXXFLAGS 	?= -w -q64 -DTRANSPORT=${PGASTRANSPORT}
 
 #export POSTCOMPILE_OPTFLAGS	?= -O3 -qarch=pwr5 -qtune=pwr5 -qhot -qinline -qrtti=all -DNDEBUG -DNO_CHECKS
-#export POSTCOMPILE_DBGFLAGS	?= -g
 
 export POSTCOMPILE_AR		?= ar
 export POSTCOMPILE_ARFLAGS	?= -X64 -rv
