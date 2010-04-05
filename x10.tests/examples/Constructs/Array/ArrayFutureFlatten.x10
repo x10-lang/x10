@@ -20,8 +20,8 @@ import harness.x10Test;
 public class ArrayFutureFlatten extends x10Test {
 
     public def run(): boolean = { 
-        val A = Array.make[int]([1..10, 1..10]->here, (Point)=>0);
-        val B = Array.make[int]([1..10, 1..10]->here, (Point)=>0);
+        val A = new Array[int]([1..10, 1..10], (Point)=>0);
+        val B = new Array[int]([1..10, 1..10], (Point)=>0);
         val b = (future 3) .force();
         chk(0 == (future B(1,1)).force());
         return true;

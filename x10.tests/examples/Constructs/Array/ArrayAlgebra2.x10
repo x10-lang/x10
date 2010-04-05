@@ -28,7 +28,7 @@ import harness.x10Test;
 public class ArrayAlgebra2 extends x10Test {
 
     public const N: int = 24;
-    def makeArray(D: Dist, k: Boolean): Array[Boolean](D) = Array.make[Boolean](D, (Point)=>k);
+    def makeArray(D: Dist, k: Boolean): DistArray[Boolean](D) = DistArray.make[Boolean](D, (Point)=>k);
 
     public def run(): Boolean = {
 
@@ -39,7 +39,7 @@ public class ArrayAlgebra2 extends x10Test {
         val D1: Dist = D | (N/4)..N/2-1;
         val D2: Dist = D | (N/2)..3*N/4-1;
         val D3: Dist = D | (3*N/4)..N-1;
-        val ia1: Array[Boolean] =
+        val ia1: DistArray[Boolean] =
             makeArray(D, false)
                 .overlay((makeArray(D01, true) || makeArray(D23, false))
                 .overlay(makeArray(D3, true))
@@ -57,7 +57,7 @@ public class ArrayAlgebra2 extends x10Test {
         //TODO: scan does not need a unit operand
 
         arrEq(ia1.scan(Boolean.|, false),
-              Array.make[Boolean](D, (p(i): Point(1)) => (ia1 | 0..i).reduce(Boolean.|, false)));
+              DistArray.make[Boolean](D, (p(i): Point(1)) => (ia1 | 0..i).reduce(Boolean.|, false)));
 
         arrEq((makeArray(D0, true) || makeArray(D1, false)).lift(Boolean.^,makeArray(D01, true)),
               (makeArray(D0, false) || makeArray(D1, true)));
@@ -74,7 +74,7 @@ public class ArrayAlgebra2 extends x10Test {
      * Throw an error iff x and y are not arrays with same
      * content and dist
      */
-    static def arrEq(val x: Array[Boolean], val y: Array[Boolean]): void = {
+    static def arrEq(val x: DistArray[Boolean], val y: DistArray[Boolean]): void = {
         chk(x.dist.equals(y.dist));
         finish ateach (val p: Point in x) chk(x(p) == y(p));
     }

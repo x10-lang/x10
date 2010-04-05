@@ -21,18 +21,17 @@ public class Array2v extends x10Test {
 
         val e = 0..9;
         val r = [e, e, e] as Region;
-        val d = Dist.makeConstant(r, here);
 
-        chk(d.equals(Dist.makeConstant([0..9, 0..9, 0..9], here)));
+        chk(r.equals([0..9, 0..9, 0..9] as Region));
 
-        val ia = Array.make[int](d, (Point)=>0);
+        val ia = new Array[int](r, (Point)=>0);
 
-        for (val (i,j,k): Point in d) {
+        for (val (i,j,k): Point in r) {
             chk(ia(i, j, k) == 0);
             ia(i, j, k) = 100*i + 10*j + k;
         }
 
-        for (val (i,j,k): Point in d) {
+        for (val (i,j,k): Point in r) {
             chk(ia(i, j, k) == 100*i + 10*j + k);
         }
 
