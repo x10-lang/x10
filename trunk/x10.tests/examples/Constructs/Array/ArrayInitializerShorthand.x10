@@ -18,11 +18,8 @@ import harness.x10Test;
 public class ArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
-
         val r:Region(2) = [1..10,1..10];
-
-        val d  = Dist.makeConstant(r, here);
-        val ia = Array.make[double](d, (val (i,j): Point)=> i+j as Double);
+        val ia = new Array[double](r, (val (i,j): Point)=> i+j as Double);
 
         for (val p(i,j): Point{rank==2} in r) chk(ia(p) == i+j);
 

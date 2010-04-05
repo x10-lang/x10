@@ -45,9 +45,7 @@ public class UserArrayBounds1D extends x10Test {
     * no array bounds exception occurred
     */
    private static def arrayAccess(lb1: int, ub1: int,  i: int): boolean {
-      val a = Array.make[Int](
-          Dist.makeConstant([lb1..ub1], here), 
-          ((i): Point):Int =>  0);
+      val a = new Array[Int](lb1..ub1, ((i): Point):Int =>  0);
 
       var withinBounds: boolean = true;
       try {

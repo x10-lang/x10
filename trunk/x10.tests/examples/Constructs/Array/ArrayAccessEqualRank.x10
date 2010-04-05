@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class ArrayAccessEqualRank extends x10Test {
 
-    public def arrayEqual(A: Array[int], B: Array[int](A.rank)) {
+    public def arrayEqual(A: DistArray[int], B: DistArray[int](A.rank)) {
         finish
             ateach (p in A.dist) {
             val v = at (B.dist(p)) B(p);
@@ -32,8 +32,8 @@ public class ArrayAccessEqualRank extends x10Test {
     public def run(): boolean = {
 
 	val D = Dist.make(0..9 as Region);
-        val a = Array.make[Int](D, (Point)=>0), 
-	b = Array.make[Int](D,(Point)=>0);
+        val a = DistArray.make[Int](D, (Point)=>0), 
+	b = DistArray.make[Int](D,(Point)=>0);
 	arrayEqual(a,b);
         return true;
     }

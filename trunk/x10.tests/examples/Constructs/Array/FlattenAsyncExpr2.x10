@@ -22,10 +22,10 @@ import harness.x10Test;
 
 public class FlattenAsyncExpr2 extends x10Test {
 
-    global val a: Array[int](1);
+    global val a: DistArray[int](1);
 
     public def this(): FlattenAsyncExpr2 = {
-        a = Array.make[int](1..10 -> here, ((j): Point): int => { return 2*j;});
+        a = DistArray.make[int](1..10 -> here, ((j): Point): int => { return 2*j;});
     }
 
     global def m(x: int) = x;

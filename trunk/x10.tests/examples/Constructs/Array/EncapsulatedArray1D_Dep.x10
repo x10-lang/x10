@@ -27,8 +27,8 @@ import harness.x10Test;
 public class EncapsulatedArray1D_Dep extends x10Test {
     
     static struct Wrapper{
-        val m_array: Array[double](2);
-        def this(var a_array: Array[double](2)): Wrapper = {
+        val m_array: DistArray[double](2);
+        def this(var a_array: DistArray[double](2)): Wrapper = {
             m_array=a_array;
         }
     }
@@ -40,9 +40,9 @@ public class EncapsulatedArray1D_Dep extends x10Test {
         val D  = Dist.makeUnique(); 
         val numOfPlaces = Place.MAX_PLACES;
         
-        val A  = Array.make[Wrapper](D);
+        val A  = DistArray.make[Wrapper](D);
         finish ateach (val (i): Point in D) 
-        A(i)=Wrapper(Array.make[double](R->here, (Point)=>0.0D));
+        A(i)=Wrapper(DistArray.make[double](R->here, (Point)=>0.0D));
         
         //for (int i=0;i<numOfPlaces;i++){    
         finish ateach (val (i): Point in D) { 

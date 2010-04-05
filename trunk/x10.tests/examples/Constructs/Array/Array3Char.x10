@@ -18,7 +18,7 @@ public class Array3Char extends x10Test {
 
     public def run(): boolean = {
         val r  = [1..10, 1..10] as Region;
-        val ia  = Array.make[Char](r, (x:Point)=>'_');
+        val ia  = new Array[Char](r, (x:Point)=>'_');
         ia(1, 1) = 'a';
         return ('a' == ia(1, 1));
     }
