@@ -21,8 +21,7 @@ public class ArrayTypeCheck2 extends x10Test {
 
         val two = 2;
         
-        var a1: Array[int](two) = Array.make[int](Dist.makeConstant([0..2, 0..3], here), 
-         ((i): Point)=> i);
+        var a1: Array[int](two) = new Array[int]([0..2, 0..3], ((i): Point)=> i);
         
         return true;
     }

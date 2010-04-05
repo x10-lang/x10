@@ -18,10 +18,10 @@ import harness.x10Test;
 
 public class FlattenInitFor extends x10Test {
 
-    global val a: Array[int](2);
+    global val a: DistArray[int](2);
 
     public def this(): FlattenInitFor = {
-        a = Array.make[int](([1..10, 1..10] as Region)->here, ((i,j): Point): int => { return i;});
+        a = DistArray.make[int](([1..10, 1..10] as Region)->here, ((i,j): Point): int => { return i;});
     }
     
     public def run(): boolean = {

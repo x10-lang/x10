@@ -30,10 +30,10 @@ import harness.x10Test;
  
 public class FlattenCondAndAnd extends x10Test {
 
-    val a: Array[Boolean](2);
+    val a: Array[Boolean](2)!;
 
     public def this(): FlattenCondAndAnd = {
-        a = Array.make[Boolean](([1..10, 1..10] as Region)->here, ((i,j): Point) => false);
+        a = new Array[Boolean]([1..10, 1..10], ((i,j): Point) => false);
     }
 
     def m(x: boolean)= x;

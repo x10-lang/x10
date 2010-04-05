@@ -28,8 +28,8 @@ public class BlockDistedArray1D extends x10Test {
         for(var i: int = 1;i<N_PLACES;i++) 
         	D=D||(Dist.makeConstant([i*SIZE..(i+1*SIZE-1)], Place.place(i)));
         val Df = D;
-        val intArray: Array[int](Df) = Array.make[int](Df, ((i):Point): int => {return i;}); 
-        val dblArray: Array[double](Df) = Array.make[double](Df, ((i): Point): double => {return i*0.1;});
+        val intArray: DistArray[int](Df) = DistArray.make[int](Df, ((i):Point): int => {return i;}); 
+        val dblArray: DistArray[double](Df) = DistArray.make[double](Df, ((i): Point): double => {return i*0.1;});
         finish 
            ateach (p(i): Point in ALLPLACES) 
               for (val (j): Point in intArray|here) 
