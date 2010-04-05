@@ -114,7 +114,7 @@ public class PlaceCheck1 extends x10Test {
 	public static def checkArrayAccess(): boolean = {
 		var ret: boolean = false;
 		val d = Dist.makeUnique();
-		val arr:Array[int](1) =  Array.make[int](d, (Point) => 123);
+		val arr  =  DistArray.make[int](d, (Point) => 123);
 		try {
 			var other_place: Place = getNotHere();
 			atomic { arr(other_place.id) = 123; }
@@ -132,7 +132,7 @@ public class PlaceCheck1 extends x10Test {
 	public static def checkArrayAssign(): boolean = {
 		var ret: boolean = false;
 		val d  = Dist.makeUnique();
-		val arr: Array[int](1) = Array.make[int](d, ((p): Point): int => 123);
+		val arr = DistArray.make[int](d, ((p): Point): int => 123);
 		try {
 			val other_place: Place = getNotHere();
 			var xxx: int;

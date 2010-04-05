@@ -20,7 +20,7 @@ public class PlaceCast2 extends x10Test {
 	public def run(): boolean = {
 			val d = Dist.makeUnique();
 		x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
-		val disagree = Array.make[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
+		val disagree = DistArray.make[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
 				x10.io.Console.OUT.println("The currentplace is:" + here);
 				return new BoxedBoolean();
 			});
@@ -38,7 +38,7 @@ public class PlaceCast2 extends x10Test {
 		      }
 		}
 		x10.io.Console.OUT.println("nplaces == " + nplaces);
-		return nplaces == Place.places.size();
+		return nplaces == Place.places.length();
 	}
 
 	public static def main(Rail[String]) {
