@@ -2,8 +2,12 @@ package FT;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
+import x10.compiler.NativeCPPInclude;
+import x10.compiler.NativeCPPCompilationUnit;
 
 @NativeRep("c++", "x10aux::ref<FT::Comm>", "FT::Comm", null)
+@NativeCPPInclude("Comm.h")
+@NativeCPPCompilationUnit("Comm.cc")
 final public class Comm {
 
     @Native("c++", "FT::Comm::world()")

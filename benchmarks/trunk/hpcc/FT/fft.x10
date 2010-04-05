@@ -2,7 +2,17 @@ package FT;
 
 import x10.compiler.Native;
 import x10.lang.PlaceLocalHandle;
+import x10.compiler.NativeCPPInclude;
+import x10.compiler.NativeCPPCompilationUnit;
+import x10.compiler.NativeCPPOutputFile;
 
+@NativeCPPInclude("ft_natives.h")
+@NativeCPPOutputFile("hpccfft.h")
+@NativeCPPOutputFile("wrapfftw.h")
+@NativeCPPCompilationUnit("fft235.c")
+@NativeCPPCompilationUnit("wrapfftw.c")
+@NativeCPPCompilationUnit("zfft1d.c")
+@NativeCPPCompilationUnit("ft_natives.cc")
 class fft {
     @Native("c++", "execute_plan(#1, (double *) (#2)->raw(), (double *) (#3)->raw(), #4, #5, #6)")
     native static def execute_plan(plan:Long, A:Rail[Double]!, B:Rail[Double]!, SQRTN:Int, i0:Int, i1:Int):Void;

@@ -2,6 +2,7 @@
 #define __FT_COMM_H
 
 #include <x10rt.h>
+#define TRANSPORT lapi
 #include <pgasrt.h>
 #include <x10/lang/Runtime.h>
 

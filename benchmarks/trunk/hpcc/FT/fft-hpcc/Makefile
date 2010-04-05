@@ -14,7 +14,7 @@ $(LIBFFT): $(OBJS)
 %:%.o
 
 %.o: %.c
-	${POSTCOMPILE_CXX} -Iinclude/ ${POSTCOMPILE_NATIVE_LIB_FLAGS} -c  $<
+	$(CXX) -Iinclude/ ${POSTCOMPILE_NATIVE_LIB_FLAGS} -c  $<
 
 clean:
 	${RM} *.o *.a

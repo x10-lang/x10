@@ -1,3 +1,5 @@
+#ifndef wrapfftw_h
+#define wrapfftw_h
 
 #ifdef USING_FFTW
 
@@ -55,5 +57,7 @@ typedef struct hpcc_fftw_plan_struct *fftw_plan;
 #define fftw_create_plan HPCC_fftw_create_plan
 #define fftw_destroy_plan HPCC_fftw_destroy_plan
 #define fftw_one HPCC_fftw_one
+
+#endif
 
 #endif
