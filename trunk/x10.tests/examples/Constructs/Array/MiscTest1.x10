@@ -44,7 +44,7 @@ public class MiscTest1 extends x10Test {
         chk(D.equals(D3));
 
         // create zero int array x
-        val x: Array[int]{dist==D} = Array.make[int](D);
+        val x: DistArray[int]{dist==D} = DistArray.make[int](D);
 
 
         // set x[i] = N*i with N atomic updates
@@ -83,7 +83,7 @@ public class MiscTest1 extends x10Test {
         }
 
         // test scan
-        val y: Array[int]{dist==D} = x.scan(Int.+, 0);
+        val y: DistArray[int]{dist==D} = x.scan(Int.+, 0);
 
         // y[i] == x[i]+y[i-1], for i>0
         finish {
@@ -101,12 +101,12 @@ public class MiscTest1 extends x10Test {
         chk(sum == (future(D(NP-1)) y(NP-1)).force());
 
         // test lift
-        val z: Array[int]{dist==D} =  x.lift(Int.+, y) as Array[int]{dist==D};
+        val z: DistArray[int]{dist==D} =  x.lift(Int.+, y) as DistArray[int]{dist==D};
 
         finish ateach (val pi in D) chk(z(pi) == x(pi) + y(pi));
 
         // now write back zeros to x
-        x.update(Array.make[int](D));
+        x.update(DistArray.make[int](D));
 
         // ensure x is all zeros
         chk(x.sum() == 0);

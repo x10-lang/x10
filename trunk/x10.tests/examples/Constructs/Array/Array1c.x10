@@ -14,13 +14,8 @@ import harness.x10Test;
 /**
  * Simple array test.
  *
- * Same as Array1 but shorthand forms (such as ia[p]) are used.
- *
- * This only has the difference of a distribution declaration
- * from Array1b, yet it caused a class cast exception at
- * run time (5/2005)
+ * Same as Array1 but shorthand forms (such as ia(p)) are used.
  */
-
 public class Array1c extends x10Test {
 
     public def run(): boolean = {
@@ -37,7 +32,7 @@ public class Array1c extends x10Test {
         chk(d.equals(Dist.makeConstant([e, e], here)));
         chk(d.equals(Dist.makeConstant(r, here)));
 
-        val ia = Array.make[int](d, (Point)=>0);
+        val ia = DistArray.make[int](d, (Point)=>0);
 
         for (val p(i) in e) for (val q(j)  in e) {
             chk(ia(i, j) == 0);
