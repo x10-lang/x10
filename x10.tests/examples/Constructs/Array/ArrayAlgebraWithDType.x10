@@ -27,7 +27,7 @@ public class ArrayAlgebraWithDType extends x10Test {
     public const N: int = 24;
 
     def makeArray(val D: Dist, val k: int): Array[int](D) = {
-        return Array.make[int](D, (Point) => k);
+        return DistArray.make[int](D, (Point) => k);
     }
 
     public def run(): boolean = {
@@ -56,7 +56,7 @@ public class ArrayAlgebraWithDType extends x10Test {
         chk(ia1.sum() == 9*N/4);
 
         arrEq(ia1.scan(Int.+, 0),
-              Array.make[Int](D, (var Point (i): Point): int => (ia1 | 0..i).reduce(Int.+)));
+              DistArray.make[Int](D, (var Point (i): Point): int => (ia1 | 0..i).reduce(Int.+)));
         
         arrEq(makeArray(D01, 1).lift(Int.+, makeArray(D01, -4)), makeArray(D01, -3));
 
@@ -69,7 +69,7 @@ public class ArrayAlgebraWithDType extends x10Test {
      * Throw an error iff x and y are not arrays with same
      * content and dist
      */
-    static def arrEq(val x: Array[int], val y: Array[int]): void = {
+    static def arrEq(val x: DistArray[int], val y: DistArray[int]): void = {
         chk(x.dist.equals(y.dist));
         finish ateach (val p: Point in x) chk(x(p) == y(p));
     }
