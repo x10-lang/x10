@@ -1,201 +1,98 @@
+package ssca2;
 
-class betweenessCentrality implements ((graph) => Rail(DOUBLE_T)) {
+import x10.util.*;
 
-   def apply (graph: G): Rail(DOUTLE_T)) {
-     foreach((tid): (0..nthreds-1)) {
-       val numV = 1 << K4Approx;
-    
-        val myCount = 0;
-        val MAX_NUM_PHASES = 100;
-        val permV: Rail(LONG_T);
+import x10.compiler.Native;
 
-        if (tid == 0) {
-          permV = Rail.make(LONG_T)(n);
-          chunkSize = n/nthreads;
-        }
-  
-    /* #pragma omp barrier */
+import x10.util.concurrent.atomic.AtomicBoolean;
 
-    foreach ((i): (tid*chunksize..(tid+1)*chunkSize-1)) {
-      permV(i)= i;
-    }
+class findSubGraphs_dist  {
 
-    if (tid == 0) {
-        srand48(SCALE*387543);
-        for((i):(0..n-1)) {
-            j = lrand48() % n;
-            k = permV(i);
-            permV(i) = permV(j);
-            permV(j) = k;
-    }     
-   }
+      public static def compute (pg: defs.pGraph, place: Int, world: Comm!, sourceList: Rail[defs.edge]!, SubGraphPathLength: Int) {
 
-    /* #pragma omp barrier */
+       //  val GLOBALS = at (defs.container) {defs.container.globals};
 
+       for ((elem) in 0..sourceList.length-1) {
+         val srcEdge = sourceList(elem);
 
-   if (tid==0)  time =omp_get_wtime();
+           val pg_here = pg.restrict_here();
+           val vertices = pg_here.vertices;
+           val visited = Array.make[Boolean](vertices);
+           var lcount: Int= 0;
+           for ((i) in vertices) visited(i) = false;
+           val L = Rail.make[Rail[types.VERT_T]!](SubGraphPathLength+1, (i:Int)=>Rail.make[types.VERT_T](0));
 
-   #pragma omp barrier
+           val source = srcEdge.endVertex;   
 
-   if (tid == 0) {
-     S = Rail(VERT_T)(n);
-     P = Rail(dynArray)(n);
-     sig = Rail(LONG_T)(n);
-     d = Rail(LONG_T)(n);
-     del =Rail(DOUBLE_T)(n);
-     start=Rail(LONG_T)(MAX_NUM_PHASES);
-     end=Rail(LONG_T)(MAX_NUM_PHASES);
-     psCount = Rail(LONG_T)(nthreds+1);
-   }
-
-    myS = Rail(LONG_T)(n);
-    myCount = 0;
-
-    for((i):(0..n-1)) {
-      intiDynArray(P(i));
-      d(i) = -1;
-    }  
-
-    /* #pragma omp barrier */
-
-    for((p): (0..numV-1)) {
-      i = permV(p);
-      if (tid==0) {
-        sig(i) = 1;
-        d(i) = 0;
-        S(0) = i;
-        start(0) = 0;
-        end(0) = 1;
-      }
-    }
-
-        count = 1;
-        numPhases = 0;
-
-        /* #pragma omp barrier */
-
-        while (end(numPhases) - start(numPhases) > 0) {
-
-            myCount = 0;
-
-            /* #pragma omp barrier */
-
-            for ((vert): (start(numPhases)..end(numPhases)-1)) {
-              async {
-                v = S(vert);
-                for ((j):(G.numEdges(v)..G.numEdges(v+1)-1)) {
-
-                    /* Filter edges with weights divisible by 8 */
-                    if ((G.weight(j) & 7) != 0) {
-                        w = G.endV(j);
-                        if (v != w) {
-                            atomic {
-                                /* w found for the first time? */
-                                if (d(w) == -1) {
-                                    myS(myCount++) = w;
-                                    d(w) = d(v) + 1;
-                                    sig(w) = 0;
-                                    sig(w) += sig(v);
-                                    dynArrayInsert(P(w), v);
-                                } else if (d(w) == d(v) + 1) {
-                                   sig(w) += sig(v);
-                                    dynArrayInsert(P(w), v);
-                                }
-                              }
-                            } else {
-                                if ((d(w) == -1) || (d(w) == d(v)+ 1)) {
-                                   atomic {
-                                     sig(w) += sig(v);
-                                     dynArrayInsert(P(w), v);
-                                   }
-                                }
-                            }
-                        }
-                    }
-                }
+            if (pg.owner(source) == here)  {
+              L(0) = Rail.make[types.VERT_T](1);
+              L(0)(0)= source; 
             }
 
-            /* Merge all local stacks for next iteration */
-            numPhases++;
+            if (pg.owner(srcEdge.startVertex) == here) { visited(srcEdge.startVertex) = true; lcount++; }
 
-            psCount(tid+1) = myCount;
+            var l: Int = 0;
+            while (l <= SubGraphPathLength) {
 
-            /* #pragma omp barrier */
+             val N = Rail.make[GrowableRail[types.VERT_T]!](Place.MAX_PLACES, (i:Int)=>new GrowableRail[types.VERT_T](0));
 
-            if (tid == 0) {
-                start(numPhases) = end(numPhases-1);
-                psCount(0) = start(numPhases);
-                for(k=1; k<=nthreads; k++) {
-                    psCount(k) = psCount(k-1) + psCount(k);
+              val frontier: Rail[types.VERT_T]! = L(l);
+              val flength = frontier.length();
+              val frontierSize = world.sum(flength);
+              //x10.io.Console.OUT.println("frontier Size " + frontierSize);
+              if (frontierSize == 0) break;
+
+              for ((i) in 0..flength-1) {
+                val vertex = frontier(i);
+               //if (pg.owner(vertex) != here) continue;
+
+                if (visited(vertex) == true) continue;
+ 
+                visited(vertex) = true;
+                val lo = pg_here.numEdges(vertex);
+                val hi = pg_here.numEdges(vertex+1)-1;
+                  //x10.io.Console.OUT.println("lo..hi " + lo + " " + hi);
+
+                lcount++;
+
+                for ((k) in  lo..hi) {
+                  val neighbor = pg_here.endV(k);
+                  val owner = pg.owner(neighbor);
+                  //x10.io.Console.OUT.println("neibhor " + neighbor + " " + owner);
+                  N(owner.id).add(neighbor);
                 }
-                end(numPhases) = psCount(nthreads);
-            }
-
-             /* #pragma omp barrier */
-
-            for (k = psCount(tid); k < psCount(tid+1); k++) {
-                S(k) = myS(k-psCount(tid));
-            }
-
-            /* #pragma omp barrier */
-            count = end(numPhases);
-        }
-
-        numPhases--;
-
-        /* #pragma omp barrier */
-
-          while (numPhases > 0) {
-            for (j=start(numPhases); j<end(numPhases); j++) {
-              async {
-                w = S(j);
-                for (k = 0; k<P(w).count; k++) {
-                    v = P(w).vals(k);
-                    atomic {
-                      del(v) = del(v) + sig(v)*(1+del(w))/sig(w);
-                    }
-                }
-                BC(w) += del(w);
               }
+
+             if (l == SubGraphPathLength)  break;
+
+       /*      for ((place)  in unique) {
+               val N_q : GrowableRail[types.VERT_T]! = N(place);
+               val mlength = N_q.length();
+               for ((i) in 0..mlength-1) {
+                   x10.io.Console.OUT.println ("N: " + N_q(i)); 
+                }
+             } */
+
+              L(l+1) = world.alltoallv[types.VERT_T](N);
+  
+                
+             /* val M = L(l+1);
+             val mlength = M.length();
+             for ((i) in 0..mlength-1) {
+                 x10.io.Console.OUT.println ("M: " + M(i)); 
+             } */
+
+
+
+             l = l  + 1;
             }
 
-            /* #pragma omp barrier */
+            val count = world.sum(lcount);
 
-            numPhases--;
-
-            /* #pragma omp barrier */
-
-        }
-
-        if (tid == 0) {
-            chunkSize = count/nthreads;
-        }
-
-        /* #pragma omp barrier*/
-        for ((j):[tid*chunkSize..(tid+1)*chunkSize-1]) {
-            w = S[j];
-            d[w] = -1;
-            del[w] = 0;
-            P[w].count = 0;
-        }
-
-        /* #pragma omp barrier */
-
-    }
-
-   if (tid == 0) {
-        time = omp_get_wtime() - time;
-    }
+            if (place == 0)
+             x10.io.Console.OUT.println("Search from <" + srcEdge.startVertex + " ," + srcEdge.endVertex + " > " + "number of vertices visited: " + count);
+             world.barrier();
+         }         
 }
-
- /* Verification */
-    sum = 0;
-    n = G.n;
-    numV = 1<<K4Approx;
-    for ((i): [0..n-1]) {
-        sum += BC(i);
-        // fprintf(stderr, "%lf ", BC[i]);
-    }
-    x10.io.Console.OUT.println("BC sum: " + sum);
 }
-
+	

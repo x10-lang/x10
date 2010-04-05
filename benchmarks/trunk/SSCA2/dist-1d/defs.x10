@@ -3,7 +3,6 @@ import x10.util.*;
 import x10.lang.PlaceLocalHandle;
 
 public class defs {
-	
 	public static val container: defs! = new defs();
 	
 	public static  def init (val SCALE: types.INT_T) {
@@ -22,22 +21,36 @@ public class defs {
 	static val B: types.DOUBLE_T=0.1;
 	static val C: types.DOUBLE_T=B;
 	static val D: types.DOUBLE_T=0.25;
+
+
+        public static struct graphSDG {
+        public global val startVertex: Rail[types.VERT_T];
+        public global val endVertex: Rail[types.VERT_T];
+        public global val weight: Rail[types.WEIGHT_T];
+
+        public global val m: types.LONG_T;
+        public global val n : types.LONG_T;
+        public def this (m: types.LONG_T, n : types.LONG_T, v0: Rail[types.VERT_T]!, v1: Rail[types.VERT_T]!, weight: Rail[types.WEIGHT_T]!) {
+                startVertex = v0;
+                endVertex = v1;
+                this.weight = weight;
+                this.m = m;
+                this.n = n;
+        }
+        };
 	
-	public static struct graphSDG {
-	public global val startVertex: Rail[types.VERT_T];
-	public global val endVertex: Rail[types.VERT_T];
-	public global val weight: Rail[types.WEIGHT_T];
+	public static class graphSDG_dist {
+        public global val etriplets: Rail[types.UVWTriplet]!;
 	
 	public global val m: types.LONG_T;
 	public global val n : types.LONG_T;
-	public def this (m: types.LONG_T, n : types.LONG_T, v0: Rail[types.VERT_T]!, v1: Rail[types.VERT_T]!, weight: Rail[types.WEIGHT_T]!) {
-		startVertex = v0;
-		endVertex = v1;
-		this.weight = weight;
+	public def this (m: types.LONG_T, n : types.LONG_T, etriplets: Rail[types.UVWTriplet]!) {
+                this.etriplets = etriplets;
 		this.m = m;
 		this.n = n;
 	}
 	};
+
  public static struct graph {
         global val n: types.LONG_T;
         global val m: types.LONG_T;
@@ -105,7 +118,7 @@ public static class pGraph {
         };
 
 	
-	public static class edge {
+	public static struct edge {
         public global val startVertex: types.VERT_T;
 	public global val endVertex: types.VERT_T;
 	public global val w: types.WEIGHT_T;

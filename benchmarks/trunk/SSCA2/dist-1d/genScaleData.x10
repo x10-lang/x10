@@ -12,7 +12,7 @@ public class genScaleData  {
 	}
 	public static def init_sprng_wrapper(val tid: Int, val nthreads: Int, val seed: Int): Long{
 		var tmp: Long = -1;
-	{@Native("c++", "tmp = (long) init_sprng(0, tid, nthreads, seed, SPRNG_DEFAULT);") {} }
+	{@Native("c++", "tmp = (long) init_sprng(SPRNG_LCG64, tid, nthreads, 985456376, SPRNG_DEFAULT);") {} }
 	return tmp;
 	}
 	public static def compute():  Pair[Double, defs.graphSDG] {
@@ -25,7 +25,6 @@ public class genScaleData  {
 		
 		val src = Rail.make[types.VERT_T](m);
 		val dest = Rail.make[types.VERT_T](m);
-		val  permV = Rail.make[types.VERT_T](n);
 		val wt = Rail.make[types.WEIGHT_T](m);
 		
 		val seed = 2387;
@@ -113,29 +112,36 @@ public class genScaleData  {
 			
 			next;
 			
-			//x10.io.Console.OUT.println(src + " " + dest);
-			for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
-				permV(i) = i;
-			}
+			x10.io.Console.OUT.println(src + " " + dest);
+           
+		         val key = Rail.make[types.VERT_T](n);
+		         val value = Rail.make[types.VERT_T](n);
+			 for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
+
+                                val j = (n*sprng_wrapper(stream(0))) as types.VERT_T;
+				key(i) = j;
+                                value(i) = i;
+			} 
 			
 			next;
 			
-			for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
-				val j = (n*sprng_wrapper(stream(tid))) as types.VERT_T;
-				if (i != j) {
-					atomic {
-						val tmpVal = permV(i);
-						permV(i) = permV(j);
-						permV(j) = tmpVal;
-					}
-				}
-			}
+			 for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
+                                for ((j) in (i+1)..(tid+1)*chunkSize_n-1) {
+                                   atomic {
+                                     if (key(i) > key(j)) {
+                                        val tmp = value(i);
+                                        value(i) = value(j);
+                                        value(j) = tmp;      
+                                      }
+                                    }
+                                }
+                         }
 			
 			next; 
 			
 			for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
-				src(i) = permV(src(i));
-				dest(i) = permV(dest(i));
+				src(i) = value(src(i));
+				dest(i) = value(dest(i));
 			}
 			// x10.io.Console.OUT.println("srcs " + src + "dests" + dest);
 			

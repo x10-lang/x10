@@ -1,8 +1,8 @@
 
-SRCS	:= SSCA2.x10 runtime_consts.x10 types.x10 defs.x10 util.x10 genScaleData.x10 computeGraph.x10 getStartLists.x10 findSubGraphs.x10  findSubGraphs_dist.x10 Comm.x10
+SRCS	:= SSCA2.x10 runtime_consts.x10 types.x10 defs.x10 util.x10 genScaleData.x10 genScaleData_dist.x10 computeGraph.x10 getStartLists.x10 findSubGraphs.x10  findSubGraphs_dist.x10 Comm.x10 getStartLists_dist.x10 computeGraph_dist.x10 Triplet.x10
   
 
-NATIVE_HDR	:= $(PWD)/sprng2.0/sprng.h  ${POSTCOMPILE_INCLUDEOPT} mpi.h ${POSTCOMPILE_INCLUDEOPT} pgasrt.h
+NATIVE_HDR	:= $(PWD)/sprng2.0/sprng.h  ${POSTCOMPILE_INCLUDEOPT}mpi.h ${POSTCOMPILE_INCLUDEOPT}/bench1/x10-2.0/x10.dist/include/pgasrt.h
 NATIVE_LIB	:= $(PWD)/sprng2.0/lib/libsprng.a
 NATIVE_INC	:= 
 NATIVE_COMM_HDR := 

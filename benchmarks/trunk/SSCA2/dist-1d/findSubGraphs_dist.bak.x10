@@ -2,6 +2,7 @@ package ssca2;
 
 import x10.util.*;
 
+import x10.compiler.Native;
 
 import x10.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,91 +36,108 @@ class findSubGraphs_dist  {
                 }
              pg_here.numEdges(pg_here.vertices.max(0)+1) = gNumEdges(pg_here.vertices.max(0)+1) - lo;
 
-             for ((i) in pg_here.vertices) {
+             /* for ((i) in pg_here.vertices) {
                          val low = pg_here.numEdges(i);
                          val high = pg_here.numEdges(i+1);
                          for ((j) in  low..high-1) {
                                  x10.io.Console.OUT.println("[ " + i + " " + pg_here.endV(j) +  " " + pg_here.weight(j) + "] " );
                          }
 
-             }
+             } */
             }
          }
 
 
-         val srcEdge = sourceList(0);
+       finish ateach ((p) in unique) {
+         @Native("c++", "MPI_Init(NULL, NULL);") {}
+       }
 
-/*         val Ms = PlaceLocalHandle.make[Rail[GrowableRail[types.VERT_T]!]](unique, ()=>Rail.make[GrowableRail[types.VERT_T]!](Place.MAX_PLACES, (i:Int)=>new GrowableRail[types.VERT_T](0)));
-         val Ns = PlaceLocalHandle.make[Rail[GrowableRail[types.VERT_T]!]](unique, ()=>Rail.make[GrowableRail[types.VERT_T]!](Place.MAX_PLACES, (i:Int)=>new GrowableRail[types.VERT_T](0))); */
+       for ((elem) in 0..sourceList.length-1) {
+         val srcEdge = sourceList(elem);
 
          finish ateach ((p) in unique) {
            val world: Comm! = Comm.WORLD();
            val pg_here = pg.restrict_here();
            val vertices = pg_here.vertices;
            val visited = Array.make[Boolean](vertices);
-           for ((i) in vertices) visited(i) = true;
-           val L = Rail.make[GrowableRail[types.VERT_T]!](GLOBALS.SubGraphPathLength, 
-                                                    (i:Int)=>new GrowableRail[types.VERT_T](0));
-            val source = srcEdge.endVertex;   
-            if (pg.owner(source) == here) L(0).add(source);
-            if (pg.owner(srcEdge.startVertex) == here) visited(srcEdge.startVertex) = true;
+           var lcount: Int= 0;
+           for ((i) in vertices) visited(i) = false;
+           val L = Rail.make[Rail[types.VERT_T]!](GLOBALS.SubGraphPathLength+1, (i:Int)=>Rail.make[types.VERT_T](0));
+
+           val source = srcEdge.endVertex;   
+
+            if (pg.owner(source) == here)  {
+              L(0) = Rail.make[types.VERT_T](1);
+              L(0)(0)= source; 
+            }
+
+            if (pg.owner(srcEdge.startVertex) == here) { visited(srcEdge.startVertex) = true; lcount++; }
 
             var l: Int = 0;
-            while (l < GLOBALS.SubGraphPathLength) {
+            while (l <= GLOBALS.SubGraphPathLength) {
 
-              val N = Ns();
-              val M = Ms();
+             val N = Rail.make[GrowableRail[types.VERT_T]!](Place.MAX_PLACES, (i:Int)=>new GrowableRail[types.VERT_T](0));
 
-              val frontier: GrowableRail[types.VERT_T]! = L(l);
+              val frontier: Rail[types.VERT_T]! = L(l);
               val flength = frontier.length();
               val frontierSize = world.sum(flength);
-
+              //x10.io.Console.OUT.println("frontier Size " + frontierSize);
               if (frontierSize == 0) break;
 
               for ((i) in 0..flength-1) {
                 val vertex = frontier(i);
-                if (pg.owner(vertex) != here) continue;
+               //if (pg.owner(vertex) != here) continue;
 
                 if (visited(vertex) == true) continue;
  
                 visited(vertex) = true;
                 val lo = pg_here.numEdges(vertex);
                 val hi = pg_here.numEdges(vertex+1)-1;
+                  //x10.io.Console.OUT.println("lo..hi " + lo + " " + hi);
+
+                lcount++;
+
                 for ((k) in  lo..hi) {
                   val neighbor = pg_here.endV(k);
                   val owner = pg.owner(neighbor);
-                  ((N as Rail[GrowableRail[types.VERT_T]!]!)(owner.id) as GrowableRail[types.VERT_T!]).add(pg_here.endV(neighbor));
+                  //x10.io.Console.OUT.println("neibhor " + neighbor + " " + owner);
+                  N(owner.id).add(neighbor);
                 }
               }
 
-              //Comm.alltoallv(N, M); 
-              finish for ((i) in unique) {
-                val N_i: GrowableRail[types.VERT_T]! = N(i);
-                val nlength = N_i.length();
-                val tmp = ValRail.make[types.VERT_T](nlength, (k:Int)=>(N_i as GrowableRail[types.VERT_T]!)(k));
-                val there = here.id;
-                async (Place.places(i)) { 
-                  val M = Ms();
-                  val M_there: GrowableRail[types.VERT_T]! =  M(there);
-                  val mlength = M_there.length();
-                  for ((j) in 0..mlength) {
-                    M_there(j) = tmp(j);   
-                  }
-                }
-              }
-   
-             for ((place)  in unique) {
-               val M_q : GrowableRail[types.VERT_T]! = M(place);
-               val mlength = M_q.length();
+             if (l == GLOBALS.SubGraphPathLength)  break;
+
+       /*      for ((place)  in unique) {
+               val N_q : GrowableRail[types.VERT_T]! = N(place);
+               val mlength = N_q.length();
                for ((i) in 0..mlength-1) {
-                   val vertex = M_q(i);
-                   L(l+1).add(vertex);
-               }
-             }
+                   x10.io.Console.OUT.println ("N: " + N_q(i)); 
+                }
+             } */
+
+              L(l+1) = world.alltoallv(N);
+  
+                
+             /* val M = L(l+1);
+             val mlength = M.length();
+             for ((i) in 0..mlength-1) {
+                 x10.io.Console.OUT.println ("M: " + M(i)); 
+             } */
+
+
 
              l = l  + 1;
             }
+
+            val count = world.sum(lcount);
+
+            if (here.id == 0)
+             x10.io.Console.OUT.println("Search from <" + srcEdge.startVertex + " ," + srcEdge.endVertex + " > " + "number of vertices visited: " + count);
          }         
       }
+         finish ateach ((p) in unique) {
+           @Native("c++", "MPI_Finalize();") {}
+         }
+}
 }
 	
