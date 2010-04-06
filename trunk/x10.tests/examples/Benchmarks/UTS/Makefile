@@ -1,4 +1,4 @@
-CXX=g++
+
 CXXFLAGS=-O3 -fomit-frame-pointer 
 ARCHIVER=ar
 ARCHIVERFLAGS=rcs
@@ -21,6 +21,9 @@ libsha1.a: ${SOURCES} ${HEADERS}
 
 uts: uts.cpp sha1_rand.hpp libsha1.a
 	${CXX} ${CXXFLAGS} $< -o $@ -L. -lsha1
+	
+UTS: UTS.x10 sha1_rand.hpp sha1.c
+	x10c++ $< -o $@ -report postcompile=5	
 	
 test: Sha1Rand.cpp libsha1.a
 	${CXX} ${CXXFLAGS} -DSHA1_TEST $< -o $@ -L. -lsha1
