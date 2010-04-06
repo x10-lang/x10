@@ -1392,7 +1392,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public Type Point() {
         if (pointType_ == null)
-            pointType_ = load("x10.lang.Point");
+            pointType_ = load("x10.array.Point");
         return pointType_;
     }
 
