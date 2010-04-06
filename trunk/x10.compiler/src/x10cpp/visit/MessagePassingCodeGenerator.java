@@ -179,6 +179,7 @@ import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
 import x10.ast.RegionMaker_c;
 import x10.ast.SettableAssign_c;
+import x10.ast.StmtExpr_c;
 import x10.ast.StmtSeq_c;
 import x10.ast.SubtypeTest_c;
 import x10.ast.Tuple_c;
@@ -2628,6 +2629,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        n.printBlock(s, sw, tr);
 	        sw.newline();
 	    }
+	}
+
+	public void visit(StmtExpr_c n) {
+	    sw.write("(__extension__ ({");
+	    sw.newline(4); sw.begin(0);
+	    List<Stmt> stmts = n.statements();
+	    for (Stmt stmt : stmts) {
+	        n.printBlock(stmt, sw, tr);
+	        sw.newline();
+	    }
+	    Expr e = n.result();
+	    if (e != null) {
+	        n.print(e, sw, tr);
+	        sw.write(";");
+	    }
+	    sw.end(); sw.newline();
+	    sw.write("}))"); sw.newline();
 	}
 
 

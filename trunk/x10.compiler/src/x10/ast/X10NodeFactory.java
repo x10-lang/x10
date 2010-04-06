@@ -145,7 +145,8 @@ public interface X10NodeFactory extends NodeFactory {
     PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init);
     Special Self(Position pos);
     
-    StmtSeq StmtSeq(Position pos, List<Stmt> l);
+    StmtExpr StmtExpr(Position pos, List<Stmt> statements, Expr result);
+    StmtSeq StmtSeq(Position pos, List<Stmt> statements);
     Expr ConstantDistMaker(Position pos, Expr left, Expr right);
     Expr RegionMaker(Position pos, Expr left, Expr right);
     AssignPropertyCall AssignPropertyCall(Position pos, List<TypeNode> typeArgs, List<Expr> argList);
