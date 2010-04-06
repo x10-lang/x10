@@ -372,7 +372,7 @@ public final class Array[T](
      *       get removed from Array.
      */
 
-    public incomplete safe def restriction(r: Region(rank)): Array[T](rank);    
+    public incomplete safe def restriction(r: Region(rank)): Array[T](rank);
 
     public incomplete safe def restriction(p: Place): Array[T](rank);
 
@@ -380,11 +380,11 @@ public final class Array[T](
 
     public incomplete safe operator this | (p: Place): Array[T](rank);
 
-    public incomplete def lift(op:(T)=>T): Array[T](region);
+    public incomplete def lift(op:(T)=>T): Array[T](region)!;
 
     public incomplete def reduce(op:(T,T)=>T, unit:T): T;
 
-    public incomplete def scan(op:(T,T)=>T, unit:T): Array[T](region);
+    public incomplete def scan(op:(T,T)=>T, unit:T): Array[T](region)!;
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
