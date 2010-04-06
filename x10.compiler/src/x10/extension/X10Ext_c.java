@@ -923,8 +923,8 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       List<Type> annotations= xpd.annotations();
  
       boolean foundAnnotation= false;
-      //Effect e = Effects.makeSafe(); 
-      Effect e = Effects.makeParSafe();
+      Effect e = Effects.makeSafe(); /* FIXME ask vj */
+      //Effect e = Effects.makeParSafe();
       
       for (Type annoType : annotations) {
           if (annoType instanceof ClassType) {

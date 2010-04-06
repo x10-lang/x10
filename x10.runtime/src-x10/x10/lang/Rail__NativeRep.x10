@@ -14,6 +14,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.Pair;
+import x10.compiler.ClockedVar;
 
 // FIXME: should be static class in Rail
 
@@ -298,6 +299,11 @@ import x10.util.Pair;
             finish init.copyTo(0, r, 0, length);
             return r;
         }
+
+    	public static safe def makeClockedRail[T](length: Int): Rail[ClockedVar[T]]!{self.length==length} 
+    	{
+     	   return Rail.make[ClockedVar[T]](length, (int) => new ClockedVar [T] ());
+    	}
 
 
     }

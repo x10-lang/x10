@@ -7,8 +7,8 @@ public class Pipeline {
    public def pipeline() {
   		val c = Clock.make(); 
    		val op = Int.+;
-      	shared var a: int @ Clocked[int] (c, op);
-   		shared var b: int @ Clocked[int] (c, op);
+      	shared var a: int @ Clocked[int] (c, op) = 0;
+   		shared var b: int @ Clocked[int] (c, op) = 0;
  	    async clocked(c)  {
                         var i: int;
                         for (i = 0; i < 10; i++)  {
