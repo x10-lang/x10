@@ -2,10 +2,19 @@ package FT;
 
 import x10.compiler.Native;
 import x10.compiler.Immediate;
-import x10.runtime.PlaceLocalHandle;
-import x10.runtime.PlaceLocalStorage;
+import x10.lang.PlaceLocalHandle;
 import x10.util.Pair;
+import x10.compiler.*;
 
+import util.Comm;
+
+@NativeCPPInclude("ft_natives.h")
+@NativeCPPOutputFile("hpccfft.h")
+@NativeCPPOutputFile("wrapfftw.h")
+@NativeCPPCompilationUnit("fft235.c")
+@NativeCPPCompilationUnit("wrapfftw.c")
+@NativeCPPCompilationUnit("zfft1d.c")
+@NativeCPPCompilationUnit("ft_natives.cc")
 class fft {
     @Native("c++", "execute_plan(#1, (double *) (#2)->raw(), (double *) (#3)->raw(), #4, #5, #6)")
     native static def execute_plan(plan:Long, A:Rail[Double]!, B:Rail[Double]!, SQRTN:Int, i0:Int, i1:Int):Void;
@@ -35,7 +44,7 @@ class fft {
             A = Rail.make[Double](localSize);
             B = Rail.make[Double](localSize);
             //C = Rail.make[Double](localSize);
-             C = Cs.get();
+             C = Cs();
             D = verify ? Rail.make[Double](localSize) : null;
             fftwPlan = create_plan(SQRTN, -1, 0);
             fftwInversePlan = create_plan(SQRTN, 1, 0);
@@ -155,16 +164,16 @@ class fft {
     }
 
     static def transpose_A(FFT:PlaceLocalHandle[Block]) {
-        /* finish  ateach ((p) in unique)*/  FFT.get().transpose();
-        /* finish  ateach ((p) in unique) */ FFT.get().scatter();
+        /* finish  ateach ((p) in unique)*/  FFT().transpose();
+        /* finish  ateach ((p) in unique) */ FFT().scatter();
     }
 
     static def bytwiddle_A(FFT:PlaceLocalHandle[Block], sign:Int) {
-        /* finish  ateach ((p) in unique) */ FFT.get().bytwiddle(sign);
+        /* finish  ateach ((p) in unique) */ FFT().bytwiddle(sign);
     }
 
     static def rowFFTS_A(FFT:PlaceLocalHandle[Block], fwd:Boolean) { 
-        /* finish  ateach ((p) in unique)*/ FFT.get().rowFFTS(fwd);
+        /* finish  ateach ((p) in unique)*/ FFT().rowFFTS(fwd);
     }
 
     static def format(t:Long) = (t as Double) * 1.0e-9;
@@ -192,7 +201,7 @@ class fft {
     }
         
     static def check(FFT:PlaceLocalHandle[Block]) { 
-        /* finish  ateach ((p) in unique)*/ FFT.get().check();
+        /* finish  ateach ((p) in unique)*/ FFT().check();
     }
     
     public static def main(args:Rail[String]!) {
@@ -214,8 +223,8 @@ class fft {
         }
 
         // Initialization
-        val Cs = PlaceLocalStorage.createDistributedObject[Rail[Double]](unique, ()=>Rail.make[Double](localSize));
-        val FFT = PlaceLocalStorage.createDistributedObject[Block](unique, ()=>Block.make(here.id, nRows, localSize, N, SQRTN, verify, Cs));
+        val Cs = PlaceLocalHandle.make[Rail[Double]](unique, ()=>Rail.make[Double](localSize));
+        val FFT = PlaceLocalHandle.make[Block](unique, ()=>Block.make(here.id, nRows, localSize, N, SQRTN, verify, Cs));
 
         @Immediate finish ateach ((p) in unique){
         // FFT

@@ -1,6 +1,7 @@
 package rc7;
 
 import x10.compiler.*;
+import util.Comm;
 
 @NativeCPPInclude("essl_natives.h")
 @NativeCPPCompilationUnit("essl_natives.cc")

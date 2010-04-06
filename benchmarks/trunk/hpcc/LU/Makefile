@@ -1,6 +1,6 @@
 PACKAGE := rc7
 
-SRCS = ${PACKAGE}/LU.x10 ${PACKAGE}/BlockedArray.x10 ${PACKAGE}/Comm.x10 ${PACKAGE}/Timer.x10
+SRCS = ${PACKAGE}/*.x10 ../util/*.x10
 NATIVES = ${PACKAGE}/essl_natives.cc ${PACKAGE}/essl_natives.h
 
 all: lu-opt lu-dbg

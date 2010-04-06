@@ -1,10 +1,11 @@
 package FT;
 
 import x10.compiler.Native;
-import x10.runtime.PlaceLocalHandle;
-import x10.runtime.PlaceLocalStorage;
 import x10.lang.Complex;
 import x10.util.Pair;
+import x10.compiler.*;
+
+import util.Comm;
 
 class Random {
 	@Native("c++", "srandom(#1)")
@@ -21,6 +22,13 @@ class Random {
 }
 
 
+@NativeCPPInclude("ft_natives.h")
+@NativeCPPOutputFile("hpccfft.h")
+@NativeCPPOutputFile("wrapfftw.h")
+@NativeCPPCompilationUnit("fft235.c")
+@NativeCPPCompilationUnit("wrapfftw.c")
+@NativeCPPCompilationUnit("zfft1d.c")
+@NativeCPPCompilationUnit("ft_natives.cc")
 public final class fft {
     @Native("c++", "::cos(#1)")
     static native def nativeCos(x:Double):Double;
@@ -68,10 +76,10 @@ final static class FFTPlans {
             this.N = N;
             nRows = sqrtn/px;
             nCols = sqrtn;
-            plans = PlaceLocalStorage.createDistributedObject[FFTPlans](unique, ()=>new FFTPlans(sqrtn));
+            plans = PlaceLocalHandle.make[FFTPlans](unique, ()=>new FFTPlans(sqrtn));
         }
 
-        def init(verify:Boolean) {
+        global def init(verify:Boolean) {
             val rand = new Random(here.id);
             val A_lcl = A.blockFullHere().block(here.id,0);
             if (verify) {
@@ -94,13 +102,13 @@ final static class FFTPlans {
         	return  FFT;
         }
 
-        def rowFFTS(fwd:Boolean) {
+        global def rowFFTS(fwd:Boolean) {
             val A_raw = (A.blockFullHere()).block(here.id,0).raw;
             val B_raw = (B.blockFullHere()).block(0, here.id).raw;
-            execute_plan(fwd?plans.get().fftwPlan:plans.get().fftwInversePlan, A_raw, B_raw, nCols, 0, nRows);
+            execute_plan(fwd?plans().fftwPlan:plans().fftwInversePlan, A_raw, B_raw, nCols, 0, nRows);
         }
 
-        def bytwiddle(sign:Int) {
+        global def bytwiddle(sign:Int) {
             val A_lcl = (A.blockFullHere()).block(here.id,0);
             val W_N = 2.0 * Math.PI / N;
             for ((i, j): Point in [A_lcl.min_x..A_lcl.max_x, A_lcl.min_y..A_lcl.max_y]) {
@@ -110,10 +118,10 @@ final static class FFTPlans {
 		            val c = nativeCos(W_N * ij);
 		            val s = nativeSin(W_N * ij)*sign;
 		            A_lcl(i, j) = Complex(ar * c + ai * s,  ai * c - ar * s);
-	    }
+            }
         }
 
-        def check() {
+        global def check() {
             val epsilon = 1.0e-15;
             val threshold = epsilon*Math.log(N as double)/Math.log(2.0)*16;
             val A_lcl = (A.blockFullHere()).block(here.id,0);
@@ -124,7 +132,7 @@ final static class FFTPlans {
             }
         }
 
-        def transpose() {
+        global def transpose() {
             val A_lcl = (A.blockFullHere()).block(here.id,0);
             val B_lcl = (B.blockFullHere()).block(0,here.id);
             val n0 = Place.MAX_PLACES;
@@ -152,12 +160,12 @@ final static class FFTPlans {
 
                 val srcIndex = k * chunkSize;
                 val finder = ()=>Pair[Rail[Complex],Int](C.blockFullHere().block(0, here.id).raw, dstIndex);
-                B_lcl.raw.copyTo[Complex](srcIndex, Place.places(k), finder, chunkSize);
-                x10.runtime.NativeRuntime.dealloc(finder);
+                B_lcl.raw.copyTo(srcIndex, Place.places(k), finder, chunkSize);
+                Runtime.dealloc(finder);
             }                   
         }
 
-	def scatter() {
+	global def scatter() {
             val FFTE_NBLK = 16;
             val A_lcl = (A.blockFullHere()).block(here.id, 0);
             val C_lcl = (C.blockFullHere()).block(0, here.id);
@@ -224,7 +232,7 @@ final static class FFTPlans {
     }
         
     
-    public static def main(args:Rail[String]!) {
+    public static def main(args:Rail[String]!) {here==Place.FIRST_PLACE} {
         val M = (args.length > 0) ? Int.parseInt(args(0)) : 10;
         val verify = (args.length > 1) ? Boolean.parseBoolean(args(1)) : true;
         val SQRTN = 1 << M;
@@ -239,7 +247,8 @@ final static class FFTPlans {
 
         if (nRows * Place.MAX_PLACES != SQRTN) {
             Console.ERR.println("SQRTN must be divisible by Place.MAX_PLACES!");
-            System.exit(1);
+            System.setExitCode(1);
+            return;
         }
 
 		// Initialization

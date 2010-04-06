@@ -1,8 +1,8 @@
-package rc7;
+package util;
 
 import x10.compiler.*;
 
-@NativeCPPInclude("essl_natives.h")
+@NativeCPPInclude("pgas_collectives.h")
 final public class Comm {
 
     private global val my_id:Int;
@@ -52,6 +52,14 @@ final public class Comm {
             "void* buf = a->raw();" +
             "unsigned len = a->FMGL(length);" +
             "void *r = __pgasrt_tspcoll_ibcast(FMGL(my_id),  rootRank, buf, buf, len*sizeof(x10_double));" +
+            "x10::lang::Runtime::increaseParallelism();" +
+            "while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
+            "x10::lang::Runtime::decreaseParallelism(1);") {}
+    }
+
+    public def alltoall(a:Rail[Double]!, b:Rail[Double]!, chunkSize:Int) {
+        @Native("c++",
+            "void *r = __pgasrt_tspcoll_ialltoall(FMGL(my_id),  a->raw(), b->raw(), chunkSize*sizeof(x10_double));" +
             "x10::lang::Runtime::increaseParallelism();" +
             "while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
             "x10::lang::Runtime::decreaseParallelism(1);") {}

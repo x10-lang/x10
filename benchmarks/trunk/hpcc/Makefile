@@ -110,7 +110,7 @@ FT-global-dbg:
 FT-global-clean:
 	$(MAKE) -C FT-global clean
 
-clean: FT-clean LU-clean STREAM-clean RA-clean FT-alltoall-clean
+clean: FT-clean LU-clean STREAM-clean RA-clean FT-alltoall-clean FT-global-clean
 
 .PHONY: FT LU STREAM RA
 .PHONY: clean

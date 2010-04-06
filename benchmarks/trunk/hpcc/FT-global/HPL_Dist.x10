@@ -1,8 +1,6 @@
 package FT;
 
 import x10.compiler.Native;
-import x10.runtime.PlaceLocalHandle;
-import x10.runtime.PlaceLocalStorage;
 import x10.util.Random;
 
 public final class HPL_Dist[T] {
@@ -38,7 +36,7 @@ public final class HPL_Dist[T] {
 		public def apply(i:Int, j:Int) = raw(i * delta + j - offset);
 	}
 
-    public final static class LocalArray[T] implements (Int,Int)=>T {
+    public final static class LocalArray[T] {
 
         private val min_x:Int;
         private val min_y:Int;
@@ -77,9 +75,9 @@ public final class HPL_Dist[T] {
         val min_y:Int;
         val max_x:Int;
         val max_y:Int;
-        private val array:LocalArray[T]{self.home==here};
+        private val array:LocalArray[T];
 
-	    public def this(min_x:Int, min_y:Int, max_x:Int, max_y:Int, array:LocalArray[T]{self.home==here}) {
+	    public def this(min_x:Int, min_y:Int, max_x:Int, max_y:Int, array:LocalArray[T]) {
         	this.min_x = min_x;
         	this.min_y = min_y;
         	this.max_x = max_x;
@@ -87,15 +85,16 @@ public final class HPL_Dist[T] {
 			this.array = array;
         }
 
-        def block(I:Int, J:Int) = array.block(I, J);
-        def blockOf(i:Int, j:Int) = array.blockOf(i, j);
-        public def apply(i:Int, j:Int) = array(i, j);
+        // FIXME: [DC] do we need the 'at' constructs here?
+        def block(I:Int, J:Int) = at (array) array.block(I, J);
+        def blockOf(i:Int, j:Int) = at (array) array.blockOf(i, j);
+        public def apply(i:Int, j:Int) = at (array) array(i, j);
         def empty() = array == null;
 
-        def flat_region_min_x() = array.block(min_x, min_y).min_x;
-        def flat_region_min_y() = array.block(min_x, min_y).min_y;
-        def flat_region_max_x() = array.block(max_x, max_y).max_x;
-        def flat_region_max_y() = array.block(max_x, max_y).max_y;   
+        def flat_region_min_x() = at(array) array.block(min_x, min_y).min_x;
+        def flat_region_min_y() = at(array) array.block(min_x, min_y).min_y;
+        def flat_region_max_x() = at(array) array.block(max_x, max_y).max_x;
+        def flat_region_max_y() = at(array) array.block(max_x, max_y).max_y;   
     }
 
     private global val bx:Int;
@@ -109,7 +108,7 @@ public final class HPL_Dist[T] {
         this.by = by;
         this.px = px;
         this.py = py;
-        A = PlaceLocalStorage.createDistributedObject[LocalArray[T]](unique, ()=>new LocalArray[T](M, N, bx, by, px ,py));
+        A = PlaceLocalHandle.make[LocalArray[T]](unique, ()=>new LocalArray[T](M, N, bx, by, px ,py));
     }
 
     def placeOf(i:Int, j:Int) = placeOfBlock(i / bx, j / by);
@@ -119,11 +118,11 @@ public final class HPL_Dist[T] {
     def placeOfBlock(I:Int, J:Int) = I % px * py + J % py;
 
     //a.block(.., ..) | here, where the region is full region
-    def blockFullHere() = A.get();
+    global def blockFullHere() = A();
 
     // a.block(.., ..) | here
     /* def block_restrict_here(min_x:Int, max_x:Int, min_y:Int, max_y:Int) {
-    	val a = A.get();
+    	val a = A();
         val view_min_x = min_x + (px + a.min_x - (min_x % px)) % px;
         val view_min_y = min_y + (py + a.min_y - (min_y % py)) % py;
         val view_max_x = max_x - (px + (max_x % px) - a.min_x) % px;
