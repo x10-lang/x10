@@ -31,7 +31,7 @@ public class FutureTest3 extends x10Test {
 	/**
 	 * Spawns subactivities that cause delayed side-effects.
 	 */
-	def m1(val A: Array[int](1), val K: int): int = {
+	def m1(val A: Array[int](1)!, val K: int): int = {
 		foreach (val (i): Point in A) {
 			Activity.sleep(3000);
 			atomic A(i) += 1;
@@ -45,7 +45,7 @@ public class FutureTest3 extends x10Test {
 	 * Spawns subactivities that cause delayed side-effects
 	 * and exceptions.
 	 */
-	def m2(val A: Array[int](1), val K: int): int = {
+	def m2(val A: Array[int](1)!, val K: int): int = {
 		foreach (val p(i): Point in A) {
 			Activity.sleep(3000);
 			atomic A(i) += 1;
@@ -61,7 +61,7 @@ public class FutureTest3 extends x10Test {
 	 * side effects and exceptions.
 	 */
 	public def run(): boolean = {
-		val A = DistArray.make[int](Dist.makeConstant(0..N-1, here), (Point)=>0);
+		val A = new Array[int](0..N-1, (Point)=>0);
 		val K: int = 3;
 		var gotException: boolean;
 
