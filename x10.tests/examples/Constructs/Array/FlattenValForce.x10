@@ -18,7 +18,7 @@ import harness.x10Test;
 
 public class FlattenValForce extends x10Test {
    
-    static def rd(val e: Array[Future[Int]](1), val i: int)  = {
+    static def rd(val e: Array[Future[Int]](1)!, val i: int)  = {
         val fd = future { 3.0 };
         val x  = fd();
         return future { e(i).force() };
