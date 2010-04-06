@@ -37,7 +37,7 @@
 #include <stdio.h>
 
 #include "sha1.h"
-#include "endian.h"
+#include "sha_endian.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -116,7 +116,7 @@ char * rng_showstate(RNG_state *state, char *s){
 /* describe random number generator type into string */
 int rng_showtype(char *strBuf, int ind) {
   ind += sprintf(strBuf+ind, "SHA-1 (state size = %luB)",
-                 sizeof(struct state_t));
+                 (unsigned long)sizeof(struct state_t));
   return ind;
 }
 
