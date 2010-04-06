@@ -21,8 +21,8 @@ public class ArrayArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
         val r = [1..10, 1..10] as Region(2);
-        val a: Array[int]{region==r} = new Array[int](r, (Point)=>0);
-        val ia: Array[Array[int]!]{rank==2,self.home==here} = new Array[Array[int]!](r, ((i,j): Point) => a);
+        val a = new Array[int](r, (Point)=>0);
+        val ia = new Array[Array[int]](r, ((i,j): Point) => a);
         for (val (i,j): Point(2) in ia) chk(ia(i, j) == a);
         return true;
     }
