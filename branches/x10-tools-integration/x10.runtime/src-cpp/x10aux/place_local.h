@@ -14,12 +14,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
-
-namespace x10 {
-    namespace lang {
-        class Lock__ReentrantLock;
-    }
-}
+#include <x10aux/lock.h>
 
 namespace x10aux {
 
@@ -35,7 +30,7 @@ namespace x10aux {
         static x10_int _nextId;
         static Bucket **_buckets;
         static void** _fastData;
-        static x10aux::ref<x10::lang::Lock__ReentrantLock> _lock;
+        static x10aux::reentrant_lock* _lock;
 
     public:
         static void initialize();

@@ -79,7 +79,7 @@ public class BlockCyclicDistWithPlaceSet extends x10Test {
 		val np: int;
 		val placeSet: Set[Place]!;
 		val placeNums: Rail[Int]!;
-		def this(n: int, a: Rail[Int]!, s: Set[Place]): randPlaceSet = {
+		def this(n: int, a: Rail[Int]!, s: Set[Place]!): randPlaceSet = {
 			np = n;
 			placeNums = a;
 			placeSet = s;

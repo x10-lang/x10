@@ -33,6 +33,14 @@ public class ListTest extends x10Test {
 		}
 		public def append(l: List!):List! = {
 			return (n==0)? l : new List(value, tail.append(l)); 
+			// follow code successfully compiles
+			/*
+			if (n == 0) {
+			    return l;
+			} else {
+			    return new List(value, tail.append(l));
+			}
+			*/
 		}
 		public def nth(k: int): Int = {
 			return k==1 ? value : tail.nth(k-1);
@@ -40,11 +48,20 @@ public class ListTest extends x10Test {
 		}
  
 		public def gen(k: int) = {
+			// following code successfully compiles if return type of gen(Int) is explicitly specified as List!
 			return k==0 ? new List() : new List(k, gen(k-1));
+			// following code successfully compiles even the return type is not explicitly specified.
+			/*
+			if (k == 0) {
+			    return new List();
+			} else {
+			    return new List(k, gen(k-1));
+			}
+			*/
 		}
 	}
 		public def run(): boolean = {
-			a: List = new List(1, new List(2, new List()));
+			a: List! = new List(1, new List(2, new List()));
 			b: Int = a.nth(2);
 			return b==2;
 		}

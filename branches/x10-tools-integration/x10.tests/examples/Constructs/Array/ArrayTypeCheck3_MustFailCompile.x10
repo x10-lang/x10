@@ -19,7 +19,7 @@ public class ArrayTypeCheck3_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
         val a1:Array[Int](3)  =  // should be Array[Int](2)
-            Array.make[Int](Dist.makeConstant([0..2, 0..3], here), (p(i): Point)=>i);
+            new Array[Int]([0..2, 0..3] as Region(2), (p(i): Point)=>i);
         return true;
     }
 

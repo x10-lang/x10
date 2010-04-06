@@ -19,6 +19,8 @@ import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.TypeCheckTypeGoal;
+import polyglot.ast.TypeNode;
+import polyglot.frontend.Globals;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.types.ClassDef;
 import polyglot.types.CodeDef;
@@ -47,13 +49,25 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Flags;
+import x10.types.XTypeTranslator;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
 
+/**
+ * The X10 version of a CanonicalTypeNode. 
+ * Has an associated DepParameterExpr.
+ * @author vj
+ *
+ */
 public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode,
 AddFlags {
+	
+	  public X10CanonicalTypeNode_c(Position pos, Type type) {
+			this(pos, Types.<Type>ref(type));
+		    }
     public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type) {
 	super(pos, type);
     }
@@ -99,6 +113,7 @@ AddFlags {
     }
 
  
+  
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	X10Context c = (X10Context) tc.context();
@@ -213,13 +228,16 @@ AddFlags {
 	    X10ClassType ct = (X10ClassType) t;
 	    X10ClassDef def = ct.x10Def();
 	    if (ct.typeArguments().size() != def.typeParameters().size())
-		throw new SemanticException("Invalid type; parameterized class " + def.fullName() + " instantiated with incorrect number of arguments.", position());
+		throw new SemanticException("Invalid type; parameterized class " 
+		                            + def.fullName() 
+		                            + " instantiated with incorrect number of arguments.", position());
 
 	    for (int j = 0; j < ct.typeArguments().size(); j++) {
 	        Type actualType = ct.typeArguments().get(j);
 	        ParameterType correspondingParam = def.typeParameters().get(j);
 	        if (actualType.isVoid()) {
-                    throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with type " + actualType + ".", position());
+                    throw new SemanticException("Cannot instantiate invariant parameter " 
+                                                + correspondingParam + " of " + def + " with type " + actualType + ".", position());
 	        }
 	    }
 	    

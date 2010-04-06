@@ -23,8 +23,9 @@ import java.util.Vector;
 
 import polyglot.ast.SourceFile;
 import polyglot.frontend.Job;
+import polyglot.frontend.TargetFactory;
 import polyglot.util.SimpleCodeWriter;
-import x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
+import x10cpp.visit.X10CPPTranslator;
 
 /**
  * This class represents a collection of output streams. Each stream has an associated
@@ -41,18 +42,15 @@ import x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 public class WriterStreams {
     private Map<String, SimpleCodeWriter> codeWriters;
     private Vector<ClassifiedStream> streams;
-    private DelegateTargetFactory targetFactory;
     private Job job;
+    private TargetFactory targetFactory;
     private String pkg;
     private String className;
 
-    public WriterStreams(String className, String pkg,
-                         DelegateTargetFactory tf,
-                         Job job) throws IOException
-    {
+    public WriterStreams(String className, String pkg, Job job, TargetFactory targetFactory) throws IOException {
         streams = new Vector<ClassifiedStream>();
         codeWriters = new TreeMap<String,SimpleCodeWriter>();
-        targetFactory = tf;
+        this.targetFactory = targetFactory;
         this.job = job;
         this.pkg = pkg;
         this.className = className;
@@ -71,7 +69,7 @@ public class WriterStreams {
             extensions.add(s.ext);
         }
         for (String ext : extensions) {
-            final File file = targetFactory.integratedOutputFile(pkg, className, null, ext);
+            final File file = X10CPPTranslator.outputFile(job.extensionInfo().getOptions(), pkg, className, ext);
             codeWriters.put(ext,
                             new SimpleCodeWriter(targetFactory.outputWriter(file),
                                                  job.compiler().outputWidth()));
@@ -140,7 +138,7 @@ public class WriterStreams {
      * @return the name of the file
      */
     public String getStreamName(String ext) {
-        return targetFactory.integratedOutputName(pkg, className, ext);
+        return X10CPPTranslator.outputFileName(pkg, className, ext);
     }
 }
 // vim:tabstop=4:shiftwidth=4:expandtab

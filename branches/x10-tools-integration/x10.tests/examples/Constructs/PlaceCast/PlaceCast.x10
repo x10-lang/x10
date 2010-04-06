@@ -17,7 +17,7 @@ public class PlaceCast extends x10Test {
     public def run()  {
 	  val d: Dist = Dist.makeUnique();
 	  Console.OUT.println("num places = " + Place.MAX_PLACES);
-	  val disagree = Array.make[BoxedBoolean](d, (Point)=> new BoxedBoolean());
+	  val disagree = DistArray.make[BoxedBoolean](d, (Point)=> new BoxedBoolean());
 	  finish ateach (p in d) {
 	      // remember if here and d[p] disagree
 	      // at any activity at any place

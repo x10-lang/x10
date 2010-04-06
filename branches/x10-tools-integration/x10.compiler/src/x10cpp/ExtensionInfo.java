@@ -164,7 +164,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		        protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
 		            if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
 		                return true;
-		            return X10CPPTranslator.postCompile(options, compiler, eq);
+		            return X10CPPTranslator.postCompile((X10CPPCompilerOptions)options, compiler, eq);
 		        }
 		    }.intern(this);
 		}

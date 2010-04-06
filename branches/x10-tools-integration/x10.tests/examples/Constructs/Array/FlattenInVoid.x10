@@ -21,10 +21,10 @@ import harness.x10Test;
 
 public class FlattenInVoid extends x10Test {
 
-    var a: Array[int](2);
+    var a: Array[int](2)!;
 
     public def this(): FlattenInVoid = {
-        a = Array.make[int](([1..10, 1..10] as Region)->here, (var p(i,j): Point): int => { return i+j;});
+        a = new Array[int]([1..10, 1..10], (var p(i,j): Point): int => { return i+j;});
     }
 
     def m(var x: int): boolean = {

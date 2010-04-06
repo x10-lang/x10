@@ -83,7 +83,7 @@ public class ConditionalAtomicQueue extends x10Test {
 		val N = T.N;
 		val NP = Place.MAX_PLACES;
 		val D2  = MyDist.val(N*NP);
-		val received = Array.make[int](D2);
+		val received = DistArray.make[int](D2);
 
 		finish {
 			// spawn producer activities on each place

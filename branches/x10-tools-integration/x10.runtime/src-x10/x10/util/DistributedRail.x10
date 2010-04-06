@@ -14,7 +14,6 @@ package x10.util;
 import x10.util.Pair;
 import x10.util.HashMap;
 
-
 /**
  * @author Dave Cunningham
 */

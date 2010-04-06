@@ -86,8 +86,8 @@ public class ClockPascal extends x10Test {
 			// (nullable Clock)[.] N = does not work
 			// clock[.] N = new clock[D]; should not work but does.
 			// This is a workaround for this bug.
-			var N: Array[Clock](2) = Array.make[Clock](D, (Point)=>Clock.make());
-			var W: Array[Clock](2) = Array.make[Clock](D, (Point)=>Clock.make());
+			var N: Array[Clock](2) = DistArray.make[Clock](D, (Point)=>Clock.make());
+			var W: Array[Clock](2) = DistArray.make[Clock](D, (Point)=>Clock.make());
 
 			// foreach (Point [i,j]: Dinner)
 			//   clocked(N[i-1,j], W[i,j-1], N[i,j], W[i,j]) { ... }

@@ -538,7 +538,7 @@ public class Desugarer extends ContextVisitor {
 
         Expr domain = a.domain();
         Type dType = domain.type();
-        if (((X10TypeSystem_c) xts).isX10Array(dType)) {
+        if (((X10TypeSystem_c) xts).isX10DistArray(dType)) {
             FieldInstance fDist = dType.toClass().fieldNamed(DIST);
             dType = fDist.type();
             domain = xnf.Field(pos, domain, xnf.Id(pos, DIST)).fieldInstance(fDist).type(dType);

@@ -9,10 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.lang;
-
-import x10.compiler.SetOps;
-import x10.array.BaseRegion;
+package x10.array;
 
 /**
  * A Region(rank) represents a set of points of class Point(rank). The

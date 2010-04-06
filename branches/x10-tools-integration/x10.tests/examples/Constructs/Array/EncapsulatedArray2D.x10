@@ -28,8 +28,8 @@ import harness.x10Test;
 public class EncapsulatedArray2D extends x10Test {
     
     static struct Wrapper{
-        val m_array: Array[double](2);
-        def this(var a_array: Array[double](2)) {
+        val m_array: DistArray[double](2);
+        def this(var a_array: DistArray[double](2)) {
             m_array=a_array;
         }
     }
@@ -40,7 +40,7 @@ public class EncapsulatedArray2D extends x10Test {
         val R = [0..size-1, 0..size-1] as Region;
         val D  = Dist.makeCyclic(R, 0); 
         
-        val A = Array.make[Wrapper](D, (Point) => Wrapper(Array.make[double](R->here, (Point)=>0.0D)));
+        val A = DistArray.make[Wrapper](D, (Point) => Wrapper(DistArray.make[double](R->here, (Point)=>0.0D)));
         
                 
         //for (int i=0;i<numOfPlaces;i++){    

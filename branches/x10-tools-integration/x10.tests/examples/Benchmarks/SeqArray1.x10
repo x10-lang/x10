@@ -9,35 +9,34 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import x10.array.LocalRectArray;
 
 /**
- * Basic array, X10-style loop
- *
  * @author bdlucas
  */
-public class SeqLocalArray2b extends Benchmark {
+
+public class SeqArray1 extends Benchmark {
 
     //
     // parameters
     //
 
-    val N = 2000;
-    def expected() = 1.0*N*N*(N-1);
-    def operations() = 2.0*N*N;
+    val N = 1000000;
+    val M = 20;
+    def expected() = N*M as double;
+    def operations() = N*M as double;
+
 
     //
     // the benchmark
     //
 
-    val a = new LocalRectArray[double]([0..N-1, 0..N-1] as Region(2){rect}, (Point(2))=>0.0);
+    val a = new Array[double](0..N+M-1, (Point(1))=>1.0);
 
     def once() {
-        for ((i,j):Point(2) in a)
-            a(i,j) = (i+j) as double;
-        var sum:double = 0.0;
-        for ((i,j):Point(2) in a)
-            sum += a(i,j);
+        var sum: double = 0.0;
+        for (var k:int=0; k<M; k++)
+            for (var i:int=0; i<N; i++)
+                sum += a(i+k);
         return sum;
     }
 
@@ -46,6 +45,6 @@ public class SeqLocalArray2b extends Benchmark {
     //
 
     public static def main(Rail[String]) {
-        new SeqLocalArray2b().execute();
+        new SeqArray1().execute();
     }
 }

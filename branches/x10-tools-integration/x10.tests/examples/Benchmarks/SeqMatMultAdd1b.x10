@@ -24,9 +24,9 @@ public class SeqMatMultAdd1b extends Benchmark {
     //
 
     val r = [0..N-1,0..N-1] as Region;
-    val a = Array.make[double](r, (p:Point)=>p(0)*p(1) as double);
-    val b = Array.make[double](r, (p:Point)=>p(0)-p(1) as double);
-    val c = Array.make[double](r, (p:Point)=>p(0)+p(1) as double);
+    val a = new Array[double](r, (p:Point)=>p(0)*p(1) as double);
+    val b = new Array[double](r, (p:Point)=>p(0)-p(1) as double);
+    val c = new Array[double](r, (p:Point)=>p(0)+p(1) as double);
 
     def once() {
         for ((i,j,k):Point in r*(0..N-1))

@@ -409,7 +409,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public Expr ConstantDistMaker(Position pos, Expr e1, Expr e2) {
 		NodeFactory nf = this;
 		TypeSystem ts = this.extensionInfo().typeSystem();
-		Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, QName.make("x10.lang.Dist"));
+		Receiver x10LangDistributionFactory = ReceiverFromQualifiedName(pos, QName.make("x10.array.Dist"));
 		List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
 		l.add(e1);
 		l.add(e2);
@@ -556,7 +556,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type, DepParameterExpr e) {
+	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type type) {
 	    X10CanonicalTypeNode tn = (X10CanonicalTypeNode) CanonicalTypeNode(pos, type);
 	    return tn;
 	}
@@ -738,7 +738,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		l.add(e1);
 		l.add(e2);
 
-		Call n = new RegionMaker_c(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.lang.Region")), nf.Id(pos, "makeRectangular"), l);
+		Call n = new RegionMaker_c(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.array.Region")), nf.Id(pos, "makeRectangular"), l);
 		n = (Call) n.ext(extFactory().extExpr());
 		n = (Call) n.del(delFactory().delExpr());
 		return n;

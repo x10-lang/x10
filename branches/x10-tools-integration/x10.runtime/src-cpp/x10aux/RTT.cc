@@ -15,7 +15,7 @@
 #include <x10aux/atomic_ops.h>
 
 #include <x10/lang/Reference.h>
-#include <x10/lang/Lock__ReentrantLock.h>
+#include <x10/lang/Object.h>
 
 #include <cstdarg>
 
@@ -108,21 +108,21 @@ bool RuntimeType::initStageOne(const RuntimeType *canonical_) {
     // operating on it and we don't get a race with multiple threads partially
     // initializing an RTT.
     while (NULL == initRTTLock) {
-        ref<x10::lang::Lock__ReentrantLock> tmpLock = x10::lang::Lock__ReentrantLock::_make();
+        reentrant_lock* tmpLock = new (alloc<reentrant_lock>())reentrant_lock();
         x10aux::atomic_ops::store_load_barrier();
-        atomic_ops::compareAndSet_ptr((volatile void**)(&initRTTLock), NULL, tmpLock.operator->());
+        atomic_ops::compareAndSet_ptr((volatile void**)(&initRTTLock), NULL, tmpLock);
     }
-    const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->lock();
+    const_cast<reentrant_lock*>(initRTTLock)->lock();
 
     if (canonical != NULL) {
         if (isInitialized) {
-            const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->unlock();
+            const_cast<reentrant_lock*>(initRTTLock)->unlock();
             return true; // another thread finished the job while this thread was blocked on initRTTLock.
         }
         // We should only get here if there is a cyclic intialization in progress.
         // We don't have a 100% foolproof way to be sure that is what is happening, so
         // just hope that is what is happening and return.
-        const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->unlock();
+        const_cast<reentrant_lock*>(initRTTLock)->unlock();
         return true;
     }
     
@@ -171,7 +171,7 @@ void RuntimeType::initStageTwo(const char* baseName_,
     isInitialized = true; // must come after the store_load_barrier
 
     // Unlock paired with lock operation at entry to initStageOne.
-    const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->unlock();
+    const_cast<reentrant_lock *>(initRTTLock)->unlock();
 }
     
 void RuntimeType::initBooleanType() {
@@ -260,6 +260,6 @@ RuntimeType RuntimeType::UShortType;
 RuntimeType RuntimeType::UIntType;
 RuntimeType RuntimeType::ULongType;
 
-volatile x10::lang::Lock__ReentrantLock* RuntimeType::initRTTLock;
+volatile x10aux::reentrant_lock* RuntimeType::initRTTLock;
 
 // vim:tabstop=4:shiftwidth=4:expandtab

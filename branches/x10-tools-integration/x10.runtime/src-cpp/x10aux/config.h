@@ -69,6 +69,17 @@
 #define TRACE_ENV_VAR
 #endif
 
+#ifdef NO_BOUNDS_CHECKS
+#define BOUNDS_CHECK_BOOL false
+#else
+#define BOUNDS_CHECK_BOOL true
+#endif
+
+#ifdef NO_PLACE_CHECKS
+#define PLACE_CHECK_BOOL false
+#else
+#define PLACE_CHECK_BOOL true
+#endif
 
 #ifndef NO_IOSTREAM
 #  include <iostream>
