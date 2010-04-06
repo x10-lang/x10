@@ -20,9 +20,9 @@ import harness.x10Test;
 public class ArrayArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
-        val d = Dist.makeConstant([1..10, 1..10], here);
-        val a: Array[int]{dist==d} = Array.make[int](d, (Point)=>0);
-        val ia: Array[Array[int]]{rank==2} = Array.make[Array[int]](d, ((i,j): Point) => a);
+        val r = [1..10, 1..10] as Region(2);
+        val a = new Array[int](r, (Point)=>0);
+        val ia = new Array[Array[int]](r, ((i,j): Point) => a);
         for (val (i,j): Point(2) in ia) chk(ia(i, j) == a);
         return true;
     }

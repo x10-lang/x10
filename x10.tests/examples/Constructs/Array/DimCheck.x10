@@ -21,7 +21,7 @@ import harness.x10Test;
 public class DimCheck extends x10Test {
 
     public def run() {
-        var a1: Array[int] = Array.make[int](Dist.makeConstant([0..2, 0..3] as Region, here), (p: Point) => p(0));
+        var a1: Array[int] = new Array[int]([0..2, 0..3], (p: Point) => p(0));
         return true;
     }
 

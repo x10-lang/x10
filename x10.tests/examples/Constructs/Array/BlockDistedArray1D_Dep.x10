@@ -31,8 +31,8 @@ public class BlockDistedArray1D_Dep extends x10Test {
         for(var i: int = 1;i<N_PLACES;i++) 
             D=D||(Dist.makeConstant(i*SIZE..(i+1*SIZE-1), Place.place(i)));
 
-        val intArray: Array[int](1) = Array.make[int](D, ((i): Point) => i);
-        val dblArray: Array[double](1) = Array.make[double](D, ((i): Point)=> i*0.1);
+        val intArray: DistArray[int](1) = DistArray.make[int](D, ((i): Point) => i);
+        val dblArray: DistArray[double](1) = DistArray.make[double](D, ((i): Point)=> i*0.1);
 
         finish ateach (val p(i): Point in ALLPLACES) 
             for (val (j): Point in intArray|here) 

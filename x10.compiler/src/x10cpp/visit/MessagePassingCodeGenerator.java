@@ -48,6 +48,10 @@ import static x10cpp.visit.SharedVarsMethods.getUniqueId_;
 import static x10cpp.visit.SharedVarsMethods.make_ref;
 import static x10cpp.visit.SharedVarsMethods.refsAsPointers;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -224,9 +228,9 @@ import x10.util.ClassifiedStream;
 import x10.util.ClosureSynthesizer;
 import x10.util.StreamWrapper;
 import x10.util.Synthesizer;
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.extension.X10ClassBodyExt_c;
 import x10cpp.types.X10CPPContext_c;
-import x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 
 /**
  * Visitor on the AST nodes that for some X10 nodes triggers the template
@@ -618,12 +622,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     private String getHeader(ClassType ct) {
-        DelegateTargetFactory tf = ((X10CPPTranslator) tr).targetFactory();
-        String pkg = "";
+        String pkg = null;
         if (ct.package_() != null)
             pkg = ct.package_().fullName().toString();
         Name name = StaticNestedClassRemover.mangleName(ct.def());
-        String header = tf.outputHeaderName(pkg, name.toString());
+        String header = X10CPPTranslator.outputFileName(pkg, name.toString(), StreamWrapper.Header);
         return header;
     }
 
@@ -636,12 +639,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         classHeader = classHeader.substring(0, classHeader.length()-StreamWrapper.Header.length());
         return classHeader+StreamWrapper.Struct;
     }
-
+    
     void processClass(X10ClassDecl_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		X10ClassDef def = (X10ClassDef) n.classDef();
         X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
         boolean isStruct = xts.isStructType(def.asType());
+        X10Ext ext = (X10Ext) n.ext();
 
 		if (getCppRep(def) != null) {
 			// emit no c++ code as this is a native rep class
@@ -678,13 +682,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         context.hasInits = false;
 
         // Write the header for the class
-        DelegateTargetFactory tf = ((X10CPPTranslator) tr).targetFactory();
         String cheader = getHeader(def.asType());
         String cguard = getHeaderGuard(cheader);
         h.write("#ifndef __"+cguard); h.newline();
         h.write("#define __"+cguard); h.newline();
         h.forceNewline(0);
         h.write("#include <x10rt.h>"); h.newline();
+        h.forceNewline(0);
+        // process annotations relating to additional h/c++ files
+        try {
+            X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
+            List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
+            for (Type at : as) {
+                ASTQuery.assertNumberOfInitializers(at, 1);
+                String include = getStringPropertyInit(at, 0);
+                h.write("#include \""+include+"\""); h.newline();
+            }
+        } catch (SemanticException e) {
+            assert false : e;
+        }
         h.forceNewline(0);
 
         g.write("#ifndef "+cguard+"_GENERICS"); g.newline();
@@ -714,8 +730,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         w.forceNewline(0);
         w.forceNewline(0);
 
-        String incfile = tf.integratedOutputName(context.package_() == null ? "" : context.package_().fullName().toString(),
-                                                 n.name().toString(), StreamWrapper.Closures);
+        String packageName = context.package_() == null ? null : context.package_().fullName().toString();
+        		
+        String incfile = X10CPPTranslator.outputFileName(packageName, n.name().toString(), StreamWrapper.Closures); 
+
         w.write("#include \""+incfile+"\""); w.newline();
         w.forceNewline(0);
 
@@ -3727,20 +3745,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type dType = domain.type();
 		if (Configuration.LOOP_OPTIMIZATIONS &&
 		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
-		        (X10TypeMixin.isRect(dType, context)))
+		        (X10TypeMixin.isRect(dType, context)) &&
+		        (xts.isX10Array(dType) || xts.isX10DistArray(dType) || xts.isDistribution(dType) || xts.isRegion(dType)))
 		{
-		    assert (xts.isPoint(form.type().type()));
-		    assert (xts.isX10Array(dType) || xts.isDistribution(dType) || xts.isRegion(dType));
-
 		    // TODO: move this to the Desugarer
 		    X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
-		    if (xts.isX10Array(dType)) {
+		    if (xts.isX10DistArray(dType)) {
 		        Position pos = domain.position();
-		        FieldInstance fDist = dType.toClass().fieldNamed(Name.make("dist"));
+		        FieldInstance fDist = null;
+		        while (true) {
+		            fDist = dType.toClass().fieldNamed(Name.make("dist"));
+		            if (fDist != null) break;
+		            dType = dType.toClass().superClass();
+		        } 
 		        dType = fDist.type();
 		        domain = xnf.Field(pos, domain, xnf.Id(pos, Name.make("dist"))).fieldInstance(fDist).type(dType);
 		    }
-		    if (xts.isDistribution(dType)) {
+		    if (xts.isDistribution(dType) || xts.isX10Array(dType)) {
 		        Position pos = domain.position();
 		        FieldInstance fRegion = dType.toClass().fieldNamed(Name.make("region"));
 		        dType = fRegion.type();

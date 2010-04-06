@@ -9,9 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.lang;
+package x10.array;
 
-import x10.array.BaseDist;
 import x10.util.Set;
 
 /**

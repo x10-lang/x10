@@ -17,8 +17,8 @@ import harness.x10Test;
  * @author vj
  */
 public class MethodArgDepTypes2 extends x10Test {
-	public static def arraycopy(val a_dest: Array[double], 
-	                            val a_src: Array[double]{rank==a_dest.rank}): void = {	
+	public static def arraycopy(val a_dest: DistArray[double], 
+	                            val a_src: DistArray[double]{rank==a_dest.rank}): void = {	
     	  val R: Region{rank==a_dest.rank} = a_src.region&& a_dest.region; 
     	  finish foreach (val p: Point{rank==a_dest.rank} in R) {
     	  //finish for( point p : R){	  
@@ -27,9 +27,9 @@ public class MethodArgDepTypes2 extends x10Test {
     	  //for( point p : R) a_dest[p]=a_src[p]; //implicit syntax
 	}
   
-	public def m(val a: Array[double]): void = {
-		var result: Array[double] = a;
-		val buffDest: Array[double] = a;
+	public def m(val a: DistArray[double]): void = {
+		var result: DistArray[double] = a;
+		val buffDest: DistArray[double] = a;
 		
 		val buffSrc =  buffDest;
 		arraycopy(buffDest, buffSrc);

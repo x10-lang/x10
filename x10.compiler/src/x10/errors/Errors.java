@@ -580,4 +580,18 @@ public class Errors {
 			return((OnlyValMayHaveHasType)o).position().equals(position());
 		}
 	}
+	public static class CannotFindIndexType extends SemanticException {
+		private static final long serialVersionUID = -8300517312728182918L;
+		public CannotFindIndexType(Type type, Position position) {
+			super("Cannot determine index type for given type."
+					+ "\n\t Type: "  + type,
+					
+					position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotFindIndexType) )
+				return false;
+			return((CannotFindIndexType)o).position().equals(position());
+		}
+	}
 }

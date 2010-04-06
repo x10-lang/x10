@@ -37,7 +37,7 @@ public class ArrayCopy3 extends x10Test {
     /**
      * Does not throw an error iff A[i] == B[i] for all points i.
      */
-    public def arrayEqual(A: Array[int], B: Array[int](A.rank)) {
+    public def arrayEqual(A: DistArray[int], B: DistArray[int](A.rank)) {
         val D = A.dist;
         val E:Dist(A.rank) = B.dist;
         // Spawn an activity for each index to
@@ -56,7 +56,7 @@ public class ArrayCopy3 extends x10Test {
      * regions are equal.
      * Throws an error iff some assertion failed.
      */
-    public def arrayCopy(val A: Array[int], val B: Array[int](A.rank)) {
+    public def arrayCopy(val A: DistArray[int], val B: DistArray[int](A.rank)) {
 
         val D = A.dist;
         val E = B.dist;
@@ -65,10 +65,10 @@ public class ArrayCopy3 extends x10Test {
         val D_1 = Dist.makeUnique(D.places());
 
         // number of times elems of A are accessed
-        val accessed_a = Array.make[int](D, (Point)=>0);
+        val accessed_a = DistArray.make[int](D, (Point)=>0);
 
         // number of times elems of B are accessed
-        val accessed_b  = Array.make[int](E, (Point)=>0);
+        val accessed_b  = DistArray.make[int](E, (Point)=>0);
 
         finish
             ateach (val x: Point in D_1) {
@@ -136,8 +136,8 @@ public class ArrayCopy3 extends x10Test {
             val D: Dist{rank==4} = dist2.getDist(dX, R);
             val E: Dist{rank==4} = dist2.getDist(dY, R);
             chk(D.region.equals(E.region) && D.region.equals(R));
-            val A: Array[int]{rank==4} = Array.make[int](D, (Point)=>0);
-            val B: Array[int]{rank==A.rank} = Array.make[int](E, 
+            val A: DistArray[int]{rank==4} = DistArray.make[int](D, (Point)=>0);
+            val B: DistArray[int]{rank==A.rank} = DistArray.make[int](E, 
             (p(i,j,k,l): Point) => { val x=((i*N+j)*N+k)*N+l; x*x+1});
             arrayCopy(A, B);
             arrayEqual(A, B);

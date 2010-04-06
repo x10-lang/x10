@@ -22,11 +22,7 @@ public class ArrayInitializer extends x10Test {
         val e: Region(1) = 0..9;
         val r= [e, e, e];
 
-        //TODO: next line causes runtime error
-        //dist d=r->here;
-        val d  = Dist.makeConstant([0..9, 0..9, 0..9], here);
-
-        val ia = Array.make[Int](d, (val (i,j,k): Point)=> i);
+        val ia = new Array[Int](r, (val (i,j,k): Point)=> i);
         for (val (i,j,k): Point in ia.region) chk(ia(i, j, k) == i);
 
         return true;

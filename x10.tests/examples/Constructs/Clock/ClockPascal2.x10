@@ -81,11 +81,11 @@ public class ClockPascal2 extends x10Test {
 		val D = Dist.makeConstant([0..N-1, 0..N-1], here);
 		val Dinner = D|([1..N-1, 1..N-1] as Region);
 		val Dboundary = D-Dinner;
-		val A: Array[int](2) = Array.make[int](D, ((i,j):Point)=>Dboundary.contains([i, j]) ? 1 : 0);
+		val A: Array[int](2) = DistArray.make[int](D, ((i,j):Point)=>Dboundary.contains([i, j]) ? 1 : 0);
 		finish async {
-			val N = Array.make[Clock](D, (Point)=>Clock.make());
+			val N = DistArray.make[Clock](D, (Point)=>Clock.make());
 			for ((i,j) in D.region) { N(i, j) = Clock.make(); }
-			val W = Array.make[Clock](D, (Point)=>Clock.make());
+			val W = DistArray.make[Clock](D, (Point)=>Clock.make());
 
 			foreach ((i,j) in Dinner.region)
 			 	clocked(N(i-1,j), W(i,j-1), N(i,j), W(i,j)) {

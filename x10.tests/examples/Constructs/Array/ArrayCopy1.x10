@@ -27,7 +27,7 @@ public class ArrayCopy1 extends x10Test {
      * whose regions are equal.
      */
 
-    public def arrayEqual(val A: Array[int], val B: Array[int]): void = {
+    public def arrayEqual(val A: DistArray[int], val B: DistArray[int]): void = {
 
         val D = A.dist;
         val E = B.dist;
@@ -53,7 +53,7 @@ public class ArrayCopy1 extends x10Test {
      * regions are equal.
      * Throws an error iff some assertion failed.
      */
-    public def arrayCopy(val A: Array[int], val B: Array[int]): void = {
+    public def arrayCopy(val A: DistArray[int], val B: DistArray[int]): void = {
 
         val D = A.dist;
         val E = B.dist;
@@ -87,8 +87,8 @@ public class ArrayCopy1 extends x10Test {
                 val D = dist2.getDist(dX, R);
                 val E = dist2.getDist(dY, R);
                 chk(D.region.equals(E.region) && D.region.equals(R));
-                val A = Array.make[int](D, (Point)=>0);
-                val B = Array.make[int](E,
+                val A = DistArray.make[int](D, (Point)=>0);
+                val B = DistArray.make[int](E,
                     (p(i,j,k,l): Point): int => { 
                         var x: int = ((i*N+j)*N+k)*N+l; 
                         return x*x+1; 

@@ -18,13 +18,13 @@ struct S[T] implements (Int,Int)=>T {
     data = array;
   }
 
-  public def apply(i:Int, j:Int) = data(i, j);
+  public def apply(i:Int, j:Int) = at (data) data(i, j);
 }
 
 public class StructGenericInterfaceTest extends x10Test {
   public def run(): boolean {
-    val d = (([1..5,1..5] as Region) -> here) as Dist(2);
-    val a = Array.make[Int](d, (p:Point(2)) => p(0)+p(1));
+    val r = [1..5,1..5] as Region(2);
+    val a = new Array[Int](r, (p:Point(2)) => p(0)+p(1));
     val s = S[Int](a);
 
     chk(s(1,1) == 2);

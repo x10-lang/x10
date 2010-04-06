@@ -25,7 +25,7 @@ public class StencilForeach2D extends x10Test {
         val south = [0, -1] as Point;
         val west = [-1, 0] as Point;
         val east  = [1, 0] as Point;
-        val A = Array.make[double](R->here, (Point)=>0.0D);
+        val A = new Array[double](R, (Point)=>0.0D);
         val h  = 0.1;
             
         finish foreach (val p: Point(2) in r) 

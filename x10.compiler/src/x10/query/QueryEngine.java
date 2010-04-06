@@ -82,7 +82,7 @@ public class QueryEngine {
 	public boolean needsHereCheck(SettableAssign a, X10Context context) {
 		Type lt = a.leftType();
 		X10TypeSystem ts = (X10TypeSystem) lt.typeSystem();
-	        if (X10TypeMixin.isX10Array(lt)) {
+	        if (X10TypeMixin.isX10Array(lt) || X10TypeMixin.isX10DistArray(lt)) {
 			return needsHereCheck(X10TypeMixin.arrayBaseType(lt), context);
 		}
 		return false;

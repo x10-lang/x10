@@ -25,6 +25,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.LocalDecl;
 import polyglot.frontend.Job;
 import x10.ast.Closure_c;
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.types.X10CPPContext_c;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
@@ -84,6 +85,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
         if (cudaStream==null) {
             cudaStream = sw.getNewStream("cu");
             j.compiler().outputFiles().add(wrappingClass()+".cu");
+            ((X10CPPCompilerOptions)j.extensionInfo().getOptions()).compilationUnits().add(wrappingClass()+".cu");
             cudaStream.write("#include <x10aux/config.h>"); cudaStream.newline();
             cudaStream.write("#include <cfloat>"); cudaStream.newline();
             cudaStream.forceNewline();

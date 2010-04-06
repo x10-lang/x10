@@ -12,7 +12,7 @@
 import harness.x10Test;
 
 /**
- * Array bounds test - 1D.
+ * DistArray bounds test - 1D.
  *
  * randomly generate 1D arrays and indices
  *
@@ -48,7 +48,7 @@ public class DistBounds1D extends x10Test {
 
         //pr(lb1+" "+ub1+" "+i+" "+distType);
 
-        val a = Array.make[int](dist2.getDist(distType, lb1..ub1));
+        val a = DistArray.make[int](dist2.getDist(distType, lb1..ub1));
 
         var withinBounds: boolean = true;
         try {

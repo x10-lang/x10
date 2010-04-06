@@ -173,7 +173,37 @@ The statement \xcd"at (p) S" executes the statement \xcd"S"
 synchronously at place \xcd"p".
 The expression \xcd"at (p) E" executes the statement \xcd"E"
 synchronously at place \xcd"p", returning the result to the
-originating place.
+originating place.  \Eg, if \xcd`obj` is an object with a non-\xcd`global`
+method \xcd`meth()`, the general way to call the method from anywhere is 
+\begin{xten}
+at(x.home) x.meth();
+\end{xten}
+\noindent 
+Or, if you want to capture the result of the method call, use the
+\xcd`at`-expression:  
+\begin{xten}
+val res = at(x.home)x.meth();
+\end{xten}
+
+
+
+\xcd`at(p)S` does {\em not} start a new activity.  It should be thought of as
+transporting the current activity to \xcd`p`, running \xcd`S` there, and then
+transporting it back.    If you want to start a new activity, use \xcd`async`;
+if you want to start a new activity at \xcd`p`, use 
+\xcd`at(p) async S`.  
+
+
+
+As a consequence of this, \xcd`S` may contain constructs which only make sense
+within a single activity.  For example, 
+\begin{xten}
+  for(x in things) at(x.home) if (x.nice()) return x;
+\end{xten}
+returns the first nice thing in a collection.   If we had used 
+\xcd`async at(x.home)`, this would not be allowed; 
+you can't \xcd`return` from an
+\xcd`async`. 
 
 \section{Finish}\index{finish}\label{finish}
 The statement \xcd"finish S" converts global termination to local

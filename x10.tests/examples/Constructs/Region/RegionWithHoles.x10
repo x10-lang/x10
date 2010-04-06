@@ -24,7 +24,7 @@ public class RegionWithHoles extends x10Test {
         r = r - r1;
         r = r - r2;
 
-        val a = Array.make[short](r);
+        val a = new Array[short](r);
         chk(!r.isConvex());
         // check if r is convex - it should not!
         x10.io.Console.OUT.println("convex: " + r.isConvex() + " (should be false)");
@@ -59,7 +59,7 @@ public class RegionWithHoles extends x10Test {
         r = r - r1;
         r = r - r2;
 
-        val a = Array.make[short](r);
+        val a = new Array[short](r);
 
         // check if r is convex - it should not!
         x10.io.Console.OUT.println("convex: " + r.isConvex() + " (should be false)");
@@ -88,7 +88,7 @@ public class RegionWithHoles extends x10Test {
         r = r - r1;
         r = r - r2;
 
-        val a = Array.make[short](r);
+        val a = new Array[short](r);
         chk(!r.isConvex());
         // check if r is convex - it should not!
         x10.io.Console.OUT.println("convex: " + r.isConvex() + " (should be false)");
@@ -116,7 +116,7 @@ public class RegionWithHoles extends x10Test {
         r = r - r1;
         r = r - r2;
 
-        val a = Array.make[short](r);
+        val a = new Array[short](r);
         chk(!r.isConvex());
         // check if r is convex - it should not!
         x10.io.Console.OUT.println("4d:convex: " + r.isConvex() + " (should be false)");
@@ -153,7 +153,7 @@ public class RegionWithHoles extends x10Test {
         r = r - r1;
         r = r - r2;
 
-        val a = Array.make[short](r);
+        val a = new Array[short](r);
         chk(!r.isConvex());
         // check if r is convex - it should not!
         x10.io.Console.OUT.println("convex: " + r.isConvex() + " (should be false)");

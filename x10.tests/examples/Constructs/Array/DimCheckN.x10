@@ -21,8 +21,7 @@ import harness.x10Test;
 public class DimCheckN extends x10Test {
 
     public def run(): boolean = {
-        val d  = Dist.makeConstant([0..2, 0..3], here);
-        val a1  = Array.make[int](d, ((i): Point) => i);
+        val a1  = new Array[int]([0..2, 0..3], ((i): Point) => i);
         return true;
     }
     

@@ -29,7 +29,7 @@ public class MontyPi {
             }
             result
         };
-        val result = Array.make[Double](Dist.makeUnique(), initializer);
+        val result = DistArray.make[Double](Dist.makeUnique(), initializer);
         val pi = 4*result.reduce(Double.+,0)/(N*Place.MAX_PLACES);
         Console.OUT.println("The value of pi is " + pi);
     }

@@ -20,12 +20,13 @@ public class ArrayReduce extends TestArray {
     public const N: int = 9;
 
     public def run(): boolean {
+	chk(Place.places.length == 4, "This test must be run with 4 places");
 
         val dist = Dist.makeBlockCyclic(0..N, 0, 2);
         prDist("dist", dist);
 
         pr("--- original");
-        val a = Array.make[double](dist, (p:Point)=>p(0) as double);
+        val a = DistArray.make[double](dist, (p:Point)=>p(0) as double);
         for (pt:Point(1) in a) {
             val x = (future(a.dist(pt)) a(pt)).force();
             out.print(x + " ");

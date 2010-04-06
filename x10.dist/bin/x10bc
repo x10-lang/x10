@@ -15,7 +15,6 @@ prog=$(readlink $0 2>&1)
 export X10_DIST="$(cd "$(dirname "$prog")/.." && pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then X10_DIST="$(cygpath -aw "$X10_DIST")"; fi
 
-[ -z "$X10GC" ] && export X10GC="$X10_DIST"
 [ -z "$X10SOURCES" ] && export X10SOURCES="${X10_DIST}/lib/x10.jar"
 
 export CP_OVERRIDE="${X10_DIST}${FILE_SEP}lib${FILE_SEP}x10c.jar${PATH_SEP}${X10_DIST}${FILE_SEP}classes${PATH_SEP}"
