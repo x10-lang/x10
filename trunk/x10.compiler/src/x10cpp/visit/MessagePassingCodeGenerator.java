@@ -3761,7 +3761,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        dType = fDist.type();
 		        domain = xnf.Field(pos, domain, xnf.Id(pos, Name.make("dist"))).fieldInstance(fDist).type(dType);
 		    }
-		    if (xts.isDistribution(dType)) {
+		    if (xts.isDistribution(dType) || xts.isX10Array(dType)) {
 		        Position pos = domain.position();
 		        FieldInstance fRegion = dType.toClass().fieldNamed(Name.make("region"));
 		        dType = fRegion.type();
