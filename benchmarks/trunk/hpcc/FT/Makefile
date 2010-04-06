@@ -1,4 +1,4 @@
-SRCS	:= fft.x10 Random.x10 Comm.x10
+SRCS	:= fft.x10 Random.x10
 
 all: fft-opt fft-dbg
 
