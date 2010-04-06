@@ -8,9 +8,14 @@ struct sha1_rand {
   unsigned char rng_state[20]; /* internal state for the RNG */
 
   /*
-   * Constructor --- takes in the initial seed value
+   * Default constructor
    */
-  sha1_rand (const int& seed) { 
+  sha1_rand (void) {}
+
+  /*
+   * Constructor punning --- takes in the initial seed value
+   */
+  void init (const int& seed) { 
     struct sha1_context context;
 
     /* Initialize rng_state */
@@ -27,17 +32,10 @@ struct sha1_rand {
   }
 
   /*
-   * Copy constructor
+   * *Almost* a copy constructor punning --- takes in a spawn number in
+   * addition to modifying the original sha1_rand parameter.
    */
-  sha1_rand (sha1_rand& parent) { 
-    for (int i=0; i<20; ++i) rng_state[i] = parent.rng_state[i];
-  }
-
-  /*
-   * *Almost* a copy constructor --- takes in a spawn number in addition 
-   * to modifying the original sha1_rand parameter.
-   */
-  sha1_rand (const sha1_rand& parent, const int& spawn_number) { 
+  void init (const sha1_rand& parent, const int& spawn_number) { 
     struct sha1_context context;
 
     /* Call SHA1 */
