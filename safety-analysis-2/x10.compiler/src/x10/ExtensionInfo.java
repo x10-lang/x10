@@ -75,6 +75,7 @@ import x10.types.X10TypeSystem_c;
 import x10.visit.AssignPropertyChecker;
 import x10.visit.CastRewriter;
 import x10.visit.CheckNativeAnnotationsVisitor;
+import x10.visit.ClockedVariableRefactor;
 import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
 import x10.visit.FieldInitializerMover;
@@ -319,8 +320,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (job.userSpecified() && Configuration.SAFE_PARALLELIZATION_CHECK) {
                    goals.add(EffectsCalculated(job));
            }
-
-	   goals.add(ReassembleAST(job));
+           goals.add(ClockedVariableRefractor(job));
+        //   System.out.println("Done with Clocked Variable Refactoring");
+           goals.add(ReassembleAST(job));
            
         //   goals.add(X10Boxed(job));
            goals.add(X10Casted(job));
@@ -433,6 +435,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("CalculateEffects", job, new EffectComputer(job, ts, nf));
        }
 
+      public Goal ClockedVariableRefractor(Job job) {
+          TypeSystem ts = extInfo.typeSystem();
+          NodeFactory nf = extInfo.nodeFactory();
+          return new VisitorGoal("ClockedVariableRefractor", job, new ClockedVariableRefactor(job, ts, nf));
+      }
 
        public Goal PropagateAnnotations(Job job) {
            // ###
