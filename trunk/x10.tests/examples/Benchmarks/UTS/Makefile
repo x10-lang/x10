@@ -20,7 +20,7 @@ libsha1.a: ${SOURCES} ${HEADERS}
 	ar rcs $@ ${OBJS}
 
 test: Sha1Rand.cpp libsha1.a
-	${CXX} ${CXXFLAGS} $< -o $@ -L. -lsha1
+	${CXX} ${CXXFLAGS} -DSHA1_TEST $< -o $@ -L. -lsha1
 
 clean:
 	rm -rf core*.* ${OBJS} ${TARGET} test
