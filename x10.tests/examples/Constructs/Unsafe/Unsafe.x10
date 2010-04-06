@@ -17,14 +17,14 @@ import harness.x10Test;
 public class Unsafe extends x10Test {
 
 	public def run(): boolean = {
-		var e: Region = [1..10];
-		var r: Region = [e,e,e,e];
-		var d: Dist = r->here;
+		val e: Region = [1..10];
+		val r: Region = [e,e,e,e];
+		val d: Dist = r->here;
 
-		var x = DistArray.make[int](d); // ok
-		var y = DistArray.make[int](d); //ok
-		var y1 = DistArray.make[int](d); // ok
-		var zz = DistArray.make[int](d, (p: Point): int => 41); // bad
+		val x = DistArray.make[int](d); // ok
+		val y = DistArray.make[int](d); //ok
+		val y1 = DistArray.make[int](d); // ok
+		val zz = DistArray.make[int](d, (p: Point): int => 41); // bad
 		return true;
 	}
 
