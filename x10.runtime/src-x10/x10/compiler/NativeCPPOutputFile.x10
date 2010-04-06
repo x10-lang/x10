@@ -13,7 +13,8 @@ package x10.compiler;
 
 import x10.lang.annotations.ClassAnnotation;
 
-/** Annotation on a class that adds an extra commandline option to the post
- * compiler invocation.  Does nothing for the Java backend.
+/** Annotation on a class that indicates that the post compiler will need an additional file from
+ * the same dir as the current x10 file.  This is used e.g. for headers included by headers that are
+ * included using NativeCPPInclude.  Does nothing for the Java backend.
  */
-public interface NativeCPPLibOpt(include: String) extends ClassAnnotation { }
+public interface NativeCPPOutputFile(file: String) extends ClassAnnotation { }

@@ -13,6 +13,8 @@ package x10cpp.visit;
 
 import java.io.File;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -56,6 +58,8 @@ import polyglot.types.Context;
 import polyglot.types.Name;
 import polyglot.types.Package;
 import polyglot.types.QName;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -66,7 +70,10 @@ import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.ast.ForLoop;
 import x10.ast.X10ClassDecl;
+import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
+import x10.types.X10TypeSystem_c;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.util.WriterStreams;
@@ -79,6 +86,7 @@ import x10cpp.postcompiler.Linux_CXXCommandBuilder;
 import x10cpp.postcompiler.SunOS_CXXCommandBuilder;
 import x10cpp.types.X10CPPContext_c;
 import static x10cpp.visit.ASTQuery.getCppRep;
+import static x10cpp.visit.ASTQuery.getStringPropertyInit;
 import static x10cpp.visit.SharedVarsMethods.*;
 
 public class X10CPPTranslator extends Translator {
@@ -199,6 +207,27 @@ public class X10CPPTranslator extends Translator {
 		context = c;
 	}
 
+    private static void maybeCopyTo (String file, String src_path_, String dest_path_) {
+		File src_path = new File(src_path_);
+    	File dest_path = new File(dest_path_);
+    	// don't copy if the two dirs are the same...
+    	if (src_path.equals(dest_path)) return;
+    	assert src_path.isDirectory() : src_path_;
+    	assert dest_path.isDirectory() : dest_path_;
+    	if (!dest_path.exists()) dest_path.mkdir();
+    	try {
+			FileInputStream src = new FileInputStream(new File(src_path_+file));
+	    	FileOutputStream dest = new FileOutputStream(new File(dest_path_+file));
+	    	int b;
+	    	while ((b = src.read()) != -1) {
+	    		dest.write(b);
+	    	}
+    	} catch (IOException e) {
+        	System.err.println("While copying "+file + " from "+src_path_+" to "+dest_path_);
+    		System.err.println(e);
+    	}
+    }
+
 	/* (non-Javadoc)
 	 * @see polyglot.visit.Translator#translateSource(polyglot.ast.SourceFile)
 	 */
@@ -217,6 +246,7 @@ public class X10CPPTranslator extends Translator {
 
 			X10CPPContext_c c = (X10CPPContext_c) context;
 			X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
+	        X10TypeSystem_c xts = (X10TypeSystem_c) typeSystem();
 
 			if (x10.Configuration.DEBUG)
 				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());
@@ -228,7 +258,40 @@ public class X10CPPTranslator extends Translator {
 					continue;
 				X10ClassDecl cd = (X10ClassDecl) decl;
 				// Skip output of all files for a native rep class.
-				if (getCppRep((X10ClassDef)cd.classDef()) != null) {
+		        X10Ext ext = (X10Ext) cd.ext();
+		        try {
+		            String path = new File(cd.position().file()).getParent();
+		            if (path==null) path = ""; else path = path + '/';
+		            String out_path = opts.output_directory.toString();
+		            if (out_path==null) out_path = ""; else out_path = out_path + '/';
+		            String pkg_ = packagePath(pkg);
+		            List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
+		            for (Type at : as) {
+		                ASTQuery.assertNumberOfInitializers(at, 1);
+		                String include = getStringPropertyInit(at, 0);
+		                outputFiles.add(pkg_+include);
+		                maybeCopyTo(include, path, out_path+pkg_);
+		            }
+		            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPOutputFile")));
+		            for (Type at : as) {
+		                ASTQuery.assertNumberOfInitializers(at, 1);
+		                String file = getStringPropertyInit(at, 0);
+		                outputFiles.add(pkg_+file);
+		                maybeCopyTo(file, path, out_path+pkg_);
+		            }
+		            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPCompilationUnit")));
+		            for (Type at : as) {
+		                ASTQuery.assertNumberOfInitializers(at, 1);
+		                String compilation_unit = getStringPropertyInit(at, 0);
+		                outputFiles.add(pkg_+compilation_unit);
+		                opts.compilationUnits().add(pkg_+compilation_unit);
+		                maybeCopyTo(compilation_unit, path, out_path+pkg_);
+		            }
+		        } catch (SemanticException e) {
+		            assert false : e;
+		        }
+
+	        	if (getCppRep((X10ClassDef)cd.classDef()) != null) {
 					continue;
 				}
 				String className = cd.classDef().name().toString();

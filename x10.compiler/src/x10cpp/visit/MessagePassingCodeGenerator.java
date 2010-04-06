@@ -640,30 +640,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         return classHeader+StreamWrapper.Struct;
     }
     
-    private static void maybeCopyTo (String file, String src_path_, String dest_path_) {
-    	{
-    		File src_path = new File(src_path_);
-	    	File dest_path = new File(dest_path_);
-	    	// don't copy if the two dirs are the same...
-	    	if (src_path.equals(dest_path)) return;
-    	}
-    	try {
-			FileInputStream src = new FileInputStream(new File(src_path_+file));
-	    	FileOutputStream dest = new FileOutputStream(new File(dest_path_+file));
-	    	int b;
-	    	while ((b = src.read()) != -1) {
-	    		dest.write(b);
-	    	}
-    	} catch (IOException e) {
-    		assert false : "Could not read: \""+file+"\" from \""+src_path_+"\"";
-    	}
-    }
-
     void processClass(X10ClassDecl_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		X10ClassDef def = (X10ClassDef) n.classDef();
         X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
         boolean isStruct = xts.isStructType(def.asType());
+        X10Ext ext = (X10Ext) n.ext();
 
 		if (getCppRep(def) != null) {
 			// emit no c++ code as this is a native rep class
@@ -708,29 +690,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("#include <x10rt.h>"); h.newline();
         h.forceNewline(0);
         // process annotations relating to additional h/c++ files
-        X10Ext ext = (X10Ext) n.ext();
         try {
             X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
-            String path = new File(n.position().file()).getParent();
-            if (path==null) path = ""; else path = path + File.separator;
-            String out_path = opts.output_directory.toString();
-            if (out_path==null) out_path = ""; else out_path = out_path + File.separator;
-            String pkg = X10CPPTranslator.packagePath(context.package_()==null?null:context.package_().toString());
             List<X10ClassType> as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPInclude")));
             for (Type at : as) {
                 ASTQuery.assertNumberOfInitializers(at, 1);
                 String include = getStringPropertyInit(at, 0);
                 h.write("#include \""+include+"\""); h.newline();
-                tr.job().compiler().outputFiles().add(pkg+include);
-                maybeCopyTo(include, path, out_path+pkg);
-            }
-            as = ext.annotationMatching((Type) xts.systemResolver().find(QName.make("x10.compiler.NativeCPPCompilationUnit")));
-            for (Type at : as) {
-                ASTQuery.assertNumberOfInitializers(at, 1);
-                String compilation_unit = getStringPropertyInit(at, 0);
-                tr.job().compiler().outputFiles().add(pkg+compilation_unit);
-                opts.compilationUnits().add(pkg+compilation_unit);
-                maybeCopyTo(compilation_unit, path, out_path+pkg);
             }
         } catch (SemanticException e) {
             assert false : e;
