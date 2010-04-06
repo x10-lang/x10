@@ -14,6 +14,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.Pair;
+import x10.compiler.ClockedVar;
 
 /** A 1-dimensional 0-based sequence of elements, each of the same type,
  * supporting constant-time access by integer index.  This is analogous to
@@ -63,6 +64,10 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
     public native static safe def make[S](length: Int): Rail[S]!{self.length==length};
+
+	 @Native("java", "x10.lang.Rail__NativeRep.<#2>makeClockedRail(#3, #4)")
+    public native static safe def makeClockedRail[S](length: Int): Rail[ClockedVar[S]]!{self.length==length};
+ 
 
     /**
      * Re-initializes a Rail.
@@ -149,7 +154,10 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.lang.Rail__NativeRep.makeRemoteRail(#3, #4,#5,#6)")
     @Native("c++", "x10::lang::Rail__NativeRep::makeRemoteRail(#4,#5,#6)")
     public native static safe def makeRemote[T] (p:Place, length:Int, init: Rail[T]!) : Rail[T]!p{self.length==length};
-
+   
+   
+ 	
+    
     // Transfer functions
 
     /**
