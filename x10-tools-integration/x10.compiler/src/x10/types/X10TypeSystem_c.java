@@ -373,6 +373,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         List<QName> l = new ArrayList<QName>(1);
         l.add(QName.make("x10.lang"));
         l.add(QName.make("x10.lang", X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME.toString()));
+        l.add(QName.make("x10.array"));
         return l;
     }
 
@@ -1383,7 +1384,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public Type Region() {
         if (regionType_ == null)
-            regionType_ = load("x10.lang.Region"); // java file
+            regionType_ = load("x10.array.Region"); // java file
         return regionType_;
     }
 
@@ -1391,7 +1392,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public Type Point() {
         if (pointType_ == null)
-            pointType_ = load("x10.lang.Point");
+            pointType_ = load("x10.array.Point");
         return pointType_;
     }
 
@@ -1399,7 +1400,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public Type Dist() {
         if (distributionType_ == null)
-            distributionType_ = load("x10.lang.Dist"); // java file
+            distributionType_ = load("x10.array.Dist"); // java file
         return distributionType_;
     }
 
@@ -1423,10 +1424,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public Type Array() {
         if (arrayType_ == null)
-            arrayType_ = load("x10.lang.Array");
+            arrayType_ = load("x10.array.Array");
         return arrayType_;
     }
 
+    protected ClassType distArrayType_ = null;
+
+    public Type DistArray() {
+        if (distArrayType_ == null)
+            distArrayType_ = load("x10.array.DistArray");
+        return distArrayType_;
+    }
+    
+    
     // RMF 11/1/2005 - Not having the "static" qualifier on interfaces causes
     // problems,
     // e.g. for New_c.disambiguate(AmbiguityRemover), which assumes that
@@ -1610,7 +1620,25 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public boolean isX10Array(Type me) {
-        return hasSameClassDef(me, Array());
+        if (hasSameClassDef(me, Array())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isX10Array(parent);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isX10DistArray(Type me) {
+        if (hasSameClassDef(me, DistArray())) {
+            return true;
+        } else if (me.isClass()) {
+            Type parent = me.toClass().superClass();
+            return parent != null && isX10DistArray(parent);
+        } else {
+            return false;
+        }
     }
 
     public boolean isTypeConstrained(Type me) {
@@ -1646,7 +1674,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public boolean isDistributedArray(Type me) {
-        return isX10Array(me);
+        return isX10DistArray(me);
     }
 
     public boolean isComparable(Type me) {

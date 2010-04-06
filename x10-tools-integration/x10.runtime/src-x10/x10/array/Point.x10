@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.lang;
+package x10.array;
 
 import x10.util.Ordered;
 
@@ -145,6 +145,21 @@ final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)
      */
     public global safe operator (c: int) / this: Point(rank) 
        = Point.make(rank, (i:Int) => c / this.coords(i));
+
+    /**
+     * Compute the hashCode of a point by combining the
+     * the coordinates in a multiple/xor chain.  This
+     * should increase the randomness and overcomes the
+     * fact that coordinates are biased to be small
+     * positive numbers.
+     */
+    public global safe def hashCode():int {
+        var hc:int = coords(0);
+        for (var i:int = 1; i<rank; i++) {
+            hc = (hc * 17) ^ coords(i);
+        }
+	return hc;
+    }
 
     /** Two points of the same rank are equal if and only if their
      * corresponding indices are equal.

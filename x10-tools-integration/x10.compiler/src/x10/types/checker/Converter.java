@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.Call;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.New;
@@ -43,6 +44,8 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.ast.SemanticError;
+import x10.ast.X10CanonicalTypeNode;
+import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10New_c;
@@ -60,6 +63,7 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.util.Synthesizer;
 
 /**
  * A set of static methods used to convert an AST representing an X10 expressions of a given type
@@ -73,6 +77,7 @@ public class Converter {
 	public static enum ConversionType {
 		UNKNOWN_CONVERSION,
 		UNKNOWN_IMPLICIT_CONVERSION,
+		CALL_CONVERSION, // vj: Introduced 3/28/10 to implement cast-as-needed call semantics
 		PRIMITIVE,
 		CHECKED,
 		SUBTYPE,
@@ -98,11 +103,23 @@ public class Converter {
 		
 		ConversionType ct = ts.numericConversionValid(toType, e.type(), e.constantValue(), tc.context()) 
 		? ConversionType.UNKNOWN_CONVERSION
-		: ConversionType.UNKNOWN_IMPLICIT_CONVERSION;
+		: ConversionType.CALL_CONVERSION; // ConversionType.UNKNOWN_IMPLICIT_CONVERSION;
 		
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
-		Expr result = check(nf.X10Cast(e.position(), nf.CanonicalTypeNode(e.position(), toType), e, ct),tc);
+		X10CanonicalTypeNode tn = (X10CanonicalTypeNode) nf.CanonicalTypeNode(e.position(), toType);
+		Expr result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
+		
+		if (result instanceof X10Cast && ((X10Cast) result).conversionType()==ConversionType.CHECKED) {
+			// OK that succeeded. Now ensure that there is a depexpr created for the check.
+			tn = new Synthesizer().makeCanonicalTypeNodeWithDepExpr(e.position(), toType, tc);
+			if (tn.type() != toType) {
+				// alright, now we actually synthesized a new depexpr. 
+				// lets splice it in.
+				result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
+				System.out.println("[" + e.position() + "] Synthesized " + tn + " for " + e + ".");
+			}
+		}
 		return result;
 	}
 
@@ -381,7 +398,8 @@ public class Converter {
 		XConstraint cFrom = X10TypeMixin.xclause(fromType);
 		XConstraint cTo = X10TypeMixin.xclause(toType);
 
-		if (cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
+		if (cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION 
+				&& cast.conversionType() != ConversionType.CALL_CONVERSION) {
 			if (! ts.isParameterType(fromType) 
 					&& ! ts.isParameterType(toType) 
 					&& ts.isCastValid(fromType, toType, context)) {
@@ -405,7 +423,8 @@ public class Converter {
 			Expr e = cast.expr();
 
 			// Can convert if there is a static method toType.$convert(fromType)
-			if (converter == null && cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
+			if (converter == null && cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION
+					&& cast.conversionType() != ConversionType.CALL_CONVERSION) {
 				try {
 					mi = ts.findMethod(toType, ts.MethodMatcher(toType, Converter.operator_as, 
 							Collections.singletonList(fromType), context));
@@ -466,12 +485,13 @@ public class Converter {
 			}
 		}
 
-	    l:  if (cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
+	    l:  if (cast.conversionType() != ConversionType.UNKNOWN_IMPLICIT_CONVERSION
+	    		&& cast.conversionType() != ConversionType.CALL_CONVERSION) {
         	if (ts.isParameterType(toType)) {
         		// Now get the upper bound.
         		List<Type> upper = ts.env(context).upperBounds(toType, false);
         		if (upper.isEmpty()) {
-        			// No upper bound. Now a hecked conversion is permitted only
+        			// No upper bound. Now a checked conversion is permitted only
         			// if fromType is not Null.
         			if (! fromType.isNull()) 
         				return checkedConversionForTypeParameter(cast, fromType, toType);
@@ -490,6 +510,19 @@ public class Converter {
         	}
 	    }
 
+		// Added 03/28/10 to support new call conversion semantics.
+		if (cast.conversionType() == ConversionType.CALL_CONVERSION 
+			&& ts.isCastValid(fromType, toType, context)) {
+				X10Cast n = cast.conversionType(ConversionType.CHECKED); 
+				XVar sv = X10TypeMixin.selfVarBinding(fromType);
+				if (sv != null) 
+				    try {
+				        toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
+				    } catch (XFailure f) {
+				        throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+				    }
+				return n.type(toType);
+		}
 		throw new Errors.CannotConvertExprToType(cast.expr(), cast.conversionType(), toType, cast.position());
 	}
 		

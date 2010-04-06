@@ -16,11 +16,7 @@
 #include <x10aux/ref.h>
 
 #if !defined(_LP64)
-namespace x10 {
-    namespace lang {
-        class Lock__ReentrantLock;
-    }
-}
+#include <x10aux/lock.h>
 #endif
 
 #if (defined(_ARCH_PPC) || defined(_ARCH_450) || defined(_ARCH_450d)) && defined(__xlC__)
@@ -65,7 +61,7 @@ namespace x10aux {
     class atomic_ops {
     private:
 #if !defined(_LP64)
-        static x10aux::ref<x10::lang::Lock__ReentrantLock> _longOperationLock;
+        static x10aux::reentrant_lock* _longOperationLock;
         static void lock();
         static void unlock();
 #endif

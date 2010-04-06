@@ -17,9 +17,8 @@ import harness.x10Test;
 public class Array3Short extends x10Test {
 
     public def run(): boolean = {
-
-    val r = [1..10, 1..10] as Region;
-        val ia = Array.make[Short](r, (x:Point)=>(0 as Short));
+        val r = [1..10, 1..10] as Region;
+        val ia = new Array[Short](r, (x:Point)=>(0 as Short));
         ia(1, 1) = 42 as Short;
         return (42 == ia(1, 1));
     }

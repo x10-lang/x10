@@ -23,8 +23,8 @@ public class ArrayAlgebra extends x10Test {
 
     public const N: int = 24;
 
-    def makeArray(val D: Dist, val k: int): Array[int]{dist==D} = {
-        return Array.make[int](D, (var p: Point) => k);
+    def makeArray(val D: Dist, val k: int): DistArray[int]{dist==D} = {
+        return DistArray.make[int](D, (var p: Point) => k);
     }
 
     public def run(): boolean = {
@@ -38,7 +38,7 @@ public class ArrayAlgebra extends x10Test {
         val D2  = D | (N/2)..3*N/4-1;
         val D3  = D | (3*N/4)..N-1;
 
-        val ia1:Array[int](1) = 
+        val ia1:DistArray[int](1) = 
             makeArray(D, -99)
                 .overlay((makeArray(D01, -1) || makeArray(D23, -2))
                 .overlay(makeArray(D3, 3))
@@ -52,7 +52,7 @@ public class ArrayAlgebra extends x10Test {
         chk(ia1.sum() == 9*N/4);
 
         arrEq(ia1.scan(Int.+, 0),
-              Array.make[Int](D, (var Point (i): Point): int => (ia1 | 0..i).reduce(Int.+, 0)));
+              DistArray.make[Int](D, (var Point (i): Point): int => (ia1 | 0..i).reduce(Int.+, 0)));
 
         arrEq(makeArray(D01, 1).lift(Int.+, makeArray(D01, -4)),
                 makeArray(D01, -3));
@@ -67,7 +67,7 @@ public class ArrayAlgebra extends x10Test {
      * Throw an error iff x and y are not arrays with same
      * content and dist
      */
-    static def arrEq(val x: Array[int], val y: Array[int]): void = {
+    static def arrEq(val x: DistArray[int], val y: DistArray[int]): void = {
         chk(x.dist.equals(y.dist));
         finish ateach (val p: Point in x) chk(x(p) == y(p));
     }

@@ -9,27 +9,15 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-/**
- *
- * (C) Copyright IBM Corporation 2006
- *
- *  This file is part of X10 Test.
- *
- */
 import harness.x10Test;
-
-/**
-
-
-**/
 
 public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect}, 
 		D:Dist{region==this.R},
-		A: Array[double]{dist==this.D}) extends x10Test {
+		A: DistArray[double]{dist==this.D}) extends x10Test {
 	
 	public def this(R: Region{rank==2&&zeroBased&&rect}, 
 			D: Dist{region==R}, 
-			A: Array[double]{dist==D}): 
+			A: DistArray[double]{dist==D}): 
 			ReferenceConsistencyCheck{self.R==R, self.D==D, self.A==A}
 			 {
 		property(R,D,A);
@@ -47,8 +35,8 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
 		val size=10;
 		val R =[0..size-1,0..size-1];
 		val D = Dist.makeCyclic(R);
-		val A:Array[double]{dist==D} = 
-			   Array.make[double](D, ((i,j):Point) => 
+		val A:DistArray[double]{dist==D} = 
+			   DistArray.make[double](D, ((i,j):Point) => 
 			      { var res: int=i%2;
 			        if (i-1==j) res=i*(res==0?-1:1);
 			        res as double

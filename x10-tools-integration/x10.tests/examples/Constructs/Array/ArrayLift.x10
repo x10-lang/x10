@@ -18,12 +18,13 @@ public class ArrayLift extends TestArray {
     public const N: int = 9;
 
     public def run(): boolean {
+	chk(Place.places.length == 4, "This test must be run with 4 places");
 
         val dist = Dist.makeBlockCyclic(0..N, 0, 2);
         prDist("dist", dist);
 
         pr("--- original");
-        val a: Array[double](dist) = Array.make[double](dist, (p:Point)=>p(0) as double);
+        val a: DistArray[double](dist) = DistArray.make[double](dist, (p:Point)=>p(0) as double);
         for (pt:Point(1) in a) {
             val x = (future(a.dist(pt)) a(pt)).force();
             out.print(x + " ");
@@ -31,7 +32,7 @@ public class ArrayLift extends TestArray {
         out.println();
 
         pr("--- lifted");
-        val b = a.lift((a:double)=>1.5*a) as Array[double](dist);
+        val b = a.lift((a:double)=>1.5*a) as DistArray[double](dist);
         for (pt:Point(1) in b) {
             val x = (future(b.dist(pt)) b(pt)).force();
             out.print(x + " ");

@@ -11,8 +11,6 @@
 
 #include <x10aux/reference_logger.h>
 
-#include <x10/lang/Lock__ReentrantLock.h>
-
 using namespace x10::lang;
 using namespace x10aux;
 
@@ -26,7 +24,7 @@ using namespace x10aux;
 ReferenceLogger *x10aux::ReferenceLogger::it = new (x10aux::alloc<ReferenceLogger>()) ReferenceLogger();
 
 ReferenceLogger::ReferenceLogger() {
-    _lock = Lock__ReentrantLock::_make();
+    _lock = new (alloc<reentrant_lock>())reentrant_lock();
     _buckets = x10aux::alloc<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
     memset(_buckets, 0, NUM_BUCKETS*sizeof(Bucket*));
 }

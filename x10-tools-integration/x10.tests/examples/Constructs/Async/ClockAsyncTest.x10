@@ -23,7 +23,7 @@ public class ClockAsyncTest extends x10Test {
 
     public def run(): boolean = {
 	try {
-	    val clocks = Array.make[Clock](0..5, (Point)=>Clock.make());
+	    val clocks = new Array[Clock](0..5, (Point)=>Clock.make());
 	    finish async (here) clocked (clocks(0)){
 		next;
 	    }

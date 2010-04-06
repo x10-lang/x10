@@ -324,6 +324,8 @@
                   <arg value="-enable-threads=posix" />
                   <arg value="-enable-thread-local-alloc" />
                   <arg value="--disable-dependency-tracking" />
+                  <!-- there is no good way to make an @rpath shared gc lib -->
+                  <arg value="--disable-shared" />
                   <env key="CFLAGS" value="${darwin.32}${darwin.64}-D_XOPEN_SOURCE" />
                   <arg value="--prefix=${bdwgc.platform.dir}/install" />
                 </exec>

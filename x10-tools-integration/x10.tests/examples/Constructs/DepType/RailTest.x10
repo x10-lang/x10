@@ -22,7 +22,7 @@ public class RailTest extends x10Test {
     public def run(): boolean = {
         val r: Region{rail} = 0..10;
         var d: Dist{rail} = Dist.makeBlock(r, 0);
-        var a: Array[double]{rail} = Array.make[double](d, (x:Point)=>0.0);
+        var a: DistArray[double]{rail} = DistArray.make[double](d, (x:Point)=>0.0);
         return true;
     }
 

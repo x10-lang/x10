@@ -6,10 +6,13 @@ include ../Make.rules
 
 INCLUDE_DIRS += -I. -I../x10rt/include
 
+BDWGC_PROPERTIES=bdwgc_off.properties
+
 ifdef ENABLE_GC
   override CXXFLAGS += -DX10_USE_BDWGC
   BDWGC_INCLUDE_DIR= ./bdwgc/install/include
   INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
+  BDWGC_PROPERTIES=bdwgc_on.properties
 endif
 
 override CXXFLAGS += $(INCLUDE_DIRS) -Igen
@@ -108,6 +111,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/io/FILEPtrOutputStream.o \
 	x10aux/io/FILEPtrStream.o \
 	x10aux/float_utils.o \
+	x10aux/lock.o \
 	x10aux/long_utils.o \
 	x10aux/network.o \
 	x10aux/place_local.o \
@@ -146,7 +150,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/util/concurrent/atomic/AtomicReference.o 
 
 ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS)
-
 
 # This target will build the XRX cc files into object files
 gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST) 
@@ -197,6 +200,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	@cp -p x10rt.h $(INSTDIR)/include
 	@cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	@cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
+	@cp -p $(BDWGC_PROPERTIES) $(INSTDIR)/etc/bdwgc.properties
 
 .PHONY: install
 

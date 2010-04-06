@@ -124,6 +124,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;
 import x10cpp.types.X10CPPContext_c;
 import x10cpp.visit.Emitter;
@@ -990,15 +991,15 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         super.visit(n);
     }
 
-    public static boolean postCompile(Options options, Compiler compiler, ErrorQueue eq) {
+    public static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq) {
         // TODO Auto-generated method stub
         if (options.post_compiler != null && !options.output_stdout) {
-            Collection<String> outputFiles = compiler.outputFiles();
+            Collection<String> compilationUnits = options.compilationUnits();
             String[] nvccCmd = { "nvcc", "--cubin", "-I"+CXXCommandBuilder.X10_DIST+"/include", null };
-            for (String f : outputFiles) {
+            for (String f : compilationUnits) {
                 if (f.endsWith(".cu")) {
                     nvccCmd[3] = f;
-                    if (!X10CPPTranslator.doPostCompile(options, eq, outputFiles, nvccCmd)) return false;
+                    if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd)) return false;
                 }
             }
 

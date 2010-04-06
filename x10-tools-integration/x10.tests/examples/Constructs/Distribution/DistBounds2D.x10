@@ -12,7 +12,7 @@
 import harness.x10Test;
 
 /**
- * Array bounds test - 2D.
+ * DistArray bounds test - 2D.
  *
  * randomly generate 2D arrays and indices,
  *
@@ -58,7 +58,7 @@ public class DistBounds2D extends x10Test {
         //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j+" "+distType);
 
         // XTENLANG-192
-        val a/*: Array[int]*/ = Array.make[int](dist2.getDist(distType, [lb1..ub1, lb2..ub2]));
+        val a = DistArray.make[int](dist2.getDist(distType, [lb1..ub1, lb2..ub2]));
 
         var withinBounds: boolean = true;
         try {

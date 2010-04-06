@@ -854,7 +854,8 @@ public class X10TypeMixin {
 		X10ClassType ct = (X10ClassType) t;
 		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 		ClassType a = (ClassType) ts.Array();
-		if (ct.def() == a.def())
+		ClassType da = (ClassType) ts.Array();
+		if (ct.def() == a.def() || ct.def() == da.def())
 		    return ct.typeArguments().get(0);
 		else
 		    arrayBaseType(ct.superClass());
@@ -862,21 +863,30 @@ public class X10TypeMixin {
 	    return null;
 	}
 
-	public static boolean isVarArray(Type t) {
-	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-	    Type tt = baseType(t);
-	    Type at = baseType(ts.Array());
-	    if (tt instanceof ClassType && at instanceof ClassType) {
-	        ClassDef tdef = ((ClassType) tt).def();
-	        ClassDef adef = ((ClassType) at).def();
-	        return ts.descendsFrom(tdef, adef);
-	    }
-	    return false;
+	public static boolean isX10Array(Type t) {
+        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        Type tt = baseType(t);
+        Type at = baseType(ts.Array());
+        if (tt instanceof ClassType && at instanceof ClassType) {
+            ClassDef tdef = ((ClassType) tt).def();
+            ClassDef adef = ((ClassType) at).def();
+            return ts.descendsFrom(tdef, adef);
+        }
+        return false;
+	}
+	
+	public static boolean isX10DistArray(Type t) {
+        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        Type tt = baseType(t);
+        Type at = baseType(ts.DistArray());
+        if (tt instanceof ClassType && at instanceof ClassType) {
+            ClassDef tdef = ((ClassType) tt).def();
+            ClassDef adef = ((ClassType) at).def();
+            return ts.descendsFrom(tdef, adef);
+        }
+        return false;
 	}
 
-	public static boolean isX10Array(Type t) {
-	    return isVarArray(t);
-	}
 
 	static XTerm findOrSythesize(Type t, Name propName) {
 	    return find(t, propName);
@@ -1053,7 +1063,7 @@ public class X10TypeMixin {
 	public static Type arrayElementType(Type t) {
 		t = baseType(t);
 		X10TypeSystem xt = (X10TypeSystem) t.typeSystem();
-		if (xt.isX10Array(t) || xt.isRail(t)) {
+		if (xt.isX10Array(t) || xt.isX10DistArray(t) || xt.isRail(t)) {
 			if (t instanceof X10ParsedClassType) {
 				Type result = ((X10ParsedClassType) t).typeArguments().get(0);
 				return result;

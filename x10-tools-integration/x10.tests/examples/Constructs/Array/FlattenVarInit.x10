@@ -22,10 +22,10 @@ import harness.x10Test;
 
 public class FlattenVarInit extends x10Test {
 
-    val a: Array[int](2);
+    val a: Array[int](2)!;
 
     public def this(): FlattenVarInit = {
-        a = Array.make[int](([1..10, 1..10] as Region)->here, ((i,j): Point): int => { return i+j;});
+        a = new Array[int]([1..10, 1..10], ((i,j): Point): int => { return i+j;});
     }
 
     def m(var x: int): int = {

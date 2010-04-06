@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+
 /**
  * This is one of a series of programs showing how to express
  * different forms of parallelism in X10.</p>
@@ -30,24 +31,24 @@ public class HeatTransfer_v5 {
     const BigD = Dist.makeBlock([0..n+1, 0..n+1], 0);
     const D = BigD | ([1..n, 1..n] as Region);
     const LastRow = [0..0, 1..n] as Region;
-    const A = Array.make[Real](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
-    const Temp = Array.make[Real](BigD);
+    const A = DistArray.make[Real](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
+    const Temp = DistArray.make[Real](BigD);
 
     static def stencil_1((x,y):Point(2)) = (([x-1..x+1,y..y] as Region(2)) || [x..x,y-1..y+1]) - [x..x,y..y];
 
-    static def subtract(a:Array[Real],b:Array[Real]) = Array.make[Real](a.dist, (p:Point)=>a(p as Point(a.rank))-b(p as Point(b.rank)));
+    static def subtract(a:DistArray[Real],b:DistArray[Real]) = DistArray.make[Real](a.dist, (p:Point)=>a(p as Point(a.rank))-b(p as Point(b.rank)));
 
     // TODO: The array library really should provide an efficient 
     //       all-to-all collective reduction.
     //       This is a quick and sloppy implementation, which does way too much work.
-    static def reduceMax(z:Point{self.rank==diff.rank}, diff:Array[Real], scratch:Array[Real]) {
+    static def reduceMax(z:Point{self.rank==diff.rank}, diff:DistArray[Real], scratch:DistArray[Real]) {
         val max = diff.reduce(Math.max.(Double,Double), 0.0);
         diff(z) = max;
         next;
     }
 
     // TODO: This is a really inefficient implementation of this abstraction.
-    //       Needs to be done properly and integrated into the Dist/Region/Array
+    //       Needs to be done properly and integrated into the Dist/Region/DistArray
     //       class library in x10.array.
     static def blockIt(d:Dist(2), numProcs:int):ValRail[Iterable[Point(2)]] {
         val ans = ValRail.make(numProcs, (int) => new x10.util.ArrayList[Point{self.rank==d.rank}]());
@@ -63,8 +64,8 @@ public class HeatTransfer_v5 {
         finish async {
             val c = Clock.make();
             val D_Base = Dist.makeUnique(D.places());
-            val diff = Array.make[Real](D_Base);
-            val scratch = Array.make[Real](D_Base);
+            val diff = DistArray.make[Real](D_Base);
+            val scratch = DistArray.make[Real](D_Base);
             ateach (z in D_Base) clocked(c) {
                 val blocks:ValRail[Iterable[Point(2)]] = blockIt(D | here, P);
                 foreach ((q) in 0..P-1) clocked(c) {

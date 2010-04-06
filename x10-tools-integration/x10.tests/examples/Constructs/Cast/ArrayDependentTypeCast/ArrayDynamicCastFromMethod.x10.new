@@ -6,6 +6,8 @@
  *
  */
 import harness.x10Test;;
+import x10.array.Dist;
+import x10.array.Array;
 
 /**
  * Purpose: Checks dynamic cast works for method invocation that returns an X10 array.
