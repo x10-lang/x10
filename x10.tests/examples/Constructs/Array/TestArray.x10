@@ -126,11 +126,11 @@ abstract public class TestArray extends x10Test {
         }
     }
 
-    def prArray(test: String, r: Region): Array[double]{rank==r.rank} = {
+    def prArray(test: String, r: Region): DistArray[double]{rank==r.rank} = {
         return prArray(test, r, false);
     }
 
-    def prArray(test: String, r: Region, bump: boolean): Array[double]{rank==r.rank} = {
+    def prArray(test: String, r: Region, bump: boolean): DistArray[double]{rank==r.rank} = {
 
         val init1 = (pt: Point) => {
             var v: int = 1;
@@ -141,13 +141,13 @@ abstract public class TestArray extends x10Test {
 
         val init0 = (Point) => 0.0D;
 
-        val a = Array.make[double](r, bump? init0 : init1);
+        val a = DistArray.make[double](r->here, bump? init0 : init1);
         prArray(test, a, bump);
 
-        return a as Array[double]{rank==r.rank};
+        return a as DistArray[double]{rank==r.rank};
     }
 
-    def prDistributed(test:String!, a: Array[double]): void = {
+    def prDistributed(test:String!, a: DistArray[double]): void = {
         var ps: Rail[Place]! = a.dist.places();
         for (var i: int = 0; i<ps.length; i++) {
             val p: Place = ps(i);
@@ -191,11 +191,11 @@ abstract public class TestArray extends x10Test {
 
     }
 
-    def prArray(test: String, a: Array[double]): void = {
+    def prArray(test: String, a: DistArray[double]): void = {
         prArray(test, a, false);
     }
 
-    def prArray(test: String, a: Array[double], bump: boolean): void = {
+    def prArray(test: String, a: DistArray[double], bump: boolean): void = {
 
         val r: Region = a.region;
 
@@ -210,7 +210,7 @@ abstract public class TestArray extends x10Test {
             if (r.rank==0) {
                 pr("ERROR rank==0");
             } else if (r.rank==1) {
-                val a2 = a as Array[double](1);
+                val a2 = a as DistArray[double](1);
                 var min0: int = s.min(0);
                 var max0: int = s.max(0);
                 for (var i0: int = min0; i0<=max0; i0++) {
@@ -218,7 +218,7 @@ abstract public class TestArray extends x10Test {
                     grid.set(i0, a2(i0));
                 }
             } else if (r.rank==2) {
-                val a2 = a as Array[double](2);
+                val a2 = a as DistArray[double](2);
                 var min0: int = s.min(0);
                 var max0: int = s.max(0);
                 for (var i0: int = min0; i0<=max0; i0++) {
@@ -231,7 +231,7 @@ abstract public class TestArray extends x10Test {
                     }
                 }
             } else if (r.rank==3) {
-                val a2 = a as Array[double](3);
+                val a2 = a as DistArray[double](3);
                 var min0: int = s.min(0);
                 var max0: int = s.max(0);
                 for (var i0: int = min0; i0<=max0; i0++) {
@@ -256,21 +256,21 @@ abstract public class TestArray extends x10Test {
         prArray1(a, /*bump*/ false); // XXX use bump, update tests
     }
 
-    def prArray1(a: Array[double], bump: boolean): void = {
+    def prArray1(a: DistArray[double], bump: boolean): void = {
         // iterator api
         var grid: Grid! = new Grid();
         for (p:Point in a.region) {
             //var v: double = a(p as Point(a.rank));
             if (p.rank==1) {
-                val a2 = a as Array[double](1);
+                val a2 = a as DistArray[double](1);
                 if (bump) a2(p(0)) = a2(p(0)) + 1;
                 grid.set(p(0), a2(p(0)));
             } else if (p.rank==2) {
-                val a2 = a as Array[double](2);
+                val a2 = a as DistArray[double](2);
                 if (bump) a2(p(0), p(1)) = a2(p(0), p(1)) + 1;
                 grid.set(p(0), p(1), a2(p(0),p(1)));
             } else if (p.rank==3) {
-                val a2 = a as Array[double](3);
+                val a2 = a as DistArray[double](3);
                 if (bump) a2(p(0), p(1), p(2)) = a2(p(0), p(1), p(2)) + 1;
                 grid.set(p(0), p(1), p(2), a2(p(0),p(1),p(2)));
             }
@@ -292,7 +292,7 @@ abstract public class TestArray extends x10Test {
         pr("--- " + test + ": " + d);
 
         val init = (Point) => -1.0D;
-        val a = Array.make[double](d.region, init);
+        val a = DistArray.make[double](d.region->here, init);
 
         var ps: Rail[Place]! = d.places();
         for (var i: int = 0; i<ps.length; i++) {

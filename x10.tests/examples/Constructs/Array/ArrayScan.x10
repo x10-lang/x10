@@ -40,7 +40,7 @@ public class ArrayScan extends TestArray {
         new ArrayScan().execute();
     }
 
-    def pr(msg:String, a: Array[double]!) {
+    def pr(msg:String, a:Array[double]!) {
         val aa = a as Array[double](1)!;
         out.println("--- " + msg);
         for (pt:Point(1) in aa)
