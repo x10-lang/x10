@@ -20,6 +20,7 @@ public class ArrayReduce extends TestArray {
     public const N: int = 9;
 
     public def run(): boolean {
+	chk(Place.places.length == 4, "This test must be run with 4 places");
 
         val dist = Dist.makeBlockCyclic(0..N, 0, 2);
         prDist("dist", dist);
