@@ -96,15 +96,13 @@ public final class PTPConfUtils {
     final IToolRMConfiguration rmConf = (IToolRMConfiguration) serviceProvider;
     setCommunicationInterfaceParameters(rmConf, commConf);
     final IConnectionConf connConf = platformConf.getConnectionConf();
-    if (findTargetElement(connConf.getConnectionName()) == null) {
+    if (! connConf.isLocal() && findTargetElement(connConf.getConnectionName()) == null) {
       createRemoteConnection(connConf.getConnectionName(), connConf.getAttributes());
     }
     rmConf.setConnectionName(connConf.getConnectionName());
     rmConf.setName(platformConf.getName());
     rmConf.setRemoteServicesId(connConf.isLocal() ? PTPConstants.LOCAL_CONN_SERVICE_ID : PTPConstants.REMOTE_CONN_SERVICE_ID);
-    final IResourceManagerControl resourceManager = rmConf.createResourceManager();
-//    PTPCorePlugin.getDefault().getModelManager().addResourceManager(resourceManager);
-    return resourceManager;
+    return rmConf.createResourceManager();
   }
   
   /**
