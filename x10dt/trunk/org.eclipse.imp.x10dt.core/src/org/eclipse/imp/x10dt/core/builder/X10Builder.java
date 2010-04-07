@@ -65,6 +65,7 @@ import org.eclipse.jdt.internal.ui.preferences.BuildPathsPropertyPage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -866,9 +867,10 @@ public class X10Builder extends IncrementalProjectBuilder {
      * post the dialog box.
      */
     private void postQuestionDialog(final String title, final String query, final Runnable runIfYes, final Runnable runIfNo) {
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+        final IWorkbench wb= PlatformUI.getWorkbench();
+        wb.getDisplay().asyncExec(new Runnable() {
             public void run() {
-                Shell shell= X10DTCorePlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+                Shell shell= wb.getActiveWorkbenchWindow().getShell();
                 boolean response= MessageDialog.openQuestion(shell, title, query);
 
                 if (response)
