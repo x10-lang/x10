@@ -13,8 +13,6 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
-import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.events.IChangedResourceManagerEvent;
 import org.eclipse.ptp.core.events.INewResourceManagerEvent;
@@ -213,21 +211,17 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
   private void initializeControls(final IManagedForm managedForm) {
     final IX10PlatformConf platformConf = getPlatformConf();
     
-    if ((platformConf.getName() == null) || (platformConf.getName().trim().length() == 0)) {
-      this.fRMServiceConfNameCombo.setText(buildDefaultName(platformConf));
-    } else {
-      int index = -1;
-      final ServiceModelManager modelManager = ServiceModelManager.getInstance();
-      for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
-        ++index;
-        if (serviceConf.getName().equals(platformConf.getName())) {
-          this.fRMServiceConfNameCombo.select(index);
-          break;
-        }
+    int index = -1;
+    final ServiceModelManager modelManager = ServiceModelManager.getInstance();
+    for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
+      ++index;
+      if (serviceConf.getName().equals(platformConf.getName())) {
+        this.fRMServiceConfNameCombo.select(index);
+        break;
       }
-      if (this.fRMServiceConfNameCombo.getSelectionIndex() == -1) {
-        this.fRMServiceConfNameCombo.setText(platformConf.getName());
-      }
+    }
+    if (this.fRMServiceConfNameCombo.getSelectionIndex() == -1) {
+      this.fRMServiceConfNameCombo.setText(platformConf.getName());
     }
     handleTextValidation(new EmptyComboInputChecker(this.fRMServiceConfNameCombo, LaunchMessages.RMCP_ConfNameLabel), 
                          managedForm, this.fRMServiceConfNameCombo);
@@ -235,20 +229,6 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     if ((platformConf.getDescription() != null) && (platformConf.getDescription().trim().length() > 0)) {
       this.fDescriptionText.setText(platformConf.getDescription());
     }
-  }
-  
-  // --- Private code
-  
-  private String buildDefaultName(final IX10PlatformConf platformConf) {
-    final boolean isLocal = platformConf.getConnectionConf().isLocal();
-    String connectionName = isLocal ? LaunchMessages.RMCP_DefaultLocalConnName : 
-                                      platformConf.getConnectionConf().getConnectionName();
-    if (connectionName.trim().length() == 0) {
-      connectionName = LaunchMessages.RMCP_UnknownTargetName;
-    }
-    return NLS.bind(LaunchMessages.RMCP_DefaultConnName, 
-                    PTPConfUtils.getCommunicationInterfaceTypeName(platformConf.getCommunicationInterfaceConf()),
-                    connectionName);
   }
   
   // --- Fields
