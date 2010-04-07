@@ -43,10 +43,10 @@ public class LineNumberMap extends StringTable {
         public final int fileId;
         public final int start_line;
         public final int end_line;
-        public Key(int f, int s) {
+        public Key(int f, int s, int e) {
             fileId = f;
             start_line = s;
-            end_line = s;
+            end_line = e;
         }
         public String toString() {
             return fileId + ":" + start_line + "-" + end_line;
@@ -184,36 +184,13 @@ public class LineNumberMap extends StringTable {
 
     /**
      * @param cppFile C++ filename
-     * @param lineNumber C++ line number
+     * @param startLine C++ start line number
+     * @param endLine C++ end line number
      * @param sourceFile X10 filename
      * @param sourceLine X10 line number
      */
-    public void put(String cppFile, int lineNumber, String sourceFile, int sourceLine) {
-        map.put(new Key(stringId(cppFile), lineNumber), new Entry(stringId(sourceFile), sourceLine));
-    }
-
-    /**
-     * @param cppFile C++ filename
-     * @param lineNumber C++ line number
-     * @return X10 filename
-     */
-    public String getSourceFile(String cppFile, int lineNumber) {
-        Entry entry = map.get(new Key(stringId(cppFile), lineNumber));
-        if (entry == null)
-        	return null;
-		return lookupString(entry.fileId);
-    }
-
-    /**
-     * @param cppFile C++ filename
-     * @param lineNumber C++ line number
-     * @return X10 line number
-     */
-    public int getSourceLine(String cppFile, int lineNumber) {
-        Entry entry = map.get(new Key(stringId(cppFile), lineNumber));
-        if (entry == null)
-        	return -1;
-		return entry.line;
+    public void put(String cppFile, int startLine, int endLine, String sourceFile, int sourceLine) {
+        map.put(new Key(stringId(cppFile), startLine, endLine), new Entry(stringId(sourceFile), sourceLine));
     }
 
 	private MethodDescriptor createMethodDescriptor(String container, String name, String returnType, String[] args) {
@@ -313,7 +290,8 @@ public class LineNumberMap extends StringTable {
         sb.append(" L{");
         for (Key pos : map.keySet()) {
             Entry entry = map.get(pos);
-            sb.append(pos.fileId).append(":").append(pos.start_line).append("->");
+            sb.append(pos.fileId).append(":");
+            sb.append(pos.start_line).append("-").append(pos.end_line).append("->");
             sb.append(entry.fileId).append(":").append(entry.line).append(",");
         }
         sb.append("} M{");
@@ -349,8 +327,10 @@ public class LineNumberMap extends StringTable {
             int n = Integer.parseInt(t);
             t = st.nextToken();
             assert (t.equals(":"));
-            t = st.nextToken("-");
-            int i = Integer.parseInt(t);
+            int i = Integer.parseInt(st.nextToken("-"));
+            t = st.nextToken();
+            assert (t.equals("-"));
+            int e = Integer.parseInt(st.nextToken("-"));
             t = st.nextToken(">");
             assert (t.equals("-"));
             t = st.nextToken(">");
@@ -359,7 +339,7 @@ public class LineNumberMap extends StringTable {
             t = st.nextToken();
             assert (t.equals(":"));
             int l = Integer.parseInt(st.nextToken(","));
-            res.map.put(new Key(n, i), new Entry(f, l));
+            res.map.put(new Key(n, i, e), new Entry(f, l));
             t = st.nextToken();
             assert (t.equals(","));
         }
@@ -387,29 +367,6 @@ public class LineNumberMap extends StringTable {
         return res;
     }
 
-    /**
-     * Inverts the current map.  Creates a full (file,line)->(file,line) map.
-     * @return the resulting inverted map
-     */
-    public LineNumberMap invert() {
-        LineNumberMap m = new LineNumberMap();
-        for (Key pos : map.keySet()) {
-			Entry e = map.get(pos);
-			String f = lookupString(e.fileId);
-			int l = e.line;
-			m.put(f, l, lookupString(pos.fileId), pos.start_line);
-        }
-        for (MethodDescriptor md : methods.keySet()) {
-			MethodDescriptor sm = methods.get(md);
-			MethodDescriptor tmd = m.createMethodDescriptor(lookupString(md.container),
-					lookupString(md.name), lookupString(md.returnType), lookupStrings(md.args));
-			MethodDescriptor tsm = m.createMethodDescriptor(lookupString(sm.container),
-					lookupString(sm.name), lookupString(sm.returnType), lookupStrings(sm.args));
-			m.methods.put(tsm, tmd);
-        }
-        return m;
-    }
-
 	/**
 	 * Merges a set of new entries into a given map.  Changes the map in place!
 	 * @param map the target map (changed in place!)
@@ -422,7 +379,7 @@ public class LineNumberMap extends StringTable {
 		for (Key p : n.map.keySet()) {
 //			assert (!m.map.containsKey(p));
 			Entry e = n.map.get(p);
-			m.put(n.lookupString(p.fileId), p.start_line, n.lookupString(e.fileId), e.line);
+			m.put(n.lookupString(p.fileId), p.start_line, p.end_line, n.lookupString(e.fileId), e.line);
 		}
 		for (MethodDescriptor d : n.methods.keySet()) {
 //		    if (m.methods.containsKey(d))
@@ -566,31 +523,31 @@ public class LineNumberMap extends StringTable {
 	    w.writeln("};");
 	    w.forceNewline();
 
-	    // A cross reference of X10 statements to the first C++ statement.
-	    // Sorted by X10 file index and X10 source file line.
-	    ArrayList<CPPLineInfo> x10toCPPlist = new ArrayList<CPPLineInfo>(m.map.size());
-	    for (Key p : m.map.keySet()) {
-	        Entry e = m.map.get(p);
-	        x10toCPPlist.add(
-	                new CPPLineInfo(findFile(m.lookupString(e.fileId), files), // _X10index
-	                                0,                                         // FIXME: _X10method
-	                                offsets[p.fileId],                         // _CPPindex
-	                                e.line,                                    // _X10line
-	                                p.start_line));                            // _CPPline
-	    }
-	    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
-	    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) = {");
-	    for (CPPLineInfo cppDebugInfo : x10toCPPlist) {
-	        w.write("    { ");
-	        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
-	        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
-	        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
-	        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
-	        w.write(""+cppDebugInfo.cppfromline);                              // _CPPline
-	        w.writeln(" },");
-	    }
-	    w.writeln("};");
-	    w.forceNewline();
+//	    // A cross reference of X10 statements to the first C++ statement.
+//	    // Sorted by X10 file index and X10 source file line.
+//	    ArrayList<CPPLineInfo> x10toCPPlist = new ArrayList<CPPLineInfo>(m.map.size());
+//	    for (Key p : m.map.keySet()) {
+//	        Entry e = m.map.get(p);
+//	        x10toCPPlist.add(
+//	                new CPPLineInfo(findFile(m.lookupString(e.fileId), files), // _X10index
+//	                                0,                                         // FIXME: _X10method
+//	                                offsets[p.fileId],                         // _CPPindex
+//	                                e.line,                                    // _X10line
+//	                                p.start_line));                            // _CPPline
+//	    }
+//	    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
+//	    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) = {");
+//	    for (CPPLineInfo cppDebugInfo : x10toCPPlist) {
+//	        w.write("    { ");
+//	        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
+//	        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
+//	        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
+//	        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
+//	        w.write(""+cppDebugInfo.cppfromline);                              // _CPPline
+//	        w.writeln(" },");
+//	    }
+//	    w.writeln("};");
+//	    w.forceNewline();
 
 	    // A cross reference of C++ statements to X10 statements.
 	    // Sorted by C++ file index and C++ source file line. 
@@ -604,7 +561,7 @@ public class LineNumberMap extends StringTable {
 	                                offsets[p.fileId],                         // _CPPindex
 	                                e.line,                                    // _X10line
 	                                p.start_line,                              // _CPPfromline
-	                                p.start_line));                            // FIXME: _CPPtoline
+	                                p.end_line));                              // _CPPtoline
 	    }
 	    Collections.sort(cpptoX10xrefList, CPPLineInfo.byCPPinfo());
 	    w.writeln("static const struct _CPPtoX10xref _CPPtoX10xrefList[] = {");
@@ -666,7 +623,8 @@ public class LineNumberMap extends StringTable {
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
-            w.writeln("sizeof(_X10toCPPlist),");
+//            w.writeln("sizeof(_X10toCPPlist),");
+            w.writeln("0,");
             w.writeln("sizeof(_CPPtoX10xrefList),");
         } else {
             w.writeln("0,");
@@ -681,7 +639,8 @@ public class LineNumberMap extends StringTable {
         w.writeln("_X10strings,");
         if (!m.isEmpty()) {
             w.writeln("_X10sourceList,");
-            w.writeln("_X10toCPPlist,");
+//            w.writeln("_X10toCPPlist,");
+            w.writeln("NULL,");
             w.writeln("_CPPtoX10xrefList,");
         } else {
             w.writeln("NULL,");
