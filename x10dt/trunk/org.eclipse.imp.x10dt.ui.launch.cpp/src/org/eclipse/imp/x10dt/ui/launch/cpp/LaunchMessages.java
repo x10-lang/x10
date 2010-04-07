@@ -117,6 +117,8 @@ public class LaunchMessages extends NLS {
 
   public static String CIT_CommunicationInterface;
 
+  public static String CIT_CouldNotCreateResManager;
+
   public static String CIT_CouldNotStartResManager;
 
   public static String CIT_NoLaunchConfigAvailable;
