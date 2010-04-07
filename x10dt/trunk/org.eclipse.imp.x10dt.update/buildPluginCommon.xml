@@ -136,7 +136,6 @@
                 <replaceregex pattern="org\.eclipse\.zest[^,]*,?"    replace="" flags="g"/>
 				<replaceregex pattern="org\.junit[^,]*,?"            replace="" flags="g"/>
 				<!-- Make dependencies on "local" (non-Eclipse) plugins use a relative path -->
-				<replaceregex pattern="(,)?lpg.runtime,?" replace="\1lpg.runtime.java,"/>
 				<replaceregex pattern="org.eclipse.imp.analysis.p3,?" replace="org.eclipse.imp.analysis,"/>
 	<!--			<replaceregex pattern="polyglot3,?" replace="polyglot3-dev,"/>
 	-->
