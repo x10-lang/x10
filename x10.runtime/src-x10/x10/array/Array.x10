@@ -15,22 +15,37 @@ import x10.compiler.Inline;
 import x10.compiler.Native;
 
 /**
- * This class represents a k-dimensional dense array whose 
- * data is in a single place, which is the same place 
- * as the Array's home.</p>
- *
- * Warning: This class is part of an initial prototyping
- *          of the array library redesign targeted for 
- *          completion in X10 2.1.  It's API is not 
- *          likely to be stable from one release to another
- *          until after X10 2.1.</p>
+ * An array defines a mapping from {@link Point}s to data values of some type T.
+ * The Points in the Array's domain are defined by specifying a {@link Region}
+ * over which the Array is defined.  Attempting to access a data value
+ * at a Point not included in the Array's Region will result in a 
+ * {@link ArrayIndexOutOfBoundsException} being raised.</p>
  * 
- * Warning:  Eventually the operations implemented by
- *          this class will match those promised by 
- *          x10.lang.Array, but for now some of the API
- *          is stubbed out here (and may eventually 
- *          by removed from x10.lang.Array).  This 
- *          will be resolved by X10 2.1<p>
+ * All of the data in an Array is stored in a single Place, the 
+ * Array's object home.  Data values may only be accessed at
+ * the Array's home place.</p>
+ *
+ * The Array implementation is optimized for relatively dense 
+ * region of points. In particular, to compute the storage required
+ * to store an array instance's data, the array's Region is asked
+ * for its bounding box (n-dimensional box such that all points in
+ * the Region are contained within the bounding box). Backing storage 
+ * is allocated for every Point in the bounding box of the array's Region.
+ * Using the Array with partially defined Regions (ie, Regions that do 
+ * not include every point in the Region's bounding box) is supported
+ * and will operate as expected, however if the Region is sparse and large
+ * there will be significant space overheads incurred for defining an Array
+ * over the Region.  In future versions of X10, we may support a more 
+ * space efficient implementation of Arrays over sparse regions, but 
+ * such an implementation is not yet available as part of the x10.array package.</p>
+ *
+ * The closely related class {@link DistArray} is used to define 
+ * distributed arrays where the data values for the Points in the 
+ * array's domain are distributed over multiple places.</p>
+ * 
+ * @see Point
+ * @see Region
+ * @see DistArray
  */
 public final class Array[T](
     /**
@@ -65,8 +80,6 @@ public final class Array[T](
     public property rail: boolean = region.rail;
 
 
-
-
     private val raw:Rail[T]!;
     private val layout:RectLayout!;
 
@@ -74,14 +87,14 @@ public final class Array[T](
     @Native("c++", "BOUNDS_CHECK_BOOL")
     private native def checkBounds():boolean;
 
-    // TODO: made public for experimentation in ANU code until proper copyTo is implemented.
+    // TODO: made public for use in Rail.copyTo/copyFrom from user code until proper copyTo/copyFrom 
+    //       is implemented for arrays.  This method will not be public in X10 2.0.4.
     public @Inline def raw():Rail[T]! = raw;
    
 
     // TODO: This is a hack around the way regions are currently defined.
-    //       Even when we compile with NO_CHECKS, we still have to have
-    //       the checking code inlined. or the presence of the call in a loop
-    //       blows register allocation significantly impacts performance.
+    //       to try to make checking slightly more efficient.
+    //       This will be fixed in 2.0.4.
     private val baseRegion:BaseRegion{self.rank==this.rank};
 
     // TODO: XTENLANG-1188 this should be a const (static) field, but working around C++ backend bug
@@ -104,7 +117,7 @@ public final class Array[T](
 
 
     /**
-     * Construct Array over the region reg whose
+     * Construct an Array over the region reg whose
      * values are initialized as specified by the init function.
      *
      * @param reg The region over which to construct the array.
@@ -152,7 +165,7 @@ public final class Array[T](
 
 
     /**
-     * Construct Array over the region 0..rail.length-1 whose
+     * Construct Array over the region 0..size-1 whose
      * values are uninitialized
      */    
     public def this(size:int):Array[T]{self.rank==1,rect,zeroBased} {
@@ -161,7 +174,7 @@ public final class Array[T](
 
 
     /**
-     * Construct Array over the region reg whose
+     * Construct Array over the region 0..size-1 whose
      * values are initialized as specified by the init function.
      *
      * @param reg The region over which to construct the array.
@@ -170,10 +183,6 @@ public final class Array[T](
     public def this(size:int, init:(Point(1))=>T):Array[T]{self.rank==1,rect,zeroBased} {
 	this(Region.makeRectangular(0, size-1), init);
     }
-
-
-
-
 
 
 
@@ -366,25 +375,178 @@ public final class Array[T](
         return v;
     }
 
-    /*
-     * TODO: Cruft inherited from Array but not yet implemented.
-     *       Some of this will get implemented, other parts will
-     *       get removed from Array.
+	
+    /**
+     * Lift this array using the given unary operation.
+     * Apply the operation pointwise to the elements of this array.
+     * Return a new array with the same region as this array.
+     * Each element of the new array is the result of applying the given operation to the
+     * corresponding element of this array.
+     *
+     * @param op the given unary operation
+     * @return a new array with the same region as this array.
+     * @see #reduce((T,T)=>T,T)
+     * @see #scan((T,T)=>T,T)
      */
+    public def lift(op:(T)=>T):Array[T](region)! {
+        // TODO: parallelize this operation.
+        return new Array[T](region, (p:Point(this.rank))=>op(apply(p)));
+    }
 
-    public incomplete safe def restriction(r: Region(rank)): Array[T](rank);
 
-    public incomplete safe def restriction(p: Place): Array[T](rank);
+    /**
+     * Lift this array using the given unary operation.
+     * Apply the operation pointwise to the elements of this array
+     * storing the result in the destination array.
+     * Each element of destination will be set to be the result of 
+     * applying the given operation to the corresponding element of this array.
+     *
+     * @param dst the destination array for the lift operation
+     * @param op the given unary operation
+     * @return dst after applying the lift operation.
+     * @see #reduce((T,T)=>T,T)
+     * @see #scan((T,T)=>T,T)
+     */
+    public def lift(dst:Array[T](region)!, op:(T)=>T):Array[T](region)! {
+	// TODO: parallelize these loops.
+	if (region.rect) {
+            // In a rect region, every element in the backing raw Rail[T]
+            // is included in the points of region, therfore we can optimize
+            // the traversal and simply lift on the Rail itself.
+            for (var i:int =0; i<raw.length; i++) {
+                dst.raw(i) = op(raw(i));
+            }	
+        } else {
+            for (p in region) {
+                dst(p) = op(apply(p));
+            }
+        }
+        return dst;
+    }
 
-    public incomplete safe operator this | (r: Region(rank)): Array[T](rank);
 
-    public incomplete safe operator this | (p: Place): Array[T](rank);
+    /**
+     * Lift this array and a second source array using the given binary operation.
+     * Apply the operation pointwise to the elements of this array and the
+     * argument src array, returning a new array with the same region as this array.
+     * Each element of the new array is the result of applying the given operation to the
+     * corresponding element of this array and src.
+     *
+     * @param op the given binary operation
+     * @param src the other src array
+     * @return a new array with the same region as this array containing the result of the lift.
+     * @see #reduce((T,T)=>T,T)
+     * @see #scan((T,T)=>T,T)
+     */
+    public def lift(src:Array[T](this.region)!, op:(T,T)=>T):Array[T](region)! {
+        // TODO: parallelize this operation.
+        return new Array[T](region, (p:Point(this.rank))=>op(apply(p), src(p)));
+    }
 
-    public incomplete def lift(op:(T)=>T): Array[T](region)!;
 
-    public incomplete def reduce(op:(T,T)=>T, unit:T): T;
+    /**
+     * Lift this array and a second source array using the given binary operation.
+     * Apply the operation pointwise to the elements of this array and the 
+     * other array storing the result in the destination array.
+     * Each element of destination will be set to be the result of 
+     * applying the given operation to the corresponding element of this array
+     * and the src array.
+     *
+     * @param dst the destination array for the lift operation
+     * @param src the second source array for the lift operation
+     * @param op the given binary operation
+     * @return destination after applying the lift operation.
+     * @see #reduce((T,T)=>T,T)
+     * @see #scan((T,T)=>T,T)
+     */
+    public def lift(dst:Array[T](region)!, src:Array[T](region)!, op:(T,T)=>T):Array[T](region)! {
+	// TODO: parallelize these loops.
+	if (region.rect) {
+            // In a rect region, every element in the backing raw Rail[T]
+            // is included in the points of region, therfore we can optimize
+            // the traversal and simply lift on the Rail itself.
+            for (var i:int =0; i<raw.length; i++) {
+                dst.raw(i) = op(raw(i), src.raw(i));
+            }	
+        } else {
+            for (p in region) {
+                dst(p) = op(apply(p), src(p));
+            }
+        }
+        return dst;
+    }
 
-    public incomplete def scan(op:(T,T)=>T, unit:T): Array[T](region)!;
+
+    /**
+     * Reduce this array using the given binary operation and the given initial value.
+     * Starting with the initial value, apply the operation pointwise to the current running value
+     * and each element of this array.
+     * Return the final result of the reduction.
+     *
+     * @param op the given binary operation
+     * @param unit the given initial value
+     * @return the final result of the reduction.
+     * @see #lift((T)=>T)
+     * @see #scan((T,T)=>T,T)
+     */
+    public def reduce(op:(T,T)=>T, unit:T):T {
+        // TODO: once collecting finish is available,
+        //       use it to efficiently parallelize these loops.
+        var accum:T = unit;
+	if (region.rect) {
+            // In a rect region, every element in the backing raw Rail[T]
+            // is included in the points of region, therfore we can optimize
+            // the traversal and simply reduce on the Rail itself.
+            for (var i:int=0; i<raw.length; i++) {
+                accum = op(accum, raw(i));
+            }          
+        } else {
+            for (p in region) {
+                accum = op(accum, apply(p));
+            }
+	}
+        return accum;
+    }
+
+    /**
+     * Scan this array using the given binary operation and the given initial value.
+     * Starting with the initial value, apply the operation pointwise to the current running value
+     * and each element of this array.
+     * Return a new array with the same region as this array.
+     * Each element of the new array is the result of applying the given operation to the
+     * current running value and the corresponding element of this array.
+     *
+     * @param op the given binary operation
+     * @param unit the given initial value
+     * @return a new array containing the result of the scan 
+     * @see #lift((T)=>T)
+     * @see #reduce((T,T)=>T,T)
+     */
+    public def scan(op:(T,T)=>T, unit:T): Array[T](region)! = scan(new Array[T](region), op, unit); // TODO: private constructor to avoid useless zeroing
+
+
+    /**
+     * Scan this array using the given binary operation and the given initial value.
+     * Starting with the initial value, apply the operation pointwise to the current running value
+     * and each element of this array storing the result in the destination array.
+     * Return the destination array where each element has been set to the result of 
+     * applying the given operation to the current running value and the corresponding 
+     * element of this array.
+     *
+     * @param op the given binary operation
+     * @param unit the given initial value
+     * @return a new array containing the result of the scan 
+     * @see #lift((T)=>T)
+     * @see #reduce((T,T)=>T,T)
+     */
+    public def scan(dst:Array[T](region)!, op:(T,T)=>T, unit:T): Array[T](region)! {
+        var accum:T = unit;
+        for (p in region) {
+            accum = op(accum, apply(p));
+            dst(p) = accum;
+        }
+        return dst;
+    }
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
