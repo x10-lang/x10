@@ -48,10 +48,20 @@ const serialization_id_t Throwable::_serialization_id =
 
 void
 Throwable::_serialize_body(x10aux::serialization_buffer &buf) {
+    fillInStackTrace();
     this->Object::_serialize_body(buf);
     buf.write(FMGL(cause));
     buf.write(FMGL(message));
-    // TODO: serialize the trace
+    buf.write(FMGL(trace_size));
+    if (FMGL(trace_size) > 0) {
+        for (int i=0; i<FMGL(trace_size); i++) {
+            if (sizeof(void*) == sizeof(x10_int)) {
+                buf.write((x10_int)FMGL(trace)[i]);
+            } else {
+                buf.write((x10_long)FMGL(trace)[i]);
+            }
+        }
+    }
 }
 
 void
@@ -59,7 +69,16 @@ Throwable::_deserialize_body(x10aux::deserialization_buffer &buf) {
     this->Object::_deserialize_body(buf);
     FMGL(cause) = buf.read<x10aux::ref<Throwable> >();
     FMGL(message) = buf.read<x10aux::ref<String> >();
-    // TODO: deserialize the trace
+    FMGL(trace_size) = buf.read<x10_int>();
+    if (FMGL(trace_size) > 0) {
+        for (int i=0; i<FMGL(trace_size); i++) {
+            if (sizeof(void*) == sizeof(x10_int)) {
+                FMGL(trace)[i] = (void*)(buf.read<x10_int>());
+            } else {
+                FMGL(trace)[i] = (void*)(buf.read<x10_long>());
+            }
+        }
+    }
 }
 
 x10aux::ref<Throwable>
