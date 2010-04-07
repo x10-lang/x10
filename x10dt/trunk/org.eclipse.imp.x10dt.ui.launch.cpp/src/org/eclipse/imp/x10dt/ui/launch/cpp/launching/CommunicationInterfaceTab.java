@@ -94,11 +94,13 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     if (this.fResourceManager.getState() != State.STARTED) { 
       try {
         this.fResourceManager.startUp(new NullProgressMonitor());
-        initializeFrom(getLaunchConfiguration());
       } catch (CoreException except) {
         setErrorMessage(LaunchMessages.CIT_CouldNotStartResManager);
         this.fResourceManager = null;
       }
+    }
+    if ((getLaunchConfiguration() != null) && (this.fResourceManager != null)) {
+      initializeFrom(getLaunchConfiguration());
     }
   }
   
