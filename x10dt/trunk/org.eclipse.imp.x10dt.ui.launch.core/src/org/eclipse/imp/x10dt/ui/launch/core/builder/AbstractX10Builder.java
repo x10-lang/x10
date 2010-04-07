@@ -16,62 +16,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.builder.DependencyInfo;
 import org.eclipse.imp.x10dt.core.builder.PolyglotDependencyInfo;
-import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.operations.IX10BuilderOp;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.operations.LocalX10BuilderOp;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.operations.RemoteX10BuilderOp;
-import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
-import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.operations.IX10BuilderFileOp;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.AlwaysTrueFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CollectionUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IdentityFunctor;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.core.IModelManager;
-import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
-import org.eclipse.ptp.core.elements.IResourceManager;
-import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteFileManager;
-import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.WorkbenchException;
 
 import polyglot.frontend.Compiler;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Source;
-import polyglot.util.ErrorQueue;
 import x10.ExtensionInfo;
 
 /**
@@ -83,8 +57,37 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   // --- Abstract methods definition
   
-  protected abstract ELanguage getLanguage();
-   
+  /**
+   * Clears with the help of source files provided the related generated and compiled files on the target machine.
+   * 
+   * @param x10SourceFiles The X10 source files to use.
+   * @param monitor The monitor to use for reporting progress and/or cancel the operation.
+   * @throws CoreException Occurs if we could not delete some particular resource.
+   */
+  public abstract void clearGeneratedAndCompiledFiles(final Collection<IFile> x10SourceFiles, 
+                                                      final SubMonitor monitor) throws CoreException;
+  /**
+   * Creates the Polyglot extension information that controls the compiler options for the particular back-end.
+   * 
+   * @param classPath The class path to consider for compilation.
+   * @param sourcePath The source path to use.
+   * @param localOutputDir The directory where the generated files will be created.
+   * @param withMainMethod True if the main method should be generated, false otherwise.
+   * @param monitor The monitor to use for reporting progress and/or cancel the operation.
+   * @return A non-null object.
+   */
+  public abstract ExtensionInfo createExtensionInfo(final String classPath, final List<File> sourcePath,
+                                                    final String localOutputDir, final boolean withMainMethod, 
+                                                    final IProgressMonitor monitor);
+  
+  /**
+   * Creates the instance of {@link IX10BuilderFileOp} depending of the connection type, local or remote.
+   * 
+   * @return A non-null object.
+   * @throws CoreException Occurs if we could not load the X10 platform configuration associated with the project.
+   */
+  public abstract IX10BuilderFileOp createX10BuilderFileOp() throws CoreException;
+  
   // --- Abstract methods implementation
   
   @SuppressWarnings("unchecked")
@@ -92,120 +95,50 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     try {
       if (this.fProjectWrapper == null) {
         return new IProject[0];
-      }      
-      final IPath outpuLoc = this.fProjectWrapper.getOutputLocation();
-      final IContainer binaryContainer = ResourcesPlugin.getWorkspace().getRoot().getFolder(outpuLoc);
-
-      monitor.beginTask(null, 100);
-      
-      // Let's get the resource manager.
-      final IWorkbench workbench = LaunchCore.getInstance().getWorkbench();
-      final IResourceManager[] rmFound = new IResourceManager[1];
-      workbench.getDisplay().syncExec(new Runnable() {
-
-        public void run() {
-          try {
-            rmFound[0] = PTPUtils.getResourceManager(workbench.getDisplay().getActiveShell(), getProject());
-          } catch (CoreException except) {
-            // Let's forget that.
-          }
-        }
-        
-      });
-      final IResourceManager resourceManager = rmFound[0];
-      if (resourceManager == null) {
-        IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_NoResManagerError, getProject().getName()), 
-                                   IMarker.SEVERITY_ERROR, 
-                                   getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-        UIUtils.showView(PROBLEMS_VIEW_ID);
-        return new IProject[0];
       }
-      
-      if (resourceManager.getState() != ResourceManagerAttributes.State.STARTED) {
-        try {
-          resourceManager.startUp(new SubProgressMonitor(monitor, 3));
-        } catch (CoreException except) {
-          IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.AXB_ResManagerStartFailure, resourceManager.getName()), 
-                                     IMarker.SEVERITY_ERROR, 
-                                     getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-          UIUtils.showView(PROBLEMS_VIEW_ID);
-          return new IProject[0];
-        }
-      } else {
-        monitor.worked(3);
-      }
-      
-      collectSourceFilesToCompile(INCREMENTAL_BUILD, this.fDependentProjects, new SubProgressMonitor(monitor, 5));
-      
-      clearGeneratedAndCompiledFiles(resourceManager, new SubProgressMonitor(monitor, 5));
-            
-      // Let's get the platform configuration
-      final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
-      final String platformConfName = getProject().getPersistentProperty(Constants.X10_PLATFORM_CONF);
-      final IX10PlatformConfiguration platform = platforms.get(platformConfName);
-      if (platform == null) {
-        IResourceUtils.addMarkerTo(getProject(), Messages.XB_NoPlatformConfError, IMarker.SEVERITY_ERROR, 
-                                   getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-        UIUtils.showView(PROBLEMS_VIEW_ID);
-        return new IProject[0];
-      }
-      
-      // Let's clear the markers.
-      clearMarkers(kind);
-      
-      // Let's compile the X10 files.
-      final String workspaceDir = JavaProjectUtils.getWorkspaceDirValue(getProject());
-      final File outputDir = new File(binaryContainer.getLocationURI());
-      compileX10Files(outputDir.getAbsolutePath(), new SubProgressMonitor(monitor, 22));
-      
-      // Finally, let's compile the generated files.
-      return compileGeneratedFiles(resourceManager, this.fDependentProjects, workspaceDir, platform, binaryContainer,
-                                   new SubProgressMonitor(monitor, 55));
-    } catch (IOException except) {
-      IResourceUtils.addMarkerTo(getProject(), Messages.XPCPP_LoadingErrorMsg,
-      										       IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-      UIUtils.showView(PROBLEMS_VIEW_ID);
-      LaunchCore.log(IStatus.ERROR, Messages.XPCPP_LoadingErrorLogMsg, except);
-      return new IProject[0];
-    } finally {
       this.fDependencyInfo.clearAllDependencies();
       this.fSourcesToCompile.clear();
-      this.fRootFileNames.clear();
 
+      final SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+      
+      final Set<IProject> dependentProjects = new HashSet<IProject>();
+      collectSourceFilesToCompile(dependentProjects, subMonitor.newChild(5));
+      
+      clearMarkers(kind);
+      clearGeneratedAndCompiledFiles(this.fSourcesToCompile, subMonitor);
+      
+      final IX10BuilderFileOp builderFileOp = createX10BuilderFileOp();
+      if (! builderFileOp.hasAllPrerequisites()) {
+        IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
+                                   IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+        UIUtils.showProblemsView();
+        return dependentProjects.toArray(new IProject[dependentProjects.size()]);
+      }
+      
+      final String localOutputDir = JavaProjectUtils.getProjectOutputDirPath(getProject());
+      compileX10Files(localOutputDir, subMonitor.newChild(30));
+      
+      compileGeneratedFiles(builderFileOp, localOutputDir, subMonitor.newChild(65));
+      
+      return dependentProjects.toArray(new IProject[dependentProjects.size()]);
+    } finally {
       monitor.done();
     }
   }
   
   // --- Overridden methods
-  
+
   protected void clean(final IProgressMonitor monitor) throws CoreException {
-    monitor.beginTask(null, 2);
     monitor.subTask(Messages.CPPB_CleanTaskName);
+    final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
     try {
       if (getProject().isAccessible()) {
         if (this.fProjectWrapper == null) {
           this.fProjectWrapper = JavaCore.create(getProject());
         }
-        collectSourceFilesToCompile(INCREMENTAL_BUILD, this.fDependentProjects, new SubProgressMonitor(monitor, 1));
-        
-        final String resManagerID = getProject().getPersistentProperty(Constants.RES_MANAGER_ID);
-        final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
-        final IResourceManager rmManager = modelManager.getResourceManagerFromUniqueName(resManagerID);
-        if (rmManager != null) {
-          if (rmManager.getState() != ResourceManagerAttributes.State.STARTED) {
-            try {
-              rmManager.startUp(new SubProgressMonitor(monitor, 3));
-              clearGeneratedAndCompiledFiles(rmManager, new SubProgressMonitor(monitor, 1));
-            } catch (CoreException except) {
-              IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.AXB_ResManagerStartFailure, rmManager.getName()), 
-                                         IMarker.SEVERITY_ERROR, 
-                                         getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-              UIUtils.showView(PROBLEMS_VIEW_ID);
-            }
-          } else {
-            clearGeneratedAndCompiledFiles(rmManager, new SubProgressMonitor(monitor, 1));
-          }
-        }
+        // No need to persist dependent projects here since it will be repeated later on.
+        collectSourceFilesToCompile(new HashSet<IProject>(), subMonitor.newChild(1));
+        clearGeneratedAndCompiledFiles(this.fSourcesToCompile, subMonitor.newChild(1));
       }
     } finally {
       monitor.done();
@@ -225,61 +158,17 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   // --- Private code
   
-  private void clearGeneratedAndCompiledFiles(final IResourceManager rmManager, 
-                                              final IProgressMonitor monitor) throws CoreException {
-    final IResourceManagerControl rmControl = (IResourceManagerControl) rmManager;
-    final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
-    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
-    final IRemoteConnection rmConnection = remoteServices.getConnectionManager().getConnection(rmc.getConnectionName());
-    final IRemoteFileManager fileManager = remoteServices.getFileManager(rmConnection);
-    
-    final IProgressMonitor nullMonitor = new NullProgressMonitor();
-    try {
-      monitor.beginTask(null, this.fSourcesToCompile.size() + 1);
-      final String workspaceDir = JavaProjectUtils.getWorkspaceDirValue(getProject());      
-      final IPath wDirPath = new Path(workspaceDir);
-      
-      for (final IFile sourceFile : this.fSourcesToCompile) {
-        final String rootName = sourceFile.getFullPath().removeFileExtension().lastSegment();
-        
-        this.fRootFileNames.add(rootName);
-        
-        fileManager.getResource(wDirPath.append(rootName + ".cc").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-        fileManager.getResource(wDirPath.append(rootName + ".h").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-        fileManager.getResource(wDirPath.append(rootName + ".inc").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-        fileManager.getResource(wDirPath.append(rootName + ".o").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-      
-        monitor.worked(1);
-      }
-      
-      final IFileStore parentStore = fileManager.getResource(workspaceDir);
-      parentStore.getChild("xxx_main_xxx.cc").delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-      parentStore.getChild("lib" + getProject().getName() + ".a").delete(EFS.NONE, nullMonitor); //$NON-NLS-1$ //$NON-NLS-2$
-      
-      final String execPath = getProject().getPersistentProperty(Constants.EXEC_PATH);
-      if (execPath != null) {
-        fileManager.getResource(execPath).delete(EFS.NONE, nullMonitor);
-      }
-      monitor.worked(1);
-    } finally {
-      monitor.done();
-    }
-  }
-  
   private void clearMarkers(final int kind) throws CoreException {
-    if (kind == IncrementalProjectBuilder.INCREMENTAL_BUILD) {
-      for (final IFile file : this.fSourcesToCompile) {
-        file.deleteMarkers(org.eclipse.imp.x10dt.core.builder.X10Builder.PROBLEMMARKER_ID, false /* includeSubtypes */, 
-                           IResource.DEPTH_ZERO);
-      }
-    } else {
-      getProject().deleteMarkers(org.eclipse.imp.x10dt.core.builder.X10Builder.PROBLEMMARKER_ID, true /* includeSubtypes */,
-                                 IResource.DEPTH_INFINITE);
+    for (final IFile file : this.fSourcesToCompile) {
+      file.deleteMarkers(org.eclipse.imp.x10dt.core.builder.X10Builder.PROBLEMMARKER_ID, false /* includeSubtypes */, 
+                         IResource.DEPTH_ZERO);
     }
+    getProject().deleteMarkers(org.eclipse.imp.x10dt.core.builder.X10Builder.PROBLEMMARKER_ID, true /* includeSubtypes */,
+                               IResource.DEPTH_INFINITE);
   }
   
-  private void collectSourceFilesToCompile(final int kind, final Set<IProject> dependentProjects,
-                                           final IProgressMonitor monitor) throws CoreException {
+  private void collectSourceFilesToCompile(final Set<IProject> dependentProjects,
+                                           final SubMonitor monitor) throws CoreException {
     try {
       monitor.beginTask(Messages.CPPB_CollectingSourcesTaskName, 1);
       getProject().accept(new SourceFilesCollector(this.fSourcesToCompile, this.fDependencyInfo,
@@ -289,37 +178,17 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
   }
   
-  private IProject[] compileGeneratedFiles(final IResourceManager resourceManager, final Set<IProject> dependentProjects, 
-                                           final String workspaceDir, final IX10PlatformConfiguration platform,
-  		                                     final IContainer binaryContainer, 
-  		                                     final IProgressMonitor monitor) throws CoreException {
-    try {
-      final IX10BuilderOp builderOp;
-      if (platform.isLocal()) {
-        builderOp = new LocalX10BuilderOp(getProject(), workspaceDir, resourceManager, this.fRootFileNames);
-      } else {
-        builderOp = new RemoteX10BuilderOp(getProject(), workspaceDir, resourceManager, platform.getTargetOS(), 
-                                           this.fRootFileNames);
-      }
-      
-      builderOp.transfer(binaryContainer, new SubProgressMonitor(monitor, 10));
-      if (builderOp.compile(platform, new SubProgressMonitor(monitor, 70))) {
-        builderOp.archive(platform, new SubProgressMonitor(monitor, 20));
-      }
-    } catch (WorkbenchException except) {
-      IResourceUtils.addMarkerTo(getProject(), Messages.XPCPP_LoadingErrorMsg,
-                                 IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-      UIUtils.showView(PROBLEMS_VIEW_ID);
-      LaunchCore.log(IStatus.ERROR, Messages.XPCPP_LoadingErrorLogMsg, except);
-      return new IProject[0];
+  private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final String localOutputDir,
+                                           final SubMonitor monitor) throws CoreException {
+    monitor.beginTask(null, 100);
+
+    builderOp.transfer(localOutputDir, monitor.newChild(10));
+    if (builderOp.compile(monitor.newChild(70))) {
+      builderOp.archive(monitor.newChild(20));
     }
-    
-    return dependentProjects.toArray(new IProject[dependentProjects.size()]);
   }
   
-  private void compileX10Files(final String outputDir, final IProgressMonitor monitor) throws CoreException {
-    final ICompilerX10ExtInfo compilerExtInfo = X10BuilderUtils.createCompilerX10ExtInfo(getLanguage());
-    
+  private void compileX10Files(final String localOutputDir, final IProgressMonitor monitor) throws CoreException {
     final Set<String> cps = JavaProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(), 
                                                                   new AlwaysTrueFilter<IPath>());
     final StringBuilder cpBuilder = new StringBuilder();
@@ -335,18 +204,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
                                                                       new RuntimeFilter());
     final List<File> sourcePath = CollectionUtils.transform(srcPaths, new IPathToFileFunc());
     
-    final ExtensionInfo extInfo = compilerExtInfo.createExtensionInfo(cpBuilder.toString(), sourcePath, outputDir, 
-                                                                      false /* withMainMethod */, monitor);
+    final ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir, 
+                                                      false /* withMainMethod */, monitor);
     
-    final ErrorQueue errorQueue = new X10ErrorQueue(1000000, getProject(), extInfo.compilerName());
-    final Compiler compiler = new Compiler(extInfo, errorQueue);
+    final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(1000000, getProject(), extInfo.compilerName()));
     Globals.initialize(compiler);
     
     compiler.compile(toSources(this.fSourcesToCompile));
-    
-    if (errorQueue.hasErrors()) {
-      UIUtils.showView(PROBLEMS_VIEW_ID);
-    }
   }
   
   private Collection<Source> toSources(final Collection<IFile> sources) throws CoreException {
@@ -356,8 +220,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         pSources.add(new FileSource(new JavaModelFileResource(file)));
       } catch (IOException except) {
         throw new CoreException(new Status(IStatus.ERROR, LaunchCore.getInstance().getBundle().getSymbolicName(), 
-                                           NLS.bind(Messages.CPPB_FileReadingErrorMessage, file),
-                                           except));
+                                           NLS.bind(Messages.CPPB_FileReadingErrorMessage, file), except));
       }
     }
     return pSources;
@@ -371,11 +234,4 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   private Collection<IFile> fSourcesToCompile = new HashSet<IFile>();
   
-  private Set<IProject> fDependentProjects = new HashSet<IProject>();
-  
-  private Set<String> fRootFileNames = new HashSet<String>();
-  
-  
-  private static final String PROBLEMS_VIEW_ID = "org.eclipse.ui.views.ProblemView"; //$NON-NLS-1$
-
 }
