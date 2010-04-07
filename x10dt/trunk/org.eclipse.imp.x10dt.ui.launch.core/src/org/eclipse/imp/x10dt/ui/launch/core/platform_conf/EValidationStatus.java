@@ -12,7 +12,7 @@ package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
  * 
  * @author egeay
  */
-public enum EValidStatus {
+public enum EValidationStatus {
   
   /**
    * Identifies that the validation step ended up with an internal error.
