@@ -1,7 +1,7 @@
 \chapter{Overview of \Xten}
 
 \Xten{} is a statically typed object-oriented language, extending a
-sequential core language with 
+sequential core language with
 \emph{places}, \emph{activities}, \emph{clocks},
 (distributed, multi-dimensional) \emph{arrays} and \emph{struct}
 types. All these changes are motivated by the desire to use the new
@@ -55,7 +55,7 @@ the graph whose nodes are structs and edges $s \rightarrow t$ reflect
 that struct $s$ has a field of (struct) type $t$. Thus a struct
 instance may be represented with exactly as much space as necessary to
 store the fields of that struct (modulo alignment considerations). Structs
-can be copied freely. 
+can be copied freely.
 
 \Xten{} has no primitive classes. However, the standard library
 \xcd"x10.lang" supplies structs \xcd"Boolean", \xcd"Byte",
@@ -86,24 +86,24 @@ Types may be defined by constraining a
 class or interface's properties.
 Properties enable the definition of \emph{dependent types}.
 
-For example, the following code declares a class for a two-dimensional 
+For example, the following code declares a class for a two-dimensional
 \xcd"Point" class with an \xcd"add" method.
 \begin{xten}
 struct Point(x: Int, y: Int) {
-    def add(p: Point) = Point(x+p.x,y+p.y); 
+    def add(p: Point) = Point(x+p.x,y+p.y);
 }
 \end{xten}
 The class has integer value properties \xcd"x" and \xcd"y".
 The \xcd"add" method creates and returns a new point by
 element-wise addition.
-The dependent type \xcd"Point{x==0}" is the type of all points 
+The dependent type \xcd"Point{x==0}" is the type of all points
 with \xcd"x" set to \xcd"0"; that is, all points along the $y$-axis.
 
 \paragraph{Generic types}
 
 Classes and interfaces may have type parameters, permitting the definition of
 {\em generic types}.  Type parameters may be instantiated by any type -- a
-container type or a function type. 
+container type or a function type.
 
 For example,
 the following code declares a simple \xcd"List" class with a
@@ -114,7 +114,7 @@ class List[T] {
     var head: T;
     var tail: List[T];
     def this(h: T, t: List[T]) { head = h; tail = t; }
-    def append(x: T) {
+    def add(x: T) {
         if (this.tail == null)
             this.tail = new List(x, null);
         else
@@ -140,7 +140,7 @@ statements.
 
 \paragraph{Primitive operations.}  The language provides syntax for performing
 binary and unary operations on values. The programmer may specify code
-by using \Xcd{operator} definitions. 
+by using \Xcd{operator} definitions.
 %% TODOvj: Add link to operator section.
 
 
@@ -150,7 +150,7 @@ Objects are allocated with the \xcd"new" operator
 arguments to pass to the class's constructor.  The constructor must
 ensure that all properties of the class and its superclasses are
 bound. Structs are created through the invocation of a constructor
-without using the \Xcd{new} operator and live on the heap only in 
+without using the \Xcd{new} operator and live on the heap only in
 the fields of objects.
 
 \paragraph{Coercions and conversions}
@@ -165,7 +165,7 @@ val y: Byte = x as Byte; // convert to Byte,
                          // retaining the lower 8 bits
 \end{xten}
 The \xcd"as" operation does not necessarily preserve equality
-and for numeric values may 
+and for numeric values may
 result in a loss of precision.
 
 References may be coerced to another type, preserving object
@@ -297,7 +297,7 @@ array type.
 A distribution is a map from a \emph{region} (\Sref{XtenRegions}) to
 places.  A region is a collection of \emph{points} or
 \emph{indices}. For instance, the region \xcd"[0..200,1..100]" specifies
-a collection of two-dimensional points \xcd"(i,j)" with 
+a collection of two-dimensional points \xcd"(i,j)" with
 \xcd"i" ranging from \xcd"0" to \xcd"200" and \xcd"j" ranging
 from \xcd"1" to \xcd"100". Points are used in array index expressions
 to pick out a particular array element.
@@ -366,9 +366,9 @@ coordination between reader/writer activities, obviating the need for
 barrier-based or lock-based synchronization in many cases.
 
 \subsection{Design for productivity}
-\Xten{} is designed for productivity. 
+\Xten{} is designed for productivity.
 
-\paragraph{Safety and correctness.} 
+\paragraph{Safety and correctness.}
 Programs written in \Xten{} are guaranteed to be statically
 \emph{type safe}, \emph{memory safe} and \emph{pointer safe}. Static type safety
 guarantees that at run time a location contains only those values whose
@@ -384,9 +384,9 @@ dynamically if necessary. \Xten{} uses dynamic garbage collection to
 collect objects no longer referenced by the computation. \Xten{}
 guarantees that no object can retain a reference to an object
 whose memory has been reclaimed.  Further, \Xten{} guarantees that
-every location is initialized at run time before it is read, 
+every location is initialized at run time before it is read,
 and every value read from a location has previously been written into
-that location. 
+that location.
 
 %XXX
 %Pointer safety guarantees that a null pointer exception cannot be
@@ -423,7 +423,7 @@ native code.
 %% different computer architectures (distributed cluster vs. vector
 %% processor) depends significantly on inherent properties of the
 %% underlying algorithms used in the application.
-%% 
+%%
 \subsection{Conclusion}
 {}\Xten{} is considerably higher-level than thread-based languages in
 that it supports dynamically spawning very lightweight activities, the
@@ -449,6 +449,3 @@ expect it to have constructs to support continuous program
 optimization, and allow the programmer to provide guidance on
 clustering places to (hardware) nodes. For instance, we may introduce
 a notion of hierarchical clustering of places.
-
-
-
