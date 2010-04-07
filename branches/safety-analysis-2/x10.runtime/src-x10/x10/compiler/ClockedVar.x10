@@ -10,14 +10,21 @@
  */
  
 package x10.compiler;
+import x10.lang.Clock;
 
-public class ClockedVar[T] {
+
+
+public class ClockedVar[T] implements ClockableVar{
     var xRead:T;
     var xWrite: T;
-    public def this () { }
-    public def this(x:T){this.xRead=x;}
-    public def get():T = xRead;
+
+    public def this (c: Clock!) { c.addClockedVar(this);}
+    public def this(c:Clock, x:T){val clk = c as Clock!; this.xRead=x; clk.addClockedVar(this);}
+    public def get():T { Console.OUT.println("In clocked get"); return xRead;}
     public def set(x:T){this.xWrite=x;}
+    public def setR(x:T){this.xRead=x;}
+    public def getW(){return xWrite;}
+    public def move(): Void { this.setR( this.getW());}
 
     
 }

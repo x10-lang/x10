@@ -10,6 +10,11 @@
  */
 
 package x10.lang;
+import x10.compiler.ClockedVar;
+import x10.compiler.ClockableVar;
+import x10.util.HashSet;
+import x10.lang.Any;
+import x10.lang._;
 
 /**
  * @author tardieu
@@ -28,7 +33,8 @@ public class Clock(name:String) {
     private var count:Int = 1;
     private var alive:Int = 1;
     private var phase:Int = FIRST_PHASE;
-
+    private val clockedVars: HashSet[ClockableVar] = new HashSet[ClockableVar]();
+    
     private def this(name:String) {
         property(name);
     }
@@ -41,6 +47,7 @@ public class Clock(name:String) {
 
     private atomic def resumeLocal() {
         if (--alive == 0) {
+            updateClockedVars();
             alive = count;
             ++phase;
         }
@@ -55,6 +62,21 @@ public class Clock(name:String) {
         }
         return ph;
     }
+    
+    public def addClockedVar[T](cv: ClockedVar[T]) {
+        val clockedVariables = clockedVars as HashSet[ClockableVar]!;
+    	clockedVariables.add(cv);
+    }
+    
+    def updateClockedVars() {
+    
+    	for (cv: ClockableVar in clockedVars) {
+    		val cVar = cv as ClockableVar!;
+    		cVar.move();
+    	}
+    
+    }
+    
 
     global def resumeUnsafe() {
         val ph = get();
