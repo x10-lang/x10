@@ -117,6 +117,21 @@ public class ClockedVariableRefactor extends ContextVisitor {
 		 return null;
 	 }
 	 
+	 
+	 private Expr extractOp(Type t) {
+		 AnnotatedType at = (AnnotatedType) t;
+		 for (Type an : at.annotations()) {
+			 if (an instanceof X10ParsedClassType) {
+				    Expr p = ((X10ParsedClassType) an).propertyInitializer(1);
+				    return p;
+			 }
+			 
+		 }
+		 
+		 return null;
+	 }
+	 
+	 
 	 private Node visitLocalDecl(X10LocalDecl_c n) {
 	        if (isClockedType(n.type().type())) {
 	            Flags f = n.flags().flags();
@@ -124,16 +139,20 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	            	//n.type().ty
 	                Position position = n.position();
 	                Expr c = extractClock(n.type().type());
+	                Expr op = extractOp(n.type().type());
 	                Type type = xts.typeForName(CLOCKEDVAR);
+	                
 	                List<Type> typeArgs = new ArrayList<Type>();
 	                typeArgs.add(n.type().type());
 	                
 	                List<Expr> args = new ArrayList<Expr>();
 	                args.add(c);
+	                args.add(op);
 	                args.add(n.init());
 	                
 	                List<Type> argsType = new ArrayList<Type>();
 	                argsType.add(c.type());
+	                argsType.add(op.type());
 	                argsType.add(n.type().type());	               
 
 	                X10ClassType type2 = ((X10ClassType) type).typeArguments(typeArgs);
@@ -200,12 +219,14 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	    
 	 private Node visitMake(X10Call call) {	
 				for (TypeNode tn: call.typeArguments())
-					if (tn.type() instanceof AnnotatedType) {
+					if (this.isClockedType(tn.type())) {
 						Receiver target = call.target();
 						Type type;
 						X10MethodInstance mi;
+						List<Expr> args;
 						try {
-							
+							Expr c = this.extractClock(tn.type());
+							Expr op = this.extractOp(tn.type());
 							type = xts.typeForName(RAIL);
 						
 							
@@ -214,10 +235,22 @@ public class ClockedVariableRefactor extends ContextVisitor {
 							for (TypeNode callTypeArgs: call.typeArguments()) {
 								typeArgs.add(callTypeArgs.type());
 							}
+							//typeArgs.add(op.type());
+							//System.out.println(op.type());
+							
 							List<Type> argTypes = new ArrayList<Type>();
 							for (Expr arg: call.arguments()) {
 								argTypes.add(arg.type());
 							}
+							argTypes.add(c.type());
+							argTypes.add(op.type());
+							
+							args = new ArrayList<Expr>();
+							for (Expr arg: call.arguments()) {
+								args.add(arg);
+							}
+							args.add(c);
+							args.add(op);
 							
 							mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(call.type(), Name.make("makeClockedRail"), typeArgs, argTypes, context));
 							} catch (SemanticException e) {
@@ -225,7 +258,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 							}
 					
 					
-						return (Call) xnf.Call(call.position(), target,  xnf.Id(call.position(), "makeClockedVar"), call.arguments()).methodInstance(mi).type(mi.returnType());
+						return (Call) xnf.Call(call.position(), target,  xnf.Id(call.position(), "makeClockedVar"), args).methodInstance(mi).type(mi.returnType());
 					}
 		
 		return call;

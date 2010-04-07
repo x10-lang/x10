@@ -1563,10 +1563,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     /* Hack - FIXME */
     public boolean typeEquals(Type toType, Type fromType, Context c) {
-    	/*while (toType instanceof AnnotatedType)
+        while (toType instanceof AnnotatedType)
     		toType = ((AnnotatedType) toType).baseType();
     	while (fromType instanceof AnnotatedType)
-    		fromType = ((AnnotatedType) fromType).baseType();*/
+    		fromType = ((AnnotatedType) fromType).baseType();
     	return super.typeEquals(toType, fromType, c);
     }
     

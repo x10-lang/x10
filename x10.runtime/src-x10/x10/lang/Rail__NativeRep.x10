@@ -300,16 +300,18 @@ import x10.compiler.ClockedVar;
             return r;
         }
 
-    	public static safe def makeClockedRail[T](length: Int): Rail[ClockedVar[T]]!{self.length==length} 
+    	public static safe def makeClockedRail[T](length: Int, c:Clock, op:(T,T)=>T): Rail[ClockedVar[T]]!{self.length==length} 
     	{
-     	   return Rail.make[ClockedVar[T]](length, (int) => new ClockedVar [T] ());
+    	   val clk = c as Clock!;
+    	   val oper = op as (T, T) => T!;
+     	   return Rail.make[ClockedVar[T]](length, (int) => new ClockedVar [T] (clk, oper));
     	}
 
 
 	   public static safe def setClocked[T](r: Rail[T]!, index: Int, value: T)
     	{
     	   val cv = r(index) as ClockedVar[T]!;
-    	   atomic cv.set(value);  
+    	   cv.set(value);  
     
     	}
     	
