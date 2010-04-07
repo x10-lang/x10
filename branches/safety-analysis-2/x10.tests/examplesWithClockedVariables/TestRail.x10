@@ -9,8 +9,8 @@ public class TestRail {
     val op = Float.+;
     val b = Rail.make[float @ Clocked[float](c,op)](5);
    //val b: Rail[float @ Clocked [float] (c,op)]! = Rail.make[float](5); /* Works */
-	finish async clocked(c) b(0) = 1.0F;
-
+    async clocked(c) b(0) = 1.0F;
+    next;
     Console.OUT.println(b(0));
     }
 }

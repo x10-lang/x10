@@ -8,14 +8,18 @@ public class Histogram {
 	val N = 100;
 	val S = 5;
 	val c = Clock.make();
-	val a = Array.make[int](0..N-1, ((i):Point)=> i);
+	val a = Rail.make[Int](N, (i:Int)=> i);
 	val op = Int.+;
-	static type cl = int @  Clocked[Int] (c,op);
-    val b : Rail [int @ Clocked [int] (c, op)]! = Rail.make[int](S);
-	foreach((i) in a.region) clocked(c)  {
-	       val bin = a(i)% S;
-	       b(bin) = 1;
+
+    val b = Rail.make[Int @  Clocked[Int] (c,op)](S);
+    var i: int = 0 ;
+	finish for(i = 0; i< N; i++)  {
+			val ii = i;
+			async clocked(c)  {
+	       		val bin = a(ii) % S;
+	      	   b(bin) = 1;
 	    
+	       }
 	}
 	next;
     Console.OUT.println("Test ok." + b(0));
