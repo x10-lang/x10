@@ -21,9 +21,12 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.EnumUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
+import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
+import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.osgi.framework.Bundle;
 
@@ -62,6 +65,16 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     }
     if (this.fCommInterfaceConf.fServiceModeId == null) {
       this.fCommInterfaceConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
+    }
+    if (this.fName  == null) {
+      String connectionName = this.fConnectionConf.fIsLocal ? LaunchMessages.RMCP_DefaultLocalConnName : 
+                                                              this.fConnectionConf.getConnectionName();
+      if (connectionName.trim().length() == 0) {
+        connectionName = LaunchMessages.RMCP_UnknownTargetName;
+      }
+      this.fName = NLS.bind(LaunchMessages.RMCP_DefaultConnName, 
+                            PTPConfUtils.getCommunicationInterfaceTypeName(this.fCommInterfaceConf),
+                            connectionName);
     }
   }
   
