@@ -29,6 +29,7 @@ import org.eclipse.ptp.launch.ui.extensions.AbstractRMLaunchConfigurationFactory
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationContentsChangedListener;
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
 import org.eclipse.ptp.launch.ui.extensions.RMLaunchValidation;
+import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Image;
@@ -82,9 +83,18 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   
   public void platformConfSelected(final IX10PlatformConf platformConf) {
     this.fResourceManager = PTPConfUtils.findResourceManager(platformConf.getName());
-    if (this.fResourceManager.getState() != State.STARTED) {
+    if (this.fResourceManager == null){
+      try {
+        this.fResourceManager = PTPConfUtils.createResourceManager(platformConf);
+      } catch (RemoteConnectionException except1) {
+        setErrorMessage(LaunchMessages.CIT_CouldNotCreateResManager);
+        return;
+      }
+    }
+    if (this.fResourceManager.getState() != State.STARTED) { 
       try {
         this.fResourceManager.startUp(new NullProgressMonitor());
+        initializeFrom(getLaunchConfiguration());
       } catch (CoreException except) {
         setErrorMessage(LaunchMessages.CIT_CouldNotStartResManager);
         this.fResourceManager = null;
@@ -94,28 +104,11 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   
   // --- Overridden methods
   
-  public boolean canSave() {
-    setErrorMessage(null);
-    if (this.fResourceManager == null) {
-      return false;
-    }
-    final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(this.fResourceManager);
-    if (rmDynamicTab == null) {
-      return false;
-    }
-    final RMLaunchValidation validation = rmDynamicTab.canSave(this.fScrolledComposite, this.fResourceManager, null);
-    if (! validation.isSuccess()) {
-      setErrorMessage(validation.getMessage());
-      return false;
-    }
-    return true;
-  }
-  
   public Image getImage() {
     return LaunchImages.getImage(LaunchImages.IMG_PARALLEL_TAB);
   }
   
-  public void initializeFrom(ILaunchConfiguration configuration) {
+  public void initializeFrom(final ILaunchConfiguration configuration) {
     super.initializeFrom(configuration);
     
     final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(this.fResourceManager);
