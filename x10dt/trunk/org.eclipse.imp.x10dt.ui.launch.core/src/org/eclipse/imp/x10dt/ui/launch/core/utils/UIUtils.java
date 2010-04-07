@@ -26,6 +26,24 @@ import org.eclipse.ui.PartInitException;
 public final class UIUtils {
   
   /**
+   * Shows the error log view by calling {@link #showView(String)} with the appropriate id.
+   * 
+   * @throws PartInitException Occurs if a workbench part could not be initialized properly.
+   */
+  public static void showErrorLogView() throws PartInitException {
+    showView(ERROR_LOG_VIEW_ID);
+  }
+  
+  /**
+   * Shows the problems view by calling {@link #showView(String)} with the appropriate id.
+   * 
+   * @throws PartInitException Occurs if a workbench part could not be initialized properly.
+   */
+  public static void showProblemsView() throws PartInitException {
+    showView(PROBLEMS_VIEW_ID);
+  }
+  
+  /**
    * Shows a view from a non-UI thread.
    * 
    * @param viewId The id of the view to show.
@@ -51,14 +69,14 @@ public final class UIUtils {
   }
   
   /**
-   * Reads the output and error streams within another thread to leave the hand on the process continuation.
+   * Reads the standard and error output streams within another thread to leave the hand on the process continuation.
    * 
    * @param outputStream The stream coming from the process standard output.
    * @param errorStream The stream coming from the process error output.
    * @param listener The input listener to consider.
    */
   public static void printStream(final InputStream outputStream, final InputStream errorStream, 
-                                 final IInputListener listener) {
+                                 final IProcessOuputListener listener) {
     final BufferedReader outReader = new BufferedReader(new InputStreamReader(outputStream));
     new Thread(new Runnable() {
       
@@ -91,5 +109,11 @@ public final class UIUtils {
       
     }).start();
   }
+  
+  // --- Fields
+  
+  private static final String ERROR_LOG_VIEW_ID = "org.eclipse.pde.runtime.LogView"; //$NON-NLS-1$
+  
+  private static final String PROBLEMS_VIEW_ID = "org.eclipse.ui.views.ProblemView"; //$NON-NLS-1$
 
 }

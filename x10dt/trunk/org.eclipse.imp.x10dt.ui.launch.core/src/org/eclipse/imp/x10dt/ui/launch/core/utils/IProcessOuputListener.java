@@ -8,21 +8,12 @@
 package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 /**
- * 
+ * Listener that gets notified of the stream characters that are sent to the standard and error outputs when running a 
+ * particular command in a separate process.
  * 
  * @author egeay
  */
-public interface IInputListener {
-  
-  /**
-   * Gets notified once we finished reading the input stream.
-   */
-  public void after();
-  
-  /**
-   * Gets notified before we start reading the input stream.
-   */
-  public void before();
+public interface IProcessOuputListener {
   
   /**
    * Reads a line from the standard output.

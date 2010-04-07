@@ -7,7 +7,6 @@
  *****************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
-import java.io.File;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +20,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -61,36 +59,17 @@ public final class JavaProjectUtils {
   }
   
   /**
-   * Returns the local directory under project output directory where generated files can be created.
+   * Returns the path to the project main output directory.
    * 
-   * @param project The project to consider.
-   * @return A non-null value.
-   * @throws CoreException Occurs if we could not access the output directory for the given project.
+   * @param project The project of interest.
+   * @return A non-null string identifying the project output directory.
+   * @throws CoreException Occurs if we could not access the output directory for the project transmitted.
    */
-  public static String getLocalOutputDirForGeneratedFiles(final IProject project) throws CoreException {
+  public static String getProjectOutputDirPath(final IProject project) throws CoreException {
     final IJavaProject javaProject = JavaCore.create(project);
     final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
     final URI outputFolderURI = root.getFolder(javaProject.getOutputLocation()).getLocationURI();
-    final File outputDirFile = EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor());
-    return outputDirFile.getAbsolutePath().replace('\\', '/');
-  }
-  
-  /**
-   * Returns the workspace directory from the one saved in the project properties.
-   * 
-   * @param project The project of interest.
-   * @return A non-null string identifying the target workspace directory.
-   * @throws CoreException Occurs if we could not access the persisted property for the project transmitted.
-   */
-  public static String getWorkspaceDirValue(final IProject project) throws CoreException {
-    final String workspaceDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
-    if (workspaceDir == null) {
-      final String wDir = getLocalOutputDirForGeneratedFiles(project);
-      project.setPersistentProperty(Constants.WORKSPACE_DIR, wDir);
-      return wDir;
-    } else {
-      return workspaceDir;
-    }
+    return EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor()).getAbsolutePath();
   }
   
   // --- Private code
@@ -135,5 +114,5 @@ public final class JavaProjectUtils {
       return root.getLocation().append(path);
     }
   }
-
+  
 }
