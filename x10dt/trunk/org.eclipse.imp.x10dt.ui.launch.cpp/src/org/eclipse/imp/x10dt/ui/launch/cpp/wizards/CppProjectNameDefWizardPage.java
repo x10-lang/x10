@@ -15,11 +15,9 @@ import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.x10dt.ui.launch.core.Messages;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.ErrorUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
@@ -111,8 +109,8 @@ final class CppProjectNameDefWizardPage extends NewJavaProjectWizardPageOne {
                                       final String folder) throws IOException {
     final Bundle bundle = Platform.getBundle(bundleName);
     if (bundle == null) {
-      ErrorUtils.dialogWithLog(getShell(), Messages.PCDWP_NoBundleDialogTitle, IStatus.ERROR,
-                               NLS.bind(Messages.PCDWP_NoBundleDialogMsg, bundleName));
+      DialogsFactory.createErrorBuilder().createAndOpen(getShell(), LaunchMessages.PWFP_BundleAccessErrorTitle, 
+                                                        NLS.bind(LaunchMessages.PWFP_BundleAccessErrorMsg, bundleName));
       throw new Error();
     } else {
       URL wURL = bundle.getResource(folder);

@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -26,7 +25,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -37,17 +35,18 @@ import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.operations.ITargetOpHelper;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.operations.TargetOpHelperFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
-import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
-import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IInputListener;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.attributes.IAttribute;
@@ -58,15 +57,7 @@ import org.eclipse.ptp.core.elements.attributes.JobAttributes;
 import org.eclipse.ptp.debug.core.IPDebugger;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.launch.ParallelLaunchConfigurationDelegate;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteFileManager;
-import org.eclipse.ptp.remote.core.IRemoteProcess;
-import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
-import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.rm.mpi.mpich2.core.MPICH2LaunchAttributes;
-import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
-import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
@@ -91,23 +82,18 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     final AttributeManager attrMgr = new AttributeManager();
 
     // Collects attributes from Resource tab
-    // Let's update the args for MPICH with Cygwin
     final IAttribute<?, ?, ?>[] resourceAttributes = getResourceAttributes(configuration, mode);
-    if (this.fIsWindows) {
-      final IRemoteConnection rmConn = PTPUtils.getConnectionAndFileManager(resourceManager).first;
+    if (this.fIsCygwin) {
       final StringBuilder pathBuilder = new StringBuilder();
-      pathBuilder.append(rmConn.getEnv(PATH_ENV)); 
-      for (final String x10Lib : this.fX10LibsLocs) {
+      pathBuilder.append(this.fTargetOpHelper.getEnvVarValue(PATH_ENV)); 
+      for (final String x10Lib : this.fCppCompConf.getX10LibsLocations()) {
         pathBuilder.append(File.pathSeparatorChar).append(x10Lib);
       }
-      final String cygdrivePrefix = "/cygdrive"; //$NON-NLS-1$// FIXME: get the remote cygdrive prefix from invoking remote mount 
-      final String newPath = pathBuilder.toString().replaceAll("\\b([A-Za-z]):", cygdrivePrefix+"/$1") //$NON-NLS-1$//$NON-NLS-2$
-                                        .replace(File.separatorChar, '/').replace(File.pathSeparatorChar, ':');
       for (int i = 0; i < resourceAttributes.length; ++i) {
         if (MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().equals(resourceAttributes[i].getDefinition())) {
           final String curValue = resourceAttributes[i].getValueAsString();
           final StringBuilder newArgs = new StringBuilder();
-          newArgs.append("-gpath '").append(newPath).append("' ").append(curValue); //$NON-NLS-1$//$NON-NLS-2$
+          newArgs.append("-gpath '").append(pathBuilder.toString()).append("' ").append(curValue); //$NON-NLS-1$//$NON-NLS-2$
           resourceAttributes[i] = MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().create(newArgs.toString());
         }
       }
@@ -124,11 +110,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     final IPath programPath = verifyExecutablePath(configuration);
     attrMgr.addAttribute(JobAttributes.getExecutableNameAttributeDefinition().create(programPath.lastSegment()));
 
-    String path = programPath.removeLastSegments(1).toString();
+    final String path = programPath.removeLastSegments(1).toString();
     if (path != null) {
-      if (this.fIsWindows) {
-        path = '"' + path + '"'; // Required for PTP 3.0.1. 
-      }
       attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(path));
     }
 
@@ -165,78 +148,66 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch, 
                      final IProgressMonitor monitor) throws CoreException {
-    final IResourceManagerControl rmControl = (IResourceManagerControl) getResourceManager(configuration);
-    final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
-    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
-    final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(rmc.getConnectionName());
     try {
-      if (connection != null) {
-        // Performs linking first.
-        monitor.beginTask(null, 10);
-        monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
-        if (createExecutable(connection, remoteServices, configuration, verifyProject(configuration), 
-                             new SubProgressMonitor(monitor, 8)) == 0) {
-          // Then, performs the launch.
-          monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
-          super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 2));
-        }
+      // Performs linking first.
+      monitor.beginTask(null, 10);
+      monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
+      if (createExecutable(configuration, verifyProject(configuration), 
+                           new SubProgressMonitor(monitor, 8)) == 0) {
+        // Then, performs the launch.
+        monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
+        super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 2));
       }
     } finally {
       monitor.done();
     }
   }
-  
-  protected IPath verifyResource(final String path, final ILaunchConfiguration configuration) throws CoreException {
-    return new Path(path);
-  }
 
   // --- Private code
   
-  private int createExecutable(final IRemoteConnection connection, final IRemoteServices remoteServices,
-                               final ILaunchConfiguration configuration, final IProject project, 
+  private int createExecutable(final ILaunchConfiguration configuration, final IProject project, 
                                final IProgressMonitor monitor) throws CoreException {
     final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
-    final IRemoteFileManager fileManager = remoteServices.getFileManager(connection);
     try {
-      final String workspaceDir = JavaProjectUtils.getWorkspaceDirValue(project);
-      final String platformConfName = project.getPersistentProperty(Constants.X10_PLATFORM_CONF);
-      final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
-      final IX10PlatformConfiguration platform = platforms.get(platformConfName);
-      this.fX10LibsLocs = platform.getX10LibsLocations();
-      this.fIsWindows = platform.getTargetOS() == ETargetOS.WINDOWS;
+      final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
+      this.fCppCompConf = platformConf.getCppCompilationConf();
+      final IConnectionConf connConf = platformConf.getConnectionConf();
+      this.fIsCygwin = this.fCppCompConf.getTargetOS() == ETargetOS.WINDOWS;
+      this.fTargetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), this.fIsCygwin, connConf.getConnectionName());
+      final String workspaceDir = PlatformConfUtils.getWorkspaceDir(platformConf, project);
       final String execPath = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
-      project.setPersistentProperty(Constants.EXEC_PATH, execPath);
       final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
       
-      final IFileStore mainClassFileStore = fileManager.getResource(execPath);
+      final IFileStore mainClassFileStore = this.fTargetOpHelper.getStore(execPath);
       if (mainClassFileStore.fetchInfo().exists() && ! shouldLinkApp) {
         return 0;
       }
       
-      final String fileNameWithoutPath = execPath.substring(execPath.lastIndexOf('/') + 1);
-      final int dotIndex = fileNameWithoutPath.lastIndexOf('.');
-      final String className = (dotIndex == -1) ? fileNameWithoutPath : fileNameWithoutPath.substring(0, dotIndex);
-      final String mainFilePath = createMainFile(fileManager, className, workspaceDir, subMonitor.newChild(1)); 
+      final String className = configuration.getAttribute(Constants.ATTR_X10_MAIN_CLASS, Constants.EMPTY_STR)
+                                            .replace(PACKAGE_SEP, NAMESPACE_SEP);
+      final String mainX10FilePath = createX10MainFile(this.fTargetOpHelper, className, workspaceDir, subMonitor.newChild(1)); 
+      
+      final String mainCppFilePath = configuration.getAttribute(Constants.ATTR_MAIN_CPP_FILE_PATH, (String) null);
+      final int slashIndex = mainCppFilePath.lastIndexOf('/');
+      final String mainCppFileIncludePath = (slashIndex == -1) ? mainCppFilePath : mainCppFilePath.substring(0, slashIndex);
       
       final List<String> command = new ArrayList<String>();
-      command.add(platform.getLinker());
-      command.addAll(X10BuilderUtils.getAllTokens(platform.getLinkingOpts(true)));
-      command.add(INCLUDE_OPT + workspaceDir);
-      for (final String headerLoc : platform.getX10HeadersLocations()) {
-        command.add(INCLUDE_OPT + headerLoc);
+      command.add(this.fTargetOpHelper.getTargetSystemPath(this.fCppCompConf.getLinker()));
+      command.addAll(X10BuilderUtils.getAllTokens(this.fCppCompConf.getLinkingOpts(true)));
+      command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(workspaceDir));
+      command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(mainCppFileIncludePath));
+      for (final String headerLoc : this.fCppCompConf.getX10HeadersLocations()) {
+        command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(headerLoc));
       }
-      command.add(mainFilePath);
+      command.add(this.fTargetOpHelper.getTargetSystemPath(mainX10FilePath));
       command.add("-o"); //$NON-NLS-1$
-      command.add(execPath);
-      command.add(LIB_OPT + workspaceDir);
-      for (final String libLoc : platform.getX10LibsLocations()) {
-        command.add(LIB_OPT + libLoc);
+      command.add(this.fTargetOpHelper.getTargetSystemPath(execPath));
+      command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(workspaceDir));
+      for (final String libLoc : this.fCppCompConf.getX10LibsLocations()) {
+        command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(libLoc));
       }
       command.add("-l" + project.getName()); //$NON-NLS-1$
-      command.addAll(X10BuilderUtils.getAllTokens(platform.getLinkingLibs(true)));
-
-      final IRemoteProcessBuilder processBuilder = remoteServices.getProcessBuilder(connection, command);
-      final IRemoteProcess process = processBuilder.start();
+      command.addAll(X10BuilderUtils.getAllTokens(this.fCppCompConf.getLinkingLibs(true)));
       
       final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
       messageConsole.clearConsole();
@@ -245,14 +216,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       for (final String str : command) {
         cmdBuilder.append(str).append(' ');
       }
-      UIUtils.printStream(process.getInputStream(), process.getErrorStream(), new IInputListener() {
-        
-        public void after() {
-        }
-
-        public void before() {
-          this.fCounter = 0;
-        }
+      final int returnCode = this.fTargetOpHelper.run(command, new IProcessOuputListener() {
         
         public void read(final String line) {
         }
@@ -271,19 +235,14 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         
       });
       
-      process.waitFor();
-        
-      final int returnCode = process.exitValue();
       if (returnCode != 0) {
         IResourceUtils.addMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR, 
                                    project.getFullPath().toString(), IMarker.PRIORITY_HIGH);
       }
       
       return returnCode;
-    } catch (WorkbenchException except) {
-      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.XPCPP_LoadingErrorMsg, except));
     } catch (IOException except) {
-      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.XPCPP_LoadingErrorMsg, except));
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkIOError, except));
     } catch (InterruptedException except) {
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkingInterrupted, 
                                          except));
@@ -292,15 +251,22 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     }
   }
   
-  private String createMainFile(final IRemoteFileManager fileManager, final String mainClassName, 
-                                final String workspaceDir, final IProgressMonitor monitor) throws CoreException {
+  private String createX10MainFile(final ITargetOpHelper targetOpHelper, final String mainClassName, 
+                                   final String workspaceDir, final IProgressMonitor monitor) throws CoreException {
     final StringBuilder sb = new StringBuilder();
-    sb.append("#include \"").append(mainClassName).append(".h\"\n"); //$NON-NLS-1$ //$NON-NLS-2$
+    final int namespaceIndex = mainClassName.lastIndexOf(NAMESPACE_SEP);
+    sb.append("#include \""); //$NON-NLS-1$
+    if (namespaceIndex == -1) {
+      sb.append(mainClassName);
+    } else {
+      sb.append(mainClassName.substring(namespaceIndex + 2));
+    }
+    sb.append(".h\"\n"); //$NON-NLS-1$
     sb.append(MessagePassingCodeGenerator.createMainStub(mainClassName));
     final InputStream is = new ByteArrayInputStream(sb.toString().getBytes());
       
     final String mainFileName = workspaceDir + MAIN_FILE_NAME;
-    final IFileStore fileStore = fileManager.getResource(mainFileName);
+    final IFileStore fileStore = targetOpHelper.getStore(mainFileName);
     try {
       final OutputStream os = fileStore.openOutputStream(EFS.NONE, monitor);
       try {
@@ -323,9 +289,12 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   // --- Fields
   
-  private String[] fX10LibsLocs;
+  private boolean fIsCygwin;
   
-  private boolean fIsWindows;
+  private ITargetOpHelper fTargetOpHelper;
+  
+  private ICppCompilationConf fCppCompConf;
+  
   
   private static final String MAIN_FILE_NAME = "/xxx_main_xxx.cc"; //$NON-NLS-1$
   
@@ -334,5 +303,9 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   private static final String LIB_OPT = "-L"; //$NON-NLS-1$
   
   private static final String PATH_ENV = "PATH"; //$NON-NLS-1$
+  
+  private static final String PACKAGE_SEP = "."; //$NON-NLS-1$
+  
+  private static final String NAMESPACE_SEP = "::"; //$NON-NLS-1$
   
 }

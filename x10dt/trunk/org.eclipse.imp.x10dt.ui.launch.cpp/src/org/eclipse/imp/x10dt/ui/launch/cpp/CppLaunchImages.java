@@ -26,6 +26,26 @@ public class CppLaunchImages {
   
   private static final IPath ICONS_PATH = new Path("$nl$/icons"); //$NON-NLS-1$
   
+  // --- Icons images
+  
+  public static final String UNCHEKED_PLATFORM_CONF = "obj/go-icon.png"; //$NON-NLS-1$
+  
+  public static final String CUR_CONNECTION = "obj/check-icon.png"; //$NON-NLS-1$
+  
+  public static final String DISABLED_RM = "obj/disabled-rm.png"; //$NON-NLS-1$
+  
+  public static final String INVALID_PLATFORM_CONF = "obj/invalid-conf.png"; //$NON-NLS-1$
+  
+  public static final String INVALID_RM = "obj/invalid-rm.png"; //$NON-NLS-1$
+  
+  public static final String PLATFORM_CONF_VALIDATION_ERROR = "obj/conf-valid-error.png"; //$NON-NLS-1$
+  
+  public static final String SAVE_PLATFORM_CONF = "obj/save-conf.png"; //$NON-NLS-1$
+  
+  public static final String VALID_PLATFORM_CONF = "obj/valid-conf.png"; //$NON-NLS-1$
+  
+  public static final String VALID_RM = "obj/valid-rm.png"; //$NON-NLS-1$
+  
   // --- Wizards images
   
   public static final String NEW_X10_PRJ_WIZBAN = "wizban/newx10prj_cpp.png"; //$NON-NLS-1$

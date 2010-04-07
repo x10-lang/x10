@@ -18,6 +18,7 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 import polyglot.visit.PostCompiled;
 import x10cpp.ExtensionInfo;
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.ExtensionInfo.X10CPPScheduler;
 import x10cpp.visit.X10CPPTranslator;
 
@@ -48,9 +49,9 @@ final class ExtendedX10Scheduler extends X10CPPScheduler {
 
       protected boolean invokePostCompiler(final Options options, final Compiler compiler, final ErrorQueue eq) {
         ExtendedX10Scheduler.this.fMonitor.subTask(LaunchMessages.ES_LinkingTaskName);
-        return X10CPPTranslator.postCompile(options, compiler, eq);
+        return X10CPPTranslator.postCompile((X10CPPCompilerOptions) options, compiler, eq);
       }
-    
+
       // --- Fields
     
       private static final long serialVersionUID = 324842813729784957L;

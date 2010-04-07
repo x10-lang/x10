@@ -119,28 +119,27 @@
       </sourceLocator>
    </extension>
    <extension
-         point="org.eclipse.ui.propertyPages">
-      <page
-            class="org.eclipse.imp.x10dt.ui.launch.cpp.properties.X10TargetEnvironmentPropertyPage"
-            id="org.eclipse.imp.x10dt.ui.launch.cpp.project.property.page"
-            name="X10 Target Environment">
-         <enabledWhen>
-            <adapt
-                  type="org.eclipse.core.resources.IProject">
-            </adapt>
-         </enabledWhen>
-         <filter
-               name="projectNature"
-               value="org.eclipse.imp.x10dt.ui.launch.cpp.x10nature">
-         </filter>
-      </page>
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.eclipse.imp.x10dt.ui.launch.cpp.editors.X10PlatformConfFormEditor"
+            default="true"
+            icon="icons/obj/x10-platform-conf.png"
+            id="org.eclipse.imp.x10dt.ui.launch.cpp.platformConfEditor"
+            name="%editors.platformConfEditor">
+         <contentTypeBinding
+               contentTypeId="org.eclipse.imp.x10dt.ui.launch.cpp.x10-platform-conf.content-type">
+         </contentTypeBinding>
+      </editor>
    </extension>
    <extension
-         point="org.eclipse.imp.x10dt.ui.launch.core.x10_compiler_extinfo">
-      <ext_info
-            class="org.eclipse.imp.x10dt.ui.launch.cpp.builder.CppCompilerX10ExtInfo"
-            language="CPP">
-      </ext_info>
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            file-names="x10_platform.conf"
+            id="org.eclipse.imp.x10dt.ui.launch.cpp.x10-platform-conf.content-type"
+            name="%x10-platform-conf.content-type"
+            priority="normal">
+      </content-type>
    </extension>
 
 </plugin>
