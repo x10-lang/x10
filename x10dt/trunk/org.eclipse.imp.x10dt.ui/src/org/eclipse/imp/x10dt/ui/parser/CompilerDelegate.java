@@ -64,7 +64,11 @@ public class CompilerDelegate {
         ErrorQueue eq = new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
             protected void displayError(ErrorInfo error) {
             	Position pos = error.getPosition();
-                handler.handleSimpleMessage(error.getMessage(), pos.offset(), pos.endOffset(), pos.column(), pos.endColumn(), pos.line(), pos.endLine());
+            	if (pos != null) {
+            	    handler.handleSimpleMessage(error.getMessage(), pos.offset(), pos.endOffset(), pos.column(), pos.endColumn(), pos.line(), pos.endLine());
+            	} else {
+            	    handler.handleSimpleMessage(error.getMessage(), 0, 0, 1, 1, 1, 1);
+            	}
             }
         };
         fCompiler = new polyglot.frontend.Compiler(fExtInfo, eq);
