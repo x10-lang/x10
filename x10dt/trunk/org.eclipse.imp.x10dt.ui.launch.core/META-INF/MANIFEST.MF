@@ -28,7 +28,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.imp.x10dt.ui.launch.core,
  org.eclipse.imp.x10dt.ui.launch.core.builder,
- org.eclipse.imp.x10dt.ui.launch.core.builder.operations,
+ org.eclipse.imp.x10dt.ui.launch.core.builder.target_op,
  org.eclipse.imp.x10dt.ui.launch.core.dialogs,
  org.eclipse.imp.x10dt.ui.launch.core.platform_conf,
  org.eclipse.imp.x10dt.ui.launch.core.utils

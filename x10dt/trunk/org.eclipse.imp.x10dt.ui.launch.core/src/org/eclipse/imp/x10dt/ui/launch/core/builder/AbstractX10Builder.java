@@ -31,7 +31,7 @@ import org.eclipse.imp.builder.DependencyInfo;
 import org.eclipse.imp.x10dt.core.builder.PolyglotDependencyInfo;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.operations.IX10BuilderFileOp;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.AlwaysTrueFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CollectionUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
