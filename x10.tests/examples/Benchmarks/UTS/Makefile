@@ -36,3 +36,4 @@ test: Sha1Rand.cpp libsha1.a
 
 clean:
 	rm -rf core*.* ${OBJS} ${TARGET} test
+	rm -rf *.dSYM *.inc UTS UTS.h
