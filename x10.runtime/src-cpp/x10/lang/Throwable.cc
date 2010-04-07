@@ -55,11 +55,7 @@ Throwable::_serialize_body(x10aux::serialization_buffer &buf) {
     buf.write(FMGL(trace_size));
     if (FMGL(trace_size) > 0) {
         for (int i=0; i<FMGL(trace_size); i++) {
-            if (sizeof(void*) == sizeof(x10_int)) {
-                buf.write((x10_int)FMGL(trace)[i]);
-            } else {
-                buf.write((x10_long)FMGL(trace)[i]);
-            }
+            buf.write((size_t)FMGL(trace)[i]);
         }
     }
 }
@@ -72,11 +68,7 @@ Throwable::_deserialize_body(x10aux::deserialization_buffer &buf) {
     FMGL(trace_size) = buf.read<x10_int>();
     if (FMGL(trace_size) > 0) {
         for (int i=0; i<FMGL(trace_size); i++) {
-            if (sizeof(void*) == sizeof(x10_int)) {
-                FMGL(trace)[i] = (void*)(buf.read<x10_int>());
-            } else {
-                FMGL(trace)[i] = (void*)(buf.read<x10_long>());
-            }
+            FMGL(trace)[i] = (void*)(buf.read<size_t>());
         }
     }
 }
