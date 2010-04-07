@@ -306,4 +306,18 @@ import x10.compiler.ClockedVar;
     	}
 
 
+	   public static safe def setClocked[T](r: Rail[T]!, index: Int, value: T)
+    	{
+    	   val cv = r(index) as ClockedVar[T]!;
+    	   atomic cv.set(value);  
+    
+    	}
+    	
+    	 public static safe def getClocked[T](r: Rail[T]!, index: Int): T
+    	{
+    	   val cv = r(index) as ClockedVar[T]!;
+    	   return cv.get();  
+  
+    	}
+    	
     }
