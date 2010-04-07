@@ -53,6 +53,8 @@
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="ecj-jar"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="polyglot-jar"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="lpg-jar"/>
+        <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="asm-jar"/>
+        <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="polyglot-bytecode-jar"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="compiler-jar"/>
 	</target>
 
