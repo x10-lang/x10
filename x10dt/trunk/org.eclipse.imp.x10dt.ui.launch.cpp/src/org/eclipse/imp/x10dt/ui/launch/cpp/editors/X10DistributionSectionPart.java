@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.imp.utils.Pair;
-import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
@@ -59,10 +58,6 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     this.fUseSameLocBt.setSelection(useSameLoc);
     for (final Control control : this.fPGASControls) {
       control.setEnabled(! useSameLoc);
-    }
-    if (! isLocal) {
-      this.fPGASLocText.setText(Constants.EMPTY_STR);
-      this.fX10DistLocText.setText(Constants.EMPTY_STR);
     }
     
     this.fX10DistBrowseBt.setEnabled(! isLocal && validationStatus == EValidationStatus.VALID);
