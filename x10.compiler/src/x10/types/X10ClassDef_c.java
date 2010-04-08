@@ -20,6 +20,7 @@ import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassDef_c;
 import polyglot.types.FieldDef;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef_c;
 import polyglot.types.Name;
 import polyglot.types.Package;
@@ -370,5 +371,17 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         else {
             return name.toString() + typeParameterString();
         }
+    }
+    
+    /** Get the class's flags. */
+    /** Override the implementation for Java in ClassDef_c which ignores the flag if the class is anonymous.
+     * In the current X10 implementation closure types are final anonymous classes.
+     */
+    @Override
+    public Flags flags() {
+     /*   if (kind() == ANONYMOUS)
+            return Flags.NONE;
+            */
+        return flags;
     }
 }
