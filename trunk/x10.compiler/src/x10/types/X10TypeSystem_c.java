@@ -1435,7 +1435,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             distArrayType_ = load("x10.array.DistArray");
         return distArrayType_;
     }
-    
+ 
+    protected ClassType mortalType_ = null;
+
+    public Type Mortal() {
+        if (mortalType_ == null)
+            mortalType_ = load("x10.lang.Runtime.Mortal");
+        return mortalType_;
+    }
+
     
     // RMF 11/1/2005 - Not having the "static" qualifier on interfaces causes
     // problems,

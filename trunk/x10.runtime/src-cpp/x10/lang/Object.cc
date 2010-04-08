@@ -87,7 +87,7 @@ void Object::_serialize_reference(ref<Object> this_, serialization_buffer &buf)
                 " object of type "<<this_->_type()->name());
         buf.write((x10_addr_t)(size_t)this_.operator->()); 
         #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
-        if (/*immortalize*/true) { // TODO: FIXME to respect the Mortal interface
+        if (!this_->_isMortal()) {
             ReferenceLogger::log(this_.operator->());
         }
         #endif
