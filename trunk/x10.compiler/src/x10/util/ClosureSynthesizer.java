@@ -117,7 +117,7 @@ public class ClosureSynthesizer {
         cd.name(null);
         cd.setPackage(null);
         cd.kind(ClassDef.ANONYMOUS);
-        cd.flags(Flags.NONE);
+        cd.flags(Flags.FINAL);
 
         int numTypeParams = def.typeParameters().size();
         int numValueParams = def.formalTypes().size();
