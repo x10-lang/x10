@@ -16,7 +16,7 @@ OBJS=$(SOURCES:.c=.o)
 
 TARGET=libsha1.a
 
-all: ${TARGET}
+all: UTS
 
 libsha1.a: ${SOURCES} ${HEADERS}
 	${CXX} -c ${CXXFLAGS} ${SOURCES}
@@ -36,4 +36,4 @@ test: Sha1Rand.cpp libsha1.a
 
 clean:
 	rm -rf core*.* ${OBJS} ${TARGET} test
-	rm -rf *.dSYM *.inc UTS UTS.h
+	rm -rf *.dSYM *.inc UTS UTS.h UTS.cc
