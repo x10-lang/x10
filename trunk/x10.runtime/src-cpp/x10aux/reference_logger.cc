@@ -40,6 +40,7 @@ void ReferenceLogger::log_(void *x) {
     Bucket *cur = _buckets[bucket];
     while (cur != NULL) {
         if (cur->_reference == x) {
+            _S_("RefLogger: "<<x<<" was already recorded as a globally escaped reference");
             _lock->unlock();
             return;
         }
@@ -50,6 +51,7 @@ void ReferenceLogger::log_(void *x) {
     newBucket->_next = _buckets[bucket];
     _buckets[bucket] = newBucket;
 
+    _S_("RefLogger: recording "<<x<<" as a new globally escaped reference");
     _lock->unlock();
 }
 #endif /* X10_USE_BDWGC */
