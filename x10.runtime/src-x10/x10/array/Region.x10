@@ -57,6 +57,7 @@ public abstract class Region(
 
     public static def makeUnit(): Region(0) = BaseRegion.makeUnit1();
 
+    abstract global protected  def computeBoundingBox(): Region(rank);
     
     /**
      * Construct an unbounded halfspace region of rank normal.rank
@@ -228,38 +229,44 @@ public abstract class Region(
     /**
      * Returns the complement of a region. The complement of a bounded
      * region will be unbounded.
-     */
+   
 
     abstract public global def complement(): Region(rank);
-
+  */
+    
     /**
      * Returns the union of two regions: a region that contains all
      * points that are in either this region or that region.
-     */
+     
 
     abstract public global def union(that: Region(rank)): Region(rank);
 
+*/
+    
     /**
      * Returns the union of two regions if they are disjoint,
      * otherwise throws an exception.
+     *   abstract public global def disjointUnion(that: Region(rank)): Region(rank);
      */
 
-    abstract public global def disjointUnion(that: Region(rank)): Region(rank);
+  
 
     /**
      * Returns the intersection of two regions: a region that contains all
      * points that are in both this region and that region.
+     * 
      */
-
     abstract public global def intersection(that: Region(rank)): Region(rank);
+    
 
     /**
      * Returns the difference between two regions: a region that
      * contains all points that are in this region but are not in that
      * region.
+     *  abstract public global def difference(that: Region(rank)): Region(rank);
      */
 
-    abstract public global def difference(that: Region(rank)): Region(rank);
+   
 
     /**
      * Returns the Cartesian product of two regions. The Cartesian
@@ -380,15 +387,14 @@ public abstract class Region(
     // ops
     //
 
-    public global operator ! this: Region(rank) = complement();
+   // public global operator ! this: Region(rank) = complement();
     public global operator this && (that: Region(rank)): Region(rank) = intersection(that);
-    public global operator this || (that: Region(rank)): Region(rank) = union(that);
-    public global operator this - (that: Region(rank)): Region(rank) = difference(that);
+    //public global operator this || (that: Region(rank)): Region(rank) = union(that);
+    //public global operator this - (that: Region(rank)): Region(rank) = difference(that);
 
     public global operator this * (that: Region) = product(that);
 
     public global operator this + (v: Point(rank)) = translate(v);
-
     public global operator (v: Point(rank)) + this = translate(v);
 
 
@@ -399,17 +405,6 @@ public abstract class Region(
     abstract public global def contains(that: Region(rank)): boolean;
 
     abstract public global def contains(p: Point): boolean;
-
-
-    //
-    //
-    //
-
-
-
-    //
-    //
-    //
 
     protected def this(r: int, t: boolean, z: boolean)
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {

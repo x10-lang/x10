@@ -106,10 +106,11 @@ public abstract class Dist(
      * @param r the given region
      * @param axis the dimension to cycle over
      * @return a "cyclic" distribution over r.
-     */
+     
     public static def makeCyclic(r: Region, axis: int): Dist(r)
         = BaseDist.makeBlockCyclic1(r, axis, 1);
-
+*/
+    
     /**
      * Create a distribution over the specified region that varies in
      * place only along the zeroth axis, and maps the ith
@@ -117,10 +118,11 @@ public abstract class Dist(
      *
      * @param r the given region
      * @return a "cyclic" distribution over r, cycling over the zeroth axis.
-     */
+     
     public static def makeCyclic(r: Region): Dist(r)
         = BaseDist.makeBlockCyclic1(r, 0, 1);
-
+*/
+    
     /**
      * Create a distribution over the specified region that varies in
      * place only along the specified axis. It divides the coordinates
@@ -132,9 +134,7 @@ public abstract class Dist(
      * @return a "block" distribution over r.
      */
     public static def makeBlock(r: Region, axis: int): Dist(r) {
-        val n = r.max()(axis) - r.min()(axis) + 1;
-        val bs = (n + Place.MAX_PLACES - 1) / Place.MAX_PLACES;
-        return BaseDist.makeBlockCyclic1(r, axis, bs);
+        return BaseDist.makeBlock1(r, axis);
     }
 
     /**
@@ -158,10 +158,10 @@ public abstract class Dist(
      * @param axis the dimension to block over
      * @param blockSize the size of the block
      * @return a "block-cyclic" distribution over r.
-     */
+     
     public static def makeBlockCyclic(r: Region, axis: int, blockSize: int): Dist(r)
         = BaseDist.makeBlockCyclic1(r, axis, blockSize);
-
+*/
     //
     // factories - place is a parameter
     //
@@ -208,10 +208,10 @@ public abstract class Dist(
      * @param axis the dimension to cycle over
      * @param ps the set of places
      * @return a "cyclic" distribution over r, cycling over the places in ps.
-     */
+    
     public static def makeCyclic(r: Region, axis: int, ps: Set[Place]): Dist(r)
         = BaseDist.makeCyclic1(r, axis, ps);
-
+ */
     /**
      * Create a distribution over the specified region that varies in
      * place only along the specified axis. It divides the coordinates
@@ -237,10 +237,10 @@ public abstract class Dist(
      * @param blockSize the size of the block
      * @param ps the set of places
      * @return a "block-cyclic" distribution over r, cycling over the places in ps.
-     */
+   
     public static def makeBlockCyclic(r: Region, axis: int, blockSize: int, ps: Set[Place])
         = BaseDist.makeBlockCyclic1(r, axis, blockSize, ps);
-
+  */
 
     //
     // mapping places to regions
@@ -358,9 +358,9 @@ public abstract class Dist(
      *
      * @param r the given region
      * @return the intersection of this distribution with r.
-     */
-    abstract public global def intersection(r: Region(rank)): Dist(rank);
-
+    
+     abstract public global def intersection(r: Region(rank)): Dist(rank);
+ */
     /**
      * Return the distribution defined over this.region-that.region,
      * and which maps every point in its region to the same place as
@@ -368,9 +368,10 @@ public abstract class Dist(
      *
      * @param r the given region
      * @return the difference of this distribution and r.
-     */
+    
     abstract public global def difference(r: Region(rank)): Dist(rank);
-
+ */
+    
     /**
      * Return the distribution defined over r, which must be
      * contained in this.region, and which maps every point in its
@@ -404,9 +405,9 @@ public abstract class Dist(
      *
      * @param that the given distribution
      * @return the intersection of this distribution with that.
-     */
+   
     abstract public global def intersection(that: Dist(rank)): Dist(rank);
-
+  */
     /**
      * Return the distribution that contains every point in this
      * distribution, except for those points which are also contained
@@ -415,9 +416,9 @@ public abstract class Dist(
      *
      * @param that the given distribution
      * @return the difference of this distribution and that.
-     */
+    
     abstract public global def difference(that: Dist(rank)): Dist(rank);
-
+ */
     /**
      * If this distribution and that distribution are disjoint,
      * return the distribution that contains all points p that are in
@@ -426,9 +427,10 @@ public abstract class Dist(
      *
      * @param that the given distribution
      * @return the disjoint union of this distribution and that.
-     */
+     
     abstract public global def union(that: Dist(rank)): Dist(rank);
-
+*/
+    
     /**
      * Return a distribution whose region is the union of the regions
      * of the two distributions, and which maps each point p to
@@ -437,7 +439,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return the union of this distribution and that.
      */
-    abstract public global def overlay(that: Dist(rank)): Dist(rank);
+   // abstract public global def overlay(that: Dist(rank)): Dist(rank);
 
     /**
      * Return true iff that is a distribution and both distributions are defined
@@ -497,32 +499,34 @@ public abstract class Dist(
      * @param d the given distribution
      * @return the intersection of this distribution and d.
      */
-    public global operator this && (d: Dist(rank)): Dist(rank) = intersection(d);
+   //  public global operator this && (d: Dist(rank)): Dist(rank) = intersection(d);
 
     /**
      * Union this distribution with the specified distribution.
      *
      * @param d the given distribution
      * @return the disjoint union of this distribution and d.
-     */
+    
     public global operator this || (d: Dist(rank)): Dist(rank) = union(d);
-
+ */
+    
     /**
      * Subtract the specified distribution from this distribution.
      *
      * @param d the given distribution
      * @return the difference of this distribution and d.
-     */
+    
     public global operator this - (d: Dist(rank)): Dist(rank) = difference(d);
-
+ */
+    
     /**
      * Subtract the specified region from this distribution.
      *
      * @param r the given region
      * @return the difference of this distribution and r.
-     */
+     
     public global operator this - (r: Region(rank)): Dist(rank) = difference(r);
-
+*/
 
     //
     //
