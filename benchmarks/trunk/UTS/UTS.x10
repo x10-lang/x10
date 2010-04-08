@@ -122,12 +122,19 @@ public class UTS {
   public static def main (args : Rail[String]!) {
     try {
       val opts = new OptionsParser(args, 
-      [Option("g", "", "Number of rng_spawns per node")],
+      null,
       [Option("t", "", "Tree type 0: BIN, 1: GEO, 2: HYBRID"),
+
        Option("b", "", "Root branching factor"),
        Option("r", "", "Root seed (0 <= r <= 2^31"),
+
+       Option("a", "", "Tree shape function"),
+       Option("d", "", "Tree depth"),
+
        Option("q", "", "BIN: probability of a non-leaf node"),
-       Option("m", "", "BIN: number of children for non-leaf node")]);
+       Option("m", "", "BIN: number of children for non-leaf node"),
+
+       Option("f", "", "Hybrid switch-over depth ")]);
 
       val tree_type:int = opts ("-t", 0);
        
@@ -135,17 +142,15 @@ public class UTS {
       val root_seed:int = opts ("-r", 0);
 
       // geometric options
-      //val geo_tree_shape_fn:int = opts ("-a", 0);
-      //val geo_tree_depth:int = opts ("-d", 6);
-      //val geo_to_bin_shift_depth_ratio:double = opts ("-f", 0.5);
-      //val geo_to_bin_shift_depth_ratio:double = 0.5;
+      val geo_tree_shape_fn:int = opts ("-a", 0);
+      val geo_tree_depth:int = opts ("-d", 6);
 
       // binomial options
       val bin_non_leaf_prob:double = opts ("-q", 15.0/64.0);
       val bin_num_child_non_leaf:int = opts ("-m", 4);
       
       // hybrid options
-      //val compute_granularity:boolean = opts ("-g", 1);
+      val geo_to_bin_shift_depth_ratio:double = opts ("-f", 0.5);
 
       Console.OUT.println("b0 = "+root_branch_factor);
       Console.OUT.println("q = "+bin_non_leaf_prob);
