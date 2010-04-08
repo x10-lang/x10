@@ -25,56 +25,56 @@
          id="x10.compiler"
          download-size="910"
          install-size="910"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="x10.runtime"
          download-size="319"
          install-size="319"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.core"
          download-size="68"
          install-size="68"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.ui"
          download-size="115"
          install-size="115"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt"
          download-size="2"
          install-size="2"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.help"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="x10.constraints"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="x10.common"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
@@ -88,35 +88,35 @@
          id="x10.effects"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.refactoring"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.ui.launch.core"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.ui.launch.cpp"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
          id="x10.dist.host"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          unpack="false"/>
 
    <plugin
@@ -125,7 +125,7 @@
          arch="x86"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          fragment="true"/>
 
    <plugin
@@ -134,7 +134,7 @@
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          fragment="true"/>
 
    <plugin
@@ -143,7 +143,7 @@
          arch="x86"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          fragment="true"/>
 
    <plugin
@@ -152,7 +152,7 @@
          arch="x86"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          fragment="true"/>
 
    <plugin
@@ -161,7 +161,7 @@
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="2.0.2.qualifier"
+         version="2.0.3.qualifier"
          fragment="true"/>
 
    <plugin
