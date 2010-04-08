@@ -17,8 +17,9 @@ public class UTS {
   }
 
   public static def binomial (q:double, m:int, rng:SHA1Rand) : int {
+    val NORMALIZER = 2147483648.0;
     val randomNumber = rng() as double;
-    val normalizedRandomNumber = randomNumber / Int.MAX_VALUE; 
+    val normalizedRandomNumber = randomNumber / NORMALIZER;
     val numChildren = (normalizedRandomNumber > q) ? m : 0;
     var nodes:int = 1;
 
@@ -58,7 +59,7 @@ public class UTS {
        //val geo_tree_depth:int = opts ("-d", 6);
 
        //val bin_non_leaf_prob:double = opts ("-q", 15.0/64.0);
-       val bin_non_leaf_prob:double = 2.0/64.0;
+       val bin_non_leaf_prob:double = 15.0/64.0;
        val bin_num_child_non_leaf:int = opts ("-m", 4);
       
        //val geo_to_bin_shift_depth_ratio:double = opts ("-f", 0.5);
