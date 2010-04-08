@@ -11,11 +11,11 @@ page X10 {
     }
     
     fields {
-        int TabSize {
+        int tabWidth {
             tooltip "The number of spaces equivalent to one tab in the source editor";
             range 0 ..20;
             defvalue 4; }
-        font SourceFont {
+        font sourceFont {
             tooltip "The font to use in the source code editor";
             defvalue "courier" 10 normal; }
         directory DefaultRuntime {
