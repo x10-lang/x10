@@ -219,7 +219,9 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
               final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, 
                                                                                   connConf.getConnectionName());
               final String mainCppFilePath = configuration.getAttribute(Constants.ATTR_MAIN_CPP_FILE_PATH, EMPTY_STR);
-              this.fCppMainFileStore = targetOpHelper.getStore(mainCppFilePath);
+              this.fCppMainFileStore = getMainCppFileStore(targetOpHelper, mainCppFilePath, project,
+                                                           configuration.getAttribute(Constants.ATTR_X10_MAIN_CLASS, 
+                                                                                      EMPTY_STR));
             }
           }
         }
@@ -452,6 +454,28 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       execPathBuilder.append(EXE_EXT);
     }
     return execPathBuilder.toString();
+  }
+  
+  private IFileStore getMainCppFileStore(final ITargetOpHelper targetOpHelper, final String mainCppFilePath,
+                                         final IProject project, final String x10MainType) {
+    final IFileStore fileStore = targetOpHelper.getStore(mainCppFilePath);
+    if (fileStore.fetchInfo().exists()) {
+      return fileStore;
+    } else {
+      try {
+        final Collection<IFileStore> matches = new ArrayList<IFileStore>();
+        final IFileStore dirStore = targetOpHelper.getStore(PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project));
+        final int dotIndex = x10MainType.lastIndexOf('.');
+        final String pkgName = (dotIndex == -1) ? EMPTY_STR : x10MainType.substring(0, dotIndex);
+        searchForMatchingGeneratedFile(matches, dirStore, EMPTY_STR, pkgName, x10MainType, new NullProgressMonitor());
+        if (! matches.isEmpty()) {
+          return matches.iterator().next();
+        }
+      } catch (CoreException except) {
+        CppLaunchCore.log(except.getStatus());
+      }
+    }
+    return null;
   }
   
   private void searchForMatchingGeneratedFile(final Collection<IFileStore> matches, final IFileStore dirStore,
