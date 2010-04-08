@@ -1244,6 +1244,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         List<ClassMember> members = n.members();
 
         generateITablesForClass(currentClass, xts, "virtual ", h);
+        
+        if (currentClass.isSubtype(xts.Mortal(), context)) {
+            h.write("virtual x10_boolean _isMortal() { return true; }");
+            h.newline(); h.forceNewline();
+        }
 
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
