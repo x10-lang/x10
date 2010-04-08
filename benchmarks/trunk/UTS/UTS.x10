@@ -1,5 +1,6 @@
 import x10.compiler.*;
-import x10.util.*;
+import x10.util.OptionsParser;
+import x10.util.Option;
 
 public class UTS {
 
@@ -15,13 +16,24 @@ public class UTS {
     public def apply () : int = 0;
   }
 
-  public static def binomial (prob:int, num:int, rng:SHA1Rand) : int {
-    val children = rng() < prob ? num : 0;
+  public static def binomial (q:double, m:int, rng:SHA1Rand) : int {
+    val randomNumber = rng() as double;
+    val normalizedRandomNumber = randomNumber / Int.MAX_VALUE; 
+    val numChildren = (normalizedRandomNumber > q) ? m : 0;
     var nodes:int = 1;
-    for ((i) in 0..(children-1)) {
-      val rng2 = SHA1Rand(rng, i);
-      nodes += binomial(prob, num, rng2);
+
+    /** 
+     * Debug to see if there is any branch that terminates
+    if (0 == numChildren) {
+      Console.OUT.println ("Terminating this branch");
     }
+    */
+
+    for ((i) in 1..(numChildren)) {
+      val rng2 = SHA1Rand(rng, i);
+      nodes += binomial(q, m, SHA1Rand(rng, i));
+    }
+
     return nodes;
   }
 
@@ -29,23 +41,35 @@ public class UTS {
   public static def main (args : Rail[String]!) {
     try {
       val opts = new OptionsParser(args, 
-              [Option("g", "--granularity", "compute granularity: number of rng_spawns per node")],
-              [Option("t", "tree_type", "tree type 0: BIN, 1: GEO, 2: HYBRID"),
-               Option("b", "root_branching_factor","")]);
-       val tree_type:int = 0;   
+      [Option("g", "", "Number of rng_spawns per node")],
+      [Option("t", "", "Tree type 0: BIN, 1: GEO, 2: HYBRID"),
+       Option("b", "", "Root branching factor"),
+       Option("r", "", "Root seed (0 <= r <= 2^31"),
+       Option("q", "", "BIN: probability of a non-leaf node"),
+       Option("m", "", "BIN: number of children for non-leaf node")]);
+
+       val tree_type:int = opts ("-t", 0);
+       
+       //val root_branch_factor:double = opts ("-b", 4.0);
        val root_branch_factor:double = 4.0;
-       val root_seed:int = 0;
-       val geo_tree_shape_fn:int = 0;
-       val geo_tree_depth:int = 6;
-       val bin_non_leaf_prob:double = 15.0/64.0;
-       val bin_num_child_non_leaf:int = 4;
+       val root_seed:int = opts ("-r", 0);
+
+       //val geo_tree_shape_fn:int = opts ("-a", 0);
+       //val geo_tree_depth:int = opts ("-d", 6);
+
+       //val bin_non_leaf_prob:double = opts ("-q", 15.0/64.0);
+       val bin_non_leaf_prob:double = 2.0/64.0;
+       val bin_num_child_non_leaf:int = opts ("-m", 4);
+      
+       //val geo_to_bin_shift_depth_ratio:double = opts ("-f", 0.5);
        val geo_to_bin_shift_depth_ratio:double = 0.5;
+       //val compute_granularity:boolean = opts ("-g", 1);
        val compute_granularity:boolean = true;
 
        Console.OUT.println ("Num nodes = "+ 
-            binomial((bin_non_leaf_prob * Int.MAX_VALUE) as int, 
-                bin_num_child_non_leaf, 
-                SHA1Rand(root_seed)));
+            binomial(bin_non_leaf_prob,
+                     bin_num_child_non_leaf, 
+                     SHA1Rand(root_seed)));
 
     } catch (e:Throwable) {
       e.printStackTrace(Console.ERR);
