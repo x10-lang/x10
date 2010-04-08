@@ -41,6 +41,7 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.util.ErrorInfo;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -121,9 +122,10 @@ public class Converter {
 				// lets splice it in.
 				result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
 				if (Configuration.VERBOSE_CALLS)
-					System.out.println("[" + e.position() + "] Synthesized " + tn + " for " + e + ".");
+					tc.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, 
+							"Expression " + e + " cast to type " + tn + ".", e.position());
 				else {
-					((ExtensionInfo) Globals.Extension()).incrWeakCallsCount();
+					((ExtensionInfo) tc.job().extensionInfo()).incrWeakCallsCount();
 				}
 			}
 		}
