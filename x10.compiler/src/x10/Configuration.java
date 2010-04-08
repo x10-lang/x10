@@ -79,6 +79,12 @@ public final class Configuration extends x10.config.Configuration {
 
     public static boolean WORK_STEALING = false;
     private static final String WORK_STEALING_desc = "Code generation for work-stealing scheduling";
+    
+    public static boolean VERBOSE_CALLS = false;
+    private static final String VERBOSE_CALLS_desc = "Print details of casts introduced for weak calls.";
+    
+    public static boolean STRONG_CALLS = false;
+    private static final String STRONG_CALLS_desc = "Treat weak calls as errors.";
 
 	/**
 	 * Parses one argument from the command line.  This allows the user
