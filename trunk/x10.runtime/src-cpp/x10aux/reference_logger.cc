@@ -19,7 +19,7 @@ using namespace x10aux;
 #define NUM_BUCKETS 4096
 #define ADDR_SHIFT 7
 
-ReferenceLogger *x10aux::ReferenceLogger::it = new (x10aux::alloc<ReferenceLogger>()) ReferenceLogger();
+ReferenceLogger *x10aux::ReferenceLogger::it;
 
 ReferenceLogger::ReferenceLogger() {
     _lock = new (alloc<reentrant_lock>())reentrant_lock();
