@@ -30,6 +30,7 @@ UTS: UTS.x10 sha1_rand.hpp sha1.c
 
 run-UTS: UTS
 	${X10RUN} ./UTS
+	#${X10RUN} gdb ./UTS
 	
 test: Sha1Rand.cpp libsha1.a
 	${CXX} ${CXXFLAGS} -DSHA1_TEST $< -o $@ -L. -lsha1

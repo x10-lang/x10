@@ -1,8 +1,11 @@
 import x10.compiler.*;
 import x10.util.OptionsParser;
 import x10.util.Option;
+import x10.lang.Math;
 
 public class UTS {
+
+  private static val NORMALIZER = 2147483648.0;
 
   @NativeRep ("c++", "UTS__SHA1Rand", "UTS__SHA1Rand", null)
   @NativeCPPInclude ("sha1_rand.hpp")
@@ -16,22 +19,79 @@ public class UTS {
     public def apply () : int = 0;
   }
 
+  public static def geometric (shapeFunction:int, /* 0..3*/
+                               rootBranchingFactor:int, /* self-expln */
+                               treeDepth:int, /* cut off after this depth */
+                               parentDepth:int, /* depth of the parent */
+                               rng:SHA1Rand /* random number generator */
+                              ): int {
+    /* compute branching factor at this node */
+    var curNodeBranchingFactor:double;
+
+    if (0 == parentDepth) { /* root node */
+      curNodeBranchingFactor = rootBranchingFactor;
+    } else { /* calculate the branching factor for this node */
+      if (0 == shapeFunction) { /* Exponential decrease */
+        val tmpLogOne = -1.0 * Math.log (rootBranchingFactor as double);
+        val tmpLogTwo = Math.log (treeDepth as double);
+        curNodeBranchingFactor = rootBranchingFactor  * 
+                                 Math.pow (parentDepth as double, 
+                                      tmpLogOne/tmpLogTwo);
+      } else if (1 == shapeFunction) { /* Cyclic */
+        if (parentDepth > (5*treeDepth)) {
+          curNodeBranchingFactor = 0.0;
+        } else {
+          val TWO = 2.0;
+          val PI = 3.141592653589793;
+          val exponent = Math.sin (TWO*PI*(parentDepth as double)/
+                                     (treeDepth as double));
+
+          curNodeBranchingFactor = Math.pow (rootBranchingFactor, 
+                                             exponent);
+        }
+      } else if (2 == shapeFunction) { /* Fixed */
+        curNodeBranchingFactor = (parentDepth < treeDepth) ? 
+                                    rootBranchingFactor : /* true */
+                                    0; /* false */
+      } else if (3 == shapeFunction) { /* Linear --- default */
+        curNodeBranchingFactor = rootBranchingFactor *
+                                 (1.0 - (parentDepth as double)/
+                                        (treeDepth as double));
+      } else {
+        curNodeBranchingFactor = 0;
+        Console.OUT.println ("Unknown shape function for geometric UTS");
+      }
+    }
+
+    /* Now, calculate the number of children */
+    val probForCurNodeBranchingFactor = 1.0 / (1.0 + curNodeBranchingFactor);
+    val randomNumber = rng() as double;
+    val normalizedRandomNumber = randomNumber / NORMALIZER;
+    val numChildren = Math.floor ((Math.log (1-normalizedRandomNumber)) /
+                                  (Math.log 
+                                (1-probForCurNodeBranchingFactor))) as int;
+
+    /* Iterate over all the children and accumulate the counts */
+    var nodes:int = 1;
+    for ((i) in 1..(numChildren)) {
+      nodes += geometric (shapeFunction,
+                          rootBranchingFactor,
+                          treeDepth,
+                          parentDepth+1,
+                          SHA1Rand (rng, i));
+    }
+
+    return nodes;
+  }
+
   public static def binomial (q:double, m:int, rng:SHA1Rand) : int {
-    val NORMALIZER = 2147483648.0;
     val randomNumber = rng() as double;
     val normalizedRandomNumber = randomNumber / NORMALIZER;
     val numChildren = (normalizedRandomNumber > q) ? m : 0;
     var nodes:int = 1;
 
-    /** 
-     * Debug to see if there is any branch that terminates
-    if (0 == numChildren) {
-      Console.OUT.println ("Terminating this branch");
-    }
-    */
-
+    /* Iterate over all the children and accumulate the counts */
     for ((i) in 1..(numChildren)) {
-      val rng2 = SHA1Rand(rng, i);
       nodes += binomial(q, m, SHA1Rand(rng, i));
     }
 
