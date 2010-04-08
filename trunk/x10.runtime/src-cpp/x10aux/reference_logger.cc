@@ -19,8 +19,6 @@ using namespace x10aux;
 #define NUM_BUCKETS 4096
 #define ADDR_SHIFT 7
 
-#define GATHER_STATS 1
-
 ReferenceLogger *x10aux::ReferenceLogger::it = new (x10aux::alloc<ReferenceLogger>()) ReferenceLogger();
 
 ReferenceLogger::ReferenceLogger() {
