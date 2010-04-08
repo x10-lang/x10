@@ -149,12 +149,12 @@ public final class Runtime {
 
     @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
     @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
-    static class Lock {
+    static final class Lock {
         public native def this();
 
         public native def lock():Void;
 
-        public native def tryLock():Void;
+        public native def tryLock():boolean;
 
         public native def unlock():Void;
 
@@ -162,7 +162,18 @@ public final class Runtime {
     }
 
 
-    static class Monitor extends Lock {
+    static class Monitor {
+       /**
+        * backing lock
+        */
+       private val lock = new Lock();
+
+       def lock() = lock.lock();
+       def tryLock() = lock.tryLock();
+       def unlock() = lock.unlock();
+       def getHoldCount() = lock.getHoldCount();     
+
+
         /**
          * Parked threads
          */
