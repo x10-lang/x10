@@ -29,10 +29,10 @@ public class PolyRegion extends BaseRegion {
 
     // XTENLANG-49
     static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
-    static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
+  //  static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
     static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
-    static type UnionRegion(rank:Int) = UnionRegion{self.rank==rank};
+   // static type UnionRegion(rank:Int) = UnionRegion{self.rank==rank};
 
     //
     // value
@@ -75,7 +75,7 @@ public class PolyRegion extends BaseRegion {
         public def remove(): void {
             throw U.unsupported(this, "remove");
         }
-    };
+    }
 
     public global def scanners()=new Scanners();
 
@@ -119,16 +119,19 @@ public class PolyRegion extends BaseRegion {
             val pm = pmb.toSortedPolyMat(false);
             return PolyRegion.make(pm) as Region(rank); // XXXX why?
 
-        } else if (t instanceof UnionRegion) {
+        } /*else if (t instanceof UnionRegion) {
 
             return (t as Region(rank)).intersection(this);
 
-        } else {
+        } */  else {
             throw U.unsupported(this, "intersection(" + t/*.getClass().getName()*/ + ")");
         }
     }
                           
                           
+    public global def contains(that: Region(rank)): boolean = 
+    	computeBoundingBox().contains(that.computeBoundingBox());
+     
     /**
      * Projection is computed by using FME to eliminate variables on
      * all but the axis of interest.
@@ -208,7 +211,7 @@ public class PolyRegion extends BaseRegion {
      * -H0 || -H1 && H0 || -H2 && H1 && H0 || ...
      */
 
-    public global def complement(): Region(rank) {
+   /* public global def complement(): Region(rank) {
         val prlb = new PolyRegionListBuilder(rank);
 
         for (r:PolyRow in mat) {
@@ -227,13 +230,13 @@ public class PolyRegion extends BaseRegion {
 
         return new UnionRegion(prlb as PolyRegionListBuilder!{self.rank == this.rank}); // HACK: place type inference really should be able to figure this out
     }
-
+*/
     public global def isEmpty(): boolean {
         val tmp = mat.isEmpty();
         return tmp;
     }
 
-    protected global def computeBoundingBox(): Region(rank) {
+    protected global def computeBoundingBox(): Region(rank){self.rect} {
         val min = Rail.make[int](rank);
         val max = Rail.make[int](rank);
         var pm: PolyMat{self.rank==this.rank} = mat;

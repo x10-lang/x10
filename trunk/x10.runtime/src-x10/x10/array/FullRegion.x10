@@ -25,7 +25,7 @@ class FullRegion extends PolyRegion {
         super((new PolyMatBuilder(rank)).toSortedPolyMat(false), true);
     }
 
-    protected global def computeBoundingBox(): Region(rank) {
+    protected global def computeBoundingBox(): Region(rank){self.rect} {
         return this;
     }
 
