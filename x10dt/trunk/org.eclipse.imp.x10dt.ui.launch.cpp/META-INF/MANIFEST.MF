@@ -32,11 +32,11 @@ Require-Bundle: org.eclipse.core.filesystem,
  org.eclipse.ui.console,
  org.eclipse.ui.ide,
  org.eclipse.ui.forms,
- lpg.runtime,
  polyglot3,
  x10.compiler,
  org.eclipse.ptp.rm.mpi.mpich2.core,
- org.eclipse.jface.text
+ org.eclipse.jface.text,
+ lpg.runtime.java;bundle-version="2.0.18"
 Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.imp.x10dt.ui.launch.cpp;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug",
