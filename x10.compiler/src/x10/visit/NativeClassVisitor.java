@@ -183,7 +183,7 @@ public class NativeClassVisitor extends ContextVisitor {
         Id fid = xnf.Id(p, fname);
         ClassType ftype = fake.asType();
         CanonicalTypeNode ftnode = xnf.CanonicalTypeNode(p, ftype);
-        Flags fflags = X10Flags.GLOBAL.Private().Final();
+        Flags fflags = X10Flags.PRIVATE.Final();
         FieldDef fdef = xts.fieldDef(p, Types.ref(cdef.asType()), fflags, Types.ref(ftype), fname);
         cmembers.add(xnf.FieldDecl(p, xnf.FlagsNode(p, fflags), ftnode, fid).fieldDef(fdef));
         cdef.addField(fdef);
