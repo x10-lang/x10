@@ -19,7 +19,6 @@ Require-Bundle: org.eclipse.core.runtime,
  x10.runtime,
  x10.common,
  polyglot3,
- lpg.runtime,
  org.eclipse.imp.smapifier,
  org.eclipse.imp.runtime,
  org.eclipse.ui.editors,
@@ -27,7 +26,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.debug.ui,
  x10.compiler,
  org.eclipse.ui.console,
- org.eclipse.imp.java.hosted
+ org.eclipse.imp.java.hosted,
+ lpg.runtime.java;bundle-version="2.0.18"
 Eclipse-LazyStart: true
 Export-Package: org.eclipse.imp.x10dt.core,
  org.eclipse.imp.x10dt.core.actions,
