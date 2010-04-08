@@ -19,12 +19,12 @@ if [[ -z "$rev" ]]; then
     exit 1
 fi
 
-for host in triloka3 nashira cygwin 
+for host in condor triloka3 nashira
 do
     echo "Launching buildToolIntegration.sh on $host"
     scp buildToolIntegration.sh $host:/tmp 
     ssh $host "(cd /tmp; ./buildToolIntegration.sh -d /tmp/x10-tib-$USER -rev $rev)"
-    scp $host (cd /tmp; rm ./buildToolIntegration.sh)
+    scp $host "(cd /tmp; rm ./buildToolIntegration.sh)"
     echo "transfering file from $host to localhost"
     scp "$host:/tmp/x10-tib-$USER/x10/x10.dist/x10-tib*.tgz" .
     echo "transfering from localhost to orquesta"
