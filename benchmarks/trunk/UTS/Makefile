@@ -1,12 +1,12 @@
 CXX=g++
 CXXFLAGS=-O3 -fomit-frame-pointer 
-X10RUN=${HOME}/x10-trunk/x10.dist/bin/runx10
-X10CXX=${HOME}/x10-trunk/x10.dist/bin/x10c++ 
+X10RUN=${HOME}/x10-dbg/x10.dist/bin/runx10
+X10CXX=${HOME}/x10-dbg/x10.dist/bin/x10c++ 
 X10CXXFLAGS=-report postcompile=5
 ARCHIVER=ar
 ARCHIVERFLAGS=rcs
 
-HEADERS=endian.h \
+HEADERS=sha_endian.h \
         types.h \
         sha1.h 
 

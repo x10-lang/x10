@@ -1,8 +1,6 @@
 #include <UTS__SHA1Rand.h>
 
 
-#include "UTS__SHA1Rand.inc"
-
 class UTS__SHA1Rand_ithunk0 : public UTS__SHA1Rand {
 public:
     static x10::lang::Any::itable<UTS__SHA1Rand_ithunk0 > itable;

@@ -8,8 +8,8 @@ public class UTS {
   private static val NORMALIZER = 2147483648.0;
 
   @NativeRep ("c++", "UTS__SHA1Rand", "UTS__SHA1Rand", null)
-  @NativeCPPInclude ("sha1_rand.hpp")
   @NativeCPPCompilationUnit ("sha1.c")
+  @NativeCPPCompilationUnit ("UTS__SHA1Rand.cc")
   public static struct SHA1Rand {
     public def this (seed:int) { }
 
@@ -87,15 +87,35 @@ public class UTS {
   public static def binomial (q:double, m:int, rng:SHA1Rand) : int {
     val randomNumber = rng() as double;
     val normalizedRandomNumber = randomNumber / NORMALIZER;
-    val numChildren = (normalizedRandomNumber > q) ? m : 0;
+    val numChildren = (normalizedRandomNumber < q) ? m : 0;
     var nodes:int = 1;
 
     /* Iterate over all the children and accumulate the counts */
-    for ((i) in 1..(numChildren)) {
+    for (var i:Int=0 ; i<numChildren ; ++i) {
       nodes += binomial(q, m, SHA1Rand(rng, i));
     }
 
     return nodes;
+  }
+
+  public static def binomialRoot (q:double, m:int, b0:int, rng:SHA1Rand) : int {
+    val randomNumber = rng() as double;
+    val normalizedRandomNumber = randomNumber / NORMALIZER;
+
+    val nodes = new Cell[Int](1);
+
+    /* Iterate over all the children and accumulate the counts */
+    finish for (var i:Int=0 ; i<b0 ; ++i) {
+      val i_ = i;
+      async {
+        val nodes_ = binomial(q, m, SHA1Rand(rng, i_));
+        atomic {
+          nodes(nodes()+nodes_);
+        }
+      }
+    }
+
+    return nodes();
   }
 
 
@@ -109,31 +129,42 @@ public class UTS {
        Option("q", "", "BIN: probability of a non-leaf node"),
        Option("m", "", "BIN: number of children for non-leaf node")]);
 
-       val tree_type:int = opts ("-t", 0);
+      val tree_type:int = opts ("-t", 0);
        
-       //val root_branch_factor:double = opts ("-b", 4.0);
-       val root_branch_factor:double = 4.0;
-       val root_seed:int = opts ("-r", 0);
+      val root_branch_factor = opts ("-b", 4);
+      val root_seed:int = opts ("-r", 0);
 
-       //val geo_tree_shape_fn:int = opts ("-a", 0);
-       //val geo_tree_depth:int = opts ("-d", 6);
+      // geometric options
+      //val geo_tree_shape_fn:int = opts ("-a", 0);
+      //val geo_tree_depth:int = opts ("-d", 6);
+      //val geo_to_bin_shift_depth_ratio:double = opts ("-f", 0.5);
+      //val geo_to_bin_shift_depth_ratio:double = 0.5;
 
-       //val bin_non_leaf_prob:double = opts ("-q", 15.0/64.0);
-       val bin_non_leaf_prob:double = 15.0/64.0;
-       val bin_num_child_non_leaf:int = opts ("-m", 4);
+      // binomial options
+      val bin_non_leaf_prob:double = opts ("-q", 15.0/64.0);
+      val bin_num_child_non_leaf:int = opts ("-m", 4);
       
-       //val geo_to_bin_shift_depth_ratio:double = opts ("-f", 0.5);
-       val geo_to_bin_shift_depth_ratio:double = 0.5;
-       //val compute_granularity:boolean = opts ("-g", 1);
-       val compute_granularity:boolean = true;
+      // hybrid options
+      //val compute_granularity:boolean = opts ("-g", 1);
 
-       Console.OUT.println ("Num nodes = "+ 
-            binomial(bin_non_leaf_prob,
-                     bin_num_child_non_leaf, 
-                     SHA1Rand(root_seed)));
+      Console.OUT.println("b0 = "+root_branch_factor);
+      Console.OUT.println("q = "+bin_non_leaf_prob);
+      Console.OUT.println("m = "+bin_num_child_non_leaf);
+      Console.OUT.println("r = "+root_seed);
+        
+      var time:Long = System.nanoTime();
+      val nodes = binomialRoot(bin_non_leaf_prob,
+                               bin_num_child_non_leaf, 
+                               root_branch_factor, 
+                               SHA1Rand(root_seed));
+      time = System.nanoTime() - time;
+      Console.OUT.println ("Num nodes = "+ nodes);
+      Console.OUT.println ("Time = "+ time/1E9 + " seconds");
 
     } catch (e:Throwable) {
       e.printStackTrace(Console.ERR);
     }
   }
 }
+
+// vim: ts=2:sw=2:et
