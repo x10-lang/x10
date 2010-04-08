@@ -32,7 +32,7 @@ class EmptyRegion extends BaseRegion {
     public global def product(that: Region): Region/*(this.rank+that.rank)*/ 
         = new EmptyRegion(this.rank + that.rank);
     public global def projection(axis: int): Region(1) = new EmptyRegion(1);
-    public global def translate(p:Point(rank)) = this;
+    public global def translate(p:Point(rank)): Region(rank) = this;
     public global def eliminate(i:Int)= new EmptyRegion(rank-1);
     protected global def computeBoundingBox(): Region(rank) {
         throw U.illegal("bounding box not not defined for empty region");
