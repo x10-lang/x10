@@ -2,16 +2,18 @@
 
 # Dave Grove
 
-workdir=/tmp/x10-tools-int-$USER
-
-# TODO: parse svn info URL | grep Revision | ... to extract revision number automatically.
-rev="13749"
+workdir=/tmp/x10-tib-$USER
 
 while [ $# != 0 ]; do
 
   case $1 in
     -dir)
         workdir=$2
+	shift
+    ;;
+
+    -rev)
+        rev=$2
 	shift
     ;;
 
@@ -26,20 +28,24 @@ case "$UNAME" in
   Linux,*86*,*) export X10_PLATFORM='linux_x86';;
   Linux,ppc*,*) export X10_PLATFORM='linux_ppc';;
   AIX,*,powerpc) export X10_PLATFORM='aix_ppc';;
-  Darwin,*,i*86) export X10_PLATFORM='macosx_x86';;
+  Darwin,*,i*86) export X10_PLATFORM='macosx_x86'
+      export USE_32BIT=true
+      export USE_64BIT=true
+   ;;
+    
   *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
 esac
 
-distdir=$workdir/x10-$rev
+distdir=$workdir/x10
 
 echo
 echo cleaning $workdir
 rm -rf $workdir
 mkdir -p $workdir || exit 1
-mkdir -p $workdir/x10-$rev
+mkdir -p $workdir/x10
 
 (
-cd $workdir/x10-$rev
+cd $distdir
 
 echo
 echo getting distrib
@@ -62,5 +68,3 @@ cd $distdir/x10.dist
 ant dist -Doptimize=true
 $distdir/x10.dist/releng/packageCPPRelease.sh -version tib_$rev -platform $X10_PLATFORM
 echo "Platform specific distribuiton tarball created"
-
-scp x10-tib_$rev_$X10_PLATFROM.tgz orquesta:/var/www/localhost/htdocs/x10dt/x10-builds/$rev
