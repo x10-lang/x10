@@ -26,6 +26,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
+import polyglot.frontend.Globals;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
@@ -43,6 +44,8 @@ import polyglot.types.Type;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.Configuration;
+import x10.ExtensionInfo;
 import x10.ast.SemanticError;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10CanonicalTypeNode_c;
@@ -117,7 +120,11 @@ public class Converter {
 				// alright, now we actually synthesized a new depexpr. 
 				// lets splice it in.
 				result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
-				System.out.println("[" + e.position() + "] Synthesized " + tn + " for " + e + ".");
+				if (Configuration.VERBOSE_CALLS)
+					System.out.println("[" + e.position() + "] Synthesized " + tn + " for " + e + ".");
+				else {
+					((ExtensionInfo) Globals.Extension()).incrWeakCallsCount();
+				}
 			}
 		}
 		return result;
@@ -511,18 +518,19 @@ public class Converter {
 	    }
 
 		// Added 03/28/10 to support new call conversion semantics.
-		if (cast.conversionType() == ConversionType.CALL_CONVERSION 
-			&& ts.isCastValid(fromType, toType, context)) {
+		if (! Configuration.STRONG_CALLS)
+			if (cast.conversionType() == ConversionType.CALL_CONVERSION 
+					&& ts.isCastValid(fromType, toType, context)) {
 				X10Cast n = cast.conversionType(ConversionType.CHECKED); 
 				XVar sv = X10TypeMixin.selfVarBinding(fromType);
 				if (sv != null) 
-				    try {
-				        toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
-				    } catch (XFailure f) {
-				        throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
-				    }
-				return n.type(toType);
-		}
+					try {
+						toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
+					} catch (XFailure f) {
+						throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+					}
+					return n.type(toType);
+			}
 		throw new Errors.CannotConvertExprToType(cast.expr(), cast.conversionType(), toType, cast.position());
 	}
 		
