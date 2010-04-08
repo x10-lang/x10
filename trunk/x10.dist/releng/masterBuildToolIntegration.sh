@@ -2,11 +2,18 @@
 
 # Dave Grove
 
+hosts="condor triloka3 nashira"
+
 # TODO: we should get svn info by parsing svn info URL and extracting revision from there.
 while [ $# != 0 ]; do
   case $1 in
     -rev)
         rev=$2
+	shift
+    ;;
+
+    -hosts)
+        hosts=$2
 	shift
     ;;
 
@@ -19,7 +26,7 @@ if [[ -z "$rev" ]]; then
     exit 1
 fi
 
-for host in condor triloka3 nashira
+for host in $hosts
 do
     echo "Launching buildToolIntegration.sh on $host"
     scp buildToolIntegration.sh $host:/tmp 
