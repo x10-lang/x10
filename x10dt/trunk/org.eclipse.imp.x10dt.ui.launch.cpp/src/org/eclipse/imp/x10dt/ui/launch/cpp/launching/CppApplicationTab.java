@@ -87,8 +87,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
@@ -99,6 +101,7 @@ import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Source;
 import polyglot.types.ClassType;
+import polyglot.types.MethodDef;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
@@ -644,7 +647,12 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
                                          LaunchMessages.CAT_X10ParsingInternalError);
           }
             
-          if (! x10Types.isEmpty()) {
+          if (x10Types.isEmpty()) {
+          	final MessageBox msgBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
+          	msgBox.setText(LaunchMessages.CAT_SearchInfoResult);
+          	msgBox.setMessage(LaunchMessages.CAT_NoMainX10FileFound);
+          	msgBox.open();
+          } else {
             final SelectionDialog dialog = new X10ClassTypeSelectionDialog(getShell(), x10Types);
             if (dialog.open() == Window.OK) {
               final ClassType resultType = (ClassType) dialog.getResult()[0];
@@ -766,7 +774,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     public Node override(final Node node) {
       if (node instanceof X10MethodDecl) {
         final X10MethodDecl methodDecl = (X10MethodDecl) node;
-        final X10ClassType classType = (X10ClassType) methodDecl.methodDef().asInstance().container();
+        final MethodDef methodDef = methodDecl.methodDef();
+        if (methodDef == null) {
+        	return null;
+        }
+        final X10ClassType classType = (X10ClassType) methodDef.asInstance().container();
         final X10TypeSystem typeSystem = (X10TypeSystem) classType.typeSystem();
         if (methodDecl.name().toString().equals(MAIN_METHOD_NAME) && methodDecl.flags().flags().isPublic() &&
             methodDecl.flags().flags().isStatic() && methodDecl.returnType().type().isVoid() &&
