@@ -41,15 +41,13 @@ public class HeatTransfer_v1 {
                 (at(A.dist(x,y+1)) A(x,y+1))) / 4;
     }
 
-    static def subtract(a:DistArray[Real],b:DistArray[Real]) = DistArray.make[Real](a.dist, (p:Point)=>a(p as Point(a.rank))-b(p as Point(b.rank)));
-
     def run() {
         var delta:Real = 1.0;
         do {
-            finish ateach (p in D)
-                Temp(p) = stencil_1(p);
+            finish ateach (p in D) Temp(p) = stencil_1(p);
 
-            delta = subtract(A|D.region,Temp|D.region).lift(Math.abs.(Double)).reduce(Math.max.(Double,Double), 0.0);
+            delta = A.lift(Temp, D.region, (x:Real,y:Real)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
+
             finish ateach (p in D) A(p) = Temp(p);
         } while (delta > epsilon);
     }
