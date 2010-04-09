@@ -63,6 +63,7 @@ public interface X10NodeFactory extends NodeFactory {
     Expr AmbHereThis(Position pos) ;
     AtStmt AtStmt(Position pos, Expr place, Stmt body);
 	AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body);
+	FinishExpr FinishExpr(Position pos, Expr reducer, Stmt body);
 
     X10AmbQualifierNode X10AmbQualifierNode(Position pos, Prefix prefix, Id name);
     X10AmbTypeNode X10AmbTypeNode(Position pos, Prefix prefix, Id name);

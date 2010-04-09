@@ -2177,6 +2177,12 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
+FinishExpression ::= finish '(' Expression ')' Statement
+        /.$BeginJava
+                    setResult(nf.FinishExpr(pos(), Expression, Statement));
+          $EndJava
+        ./
+  
     FutureExpression ::= future ClosureBody
         /.$BeginJava
                     setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody));
