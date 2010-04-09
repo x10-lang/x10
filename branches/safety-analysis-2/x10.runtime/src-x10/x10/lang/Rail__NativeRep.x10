@@ -302,7 +302,7 @@ import x10.compiler.ClockedVar;
 
     	public static safe def makeClockedRail[T](length: Int, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedVar[T]]!{self.length==length} 
     	{
-    	   Console.OUT.println("Making ClockedRail");
+    	   //Console.OUT.println("Making ClockedRail");
     	   val clk = c as Clock!;
     	   val oper = op as (T, T) => T!;
     	   val opInitial = opInit as T!;
@@ -315,7 +315,7 @@ import x10.compiler.ClockedVar;
     	
     	public static safe def makeClockedRail[T](length: Int, init: (Int) => T, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedVar[T]]!{self.length==length} 
     	{
-    	   Console.OUT.println("Making ClockedRail");
+    	   //Console.OUT.println("Making ClockedRail");
     	   val clk = c as Clock!;
     	   val oper = op as (T, T) => T!;
     	   val opInitial = opInit as T!;
