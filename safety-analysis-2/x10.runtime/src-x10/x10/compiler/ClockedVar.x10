@@ -34,7 +34,7 @@ public class ClockedVar[T] implements ClockableVar{
     public def this(c:Clock, oper: (T,T)=>T, initial:T, x:T)
      {
     	val clk = c as Clock!; 
-    	this.xRead = this.xWrite = x;
+    	this.xRead = x;
         clk.addClockedVar(this); 
         op = oper; 
         init = initial;
