@@ -184,6 +184,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       this.fTargetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), this.fIsCygwin, connConf.getConnectionName());
       final String workspaceDir = PlatformConfUtils.getWorkspaceDir(platformConf, project);
       final String execPath = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
+      project.setPersistentProperty(Constants.EXEC_PATH, execPath);
       final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
       
       final IFileStore mainClassFileStore = this.fTargetOpHelper.getStore(execPath);
