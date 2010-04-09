@@ -147,6 +147,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -220,6 +221,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.X10TypeSystem_c.BaseTypeEquals;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 
@@ -1642,6 +1644,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	}
 
+	// XTENLANG-1232: workaround a bug in the type system by using the base types for arguments
+	private static List<MethodInstance> methodsNoConstraints(X10ClassType currentClass, Name mname, List<Type> formals, X10CPPContext_c context) {
+	    List<MethodInstance> l = new ArrayList<MethodInstance>();
+	    for (MethodInstance mi : currentClass.methodsNamed(mname)) {
+	        if (CollectionUtil.allElementwise(mi.formalTypes(), formals, new BaseTypeEquals(context))) {
+	            l.add(mi);
+	        }
+	    }
+	    return l;
+	}
+
 	private void generateProxiesForOverriddenMethods(X10CPPContext_c context,
 			X10ClassType currentClass, X10ClassType superClass,
 			X10TypeSystem xts, String maybeVirtual, ClassifiedStream h,
@@ -1659,7 +1672,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				X10MethodInstance dropzone = (X10MethodInstance) dropzone_;
 				List<Type> formals = dropzone.formalTypes();
 				// do we have a matching method? (i.e. one the x10 programmer has written)
-				if (currentClass.methods(mname, formals, context).size() > 0) continue;
+				if (methodsNoConstraints(currentClass, mname, formals, context).size() > 0) continue;
 				// otherwise we need to add a proxy.
 				//System.out.println("Not found: "+dropzone);
 				assert (!dropzone.flags().isStatic());
