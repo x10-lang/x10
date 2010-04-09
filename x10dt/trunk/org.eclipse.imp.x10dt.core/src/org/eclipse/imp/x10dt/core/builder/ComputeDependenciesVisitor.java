@@ -69,7 +69,7 @@ class ComputeDependenciesVisitor extends ContextVisitor {
             //if (type instanceof NullableType)
             //    type = ((NullableType) type).base();
             ClassType classType= (ClassType) X10TypeMixin.baseType(type);
-            if (!isBinary(classType) && !fFromType.typeEquals(type,this.context)) { 
+            if (!isBinary(classType) && !fFromType.typeEquals(classType,this.context)) { 
                 fDependencyInfo.addDependency(fFromType, type);
             }
         }

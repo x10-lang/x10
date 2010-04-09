@@ -18,12 +18,16 @@
 package org.eclipse.imp.x10dt.core.builder;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.builder.DependencyInfo;
 
+import polyglot.types.ClassType;
+import polyglot.types.ReferenceType;
 import polyglot.types.Type;
+import x10.types.X10TypeMixin;
 
 /**
  * A compilation unit-level dependency tracking manager that speaks in terms of Polyglot Type objects.
@@ -36,6 +40,17 @@ public class PolyglotDependencyInfo extends DependencyInfo {
 
     //  don't forget the case when resource is outside the WS
     protected String typeToPath(Type type) {
+    	ClassType classType = null;
+    	if (type.isClass()){
+    		classType= (ClassType) X10TypeMixin.baseType(type);
+    	} else {
+    		return null;
+    	}
+    	String fullname = classType.fullName().toString().replace('.', '/');
+    	if (fullname.startsWith("x10/lang") || fullname.startsWith("x10/io")) return null;
+    	return "/" + fProject.getName() + "/" + "src/" + fullname + ".x10";  //TODO!!!!!!
+    	
+    	/*
         final String filePath= type.position().file().replace(File.separatorChar, '/');
         String result=null;
         String wsPath= fWorkspacePath;
@@ -45,11 +60,13 @@ public class PolyglotDependencyInfo extends DependencyInfo {
         	result=filePath;
         }
         return result;
+        */
     }
 
     public void addDependency(Type fromType, Type uponType) {
         String fromPath= typeToPath(fromType);
         String uponPath= typeToPath(uponType);
+        if (fromPath == null || uponPath == null) return;
         // PORT1.7  ...
         if(!(uponPath.contains(".zip") || uponPath.contains(".jar"))) {
         	addDependency(fromPath, uponPath);
@@ -57,10 +74,14 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     }
 
     public void clearDependenciesOf(Type type) {
-        clearDependenciesOf(typeToPath(type));
+    	String path = typeToPath(type);
+    	if (path == null) return;
+        clearDependenciesOf(path);
     }
 
     public Set getDependentsOf(Type type) {
-        return getDependentsOf(typeToPath(type));
+    	String path = typeToPath(type);
+    	if (path == null) return new HashSet();
+        return getDependentsOf(path);
     }
 }

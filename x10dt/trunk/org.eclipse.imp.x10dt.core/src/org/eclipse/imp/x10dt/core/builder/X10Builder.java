@@ -997,8 +997,40 @@ public class X10Builder extends IncrementalProjectBuilder {
         if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
         collectChangeDependents();
         collectFilesWithErrors();
+        collectFilesWithNoJavaFile();
     }
 
+    private class NoJavaVisitor implements IResourceVisitor {
+    	public boolean visit(IResource res) throws CoreException {
+    		return processResource(res);
+    	}
+    	protected boolean processResource(IResource resource) throws CoreException {
+    		 if (resource instanceof IFile) {
+                 IFile file= (IFile) resource;
+                 if (isSourceFile(file)) {
+                	 IPath genJavaFile= file.getFullPath().removeFileExtension().addFileExtension("java");
+                	 IFile javaFile= fProject.getWorkspace().getRoot().getFile(genJavaFile);
+                     if (!fSourcesToCompile.contains(file) && !javaFile.exists()) {
+                         fSourcesToCompile.add(file);
+                     }
+                 }
+             } else if (isBinaryFolder(resource)) {
+                 return false;
+             }
+             return true;
+    	}
+    }
+
+    private NoJavaVisitor fNoJavaVisitor= new NoJavaVisitor();
+
+    private void collectFilesWithNoJavaFile() {
+        try {
+            fProject.accept(fNoJavaVisitor);
+        } catch (CoreException e) {
+            X10DTCorePlugin.getInstance().logException("Error while looking for source files with no Java file", e);
+        }
+    }
+    
     private class X10ErrorVisitor implements IResourceVisitor {
         private boolean fCompileAll= false;
         public boolean visit(IResource res) throws CoreException {
