@@ -11,7 +11,7 @@ public class MontyPiParallel {
     val N = 10000; 
     val c = Clock.make();
     val op = Double.+;
-    shared var result: Double @ Clocked[Double](c, op);
+    shared var result: double @ Clocked[Double](c, op, 0.0) = 0.0;
     finish  {
    	 var i : Int = 0;
         for(i = 0; i < P; i++) {
@@ -28,6 +28,7 @@ public class MontyPiParallel {
         }
       }
     }  
+    next;
     val pi = 4*result/(N*P);
     Console.OUT.println("The value of pi is " + pi);
   }

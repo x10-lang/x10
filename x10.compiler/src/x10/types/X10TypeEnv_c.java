@@ -679,9 +679,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      * @see x10.types.X10TypeEnv#isSubtype(polyglot.types.Type, polyglot.types.Type, boolean)
      */
     boolean isSubtype(XVar x, Type t1, Type t2) {
-    	if (t1 instanceof AnnotatedType)
+    	while (t1 instanceof AnnotatedType)
     			t1 = ((AnnotatedType)t1).baseType();
-    	if (t2 instanceof AnnotatedType)
+    	while (t2 instanceof AnnotatedType)
 			t2 = ((AnnotatedType)t2).baseType();
     	
     	assert t1 != null;
