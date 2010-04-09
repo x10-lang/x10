@@ -59,12 +59,13 @@
 	</target>
 
     <target name="retrieve.imp" depends="init.custom" unless="imp.update.cache.verified">
-        <echo message="Retrieving IMP from ${imp.update.url}..."/>
-        <get src="${imp.update.url}" dest="${imp.update.cache.zip}" verbose="true"/>
+        <echo message="Retrieving IMP from ${imp.update.url}... this could take a while..."/>
+        <!-- add verbose="true" to the 'get' task below to print '.' for every 100K download, but this is too much...   -->
+        <get src="${imp.update.url}" dest="${imp.update.cache.zip}" />
         <unzip src="${imp.update.cache.zip}" dest="${imp.update.cache.dir}"/>
     </target>
 
-    <target name="retrieve.ptp" unless="ptp.update.cache.verified">
+    <target name="retrieve.ptp"   unless="ptp.update.cache.verified">
         <echo message="Retrieving PTP from ${ptp.update.url}..."/>
         <get src="${ptp.update.url}" dest="${ptp.update.cache.zip}" verbose="true"/>
         <unzip src="${ptp.update.cache.zip}" dest="${ptp.update.cache.dir}"/>
