@@ -488,7 +488,7 @@ public class PlaceChecker {
 			checkLocalReceiver(n, tc);
 		} catch (PlaceTypeErrorMethodShouldBeLocalOrGlobal z) {
 			// ok, compensate by generating a dynamic cast.
-			if (Configuration.STRONG_CALLS)
+			if (Configuration.STATIC_CALLS)
 				throw z;
 			X10Call_c result = (X10Call_c) n;
 			Receiver r = result.target();
