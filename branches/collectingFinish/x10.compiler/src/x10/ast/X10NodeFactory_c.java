@@ -328,6 +328,15 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
         f = (AtExpr) f.del(del_fac.delFutureImpl()); // FIXME
 		return f;
 	}
+	
+	public FinishExpr FinishExpr(Position pos, Expr reducer, Stmt body) {
+		FinishExpr f = new FinishExpr_c(pos, reducer, body);
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		f = (FinishExpr) f.ext(ext_fac.extExpr()); 
+        X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+        f = (FinishExpr) f.del(del_fac.delExpr()); // FIXME
+		return f;
+	}
 
 	public Here Here(Position pos) {
 		Here f = new Here_c(pos);
