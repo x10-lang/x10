@@ -33,9 +33,12 @@ public class HeatTransfer_v4 {
     const A = DistArray.make[Real](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
     const Temp = DistArray.make[Real](BigD);
 
-    static def stencil_1((x,y):Point(2)) = (([x-1..x+1,y..y] as Region(2)) || [x..x,y-1..y+1]) - [x..x,y..y];
-
-    static def subtract(a:DistArray[Real],b:DistArray[Real]) = DistArray.make[Real](a.dist, (p:Point)=>a(p as Point(a.rank))-b(p as Point(b.rank)));
+    static def stencil_1((x,y):Point(2)): Real {
+        return ((at(A.dist(x-1,y)) A(x-1,y)) + 
+                (at(A.dist(x+1,y)) A(x+1,y)) + 
+                (at(A.dist(x,y-1)) A(x,y-1)) + 
+                (at(A.dist(x,y+1)) A(x,y+1))) / 4;
+    }
 
     // TODO: The array library really should provide an efficient 
     //       all-to-all collective reduction.
@@ -56,7 +59,7 @@ public class HeatTransfer_v4 {
                 do {
                     diff(z) = 0;
                     for (p:Point(2) in D | here) {
-                        Temp(p) = (A | stencil_1(p)).reduce(Double.+, 0.0)/4;
+                        Temp(p) = stencil_1(p);
                         diff(z) = Math.max(diff(z), Math.abs(A(p) - Temp(p)));
                     }
                     next;

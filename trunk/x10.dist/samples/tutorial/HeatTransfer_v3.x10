@@ -45,9 +45,12 @@ public class HeatTransfer_v3 {
     const A = DistArray.make[Real](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
     const Temp = DistArray.make[Real](BigD);
 
-    static def stencil_1((x,y):Point(2)) = (([x-1..x+1,y..y] as Region(2)) || [x..x,y-1..y+1]) - [x..x,y..y];
-
-    static def subtract(a:DistArray[Real],b:DistArray[Real]) = DistArray.make[Real](a.dist, (p:Point)=>a(p as Point(a.rank))-b(p as Point(b.rank)));
+    static def stencil_1((x,y):Point(2)): Real {
+        return ((at(A.dist(x-1,y)) A(x-1,y)) + 
+                (at(A.dist(x+1,y)) A(x+1,y)) + 
+                (at(A.dist(x,y-1)) A(x,y-1)) + 
+                (at(A.dist(x,y+1)) A(x,y+1))) / 4;
+    }
 
     // TODO: This is a really inefficient implementation of this abstraction.
     //       Needs to be done properly and integrated into the Dist/Region/DistArray
@@ -70,12 +73,12 @@ public class HeatTransfer_v3 {
                 val blocks:ValRail[Iterable[Point(2)]] = blockIt(D | here, P);
                 foreach ((q) in 0..P-1) {
                     for (p in blocks(q)) {
-                        Temp(p) = (A | stencil_1(p)).reduce(Double.+, 0.0)/4;
+                        Temp(p) = stencil_1(p);
                     }
                 }
             }
 
-            delta = subtract(A|D.region,Temp|D.region).lift(Math.abs.(Double)).reduce(Math.max.(Double,Double), 0.0);
+            delta = A.lift(Temp, D.region, (x:Real,y:Real)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
             finish ateach (p in D) A(p) = Temp(p);
         } while (delta > epsilon);
     }
