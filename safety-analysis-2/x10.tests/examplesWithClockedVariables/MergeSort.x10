@@ -18,16 +18,17 @@ public class MergeSort{
          Console.OUT.println("Merge Sort ");
          val c: Clock = Clock.make();
          val h = new MergeSort();  // final variable 
-         val myArray : Rail[Int @ Clocked[Int] (c, op)]! = Rail.make[int](N, (i:int)=> N-i);
+         val myArray = Rail.make[int @ Clocked[Int](c,op,0)](N, (i:int)=> N-i);
          
-         val level = 0;
+      
      	 var i: int = 0;
      	
      	 for (i = 0; i < N; i++)
      		Console.OUT.print(myArray(i) + " ");
-     	 h.sort(c, myArray,  0, N-1, level); 
+     	 h.sort(c, myArray,  0, N-1); 
+     	 next;
      	 Console.OUT.println("\nSorted Rail");
-     		for ( i = 0; i < N; i++)
+     	 for ( i = 0; i < N; i++)
      		Console.OUT.print(myArray(i) + " ");
          
       
@@ -36,7 +37,7 @@ public class MergeSort{
  
     
     /** x10doc comment for myMethod */;
-    public def sort (c: Clock, myArray: Rail[int @ Clocked[int] (c, op)]!, start: int, end: int, level: int) 
+    public def sort (c: Clock, myArray: Rail[int @ Clocked[int] (c, op, 0)]!, start: int, end: int) 
     @ ClockedM (c) {
     	
     	val fstart: int = start;
@@ -45,29 +46,23 @@ public class MergeSort{
     	val ssend: int = end;
 
         if (start == end)
-        {
-        
-        	return;
-        	   
-        }
+     			return;
         	
          /* Sort into myArray */
-        async clocked (c) sort (c, myArray, fstart, fend, level+1);
+        async clocked (c) sort (c, myArray, fstart, fend);
         /* Sort into myArray */
-		sort (c, myArray, sstart, ssend, level+1);
+		sort (c, myArray, sstart, ssend);
         next; /* Like a finish */
         
       
         	/* merge from myArray into myArray */
-        	merge(c, myArray, fstart, fend, sstart,
-    			ssend);
+        merge(c, myArray, fstart, fend, sstart, ssend);
   
     }
     
-    public def merge (c: Clock, a: Rail[int @ Clocked[int] (c, op)]!,  fstart: int, fend: int,
+    public def merge (c: Clock, a: Rail[int @ Clocked[int] (c, op, 0)]!,  fstart: int, fend: int,
     		sstart: int, ssend: int) @ ClockedM (c) {
-   // public def merge (c: Clock, a: Rail[int]!, b: Rail[int]!, fstart: int, fend: int,
-   // 		sstart: int, ssend: int) @ ClockedM (c) {
+
     	
     var x: int = fstart;
     var y: int = sstart;

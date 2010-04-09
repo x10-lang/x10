@@ -11,13 +11,13 @@ public class Histogram {
 	val a = Rail.make[Int](N, (i:Int)=> i);
 	val op = Int.+;
 
-    val b = Rail.make[Int @  Clocked[Int] (c,op)](S);
+    val b = Rail.make[Int @  Clocked[Int] (c,op, 0)](S);
     var i: int = 0 ;
 	finish for(i = 0; i< N; i++)  {
 			val ii = i;
 			async clocked(c)  {
 	       		val bin = a(ii) % S;
-	      	   b(bin) = 1;
+	      	    b(bin) = 1;
 	    
 	       }
 	}

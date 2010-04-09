@@ -20,7 +20,9 @@ import polyglot.ast.Assign;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Expr;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.Field_c;
 import polyglot.ast.Id;
 import polyglot.ast.Import;
 import polyglot.ast.Local;
@@ -37,10 +39,14 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Job;
 import polyglot.types.ClassType;
+import polyglot.types.FieldDef;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -51,6 +57,9 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import x10.ast.SettableAssign;
 import x10.ast.X10Call;
+import x10.ast.X10FieldAssign_c;
+import x10.ast.X10FieldDecl_c;
+import x10.ast.X10Field_c;
 import x10.ast.X10LocalAssign_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
@@ -58,6 +67,7 @@ import x10.ast.X10NodeFactory;
 import x10.extension.X10Ext;
 import x10.types.AnnotatedType;
 import x10.types.X10ClassType;
+import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
@@ -93,6 +103,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	        X10MethodInstance mi;
 	        try {
 	            Type type = xts.typeForName(CLOCKEDVAR);
+	            
 	            mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(local.type(), Name.make("get"), Collections.EMPTY_LIST, context));
 	        } catch (SemanticException e) {
 	            throw new InternalCompilerError("Something is terribly wrong", e);
@@ -131,6 +142,19 @@ public class ClockedVariableRefactor extends ContextVisitor {
 		 return null;
 	 }
 	 
+	 private Expr extractOpInit(Type t) {
+		 AnnotatedType at = (AnnotatedType) t;
+		 for (Type an : at.annotations()) {
+			 if (an instanceof X10ParsedClassType) {
+				    Expr p = ((X10ParsedClassType) an).propertyInitializer(2);
+				    return p;
+			 }
+			 
+		 }
+		 
+		 return null;
+	 }
+	 
 	 
 	 private Node visitLocalDecl(X10LocalDecl_c n) {
 	        if (isClockedType(n.type().type())) {
@@ -140,6 +164,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                Position position = n.position();
 	                Expr c = extractClock(n.type().type());
 	                Expr op = extractOp(n.type().type());
+	                Expr init = extractOpInit(n.type().type());
 	                Type type = xts.typeForName(CLOCKEDVAR);
 	                
 	                List<Type> typeArgs = new ArrayList<Type>();
@@ -148,11 +173,14 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                List<Expr> args = new ArrayList<Expr>();
 	                args.add(c);
 	                args.add(op);
+	                args.add(init); /* init for the op */
 	                args.add(n.init());
+	               
 	                
 	                List<Type> argsType = new ArrayList<Type>();
 	                argsType.add(c.type());
 	                argsType.add(op.type());
+	                argsType.add(init.type());
 	                argsType.add(n.type().type());	               
 
 	                X10ClassType type2 = ((X10ClassType) type).typeArguments(typeArgs);
@@ -171,6 +199,53 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	        return n;
 	    }
 
+	 
+	 private Node visitFieldDecl(X10FieldDecl_c n) {
+	        if (isClockedType(n.type().type())) {
+	            Flags f = n.flags().flags();
+	            try {
+	            	//n.type().ty
+	                Position position = n.position();
+	                Expr c = extractClock(n.type().type());
+	                Expr op = extractOp(n.type().type());
+	                Expr init = extractOpInit(n.type().type());
+	                Type type = xts.typeForName(CLOCKEDVAR);
+	                
+	                List<Type> typeArgs = new ArrayList<Type>();
+	                typeArgs.add(n.type().type());
+	                
+	                List<Expr> args = new ArrayList<Expr>();
+	                args.add(c);
+	                args.add(op);
+	                args.add(init); /* init for the op */
+	                args.add(n.init());
+	               
+	                
+	                List<Type> argsType = new ArrayList<Type>();
+	                argsType.add(c.type());
+	                argsType.add(op.type());
+	                argsType.add(init.type());
+	                argsType.add(n.type().type());	               
+
+	                X10ClassType type2 = ((X10ClassType) type).typeArguments(typeArgs);
+	                Expr construct = xnf.New(position,xnf.CanonicalTypeNode(position, type2), args)
+	               
+	                .constructorInstance(xts.findConstructor(type2, xts.ConstructorMatcher(n.type().type(), argsType, context)))
+	                .type(type2);
+	                // clear shared flag and set final flag
+	                FieldDecl fieldDecl = xnf.FieldDecl(position,xnf.FlagsNode(position,X10Flags.toX10Flags(f).Final()), xnf.CanonicalTypeNode(position, type2), n.name(), construct) 
+	                .fieldDef(xts.fieldDef(n.position(), Types.ref(type2), n.flags().flags().Final(), Types.ref(type2), n.name().id()));
+	                return fieldDecl;
+	            } catch (SemanticException e) {
+	                throw new InternalCompilerError("Something is terribly wrong", e);
+	            }
+	        }
+	        return n;
+	    }
+
+	 
+	 
+	 
 	  private Node visitLocalAssign(X10LocalAssign_c n) {
 	        if (isClockedType(n.type())) {
 	            Local local = n.local();
@@ -203,6 +278,47 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	        return n;
 	    }
 	 
+	
+	 
+	  
+	  private Node visitFieldAssign(X10FieldAssign_c n) {
+		  	Type fieldType = ((X10FieldInstance)n.fieldInstance()).x10Def().type().get();
+	        if (isClockedType(fieldType)) {
+	        	
+	            Receiver field = n.left(xnf);
+	            Position position = n.position();
+	            Operator bo = n.operator().binaryOperator();
+	            Expr right = n.right();
+	       
+	            
+	            // if b is also shared, a += b -> a += b.get()
+	           /* if (right instanceof X10Local_c) {
+	                X10Local_c local2 = (X10Local_c) right;
+	                if (isClockedType(local2.type()))
+	                	right = createWrappingCall(local2);
+	            }*/
+	            
+	            X10MethodInstance mi;
+	        
+	            try {
+	                Type type = xts.typeForName(CLOCKEDVAR);
+	                List<Type> typeArguments = ((X10ClassType) type).typeArguments();
+	                mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(right.type(), Name.make("set"), typeArguments, context));
+	            } catch (SemanticException e) {
+	                throw new InternalCompilerError("Something is terribly wrong", e);
+	            }
+	            if (bo == null) { // i.e. =         a = b -> a.set(b)
+	                return (Call) xnf.Call(position, field, xnf.Id(position, "set"), right).methodInstance(mi).type(right.type());
+	            } else {          // i.e. += *= ... a += b -> a.set(a.get() + b)
+	            	System.out.println("FIXME");
+	               /* return (Call) xnf.Call(position, field, xnf.Id(position, "set"), xnf.Binary(position, createWrappingCall(local), bo, right))
+	                .methodInstance(mi).type(right.type());*/ // FIXME
+	            }
+	        }
+	        return n;
+	    }
+	  
+	  
 	  private Node visitLocal(X10Local_c local) {
 		   X10MethodInstance mi;
            try {
@@ -216,8 +332,30 @@ public class ClockedVariableRefactor extends ContextVisitor {
         	   return (Call) xnf.Call(position, local, xnf.Id(position, "get"), local).methodInstance(mi).type(local.type());
         	  // return createWrappingCall(local);
            }
+	  
+	  private Node visitField(X10Field_c field) {
+		  if (isClockedType (field.fieldInstance().def().type().get())) {
+			 X10MethodInstance mi;
+          	try {
+              Type type = xts.typeForName(CLOCKEDVAR);
+             
+              mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(field.type(), Name.make("get"), Collections.EMPTY_LIST, context));
+          	} catch (SemanticException e) {
+          		throw new InternalCompilerError("Something is terribly wrong", e);
+          	}
+       	   	Position position = field.position();
+     
+       	   	return (Call) xnf.Call(position, field, xnf.Id(position, "get")).methodInstance(mi).type(field.type());
+		  }
+		  return field;
+       	  // return createWrappingCall(local);
+          }
+	  
+	  
+	  
 	    
 	 private Node visitMake(X10Call call) {	
+		 
 				for (TypeNode tn: call.typeArguments())
 					if (this.isClockedType(tn.type())) {
 						Receiver target = call.target();
@@ -227,6 +365,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 						try {
 							Expr c = this.extractClock(tn.type());
 							Expr op = this.extractOp(tn.type());
+							Expr opInit = this.extractOpInit(tn.type());
 							type = xts.typeForName(RAIL);
 						
 							
@@ -244,13 +383,18 @@ public class ClockedVariableRefactor extends ContextVisitor {
 							}
 							argTypes.add(c.type());
 							argTypes.add(op.type());
+							argTypes.add(opInit.type());
+							
+					
 							
 							args = new ArrayList<Expr>();
 							for (Expr arg: call.arguments()) {
 								args.add(arg);
+								
 							}
 							args.add(c);
 							args.add(op);
+							args.add(opInit);
 							
 							mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(call.type(), Name.make("makeClockedRail"), typeArgs, argTypes, context));
 							} catch (SemanticException e) {
@@ -344,15 +488,20 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	 
 	    	return visitLocalDecl((X10LocalDecl_c) n);	
 	    } else if (n instanceof FieldDecl) {
-	    	
+	    	 return visitFieldDecl((X10FieldDecl_c)n);
 	    } else if (n instanceof LocalAssign) {
 	    	return visitLocalAssign((X10LocalAssign_c)n);
+	    } else if (n instanceof FieldAssign) {
+	    	return visitFieldAssign((X10FieldAssign_c)n);
 	    	
 	    } else if (!(parent instanceof X10LocalAssign_c) && n instanceof X10Local_c) {
             X10Local_c local = (X10Local_c) n;
-            if(isClockedType(local.type())) {
+            if(isClockedType(local.localInstance().def().type().get()) ) {
                 return createWrappingCall(local);
             }
+        } else if (!(parent instanceof X10FieldAssign_c) && n instanceof X10Field_c) {
+        	return visitField((X10Field_c)n);
+        	
         } else if (n instanceof X10Call) {
         	// Deal with Rail.make and Array.make
         	

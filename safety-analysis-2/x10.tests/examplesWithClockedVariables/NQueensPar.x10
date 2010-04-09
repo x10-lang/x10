@@ -7,13 +7,13 @@ public class NQueensPar {
 
 	val op = Int.+;
 	global val c = Clock.make();
-    public var nSolutions : int   @ Clocked[int] (c, op) = 0;
+    public var nSolutions : int   @ Clocked[int] (c, op, 0) = 0;
     
 
     public static val expectedSolutions =
         [0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512];
   
-    static val N:Int, P:Int;
+   global val N: Int, P:Int;
 
     def this(N:Int, P:Int) { this.N=N; this.P=P;}
 
@@ -93,9 +93,12 @@ public class NQueensPar {
         for (var i:Int = 0; i < ps.length; i++) {
             println("starting " + ps(i) + " threads");
             val nq = new NQueensPar(n,ps(i));
+            nq.nSolutions = 0;
             var start:Long = -System.nanoTime();
             nq.start();
-            val result = nq.nSolutions==expectedSolutions(nq.N);
+            next;
+            val result = nq.nSolutions==expectedSolutions(nq.N); 
+       
             start += System.nanoTime();
             start /= 1000000;
             println("NQueensPar " + nq.N + "(P=" + ps(i) +
