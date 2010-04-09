@@ -197,7 +197,13 @@ public interface X10TypeSystem extends TypeSystem {
      * @return
      */
     Type Rail();
+
     
+    /**
+     * Return the ClassType object for the x10.lang.Runtime.Mortal interface.
+     */
+    Type Mortal();
+
     /**
      * Return the ClassType object for the struct x10.lang.Primitive 
      *

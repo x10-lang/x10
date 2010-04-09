@@ -38,7 +38,10 @@ namespace x10aux {
     public:
         ReferenceLogger();
         void log_(void *x);
-        static void log(void *x) { it->log_(x); }
+        static void log(void *x) {
+        	if (NULL == it) it = new (x10aux::alloc<ReferenceLogger>()) ReferenceLogger();
+        	it->log_(x);
+        }
         template<class T> friend const char *x10aux::typeName();
     };
 

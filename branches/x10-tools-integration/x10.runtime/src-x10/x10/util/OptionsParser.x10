@@ -84,6 +84,24 @@ public final class OptionsParser {
             throw new Err("Expected Int, got: \""+v+"\"");
         }
     }
+    public def apply (key:String, d:Double) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return Double.parseDouble(v);
+        } catch (e:NumberFormatException) {
+            throw new Err("Expected Double, got: \""+v+"\"");
+        }
+    }
+    public def apply (key:String, d:Float) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return Float.parseFloat(v);
+        } catch (e:NumberFormatException) {
+            throw new Err("Expected Float, got: \""+v+"\"");
+        }
+    }
 }
 
 // vim: shiftwidth=8:tabstop=8:expandtab

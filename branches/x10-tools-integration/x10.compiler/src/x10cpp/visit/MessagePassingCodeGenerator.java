@@ -179,6 +179,7 @@ import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
 import x10.ast.RegionMaker_c;
 import x10.ast.SettableAssign_c;
+import x10.ast.StmtExpr_c;
 import x10.ast.StmtSeq_c;
 import x10.ast.SubtypeTest_c;
 import x10.ast.Tuple_c;
@@ -1243,6 +1244,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         List<ClassMember> members = n.members();
 
         generateITablesForClass(currentClass, xts, "virtual ", h);
+        
+        if (currentClass.isSubtype(xts.Mortal(), context)) {
+            h.write("virtual x10_boolean _isMortal() { return true; }");
+            h.newline(); h.forceNewline();
+        }
 
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
@@ -1748,10 +1754,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				}
 			}
 		}
-	}
-
-	String defaultValue(Type type) {
-		return type.isPrimitive() ? "0" : "x10aux::null";
 	}
 
 
@@ -2628,6 +2630,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        n.printBlock(s, sw, tr);
 	        sw.newline();
 	    }
+	}
+
+	public void visit(StmtExpr_c n) {
+	    sw.write("(__extension__ ({");
+	    sw.newline(4); sw.begin(0);
+	    List<Stmt> stmts = n.statements();
+	    for (Stmt stmt : stmts) {
+	        n.printBlock(stmt, sw, tr);
+	        sw.newline();
+	    }
+	    Expr e = n.result();
+	    if (e != null) {
+	        n.print(e, sw, tr);
+	        sw.write(";");
+	    }
+	    sw.end(); sw.newline();
+	    sw.write("}))"); sw.newline();
 	}
 
 
@@ -4734,7 +4753,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		n.printSubExpr(n.left(), true, sw, tr);
 		sw.write(" ");
 		sw.write(opString);
-		sw.allowBreak(n.type() == null || n.type().isPrimitive() ? 2 : 0, " ");
+		sw.allowBreak(0, " ");
 		n.printSubExpr(n.right(), false, sw, tr);
 	}
 
@@ -4825,6 +4844,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    emitter.dumpRegex("Native", components, tr, pat, sw);
 	}
 
+	private static boolean isPODType(Type t) {
+	    return (t.isBoolean() || t.isByte() || t.isShort() || t.isInt() || t.isLong() ||
+	            t.isFloat() || t.isDouble());
+	}
+	private static final int NON_POD_LIMIT = 6;
+
 	public void visit(Tuple_c c) {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 	    Context context = tr.context();
@@ -4832,16 +4857,26 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// Handles Rails initializer.
 		Type T = X10TypeMixin.getParameterType(c.type(), 0);		
 		String type = Emitter.translateType(c.type());
+		boolean needsInitLoop = !isPODType(T) && c.arguments().size() > NON_POD_LIMIT;
+		String tmp = getId();
 		// [DC] this cast is needed to ensure everything has a ref type
 		// otherwise overloads don't seem to work properly
 		sw.write("("+make_ref(type)+")");
+		if (needsInitLoop) {
+		    sw.write("(__extension__ ({");
+		    sw.newline(4); sw.begin(0);
+		    sw.write(type+"* "+tmp+" = ");
+		}
 		sw.write("x10aux::alloc_rail<");
 		sw.write(Emitter.translateType(T, true));
 		sw.write(",");
 		sw.allowBreak(0, " ");
 		sw.write(type);
 		sw.write(" >("+c.arguments().size());
+		int count = 0;
 		for (Expr e : c.arguments()) {
+		    if (needsInitLoop && ++count > NON_POD_LIMIT)
+		        break;
 		    sw.write(",");
 		    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
 		    if (rhsNeedsCast) {
@@ -4854,6 +4889,33 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        sw.write(")");
 		}
 		sw.write(")");
+		if (needsInitLoop) {
+		    sw.write(";");
+		    sw.newline();
+		    String raw = getId();
+		    sw.write(Emitter.translateType(T, true)+"* "+raw+" = "+tmp+"->raw();");
+		    sw.newline();
+		    count = 0;
+		    for (Expr e : c.arguments()) {
+		        if (++count <= NON_POD_LIMIT)
+		            continue;
+		        sw.write(raw+"["+(count-1)+"] = ");
+		        boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
+		        if (rhsNeedsCast) {
+		            // Cast is needed to ensure conversion/autoboxing.
+		            // However, it is statically correct to do the assignment, therefore it can be unchecked.
+		            sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(T, true)) + "(");
+		        }
+		        c.printSubExpr(e, false, sw, tr);
+		        if (rhsNeedsCast)
+		            sw.write(")");
+		        sw.write(";");
+		        sw.newline();
+		    }
+		    sw.write(tmp+";");
+		    sw.end(); sw.newline();
+		    sw.write("}))");
+		}
 	}
 
 	public void visit(When_c n) {
