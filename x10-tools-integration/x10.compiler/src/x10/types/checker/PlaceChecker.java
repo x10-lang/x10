@@ -20,6 +20,9 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.ContextVisitor;
+import x10.Configuration;
+import x10.ast.X10Call;
+import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode_c;
 import x10.constraint.XEQV_c;
 import x10.constraint.XFailure;
@@ -31,6 +34,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
+import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.types.ClosureType_c;
 import x10.types.X10ClassDef;
 import x10.types.X10Context;
@@ -479,6 +483,25 @@ public class PlaceChecker {
      }
     */
     
+    public static Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
+    	try {
+			checkLocalReceiver(n, tc);
+		} catch (PlaceTypeErrorMethodShouldBeLocalOrGlobal z) {
+			// ok, compensate by generating a dynamic cast.
+			if (Configuration.STRONG_CALLS)
+				throw z;
+			X10Call_c result = (X10Call_c) n;
+			Receiver r = result.target();
+			if (r instanceof Expr) {
+				Expr target = (Expr) r;
+				Type type = PlaceChecker.AddIsHereClause(target.type(), tc.context());
+				target = Converter.attemptCoercion(tc, target, type);
+				n = (X10Call) result.reconstruct(target, result.name(), result.arguments());
+			}
+			
+		}
+		return n;
+    }
     /**
      * Check that this method call is place safe (throwing an error if it isnt, i.e.
      * if the call is to a method that is not global, and the receiver

@@ -30,7 +30,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
     // XTENLANG-49
     static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
-    static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
+  //  static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
     static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
 
@@ -55,6 +55,26 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         return new BaseDist(overall, ps, regions);
     }
+    
+    public static def makeBlock1(r: Region, axis: int): Dist(r) { // XTENLANG-4
+        val b = r.boundingBox();
+        val min = b.min()(axis);
+        val max = b.max()(axis);
+        val P = Place.MAX_PLACES;
+        val blockSize = (max - min)/P;
+        val leftOver = max - min - P*blockSize;
+        val regions = Rail.make[Region(r.rank)](P, 
+        		(i:Int) => {
+        			val r1 = Region.makeFull(axis);
+        			val low = min + blockSize*i + (i< leftOver ? i : leftOver);
+        			val hi = low + blockSize + (i < leftOver ? 0 : -1);
+                    val r2 = low..hi;
+                    val r3 = Region.makeFull(r.rank-axis-1);
+                    (r1.product(r2).product(r3) as Region(r.rank)).intersection(r)
+        		});	
+        return new BaseDist(r, Place.places, regions);
+    }
+/*
 
     public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int): Dist(r) { // XTENLANG-4
 
@@ -66,7 +86,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val max = b.max()(axis);
 
         val init = (i:Int) => Region.makeEmpty(r.rank);
-        var regions:Rail[Region(r.rank)]! = Rail.make[Region(r.rank)](Place.MAX_PLACES, init);
+        val regions = Rail.make[Region(r.rank)](Place.MAX_PLACES, init);
 
         for (var i: int = min, p: int = 0; i<=max; i+=blockSize, p++) {
             val r1 = Region.makeFull(axis);
@@ -80,7 +100,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         return new BaseDist(r, Place.places, regions);
     }
-
+*/
     public static def makeConstant1(r: Region): Dist(r) { // XTENLANG-4
         return makeConstant(r, here);
     }
@@ -166,9 +186,9 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(region.intersection(rs(0) as Region(rank)), ps, rs) as Dist(rank);
     }
 
-    incomplete public global def intersection(r: Region(rank)): Dist(rank);
+    //incomplete public global def intersection(r: Region(rank)): Dist(rank);
 
-    incomplete public global def difference(r: Region(rank)): Dist(rank);
+    //incomplete public global def difference(r: Region(rank)): Dist(rank);
 
 
 
@@ -176,7 +196,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // Dist op Dist
     //
 
-    public global def intersection(that: Dist(rank)): Dist(rank) {
+    /*public global def intersection(that: Dist(rank)): Dist(rank) {
 
         // places
         val ps = this.places;
@@ -197,7 +217,8 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         return new BaseDist(overall, ps, rs);
     }
-
+*/
+    /*
     public global def difference(that: Dist(rank)): Dist(rank) {
 
         // places
@@ -234,7 +255,6 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         return new BaseDist(this.region.union(that.region), ps, rs) as Dist(rank);
     }
-
     public global def union(that: Dist(rank)): Dist(rank) {
 
         // places
@@ -255,7 +275,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         return new BaseDist(overall, ps, rs) as Dist(rank);
     }
-
+*/
     public global def isSubdistribution(that: Dist(rank)): boolean {
         for (p:Place in Place.places)
             if (!that.get(p).contains(this.get(p)))

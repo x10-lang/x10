@@ -15,27 +15,28 @@ package x10.array;
  * Represents and empty region, implemented as a UnionRegion with no
  * regions.
  *
- *TODO (vj): This way of implementing EmptyRegion sets the rect property to false.
- *This is incorrect. An EmptyRegion should be immutable -- there should be no way
- *of mutating it into a non-empty region, and its rect property should be set.
- *To be taken care of in the rewrite of the Array library.
- *
  * @author bdlucas
+ * @author vj
  */
 
-class EmptyRegion extends UnionRegion {
+class EmptyRegion extends BaseRegion {
 
     def this(val rank: int): EmptyRegion{self.rank==rank} {
-        super(new PolyRegionListBuilder(rank));
+        super(rank,true,false);
     }
 
-    public global def product(r: Region): Region(rank) {
-        return this;
-    }
-
+    public global def isConvex() = true;
+    public global def isEmpty() = true;
+    public global def size() = 0;
+    public global def intersection(that: Region(rank)): Region(rank) = this;
+    public global def product(that: Region): Region/*(this.rank+that.rank)*/ 
+        = new EmptyRegion(this.rank + that.rank);
+    public global def projection(axis: int): Region(1) = new EmptyRegion(1);
+    public global def translate(p:Point(rank)): Region(rank) = this;
+    public global def eliminate(i:Int)= new EmptyRegion(rank-1);
     protected global def computeBoundingBox(): Region(rank) {
         throw U.illegal("bounding box not not defined for empty region");
     }
-
+    public global def contains(that: Region(rank))= that.isEmpty();
     public global safe def toString() = "empty(" + rank + ")";
 }

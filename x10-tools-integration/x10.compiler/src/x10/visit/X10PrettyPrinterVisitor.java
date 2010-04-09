@@ -84,6 +84,7 @@ import x10.ast.Now_c;
 import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
 import x10.ast.SettableAssign_c;
+import x10.ast.StmtExpr_c;
 import x10.ast.SubtypeTest_c;
 import x10.ast.Tuple_c;
 import x10.ast.TypeDecl_c;
@@ -181,6 +182,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	      } else {
             super.visit(n);
 	      }
+	}
+
+	public void visit(StmtExpr_c n) {
+		assert false : "Statement expressions are not handled in the Java backend";
 	}
 
 	public void visit(Node n) {

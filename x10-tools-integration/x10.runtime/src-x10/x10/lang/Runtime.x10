@@ -154,7 +154,7 @@ public final class Runtime {
 
         public native def lock():Void;
 
-        public native def tryLock():Void;
+        public native def tryLock():boolean;
 
         public native def unlock():Void;
 

@@ -716,6 +716,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (BooleanLit)n.del(delFactory().delBooleanLit());
 		return n;
 	}
+	public StmtExpr StmtExpr(Position pos, List<Stmt> statements, Expr result) {
+		StmtExpr n = new StmtExpr_c(pos, statements, result);
+		n = (StmtExpr)n.ext(extFactory().extBlock());
+		n = (StmtExpr)n.del(delFactory().delBlock());
+		return n;
+	}
 	public StmtSeq StmtSeq(Position pos, List<Stmt> statements) {
 		StmtSeq n = new StmtSeq_c(pos, statements);
 		n = (StmtSeq)n.ext(extFactory().extBlock());

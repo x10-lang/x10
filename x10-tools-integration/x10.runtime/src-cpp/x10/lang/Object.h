@@ -96,6 +96,10 @@ namespace x10 {
 
             template<class T> friend class x10aux::ref;
 
+            // Will be overriden by classes that implement x10.lang.Runtime.Mortal to return true.
+            // Used in _serialize_reference to disable reference logging for specific classes.
+            virtual x10_boolean _isMortal() { return false; }
+
             virtual x10_int hashCode();
 
             virtual x10aux::ref<String> toString();

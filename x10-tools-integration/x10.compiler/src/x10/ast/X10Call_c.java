@@ -110,7 +110,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		n.arguments = new ArrayList<Expr>(args);
 		return n;
 	}
-
+	public Call_c reconstruct(Receiver target, Id name, List<Expr> arguments) {
+		return super.reconstruct(target, name, arguments);
+	}
 	
 	@Override
 	public Node visitChildren(NodeVisitor v) {
@@ -502,20 +504,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 			
 			if (n instanceof X10Call_c) {
-				try {
-					PlaceChecker.checkLocalReceiver((Call) n, tc);
-				} catch (PlaceTypeErrorMethodShouldBeLocalOrGlobal z) {
-					// ok, compensate by generating a dynamic cast.
-					X10Call_c result = (X10Call_c) n;
-					Receiver r = result.target();
-					if (r instanceof Expr) {
-						Expr target = (Expr) r;
-						Type type = PlaceChecker.AddIsHereClause(target.type(), tc.context());
-						target = Converter.attemptCoercion(tc, target, type);
-						n = result.reconstruct(target, result.name(), result.arguments());
-					}
-					
-				}
+				n = PlaceChecker.makeReceiverLocalIfNecessary((X10Call) n, tc);
 			}
 			
 			
@@ -614,7 +603,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		/////////////////////////////////////////////////////////////////////
 
 		result.checkProtoMethod();
-		PlaceChecker.checkLocalReceiver(result, tc);
+		result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, tc);
 		// the arguments here.
 		result.checkConsistency(c);
 		//	        	result = result.adjustMI(tc);

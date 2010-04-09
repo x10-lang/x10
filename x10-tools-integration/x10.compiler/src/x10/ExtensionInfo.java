@@ -56,10 +56,12 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
+import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.PostCompiled;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeChecker;
 import x10.ast.X10NodeFactory_c;
@@ -223,6 +225,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	return errors;
     }
     
+    private static int weakCallsCount = 0;
+    public void incrWeakCallsCount() { 
+    	weakCallsCount++;
+    }
+    public int weakCallsCount() {
+    	return weakCallsCount;
+    }
+    
     protected void initTypeSystem() {
         try {
             TopLevelResolver r = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
@@ -356,11 +366,53 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            
            // the barrier will handle prereqs on its own
            CodeGenerated(job).addPrereq(CodeGenBarrier());
-           
+       
            return goals;
        }
        
-       public Goal CodeGenBarrier() {
+       Goal PrintWeakCallsCount;
+       @Override
+       protected Goal PostCompiled() {
+    	   if (PrintWeakCallsCount == null) {
+    		   PrintWeakCallsCount = new PrintWeakCallsCount((ExtensionInfo) extInfo);
+    		   Goal oldPost = super.PostCompiled();
+    		   PrintWeakCallsCount.addPrereq(oldPost);
+    	   }
+    	   return PrintWeakCallsCount;
+       }
+
+       static class PrintWeakCallsCount extends AllBarrierGoal {
+    	   ExtensionInfo ext;
+    	   public PrintWeakCallsCount(ExtensionInfo extInfo) {
+    		   super("PrintWeakCallsCount",extInfo.scheduler());
+    		   this.ext = extInfo;
+    	   }
+    	   public Goal prereqForJob(Job job) {
+    			if (scheduler.shouldCompile(job)) {
+    			    return scheduler.End(job);
+    			}
+    			else {
+    			    return new SourceGoal_c("WCCDummyEnd", job) {
+    				public boolean runTask() { return true; }
+    			    }.intern(scheduler);
+    			}
+    	   }
+    	   public boolean runTask() {
+    			Compiler compiler = ext.compiler();
+
+    			if (! Configuration.VERBOSE_CALLS) {
+    				int count = ext.weakCallsCount;
+    				if (count > 0) {
+    					compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " weak calls.");
+    				}
+    			}
+    			return true;
+
+    	   }
+
+       }
+       
+	public Goal CodeGenBarrier() {
     	   if (Globals.Options().compile_command_line_only) {
     		   return new BarrierGoal("CodeGenBarrier", commandLineJobs()) {
     			   @Override
@@ -383,6 +435,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		    };
     	    }
        }
+     
        
        public Goal Serialized(Job job) {
            Compiler compiler = job.extensionInfo().compiler();

@@ -28,7 +28,7 @@ abstract public class BaseRegion extends Region {
 
     // XTENLANG-49
     static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
-    static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
+  //  static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
     static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
     static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
@@ -102,12 +102,13 @@ abstract public class BaseRegion extends Region {
     // region composition
     //
 
-    public global def union(that: Region(rank)): Region(rank) {
+   /* public global def union(that: Region(rank)): Region(rank) {
         val rs = new PolyRegionListBuilder(rank);
         rs.add(this);
         rs.add(that.difference(this));
         return UnionRegion.make(rs);
     }
+    
 
     public global def disjointUnion(that: Region(rank)): Region(rank) {
         if (!this.intersection(that).isEmpty())
@@ -125,12 +126,14 @@ abstract public class BaseRegion extends Region {
         else
             return this.intersection(that.complement());
     }
-
+*/
     public global def disjoint(that: Region(rank)): boolean {
         return this.intersection(that).isEmpty();
     }
-
+    
+    /*
     abstract public global def complement(): Region(rank);
+    */
     abstract public global def intersection(that: Region(rank)): Region(rank);
     abstract public global def product(that: Region): Region;
     abstract public global def projection(axis: int): Region(1);
@@ -151,7 +154,7 @@ abstract public class BaseRegion extends Region {
 	    throw boundingBoxException;
         return boundingBox;*/
     }
-    abstract global protected  def computeBoundingBox(): Region(rank);
+  
 
 
     //
@@ -187,10 +190,11 @@ abstract public class BaseRegion extends Region {
     // region comparison operations
     //
 
-    public global def contains(that: Region(rank)): boolean {
+  /*  public global def contains(that: Region(rank)): boolean {
         return that.difference(this).isEmpty();
     }
-
+*/
+    
     public global safe def equals(that:Any):boolean {
 	if (!(that instanceof Region)) return false;
 	val t1 = that as Region;
