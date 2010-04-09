@@ -38,7 +38,7 @@ public class Messages extends NLS {
   public static String CPPB_FileReadingErrorMessage;
   public static String CPPB_IOErrorDuringCompilation;
   public static String CPPB_RemoteCompilTaskName;
-  public static String CPPB_RemoteOpError;
+  public static String CPPB_TargetOpError;
   public static String CPPB_TransferError;
   public static String CPPB_TransferTaskName;
   public static String DF_LineBreak;
