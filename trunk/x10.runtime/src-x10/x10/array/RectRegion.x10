@@ -223,10 +223,6 @@ final public class RectRegion extends PolyRegion{rect} {
     public global def min() = mat.rectMin();
     public global def max() = mat.rectMax();
 
-/*
-    BLOCKED on XTENLANG-1232.  Must be fixed because without this code,
-                               contains operation results in stackoverflow
-                               because of recursive call in PolyRegion.contains. 
     public global def contains(that:Region(rank)): boolean {
        if (that instanceof RectRegion) {
            val thatRR = that as RectRegion(rank);
@@ -243,7 +239,6 @@ final public class RectRegion extends PolyRegion{rect} {
            return this.contains(that.computeBoundingBox());
        }
     }
-*/
 
     public global safe def equals(thatObj:Any): boolean {
         if (!(thatObj instanceof Region)) return false; 
