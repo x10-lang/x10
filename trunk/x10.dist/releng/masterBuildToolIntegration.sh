@@ -26,6 +26,8 @@ if [[ -z "$rev" ]]; then
     exit 1
 fi
 
+ssh orquesta "mkdir -p /var/www/localhost/htdocs/x10dt/x10-builds/$rev"
+
 for host in $hosts
 do
     echo "Launching buildToolIntegration.sh on $host"
