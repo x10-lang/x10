@@ -520,7 +520,7 @@ public class Converter {
 	    }
 
 		// Added 03/28/10 to support new call conversion semantics.
-		if (! Configuration.STRONG_CALLS)
+		if (! Configuration.STATIC_CALLS)
 			if (cast.conversionType() == ConversionType.CALL_CONVERSION 
 					&& ts.isCastValid(fromType, toType, context)) {
 				X10Cast n = cast.conversionType(ConversionType.CHECKED); 
