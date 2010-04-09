@@ -38,5 +38,6 @@ class EmptyRegion extends BaseRegion {
         throw U.illegal("bounding box not not defined for empty region");
     }
     public global def contains(that: Region(rank))= that.isEmpty();
+    public global def contains(p:Point):Boolean = false;
     public global safe def toString() = "empty(" + rank + ")";
 }
