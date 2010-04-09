@@ -13,6 +13,7 @@
 #include <x10aux/RTT.h>
 #include <x10aux/alloc.h>
 #include <x10aux/atomic_ops.h>
+#include <x10aux/reference_logger.h>
 
 #include <x10/lang/Reference.h>
 #include <x10/lang/Object.h>
@@ -141,7 +142,7 @@ void RuntimeType::initStageTwo(const char* baseName_,
                                Variance* variances_) {
     // NOTE: Lock still held because it was not released before returning
     //       false from the end of initStageOne
-    
+
     baseName = baseName_;
     parentsc = parentsc_;
     paramsc = paramsc_;
@@ -151,6 +152,10 @@ void RuntimeType::initStageTwo(const char* baseName_,
         for (int i=0; i<parentsc; i++) {
             parents[i] = parents_[i];
         }
+// NOTE: BDWGC on Leopard is not able to track the following pointers
+#if defined(X10_USE_BDWGC) && defined(__APPLE__)
+        x10aux::ReferenceLogger::log(parents);
+#endif
     } else {
         parents = NULL;
     }
@@ -161,6 +166,10 @@ void RuntimeType::initStageTwo(const char* baseName_,
             params[i] = params_[i];
             variances[i] = variances_[i];
         }
+#if defined(X10_USE_BDWGC) && defined(__APPLE__)
+        x10aux::ReferenceLogger::log(params);
+        x10aux::ReferenceLogger::log(variances);
+#endif
     } else {
         params = NULL;
         variances = NULL;

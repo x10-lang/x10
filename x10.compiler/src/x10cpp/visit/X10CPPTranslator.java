@@ -31,17 +31,23 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Block;
+import polyglot.ast.Branch;
+import polyglot.ast.Catch;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorDecl;
+import polyglot.ast.Eval;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.For;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Return;
 import polyglot.ast.SourceCollection;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ast.TopLevelDecl;
+import polyglot.ast.Try;
 
 
 import polyglot.frontend.Compiler;
@@ -114,11 +120,21 @@ public class X10CPPTranslator extends Translator {
 		return new File(opts.output_directory, outputFileName(pkg, c, ext));
 	}
     
-	private static int adjustLNForNode(int outputLine, Node n) {
+	private static int adjustSLNForNode(int outputLine, Node n) {
 	    // FIXME: Debugger HACK: adjust for loops
 	    if (n instanceof For || n instanceof ForLoop)
 	        return outputLine + 1;
 	    return outputLine;
+	}
+
+	private static int adjustELNForNode(int outputLine, Node n) {
+	    if (n instanceof For || n instanceof ForLoop)
+	        return outputLine - 2;
+	    if (n instanceof Return && ((Return) n).expr() == null)
+	        return outputLine;
+	    if (n instanceof Eval || n instanceof Branch || n instanceof Try)
+	        return outputLine;
+	    return outputLine - 1;
 	}
 
 	private static final String FILE_TO_LINE_NUMBER_MAP = "FileToLineNumberMap";
@@ -127,75 +143,62 @@ public class X10CPPTranslator extends Translator {
 		if (w_ == null)
 			return; // FIXME HACK
 		StreamWrapper w = (StreamWrapper) w_;
-		if (n != null && n.position().line() > 0 &&
-				((n instanceof Stmt && !(n instanceof Block)) ||
+		assert (n != null);
+		final int line = n.position().line();
+		final String file = n.position().file();
+		if (line > 0 &&
+				((n instanceof Stmt && !(n instanceof Block) && !(n instanceof Catch)) ||
 				 (n instanceof FieldDecl) ||
 				 (n instanceof MethodDecl) ||
 				 (n instanceof ConstructorDecl) ||
 				 (n instanceof ClassDecl)))
 		{
 			w.forceNewline(0);
-			final int line = n.position().line();
-			final String file = n.position().file();
 			w.write("//#line " + line + " \"" + file + "\": "+n.getClass().getName());
 			w.newline();
-			if (x10.Configuration.DEBUG) {
-				X10CPPContext_c c = (X10CPPContext_c)context;
-				HashMap<String, LineNumberMap> fileToLineNumberMap =
-					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
-                if (fileToLineNumberMap!=null) {
-                    String key = w.getStreamName(StreamWrapper.CC);
-                    final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
-    				// [DC] avoid NPE when writing to .cu files
-    				if (lineNumberMap!=null) {
-    				    final String cppFile = w.getStreamName(w.currentStream().ext);
-        				if (n instanceof MethodDecl) {
-        					lineNumberMap.addMethodMapping(((MethodDecl) n).methodDef());
-        				}
-        				if (n instanceof ConstructorDecl) {
-        					lineNumberMap.addMethodMapping(((ConstructorDecl) n).constructorDef());
-        				}
-        				final int outputLine = adjustLNForNode(w.currentStream().getStreamLineNumber(), n);
-        				w.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
-        				    public void run(ClassifiedStream s) {
-        				        int cppLine = s.getStartLineOffset()+outputLine;
-//        				        System.out.println("Adding line number entry: "+lineNumberMap.file()+":"+cppLine+"->"+file+":"+line);
-        				        lineNumberMap.put(cppFile, cppLine, file, line);
-        				    }
-        				});
-    				}
-                }
-			}
 		}
+
+		final int startLine = w.currentStream().getStreamLineNumber(); // for debug info
 
 		// FIXME: [IP] Some nodes have no del() -- warn in that case
 		super.print(parent, n, w_);
 
-		if (n != null && n.position().endLine() > 0 && (n instanceof Block))
+		final int endLine = w.currentStream().getStreamLineNumber(); // for debug info
+
+		if (x10.Configuration.DEBUG && line > 0 &&
+		    ((n instanceof Stmt && !(n instanceof Block) && !(n instanceof Catch)) ||
+		     (n instanceof ClassMember)))
 		{
-			if (x10.Configuration.DEBUG) {
-				X10CPPContext_c c = (X10CPPContext_c)context;
-				HashMap<String, LineNumberMap> fileToLineNumberMap =
-					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
-                if (fileToLineNumberMap!=null) {
-                    final String key = w.getStreamName(StreamWrapper.CC);
-                    final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
-                    // [DC] avoid NPE when writing to .cu files
-                    if (lineNumberMap!=null) {
-                        final String cppFile = w.getStreamName(w.currentStream().ext);
-        				final int line = n.position().endLine();
-        				final String file = n.position().file();
-        				final int outputLine = w.currentStream().getStreamLineNumber();
-        				w.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
-        				    public void run(ClassifiedStream s) {
-        				        int cppLine = s.getStartLineOffset()+outputLine;
-//        				        System.out.println("Adding block line number entry: "+lineNumberMap.file()+":"+cppLine+"->"+file+":"+line);
-        				        lineNumberMap.put(cppFile, cppLine, file, line);
-        				    }
-        				});
-                    }
-                }
-			}
+		    final String cppFile = w.getStreamName(w.currentStream().ext);
+		    String key = w.getStreamName(StreamWrapper.CC);
+		    X10CPPContext_c c = (X10CPPContext_c) context;
+		    HashMap<String, LineNumberMap> fileToLineNumberMap =
+		        (HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
+		    if (fileToLineNumberMap != null) {
+		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
+		        // [DC] avoid NPE when writing to .cu files
+		        if (lineNumberMap != null) {
+		            if (n instanceof MethodDecl) {
+		                lineNumberMap.addMethodMapping(((MethodDecl) n).methodDef());
+		            }
+		            if (n instanceof ConstructorDecl) {
+		                lineNumberMap.addMethodMapping(((ConstructorDecl) n).constructorDef());
+		            }
+		            if (n instanceof Stmt) {
+		                final int adjustedStartLine = adjustSLNForNode(startLine, n);
+		                final int adjustedEndLine = adjustELNForNode(endLine, n);
+		                final int fixedEndLine = adjustedEndLine < adjustedStartLine ? adjustedStartLine : adjustedEndLine;
+		                w.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
+		                    public void run(ClassifiedStream s) {
+		                        int cppStartLine = s.getStartLineOffset()+adjustedStartLine;
+		                        int cppEndLine = s.getStartLineOffset()+fixedEndLine;
+//		                        System.out.println("Adding line number entry: "+cppFile+":"+cppStartLine+"-"+cppEndLine+"->"+file+":"+line);
+		                        lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line);
+		                    }
+		                });
+		            }
+		        }
+		    }
 		}
 	}
 

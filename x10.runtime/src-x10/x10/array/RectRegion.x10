@@ -19,7 +19,7 @@ package x10.array;
  * @author bdlucas
  */
 
-final class RectRegion extends PolyRegion{rect} {
+final public class RectRegion extends PolyRegion{rect} {
 
     global val size: int;
 
@@ -218,9 +218,7 @@ final class RectRegion extends PolyRegion{rect} {
     // region operations
     //
 
-    protected global def computeBoundingBox(): Region(rank) {
-        return this;
-    }
+    protected global def computeBoundingBox(): Region(rank){self.rect}=this; 
 
     public global def min() = mat.rectMin();
     public global def max() = mat.rectMax();
