@@ -1,0 +1,143 @@
+%\documentclass[10pt,twoside,twocolumn,notitlepage]{report}
+\documentclass[12pt,twoside,notitlepage]{report}
+\usepackage{x10}
+\usepackage{tenv}
+\def\Hat{{\tt \char`\^}}
+\usepackage{url}
+\usepackage{txtt}
+\usepackage{ifpdf}
+\usepackage{tocloft}
+\usepackage{times}
+%\usepackage{palatino}
+\usepackage{charter}
+
+\newif\ifdraft
+%\drafttrue
+\draftfalse
+
+\pagestyle{headings}
+\showboxdepth=0
+\makeindex
+
+\usepackage{commands}
+
+
+\ifpdf
+          \pdfinfo {
+              /Author   (Nathaniel Nystrom)
+              /Title    (Report on the Experimental Language X10)
+              /Keywords (X10)
+              /Subject  ()
+              /Creator  (TeX)
+              /Producer (PDFLaTeX)
+          }
+\fi
+
+\def\headertitle{The \XtenCurrVer{} Report }
+\def\integerversion{1.7.5}
+
+% Sizes and dimensions
+
+%\topmargin -.375in       %    Nominal distance from top of page to top of
+                         %    box containing running head.
+%\headsep 15pt            %    Space between running head and text.
+
+%\textheight 9.0in        % Height of text (including footnotes and figures, 
+                         % excluding running head and foot).
+
+%\textwidth 5.5in         % Width of text line.
+\columnsep 15pt          % Space between columns 
+\columnseprule 0pt       % Width of rule between columns.
+
+\parskip 5pt plus 2pt minus 2pt % Extra vertical space between paragraphs.
+\parindent 0pt                  % Width of paragraph indentation.
+%\topsep 0pt plus 2pt            % Extra vertical space, in addition to 
+                                % \parskip, added above and below list and
+                                % paragraphing environments.
+
+
+\newif\iftwocolumn
+
+\makeatletter
+\twocolumnfalse
+\if@twocolumn
+\twocolumntrue
+\fi
+\makeatother
+
+\iftwocolumn
+
+\oddsidemargin  0in    % Left margin on odd-numbered pages.
+\evensidemargin 0in    % Left margin on even-numbered pages.
+
+\else
+
+\oddsidemargin  .5in    % Left margin on odd-numbered pages.
+\evensidemargin .5in    % Left margin on even-numbered pages.
+
+\fi
+
+
+\newtenv{example}{Example}[section]
+
+\begin{document}
+
+% \parindent 0pt %!! 15pt                    % Width of paragraph indentation.
+
+%\hfil {\bf 7 Feb 2005}
+%\hfil \today{}
+
+\input{first} 
+
+\clearpage
+
+{\parskip 0pt
+\addtolength{\cftsecnumwidth}{0.5em}
+\addtolength{\cftsubsecnumwidth}{0.5em}
+%\addtolength{\cftsecindent}{0.5em}
+\addtolength{\cftsubsecindent}{0.5em}
+\tableofcontents
+}
+
+\input{XtenIntro}
+\input{XtenOverview}
+\input{XtenLex}
+\input{XtenTypes}	
+\input{XtenVars}
+\input{XtenObjects}
+\input{XtenPackages}
+\input{XtenInterfaces}
+\input{XtenClasses}
+\input{TypeDefs}
+\input{VariableDeclarations}	
+\input{XtenStatements}	
+\input{XtenExpressions}	
+\input{XtenPlaces}	
+\input{XtenActivities}	
+\input{XtenClocks}	
+\input{XtenArrays}	
+\input{XtenAnnotations}
+\input{extern}
+%\input{XtenAPI}
+%\input{XtenGrammar}
+\renewcommand{\bibname}{References}
+\bibliographystyle{plain}
+\bibliography{master}
+
+%\input{bib}	
+
+% Adjustment to avoid having the last index entry on a page by itself.
+%\addtolength{\baselineskip}{-0.1pt}
+
+\clearpage
+
+\input{x10.ind}
+
+{\em The \Xten{} language has been developed as part of the IBM PERCS
+Project, which is supported in part by the Defense Advanced Research
+Projects Agency (DARPA) under contract No. NBCH30390004.}
+
+{\em Java and all Java-based trademarks are trademarks of Sun Microsystems,
+Inc. in the United States, other countries, or both.}
+\end{document}
+

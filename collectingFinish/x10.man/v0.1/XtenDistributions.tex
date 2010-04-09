@@ -1,0 +1,192 @@
+\section{Distributions}\label{XtenDistributions}
+\index{distribution}
+
+A {\em distribution} is a mapping from a region to a set of places.
+{}\Xten{} provides a built-in value class, {\tt
+x10.lang.distribution}, to allow the creation of new distributions and
+to perform operations on distributions. This class is {\tt final} in
+{}\XtenCurrVer; future versions of the language may permit
+user-definable distributions. Since distributions play a dual role
+(values as well as types), variables of type {\cf distribution} 
+must be initialized and are implicitly {\tt final}.
+
+
+The {\em rank} of a distribution is the rank of the underlying region.
+
+%Recall that each program runs in a fixed number of places, determined
+%by runtime parameters. The static constant place.MAX_PLACES specifies
+%the maximum number of places. The collection of places is assumed to
+%be totally ordered.
+
+
+\begin{x10}
+    region R = [100]
+    distribution D = block(R);
+    distribution D = cycle(R);
+    distribution D = R -> here;
+    distribution D = random(R);
+\end{x10}
+
+Let {\cf D} be a distribution. {\cf D.region} denotes the underlying
+region. {\cf D.places} is the set of places constituting the range of
+{\cf D} (viewed as a function). Given a point {\cf p}, the expression
+{\cf D[p]} represents the application of {\cf D} to {\cf p}, that is, the
+place that {\tt p} is mapped to by {\tt D}.
+
+When operated on as a distribution, a region {\cf R} implicitly
+behaves as the distribution mapping each item in {\cf R} to {\cf here}
+(i.e.{} {\cf R->here}, see below). Conversely, when used in a context
+expecting a region, a distribution {\tt D} should be thought of as
+standing for {\tt D.region}.
+
+{}\todo{Allan: We do not specify how the values of an array at a place
+are stored, e.g. in row-major or column major order. Need to work this
+out.}
+
+\subsection{Operations returning distributions}
+
+Let {\cf R} be a region, {\cf Q} a set of places {\cf {}\{p1,...,pk\}}
+(enumerated in canonical order), and {\cf P} a place. All the operations
+described below are static methods on the class {\tt distribution}.
+
+\paragraph{Unique distribution} \index{distribution!unique}
+The distribution {\cf unique(Q)} is the unique distribution from the
+region {\cf 1..k} to {\cf Q} mapping each point {\cf i} to {\cf pi}.
+
+\paragraph{Constant distributions.} \index{distribution!constant}
+The distribution {\cf R->P} maps every point in {\cf R} to {\cf P}.
+
+\paragraph{Block distributions.}\index{distribution!block}
+The distribution {\cf block(R, Q)} distributes the elements of {\cf R}
+(in order) over the set of places {\cf Q} in blocks of size {\cf R} as
+follows. Let $p$ equal {\cf R div N} and $q$ equal {\cf R mod N},
+where {\cf N} is the size of {\cf Q}. The first $q$ places get
+successive blocks of size $(p+1)$ and the remaining places get blocks of
+size $p$.
+
+The distribution {\cf block(R)} is the same distribution as {\cf
+block(R, place.places)}.
+
+\todo{Check into block distributions per dimension.}
+\paragraph{Cyclic distributions.} \index{distribution!cyclic}
+The distribution {\cf cyclic(R, Q)} distributes the points in {\cf R}
+cyclically across places in {\cf Q} in order.
+
+The distribution {\cf cyclic(R)} is the same distribution as {\cf 
+cyclic(R, place.places)}.
+
+Thus the distribution {\cf cyclic(place.MAX\_PLACES)} provides a $1-1$
+mapping from the region {\cf place.MAX\_PLACES} to the set of all
+places and is the same as the distribution {\cf unique(place.places)}.
+
+\paragraph{Block distributions.}\index{distribution!block}
+The distribution {\cf block(R, N, Q)} distributes the elements of {\cf R}
+(in order) over the set of places {\cf Q} in blocks of size {\cf N} as
+follows. Let $p$ equal {\cf R div N} and $q$ equal {\cf R mod N},
+where {\cf N} is the size of {\cf Q}. The first $q$ places get
+successive blocks of size $(p+1)$ and the remaining places get blocks of
+size $p$.
+
+The distribution {\cf block(R, N)} is the same distribution as {\cf
+block(R, N, place.places)}.
+
+\paragraph{Block cyclic distributions.}\index{distribution!block cyclic}
+The distribution {\cf blockCyclic(R, N, Q)} distributes the elements
+of {\cf R} cyclically over the set of places {\cf Q} in blocks of size
+{\cf N}.
+
+The distribution {\cf blockCyclic(R, N)} is the same distribution as {\cf
+block(R, N, place.places)}.
+
+\paragraph{Arbitrary distributions.} \index{distribution!arbitrary}
+The distribution {\cf arbitrary(R,Q)} arbitrarily allocates points in {\cf
+R} to {\cf Q}. As above, {\cf arbitrary(R)} is the same distribution as
+{\cf arbitrary(R, place.places)}.
+
+\todo{Determine which other built-in distributions to provide.}
+
+\paragraph{Domain Restriction.} \index{distribution!restriction!domain}
+
+If {\cf D} is a distribution and {\cf R} is a sub-region of {\cf
+D.domain}, then {\cf D | R} represents the restriction of {\cf D} to
+{\cf R}.  The compiler throws an error if it cannot determine that
+{\cf R} is a sub-region of {\cf D.domain}.
+
+\paragraph{Range Restriction.}\index{distribution!restriction!range}
+
+If {\cf D} is a distribution and {\cf P} a place expression, the term
+{\cf D | P} denotes the sub-distribution of {\cf D} defined over all the
+points in the domain of {\cf D} mapped to {\cf P}.
+
+Note that {\cf D | here} does not necessarily contain adjacent
+points. For instance, if {\cf D} is a cyclic distribution, {\cf D |
+here} will typically contain points that are {\cf P} apart, where {\cf
+P} is the number of places.
+
+\subsection{User-defined distributions}\index{distribution!user-defined}
+
+Future versions of \Xten{} may provide user-defined distributions, in
+a way that supports static reasoning.
+
+
+\todo{TBD. Make distribution a value type. What is the API? Return a
+set of indices. For each index point, return the place. A method to
+return a subdistribution given a subregion. A method to check if a
+given distribution is a subdistribution. But may need to provide methods that the compiler can use to reason about the distribution.
+
+Postpone to 0.7.}
+
+\subsection{Operations on Distributions}
+
+A {\em sub-distribution}\index{sub-distribution} of {\cf D} is any
+distribution {\cf E} defined on some subset of the domain of {\cf D},
+which agrees with {\cf D} on all points in its domain. We also say
+that {\cf D} is a {\em super-distribution} of {\cf E}. A distribution
+{\cf D1} {\em is larger than} {\cf D2} if {\cf D1} is a
+super-distribution of {\cf D2}.
+
+Let {\cf D1} and {\cf D2} be two distributions.  
+
+
+\paragraph{Intersection of distributions.}\index{distribution!intersection}
+{\cf D1 \&\& D2}, the intersection of {\cf D1} and {\cf D2}, is the
+largest common sub-distribution of {\cf D1} and {\cf D2}.
+
+\paragraph{Asymmetric union of distributions.}\index{distribution!union!asymmetric}
+{\cf D1[D2]}, the asymmetric union of {\cf D1} and {\cf D2}, is the
+distribution whose domain is the union of the regions of {\cf D1} and
+{\cf D2}, and whose value at each point {\cf p} in its domain is {\cf D1[p]}
+if {\cf p} lies in {\cf D.domain} otherwise it is {\cf D2[p]}.
+
+\paragraph{Disjoint union of distributions.}\index{distribution!union!disjoint}
+{\cf D1 || D2}, the disjoint union of {\cf D1} and {\cf D2}, is
+defined only if the domains of {\cf D1} and {\cf D2} are disjoint. Its
+value is {\cf D1[D2]} (or equivalently {\cf D2[D1]}.  (It is the least
+super-distribution of {\cf D1} and {\cf D2}.)
+
+\paragraph{Difference of distributions.}\index{distribution!difference}
+{\cf D1 - D2} is the largest sub-distribution of {\cf D1} whose domain is
+disjoint from that of {\cf D2}.
+
+
+\subsection{Example}
+\begin{x10}
+<distribution D(1)> public static
+    T[D] dotProduct(T a[D], T b[D]) \{
+    return (new T[D.places] (j) \{
+        return (new T[D | here] (i) \{
+            return a[i]*b[i];
+        \}) >> (+);
+   \}) >> (+);
+\}
+\end{x10}
+
+This code returns the inner product of two {\cf T} vectors defined
+over the same (otherwise unknown) distribution. The result is the sum
+reduction of an array of {\cf T} with one element at each place in the
+range of {\cf D}. The value of this array at each point is the sum
+reduction of the array formed by multiplying the corresponding
+elements of {\cf a} and {\cf b} in the local sub-array at the current place.
+
+
+

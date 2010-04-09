@@ -1,0 +1,35 @@
+\begin{tightcode}
+\quad\num{1}class Owned(Owned owner) \{
+\quad\num{2}    boolean owns(Owned o) \{
+\quad\num{3}        return this == world || o.owner == this || this.owns(o.owner);
+\quad\num{4}    \}
+\quad\num{5}
+\quad\num{6}    static final Owned world;
+\quad\num{7}\}
+\quad\num{8}
+\quad\num{9}class List(Owned(:owns(owner)) valOwner)
+\quad\num{10}    extends Owned
+\quad\num{11}\{
+\quad\num{12}    Owned(:owner==valOwner) head;
+\quad\num{13}    List(:owner==this & valOwner==this.valOwner) tail;
+\quad\num{14}
+\quad\num{15}    List(:owner==o & valOwner==v)(Owned o, Owned v: o.owns(v)) \{
+\quad\num{16}        super(o);
+\quad\num{17}        property(v);
+\quad\num{18}    \}
+\quad\num{19}
+\quad\num{20}    List(:owner==this & valOwner==this.valOwner) expose() \{
+\quad\num{21}        return tail;
+\quad\num{22}    \}
+\quad\num{23}
+\quad\num{24}    \ldots{}
+\quad\num{25}\}
+\quad\num{26}
+\quad\num{27}List(:owner==this & valOwner == this) x;  \emph{// ok}
+\quad\num{28}List(:owner==this & valOwner == world) x;  \emph{// ok}
+\quad\num{29}List(:owner==world & valOwner == world) x;  \emph{// ok}
+\quad\num{30}List(:owner==world & valOwner == this) x;  \emph{// error: inconsistent}
+\quad\num{31}
+\quad\num{32}        owner == world & valOwner == this & this.owns(world)
+\quad\num{33}                                
+\end{tightcode}
