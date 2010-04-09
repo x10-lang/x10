@@ -21,6 +21,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,6 +33,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.utils.ConsoleUtil;
+import org.eclipse.imp.x10dt.core.builder.X10Builder;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
@@ -58,6 +60,9 @@ import org.eclipse.ptp.debug.core.IPDebugger;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.launch.ParallelLaunchConfigurationDelegate;
 import org.eclipse.ptp.rm.mpi.mpich2.core.MPICH2LaunchAttributes;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
@@ -152,11 +157,14 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       // Performs linking first.
       monitor.beginTask(null, 10);
       monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
-      if (createExecutable(configuration, verifyProject(configuration), 
-                           new SubProgressMonitor(monitor, 8)) == 0) {
+      final IProject project = verifyProject(configuration);
+      if (! monitor.isCanceled() && shouldProcessToLinkStep(project) && 
+      		createExecutable(configuration, project, new SubProgressMonitor(monitor, 5)) == 0) {
         // Then, performs the launch.
-        monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
-        super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 2));
+      	if (! monitor.isCanceled()) {
+      		monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
+      		super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 5));
+      	}
       }
     } finally {
       monitor.done();
@@ -285,6 +293,42 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoMainFileAccessIOError,
                                          except));
     } 
+  }
+  
+  private boolean shouldProcessToLinkStep(final IProject project) {
+  	String message = null;
+  	try {
+			final IMarker[] markers = project.findMarkers(X10Builder.PROBLEMMARKER_ID, true /* includeSubtypes */, 
+			                                              IResource.DEPTH_INFINITE);
+			int errorCount = 0;
+			for (final IMarker marker : markers) {
+				if (marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR) {
+					++errorCount;
+				}
+			}
+			message = (errorCount == 0) ? null : NLS.bind(LaunchMessages.CLCD_FoundErrorMarkers, errorCount, project.getName());
+		} catch (CoreException except) {
+			message = LaunchMessages.CLCD_CouldNotAccessErrorMarkers;
+		}
+		if (message == null) {
+			return true;
+		} else {
+			final String boxMessage = message;
+			final IWorkbench workbench = LaunchCore.getInstance().getWorkbench();
+			final boolean[] result = new boolean[1];
+			workbench.getDisplay().syncExec(new Runnable() {
+				
+				public void run() {
+					final MessageBox msgBox = new MessageBox(workbench.getActiveWorkbenchWindow().getShell(), 
+					                                         SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+					msgBox.setMessage(boxMessage);
+					msgBox.setText(LaunchMessages.CLCD_LinkingCheck);
+					result[0] = (msgBox.open() == SWT.YES);
+				}
+				
+			});
+			return result[0];
+		}
   }
   
   // --- Fields
