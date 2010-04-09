@@ -82,9 +82,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
                                    getProject().getFullPath().toString(), IMarker.PRIORITY_HIGH);
       }
     } catch (IOException except) {
-      IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_RemoteOpError, this.fConfName), 
+      IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
                                  IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-      LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_RemoteOpError, this.fConfName), except);
+      LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), except);
     } catch (InterruptedException except) {
       IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
                                  IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
@@ -144,9 +144,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         }
       }
     } catch (IOException except) {
-      IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_RemoteOpError, this.fConfName), 
+      IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
                                  IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-      LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_RemoteOpError, this.fConfName), except);
+      LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), except);
       return false;
     } catch (InterruptedException except) {
       IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 

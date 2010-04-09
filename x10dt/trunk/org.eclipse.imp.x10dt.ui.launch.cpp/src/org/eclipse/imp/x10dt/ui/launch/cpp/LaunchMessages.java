@@ -75,6 +75,8 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_NoExistingProject;
 
+	public static String CAT_NoMainX10FileFound;
+
   public static String CAT_OutputToConsoleMsg;
 
   public static String CAT_ParsingX10FilesMsg;
@@ -94,6 +96,8 @@ public class LaunchMessages extends NLS {
   public static String CAT_ResourcesAccessError;
 
   public static String CAT_SearchButton;
+
+	public static String CAT_SearchInfoResult;
 
   public static String CAT_SearchingMainMethodsMsg;
 
@@ -127,13 +131,19 @@ public class LaunchMessages extends NLS {
 
   public static String CLCD_CmdUsedMsg;
 
+	public static String CLCD_CouldNotAccessErrorMarkers;
+
   public static String CLCD_ExecCreationTaskName;
+
+	public static String CLCD_FoundErrorMarkers;
 
   public static String CLCD_LaunchCreationTaskName;
 
   public static String CLCD_LinkCmdError;
 
-  public static String CLCD_LinkingInterrupted;
+  public static String CLCD_LinkingCheck;
+
+	public static String CLCD_LinkingInterrupted;
 
   public static String CLCD_LinkIOError;
   
