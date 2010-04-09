@@ -2,12 +2,12 @@ import clocked.*;
 
 public class AllReduceParallel {
   
-  static val P = Place.MAX_PLACES;
+  static val P = 8;
 
-  public static def allReduce(c: Clock, op: (int,int)=>int, myA:Rail[int @ Clocked[int](c,op)]!) @ClockedM(c) {
+  public static def allReduce(c: Clock, op: (int,int)=>int, myA:Rail[int @ Clocked[int](c,op, 0)]!) @ClockedM(c) {
     val phases = Math.log2(P);
 	var i : Int = 0;
-    finish  for(i = 0; i < P; i++)  {
+    for(i = 0; i < P; i++)  {
     	val p = i;
         async clocked(c) {
         	var shift_:Int=1;
@@ -16,21 +16,21 @@ public class AllReduceParallel {
                 val source = here;
                 val elem = myA(p);
                 myA(destId) = elem + myA(destId);
+            
                 next;
                 shift_ *=2;
         	}
      	}
      }
+     next;
      return myA(0);
 }
 
   public static def main(Rail[String]) {
-    assert Math.powerOf2(Place.MAX_PLACES)
-        : " Must run on power of 2 places.";
-  
+
     val c = Clock.make();
     val op = int.+;
-    val myA : Rail[int @ Clocked[int](c, op)]! = Rail.make[int](P, (Int)=> 0);
+    val myA = Rail.make [int @ Clocked[int](c, op, 0)](P, (i:Int)=> i);
     val result = allReduce(c, op, myA);
    
     Console.OUT.println("allReduce = " + result);

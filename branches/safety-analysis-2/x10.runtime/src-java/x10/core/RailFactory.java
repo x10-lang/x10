@@ -26,6 +26,11 @@ public class RailFactory {
         return array;
     }
     
+    public static <T> T initCompute (Type<T> type, int i, Fun_0_1<Integer,T> init)
+    {
+    	return init.apply(i);
+    }
+    
     public static <T> Rail<T> makeVarRail(Type<T> type, int length, Fun_0_1<Integer,T> init) {
         Rail<T> array = new Rail<T>(type, length);
         for (int i = 0; i < length; i++) {

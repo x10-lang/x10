@@ -239,7 +239,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	                 //System.out.println("***" + result);
 	            } else if (n instanceof ProcedureDecl) {
 	            	ProcedureDecl pd= (ProcedureDecl) n;
-	            	
+	            
 	            	// vj: This doesnt make sense, need to set up effects separately, just like return types of methods.
 	            	result= effect(pd.body());
 	            
@@ -275,7 +275,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            	} else if (isMainMethod(pd, ec) && !result.safe()) {
 	            		ec.emitMessage("Main method is not safely parallelized; effect is: " + result, pd.position());
 	            	} else {
-				       System.out.println(pd.position() + ": Method " + pd.name() + " is "+ result);
+				       System.out.println("Info: " + pd.position() + ": Method " + pd.name() + " is "+ result);
 	            	}
 
 	            } else if (n instanceof SettableAssign) {
@@ -561,7 +561,7 @@ private Effect computeEffect(Unary unary, EffectComputer ec) {
   }
 
   private Effect computeEffectOfArrayWrite(Call call, Expr array, Expr index, Expr val, EffectComputer ec) {
-      			System.out.println("FIXME"); 
+ 
       Effect result= Effects.makeSafe();
      System.out.println(array);
      System.out.println(index.type());
@@ -677,7 +677,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
                   Locs locs= computeLocFor(c, ec);
 		  registeredClocks.add(locs);
        }
-      System.out.println(async.position() + ":Body of async is " + bodyEff);
+      System.out.println("Info: " + async.position() + ":Body of async is " + bodyEff);
       for (Locs mc: bodyEff.mustClockSet()) {
     	  	boolean found = false;
       		for (Locs rc: registeredClocks) {
@@ -712,7 +712,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       		if (found == false)
       			ec.emitMessage( mc + " is not in registered clocks of async", fe.position());
       }
-      System.out.println(fe.position() + ": ForEach is " + bodyEff);
+      System.out.println("Info: " + fe.position() + ": ForEach is " + bodyEff);
       return bodyEff.makeParSafe();
   	}
 
@@ -737,7 +737,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       		if (found == false)
       			ec.emitMessage( mc + " is not in registered clocks of async", ae.position());
       }
-      System.out.println(ae.position() + ": ForEach is " + bodyEff);
+      System.out.println("Info: " + ae.position() + ": ForEach is " + bodyEff);
       return bodyEff.makeParSafe();
   	}
   
