@@ -1062,6 +1062,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           ConnectionInfoValidationListener.this.fConnectionInfo.setValidationStatus(EValidationStatus.FAILURE);
           ConnectionInfoValidationListener.this.fConnectionInfo.setErrorMessage(exception.getMessage());
           ConnectionSectionPart.this.fTableViewer.update(ConnectionInfoValidationListener.this.fConnectionInfo, null);
+          ConnectionSectionPart.this.fErrorLabel.setText(exception.getMessage());
           notifyConnectionChanged();
         }
         
@@ -1073,6 +1074,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       if (display.getThread() == Thread.currentThread()) {
         this.fConnectionInfo.setValidationStatus(EValidationStatus.UNKNOWN);
         ConnectionSectionPart.this.fTableViewer.update(this.fConnectionInfo, null);
+        ConnectionSectionPart.this.fErrorLabel.setText(Constants.EMPTY_STR);
         notifyConnectionChanged();
       } else {
         display.syncExec(new Runnable() {
@@ -1080,6 +1082,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           public void run() {
             ConnectionInfoValidationListener.this.fConnectionInfo.setValidationStatus(EValidationStatus.UNKNOWN);
             ConnectionSectionPart.this.fTableViewer.update(ConnectionInfoValidationListener.this.fConnectionInfo, null);
+            ConnectionSectionPart.this.fErrorLabel.setText(Constants.EMPTY_STR);
             notifyConnectionChanged();
           }
           
@@ -1093,6 +1096,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         public void run() {
           ConnectionInfoValidationListener.this.fConnectionInfo.setValidationStatus(EValidationStatus.VALID);
           ConnectionSectionPart.this.fTableViewer.update(ConnectionInfoValidationListener.this.fConnectionInfo, null);
+          ConnectionSectionPart.this.fErrorLabel.setText(Constants.EMPTY_STR);
           notifyConnectionChanged();
         }
         
