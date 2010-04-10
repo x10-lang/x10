@@ -1073,7 +1073,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         List<MethodInstance> cmeths = c.methodsNamed(name);
 
         for (MethodInstance cmi : cmeths) {
-            if (cmi.flags().isAbstract()) continue;
+            if (cmi.flags().isStatic()) continue;
             if (shadowed.contains(cmi.formalTypes())) continue;
             shadowed.add(cmi.formalTypes());
             if (cmi.flags().isPrivate()) continue;
@@ -1702,7 +1702,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					h.write(" p"+counter++);
 				}
 				h.end();
-				h.write(");"); h.newline();
+				h.write(")");
+				if (dropzone.flags().isAbstract()) {
+				    h.write(" = 0");
+				}
+				h.write(";"); h.newline();
+				if (dropzone.flags().isAbstract()) continue;
 
 				if (newTypeParameters.size() != 0) {
 					sw.pushCurrentStream(context.templateFunctions);
