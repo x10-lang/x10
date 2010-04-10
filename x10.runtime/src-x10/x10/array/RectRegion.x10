@@ -13,170 +13,49 @@ package x10.array;
 
 
 /**
- * This class provides special-case efficient operations for
- * rectangular regions, such as bounds checking and scanning.
- *
- * @author bdlucas
+ * A RectRegion is a finite, rank-dimensional, dense rectangular region.
  */
+public final class RectRegion extends BaseRegion{rect} {
 
-final public class RectRegion extends PolyRegion{rect} {
+    global private val size:int;
+    global private val mins:ValRail[int];
+    global private val maxs:ValRail[int];
 
-    global val size: int;
-
-    global val min0:int;
-    global val min1:int;
-    global val min2:int;
-    global val min3:int;
-
-    global val max0:int;
-    global val max1:int;
-    global val max2:int;
-    global val max3:int;
-
-
-    /**
-     * computation of size and min/max is deferred until needed to
-     * allow unbounded regions
-     */
-
-    def this(val pm: PolyMat): RectRegion{self.rank==pm.rank && self.rect} {
-
-        super(pm, true);
-
-        size = pm.isBounded()? computeSize(pm) : -1;
-
-        min0 = pm.rank>=1 && pm.isBounded()? pm.rectMin()(0) : 0;
-        min1 = pm.rank>=2 && pm.isBounded()? pm.rectMin()(1) : 0;
-        min2 = pm.rank>=3 && pm.isBounded()? pm.rectMin()(2) : 0;
-        min3 = pm.rank>=4 && pm.isBounded()? pm.rectMin()(3) : 0;
-
-        max0 = pm.rank>=1 && pm.isBounded()? pm.rectMax()(0) : 0;
-        max1 = pm.rank>=2 && pm.isBounded()? pm.rectMax()(1) : 0;
-        max2 = pm.rank>=3 && pm.isBounded()? pm.rectMax()(2) : 0;
-        max3 = pm.rank>=4 && pm.isBounded()? pm.rectMax()(3) : 0;
+    private static def allZeros(x:ValRail[int]) {
+       for (i in x) if (i != 0) return false;
+       return true;
     }
 
-    public static def make1(min: Rail[int]!, max: Rail[int]!): Region{self.rank==min.length&&self.rect} { // XTENLANG-4
+    private def this(minArg:ValRail[int], maxArg:ValRail[int]):RectRegion{self.rank==minArg.length} {
+        super(minArg.length, true, allZeros(minArg));
 
-        if (max.length!=min.length)
+        var s:int = 1;
+        for (var i:int = 0; i<minArg.length; i++) {
+            s *= maxArg(i) - minArg(i) + 1;
+        }
+        size = s;
+
+	mins = minArg;
+	maxs = maxArg;
+    }
+
+    public static def make1(min:Rail[int]!, max:Rail[int]!):RectRegion{self.rank==min.length,self.rect} {
+        if (max.length!=max.length) 
             throw U.illegal("min and max must have same length");
 
-        val pmb = new PolyMatBuilder(min.length);
-        for (var i: int = 0; i<min.length; i++) {
-            pmb.add(pmb.X(i), pmb.GE, min(i));
-            pmb.add(pmb.X(i), pmb.LE, max(i));
-        }
-
-        val pm = pmb.toSortedPolyMat(true);
-        return new RectRegion(pm);
+        return new RectRegion(min as ValRail[int], max as ValRail[int]);
     }
 
 
-    // XTENLANG-109
-  
-    public static def make1(min: int, max: int): Region{self.rect && self.rank==1 /*&& self.zeroBased==(min==0)*/} {
-        return make1([min as Int], [max as Int]);  // self.zeroBased==(min==0)*/};
+    public static def make1(min:int, max:int): Region{self.rect,self.rank==1} {
+	return new RectRegion([min], [max]);
     }
 
-    private static def computeSize(mat: PolyMat): int {
-        val min = mat.rectMin();
-        val max = mat.rectMax();
-        var size:int = 1;
-        for (var i: int = 0; i<mat.rank; i++)
-            size *= max(i) - min(i) + 1;
-        return size;
-    }
+    public global def size() = size;
 
-    public global def size(): int {
-        if (size<0)
-            throw new UnboundedRegionException("unbounded");
-        return size;
-    }
+    public global def isConvex() = true;
 
-
-
-    /**
-     * scanner
-     */
-
-    final private static class Scanner implements Region.Scanner {
-
-        private val myMin: ValRail[int];
-        private val myMax: ValRail[int];
-
-        def this(r: PolyRegion): Scanner {
-            myMin = r.mat.rectMin();
-            myMax = r.mat.rectMax();
-        }
-
-        final public def set(axis: int, position: int): void {
-            // no-op
-        }
-        
-        final public def min(axis: int): int {
-            return myMin(axis);
-        }
-        
-        final public def max(axis: int): int {
-            return myMax(axis);
-        }
-    }
-
-    public global def scanner(): Region.Scanner {
-        return new RectRegion.Scanner(this);
-    }
-
-
-    /**
-     * specialized from PolyRegion.Iterator
-     * keep them in sync
-     *
-     * XXX this is actually SLOWER than the generic PolyRegion.Iterator!!!???
-     */
-
-    final private static class It implements Iterator[Rail[int]] {
-        
-        // parameters
-        private val rank: int;
-        private val min: ValRail[int];
-        private val max: ValRail[int];
-
-        // state
-        private val x: Rail[int]!;
-        private var k: int;
-
-        def this(val r: RectRegion): It {
-            rank = r.rank;
-            min = r.mat.rectMin();
-            max = r.mat.rectMax();
-            val xx = Rail.make[int](r.rank, (i:Int)=>r.mat.rectMin()(i));
-            xx(r.rank-1)--;
-	    x = xx;
-        }
-
-        final public def hasNext(): boolean {
-            k = rank-1;
-            while (x(k)>=max(k))
-                if (--k<0)
-                    return false;
-            return true;
-        }
-
-        final public def next(): Rail[int] {
-            x(k)++;
-            for (k=k+1; k<rank; k++)
-                x(k) = min(k);
-            return x;
-        }
-
-        incomplete public def remove(): void;
-    }
-
-    /* slower!!!
-    public Region.Iterator iterator() {
-        return new RectRegion.Iterator(this);
-    }
-    */
+    public global def isEmpty() = size == 0;
 
 
     //
@@ -184,31 +63,31 @@ final public class RectRegion extends PolyRegion{rect} {
     // 
 
     global def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
-        if (i0<min0 || i0>max0) {
+        if (i0<min(0) || i0>max(0)) {
             throw err(Point.make(i0));
         }
     }
 
     global def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
-        if (i0<min0 || i0>max0 ||
-            i1<min1 || i1>max1) {
+        if (i0<min(0) || i0>max(0) ||
+            i1<min(1) || i1>max(1)) {
             throw err(Point.make(i0,i1));
         }
     }
 
     global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
-        if (i0<min0 || i0>max0 ||
-            i1<min1 || i1>max1 ||
-            i2<min2 || i2>max2) {
+        if (i0<min(0) || i0>max(0) ||
+            i1<min(1) || i1>max(1) ||
+            i2<min(2) || i2>max(2)) {
             throw err(Point.make(i0,i1,i2));
         }
     }
 
     global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
-        if (i0<min0 || i0>max0 ||
-            i1<min1 || i1>max1 ||
-            i2<min2 || i2>max2 ||
-            i3<min3 || i3>max3) {
+        if (i0<min(0) || i0>max(0) ||
+            i1<min(1) || i1>max(1) ||
+            i2<min(2) || i2>max(2) ||
+            i3<min(3) || i3>max(3)) {
             throw err([i0,i1,i2,i3] as Point);
         }
     }
@@ -220,25 +99,129 @@ final public class RectRegion extends PolyRegion{rect} {
 
     protected global def computeBoundingBox(): Region(rank){self.rect}=this; 
 
-    public global def min() = mat.rectMin();
-    public global def max() = mat.rectMax();
+    public global def min() = mins;
+    public global def max() = maxs;
 
     public global def contains(that:Region(rank)): boolean {
        if (that instanceof RectRegion) {
-           val thatRR = that as RectRegion(rank);
-	   val my_min = mat.rectMin();
-           val my_max = mat.rectMax();
-           val that_min = thatRR.min();
-           val that_max = thatRR.max();
+            val thatMin = (that as RectRegion).min();
+            val thatMax = (that as RectRegion).max();
            for (var i:int =0; i<rank; i++) {
-               if (my_min(i) > that_min(i)) return false;
-               if (my_max(i) < that_max(i)) return false;
+               if (mins(i) > thatMin(i)) return false;
+               if (maxs(i) < thatMax(i)) return false;
            }
            return true;
        } else {
            return this.contains(that.computeBoundingBox());
        }
     }
+
+    public global def contains(p:Point):boolean {
+        if (p.rank != rank) return false;
+        for ((r) in 0..p.rank-1) {
+            if (p(r)<mins(r) || p(r)>maxs(r)) return false;
+        }
+        return true;
+    }
+
+
+    public global def intersection(that: Region(rank)):Region(rank) {
+        if (that.isEmpty()) {
+	    return that;
+        } else if (that instanceof FullRegion) {
+            return this;
+        } else if (that instanceof RectRegion) {
+            val thatMin = (that as RectRegion).min();
+            val thatMax = (that as RectRegion).max();
+	    val newMin = ValRail.make[int](rank, (i:int)=>Math.max(min(i), thatMin(i)));
+	    val newMax = ValRail.make[int](rank, (i:int)=>Math.min(max(i), thatMax(i)));
+            return new RectRegion(newMin, newMax);
+        } else {
+	    throw U.unsupported("haven't implemented RectRegion intersection with "+that.typeName());
+        }
+    }
+    
+
+    public global def product(that:Region):Region {
+        if (that.isEmpty()) {
+            return Region.makeEmpty(rank + that.rank);
+        } else if (that instanceof RectRegion) {
+            val thatMin = (that as RectRegion).min();
+            val thatMax = (that as RectRegion).max();
+            val newMin = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?min(i):thatMin(i-rank));
+            val newMax = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?max(i):thatMax(i-rank));
+            return new RectRegion(newMin, newMax);
+        } else if (that instanceof FullRegion) {
+            val newMin = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?min(i):Int.MIN_VALUE);
+            val newMax = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?max(i):Int.MAX_VALUE);
+	    return new RectRegion(newMin,newMax);
+        } else {
+	    throw U.unsupported("haven't implemented RectRegion product with "+that.typeName());
+        }
+    }
+
+    public global def translate(v: Point(rank)): Region(rank) {
+        val newMin = ValRail.make[int](rank, (i:int)=>min(i)+v(i));
+        val newMax = ValRail.make[int](rank, (i:int)=>max(i)+v(i));
+        return new RectRegion(newMin, newMax);
+    }
+
+    public global def projection(axis: int): Region(1) {
+        return new RectRegion([min(axis)], [max(axis)]);
+    }
+
+    public global def eliminate(axis: int):Region /*(rank-1)*/ {
+        val newMin = ValRail.make[int](rank-1, (i:int)=>i<axis?min(i):min(i+i));
+        val newMax = ValRail.make[int](rank-1, (i:int)=>i<axis?max(i):max(i+i));
+        return new RectRegion(newMin, newMax);
+    }    
+
+
+    private static class RRIterator(myRank:int) implements Iterator[Point(myRank)]() {
+        val min:ValRail[int](myRank);
+        val max:ValRail[int](myRank);
+        var done:boolean;
+        val cur:Rail[int](myRank)!;
+
+        def this(min_:ValRail[int], max_:ValRail[int], r:int):RRIterator{self.myRank==r} {
+            property(r);
+            min = min_;
+            max = max_;
+            done = false;
+            cur = min_ as Rail[int];
+        }        
+
+        public def hasNext() = !done;
+
+        public def next():Point(myRank) {
+            val ans = Point.make(cur);
+            if (cur(myRank-1)<max(myRank-1)) {
+                cur(myRank-1)++;
+            } else {
+	        if (myRank == 1) {
+	            done = true;
+                } else {
+	            // reset lowest rank to min and ripple carry
+                    cur(myRank-1) = min(myRank-1);
+	            cur(myRank-2)++;
+	            var carryRank:int = myRank-2;
+	            while (carryRank>0 && cur(carryRank) > max(carryRank)) {
+                        cur(carryRank) = min(carryRank);
+	                cur(carryRank-1)++;
+                        carryRank--;
+                    }
+	            if (carryRank == 0 && cur(0) > max(0)) {
+	                done = true;
+                    }
+                }
+            }
+            return ans;
+        }
+    }
+    public global def iterator():Iterator[Point(rank)] {
+        return new RRIterator(mins, maxs, rank) as Iterator[Point(rank)];
+    }
+
 
     public global safe def equals(thatObj:Any): boolean {
         if (!(thatObj instanceof Region)) return false; 

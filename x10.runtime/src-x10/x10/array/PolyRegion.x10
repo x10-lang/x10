@@ -326,10 +326,9 @@ public class PolyRegion extends BaseRegion {
     public static def make(pm: PolyMat): Region(pm.rank)! {
         if (pm.isEmpty()) {
             return new EmptyRegion(pm.rank);
-        } else  if (pm.isRect() && pm.isBounded())
-            return new RectRegion(pm);
-        else
+        } else {
             return new PolyRegion(pm, false);
+        }
     }
 
     protected def this(pm: PolyMat, hack198:boolean): PolyRegion(pm.rank) {
