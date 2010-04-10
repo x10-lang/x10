@@ -97,46 +97,44 @@ class SSCA2 {
                   for ((i) in  0..GLOBALS.N-1){
                     x10.io.Console.OUT.println(i + " " + genScaleData.sprng_wrapper(stream1));
                   } */
-                /* finish ateach ((place) in unique) {
+                 finish ateach ((place) in unique) {
                   val world: Comm! = Comm.WORLD();
-                 val pg_here = pg.restrict_here();
-                  val stream1 = genScaleData.init_sprng_wrapper(place, Place.MAX_PLACES,  2387);
-                  val stream2 = genScaleData_dist.init_sprng_wrapper(place, Place.MAX_PLACES,  2387, pg_here.vertices.size());
-                  for ((i) in  pg_here.vertices) {
-                    x10.io.Console.OUT.println(i + " " + genScaleData.sprng_wrapper(stream1) + " " + genScaleData.sprng_wrapper(stream2));
-                  }
+                 val pg_here1 = pg.restrict_here();
+                  val tmp0: defs.graphSDG_dist! = genScaleData_dist.compute(GLOBALS, place, world); 
                   //x10.io.Console.OUT.println(tmp0.etriplets);
                    computeGraph_dist.compute(GLOBALS, tmp0, pg_real, place, world); 
                  val pg_here2 = pg_real.restrict_here();
                   for((i) in pg_here1.vertices) {
-                         x10.io.Console.OUT.println("[ " + pg_here1.numEdges(i) + " " + pg_here2.numEdges(i) + "] " );
+                         x10.io.Console.OUT.println("XX [ " + pg_here1.numEdges(i) + " " + pg_here2.numEdges(i) + "] " );
                  }
 
                  for((i) in pg_here1.vertices) {
                          val lo0 = pg_here1.numEdges(i);
                          val hi0 = pg_here1.numEdges(i+1);
                          for ((j) in  lo0..hi0-1) {
-                           x10.io.Console.OUT.println("[ " + i + " " + pg_here1.endV(j) +  " " + pg_here1.weight(j) + "] " );
-                           x10.io.Console.OUT.println("[ " + i + " " + pg_here2.endV(j) +  " " + pg_here2.weight(j) + "] " );
+                           x10.io.Console.OUT.println("YY [ " + i + " " + pg_here1.endV(j) +  " " + pg_here1.weight(j) + "] " );
+                           x10.io.Console.OUT.println("YY [ " + i + " " + pg_here2.endV(j) +  " " + pg_here2.weight(j) + "] " );
                          }
                  } 
-                 } */
+                 } 
 
 
-                 finish ateach ((place) in unique) {
+                /* finish ateach ((place) in unique) {
 
 //                  { @Native("c++", "MPI_Init(NULL, NULL);") {} }
                   val world: Comm! = Comm.WORLD();
                   val tmp0: defs.graphSDG_dist! = genScaleData_dist.compute(GLOBALS, place, world); 
                   computeGraph_dist.compute(GLOBALS, tmp0, pg_real, place, world); 
-                  val sourceList = getStartLists_dist.compute(pg, place, world); 
+                  val sourceList = getStartLists_dist.compute(pg_real, place, world); 
                   val tmp:Rail[defs.edge]! = sourceList as Rail[defs.edge]!;
     for ((i) in 0..sourceList.length-1) {
                           x10.io.Console.OUT.println("edge " + sourceList(i).e + "( " + sourceList(i).w + " ) " + " : " + "[ " + sourceList(i).startVertex + " , " + sourceList(i).endVertex + "]");
                  }   
-	    	  findSubGraphs_dist.compute(pg, place, world, sourceList, GLOBALS.SubGraphPathLength);
+	    	  findSubGraphs_dist.compute(pg_real, place, world, sourceList, GLOBALS.SubGraphPathLength);
  //                 { @Native("c++", "MPI_Finalize();") {} }
-                } 
+                }
+
+               betweenessCentrality.compute(pg_real); */
 	}
 	
 };

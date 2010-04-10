@@ -11,5 +11,6 @@ public class types {
 
         public static type UVPair = Pair[types.VERT_T, types.VERT_T];
         public static type UVWTriplet = Triplet[types.VERT_T, types.VERT_T, types.WEIGHT_T];
+        public static type UVDSQuad= Quad[types.VERT_T, types.VERT_T, types.LONG_T, types.DOUBLE_T];
 
 };

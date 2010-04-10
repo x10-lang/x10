@@ -38,8 +38,6 @@ public class genScaleData  {
 		
 		foreach((tid) in 0..nthreads-1) {
 			
-			stream(tid) = init_sprng_wrapper(tid, nthreads, seed);
-			
 			next;
 			
 			val chunkSize_m = m/nthreads;
@@ -53,6 +51,8 @@ public class genScaleData  {
 			var dv: Double;
 			
 			for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
+
+			  val stream = init_sprng_wrapper(i, m, seed);
 				do{ 
 					u = 1;
 					v = 1;
@@ -62,7 +62,7 @@ public class genScaleData  {
 					cv = defs.C;
 					dv = defs.D;
 					
-					val p = sprng_wrapper(stream(tid));
+					val p = sprng_wrapper(stream);
 					if (p < av) {
 						/* Do nothing */
 					} else if ((p >= av) && (p < av+bv)) {
@@ -79,10 +79,10 @@ public class genScaleData  {
 						
 						/* Vary a,b,c,d by up to 10% */
 						val vary = 0.1;
-						av *= 0.95 + vary * sprng_wrapper(stream(tid));
-						bv *= 0.95 + vary * sprng_wrapper(stream(tid));
-						cv *= 0.95 + vary * sprng_wrapper(stream(tid));
-						dv *= 0.95 + vary * sprng_wrapper(stream(tid));
+						av *= 0.95 + vary * sprng_wrapper(stream);
+						bv *= 0.95 + vary * sprng_wrapper(stream);
+						cv *= 0.95 + vary * sprng_wrapper(stream);
+						dv *= 0.95 + vary * sprng_wrapper(stream);
 						
 						val S = av + bv + cv + dv;
 						av = av/S;
@@ -91,7 +91,7 @@ public class genScaleData  {
 						dv = dv/S;
 						
 						/* Choose partition */
-						val p1 = sprng_wrapper(stream(tid));
+						val p1 = sprng_wrapper(stream);
 						if (p1 < av) {
 							/* Do nothing */
 						} else if ((p1 >= av) && (p1 < av+bv)) {
@@ -117,8 +117,9 @@ public class genScaleData  {
 		         val key = Rail.make[types.VERT_T](n);
 		         val value = Rail.make[types.VERT_T](n);
 			 for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
+			       val stream = init_sprng_wrapper(i, n, seed);
 
-                                val j = (n*sprng_wrapper(stream(0))) as types.VERT_T;
+                                val j = (n*sprng_wrapper(stream)) as types.VERT_T;
 				key(i) = j;
                                 value(i) = i;
 			} 
@@ -148,12 +149,13 @@ public class genScaleData  {
 			next;
 			
 			for ((i) in   tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
-				wt(i) = (1 + GLOBALS.MaxIntWeight * sprng_wrapper(stream(tid))) as types.WEIGHT_T;
+			       val stream = init_sprng_wrapper(i, m, seed);
+				wt(i) = (1 + GLOBALS.MaxIntWeight * sprng_wrapper(stream)) as types.WEIGHT_T;
 			} 
 			
 			next;
 			
-			//free_sprng(stream(tid);
+			//free_sprng(stream);
 			
 			next;
 		}

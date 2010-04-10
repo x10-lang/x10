@@ -26,13 +26,11 @@ class getStartLists  {
 	
 	val tmpListSize = 1000;
 	val pList = Rail.make[defs.edge](tmpListSize);
-        x10.io.Console.OUT.println("point 0");
 	
 	for((i) in tid*chunkSize..(tid+1)*chunkSize-1) {
 		val lo = (G.numEdges as Rail[types.LONG_T]!)(i);
 		val hi = (G.numEdges as Rail[types.LONG_T]!)(i+1);
 		for((j) in lo..hi-1) {
-                        x10.io.Console.OUT.println("point 0.1" + pCount);
 			if ((G.weight as Rail[types.LONG_T]!)(j) >  local_max(tid)) {
 				local_max(tid) = (G.weight as Rail[types.LONG_T]!)(j); 
 				pCount = 0;
@@ -45,7 +43,6 @@ class getStartLists  {
 		}
 	}
 
-        x10.io.Console.OUT.println("point 1");
 	
 	p_end(tid) = pCount;
 	p_start(tid)= 0;
@@ -60,7 +57,6 @@ class getStartLists  {
 	
 	maxWeight(0) = tmp;
 	}
-        x10.io.Console.OUT.println("point 2");
 	
 	//next;
 	
@@ -75,7 +71,6 @@ class getStartLists  {
 			p_start(i) = p_end(i-1);
 		}
 	}
-        x10.io.Console.OUT.println("point 3");
 	
 	//next;
 	
@@ -92,7 +87,6 @@ class getStartLists  {
 		val w = pList(j-p_start(tid)).w;
 		maxIntWtList(0)(j) = defs.edge(startVertex, endVertex, e, w);
 	}
-        x10.io.Console.OUT.println("point 4");
 	}
 	
 	//c.drop();

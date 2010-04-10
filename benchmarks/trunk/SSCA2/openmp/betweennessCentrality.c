@@ -2,6 +2,7 @@
 
 double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 
+
     VERT_T *S;         /* stack of vertices in the order of non-decreasing 
                           distance from s. Also used to implicitly 
                           represent the BFS queue */
@@ -26,6 +27,8 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 #pragma omp parallel
 {
 #endif
+
+   printf ("hello\n");
 
     VERT_T *myS, *myS_t;
     LONG_T myS_size;
@@ -266,7 +269,8 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
                 v = S[vert];
                 for (j=G->numEdges[v]; j<G->numEdges[v+1]; j++) {
 
-#ifndef VERIFYK4
+/*#ifndef VERIFYK4*/
+#ifdef  BLAH
                     /* Filter edges with weights divisible by 8 */
                     if ((G->weight[j] & 7) != 0) {
 #endif
@@ -310,7 +314,8 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 #endif
                             
                         }
-#ifndef VERIFYK4
+/*#ifndef VERIFYK4 */
+#ifdef BLAH
                     }
 #endif
                 }
@@ -435,6 +440,8 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 #ifdef _OPENMP
 }    
 #endif
+
+
     /* Verification */
 #ifdef VERIFYK4
     double BCval;
@@ -456,6 +463,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
         fprintf(stderr, "Kernel 4 validation successful!\n");
     }
 #endif
+    printf ("BC %f\n", BC[0]);
     return elapsed_time;
 }
 

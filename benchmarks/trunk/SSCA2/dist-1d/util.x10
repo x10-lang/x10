@@ -62,4 +62,31 @@ public class util {
 		//next;
 	}
 
+        public static def random_permute_vertices(r: Region(1), n: Int, world:Comm!): Rail[types.UVPair]! {
+
+          val chunkSize_n = r.size();
+          val rpairs = Rail.make[types.UVPair](chunkSize_n);
+                        var k: Int = 0;
+                        for ((i) in  r) {
+                                val   stream = genScaleData_dist.init_sprng_wrapper(i, n, -1);
+                                val j = (n*genScaleData_dist.sprng_wrapper(stream)) as types.VERT_T;
+                                rpairs(k++)= types.UVPair(j,i);
+                        }
+
+
+                        //sort out_pairs -- TODO: use integer sort
+                        for ((i) in 0..rpairs.length()-1) {
+                           for ((j) in i+1..rpairs.length()-1) {
+                             if (rpairs(i).first > rpairs(j).first) {
+                                val tmp = rpairs(i);
+                                rpairs(i) = rpairs(j);
+                                rpairs(j) =  tmp;
+                             }
+                        }}
+
+                        val out_pairs: Rail[types.UVPair]! = world.usort[types.UVPair](rpairs, (i:types.UVPair)=>(i.first/(n/Place.MAX_PLACES)));
+
+                       return out_pairs;
+        }
+
 };

@@ -10,24 +10,18 @@ class findSubGraphs_dist  {
 
       public static def compute (pg: defs.pGraph, place: Int, world: Comm!, sourceList: Rail[defs.edge]!, SubGraphPathLength: Int) {
 
-       //  val GLOBALS = at (defs.container) {defs.container.globals};
 
        for ((elem) in 0..sourceList.length-1) {
          val srcEdge = sourceList(elem);
 
            val pg_here = pg.restrict_here();
            val vertices = pg_here.vertices;
-           val visited = Array.make[Boolean](vertices);
+           val visited = Array.make[Boolean](vertices, (p: Point(1))=>false);
            var lcount: Int= 0;
-           for ((i) in vertices) visited(i) = false;
-           val L = Rail.make[Rail[types.VERT_T]!](SubGraphPathLength+1, (i:Int)=>Rail.make[types.VERT_T](0));
 
            val source = srcEdge.endVertex;   
-
-            if (pg.owner(source) == here)  {
-              L(0) = Rail.make[types.VERT_T](1);
-              L(0)(0)= source; 
-            }
+           val fsize_first = pg.owner(source) == here ? 1 : 0;
+           var L: Rail[types.VERT_T]! = Rail.make[types.VERT_T](fsize_first, (i:Int)=>source);
 
             if (pg.owner(srcEdge.startVertex) == here) { visited(srcEdge.startVertex) = true; lcount++; }
 
@@ -36,7 +30,7 @@ class findSubGraphs_dist  {
 
              val N = Rail.make[GrowableRail[types.VERT_T]!](Place.MAX_PLACES, (i:Int)=>new GrowableRail[types.VERT_T](0));
 
-              val frontier: Rail[types.VERT_T]! = L(l);
+              val frontier: Rail[types.VERT_T]! = L;
               val flength = frontier.length();
               val frontierSize = world.sum(flength);
               //x10.io.Console.OUT.println("frontier Size " + frontierSize);
@@ -73,7 +67,7 @@ class findSubGraphs_dist  {
                 }
              } */
 
-              L(l+1) = world.alltoallv[types.VERT_T](N);
+              L = world.alltoallv[types.VERT_T](N);
   
                 
              /* val M = L(l+1);
