@@ -12,24 +12,40 @@
 package x10.array;
 
 /**
- * A full region is the unbounded region that contains all points of
- * its rank, implemented as a PolyRegion with no constraints (no
- * halfspaces).
- *
- * @author bdlucas
+ * A full region is the unbounded region that contains all points of its rank
  */
+class FullRegion extends BaseRegion{rect} {
 
-class FullRegion {rect} extends PolyRegion {
-
-    def this(val rank: int): FullRegion{self.rank==rank} {
-        super((new PolyMatBuilder(rank)).toSortedPolyMat(false), true);
+    def this(val rank:int):FullRegion{self.rank==rank} {
+        super(rank, true, false);
     }
 
-    protected global def computeBoundingBox(): Region(rank){self.rect} {
-        return this;
+    public global def isConvex() = true;
+    public global def isEmpty() = false;
+    public global def size():int {
+        throw U.unsupported("Full Region is infinite; size not supported");
     }
-
-    public global safe def toString(): String {
-        return "full(" + rank + ")";
+    public global def intersection(that: Region(rank)): Region(rank) = that;
+    public global def product(that: Region): Region/*(this.rank+that.rank)*/ {
+        if (that.isEmpty()) {
+            return Region.makeEmpty(rank+that.rank);
+        } else if (that instanceof FullRegion) {
+            return new FullRegion(rank+that.rank);
+        } else if (that instanceof RectRegion) {
+            val thatMin = (that as RectRegion).min();
+            val thatMax = (that as RectRegion).max();
+            val newMin = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?Int.MIN_VALUE:thatMin(i-rank));
+            val newMax = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?Int.MAX_VALUE:thatMax(i-rank));
+	    return RectRegion.make1(newMin,newMax);
+        } else {
+	    throw U.unsupported("haven't implemented FullRegion product with "+that.typeName());
+        }
     }
+    public global def projection(axis: int): Region(1) = new FullRegion(1);
+    public global def translate(p:Point(rank)): Region(rank) = this;
+    public global def eliminate(i:Int)= new FullRegion(rank-1);
+    protected global def computeBoundingBox(): Region(rank) = this;
+    public global def contains(that: Region(rank)):Boolean = true;
+    public global def contains(p:Point):Boolean = true;
+    public global safe def toString() = "full(" + rank + ")";
 }

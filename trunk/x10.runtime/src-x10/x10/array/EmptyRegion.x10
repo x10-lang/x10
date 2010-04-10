@@ -18,7 +18,6 @@ package x10.array;
  * @author bdlucas
  * @author vj
  */
-
 class EmptyRegion extends BaseRegion {
 
     def this(val rank: int): EmptyRegion{self.rank==rank} {
@@ -37,7 +36,8 @@ class EmptyRegion extends BaseRegion {
     protected global def computeBoundingBox(): Region(rank) {
         throw U.illegal("bounding box not not defined for empty region");
     }
-    public global def contains(that: Region(rank))= that.isEmpty();
+    public global def contains(that: Region(rank)) = that.isEmpty();
     public global def contains(p:Point):Boolean = false;
     public global safe def toString() = "empty(" + rank + ")";
+
 }
