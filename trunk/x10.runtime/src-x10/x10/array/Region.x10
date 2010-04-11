@@ -77,7 +77,7 @@ public abstract class Region(
      * rails of ints.
      */
 
-    public static def makeRectangular(min: Rail[int]!, max: Rail[int]!): RectRegion(min.length)
+    public static def makeRectangular(min: Rail[int]!, max: Rail[int]!): Region(min.length)
         = BaseRegion.makeRectangular1(min, max);
 
     /**
@@ -87,14 +87,14 @@ public abstract class Region(
     // XTENLANG-109 prevents zeroBased==(min==0)
     // Changed RegionMaker_c to add clause explicitly.
     public static def makeRectangular(min: int, max: int)
-       : Region{self.rank==1 && /*self.zeroBased==(min==0) &&*/ self.rect}
+       : Region{self.rank==1 /*self.zeroBased==(min==0) &&*/}
         = BaseRegion.makeRectangular1(min, max);
 
     /**
      * Construct a rank-1 rectangular region with the specified bounds.
      */
 
-    public static def make(min: int, max: int): RectRegion(1)
+    public static def make(min: int, max: int): Region(1)
         = BaseRegion.makeRectangular1(min, max);
 
     /**
@@ -102,7 +102,7 @@ public abstract class Region(
      * product of the specified rank-1 regions.
      */
 
-    public static def make(regions: ValRail[Region]): RectRegion(regions.length)
+    public static def make(regions: ValRail[Region(1)]): Region(regions.length)
         = BaseRegion.make1(regions as Rail[Region]);
 
 
@@ -380,7 +380,7 @@ public abstract class Region(
     // conversion
     //
 
-    public static operator (rs: ValRail[Region]): RectRegion(rs.length) = make(rs);
+    public static operator (rs: ValRail[Region]): Region(rs.length) = make(rs);
 
 
     //
