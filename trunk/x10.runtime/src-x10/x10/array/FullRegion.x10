@@ -36,7 +36,7 @@ class FullRegion extends BaseRegion{rect} {
             val thatMax = (that as RectRegion).max();
             val newMin = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?Int.MIN_VALUE:thatMin(i-rank));
             val newMax = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?Int.MAX_VALUE:thatMax(i-rank));
-	    return RectRegion.make1(newMin,newMax);
+	    return Region.makeRectangular(newMin,newMax);
         } else {
 	    throw U.unsupported("haven't implemented FullRegion product with "+that.typeName());
         }

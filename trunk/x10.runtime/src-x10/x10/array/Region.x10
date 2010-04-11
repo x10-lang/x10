@@ -41,32 +41,34 @@ public abstract class Region(
      * Construct an empty region of the specified rank.
      */
 
-    public static def makeEmpty(rank: int): Region(rank) = BaseRegion.makeEmpty1(rank);
+    public static def makeEmpty(rank: int): Region(rank) = new EmptyRegion(rank);
     
     /**
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
      */
 
-    public static def makeFull(rank: int): Region(rank) = BaseRegion.makeFull1(rank);
+    public static def makeFull(rank: int): Region(rank) = new FullRegion(rank);
     
     /**
      * Construct a region of rank 0 that contains the single point of
      * rank 0. Useful as the identity region under Cartesian product.
      */
+    public static def makeUnit(): Region(0) = new FullRegion(0);
 
-    public static def makeUnit(): Region(0) = BaseRegion.makeUnit1();
 
-    abstract global protected  def computeBoundingBox(): Region(rank);
-    
     /**
      * Construct an unbounded halfspace region of rank normal.rank
      * that consists of all points p satisfying dot(p,normal) + k <= 0.
      */
-
-    public static def makeHalfspace(normal:Point, k:int): Region(normal.rank)
-        = BaseRegion.makeHalfspace1(normal, k);
-
+    public static def makeHalfspace(normal:Point, k:int):Region(normal.rank) {
+        val rank = normal.rank;
+        val pmb = new PolyMatBuilder(rank);
+        val r = new PolyRow(normal, k);
+        pmb.add(r);
+        val pm = pmb.toSortedPolyMat(false);
+        return PolyRegion.make(pm) as Region(normal.rank); // XXXX Why is this cast here?
+    }
 
     //
     // rectangular factories
@@ -77,34 +79,32 @@ public abstract class Region(
      * rails of ints.
      */
 
-    public static def makeRectangular(min: Rail[int]!, max: Rail[int]!): Region(min.length)
-        = BaseRegion.makeRectangular1(min, max);
+    public static def makeRectangular(min: Rail[int]!, max: Rail[int]!):Region(min.length){self.rect} 
+        = new RectRegion(min, max);
 
     /**
      * Construct a rank-1 rectangular region with the specified bounds.
      */
-
     // XTENLANG-109 prevents zeroBased==(min==0)
     // Changed RegionMaker_c to add clause explicitly.
-    public static def makeRectangular(min: int, max: int)
-       : Region{self.rank==1 /*self.zeroBased==(min==0) &&*/}
-        = BaseRegion.makeRectangular1(min, max);
+    public static def makeRectangular(min:int, max:int):Region(1){self.rect}
+        = new RectRegion(min, max);
 
     /**
      * Construct a rank-1 rectangular region with the specified bounds.
      */
-
-    public static def make(min: int, max: int): Region(1)
-        = BaseRegion.makeRectangular1(min, max);
+    public static def make(min: int, max: int): Region(1){self.rect} = new RectRegion(min, max);
 
     /**
      * Construct a rank-n rectangular region that is the Cartesian
-     * product of the specified rank-1 regions.
+     * product of the specified rank-1 rectangular regions.
      */
-
-    public static def make(regions: ValRail[Region(1)]): Region(regions.length)
-        = BaseRegion.make1(regions as Rail[Region]);
-
+    public static def make(regions:ValRail[Region(1){self.rect}]):Region(regions.length){self.rect} {
+        var r:Region = regions(0);
+        for (var i: int = 1; i<regions.length; i++)
+            r = r.product(regions(i));
+	return r as Region(regions.length){self.rect};
+    }
 
     //
     // non-rectangular factories
@@ -115,47 +115,39 @@ public abstract class Region(
      * number of diagonals above and below the main diagonal
      * (inclusive of the main diagonal).
      */
-
-    public static def makeBanded(size: int, upper: int, lower: int): Region(2)
-        = BaseRegion.makeBanded1(size, upper, lower);
+    public static def makeBanded(size: int, upper: int, lower: int):Region(2)
+        = PolyRegion.makeBanded(size, upper, lower);
 
     /**
      * Construct a banded region of the given size that includes only
      * the main diagonal.
      */
-
-    public static def makeBanded(size: int): Region(2)
-        = BaseRegion.makeBanded1(size);
+    public static def makeBanded(size: int):Region(2) = PolyRegion.makeBanded(size, 1, 1);
     
     /**
      * Construct an upper triangular region of the given size.
      */
 
-    public static def makeUpperTriangular(size: int): Region(2)
-        = BaseRegion.makeUpperTriangular1(0, 0, size);
+    public static def makeUpperTriangular(size: int):Region(2) = makeUpperTriangular(0, 0, size);
 
     /**
      * Construct an upper triangular region of the given size with the
      * given lower bounds.
      */
-
     public static def makeUpperTriangular(rowMin: int, colMin: int, size: int): Region(2)
-        = BaseRegion.makeUpperTriangular1(rowMin, colMin, size);
+        = PolyRegion.makeUpperTriangular2(rowMin, colMin, size);
     
     /**
      * Construct a lower triangular region of the given size.
      */
-
-    public static def makeLowerTriangular(size: int): Region(2)
-        = BaseRegion.makeLowerTriangular1(0, 0, size);
+    public static def makeLowerTriangular(size: int): Region(2) = makeLowerTriangular(0, 0, size);
 
     /**
      * Construct an lower triangular region of the given size with the
      * given lower bounds.
      */
-
-    public static def makeLowerTriangular(rowMin: int, colMin: int, size: int): Region(2)
-        = BaseRegion.makeLowerTriangular1(rowMin, colMin, size);
+    public static def makeLowerTriangular(rowMin: int, colMin: int, size: int):Region(2)
+        = PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
 
 
     //
@@ -190,8 +182,10 @@ public abstract class Region(
      * The bounding box of a region r is the smallest rectangular region
      * that contains all the points of r.
      */
-
     abstract public global def boundingBox(): Region(rank);
+
+
+    abstract global protected  def computeBoundingBox(): Region(rank);
 
     /**
      * Returns the lower bounds of the bounding box of the region as a
@@ -380,7 +374,7 @@ public abstract class Region(
     // conversion
     //
 
-    public static operator (rs: ValRail[Region]): Region(rs.length) = make(rs);
+    public static operator (rs:ValRail[Region(1){self.rect}]):Region(rs.length){self.rect} = make(rs);
 
 
     //

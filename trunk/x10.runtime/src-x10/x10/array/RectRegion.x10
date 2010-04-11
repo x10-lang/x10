@@ -26,12 +26,17 @@ public final class RectRegion extends BaseRegion{rect} {
        return true;
     }
 
-    private def this(minArg:ValRail[int], maxArg:ValRail[int]):RectRegion{self.rank==minArg.length} {
+    def this(minArg:ValRail[int], maxArg:ValRail[int]):RectRegion{self.rank==minArg.length} {
         super(minArg.length, true, allZeros(minArg));
+
+        if (minArg.length!=maxArg.length) 
+            throw U.illegal("min and max must have same length");
 
         var s:int = 1;
         for (var i:int = 0; i<minArg.length; i++) {
-            s *= maxArg(i) - minArg(i) + 1;
+	    var rs:int = maxArg(i) - minArg(i) + 1;
+	    if (rs < 0) rs = 0;
+            s *= rs;
         }
         size = s;
 
@@ -39,26 +44,8 @@ public final class RectRegion extends BaseRegion{rect} {
 	maxs = maxArg;
     }
 
-    public static def make1(min:Rail[int]!, max:Rail[int]!):RectRegion{self.rank==min.length} {
-        if (max.length!=max.length) 
-            throw U.illegal("min and max must have same length");
-
-        // RectRegion is assumed to be non-empty and optimized accordingly
-	// If handed "rect" description of an empty-region we detect that are return EmptyRegion,
-	for ((i) in 0..min.length-1) {
-            if (max(i)<min(i)) return Region.makeEmpty(min.length);
-        }
-
-        return new RectRegion(min as ValRail[int], max as ValRail[int]);
-    }
-
-
-    public static def make1(min:int, max:int): Region{self.rect,self.rank==1} {
-	if (max<min) {
-	    return Region.makeEmpty(1);
-        } else {
-            return new RectRegion([min], [max]);
-        }
+    def this(min:int, max:int):RectRegion{self.rank==1} {
+        this([min],[max]);
     }
 
     public global def size() = size;
@@ -155,7 +142,7 @@ public final class RectRegion extends BaseRegion{rect} {
     }
     
 
-    public global def product(that:Region):Region {
+    public global def product(that:Region):Region /*self.rank==this.rank+that.rank*/{
         if (that.isEmpty()) {
             return Region.makeEmpty(rank + that.rank);
         } else if (that instanceof RectRegion) {
@@ -173,17 +160,17 @@ public final class RectRegion extends BaseRegion{rect} {
         }
     }
 
-    public global def translate(v: Point(rank)): Region(rank) {
+    public global def translate(v: Point(rank)): Region(rank){self.rect} {
         val newMin = ValRail.make[int](rank, (i:int)=>min(i)+v(i));
         val newMax = ValRail.make[int](rank, (i:int)=>max(i)+v(i));
         return new RectRegion(newMin, newMax);
     }
 
-    public global def projection(axis: int): Region(1) {
+    public global def projection(axis: int):Region(1){self.rect} {
         return new RectRegion([min(axis)], [max(axis)]);
     }
 
-    public global def eliminate(axis: int):Region /*(rank-1)*/ {
+    public global def eliminate(axis: int):Region{self.rect} /*(rank-1)*/ {
         val newMin = ValRail.make[int](rank-1, (i:int)=>i<axis?min(i):min(i+i));
         val newMax = ValRail.make[int](rank-1, (i:int)=>i<axis?max(i):max(i+i));
         return new RectRegion(newMin, newMax);
@@ -196,12 +183,12 @@ public final class RectRegion extends BaseRegion{rect} {
         var done:boolean;
         val cur:Rail[int](myRank)!;
 
-        def this(min_:ValRail[int], max_:ValRail[int], r:int):RRIterator{self.myRank==r} {
-            property(r);
-            min = min_;
-            max = max_;
-            done = false;
-            cur = min_ as Rail[int];
+        def this(rr:RectRegion):RRIterator{self.myRank==rr.rank} {
+            property(rr.rank);
+            min = rr.mins;
+            max = rr.maxs;
+            done = rr.size == 0;
+            cur = rr.mins as Rail[int];
         }        
 
         public def hasNext() = !done;
@@ -232,7 +219,7 @@ public final class RectRegion extends BaseRegion{rect} {
         }
     }
     public global def iterator():Iterator[Point(rank)] {
-        return new RRIterator(mins, maxs, rank) as Iterator[Point(rank)];
+        return new RRIterator(this);
     }
 
 
