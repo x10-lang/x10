@@ -2,6 +2,7 @@ import x10.compiler.*;
 import x10.util.OptionsParser;
 import x10.util.Option;
 import x10.lang.Math;
+import x10.util.Random;
 import x10.util.Box;
 
 public class UTS {
@@ -103,27 +104,27 @@ public class UTS {
     var workValid:Boolean; // whether or not the above field contains meaningful data
 
     // params that define the tree
-    val q:Double, m:Int;
+    val q:Long, m:Int;
 
     var nodesCounter:Int;
 
-    var prefix:String;
+    val probe_rnd = new Random();
 
-    public def this (q:Double, m:Int) {
+    //var prefix:String;
+
+    public def this (q:Long, m:Int) {
       this.q = q; this.m = m;
       // places > 0 start off stealing
       this.state = here == Place.FIRST_PLACE ? STATE_WORKING : STATE_STEALING;
       this.workValid = false;
       this.work = SHA1Rand(0); // never accessed
       this.nodesCounter = 0;
-      this.prefix = "    ";
+      //this.prefix = "    ";
     }
 
     public final def processSubtree (rng:SHA1Rand) {
-      val randomNumber = rng() as Double;
       //Console.OUT.println(here+prefix+" o "+rng());
-      val normalizedRandomNumber = randomNumber / NORMALIZER;
-      val numChildren = (normalizedRandomNumber < q) ? m : 0;
+      val numChildren = (rng() < q) ? m : 0;
       nodesCounter++;
 
       /* Iterate over all the children and accumulate the counts */
@@ -133,9 +134,11 @@ public class UTS {
         //Activity.sleep(100);
         work = SHA1Rand(rng, i);
         workValid = true;
-        //Console.OUT.println(here+prefix+" Allowing a steal");
-        Runtime.probe();
-        //Console.OUT.println(here+prefix+" Steal opportunity over");
+        if (probe_rnd.nextDouble() < 0.01) {
+          //Console.OUT.println(here+prefix+" Allowing a steal");
+          Runtime.probe();
+          //Console.OUT.println(here+prefix+" Steal opportunity over");
+        }
         if (workValid) {
           //val p = prefix;
           //prefix = p + "    ";
@@ -144,8 +147,6 @@ public class UTS {
         }
       }
 
-      //Console.OUT.println(here+prefix+" Returning");
-      workValid = false;
     }
 
     // use box so we can encode 'could not steal' with null
@@ -167,6 +168,7 @@ public class UTS {
             val steal_result = at (p) st().trySteal();
             if (steal_result!=null) {
               processSubtree(steal_result());
+              workValid = false;
             }
           }
           Runtime.probe();
@@ -190,6 +192,7 @@ public class UTS {
         // Iterate over all the children and accumulate the counts
         for (var i:Int=0 ; i<b0 ; ++i) {
           processSubtree(SHA1Rand(rng, i));
+          workValid = false;
         }
 
         Console.OUT.println(here+": All work completed or stolen.");
@@ -205,6 +208,7 @@ public class UTS {
             if (steal_result!=null) {
               //Console.OUT.println("Place 0 recovered some work");
               processSubtree(steal_result());
+              workValid = false;
               continue STEAL_LOOP;
             }
           }
@@ -316,8 +320,10 @@ public class UTS {
       Console.OUT.println("q = "+bin_non_leaf_prob);
       Console.OUT.println("m = "+bin_num_child_non_leaf);
       Console.OUT.println("r = "+root_seed);
+
+      val q = (bin_non_leaf_prob*NORMALIZER) as Long;
         
-      val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), ()=>new BinomialState(bin_non_leaf_prob, bin_num_child_non_leaf));
+      val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), ()=>new BinomialState(q, bin_num_child_non_leaf));
       var time:Long = System.nanoTime();
       val nodes = st().main(st, root_branch_factor, SHA1Rand(root_seed));
       time = System.nanoTime() - time;
