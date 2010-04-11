@@ -266,9 +266,10 @@ public class UTS {
       val all_nodes = new Cell[Int](0);
       val everyone = Dist.makeUnique();
       finish ateach (i in everyone) {
-        Console.OUT.println(here+": "+st().nodesCounter+" nodes");
+        val there = here;
         val nodes_ = st().nodesCounter;
         at (all_nodes) {
+          Console.OUT.println(there+": "+nodes_+" nodes");
           atomic {
             all_nodes(all_nodes()+nodes_);
           }
@@ -327,7 +328,7 @@ public class UTS {
       var time:Long = System.nanoTime();
       val nodes = st().main(st, root_branch_factor, SHA1Rand(root_seed));
       time = System.nanoTime() - time;
-      Console.OUT.println ("Num nodes = "+ nodes);
+      Console.OUT.println ("Total nodes = "+ nodes);
       Console.OUT.println ("Time = "+ time/1E9 + " seconds");
 
     } catch (e:Throwable) {

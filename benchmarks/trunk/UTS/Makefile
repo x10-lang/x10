@@ -1,7 +1,7 @@
 CXX=g++
 CXXFLAGS=-O3 -fomit-frame-pointer 
-X10RUN=${HOME}/x10-dbg/x10.dist/bin/runx10
-X10CXX=${HOME}/x10-dbg/x10.dist/bin/x10c++ 
+X10RUN?=runx10
+X10CXX?=x10c++ 
 X10CXXFLAGS=-report postcompile=5
 ARCHIVER=ar
 ARCHIVERFLAGS=rcs
@@ -26,7 +26,7 @@ uts: uts.cpp sha1_rand.hpp libsha1.a
 	${CXX} ${CXXFLAGS} $< -o $@ -L. -lsha1
 	
 UTS: UTS.x10 sha1_rand.hpp sha1.c
-	${X10CXX} ${X10CXXFLAGS} $< -o $@ -report postcompile=5	
+	${X10CXX} -O -NO_CHECKS ${X10CXXFLAGS} $< -o $@ -report postcompile=5	
 
 run-UTS: UTS
 	${X10RUN} ./UTS
