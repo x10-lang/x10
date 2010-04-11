@@ -3064,7 +3064,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                    if (mi.container().isClass() && mi.container().toClass().flags().isInterface()) {
 		                        // FIXME: need some template magic to define a placeCheck/nullCheck that is a no-op on structs,
 		                        //        but does something on ref.  Defer to 2.0.1.
-		                        invokeInterface(n, (Expr) target, args, Emitter.translateType(t), mi.container(), mi, false, false);
+		                        invokeInterface(n, (Expr) target, args, Emitter.translateType(t), mi.container(), mi, true, true);
 		                        sw.end();
 		                        return;
 		                    }

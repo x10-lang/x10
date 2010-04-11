@@ -187,12 +187,22 @@ namespace x10aux {
         return obj;
     }
 
+    // A no-op for non-refs
+    template <class T> inline T nullCheck(T str) {
+        return str;
+    }
+
     template <class T> inline ref<T> placeCheck(ref<T> obj) {
         #if !defined(NO_PLACE_CHECKS) && !defined(NO_EXCEPTIONS)
         //if (remote_ref::is_remote(obj.operator->())) throwBPE();
         if (location(obj) != here) throwBPE();
         #endif
         return obj;
+    }
+
+    // A no-op for non-refs
+    template <class T> inline T placeCheck(T str) {
+        return str;
     }
 
     // will be initialised to NULL
