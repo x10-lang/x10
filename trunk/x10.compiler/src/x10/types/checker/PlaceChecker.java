@@ -488,7 +488,7 @@ public class PlaceChecker {
     public static Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
     	try {
 			checkLocalReceiver(n, tc);
-		} catch (PlaceTypeErrorMethodShouldBeLocalOrGlobal z) {
+		} catch (Errors.PlaceTypeException z) {
 			// ok, compensate by generating a dynamic cast.
 			if (Configuration.STATIC_CALLS)
 				throw z;
