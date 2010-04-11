@@ -12,8 +12,7 @@
 package x10.array;
 
 /**
- * Represents and empty region, implemented as a UnionRegion with no
- * regions.
+ * Represents an empty region.
  *
  * @author bdlucas
  * @author vj
@@ -38,6 +37,18 @@ class EmptyRegion extends BaseRegion {
     }
     public global def contains(that: Region(rank)) = that.isEmpty();
     public global def contains(p:Point):Boolean = false;
+
+    private static class ERIterator(myRank:int) implements Iterator[Point(myRank)]() {
+        def this(r:int) { property(r); }
+        public def hasNext():boolean = false;
+        public def next():Point(myRank) {
+            throw new x10.util.NoSuchElementException();
+        }
+    }
+    public global def iterator():Iterator[Point(rank)] {
+        return new ERIterator(rank);
+    }
+
     public global safe def toString() = "empty(" + rank + ")";
 
 }

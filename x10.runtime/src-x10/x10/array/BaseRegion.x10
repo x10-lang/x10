@@ -59,12 +59,12 @@ abstract public class BaseRegion extends Region {
         return PolyRegion.make(pm) as Region(normal.rank); // XXXX
     }
 
-    public static def makeRectangular1(min: Rail[int]!, max: Rail[int]!): RectRegion(min.length) { // XTENLANG-4
+    public static def makeRectangular1(min: Rail[int]!, max: Rail[int]!): Region(min.length) { // XTENLANG-4
         return RectRegion.make1(min, max);
     }        
 
     // XTENLANG-109 prevents zeroBased==(min==0)
-    public static def makeRectangular1(min: int, max: int): Region{self.rank==1 && self.rect /*&& self.zeroBased==(min==0)*/} { // XTENLANG-4
+    public static def makeRectangular1(min: int, max: int): Region{self.rank==1/*&& self.zeroBased==(min==0)*/} { // XTENLANG-4
         return RectRegion.make1(min, max);
     }        
 
@@ -82,11 +82,11 @@ abstract public class BaseRegion extends Region {
     public static def makeLowerTriangular1(rowMin: int, colMin: int, size: int): Region(2)
         = PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
     
-    public static def make1(regions: Rail[Region]!): RectRegion(regions.length) { // XTENLANG-4
+    public static def make1(regions: Rail[Region]!): Region { // XTENLANG-4
         var r: Region = regions(0);
         for (var i: int = 1; i<regions.length; i++)
             r = r.product(regions(i));
-        return r as RectRegion(regions.length);
+	return r;
     }
 
     //

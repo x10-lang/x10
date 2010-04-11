@@ -39,16 +39,26 @@ public final class RectRegion extends BaseRegion{rect} {
 	maxs = maxArg;
     }
 
-    public static def make1(min:Rail[int]!, max:Rail[int]!):RectRegion{self.rank==min.length,self.rect} {
+    public static def make1(min:Rail[int]!, max:Rail[int]!):RectRegion{self.rank==min.length} {
         if (max.length!=max.length) 
             throw U.illegal("min and max must have same length");
+
+        // RectRegion is assumed to be non-empty and optimized accordingly
+	// If handed "rect" description of an empty-region we detect that are return EmptyRegion,
+	for ((i) in 0..min.length-1) {
+            if (max(i)<min(i)) return Region.makeEmpty(min.length);
+        }
 
         return new RectRegion(min as ValRail[int], max as ValRail[int]);
     }
 
 
     public static def make1(min:int, max:int): Region{self.rect,self.rank==1} {
-	return new RectRegion([min], [max]);
+	if (max<min) {
+	    return Region.makeEmpty(1);
+        } else {
+            return new RectRegion([min], [max]);
+        }
     }
 
     public global def size() = size;
@@ -135,6 +145,9 @@ public final class RectRegion extends BaseRegion{rect} {
             val thatMax = (that as RectRegion).max();
 	    val newMin = ValRail.make[int](rank, (i:int)=>Math.max(min(i), thatMin(i)));
 	    val newMax = ValRail.make[int](rank, (i:int)=>Math.min(max(i), thatMax(i)));
+	    for ((i) in 0..newMin.length-1) {
+                if (newMax(i)<newMin(i)) return Region.makeEmpty(rank);
+            }
             return new RectRegion(newMin, newMax);
         } else {
 	    throw U.unsupported("haven't implemented RectRegion intersection with "+that.typeName());
