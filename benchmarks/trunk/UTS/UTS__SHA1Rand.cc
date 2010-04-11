@@ -77,12 +77,16 @@ x10_boolean UTS__SHA1Rand::_struct_equals(UTS__SHA1Rand that) {
 }
 void UTS__SHA1Rand::_serialize(UTS__SHA1Rand this_, x10aux::serialization_buffer& buf) {
     x10::lang::Struct::_serialize(this_, buf);
-    
+    for (int i=0 ; i<20 ; ++i) {
+        buf.write(this_.FMGL(cxx_sha1_rng).rng_state[i]);
+    }
 }
 
 void UTS__SHA1Rand::_deserialize_body(x10aux::deserialization_buffer& buf) {
     x10::lang::Struct::_deserialize_body(buf);
-    
+    for (int i=0 ; i<20 ; ++i) {
+        FMGL(cxx_sha1_rng).rng_state[i] = buf.read<unsigned char>();
+    }
 }
 
 
