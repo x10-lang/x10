@@ -5,6 +5,7 @@ import polyglot.frontend.Job;
 import polyglot.types.Type;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
+import x10.Configuration;
 import x10.ExtensionInfo;
 
 public class Warnings {
@@ -17,7 +18,12 @@ public class Warnings {
 		ExtensionInfo ei = (ExtensionInfo) job.extensionInfo();
 		boolean newP = ei.warningSet().add(e);
 		if (newP) {
-			job.compiler().errorQueue().enqueue(e);
+			if (Configuration.VERBOSE_CALLS ) {
+			  job.compiler().errorQueue().enqueue(e);
+			}
+			else {
+				ei.incrWeakCallsCount();
+			}
 		}
 	}
 }

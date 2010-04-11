@@ -126,11 +126,7 @@ public class Converter {
 				// lets splice it in.
 				result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
 				if (dynamicCallp) {
-					if (Configuration.VERBOSE_CALLS )
 						Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
-					else {
-						((ExtensionInfo) tc.job().extensionInfo()).incrWeakCallsCount();
-					}
 				}
 			}
 		}
