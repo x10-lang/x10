@@ -2213,6 +2213,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     	//container = X10TypeMixin.ensureSelfBound( container);
         return new X10FieldMatcher(container, name, context);
     }
+    public X10FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context) {
+    	//container = X10TypeMixin.ensureSelfBound( container);
+        return new X10FieldMatcher(container, contextKnowsReceiver, name, context);
+    }
 
     public boolean hasMethodNamed(Type container, Name name) {
         if (container != null)

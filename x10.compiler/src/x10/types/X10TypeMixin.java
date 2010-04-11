@@ -17,10 +17,16 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Cast;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.Formal;
+import polyglot.ast.Lit;
+import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
+import polyglot.ast.Variable;
 import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
@@ -43,6 +49,7 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SemanticError;
 import x10.ast.SubtypeTest;
@@ -1080,5 +1087,20 @@ public class X10TypeMixin {
 	    else if (e instanceof SubtypeTest)
 	        return true;
 	    return false;
+	}
+	public static boolean contextKnowsType(Receiver r) {
+		if (r instanceof Variable)
+			return ((Variable) r).flags().isFinal();
+		if (r instanceof Field)
+			return contextKnowsType( ((Field) r).target());
+		if (r instanceof Special || r instanceof Here || r instanceof Lit)
+			return true;
+		if (r instanceof ParExpr) 
+			return contextKnowsType(((ParExpr) r).expr());
+		if (r instanceof Cast) 
+			return contextKnowsType(((Cast) r).expr());
+		return false;
+			
+		
 	}
 }

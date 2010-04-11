@@ -197,6 +197,31 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         return false;
     }
     
+    static class WarningComparator implements Comparator<ErrorInfo> {
+    	public int compare(ErrorInfo a, ErrorInfo b) {
+    		Position pa  = a.getPosition();
+    		if (pa == null)
+    			return -1;
+    		Position pb = b.getPosition();
+    		if (pb==null)
+    			return 1;
+    		if (pa.line() < pb.line())
+    			return -1;
+    		if (pb.line() < pa.line())
+    			return 1;
+    		if (pa.column() < pb.column())
+    			return -1;
+    		if (pb.line() < pa.line())
+    			return 1;
+    		return 0;
+    	}
+    }
+    Set<ErrorInfo> warnings = new TreeSet<ErrorInfo>(new WarningComparator());
+    
+    public Set<ErrorInfo> warningSet() {
+    	return warnings;
+    }
+    
     static class ExceptionComparator implements Comparator<SemanticException> {
     	public int compare(SemanticException a, SemanticException b) {
     		int r = (a.getClass().toString().compareToIgnoreCase(b.getClass().toString()));
