@@ -15,6 +15,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
+import x10.errors.Errors;
 
 /**
  * @author vj
@@ -60,21 +61,7 @@ public class X10TypeChecker extends TypeChecker {
 	            return m;
 	        }
 	        catch (SemanticException e) {
-	        	 boolean newp = extensionInfo.errorSet().add(e);
-	            if (newp && e.getMessage() != null) {
-	                Position position = e.position();
-	                
-	                if (position == null) {
-	                    position = n.position();
-	                }
-	                
-	                this.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-	                                     e.getMessage(), position);
-	            }
-	            else {
-	                // silent error; these should be thrown only
-	                // when the error has already been reported 
-	            }
+	        	Errors.issue(job(), e);
 	            
 	            // IMPORTANT: Mark the goal as failed, otherwise we may run dependent goals
 	            // that depend on this pass completing successfully.

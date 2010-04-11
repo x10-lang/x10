@@ -24,6 +24,7 @@ import x10.Configuration;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode_c;
+import x10.ast.X10Field_c;
 import x10.constraint.XEQV_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
@@ -422,7 +423,7 @@ public class PlaceChecker {
      * @throws SemanticException
      */
     
-    public static void checkFieldPlaceType( Field field, X10Context xc) 
+    public static void checkFieldPlaceType( Field field, ContextVisitor tc) 
     throws SemanticException {
     	X10Flags xFlags = X10Flags.toX10Flags(field.fieldInstance().flags());
     	// A global field can be accessed from anywhere.
@@ -433,7 +434,8 @@ public class PlaceChecker {
     	if (xFlags.isStatic())
     		return;
     
-    	X10TypeSystem ts = (X10TypeSystem) xc.typeSystem();
+    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	X10Context xc = (X10Context) tc.context();
     	Receiver target = field.target();
     	if (! ts.isSubtype(target.type(), ts.Object(), xc))
     		return;
@@ -495,8 +497,27 @@ public class PlaceChecker {
 			if (r instanceof Expr) {
 				Expr target = (Expr) r;
 				Type type = PlaceChecker.AddIsHereClause(target.type(), tc.context());
-				target = Converter.attemptCoercion(tc, target, type);
+				target = Converter.attemptCoercion(true, tc, target, type);
 				n = (X10Call) result.reconstruct(target, result.name(), result.arguments());
+			}
+			
+		}
+		return n;
+    }
+    
+    public static X10Field_c makeFieldAccessLocalIfNecessary(X10Field_c n, ContextVisitor tc) throws SemanticException {
+    	try {
+			checkFieldPlaceType(n, tc);
+		} catch (Errors.PlaceTypeException z) {
+			// ok, compensate by generating a dynamic cast.
+			if (Configuration.STATIC_CALLS)
+				throw z;
+			Receiver r = n.target();
+			if (r instanceof Expr) {
+				Expr target = (Expr) r;
+				Type type = PlaceChecker.AddIsHereClause(target.type(), tc.context());
+				target = Converter.attemptCoercion(true, tc, target, type);
+				n =  n.reconstruct(target, n.name());
 			}
 			
 		}
