@@ -475,6 +475,14 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                    throw new Errors.ThisNotPermittedInConstructorFormals(formals, position());
            }
        }
+       thisC.clearError();
+    
+       if (returnType != null) {
+           visitChild(returnType, thisC);
+           if (thisC.error()) {
+                   throw new Errors.ThisNotPermittedInConstructorReturnType(returnType, position());
+           }
+       }
         
         for (TypeNode type : n.throwTypes()) {
             CConstraint rc = X10TypeMixin.xclause(type.type());
