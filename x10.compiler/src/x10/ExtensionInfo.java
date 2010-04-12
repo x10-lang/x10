@@ -397,11 +397,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        
        Goal PrintWeakCallsCount;
        @Override
-       protected Goal PostCompiled() {
+       protected Goal EndAll() {
     	   if (PrintWeakCallsCount == null) {
     		   PrintWeakCallsCount = new PrintWeakCallsCount((ExtensionInfo) extInfo);
-    		   Goal oldPost = super.PostCompiled();
-    		   PrintWeakCallsCount.addPrereq(oldPost);
+    		   Goal postcompiled = PostCompiled();
+    		   PrintWeakCallsCount.addPrereq(postcompiled);
     	   }
     	   return PrintWeakCallsCount;
        }
@@ -426,7 +426,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     			Compiler compiler = ext.compiler();
 
     			if (! Configuration.VERBOSE_CALLS) {
-    				int count = ext.weakCallsCount;
+    				int count = ext.weakCallsCount();
     				if (count > 0) {
     					compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses.");
     				}
