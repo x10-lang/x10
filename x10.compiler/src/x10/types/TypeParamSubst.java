@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.types.LazyRef;
+import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -173,9 +174,14 @@ public class TypeParamSubst {
 		if (t instanceof CConstraint) return (T) reinstantiateConstraint((CConstraint) t);
 		if (t instanceof XTerm) return (T) reinstantiateTerm((XTerm) t);
 		if (t instanceof TypeConstraint) return (T) reinstantiateTypeConstraint((TypeConstraint) t);
+		if (t instanceof LocalInstance) return (T) reinstantiateLI((X10LocalInstance) t);
 		return t;
 	}
 
+	public X10LocalInstance reinstantiateLI(X10LocalInstance t) {
+		final X10LocalInstance li = (X10LocalInstance) t.copy();
+		return new ReinstantiatedLocalInstance(this, li.typeSystem(), li.position(), Types.ref(li.x10Def()), li);
+	}
 	public ClosureInstance reinstantiateClosure(ClosureInstance t) {
 		final ClosureInstance fi = (ClosureInstance) t.copy();
 //		ClosureInstance res = new ClosureInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.def()));

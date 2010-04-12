@@ -195,6 +195,10 @@ public class ClosureSynthesizer {
             return ct.x10Def();
         }
 
+        // We are going to construct our own list of formal names, using the 
+        // name, flags and position of arguments in formalNames, but supplying our own
+        // formal types.
+        List<LocalDef> myFormalNames = new ArrayList<LocalDef>(formalNames.size());
         X10ClassDef cd = (X10ClassDef) new X10ClassDef_c(xts, null) {
         	@Override
         	public boolean isFunction() { 
@@ -235,7 +239,10 @@ public class ClosureSynthesizer {
 
         for (int i = 0; i < numValueParams; i++) {
             ParameterType t = new ParameterType_c(xts, pos, Name.make("Z" + (i + 1)), Types.ref(cd));
-            argTypes.add(Types.ref(t));
+            Ref<ParameterType> ref = Types.ref(t);
+            argTypes.add(ref);
+            LocalDef formal = formalNames.get(i);
+            myFormalNames.add(xts.localDef(formal.position(), formal.flags(), ref, formal.name()));
             cd.addTypeParameter(t, ParameterType.Variance.CONTRAVARIANT);
         }
 
@@ -253,7 +260,7 @@ public class ClosureSynthesizer {
         // NOTE: don't call cd.asType() until after the type parameters are
         // added.
         FunctionType ct = (FunctionType) cd.asType();
-        xts.systemResolver().install(fullName, ct);
+        xts.systemResolver().install(fullName, (FunctionType) ct.copy());
 
         String fullNameWithThis = fullName + "#this";
         //String fullNameWithThis = "this";
@@ -269,7 +276,7 @@ public class ClosureSynthesizer {
         		typeParams, 
         		argTypes, 
         		thisVar,
-        		formalNames, 
+        		myFormalNames, 
         		guard, 
         		null, 
         		Collections.EMPTY_LIST, 

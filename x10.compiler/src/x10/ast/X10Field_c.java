@@ -233,6 +233,7 @@ public class X10Field_c extends Field_c {
 						Type nt = c.inDepType() ? 
 								rightType(mi.rightType(), mi.x10Def(), target, c) 
 								:fieldRightType(mi.rightType(), mi.x10Def(), target, c);
+							
 						call = (Call) call.type(nt);
 						return call;
 					}
@@ -275,7 +276,7 @@ public class X10Field_c extends Field_c {
 			x = x.copy();
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
-			if (! X10TypeMixin.contextKnowsType(target)) { // target instanceof Expr) {
+			if (target instanceof Expr) { // ) {
 				CConstraint xc = X10TypeMixin.xclause(target.type());
 				if (xc != null && ! xc.valid()) {
 					xc = xc.copy();
@@ -288,7 +289,8 @@ public class X10Field_c extends Field_c {
 							
 						}
 						xc = xc.substitute(receiver, xc.self());
-						x.addIn(xc);
+						if (! X10TypeMixin.contextKnowsType(target))
+							x.addIn(xc);
 						x=x.substitute(receiver, fi.thisVar());
 						if (root != null) {
 							x = x.project(root);

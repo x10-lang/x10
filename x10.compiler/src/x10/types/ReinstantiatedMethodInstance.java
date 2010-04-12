@@ -5,6 +5,7 @@ package x10.types;
 
 import java.util.List;
 
+import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
 import polyglot.types.StructType;
 import polyglot.types.Type;
@@ -41,6 +42,12 @@ final class ReinstantiatedMethodInstance extends
 		return returnType.get();
 	}
 
+	@Override
+	public List<LocalInstance> formalNames() {
+		if (formalNames == null) 
+			return this.typeParamSubst.reinstantiate(fi.formalNames());
+		return formalNames;
+	}
 	@Override
 	public List<Type> formalTypes() {
 		if (formalTypes == null)
