@@ -2,7 +2,8 @@ CXX=g++
 CXXFLAGS=-O3 -fomit-frame-pointer 
 X10RUN?=runx10
 X10CXX?=x10c++ 
-X10CXXFLAGS=-report postcompile=5
+#X10RT_TRANSPORT?=-x10rt mpi
+X10CXXFLAGS=-report postcompile=5 $(X10RT_TRANSPORT)
 ARCHIVER=ar
 ARCHIVERFLAGS=rcs
 

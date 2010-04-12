@@ -93,36 +93,46 @@ public class UTS {
 
   static class BinomialState {
 
-    const STATE_WORKING = 0; // processing a subtree (permitting steals)
+    const STATE_PLACE_ZERO = 0; // the first place does not use a state machine, use this value as placeholder
     const STATE_STEALING = 1; // actively stealing work from other places
     const STATE_ARRESTED = 2; // no-longer stealing but still alive and could potentially steal again
     const STATE_DEATH_ROW = 3; // will soon be dead, will never steal again
-    var state:Int;
+
+    // places > 0 start off life stealing
+    var state:Int = here == Place.FIRST_PLACE ? STATE_PLACE_ZERO : STATE_STEALING;
+
+    var working:Boolean = false;
 
     // this guy can be stolen
-    var work: SHA1Rand;
-    var workValid:Boolean; // whether or not the above field contains meaningful data
+    var work: SHA1Rand = SHA1Rand(0);
+    var workValid:Boolean = false; // whether or not the above field contains meaningful data
 
     // params that define the tree
     val q:Long, m:Int;
 
-    var nodesCounter:Int;
+    var nodesCounter:UInt = 0;
+    var stealsAttempted:UInt = 0;
+    var stealsPerpetrated:UInt = 0;
+    var stealsSuffered:UInt = 0;
 
     val probe_rnd = new Random();
 
-    //var prefix:String;
+    val depthCap:Int;
 
-    public def this (q:Long, m:Int) {
-      this.q = q; this.m = m;
-      // places > 0 start off stealing
-      this.state = here == Place.FIRST_PLACE ? STATE_WORKING : STATE_STEALING;
-      this.workValid = false;
-      this.work = SHA1Rand(0); // never accessed
-      this.nodesCounter = 0;
-      //this.prefix = "    ";
+    //var prefix:String = "    ";
+
+    public def this (q:Long, m:Int, depthCap:Int) {
+      this.q = q; this.m = m; this.depthCap = depthCap;
     }
 
     public final def processSubtree (rng:SHA1Rand) {
+      working = true;
+      processSubtreeR(rng);
+      workValid = false;
+      working = false;
+    }
+
+    public final def processSubtreeR (rng:SHA1Rand) {
       //Console.OUT.println(here+prefix+" o "+rng());
       val numChildren = (rng() < q) ? m : 0;
       nodesCounter++;
@@ -142,7 +152,7 @@ public class UTS {
         if (workValid) {
           //val p = prefix;
           //prefix = p + "    ";
-          processSubtree(work);
+          processSubtreeR(work);
           //prefix = p;
         }
       }
@@ -153,6 +163,7 @@ public class UTS {
     public final def trySteal () : Box[SHA1Rand] {
       if (workValid) {
         workValid = false;
+        stealsSuffered++;
         //Console.OUT.println(here+": got mugged of "+work());
         return new Box[SHA1Rand](work);
       }
@@ -162,23 +173,64 @@ public class UTS {
     public final def nonHomeMain (st:PLH) {
       while (state != STATE_DEATH_ROW) {
         while (state == STATE_STEALING) {
-          for (var pi:Int=0 ; pi<Place.MAX_PLACES ; ++pi) {
-            val p = Place(pi);
-            if (p==here) continue;
-            val steal_result = at (p) st().trySteal();
-            if (steal_result!=null) {
-              processSubtree(steal_result());
-              workValid = false;
-            }
-          }
-          Runtime.probe();
+          attemptSteal(st);
+          Runtime.probe(); // have to check that we've not been arrested
         }
-        Runtime.probe();
+        Runtime.probe(); // check that we've not been put on death row
       }
       // place > 0 now exits
     }
 
-    public final def main (st:PLH, b0:Int, rng:SHA1Rand) : Int {
+    ///* original implementation
+    public final def attemptSteal(st:PLH) {
+      for (var pi:Int=0 ; pi<Place.MAX_PLACES ; ++pi) {
+        val p = Place(pi);
+        if (p==here) continue;
+        stealsAttempted++;
+        val steal_result = at (p) st().trySteal();
+        if (steal_result!=null) {
+          stealsPerpetrated++;
+          processSubtree(steal_result());
+          return true;
+        }
+      }
+      return false;
+    } //*/
+
+    /*
+    public final def attemptStealHop(st:PLH, depth:Int, home:Place, continuation:(Box[SHA1Rand])=>Void) {
+      if (depth>depthCap) { at (home) { continuation(null); } return; }
+      val p_ = Place(probe_rnd.nextInt(Place.MAX_PLACES-1));
+      val p = p_==home ? p_.next() : p_;
+      at (p) {
+        val steal_result = st().trySteal();
+        if (steal_result != null) {
+          at (home) {
+            continuation(steal_result);
+          }
+        } else {
+          st().attemptStealHop(st, depth+1, home, continuation);
+        }
+      }
+    }
+
+    public final def attemptSteal(st:PLH) {
+      stealsAttempted++;
+      val r = new Cell[Boolean](false);
+      val continuation = (s:Box[SHA1Rand]) => {
+        if (s!=null) {
+          stealsPerpetrated++;
+          processSubtree(s());
+          r(true);
+        } else {
+          r(false);
+        }
+      };
+      attemptStealHop(st, 0, here, continuation);
+      return r();
+    } */
+
+    public final def main (st:PLH, b0:Int, rng:SHA1Rand) : UInt {
 
       finish {
         for (var pi:Int=1 ; pi<Place.MAX_PLACES ; ++pi) {
@@ -192,49 +244,41 @@ public class UTS {
         // Iterate over all the children and accumulate the counts
         for (var i:Int=0 ; i<b0 ; ++i) {
           processSubtree(SHA1Rand(rng, i));
-          workValid = false;
         }
 
-        Console.OUT.println(here+": All work completed or stolen.");
+        //Console.OUT.println(here+": All work completed or stolen.");
 
         // Place 0 ran out of work *BUT* there may be work elsewhere that was stolen, so try to steal some back
 
         STEAL_LOOP:
         while (true) {
 
-          for (var pi:Int=1 ; pi<Place.MAX_PLACES ; ++pi) {
-            val p = Place(pi);
-            val steal_result = at (p) st().trySteal();
-            if (steal_result!=null) {
-              //Console.OUT.println("Place 0 recovered some work");
-              processSubtree(steal_result());
-              workValid = false;
-              continue STEAL_LOOP;
-            }
+          if (attemptSteal(st)) {
+            continue STEAL_LOOP;
           }
 
-          Console.OUT.println(here+": Could not steal work back from places > 0.");
+          //Console.OUT.println(here+": Could not steal work back from places > 0.");
 
           // no work, suspect global quiescence
           // the rest of this loop body is relatively slow but should be executed rarely.
 
-          Console.OUT.println(here+": Telling everyone else to stop stealing.");
+          //Console.OUT.println(here+": Telling everyone else to stop stealing.");
           // ask everyone to stop stealing (synchronous)
           for (var pi:Int=1 ; pi<Place.MAX_PLACES ; ++pi) {
             at (Place(pi)) {
               val this_ = st();
-              assert this_.state == STATE_STEALING;
-              if (!this_.workValid)
+              assert this_.state==STATE_STEALING;
+              if (!this_.working)
                 this_.state = STATE_ARRESTED;
             }
           }
 
-          Console.OUT.println(here+": Checking global quiescence.");
+          //Console.OUT.println(here+": Checking global quiescence.");
           // check noone has any work (synchronous)
           for (var pi:Int=1 ; pi<Place.MAX_PLACES ; ++pi) {
             val p = Place(pi);
             if (at (p) st().state != STATE_ARRESTED) {
-              Console.OUT.println(here+": Discovered there is still work to do, restarting everyone.");
+              //Console.OUT.println(here+": Discovered there is still work to do, restarting everyone.");
               for (var pi2:Int=1 ; pi2<Place.MAX_PLACES ; ++pi2) {
                 val p2 = Place(pi2);
                 at (p2) {
@@ -246,7 +290,7 @@ public class UTS {
             }
           }
 
-          Console.OUT.println(here+": Shutting everyone else down.");
+          //Console.OUT.println(here+": Shutting everyone else down.");
           for (var pi:Int=1 ; pi<Place.MAX_PLACES ; ++pi) {
             val p = Place(pi);
             at (p) {
@@ -263,15 +307,19 @@ public class UTS {
 
       // Globally terminated, accumulate results:
       // collective reduce using +
-      val all_nodes = new Cell[Int](0);
+      val all_nodes = new Cell[UInt](0);
       val everyone = Dist.makeUnique();
       finish ateach (i in everyone) {
         val there = here;
-        val nodes_ = st().nodesCounter;
+        val nodes = st().nodesCounter;
+        val sa = st().stealsAttempted;
+        val ss = st().stealsSuffered;
+        val sp = st().stealsPerpetrated;
         at (all_nodes) {
-          Console.OUT.println(there+": "+nodes_+" nodes");
+          val pc = sa==0U ? "NaN" : ""+((100U*sp)/sa);
+          Console.OUT.println(there+": "+nodes+" nodes,  "+sp+"/"+sa+"="+pc+"% successful steals  ("+ss+" suffered)");
           atomic {
-            all_nodes(all_nodes()+nodes_);
+            all_nodes(all_nodes()+nodes);
           }
         }
       }
@@ -299,7 +347,9 @@ public class UTS {
        Option("q", "", "BIN: probability of a non-leaf node"),
        Option("m", "", "BIN: number of children for non-leaf node"),
 
-       Option("f", "", "Hybrid switch-over depth ")]);
+       Option("f", "", "Hybrid switch-over depth "),
+
+       Option("D", "", "Depth (performance tweak, default 5)")]);
 
       val tree_type:Int = opts ("-t", 0);
        
@@ -317,19 +367,20 @@ public class UTS {
       // hybrid options
       val geo_to_bin_shift_depth_ratio:Double = opts ("-f", 0.5);
 
-      Console.OUT.println("b0 = "+root_branch_factor);
-      Console.OUT.println("q = "+bin_non_leaf_prob);
-      Console.OUT.println("m = "+bin_num_child_non_leaf);
-      Console.OUT.println("r = "+root_seed);
+      val depth = opts ("-D", 5);
+
+      Console.OUT.println("--------");
+      Console.OUT.println("Places = "+Place.MAX_PLACES);
+      Console.OUT.println("b0 = "+root_branch_factor+"   q = "+bin_non_leaf_prob+"   m = "+bin_num_child_non_leaf+"   r = "+root_seed);
 
       val q = (bin_non_leaf_prob*NORMALIZER) as Long;
         
-      val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), ()=>new BinomialState(q, bin_num_child_non_leaf));
+      val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), ()=>new BinomialState(q, bin_num_child_non_leaf, depth));
       var time:Long = System.nanoTime();
       val nodes = st().main(st, root_branch_factor, SHA1Rand(root_seed));
       time = System.nanoTime() - time;
-      Console.OUT.println ("Total nodes = "+ nodes);
-      Console.OUT.println ("Time = "+ time/1E9 + " seconds");
+      Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
+      Console.OUT.println("--------");
 
     } catch (e:Throwable) {
       e.printStackTrace(Console.ERR);
