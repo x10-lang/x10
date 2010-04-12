@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CALLS
+
 import harness.x10Test;
 
 /**
@@ -16,9 +18,9 @@ import harness.x10Test;
  * @author vj
  */
 
-public class AtCheck2_MustFailCompile extends x10Test {
-	var x:AtCheck2_MustFailCompile =null;
-    def m(b: AtCheck2_MustFailCompile, d:AtCheck2_MustFailCompile) {
+public class AtCheck3_MustFailCompile extends x10Test {
+	var x:AtCheck3_MustFailCompile =null;
+    def m(b: AtCheck3_MustFailCompile, d:AtCheck3_MustFailCompile) {
     	val c = b;
 	    at ( b) {
 	     val e = d.x;
@@ -28,6 +30,6 @@ public class AtCheck2_MustFailCompile extends x10Test {
     public def run()=true;
 
     public static def main(Rail[String]) {
-        new AtCheck2_MustFailCompile().execute();
+        new AtCheck3_MustFailCompile().execute();
     }
 }

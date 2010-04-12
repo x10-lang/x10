@@ -379,9 +379,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
      */
     @Override
     public Flags flags() {
-     /*   if (kind() == ANONYMOUS)
-            return Flags.NONE;
-            */
+       if (kind() == ANONYMOUS)
+            return Flags.FINAL;
         return flags;
     }
 }

@@ -14,11 +14,11 @@ The following significant language changes were made since the 2.0.2 release:
   of the total number of such checks inserted in each file compiled.
   Two command line arguments are available to modify this behavior:
     -VERBOSE_CALLS : print the details of each dynamic check that is inserted
-    -STRONG_CALLS : do not insert dynamic checks and instead treat non-entailment 
+    -STATIC_CALLS : do not insert dynamic checks and instead treat non-entailment 
           as a compilation error (the default behavior of X10 2.0.2).
   The intent is that programmers will initially develop with the default settings,
   but as the code matures, -VERBOSE_CALLS can be used to reduce the number of dynamic
-  checks and in production-level code, -STRONG_CALLS can be used to take full 
+  checks and in production-level code, -STATIC_CALLS can be used to take full 
   advantage of the static type systems ability to verify static properties of the code.
 
 - There have been significant design changes and performance improvements in the

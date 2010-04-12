@@ -147,6 +147,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -220,6 +221,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.X10TypeSystem_c.BaseTypeEquals;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 
@@ -1071,7 +1073,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         List<MethodInstance> cmeths = c.methodsNamed(name);
 
         for (MethodInstance cmi : cmeths) {
-            if (cmi.flags().isAbstract()) continue;
+            if (cmi.flags().isStatic()) continue;
             if (shadowed.contains(cmi.formalTypes())) continue;
             shadowed.add(cmi.formalTypes());
             if (cmi.flags().isPrivate()) continue;
@@ -1642,6 +1644,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	}
 
+	// XTENLANG-1232: workaround a bug in the type system by using the base types for arguments
+	private static List<MethodInstance> methodsNoConstraints(X10ClassType currentClass, Name mname, List<Type> formals, X10CPPContext_c context) {
+	    List<MethodInstance> l = new ArrayList<MethodInstance>();
+	    for (MethodInstance mi : currentClass.methodsNamed(mname)) {
+	        if (CollectionUtil.allElementwise(mi.formalTypes(), formals, new BaseTypeEquals(context))) {
+	            l.add(mi);
+	        }
+	    }
+	    return l;
+	}
+
 	private void generateProxiesForOverriddenMethods(X10CPPContext_c context,
 			X10ClassType currentClass, X10ClassType superClass,
 			X10TypeSystem xts, String maybeVirtual, ClassifiedStream h,
@@ -1659,7 +1672,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				X10MethodInstance dropzone = (X10MethodInstance) dropzone_;
 				List<Type> formals = dropzone.formalTypes();
 				// do we have a matching method? (i.e. one the x10 programmer has written)
-				if (currentClass.methods(mname, formals, context).size() > 0) continue;
+				if (methodsNoConstraints(currentClass, mname, formals, context).size() > 0) continue;
 				// otherwise we need to add a proxy.
 				//System.out.println("Not found: "+dropzone);
 				assert (!dropzone.flags().isStatic());
@@ -1689,7 +1702,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					h.write(" p"+counter++);
 				}
 				h.end();
-				h.write(");"); h.newline();
+				h.write(")");
+				if (dropzone.flags().isAbstract()) {
+				    h.write(" = 0");
+				}
+				h.write(";"); h.newline();
+				if (dropzone.flags().isAbstract()) continue;
 
 				if (newTypeParameters.size() != 0) {
 					sw.pushCurrentStream(context.templateFunctions);
@@ -3046,7 +3064,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                    if (mi.container().isClass() && mi.container().toClass().flags().isInterface()) {
 		                        // FIXME: need some template magic to define a placeCheck/nullCheck that is a no-op on structs,
 		                        //        but does something on ref.  Defer to 2.0.1.
-		                        invokeInterface(n, (Expr) target, args, Emitter.translateType(t), mi.container(), mi, false, false);
+		                        invokeInterface(n, (Expr) target, args, Emitter.translateType(t), mi.container(), mi, true, true);
 		                        sw.end();
 		                        return;
 		                    }

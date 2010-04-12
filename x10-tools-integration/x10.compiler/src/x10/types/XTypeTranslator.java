@@ -45,6 +45,7 @@ import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
+import x10.ast.X10Cast;
 import x10.ast.X10Field_c;
 import x10.ast.X10Special;
 import x10.constraint.XEQV_c;
@@ -60,6 +61,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
@@ -147,7 +149,7 @@ public class XTypeTranslator {
 		        target  = XTerms.makeLit(((X10ClassType) container).fullName());
 		    }
 		    else {
-		        throw new SemanticException("Cannot translate a static field of non-class type " + container + ".");
+		        throw new Errors.CannotTranslateStaticField(container, fi.position());
 		    }
 		}
 		if (target instanceof XVar) {
@@ -590,6 +592,10 @@ public class XTypeTranslator {
 			Expr e = (Expr) term;
 			if (e.isConstant())
 				return XTerms.makeLit(e.constantValue());
+		}
+		if (term instanceof X10Cast) {
+			X10Cast cast = ((X10Cast) term);
+			return trans(c, cast.expr().type(cast.type()), xc);
 		}
 		if (term instanceof Call) {
 		    return trans(c, (Call) term, xc);
