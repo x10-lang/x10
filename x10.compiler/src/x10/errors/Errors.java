@@ -22,6 +22,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
+import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.types.FieldInstance;
@@ -564,6 +565,19 @@ public class Errors {
 	        if (o==null || ! (o instanceof ThisNotPermittedInConstructorFormals ) )
 	            return false;
 	        return((ThisNotPermittedInConstructorFormals )o).position().equals(position());
+	    }
+	}
+	public static class ThisNotPermittedInConstructorReturnType extends SemanticException {
+		private static final long serialVersionUID = 751592738631688909L;
+		public ThisNotPermittedInConstructorReturnType(TypeNode type,  Position pos) {
+	        super("This or super cannot be used (implicitly or explicitly) in a constructor return type."
+	              + "\n\t Type: "  + type,
+	                pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof ThisNotPermittedInConstructorReturnType ) )
+	            return false;
+	        return((ThisNotPermittedInConstructorReturnType )o).position().equals(position());
 	    }
 	}
 	public static class MethodOrStaticConstructorNotFound extends SemanticException {
