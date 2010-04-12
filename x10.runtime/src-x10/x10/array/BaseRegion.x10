@@ -23,7 +23,6 @@ import x10.io.Printer;
  *
  * @author bdlucas
  */
-
 abstract public class BaseRegion extends Region {
 
     // XTENLANG-49
@@ -33,61 +32,6 @@ abstract public class BaseRegion extends Region {
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
     static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
 
-
-    //
-    // factories
-    //
-
-    public static def makeEmpty1(rank: int): Region(rank) { // XTENLANG-4
-        return new EmptyRegion(rank);
-    }
-
-    public static def makeFull1(rank: int): Region(rank) { // XTENLANG-4
-        return new FullRegion(rank);
-    }
-
-    public static def makeUnit1(): Region(0) { // XTENLANG-4
-        return new FullRegion(0);
-    }
-
-    public static def makeHalfspace1(normal:Point, k:int): Region(normal.rank) {
-        val rank = normal.rank;
-        val pmb = new PolyMatBuilder(rank);
-        val r = new PolyRow(normal, k);
-        pmb.add(r);
-        val pm = pmb.toSortedPolyMat(false);
-        return PolyRegion.make(pm) as Region(normal.rank); // XXXX
-    }
-
-    public static def makeRectangular1(min: Rail[int]!, max: Rail[int]!): RectRegion(min.length) { // XTENLANG-4
-        return RectRegion.make1(min, max);
-    }        
-
-    // XTENLANG-109 prevents zeroBased==(min==0)
-    public static def makeRectangular1(min: int, max: int): Region{self.rank==1 && self.rect /*&& self.zeroBased==(min==0)*/} { // XTENLANG-4
-        return RectRegion.make1(min, max);
-    }        
-
-    public static def makeBanded1(size: int, upper: int, lower: int): Region(2) { // XTENLANG-4
-        return PolyRegion.makeBanded(size, upper, lower);
-    }
-
-    public static def makeBanded1(size: int): Region(2) { // XTENLANG-4
-        return PolyRegion.makeBanded(size, 1, 1);
-    }
-
-    public static def makeUpperTriangular1(rowMin: int, colMin: int, size: int): Region(2)
-        = PolyRegion.makeUpperTriangular2(rowMin, colMin, size);
-
-    public static def makeLowerTriangular1(rowMin: int, colMin: int, size: int): Region(2)
-        = PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
-    
-    public static def make1(regions: Rail[Region]!): RectRegion(regions.length) { // XTENLANG-4
-        var r: Region = regions(0);
-        for (var i: int = 1; i<regions.length; i++)
-            r = r.product(regions(i));
-        return r as RectRegion(regions.length);
-    }
 
     //
     // basic information
@@ -240,14 +184,6 @@ abstract public class BaseRegion extends Region {
 
     protected def this(rank: int, rect: boolean, zeroBased: boolean): BaseRegion {
         super(rank, rect, zeroBased);
-	// XTENLANG-571
-	/*try {
-	    boundingBox = this.computeBoundingBox();
-	    boundingBoxException = null;
-	} catch (z:RuntimeException) {
-	    boundingBox = null;
-	    boundingBoxException = z;
-	}*/
     }
 
     public global def min(): ValRail[int] {

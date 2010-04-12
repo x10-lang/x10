@@ -8,10 +8,9 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="X10LIB" value="${project_loc:x10.compiler}/../pgas2/common/work"/>
-<mapEntry key="X10GC" value="${project_loc:x10.dist}"/>
 <mapEntry key="X10RT_IMPL" value="pgas_sockets"/>
-<mapEntry key="X10LANG" value="${project_loc:x10.runtime}/src-cpp"/>
+<mapEntry key="X10_DIST" value="${project_loc:x10.dist}"/>
+<mapEntry key="X10_PLATFORM" value="${target.os}_${target.arch}"/>
 </mapAttribute>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>

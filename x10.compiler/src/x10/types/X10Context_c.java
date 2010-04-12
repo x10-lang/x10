@@ -87,6 +87,7 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.constraint.XVar;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
@@ -252,7 +253,8 @@ public class X10Context_c extends Context_c implements X10Context {
 				 Type ty = Types.get(fi.type());
 				 ci = X10TypeMixin.realX(ty);
 				 ci = ci.substitute(f, ci.self());
-				 ci = ci.substitute(target, xts.xtypeTranslator().transThisWithoutTypeConstraint());
+				 XRoot v = ((X10ClassDef) Types.get(fi.container()).toClass().def()).thisVar();
+				 ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
 				 r = new CConstraint_c();
 				 r.addIn(ci);
 				 r.addIn(constraintProjection(ci, m));

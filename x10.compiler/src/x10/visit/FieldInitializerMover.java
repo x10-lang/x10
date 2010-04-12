@@ -91,6 +91,9 @@ public class FieldInitializerMover extends ContextVisitor {
                         ConstructorDecl cd = (ConstructorDecl) cm;
 
                         Block body = cd.body();
+                        if (body == null) {
+                        	body = job().extensionInfo().nodeFactory().Block(cd.position());
+                        }
                         List<Stmt> stmts = body.statements();
                         if (stmts.size() > 0) {
                             Stmt s = stmts.get(0);

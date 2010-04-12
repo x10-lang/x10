@@ -60,6 +60,7 @@ import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -99,6 +100,9 @@ public class Converter {
 	 * @throws SemanticException If this is not possible
 	 */
 	public static Expr attemptCoercion(ContextVisitor tc, Expr e, Type toType) throws SemanticException {
+		return attemptCoercion(false, tc, e, toType);
+	}
+	public static Expr attemptCoercion(boolean dynamicCallp, ContextVisitor tc,  Expr e, Type toType) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Type t1 = e.type();
 		t1 = PlaceChecker.ReplaceHereByPlaceTerm(t1, (X10Context) tc.context());
@@ -121,11 +125,8 @@ public class Converter {
 				// alright, now we actually synthesized a new depexpr. 
 				// lets splice it in.
 				result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
-				if (Configuration.VERBOSE_CALLS)
-					tc.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, 
-							"Expression " + e + " cast to type " + tn + ".", e.position());
-				else {
-					((ExtensionInfo) tc.job().extensionInfo()).incrWeakCallsCount();
+				if (dynamicCallp) {
+						Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
 				}
 			}
 		}
@@ -179,7 +180,7 @@ public class Converter {
 				Type toType = formals.get(j);
 
 				try {
-					Expr e2 = attemptCoercion(tc, e, toType);
+					Expr e2 = attemptCoercion(true, tc, e, toType);
 					transformedArgs.add(e2);
 					transformedArgTypes.add(e2.type());
 				}
@@ -520,7 +521,7 @@ public class Converter {
 	    }
 
 		// Added 03/28/10 to support new call conversion semantics.
-		if (! Configuration.STRONG_CALLS)
+		if (! Configuration.STATIC_CALLS)
 			if (cast.conversionType() == ConversionType.CALL_CONVERSION 
 					&& ts.isCastValid(fromType, toType, context)) {
 				X10Cast n = cast.conversionType(ConversionType.CHECKED); 

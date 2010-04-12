@@ -124,17 +124,25 @@ Commit notes:
 
 Fixed several type-checking bugs.
 
-For some reason, for loop type-checking was incompletely implemented. Code has been uncommented so that the loop is properly type-checked. This revealed several bugs that have been fixed.
+For some reason, for loop type-checking was incompletely implemented. Code has been uncommented so that the loop is properly type-checked. 
+This revealed several bugs that have been fixed.
 
 For some reason, type bounds on classes were not making it through.
 
-A distinction is now made between upperBound(t) and upperTypeBound(t). The former provides all the upper bounds for the type t which are sources for inheritance of members. The latter includes upper bounds on the type t that are inferred  upper bounds through variance annotations. These additional upper bounds do not actually supply additional members (methods, fields) -- the fields and methods they identify are already implemented by pre-eisting fields/methods on the class -- but need to be upper bounds because the type system is nominal. 
+A distinction is now made between upperBound(t) and upperTypeBound(t). 
+The former provides all the upper bounds for the type t which are sources for inheritance of members. 
+The latter includes upper bounds on the type t that are inferred  upper bounds through variance annotations. 
+These additional upper bounds do not actually supply additional members (methods, fields) -- the fields and methods they 
+identify are already implemented by pre-eisting fields/methods on the class -- but need to be upper bounds because the 
+type system is nominal. 
 
 Fixed typebounds so that variance is respected. If X <: Y and M takes a type parameter with a + annotation, then M[X] <: M[Y].
 
 Fixed X10TypeEnv_c.isSubType so that it uses upperTypeBound.
 
-Had to substantially change the implementation of isSubType. When checking Gamma |- S <: T, the constraints in S need to be added to Gamma. This is necessary because T may be parametrized, and the type parameters may need the constraints for their corresponding type-check to be performed.
+Had to substantially change the implementation of isSubType. When checking Gamma |- S <: T, the constraints in S need to be added to Gamma. 
+This is necessary because T may be parametrized, and the type parameters may need the constraints for their corresponding type-check to be 
+performed.
 
 So now the following typechecks:
 

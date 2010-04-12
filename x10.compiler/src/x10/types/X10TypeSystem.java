@@ -36,6 +36,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.VarDef;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
+import polyglot.types.TypeSystem_c.FieldMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -72,6 +73,7 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type futureOf(Position p, Ref<? extends Type> t);
 
+    FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs,  List<Type> argTypes, Context context);
 

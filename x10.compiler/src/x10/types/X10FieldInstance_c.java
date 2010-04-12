@@ -36,7 +36,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
 
 /**
- * An implementation of PropertyInstance
+ * 
  * @author vj
  *
  */
