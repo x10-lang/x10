@@ -112,7 +112,9 @@ public class UTS {
 
     var nodesCounter:UInt = 0;
     var stealsAttempted:UInt = 0;
+    var stealDepth:UInt = 0;
     var stealsPerpetrated:UInt = 0;
+    var stealsReceived:UInt = 0;
     var stealsSuffered:UInt = 0;
 
     val probe_rnd = new Random();
@@ -161,6 +163,7 @@ public class UTS {
 
     // use box so we can encode 'could not steal' with null
     public final def trySteal () : Box[SHA1Rand] {
+      stealsReceived++;
       if (workValid) {
         workValid = false;
         stealsSuffered++;
@@ -181,7 +184,7 @@ public class UTS {
       // place > 0 now exits
     }
 
-    ///* original implementation
+    // original implementation
     public final def attemptSteal(st:PLH) {
       for (var pi:Int=0 ; pi<Place.MAX_PLACES ; ++pi) {
         val p = Place(pi);
@@ -195,18 +198,19 @@ public class UTS {
         }
       }
       return false;
-    } //*/
+    }
 
     /*
-    public final def attemptStealHop(st:PLH, depth:Int, home:Place, continuation:(Box[SHA1Rand])=>Void) {
-      if (depth>depthCap) { at (home) { continuation(null); } return; }
+    // place hopping code (synchronous)
+    public final def attemptStealHop(st:PLH, depth:Int, home:Place, continuation:(Box[SHA1Rand], Int)=>Void) {
+      if (depth>depthCap) { at (home) { continuation(null,0); } return; }
       val p_ = Place(probe_rnd.nextInt(Place.MAX_PLACES-1));
       val p = p_==home ? p_.next() : p_;
       at (p) {
         val steal_result = st().trySteal();
         if (steal_result != null) {
           at (home) {
-            continuation(steal_result);
+            continuation(steal_result, depth);
           }
         } else {
           st().attemptStealHop(st, depth+1, home, continuation);
@@ -217,9 +221,10 @@ public class UTS {
     public final def attemptSteal(st:PLH) {
       stealsAttempted++;
       val r = new Cell[Boolean](false);
-      val continuation = (s:Box[SHA1Rand]) => {
+      val continuation = (s:Box[SHA1Rand], depth:Int) => {
         if (s!=null) {
           stealsPerpetrated++;
+          stealDepth+=depth;
           processSubtree(s());
           r(true);
         } else {
@@ -314,10 +319,12 @@ public class UTS {
         val nodes = st().nodesCounter;
         val sa = st().stealsAttempted;
         val ss = st().stealsSuffered;
+        val sr = st().stealsReceived;
         val sp = st().stealsPerpetrated;
+        val sd = st().stealDepth;
         at (all_nodes) {
           val pc = sa==0U ? "NaN" : ""+((100U*sp)/sa);
-          Console.OUT.println(there+": "+nodes+" nodes,  "+sp+"/"+sa+"="+pc+"% successful steals  ("+ss+" suffered)");
+          Console.OUT.println(there+": "+nodes+" nodes,  "+sp+"/"+sa+"="+pc+"% successful steals (AvgDepth "+((sd as Double)/sp)+")  ("+ss+"/"+sr+"="+((ss as Double)/sr)+"% suffered)");
           atomic {
             all_nodes(all_nodes()+nodes);
           }
