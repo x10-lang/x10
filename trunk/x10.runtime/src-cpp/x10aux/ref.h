@@ -28,7 +28,7 @@ namespace x10aux {
         return *(x10_addr_t*)(((char*)obj)-sizeof(x10_addr_t));
     }
     inline x10_addr_t get_remote_ref_maybe_null(void *obj) {
-        return obj==NULL ? NULL : get_remote_ref(obj);
+        return obj==NULL ? 0 : get_remote_ref(obj);
     }
     inline void set_remote_ref(void *obj, x10_addr_t ref) {
         *(x10_addr_t*)(((char*)obj)-sizeof(x10_addr_t)) = ref;
