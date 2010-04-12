@@ -8,7 +8,7 @@
 	<!-- Bump version here: for 2.0.3-->
     <property name="x10.version" value="2.0.3"/>
     <property name="orig.x10.timestamp" value="${x10.version}"/> <!-- override if version is, e.g., "svn head" -->
-	<property name="x10.tarball.timestamp" value="13775" />
+	<property name="x10.tarball.timestamp" value="13827" />
 	<property name="x10.timestamp" value="tib_${x10.tarball.timestamp}"/>
     <!-- sample value from fragment: <property name="x10.platform" value="linux_x86_64"/> -->
     <property name="x10.dist.location" location="${tmp}"/>
