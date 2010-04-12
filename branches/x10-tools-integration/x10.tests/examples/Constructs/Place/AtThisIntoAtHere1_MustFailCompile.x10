@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CALLS
+
 import harness.x10Test;
 
 /**
@@ -18,7 +20,7 @@ import harness.x10Test;
 
  * @author vj
  */
-public class AtThisIntoAtHere_MustFailCompile extends x10Test {
+public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
     class Test {
       var x:Test{self.at(this)}=null;
     
@@ -35,7 +37,7 @@ public class AtThisIntoAtHere_MustFailCompile extends x10Test {
     public def run() = true;
 
     public static def main(Rail[String]) {
-	  new AtThisIntoAtHere_MustFailCompile().execute();
+	  new AtThisIntoAtHere1_MustFailCompile().execute();
     }
 
 }

@@ -78,6 +78,9 @@ public class X10Field_c extends Field_c {
 		super(pos, target, name);
 	}
 
+	  public X10Field_c reconstruct(Receiver target, Id name) {
+	      return (X10Field_c) super.reconstruct(target, name);
+	    }
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		
 		Node n = typeCheck1(tc);
@@ -169,7 +172,8 @@ public class X10Field_c extends Field_c {
 
 		try {
 		   
-			X10FieldInstance fi = (X10FieldInstance) ts.findField(tType, ts.FieldMatcher(tType, name.id(), c));
+			X10FieldInstance fi = (X10FieldInstance) 
+			ts.findField(tType, ts.FieldMatcher(tType, X10TypeMixin.contextKnowsType(target), name.id(), c));
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field " + name +
 						" on node of type " + target.getClass().getName() + ".",
@@ -212,7 +216,7 @@ public class X10Field_c extends Field_c {
 			}
 
 			checkFieldAccessesInDepClausesAreFinal(result, tc);
-			PlaceChecker.checkFieldPlaceType(result, c);
+			result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
 
 			//System.err.println("X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
@@ -271,7 +275,7 @@ public class X10Field_c extends Field_c {
 			x = x.copy();
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
-			if (target instanceof Expr) {
+			if (! X10TypeMixin.contextKnowsType(target)) { // target instanceof Expr) {
 				CConstraint xc = X10TypeMixin.xclause(target.type());
 				if (xc != null && ! xc.valid()) {
 					xc = xc.copy();

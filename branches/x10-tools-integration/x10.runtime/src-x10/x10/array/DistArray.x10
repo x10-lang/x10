@@ -335,12 +335,17 @@ public class DistArray[T] (
     public global def lift(op:(T)=>T): DistArray[T](dist)
         = make[T](dist, ((p:Point)=>op(this(p as Point(rank)))));
 
-    //    incomplete public global def reduce(op:(T,T)=>T, unit:T):T;
+    public global def lift(r:Region(rank), op:(T)=>T): DistArray[T](dist)
+        = make[T](dist | r, ((p:Point)=>op(this(p as Point(rank)))));
 
-//
-// seems to be causing non-deterministic typechecking failures in
-// a(pt).  perhaps related to XTENLANG-128 and/or XTENLANG-135
-//
+
+    public global def lift(src:DistArray[T](this.dist), op:(T,T)=>T):DistArray[T](dist)
+        = make[T](dist, ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
+
+
+    public global def lift(src:DistArray[T](this.dist), r:Region(rank), op:(T,T)=>T):DistArray[T](rank)
+        = make[T](dist | r, ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
+
     public global def reduce(op:(T,T)=>T, unit:T):T {
 
         // scatter

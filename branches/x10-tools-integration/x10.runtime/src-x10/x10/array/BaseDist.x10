@@ -61,8 +61,9 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val min = b.min()(axis);
         val max = b.max()(axis);
         val P = Place.MAX_PLACES;
-        val blockSize = (max - min)/P;
-        val leftOver = max - min - P*blockSize;
+        val numElems = max - min + 1;
+        val blockSize = numElems/P;
+        val leftOver = numElems - P*blockSize;
         val regions = Rail.make[Region(r.rank)](P, 
         		(i:Int) => {
         			val r1 = Region.makeFull(axis);

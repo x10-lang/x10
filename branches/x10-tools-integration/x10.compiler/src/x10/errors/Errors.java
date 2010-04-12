@@ -20,8 +20,10 @@ import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Formal;
 import polyglot.ast.New;
+import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.frontend.Globals;
+import polyglot.frontend.Job;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -30,7 +32,9 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
 import polyglot.types.TypeSystem_c.MethodMatcher;
+import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
+import x10.ExtensionInfo;
 import x10.ast.SemanticError;
 import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
@@ -60,8 +64,24 @@ import x10.types.constraints.XConstrainedTerm;
  */
 public class Errors {
 	
-    public static interface DepTypeException  {}
-	public static interface PlaceTypeException {}
+	public static void issue(Job job, SemanticException e) {
+		issue(job, e, null);
+	}
+	public static void issue(Job job, SemanticException e, Node n) {
+		ExtensionInfo ei = (ExtensionInfo) job.extensionInfo();
+		boolean newP = ei.errorSet().add(e);
+		if (newP && e.getMessage() != null) {
+			Position position = e.position();
+
+			if (position == null && n != null) {
+				position = n.position();
+			}
+
+			job.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
+					e.getMessage(), position);
+		}
+	}
+    public static interface DepTypeException {}
 	public static interface ProtoTypeException {}
 	public static interface ConversionException {}
 	
@@ -135,8 +155,15 @@ public class Errors {
 		}
 	}
 
-	
-	public static class PlaceTypeErrorFieldShouldBeGlobal extends SemanticException implements PlaceTypeException {
+	public static class PlaceTypeException extends SemanticException {
+		private static final long serialVersionUID = -8998234559836889448L;
+
+		public PlaceTypeException(String s, Position p) {
+			super(s,p);
+		}
+		
+	}
+	public static class PlaceTypeErrorFieldShouldBeGlobal extends  PlaceTypeException {
 		private static final long serialVersionUID = -7491337042919050786L;
 		public PlaceTypeErrorFieldShouldBeGlobal(Field f, Position pos) {
 			super("Place type error: Field should be global. \n\t Field: " + f, pos);
@@ -147,7 +174,7 @@ public class Errors {
 			return((PlaceTypeErrorFieldShouldBeGlobal)o).position().equals(position());
 		}
 	}
-	public static class PlaceTypeErrorFieldShouldBeLocalOrGlobal extends SemanticException implements PlaceTypeException {
+	public static class PlaceTypeErrorFieldShouldBeLocalOrGlobal extends PlaceTypeException {
 		private static final long serialVersionUID = 8839433155480902083L;
 		public PlaceTypeErrorFieldShouldBeLocalOrGlobal(Field f, XTerm place, XTerm targetPlace, Position pos) {
 			super("Place type error: either field target should be local or field should be global." 
@@ -164,7 +191,7 @@ public class Errors {
 		}
 	}
 	
-	public static class PlaceTypeErrorMethodShouldBeGlobal extends SemanticException implements PlaceTypeException {
+	public static class PlaceTypeErrorMethodShouldBeGlobal extends PlaceTypeException {
 		private static final long serialVersionUID = -657551989521522263L;
 
 		public PlaceTypeErrorMethodShouldBeGlobal(Call c, Position pos) {
@@ -177,7 +204,7 @@ public class Errors {
 			return posEquals(this.position(), ((SemanticError) o).position());
 		}
 	}
-	public static class PlaceTypeErrorMethodShouldBeLocalOrGlobal extends SemanticException implements PlaceTypeException {
+	public static class PlaceTypeErrorMethodShouldBeLocalOrGlobal extends  PlaceTypeException {
 		private static final long serialVersionUID = 5212483087766572622L;
 
 		public PlaceTypeErrorMethodShouldBeLocalOrGlobal(Call c, XTerm place, XTerm targetPlace, Position pos) {
@@ -592,6 +619,21 @@ public class Errors {
 			if (o==null || ! (o instanceof CannotFindIndexType) )
 				return false;
 			return((CannotFindIndexType)o).position().equals(position());
+		}
+	}
+	
+	public static class CannotTranslateStaticField extends SemanticException {
+		private static final long serialVersionUID = -950551311327307252L;
+		public CannotTranslateStaticField(Type type, Position position) {
+			super("Cannot translate a static field of non-class type"
+					+ "\n\t Type: "  + type,
+					
+					position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotTranslateStaticField) )
+				return false;
+			return((CannotTranslateStaticField)o).position().equals(position());
 		}
 	}
 }

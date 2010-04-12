@@ -70,6 +70,7 @@ import polyglot.types.StructType;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
+import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
@@ -176,6 +177,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
 
         return l;
+    }
+
+    public static class BaseTypeEquals implements Predicate2<Type> {
+        Context context;
+        public BaseTypeEquals(Context context) {
+            this.context = context;
+        }
+        public boolean isTrue(Type o, Type p) {
+            TypeSystem ts = context.typeSystem();
+            return ts.typeEquals(X10TypeMixin.baseType(o), X10TypeMixin.baseType(p), context);
+        }
     }
 
     /**
@@ -2200,6 +2212,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public X10FieldMatcher FieldMatcher(Type container, Name name, Context context) {
     	//container = X10TypeMixin.ensureSelfBound( container);
         return new X10FieldMatcher(container, name, context);
+    }
+    public X10FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context) {
+    	//container = X10TypeMixin.ensureSelfBound( container);
+        return new X10FieldMatcher(container, contextKnowsReceiver, name, context);
     }
 
     public boolean hasMethodNamed(Type container, Name name) {
