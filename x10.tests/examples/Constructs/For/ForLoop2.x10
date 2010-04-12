@@ -23,7 +23,7 @@ public class ForLoop2 extends x10Test {
 	public const N: int = 3;
 
 	public def run(): boolean = {
-		var r: Region{rank==1} = [0..N-1];
+		var r:Region(1){rect}  = 0..N-1;
 		var r3: Region = [r, r, r];
 		var P0: Place = here;
 		var d3: Dist = r3->P0;
