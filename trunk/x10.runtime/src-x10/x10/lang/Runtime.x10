@@ -351,15 +351,23 @@ public final class Runtime {
             lock.unlock();
             return remoteFinish;
         }
+        
+        public def remove(rootFinish:RootFinish) {
+            lock.lock();
+            map.remove(rootFinish);
+            lock.unlock();
+        }
     }
 
 
     static class RootFinish extends Latch implements FinishState, Mortal {
         private val counts:Rail[Int]!;
+        private val seen:Rail[Boolean]!;
         private var exceptions:Stack[Throwable]!;
 
         def this() {
             val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
+            seen = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
             c(here.id) = 1;
             counts = c;
         }
@@ -393,6 +401,14 @@ public final class Runtime {
         public def waitForFinish(safe:Boolean):Void {
             if (!NO_STEALS && safe) worker().join(this);
             await();
+            val closure = ()=>runtime().finishStates.remove(this);
+            seen(hereInt()) = false;
+            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                if (seen(i)) {
+                    runAtNative(i, closure);
+                }
+            }
+            dealloc(closure);
             if (null != exceptions) {
                 if (exceptions.size() == 1) {
                     val t = exceptions.peek();
@@ -412,6 +428,7 @@ public final class Runtime {
             lock();
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 counts(i) += rail(i);
+                seen(i) |= counts(i) != 0;
                 if (counts(i) != 0) b = false;
             }
             if (b) release();
@@ -422,6 +439,7 @@ public final class Runtime {
             lock();
             for(var i:Int=0; i<rail.length; i++) {
                 counts(rail(i).first) += rail(i).second;
+                seen(rail(i).first) = true;
             }
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (counts(i) != 0) {
