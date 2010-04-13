@@ -33,26 +33,26 @@ public class X10InstanceTab extends InstancePreferencesTab {
 	{
 		List<FieldEditor> fields = new ArrayList<FieldEditor>();
 
-		IntegerFieldEditor TabSize = fPrefUtils.makeNewIntegerField(
+		IntegerFieldEditor tabWidth = fPrefUtils.makeNewIntegerField(
 			page, this, fPrefService,
-			"instance", "TabSize", "Tab size",
+			"instance", "tabWidth", "tab width",
 			"The number of spaces equivalent to one tab in the source editor",
 			parent,
 			true, true,
 			false, String.valueOf(0),
 			false, "0",
 			true);
-		fields.add(TabSize);
+		fields.add(tabWidth);
 
 
-		FontFieldEditor SourceFont = fPrefUtils.makeNewFontField(
+		FontFieldEditor sourceFont = fPrefUtils.makeNewFontField(
 			page, this, fPrefService,
-			"instance", "SourceFont", "Source font",
+			"instance", "sourceFont", "source font",
 			"The font to use in the source code editor",
 			parent,
 			true, true,
 			true);
-		fields.add(SourceFont);
+		fields.add(sourceFont);
 
 
 		DirectoryFieldEditor DefaultRuntime = fPrefUtils.makeNewDirectoryField(

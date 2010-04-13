@@ -13,9 +13,9 @@ package org.eclipse.imp.x10dt.core.preferences.generated;
 
 public class X10Constants {
 
-	public static final String P_TABSIZE = "TabSize";
+	public static final String P_TABWIDTH = "tabWidth";
 
-	public static final String P_SOURCEFONT = "SourceFont";
+	public static final String P_SOURCEFONT = "sourceFont";
 
 	public static final String P_DEFAULTRUNTIME = "DefaultRuntime";
 
