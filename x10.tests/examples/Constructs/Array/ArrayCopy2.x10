@@ -83,7 +83,8 @@ public class ArrayCopy2 extends x10Test {
                     atomic accessed_a(i)++;
                 }
                 // check if dist ops are working
-
+		/*
+		 TODO: restore this test case once we restore Dist/Region subtraction.
                 val D_nonlocal = D - D_local;
                 chk((D_local || D_nonlocal).equals(D));
                 for (k in D_local) {
@@ -94,6 +95,7 @@ public class ArrayCopy2 extends x10Test {
                     chk(outOfRange(D_local, k));
                     chk(D_nonlocal(k) != px);
                 }
+	       */
             }
 
         // ensure each A[i] was accessed exactly once
@@ -147,17 +149,17 @@ public class ArrayCopy2 extends x10Test {
     static class dist2 {
 
         const BLOCK: int = 0;
-        const BLOCKCYCLIC: int = 1;
-        const CONSTANT: int = 2;
-	const N_DIST_TYPES=3;
+        const CONSTANT: int = 1;
+        //const BLOCKCYCLIC: int = 1;
+	const N_DIST_TYPES=2;
         /**
          * Return a dist with region r, of type disttype
          */
         public static def getDist(distType: Int, R: Region): Dist(R) = {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(R,0) as Dist(R);
-                case BLOCKCYCLIC: return Dist.makeBlockCyclic(R, 0,3) as Dist(R);
                 case CONSTANT: return (R->here) as Dist(R);
+                // case BLOCKCYCLIC: return Dist.makeBlockCyclic(R, 0,3) as Dist(R);
                 default: throw new Error();
             }
         }
