@@ -55,12 +55,12 @@ public class ArrayDecl extends x10Test {
         chk(data3.dist.equals(Dist.makeConstant(1..11, here)));
         for (val (i): Point in data3.region) chk(data3(i) == (i*i as Long));
 
-        val D: Dist{rank==1} = Dist.makeCyclic(0..9, 0);
+        val D: Dist{rank==1} = Dist.makeBlock(0..9, 0);
         val d = DistArray.make[float](D, ((i):Point) => (10.0*i as Float));
         chk(d.dist.equals(D));
         finish ateach (val (i): Point in D) chk(d(i) == (10.0*i as Float));
 
-        val E = Dist.makeCyclic([1..7, 0..1], 1);
+        val E = Dist.makeBlock([1..7, 0..1], 1);
         val result1  = DistArray.make[Short](E, ((i,j): Point) => (i+j as Short));
         chk(result1.dist.equals(E));
         finish ateach (val (i,j): Point in E) chk(result1(i, j) == (i+j as Short));
