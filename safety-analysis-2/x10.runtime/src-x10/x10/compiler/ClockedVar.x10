@@ -18,28 +18,28 @@ public class ClockedVar[T] implements ClockableVar{
     var xRead:T;
     var xWrite: T;
     val op:(T,T)=>T;
-    val init:T;
+    val opInit:T;
     var changed:Boolean;
-    var previous: T;
+
     
 
-    public def this (c: Clock!, oper: (T,T)=>T!, initial:T) {
+    public def this (c: Clock!, oper: (T,T)=>T!, opInitial:T) {
     	c.addClockedVar(this); 
      	op = oper;
-     	init = initial;
+     	opInit = opInitial;
      	changed = false;	
-     	previous = initial;
+     	xWrite = opInitial;
      }
      
-    public def this(c:Clock, oper: (T,T)=>T, initial:T, x:T)
+    public def this(c:Clock, oper: (T,T)=>T, opInitial:T, x:T)
      {
     	val clk = c as Clock!; 
-    	this.xRead = x;
+    	xRead = x;
         clk.addClockedVar(this); 
         op = oper; 
-        init = initial;
+        opInit = opInitial;
         changed = false;
-        previous = initial;  
+        xWrite = opInitial; 
       }
       
     public def get():T {
@@ -48,25 +48,19 @@ public class ClockedVar[T] implements ClockableVar{
    
     public def set(x:T) {
     	changed = true;
-    	atomic if (this.xWrite == null)
-    					this.xWrite = x;
-    	else
-    		  this.xWrite = op(this.xWrite, x);
+        atomic this.xWrite = op(this.xWrite, x);
     } 
     
     public def setR(x:T){this.xRead=x;}
     
     public def getW(){return xWrite;}
     
-    public def reset(){
-    	this.xWrite = init;
-    	this.changed = false;
-    }
-    
+
     public def move(): Void {
-        if (changed) 
-     		this.setR( this.getW());
-     	this.reset();
+        if (changed)
+        	this.xRead = this.xWrite; 
+     	this.xWrite = opInit;
+    	this.changed = false;
     }
 
     
