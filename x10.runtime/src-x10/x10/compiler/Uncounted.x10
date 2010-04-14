@@ -41,7 +41,7 @@ import x10.lang.annotations.StatementAnnotation;
  *         val box = new Box[Boolean](false);
  *         @Uncounted async (here.next()) {
  *             Runtime.println("HELLO");
- *             @Uncounted async (here.prev()) {
+ *             @Uncounted async (box) {
  *             atomic box.t = true;
  *             }
  *         }
