@@ -683,10 +683,11 @@ function main {
 		else
 			extendList=""
 		fi
+        extra_opts="$(sed -ne 's|^\s*//\s*OPTIONS*\:\s*\(.*\)|\1|p' $tc)"
 		__cat_test_x10c_sourcepath="$tcroot"
 		__cat_test_x10c_classpath="${EXTRA_CLASSPATH}"
 		__cat_test_x10c_directory="$testDir"
-		comp_cmd="${X10CPP} -t -v -report postcompile=1 -MAIN_CLASS=$tctarget -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		comp_cmd="${X10CPP} $extra_opts -t -v -report postcompile=1 -MAIN_CLASS=$tctarget -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
 		tccompdat=${tcroot}/${tctarget}.comp
 		printf "\n****** $tDir $className ******\n\n" >> $tccompdat
 
