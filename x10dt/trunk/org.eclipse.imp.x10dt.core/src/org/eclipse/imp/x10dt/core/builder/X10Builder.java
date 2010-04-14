@@ -39,6 +39,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -56,7 +57,6 @@ import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
 import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
-
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -71,7 +71,6 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
-import x10.Configuration;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
@@ -82,6 +81,7 @@ import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.Configuration;
 
 
 public class X10Builder extends IncrementalProjectBuilder {
@@ -120,6 +120,10 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private Collection<IPath> fSrcFolderPaths; // project-relative paths
     private static final boolean traceOn=false;
+    
+    //The very first build of a project needs to build all sources, to start with a fresh state for dependencies.
+    //fBuildAll is reset in collectSourcesToCompile.
+    private boolean fBuildAll = true;
 
     public X10Builder() {}
 
@@ -128,15 +132,19 @@ public class X10Builder extends IncrementalProjectBuilder {
      * @param resource
      * @return true if the resource's children should be visited, false otherwise
      */
-    protected boolean processResource(IResource resource) {
-        if (resource instanceof IFile) {
-            IFile file= (IFile) resource;
-            if (isSourceFile(file))
-                fSourcesToCompile.add(file);
-        } else if (isBinaryFolder(resource))
-            return false;
-        return true;
-    }
+    protected boolean processResource(final IResource resource) {
+ 
+            	if (resource instanceof IFile) {
+            		IFile file= (IFile) resource;
+            		if (isSourceFile(file))
+            			fSourcesToCompile.add(file);
+            	} else if (isBinaryFolder(resource))
+            		return false;
+            	return true;
+     }
+
+    	
+    
 
     protected boolean isSourceFile(IFile file) {
         String exten= file.getFileExtension();
@@ -159,45 +167,66 @@ public class X10Builder extends IncrementalProjectBuilder {
     private boolean isBinaryFolder(IResource resource) {
         // BUG This should check whether the given resource is in an "output folder"
         // of a source classpath entry, analogous to above check in isSourceFile().
-        return resource.getFullPath().lastSegment().equals("bin");
+        return resource.getFullPath().lastSegment().equals("bin"); //TODO: Fix 
     }
 
-    protected void clearMarkersOn(Collection<IFile> sources) {
-        try {
-            // Remove the project-level "compiler crash" marker, if any
-            fProject.deleteMarkers(PROBLEMMARKER_ID, true, 0);
-        } catch (CoreException e1) {
-        }
-        for(Iterator<IFile> iter= sources.iterator(); iter.hasNext(); ) {
-            IFile file= iter.next();
+    protected void clearMarkersOn(final Collection<IFile> sources) {
+    	IWorkspace ws= ResourcesPlugin.getWorkspace();
+    	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
+            public void run(IProgressMonitor monitor) {
+            	try {
+                    // Remove the project-level "compiler crash" marker, if any
+                    fProject.deleteMarkers(PROBLEMMARKER_ID, true, 0);
+                } catch (CoreException e1) {
+                	
+                }
+                for(Iterator<IFile> iter= sources.iterator(); iter.hasNext(); ) {
+                    IFile file= iter.next();
 
-            try {
-                file.deleteMarkers(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE);
-            } catch (CoreException e) {
+                    try {
+                        file.deleteMarkers(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE);
+                    } catch (CoreException e) {
+                    	
+                    }
+                }
             }
-        }
-    }
-
-    protected void addMarkerTo(IFile sourceFile, String type, String msg, int severity, String loc, int priority, int lineNum, int startOffset, int endOffset) {
+    	};
         try {
-            IMarker marker= sourceFile.createMarker(type);
-
-            marker.setAttribute(IMarker.MESSAGE, msg);
-            marker.setAttribute(IMarker.SEVERITY, severity);
-            marker.setAttribute(IMarker.LOCATION, loc);
-            marker.setAttribute(IMarker.PRIORITY, priority);
-            marker.setAttribute(IMarker.LINE_NUMBER, (lineNum >= 1) ? lineNum : 1);
-            if (startOffset >= 0) {
-                marker.setAttribute(IMarker.CHAR_START, startOffset);
-                marker.setAttribute(IMarker.CHAR_END, endOffset + 1);
-            } else {
-                marker.setAttribute(IMarker.CHAR_START, 0);
-                marker.setAttribute(IMarker.CHAR_END, 0);
-            }
+        	ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
         } catch (CoreException e) {
-            X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to file " + sourceFile);
-        }
-        
+            e.printStackTrace();
+        } 
+    }
+
+    protected void addMarkerTo(final IFile sourceFile, final String type, final String msg, final int severity, final String loc, final int priority, final int lineNum, final int startOffset, final int endOffset) {
+    	IWorkspace ws= ResourcesPlugin.getWorkspace();
+    	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
+            public void run(IProgressMonitor monitor) {
+            	try {
+                    IMarker marker= sourceFile.createMarker(type);
+                    //TODO: change to setAttributes
+                    marker.setAttribute(IMarker.MESSAGE, msg);
+                    marker.setAttribute(IMarker.SEVERITY, severity);
+                    marker.setAttribute(IMarker.LOCATION, loc);
+                    marker.setAttribute(IMarker.PRIORITY, priority);
+                    marker.setAttribute(IMarker.LINE_NUMBER, (lineNum >= 1) ? lineNum : 1);
+                    if (startOffset >= 0) {
+                        marker.setAttribute(IMarker.CHAR_START, startOffset);
+                        marker.setAttribute(IMarker.CHAR_END, endOffset + 1);
+                    } else {
+                        marker.setAttribute(IMarker.CHAR_START, 0);
+                        marker.setAttribute(IMarker.CHAR_END, 0);
+                    }
+                } catch (CoreException e) {
+                    X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to file " + sourceFile);
+                }
+            }
+        };
+        try {
+        	ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }  
     }
 
     protected void addProblemMarkerTo(IFile sourceFile, String msg, int severity, String loc, int priority, int lineNum, int startOffset, int endOffset) {
@@ -208,16 +237,26 @@ public class X10Builder extends IncrementalProjectBuilder {
         addMarkerTo(sourceFile, IMarker.TASK, msg, severity, "", priority, lineNum, startOffset, endOffset);
     }
 
-    protected void addProblemMarkerTo(IProject project, String msg, int severity, int priority) {
-        try {
-            IMarker marker= project.createMarker(PROBLEMMARKER_ID);
+    protected void addProblemMarkerTo(final IProject project, final String msg, final int severity, final int priority) {
+    	IWorkspace ws= ResourcesPlugin.getWorkspace();
+    	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
+            public void run(IProgressMonitor monitor) {
+            	try {
+                    IMarker marker= project.createMarker(PROBLEMMARKER_ID);
 
-            marker.setAttribute(IMarker.MESSAGE, msg);
-            marker.setAttribute(IMarker.SEVERITY, severity);
-            marker.setAttribute(IMarker.PRIORITY, priority);
+                    marker.setAttribute(IMarker.MESSAGE, msg);
+                    marker.setAttribute(IMarker.SEVERITY, severity);
+                    marker.setAttribute(IMarker.PRIORITY, priority);
+                } catch (CoreException e) {
+                    X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to project " + project.getName());
+                }
+            }
+        };
+        try {
+        	ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
         } catch (CoreException e) {
-            X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to project " + project.getName());
-        }
+            e.printStackTrace();
+        } 
     }
 
     /**
@@ -283,6 +322,15 @@ public class X10Builder extends IncrementalProjectBuilder {
             X10DTCorePlugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + (msg != null ? msg : e.getClass().getName()));
             addProblemMarkerTo(fProject, "An internal X10 compiler error occurred; see the Error Log for more details.", IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
 //            postMsgDialog("Internal Compiler Error", "An internal X10 compiler error occurred; see the Error Log for more details.");
+        } finally {
+        	//close all streams
+        	for(Source s: streams){
+        		try {
+					((StreamSource)s).close();
+				} catch (IOException e) {
+					
+				}
+        	}
         }
 //      fDependencyInfo.dump();
         createMarkers(errors);
@@ -309,7 +357,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 "-d", outputDir,
                 "-sourcepath", 
                 projectSrcPath,
-                //"-commandlineonly"  FIXME temp only  BRT
+                "-commandlineonly"  
             };
             for (String s: stdOptsArray) {
                 optsList.add(s);
@@ -539,7 +587,6 @@ public class X10Builder extends IncrementalProjectBuilder {
             try {
                 final String filePath= sourceFile.getLocation().toOSString();
                 StreamSource srcStream= new StreamSource(sourceFile.getContents(), filePath);
-
                 streams.add(srcStream);
             } catch (IOException e) {
                 X10DTCorePlugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
@@ -606,11 +653,12 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
         return buff.toString();
     }
-
+   
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
+    	
         final String[] buildKind= { "0", "1", "2", "3", "4", "5", "Full", "7", "8", "Auto", "Incremental", "11", "12", "13", "14", "Clean" };
 
-        fProject= getProject();
+  		fProject= getProject();
         fX10Project= JavaCore.create(fProject);
 
         X10DTCorePlugin.getInstance().maybeWriteInfoMsg("build kind = " + buildKind[kind]);
@@ -630,26 +678,68 @@ public class X10Builder extends IncrementalProjectBuilder {
             return null;
         }
         readCompilerConfig();
-        checkClasspathForRuntime();
+        //checkClasspathForRuntime(); //TODO: silencing for now until we have container.
         if (kind == CLEAN_BUILD || kind == FULL_BUILD)
             fDependencyInfo.clearAllDependencies();
         fSourcesToCompile.clear();
 
         fMonitor.beginTask("Scanning and compiling X10 source files...", 0);
-        collectSourcesToCompile();
-        cleanGeneratedFiles();
+        
+        final Set<Collection<IProject>> deps = new HashSet<Collection<IProject>>();
+       
+        IWorkspace ws= ResourcesPlugin.getWorkspace();
+       
 
-        Collection<IProject> dependents= doCompile();
+        IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
+        	public void run(IProgressMonitor monitor) {   
+
+//        final Job job = new Job("X10 Builder Job") {
+//        	protected IStatus run(IProgressMonitor monitor){
+          		try {
+          			
+        			collectSourcesToCompile();
+        			//Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, fMonitor);
+        			cleanGeneratedFiles();
+        			Collection<IProject> dependents= doCompile();
+        			deps.add(dependents);
+        		} catch (CoreException e){
+        			e.printStackTrace();
+        		} 
+        		//return Status.OK_STATUS;
+        	}
+//        };
+//        job.setPriority(Job.SHORT);
+//        job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+//        job.schedule();
+        
+        };
+        try {
+        	
+        		ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+        	
+      } catch (CoreException e) {
+          e.printStackTrace();
+      }
 
 //      fDependencyInfo.dump();
         fMonitor.done();
-        return (IProject[]) dependents.toArray(new IProject[dependents.size()]);
+        //TODO: MV FIX ME!!!!
+//        Collection<IProject> dependents = deps.iterator().next();
+//        return (IProject[]) dependents.toArray(new IProject[dependents.size()]);
+        return new IProject[0];
     }
+    
 
-    private void cleanGeneratedFiles() {
+    private boolean cleanGeneratedFiles() {
         IWorkspace ws= ResourcesPlugin.getWorkspace();
-        IWorkspaceRoot wsRoot= ws.getRoot();
+        final IWorkspaceDescription description = ws.getDescription();
+        
+        description.setAutoBuilding(false);
+        
+        final IWorkspaceRoot wsRoot= ws.getRoot();
         final List<IFile> genFiles= new ArrayList<IFile>();
+        final List<IFile> genFilesCopy= new ArrayList<IFile>();
+        
 		final boolean traceOn=false;
         for(IFile srcFile: fSourcesToCompile) {
         	if(traceOn)System.out.println("srcFile: "+srcFile);
@@ -657,17 +747,21 @@ public class X10Builder extends IncrementalProjectBuilder {
             if(traceOn)System.out.println("genJavaFile: "+genJavaFile);
             IPath genFileFolder= srcFile.getFullPath().removeLastSegments(1);
             if(traceOn)System.out.println("genFileFolder: "+genFileFolder);
-
             genFiles.add(wsRoot.getFile(genJavaFile));
+            genFilesCopy.add(wsRoot.getFile(genJavaFile));
         }
 
-        IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
-            public void run(IProgressMonitor monitor) {
+
+//     IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
+//            public void run(IProgressMonitor monitor) {   
                 IStatus status= null;
-                monitor.beginTask("Clearing generated files", genFiles.size());
+       //         monitor.beginTask("Clearing generated files", genFiles.size());
+                IProgressMonitor monitor = new NullProgressMonitor();
+                
                 for(IFile file: genFiles) {
                     try {
                         file.delete(true, monitor);
+                        genFilesCopy.remove(file);
                     } catch (CoreException e) {
                         if (status == null) {
                             status= new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, e.getLocalizedMessage());
@@ -678,18 +772,25 @@ public class X10Builder extends IncrementalProjectBuilder {
                             IStatus newStat= new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, e.getLocalizedMessage());
                             status= new MultiStatus(X10DTCorePlugin.kPluginID, IStatus.ERROR, new IStatus[] { status, newStat }, "Multiple errors occurred", null);
                         }
+                        return false;
+                       
                     }
-                    monitor.worked(1);
+ //                   monitor.worked(1);
                 }
-                monitor.done();
-            }
-        };
-        try {
-            ws.run(runnable, new NullProgressMonitor());
-        } catch (CoreException e) {
-            e.printStackTrace();
-        }
+
+//                monitor.done();
+//            }
+//        };
+//        try {
+//            ws.run(runnable, new NullProgressMonitor());
+//        } catch (CoreException e) {
+//            e.printStackTrace();
+//        }
+                return true;
     }
+    
+    
+  
 
     private void readCompilerConfig() {
     	// PORT1.7 RMF 9/28/2008 - Not sure we even need to do this any more - check w/ compiler team
@@ -969,12 +1070,16 @@ public class X10Builder extends IncrementalProjectBuilder {
                 for(Iterator<String> iterator= fileDependents.iterator(); iterator.hasNext(); ) {
                     String depPath= iterator.next();
                     IFile depFile= wsRoot.getFile(new Path(depPath));
-
-                    changeDependents.add(depFile);
+                    	changeDependents.add(depFile);
                 }
             }
         }
-        fSourcesToCompile.addAll(changeDependents);
+        for (IFile file: changeDependents){
+        	if (!fSourcesToCompile.contains(file)){
+        		fSourcesToCompile.add(file);
+        	}
+        }
+        //fSourcesToCompile.addAll(changeDependents);
 //      System.out.println("Changed files + dependents:");
 //      dumpSourceList(fSourcesToCompile);
     }
@@ -985,6 +1090,11 @@ public class X10Builder extends IncrementalProjectBuilder {
         IResourceDelta delta= getDelta(fProject);
         if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
 
+        if (fBuildAll) {
+        	delta = null;
+        	fBuildAll = false;
+        }
+        
         if (delta != null) {
             X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
             delta.accept(fDeltaVisitor);
