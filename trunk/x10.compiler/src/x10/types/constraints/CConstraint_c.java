@@ -83,7 +83,7 @@ public class CConstraint_c extends XConstraint_c implements CConstraint {
             return c;
         }
     }
-    /** Add in a constraint, substituting this.self for c.self */
+ 
     public CConstraint addIn(CConstraint c)  throws XFailure {
     	return addIn(self(), c);
     }
