@@ -149,16 +149,16 @@ public final class Runtime {
 
     @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
     @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
-    static class Lock {
+    public static class Lock {
         public native def this();
 
         public native def lock():Void;
 
-        public native def tryLock():boolean;
+        public native def tryLock():Boolean;
 
         public native def unlock():Void;
 
-        public native def getHoldCount():Int;
+        native def getHoldCount():Int;
     }
 
 
