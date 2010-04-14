@@ -536,7 +536,171 @@ providing a place to store a bit of mutable data.
 
 <h1>The More Things Change, The More They Stay The Same</h1>
 
-<div class="todo"> Chapter on var/val </div>
+<p>
+X10 has two keywords for introducing new variables.  <kbd>var</kbd> introduces
+a variable that you can assign to; <kbd>val</kbd> introduces one that you
+cannot change.  The core syntax for the two is parallel: 
+</p>
+
+<pre class="ex">
+    val a : Int = 1;
+    var b : Int = 2;
+    b += a;
+</pre>
+
+<p>
+<kbd>a</kbd> is a <kbd>val</kbd>, meaning that it can't be
+changed.  An assignment like <kbd>a += b;</kbd> would be illegal. <kbd>b</kbd>
+is a <kbd>var</kbd>, meaning that it can be changed.  <kbd>b += a</kbd> is
+legal. 
+</p>
+
+<h2>Shorter Forms of <kbd>val</kbd></h2>
+
+<p>
+<kbd>val</kbd> can be abbreviated in two ways.  First, the <kbd>val</kbd> is
+optional, if the type is provided: 
+</p>
+<pre class="ex">
+    c : Int = 3;
+</pre>
+
+<p>
+Second, the type is optional if <kbd>val</kbd> is provided.  In this case, the
+type will be exactly the type of the expression.  
+</p>
+<pre class="ex">
+    val d = 4;
+</pre>
+<p>
+This gives <kbd>d</kbd> the same type as <kbd>4</kbd> -- which
+is <kbd>Int{self==4}</kbd>, not just <kbd>Int</kbd>.  This is particularly
+relevant when you assign to an object: 
+</p>
+<pre class="ex">
+    val e = Rail.make[Int](10);
+</pre>
+<p>
+gives <kbd>e</kbd> the type <kbd>x10.lang.Rail[x10.lang.Int]{self==e,
+    e.length==10, e.home==_place2}</kbd>.  This type records everything that
+    X10 knows about <kbd>e</kbd> -- what variables it's equal to, how long it
+is, and where it lives. 
+</p>
+
+<p>
+Note that, if you <i>do</i> write the type down, X10 (as of version 2.0.3)
+will use the type you wrote, rather than the more exact type that it could
+have inferred.  If you have a method <kbd>takeTen(x)</kbd> which requires a
+Rail of length exactly 10:
+</p>
+<pre class="ex">
+  static def takeTen(Rail[Int]{length==10}) = "Yay ten!";
+</pre>
+<p>
+Then you can call <kbd>takeTen(e)</kbd> without any trouble, but if you have:
+</p>
+<pre class="ex">
+    val f : Rail[Int] = Rail.make[Int](10);
+</pre>
+<p>
+Then calling <kbd>takeTen(f)</kbd> will not compile
+(with <kbd>-STATIC_CALLS</kbd>, at least).  
+</p>
+
+<h2>Approximate Types in <kbd>val</kbd></h2>
+
+<p>
+X10's <kbd>val</kbd> statement allows an <i>approximate type bound</i>, which
+use a <kbd>&lt;:</kbd> rather than simply <kbd>:</kbd>.  You
+can write a less precise type, like <kbd>Rail[Int]</kbd>, and still get X10 to
+use the more precise type with all the constraints: 
+</p>
+<pre class="ex">
+    val g <: Rail[Int] = Rail.make[Int](10);
+    takeTen(g);
+</pre>
+
+<p>
+In general, this makes sure that the type you have written for <kbd>g</kbd>
+is <i>correct</i>, but it uses the full type that it infers. 
+</p>
+
+<p>
+If you are using types in <kbd>val</kbd> statements, we strongly recommend
+that you use <kbd>&lt;:</kbd> rather than <kbd>:</kbd>.
+</p>
+
+<h2>Shorter forms of <kbd>var</kbd></h2>
+
+<p>
+<kbd>var</kbd> can't support the same short forms, because it does different
+things.  However, it has a different short form.
+</p>
+
+<p>
+First of all, it can't do type inference the same way that <kbd>val</kbd>
+does. Recall that <kbd>val d = 4;</kbd> gave <kbd>d</kbd> the
+type <kbd>Int{self==4}</kbd>; that is, an integer whose value is 4.
+If <kbd>var h = 4</kbd> were to do the same thing with a <kbd>var</kbd>, it
+would give <kbd>h</kbd> the type <kbd>Int{self==4}</kbd> -- that is, the only
+value you could ever assign to <kbd>h</kbd> is 4.  That makes it pretty
+useless as a <kbd>var</kbd>.  
+</p>
+<p>
+So, X10 doesn't do type inference on <kbd>var</kbd>s -- yet.  A future version
+might do some inference, though it will have to be a different kind of
+inference than is done for <kbd>val</kbd>.  
+</p>
+
+<p>
+However, <kbd>var</kbd> doesn't require an initializer.  You don't need to
+initialize a <kbd>var</kbd> when you create it; you simply need to give it a
+value before you first try to <i>read</i> it.  So, suppose you have: 
+</p>
+<pre class="ex">
+  static def use(a:Int) = 1;
+</pre>
+<p>
+The code 
+</p>
+<pre class="ex">
+    var i : Int;
+    use(i);
+</pre>
+<p>
+doesn't compile, because <kbd>i</kbd> doesn't have a value when it is used.
+However, if it is obvious to X10 that <kbd>i</kbd> <i>has</i> been given a
+value before it is used, that's OK.  The following code works,
+because <kbd>i</kbd> will be assigned to before it is used, even though we
+don't know until runtime which assignment will be taken.
+</p>
+<pre class="ex">
+    var i : Int;
+    if (a < b) i = a; else i = b;
+    use(i);
+</pre>
+
+<h2>Using <kbd>var</kbd> and <kbd>val</kbd></h2>
+
+<p>
+There are a few guidelines for using <kbd>var</kbd> and <kbd>val</kbd> in X10.
+</p>
+<ol>
+<li>Use <kbd>val</kbd> whenever you can, which should be nearly all the
+  time.  <kbd>val</kbd>s can be used in ways that <kbd>var</kbd>s can't
+  (<i>e.g.,</i> they can be captured by functions), and the compiler can
+  optimize them better. 
+</li>
+<li>Use <kbd>var x ...</kbd> <i>only</i> when you mean for the value
+  of <kbd>x</kbd> to change.    
+  (If, somehow, you declared <kbd>x</kbd> to be <kbd>val</kbd> and need it to
+  be <kbd>var</kbd> later on, it's only a one-character change.)
+</li>
+<li>If you give a <kbd>val</kbd> a type, use <kbd>&lt;:</kbd>.  This lets X10
+  use all the information that it knows about, while documenting to yourself
+  and X10 what you know the variable ought to be. 
+</li>
+</ol>
 
 <h1>Footnotes</h1>
 
