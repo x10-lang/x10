@@ -27,15 +27,15 @@ import x10.util.Box;
  */
 public final class Runtime {
 
-    @Native("java", "java.lang.System.out.println(#1)")
+    @Native("java", "java.lang.System.err.println(#1)")
     @Native("c++", "x10aux::system_utils::println((#1)->toString()->c_str())")
     public native static def println(o:Object) : Void;
 
-    @Native("java", "java.lang.System.out.println()")
+    @Native("java", "java.lang.System.err.println()")
     @Native("c++", "x10aux::system_utils::println(\"\")")
     public native static def println() : Void;
 
-    @Native("java", "java.lang.System.out.printf(#4, #5)")
+    @Native("java", "java.lang.System.err.printf(#4, #5)")
     @Native("c++", "x10aux::system_utils::printf(#4, #5)")
     public native static def printf[T](fmt:String, t:T) : Void;
 
@@ -1018,6 +1018,27 @@ public final class Runtime {
         val state = currentState();
         state.notifySubActivitySpawn(here);
         execute(new Activity(body, state, safe()));
+    }
+
+    public static def runUncountedAsync(place:Place, body:()=>Void):Void {
+        val ok = safe();
+        if (place.id == hereInt()) {
+            execute(new Activity(body, ok));
+        } else {
+            var closure:()=>Void;
+            // Workaround for XTENLANG_614
+            if (ok) {
+                closure = ()=>execute(new Activity(body, true));
+            } else {
+                closure = ()=>execute(new Activity(body, false));
+            }
+            runAtNative(place.id, closure);
+            dealloc(closure);
+        }
+    }
+
+    public static def runUncountedAsync(body:()=>Void):Void {
+        execute(new Activity(body, safe()));
     }
 
     /**

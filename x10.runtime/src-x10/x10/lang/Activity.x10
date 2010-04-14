@@ -84,16 +84,30 @@ public class Activity {
     }
 
     /**
+     * Create uncounted activity.
+     */
+    def this(body:()=>Void, safe:Boolean) {
+        this.finishState = null;
+        this.safe = safe;
+        this.body = body;
+    }
+
+    /**
      * Run activity.
      */
     def run():Void {
-    try {
-        body();
-    } catch (t:Throwable) {
-        finishState.pushException(t);
-    }
-    if (null != clockPhases) clockPhases.drop();
-        finishState.notifyActivityTermination();
+        try {
+            body();
+        } catch (t:Throwable) {
+            if (null != finishState) {
+                finishState.pushException(t);
+            } else {
+                Runtime.println("Uncaught exception in uncounted activity");
+                t.printStackTrace();
+            }
+        }
+        if (null != clockPhases) clockPhases.drop();
+        if (null != finishState) finishState.notifyActivityTermination();
         Runtime.dealloc(body);
     }
 
