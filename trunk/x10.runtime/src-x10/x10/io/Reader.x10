@@ -88,8 +88,8 @@ public abstract class Reader {
     }
     */
      
-    public global def lines(): ReaderIterator[String] = new ReaderIterator[String](Marshal.LINE, this);
-    public global def chars(): ReaderIterator[Char] = new ReaderIterator[Char](Marshal.CHAR, this);
-    public global def bytes(): ReaderIterator[Byte] = new ReaderIterator[Byte](Marshal.BYTE, this);
+    public global def lines(): ReaderIterator[String]! = new ReaderIterator[String](Marshal.LINE, this);
+    public global def chars(): ReaderIterator[Char]! = new ReaderIterator[Char](Marshal.CHAR, this);
+    public global def bytes(): ReaderIterator[Byte]! = new ReaderIterator[Byte](Marshal.BYTE, this);
     
 }
