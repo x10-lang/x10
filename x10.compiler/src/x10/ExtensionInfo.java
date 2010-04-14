@@ -425,7 +425,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   public boolean runTask() {
     			Compiler compiler = ext.compiler();
 
-    			if (! Configuration.VERBOSE_CALLS) {
+    			if ((! Configuration.VERBOSE_CALLS) && (! Configuration.STATIC_CALLS)) {
     				int count = ext.weakCallsCount();
     				if (count > 0) {
     					compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses.");

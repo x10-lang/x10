@@ -22,7 +22,8 @@ public class Warnings {
 			  job.compiler().errorQueue().enqueue(e);
 			}
 			else {
-				ei.incrWeakCallsCount();
+				if (! Configuration.STATIC_CALLS)
+					ei.incrWeakCallsCount();
 			}
 		}
 	}
