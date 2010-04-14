@@ -1,14 +1,11 @@
 import x10.util.Timer;
 import x10.compiler.Immediate;
-import clocked.*;
 
-class RandomAccess {
+class RandomAccessOrig {
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
     const NTASKS = 8;
-    const op = Long.^;
-
 
     // Utility routine to start random number generator at Nth step
     static def HPCC_starts(var n:Long): Long {
@@ -36,12 +33,12 @@ class RandomAccess {
         return ran;
     }
 
-    static def runBenchmark(c: Clock, rails: ValRail[Rail[Long @ Clocked[Long] (c, op, 0L)]],
-        logLocalTableSize: Int, numUpdates: Long) @ ClockedM (c){
+    static def runBenchmark(rails: ValRail[Rail[Long]],
+        logLocalTableSize: Int, numUpdates: Long) {
         val mask = (1<<logLocalTableSize)-1;
         val local_updates = numUpdates / NTASKS;
-        for ((p) in 0..NTASKS-1) {
-            async  clocked (c) 
+        finish for ((p) in 0..NTASKS-1) {
+            async 
             @Immediate finish {
                 var ran:Long = HPCC_starts(p*(numUpdates/NTASKS));
 
@@ -51,15 +48,14 @@ class RandomAccess {
                     val update = ran;
                    
                     val dest = task_id;
-                    val rail = rails(task_id) as Rail[Long @ Clocked[Long](c, op, 0L)]!;
-                    @Immediate async clocked(c) {
-                        rail(index) = update;
+                    val rail = rails(task_id) as Rail[Long]!;
+                    @Immediate async {
+                        atomic rail(index) ^= update;
                     } 
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
             }
         }
-        next;
     }
 
     private static def help (err:Boolean) {
@@ -117,9 +113,12 @@ class RandomAccess {
 
         // create local rails
         val rails_ = Rail.make[Rail[Long]!](NTASKS); //, (p:Int) => null);
-        val c =  Clock.make();
-        for ((p) in 0..NTASKS-1) {
-                rails_(p) =  Rail.make[Long @ Clocked[Long] (c, op, 0L)](localTableSize, (i:Int)=>i as Long); 
+        
+        finish for ((p) in 0..NTASKS-1) {
+            async {
+                val tmp = Rail.make(localTableSize, (i:Int)=>i as Long);
+                 rails_(p) = tmp as Rail[Long]!;
+            }
         }
         val rails = rails_ as ValRail[Rail[Long]];
 
@@ -131,7 +130,7 @@ class RandomAccess {
 
         // time it
         var cpuTime:Double = -Timer.nanoTime() * 1e-9D;
-        runBenchmark(c, rails, logLocalTableSize, numUpdates);
+        runBenchmark(rails, logLocalTableSize, numUpdates);
         cpuTime += Timer.nanoTime() * 1e-9D;
 
         // print statistics
@@ -140,7 +139,7 @@ class RandomAccess {
         Console.OUT.println(GUPs+" Billion(10^9) Updates per second (GUP/s)");
 
         // repeat for testing.
-        runBenchmark(c, rails, logLocalTableSize, numUpdates);
+        runBenchmark(rails, logLocalTableSize, numUpdates);
         finish for ((i) in 0..NTASKS-1) {
             async {
                 val rail = rails(i) as Rail[Long]!;

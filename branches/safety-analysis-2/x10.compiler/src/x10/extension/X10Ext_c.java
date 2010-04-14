@@ -53,6 +53,7 @@ import polyglot.types.InitializerDef;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
@@ -80,6 +81,7 @@ import x10.effects.constraints.LocalLocs;
 import x10.effects.constraints.Locs;
 import x10.effects.constraints.Safety;
 import x10.types.ConstrainedType;
+import x10.types.ConstrainedType_c;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
 import x10.types.X10FieldInstance;
@@ -242,7 +244,9 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            
 	            	// vj: This doesnt make sense, need to set up effects separately, just like return types of methods.
 	            	result= effect(pd.body());
-	            
+	            	if (result == null) /* FIXME */
+	            		result = Effects.makeSafe();
+	            	
 	            	Set<Locs> methodClocks = new HashSet<Locs>();
 	            	List<AnnotationNode> methodAnnotations = ((X10Ext)pd.body().ext()).annotations();
 	        		for (AnnotationNode an: methodAnnotations) {
@@ -453,13 +457,29 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       List<Expr> args = neew.arguments();
       result= computeEffect(args, ec);
       result= ec.env().followedBy(result, getMethodEffects(ctorInstance, args, ec));
-      List<FieldInstance> fields = neew.constructorInstance().def().container().get().fields();
-      for (FieldInstance fi: fields) {
+  
+      	
+      
+      X10ParsedClassType className = (X10ParsedClassType)neew.constructorInstance().def().container().get();
+      Type containerType = neew.type();
+   
+     do {
+    	 List<FieldInstance> fields = className.fields();
+    	 for (FieldInstance fi: fields) {
+  
     	  if (fi.type().toString().contentEquals("x10.lang.Clock"))
-    		  result.addInitializedClock(Effects.makeFieldLocs(createTermForReceiver(neew.type(), ec), new XVarDefWrapper(fi.def())));
+    		  result.addInitializedClock(Effects.makeFieldLocs(createTermForReceiver(containerType, ec), new XVarDefWrapper(fi.def())));
     	  		//fi.def().initializer();
     	  // computeEffect(fi.def().initializer().container(), ec);
-      }
+      	}
+    	 // Deal with inherited classes
+    	 Ref<? extends Type> superClass = className.def().superType();
+    	if (superClass == null) break;
+      	className = (X10ParsedClassType)superClass.get();
+      	assert(className.constructors().size()>0);
+      	containerType = className.toType();
+      
+     } while(true);
       return result;
   }
 
@@ -645,7 +665,31 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
 	  				}
 	  			}
 	  		 }
-	  	   } 
+	  	   } else if (array instanceof Field) {
+	  		    FieldInstance fi = ((Field)array).fieldInstance();
+	  		    ConstrainedType ct = (ConstrainedType) fi.def().type().get();
+		  		X10ParsedClassType pct = (X10ParsedClassType) ct.baseType().get();
+		  		Type it = pct.typeArguments().get(0);
+		  		if (it instanceof AnnotatedType) {
+	  				AnnotatedType at = (AnnotatedType) it; 
+	  				for (Type an: at.annotations()) {
+	  		  	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
+	  		          				X10ClassType anc = (X10ClassType) an;
+	  		          				Expr e = anc.propertyInitializer(0);
+	  		              	        	Locs mc = computeLocFor(e, ec);
+	  		              	        	Locs cv =(createArrayLoc(array, index));
+	  		              	        	result.addClockedVar(cv);
+	  		              	        	result.addMustClock(mc);
+	  		              	        	isClockedVar = true;
+	  					}
+	  				}
+	  				
+	  			}
+	  		   
+	  		   
+	  		   
+	  		   
+	  	   }
 	  return isClockedVar;
   }
   
@@ -865,7 +909,9 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
 	  XTypeTranslator xtt= new XTypeTranslator(ec.typeSystem());
 	  if (type instanceof ConstrainedType)
     	  return xtt.trans(((ConstrainedType)type).baseType().get());
-		return null;
+	  else 
+		  return xtt.trans(type);
+		//return null;
 	}
   
   
