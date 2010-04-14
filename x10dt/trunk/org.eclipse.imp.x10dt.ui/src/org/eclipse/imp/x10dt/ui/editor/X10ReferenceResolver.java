@@ -78,8 +78,7 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
             if (li != null)
                 return li.def();  //PORT1.7 li.declaration() -> li.def();
         }
-        //return null; // If it's not something we know how to resolve, just return the node itself
-        return node;
+        return null;
     }
 
     private Object findParent(Node node, IParseController parseController) {
