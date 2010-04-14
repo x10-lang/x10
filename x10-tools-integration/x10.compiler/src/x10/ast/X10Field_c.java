@@ -170,10 +170,19 @@ public class X10Field_c extends Field_c {
 			}
 		}
 
+
+		// vj: Hack to work around the design decision to represent "here" as this.home for
+		// instance methods. This decision creates a problem for non-final variables that are 
+		// located in the current place. "this" is going to get quantified out by the FieldMatcher.
+		// therefore we temporarily replace this.home with a new UQV, currentPlace, and then on
+		// return from the matcher, substitute it back in.
+		XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
+		XRoot currentPlace = XTerms.makeUQV("place");
 		try {
-		   
+		
+		   Type tType2 = placeTerm==null ? tType : Subst.subst(tType, currentPlace, (XRoot) placeTerm);
 			X10FieldInstance fi = (X10FieldInstance) 
-			ts.findField(tType, ts.FieldMatcher(tType, X10TypeMixin.contextKnowsType(target), name.id(), c));
+			ts.findField(tType, ts.FieldMatcher(tType2, X10TypeMixin.contextKnowsType(target), name.id(), c));
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field " + name +
 						" on node of type " + target.getClass().getName() + ".",
@@ -192,7 +201,9 @@ public class X10Field_c extends Field_c {
 				throw new SemanticException();
 			}
 
-			Type retType = type;
+			// substitute currentPlace back in.
+			type = placeTerm == null ? type : Subst.subst(type, placeTerm, currentPlace);
+					Type retType = type;
 
 			// Substitute in the actual target for this.  This is done by findField, now.
 			//			Type thisType = tType;
@@ -233,6 +244,7 @@ public class X10Field_c extends Field_c {
 						Type nt = c.inDepType() ? 
 								rightType(mi.rightType(), mi.x10Def(), target, c) 
 								:fieldRightType(mi.rightType(), mi.x10Def(), target, c);
+							
 						call = (Call) call.type(nt);
 						return call;
 					}
@@ -275,7 +287,7 @@ public class X10Field_c extends Field_c {
 			x = x.copy();
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
-			if (! X10TypeMixin.contextKnowsType(target)) { // target instanceof Expr) {
+			if (target instanceof Expr) { // ) {
 				CConstraint xc = X10TypeMixin.xclause(target.type());
 				if (xc != null && ! xc.valid()) {
 					xc = xc.copy();
@@ -288,7 +300,8 @@ public class X10Field_c extends Field_c {
 							
 						}
 						xc = xc.substitute(receiver, xc.self());
-						x.addIn(xc);
+						if (! X10TypeMixin.contextKnowsType(target))
+							x.addIn(xc);
 						x=x.substitute(receiver, fi.thisVar());
 						if (root != null) {
 							x = x.project(root);

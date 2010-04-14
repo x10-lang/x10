@@ -55,7 +55,12 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         Type ct = container != null ? container : fi.container();
         CConstraint c = X10TypeMixin.xclause(ct);
         
-        // Let v be the symbolic name for the target
+        // Let v be the symbolic name for the target. If there is none, we make one up.
+        // Let t = T{tc}, and ct = U{c}. 
+        // If c does not have a selfVarBinding, then we want to set t to
+        // t = T{exists vv. (tc,this==vv),ct[vv/self]}
+        // If c does have a selfVarBinding, v, then we want to set t to
+        // t = T{exists v. (tc, this=v, ct)}
         XVar v = X10TypeMixin.selfVarBinding(ct);
         XRoot vv = null;
         if (v == null) {
@@ -64,15 +69,14 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         XRoot oldThis = fi.x10Def().thisVar();
         if (oldThis != null && v == null && vv==null)
         	assert false;
-        
-        if (c != null) 
-        	c = c.copy().instantiateSelf(v);
-       
+        /*if (c != null) 
+        	c = c.copy().instantiateSelf(v);*/
+
         { // Update t 
         	CConstraint tc = X10TypeMixin.realX(t).copy();
         	try {
         		if (! contextKnowsReceiver)
-        			tc.addIn(c);
+        			tc.addIn(v, c);
         		t = X10TypeMixin.constrainedType(X10TypeMixin.baseType(t), tc);
         		t = Subst.subst(t, 
         				new XVar[] {v},
@@ -93,7 +97,7 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         	CConstraint tc = X10TypeMixin.realX(rt).copy();
         	try {
         		if (! contextKnowsReceiver)
-        			tc.addIn(c);
+        			tc.addIn(v, c);
         		rt = X10TypeMixin.constrainedType(X10TypeMixin.baseType(rt), tc);
         		XRoot w = XTerms.makeEQV();
         		rt = Subst.subst(rt, 
