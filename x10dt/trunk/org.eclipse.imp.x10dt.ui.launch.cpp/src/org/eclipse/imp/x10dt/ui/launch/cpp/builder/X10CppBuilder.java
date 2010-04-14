@@ -51,8 +51,8 @@ public final class X10CppBuilder extends AbstractX10Builder {
                                              final SubMonitor monitor) throws CoreException {
     final IX10BuilderFileOp builderFileOp = createX10BuilderFileOp();
     if (! builderFileOp.hasAllPrerequisites()) {
-      IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.XCB_CleanAbortedMsg, getProject().getName()), 
-                                 IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+      IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(LaunchMessages.XCB_CleanAbortedMsg, getProject().getName()), 
+                                      IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
       UIUtils.showProblemsView();
       return;
     }

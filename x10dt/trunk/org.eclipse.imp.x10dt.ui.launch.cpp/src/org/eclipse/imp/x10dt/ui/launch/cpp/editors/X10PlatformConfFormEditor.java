@@ -7,32 +7,33 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchImages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformChecker;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformValidationListener;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.PlatformCheckerFactory;
-import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -88,36 +89,50 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   // --- IX10PlatformValidationListener's interface methods implementation
   
-  public void platformValidated() {
-    this.fValidateAction.setImageDescriptor(this.fValidPlatformImg);
-    if (PTPConfUtils.findResourceManager(this.fX10PlatformConfWorkCopy.getName()) == null) {
-      try {
-        PTPConfUtils.createResourceManager(this.fX10PlatformConfWorkCopy);
-      } catch (RemoteConnectionException except) {
-        DialogsFactory.createErrorBuilder().setDetailedMessage(except)
-                      .createAndOpen(getSite(), LaunchMessages.XPCFE_ResManagerCreationErrorTitle, 
-                                     LaunchMessages.XPCFE_ResManagerCreationErrorMsg);
-      }
-    }
+  public void platformCommunicationInterfaceValidated() {
+    this.fValidateAction.setImageDescriptor(this.fValidPlatformImg);  	
+  }
+
+	public void platformCommunicationInterfaceValidationFailure(final String message) {
+		this.fValidateAction.setImageDescriptor(this.fInvalidPlatformImg);
+		IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
+                                         LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg, IMarker.SEVERITY_ERROR, 
+                                         IMarker.PRIORITY_HIGH);
+    DialogsFactory.createErrorBuilder().setDetailedMessage(message)
+    					    .createAndOpen(getSite(), LaunchMessages.XPCFE_CommInterfaceFailure, 
+    					                   LaunchMessages.XPCFE_DiscoveryCmdDialogMsg);
+	}
+  
+  public void platformCppCompilationValidated() {
+    // Nothing to do. We still have one step to go.
   }
   
-  public void platformValidationFailure(final String message) {
+  public void platformCppCompilationValidationFailure(final String message) {
     this.fValidateAction.setImageDescriptor(this.fInvalidPlatformImg);
     final String failureMessage = this.fX10PlatformConfWorkCopy.getCppCompilationConf().getValidationErrorMessage();
+    IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
+                                         LaunchMessages.XPCFE_ValidationFailureDlgMsg, IMarker.SEVERITY_ERROR, 
+                                         IMarker.PRIORITY_HIGH);
     DialogsFactory.createErrorBuilder().setDetailedMessage(failureMessage)
                   .createAndOpen(getSite(), LaunchMessages.XPCFE_ValidationFailureDlgTitle, 
-                                 LaunchMessages.XPCFE_ValidationFailureDlgMsg);
+                                 LaunchMessages.XPCFE_ValidationFailureDlgMsg); 
   }
   
-  public void platformValidationError(final Exception exception) {
+  public void platformCppCompilationValidationError(final Exception exception) {
     this.fValidateAction.setImageDescriptor(this.fErrorPlatformImg);
+    IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
+                                         LaunchMessages.XPCFE_ValidationErrorDlgMsg, IMarker.SEVERITY_ERROR, 
+                                         IMarker.PRIORITY_HIGH);
     DialogsFactory.createErrorBuilder().setDetailedMessage(exception)
-                .createAndOpen(getSite(), LaunchMessages.XPCFE_ValidationErrorDlgTitle, 
-                               LaunchMessages.XPCFE_ValidationErrorDlgMsg);
+    							.createAndOpen(getSite(), LaunchMessages.XPCFE_ValidationErrorDlgTitle, 
+    							               LaunchMessages.XPCFE_ValidationErrorDlgMsg);
   }
   
   public void remoteConnectionFailure(final Exception exception) {
     final IAction validationAction = this.fValidateAction;
+    IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
+                                         LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg, IMarker.SEVERITY_ERROR, 
+                                         IMarker.PRIORITY_HIGH);
     getSite().getShell().getDisplay().syncExec(new Runnable() {
       
       public void run() {
@@ -134,6 +149,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   public void remoteConnectionUnknownStatus() {
     final IAction validationAction = this.fValidateAction;
+    IResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getEditorInput()).getFile());
     getSite().getShell().getDisplay().syncExec(new Runnable() {
       
       public void run() {
@@ -259,10 +275,6 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
         this.fX10PlatformConfWorkCopy.applyChanges();
         X10PlatformConfFactory.save(file, this.fX10PlatformConfWorkCopy);
         commitPages(true);
-      } catch (IOException except) {
-        DialogsFactory.createErrorBuilder().setDetailedMessage(except)
-                      .createAndOpen(getEditorSite(), LaunchMessages.XPCFE_ConfSavingErrorDlgTitle,
-                                     LaunchMessages.XPCFE_PipeConnectionFailedMsg);
       } catch (CoreException except) {
         DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
                       .createAndOpen(getEditorSite(), LaunchMessages.XPCFE_ConfSavingErrorDlgTitle,
@@ -273,12 +285,21 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   private synchronized void validate() {
     final IX10PlatformChecker checker = PlatformCheckerFactory.create();
+  	IResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getEditorInput()).getFile());
     checker.addValidationListener(this);
     try {
       final IRunnableWithProgress runnable = new IRunnableWithProgress() {
       
         public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-          checker.validateCppCompilationConf(X10PlatformConfFormEditor.this.fX10PlatformConfWorkCopy, monitor);
+        	final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
+          checker.validateCppCompilationConf(X10PlatformConfFormEditor.this.fX10PlatformConfWorkCopy, subMonitor.newChild(5));
+          final ICppCompilationConf compConf = X10PlatformConfFormEditor.this.fX10PlatformConfWorkCopy.getCppCompilationConf();
+          if (compConf.getValidationStatus() == EValidationStatus.VALID) {
+          	checker.validateCommunicationInterface(X10PlatformConfFormEditor.this.fX10PlatformConfWorkCopy, 
+          	                                       subMonitor.newChild(5));
+          } else {
+          	subMonitor.done();
+          }
         }
       
       };

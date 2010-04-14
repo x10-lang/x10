@@ -15,26 +15,38 @@ import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
  * @author egeay
  */
 public interface IX10PlatformValidationListener {
+	
+	/**
+	 * Event indicating that the Communication Interface has been validated.
+	 */
+	public void platformCommunicationInterfaceValidated();
+
+	/**
+	 * Event indicating that the Communication Interface validation has failed.
+	 * 
+	 * @param message The message providing information about the failure.
+	 */
+	public void platformCommunicationInterfaceValidationFailure(final String message);
   
   /**
-   * Event indicating that the X10 Platform has been validated correctly, i.e. connection information has been validated
-   * and C++ compilation/linking has been successfully performed on the target machine.
+   * Event indicating that the C++ compilation/linking has been successfully performed on the target machine. Note that it
+   * implies also that the remote connection (if any are needed) has been validated.
    */
-  public void platformValidated();
+  public void platformCppCompilationValidated();
   
   /**
-   * Event indicating that the X10 Platform has failed during validation.
+   * Event indicating that the C++ compilation/linking validation has failed.
    * 
    * @param message The message providing information about the failure.
    */
-  public void platformValidationFailure(final String message);
+  public void platformCppCompilationValidationFailure(final String message);
   
   /**
    * Event indicating that unfortunately an error occurred during the validation process.
    * 
    * @param exception The exception that got raised.
    */
-  public void platformValidationError(final Exception exception);
+  public void platformCppCompilationValidationError(final Exception exception);
   
   /**
    * Event indicating that the validation of the connection to the remote machine failed.

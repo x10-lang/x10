@@ -19,6 +19,7 @@ import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchImages;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchImages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
@@ -69,6 +70,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.IFormPage;
@@ -599,6 +601,10 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       public void widgetSelected(final SelectionEvent event) {
         final IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
         final IConnectionInfo currentConnection = (IConnectionInfo) selection.iterator().next();
+        ConnectionSectionPart.this.fCurrentConnection = currentConnection;
+        for (final TableItem tableItem : tableViewer.getTable().getItems()) {
+          tableViewer.update(tableItem.getData(), null);
+        }
         validateRemoteHostConnection(currentConnection);
       }
       
@@ -959,6 +965,10 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   }
   
   private void validateRemoteHostConnection(final IConnectionInfo connectionInfo) {
+  	if (connectionInfo == this.fCurrentConnection) {
+  		IResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getFormPage().getEditorInput()).getFile());
+  	}
+  	
     final IX10PlatformValidationListener validationListener = new ConnectionInfoValidationListener(connectionInfo);
       final IX10PlatformChecker checker = PlatformCheckerFactory.create();
       checker.addValidationListener(validationListener);
@@ -1043,15 +1053,23 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     
     // --- Interface methods implementation
     
-    public void platformValidated() {
+    public void platformCommunicationInterfaceValidated() {
+    	// Nothing to do.
+    }
+    
+    public void platformCommunicationInterfaceValidationFailure(final String message) {
+    	// Nothing to do.
+    }
+    
+    public void platformCppCompilationValidated() {
       // Nothing to do.
     }
     
-    public void platformValidationFailure(final String message) {
+    public void platformCppCompilationValidationFailure(final String message) {
       // Nothing to do.
     }
     
-    public void platformValidationError(final Exception exception) {
+    public void platformCppCompilationValidationError(final Exception exception) {
       // Nothing to do.
     }
     

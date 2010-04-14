@@ -37,15 +37,20 @@ import org.eclipse.ui.XMLMemento;
 
 class X10PlatformConf implements IX10PlatformConf {
   
-  X10PlatformConf(final IFile file) throws CoreException {
+  X10PlatformConf(final IFile file) {
     this.fConnectionConf = new ConnectionConfiguration();
     this.fCommInterfaceConf = new CommunicationInterfaceConfiguration();
     this.fCppCompilationConf = new CppCompilationConfiguration();
-    if (file.exists() && isNonEmpty(file.getContents())) {
-      load(new BufferedReader(new InputStreamReader(file.getContents())));
-    } else {
-      this.fId = UUID.randomUUID().toString();
-    }
+    try {
+			if (file.exists() && isNonEmpty(file.getContents())) {
+			  load(new BufferedReader(new InputStreamReader(file.getContents())));
+			} else {
+			  this.fId = UUID.randomUUID().toString();
+			}
+		} catch (Exception except) {
+			// We could not load the file content. Let's just consider an empty configuration file then.
+			this.fId = UUID.randomUUID().toString();
+		}
   }
   
   // --- Interface methods implementation

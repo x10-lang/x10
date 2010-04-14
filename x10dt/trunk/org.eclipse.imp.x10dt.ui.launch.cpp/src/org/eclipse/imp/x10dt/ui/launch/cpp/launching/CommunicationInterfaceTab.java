@@ -86,10 +86,19 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     if (this.fResourceManager == null){
       try {
         this.fResourceManager = PTPConfUtils.createResourceManager(platformConf);
-      } catch (RemoteConnectionException except1) {
+      } catch (RemoteConnectionException except) {
         setErrorMessage(LaunchMessages.CIT_CouldNotCreateResManager);
         return;
       }
+    }
+    if (this.fResourceManager.getState() == State.ERROR) {
+    	try {
+				this.fResourceManager.shutdown();
+			} catch (CoreException except) {
+				setErrorMessage(LaunchMessages.CIT_CouldNotStopResMgr);
+				this.fResourceManager = null;
+				return;
+			}
     }
     if (this.fResourceManager.getState() != State.STARTED) { 
       try {

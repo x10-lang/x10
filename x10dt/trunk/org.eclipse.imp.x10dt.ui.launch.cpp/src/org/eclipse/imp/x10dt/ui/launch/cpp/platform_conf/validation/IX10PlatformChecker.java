@@ -12,7 +12,7 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCop
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
 /**
- * Responsible for checking remote connection and C++ compilation/linking commands.
+ * Responsible for checking remote connection, C++ compilation/linking commands and Communication Interface.
  * 
  * <p>One can get implementation(s) of that interface via {@link PlatformCheckerFactory}.
  * 
@@ -38,6 +38,14 @@ public interface IX10PlatformChecker {
    * @param listener The listener to remove.
    */
   public void removeValidationListener(final IX10PlatformValidationListener listener);
+  
+  /**
+   * Validates the Communication Interface by trying to execute a discovery command on the target machine.
+   * 
+   * @param platormConf The platform configuration to use for validation.
+   * @param monitor The monitor to use for reporting progress and/or cancel the operation.
+   */
+  public void validateCommunicationInterface(final IX10PlatformConfWorkCopy platormConf, final IProgressMonitor monitor);
   
   /**
    * Validates the C++ compilation and linking of a simple HelloWorld program either locally or remotely depending of the

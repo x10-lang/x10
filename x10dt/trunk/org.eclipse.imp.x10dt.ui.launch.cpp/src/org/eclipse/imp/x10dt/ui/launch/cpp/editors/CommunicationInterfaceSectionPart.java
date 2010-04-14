@@ -322,12 +322,12 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       public void widgetSelected(final SelectionEvent event) {
         final String itemName = ciTypeCombo.getItem(ciTypeCombo.getSelectionIndex());
         final IToolRMConfiguration rmConf = (IToolRMConfiguration) ciTypeCombo.getData(itemName);
-                
+        
+        x10PlatformConf.setServiceTypeId(rmConf.getResourceManagerId());
+        
         final boolean isOpenMPI = (rmConf instanceof IOpenMPIResourceManagerConfiguration);
         openMPIVersionLabel.setVisible(isOpenMPI);
         openMPIVersionCombo.setVisible(isOpenMPI);
-        
-        x10PlatformConf.setServiceTypeId(rmConf.getResourceManagerId());
         
         for (final ICommunicationInterfaceTypeListener listener : CommunicationInterfaceSectionPart.this.fCITypeListeners) {
           listener.communicationTypeChanged(itemName);
@@ -590,7 +590,16 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       }
     }
     this.fDefaultToolsCmdsBt.setSelection(ciConf.shouldTakeDefaultToolCommands());
-    if (! ciConf.shouldTakeDefaultToolCommands()) {
+    if (ciConf.shouldTakeDefaultToolCommands()) {
+    	final String itemName = this.fCITypeCombo.getItem(this.fCITypeCombo.getSelectionIndex());
+      final IToolRMConfiguration rmConf = (IToolRMConfiguration) this.fCITypeCombo.getData(itemName);
+      
+      this.fLaunchCmdText.setText(rmConf.getLaunchCmd());
+      this.fDebugCmdText.setText(rmConf.getDebugCmd());
+      this.fDiscoverCmdText.setText(rmConf.getDiscoverCmd());
+      this.fMonitorCmdText.setText(rmConf.getPeriodicMonitorCmd());
+      this.fPeriodicTimeSpinner.setSelection(rmConf.getPeriodicMonitorTime());
+    } else {
       this.fLaunchCmdText.setText((ciConf.getLaunchCommand() == null) ? EMPTY_STR : ciConf.getLaunchCommand().trim());
       handleTextValidation(new EmptyTextInputChecker(this.fLaunchCmdText, LaunchMessages.RMCP_LaunchLabel), managedForm, 
                            this.fLaunchCmdText);
@@ -627,7 +636,12 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     }
     
     this.fDefaultInstallLocBt.setSelection(ciConf.shouldTakeDefaultInstallLocation());
-    if (! ciConf.shouldTakeDefaultInstallLocation()) {
+    if (ciConf.shouldTakeDefaultInstallLocation()) {
+    	final String itemName = this.fCITypeCombo.getItem(this.fCITypeCombo.getSelectionIndex());
+      final IToolRMConfiguration rmConf = (IToolRMConfiguration) this.fCITypeCombo.getData(itemName);
+      
+      this.fInstallLocText.setText(rmConf.getRemoteInstallPath());
+    } else {
       this.fInstallLocText.setText((ciConf.getInstallLocation() == null) ? EMPTY_STR : ciConf.getInstallLocation().trim());
       handleTextValidation(new EmptyTextInputChecker(this.fInstallLocText, LaunchMessages.RMCP_LocationLabel), managedForm, 
                            this.fInstallLocText);

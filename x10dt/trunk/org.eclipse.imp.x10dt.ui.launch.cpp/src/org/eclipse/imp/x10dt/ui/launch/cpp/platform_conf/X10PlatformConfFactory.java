@@ -7,22 +7,24 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PipedReader;
-import java.io.PipedWriter;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.WorkspaceJob;
+import org.eclipse.core.resources.IResourceRuleFactory;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.ReaderInputStream;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 
@@ -59,9 +61,8 @@ public final class X10PlatformConfFactory {
    * 
    * @param file The X10 Platform Configuration file to read.
    * @return A non-null implementation of {@link IX10PlatformConf}.
-   * @throws CoreException Occurs if we could not read the file content properly.
    */
-  public static IX10PlatformConf load(final IFile file) throws CoreException {
+  public static IX10PlatformConf load(final IFile file) {
     return new X10PlatformConf(file);
   }
   
@@ -71,9 +72,8 @@ public final class X10PlatformConfFactory {
    * 
    * @param project The project containing the X10 platform configuration file to read.
    * @return A non-null implementation of {@link IX10PlatformConf}.
-   * @throws CoreException Occurs if we could not read the file content properly.
    */
-  public static IX10PlatformConf load(final IProject project) throws CoreException {
+  public static IX10PlatformConf load(final IProject project) {
     return new X10PlatformConf(getFile(project));
   }
   
@@ -91,33 +91,28 @@ public final class X10PlatformConfFactory {
    * See {@link IResourceChangeEvent} for more details.</li>
    * <li>The file modification validator disallowed the change.</li>
    * </ul> 
-   * @throws IOException If an I/O error occurs.
    */
-  public static void save(final IFile file, final IX10PlatformConf platformConf) throws CoreException, IOException {
-    final PipedWriter writer = new PipedWriter();
-    final PipedReader reader = new PipedReader(writer);
+  public static void save(final IFile file, final IX10PlatformConf platformConf) throws CoreException {
+    final IWorkspaceRunnable myRunnable = new IWorkspaceRunnable() {
 
-    final Job job = new WorkspaceJob(LaunchMessages.XPCF_SavePlatformConfFileJobMsg) {
-      
-      public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+			public void run(final IProgressMonitor monitor) throws CoreException {
         try {
+        	final FileWriter writer = new FileWriter(EFS.getStore(file.getLocationURI()).toLocalFile(EFS.NONE, monitor));
           platformConf.save(writer);
+
           writer.close();
+          
+          file.refreshLocal(IResource.DEPTH_ZERO, monitor);
         } catch (IOException except) {
           throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, 
-                                             LaunchMessages.XPCFE_ConfSavingErrorDlgMsg));
+                                             LaunchMessages.XPCFE_ConfSavingErrorDlgMsg, except));
         }
-        return Status.OK_STATUS;
       }
       
     };
-    job.schedule();
-  
-    if (file.exists()) {
-      file.setContents(new ReaderInputStream(reader), IResource.FORCE, new NullProgressMonitor());
-    } else {
-      file.create(new ReaderInputStream(reader), IResource.FORCE, new NullProgressMonitor());
-    }
+    IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
+  	ISchedulingRule modifyRule = ruleFactory.modifyRule(file);
+  	ResourcesPlugin.getWorkspace().run(myRunnable, modifyRule, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
   }
   
   // --- Private code

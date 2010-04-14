@@ -11,21 +11,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceRuleFactory;
 import org.eclipse.core.resources.ISaveContext;
 import org.eclipse.core.resources.ISaveParticipant;
 import org.eclipse.core.resources.ISavedState;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
+import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
+import org.eclipse.ptp.core.elements.IResourceManager;
+import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
+import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -63,30 +75,29 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
       if (resourceDelta.getResource().getType() == IResource.PROJECT) {
         final IProject project = resourceDelta.getResource().getProject();
         switch (resourceDelta.getKind()) {
-          case IResourceDelta.ADDED:
-            try {
-              final IFile platformConfFile = X10PlatformConfFactory.getFile(project);
-              if (platformConfFile.exists()) {
-                this.fProjectToPlatform.put(project, X10PlatformConfFactory.load(platformConfFile));
-              }
-            } catch (CoreException except) {
-              except.printStackTrace();
-            }
+          case IResourceDelta.ADDED: {
+          	final IFile platformConfFile = X10PlatformConfFactory.getFile(project);
+          	if (platformConfFile.exists()) {
+          		final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
+          		this.fProjectToPlatform.put(project, platformConf);
+          		startResourceManager(project, platformConf);
+          	}
             break;
+          }
           case IResourceDelta.REMOVED:
             this.fProjectToPlatform.remove(project);
             break;
-          case IResourceDelta.CHANGED:
+          case IResourceDelta.CHANGED: {
             final IPath path = X10PlatformConfFactory.getFile(resourceDelta.getResource().getProject()).getFullPath();
             final IResourceDelta platformConfDelta = rootResourceDelta.findMember(path);
-            if (platformConfDelta != null) {
-              try {
-                this.fProjectToPlatform.put(project, X10PlatformConfFactory.load((IFile) platformConfDelta.getResource()));
-              } catch (CoreException except) {
-                except.printStackTrace();
-              }
+            if ((platformConfDelta != null) && (platformConfDelta.getFlags() != IResourceDelta.MARKERS)) {
+            	final IFile platformConfFile = (IFile) platformConfDelta.getResource();
+            	final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
+            	this.fProjectToPlatform.put(project, platformConf);
+            	startResourceManager(project, platformConf);
             }
             break;
+          }
           case IResourceDelta.ADDED_PHANTOM:
           case IResourceDelta.REMOVED_PHANTOM:
         }
@@ -126,11 +137,17 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
    * to return a non-null value.
    * 
    * @param project The project for which one wants to access the X10 platform configuration.
-   * @return A <b>null</b> value if the project does not have C++ X10 nature or if for some strange reason we can't access it,
-   * otherwise the platform configuration instance.
+   * @return A non-null platform configuration instance.
    */
   public IX10PlatformConf getPlatformConfiguration(final IProject project) {
-    return this.fProjectToPlatform.get(project);
+    final IX10PlatformConf platformConf = this.fProjectToPlatform.get(project);
+    if (platformConf == null) {
+    	final IX10PlatformConf newPConf = X10PlatformConfFactory.load(project);
+    	this.fProjectToPlatform.put(project, newPConf);
+    	return newPConf;
+    } else {
+    	return platformConf;
+    }
   }
   
   /**
@@ -229,6 +246,78 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
         CppLaunchCore.log(except.getStatus());
       }
     }
+  }
+  
+  private void startResourceManager(final IProject project, final IX10PlatformConf platformConf) {
+  	final WorkspaceJob job = new WorkspaceJob(LaunchMessages.CLC_CheckConnAndCommJobMsg) {
+			
+			public IStatus runInWorkspace(final IProgressMonitor monitor) {
+				IResourceManager resourceManager = PTPConfUtils.findResourceManager(platformConf.getName());
+				try {
+					if (resourceManager == null) {
+						resourceManager = PTPConfUtils.createResourceManager(platformConf);
+					}
+				} catch (RemoteConnectionException except) {
+					return Status.CANCEL_STATUS;
+				}
+				if (monitor.isCanceled()) {
+					return Status.CANCEL_STATUS;
+				}
+				if (resourceManager.getState() == State.ERROR) {
+					try {
+						resourceManager.shutdown();
+					} catch (CoreException except) {
+						// Let's try to continue...
+					}
+				}
+				if (monitor.isCanceled()) {
+					return Status.CANCEL_STATUS;
+				}
+				if (resourceManager.getState() != State.STARTED) {
+					try {
+						resourceManager.startUp(monitor);
+					} catch (CoreException except) {
+						safeRunForMarkerAdding(X10PlatformConfFactory.getFile(project), monitor, new IWorkspaceRunnable() {
+
+							public void run(final IProgressMonitor localMonitor) throws CoreException {
+								IResourceUtils.addPlatformConfMarker(X10PlatformConfFactory.getFile(project),
+								                                     LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg,
+								                                     IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+							}
+						
+						});
+						return Status.CANCEL_STATUS;
+					}
+				}
+				return Status.OK_STATUS;
+			}
+			
+		};
+		job.setRule(X10PlatformConfFactory.getFile(project));
+		job.setPriority(Job.LONG);
+		job.schedule();
+	}
+  
+  // --- Private code
+  
+  private void safeRunForMarkerAdding(final IResource resource, final IProgressMonitor monitor,
+                                      final IWorkspaceRunnable runnable) {
+  	new Thread(new Runnable() {
+			
+			public void run() {
+		  	final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		  	while (workspace.isTreeLocked()) ;
+		  	if (! monitor.isCanceled()) {
+		  		final IResourceRuleFactory ruleFactory = workspace.getRuleFactory();
+		  		try {
+		  			workspace.run(runnable, ruleFactory.markerRule(resource), IWorkspace.AVOID_UPDATE, monitor);
+		  		} catch (CoreException except) {
+		  			CppLaunchCore.log(except.getStatus());
+		  		}
+		  	}
+			}
+			
+		}).start();
   }
   
   // --- Fields

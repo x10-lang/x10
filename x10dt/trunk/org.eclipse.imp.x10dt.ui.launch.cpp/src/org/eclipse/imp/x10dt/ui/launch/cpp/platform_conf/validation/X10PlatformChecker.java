@@ -13,6 +13,7 @@ import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CON
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -23,10 +24,14 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
+import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.elements.IResourceManager;
+import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
@@ -46,20 +51,61 @@ final class X10PlatformChecker implements IX10PlatformChecker {
   public void removeValidationListener(final IX10PlatformValidationListener listener) {
     this.fListeners.remove(listener);
   }
+  
+  public void validateCommunicationInterface(final IX10PlatformConfWorkCopy platormConf, final IProgressMonitor monitor) {
+  	IResourceManager resourceManager = PTPConfUtils.findResourceManager(platormConf.getName());
+  	if (resourceManager == null) {
+      try {
+        resourceManager = PTPConfUtils.createResourceManager(platormConf);
+      } catch (RemoteConnectionException except) {
+      	for (final IX10PlatformValidationListener listener : this.fListeners) {
+          listener.remoteConnectionFailure(except);
+        }
+      	monitor.done();
+      	return;
+      }
+  	}
+  	if (monitor.isCanceled()) {
+  		return;
+  	}
+  	if (resourceManager.getState() == State.ERROR) {
+			try {
+				resourceManager.shutdown();
+			} catch (CoreException except) {
+				for (final IX10PlatformValidationListener listener : this.fListeners) {
+		  		listener.platformCommunicationInterfaceValidationFailure(except.getMessage());
+		  	}
+				return;
+			}
+		}
+  	if (monitor.isCanceled()) {
+  		return;
+  	}
+  	if (resourceManager.getState() != State.STARTED) {
+			try {
+				resourceManager.startUp(monitor);
+			} catch (CoreException except) {
+				for (final IX10PlatformValidationListener listener : this.fListeners) {
+		  		listener.platformCommunicationInterfaceValidationFailure(except.getMessage());
+		  	}
+				return;
+			}
+  	}
+  	for (final IX10PlatformValidationListener listener : this.fListeners) {
+  		listener.platformCommunicationInterfaceValidated();
+  	}
+  }
 
   public void validateCppCompilationConf(final IX10PlatformConfWorkCopy platformConf, final IProgressMonitor monitor) {
     final SubMonitor subMonitor = SubMonitor.convert(monitor, 25);
    
     if (this.fRemoteConnection == null) {
       this.fRemoteConnection = getRemoteConnection(platformConf.getConnectionConf());
-      if (this.fRemoteConnection == null) {
-        throw new AssertionError();
-      }
     } else {
       subMonitor.worked(5);
     }
     
-    if (this.fRemoteConnection != null) {
+    if ((this.fRemoteConnection != null) && ! monitor.isCanceled()) {
       final String rmServicesId = platformConf.getConnectionConf().isLocal() ? LOCAL_CONN_SERVICE_ID : REMOTE_CONN_SERVICE_ID;
       final ICppCompilationChecker checker = new CppCompilationChecker(rmServicesId, this.fRemoteConnection);
       
@@ -84,14 +130,14 @@ final class X10PlatformChecker implements IX10PlatformChecker {
             if (returnLinkMsg == null) {
               platformConf.setCppConfValidationStatus(EValidationStatus.VALID);
               for (final IX10PlatformValidationListener listener : this.fListeners) {
-                listener.platformValidated();
+                listener.platformCppCompilationValidated();
               }
             } else {
               platformConf.setCppConfValidationStatus(EValidationStatus.FAILURE);
               platformConf.setCppConfValidationErrorMessage(NLS.bind(Messages.DF_LineBreak, 
                                                                      LaunchMessages.XPC_CompilationFailure, returnLinkMsg));
               for (final IX10PlatformValidationListener listener : this.fListeners) {
-                listener.platformValidationFailure(cppCompConf.getValidationErrorMessage());
+                listener.platformCppCompilationValidationFailure(cppCompConf.getValidationErrorMessage());
               }
             }
           } else {
@@ -99,7 +145,7 @@ final class X10PlatformChecker implements IX10PlatformChecker {
             platformConf.setCppConfValidationErrorMessage(NLS.bind(Messages.DF_LineBreak, LaunchMessages.XPC_ArchivingFailure, 
                                                                    returnArchivingMsg));
             for (final IX10PlatformValidationListener listener : this.fListeners) {
-              listener.platformValidationFailure(cppCompConf.getValidationErrorMessage());
+              listener.platformCppCompilationValidationFailure(cppCompConf.getValidationErrorMessage());
             }
           }
         } else {
@@ -107,7 +153,7 @@ final class X10PlatformChecker implements IX10PlatformChecker {
           platformConf.setCppConfValidationErrorMessage(NLS.bind(Messages.DF_LineBreak, LaunchMessages.XPC_LinkingFailure, 
                                                                  returnCompilMsg));
           for (final IX10PlatformValidationListener listener : this.fListeners) {
-            listener.platformValidationFailure(cppCompConf.getValidationErrorMessage());
+            listener.platformCppCompilationValidationFailure(cppCompConf.getValidationErrorMessage());
           }
         }
       } catch (Exception except) {
@@ -115,7 +161,7 @@ final class X10PlatformChecker implements IX10PlatformChecker {
         platformConf.setCppConfValidationErrorMessage(StringUtils.getStackTrace(except));
         
         for (final IX10PlatformValidationListener listener : this.fListeners) {
-          listener.platformValidationError(except);
+          listener.platformCppCompilationValidationError(except);
         }
       } finally {
         monitor.done();

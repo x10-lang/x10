@@ -19,7 +19,6 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -109,8 +108,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       
       final IX10BuilderFileOp builderFileOp = createX10BuilderFileOp();
       if (! builderFileOp.hasAllPrerequisites()) {
-        IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
-                                   IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+        IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
+                                        IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
         UIUtils.showProblemsView();
         return dependentProjects.toArray(new IProject[dependentProjects.size()]);
       }
@@ -158,13 +157,11 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   // --- Private code
   
-  private void clearMarkers(final int kind) throws CoreException {
+  private void clearMarkers(final int kind) {
     for (final IFile file : this.fSourcesToCompile) {
-      file.deleteMarkers(org.eclipse.imp.x10dt.core.builder.X10Builder.PROBLEMMARKER_ID, false /* includeSubtypes */, 
-                         IResource.DEPTH_ZERO);
+      IResourceUtils.deleteBuildMarkers(file);
     }
-    getProject().deleteMarkers(org.eclipse.imp.x10dt.core.builder.X10Builder.PROBLEMMARKER_ID, true /* includeSubtypes */,
-                               IResource.DEPTH_INFINITE);
+    IResourceUtils.deleteBuildMarkers(getProject());
   }
   
   private void collectSourceFilesToCompile(final Set<IProject> dependentProjects,

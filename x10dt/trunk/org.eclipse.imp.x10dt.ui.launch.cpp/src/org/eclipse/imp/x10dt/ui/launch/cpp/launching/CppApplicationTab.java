@@ -54,6 +54,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.AlwaysTrueFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CollectionUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IdentityFunctor;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
@@ -61,6 +62,7 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 import org.eclipse.imp.x10dt.ui.parser.ExtensionInfo;
 import org.eclipse.jdt.core.IJavaProject;
@@ -213,9 +215,12 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           if (project.exists()) {
             this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
             if (this.fX10PlatformConf != null) {
-              for (final ICppApplicationTabListener listener : this.fTabListeners) {
-                listener.platformConfSelected(this.fX10PlatformConf);
-              }
+            	final int errorCount = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+            	if (errorCount == 0) {
+            		for (final ICppApplicationTabListener listener : this.fTabListeners) {
+            			listener.platformConfSelected(this.fX10PlatformConf);
+            		}
+            	}
               final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
               final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
               final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
@@ -231,10 +236,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       } catch (CoreException except) {
         setErrorMessage(LaunchMessages.CAT_ReadConfigError);
         CppLaunchCore.log(except.getStatus());
-      }
-    } else {
-      for (final ICppApplicationTabListener listener : this.fTabListeners) {
-        listener.platformConfSelected(this.fX10PlatformConf);
       }
     }
   }
@@ -260,7 +261,13 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           setErrorMessage(NLS.bind(LaunchMessages.CAT_ClosedProject, projectName));
           return false;
         }
-        // Project exists and is not closed. Checks now if we have a correct main type file path.
+        // Project exists and is not closed. Checks now that it does not have platform configuration error.
+    		final int errorCount = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+      	if (errorCount > 0) {
+      		setErrorMessage(NLS.bind(LaunchMessages.CAT_FixPlatformConfErrors, project.getName()));
+      		return false;
+      	}
+        // Checks now if we have a correct main type file path.
         if (this.fMainTypeText.getText().trim().length() == 0) {
           setErrorMessage(LaunchMessages.CAT_RequiredMainTypeName);
           return false;
@@ -599,10 +606,15 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         enabled = project.exists();
         if (project.exists()) {
           CppApplicationTab.this.fMainTypeText.setText(EMPTY_STRING);
-          CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
-          for (final ICppApplicationTabListener listener : CppApplicationTab.this.fTabListeners) {
-            listener.platformConfSelected(CppApplicationTab.this.fX10PlatformConf);
-          }
+        	final int errorCount = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+        	if (errorCount > 0) {
+        		enabled = false;
+        	} else {
+        		CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
+        		for (final ICppApplicationTabListener listener : CppApplicationTab.this.fTabListeners) {
+        			listener.platformConfSelected(CppApplicationTab.this.fX10PlatformConf);
+        		}
+        	}
         }
       }
       CppApplicationTab.this.fSearchMainTypeBt.setEnabled(enabled);

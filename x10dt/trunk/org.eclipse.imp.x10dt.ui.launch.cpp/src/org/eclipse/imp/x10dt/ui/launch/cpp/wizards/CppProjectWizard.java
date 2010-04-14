@@ -9,7 +9,6 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.wizards;
 
 import static org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchImages.NEW_X10_PRJ_WIZBAN;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
@@ -18,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchImages;
@@ -76,8 +76,9 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
   // --- IRunnableWithProgress' interface methods implementation
 
   public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+  	monitor.beginTask(null, 10);
     try {      
-      this.fThirdPage.performFinish(monitor);
+      this.fThirdPage.performFinish(new SubProgressMonitor(monitor, 5));
       
       final IWorkingSet[] workingSets = this.fFirstPage.getWorkingSets();
       if (workingSets.length > 0) {
@@ -87,7 +88,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
 
       BasicNewProjectResourceWizard.updatePerspective(this.fConfigElement);
       
-      createPlatformConfFile();
+      createPlatformConfFile(new SubProgressMonitor(monitor, 5));
     } catch (Exception except) {
       // Something wrong happened, we can cancel the project creation and propagates the error.
       try {
@@ -111,8 +112,8 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
                                    LaunchMessages.PW_ProjectCreationErrorMessage);
       return false;
     } catch (InterruptedException except) {
-      // Operation got interrupted. We just keep the state as is without performing a deletion
-      // of the project. A policy that could be changed.
+      // Operation got interrupted. We just keep the state as is without performing a deletion of the project. 
+    	// A policy that could be changed.
       return false;
     }
     return true;
@@ -137,12 +138,13 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
 
   // --- Private code
   
-  private void createPlatformConfFile() throws CoreException, IOException {
+  private void createPlatformConfFile(final IProgressMonitor monitor) throws CoreException {
     final IFile platformConfFile = X10PlatformConfFactory.getFile(this.fThirdPage.getJavaProject().getProject());
     final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
     final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
     platformConfWorkCopy.initializeToDefaultValues();
     platformConfWorkCopy.applyChanges();
+
     X10PlatformConfFactory.save(platformConfFile, platformConfWorkCopy);
   }
 

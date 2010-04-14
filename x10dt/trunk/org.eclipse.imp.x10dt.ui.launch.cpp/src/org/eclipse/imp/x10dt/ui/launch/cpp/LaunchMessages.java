@@ -57,6 +57,8 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_CouldNotLoadPlatformWarning;
 
+	public static String CAT_FixPlatformConfErrors;
+
   public static String CAT_IllegalPrjName;
 
   public static String CAT_IOError;
@@ -125,13 +127,15 @@ public class LaunchMessages extends NLS {
 
   public static String CIT_CouldNotStartResManager;
 
+	public static String CIT_CouldNotStopResMgr;
+
   public static String CIT_NoLaunchConfigAvailable;
 
   public static String CIT_NoX10ProjectIdentified;
 
-  public static String CLCD_CmdUsedMsg;
+  public static String CLC_CheckConnAndCommJobMsg;
 
-	public static String CLCD_CouldNotAccessErrorMarkers;
+	public static String CLCD_CmdUsedMsg;
 
   public static String CLCD_ExecCreationTaskName;
 
@@ -311,23 +315,23 @@ public class LaunchMessages extends NLS {
 
   public static String XPC_LinkingFailure;
 
-  public static String XPCF_SavePlatformConfFileJobMsg;
+  public static String XPCFE_CommInterfaceFailure;
 
-  public static String XPCFE_ConfSavingErrorDlgMsg;
+	public static String XPCFE_ConfSavingErrorDlgMsg;
 
   public static String XPCFE_ConfSavingErrorDlgTitle;
 
   public static String XPCFE_ContentCopyError;
 
-  public static String XPCFE_FormTitle;
+  public static String XPCFE_DiscoveryCmdDialogMsg;
 
-  public static String XPCFE_PipeConnectionFailedMsg;
+	public static String XPCFE_DiscoveryCmdFailedMarkerMsg;
 
-  public static String XPCFE_RemoteConnValidationError;
+	public static String XPCFE_FormTitle;
 
-  public static String XPCFE_ResManagerCreationErrorMsg;
+  public static String XPCFE_RemoteConnFailureMarkerMsg;
 
-  public static String XPCFE_ResManagerCreationErrorTitle;
+	public static String XPCFE_RemoteConnValidationError;
 
   public static String XPCFE_SavePlatformActionMsg;
 

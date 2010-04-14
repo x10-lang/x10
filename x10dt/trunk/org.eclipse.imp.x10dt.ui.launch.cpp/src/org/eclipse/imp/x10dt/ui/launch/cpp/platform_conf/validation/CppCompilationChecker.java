@@ -111,7 +111,9 @@ final class CppCompilationChecker implements ICppCompilationChecker {
                                                          compilationResults.second);
       return execute(command, fileManager, monitor.newChild(14));
     } catch (Exception except) {
-      fileManager.getResource(this.fWorkDir).delete(EFS.NONE, new NullProgressMonitor());
+      if (this.fWorkDir != null) {
+      	fileManager.getResource(this.fWorkDir).delete(EFS.NONE, new NullProgressMonitor());
+      }
       throw except;
     }
   }

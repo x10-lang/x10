@@ -78,16 +78,16 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
       });
     
       if (returnCode != 0) {
-        IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_LibCreationError, archiveCmd), IMarker.SEVERITY_ERROR,
-                                   getProject().getFullPath().toString(), IMarker.PRIORITY_HIGH);
+        IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_LibCreationError, archiveCmd), IMarker.SEVERITY_ERROR,
+                                        getProject().getFullPath().toString(), IMarker.PRIORITY_HIGH);
       }
     } catch (IOException except) {
-      IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
-                                 IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+      IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
+                                      IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), except);
     } catch (InterruptedException except) {
-      IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
-                                 IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
+      IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
+                                      IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
     } finally {
       monitor.done();
     }
@@ -138,19 +138,19 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         monitor.worked(1);
         
         if (returnCode != 0) {
-          IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_CompilErrorMsg, entry.getKey().getName()), 
-                                     IMarker.SEVERITY_ERROR, entry.getKey().getAbsolutePath(), IMarker.PRIORITY_HIGH);
+          IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CompilErrorMsg, entry.getKey().getName()), 
+                                          IMarker.SEVERITY_ERROR, entry.getKey().getAbsolutePath(), IMarker.PRIORITY_HIGH);
           return false;
         }
       }
     } catch (IOException except) {
-      IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
-                                 IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+      IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
+                                      IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), except);
       return false;
     } catch (InterruptedException except) {
-      IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
-                                 IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
+      IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
+                                      IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
       return false;
     } finally {
       monitor.done();

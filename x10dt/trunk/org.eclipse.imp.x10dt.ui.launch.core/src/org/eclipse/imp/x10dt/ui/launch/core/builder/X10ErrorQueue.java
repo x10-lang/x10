@@ -15,7 +15,6 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
@@ -48,18 +47,16 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
         final IFile[] files = this.fRoot.findFilesForLocationURI(new URI(position.file().replace('\\', '/')));
         if (files.length == 0) {
           // We could not find the associated resource. So we add a marker to the project.
-          IResourceUtils.addMarkerTo(this.fProject, error.getMessage(), severity, position.file(), IMarker.PRIORITY_NORMAL, 
-                                     position.line(), position.offset(), position.endOffset());
+          IResourceUtils.addBuildMarkerTo(this.fProject, error.getMessage(), severity, position.file(), IMarker.PRIORITY_NORMAL, 
+                                          position.line(), position.offset(), position.endOffset());
         } else {
           for (final IFile file : files) {
-            IResourceUtils.addMarkerTo(file, error.getMessage(), severity, position.file(), IMarker.PRIORITY_NORMAL, 
-                                       position.line(), position.offset(), position.endOffset());
+            IResourceUtils.addBuildMarkerTo(file, error.getMessage(), severity, position.file(), IMarker.PRIORITY_NORMAL, 
+                                            position.line(), position.offset(), position.endOffset());
           }
         }
       } catch (URISyntaxException except) {
         LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.EQ_URIErrorMsg, position.file()), except);
-      } catch (CoreException except) {
-        LaunchCore.log(except.getStatus());
       }
     }
   }

@@ -21,7 +21,6 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,7 +32,6 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.utils.ConsoleUtil;
-import org.eclipse.imp.x10dt.core.builder.X10Builder;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
@@ -245,8 +243,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       });
       
       if (returnCode != 0) {
-        IResourceUtils.addMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR, 
-                                   project.getFullPath().toString(), IMarker.PRIORITY_HIGH);
+        IResourceUtils.addBuildMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR, 
+                                        project.getFullPath().toString(), IMarker.PRIORITY_HIGH);
       }
       
       return returnCode;
@@ -297,20 +295,9 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   }
   
   private boolean shouldProcessToLinkStep(final IProject project) {
-  	String message = null;
-  	try {
-			final IMarker[] markers = project.findMarkers(X10Builder.PROBLEMMARKER_ID, true /* includeSubtypes */, 
-			                                              IResource.DEPTH_INFINITE);
-			int errorCount = 0;
-			for (final IMarker marker : markers) {
-				if (marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR) {
-					++errorCount;
-				}
-			}
-			message = (errorCount == 0) ? null : NLS.bind(LaunchMessages.CLCD_FoundErrorMarkers, errorCount, project.getName());
-		} catch (CoreException except) {
-			message = LaunchMessages.CLCD_CouldNotAccessErrorMarkers;
-		}
+  	final int errorCount = IResourceUtils.getNumberOfBuildErrorMarkers(project);
+  	final String message = (errorCount == 0) ? null : NLS.bind(LaunchMessages.CLCD_FoundErrorMarkers, errorCount,
+  	                                                           project.getName());
 		if (message == null) {
 			return true;
 		} else {
