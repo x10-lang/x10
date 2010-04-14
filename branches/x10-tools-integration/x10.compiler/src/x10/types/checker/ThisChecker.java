@@ -28,4 +28,5 @@ public class ThisChecker extends ContextVisitor {
         return null;
     }
     public boolean error() { return error;}
+    public void clearError() { error = false;}
 }

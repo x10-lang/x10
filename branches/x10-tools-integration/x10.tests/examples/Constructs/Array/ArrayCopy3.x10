@@ -90,6 +90,7 @@ public class ArrayCopy3 extends x10Test {
                         atomic accessed_a(i) += 1;
                     }
                     // check if dist ops are working
+	            /* TODO: Restore this part of test test when Region/Dist - is supported again
                     val D_notCommon: Dist{rank==A.rank} = D - D_common;
                     chk((D_common || D_notCommon).equals(D));
                     val E_common: Dist{rank==A.rank} = E | Common;
@@ -111,6 +112,7 @@ public class ArrayCopy3 extends x10Test {
                         chk(!outOfRange(E_notCommon, k));
                         chk(!(D(k) == px && E(k) == py));
                     }
+	            */
                 }
             }
 
@@ -156,10 +158,10 @@ public class ArrayCopy3 extends x10Test {
     static class dist2 {
 
         const BLOCK: int = 0;
-        const CYCLIC: int = 1;
-        const BLOCKCYCLIC: int = 2;
-        const CONSTANT: int = 3;
-        const N_DIST_TYPES: int = 4;
+        //const CYCLIC: int = 1;
+        //const BLOCKCYCLIC: int = 2;
+        const CONSTANT: int = 1;
+        const N_DIST_TYPES: int = 2;
 
         /**
          * Return a dist with region r, of type disttype
@@ -167,8 +169,8 @@ public class ArrayCopy3 extends x10Test {
         public static def getDist(distType: Int, r: Region): Dist(r) = {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(r);
-                case CYCLIC: return Dist.makeCyclic(r);
-                case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);
+                // case CYCLIC: return Dist.makeCyclic(r);
+                // case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);
                 case CONSTANT: return r->here;
                 default: throw new Error();
             }

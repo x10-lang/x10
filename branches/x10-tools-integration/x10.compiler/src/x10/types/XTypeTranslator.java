@@ -498,6 +498,8 @@ public class XTypeTranslator {
 		Flags f = xmi.flags();
 		if (X10Flags.toX10Flags(f).isProperty()) {
 			XTerm r = trans(c, t.target(), xc);
+			if (r == null)
+				return null;
 			// FIXME: should just return the atom, and add atom==body to the real clause of the class
 			// FIXME: fold in class's real clause constraints on parameters into real clause of type parameters
 			XTerm body = xmi.body();
@@ -506,7 +508,6 @@ public class XTypeTranslator {
 				// hardwire s.at(t) for an interface
 				// return s.home = t is Place ? t : t.home
 				body  = PlaceChecker.rewriteAtClause(c, xmi, t, r, xc);
-				//System.err.println("Golden...XTypeTranslator: translated " + t + " to " + body);
 			}
 			if (body != null) {
 				if (xmi.x10Def().thisVar() != null && t.target() instanceof Expr) {
@@ -524,13 +525,10 @@ public class XTypeTranslator {
 						+ t.position() + ")";
 					body = body.subst(y, x);
 				}
-				//System.err.println("Golden...XTypeTranslator 2: translating" + t + " to " + body);
 				addTypeToEnv(body, xmi.returnType());
 				return body;
 			}
 			else {
-
-				//System.err.println("Golden...XTypeTranslator 3: translating" + t);
 				if (t.arguments().size() == 0) {
 					XName field = XTerms.makeName(xmi.def(), Types.get(xmi.def().container()) + "#" + xmi.name() + "()");
 					XTerm v;

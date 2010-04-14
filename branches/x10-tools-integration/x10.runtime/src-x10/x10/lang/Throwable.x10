@@ -56,7 +56,7 @@ public class Throwable {
    
     @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#0)")
     @Native("c++", "(#0)->getStackTrace()")
-    public global native def getStackTrace() : ValRail[String];
+    public global final native def getStackTrace() : ValRail[String];
 
     @Native("java", "#0.printStackTrace()")
     @Native("c++", "(#0)->printStackTrace()")

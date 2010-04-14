@@ -26,6 +26,17 @@ public class XField_c extends XVar_c implements XField {
 
 	public XTermKind kind() { return XTermKind.FIELD_ACCESS;}
 	public XTerm subst(XTerm y, XRoot x, boolean propagate) {
+		XTerm r = super.subst(y, x, propagate);
+		if (! equals(r)) 
+			return r;
+		XVar newReceiver = (XVar) receiver.subst(y, x);
+		XField_c result= clone();
+		if (newReceiver != receiver) {
+			result.receiver = newReceiver;
+		}
+		return result;
+		
+		/*
 		XVar newReceiver = (XVar) receiver.subst(y, x);
 		XField_c n = (XField_c) super.subst(y, x, propagate);
 		if (newReceiver == receiver)
@@ -33,6 +44,7 @@ public class XField_c extends XVar_c implements XField {
 		if (n == this) n = clone();
 		n.receiver = newReceiver;
 		return n;
+		*/
 	}
 	
 	public List<XEQV> eqvs() {

@@ -27,15 +27,15 @@ import x10.util.Box;
  */
 public final class Runtime {
 
-    @Native("java", "java.lang.System.out.println(#1)")
+    @Native("java", "java.lang.System.err.println(#1)")
     @Native("c++", "x10aux::system_utils::println((#1)->toString()->c_str())")
     public native static def println(o:Object) : Void;
 
-    @Native("java", "java.lang.System.out.println()")
+    @Native("java", "java.lang.System.err.println()")
     @Native("c++", "x10aux::system_utils::println(\"\")")
     public native static def println() : Void;
 
-    @Native("java", "java.lang.System.out.printf(#4, #5)")
+    @Native("java", "java.lang.System.err.printf(#4, #5)")
     @Native("c++", "x10aux::system_utils::printf(#4, #5)")
     public native static def printf[T](fmt:String, t:T) : Void;
 
@@ -149,16 +149,16 @@ public final class Runtime {
 
     @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
     @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
-    static class Lock {
+    public static class Lock {
         public native def this();
 
         public native def lock():Void;
 
-        public native def tryLock():boolean;
+        public native def tryLock():Boolean;
 
         public native def unlock():Void;
 
-        public native def getHoldCount():Int;
+        native def getHoldCount():Int;
     }
 
 
@@ -351,15 +351,23 @@ public final class Runtime {
             lock.unlock();
             return remoteFinish;
         }
+        
+        public def remove(rootFinish:RootFinish) {
+            lock.lock();
+            map.remove(rootFinish);
+            lock.unlock();
+        }
     }
 
 
     static class RootFinish extends Latch implements FinishState, Mortal {
         private val counts:Rail[Int]!;
+        private val seen:Rail[Boolean]!;
         private var exceptions:Stack[Throwable]!;
 
         def this() {
             val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
+            seen = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
             c(here.id) = 1;
             counts = c;
         }
@@ -393,6 +401,14 @@ public final class Runtime {
         public def waitForFinish(safe:Boolean):Void {
             if (!NO_STEALS && safe) worker().join(this);
             await();
+            val closure = ()=>runtime().finishStates.remove(this);
+            seen(hereInt()) = false;
+            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                if (seen(i)) {
+                    runAtNative(i, closure);
+                }
+            }
+            dealloc(closure);
             if (null != exceptions) {
                 if (exceptions.size() == 1) {
                     val t = exceptions.peek();
@@ -412,6 +428,7 @@ public final class Runtime {
             lock();
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 counts(i) += rail(i);
+                seen(i) |= counts(i) != 0;
                 if (counts(i) != 0) b = false;
             }
             if (b) release();
@@ -422,6 +439,7 @@ public final class Runtime {
             lock();
             for(var i:Int=0; i<rail.length; i++) {
                 counts(rail(i).first) += rail(i).second;
+                seen(rail(i).first) = true;
             }
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (counts(i) != 0) {
@@ -1000,6 +1018,27 @@ public final class Runtime {
         val state = currentState();
         state.notifySubActivitySpawn(here);
         execute(new Activity(body, state, safe()));
+    }
+
+    public static def runUncountedAsync(place:Place, body:()=>Void):Void {
+        val ok = safe();
+        if (place.id == hereInt()) {
+            execute(new Activity(body, ok));
+        } else {
+            var closure:()=>Void;
+            // Workaround for XTENLANG_614
+            if (ok) {
+                closure = ()=>execute(new Activity(body, true));
+            } else {
+                closure = ()=>execute(new Activity(body, false));
+            }
+            runAtNative(place.id, closure);
+            dealloc(closure);
+        }
+    }
+
+    public static def runUncountedAsync(body:()=>Void):Void {
+        execute(new Activity(body, safe()));
     }
 
     /**

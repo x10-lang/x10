@@ -97,6 +97,15 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
         X10MethodInstance mi = applyMethod();
         StringBuilder sb = new StringBuilder();
         List<LocalInstance> formals = mi.formalNames();
+        for (int i=0; i < formals.size(); ++i) {
+        	LocalInstance f = formals.get(i);
+        	 if (sb.length() > 0)
+                 sb.append(", ");
+             sb.append(f.name());
+             sb.append(':');
+             sb.append(f.type());
+        }
+        /*
         for (LocalInstance f : formals) {
         	 if (sb.length() > 0)
                  sb.append(", ");
@@ -104,7 +113,7 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
              sb.append(':');
              sb.append(f.type());
         }
-      
+      */
         XConstraint guard = guard();
         return "(" + sb.toString() + ")" + (guard==null? "" : guard) + "=> " + mi.returnType();
     }

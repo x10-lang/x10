@@ -168,7 +168,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 	    }
 
 	    if (type == null) {
-	        type = ts.Object(); // should be bottom type, not top
+	        type = ts.Any(); // should be bottom type, not top
 	    }
 
 	    Type r = ts.ValRail();

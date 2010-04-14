@@ -180,7 +180,7 @@ public class Converter {
 				Type toType = formals.get(j);
 
 				try {
-					Expr e2 = attemptCoercion(true, tc, e, toType);
+					Expr e2 = attemptCoercion(!(Configuration.STATIC_CALLS), tc, e, toType);
 					transformedArgs.add(e2);
 					transformedArgTypes.add(e2.type());
 				}
