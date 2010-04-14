@@ -83,7 +83,7 @@ public class CConstraint_c extends XConstraint_c implements CConstraint {
             return c;
         }
     }
-    /** Add in a constraint, substituting this.self for c.self */
+ 
     public CConstraint addIn(CConstraint c)  throws XFailure {
     	return addIn(self(), c);
     }
@@ -143,10 +143,10 @@ public class CConstraint_c extends XConstraint_c implements CConstraint {
     	addIn(s.term(), s.constraint());
     	addIn(t.term(), t.constraint());
     }
-    public CConstraint substitute(XTerm y, XRoot x) throws XFailure {
+    public CConstraint_c substitute(XTerm y, XRoot x) throws XFailure {
         return substitute(new XTerm[] { y }, new XRoot[] { x });
     }
-    public CConstraint substitute(XTerm[] ys, XRoot[] xs, boolean propagate) throws XFailure {
+    public CConstraint_c substitute(XTerm[] ys, XRoot[] xs, boolean propagate) throws XFailure {
     	return substitute(ys, xs);
     }
     public CConstraint instantiateSelf(XTerm newSelf) {
@@ -168,7 +168,7 @@ public class CConstraint_c extends XConstraint_c implements CConstraint {
 					+ t2.thisVar());
 		return thisVar;
 	}
-    public CConstraint substitute(XTerm[] ys, XRoot[] xs) throws XFailure {
+    public CConstraint_c substitute(XTerm[] ys, XRoot[] xs) throws XFailure {
     	assert (ys != null && xs != null);
     	assert xs.length == ys.length;
     	
@@ -190,7 +190,7 @@ public class CConstraint_c extends XConstraint_c implements CConstraint {
     	//		XPromise last = lookupPartialOk(x);
     	//		if (last == null) return this; 	// x does not occur in this
     	
-    	CConstraint result = new CConstraint_c();
+    	CConstraint_c result = new CConstraint_c();
     	
     	for (XTerm term : constraints()) {
     		XTerm t = term;
@@ -285,7 +285,49 @@ public class CConstraint_c extends XConstraint_c implements CConstraint {
 		return bindingForSelfField(XTerms.makeName(f.def(), f.name().toString()));
 	}
 
-   public CConstraint leastUpperBound(CConstraint other) {
+   /**
+    * Compute the lub of c1 and c2. 
+    * 
+    */
+   public CConstraint leastUpperBound(CConstraint c2) {
+       return leastUpperBound1((CConstraint_c) c2);
+   }
+   private CConstraint leastUpperBound1(CConstraint_c c2) {
+	   CConstraint_c c1 = this;
+	   CConstraint result = c1.leastUpperBound0(c2);
+	   CConstraint_c c1a = null, c2a = null;
+	   try {
+		   XVar x = c1.selfVarBinding();
+		   if (x instanceof XRoot)
+			   c1a = c1.substitute(XTerms.makeEQV(), (XRoot) x);
+	   } catch (XFailure z) {
+		   // should not happen.
+	   }
+	   try {
+		   XVar x =  c2.selfVarBinding();
+		   if (x instanceof XRoot)
+			   c2a = c2.substitute(XTerms.makeEQV(), (XRoot) x);
+	   } catch (XFailure z) {
+		   // should not happen.
+	   }
+	   if (c1a != null) {
+		   CConstraint d = c1a.leastUpperBound0(c2);
+		   if (d.entails(result))
+			   result = d;
+		   if (c2a != null) {
+			   d = c1a.leastUpperBound0(c2a);
+			   if (d.entails(result))
+				   result = d;
+		   }
+	   }
+	   if (c2a != null) {
+		   CConstraint d = c1.leastUpperBound0(c2a);
+		   if (d.entails(result))
+			   result = d;
+	   }
+	   return result;
+   }
+   private CConstraint leastUpperBound0(CConstraint other) {
    	XRoot otherSelf = other.self();
    	
    	CConstraint result = new CConstraint_c();

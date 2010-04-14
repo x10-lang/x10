@@ -118,12 +118,12 @@ public class ArrayCopy1 extends x10Test {
     static class dist2 {
 
         const BLOCK: int = 0;
-        const CYCLIC: int = 1;
-        const BLOCKCYCLIC: int = 2;
-        const CONSTANT: int = 3;
+        //const CYCLIC: int = 1;
+        //const BLOCKCYCLIC: int = 2;
+        const CONSTANT: int = 1;
         //const RANDOM: int = 4;
         //const ARBITRARY: int = 5;
-        const N_DIST_TYPES: int = 4; //6;
+        const N_DIST_TYPES: int = 2; //6;
 
         /**
          * Return a dist with region r, of type disttype
@@ -131,8 +131,8 @@ public class ArrayCopy1 extends x10Test {
         public static def getDist(distType: Int, r: Region): Dist {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(r, 0);
-                case CYCLIC: return Dist.makeCyclic(r, 0);
-                case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);
+                //case CYCLIC: return Dist.makeCyclic(r, 0);
+                //case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);
                 case CONSTANT: return r->here;
                 //case RANDOM: return Dist.makeRandom(r);
                 //case ARBITRARY:return Dist.makeArbitrary(r);

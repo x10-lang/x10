@@ -128,6 +128,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name EVAL_AT = Name.make("evalAt");
     private static final Name EVAL_FUTURE = Name.make("evalFuture");
     private static final Name RUN_ASYNC = Name.make("runAsync");
+    private static final Name RUN_UNCOUNTED_ASYNC = Name.make("runUncountedAsync");
     private static final Name HERE = Name.make("here");
     private static final Name NEXT = Name.make("next");
     private static final Name LOCK = Name.make("lock");
@@ -260,6 +261,11 @@ public class Desugarer extends ContextVisitor {
     // Begin asyncs
     private Stmt visitAsync(Node old, Async a) throws SemanticException {
         Position pos = a.position();
+        if (hasAnnotation(a, UNCOUNTED)) {
+            if (old instanceof Async && ((Async) old).place() instanceof Here)
+                return uncountedAsync(pos, a.body());
+            return uncountedAsync(pos, a.body(), a.place());
+        }
         if (old instanceof Async && ((Async) old).place() instanceof Here)
             return async(pos, a.body(), a.clocks());
         Stmt specializedAsync = specializeAsync(old, a);
@@ -293,6 +299,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name XOR = Name.make("xor");
     private static final Name FENCE = Name.make("fence");
     private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
+    private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
     private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
 
     /**
@@ -310,7 +317,7 @@ public class Desugarer extends ContextVisitor {
      * TODO: move into a separate pass!
      */
     private Stmt specializeAsync(Node old, Async a) throws SemanticException {
-        if (!hasAnnotation(a, QName.make("x10.compiler.Immediate")))
+        if (!hasAnnotation(a, IMMEDIATE))
             return null;
         if (a.clocks().size() != 0)
             return null;
@@ -405,6 +412,30 @@ public class Desugarer extends ContextVisitor {
                         xts.Void(), types, xContext()));
         return result;
     }
+
+    private Stmt uncountedAsync(Position pos, Stmt body, Expr place) throws SemanticException {
+    	List<Expr> l = new ArrayList<Expr>(1);
+    	l.add(place);
+    	List<Type> t = new ArrayList<Type>(1);
+    	t.add(xts.Place());
+    	return makeUncountedAsyncBody(pos, l, t, body);
+    }
+
+    private Stmt uncountedAsync(Position pos, Stmt body) throws SemanticException {
+        return makeUncountedAsyncBody(pos, new LinkedList<Expr>(),
+                new LinkedList<Type>(), body);
+    }
+
+    private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body) throws SemanticException {
+        Closure closure = synth.makeClosure(body.position(), xts.Void(),
+                synth.toBlock(body), xContext());
+        exprs.add(closure);
+        types.add(closure.closureDef().asType());
+        Stmt result = xnf.Eval(pos,
+                synth.makeStaticCall(pos, xts.Runtime(), RUN_UNCOUNTED_ASYNC, exprs,
+                        xts.Void(), types, xContext()));
+        return result;
+    }
     // end Async
 
 
@@ -481,7 +512,7 @@ public class Desugarer extends ContextVisitor {
      * TODO: move into a separate pass!
      */
     private Stmt specializeFinish(Finish f) throws SemanticException {
-        if (!hasAnnotation(f, QName.make("x10.compiler.Immediate")))
+        if (!hasAnnotation(f, IMMEDIATE))
             return null;
         Position pos = f.position();
         ClassType target = (ClassType) xts.typeForName(REMOTE_OPERATION);

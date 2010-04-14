@@ -145,9 +145,9 @@ FileSystem operations
 
     // incomplete def this(u: URI);
 
-    public def lines(): ReaderIterator[String] throws IOException = openRead().lines();
-    public def chars(): ReaderIterator[Char] throws IOException = openRead().chars();
-    public def bytes(): ReaderIterator[Byte] throws IOException = openRead().bytes();
+    public def lines(): ReaderIterator[String]! throws IOException = openRead().lines();
+    public def chars(): ReaderIterator[Char]! throws IOException = openRead().chars();
+    public def bytes(): ReaderIterator[Byte]! throws IOException = openRead().bytes();
     public def openRead() throws IOException = new FileReader(this);
     public def openWrite() throws IOException = new FileWriter(this);
     public def printer() throws IOException = new Printer(openWrite());

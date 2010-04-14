@@ -38,10 +38,10 @@ public class MiscTest1 extends x10Test {
         // (0..MAX_PLACES-1) is again the same
         val D: Dist{rank==1} = Dist.makeBlock(R,0) as (Dist{rank==1});
         val D2: Dist = Dist.makeUnique(Place.places);
-        val D3: Dist = Dist.makeCyclic(R, 0);
+	// val D3: Dist = Dist.makeCyclic(R, 0);
 
         chk(D.equals(D2));
-        chk(D.equals(D3));
+        //chk(D.equals(D3));
 
         // create zero int array x
         val x: DistArray[int]{dist==D} = DistArray.make[int](D);
@@ -57,7 +57,7 @@ public class MiscTest1 extends x10Test {
 
         // ensure sum = N*SUM(int i = 0..NP-1)(i);
         // == N*((NP*(NP-1))/2)
-        val sum: int = x.sum();
+        val sum: int = x.reduce(Int.+, 0);
         chk(sum == (N*NP*(NP-1)/2));
 
 
@@ -66,7 +66,7 @@ public class MiscTest1 extends x10Test {
 
         val r_inner: Region{rank==1} = [1..NP-2];
         val D_inner: Dist{rank==1} = D|r_inner;
-        val D_boundary: Dist{rank==1} = D-r_inner;
+//        val D_boundary: Dist{rank==1} = D-r_inner;
         finish {
             ateach (val pi(i) in D_inner) {
                 chk(x(pi) == N*i);
@@ -75,12 +75,14 @@ public class MiscTest1 extends x10Test {
             }
         }
 
+/* DISABLED due to no Region - operation
         finish {
             ateach (val pi(i) in D_boundary) {
                 chk(x(pi) == N*i);
                 chk(D(pi) == D_boundary(pi) && D(pi) == here);
             }
         }
+*/
 
         // test scan
         val y: DistArray[int]{dist==D} = x.scan(Int.+, 0);
@@ -109,7 +111,7 @@ public class MiscTest1 extends x10Test {
         x.update(DistArray.make[int](D));
 
         // ensure x is all zeros
-        chk(x.sum() == 0);
+        chk(x.reduce(Int.+, 0) == 0);
 
         return true;
     }

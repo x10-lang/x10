@@ -64,8 +64,9 @@ public interface CConstraint extends XConstraint, ThisVar  {
 	XTerm bindingForSelfField(FieldInstance f);
 	
 	/**
-	 * Add constraint c into this, and return this. Note: this is possibly side-effected
-	 * as a result of this operation.
+	 * Add constraint c into this, substituting this.self for c.self. Return this.
+	 * 
+	 * Note: this is possibly side-effected by this operation.
 	 * 
 	 * No change is made to this if c==null
 	 * 
@@ -73,6 +74,18 @@ public interface CConstraint extends XConstraint, ThisVar  {
 	 * @return the possibly modified constraint
 	 */
 	CConstraint addIn(CConstraint c) throws XFailure;
+    /** 
+     * Add constraint c into this, substituting newSelf for c.self. 
+     * Return this.
+	 * 
+	 * Note: this is possibly side-effected by this operation.
+	 * 
+	 * No change is made to this if c==null
+	 * 
+	 * @param c -- the constraint to be added in.
+	 * @return the possibly modified constraint
+     * 
+     * */
 	CConstraint addIn(XTerm newSelf, CConstraint c)  throws XFailure;
 	
 	boolean entails(CConstraint c, CConstraint sigma) throws XFailure;
