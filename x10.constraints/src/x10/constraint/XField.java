@@ -17,7 +17,7 @@ package x10.constraint;
  * @author vj
  *
  */
-public interface XField extends XVar {
+public interface XField extends XVar, XRoot {
 	XVar receiver();
 	XName field();
 }
