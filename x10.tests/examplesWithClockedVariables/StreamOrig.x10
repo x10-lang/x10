@@ -1,7 +1,7 @@
 import x10.util.Timer;
-import clocked.*;
 
-public class Stream {
+
+public class StreamOrig {
 
     const MEG = 1024*1024;
     const alpha = 3.0D;
@@ -13,25 +13,23 @@ public class Stream {
     const NUM_PLACES = Place.MAX_PLACES;
 
     public static def main(args:Rail[String]!){here == Place.FIRST_PLACE} {
-     finish {
-        val clk = Clock.make();
+         
         val opV = Boolean.&;
 		val opT = Double.+;
-        shared var verified: boolean @ Clocked [Boolean] (clk, opV, true) = true;
-        val times= Rail.make[double @ Clocked [Double] (clk, opT, 0.0)](NUM_TIMES);
+        val verified = Rail.make[Boolean](1, (Int)=>true);
+        val times= Rail.make[double](NUM_TIMES, (Int)=>0.0);
         val N0 = args.length>0? int.parseInt(args(0)) : DEFAULT_SIZE;
         val N = (N0 as long) * NUM_PLACES;
         val localSize =  N0;
-
+	
         Console.OUT.println("localSize=" + localSize);
-
-         
-
+		finish
+         {
             for (var pp:int=0; pp<NUM_PLACES; pp++) {
 
                 val p = pp;
 
-                 async (here) clocked (clk) {
+                async (here) {
 
                     val a: Rail[double]! = Rail.make[double](localSize);
                     val b: Rail[double]! = Rail.make[double](localSize);
@@ -45,30 +43,28 @@ public class Stream {
                     val beta = alpha;
 
                     for (var j:int=0; j<NUM_TIMES; j++) {
-                        if (p==0)  {times(j) = -now();}
+                        if (p==0)  times(j) = -now();
                         for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + beta*c(i);
-                        if (p==0)  {times(j) = + now();}
+                        if (p==0)  times(j) = + now();
                     }
 
                     // verification
                     for (var i:int=0; i<localSize; i++)
                         if (a(i) != b(i) + alpha*c(i))
-                           
-                                verified = false;
+                         
+                                atomic verified(0) = false;
                             
                 }
             }
+        }
         
-        next;
         var min:double = 1000000;
-        for (var j:int=0; j<NUM_TIMES; j++) {
-        	
+        for (var j:int=0; j<NUM_TIMES; j++) 	
             if (times(j) < min)
                 min = times(j);
-        }
-        printStats(N, min, verified);
-      }
+        
+        printStats(N, min, verified(0));
     }
 
     static def now():double = Timer.nanoTime() * 1e-9;

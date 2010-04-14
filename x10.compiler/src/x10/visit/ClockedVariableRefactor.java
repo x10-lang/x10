@@ -20,6 +20,7 @@ import polyglot.ast.Assign;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Field_c;
@@ -445,8 +446,8 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	
 	 private Node visitSettableAssign(SettableAssign sa) {	
 			
-			if (sa.type() instanceof AnnotatedType) {
-				
+		if (sa.type() instanceof AnnotatedType) {
+			if (sa.array() instanceof Local) {
 				Local array = (Local) sa.array();
 				Type type;
 				X10MethodInstance mi;
@@ -467,11 +468,32 @@ public class ClockedVariableRefactor extends ContextVisitor {
 					} catch (SemanticException e) {
 						throw new InternalCompilerError("Something is terribly wrong", e);
 					}
-			
-			
 				return (Call) xnf.Call(sa.position(), array,  xnf.Id(sa.position(), "makeClockedVar"), args).methodInstance(mi).type(mi.returnType());
-			}	
-			return sa;
+			}	else if (sa.array() instanceof Field) {
+					Field array = (Field) sa.array();
+					Type type;
+					X10MethodInstance mi;
+					List<Type> typeArgs = new ArrayList<Type>();
+					List<Type> argTypes = new ArrayList<Type>();
+					List<Expr> args = new ArrayList<Expr>();
+					try {
+						
+						type = xts.typeForName(RAIL);
+						
+						typeArgs.add(sa.right().type());
+						argTypes.add(sa.index().get(0).type());
+						argTypes.add(sa.right().type());
+						args.add(sa.index().get(0));
+						args.add(sa.right());
+						
+						mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(sa.methodInstance().returnType(), Name.make("setClocked"), typeArgs, argTypes, context));
+						} catch (SemanticException e) {
+							throw new InternalCompilerError("Something is terribly wrong", e);
+						}
+					return (Call) xnf.Call(sa.position(), array,  xnf.Id(sa.position(), "makeClockedVar"), args).methodInstance(mi).type(mi.returnType());
+				}	
+		}	
+		return sa;
 }
 	 
 	 
