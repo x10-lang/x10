@@ -320,11 +320,11 @@ public class DistArray[T] (
     //
 
     public safe global def restriction(r: Region(rank)): DistArray[T](rank) {
-        return restriction(dist.restriction(r));
+        return restriction(dist.restriction(r) as Dist(rank));
     }
 
     public safe global def restriction(p: Place): DistArray[T](rank) {
-        return restriction(dist.restriction(p));
+        return restriction(dist.restriction(p) as Dist(rank));
     }
 
 
@@ -335,7 +335,7 @@ public class DistArray[T] (
     public global def lift(op:(T)=>T): DistArray[T](dist)
         = make[T](dist, ((p:Point)=>op(this(p as Point(rank)))));
 
-    public global def lift(r:Region(rank), op:(T)=>T): DistArray[T](dist)
+    public global def lift(r:Region(rank), op:(T)=>T): DistArray[T]
         = make[T](dist | r, ((p:Point)=>op(this(p as Point(rank)))));
 
 
@@ -344,7 +344,7 @@ public class DistArray[T] (
 
 
     public global def lift(src:DistArray[T](this.dist), r:Region(rank), op:(T,T)=>T):DistArray[T](rank)
-        = make[T](dist | r, ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
+        = make[T]((dist | r) as Dist(rank), ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
 
     public global def reduce(op:(T,T)=>T, unit:T):T {
 
