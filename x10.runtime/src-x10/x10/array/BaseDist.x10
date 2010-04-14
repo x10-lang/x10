@@ -184,7 +184,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     public global def restriction(p: Place): Dist(rank) {
         val ps = [p];
         val rs = ValRail.make[Region(rank)](1, (Int)=>get(p));
-        return new BaseDist(region.intersection(rs(0) as Region(rank)), ps, rs) as Dist(rank);
+        return new BaseDist(region.intersection(rs(0)) as Region(rank), ps, rs);
     }
 
     //incomplete public global def intersection(r: Region(rank)): Dist(rank);

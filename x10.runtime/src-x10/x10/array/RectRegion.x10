@@ -26,7 +26,7 @@ public final class RectRegion extends BaseRegion{rect} {
        return true;
     }
 
-    def this(minArg:ValRail[int], maxArg:ValRail[int]):RectRegion{self.rank==minArg.length} {
+    def this(minArg:ValRail[int], maxArg:ValRail[int](minArg.length)):RectRegion{self.rank==minArg.length} {
         super(minArg.length, true, allZeros(minArg));
 
         if (minArg.length!=maxArg.length) 
@@ -148,12 +148,14 @@ public final class RectRegion extends BaseRegion{rect} {
         } else if (that instanceof RectRegion) {
             val thatMin = (that as RectRegion).min();
             val thatMax = (that as RectRegion).max();
-            val newMin = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?min(i):thatMin(i-rank));
-            val newMax = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?max(i):thatMax(i-rank));
+            val k = rank+that.rank;
+            val newMin = ValRail.make[int](k, (i:int)=>i<rank?min(i):thatMin(i-rank));
+            val newMax = ValRail.make[int](k, (i:int)=>i<rank?max(i):thatMax(i-rank));
             return new RectRegion(newMin, newMax);
         } else if (that instanceof FullRegion) {
-            val newMin = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?min(i):Int.MIN_VALUE);
-            val newMax = ValRail.make[int](rank+that.rank, (i:int)=>i<rank?max(i):Int.MAX_VALUE);
+        	val k = rank+that.rank;
+            val newMin = ValRail.make[int](k, (i:int)=>i<rank?min(i):Int.MIN_VALUE);
+            val newMax = ValRail.make[int](k, (i:int)=>i<rank?max(i):Int.MAX_VALUE);
 	    return new RectRegion(newMin,newMax);
         } else {
 	    throw U.unsupported("haven't implemented RectRegion product with "+that.typeName());
@@ -171,8 +173,9 @@ public final class RectRegion extends BaseRegion{rect} {
     }
 
     public global def eliminate(axis: int):Region{self.rect} /*(rank-1)*/ {
-        val newMin = ValRail.make[int](rank-1, (i:int)=>i<axis?min(i):min(i+i));
-        val newMax = ValRail.make[int](rank-1, (i:int)=>i<axis?max(i):max(i+i));
+    	val k = rank-1;
+        val newMin = ValRail.make[int](k, (i:int)=>i<axis?min(i):min(i+i));
+        val newMax = ValRail.make[int](k, (i:int)=>i<axis?max(i):max(i+i));
         return new RectRegion(newMin, newMax);
     }    
 
@@ -185,10 +188,10 @@ public final class RectRegion extends BaseRegion{rect} {
 
         def this(rr:RectRegion):RRIterator{self.myRank==rr.rank} {
             property(rr.rank);
-            min = rr.mins;
-            max = rr.maxs;
+            min = rr.mins as ValRail[int](myRank);
+            max = rr.maxs as ValRail[int](myRank);
             done = rr.size == 0;
-            cur = rr.mins as Rail[int];
+            cur = rr.mins as Rail[int](myRank)!;
         }        
 
         public def hasNext() = !done;
