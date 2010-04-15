@@ -102,7 +102,7 @@ public class genScaleData  {
 							u += step;
 							v += step;
 						}
-						//x10.io.Console.OUT.println("u v " + tid + " " +  u + " " + v + " " + p1 + " " + GLOBALS.SCALE);
+						x10.io.Console.OUT.println("u v " + tid + " " +  u + " " + v + " " + p1 + " " + GLOBALS.SCALE);
 					}
 				} while (u == v);
 				
@@ -133,6 +133,9 @@ public class genScaleData  {
                                         val tmp = value(i);
                                         value(i) = value(j);
                                         value(j) = tmp;      
+                                        val tmp0 = key(i);
+                                        key(i) = key(j);
+                                        key(j) = tmp0;      
                                       }
                                     }
                                 }
@@ -140,11 +143,11 @@ public class genScaleData  {
 			
 			next; 
 			
+			 x10.io.Console.OUT.println("perm "  +  " " + key + " " + value);
 			for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
 				src(i) = value(src(i));
 				dest(i) = value(dest(i));
 			}
-			// x10.io.Console.OUT.println("srcs " + src + "dests" + dest);
 			
 			next;
 			

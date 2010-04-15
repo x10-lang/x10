@@ -59,6 +59,16 @@ final public class Comm {
             "x10::lang::Runtime::decreaseParallelism(1);") {}
     }
 
+    public def sum(i:Long): Long {
+        @Native("c++",
+            "x10_long val2;" +
+            "void *r = __pgasrt_tspcoll_iallreduce(FMGL(my_id), &i, &val2, PGASRT_OP_ADD, PGASRT_DT_llg, 1);" +
+            "x10::lang::Runtime::increaseParallelism();" +
+            "while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
+            "x10::lang::Runtime::decreaseParallelism(1);" +
+            "return val2;") { return i; }
+    }
+
     public def sum(i:Int):Int {
         @Native("c++",
             "x10_int val2;" +
@@ -128,6 +138,27 @@ final public class Comm {
             "x10::lang::Runtime::decreaseParallelism(1);" +
             "return val.i;") { return i; }
     }
+
+    public def maxPair(d:Pair[Double,Int]): Pair[Double,int] {
+        val pair =  Pair[Double, Int](0.0, 0);
+        @Native("c++",
+            "void *r = __pgasrt_tspcoll_iallreduce(FMGL(my_id),  &d, &pair, PGASRT_OP_MAX, PGASRT_DT_dblint, 1);" +
+            "x10::lang::Runtime::increaseParallelism();" +
+            "while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
+            "x10::lang::Runtime::decreaseParallelism(1);" ) {}
+        return pair;
+    }
+
+    public def minPair(d:Pair[Double,Int]): Pair[Double,int] {
+        val pair =  Pair[Double, Int](0.0, 0);
+        @Native("c++",
+            "void *r = __pgasrt_tspcoll_iallreduce(FMGL(my_id),  &d, &pair, PGASRT_OP_MIN, PGASRT_DT_dblint, 1);" +
+            "x10::lang::Runtime::increaseParallelism();" +
+            "while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
+            "x10::lang::Runtime::decreaseParallelism(1);" ) {}
+        return pair;
+    }
+
 
    
 
@@ -236,25 +267,6 @@ final public class Comm {
           val out_pairs = this.alltoallv[T](tmp);
           return out_pairs;
         } 
-
-
-      /* public def usort(pairs: Rail[KVPair]!, map: (Int)=>Int) {
-          val tmp: Rail[GrowableRail[KVPair]!]! = Rail.make[GrowableRail[KVPair]!](Place.MAX_PLACES, (i:Int)=>new GrowableRail[KVPair](0));
-          for ((i) in 0..pairs.length()-1) {
-             tmp(map(pairs(i).first)).add(pairs(i));
-          }
-          val out_pairs = this.alltoallv[KVPair](tmp);
-          return out_pairs;
-        } 
-
-      public def usort2(triplets: Rail[KVVTriplet]!, map: (Int)=>Int) {
-          val tmp: Rail[GrowableRail[KVVTriplet]!]! = Rail.make[GrowableRail[KVVTriplet]!](Place.MAX_PLACES, (i:Int)=>new GrowableRail[KVVTriplet](0));
-          for ((i) in 0..triplets.length()-1) {
-             tmp(map(triplets(i).first)).add(triplets(i));
-          }
-          val out_triplets = this.alltoallv[KVVTriplet](tmp);
-          return out_triplets;
-        }  */
 
 
 }

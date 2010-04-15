@@ -10,12 +10,13 @@ public class computeGraph_dist  {
                 val ledges = world.usort[types.UVWTriplet](SDGdata.etriplets, (i:types.UVWTriplet)=>pg.owner(i.first).id);
                 //x10.io.Console.OUT.println(pg_here.vertices + " " + ledges);
 			
-		val degree: Array[types.LONG_T](1) = Array.make[types.LONG_T](pg_here.vertices);
-		val pos = Rail.make[types.LONG_T](ledges.length());
+		val degree: Array[types.LONG_T](1) = Array.make[types.LONG_T](pg_here.vertices, (pt:Point(1))=>0);
+		val pos = Rail.make[types.LONG_T](ledges.length(), (i:Int)=>0);
 
 		for ((i) in  0..ledges.length()-1) {
 			val u = ledges(i);
-			pos(i) = degree(u.first); degree(u.first)++;
+			pos(i) = degree(u.first); 
+                       degree(u.first) = degree(u.first) + 1;
 		}
 
 
@@ -29,7 +30,7 @@ public class computeGraph_dist  {
 		  pg_here.numEdges(i) = pg_here.numEdges(i-1) + degree(i-1);
 
                  /* dummy add -- should be removed */
-                  for ((j) in 0..degree(i-1)) {
+                  for ((j) in 0..degree(i-1)-1) {
                     pg_here.endV.add(-1);
                     pg_here.weight.add(-1);
                   }

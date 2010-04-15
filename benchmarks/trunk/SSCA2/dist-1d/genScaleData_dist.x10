@@ -100,7 +100,7 @@ public class genScaleData_dist  {
 			}
 			
 		 	
-			//x10.io.Console.OUT.println(src + " " + dest);
+			x10.io.Console.OUT.println(src + " " + dest);
 			
 		
                         val rpairs = Rail.make[types.UVPair](chunkSize_n);	
@@ -110,9 +110,7 @@ public class genScaleData_dist  {
 				val j = (n*sprng_wrapper(stream)) as types.VERT_T;
                                 rpairs(k++)= types.UVPair(j,i);
 			}
-		
 
-                        //sort out_pairs -- TODO: use integer sort
                         for ((i) in 0..rpairs.length()-1) {
                            for ((j) in i+1..rpairs.length()-1) {
                              if (rpairs(i).first > rpairs(j).first) {
@@ -121,9 +119,21 @@ public class genScaleData_dist  {
                                 rpairs(j) =  tmp;
                              }
                         }}
+		
 
-                        val out_pairs: Rail[types.UVPair]! = world.usort[types.UVPair](rpairs, (i:types.UVPair)=>(i.first/(n/Place.MAX_PLACES)));
+                         val out_pairs: Rail[types.UVPair]! = world.usort[types.UVPair](rpairs, (i:types.UVPair)=>(i.first/(n/Place.MAX_PLACES)));
+                        //sort out_pairs -- TODO: use integer sort
+                        for ((i) in 0..out_pairs.length()-1) {
+                           for ((j) in i+1..out_pairs.length()-1) {
+                             if (out_pairs(i).first > out_pairs(j).first) {
+                                val tmp = out_pairs(i);
+                                out_pairs(i) = out_pairs(j);
+                                out_pairs(j) =  tmp;
+                             }
+                        }}
+
                         val out_pairs2 = world.allgatherv[types.UVPair](out_pairs, out_pairs.length());
+                        //val out_pairs2 = rpairs;
 
 			/* for ((i) in  0..chunkSize_m-1) {
                           if (owner(src(i)) != here.id) rvertices.add(src(i));
@@ -133,7 +143,7 @@ public class genScaleData_dist  {
 
                         val inrvertices: Rail[types.UVPair]! = world.usort[types.VERT_T](rvertices, (i:types.VERT_T)=>(i/(n/Place.MAX_PLACES))); */
                         
-                        //x10.io.Console.OUT.println ("before " +  pid + " " + src + " " + dest + " " + out_pairs2 + " " + out_pairs); 
+                        x10.io.Console.OUT.println ("permute " + out_pairs2);
                         val etriplets = Rail.make[types.UVWTriplet](chunkSize_m);	
 			for ((i) in  0..chunkSize_m-1) {
 			       val   stream = init_sprng_wrapper(i+pid*chunkSize_m, m, seed);

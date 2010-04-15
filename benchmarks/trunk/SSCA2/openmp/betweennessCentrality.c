@@ -232,7 +232,8 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
    
     for (p=0; p<n; p++) {
 
-        i = Srcs[p];
+        //i = Srcs[p];
+        i = p;
         if (G->numEdges[i+1] - G->numEdges[i] == 0) {
             continue;
         } else {
@@ -296,9 +297,11 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
                                     d[w] = d[v] + 1;
                                     sig[w] = sig[v];
                                     P[w].list[P[w].count++] = v;
+                                    printf ("if: %d %d %f %d\n", v, w, sig[w], d[w]);
                                 } else if (d[w] == d[v] + 1) {
                                     sig[w] += sig[v];
                                     P[w].list[P[w].count++] = v;
+                                    printf ("else: %d %d %f %d\n", v, w, sig[w], d[w]);
                                 }
 #ifdef _OPENMP  
                             
@@ -373,7 +376,9 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 #ifdef _OPENMP
                     omp_unset_lock(&vLock[v]);
 #endif
+                printf ("del %d %d %f\n", i, v, del[v]);
                 }
+                printf ("bc  %d %f\n", w, del[w]);
                 BC[w] += del[w];
             }
 
@@ -463,7 +468,9 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
         fprintf(stderr, "Kernel 4 validation successful!\n");
     }
 #endif
-    printf ("BC %f\n", BC[0]);
+
+    int i = 0;
+    for (i = 0; i < G->n; i++) printf ("BC %f\n", BC[i]);
     return elapsed_time;
 }
 

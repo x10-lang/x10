@@ -27,7 +27,7 @@ double genScalData(graphSDG* SDGdata) {
     assert(dest != NULL); 
 
     /* sprng seed */
-    seed = 2387;
+    seed = 985456376;
 
     elapsed_time = get_seconds();
 
@@ -64,7 +64,6 @@ double genScalData(graphSDG* SDGdata) {
 #endif
     
     /* Initialize RNG stream */ 
-	stream = init_sprng(0, tid, nthreads, seed, SPRNG_DEFAULT);
 
 #ifdef DIAGNOSTIC
     if (tid == 0) 
@@ -76,6 +75,7 @@ double genScalData(graphSDG* SDGdata) {
 #pragma omp for
 #endif    
     for (i=0; i<m; i++) {
+	stream = init_sprng(SPRNG_LCG64, i, m, seed, SPRNG_DEFAULT);
 
       do {
         u = 1;
@@ -159,75 +159,40 @@ double genScalData(graphSDG* SDGdata) {
         assert(permV != NULL);
     }
 
-#ifdef _OPENMP
-#pragma omp barrier
+    VERT_T *keys = (VERT_T*) malloc(N*sizeof(VERT_T));
+    VERT_T *values = (VERT_T*) malloc(N*sizeof(VERT_T));
 
-#pragma omp for
-#endif    
     for (i=0; i<n; i++) {
-        permV[i] = i;
+	stream = init_sprng(SPRNG_LCG64, i, n, seed, SPRNG_DEFAULT);
+        keys[i] =  (n*sprng(stream));
+        values[i] = i;
+
     }
 
-#ifdef _OPENMP
-    if (tid == 0) {
-        vLock = (omp_lock_t *) malloc(n*sizeof(omp_lock_t));
-        assert(vLock != NULL);
-    }
+       for (i=0; i < n; i++) {
+          for (j=i+1; j < n; j++ ){
 
-#pragma omp barrier
+             if (keys[i] > keys[j]) {
 
-#pragma omp for
-    for (i=0; i<n; i++) {
-        omp_init_lock(&vLock[i]);
-    }
+               int tmp0 = keys[i];
+               keys[i] = keys[j];
+               keys[j] = tmp0;
 
-#endif
-  
-  
-#ifdef _OPENMP 
-#pragma omp for
-#endif    
-    for (i=0; i<n; i++) {
-        j = n*sprng(stream);
-        if (i != j) {
-#ifdef _OPENMP
-            int l1 = omp_test_lock(&vLock[i]);
-            if (l1) {
-                int l2 = omp_test_lock(&vLock[j]);
-                if (l2) {
-#endif
-                    tmpVal = permV[i];
-                    permV[i] = permV[j];
-                    permV[j] = tmpVal;
-#ifdef _OPENMP
-                    omp_unset_lock(&vLock[j]);
-                }
-                omp_unset_lock(&vLock[i]);
-            }
-#endif
-        }
-    }
+               int tmp1 = values[i];
+               values[i] = values[j];
+               values[j] = tmp1;
 
-#ifdef _OPENMP
-#pragma omp for
-    for (i=0; i<n; i++) {
-        omp_destroy_lock(&vLock[i]);
-    }
-    
-#pragma omp barrier
-
-    if (tid == 0) {
-        free(vLock);
-    }
-#endif
+             }
+           }
+         }
 
 
 #ifdef _OPENMP
 #pragma omp for
 #endif    
     for (i=0; i<m; i++) {
-        src[i] = permV[src[i]];
-        dest[i] = permV[dest[i]];
+        src[i] = values[src[i]];
+        dest[i] = values[dest[i]];
     } 
 
 
@@ -245,6 +210,7 @@ double genScalData(graphSDG* SDGdata) {
     
     /* Generate edge weights */
     if (tid == 0) {
+	stream = init_sprng(SPRNG_LCG64, i, m, seed, SPRNG_DEFAULT);
         wt = (WEIGHT_T *) malloc(M*sizeof(WEIGHT_T));
         assert(wt != NULL);
     }
