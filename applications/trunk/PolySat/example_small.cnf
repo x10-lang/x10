@@ -1,0 +1,4 @@
+c Vijay's small example
+p cnf 1 2
+1 2 3 0
+-1 -2 -3 0
