@@ -16,7 +16,7 @@ class findSubGraphs_dist  {
 
            val pg_here = pg.restrict_here();
            val vertices = pg_here.vertices;
-           val visited = Array.make[Boolean](vertices, (p: Point(1))=>false);
+           val visited = new Array[Boolean](vertices, (p: Point(1))=>false);
            var lcount: Int= 0;
 
            val source = srcEdge.endVertex;   

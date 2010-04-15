@@ -26,7 +26,7 @@ class betweenessCentrality {
            val  count = new GrowableRail[types.INT_T](0);
            val pg_here = pg.restrict_here();
            val vertices = pg_here.vertices;
-           val visited = Array.make[Boolean](vertices, (p: Point(1))=>false);
+           val visited = new Array[Boolean](vertices, (p: Point(1))=>false);
 
            val fsize = pg.owner(source) == here ? 1 : 0;
            var L: Rail[types.UVDSQuad]! = Rail.make[types.UVDSQuad](fsize, (i:Int)=>types.UVDSQuad(-1, source, 0, 0.0));
@@ -107,13 +107,13 @@ class betweenessCentrality {
                val world: Comm! = Comm.WORLD();
                NewVertices(here.id) =  util.random_permute_vertices(pg.restrict_here().vertices, n, Comm.WORLD());
            }
-             val BC = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>Array.make[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0d) as Array[types.DOUBLE_T](1)!);
+             val BC = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>new Array[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0d) as Array[types.DOUBLE_T](1)!);
 
            for ((i) in 0..n-1) {
-             val Sig = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>Array.make[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0.0d) as Array[types.DOUBLE_T](1)!);
-             val Del = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>Array.make[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0.0d) as Array[types.DOUBLE_T](1)!);
-             val D = PlaceLocalHandle.make[Array[types.LONG_T](1)](unique, ()=>Array.make[types.LONG_T](pg.restrict_here().vertices, (p: Point(1))=>-1) as Array[types.LONG_T](1)!);
-             val Pred = PlaceLocalHandle.make[Array[GrowableRail[types.VERT_T]](1)](unique, ()=>Array.make[GrowableRail[types.VERT_T]](pg.restrict_here().vertices, (p:Point(1))=>new GrowableRail[types.VERT_T]()) as Array[GrowableRail[types.VERT_T]](1)!);
+             val Sig = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>new Array[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0.0d) as Array[types.DOUBLE_T](1)!);
+             val Del = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>new Array[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0.0d) as Array[types.DOUBLE_T](1)!);
+             val D = PlaceLocalHandle.make[Array[types.LONG_T](1)](unique, ()=>new Array[types.LONG_T](pg.restrict_here().vertices, (p: Point(1))=>-1) as Array[types.LONG_T](1)!);
+             val Pred = PlaceLocalHandle.make[Array[GrowableRail[types.VERT_T]](1)](unique, ()=>new Array[GrowableRail[types.VERT_T]](pg.restrict_here().vertices, (p:Point(1))=>new GrowableRail[types.VERT_T]()) as Array[GrowableRail[types.VERT_T]](1)!);
 
 
            finish ateach((p) in unique) {

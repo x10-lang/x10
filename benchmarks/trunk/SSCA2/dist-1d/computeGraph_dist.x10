@@ -10,7 +10,7 @@ public class computeGraph_dist  {
                 val ledges = world.usort[types.UVWTriplet](SDGdata.etriplets, (i:types.UVWTriplet)=>pg.owner(i.first).id);
                 //x10.io.Console.OUT.println(pg_here.vertices + " " + ledges);
 			
-		val degree: Array[types.LONG_T](1) = Array.make[types.LONG_T](pg_here.vertices, (pt:Point(1))=>0);
+		val degree: Array[types.LONG_T](1) = new Array[types.LONG_T](pg_here.vertices, (pt:Point(1))=>0);
 		val pos = Rail.make[types.LONG_T](ledges.length(), (i:Int)=>0);
 
 		for ((i) in  0..ledges.length()-1) {

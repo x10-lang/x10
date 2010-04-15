@@ -84,7 +84,7 @@ Rail[types.WEIGHT_T]!) {
             this.n = n / dist.places().length;
             this.vertices = this.n*here.id..((here.id+1)*this.n-1);
             val vertices_ext = this.n*here.id..((here.id+1)*this.n);
-            numEdges = Array.make[types.LONG_T](vertices_ext) as Array[types.LONG_T](1)!;
+            numEdges = new Array[types.LONG_T](vertices_ext) as Array[types.LONG_T](1)!;
                
             endV = new GrowableRail[types.VERT_T](0);
             weight = new GrowableRail[types.WEIGHT_T](0);
