@@ -68,8 +68,10 @@ public class PlaceChecker {
 	 * 
 	 * @return a newly constructed UQV representing a fixed but unknown place.
 	 */
-	static XTerm makePlace() {
-		return XTerms.makeUQV("_place");
+	public static XTerm makePlace() {
+		XTerm place = XTerms.makeUQV("_place");
+		
+		return place;
 	}
 
 	public static boolean isGlobalPlace(XTerm term) {
@@ -136,6 +138,7 @@ public class PlaceChecker {
     	type = X10TypeMixin.addBinding(type, locVar, here());// here, not pt); // pt, not PlaceChecker.here()
     	return type;
 	}
+	
 	public static Type ReplaceHereByPlaceTerm(Type type, X10Context xct) {
 		if (xct.currentPlaceTerm() == null)
 			assert true;
@@ -176,6 +179,17 @@ public class PlaceChecker {
 		}
 		return type;
 	}
+	
+	public static Type ReplacePlaceTermByHere(Type type, XTerm term) {
+		try {
+			if ( term instanceof XRoot)
+				type = Subst.subst(type,  here(), (XRoot) term); 
+		} catch (SemanticException z) {
+			throw new InternalError("Unexpectedly inconsistent constraint.");
+		}
+		return type;
+	}
+	
 	public static void AddThisHomeEqualsPlaceTerm(CConstraint c, XTerm thisVar, X10Context xc) throws XFailure {
 		 XTerm locVar = homeVar(thisVar, (X10TypeSystem) xc.typeSystem());
          XConstrainedTerm thisPlace = xc.currentThisPlace();
@@ -378,7 +392,7 @@ public class PlaceChecker {
  				   if (target == null)
  					   // The receiver is not named. So make up a new name.
  					   // The only thing we know about the name is that it is of rType,
- 					   target = XTerms.makeUQV();
+ 					   target = XTerms.makeUQV("_target");
  			   } 
  			   rType = X10TypeMixin.instantiateSelf(target, rType); 
  			  
@@ -497,6 +511,7 @@ public class PlaceChecker {
 			if (r instanceof Expr) {
 				Expr target = (Expr) r;
 				Type type = PlaceChecker.AddIsHereClause(target.type(), tc.context());
+			 	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
 				target = Converter.attemptCoercion(true, tc, target, type);
 				n = (X10Call) result.reconstruct(target, result.name(), result.arguments());
 			}
@@ -516,6 +531,7 @@ public class PlaceChecker {
 			if (r instanceof Expr) {
 				Expr target = (Expr) r;
 				Type type = PlaceChecker.AddIsHereClause(target.type(), tc.context());
+			 	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
 				target = Converter.attemptCoercion(true, tc, target, type);
 				n =  n.reconstruct(target, n.name());
 			}
@@ -605,7 +621,7 @@ public class PlaceChecker {
 	    	if (placeIsPlace)  {
 	    		term = ts.xtypeTranslator().trans(pc, place, xc);
 	    		if (term == null) {
-	    			term = XTerms.makeUQV();
+	    			term = makePlace();
 	    		}
 	    		try {
 	    			pt = XConstrainedTerm.instantiate(d, term);
@@ -619,7 +635,7 @@ public class PlaceChecker {
 	    		if (placeIsRef) {
 	    			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
 	    			if (src == null) {
-	    				src = XTerms.makeUQV();
+	    				src = XTerms.makeUQV("_anon");
 	    			}
 	    			try {
 	    				d= d.substitute(src, d.self());
