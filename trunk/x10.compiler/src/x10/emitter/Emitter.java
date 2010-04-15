@@ -37,7 +37,6 @@ import polyglot.ast.Formal;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
-import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
@@ -72,8 +71,6 @@ import x10.ast.Clocked;
 import x10.ast.ClosureCall;
 import x10.ast.ParExpr_c;
 import x10.ast.TypeParamNode;
-import x10.ast.X10Cast;
-import x10.ast.X10Cast_c;
 import x10.ast.X10ClockedLoop;
 import x10.ast.X10MethodDecl_c;
 import x10.constraint.XAnd_c;
@@ -127,7 +124,10 @@ public class Emitter {
                 "class",    "float",    "native",     "super",      "while",
                 "const",    "for",      "new",        "switch",
                 "continue", "goto",     "package",    "synchronized",
-                "null",     "true",     "false"
+                "null",     "true",     "false",
+                
+                // X10 implementation names        
+                "getRTT", "_RTT", "getParam"
                 }
             )
         );
@@ -1927,4 +1927,156 @@ public class Emitter {
 		s.append("]");
 		return s.toString();
 	}
+
+    public void generateRTTInstance(X10ClassDef def) {
+
+        w.write("public static final x10.rtt.RuntimeType<");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+        w.write(">");
+        w.write("_RTT = new x10.rtt.RuntimeType<");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+        w.write(">(");
+        w.newline();
+        w.write("/* base class */");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+        w.write(".class");
+        
+        for (int i = 0; i < def.variances().size(); i ++) {
+            w.write(", ");
+            w.newline();
+            if (i == 0) w.write("/* variances */ new x10.rtt.RuntimeType.Variance[] {");
+            ParameterType.Variance v = def.variances().get(i);
+            switch (v) {
+            case INVARIANT:
+                w.write("x10.rtt.RuntimeType.Variance.INVARIANT");
+                break;
+            case COVARIANT:
+                w.write("x10.rtt.RuntimeType.Variance.COVARIANT");
+                break;
+            case CONTRAVARIANT:
+                w.write("x10.rtt.RuntimeType.Variance.CONTRAVARIANT");
+                break;
+            }
+            if (i == def.variances().size() - 1) w.write("}");
+        }
+        w.newline();
+        
+        if (def.interfaces().size() > 0 || def.superType() != null) {
+            w.write(", ");
+            w.write("/* parents */ new x10.rtt.Type[] {");
+            for (int i = 0 ; i < def.interfaces().size(); i ++) {
+                if (i != 0) w.write(", ");
+                Type type = def.interfaces().get(i).get();
+                printParents(def, type);
+            }
+            if (def.superType() != null) {
+                if (def.interfaces().size() != 0) w.write(", ");
+                printParents(def, def.superType().get());
+            }
+            w.write("}");
+        }
+        w.newline();
+        
+        w.write(");");
+        w.newline();
+        
+
+        if (!def.flags().isInterface()) {
+            
+            w.write("public x10.rtt.RuntimeType getRTT() {");
+            w.write("return _RTT;");
+            w.write("}");
+            w.newline();
+            w.newline();
+            
+            if (!def.typeParameters().isEmpty()) {
+              w.write("public x10.rtt.Type getParam(int i) {");
+              for (int i = 0; i < def.typeParameters().size(); i++) {
+                  ParameterType pt = def.typeParameters().get(i);
+                  w.write("if (i ==" + i + ")");
+                  w.write("return ");
+                  w.write(Emitter.mangleToJava(pt.name()));
+                  w.write(";");
+              }
+                w.write("return null;");
+                w.write("}");
+            }
+            w.newline();
+        }
+    }
+
+    private void printParents(X10ClassDef def, Type type) {
+        if (type instanceof ConstrainedType_c) {
+            type = ((ConstrainedType_c) type).baseType().get();
+        }
+        if (type instanceof X10ClassType) {
+            X10ClassType x10Type = (X10ClassType) type;
+            if (x10Type.typeArguments().size() > 0) {
+                for (int i = 0; i < x10Type.typeArguments().size(); i++) {
+                    if (i == 0) { 
+                        w.write("new x10.rtt.ParameterizedType(");
+                        if (x10Type instanceof FunctionType) {
+                            FunctionType ft = (FunctionType) x10Type;
+                            List<Type> args = ft.argumentTypes();
+                            Type ret = ft.returnType();
+                            if (ret.isVoid()) {
+                                w.write("x10.core.fun.VoidFun");
+                            } else {
+                                w.write("x10.core.fun.Fun");
+                            }
+                            w.write("_" + ft.typeParameters().size());
+                            w.write("_" + args.size());
+                            w.write("._RTT");
+                        }
+                        else {
+                            X10ClassDef cd = x10Type.x10Def();
+                            String pat = getJavaRTTRep(cd);
+                            if (pat != null) {
+                                // Check for @NativeRep with null RTT class
+                                Object[] components = new Object[1 + x10Type.typeArguments().size() * 2];
+                                int j = 0;
+                                components[j++] = new TypeExpander(this, x10Type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                                for (Type at : x10Type.typeArguments()) {
+                                    components[j++] = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                                    components[j++] = new RuntimeTypeExpander(this, at);
+                                }
+                                dumpRegex("Native", components, tr, pat);
+                            }
+                            else if (getJavaRep(cd) != null) {
+                                w.write("(x10.rtt.RuntimeType) ");
+                                w.write("x10.rtt.Types.runtimeType(");
+                                printType(x10Type, 0);
+                                w.write(".class");
+                                w.write(")");
+                            }
+                            else {
+                                w.write(x10Type.def().fullName() + "._RTT");
+                            }
+                        }
+                    }
+                    w.write(", ");
+                    Type ta = x10Type.typeArguments().get(i);
+                    if (ta instanceof ParameterType) {
+                        w.write("new x10.rtt.UnresolvedType(");
+                        w.write("" + getIndex(def.typeParameters(), (ParameterType) ta));
+                        w.write(")");
+                    } else {
+                        printParents(def, ta);
+                    }
+                    if (i == x10Type.typeArguments().size() - 1) w.write(")");
+                }
+            } else {
+                new RuntimeTypeExpander(this, x10Type).expand(tr);
+            }
+        }
+    }
+    
+    private int getIndex(List<ParameterType> pts, ParameterType t) {
+        for (int i = 0; i < pts.size(); i ++) {
+            if (pts.get(i).name().equals(t.name())) {
+                return i;
+            }
+        }
+        throw new InternalCompilerError(""); // TODO
+    }
 }

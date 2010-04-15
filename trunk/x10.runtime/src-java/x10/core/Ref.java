@@ -12,6 +12,7 @@
 package x10.core;
 
 import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 import x10.runtime.impl.java.Thread;
 
 
@@ -31,22 +32,7 @@ public class Ref implements Any {
     public boolean equals(Object o) {
 	return this == o;
     }
-  
-
     
-    public static class RTT extends RuntimeType<Ref> {
-    	public static final RTT it = new RTT();
-
-    	public RTT() {
-            super(Ref.class);
-        }
-
-        @Override
-        public boolean instanceof$(Object o) {
-            return o instanceof Ref;
-        }
-    }
-
     public Ref box$() {
         return this;
     }
@@ -88,8 +74,18 @@ public class Ref implements Any {
             return Thread.currentThread().home();
         }
     }
+    
     public static String typeName(Object obj) {
-        String s = obj.getClass().toString().substring(6);      // drop the beginning "class "
+        String s;
+        if (obj instanceof Any) {
+            s = ((Any) obj).getRTT().typeName(obj);
+        } else {
+            s = obj.getClass().toString().substring(6);
+        }
         return s.equals("java.lang.Object") ? "x10.lang.Object" : s;
     }
+    
+    public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class);
+    public RuntimeType getRTT() {return _RTT;}
+    public Type<?> getParam(int i) {return null;}
 }

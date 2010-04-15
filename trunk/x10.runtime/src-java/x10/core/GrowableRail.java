@@ -13,10 +13,10 @@ package x10.core;
 
 
 import x10.core.fun.Fun_0_1;
+import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.core.Iterable;
-import x10.core.Iterator;
+import x10.rtt.RuntimeType.Variance;
 
 public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable<Integer, T>, Iterable<T> {
 	private Type<T> elementType;
@@ -145,35 +145,9 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
     //
     // Runtime type information
     //
-    
-    static public class RTT extends x10.rtt.RuntimeType<GrowableRail<?>> {
-        Type<?> type;
-        
-        public RTT(Type<?> type) {
-            super(GrowableRail.class);
-            this.type = type;
-        }
-
-        public boolean instanceof$(java.lang.Object o) {
-            if (!(o instanceof GrowableRail))
-                return false;
-            GrowableRail r = (GrowableRail) o;
-            if (! r.elementType.equals(type)) // covariant
-                return false;
-            return true;
-        }
-        
-        
-        public boolean isSubtype(Type<?> type) {
-            if (type instanceof GrowableRail.RTT) {
-                GrowableRail.RTT r = (GrowableRail.RTT) type;
-                return r.type.equals(this.type);
-            }
-//            if (type instanceof Fun_0_1.RTT) {
-//                Fun_0_1.RTT r = (Fun_0_1.RTT) type;
-//                return r.I.equals(Types.INT) && r.V.equals(this.type);
-//            }
-            return false;
-        }
+    public static final RuntimeType<GrowableRail<?>> _RTT = new RuntimeType(GrowableRail.class, Variance.INVARIANT);
+    public RuntimeType<GrowableRail<?>> getRTT() {return _RTT;}
+    public Type<?> getParam(int i) {
+        return i == 0 ? elementType : null;
     }
 }
