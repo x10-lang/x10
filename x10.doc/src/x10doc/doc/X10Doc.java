@@ -222,16 +222,16 @@ public class X10Doc implements Doc {
         while (m.find()) {
             end = m.start();
             String linkText = m.group();
-            System.out.print("String = \"" + text.substring(start, end));
-            System.out.println("\"; linkText = \"" + linkText + "\"");
+           // System.out.print("String = \"" + text.substring(start, end));
+           // System.out.println("\"; linkText = \"" + linkText + "\"");
             result.add(new X10Tag("Text", text.substring(start, end), holder));
             result.add(X10Tag.processInlineTag(linkText, holder));
             // result.add(new X10Tag("Text", text.substring(start, end), this));
             // result.add(new X10SeeTag(true, linkText, this)); 
               // "true" signifies an @link tag, as opposed to an @see tag 
             start = m.end();
-            result.add(new X10Tag("Text", text.substring(start, text.length()), holder));
         }
+        result.add(new X10Tag("Text", text.substring(start, text.length()), holder));
         
         // System.out.println("Rest = \"" + text.substring(start, text.length()) + "\"");
         if (result.isEmpty()){
