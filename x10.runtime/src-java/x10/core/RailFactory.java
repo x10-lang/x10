@@ -17,7 +17,7 @@ import x10.rtt.Type;
 import x10.rtt.Types;
 
 public class RailFactory {
-    public static <T> ValRail<T> makeValRail(Type<T> type, int length, Fun_0_1<Integer,T> init) {
+    public static <T> ValRail<T> makeValRail(Type type, int length, Fun_0_1<Integer,T> init) {
         Object o = type.makeArray(length);
         for (int i = 0; i < length; i++) {
             type.setArray(o, i, init.apply(i));
@@ -26,7 +26,7 @@ public class RailFactory {
         return array;
     }
     
-    public static <T> Rail<T> makeVarRail(Type<T> type, int length, Fun_0_1<Integer,T> init) {
+    public static <T> Rail<T> makeVarRail(Type type, int length, Fun_0_1<Integer,T> init) {
         Rail<T> array = new Rail<T>(type, length);
         for (int i = 0; i < length; i++) {
             array.set(init.apply(i), i);
@@ -34,19 +34,19 @@ public class RailFactory {
         return array;
     }
     
-    public static <T> ValRail<T> makeValRail(Type<T> type, int length) {
+    public static <T> ValRail<T> makeValRail(Type type, int length) {
         Object o = type.makeArray(length);
         ValRail<T> array = new ValRail<T>(type, length, o);
-        T zero = type.zeroValue();
+        T zero = (T) type.zeroValue();
         for (int i = 0; i < length; i++) {
             type.setArray(o, i, zero);
         }
         return array;
     }
     
-    public static <T> Rail<T> makeVarRail(Type<T> type, int length) {
+    public static <T> Rail<T> makeVarRail(Type type, int length) {
         Rail<T> array = new Rail<T>(type, length);
-        T zero = type.zeroValue();
+        T zero = (T) type.zeroValue();
         for (int i = 0; i < length; i++) {
             array.set(zero, i);
         }

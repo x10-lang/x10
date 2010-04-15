@@ -16,16 +16,7 @@ import x10.rtt.Type;
 
 // Base interface of all X10 entities.
 public interface Any {
-    public static class RTT extends RuntimeType<Any> {
-    	public static final RTT it = new RTT();
-
-    	public RTT() {
-            super(Any.class);
-        }
-
-        @Override
-        public boolean instanceof$(Object o) {
-            return true;
-        }
-    }
+    public static RuntimeType<Any> _RTT = new RuntimeType<Any>(Any.class);
+    public RuntimeType<?> getRTT();
+    public Type<?> getParam(int i);
 }

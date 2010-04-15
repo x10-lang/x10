@@ -14,8 +14,11 @@ package x10.visit;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -47,6 +50,7 @@ import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
+import polyglot.types.ClassDef;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -117,6 +121,7 @@ import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
+import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -569,13 +574,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// Generate the run-time type.  We have to wrap in a class since n might be an interface
 		// and interfaces can't have static methods.
 
-		er.generateRTTMethods(def);
+//		er.generateRTTMethods(def);
 
 //		boolean isValueType = xts.isValueType(def.asType(), (X10Context) tr.context());
-		if (def.isTopLevel()) {
-			er.generateRTType(def);
-		}
-
+//		if (def.isTopLevel()) {
+//			er.generateRTType(def);
+//		}
+		
+		// XTENLANG-1102
+		er.generateRTTInstance(def);
+		
 		// Generate dispatcher methods.
 		er.generateDispatchers(def);
 
@@ -854,10 +862,51 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    return;
 		}
                 
-		new RuntimeTypeExpander(er, t).expand(tr);
-		w.write(".");
+                // XTENLANG-1102
+                if (t instanceof X10ClassType) {
+                    X10ClassType ct = (X10ClassType) t;
+                    X10ClassDef cd = ct.x10Def();
+                    String pat = er.getJavaRTTRep(cd);
+
+                    if (t instanceof FunctionType) {
+                        FunctionType ft = (FunctionType) t;
+                        List<Type> args = ft.argumentTypes();
+                        Type ret = ft.returnType();
+                        if (ret.isVoid()) {
+                            w.write("x10.core.fun.VoidFun");
+                        } else {
+                            w.write("x10.core.fun.Fun");
+                        }
+                        w.write("_" + ft.typeParameters().size());
+                        w.write("_" + args.size());
+                        w.write("._RTT");
+                    }
+                    else if (pat == null && er.getJavaRep(cd) == null && ct.isGloballyAccessible() && ct.typeArguments().size() != 0) {
+                        w.write(cd.fullName().toString() + "." + "_RTT");
+                    }
+                    else {
+                        new RuntimeTypeExpander(er, t).expand(tr);
+                    }
+                } else {
+                    new RuntimeTypeExpander(er, t).expand(tr);
+                }
+
+                w.write(".");
 		w.write("instanceof$(");
 		tr.print(c, c.expr(), w);
+		
+		if (t instanceof X10ClassType) {
+		    X10ClassType ct = (X10ClassType) t;
+		    X10ClassDef cd = ct.x10Def();
+		    String pat = er.getJavaRTTRep(cd);
+
+		    for (int i = 0; i < ct.typeArguments().size(); i++) {
+		        w.write(", ");
+//		        if (i == 0) w.write("new x10.rtt.Type[] {");
+		        new RuntimeTypeExpander(er, ct.typeArguments().get(i)).expand(tr);
+//		        if (i == ct.typeArguments().size() - 1 ) w.write("}");
+		    }
+		}
 		w.write(")");
 	}
 
@@ -1302,11 +1351,60 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("}");
 		w.newline();
 
-		Type t = n.type();
-		t = X10TypeMixin.baseType(t);
-		if (t instanceof X10ClassType) {
-			X10ClassType ct = (X10ClassType) t;
-			er.generateRTTMethods(ct.x10Def());
+		Type type = n.type();
+		type = X10TypeMixin.baseType(type);
+		if (type instanceof X10ClassType) {
+			X10ClassType ct = (X10ClassType) type;
+			X10ClassDef def = ct.x10Def();
+			
+			// XTENLANG-1102
+			Set<ClassDef> visited = new HashSet<ClassDef>();
+			
+		        visited = new HashSet<ClassDef>();
+                        visited.add(def);
+                        if (!def.flags().isInterface()) {
+                                List<Type> types = new ArrayList<Type>();
+                                LinkedList<Type> worklist = new LinkedList<Type>();
+                                for (Type t : def.asType().interfaces()) {
+                                        Type it = X10TypeMixin.baseType(t);
+                                        worklist.add(it);
+                                }
+                                while (!worklist.isEmpty()) {
+                                        Type it = worklist.removeFirst();
+                                        if (it instanceof X10ClassType) {
+                                                X10ClassType ct2 = (X10ClassType) it;
+                                                X10ClassDef idef = ct2.x10Def();
+
+                                                if (visited.contains(idef))
+                                                        continue;
+                                                visited.add(idef);
+
+                                                for (Type t : ct2.interfaces()) {
+                                                        Type it2 = X10TypeMixin.baseType(t);
+                                                        worklist.add(it2);
+                                                }
+                                                
+                                                types.addAll(ct2.typeArguments());
+                                        }
+                                }
+                                if (types.size() > 0) {
+                                    w.write("public x10.rtt.RuntimeType<?> getRTT() { return _RTT;}");
+                                    w.write("public x10.rtt.Type<?> getParam(int i) {");
+                                    for (int i = 0; i < types.size(); i++) {
+                                        w.write("if (i ==" + i + ")");
+                                        Type t = types.get(i);
+                                        w.write(" return ");
+                                        new RuntimeTypeExpander(er, t).expand();
+                                        w.write(";");
+                                    }
+                                    w.write("return null;");
+                                    w.newline();
+                                    w.write("}");
+                                    w.newline();
+                                } else {
+                                    
+                                }
+                        }
 		}
 
 		w.write("}");

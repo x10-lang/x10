@@ -12,8 +12,12 @@
 package x10.core;
 
 import x10.core.fun.Fun_0_1;
+import x10.rtt.ParameterizedType;
+import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.rtt.UnresolvedType;
+import x10.rtt.RuntimeType.Variance;
 
 public final class ValRail<T> implements AnyRail<T> {
     public final int length;
@@ -163,38 +167,17 @@ public final class ValRail<T> implements AnyRail<T> {
     //
     // Runtime type information
     //
+
+    public static final RuntimeType _RTT = new RuntimeType(
+        ValRail.class,
+        new Variance[] {Variance.COVARIANT},
+        new Type<?>[] {new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0))}
+    );
     
-    static public class RTT<T> extends x10.rtt.RuntimeType<ValRail<T>> {
-        Type<T> type;
-        
-        public RTT(Type<T> type) {
-            super(ValRail.class);
-            this.type = type;
-        }
-
-        public boolean instanceof$(java.lang.Object o) {
-            if (!(o instanceof ValRail))
-                return false;
-            ValRail r = (ValRail) o;
-            if (! r.type.isSubtype(type)) // covariant
-                return false;
-            return true;
-        }
-        
-        
-        public boolean isSubtype(Type<?> type) {
-            if (type instanceof ValRail.RTT) {
-                ValRail.RTT r = (ValRail.RTT) type;
-                return r.type.equals(this.type);
-            }
-//            if (type instanceof Fun_0_1.RTT) {
-//                Fun_0_1.RTT r = (Fun_0_1.RTT) type;
-//                return r.I.equals(Types.INT) && r.V.equals(this.type);
-//            }
-            return false;
-        }
+    public RuntimeType<?> getRTT() {
+        return _RTT;
     }
-
-    public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
-    public Type<?> rtt_x10$lang$Fun_0_1_U()  { return type; }
+    public Type<?> getParam(int i) {
+        return i == 0 ? type : null;
+    }
 }
