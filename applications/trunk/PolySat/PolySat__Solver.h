@@ -22,8 +22,10 @@ class PolySat__Solver : public x10::lang::Object, public SolverCallback {
    
         const char *filename = s->c_str();
         gzFile in = gzopen(filename, "rb");
-        if (in == NULL)
+        if (in == NULL) {
             reportf("ERROR! Could not open file: %s\n", filename);
+            exit(EXIT_FAILURE);
+        }
         parse_DIMACS(in, self->solver);
         gzclose(in);
 
