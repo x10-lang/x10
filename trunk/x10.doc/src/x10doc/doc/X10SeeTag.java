@@ -48,8 +48,10 @@ public class X10SeeTag extends X10Tag implements SeeTag {
 			classname = text;
 		} else {
 			classname = text.substring(0,index);
-			member = text.substring(index+1);
-			memberDoc = classDoc.getMemberDoc(member);
+            if (classDoc != null) {
+                member = text.substring(index+1);
+                memberDoc = classDoc.getMemberDoc(member);
+            }
 		}
 		if (classname.equals("")) {
 			classname = X10RootDoc.getContainingClass(holder);
