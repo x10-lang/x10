@@ -42,18 +42,24 @@ public class X10SeeTag extends X10Tag implements SeeTag {
 	
 	private void processText(String text){
 		int index = text.indexOf("#");
-		if (index == -1)
-			return;
-		String classname = text.substring(0,index);
-		String  member = text.substring(index+1);
+		String classname = null;
+		String member = null;
+		if (index == -1) {
+			classname = text;
+		} else {
+			classname = text.substring(0,index);
+			member = text.substring(index+1);
+			memberDoc = classDoc.getMemberDoc(member);
+		}
 		if (classname.equals("")) {
 			classname = X10RootDoc.getContainingClass(holder);
 		}
 		classDoc = (X10ClassDoc) rootDoc.classNamed(classname);
 		index = classname.lastIndexOf(".");
-		String pkgname = classname.substring(0,index);
-		pkgDoc = rootDoc.packageNamed(pkgname);
-		memberDoc = classDoc.getMemberDoc(member);
+		if (index != -1) {
+			String pkgname = classname.substring(0,index);
+			pkgDoc = rootDoc.packageNamed(pkgname);
+		}
 	}
 	
 	public X10ClassDoc holderClass() {
