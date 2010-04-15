@@ -15,11 +15,11 @@ import x10.compiler.Inline;
 import x10.compiler.Native;
 
 /**
- * <p>An array defines a mapping from Points to data values of some type T.
- * The Points in the Array's domain are defined by specifying a Region
+ * <p>An array defines a mapping from {@link Point}s to data values of some type T.
+ * The Points in the Array's domain are defined by specifying a {@link Region}
  * over which the Array is defined.  Attempting to access a data value
  * at a Point not included in the Array's Region will result in a 
- * ArrayIndexOutOfBoundsException being raised.</p>
+ * {@link ArrayIndexOutOfBoundsException} being raised.</p>
  * 
  * <p>All of the data in an Array is stored in a single Place, the 
  * Array's object home.  Data values may only be accessed at
@@ -39,7 +39,7 @@ import x10.compiler.Native;
  * space efficient implementation of Arrays over sparse regions, but 
  * such an implementation is not yet available as part of the x10.array package.</p>
  *
- * <p>The closely related class DistArray is used to define 
+ * <p>The closely related class {@link DistArray} is used to define 
  * distributed arrays where the data values for the Points in the 
  * array's domain are distributed over multiple places.</p>
  * 
