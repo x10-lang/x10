@@ -25,8 +25,10 @@ import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
+import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
@@ -41,6 +43,7 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -68,6 +71,7 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.constraints.CConstraint;
 import x10.util.Synthesizer;
 
 /**
@@ -120,16 +124,30 @@ public class Converter {
 		
 		if (result instanceof X10Cast && ((X10Cast) result).conversionType()==ConversionType.CHECKED) {
 			// OK that succeeded. Now ensure that there is a depexpr created for the check.
+
+			CConstraint cn = X10TypeMixin.xclause(toType);
+			if (cn.hasPlaceTerm()) {
+				// Failed to translate the constraint
+				// For now the only  possibility is the constraint refers
+				// to a variable synthesized by the compiler.
+				throw new Errors.CannotGenerateCast(e, e.position());
+			}
+			
 			tn = new Synthesizer().makeCanonicalTypeNodeWithDepExpr(e.position(), toType, tc);
 			if (tn.type() != toType) {
 				// alright, now we actually synthesized a new depexpr. 
 				// lets splice it in.
+
 				result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
+
 				if (dynamicCallp) {
-						Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
+					Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
 				}
 			}
+
 		}
+
+		
 		return result;
 	}
 

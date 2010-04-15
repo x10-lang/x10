@@ -34,6 +34,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
 
 /**
  * The compiler's notion of a constraint keeps track of this and self variables.
@@ -63,6 +64,15 @@ public class CConstraint_c extends XConstraint_c implements CConstraint {
 	 }
 	    public XVar thisVar() {
 	    	return thisVar;
+	    }
+	    public boolean hasPlaceTerm() {
+	    	if (roots==null)
+	    		return false;
+	    	for (XTerm t : roots.keySet()) {
+	    		if (PlaceChecker.isGlobalPlace(t))
+	    			return true;
+	    	}
+	    	return false;
 	    }
 	
 	  /**

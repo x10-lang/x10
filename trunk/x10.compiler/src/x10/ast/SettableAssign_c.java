@@ -98,7 +98,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		return left(nf, null);
 	}
 	//@Override
-	public Expr left(NodeFactory nf, ContextVisitor cv) {
+	public Expr left(NodeFactory nf, ContextVisitor cv)  {
 	    Name apply = Name.make("apply");
 	    Call c = nf.Call(position(), array, nf.Id(position(), apply), index);
 	    if (mi != null) {
@@ -110,7 +110,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	            return (Expr) c.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
 	        }
 	        catch (SemanticException e) {
-	            assert false;
+	         assert false;
 	        }
 	        }
 	        List<Type> argTypes = new ArrayList<Type>(mi.formalTypes());
@@ -207,54 +207,56 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	
 	@Override
 	public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
-	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	    X10TypeSystem xts = ts;
-	    
-	    if (op != Assign.ASSIGN) {
-	        Name methodName = Name.make("apply");
-	        
-	        List<Expr> args = new ArrayList<Expr>();
-	        args.addAll(index);
-	        X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), methodName), Collections.EMPTY_LIST, args);
-	        
-	        try {
-	            n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
-	        }
-	        catch (SemanticException e) {
-	            Type bt = X10TypeMixin.baseType(array.type());
-	        	boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-	            throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
-	        }
-	    }
-	    
-	    Name methodName = Name.make("set");
-	    
-	    List<Expr> args = new ArrayList<Expr>();
-	    args.add(right);
-	    args.addAll(index);
-	    X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), methodName), Collections.EMPTY_LIST, args);
+		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		X10TypeSystem xts = ts;
 
-	    try {
-	        n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
-	    }
-	    catch (SemanticException e) {
-	        Type bt = X10TypeMixin.baseType(array.type());
-	        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-	        throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
-	    }
+		if (op != Assign.ASSIGN) {
+			Name methodName = Name.make("apply");
 
-	    X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
+			List<Expr> args = new ArrayList<Expr>();
+			args.addAll(index);
+			X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), methodName), Collections.EMPTY_LIST, args);
 
-	    if (! mi.flags().isStatic() ) {
-	        SettableAssign_c a = this;
-	        a = (SettableAssign_c) a.methodInstance(mi);
-	        a = (SettableAssign_c) a.right(n.arguments().get(0));
-	        a = (SettableAssign_c) a.index(n.arguments().subList(1, n.arguments().size()));
-	        return a;
-	    }
-	    
-	    throw new Errors.AssignSetMethodCantBeStatic(mi, array, position()); 
+			try {
+				n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+			}
+			catch (SemanticException e) {
+				Type bt = X10TypeMixin.baseType(array.type());
+				boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+				throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
+			}
+		}
+
+		Name methodName = Name.make("set");
+
+		List<Expr> args = new ArrayList<Expr>();
+		args.add(right);
+		args.addAll(index);
+		X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), methodName), Collections.EMPTY_LIST, args);
+
+		try {
+			n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+		}
+		catch (SemanticException e) {
+			if (e instanceof Errors.CannotGenerateCast) 
+				throw e;
+			Type bt = X10TypeMixin.baseType(array.type());
+			boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+			throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
+		}
+
+		X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
+
+		if (! mi.flags().isStatic() ) {
+			SettableAssign_c a = this;
+			a = (SettableAssign_c) a.methodInstance(mi);
+			a = (SettableAssign_c) a.right(n.arguments().get(0));
+			a = (SettableAssign_c) a.index(n.arguments().subList(1, n.arguments().size()));
+			return a;
+		}
+
+		throw new Errors.AssignSetMethodCantBeStatic(mi, array, position()); 
 	}	
 	
 	@Override
