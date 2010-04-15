@@ -59,11 +59,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   /**
    * Clears with the help of source files provided the related generated and compiled files on the target machine.
    * 
+   * @param builderFileOp The helper class for file operations.
    * @param x10SourceFiles The X10 source files to use.
    * @param monitor The monitor to use for reporting progress and/or cancel the operation.
    * @throws CoreException Occurs if we could not delete some particular resource.
    */
-  public abstract void clearGeneratedAndCompiledFiles(final Collection<IFile> x10SourceFiles, 
+  public abstract void clearGeneratedAndCompiledFiles(final IX10BuilderFileOp builderFileOp,
+                                                      final Collection<IFile> x10SourceFiles, 
                                                       final SubMonitor monitor) throws CoreException;
   /**
    * Creates the Polyglot extension information that controls the compiler options for the particular back-end.
@@ -104,23 +106,27 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       collectSourceFilesToCompile(dependentProjects, subMonitor.newChild(5));
       
       clearMarkers(kind);
-      clearGeneratedAndCompiledFiles(this.fSourcesToCompile, subMonitor);
       
-      final IX10BuilderFileOp builderFileOp = createX10BuilderFileOp();
-      if (! builderFileOp.hasAllPrerequisites()) {
-        IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
-                                        IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-        UIUtils.showProblemsView();
-        return dependentProjects.toArray(new IProject[dependentProjects.size()]);
+      if (this.fX10BuilderFileOp == null) {
+      	this.fX10BuilderFileOp = createX10BuilderFileOp();
+      	if (! this.fX10BuilderFileOp.hasAllPrerequisites()) {
+          IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
+                                          IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+          UIUtils.showProblemsView();
+          return dependentProjects.toArray(new IProject[dependentProjects.size()]);
+        }
       }
       
+      clearGeneratedAndCompiledFiles(this.fX10BuilderFileOp, this.fSourcesToCompile, subMonitor);
+            
       final String localOutputDir = JavaProjectUtils.getProjectOutputDirPath(getProject());
       compileX10Files(localOutputDir, subMonitor.newChild(30));
       
-      compileGeneratedFiles(builderFileOp, localOutputDir, subMonitor.newChild(65));
+      compileGeneratedFiles(this.fX10BuilderFileOp, localOutputDir, subMonitor.newChild(65));
       
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
     } finally {
+    	this.fX10BuilderFileOp = null;
       monitor.done();
     }
   }
@@ -135,9 +141,19 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         if (this.fProjectWrapper == null) {
           this.fProjectWrapper = JavaCore.create(getProject());
         }
+        if (this.fX10BuilderFileOp == null) {
+        	this.fX10BuilderFileOp = createX10BuilderFileOp();
+        	if (! this.fX10BuilderFileOp.hasAllPrerequisites()) {
+            IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
+                                            IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), 
+                                            IMarker.PRIORITY_HIGH);
+            UIUtils.showProblemsView();
+            return;
+          }
+        }
         // No need to persist dependent projects here since it will be repeated later on.
         collectSourceFilesToCompile(new HashSet<IProject>(), subMonitor.newChild(1));
-        clearGeneratedAndCompiledFiles(this.fSourcesToCompile, subMonitor.newChild(1));
+        clearGeneratedAndCompiledFiles(this.fX10BuilderFileOp, this.fSourcesToCompile, subMonitor.newChild(1));
       }
     } finally {
       monitor.done();
@@ -228,6 +244,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   private DependencyInfo fDependencyInfo;
   
   private IJavaProject fProjectWrapper;
+  
+  private IX10BuilderFileOp fX10BuilderFileOp;
   
   private Collection<IFile> fSourcesToCompile = new HashSet<IFile>();
   

@@ -143,6 +143,7 @@
    </extension>
    <extension
          id="platformConfMarker"
+         name="X10 Problem Marker"
          point="org.eclipse.core.resources.markers">
       <super
             type="org.eclipse.core.resources.problemmarker">

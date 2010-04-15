@@ -21,6 +21,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.LaunchImages;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
+import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchImages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
@@ -285,7 +286,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           curConnInfo.setHostName(hostText.getText().trim());
         }
         handleTextValidation(new EmptyTextInputChecker(hostText, LaunchMessages.RMCP_HostLabel), managedForm, hostText);
-        if (ConnectionSectionPart.this.fCurrentConnection == curConnInfo) {
+        if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
           updateConnectionConf(x10PlatformConf);
         }
@@ -302,7 +303,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           }
           curConnInfo.setPort(portText.getSelection());
         }
-        if (ConnectionSectionPart.this.fCurrentConnection == curConnInfo) {
+        if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
           updateConnectionConf(x10PlatformConf);
           updateDirtyState(managedForm);
@@ -322,7 +323,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         }
         handleTextValidation(new EmptyTextInputChecker(userNameText, LaunchMessages.RMCP_UserLabel), managedForm, 
                              userNameText);
-        if (ConnectionSectionPart.this.fCurrentConnection == curConnInfo) {
+        if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
           updateConnectionConf(x10PlatformConf);
           updateDirtyState(managedForm);
@@ -348,7 +349,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         handleTextValidation(new EmptyTextInputChecker(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel), managedForm, 
                              privateKeyText);
         
-        if (ConnectionSectionPart.this.fCurrentConnection == curConnInfo) {
+        if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           updateConnectionConf(x10PlatformConf);
           updateDirtyState(managedForm);
           setPartCompleteFlag(hasCompleteInfo());
@@ -370,7 +371,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           }
           curConnInfo.setPassword(passwordText.getText().trim());
         }
-        if (ConnectionSectionPart.this.fCurrentConnection == curConnInfo) {
+        if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           updateConnectionConf(x10PlatformConf);
           updateDirtyState(managedForm);
         }
@@ -404,7 +405,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         }
         handleTextValidation(new EmptyTextInputChecker(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel), managedForm, 
                              privateKeyText);
-        if (ConnectionSectionPart.this.fCurrentConnection == curConnInfo) {
+        if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
           updateConnectionConf(x10PlatformConf);
           updateDirtyState(managedForm);
@@ -438,7 +439,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           }
           curConnInfo.setPassphrase(passphraseText.getText().trim());
         }
-        if (ConnectionSectionPart.this.fCurrentConnection == curConnInfo) {
+        if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           updateConnectionConf(x10PlatformConf);
           updateDirtyState(managedForm);
         }
@@ -602,10 +603,12 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         final IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
         final IConnectionInfo currentConnection = (IConnectionInfo) selection.iterator().next();
         ConnectionSectionPart.this.fCurrentConnection = currentConnection;
+        updateConnectionConf(x10PlatformConf);
         for (final TableItem tableItem : tableViewer.getTable().getItems()) {
           tableViewer.update(tableItem.getData(), null);
         }
         validateRemoteHostConnection(currentConnection);
+        setPartCompleteFlag(hasCompleteInfo());
       }
       
       public void widgetDefaultSelected(final SelectionEvent event) {
@@ -716,6 +719,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
           listener.connectionChanged(false, curConnInfo.getName(), curConnInfo.getValidationStatus());
         }
+        setPartCompleteFlag(hasCompleteInfo());
       }
       
       protected Object getValue(final Object element) {
@@ -1119,6 +1123,11 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         }
         
       });
+    }
+    
+    public void serviceProviderFailure(final CoreException exception) {
+    	// Should never occur.
+    	CppLaunchCore.log(exception.getStatus());
     }
     
     // --- Private code

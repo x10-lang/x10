@@ -176,6 +176,11 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     });
   }
   
+  public void serviceProviderFailure(final CoreException exception) {
+  	// Should never occur.
+  	CppLaunchCore.log(exception.getStatus());
+  }
+  
   // --- IConnectionTypeListener's interface methods implementation
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,

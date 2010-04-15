@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
 /**
@@ -66,5 +67,12 @@ public interface IX10PlatformValidationListener {
    * @param targetElement The PTP target element used for the validation.
    */
   public void remoteConnectionValidated(final ITargetElement targetElement);
+  
+  /**
+   * Event indicating that we could not create the service provider for the underlying PTP resource manager.
+   * 
+   * @param exception The exception associated with the failure.
+   */
+  public void serviceProviderFailure(final CoreException exception);
 
 }

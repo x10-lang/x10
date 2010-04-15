@@ -44,6 +44,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.CpEntryAsStringFunc;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.IPathToFileFunc;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.JavaModelFileResource;
@@ -160,14 +161,17 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
           final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, 
                                                                               connConf.getConnectionName());
-          final String mainCppFilePath = targetOpHelper.toPath(this.fCppMainFileStore.toURI());
-          configuration.setAttribute(Constants.ATTR_MAIN_CPP_FILE_PATH, mainCppFilePath);
-          try {
-            final String workspaceDir = PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project);
-            configuration.setAttribute(ATTR_WORK_DIRECTORY, workspaceDir);
-            configuration.setAttribute(ATTR_EXECUTABLE_PATH, getExecutablePath(mainCppFilePath, workspaceDir, configuration));
-          } catch (CoreException except) {
-            // Let's forget it will be handled by the validation step.
+          if (targetOpHelper != null) {
+          	final String mainCppFilePath = targetOpHelper.toPath(this.fCppMainFileStore.toURI());
+          	configuration.setAttribute(Constants.ATTR_MAIN_CPP_FILE_PATH, mainCppFilePath);
+          	try {
+          		final String workspaceDir = PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project);
+          		configuration.setAttribute(ATTR_WORK_DIRECTORY, workspaceDir);
+          		configuration.setAttribute(ATTR_EXECUTABLE_PATH, getExecutablePath(mainCppFilePath, workspaceDir, 
+          		                                                                   configuration));
+          	} catch (CoreException except) {
+          		// Let's forget it will be handled by the validation step.
+          	}
           }
         }
       }
@@ -226,10 +230,12 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
               final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
               final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, 
                                                                                   connConf.getConnectionName());
-              final String mainCppFilePath = configuration.getAttribute(Constants.ATTR_MAIN_CPP_FILE_PATH, EMPTY_STR);
-              this.fCppMainFileStore = getMainCppFileStore(targetOpHelper, mainCppFilePath, project,
-                                                           configuration.getAttribute(Constants.ATTR_X10_MAIN_CLASS, 
-                                                                                      EMPTY_STR));
+              if (targetOpHelper != null) {
+              	final String mainCppFilePath = configuration.getAttribute(Constants.ATTR_MAIN_CPP_FILE_PATH, EMPTY_STR);
+              	this.fCppMainFileStore = getMainCppFileStore(targetOpHelper, mainCppFilePath, project,
+              	                                             configuration.getAttribute(Constants.ATTR_X10_MAIN_CLASS, 
+              	                                                                        EMPTY_STR));
+              }
             }
           }
         }
@@ -275,6 +281,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         if (this.fX10PlatformConf == null) {
           setMessage(NLS.bind(LaunchMessages.CAT_CouldNotLoadPlatformWarning, projectName));
         } else {
+        	final ITargetOpHelper targetOpHelper = getTargetOpHelper();
+        	if (targetOpHelper == null) {
+        		setErrorMessage(Messages.CPPB_NoPTPConnectionForName);
+        		return false;
+        	}
           if ((this.fCppMainFileStore == null) || ! this.fCppMainFileStore.fetchInfo().exists()) {
             setErrorMessage(LaunchMessages.CAT_NoAssociatedCppFile);
             return false;
@@ -488,6 +499,13 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     return null;
   }
   
+  private ITargetOpHelper getTargetOpHelper() {
+  	final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
+    final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
+    final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
+    return TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
+  }
+  
   private void searchForMatchingGeneratedFile(final Collection<IFileStore> matches, final IFileStore dirStore,
                                               final String curDir, final String pkgName, 
                                               final String typeName, final IProgressMonitor monitor) throws CoreException {
@@ -522,11 +540,10 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   private void setMainType(final IProject project, final IResourceManager resourceManager,
                            final ClassType mainType) throws CoreException {
     if (this.fX10PlatformConf != null) {
-      final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
-      final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
-      final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
-      final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, 
-                                                                          connConf.getConnectionName());
+      final ITargetOpHelper targetOpHelper = getTargetOpHelper();
+      if (targetOpHelper == null) {
+      	throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.CPPB_NoPTPConnectionForName));
+      }
       final IFileStore wDirStore = targetOpHelper.getStore(PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project));
     
       final Collection<IFileStore> matches = new ArrayList<IFileStore>();

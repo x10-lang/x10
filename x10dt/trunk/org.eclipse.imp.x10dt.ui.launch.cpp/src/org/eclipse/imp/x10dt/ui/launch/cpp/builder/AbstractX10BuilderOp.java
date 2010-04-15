@@ -39,7 +39,8 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
-  protected AbstractX10BuilderOp(final IX10PlatformConf platformConf, final IProject project, final String workspaceDir) {
+  protected AbstractX10BuilderOp(final IX10PlatformConf platformConf, final IProject project, 
+                                 final String workspaceDir) {
     this.fConfName = platformConf.getName();
     this.fProject = project;
     this.fWorkspaceDir = workspaceDir;
@@ -167,7 +168,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   }
   
   public final boolean hasAllPrerequisites() {
-    return this.fPlatformConf.isComplete(true);
+    return (this.fTargetOpHelper != null) && this.fPlatformConf.isComplete(true);
   }
 
   // --- Code for descendants

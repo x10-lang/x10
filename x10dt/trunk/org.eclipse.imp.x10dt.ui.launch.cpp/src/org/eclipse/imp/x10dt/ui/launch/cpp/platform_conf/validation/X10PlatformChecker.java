@@ -23,9 +23,11 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.StringUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
@@ -52,19 +54,39 @@ final class X10PlatformChecker implements IX10PlatformChecker {
     this.fListeners.remove(listener);
   }
   
-  public void validateCommunicationInterface(final IX10PlatformConfWorkCopy platormConf, final IProgressMonitor monitor) {
-  	IResourceManager resourceManager = PTPConfUtils.findResourceManager(platormConf.getName());
-  	if (resourceManager == null) {
-      try {
-        resourceManager = PTPConfUtils.createResourceManager(platormConf);
-      } catch (RemoteConnectionException except) {
-      	for (final IX10PlatformValidationListener listener : this.fListeners) {
-          listener.remoteConnectionFailure(except);
-        }
-      	monitor.done();
-      	return;
-      }
+  public void validateCommunicationInterface(final IX10PlatformConf platformConf, final IProgressMonitor monitor) {
+  	IResourceManager resourceManager = null;
+  	try {
+  		resourceManager = PTPConfUtils.getResourceManager(platformConf);
+  	} catch (RemoteConnectionException except) {
+  		for (final IX10PlatformValidationListener listener : this.fListeners) {
+  			listener.remoteConnectionFailure(except);
+  		}
+  		monitor.done();
+  		return;
+  	} catch (CoreException except) {
+  		for (final IX10PlatformValidationListener listener : this.fListeners) {
+  			listener.serviceProviderFailure(except);
+  		}
+  		monitor.done();
+  		return;
+		}
+  	if (monitor.isCanceled()) {
+  		return;
   	}
+  	final String rmServicesId = ((IResourceManagerControl) resourceManager).getConfiguration().getRemoteServicesId();
+  	final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmServicesId);
+  	final String connectionName = platformConf.getConnectionConf().getConnectionName();
+  	final IRemoteConnection rmConnection = rmServices.getConnectionManager().getConnection(connectionName);
+  	try {
+			rmConnection.open(monitor);
+		} catch (RemoteConnectionException except) {
+			for (final IX10PlatformValidationListener listener : this.fListeners) {
+  			listener.remoteConnectionFailure(except);
+  		}
+  		monitor.done();
+  		return;
+		}
   	if (monitor.isCanceled()) {
   		return;
   	}

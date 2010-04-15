@@ -123,7 +123,7 @@ public class LaunchMessages extends NLS {
 
   public static String CIT_CommunicationInterface;
 
-  public static String CIT_CouldNotCreateResManager;
+  public static String CIT_CouldNotFindResManager;
 
   public static String CIT_CouldNotStartResManager;
 
@@ -300,8 +300,6 @@ public class LaunchMessages extends NLS {
   public static String RMCP_ValidateRemoteConn;
 
   public static String RMCP_ValidateRemoteConnBt;
-
-  public static String XCB_CleanAbortedMsg;
 
   public static String XCTD_DialogMsg;
 

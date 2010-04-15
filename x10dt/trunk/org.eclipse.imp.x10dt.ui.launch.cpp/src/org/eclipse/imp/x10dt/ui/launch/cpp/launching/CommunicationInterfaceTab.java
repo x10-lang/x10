@@ -29,7 +29,6 @@ import org.eclipse.ptp.launch.ui.extensions.AbstractRMLaunchConfigurationFactory
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationContentsChangedListener;
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
 import org.eclipse.ptp.launch.ui.extensions.RMLaunchValidation;
-import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Image;
@@ -84,12 +83,8 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   public void platformConfSelected(final IX10PlatformConf platformConf) {
     this.fResourceManager = PTPConfUtils.findResourceManager(platformConf.getName());
     if (this.fResourceManager == null){
-      try {
-        this.fResourceManager = PTPConfUtils.createResourceManager(platformConf);
-      } catch (RemoteConnectionException except) {
-        setErrorMessage(LaunchMessages.CIT_CouldNotCreateResManager);
-        return;
-      }
+    	setErrorMessage(LaunchMessages.CIT_CouldNotFindResManager);
+    	return;
     }
     if (this.fResourceManager.getState() == State.ERROR) {
     	try {

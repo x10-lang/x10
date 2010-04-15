@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 
@@ -110,9 +111,11 @@ public final class X10PlatformConfFactory {
       }
       
     };
-    IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
-  	ISchedulingRule modifyRule = ruleFactory.modifyRule(file);
-  	ResourcesPlugin.getWorkspace().run(myRunnable, modifyRule, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+    final IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
+  	final ISchedulingRule modifyRule = ruleFactory.modifyRule(file);
+  	final ISchedulingRule refreshRule = ruleFactory.refreshRule(file);
+  	ResourcesPlugin.getWorkspace().run(myRunnable, MultiRule.combine(modifyRule, refreshRule), IWorkspace.AVOID_UPDATE, 
+  	                                   new NullProgressMonitor());
   }
   
   // --- Private code

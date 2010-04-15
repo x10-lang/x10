@@ -8,6 +8,7 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
@@ -42,10 +43,10 @@ public interface IX10PlatformChecker {
   /**
    * Validates the Communication Interface by trying to execute a discovery command on the target machine.
    * 
-   * @param platormConf The platform configuration to use for validation.
+   * @param platformConf The platform configuration to use for validation.
    * @param monitor The monitor to use for reporting progress and/or cancel the operation.
    */
-  public void validateCommunicationInterface(final IX10PlatformConfWorkCopy platormConf, final IProgressMonitor monitor);
+  public void validateCommunicationInterface(final IX10PlatformConf platformConf, final IProgressMonitor monitor);
   
   /**
    * Validates the C++ compilation and linking of a simple HelloWorld program either locally or remotely depending of the

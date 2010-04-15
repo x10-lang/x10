@@ -29,15 +29,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
-import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
-import org.eclipse.ptp.core.elements.IResourceManager;
-import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
-import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformChecker;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformValidationListener;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.PlatformCheckerFactory;
+import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -80,7 +81,9 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
           	if (platformConfFile.exists()) {
           		final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
           		this.fProjectToPlatform.put(project, platformConf);
-          		startResourceManager(project, platformConf);
+          		if (platformConf.isComplete(false)) {
+          			startResourceManager(project, platformConf);
+          		}
           	}
             break;
           }
@@ -94,7 +97,9 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
             	final IFile platformConfFile = (IFile) platformConfDelta.getResource();
             	final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
             	this.fProjectToPlatform.put(project, platformConf);
-            	startResourceManager(project, platformConf);
+            	if (platformConf.isComplete(false)) {
+            		startResourceManager(project, platformConf);
+            	}
             }
             break;
           }
@@ -248,48 +253,52 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
     }
   }
   
+	private void safeRunForMarkers(final IResource resource, final IProgressMonitor monitor,
+                                 final IWorkspaceRunnable runnable) {
+		new Thread(new Runnable() {
+	
+			public void run() {
+				final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+				while (workspace.isTreeLocked()) ;
+				if (! monitor.isCanceled()) {
+					final IResourceRuleFactory ruleFactory = workspace.getRuleFactory();
+					try {
+						workspace.run(runnable, ruleFactory.markerRule(resource), IWorkspace.AVOID_UPDATE, monitor);
+					} catch (CoreException except) {
+						CppLaunchCore.log(except.getStatus());
+					}
+				}
+			}
+		}).start();
+	}
+  
   private void startResourceManager(final IProject project, final IX10PlatformConf platformConf) {
   	final WorkspaceJob job = new WorkspaceJob(LaunchMessages.CLC_CheckConnAndCommJobMsg) {
 			
-			public IStatus runInWorkspace(final IProgressMonitor monitor) {
-				IResourceManager resourceManager = PTPConfUtils.findResourceManager(platformConf.getName());
-				try {
-					if (resourceManager == null) {
-						resourceManager = PTPConfUtils.createResourceManager(platformConf);
-					}
-				} catch (RemoteConnectionException except) {
-					return Status.CANCEL_STATUS;
-				}
-				if (monitor.isCanceled()) {
-					return Status.CANCEL_STATUS;
-				}
-				if (resourceManager.getState() == State.ERROR) {
-					try {
-						resourceManager.shutdown();
-					} catch (CoreException except) {
-						// Let's try to continue...
-					}
-				}
-				if (monitor.isCanceled()) {
-					return Status.CANCEL_STATUS;
-				}
-				if (resourceManager.getState() != State.STARTED) {
-					try {
-						resourceManager.startUp(monitor);
-					} catch (CoreException except) {
-						safeRunForMarkerAdding(X10PlatformConfFactory.getFile(project), monitor, new IWorkspaceRunnable() {
+			public IStatus runInWorkspace(final IProgressMonitor monitor) {				
+				final IX10PlatformChecker checker = PlatformCheckerFactory.create();
+				final IFile file = X10PlatformConfFactory.getFile(project);
+				
+				safeRunForMarkers(file, new NullProgressMonitor(), new IWorkspaceRunnable() {
 
-							public void run(final IProgressMonitor localMonitor) throws CoreException {
-								IResourceUtils.addPlatformConfMarker(X10PlatformConfFactory.getFile(project),
-								                                     LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg,
-								                                     IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
-							}
-						
-						});
-						return Status.CANCEL_STATUS;
+					public void run(final IProgressMonitor localMonitor) throws CoreException {
+						IResourceUtils.deletePlatformConfMarkers(file);
 					}
+				
+				});
+				
+				final CommunicationInterfaceListener listener = new CommunicationInterfaceListener(file);
+				checker.addValidationListener(listener);
+				try {
+					checker.validateCommunicationInterface(platformConf, monitor);
+				} finally {
+					checker.removeValidationListener(listener);
 				}
-				return Status.OK_STATUS;
+				if (listener.getException() != null) {
+					return listener.getException().getStatus();
+				} else {
+					return Status.OK_STATUS;
+				}
 			}
 			
 		};
@@ -298,26 +307,74 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
 		job.schedule();
 	}
   
-  // --- Private code
+  // --- Private classes
   
-  private void safeRunForMarkerAdding(final IResource resource, final IProgressMonitor monitor,
-                                      final IWorkspaceRunnable runnable) {
-  	new Thread(new Runnable() {
+  private final class CommunicationInterfaceListener implements IX10PlatformValidationListener {
+  	
+  	CommunicationInterfaceListener(final IFile platformConfFile) {
+  		this.fPlatformConfFile = platformConfFile;
+  	}
+  	
+  	// --- Interface methods implementation
+
+		public void platformCommunicationInterfaceValidated() {
+		}
+
+		public void platformCommunicationInterfaceValidationFailure(final String message) {
+			safeRunForMarkers(this.fPlatformConfFile, new NullProgressMonitor(), new IWorkspaceRunnable() {
+
+				public void run(final IProgressMonitor localMonitor) throws CoreException {
+					IResourceUtils.addPlatformConfMarker(CommunicationInterfaceListener.this.fPlatformConfFile,
+					                                     LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg,
+					                                     IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+				}
 			
-			public void run() {
-		  	final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		  	while (workspace.isTreeLocked()) ;
-		  	if (! monitor.isCanceled()) {
-		  		final IResourceRuleFactory ruleFactory = workspace.getRuleFactory();
-		  		try {
-		  			workspace.run(runnable, ruleFactory.markerRule(resource), IWorkspace.AVOID_UPDATE, monitor);
-		  		} catch (CoreException except) {
-		  			CppLaunchCore.log(except.getStatus());
-		  		}
-		  	}
-			}
+			});
+		}
+
+		public void platformCppCompilationValidated() {
+		}
+
+		public void platformCppCompilationValidationError(final Exception exception) {
+		}
+
+		public void platformCppCompilationValidationFailure(final String message) {
+		}
+
+		public void remoteConnectionFailure(final Exception exception) {
+			safeRunForMarkers(this.fPlatformConfFile, new NullProgressMonitor(), new IWorkspaceRunnable() {
+
+				public void run(final IProgressMonitor localMonitor) throws CoreException {
+					IResourceUtils.addPlatformConfMarker(CommunicationInterfaceListener.this.fPlatformConfFile,
+					                                     LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg,
+					                                     IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+				}
 			
-		}).start();
+			});
+		}
+
+		public void remoteConnectionUnknownStatus() {
+		}
+
+		public void remoteConnectionValidated(final ITargetElement targetElement) {
+		}
+		
+		public void serviceProviderFailure(final CoreException exception) {
+			this.fCoreException = exception;
+		}
+		
+		// --- Internal services
+		
+		CoreException getException() {
+			return this.fCoreException;
+		}
+		
+		// --- Fields
+		
+		private final IFile fPlatformConfFile;
+		
+		private CoreException fCoreException;
+  	
   }
   
   // --- Fields

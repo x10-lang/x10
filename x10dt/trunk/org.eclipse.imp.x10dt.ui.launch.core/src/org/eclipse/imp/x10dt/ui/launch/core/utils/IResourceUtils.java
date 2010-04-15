@@ -21,6 +21,19 @@ import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
  * @author egeay
  */
 public final class IResourceUtils {
+	
+  /**
+   * Adds an X10 Problem marker to the resource and the different characteristics provided.
+   * 
+   * @param resource The resource with which the marker will be associated to.
+   * @param msg The marker message.
+   * @param severity The marker severity.
+   * @param loc The marker location.
+   * @param priority The marker priority.
+   */
+  public static void addBuildMarkerTo(final IResource resource, final String msg, final int severity, final int priority) {
+    createMarker(X10Builder.PROBLEMMARKER_ID, resource, msg, severity, resource.getLocation().toString(), priority, -1, 0, 0);
+  }
   
   /**
    * Adds an X10 Problem marker to the resource and the different characteristics provided.

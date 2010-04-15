@@ -14,7 +14,6 @@ import java.util.List;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,13 +24,9 @@ import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.AbstractX10Builder;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
-import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
-import org.eclipse.osgi.util.NLS;
 
 import polyglot.main.Report;
 import x10.ExtensionInfo;
@@ -47,15 +42,8 @@ public final class X10CppBuilder extends AbstractX10Builder {
   
   // --- Abstract methods implementation
   
-  public void clearGeneratedAndCompiledFiles(final Collection<IFile> x10SourceFiles, 
+  public void clearGeneratedAndCompiledFiles(final IX10BuilderFileOp builderFileOp, final Collection<IFile> x10SourceFiles, 
                                              final SubMonitor monitor) throws CoreException {
-    final IX10BuilderFileOp builderFileOp = createX10BuilderFileOp();
-    if (! builderFileOp.hasAllPrerequisites()) {
-      IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(LaunchMessages.XCB_CleanAbortedMsg, getProject().getName()), 
-                                      IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-      UIUtils.showProblemsView();
-      return;
-    }
     final ITargetOpHelper targetOpHelper = builderFileOp.getTargetOpHelper();
     
     final NullProgressMonitor nullMonitor = new NullProgressMonitor();

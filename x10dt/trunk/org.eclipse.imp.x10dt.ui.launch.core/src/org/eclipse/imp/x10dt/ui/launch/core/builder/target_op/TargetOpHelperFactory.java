@@ -10,9 +10,11 @@ package org.eclipse.imp.x10dt.ui.launch.core.builder.target_op;
 import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.LOCAL_CONN_SERVICE_ID;
 import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 
 /**
  * Factory method(s) to create implementation(s) of {@link ITargetOpHelper}.
@@ -28,12 +30,22 @@ public final class TargetOpHelperFactory {
    * @param isLocal Indicates if the target system is local or remote.
    * @param isCygwin Indicates if the target system is a Cygwin or a general Unix system.
    * @param connectionName The name of the connection to consider.
-   * @return A non-null object.
+   * @return A non-null object if there is an existing PTP connection for the connection name provided, otherwise <b>null</b>.
    */
-  public static ITargetOpHelper create(final boolean isLocal, final boolean isCygwin, final String connectionName) {
+  public static ITargetOpHelper create(final boolean isLocal, final boolean isCygwin, 
+                                       final String connectionName) {
     final String rmServicesId = isLocal ? LOCAL_CONN_SERVICE_ID : REMOTE_CONN_SERVICE_ID;
     final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmServicesId);
     final IRemoteConnection rmConnection = rmServices.getConnectionManager().getConnection(connectionName);
+    if (rmConnection == null) {
+    	return null;
+    }
+    try {
+			rmConnection.open(new NullProgressMonitor());
+		} catch (RemoteConnectionException except) {
+			// It's not a valid connection, let's give up.
+			return null;
+		}
     if (isCygwin) {
       return new CygwinTargetOpHelper(rmServices, rmConnection);
     } else {

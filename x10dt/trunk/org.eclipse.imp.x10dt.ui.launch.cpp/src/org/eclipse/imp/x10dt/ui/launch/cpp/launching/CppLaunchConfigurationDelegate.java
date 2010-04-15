@@ -180,6 +180,9 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       final IConnectionConf connConf = platformConf.getConnectionConf();
       this.fIsCygwin = this.fCppCompConf.getTargetOS() == ETargetOS.WINDOWS;
       this.fTargetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), this.fIsCygwin, connConf.getConnectionName());
+      if (this.fTargetOpHelper == null) {
+      	throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.CPPB_NoPTPConnectionForName));
+      }
       final String workspaceDir = PlatformConfUtils.getWorkspaceDir(platformConf, project);
       final String execPath = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
       project.setPersistentProperty(Constants.EXEC_PATH, execPath);
