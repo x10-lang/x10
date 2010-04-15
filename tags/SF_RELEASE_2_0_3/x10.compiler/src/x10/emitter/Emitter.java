@@ -1773,8 +1773,11 @@ public class Emitter {
 	}
 
 	public boolean hasAnnotation(Node dec, QName name) {
+	    return hasAnnotation((X10TypeSystem) tr.typeSystem(), dec, name);
+	}
+
+	public static boolean hasAnnotation(X10TypeSystem ts, Node dec, QName name) {
 		try {
-			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 			if (annotationNamed(ts, dec, name) != null)
 				return true;
 		} catch (NoClassException e) {
