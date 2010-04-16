@@ -23,7 +23,7 @@ public class NQueensPar {
     def this(N:Int, P:Int) { this.N=N; this.P=P;}
 
     def start() {
-        new Board().search();
+        new Board(this).search();
     }
 
     /**
@@ -39,16 +39,18 @@ public class NQueensPar {
         })
     }
 
-    class Board {
-
+    static class Board {
+	val nq:NQueensPar!;
         val q: Rail[Int]{self.at(this)};
 
-        def this() {
+        def this(nqueens:NQueensPar!) {
+            nq = nqueens;
             q = Rail.make[Int](0, (int)=>0);
         }
 
-        def this(old: Rail[Int]!, newItem:Int) {
+        def this(nqueens:NQueensPar!, old: Rail[Int]!, newItem:Int) {
             val n = old.length;
+            nq = nqueens;
             q = Rail.make[Int](n+1, (i:int)=> (i < n? old(i) : newItem));
         }
 
@@ -64,22 +66,22 @@ public class NQueensPar {
         /** Search for all solutions in parallel, on finding
          * a solution update nSolutions.
          */
-        def search(R: Region(1)){at(NQueensPar.this)}{
+        def search(R: Region(1)) {
             for ((k) in R)
                 if (safe(k))
-                    new Board(q, k).search();
+                    new Board(nq, q, k).search();
         }
 
-        def search(){at(NQueensPar.this)} {
-            if (q.length == N) {
-                atomic nSolutions++;
+        def search() {
+            if (q.length == nq.N) {
+                atomic nq.nSolutions++;
                 return;
             }
             if (q.length == 0) {
-                val R = block(0..N-1, P);
-                foreach ((q) in 0..P-1)
+                val R = block(0..nq.N-1, nq.P);
+                foreach ((q) in 0..nq.P-1)
                   search(R(q));
-            } else search(0..N-1);
+            } else search(0..nq.N-1);
         }
     }
 
