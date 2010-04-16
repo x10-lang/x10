@@ -3,39 +3,55 @@ Release 2.0.3
 This release includes both the C++ and Java code generation backends.
 
 The following significant language changes were made since the 2.0.2 release:
-- To simplify the initial development of X10 programs, we have enhanced the 
-  compiler to automatically insert dynamic checks when it is unable to
-  statically verify that type constraints of an invoked method are satisfied. 
-  The most obvious manifestation of this feature is with place types, where the 
-  compiler will automatically insert a dynamic place check when a non-global method
-  is being invoked on a receiver object that is not known statically to be in 
-  the current place.
-  By default, the compiler will insert the dynamic checks and report a summary
-  of the total number of such checks inserted in each file compiled.
-  Two command line arguments are available to modify this behavior:
-    -VERBOSE_CALLS : print the details of each dynamic check that is inserted
-    -STATIC_CALLS : do not insert dynamic checks and instead treat non-entailment 
-          as a compilation error (the default behavior of X10 2.0.2).
-  The intent is that programmers will initially develop with the default settings,
-  but as the code matures, -VERBOSE_CALLS can be used to reduce the number of dynamic
-  checks and in production-level code, -STATIC_CALLS can be used to take full 
-  advantage of the static type systems ability to verify static properties of the code.
 
-- There have been significant design changes and performance improvements in the
-  x10.array class library.
-    -- Array, Dist, Region, and Point have all been moved into the x10.array package.
-    -- The x10.array package is imported by default (same as x10.lang).
+- To simplify the initial development of X10 programs, we have
+  enhanced the compiler to automatically insert dynamic checks when it
+  is unable to statically verify that type constraints of an invoked
+  method are satisfied.  The most obvious manifestation of this
+  feature is with place types, where the compiler will automatically
+  insert a dynamic place check when a non-global method is being
+  invoked on a receiver object that is not known statically to be in
+  the current place.
+  By default, the compiler will insert the dynamic checks and report a
+  summary of the total number of such checks inserted in each file
+  compiled.  Two command line arguments are available to modify this
+  behavior:
+    -VERBOSE_CALLS : verbose messages when dynamic checks are inserted
+
+    -STATIC_CALLS : do not insert dynamic checks and instead treat
+                    non-entailment as a compilation error 
+		    (the default behavior of X10 2.0.2).
+  The intent is that programmers will initially develop with the
+  default settings, but as the code matures, -VERBOSE_CALLS can be
+  used to reduce the number of dynamic checks and in production-level
+  code, -STATIC_CALLS can be used to take full advantage of the static
+  type systems ability to verify static properties of the code.
+
+- There have been significant design changes and performance
+  improvements in the x10.array class library.
+    -- Array, Dist, Region, and Point have all been moved into the
+       x10.array package.
+    -- The x10.array package is imported by default (same as
+       x10.lang).
     -- We have separated single place and multi-place arrays. 
        x10.array.Array is a local (single place) array.
        x10.array.DistArray is a distributed (multi-place) array.
     -- x10.array.Array is defined over a Region and no longer has a Dist.
     -- x10.array.DistArray continues to have a Dist.
-    -- Enhancements to the compiler and to the structure of the Array implementation
-       have significantly improved the performance of Array.
-    -- We have removed some of the more complex Dist and Region operations.
-       In X10 2.0.4 (early June) we will be focusing on improving the performance
-       of DistArray.  In X10 2.1.0 (late July) we will be bringing back 
-       higher performance versions of additional Dist and Region operations.
+    -- Enhancements to the compiler and to the structure of the Array
+       implementation have significantly improved the performance of
+       Array.
+    -- We have removed some of the more complex Dist and Region
+       operations.  In X10 2.0.4 (early June) we will be focusing on
+       improving the performance of DistArray.  In X10 2.1.0 (late
+       July) we will be bringing back higher performance versions of
+       additional Dist and Region operations.
+
+- We have enhanced the mechanisms used to integrate X10 code with
+  native C/C++ libraries. Details can be found on this web page:
+  http://x10-lang.org/NativeCodeIntegration. If you have code using
+  the X10 2.0.2 @NativeRep annotation, you will need to add a
+  @NativeCPPCompilationUnit annotation as well. 
 
 For details on these and other more minor changes, please consult the
 language specification included in the X10 release.
