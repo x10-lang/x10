@@ -151,7 +151,10 @@ export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 ##### cat feed - init
 __cat_feed_stage=INIT
 __cat_report_version=1.1
-__cat_backend=x10c
+if [[ -z "$CAT_BACKEND_NAME" ]]
+    export CAT_BACKEND_NAME=x10c
+fi
+__cat_backend=$CAT_BACKEND_NAME
 __cat_start_date=$(date +'%Y-%m-%d')
 __cat_start_date2=$(echo "${__cat_start_date}" | sed -e 's;-;;g')
 __cat_start_time=$(date +'%H:%M:%S')
