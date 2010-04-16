@@ -53,7 +53,7 @@ public interface Any(
      */
     @Native("java", "x10.core.Ref.at(#0, #1)")
     @Native("c++", "(x10aux::get_location(#0) == (#1)->location)")
-    property def at(r:Object):Boolean;
+    property safe def at(r:Object):Boolean;
 
     /**
      * Return true if the home location of this entity is the given place.
@@ -63,7 +63,7 @@ public interface Any(
      */
     @Native("java", "x10.core.Ref.at(#0, #1.id)")
     @Native("c++", "(x10aux::get_location(#0) == (#1)->FMGL(id))")
-    property def at(p:Place):Boolean;
+    property safe def at(p:Place):Boolean;
 
     /**
      * Return the string representation of this entity.
