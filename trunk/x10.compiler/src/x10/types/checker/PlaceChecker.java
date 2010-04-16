@@ -510,7 +510,7 @@ public class PlaceChecker {
 			Receiver r = result.target();
 			if (r instanceof Expr) {
 				Expr target = (Expr) r;
-				Type type = PlaceChecker.AddIsHereClause(target.type(), tc.context());
+				Type type = PlaceChecker.AddIsHereClause(X10TypeMixin.baseType(target.type()), tc.context());
 			 	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
 				target = Converter.attemptCoercion(true, tc, target, type);
 				n = (X10Call) result.reconstruct(target, result.name(), result.arguments());
@@ -530,7 +530,7 @@ public class PlaceChecker {
 			Receiver r = n.target();
 			if (r instanceof Expr) {
 				Expr target = (Expr) r;
-				Type type = PlaceChecker.AddIsHereClause(target.type(), tc.context());
+				Type type = PlaceChecker.AddIsHereClause(X10TypeMixin.baseType(target.type()), tc.context());
 			 	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
 				target = Converter.attemptCoercion(true, tc, target, type);
 				n =  n.reconstruct(target, n.name());
