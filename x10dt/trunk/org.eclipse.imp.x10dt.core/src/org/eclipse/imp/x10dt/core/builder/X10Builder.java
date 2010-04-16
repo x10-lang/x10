@@ -98,13 +98,16 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private final class X10DeltaVisitor implements IResourceDeltaVisitor {
         public boolean visit(IResourceDelta delta) throws CoreException {
-            return processResource(delta.getResource());
+        	if (delta.getKind() == IResourceDelta.REMOVED){
+        		return processResource(delta.getResource(), true);
+        	} else 
+        		return processResource(delta.getResource(), false);
         }
     }
 
     private class X10ResourceVisitor implements IResourceVisitor {
         public boolean visit(IResource res) throws CoreException {
-            return processResource(res);
+            return processResource(res, false);
         }
     }
 
@@ -113,7 +116,8 @@ public class X10Builder extends IncrementalProjectBuilder {
     private IProgressMonitor fMonitor;
     private X10ResourceVisitor fResourceVisitor= new X10ResourceVisitor();
     private final X10DeltaVisitor fDeltaVisitor= new X10DeltaVisitor();
-    private Collection<IFile> fSourcesToCompile= new ArrayList<IFile>();
+    private Collection<IFile> fSourcesToCompile= new HashSet<IFile>();
+    private Collection<IFile> fSourcesToDelete = new HashSet<IFile>(); //contains .x10 files that have been just deleted
     private ExtensionInfo fExtInfo;
     private static PluginBase sPlugin= null;
     protected PolyglotDependencyInfo fDependencyInfo;
@@ -127,13 +131,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     public X10Builder() {}
 
-    /**
-     * "Compile" the given resource
-     * @param resource
-     * @return true if the resource's children should be visited, false otherwise
-     */
     protected boolean processResource(final IResource resource) {
- 
             	if (resource instanceof IFile) {
             		IFile file= (IFile) resource;
             		if (isSourceFile(file))
@@ -143,13 +141,35 @@ public class X10Builder extends IncrementalProjectBuilder {
             	return true;
      }
 
-    	
-    
+
+    /**
+     * "Compile" the given resource
+     * @param resource
+     * @param removed true if resource has just been deleted
+     * @return true if the resource's children should be visited, false otherwise
+     */
+    protected boolean processResource(final IResource resource, boolean removed){
+    	if (resource instanceof IFile){
+    		IFile file = (IFile) resource;
+    		if (isSourceFile(file)){
+    			if (!removed) {
+    				fSourcesToCompile.add(file);
+    				System.out.println("Adding source to compile " + file.getFullPath());
+    			} else {
+    				fSourcesToCompile.addAll(getChangeDependents(file));
+    				fSourcesToDelete.add(file);
+    				System.out.println("Adding source to delete " + file.getFullPath());
+    			}
+    		} else if (isBinaryFolder(resource)) 
+    			return false;
+    	}
+    	return true;
+    }
 
     protected boolean isSourceFile(IFile file) {
         String exten= file.getFileExtension();
 
-        if (!(file.exists() && exten != null && exten.compareTo("x10") == 0))
+        if (!(/*file.exists() &&*/ exten != null && exten.compareTo("x10") == 0))
             return false;
 
         IContainer parent= (IContainer) file.getParent();
@@ -357,7 +377,8 @@ public class X10Builder extends IncrementalProjectBuilder {
                 "-d", outputDir,
                 "-sourcepath", 
                 projectSrcPath,
-                "-commandlineonly"  
+                "-commandlineonly",  
+                "-c"
             };
             for (String s: stdOptsArray) {
                 optsList.add(s);
@@ -654,7 +675,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         return buff.toString();
     }
    
-    protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
+    protected IProject[] build(final int kind, final Map args, IProgressMonitor monitor) throws CoreException {
     	
         final String[] buildKind= { "0", "1", "2", "3", "4", "5", "Full", "7", "8", "Auto", "Incremental", "11", "12", "13", "14", "Clean" };
 
@@ -682,14 +703,14 @@ public class X10Builder extends IncrementalProjectBuilder {
         if (kind == CLEAN_BUILD || kind == FULL_BUILD)
             fDependencyInfo.clearAllDependencies();
         fSourcesToCompile.clear();
+        fSourcesToDelete.clear();
 
         fMonitor.beginTask("Scanning and compiling X10 source files...", 0);
         
         final Set<Collection<IProject>> deps = new HashSet<Collection<IProject>>();
-       
+        final Set<Object> success = new HashSet<Object>(); //Empty means false
+        
         IWorkspace ws= ResourcesPlugin.getWorkspace();
-       
-
         IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
         	public void run(IProgressMonitor monitor) {   
 
@@ -716,7 +737,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         try {
         	
         		ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
-        	
+        		
       } catch (CoreException e) {
           e.printStackTrace();
       }
@@ -732,14 +753,10 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private boolean cleanGeneratedFiles() {
         IWorkspace ws= ResourcesPlugin.getWorkspace();
-        final IWorkspaceDescription description = ws.getDescription();
-        
-        description.setAutoBuilding(false);
-        
+    
         final IWorkspaceRoot wsRoot= ws.getRoot();
         final List<IFile> genFiles= new ArrayList<IFile>();
-        final List<IFile> genFilesCopy= new ArrayList<IFile>();
-        
+       
 		final boolean traceOn=false;
         for(IFile srcFile: fSourcesToCompile) {
         	if(traceOn)System.out.println("srcFile: "+srcFile);
@@ -748,47 +765,45 @@ public class X10Builder extends IncrementalProjectBuilder {
             IPath genFileFolder= srcFile.getFullPath().removeLastSegments(1);
             if(traceOn)System.out.println("genFileFolder: "+genFileFolder);
             genFiles.add(wsRoot.getFile(genJavaFile));
-            genFilesCopy.add(wsRoot.getFile(genJavaFile));
         }
+        
+        for(IFile srcFile: fSourcesToDelete){
+        	IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
+        	genFiles.add(wsRoot.getFile(genJavaFile));
+        }
+        
+        IStatus status= null;
+		for (IFile file : genFiles) {
+			try {
+				file.delete(true, new NullProgressMonitor());
+			} catch (CoreException e) {
+				if (status == null) {
+					status = new Status(IStatus.ERROR,
+							X10DTCorePlugin.kPluginID, e.getLocalizedMessage());
+				} else if (status instanceof MultiStatus) {
+					MultiStatus ms = (MultiStatus) status;
+					ms.add(new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID,
+							e.getLocalizedMessage()));
+				} else {
+					IStatus newStat = new Status(IStatus.ERROR,
+							X10DTCorePlugin.kPluginID, e.getLocalizedMessage());
+					status = new MultiStatus(X10DTCorePlugin.kPluginID,
+							IStatus.ERROR, new IStatus[] { status, newStat },
+							"Multiple errors occurred", null);
+				}
+				return false;
+			}
+		}
 
+		try {
+			fProject.refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-//     IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
-//            public void run(IProgressMonitor monitor) {   
-                IStatus status= null;
-       //         monitor.beginTask("Clearing generated files", genFiles.size());
-                IProgressMonitor monitor = new NullProgressMonitor();
-                
-                for(IFile file: genFiles) {
-                    try {
-                        file.delete(true, monitor);
-                        genFilesCopy.remove(file);
-                    } catch (CoreException e) {
-                        if (status == null) {
-                            status= new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, e.getLocalizedMessage());
-                        } else if (status instanceof MultiStatus) {
-                            MultiStatus ms= (MultiStatus) status;
-                            ms.add(new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, e.getLocalizedMessage()));
-                        } else {
-                            IStatus newStat= new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, e.getLocalizedMessage());
-                            status= new MultiStatus(X10DTCorePlugin.kPluginID, IStatus.ERROR, new IStatus[] { status, newStat }, "Multiple errors occurred", null);
-                        }
-                        return false;
-                       
-                    }
- //                   monitor.worked(1);
-                }
-
-//                monitor.done();
-//            }
-//        };
-//        try {
-//            ws.run(runnable, new NullProgressMonitor());
-//        } catch (CoreException e) {
-//            e.printStackTrace();
-//        }
-                return true;
-    }
-    
+		return true;
+	}
     
   
 
@@ -1013,7 +1028,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 ////        		    fProject.getWorkspace().getRoot().getFolder(pathEntry).refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
 //        		}
 //    	    }
-            fProject.refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
+            //fProject.refreshLocal(IResource.DEPTH_INFINITE, fMonitor); //MV HERE
         }
         return computeDependentProjects();
     }
@@ -1058,48 +1073,42 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private void collectChangeDependents() {
         Collection<IFile> changeDependents= new ArrayList<IFile>();
-        IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
-
-//      System.out.println("Changed files:");
-//      dumpSourceList(fSourcesToCompile);
         for(Iterator<IFile> iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
-            IFile srcFile= iter.next();
-            Set<String> fileDependents= fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
-
-            if (fileDependents != null) {
-                for(Iterator<String> iterator= fileDependents.iterator(); iterator.hasNext(); ) {
-                    String depPath= iterator.next();
-                    IFile depFile= wsRoot.getFile(new Path(depPath));
-                    	changeDependents.add(depFile);
-                }
-            }
+        	IFile srcFile= iter.next();
+        	changeDependents.addAll(getChangeDependents(srcFile));
         }
         for (IFile file: changeDependents){
-        	if (!fSourcesToCompile.contains(file)){
-        		fSourcesToCompile.add(file);
-        	}
+        	fSourcesToCompile.add(file);
         }
-        //fSourcesToCompile.addAll(changeDependents);
-//      System.out.println("Changed files + dependents:");
-//      dumpSourceList(fSourcesToCompile);
     }
 
+    private Collection<IFile> getChangeDependents(IFile srcFile){
+    	Collection<IFile> result = new ArrayList<IFile>();
+        Set<String> fileDependents= fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
+        IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
+        if (fileDependents != null) {
+            for(Iterator<String> iterator= fileDependents.iterator(); iterator.hasNext(); ) {
+                String depPath= iterator.next();
+                IFile depFile= wsRoot.getFile(new Path(depPath));
+                	result.add(depFile);
+            }
+        }
+        return result;
+    }
+    
     private void collectSourcesToCompile() throws CoreException {
         collectSourceFolders();
 
         IResourceDelta delta= getDelta(fProject);
         if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
 
-        if (fBuildAll) {
-        	delta = null;
-        	fBuildAll = false;
-        }
-        
+        System.out.println("Collecting source");
         if (delta != null) {
-            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
+        	X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
             delta.accept(fDeltaVisitor);
             X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10 delta scan completed for project '" + fProject.getName() + "'...");
-        } else {
+        } 
+        if (fBuildAll || delta == null){
             X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning for X10 source files in project '" + fProject.getName() + "'... <==");
             fProject.accept(fResourceVisitor);
             X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
@@ -1108,6 +1117,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         collectChangeDependents();
         collectFilesWithErrors();
         collectFilesWithNoJavaFile();
+        if (fBuildAll) fBuildAll = false;
     }
 
     private class NoJavaVisitor implements IResourceVisitor {
@@ -1120,7 +1130,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                  if (isSourceFile(file)) {
                 	 IPath genJavaFile= file.getFullPath().removeFileExtension().addFileExtension("java");
                 	 IFile javaFile= fProject.getWorkspace().getRoot().getFile(genJavaFile);
-                     if (!fSourcesToCompile.contains(file) && !javaFile.exists()) {
+                     if (!javaFile.exists()) {
                          fSourcesToCompile.add(file);
                      }
                  }
@@ -1150,9 +1160,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (resource instanceof IFile) {
                 IFile file= (IFile) resource;
                 if (isSourceFile(file) && (fCompileAll || file.findMaxProblemSeverity(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE) == IMarker.SEVERITY_ERROR)) {
-                    if (!fSourcesToCompile.contains(file)) {
-                        fSourcesToCompile.add(file);
-                    }
+                	fSourcesToCompile.add(file);
                 }
             } else if (isBinaryFolder(resource)) {
                 return false;

@@ -27,6 +27,7 @@ import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Receiver;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TypeNode;
+import x10.ast.AnnotationNode;
 import x10.types.X10TypeMixin;
 import polyglot.frontend.Job;
 import polyglot.types.ArrayType;
@@ -152,6 +153,10 @@ class ComputeDependenciesVisitor extends ContextVisitor {
 
         	recordTypeDependency(formal.type().type());
             }
+        } else if (n instanceof AnnotationNode) {
+        	Type type = ((AnnotationNode)n).annotationType().type();
+        	
+        	recordTypeDependency(type);
         }
         return super.enterCall(n);
     }
