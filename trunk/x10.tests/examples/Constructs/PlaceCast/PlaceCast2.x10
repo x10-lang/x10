@@ -29,7 +29,8 @@ public class PlaceCast2 extends x10Test {
 			// at any activity at any place
 			try {
 				// FIX: d(p) currently causes the compiler to assert an error.
-				val x  = disagree(p) as BoxedBoolean!d(p);
+				val dp = d(p);
+				val x  = disagree(p) as BoxedBoolean!dp;
 				at (this) atomic  nplaces++; 
 			} catch (x: BadPlaceException)  {
 				x10.io.Console.OUT.println("Caught bad place exception for " + p);
