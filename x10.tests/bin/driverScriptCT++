@@ -166,7 +166,7 @@ export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 ##### cat feed - init
 __cat_feed_stage=INIT
 __cat_report_version=1.1
-if [[ -z "$CAT_BACKEND_NAME" ]]
+if [[ -z "$CAT_BACKEND_NAME" ]]; then
     export CAT_BACKEND_NAME=x10cpp
 fi
 __cat_backend=$CAT_BACKEND_NAME
