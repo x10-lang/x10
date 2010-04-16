@@ -628,103 +628,119 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 
-	public void visit(X10Cast_c c) {
-		TypeNode tn = c.castType();
-		assert tn instanceof CanonicalTypeNode;
-		
-		Expr expr = c.expr();
-		Type type = expr.type();
+        public void visit(X10Cast_c c) {
+            TypeNode tn = c.castType();
+            assert tn instanceof CanonicalTypeNode;
+            
+            Expr expr = c.expr();
+            Type type = expr.type();
 
 
-		switch (c.conversionType()) {
-		case CHECKED:
-		case PRIMITIVE:
-		case SUBTYPE:
-			if (tn instanceof X10CanonicalTypeNode) {
-				X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
+            switch (c.conversionType()) {
+            case CHECKED:
+            case PRIMITIVE:
+            case SUBTYPE:
+                    if (tn instanceof X10CanonicalTypeNode) {
+                            X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
-				Type t = X10TypeMixin.baseType(xtn.type());
-				Expander ex = new TypeExpander(er, t, reduce_generic_cast ? 0 : PRINT_TYPE_PARAMS);
+                            Type t = X10TypeMixin.baseType(xtn.type());
+                            Expander ex = new TypeExpander(er, t, reduce_generic_cast ? 0 : PRINT_TYPE_PARAMS);
 
-				Expander rt = new RuntimeTypeExpander(er, t);
+                            Expander rt = new RuntimeTypeExpander(er, t);
 
-				String template= t.isBoolean() || t.isNumeric() || t.isChar() ? "primitive_cast_deptype" : "cast_deptype";
+                            String template= t.isBoolean() || t.isNumeric() || t.isChar() ? "primitive_cast_deptype" : "cast_deptype";
 
-				DepParameterExpr dep = xtn.constraintExpr();
-				if (dep != null) {
-					List<Expr> conds = dep.condition();
-					X10Context xct = (X10Context) tr.context();
-					boolean inAnonObjectScope = xct.inAnonObjectScope();
-					xct.setAnonObjectScope();
-					new Template(er, template, ex, expr, rt, new Join(er, " && ", conds)).expand();
-					xct.restoreAnonObjectScope(inAnonObjectScope);
-				} 
-				else if (
-				        (X10TypeMixin.baseType(type) instanceof ParameterType || ((X10TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type)))
-				        && (t.isBoolean() || t.isNumeric() || t.isChar())
-				) { // e.g. any as Int (any:Any), t as Int (t:T)
-                                    w.write(X10_RTT_TYPES + ".as");
-                                    new TypeExpander(er, t, 0).expand(tr);
+                            DepParameterExpr dep = xtn.constraintExpr();
+                            
+                            // for constraintedType
+                            if (dep != null) {
+                                    List<Expr> conds = dep.condition();
+                                    X10Context xct = (X10Context) tr.context();
+                                    boolean inAnonObjectScope = xct.inAnonObjectScope();
+                                    xct.setAnonObjectScope();
+                                    new Template(er, template, ex, expr, rt, new Join(er, " && ", conds)).expand();
+                                    xct.restoreAnonObjectScope(inAnonObjectScope);
+                            }
+                            // e.g. any as Int (any:Any), t as Int (t:T)
+                            else if (
+                                    (X10TypeMixin.baseType(type) instanceof ParameterType || ((X10TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type)))
+                                    && (t.isBoolean() || t.isNumeric() || t.isChar())
+                            ) { 
+                                w.write(X10_RTT_TYPES + ".as");
+                                new TypeExpander(er, t, 0).expand(tr);
+                                w.write("(");
+                                c.printSubExpr(expr, w, tr);
+                                w.write(")");
+                            }
+                            else if (t.isBoolean() || t.isNumeric() || t.isChar() /*|| type.isSubtype(t, tr.context())*/) {
+                                    w.begin(0);
+                                    w.write("("); // put "(Type) expr" in parentheses.
                                     w.write("(");
-                                    c.printSubExpr(expr, w, tr);
+                                    ex.expand(tr);
                                     w.write(")");
-				}
-				else if (t.isBoolean() || t.isNumeric() || t.isChar() || type.isSubtype(t, tr.context())) {
-					w.begin(0);
-					w.write("("); // put "(Type) expr" in parentheses.
-					w.write("(");
-					ex.expand(tr);
-					w.write(")");
-					// e.g. d as Int (d:Double) -> (int)(double)(Double)d 
-					if (type.isBoolean() || type.isNumeric() || type.isChar()) {
-						w.write(" ");
-						w.write("(");
-						new TypeExpander(er, type, 0).expand(tr);
-						w.write(")");
-						w.write(" ");
-						w.write("(");
-						new TypeExpander(er, type, BOX_PRIMITIVES).expand(tr);
-						w.write(")");
-						// Fix XTENLANG-804
-						// e.g. b as Int (b:Byte) -> (int)(byte)(Byte)(byte)b (in case b is int literal in jvava (e.g. 0))
-						if (type.isByte() || type.isShort()) {
-							w.write("(");
-							new TypeExpander(er, type, 0).expand(tr);
-							w.write(")");
-						}
-					}
-					w.allowBreak(2, " ");
-					// HACK: (java.lang.Integer) -1
-					//       doesn't parse correctly, but
-					//       (java.lang.Integer) (-1)
-					//       does
-					if (expr instanceof Unary || expr instanceof Lit)
-						w.write("(");
-					c.printSubExpr(expr, w, tr);
-					if (expr instanceof Unary || expr instanceof Lit)
-						w.write(")");
-					w.write(")");
-					w.end();
-				} else if (t instanceof ParameterType) { // e.g. i as T (T is parameterType)
-				        new Template(er, "cast_deptype_primitive_param", ex, expr, rt, "true").expand();
-				} else {
-					new Template(er, template, ex, expr, rt, "true").expand();
-				}
-			}
-			else {
-				throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
-			}
-			break;
-		case UNBOXING:
-			throw new InternalCompilerError("Unboxing conversions not yet supported.", tn.position());
-		case UNKNOWN_IMPLICIT_CONVERSION:
-			throw new InternalCompilerError("Unknown implicit conversion type after type-checking.", c.position());
-		case UNKNOWN_CONVERSION:
-			throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
-		case BOXING:
-			throw new InternalCompilerError("Boxing conversion should have been rewritten.", c.position());
-		}
-	}
+                                    // e.g. d as Int (d:Double) -> (int)(double)(Double) d 
+                                    if (type.isBoolean() || type.isNumeric() || type.isChar()) {
+                                            w.write(" ");
+                                            w.write("(");
+                                            new TypeExpander(er, type, 0).expand(tr);
+                                            w.write(")");
+                                            w.write(" ");
+                                            if (!(expr instanceof Unary || expr instanceof Lit) && (expr instanceof X10Call)) {
+                                                w.write("(");
+                                                new TypeExpander(er, type, BOX_PRIMITIVES).expand(tr);
+                                                w.write(")");
+                                            }
+                                    }
+                                    w.allowBreak(2, " ");
+                                    // HACK: (java.lang.Integer) -1
+                                    //       doesn't parse correctly, but
+                                    //       (java.lang.Integer) (-1)
+                                    //       does
+                                    if (expr instanceof Unary || expr instanceof Lit)
+                                            w.write("(");
+                                    c.printSubExpr(expr, w, tr);
+                                    if (expr instanceof Unary || expr instanceof Lit)
+                                            w.write(")");
+                                    w.write(")");
+                                    w.end();
+                            }
+                            else if (type.isSubtype(t, tr.context())) {
+                                w.begin(0);
+                                w.write("("); // put "(Type) expr" in parentheses.
+                                w.write("(");
+                                ex.expand(tr);
+                                w.write(")");
+                                w.allowBreak(2, " ");
+                                if (expr instanceof Unary || expr instanceof Lit)
+                                        w.write("(");
+                                c.printSubExpr(expr, w, tr);
+                                if (expr instanceof Unary || expr instanceof Lit)
+                                        w.write(")");
+                                w.write(")");
+                                w.end();
+                            }
+                            // e.g. i as T (T is parameterType)
+                            else if (t instanceof ParameterType) { 
+                                    new Template(er, "cast_deptype_primitive_param", ex, expr, rt, "true").expand();
+                            }
+                            else {
+                                    new Template(er, template, ex, expr, rt, "true").expand();
+                            }
+                    }
+                    else {
+                            throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
+                    }
+                    break;
+            case UNBOXING:
+                    throw new InternalCompilerError("Unboxing conversions not yet supported.", tn.position());
+            case UNKNOWN_IMPLICIT_CONVERSION:
+                    throw new InternalCompilerError("Unknown implicit conversion type after type-checking.", c.position());
+            case UNKNOWN_CONVERSION:
+                    throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
+            case BOXING:
+                    throw new InternalCompilerError("Boxing conversion should have been rewritten.", c.position());
+            }
+    }
 
 	public void visit(X10Instanceof_c c) {
 		TypeNode tn = c.compareType();
