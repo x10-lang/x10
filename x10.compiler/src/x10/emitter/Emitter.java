@@ -1719,38 +1719,55 @@ public class Emitter {
 		return true;
 	}
 
-	public void coerce(Node parent, Expr e, Type expected) {
-		Type actual = e.type();
-		
-		if (expected instanceof ConstrainedType_c) {
-			expected = ((ConstrainedType_c) expected).baseType().get();
-		}
-		if (actual instanceof ConstrainedType_c) {
-			actual = ((ConstrainedType_c) actual).baseType().get();
-		}
-		
-		boolean parameterExpected = expected instanceof ParameterType;
+        public void coerce(Node parent, Expr e, Type expected) {
+            Type actual = e.type();
 
-		CastExpander expander = new CastExpander(w, this, e);
-		if (actual.isNull() || e.isConstant() && !parameterExpected) {
-		} else if (actual != expected 
-					&& (actual.isBoolean() || actual.isNumeric() || actual.isByte())) {
-			//when the type of e has parameters, cast to actual boxed primitive. 
-			if (!isNoArgumentType(e)) {
-				expander = expander.castTo(actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-			}
-			//cast to actual primitive to expected primitive to expected boxed primitive.
-			expander = expander.castTo(actual).castTo(expected).castTo(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-		} else if (actual.isBoolean() || actual.isNumeric() || actual.isByte()){
-			if (!isNoArgumentType(e)) {
-				expander = expander.castTo(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-			}
-		} else {
-			//cast eagerly
-			expander = expander.castTo(expected, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-		}
-		expander.expand(tr);
-	}
+            Type expectedBase = expected;
+            if (expectedBase instanceof ConstrainedType_c) {
+                expectedBase = ((ConstrainedType_c) expectedBase).baseType().get();
+            }
+            if (actual instanceof ConstrainedType_c) {
+                actual = ((ConstrainedType_c) actual).baseType().get();
+            }
+            CastExpander expander = new CastExpander(w, this, e);
+            if (actual.isNull() || e.isConstant() && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
+                prettyPrint(e, tr);
+            }
+            // for primitive
+            else if (actual.isBoolean() || actual.isNumeric() || actual.isByte()) {
+                if (actual.typeEquals(expectedBase, tr.context())) {
+                    if (!isNoArgumentType(e)) {
+                        expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        expander.expand(tr);
+
+                    } else {
+                        prettyPrint(e, tr);
+                    }
+                } else {
+
+                    //when the type of e has parameters, cast to actual boxed primitive. 
+                    if (!isNoArgumentType(e) || expected instanceof ConstrainedType_c) {
+                        expander = expander.castTo(actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        expander = expander.castTo(actual).castTo(expectedBase).castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        expander.expand(tr);
+                    }
+                    else {
+                        //cast to actual primitive to expected primitive to expected boxed primitive.
+                        expander = expander.castTo(actual).castTo(expectedBase);
+                        expander.expand(tr);
+                    }
+                }
+            }
+            else {
+                if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType_c) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
+                    prettyPrint(e, tr);
+                } else {
+                    //cast eagerly
+                    expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    expander.expand(tr);
+                }
+            }
+        }
 
 	public static X10ClassType annotationNamed(TypeSystem ts, Node o, QName name)
 			throws SemanticException {
