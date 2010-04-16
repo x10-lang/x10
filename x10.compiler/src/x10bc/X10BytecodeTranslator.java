@@ -35,10 +35,17 @@ import org.objectweb.asm.MethodVisitor;
 
 import polyglot.ast.Call;
 import polyglot.ast.ClassBody;
+import polyglot.ast.ClassBody_c;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.ClassDecl_c;
+import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorCall;
+import polyglot.ast.ConstructorDecl;
+import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
+import polyglot.ast.FlagsNode;
+import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
@@ -62,22 +69,31 @@ import polyglot.dispatch.Dispatch;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Flags;
+import polyglot.types.MethodDef;
+import polyglot.types.MethodDef_c;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.PrimitiveType_c;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.UniqueID;
 
 import x10.Configuration;
+import x10.ast.Closure_c;
 import x10.ast.ParExpr_c;
 import x10.ast.X10New_c;
 import x10.emitter.Emitter;
+import x10.types.ClosureDef;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -327,6 +343,10 @@ public class X10BytecodeTranslator extends BytecodeTranslator {
             return new X10ClassTranslator(job, ts, nf, bc, cd);
         }
 
+        public ClassTranslator newClassTranslator(BytecodeTranslator bc, ClassDef cd, MethodContext context) {
+            return new X10ClassTranslator(job, ts, nf, bc, cd, context);
+        }
+
 		public ExprTranslator newExprTranslator(BytecodeTranslator bc, MethodContext context) {
 			return new X10ExprTranslator(job, ts, nf, bc, context);
 		}
@@ -413,10 +433,61 @@ public class X10BytecodeTranslator extends BytecodeTranslator {
         public void visit(final X10New_c n) {
             if (n.body() != null) {
                 IClassGen cg = newClassTranslator(bc, n.anonType(), context).translateClass(n, n.body());
-	            context.cg().addInnerClass(cg);
+                context.cg().addInnerClass(cg);
 	        }
 
 	        alloc((ClassType) X10TypeMixin.baseType(n.type()), n.constructorInstance().formalTypes(), n.arguments(), n.position());
+	    }
+
+        public void visit(final Closure_c n) throws SemanticException {
+            Position pos = n.position();
+            ClosureDef cloDef = n.closureDef();
+            System.out.println("Closure Type " + n.type());
+
+            X10ClassDef clDef = new X10ClassDef_c(ts, null);
+
+            Flags flags = Flags.PUBLIC.set(Flags.FINAL);
+            MethodDef meDef = ts.methodDef(pos, Types.ref(clDef.asType()), flags, cloDef.returnType(), Name.make("apply"),
+                                           cloDef.formalTypes(), cloDef.throwTypes());
+            MethodDecl meDecl = nf.MethodDecl(pos, nf.FlagsNode(pos, flags), n.returnType(), nf.Id(pos, "apply"),
+                                              n.formals(), n.throwTypes(), n.body());
+            meDecl = meDecl.methodDef(meDef);
+
+            String clName = UniqueID.newID("Anon");
+            Id clId = nf.Id(pos, clName);
+            TypeNode superClass = nf.CanonicalTypeNode(pos, ts.Object());
+            polyglot.types.Type functype = n.type();
+            assert (functype.isClass() && functype.toClass().interfaces().size() > 0);
+            functype = functype.toClass().interfaces().get(0);
+            TypeNode iface = nf.CanonicalTypeNode(pos, functype);
+            List<TypeNode> interfaces = Collections.singletonList(iface);
+            ClassBody body = nf.ClassBody(pos, Collections.singletonList((ClassMember) meDecl));
+            ClassDecl clDecl = nf.ClassDecl(pos, nf.FlagsNode(pos, Flags.NONE), clId, superClass, interfaces, body);
+            clDef.outer(Types.ref(context.currentClass));
+            clDef.superType(superClass.typeRef());
+            clDef.addInterface(Types.ref(functype));
+            clDef.setFlags(Flags.NONE);
+            clDef.kind(ClassDef.MEMBER);
+            clDef.name(Name.make(clName));
+            clDecl = clDecl.classDef(clDef);
+
+            ConstructorDecl coDecl = nf.ConstructorDecl(pos, nf.FlagsNode(pos, Flags.PUBLIC), clId,
+                                                        Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
+            ConstructorDef coDef = ts.constructorDef(pos, Types.ref(clDef.asType()), Flags.NONE,
+                                                     Collections.<Ref<? extends polyglot.types.Type>>emptyList(),
+                                                     Collections.<Ref<? extends polyglot.types.Type>>emptyList());
+            coDecl = coDecl.constructorDef(coDef);            
+            ConstructorCall coCall = nf.SuperCall(pos, Collections.EMPTY_LIST);
+            coCall = coCall.constructorInstance(ts.createConstructorInstance(pos, Types.ref(coDef)));
+            coDecl = (ConstructorDecl) coDecl.body(nf.Block(pos, coCall));
+
+            clDecl = clDecl.body(clDecl.body().addMember(coDecl));
+
+            IClassGen cg = newClassTranslator(bc, clDef, context).translateClass(clDecl, clDecl.body());
+            context.cg().addInnerClass(cg);
+
+            alloc((ClassType) X10TypeMixin.baseType(clDef.asType()), Collections.<polyglot.types.Type>emptyList(),
+                                                                     Collections.<Expr>emptyList(), pos);
 	    }
 
         protected void promote(Expr n, polyglot.types.Type t) {
@@ -449,6 +520,12 @@ public class X10BytecodeTranslator extends BytecodeTranslator {
             System.out.println(mi.name().toString());
 
             if (mi.name().toString() == "operator+") {
+                if (typeof(mi.container()).equals(Type.INT)) {
+                    promoteToPrimitive(n.arguments().get(0), Type.INT);
+                    promoteToPrimitive(n.arguments().get(1), Type.INT);
+                    il.IADD(n.position());
+                    return;
+                }
                 if (typeof(mi.container()).equals(Type.typeFromDescriptor("Ljava/lang/Integer;"))) {
                     promoteToPrimitive(n.arguments().get(0), Type.INT);
                     promoteToPrimitive(n.arguments().get(1), Type.INT);
@@ -558,8 +635,8 @@ public class X10BytecodeTranslator extends BytecodeTranslator {
         super(job, ts, nf);
     }
 
-    private static Type typeFromPolyglotType(polyglot.types.Type t) {
-        boolean boxPrimitives = true;
+    protected static Type typeFromPolyglotType(polyglot.types.Type t) {
+        boolean boxPrimitives = false;
         boolean printGenerics = false;
         if (t.isArray())
             return Type.array(typeFromPolyglotType(t.toArray().base()));
@@ -569,14 +646,19 @@ public class X10BytecodeTranslator extends BytecodeTranslator {
             X10ClassDef cd = ((X10ClassType) t).x10Def();
             String pat = getJavaRep(cd);
             if (pat != null) {
-                if (boxPrimitives) {
-                    String[] s = new String[] { "boolean", "byte", "char", "short", "int", "long", "float", "double" };
-                    String[] w = new String[] { "java.lang.Boolean", "java.lang.Byte", "java.lang.Character", "java.lang.Short", "java.lang.Integer", "java.lang.Long", "java.lang.Float", "java.lang.Double" };
-                    for (int i = 0; i < s.length; i++) {
-                        if (pat.equals(s[i])) {
-                            System.out.println("primitive " + s[i]);
+                String[] s = new String[] { "boolean", "byte", "char", "short", "int", "long", "float", "double" };
+                String[] w = new String[] { "java.lang.Boolean", "java.lang.Byte", "java.lang.Character", "java.lang.Short",
+                                            "java.lang.Integer", "java.lang.Long", "java.lang.Float", "java.lang.Double" };
+                Type[] bcp = new Type[] { Type.BOOLEAN, Type.BYTE, Type.CHAR, Type.SHORT, Type.INT, Type.LONG, Type.FLOAT, Type.DOUBLE};
+                for (int i = 0; i < s.length; i++) {
+                    if (pat.equals(s[i])) {
+                        System.out.println("primitive " + s[i]);
+                        if (boxPrimitives) {
                             pat = w[i];
                             break;
+                        } else {
+                            System.out.println(cd + " -> " + bcp[i]);
+                            return bcp[i];
                         }
                     }
                 }
@@ -588,8 +670,12 @@ public class X10BytecodeTranslator extends BytecodeTranslator {
             }
             System.out.println("no @NativeRep");
         }
-        System.out.println(t + " => " + Type.typeFromPolyglotType(t));
-        return Type.typeFromPolyglotType(t);
+        Type bct = Type.typeFromPolyglotType(t);
+        if (bct.desc().equals("Lx10/lang/VoidFun_0_0;")) {
+            bct = Type.typeFromDescriptor("Lx10/core/fun/VoidFun_0_0;");
+        }
+        System.out.println(t + " => " + bct);
+        return bct;
     }
 
     private static String getJavaRep(X10ClassDef def) {

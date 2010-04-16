@@ -14,8 +14,11 @@ package x10.visit;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -47,6 +50,7 @@ import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
+import polyglot.types.ClassDef;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -117,6 +121,7 @@ import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
+import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -569,13 +574,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// Generate the run-time type.  We have to wrap in a class since n might be an interface
 		// and interfaces can't have static methods.
 
-		er.generateRTTMethods(def);
+//		er.generateRTTMethods(def);
 
 //		boolean isValueType = xts.isValueType(def.asType(), (X10Context) tr.context());
-		if (def.isTopLevel()) {
-			er.generateRTType(def);
-		}
-
+//		if (def.isTopLevel()) {
+//			er.generateRTType(def);
+//		}
+		
+		// XTENLANG-1102
+		er.generateRTTInstance(def);
+		
 		// Generate dispatcher methods.
 		er.generateDispatchers(def);
 
@@ -620,103 +628,119 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 
-	public void visit(X10Cast_c c) {
-		TypeNode tn = c.castType();
-		assert tn instanceof CanonicalTypeNode;
-		
-		Expr expr = c.expr();
-		Type type = expr.type();
+        public void visit(X10Cast_c c) {
+            TypeNode tn = c.castType();
+            assert tn instanceof CanonicalTypeNode;
+            
+            Expr expr = c.expr();
+            Type type = expr.type();
 
 
-		switch (c.conversionType()) {
-		case CHECKED:
-		case PRIMITIVE:
-		case SUBTYPE:
-			if (tn instanceof X10CanonicalTypeNode) {
-				X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
+            switch (c.conversionType()) {
+            case CHECKED:
+            case PRIMITIVE:
+            case SUBTYPE:
+                    if (tn instanceof X10CanonicalTypeNode) {
+                            X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
-				Type t = X10TypeMixin.baseType(xtn.type());
-				Expander ex = new TypeExpander(er, t, reduce_generic_cast ? 0 : PRINT_TYPE_PARAMS);
+                            Type t = X10TypeMixin.baseType(xtn.type());
+                            Expander ex = new TypeExpander(er, t, reduce_generic_cast ? 0 : PRINT_TYPE_PARAMS);
 
-				Expander rt = new RuntimeTypeExpander(er, t);
+                            Expander rt = new RuntimeTypeExpander(er, t);
 
-				String template= t.isBoolean() || t.isNumeric() || t.isChar() ? "primitive_cast_deptype" : "cast_deptype";
+                            String template= t.isBoolean() || t.isNumeric() || t.isChar() ? "primitive_cast_deptype" : "cast_deptype";
 
-				DepParameterExpr dep = xtn.constraintExpr();
-				if (dep != null) {
-					List<Expr> conds = dep.condition();
-					X10Context xct = (X10Context) tr.context();
-					boolean inAnonObjectScope = xct.inAnonObjectScope();
-					xct.setAnonObjectScope();
-					new Template(er, template, ex, expr, rt, new Join(er, " && ", conds)).expand();
-					xct.restoreAnonObjectScope(inAnonObjectScope);
-				} 
-				else if (
-				        (X10TypeMixin.baseType(type) instanceof ParameterType || ((X10TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type)))
-				        && (t.isBoolean() || t.isNumeric() || t.isChar())
-				) { // e.g. any as Int (any:Any), t as Int (t:T)
-                                    w.write(X10_RTT_TYPES + ".as");
-                                    new TypeExpander(er, t, 0).expand(tr);
+                            DepParameterExpr dep = xtn.constraintExpr();
+                            
+                            // for constraintedType
+                            if (dep != null) {
+                                    List<Expr> conds = dep.condition();
+                                    X10Context xct = (X10Context) tr.context();
+                                    boolean inAnonObjectScope = xct.inAnonObjectScope();
+                                    xct.setAnonObjectScope();
+                                    new Template(er, template, ex, expr, rt, new Join(er, " && ", conds)).expand();
+                                    xct.restoreAnonObjectScope(inAnonObjectScope);
+                            }
+                            // e.g. any as Int (any:Any), t as Int (t:T)
+                            else if (
+                                    (X10TypeMixin.baseType(type) instanceof ParameterType || ((X10TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type)))
+                                    && (t.isBoolean() || t.isNumeric() || t.isChar())
+                            ) { 
+                                w.write(X10_RTT_TYPES + ".as");
+                                new TypeExpander(er, t, 0).expand(tr);
+                                w.write("(");
+                                c.printSubExpr(expr, w, tr);
+                                w.write(")");
+                            }
+                            else if (t.isBoolean() || t.isNumeric() || t.isChar() /*|| type.isSubtype(t, tr.context())*/) {
+                                    w.begin(0);
+                                    w.write("("); // put "(Type) expr" in parentheses.
                                     w.write("(");
-                                    c.printSubExpr(expr, w, tr);
+                                    ex.expand(tr);
                                     w.write(")");
-				}
-				else if (t.isBoolean() || t.isNumeric() || t.isChar() || type.isSubtype(t, tr.context())) {
-					w.begin(0);
-					w.write("("); // put "(Type) expr" in parentheses.
-					w.write("(");
-					ex.expand(tr);
-					w.write(")");
-					// e.g. d as Int (d:Double) -> (int)(double)(Double)d 
-					if (type.isBoolean() || type.isNumeric() || type.isChar()) {
-						w.write(" ");
-						w.write("(");
-						new TypeExpander(er, type, 0).expand(tr);
-						w.write(")");
-						w.write(" ");
-						w.write("(");
-						new TypeExpander(er, type, BOX_PRIMITIVES).expand(tr);
-						w.write(")");
-						// Fix XTENLANG-804
-						// e.g. b as Int (b:Byte) -> (int)(byte)(Byte)(byte)b (in case b is int literal in jvava (e.g. 0))
-						if (type.isByte() || type.isShort()) {
-							w.write("(");
-							new TypeExpander(er, type, 0).expand(tr);
-							w.write(")");
-						}
-					}
-					w.allowBreak(2, " ");
-					// HACK: (java.lang.Integer) -1
-					//       doesn't parse correctly, but
-					//       (java.lang.Integer) (-1)
-					//       does
-					if (expr instanceof Unary || expr instanceof Lit)
-						w.write("(");
-					c.printSubExpr(expr, w, tr);
-					if (expr instanceof Unary || expr instanceof Lit)
-						w.write(")");
-					w.write(")");
-					w.end();
-				} else if (t instanceof ParameterType) { // e.g. i as T (T is parameterType)
-				        new Template(er, "cast_deptype_primitive_param", ex, expr, rt, "true").expand();
-				} else {
-					new Template(er, template, ex, expr, rt, "true").expand();
-				}
-			}
-			else {
-				throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
-			}
-			break;
-		case UNBOXING:
-			throw new InternalCompilerError("Unboxing conversions not yet supported.", tn.position());
-		case UNKNOWN_IMPLICIT_CONVERSION:
-			throw new InternalCompilerError("Unknown implicit conversion type after type-checking.", c.position());
-		case UNKNOWN_CONVERSION:
-			throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
-		case BOXING:
-			throw new InternalCompilerError("Boxing conversion should have been rewritten.", c.position());
-		}
-	}
+                                    // e.g. d as Int (d:Double) -> (int)(double)(Double) d 
+                                    if (type.isBoolean() || type.isNumeric() || type.isChar()) {
+                                            w.write(" ");
+                                            w.write("(");
+                                            new TypeExpander(er, type, 0).expand(tr);
+                                            w.write(")");
+                                            w.write(" ");
+                                            if (!(expr instanceof Unary || expr instanceof Lit) && (expr instanceof X10Call)) {
+                                                w.write("(");
+                                                new TypeExpander(er, type, BOX_PRIMITIVES).expand(tr);
+                                                w.write(")");
+                                            }
+                                    }
+                                    w.allowBreak(2, " ");
+                                    // HACK: (java.lang.Integer) -1
+                                    //       doesn't parse correctly, but
+                                    //       (java.lang.Integer) (-1)
+                                    //       does
+                                    if (expr instanceof Unary || expr instanceof Lit)
+                                            w.write("(");
+                                    c.printSubExpr(expr, w, tr);
+                                    if (expr instanceof Unary || expr instanceof Lit)
+                                            w.write(")");
+                                    w.write(")");
+                                    w.end();
+                            }
+                            else if (type.isSubtype(t, tr.context())) {
+                                w.begin(0);
+                                w.write("("); // put "(Type) expr" in parentheses.
+                                w.write("(");
+                                ex.expand(tr);
+                                w.write(")");
+                                w.allowBreak(2, " ");
+                                if (expr instanceof Unary || expr instanceof Lit)
+                                        w.write("(");
+                                c.printSubExpr(expr, w, tr);
+                                if (expr instanceof Unary || expr instanceof Lit)
+                                        w.write(")");
+                                w.write(")");
+                                w.end();
+                            }
+                            // e.g. i as T (T is parameterType)
+                            else if (t instanceof ParameterType) { 
+                                    new Template(er, "cast_deptype_primitive_param", ex, expr, rt, "true").expand();
+                            }
+                            else {
+                                    new Template(er, template, ex, expr, rt, "true").expand();
+                            }
+                    }
+                    else {
+                            throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
+                    }
+                    break;
+            case UNBOXING:
+                    throw new InternalCompilerError("Unboxing conversions not yet supported.", tn.position());
+            case UNKNOWN_IMPLICIT_CONVERSION:
+                    throw new InternalCompilerError("Unknown implicit conversion type after type-checking.", c.position());
+            case UNKNOWN_CONVERSION:
+                    throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
+            case BOXING:
+                    throw new InternalCompilerError("Boxing conversion should have been rewritten.", c.position());
+            }
+    }
 
 	public void visit(X10Instanceof_c c) {
 		TypeNode tn = c.compareType();
@@ -854,10 +878,51 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    return;
 		}
                 
-		new RuntimeTypeExpander(er, t).expand(tr);
-		w.write(".");
+                // XTENLANG-1102
+                if (t instanceof X10ClassType) {
+                    X10ClassType ct = (X10ClassType) t;
+                    X10ClassDef cd = ct.x10Def();
+                    String pat = er.getJavaRTTRep(cd);
+
+                    if (t instanceof FunctionType) {
+                        FunctionType ft = (FunctionType) t;
+                        List<Type> args = ft.argumentTypes();
+                        Type ret = ft.returnType();
+                        if (ret.isVoid()) {
+                            w.write("x10.core.fun.VoidFun");
+                        } else {
+                            w.write("x10.core.fun.Fun");
+                        }
+                        w.write("_" + ft.typeParameters().size());
+                        w.write("_" + args.size());
+                        w.write("._RTT");
+                    }
+                    else if (pat == null && er.getJavaRep(cd) == null && ct.isGloballyAccessible() && ct.typeArguments().size() != 0) {
+                        w.write(cd.fullName().toString() + "." + "_RTT");
+                    }
+                    else {
+                        new RuntimeTypeExpander(er, t).expand(tr);
+                    }
+                } else {
+                    new RuntimeTypeExpander(er, t).expand(tr);
+                }
+
+                w.write(".");
 		w.write("instanceof$(");
 		tr.print(c, c.expr(), w);
+		
+		if (t instanceof X10ClassType) {
+		    X10ClassType ct = (X10ClassType) t;
+		    X10ClassDef cd = ct.x10Def();
+		    String pat = er.getJavaRTTRep(cd);
+
+		    for (int i = 0; i < ct.typeArguments().size(); i++) {
+		        w.write(", ");
+//		        if (i == 0) w.write("new x10.rtt.Type[] {");
+		        new RuntimeTypeExpander(er, ct.typeArguments().get(i)).expand(tr);
+//		        if (i == ct.typeArguments().size() - 1 ) w.write("}");
+		    }
+		}
 		w.write(")");
 	}
 
@@ -1302,11 +1367,60 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("}");
 		w.newline();
 
-		Type t = n.type();
-		t = X10TypeMixin.baseType(t);
-		if (t instanceof X10ClassType) {
-			X10ClassType ct = (X10ClassType) t;
-			er.generateRTTMethods(ct.x10Def());
+		Type type = n.type();
+		type = X10TypeMixin.baseType(type);
+		if (type instanceof X10ClassType) {
+			X10ClassType ct = (X10ClassType) type;
+			X10ClassDef def = ct.x10Def();
+			
+			// XTENLANG-1102
+			Set<ClassDef> visited = new HashSet<ClassDef>();
+			
+		        visited = new HashSet<ClassDef>();
+                        visited.add(def);
+                        if (!def.flags().isInterface()) {
+                                List<Type> types = new ArrayList<Type>();
+                                LinkedList<Type> worklist = new LinkedList<Type>();
+                                for (Type t : def.asType().interfaces()) {
+                                        Type it = X10TypeMixin.baseType(t);
+                                        worklist.add(it);
+                                }
+                                while (!worklist.isEmpty()) {
+                                        Type it = worklist.removeFirst();
+                                        if (it instanceof X10ClassType) {
+                                                X10ClassType ct2 = (X10ClassType) it;
+                                                X10ClassDef idef = ct2.x10Def();
+
+                                                if (visited.contains(idef))
+                                                        continue;
+                                                visited.add(idef);
+
+                                                for (Type t : ct2.interfaces()) {
+                                                        Type it2 = X10TypeMixin.baseType(t);
+                                                        worklist.add(it2);
+                                                }
+                                                
+                                                types.addAll(ct2.typeArguments());
+                                        }
+                                }
+                                if (types.size() > 0) {
+                                    w.write("public x10.rtt.RuntimeType<?> getRTT() { return _RTT;}");
+                                    w.write("public x10.rtt.Type<?> getParam(int i) {");
+                                    for (int i = 0; i < types.size(); i++) {
+                                        w.write("if (i ==" + i + ")");
+                                        Type t = types.get(i);
+                                        w.write(" return ");
+                                        new RuntimeTypeExpander(er, t).expand();
+                                        w.write(";");
+                                    }
+                                    w.write("return null;");
+                                    w.newline();
+                                    w.write("}");
+                                    w.newline();
+                                } else {
+                                    
+                                }
+                        }
 		}
 
 		w.write("}");

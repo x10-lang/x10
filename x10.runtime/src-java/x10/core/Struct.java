@@ -22,20 +22,6 @@ import x10.rtt.Type;
 // Base class for all X10 structs
 public abstract class Struct implements Any {
 
-    public static class RTT extends RuntimeType<Struct> {
-    	public static final RTT it = new RTT();
-
-    	public RTT() {
-            super(Struct.class);
-        }
-
-        @Override
-        public boolean instanceof$(Object o) {
-	    return o instanceof Struct;
-        }
-
-    }
-
     public Struct() {}
 
     public final boolean structEquals(Object o) {
@@ -87,4 +73,8 @@ public abstract class Struct implements Any {
         }
         return true;
     }
+    
+    public static final RuntimeType<Struct> _RTT = new RuntimeType<Struct>(Struct.class);
+    public RuntimeType getRTT() {return _RTT;}
+    public Type<?> getParam(int i) {return null;}
 }
