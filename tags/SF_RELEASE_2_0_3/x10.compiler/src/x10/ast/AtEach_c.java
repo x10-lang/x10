@@ -68,18 +68,25 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 		return new Field_c(position(), d, new Id_c(position(), Name.make("dist")));
 	}
 
+	XConstrainedTerm placeTerm;
 	@Override
 	public Context enterChildScope(Node child, Context c) {
 		X10Context xc = (X10Context) super.enterChildScope(child, c);
-		CConstraint d = new CConstraint_c();
-		XTerm term = PlaceChecker.makePlace();
+	
+		
 		try {
 			// FIXME: this creates a new place term; ideally, it should be the place associated with each
 			// point in the ateach distribution 
-			xc = (X10Context) xc.pushPlace(XConstrainedTerm.instantiate(d, term));
+			if (placeTerm == null) {
+				CConstraint d = new CConstraint_c();
+				XTerm term = PlaceChecker.makePlace();
+				placeTerm = XConstrainedTerm.instantiate(d, term);
+			}
+				
+			xc = (X10Context) xc.pushPlace(placeTerm);
 		} 
 		catch (XFailure z) {
-			throw new InternalCompilerError("Cannot construct placeTerm from " + term + " and constraint " + d + ".");
+			throw new InternalCompilerError("Cannot construct placeTerm from  term  and constraint.");
 		}
         return xc;
 	}

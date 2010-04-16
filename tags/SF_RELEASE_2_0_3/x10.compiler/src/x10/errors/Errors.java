@@ -650,4 +650,30 @@ public class Errors {
 			return((CannotTranslateStaticField)o).position().equals(position());
 		}
 	}
+	
+	public static class CannotDisambiguate extends SemanticException {
+		private static final long serialVersionUID = -4594440281666152534L;
+		public CannotDisambiguate(Node n, Position position) {
+			super("Cannot disambiguate " + n, position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotDisambiguate) )
+				return false;
+			return((CannotDisambiguate)o).position().equals(position());
+		}
+	}
+	
+	public static class CannotGenerateCast extends SemanticException {
+		private static final long serialVersionUID = 8124533664575933282L;
+		public CannotGenerateCast(Node n, Position position) {
+			super("Place type error with this expression. Cannot generate dynamic cast." +
+					"\n\t Expression: " + n, position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotGenerateCast) )
+				return false;
+			return((CannotGenerateCast)o).position().equals(position());
+		}
+	}
+
 }
