@@ -143,13 +143,18 @@ if [[ -z "$X10_HOME" ]]; then
 fi
 
 export CVS_RSH=ssh
-export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+if [[ -z "X10_SVNROOT" ]]; then
+    export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+fi
 export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 
 ##### cat feed - init
 __cat_feed_stage=INIT
 __cat_report_version=1.1
-__cat_backend=x10c
+if [[ -z "$CAT_BACKEND_NAME" ]]; then
+    export CAT_BACKEND_NAME=x10c
+fi
+__cat_backend=$CAT_BACKEND_NAME
 __cat_start_date=$(date +'%Y-%m-%d')
 __cat_start_date2=$(echo "${__cat_start_date}" | sed -e 's;-;;g')
 __cat_start_time=$(date +'%H:%M:%S')

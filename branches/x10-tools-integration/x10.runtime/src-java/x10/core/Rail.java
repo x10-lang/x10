@@ -12,8 +12,12 @@
 package x10.core;
 
 import x10.core.fun.Fun_0_1;
+import x10.rtt.ParameterizedType;
+import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.rtt.UnresolvedType;
+import x10.rtt.RuntimeType.Variance;
 
 public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T> {
     public final int length;
@@ -155,51 +159,23 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
     //
     
   
+    public ValRail<T> view() {
+        return new ValRail<T>(type, this);
+    }
 
     //
     // Runtime type information
     //
-    
-    static public class RTT<T> extends x10.rtt.RuntimeType<Rail<T>> {
-        Type<T> type;
-        
-        public RTT(Type<T> type) {
-            super(Rail.class);
-            this.type = type;
+    public static final RuntimeType<Rail> _RTT = new RuntimeType<Rail>(
+        Rail.class, 
+        new Variance[] {Variance.INVARIANT},
+        new Type<?>[] {
+            new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(Settable._RTT, Types.INT, new UnresolvedType(0))
         }
-
-        public boolean instanceof$(java.lang.Object o) {
-            if (!(o instanceof Rail))
-                return false;
-            Rail r = (Rail) o;
-            if (! r.type.equals(type)) // invariant
-                return false;
-            return true;
-        }
-        
-        public boolean isSubtype(Type<?> type) {
-            if (type instanceof Rail.RTT) {
-                Rail.RTT r = (Rail.RTT) type;
-                return r.type.equals(this.type);
-            }
-//            if (type instanceof Fun_0_1.RTT) {
-//                Fun_0_1.RTT r = (Fun_0_1.RTT) type;
-//                return r.I.equals(Types.INT) && r.V.equals(this.type);
-//            }
-//            if (type instanceof Settable.RTT) {
-//                Settable.RTT r = (Settable.RTT) type;
-//                return r.I.equals(Types.INT) && r.V.equals(this.type);
-//            }
-            return false;
-        }
-    }
-
-    public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
-    public Type<?> rtt_x10$lang$Fun_0_1_U()  { return type; }
-    public Type<?> rtt_x10$lang$Settable_I() { return Types.INT; }
-    public Type<?> rtt_x10$lang$Settable_V() { return type; }
-    
-    public ValRail<T> view() {
-    	return new ValRail<T>(type, this);
+    );
+    public RuntimeType<Rail> getRTT() {return _RTT;}
+    public Type<?> getParam(int i) {
+        return i == 0 ? type : null;
     }
 }

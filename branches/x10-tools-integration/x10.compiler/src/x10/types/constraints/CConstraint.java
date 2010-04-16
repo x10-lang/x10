@@ -37,6 +37,7 @@ public interface CConstraint extends XConstraint, ThisVar  {
 	 */
 	XRoot self();
 
+	boolean hasPlaceTerm();
 
 	void setThisVar(XVar thisVar);
 	

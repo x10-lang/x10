@@ -20,6 +20,7 @@ import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
 import polyglot.types.TypeSystem;
 import x10.visit.SharedBoxer;
+import x10c.visit.CastRemover;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
     @Override
@@ -36,6 +37,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         public List<Goal> goals(Job job) {
             List<Goal> goals = super.goals(job);
             CodeGenerated(job).addPrereq(Desugarer(job));
+            CodeGenerated(job).addPrereq(CastRemoved(job));
             CodeGenerated(job).addPrereq(SharedBoxed(job));
             return goals;
         }
@@ -44,6 +46,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new VisitorGoal("sharedBoxer", job, new SharedBoxer(job, ts, nf)).intern(this);
+        }
+        
+        private Goal CastRemoved(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new VisitorGoal("castRemover", job, new CastRemover(job, ts, nf)).intern(this);
         }
     }
 }

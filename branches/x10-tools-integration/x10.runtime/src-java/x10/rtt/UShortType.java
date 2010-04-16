@@ -54,6 +54,8 @@ public class UShortType extends RuntimeType<Short> {
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.USHORT; return null;}
         };
     }
     @Override
@@ -64,6 +66,8 @@ public class UShortType extends RuntimeType<Short> {
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.USHORT; return null;}
         };
     }
     
@@ -76,6 +80,8 @@ public class UShortType extends RuntimeType<Short> {
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     @Override
@@ -87,6 +93,8 @@ public class UShortType extends RuntimeType<Short> {
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     @Override
@@ -98,6 +106,8 @@ public class UShortType extends RuntimeType<Short> {
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     @Override
@@ -109,6 +119,8 @@ public class UShortType extends RuntimeType<Short> {
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     @Override
@@ -120,6 +132,8 @@ public class UShortType extends RuntimeType<Short> {
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     @Override
@@ -131,6 +145,8 @@ public class UShortType extends RuntimeType<Short> {
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     @Override
@@ -142,6 +158,8 @@ public class UShortType extends RuntimeType<Short> {
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     
@@ -154,6 +172,8 @@ public class UShortType extends RuntimeType<Short> {
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
 
@@ -166,6 +186,8 @@ public class UShortType extends RuntimeType<Short> {
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     
@@ -178,6 +200,8 @@ public class UShortType extends RuntimeType<Short> {
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
 
@@ -189,6 +213,8 @@ public class UShortType extends RuntimeType<Short> {
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     
@@ -200,6 +226,8 @@ public class UShortType extends RuntimeType<Short> {
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     
@@ -211,6 +239,8 @@ public class UShortType extends RuntimeType<Short> {
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.USHORT; }
             public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.USHORT; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.USHORT; return null;}
         };
     }
     

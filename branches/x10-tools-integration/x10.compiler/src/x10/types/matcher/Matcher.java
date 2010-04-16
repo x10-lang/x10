@@ -137,7 +137,8 @@ public class Matcher {
 	     
 	        final XVar ythiseqv =  ys[0] = getSymbol(thisType);
 	        if (! isStatic) {
-	        	hasSymbol[0] = X10TypeMixin.selfVarBinding(thisType) == ythiseqv; // if true, a UQV was not generated.
+	        	XVar st = X10TypeMixin.selfVarBinding(thisType);
+	        	hasSymbol[0] = st != null; // if true, a UQV was not generated.
 	        	thisTypeArray[0] = thisType = X10TypeMixin.instantiateSelf(ythiseqv, thisType);
 	        }
 	      
