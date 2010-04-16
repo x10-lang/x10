@@ -51,8 +51,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x) {
                 return (byte) (x > 0 ? x : -x);
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 ) return Types.BYTE; return null;}
         };
     }
     @Override
@@ -61,8 +61,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x) {
                 return (byte) (x * k);
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.BYTE; return null;}
         };
     }
     
@@ -72,9 +72,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x + y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BYTE; return null;}
         };
     }
     @Override
@@ -83,9 +82,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x - y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BYTE; return null;}
         };
     }
     @Override
@@ -94,9 +92,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x * y);
             }         
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BYTE; return null;}
         };
     }
     @Override
@@ -105,9 +102,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x / y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BYTE; return null;}
         };
     }
     @Override
@@ -116,9 +112,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x % y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BYTE; return null;}
         };
     }
     @Override
@@ -127,9 +122,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (x > y ? x : y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BYTE; return null;}
         };
     }
     @Override
@@ -138,9 +132,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (x < y ? x : y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BYTE; return null;}
         };
     }
     
@@ -150,9 +143,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x & y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BYTE; return null;}
         };
     }
 
@@ -162,9 +154,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x | y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BYTE; return null;}
         };
     }
     
@@ -174,9 +165,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x, Byte y) {
                 return (byte) (x ^ y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BYTE; return null;}
         };
     }
 
@@ -186,8 +176,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x) {
                 return (byte) -x;
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.BYTE; return null;}
         };
     }
     
@@ -197,8 +187,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x) {
                 return (byte) +x;
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.BYTE; return null;}
         };
     }
     
@@ -208,8 +198,8 @@ public class ByteType extends RuntimeType<Byte> {
             public Byte apply(Byte x) {
                 return (byte) ~x;
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BYTE; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.BYTE; return null;}
         };
     }
     

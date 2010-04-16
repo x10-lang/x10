@@ -11,40 +11,16 @@
 
 package x10.core.fun;
 
+import x10.core.Any;
 import x10.rtt.RuntimeType;
-import x10.rtt.Type;
+import x10.rtt.RuntimeType.Variance;
 
 
-public interface Fun_0_0<U> {
+public interface Fun_0_0<U> extends Any {
     U apply();
-    Type<?> rtt_x10$lang$Fun_0_0_U();
-
-    public static class RTT extends RuntimeType<Fun_0_0<?>>{
-        Type<?> U;
-
-        public RTT(Type<?> U) {
-            super(Fun_0_0.class);
-            this.U = U;
-        }
-
-        @Override
-        public boolean instanceof$(Object o) {
-            if (o instanceof Fun_0_0<?>) {
-                Fun_0_0<?> v = (Fun_0_0<?>) o;
-                return v.rtt_x10$lang$Fun_0_0_U().isSubtype(U); // covariant
-            }
-            return false;
-        }
-
-        @Override
-        public boolean isSubtype(Type<?> o) {
-            if (! super.isSubtype(o))
-                return false;
-            if (o instanceof Fun_0_0.RTT) {
-                Fun_0_0.RTT t = (RTT) o;
-                return U.isSubtype(t.U);
-            }
-            return false;
-        }
-    }
+    
+    public static final RuntimeType _RTT = new RuntimeType(
+        Fun_0_0.class,
+        Variance.COVARIANT
+    );
 }

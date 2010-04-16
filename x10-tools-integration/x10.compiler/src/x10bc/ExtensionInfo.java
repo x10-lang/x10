@@ -19,7 +19,11 @@ import polyglot.frontend.Goal;
 import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
+import polyglot.frontend.SourceGoal_c;
+import polyglot.main.Options;
 import polyglot.types.TypeSystem;
+import polyglot.util.ErrorQueue;
+import polyglot.visit.PostCompiled;
 
 /**
  * Extension information for ibex extension.
@@ -47,8 +51,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         
         @Override
         protected Goal PostCompiled() {
-            return new AbstractGoal_c("PostCompiled") {
-                public boolean runTask() {
+            return new PostCompiled(extInfo) {
+                protected boolean invokePostCompiler(Options op, Compiler co, ErrorQueue eq) {
                     return true;
                 }
             }.intern(this);
@@ -58,7 +62,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         public Goal CodeGenerated(final Job job) {
             final TypeSystem ts = extInfo.typeSystem();
             final NodeFactory nf = extInfo.nodeFactory();
-            return new AbstractGoal_c("BCCodeGenerated") {
+            return new SourceGoal_c("BCCodeGenerated", job) {
                 @Override
                 public boolean runTask() {
                     try {

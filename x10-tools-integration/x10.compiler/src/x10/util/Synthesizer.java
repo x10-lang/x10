@@ -63,6 +63,7 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeChecker;
 import x10.ast.AnnotationNode;
 import x10.ast.Closure;
 import x10.ast.DepParameterExpr;
@@ -85,6 +86,7 @@ import x10.constraint.XNot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.errors.Errors.PlaceTypeErrorFieldShouldBeGlobal;
 import x10.extension.X10Del;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -101,6 +103,7 @@ import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint_c;
+import x10.visit.X10TypeChecker;
 
 /**
  * A utility to help synthesize fragments of ASTs. Most of the methods on this class are intended to
@@ -1309,10 +1312,17 @@ public class Synthesizer {
      * @param tc
      * @return
      * @throws SemanticException
+     * 
      */
+    
+    // TODO: This has to be made to work with nested types.
     public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) throws SemanticException {
-    	X10NodeFactory nf = ((X10NodeFactory) Globals.NF());
+    	X10NodeFactory nf = ((X10NodeFactory) tc.nodeFactory());
+    	X10TypeSystem ts = ((X10TypeSystem) tc.typeSystem());
+    	
+    	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
 		CConstraint c = X10TypeMixin.xclause(type);
+		
 		if (c == null || c.valid())
 			return nf.X10CanonicalTypeNode(pos, type);
 		Type base = X10TypeMixin.baseType(type);
@@ -1341,7 +1351,8 @@ public class Synthesizer {
 				nf.Id(pos, qName.name()), typeArgs, Collections.EMPTY_LIST, dep);
 		TypeBuilder tb = new TypeBuilder(tc.job(),  tc.typeSystem(), nf);
 		tn = (TypeNode) tn.visit(tb);
-		tn = (X10CanonicalTypeNode) tn.visit(tc);
+		TypeChecker typeChecker = (TypeChecker) new X10TypeChecker(tc.job(), ts, nf,tc.job().nodeMemo()).context(tc.context());
+		tn = (TypeNode) tn.visit(typeChecker);
 		if (! (tn instanceof X10CanonicalTypeNode))
 			assert tn instanceof X10CanonicalTypeNode;
 		return (X10CanonicalTypeNode) tn;

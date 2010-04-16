@@ -55,4 +55,5 @@ public interface Type<T> {
     int arrayLength(Object array);
 
     Class<?> getJavaClass();
+    String typeName();
 }
