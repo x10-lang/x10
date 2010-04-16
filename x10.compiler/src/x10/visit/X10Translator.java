@@ -76,10 +76,10 @@ public class X10Translator extends Translator {
 	    	TargetFactory tf = this.tf;
 	    	int outputWidth = job.compiler().outputWidth();
 	    	Collection<String> outputFiles = job.compiler().outputFiles();
-	    	
+                CodeWriter w= null;
+
 	    	try {
 	    	    File of;
-	    	    CodeWriter w;
 	    	    
 	    	    QName pkg = null;
 	    	    
@@ -114,6 +114,15 @@ public class X10Translator extends Translator {
 	    	    job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR,
 	    	            "I/O error while translating: " + e.getMessage());
 	    	    return false;
+	    	} finally {
+	    	    if (w != null) {
+	    	        try {
+                        w.close();
+                    } catch (IOException e) {
+                        job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR,
+                                "I/O error while closing output file: " + e.getMessage());
+                    }
+	    	    }
 	    	}
 	    }
 
