@@ -158,7 +158,9 @@ if [[ ! -d "$LOGD" ]]; then
 fi
 
 export CVS_RSH=ssh
-export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+if [[ -z "X10_SVNROOT" ]]; then
+    export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+fi
 export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 
 ##### cat feed - init
