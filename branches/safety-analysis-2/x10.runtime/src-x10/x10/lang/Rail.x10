@@ -66,10 +66,10 @@ public final class Rail[T](length: Int)
     public native static safe def make[S](length: Int): Rail[S]!{self.length==length};
 
 	 @Native("java", "x10.lang.Rail__NativeRep.<#2>makeClockedRail(#3, #4, #5, #6, #7)")
-    public native static safe def makeClockedRail[S](length: Int, c: Clock, op: (S,S)=>S, opInit: S): Rail[ClockedVar[S]]!{self.length==length};
+    public native static safe def makeClocked[S](length: Int, c: Clock, op: (S,S)=>S, opinit: S): Rail[ClockedVar[S]]!{self.length==length};
     
      @Native("java", "x10.lang.Rail__NativeRep.<#2>makeClockedRail(#3, #4, #5, #6, #7, #8)")
-    public native static safe def makeClockedRail[S](length: Int, init: (Int) => S, c: Clock, op: (S,S)=>S, opInit: S): Rail[ClockedVar[S]]!{self.length==length};
+    public native static safe def makeClocked[S](length: Int, init: (Int) => S, c: Clock, op: (S,S)=>S, opinit: S): Rail[ClockedVar[S]]!{self.length==length};
     
      @Native("java", "x10.lang.Rail__NativeRep.<#2>setClocked(#3, #0, #4, #5)")
      public native static safe def setClocked[T](index: Int, value: T): void;
