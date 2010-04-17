@@ -45,7 +45,9 @@ public class ClockedVar[T] implements ClockableVar{
     public def get():T {
     	  return xRead;
    }
-   
+
+
+
     public def set(x:T) {
     	changed = true;
         atomic this.xWrite = op(this.xWrite, x);

@@ -309,8 +309,7 @@ import x10.compiler.ClockedVar;
      	   return Rail.make[ClockedVar[T]](length, (int) => new ClockedVar [T] (clk, oper, opInitial));
     	}
     	
-    	 @Native("java", "x10.core.RailFactory.<#2>initCompute(#3, #4, #5)")
-    	public native static safe def initCompute[T](i: Int, init: (Int) => T): T;
+    	
     	
     	
     	public static safe def makeClockedRail[T](length: Int, init: (Int) => T, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedVar[T]]!{self.length==length} 
@@ -320,7 +319,7 @@ import x10.compiler.ClockedVar;
     	   val oper = op as (T, T) => T!;
     	   val opInitial = opInit as T!;
     	  
-     	   return Rail.make[ClockedVar[T]](length, (i:int) => new ClockedVar [T] (clk, oper, opInitial, initCompute[T](i,init)));
+     	   return Rail.make[ClockedVar[T]](length, (i:int) => new ClockedVar [T] (clk, oper, opInitial, init(i)));
 
     	}
 
@@ -332,11 +331,14 @@ import x10.compiler.ClockedVar;
     
     	}
     	
+    	
     	 public static safe def getClocked[T](r: Rail[T]!, index: Int): T
     	{
     	   val cv = r(index) as ClockedVar[T]!;
     	   return cv.get();  
   
     	}
+    	
+    	
     	
     }

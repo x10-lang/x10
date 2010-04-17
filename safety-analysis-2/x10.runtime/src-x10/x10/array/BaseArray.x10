@@ -12,6 +12,7 @@
 package x10.array;
 
 import x10.compiler.Native;
+import x10.compiler.ClockedVar;
 
 /**
  * The BaseArray class is the base of the hierarchy of classes that
@@ -81,6 +82,15 @@ public abstract class BaseArray[T] extends Array[T] {
             return new DistArray[T](dist);
         }
     }
+    
+      public static def makeClockedVal[T](region: Region, init: (Point(region.rank))=>T, c: Clock, op: (T,T)=>T, opInit: T): Array[T](region) {
+        val dist = Dist.makeConstant(region);
+        // if (checkBounds || checkPlace)
+          	return at (dist.onePlace) { new ClockedLocalArray[T](dist as Dist{constant,onePlace==here,self==dist}, init, c, op, opInit) }; 
+        //   else
+        //     return at (dist.onePlace) { new FastArray[T](dist as Dist{constant,onePlace==here,self==dist}, init) }; 
+    
+    }
 
     public static def makeVar1[T](rail: Rail[T]!): Array[T]{rank==1&&rect&&zeroBased} {
         val r = Region.makeRectangular(0, rail.length-1);
@@ -108,11 +118,13 @@ public abstract class BaseArray[T] extends Array[T] {
     // high-performance methods are in subclass to facilitate inlining
     //     
 
-    public final safe global def apply(pt: Point(rank)): T {
+    public safe global def apply(pt: Point(rank)): T {
         if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
         return raw()(layout().offset(pt));
     }
+
+
 
     public final safe global def get(pt: Point(rank)): T = apply(pt);
 
@@ -124,6 +136,10 @@ public abstract class BaseArray[T] extends Array[T] {
         r(layout().offset(pt)) = v;
         return v;
     }
+    
+  
+
+     
 
 
     //
@@ -226,11 +242,16 @@ public abstract class BaseArray[T] extends Array[T] {
         
         
 	finish foreach (p:Point(1)  in r) {
+			
         	results(p(0)) = at (ps(p(0))) {
+        	
         	    var result: T = unit;
                 val a = (this | here) as Array[T](rank);
-                for (pt:Point(dist.region.rank)  in a.region)
+        
+                for (pt:Point(dist.region.rank)  in a.region) {
+                
                     result = op(result, a(pt));
+                 }
                 return result;
             };
         }
