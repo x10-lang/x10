@@ -10,6 +10,7 @@
  */
 
 package x10.array;
+import x10.compiler.ClockedVar;
 
 /**
  * Temporary class representing fastest possible array. Eliminates
@@ -26,6 +27,7 @@ import x10.compiler.Native;
 public final class FastArray[T] extends BaseArray[T] {
 
     private global val raw:Rail[T]{self.at(dist.onePlace)};
+    private global val clockedRaw:Rail[ClockedVar[T]]{self.at(dist.onePlace)};
     private global val layout:RectLayout;
 
     final public global def raw() = raw as Rail[T]!;
@@ -175,6 +177,7 @@ public final class FastArray[T] extends BaseArray[T] {
                 r(layout.offset(p)) = f(p);
         
         raw = r as Rail[T]{self.at(this.dist.onePlace)}; 
+        clockedRaw = null;
 
         delta0 = layout.delta0;
         delta1 = layout.delta1;
@@ -186,6 +189,36 @@ public final class FastArray[T] extends BaseArray[T] {
         offset3 = offset2*layout.delta3 + layout.min3;
     }
     
+    
+    def this(dist: Dist{constant}, init: (Point{self.rank==dist.rank})=>T, c: Clock, op: (T,T)=>T, opInit: T){here == dist.onePlace}: FastArray[T]{self.dist==dist} {
+
+        super(dist);
+        layout = layout(region);
+        val n = layout.size();
+        val r = Rail.makeClocked[T](n, c, op, opInit);
+        
+            val f = init as (Point) => T;
+            for (p:Point in region) {
+            	val cv = r(layout.offset(p)) as ClockedVar[T]!;
+                cv.set(f(p));
+            }
+        raw = null;
+        clockedRaw = r as Rail[ClockedVar[T]]{self.at(this.dist.onePlace)}; 
+
+        delta0 = layout.delta0;
+        delta1 = layout.delta1;
+        delta2 = layout.delta2;
+        delta3 = layout.delta3;
+        offset0 = (layout.min0);
+        offset1 = (offset0)*layout.delta1 + layout.min1;
+        offset2 = offset1*layout.delta2 + layout.min2;
+        offset3 = offset2*layout.delta3 + layout.min3;
+    }
+    
+    
+    
+    
+    
     def this(dist: Dist{constant}): FastArray[T]{self.dist==dist} {
 
         super(dist);
@@ -196,6 +229,7 @@ public final class FastArray[T] extends BaseArray[T] {
         val r = Rail.make[T](n);
        
         raw = r as Rail[T]{self.at(this.dist.onePlace)};
+        clockedRaw = null;
 
         delta0 = layout.delta0;
         delta1 = layout.delta1;
@@ -223,6 +257,7 @@ public final class FastArray[T] extends BaseArray[T] {
     	val l =   a.layout();
     	this.layout = l;
     	this.raw =  a.raw() as Rail[T]{self.at(this.dist.onePlace)};
+    	this.clockedRaw = null;
 
     	delta0 = l.delta0;
     	delta1 = l.delta1;

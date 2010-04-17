@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.array.BaseArray;
 import x10.array.FastArray;
+import x10.compiler.ClockedVar;
 
 /**
  * An array defines a mapping from points to data of some type T. An
@@ -278,6 +279,9 @@ public abstract class Array[T](
         = BaseArray.makeVar1[T](dist, init)
             as FastArray[T]{dist==dist};
 
+ 	public static def makeClocked[T](region: Region, init: (Point(region.rank))=>T, c: Clock, op: (T,T)=>T, opInit: T)
+        = BaseArray.makeClockedVal[T](region, init, c, op, opInit)
+          as Array[T](region);
 
     //
     // operations
@@ -361,6 +365,7 @@ public abstract class Array[T](
      * @see #set(T, Int)
      */
     public abstract safe global def set(v:T, pt: Point(rank)): T;
+    //public abstract safe global def setClocked(v:T, pt: Point(rank)): T;
 
     /**
      * Set the element of this array corresponding to the given index to the given value.
@@ -375,6 +380,7 @@ public abstract class Array[T](
      * @see #set(T, Point)
      */
     public abstract safe global def set(v:T, i0: int) {rank==1}: T;
+
 
     /**
      * Set the element of this array corresponding to the given pair of indices to the given value.
@@ -391,6 +397,7 @@ public abstract class Array[T](
      */
     public abstract safe global def set(v:T, i0: int, i1: int) {rank==2}: T;
 
+
     /**
      * Set the element of this array corresponding to the given triple of indices to the given value.
      * Return the new value of the element.
@@ -406,6 +413,7 @@ public abstract class Array[T](
      * @see #set(T, Point)
      */
     public abstract safe global def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T;
+ 
 
     /**
      * Set the element of this array corresponding to the given quartet of indices to the given value.

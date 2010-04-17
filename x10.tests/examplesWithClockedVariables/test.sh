@@ -1,6 +1,5 @@
-example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA )
-
-for ((i = 0; i < 12; i++))
+example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR )
+for ((i = 0; i < ${#example[@]}; i++))
 do
 	
 	echo ""

@@ -44,6 +44,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Name;
+import polyglot.types.ParsedClassType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -67,6 +68,8 @@ import x10.ast.X10Local_c;
 import x10.ast.X10NodeFactory;
 import x10.extension.X10Ext;
 import x10.types.AnnotatedType;
+import x10.types.ConstrainedType;
+import x10.types.ConstrainedType_c;
 import x10.types.X10ClassType;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
@@ -88,6 +91,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	
 	 private static final QName CLOCKEDVAR = QName.make("x10.compiler.ClockedVar");
 	 private static final QName RAIL = QName.make("x10.lang.Rail");
+	 private static final QName ARRAY = QName.make("x10.lang.Array");
 	
 	 /*FIXME*/
 	 	private boolean isClockedType(Type type) {
@@ -356,18 +360,25 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	  
 	    
 	 private Node visitMake(X10Call call) {	
-		 
+		 Type type;
+			try {
+				if (call.target().toString().contentEquals("x10.lang.Rail"))
+					type = xts.typeForName(RAIL);
+				else if (call.target().toString().contentEquals("x10.lang.Array")) 
+					type = xts.typeForName(ARRAY);
+				else 
+					return call;
 				for (TypeNode tn: call.typeArguments())
 					if (this.isClockedType(tn.type())) {
 						Receiver target = call.target();
-						Type type;
+						
 						X10MethodInstance mi;
 						List<Expr> args;
-						try {
+					
 							Expr c = this.extractClock(tn.type());
 							Expr op = this.extractOp(tn.type());
 							Expr opInit = this.extractOpInit(tn.type());
-							type = xts.typeForName(RAIL);
+						
 						
 							
 							List<Type> typeArguments = ((X10ClassType) type).typeArguments();
@@ -397,14 +408,15 @@ public class ClockedVariableRefactor extends ContextVisitor {
 							args.add(op);
 							args.add(opInit);
 							
-							mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(call.type(), Name.make("makeClockedRail"), typeArgs, argTypes, context));
-							} catch (SemanticException e) {
-								throw new InternalCompilerError("Something is terribly wrong", e);
-							}
+							mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(call.type(), Name.make("makeClocked"), typeArgs, argTypes, context));
+							
 					
-					
-						return (Call) xnf.Call(call.position(), target,  xnf.Id(call.position(), "makeClockedVar"), args).methodInstance(mi).type(mi.returnType());
+						return (Call) xnf.Call(call.position(), target,  xnf.Id(call.position(), "makeClocked"), args).methodInstance(mi).type(mi.returnType());
 					}
+			} catch (SemanticException e) {
+				throw new InternalCompilerError("Something is terribly wrong", e);
+			}
+	
 		
 		return call;
 	 }
@@ -412,7 +424,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	 
 	 private Node visitApply(X10Call call) {	
 			
-				if (call.type() instanceof AnnotatedType) {
+				if (call.type() instanceof AnnotatedType) 	{
 					Receiver target = call.target();
 					Type type;
 					X10MethodInstance mi;
@@ -445,54 +457,73 @@ public class ClockedVariableRefactor extends ContextVisitor {
 
 	
 	 private Node visitSettableAssign(SettableAssign sa) {	
+		 Type type;
+		  List<Type> typeArgs = new ArrayList<Type>();
+		
+		try {
+			if (((X10ParsedClassType)((ConstrainedType)sa.array().type()).baseType().get()).def().toString().contentEquals("x10.lang.Rail")) {
+				type = xts.typeForName(RAIL);
+				typeArgs.add(sa.right().type());
 			
+			}
+			/*else if (((X10ParsedClassType)((ConstrainedType)sa.array().type()).baseType().get()).def().toString().contentEquals("x10.lang.Array"))
+				type = xts.typeForName(ARRAY);*/
+	
+			else
+				return sa;
+
 		if (sa.type() instanceof AnnotatedType) {
 			if (sa.array() instanceof Local) {
 				Local array = (Local) sa.array();
-				Type type;
+				
 				X10MethodInstance mi;
-				List<Type> typeArgs = new ArrayList<Type>();
+				
+			
+				
 				List<Type> argTypes = new ArrayList<Type>();
 				List<Expr> args = new ArrayList<Expr>();
-				try {
+			
+			
+				
+				for (Expr index: sa.index())
+						argTypes.add(index.type());
+				argTypes.add(sa.right().type());
+				for (Expr index: sa.index())
+							args.add(index);
+				args.add(sa.right());
 					
-					type = xts.typeForName(RAIL);
-					
-					typeArgs.add(sa.right().type());
-					argTypes.add(sa.index().get(0).type());
-					argTypes.add(sa.right().type());
-					args.add(sa.index().get(0));
-					args.add(sa.right());
-					
-					mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(sa.methodInstance().returnType(), Name.make("setClocked"), typeArgs, argTypes, context));
-					} catch (SemanticException e) {
-						throw new InternalCompilerError("Something is terribly wrong", e);
-					}
-				return (Call) xnf.Call(sa.position(), array,  xnf.Id(sa.position(), "makeClockedVar"), args).methodInstance(mi).type(mi.returnType());
+				
+				
+				
+				mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(sa.methodInstance().returnType(), Name.make("setClocked"), typeArgs, argTypes, context));
+				
+				return (Call) xnf.Call(sa.position(), array,  xnf.Id(sa.position(), "setClocked"), args).methodInstance(mi).type(mi.returnType());
 			}	else if (sa.array() instanceof Field) {
 					Field array = (Field) sa.array();
-					Type type;
+					
 					X10MethodInstance mi;
-					List<Type> typeArgs = new ArrayList<Type>();
+								
 					List<Type> argTypes = new ArrayList<Type>();
-					List<Expr> args = new ArrayList<Expr>();
-					try {
+					List<Expr> args = new ArrayList<Expr>();		
+				
 						
-						type = xts.typeForName(RAIL);
-						
-						typeArgs.add(sa.right().type());
-						argTypes.add(sa.index().get(0).type());
+					
+						for (Expr index: sa.index())
+								argTypes.add(index.type());
 						argTypes.add(sa.right().type());
-						args.add(sa.index().get(0));
+						for (Expr index: sa.index())
+									args.add(index);
 						args.add(sa.right());
 						
 						mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(sa.methodInstance().returnType(), Name.make("setClocked"), typeArgs, argTypes, context));
-						} catch (SemanticException e) {
-							throw new InternalCompilerError("Something is terribly wrong", e);
-						}
-					return (Call) xnf.Call(sa.position(), array,  xnf.Id(sa.position(), "makeClockedVar"), args).methodInstance(mi).type(mi.returnType());
+					
+					
+					return (Call) xnf.Call(sa.position(), array,  xnf.Id(sa.position(), "setClocked"), args).methodInstance(mi).type(mi.returnType());
 				}	
-		}	
+			}	
+		} catch (SemanticException e) {
+			throw new InternalCompilerError("Something is terribly wrong", e);
+		}
 		return sa;
 }
 	 
@@ -528,15 +559,24 @@ public class ClockedVariableRefactor extends ContextVisitor {
         	// Deal with Rail.make and Array.make
         	
         	X10Call call = (X10Call) n;
-        	if (call.target().toString().contentEquals("x10.lang.Rail"))
+
         		if (call.name().toString().contentEquals("make"))
         				return visitMake((X10Call) n);
-        		if (call.name().toString().contentEquals("apply"))
-        				return visitApply((X10Call) n);
+        
+			
+			if (call.target().type() instanceof ConstrainedType) {
+        		Type t = ((ConstrainedType)call.target().type()).baseType().get();
+        		if (t instanceof ParsedClassType) {
+        			ParsedClassType pct = (ParsedClassType) t;
+        			if(pct.def().toString().contentEquals("x10.lang.Rail"))
+        				if (call.name().toString().contentEquals("apply"))
+        					return visitApply((X10Call) n);
+        	     }
+			}
         	
         } else if (n instanceof SettableAssign) {
-        	   return visitSettableAssign((SettableAssign) n);
-        	
+    				return visitSettableAssign((SettableAssign) n);
+    		
         }
 	    
 	    
