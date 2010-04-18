@@ -611,6 +611,14 @@ public class PlaceChecker {
 	    public static XConstrainedTerm computePlaceTerm( Expr place, X10Context xc, 
 	    		X10TypeSystem  ts
 	    		) throws SemanticException {
+	    	if (place instanceof Field) {
+				Field fp = (Field) place;
+				FieldInstance fi = fp.fieldInstance();
+				if ((ts.typeEquals(fi.container(), ts.Any(), xc) || ts.typeEquals(fi.container(), ts.Object(), xc)) &&
+						fi.name().equals(ts.homeName())) {
+					place = (Expr) fp.target();
+				}
+			}
 	 		Type placeType = place.type();
 			CConstraint d = X10TypeMixin.xclause(placeType);
 			d = (d==null) ? new CConstraint_c() : d.copy();
