@@ -79,12 +79,12 @@ class betweenessCentrality {
                d(w)  = t.third + 1;
                sig(w) = t.fourth;
                (pred(w) as GrowableRail[types.VERT_T]!).add(v);
-                x10.io.Console.OUT.println("if: v w" + v + " " + w + " " + sig(w) + " " + d(w));
+                //x10.io.Console.OUT.println("if: v w" + v + " " + w + " " + sig(w) + " " + d(w));
 
              } else if (d(w) ==  t.third+1) {
                   sig(w) += t.fourth;
                  (pred(w) as GrowableRail[types.VERT_T]!).add(v);
-                x10.io.Console.OUT.println("else: v w" + v + " " +  w + " " + sig(w) + " " + d(w));
+                //x10.io.Console.OUT.println("else: v w" + v + " " +  w + " " + sig(w) + " " + d(w));
              }
              } 
              l++; 
@@ -146,6 +146,13 @@ class betweenessCentrality {
                 for (var l: Int = c_length-1; l >0; l--) {
                  val start = count(l-1);
                  val end = count(l)-1;
+
+                 val tsum = world.sum(end-start+1);
+                 if (tsum == 0)  continue;
+ //                x10.io.Console.OUT.println("tsum " + tsum);
+
+                val N = Rail.make[GrowableRail[Triplet[types.VERT_T, Double,Double]]!](Place.MAX_PLACES, (i:Int)=>
+					new GrowableRail[Triplet[types.VERT_T, Double, Double]](0));
                  for ((j) in start..end) {
                  val w = S(j);
 
@@ -156,15 +163,29 @@ class betweenessCentrality {
                   val del_w = del(w);
                   val sig_w = sig(w);
                   val owner = pg.owner(v);
-                  finish async (owner) {
+                  N(owner.id).add(Triplet[types.VERT_T, Double, Double](v, del_w, sig_w));
+                  
+                  /* finish async (owner) {
                      val del = Del() as Array[types.DOUBLE_T](1)!;
                      val sig = Sig() as Array[types.DOUBLE_T](1)!;
                      atomic del(v) = del(v) + sig(v)*(((1.0+del_w) as double)/sig_w);
-                     x10.io.Console.OUT.println("del " + i + " " +  v + " " + del(v));
-                  }
+                     //x10.io.Console.OUT.println("del " + i + " " +  v + " " + del(v));
+                  } */
                  }
-                     x10.io.Console.OUT.println("bc " + w + " " + del(w));
-                bc(w) += del(w);
+                }
+
+                 val L = world.alltoallv[Triplet[types.VERT_T, Double, Double]](N);
+                 for ((k) in 0..L.length()-1) {
+                    val v = L(k).first;
+                    val del_w = L(k).second;
+                    val sig_w = L(k).third;
+                    del(v) = del(v) + sig(v)*(((1.0+del_w) as double)/sig_w);
+                 }
+                 for ((j) in start..end) {
+                   val w = S(j);
+     //             x10.io.Console.OUT.println("bc " + w + " " + del(w));
+                   bc(w) += del(w);
+                 }
           }
             world.barrier();     
             back.stop();
@@ -172,15 +193,14 @@ class betweenessCentrality {
 
                kernel4.stop();
         }
-               x10.io.Console.OUT.println ("ateach done" );
+               //x10.io.Console.OUT.println ("ateach done" );
 
-      }
 
           finish for((p) in unique) {
              finish async (Place.places(p)) {
                val bc = BC() as Array[types.DOUBLE_T](1)!;
                 for ((a) in bc.region) {
-                 x10.io.Console.OUT.println ("for done " + bc(a));
+                 x10.io.Console.OUT.println ("BC " + bc(a));
                 }
              }
          } 

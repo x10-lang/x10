@@ -91,7 +91,7 @@ public class genScaleData_dist  {
 							u += step;
 							v += step;
 						}
-						x10.io.Console.OUT.println("u v " + pid + " " +  u + " " + v + " " + p1 + " " + GLOBALS.SCALE);
+					//	x10.io.Console.OUT.println("u v " + pid + " " +  u + " " + v + " " + p1 + " " + GLOBALS.SCALE);
 					}
 				} while (u == v);
 				
@@ -100,7 +100,7 @@ public class genScaleData_dist  {
 			}
 			
 		 	
-			x10.io.Console.OUT.println(src + " " + dest);
+			//x10.io.Console.OUT.println(src + " " + dest);
 			
 		
                         val rpairs = Rail.make[types.UVPair](chunkSize_n);	
@@ -143,7 +143,7 @@ public class genScaleData_dist  {
 
                         val inrvertices: Rail[types.UVPair]! = world.usort[types.VERT_T](rvertices, (i:types.VERT_T)=>(i/(n/Place.MAX_PLACES))); */
                         
-                        x10.io.Console.OUT.println ("permute " + out_pairs2);
+                       // x10.io.Console.OUT.println ("permute " + out_pairs2);
                         val etriplets = Rail.make[types.UVWTriplet](chunkSize_m);	
 			for ((i) in  0..chunkSize_m-1) {
 			       val   stream = init_sprng_wrapper(i+pid*chunkSize_m, m, seed);

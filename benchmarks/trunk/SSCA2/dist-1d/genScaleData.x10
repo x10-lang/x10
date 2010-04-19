@@ -102,7 +102,7 @@ public class genScaleData  {
 							u += step;
 							v += step;
 						}
-						x10.io.Console.OUT.println("u v " + tid + " " +  u + " " + v + " " + p1 + " " + GLOBALS.SCALE);
+						//x10.io.Console.OUT.println("u v " + tid + " " +  u + " " + v + " " + p1 + " " + GLOBALS.SCALE);
 					}
 				} while (u == v);
 				
@@ -112,7 +112,7 @@ public class genScaleData  {
 			
 			next;
 			
-			x10.io.Console.OUT.println(src + " " + dest);
+			//x10.io.Console.OUT.println(src + " " + dest);
            
 		         val key = Rail.make[types.VERT_T](n);
 		         val value = Rail.make[types.VERT_T](n);
@@ -143,7 +143,7 @@ public class genScaleData  {
 			
 			next; 
 			
-			 x10.io.Console.OUT.println("perm "  +  " " + key + " " + value);
+			 //x10.io.Console.OUT.println("perm "  +  " " + key + " " + value);
 			for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
 				src(i) = value(src(i));
 				dest(i) = value(dest(i));

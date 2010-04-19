@@ -141,21 +141,21 @@ final public class Comm {
 
     public def maxPair(d:Pair[Double,Int]): Pair[Double,int] {
         val pair =  Pair[Double, Int](0.0, 0);
-        @Native("c++",
+        {@Native("c++",
             "void *r = __pgasrt_tspcoll_iallreduce(FMGL(my_id),  &d, &pair, PGASRT_OP_MAX, PGASRT_DT_dblint, 1);" +
             "x10::lang::Runtime::increaseParallelism();" +
             "while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
-            "x10::lang::Runtime::decreaseParallelism(1);" ) {}
+            "x10::lang::Runtime::decreaseParallelism(1);" ) {} }
         return pair;
     }
 
     public def minPair(d:Pair[Double,Int]): Pair[Double,int] {
         val pair =  Pair[Double, Int](0.0, 0);
-        @Native("c++",
+        { @Native("c++",
             "void *r = __pgasrt_tspcoll_iallreduce(FMGL(my_id),  &d, &pair, PGASRT_OP_MIN, PGASRT_DT_dblint, 1);" +
             "x10::lang::Runtime::increaseParallelism();" +
             "while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
-            "x10::lang::Runtime::decreaseParallelism(1);" ) {}
+            "x10::lang::Runtime::decreaseParallelism(1);" ) {} }
         return pair;
     }
 

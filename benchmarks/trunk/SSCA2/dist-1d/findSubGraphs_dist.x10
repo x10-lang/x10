@@ -59,25 +59,12 @@ class findSubGraphs_dist  {
 
              if (l == SubGraphPathLength)  break;
 
-       /*      for ((place)  in unique) {
-               val N_q : GrowableRail[types.VERT_T]! = N(place);
-               val mlength = N_q.length();
-               for ((i) in 0..mlength-1) {
-                   x10.io.Console.OUT.println ("N: " + N_q(i)); 
-                }
-             } */
+
+              Runtime.deallocObject(L);
 
               L = world.alltoallv[types.VERT_T](N);
   
                 
-             /* val M = L(l+1);
-             val mlength = M.length();
-             for ((i) in 0..mlength-1) {
-                 x10.io.Console.OUT.println ("M: " + M(i)); 
-             } */
-
-
-
              l = l  + 1;
             }
 

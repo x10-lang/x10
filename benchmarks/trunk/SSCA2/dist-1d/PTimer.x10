@@ -47,8 +47,9 @@ final public class PTimer{
       sum(here.id) = world.sum(acc(here.id)*1e-9 as double);
 
       max(here.id) = world.maxPair(Pair[Double, Int](acc(here.id)*1e-9 as double,  here.id));
-      min(here.id) = world.minPair(Pair[Double, Int](acc(here.id)*1e-9 as double,  here.id));
-
+      min(here.id) = world.maxPair(Pair[Double, Int](-acc(here.id)*1e-9 as double,  here.id));
+      min(here.id) = Pair[Double, Int](Math.abs(min(here.id).first), min(here.id).second);
+      
       mean(here.id) =  sum(here.id) / (Place.MAX_PLACES as double);
       
       val tmp = (acc(here.id)*1e-9 as double )- mean(here.id);

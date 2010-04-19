@@ -56,7 +56,7 @@ public class computeGraph  {
 		
 		val G  = defs.graph(n, m, endV, numEdges, w);
 		
-		 for ((i) in 0..SDGdata.m-1) {
+		 /* for ((i) in 0..SDGdata.m-1) {
 			  x10.io.Console.OUT.println("[ " + (SDGdata.startVertex as Rail[types.VERT_T]!)(i) + " " + (SDGdata.endVertex as Rail[types.VERT_T]!)(i) + " " + (SDGdata.weight as Rail[types.LONG_T]!)(i) + "]"); 
 		 }
 		 
@@ -70,7 +70,7 @@ public class computeGraph  {
 			 for ((j) in  lo..hi-1) {
 				 x10.io.Console.OUT.println("[ " + i + " " + (G.endV as Rail[types.VERT_T]!)(j) +  " " + (G.weight as Rail[types.LONG_T]!)(j) + "] " );
 			 }
-		 } 
+		 } */ 
 		
 		return Pair[Double,defs.graph](time, G);
 	}
