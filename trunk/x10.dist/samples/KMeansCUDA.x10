@@ -15,7 +15,7 @@ import x10.io.File;
 import x10.io.Marshal;
 import x10.io.IOException;
 
-//import x10.util.DistributedRail;
+import x10.util.DistributedRail;
 import x10.util.Pair;
 import x10.util.HashMap;
 
@@ -25,8 +25,10 @@ import x10.util.Option;
 import x10.compiler.Unroll;
 import x10.compiler.CUDA;
 import x10.compiler.CUDAUtilities;
+import x10.compiler.Native;
 
 
+/*
 final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     global val data : PlaceLocalHandle[Rail[T]];
     global val firstPlace : Place;
@@ -149,6 +151,7 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     }
 
 }
+*/
 
 
 public class KMeansCUDA {
@@ -162,6 +165,11 @@ public class KMeansCUDA {
             Console.OUT.println();
         }
     }
+
+/*
+    @Native("c++", "#4")
+    private static global def placePun[T](x:T) = x as T!;
+*/
 
     private static def round_up (x:Int, n:Int) = (x-1) - ((x-1)%n) + n;
 
