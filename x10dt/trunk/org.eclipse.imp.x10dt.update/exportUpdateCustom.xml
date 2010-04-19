@@ -8,7 +8,7 @@
         <property name="cache.dir" value="./cache"/>
         <mkdir dir="${cache.dir}"/>
 
-        <property name="imp.update.url" value="http://download.eclipse.org/technology/imp/org.eclipse.imp.update_${imp.update.version}.zip"/>
+        <property name="imp.update.url" value="${imp.update.url.base}/org.eclipse.imp.update_${imp.update.version}.zip"/>
 
         <property name="imp.update.cache.zip" value="${cache.dir}/imp.update_${imp.update.version}.zip"/>
         <property name="imp.update.cache.dir" value="${cache.dir}/imp.update/${imp.update.version}"/>
