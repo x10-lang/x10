@@ -277,6 +277,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	List<Type> bounds = bounds(t, Bound.UPPER, includeObject);
         return bounds;
     }
+    public List<Type> upperBounds(Type t) {
+    	return upperBounds(t, false);
+    }
+  
     public List<Type> upperTypeBounds(Type t) {
     	List<Type> bounds = typeBounds(t, Bound.UPPER);
         return bounds;
