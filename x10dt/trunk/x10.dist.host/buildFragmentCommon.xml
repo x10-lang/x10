@@ -1,24 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="x10.dist.host" default="update" basedir=".">
-<!-- from original build.xml by Igor-->
+    <property file="../x10.dist.host/x10.dist.properties"/>
     <property name="tmp" location="${basedir}/tmp"/>
     <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
-	<!-- Bump version here: for 2.0.3-->
-    <property name="x10.version" value="2.0.3"/>
-    <property name="orig.x10.timestamp" value="${x10.version}"/> <!-- override if version is, e.g., "svn head" -->
-	<property name="x10.tarball.timestamp" value="13863" />
-	<property name="x10.timestamp" value="tib_${x10.tarball.timestamp}"/>
-    <!-- sample value from fragment: <property name="x10.platform" value="linux_x86_64"/> -->
+	<!-- Bump version here: for 2.0.3  (also see x10.dist.properties file) -->
+    <property name="x10.version" value="2.0.3"/>	
     <property name="x10.dist.location" location="${tmp}"/>
-	<!-- start: changed for 2.0.3-->
 	<property name="x10.tarball" value="x10-${x10.timestamp}_${x10.platform}.tgz"/> 
-    <property name="orig.x10.tarball.url" value="http://sourceforge.net/projects/x10/files/${x10.version}/${x10.tarball}?use_mirror=voxel"/>
-	<!-- temporary tarball locn on orquesta for testing -->
-	<property name="x10.tarball.url" value="http://orquesta.watson.ibm.com/x10dt/x10-builds/${x10.tarball.timestamp}/${x10.tarball}"/>
-	<!--     actual value                   http://orquesta.watson.ibm.com/x10dt/x10-builds/13749/x10-tib_13749_cygwin_x86.tgz -->
-	<!-- end:   changed for 2.0.3-->
+	<property name="x10.tarball.url" value="${x10.tarball.url.base}/${x10.tarball}${x10.tarball.url.suffix}"/>
+	
     <property name="x10.transport" value="sockets"/>
     <!-- get the environment variables -->
     <property environment="env"/>
