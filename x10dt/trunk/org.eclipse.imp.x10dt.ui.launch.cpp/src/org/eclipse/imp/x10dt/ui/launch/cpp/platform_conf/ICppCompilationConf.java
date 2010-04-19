@@ -85,7 +85,7 @@ public interface ICppCompilationConf extends IStatusConfProvider {
   public String getPGASLocation();
   
   /**
-   * Returns the remote output folder location where the generated files will be transfered and compiled.
+   * Returns the remote output folder location where the generated files will be transferred and compiled.
    * 
    * @return A non-null empty string if the resource manager is remote, otherwise <b>null</b>.
    */
