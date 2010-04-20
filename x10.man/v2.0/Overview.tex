@@ -73,18 +73,19 @@ array initializers.
 %
 For example, the following method uses a function to increment
 elements of an array.
-\begin{xten}
 %~~gen
 %class Floobah {
 %~~vis
+\begin{xten}
 def incr(A: Array[Int]!): Array[Int] {
     val f = (x: Int) => x+1; // e.g., f(1) == 2
     return A.lift(f);
 }
+\end{xten}
 %~~siv
 %}
 %~~neg
-\end{xten}
+
 
 \paragraph{Dependent types}
 Classes and interfaces may declare \emph{properties}: immutable object members bound at object construction.
@@ -94,15 +95,15 @@ Properties enable the definition of \emph{dependent types}.
 
 For example, the following code declares a class for a two-dimensional
 \xcd"Point" class with an \xcd"add" method.
-\begin{xten}
 %~~gen
 %~~vis
+\begin{xten}
 struct Point(x: Int, y: Int) {
     def add(p: Point) = Point(x+p.x,y+p.y);
 }
+\end{xten}
 %~~siv
 %~~neg
-\end{xten}
 The class has integer value properties \xcd"x" and \xcd"y".
 The \xcd"add" method creates and returns a new point by
 element-wise addition.

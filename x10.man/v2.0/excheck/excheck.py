@@ -65,29 +65,32 @@ def doStmt(cmd, args, f, line, basename):
     writeX10File(classname, code)
 
 # IN: 
-#     \begin{xten}    
 #     %~~gen
 #     %import frob.*;
 #     %class Murnitz{      
 #     %~~vis
+#     \begin{xten}    
 #        def this(x:Int) { this.x = x; }
+#     \end{xten}
 #     %~~siv
 #     %}
 #     %~~neg
-#     \end{xten}
 # OUT:
 #    import frob*
 #    class Murnitz{
 #        def this(x:Int) { this.x = x; }
 #    }
-# NOTE: The visible section (%~~vis ... %~~siv) is written as X10.
+# NOTE: The visible section (%~~vis ... %~~siv) is written as X10 + LaTeX.
+# \begin and \end lines are stripped out.
+# 
 # The prelude and postlude  (%~~gen..%~~vis and %~~siv..%~~neg) have
 # TeX comments in the LaTeX source, which must be stripped off for X10.
+
 def doGen(cmd, args, f, line, basename):
     print("doGen: " + cmd + " on " + "!".join(args));
-    prelude = readLines(f, "%~~vis", True, basename)
-    body = readLines(f, "%~~siv", False, basename)
-    postlude = readLines(f, "%~~neg", True, basename)
+    prelude = readLines(f, "%~~vis", True, False, basename)
+    body = readLines(f, "%~~siv", False, True, basename)
+    postlude = readLines(f, "%~~neg", True, False, basename)
     classname = numberedName(basename)
     code = "\n".join(prelude + body + postlude)
     writeX10File(classname, code)
@@ -111,7 +114,8 @@ def extract(f, starter, ender, basename):
 # Read lines from f until a line==endMarker.
 # If stripLeadingPercents=True, strip leading % signs from the lines.
 # Return the lines as a list
-def readLines(f, endMarker, stripLeadingPercents, basename):
+# if stripBeginAndEnd==True, strip \begin and \end commands.
+def readLines(f, endMarker, stripLeadingPercents, stripBeginAndEnd, basename):
     L = []
     while True:
         line = f.readline()
@@ -122,7 +126,9 @@ def readLines(f, endMarker, stripLeadingPercents, basename):
             return L
         if stripLeadingPercents:
             if line.startswith("%") : line = line[1:len(line)]
-        L = L + [line]
+        beginOrEnd = line.startswith("\\begin") or line.startswith("\\end")
+        if not (stripBeginAndEnd and beginOrEnd): 
+            L = L + [line]
         
 
 def doom(msg):
