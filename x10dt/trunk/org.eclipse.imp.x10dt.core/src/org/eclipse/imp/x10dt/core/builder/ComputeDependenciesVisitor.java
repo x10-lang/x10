@@ -131,10 +131,10 @@ class ComputeDependenciesVisitor extends ContextVisitor {
             TypeNode typeNode= (TypeNode) n;
             Type type= typeNode.type();
             
-            List<ClassType> types = new ArrayList<ClassType>();
+            List<Type> types = new ArrayList<Type>();
             extractAllClassTypes(type, types);
             
-            for(ClassType t: types){
+            for(Type t: types){
             	recordTypeDependency(t);
             }
 
@@ -222,7 +222,7 @@ class ComputeDependenciesVisitor extends ContextVisitor {
     }
     
 
-	private void extractAllClassTypes(Type type, List<ClassType> types) {
+	private void extractAllClassTypes(Type type, List<Type> types) {
 		if (!type.isClass())
 			return;
 		if (type instanceof ClosureType_c){
@@ -245,13 +245,16 @@ class ComputeDependenciesVisitor extends ContextVisitor {
 	}
 	
 	private void superTypes(ClassType type, List<ClassType> types){
-		ClassType parentClass = (ClassType) type.superClass();
-		if (parentClass != null && !types.contains(parentClass)){
-			types.add(parentClass);
-			superTypes(parentClass, types);
+		Type parentClass = type.superClass();
+		if (parentClass != null){
+			X10ClassType classType = (X10ClassType) X10TypeMixin.baseType(parentClass);
+			if (!types.contains(classType)){
+				types.add(classType);
+				superTypes(classType, types);
+			}
 		}
 		for(Type inter: type.interfaces()){
-			ClassType interc = (ClassType) inter;
+			X10ClassType interc = (X10ClassType) X10TypeMixin.baseType(inter);
 			if (!types.contains(interc)){
 				types.add(interc);
 				superTypes(interc, types);
