@@ -22,9 +22,9 @@ gennedFileDir = texsource + "/testcases"
 
 
 def dealWithExample(f, line, basename):
-    print "Wow, " + line + " in " + basename
     cmd, args = parsley(line)    
     if cmd == "stmt" : doStmt(cmd, args, f, line, basename)
+    elif cmd == "gen" : doGen(cmd, args, f, line, basename)
     else:
         doom("In " + basename + " the command is \""+cmd + "\" -- what the feersnar is this line: " + line)
 
@@ -34,7 +34,7 @@ def dealWithExample(f, line, basename):
 def parsley(line):
     L = line[len(clue):len(line)]
     S = L.split(sep)
-    R = [S[0], S[1:len(S)]]
+    R = [S[0].strip(), S[1:len(S)]]
     return R
 
     
@@ -63,7 +63,34 @@ def doStmt(cmd, args, f, line, basename):
           "    " + stmt,
           "  }}"])
     writeX10File(classname, code)
-          
+
+# IN: 
+#     \begin{xten}    
+#     %~~gen
+#     %import frob.*;
+#     %class Murnitz{      
+#     %~~vis
+#        def this(x:Int) { this.x = x; }
+#     %~~siv
+#     %}
+#     %~~neg
+#     \end{xten}
+# OUT:
+#    import frob*
+#    class Murnitz{
+#        def this(x:Int) { this.x = x; }
+#    }
+# NOTE: The visible section (%~~vis ... %~~siv) is written as X10.
+# The prelude and postlude  (%~~gen..%~~vis and %~~siv..%~~neg) have
+# TeX comments in the LaTeX source, which must be stripped off for X10.
+def doGen(cmd, args, f, line, basename):
+    print("doGen: " + cmd + " on " + "!".join(args));
+    prelude = readLines(f, "%~~vis", True, basename)
+    body = readLines(f, "%~~siv", False, basename)
+    postlude = readLines(f, "%~~neg", True, basename)
+    classname = numberedName(basename)
+    code = "\n".join(prelude + body + postlude)
+    writeX10File(classname, code)
 
 # Read lines from f.  Return the substring of f
 # between 'starter' and 'ender' (exclusive).
@@ -80,7 +107,23 @@ def extract(f, starter, ender, basename):
             continue
         extractment = S[0:p2]
         return extractment
-    
+
+# Read lines from f until a line==endMarker.
+# If stripLeadingPercents=True, strip leading % signs from the lines.
+# Return the lines as a list
+def readLines(f, endMarker, stripLeadingPercents, basename):
+    L = []
+    while True:
+        line = f.readline()
+        if line == "": doom("End of file (" + basename + ") looking for " + endMarker)
+        line = line.rstrip()
+        if line.strip() == endMarker:
+            #print "readLines("  + endMarker + ") ...\n   " + "\n   ".join(L)
+            return L
+        if stripLeadingPercents:
+            if line.startswith("%") : line = line[1:len(line)]
+        L = L + [line]
+        
 
 def doom(msg):
     raise msg
@@ -91,7 +134,7 @@ def writeX10File(classname, code):
     f.write(code)
     f.flush()
     f.close()
-    print 'writeX10File -- just wrote ***' + classname + " to " + fn  + "***\n" + code + "\n\n"
+    print '***' + classname + " to " + fn  + "***\n" + code + "\n\n"
 
 # Return Foo1, Foo2, etc -- distinct class names for files from chapter Foo.
 name2number = {}
