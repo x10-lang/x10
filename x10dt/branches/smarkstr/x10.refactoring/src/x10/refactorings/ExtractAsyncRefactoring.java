@@ -8,6 +8,7 @@ import static x10.refactorings.utils.ExtractAsyncStaticTools.extractProcEntities
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,7 +49,6 @@ import polyglot.ast.Block_c;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.CompoundStmt;
-import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Formal;
@@ -62,11 +62,16 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Stmt_c;
 import polyglot.ast.VarDecl;
 import polyglot.ast.Variable;
+import polyglot.ext.x10.ast.AtEach;
 import polyglot.ext.x10.ast.Atomic;
+import polyglot.ext.x10.ast.Finish;
+import polyglot.ext.x10.ast.ForEach;
+import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.X10ArrayAccess;
 import polyglot.ext.x10.ast.X10ArrayAccess1;
 import polyglot.ext.x10.ast.X10Loop;
+import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
@@ -1437,70 +1442,156 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			this.place = "here";
 	}
 
+	@SuppressWarnings("unchecked")
 	public Change createChange(IProgressMonitor pm) throws CoreException,
 			OperationCanceledException {
-		// Replace hand-written transform code with usage of SAFARI AST
-		// rewriter.
 
 		IParseController parseController = ed.getParseController();
 		ISourcePositionLocator locator = parseController
 				.getSourcePositionLocator();
-		int startOffset = locator.getStartOffset(fPivot);
-		int endOffset = locator.getEndOffset(fPivot);
 
 		NodePathComputer pathComputer = new NodePathComputer(fNodeMethod,
 				fPivot);
-		Loop loop = (Loop) PolyglotUtils.findInnermostNodeOfTypes(pathComputer
+		Stmt lStmt = (Stmt) PolyglotUtils.findInnermostNodeOfTypes(pathComputer
 				.getPath(), new Class[] { Loop.class, X10Loop.class });
-		if (loop.body() instanceof Block) {
-			Block loopBody = (Block) loop.body();
-			List<Stmt> bodyStmts = loopBody.statements();
-			int pivotIndex = bodyStmts.indexOf(fPivot);
-			if (pivotIndex < 0) {
-				ThrowableStatus
-						.createFatalErrorStatus("Pivot statement not found in body of the loop.");
-			}
-			List<Stmt> block1Stmts = bodyStmts.subList(0, pivotIndex);
-			List<Stmt> block2Stmts = Collections.emptyList();
-			Node formal = loop.firstChild();
-			if (pivotIndex < (bodyStmts.size() - 1)) {
-				block2Stmts = bodyStmts.subList(pivotIndex + 1, bodyStmts
-						.size());
-			}
 
-			Block b1 = new Block_c(null, block1Stmts);
-			Block b2 = new Block_c(null, block2Stmts);
-			ExtractVarsVisitor blockVisitor = new ExtractVarsVisitor(
-					((ParseController) ed.getParseController())
-							.getCompilerDelegate().getExtensionInfo()
-							.nodeFactory());
-			b1.visit(blockVisitor);
-			Collection<Variable> b1Vars = blockVisitor.getVars();
-			if (formal instanceof Formal) {
-				Local lFormal = ((ParseController) parseController)
-						.getCompilerDelegate().getExtensionInfo().nodeFactory()
-						.Local(formal.position(), ((Formal) formal).id());
-				b1Vars.add((Variable) lFormal);
-			} else if (formal instanceof Variable) {
-				b1Vars.add((Variable) formal);
-			}
-			List<Stmt> delta = slice(b1Vars);
-			System.out.println(delta);
+		int startOffset = locator.getStartOffset(lStmt);
+		int endOffset = locator.getEndOffset(lStmt);
+		// int startOffset = locator.getStartOffset(fPivot);
+		// int endOffset = locator.getEndOffset(fPivot);
 
-			delta.retainAll(block2Stmts);
-			// Block prePivot =
+		StringWriter loopWriter = new StringWriter();
+		if (lStmt instanceof X10Loop) {
+			X10Loop loop = (X10Loop) lStmt;
+			if (loop.body() instanceof Block) {
+				Block loopBody = (Block) loop.body();
+				List<Stmt> bodyStmts = (List<Stmt>) loopBody.statements();
+				int pivotIndex = bodyStmts.indexOf(fPivot);
+				if (pivotIndex < 0) {
+					ThrowableStatus
+							.createFatalErrorStatus("Pivot statement not found in body of the loop.");
+				}
+				List<Stmt> block1Stmts = bodyStmts.subList(0, pivotIndex);
+				List<Stmt> block2Stmts = Collections.emptyList();
+
+				if (pivotIndex < (bodyStmts.size() - 1)) {
+					block2Stmts = bodyStmts.subList(pivotIndex + 1, bodyStmts
+							.size());
+				}
+
+				Block b1 = new Block_c(null, block1Stmts);
+				Block b2 = new Block_c(null, block2Stmts);
+
+				X10NodeFactory nf = (X10NodeFactory) ((ParseController) ed
+						.getParseController()).getCompilerDelegate()
+						.getExtensionInfo().nodeFactory();
+				X10Loop loop1 = distributeX10Loop(loop, b1, b2, nf.Async(fPivot
+						.position(), nf.ExprFromQualifiedName(
+						fPivot.position(), this.place), null, fPivot), false);
+				Finish finishedLoop1 = nf.Finish(loop.position(), loop1);
+				X10Loop loop2 = distributeX10Loop(loop, b2, b1, null, true);
+
+				// System.out.println(loop1);
+				// System.out.println(loop2);
+
+				finishedLoop1.prettyPrint(loopWriter);
+				loopWriter.append('\n');
+				loop2.prettyPrint(loopWriter);
+
+			}
 		}
 
 		TextFileChange tfc = new TextFileChange("Extract Async", fSourceFile);
 		tfc.setEdit(new MultiTextEdit());
 		tfc.addEdit(new ReplaceEdit(startOffset, endOffset - startOffset + 1,
-				"async ("
-						+ place
-						+ ") {"
-						+ ((fPivot instanceof Eval) ? fPivot.firstChild()
-								: fPivot) + ";}"));
+		// "async ("
+				// + place
+				// + ") {"
+				// + ((fPivot instanceof Eval) ? fPivot.firstChild()
+				// : fPivot) + ";}"
+				loopWriter.toString()));
 
 		return tfc;
+	}
+
+	/**
+	 * Distributes a loop by keeping all elements of the first block and the
+	 * necessary loop carried dependent statements from the second block. It
+	 * will add a pivot change inbetween these two sets of statements, if
+	 * provided.
+	 * 
+	 * @param loop
+	 *            the loop whose header should be replicated
+	 * @param b1
+	 *            the primary block of expressions
+	 * @param b2
+	 *            the secondary block of expressions (for lcds)
+	 * @param pivotChange
+	 *            the pivotal statement between b1 and b2
+	 * @param reverseBlocks
+	 *            determines in which order the statements should be included in
+	 *            the generated loop
+	 * @return a loop distributed around b1
+	 */
+	@SuppressWarnings("unchecked")
+	private X10Loop distributeX10Loop(X10Loop loop, Block b1, Block b2,
+			Stmt pivotChange, boolean reverseBlocks) {
+		X10NodeFactory nf = (X10NodeFactory) ((ParseController) ed
+				.getParseController()).getCompilerDelegate().getExtensionInfo()
+				.nodeFactory();
+
+		// Determine relevant variables from b1 and the loop header
+		Node formal = loop.formal();
+		ExtractVarsVisitor blockVisitor = new ExtractVarsVisitor(nf);
+		b1.visit(blockVisitor);
+		Collection<Variable> b1Vars = blockVisitor.getVars();
+		if (formal instanceof Formal) {
+			Local lFormal = (nf
+					.Local(formal.position(), ((Formal) formal).id()));
+			b1Vars.add((Variable) lFormal);
+		} else if (formal instanceof Variable) {
+			b1Vars.add((Variable) formal);
+		}
+
+		// Determine relevant statements from b2
+		List<Stmt> delta = slice(b1Vars);
+		System.out.println(delta);
+		delta.retainAll(b2.statements());
+
+		// Create block statements
+		List<Stmt> loopStmts;
+		if (reverseBlocks) {
+			loopStmts = delta;
+			if (pivotChange != null)
+				loopStmts.add(pivotChange);
+			loopStmts.addAll(b1.statements());
+		} else {
+			loopStmts = new ArrayList<Stmt>(b1.statements().size()
+					+ delta.size() + 1);
+			for (int i = 0; i < b1.statements().size(); i++) {
+				loopStmts.add(null);
+			}
+			Collections.copy(loopStmts, b1.statements());
+			if (pivotChange != null)
+				loopStmts.add(pivotChange);
+			loopStmts.addAll(delta);
+		}
+		Block loopBody = nf.Block(loop.body().position(), loopStmts);
+
+		// Create new loop
+		X10Loop loop1;
+		if (loop instanceof ForLoop) {
+			loop1 = nf.ForLoop(loop.position(), ((ForLoop) loop).formal(),
+					((ForLoop) loop).domain(), loopBody);
+		} else if (loop instanceof AtEach) {
+			loop1 = nf.AtEach(loop.position(), loop.formal(), loop.domain(),
+					((AtEach) loop).clocks(), loopBody);
+		} else {
+			loop1 = nf.ForEach(loop.position(), loop.formal(), loop.domain(),
+					((ForEach) loop).clocks(), loopBody);
+		}
+
+		return loop1;
 	}
 
 	/**
@@ -1513,7 +1604,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * @return the loop-carried dependent slice associated with the variables
 	 */
 	private List<Stmt> slice(Collection<Variable> vars) {
-		List<Stmt> delta = new ArrayList<Stmt>();
+		List<Stmt> delta = new ArrayList<Stmt>(fDelta.size());
 		for (Stmt s : fDelta) {
 			if (PolyglotUtils.updatesVarFromCollection(s, vars)) {
 				delta.add(s);
@@ -1539,6 +1630,13 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return delta;
 	}
 
+	/**
+	 * Entry point container for the WALA analysis.
+	 * 
+	 * @author Shane Markstrum
+	 * @author Robert Fuhrer
+	 * 
+	 */
 	private final class TestEntryPoints implements Iterable<Entrypoint> {
 		private final ProcedureInstance[] procs;
 
@@ -1582,6 +1680,13 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		}
 	}
 
+	/**
+	 * A Polyglot visitor that determines all of the procedure declarations in
+	 * the AST.
+	 * 
+	 * @author Shane Markstrum
+	 * @author Robert Fuhrer
+	 */
 	class ProcedureCollectorVisitor extends polyglot.visit.NodeVisitor {
 
 		ArrayList<ProcedureInstance> procs;
@@ -1644,6 +1749,12 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		}
 	}
 
+	/**
+	 * A record for associating SSAInstructions with CGNodes.
+	 * 
+	 * @author Shane Markstrum
+	 * @author Robert Fuhrer
+	 */
 	class InstructionContainer {
 		public final SSAInstruction instruction;
 
