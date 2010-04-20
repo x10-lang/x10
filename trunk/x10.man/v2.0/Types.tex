@@ -420,11 +420,18 @@ Constraints may refer to values in the local environment:
 %~~neg
 Indeed, there is technically no need for a constraint to refer to the
 properties of its type; it can refer entirely to the environment, thus: 
+%~~gen
+% class ConstraintsMayReferToValuesTwo {
+% def thoseValues() {
+%~~vis
 \begin{xten}
      val m = 1;
      val n = 2;
      var p : Point{m != n};
 \end{xten}
+%~~siv
+%}}
+%~~neg
 
 Constraints on properties induce a natural subtyping relationship:
 \xcd"C{c}" is a subtype of
@@ -629,28 +636,33 @@ the type is parametrically consistent.
 
 \begin{example}
 
-A class that represents a line has two distinct points:
+A class that represents a line has two distinct points:\footnote{We call them
+\xcd`Position` to avoid confusion with the built-in class \xcd`Point`}
 
+%~~gen
+% 
+%~~vis
 \begin{xten}
-class Line(start: Point, 
-           end: Point{self != this.start}) {...}      
+class Position(x: Int, y: Int) {
+   def this(x:Int,y:Int){property(x,y);}
+   }
+class Line(start: Position, 
+           end: Position{self != start}) {}
 \end{xten}
 \end{example}
+%~~siv
+%~~neg
+
+%%%%HERE -- I got this far ~~gen~~ifying tests.
 
 One can use dependent type to define other closed geometric figures as well.
 
-\begin{example}
-Here is an example:
-\begin{xten}
-class Point(x: Int, y: Int) {...}
-\end{xten}
-
-To see that the declaration \xcd"end: Point{self != start}" is
+To see that the declaration \xcd"end: Position{self != start}" is
 parametrically consistent, note that the following formula is valid:
 \begin{xtenmath}
-$\forall$this: Line. $\exists$self: Point. self != this.start  
+$\forall$this: Line. $\exists$self: Position. self != this.start  
 \end{xtenmath}
-\noindent since the set of all \xcd"Point"s has more than one element.
+\noindent since the set of all \xcd"Position"s has more than one element.
 \end{example}
 
 \begin{example}
