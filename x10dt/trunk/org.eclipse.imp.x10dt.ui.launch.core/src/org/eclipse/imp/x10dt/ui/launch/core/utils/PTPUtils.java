@@ -26,7 +26,7 @@ public final class PTPUtils {
   
   /**
    * Reads TMP, TEMP and TMPDIR via {@link IRemoteConnection} in order to find the temp directory for the given resource
-   * manager. If none of this variables are defined, it tries to check if "/tmp" directory exists.
+   * manager. If none of these variables are defined, it tries to check if "/tmp" directory exists.
    * 
    * @param connection The remote connection to use.
    * @param rmFileManager The file manager associated with it.
