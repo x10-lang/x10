@@ -45,16 +45,6 @@ public class X10InstanceTab extends InstancePreferencesTab {
 		fields.add(tabWidth);
 
 
-		FontFieldEditor sourceFont = fPrefUtils.makeNewFontField(
-			page, this, fPrefService,
-			"instance", "sourceFont", "source font",
-			"The font to use in the source code editor",
-			parent,
-			true, true,
-			true);
-		fields.add(sourceFont);
-
-
 		DirectoryFieldEditor DefaultRuntime = fPrefUtils.makeNewDirectoryField(
 			page, this, fPrefService,
 			"instance", "DefaultRuntime", "Default runtime",

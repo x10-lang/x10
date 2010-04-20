@@ -15,8 +15,6 @@ public class X10Constants {
 
 	public static final String P_TABWIDTH = "tabWidth";
 
-	public static final String P_SOURCEFONT = "sourceFont";
-
 	public static final String P_DEFAULTRUNTIME = "DefaultRuntime";
 
 	public static final String P_BADPLACERUNTIMECHECK = "BadPlaceRuntimeCheck";

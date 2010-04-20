@@ -15,14 +15,11 @@ page X10 {
             tooltip "The number of spaces equivalent to one tab in the source editor";
             range 0 ..20;
             defvalue 4; }
-        font sourceFont {
-            tooltip "The font to use in the source code editor";
-            defvalue "courier" 10 normal; }
         directory DefaultRuntime {
             emptyallowed true ""; 
             label "Default runtime";
             tooltip "Folder containing the default X10 runtime libraries";
-}
+        }
         boolean BadPlaceRuntimeCheck {
             tooltip "Enable the generation of code to check for direct accesses to data at another place";
             defvalue true; }
