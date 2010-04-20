@@ -100,7 +100,7 @@ public class SWTFormUtils {
       composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     }
     
-    final Label label = toolkit.createLabel(composite, labelText, SWT.WRAP);
+    final Label label = toolkit.createLabel(composite, labelText, SWT.NONE);
     if (isTableWrapLayout) {
       label.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
     } else {
@@ -179,7 +179,7 @@ public class SWTFormUtils {
       composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     }
     
-    final Label label = toolkit.createLabel(composite, labelText, SWT.WRAP);
+    final Label label = toolkit.createLabel(composite, labelText, SWT.NONE);
     if (isTableWrapLayout) {
       label.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
     } else {
