@@ -52,8 +52,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   }
   
   public void initializeToDefaultValues() {
-    this.fCommInterfaceConf.fDefaultIntallLocation = true;
-    this.fCommInterfaceConf.fDefaultToolCmds = true;
     if (this.fConnectionConf.fIsLocal) {
       initLocalCppCompilationCommands();
       initLocalX10DistribLocation();
