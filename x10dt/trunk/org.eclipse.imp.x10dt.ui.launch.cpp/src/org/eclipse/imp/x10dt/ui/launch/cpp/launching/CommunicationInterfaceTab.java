@@ -29,6 +29,7 @@ import org.eclipse.ptp.launch.ui.extensions.AbstractRMLaunchConfigurationFactory
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationContentsChangedListener;
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
 import org.eclipse.ptp.launch.ui.extensions.RMLaunchValidation;
+import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Image;
@@ -81,7 +82,13 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   // --- ICppApplicationTabListener's interface methods implementation
   
   public void platformConfSelected(final IX10PlatformConf platformConf) {
-    this.fResourceManager = PTPConfUtils.findResourceManager(platformConf.getName());
+    try {
+			this.fResourceManager = PTPConfUtils.getResourceManager(platformConf);
+		} catch (RemoteConnectionException except) {
+			// Let's forget. Handled by next statement.
+		} catch (CoreException except) {
+			// Let's forget. Handled by next statement.
+		}
     if (this.fResourceManager == null){
     	setErrorMessage(LaunchMessages.CIT_CouldNotFindResManager);
     	return;
