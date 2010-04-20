@@ -74,7 +74,7 @@ array initializers.
 For example, the following method uses a function to increment
 elements of an array.
 %~~gen
-%class Floobah {
+%class ThingieForIncrArray {
 %~~vis
 \begin{xten}
 def incr(A: Array[Int]!): Array[Int] {
@@ -94,12 +94,12 @@ class or interface's properties.
 Properties enable the definition of \emph{dependent types}.
 
 For example, the following code declares a class for a two-dimensional
-\xcd"Point" class with an \xcd"add" method.
+\xcd"Vector" class with an \xcd"add" method.
 %~~gen
 %~~vis
 \begin{xten}
-struct Point(x: Int, y: Int) {
-    def add(p: Point) = Point(x+p.x,y+p.y);
+struct Vector(x: Int, y: Int) {
+    def add(p: Vector) = Vector(x+p.x,y+p.y);
 }
 \end{xten}
 %~~siv
@@ -107,7 +107,7 @@ struct Point(x: Int, y: Int) {
 The class has integer value properties \xcd"x" and \xcd"y".
 The \xcd"add" method creates and returns a new point by
 element-wise addition.
-The dependent type \xcd"Point{x==0}" is the type of all points
+The dependent type \xcd"Vector{x==0}" is the type of all points
 with \xcd"x" set to \xcd"0"; that is, all points along the $y$-axis.
 
 \paragraph{Generic types}
@@ -120,11 +120,13 @@ For example,
 the following code declares a simple \xcd"List" class with a
 type parameter \xcd"T".
 
+%~~gen
+%~~vis
 \begin{xten}
 class List[T] {
     var head: T;
-    var tail: List[T];
-    def this(h: T, t: List[T]) { head = h; tail = t; }
+    var tail: List[T]!;
+    def this(h: T, t: List[T]!) { head = h; tail = t; }
     def add(x: T) {
         if (this.tail == null)
             this.tail = new List(x, null);
@@ -133,6 +135,8 @@ class List[T] {
     }
 }
 \end{xten}
+%~~siv
+%~~neg
 The constructor (\xcd"def this") initializes the fields of the new object.
 The \xcd"add" method appends an element to the list.
 \xcd"List" is a generic type.  When  instances of \xcd"List" are
@@ -170,11 +174,17 @@ conversions (\Sref{XtenConversions}).
 
 Values of one type can be converted to another type using the
 \xcd"as" operation:
+%~~gen
+%class AsIsizer {
+%~~vis
 \begin{xten}
 val x: Int = 65535;
 val y: Byte = x as Byte; // convert to Byte,
                          // retaining the lower 8 bits
 \end{xten}
+%~~siv
+%}
+%~~neg
 The \xcd"as" operation does not necessarily preserve equality
 and for numeric values may
 result in a loss of precision.
@@ -183,12 +193,23 @@ References may be coerced to another type, preserving object
 identity.  A run-time check is performed to ensure the reference
 is to an object of the target type.  If not,
 a \xcd"ClassCastException" is thrown.
+%TODO -- needs dynamic test case.
+%~~gen
+% class B{}
+% class C extends B{}
+% class D extends B{}
+% class Whudnut { def plurd() {
+%~~vis
 \begin{xten}
 // C and D are immediate subclasses of B.
 val x: B = new C();
 val y: C = x as C; // run-time check succeeds
 val z: D = x as D; // run-time check fails
 \end{xten}
+%~~siv
+%}}
+%~~neg
+
 
 \section{Places and activities}
 An \Xten{} program is intended to run on a wide range of computers,

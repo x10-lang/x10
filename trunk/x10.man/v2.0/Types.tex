@@ -218,20 +218,25 @@ and properties defined in the interface.
         public \xcd`val` instance fields bound on object creation.  
 %
         For example, the following code declares a class named
-        \xcd"Point" with properties \xcd"x" and \xcd"y"
+        \xcd"Coords" with properties \xcd"x" and \xcd"y"
         and a \xcd"move" method.  The properties are bound
         using the \xcd"property" statement in the constructor.
 
+%~~gen
+package not.x10.lang;
+%~~vis
 \begin{xten}
-class Point(x: Int, y: Int) {
+class Coords(x: Int, y: Int) {
   def this(x: Int, y: Int) { property(x, y); }
-  def move(dx: Int, dy: Int) = new Point(x+dx, y+dy);
+  def move(dx: Int, dy: Int) = new Coords(x+dx, y+dy);
 }
 \end{xten}
+%~~siv
+%~~neg
 
         The properties of a class or interface may be
         constrained with a boolean expression.  The type
-        \xcd"Point{x==0}" is the set of all points whose \xcd"x"
+        \xcd"Coords{x==0}" is the set of all points whose \xcd"x"
         property is \xcd"0".
 
 \section{Type parameters}
@@ -279,6 +284,9 @@ class Point(x: Int, y: Int) {
         parameters of the base type.
 
 Consider the following declaration of a \xcd"Cell" class.
+%~~gen
+% package ch4;
+%~~vis
 \begin{xten}
 class Cell[X] {
     var x: X;
@@ -287,6 +295,8 @@ class Cell[X] {
     def set(x: X) = { this.x = x; }
 }
 \end{xten}
+%~~siv
+%~~neg
 
 This declares a class \xcd"Cell" with a type parameter \xcd"X".
 \xcd"Cell" may be used as a type by instantiating \xcd"X".
@@ -301,6 +311,9 @@ Parameters may be declares as {\em invariant}, {\em covariant}, or
 {\em contravariant}.  The \xcd"X" parameter of \xcd"Cell" above is
 invariant.  
 Consider the following classes:
+%~~gen
+% package ch4;
+%~~vis
 \begin{xten}
 class Get[+X] {
     var x: X;
@@ -311,8 +324,10 @@ class Get[+X] {
 class Set[-X] {
     var x: X;
     def this(x: X) { this.x = x; }
-    def set(x: X) = { this.x = x: }
+    def set(x: X) = { this.x = x; }
 }
+%~~siv
+%~~neg
 \end{xten}
 The \xcd"X" parameter of the \xcd"Get" class is covariant;
 the \xcd"X" parameter of the \xcd"Set" class is contravariant.
@@ -392,10 +407,17 @@ For brevity, the constraint may be omitted and
 interpreted as \xcd"true".
 
 Constraints may refer to values in the local environment: 
+%~~gen
+% class ConstraintsMayReferToValues {
+% def thoseValues() {
+%~~vis
 \begin{xten}
      val n = 1;
      var p : Point{rank == n};
 \end{xten}
+%~~siv
+%}}
+%~~neg
 Indeed, there is technically no need for a constraint to refer to the
 properties of its type; it can refer entirely to the environment, thus: 
 \begin{xten}

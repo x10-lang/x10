@@ -17,16 +17,23 @@ TypeDefinition \:
 A type definition can be thought of as a type-valued function,
 mapping type parameters and value parameters to a concrete type.
 %
-The following examples are legal type definitions:
+The following examples are legal type definitions, given \xcd`import x10.util.*`:
+%~~gen
+% import x10.util.*;
+% class TypeDefBrow {
+% def someTypeDefs () {
+%~~vis
 \begin{xten}
 type StringSet = Set[String];
 type MapToList[K,V] = Map[K,List[V]];
-type Nat = UInt{self!=0};
 type Int(x: Int) = Int{self==x};
 type Dist(r: Int) = Dist{self.rank==r};
 type Dist(r: Region) = Dist{self.region==r};
 type Redund(n:Int, r:Region){r.rank==n} = Dist{rank==n && region==r};
 \end{xten}
+%~~siv
+% }}
+%~~neg
 \label{TypeDefGuard}
 As the two definitions of \xcd"Dist" demonstrate, type definitions may 
 be overloaded: two type definitions with different numbers of type
@@ -40,6 +47,11 @@ in a block statement.
 Type definitions are applicative, not generative; that is, they
 define aliases for types but do not introduce new types.
 Thus, the following code is legal:
+%~~gen
+% import x10.util.*;
+% class TypeDefNonGenerative {
+% def someTypeDefs () {
+%~~vis
 \begin{xten}
 type A = Int;
 type B = String;
@@ -48,6 +60,9 @@ a: A = 3;
 b: B = new C("Hi");
 c: C = b + ", Mom!";
 \end{xten}
+%~~siv
+% }}
+%~~neg
 % An instance of a defined type with no type parameters and no
 % value parameters may 
 If a type definition has no type parameters and no value
