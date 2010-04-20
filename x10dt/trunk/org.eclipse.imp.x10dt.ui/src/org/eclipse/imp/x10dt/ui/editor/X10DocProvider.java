@@ -12,6 +12,7 @@
 package org.eclipse.imp.x10dt.ui.editor;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -537,8 +538,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				return result;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
+			return "";
+		} 
 		return null;
 	}
 	private static final String BOLD="<b>";
