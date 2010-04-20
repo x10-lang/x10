@@ -12,7 +12,10 @@
 
 package org.eclipse.imp.x10dt.core.builder;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
@@ -21,6 +24,7 @@ import polyglot.ast.ClassDecl;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.ProcedureDecl;
@@ -28,9 +32,16 @@ import polyglot.ast.Receiver;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TypeNode;
 import x10.ast.AnnotationNode;
+import x10.ast.Closure;
+import x10.ast.DepParameterExpr;
+import x10.ast.FunctionTypeNode;
+import x10.types.ClosureType_c;
+import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
+import x10.types.X10TypeSystem;
 import polyglot.frontend.Job;
 import polyglot.types.ArrayType;
+import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.MethodInstance;
@@ -70,6 +81,7 @@ class ComputeDependenciesVisitor extends ContextVisitor {
             //if (type instanceof NullableType)
             //    type = ((NullableType) type).base();
             ClassType classType= (ClassType) X10TypeMixin.baseType(type);
+            
             if (!isBinary(classType) && !fFromType.typeEquals(classType,this.context)) { 
                 fDependencyInfo.addDependency(fFromType, type);
             }
@@ -109,11 +121,41 @@ class ComputeDependenciesVisitor extends ContextVisitor {
             fFromFile= (SourceFile) n;
             if (DEBUG)
         	System.out.println("Scanning file " + fFromFile.position() + " for dependencies.");
-        } else if (n instanceof TypeNode) {
+//        } else if (n instanceof FunctionTypeNode) { //After type checking, FunctionTypeNodes become CanonicalTypeNodes. Closures are handled below, so no need to handle them here.
+//        	FunctionTypeNode function = (FunctionTypeNode) n;
+//        	for(Formal formal: function.formals()){
+//        		recordTypeDependency(formal.type().type());
+//        	}
+//        	recordTypeDependency(function.returnType().type());
+    	} else if (n instanceof TypeNode) {
             TypeNode typeNode= (TypeNode) n;
             Type type= typeNode.type();
+            
+            List<ClassType> types = new ArrayList<ClassType>();
+            extractAllClassTypes(type, types);
+            
+            for(ClassType t: types){
+            	recordTypeDependency(t);
+            }
 
-            recordTypeDependency(type);
+//            if (type.isClass()){
+//            	X10ClassType classType = (X10ClassType) X10TypeMixin.baseType(type);
+//            	for(Type param: classType.typeArguments()){
+//            		recordTypeDependency(param);
+//            	}
+//            }
+//            if (type instanceof ClosureType_c){
+//            	ClosureType_c closure = (ClosureType_c) type;
+//            	for(Type formal: closure.argumentTypes()){
+//            		recordTypeDependency(formal);
+//            	}
+//            	recordTypeDependency(closure.returnType());
+//            	for(Type thrown:closure.throwTypes()){
+//            		recordTypeDependency(thrown);
+//            	}
+//            } else {
+//            	recordTypeDependency(type);
+//            }
         } else if (n instanceof Field) {
             Field field= (Field) n;
             Receiver rcvr= field.target();
@@ -133,14 +175,20 @@ class ComputeDependenciesVisitor extends ContextVisitor {
         } else if (n instanceof ClassDecl) {
             ClassDecl classDecl = (ClassDecl) n;
 			fFromType = classDecl.classDef().asType(); // PORT1.7 classDecl.type()->classDecl.classDef().asType()
-			if (classDecl.superClass() != null) // interfaces have no superclass
-				recordTypeDependency(classDecl.superClass().type());
-			for (Iterator intfs = classDecl.interfaces().iterator(); intfs
-					.hasNext();) {
-				TypeNode typeNode = (TypeNode) intfs.next();
-
-				recordTypeDependency(typeNode.type());
-            }
+			List<ClassType> supers = new ArrayList<ClassType>();
+			superTypes(classDecl.classDef().asType(), supers);
+			for(ClassType supert: supers){
+				recordTypeDependency(supert);
+			}
+//			if (classDecl.superClass() != null) {// interfaces have no superclass
+//				recordTypeDependency(classDecl.superClass().type());
+//			}
+//			for (Iterator intfs = classDecl.interfaces().iterator(); intfs
+//					.hasNext();) {
+//				TypeNode typeNode = (TypeNode) intfs.next();
+//
+//				recordTypeDependency(typeNode.type());
+//            }
         } else if (n instanceof FieldDecl) {
             FieldDecl fieldDecl= (FieldDecl) n;
 
@@ -149,15 +197,65 @@ class ComputeDependenciesVisitor extends ContextVisitor {
             ProcedureDecl procedureDecl= (ProcedureDecl) n;
 
             for(Iterator iter= procedureDecl.formals().iterator(); iter.hasNext();) {
-        	Formal formal= (Formal) iter.next();
-
-        	recordTypeDependency(formal.type().type());
+            	Formal formal= (Formal) iter.next();
+            	recordTypeDependency(formal.type().type());
+            }
+            if (procedureDecl instanceof MethodDecl){
+            	MethodDecl method = (MethodDecl) procedureDecl;
+            	recordTypeDependency(method.returnType().type());
+            }
+            for(TypeNode thrown: procedureDecl.throwTypes()){
+            	recordTypeDependency(thrown.type());
             }
         } else if (n instanceof AnnotationNode) {
         	Type type = ((AnnotationNode)n).annotationType().type();
         	
         	recordTypeDependency(type);
         }
+//        } else if (n instanceof DepParameterExpr){
+//        	DepParameterExpr param = (DepParameterExpr) n;
+//        	for (Formal formal: param.formals()){
+//        		recordTypeDependency(formal.type().type());
+//        	}
+//        }
         return super.enterCall(n);
     }
+    
+
+	private void extractAllClassTypes(Type type, List<ClassType> types) {
+		if (!type.isClass())
+			return;
+		if (type instanceof ClosureType_c){
+         	ClosureType_c closure = (ClosureType_c) type;
+         	for(Type formal: closure.argumentTypes()){
+         		extractAllClassTypes(formal, types);
+         	}
+         	extractAllClassTypes(closure.returnType(), types);
+         	for(Type thrown:closure.throwTypes()){
+         		extractAllClassTypes(thrown, types);
+         	}	
+         	return;
+		}
+		X10ClassType classType = (X10ClassType) X10TypeMixin.baseType(type);
+		if (!types.contains(classType))
+			types.add(classType);
+
+		for (Type param : classType.typeArguments())
+			extractAllClassTypes(param, types);
+	}
+	
+	private void superTypes(ClassType type, List<ClassType> types){
+		ClassType parentClass = (ClassType) type.superClass();
+		if (parentClass != null && !types.contains(parentClass)){
+			types.add(parentClass);
+			superTypes(parentClass, types);
+		}
+		for(Type inter: type.interfaces()){
+			ClassType interc = (ClassType) inter;
+			if (!types.contains(interc)){
+				types.add(interc);
+				superTypes(interc, types);
+			}
+		}
+	}
 }

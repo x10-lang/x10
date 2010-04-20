@@ -154,11 +154,11 @@ public class X10Builder extends IncrementalProjectBuilder {
     		if (isSourceFile(file)){
     			if (!removed) {
     				fSourcesToCompile.add(file);
-    				System.out.println("Adding source to compile " + file.getFullPath());
+    				//System.out.println("Adding source to compile " + file.getFullPath());
     			} else {
     				fSourcesToCompile.addAll(getChangeDependents(file));
     				fSourcesToDelete.add(file);
-    				System.out.println("Adding source to delete " + file.getFullPath());
+    				//System.out.println("Adding source to delete " + file.getFullPath());
     			}
     		} else if (isBinaryFolder(resource)) 
     			return false;
@@ -1102,7 +1102,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         IResourceDelta delta= getDelta(fProject);
         if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
 
-        System.out.println("Collecting source");
+        //System.out.println("Collecting source");
         if (delta != null) {
         	X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
             delta.accept(fDeltaVisitor);
