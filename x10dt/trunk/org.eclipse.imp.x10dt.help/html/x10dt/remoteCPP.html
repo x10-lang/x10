@@ -59,8 +59,10 @@ The next dialog page will come up:
 <p>Enter a project name and after that you should be able to click on <span class="menu">Finish</span>, 
 or <span class="menu">Next</span> if you want further customizations. For instance, let's call the project <code>demo</code>.</p>
 
-<p>At that point, an X10 project with C++ back-end named <code>demo</code> in <b>local mode</b> with default 
-communication interface and compilation commands should be created. You should end up with the next set of files.</p>
+<p>At that point, an X10 project named <code>demo</code>, with C++ back-end  in <b>local mode</b>, with default 
+communication interface and compilation commands, should be created. 
+The project should now contain the files shown here:
+</p>
 
 <img src="images/cpp-back-end/proj-creation-result.png" border="0" />
 
@@ -68,15 +70,22 @@ communication interface and compilation commands should be created. You should e
 output folder. One way to check that is to go to the Eclipse <b>Navigator</b> view, and click under the project folder.
 In the case of the <code>demo</code> project, this should give the next list of files.
 <img src="images/cpp-back-end/generated-files.png" border="0" />
-Note that a <b>refresh</b> on the output folder directory may be necessary (via a right-click on it).
+Note that a <b>refresh</b> on the output folder  directory (named 'bin' here) may be necessary.
+To refresh a project or folder/directory, right-click and select 'Refresh'.
 </p>
 
 <h3>Project Configuration in Local Mode</h3>
 <a name="local-mode"></a>
 
-<p>Each X10 project with C++ nature has a file named <b>x10_platform.conf</b>. If you click on it, a dedicated editor 
+<p>Each X10 project with C++ nature has a file named <b>x10_platform.conf</b>. If you double-click on it, a dedicated editor 
 should come up in order to customize the default values determined according to your current environment. Here what 
 an end-user should see by default on Windows with Cygwin installed.</p>
+
+
+<p>The new project wizard provides default values for a local project.  These values are complete.
+So, nothing on the following dialogs needs to be changed for a minimal local project to work.
+The project has default defined values allowing a proper generation of the C++ files for the <code>Hello.x10</code> file
+present in the <code>demo</code> project. 
 
 <img src="images/cpp-back-end/local-conf.png" border="0" width="100%"/>
 
@@ -110,10 +119,10 @@ identifies where the X10 (and potentially PGAS) distribution(s) reside(s) on the
 </li>
 </ol>
 </p>
+At this point, for the demo project created by the new project wizard, you could simply go directly to <a href="#launching">launching</a>.
+However, we recommend going through the validation process as follows.
+</p>
 
-<p>At this point, nothing is really required in order to perform the launching operation described later since the project has
-defined default values allowing a proper generation of the C++ files for the <code>Hello.x10</code> file
-present in the <code>demo</code> project. You could simply go directly to <a href="#launching">launching</a>.</p>
 
 <h3>Validating Platform Configuration</h3>
 
