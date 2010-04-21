@@ -106,9 +106,16 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
   }
 
   public void handleEvent(final IRemoveResourceManagerEvent event) {
-    if (this.fRMServiceConfNameCombo.indexOf(event.getResourceManager().getName()) != -1) {
-      this.fRMServiceConfNameCombo.remove(event.getResourceManager().getName());
-    }
+  	getFormPage().getSite().getShell().getDisplay().syncExec(new Runnable() {
+      
+      public void run() {
+      	if (ConfNameSectionPart.this.fRMServiceConfNameCombo.indexOf(event.getResourceManager().getName()) != -1) {
+      		ConfNameSectionPart.this.fRMServiceConfNameCombo.remove(event.getResourceManager().getName());
+      	}
+      	
+      }
+      
+  	});
   }
   
   // --- Overridden methods
