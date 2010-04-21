@@ -60,6 +60,8 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       final boolean isWindows = this.fCppCompilationConf.getTargetOS() == ETargetOS.WINDOWS;
       this.fCommInterfaceConf.fServiceTypeId = isWindows ? MPICH2_SERVICE_PROVIDER_ID : OPEN_MPI_SERVICE_PROVIDER_ID;
       this.fCommInterfaceConf.fOpenMPIVersion = EOpenMPIVersion.EAutoDetect;
+      this.fCommInterfaceConf.fDefaultToolCmds = true;
+      this.fCommInterfaceConf.fDefaultIntallLocation = true;
     }
     if (this.fCommInterfaceConf.fServiceModeId == null) {
       this.fCommInterfaceConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
