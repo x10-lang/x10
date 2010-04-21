@@ -9,6 +9,7 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 
 import java.util.Arrays;
 
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
 import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
@@ -20,23 +21,23 @@ final class CommunicationInterfaceConfiguration implements ICommunicationInterfa
   // --- Interface methods implementation
   
   public String getDebugCommand() {
-    return this.fDebugCmd;
+    return (this.fDebugCmd == null) ? Constants.EMPTY_STR : this.fDebugCmd;
   }
 
   public String getDiscoverCommand() {
-    return this.fDiscoverCmd;
+    return (this.fDiscoverCmd == null) ? Constants.EMPTY_STR : this.fDiscoverCmd;
   }
 
   public String getInstallLocation() {
-    return this.fInstallLocation;
+    return (this.fInstallLocation == null) ? Constants.EMPTY_STR : this.fInstallLocation;
   }
 
   public String getLaunchCommand() {
-    return this.fLaunchCmd;
+    return (this.fLaunchCmd == null) ? Constants.EMPTY_STR : this.fLaunchCmd;
   }
 
   public String getMonitorCommand() {
-    return this.fMonitorCmd;
+    return (this.fMonitorCmd == null) ? Constants.EMPTY_STR : this.fMonitorCmd;
   }
 
   public int getMonitorPeriod() {
@@ -60,16 +61,16 @@ final class CommunicationInterfaceConfiguration implements ICommunicationInterfa
       return false;
     }
     if (! this.fDefaultToolCmds) {
-      if (! rmConf.getLaunchCmd().equals(this.fLaunchCmd)) {
+      if (! rmConf.getLaunchCmd().equals(getLaunchCommand())) {
         return false;
       }
-      if (! rmConf.getDebugCmd().equals(this.fDebugCmd)) {
+      if (! rmConf.getDebugCmd().equals(getDebugCommand())) {
         return false;
       }
-      if (! rmConf.getDiscoverCmd().equals(this.fDiscoverCmd)) {
+      if (! rmConf.getDiscoverCmd().equals(getDiscoverCommand())) {
         return false;
       }
-      if (! rmConf.getPeriodicMonitorCmd().equals(this.fMonitorCmd)) {
+      if (! rmConf.getPeriodicMonitorCmd().equals(getMonitorCommand())) {
         return false;
       }
       if (rmConf.getPeriodicMonitorTime() != this.fMonitoringPeriod) {
@@ -80,7 +81,7 @@ final class CommunicationInterfaceConfiguration implements ICommunicationInterfa
       return false;
     }
     if (! this.fDefaultIntallLocation) {
-      if (! rmConf.getRemoteInstallPath().equals(this.fInstallLocation)) {
+      if (! rmConf.getRemoteInstallPath().equals(getInstallLocation())) {
         return false;
       }
     }
@@ -154,7 +155,7 @@ final class CommunicationInterfaceConfiguration implements ICommunicationInterfa
       .append("\nLaunch Command: ").append(this.fLaunchCmd) //$NON-NLS-1$
       .append("\nDebug Command: ").append(this.fDebugCmd) //$NON-NLS-1$
       .append("\nDiscover Command: ").append(this.fDiscoverCmd) //$NON-NLS-1$
-      .append("\nMonitor Command: ").append(this.fDiscoverCmd) //$NON-NLS-1$
+      .append("\nMonitor Command: ").append(this.fMonitorCmd) //$NON-NLS-1$
       .append("\nMonitor Period: ").append(this.fMonitoringPeriod) //$NON-NLS-1$
       .append("\nDefault Installation: ").append(this.fDefaultIntallLocation) //$NON-NLS-1$
       .append("\nInstall Location: ").append(this.fInstallLocation); //$NON-NLS-1$
