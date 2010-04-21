@@ -168,31 +168,45 @@ There is no requirement that a remote reference use only as much space as a loca
 Assume the class declarations. 
 
 \begin{xten}
-class C { ...} 
+class C { } 
 class D {
    var f:C=null;
 }
 \end{xten}
- 
-Now the code below must behave as described.
+
+%%TODO--check this!
+Then the following code behaves as stated.
+%~~gen
+% package objects.dwiffle.and.a.half.a.moon;
+% class C { } 
+% class D {
+%    var f:C=null;
+% }
+% class Fudders {
+% def plongent(P:Place, Q:Place) throws Exception {
+%~~vis
 \begin{xten}
-val x = new C(..); 
-// C object o created, reference stored in x. 
+
+val x = new C(); 
+// C object o1 created, reference stored in x. 
 at (P) { 
       // In the body x contains a remote reference to o
-      val f = new D();
-      f.x1  = x; // remote reference stored in f.x1
-      Console.OUT.println(f.x1 == x);       // must print true
+      val d = new D();
+      d.f  = x; // remote reference stored in d.f
+      Console.OUT.println(d.f == x);        // must print true
       Console.OUT.println(x == x);          // must print true
       at (Q) { 
          // x continues to be a remote reference to o1.
          at (P) {  
-             Console.OUT.println(f.x1 == x);   // must print true
+             Console.OUT.println(d.f == x);   // must print true
              Console.OUT.println(x == x);   // must print true
          }
       }
 }
 \end{xten}
+%~~siv
+%}}
+%~~neg
   
 
 Here is another example.
