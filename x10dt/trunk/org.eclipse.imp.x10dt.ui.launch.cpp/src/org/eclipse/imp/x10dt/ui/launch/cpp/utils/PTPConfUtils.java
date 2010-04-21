@@ -213,7 +213,21 @@ public final class PTPConfUtils {
     if (finalRM == null) {
     	final IResourceManager sameRMName = findResourceManager(platformConf.getName());
     	if (sameRMName != null) {
-    		universe.removeResourceManager(sameRMName);
+    		final IResourceManagerConfiguration rmConf = ((IResourceManagerControl) sameRMName).getConfiguration();
+    		final ServiceModelManager modelManager = ServiceModelManager.getInstance();
+    		loop:
+    		for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
+    			for (final IService service : serviceConf.getServices()) {
+    				if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId()) &&
+    	          service.getId().equals(platformConf.getCommunicationInterfaceConf().getServiceModeId())) {
+    					final IServiceProvider provider = serviceConf.getServiceProvider(service);
+    					if (rmConf.getUniqueName().equals(provider.getProperties().get("uniqName"))) { //$NON-NLS-1$
+    						modelManager.remove(serviceConf);
+    						break loop;
+    					}
+    				}
+    			}
+    		}
     	}
     	return createResourceManager(platformConf);
     } else {
