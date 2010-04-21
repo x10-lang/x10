@@ -115,7 +115,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
 
     final String path = programPath.removeLastSegments(1).toString();
     if (path != null) {
-      attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(path));
+      attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(protectPath(path)));
     }
 
     // Collects attributes from Arguments tab
@@ -295,6 +295,10 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoMainFileAccessIOError,
                                          except));
     } 
+  }
+  
+  private String protectPath(final String path) {
+  	return path.replace(" ", "\\ "); //$NON-NLS-1$ //$NON-NLS-2$
   }
   
   private boolean shouldProcessToLinkStep(final IProject project) {
