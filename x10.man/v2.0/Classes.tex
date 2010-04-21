@@ -323,6 +323,11 @@ class MyRegion(rank:Int) {
     property(diag.length);
   }
   def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
+  def example() {
+    val R1 : MyRegion(3)! = new MyRegion([4,4,4]); 
+    val R2 : MyRegion(3)! = new MyRegion([5,4,1]); 
+    val R3 = R1.mockUnion(R2); // inferred type MyRegion(3)
+  }
 }
 \end{xten}
 %~~siv
@@ -334,16 +339,10 @@ second constructor takes a \Xcd{ValRail[Int]} of arbitrary length
 of points in the rectangular parallelopiped between the origin and the
 \Xcd{diag}.)
 
-Now the following code type checks:
-\begin{xten}
-val R1 = new MyRegion([4,4,4]); // R1's type is MyRegion(3)
-val R2 = new MyRegion([5,4,1]); // R2's type is MyRegion(3)
-\end{xten}
-Hence the following code type checks and infers that \Xcd{R3}'s type is
-\Xcd{MyRegion(3)}:
-\begin{xten}
-val R3 = R1.mockUnion(R2);          // R3's type is MyRegion(3)
-\end{xten}
+The code in \xcd`example` typechecks, and \xcd`R3`'s type is inferred as
+\xcd`MyRegion(3)`.  
+
+
 \end{example}
 
 \begin{staticrule}{Super-invoke}
@@ -567,6 +566,10 @@ This example shows how to create a fixed-size circular buffer.
 (Its pointer structure is immutable, though the contents of each
 field are mutable.)
 {\footnotesize
+
+%~~gen
+% package CircularBuffers.Are.For.The.Weak.And.Sickly.And.Also.Klingons.And.Romulans;
+%~~vis
 \begin{xten}
 class  CircularBuffer[A] {
   var a: A;
@@ -577,11 +580,14 @@ class  CircularBuffer[A] {
   def this(var n:Int) {
     var temp: proto CircularBuffer[A] = this;
     while (--n > 0) 
-    temp = new CircularBuffer[A](temp);
+      temp = new CircularBuffer[A](temp);
     next = temp;
   }
 }
 \end{xten}}
+%~~siv
+%
+%~~neg
 
 \end{example}
 \section{Field definitions}
@@ -687,28 +693,36 @@ The method body is either an expression, a block of statements,
 or a block ending with an expression.
 
 \begin{example}
-Consider the program:
+%%TODO--rewrite this.  I don't know what point it's trying to illustrate.
+The following program implements a subset of \xcd`Point`'s behavior.  
+
+%~~gen
+%package Classes.Pointlike.For.Fun.And.Profit;
+%~~vis
 \begin{xten}
-type Point(r:Int)=Point{self.rank==r};
-final public class Point(rank: Int) implements (Int) => Int {
-    public global val coords: ValRail[Int](rank);
-    public global safe def apply(i: Int) = coords(i);
-    public global safe def coords() = coords;
-    public global safe operator - this: Point(rank) 
-       = Point.make(rank, (i:Int)=>-this.coords(i));
-    public global safe operator this + (that: Point(rank)): Point(rank) 
-       = Point.make(rank, (i:Int)=> this.coords(i) + that.coords(i));
-    ...
+final class Pointlike(rank: Int)  {
+    public global val coords: ValRail[Int]{self.length == rank};
+    public def this(v:ValRail[Int]) {
+       property(v.length);
+       coords = v as ValRail[Int]{self.length == rank};
+    }
+    public operator this + (that: Pointlike{self.rank == this.rank})
+       : Pointlike{self.rank == this.rank}
+       {
+         val f : (Int)=>Int = (i:Int) => (this.coords)(i) + (that.coords)(i);
+         val v = ValRail.make[Int](rank, f);
+         return new Pointlike(v);
+       }
+    static def example() {
+       val s <: Pointlike{self.rank==3} = new Pointlike([1,2,3]);
+       val t <: Pointlike{self.rank==3} = new Pointlike([-1,-1,-1]);
+       val u <: Pointlike{self.rank==3} = s + t;
+    }
 }
 \end{xten}
-
-The following code fragment will typecheck:
-\begin{xten}
-s: Point(3) = new Point([1,2,3]);
-t: Point(3) = new Point([-1,-1,-1]);
-u: Point(3) = s + u;
-\end{xten}
-\end{example}
+%~~siv
+%
+%~~neg
 
 \subsection{Property methods}
 
