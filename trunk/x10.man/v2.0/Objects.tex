@@ -174,7 +174,7 @@ class D {
 }
 \end{xten}
 
-%%TODO--check this!
+%%TODO--Add a variant of the following code to the test suite
 Then the following code behaves as stated.
 %~~gen
 % package objects.dwiffle.and.a.half.a.moon;
@@ -208,26 +208,38 @@ at (P) {
 %}}
 %~~neg
   
-
+%%TODO--Add a variant of the following code to the test suite
+%%TODO--rewrite this
 Here is another example.
- \begin{xten}
-val x = new C(..); 
+%~~gen
+% package objects.armor.of.eyeballs;
+% class C { } 
+% class D {
+%    var f:C=null;
+% }
+% class Fudders {
+% def plongent(P:Place, Q:Place) throws Exception {
+%~~vis
+\begin{xten}
+val x = new C(); 
 // C object o created, reference stored in x. 
-// type of x is C{c}! if the return type 
-// of the constructor is C{c}. 
+// The type inferred for x is C!
 at (P) { 
     val x1 = x; 
-    // type of x is C{c} because of the place shift 
-    // introduced by at(P)
-  at (x.home()) {
+    // The type inferred for x1 is C, not C!;
+    // the change is due to the place shift 'at(P)'
+  at (x.home) {
         // x is now bound to o through a local reference. So is x1.
-    Console.out.println(x1==x); // Must print true.
+    Console.OUT.println(x1==x); // Must print true.
       // non-global methods can be invoked on x or x1 and will 
       // execute locally on o
-      // type of both x and x1 is C{c}!.
+      // type of both x and x1 is C!.
   }
 }
 \end{xten}
+%~~siv
+%}}
+%~~neg
  
 \subsection{Programming Methodology}
 
