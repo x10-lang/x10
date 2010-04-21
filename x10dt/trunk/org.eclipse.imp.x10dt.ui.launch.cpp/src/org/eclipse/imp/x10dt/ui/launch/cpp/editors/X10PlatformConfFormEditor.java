@@ -230,7 +230,6 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     form.getToolBarManager().update(true);
     form.addMessageHyperlinkListener(new HyperlinkAdapter());
     this.fSaveAction.setEnabled(false);
-    this.fValidateAction.setEnabled(false);
   }
   
   protected void createPages() {
@@ -255,7 +254,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     
     if (getActivePage() == -1) {
       super.setActivePage(0);
-    }    
+    }
+    this.fValidateAction.setEnabled(this.fX10PlatformConfWorkCopy.isComplete(false));
   }
   
   public void dispose() {
