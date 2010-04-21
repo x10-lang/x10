@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -48,12 +49,16 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.attributes.IAttribute;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPJob;
 import org.eclipse.ptp.core.elements.IPQueue;
+import org.eclipse.ptp.core.elements.IPUniverse;
+import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
+import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
 import org.eclipse.ptp.debug.core.IPDebugger;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.launch.ParallelLaunchConfigurationDelegate;
@@ -77,11 +82,6 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   protected AttributeManager getAttributeManager(final ILaunchConfiguration configuration, 
                                                  final String mode) throws CoreException {
-    final IResourceManagerControl resourceManager = (IResourceManagerControl) getResourceManager(configuration);
-    if (resourceManager == null) {
-      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoResManagerError));
-    }
-
     final AttributeManager attrMgr = new AttributeManager();
 
     // Collects attributes from Resource tab
@@ -102,6 +102,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       }
     }
     attrMgr.addAttributes(resourceAttributes);
+
+    final IResourceManagerControl resourceManager = (IResourceManagerControl) getResourceManager(configuration);
 
     // Makes sure there is a queue, even if the resources tab doesn't require one to be specified.
     if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
@@ -149,12 +151,35 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     super.doCompleteJobLaunch(configuration, mode, launch, mgr, debugger, job);
   }
   
+  protected IResourceManager getResourceManager(ILaunchConfiguration configuration) throws CoreException {
+		final IPUniverse universe = PTPCorePlugin.getDefault().getUniverse();
+		final String rmUniqueName = getResourceManagerUniqueName(configuration);
+		for (final IResourceManager resourceManager : universe.getResourceManagers()) {
+			if (resourceManager.getUniqueName().equals(rmUniqueName)) {
+				return resourceManager;
+			}
+		}
+		return null;
+	}
+  
   public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch, 
                      final IProgressMonitor monitor) throws CoreException {
     try {
       // Performs linking first.
       monitor.beginTask(null, 10);
       monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
+      
+      final IResourceManagerControl resourceManager = (IResourceManagerControl) getResourceManager(configuration);
+      if (resourceManager == null) {
+        throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoResManagerError));
+      }
+      if (resourceManager.getState() == State.ERROR) {
+      	resourceManager.shutdown();
+      }
+      if (resourceManager.getState() != State.STARTED) {
+      	resourceManager.startUp(new NullProgressMonitor());
+      }
+      
       final IProject project = verifyProject(configuration);
       if (! monitor.isCanceled() && shouldProcessToLinkStep(project) && 
       		createExecutable(configuration, project, new SubProgressMonitor(monitor, 5)) == 0) {
