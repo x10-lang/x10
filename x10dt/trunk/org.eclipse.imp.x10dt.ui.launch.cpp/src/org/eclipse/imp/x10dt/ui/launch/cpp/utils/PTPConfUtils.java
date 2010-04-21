@@ -213,6 +213,7 @@ public final class PTPConfUtils {
     if (finalRM == null) {
     	final IResourceManager sameRMName = findResourceManager(platformConf.getName());
     	if (sameRMName != null) {
+    		sameRMName.shutdown();
     		final IResourceManagerConfiguration rmConf = ((IResourceManagerControl) sameRMName).getConfiguration();
     		final ServiceModelManager modelManager = ServiceModelManager.getInstance();
     		loop:
