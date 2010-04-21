@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 
-import static org.eclipse.imp.x10dt.ui.launch.core.Constants.EMPTY_STR;
 import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_DEBUG_CMD;
 import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_DISCOVER_CMD;
 import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_LAUNCH_CMD;
@@ -186,6 +185,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
         }
         
         updateOpenMPIVersionSelection(ptpPrefix);
+        defaultToolsCmdsBt.notifyListeners(SWT.Selection, new Event());
       }
       
       public void widgetDefaultSelected(final SelectionEvent event) {
@@ -259,25 +259,16 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
             control.notifyListeners(SWT.Modify, new Event());
           }
         }
-        if (defaultToolsCmdsBt.getSelection()) {
-          for (final Control control : dependentToolCmdsControls) {
-            control.setEnabled(false);
-            if (control instanceof Text) {
-              control.notifyListeners(SWT.Modify, new Event());
-            }
-          }
-        } else {
-          final String versionName = openMPIVersionCombo.getItem(openMPIVersionCombo.getSelectionIndex());
-          final EOpenMPIVersion openMPIVersion = (EOpenMPIVersion) openMPIVersionCombo.getData(versionName);
-
-          if (! openMPIVersionCombo.isVisible() || (openMPIVersion != EOpenMPIVersion.EAutoDetect)) {
-            for (final Control control : dependentToolCmdsControls) {
-              control.setEnabled(true);
-              if (control instanceof Text) {
-                control.notifyListeners(SWT.Modify, new Event());
-              }
-            }
-          }          
+        final String versionName = openMPIVersionCombo.getItem(openMPIVersionCombo.getSelectionIndex());
+        final EOpenMPIVersion openMPIVersion = (EOpenMPIVersion) openMPIVersionCombo.getData(versionName);
+        
+        final boolean enableDepCmds = ! defaultToolsCmdsBt.getSelection() && 
+                                      (! openMPIVersionCombo.isVisible() || (openMPIVersion != EOpenMPIVersion.EAutoDetect));
+        for (final Control control : dependentToolCmdsControls) {
+        	control.setEnabled(enableDepCmds);
+        	if (control instanceof Text) {
+        		control.notifyListeners(SWT.Modify, new Event());
+        	}
         }
         
         updateDirtyState(managedForm);
@@ -352,7 +343,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
           defaultToolsCmdsBt.setSelection(rmConf.getUseToolDefaults());
           defaultToolsCmdsBt.notifyListeners(SWT.Selection, new Event());
         }
-        if (rmConf.getUseToolDefaults()) {
+        if (rmConf.getUseInstallDefaults()) {
           defaultInstallLocBt.setSelection(rmConf.getUseInstallDefaults());
           defaultInstallLocBt.notifyListeners(SWT.Selection, new Event());
           
@@ -600,18 +591,23 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       this.fMonitorCmdText.setText(rmConf.getPeriodicMonitorCmd());
       this.fPeriodicTimeSpinner.setSelection(rmConf.getPeriodicMonitorTime());
     } else {
-      this.fLaunchCmdText.setText((ciConf.getLaunchCommand() == null) ? EMPTY_STR : ciConf.getLaunchCommand().trim());
-      handleTextValidation(new EmptyTextInputChecker(this.fLaunchCmdText, LaunchMessages.RMCP_LaunchLabel), managedForm, 
-                           this.fLaunchCmdText);
-      this.fDebugCmdText.setText((ciConf.getDebugCommand() == null) ? EMPTY_STR : ciConf.getDebugCommand().trim());
-      handleTextValidation(new EmptyTextInputChecker(this.fDebugCmdText, LaunchMessages.RMCP_DebugLabel), managedForm, 
-                           this.fDebugCmdText);
-      this.fDiscoverCmdText.setText((ciConf.getDiscoverCommand() == null) ? EMPTY_STR : ciConf.getDiscoverCommand().trim());
+    	final String name = openMPIVersionCombo.getItem(openMPIVersionCombo.getSelectionIndex());
+    	final EOpenMPIVersion openMPIVersion = (EOpenMPIVersion) openMPIVersionCombo.getData(name);
+    	final boolean shouldValidate = ! (isOpenMPI && (openMPIVersion == EOpenMPIVersion.EAutoDetect));
+    	if (shouldValidate) {
+    		this.fLaunchCmdText.setText(ciConf.getLaunchCommand().trim());
+    		handleTextValidation(new EmptyTextInputChecker(this.fLaunchCmdText, LaunchMessages.RMCP_LaunchLabel), managedForm, 
+    		                     this.fLaunchCmdText);
+    		this.fDebugCmdText.setText(ciConf.getDebugCommand().trim());
+    		handleTextValidation(new EmptyTextInputChecker(this.fDebugCmdText, LaunchMessages.RMCP_DebugLabel), managedForm, 
+    		                     this.fDebugCmdText);
+        this.fMonitorCmdText.setText(ciConf.getMonitorCommand().trim());
+        handleTextValidation(new EmptyTextInputChecker(this.fMonitorCmdText, LaunchMessages.RMCP_MonitorLabel), managedForm, 
+                             this.fMonitorCmdText);
+    	}
+      this.fDiscoverCmdText.setText(ciConf.getDiscoverCommand().trim());
       handleTextValidation(new EmptyTextInputChecker(this.fDiscoverCmdText, LaunchMessages.RMCP_DiscoverLabel), managedForm, 
                            this.fDiscoverCmdText);
-      this.fMonitorCmdText.setText((ciConf.getMonitorCommand() == null) ? EMPTY_STR : ciConf.getMonitorCommand().trim());
-      handleTextValidation(new EmptyTextInputChecker(this.fMonitorCmdText, LaunchMessages.RMCP_MonitorLabel), managedForm, 
-                           this.fMonitorCmdText);
       this.fPeriodicTimeSpinner.setSelection(ciConf.getMonitorPeriod());
     }
     
@@ -642,7 +638,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       
       this.fInstallLocText.setText(rmConf.getRemoteInstallPath());
     } else {
-      this.fInstallLocText.setText((ciConf.getInstallLocation() == null) ? EMPTY_STR : ciConf.getInstallLocation().trim());
+      this.fInstallLocText.setText(ciConf.getInstallLocation().trim());
       handleTextValidation(new EmptyTextInputChecker(this.fInstallLocText, LaunchMessages.RMCP_LocationLabel), managedForm, 
                            this.fInstallLocText);
     }
