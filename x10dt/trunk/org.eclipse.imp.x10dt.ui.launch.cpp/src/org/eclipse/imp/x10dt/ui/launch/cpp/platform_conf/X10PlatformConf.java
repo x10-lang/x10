@@ -11,7 +11,6 @@ import static org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStat
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
@@ -19,8 +18,10 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
@@ -42,12 +43,13 @@ class X10PlatformConf implements IX10PlatformConf {
     this.fCommInterfaceConf = new CommunicationInterfaceConfiguration();
     this.fCppCompilationConf = new CppCompilationConfiguration();
     try {
-			if (file.exists() && isNonEmpty(file.getContents())) {
+			if (isNonEmpty(file)) {
 			  load(new BufferedReader(new InputStreamReader(file.getContents())));
 			} else {
 			  this.fId = UUID.randomUUID().toString();
 			}
-		} catch (Exception except) {
+		} catch (CoreException except) {
+			CppLaunchCore.log(except.getStatus());
 			// We could not load the file content. Let's just consider an empty configuration file then.
 			this.fId = UUID.randomUUID().toString();
 		}
@@ -307,13 +309,20 @@ class X10PlatformConf implements IX10PlatformConf {
     }
   }
   
-  private boolean isNonEmpty(final InputStream inputStream) throws CoreException {
-    try {
-      return (inputStream.read() != -1);
-    } catch (IOException except) {
-      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.XPC_InputStreamReadingError, 
-                                         except));
-    }
+  private boolean isNonEmpty(final IFile file) throws CoreException {
+		if (! file.isSynchronized(IResource.DEPTH_ZERO)) {
+			file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+		}
+  	if (file.exists()) {
+  		try {
+        return (file.getContents().read() != -1);
+      } catch (IOException except) {
+        throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.XPC_InputStreamReadingError, 
+                                           except));
+      }
+  	} else {
+  		return false;
+  	}
   }
   
   private void load(final Reader reader) throws WorkbenchException {
