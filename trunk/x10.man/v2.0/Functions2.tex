@@ -37,6 +37,14 @@ So, the following are equivalent, where \xcd`e` is an expression involving
   \eg, \xcd`result` must be a \xcd`var` of type \xcd`T` defined outside the
   outer block, the variables \xcd`a1` and \xcd`a2` had better not appear in
   \xcd`e`, and everything in sight had better typecheck properly.}
+
+%~~gen
+% package functions2.why.is.there.a.two;
+% abstract class FunctionsTooManyFlippingFunctions[T, T1, T2]{
+% abstract def arg1():T1;
+% abstract def arg2():T2;
+% def thing1(e:T) {var result:T;
+%~~vis
 \begin{xten}
 {
   val f = (x1:T1,x2:T2){true}:T => e;
@@ -45,7 +53,17 @@ So, the following are equivalent, where \xcd`e` is an expression involving
   result = f(a1,a2);
 }
 \end{xten}
+%~~siv
+%}}
+%~~neg
 and 
+%~~gen
+% package functions2.why.is.there.a.two.but.here.is.the.other.one;
+% abstract class FunctionsTooManyFlippingFunctions[T, T1, T2]{
+% abstract def arg1():T1;
+% abstract def arg2():T2;
+% def thing1(e:T) {var result:T;
+%~~vis
 \begin{xten}
 {
   val a1 : T1 = arg1();
@@ -57,6 +75,9 @@ and
   }  
 }
 \end{xten}
+%~~siv
+%}}
+%~~neg
 
 
 %FUNCY% At runtime,
@@ -146,20 +167,43 @@ It is a static error if the return type cannot be inferred.
 \begin{example}
 The following method takes a function parameter and uses it to
 test each element of the list, returning the first matching
-element.
+element.  It returns \xcd`otherwise` if no element matches.
+
+%~~gen
+% package functions2.oh.no;
+% import x10.util.*;
+%~~vis
 \begin{xten}
-def find[T](f: (T) => Boolean, xs: List[T]): T = {
+class Finder {
+static def find[T](f: (T) => Boolean, xs: List[T], absent:T): T = {
   for (x: T in xs)
     if (f(x)) return x;
-  null
-}
+  absent
+  }}
 \end{xten}
+%~~siv
+%~~neg
 
 The method may be invoked thus:
+%~~gen
+% package functions2.oh.no.my.ears;
+% import x10.util.*;
+% class Finderator {
+% static def find[T](f: (T) => Boolean, xs: x10.util.List[T], absent:T): T = {
+%  for (x: T in xs)
+%    if (f(x)) return x;
+%  absent
+%}
+% static def checkery() {
+%~~vis
 \begin{xten}
-xs: List[Int] = ...;
-x: Int = find((x: Int) => x>0, xs);
+xs: List[Int] = new ArrayList[Int]();
+x: Int = find((x: Int) => x>0, xs, 0);
 \end{xten}
+%~~siv
+%}}
+%~~neg
+
 \end{example}
 
 As with a normal method, the function may have a \xcd"throws"
