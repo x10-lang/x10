@@ -25,6 +25,7 @@ def dealWithExample(f, line, basename):
     cmd, args = parsley(line)    
     if cmd == "stmt" : doStmt(cmd, args, f, line, basename)
     elif cmd == "gen" : doGen(cmd, args, f, line, basename)
+    elif cmd == "exp" : doExp(cmd, args, f, line, basename)
     else:
         doom("In " + basename + " the command is \""+cmd + "\" -- what the feersnar is this line: " + line)
 
@@ -39,7 +40,7 @@ def parsley(line):
 
     
 # IN %~~stmt~~xcd`~~`~~a:Int,b:Int
-#       weasels \xcd`I:Int = a+b;`
+#       weasel's \xcd`I:Int = a+b;` food
 # OUT:
 #  public class Treebl1 {
 #     def check(a:Int,b:Int) throws Exception {
@@ -54,7 +55,6 @@ def doStmt(cmd, args, f, line, basename):
     formals = args[2].strip()
     importses = args[3] if len(args)==4 else ""
     stmt = extract(f, starter, ender, basename)
-    print "doStmt: stmt=\'" + stmt + "\'"
     classname = numberedName(basename)
     code = "\n".join([
           importses, 
@@ -63,6 +63,32 @@ def doStmt(cmd, args, f, line, basename):
           "    " + stmt,
           "  }}"])
     writeX10File(classname, code)
+
+# IN:
+#   %~~exp~~xcd`~~`~~a:Int
+#   There should be \xcd`a+4` potato chips.
+# OUT:
+#   public class Chippie13 {
+#     def check(a:Int) = a+4;
+#   }
+def doExp(cmd, args, f, line, basename):
+    print "doStmt: " + cmd + " on " + "!".join(args)
+    if len(args) != 3 and len(args) != 4:
+        doom("'exp' takes 3 args -- in " + basename  + "\nline="  + line + " ... plus optionally a fourth for imports and such.")
+    starter = args[0]
+    ender = args[1]
+    formals = args[2].strip()
+    importses = args[3] if len(args)==4 else ""
+    exp = extract(f, starter, ender, basename)
+    classname = numberedName(basename)
+    code = "\n".join([
+          importses, 
+          "public class " + classname + "{",
+          "  def check(" + formals + ") throws Exception = " + exp + ";"
+          "  }"])
+    writeX10File(classname, code)
+
+
 
 # IN: 
 #     %~~gen

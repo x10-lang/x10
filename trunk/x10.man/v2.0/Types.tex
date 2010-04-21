@@ -653,8 +653,8 @@ class Line(start: Position,
 %~~siv
 %~~neg
 
-%%%%HERE -- I got this far ~~gen~~ifying tests.
 
+\begin{example}
 One can use dependent type to define other closed geometric figures as well.
 
 To see that the declaration \xcd"end: Position{self != start}" is
@@ -667,13 +667,31 @@ $\forall$this: Line. $\exists$self: Position. self != this.start
 
 \begin{example}
 A triangle has three lines sharing three vertices.
+
+%~~gen
+%package triangleExample;
+% class Position(x: Int, y: Int) {
+%    def this(x:Int,y:Int){property(x,y);}
+%    }
+% class Line(start: Position, 
+%            end: Position{self != start}) {}
+% 
+%~~vis
 \begin{xten}
 class Triangle 
  (a: Line, 
   b: Line{a.end == b.start}, 
   c: Line{b.end == c.start && c.end == a.start}) 
- { ... }
+ {
+   def this(a:Line,
+            b: Line{a.end == b.start}, 
+            c: Line{b.end == c.start && c.end == a.start}) 
+   {property(a,b,c);}
+ }
 \end{xten}
+%~~siv
+%
+%~~neg
 
 Given \xcd"a: Line", the type \xcd"b: Line{a.end == b.start}" is consistent,
 and
