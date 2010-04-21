@@ -616,19 +616,13 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     for (final Control control : discoverCmdControls) {
       control.setEnabled(! this.fDefaultToolsCmdsBt.getSelection());
     }
-    if (this.fDefaultToolsCmdsBt.getSelection()) {
-      for (final Control control : dependentToolCmdsControls) {
-        control.setEnabled(false);
-      }
-    } else {
-      final String versionName = this.fOpenMPIVersionCombo.getItem(this.fOpenMPIVersionCombo.getSelectionIndex());
-      final EOpenMPIVersion openMPIVersion = (EOpenMPIVersion) this.fOpenMPIVersionCombo.getData(versionName);
-
-      if (! this.fOpenMPIVersionCombo.isVisible() || (openMPIVersion != EOpenMPIVersion.EAutoDetect)) {
-        for (final Control control : dependentToolCmdsControls) {
-          control.setEnabled(true);
-        }
-      }          
+    final String versionName = openMPIVersionCombo.getItem(openMPIVersionCombo.getSelectionIndex());
+    final EOpenMPIVersion openMPIVersion = (EOpenMPIVersion) openMPIVersionCombo.getData(versionName);
+    
+    final boolean enableDepCmds = ! this.fDefaultToolsCmdsBt.getSelection() && 
+                                  (! isOpenMPI || (openMPIVersion != EOpenMPIVersion.EAutoDetect));
+    for (final Control control : dependentToolCmdsControls) {
+    	control.setEnabled(enableDepCmds);
     }
     
     this.fDefaultInstallLocBt.setSelection(ciConf.shouldTakeDefaultInstallLocation());
