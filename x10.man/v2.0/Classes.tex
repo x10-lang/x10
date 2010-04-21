@@ -305,22 +305,29 @@ may specify a \emph{guard} that is to be satisfied by the parameters
 to the list.
 
 \begin{example}
+%%TODO--rewrite this
 Here is another example, constructed as a simplified 
-version of \Xcd{x10.lang.Region}.
+version of \Xcd{x10.lang.Region}.  The \xcd`mockUnion` method 
+has the type that a true \xcd`union` method would have.
+
+%~~gen
+%package Classes.Are.For.Wussies.Wimps.And.People.With.Vowels.In.Their.Names;
+%~~vis
 \begin{xten}
-type MyRegion(n:Int)=MyRegion{self.rank==n};
 class MyRegion(rank:Int) {
+  static type MyRegion(n:Int)=MyRegion{self.rank==n};
   def this(r:Int):MyRegion(r) {
     property(r);
   }
   def this(diag:ValRail[Int]):MyRegion(diag.length){ 
-   ...
+    property(diag.length);
   }
-  def union(r:MyRegion(n)):MyRegion(n) { ...}
-  ...
-}
+  def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
 }
 \end{xten}
+%~~siv
+%
+%~~neg
 The first constructor returns the empty region of rank \Xcd{r}.  The
 second constructor takes a \Xcd{ValRail[Int]} of arbitrary length
 \Xcd{n} and returns a \Xcd{MyRegion(n)} (intended to represent the set
@@ -335,7 +342,7 @@ val R2 = new MyRegion([5,4,1]); // R2's type is MyRegion(3)
 Hence the following code type checks and infers that \Xcd{R3}'s type is
 \Xcd{MyRegion(3)}:
 \begin{xten}
-val R3 = R1.union(R2);          // R3's type is MyRegion(3)
+val R3 = R1.mockUnion(R2);          // R3's type is MyRegion(3)
 \end{xten}
 \end{example}
 
