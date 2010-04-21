@@ -759,7 +759,7 @@ property def rail(): Boolean = rect && onePlace == here && zeroBased;
 %~~siv
 %}
 %~~neg
-
+and
 %~~gen
 % package classes.not.muskrats.instead.of.blueberry.cake.with.honey;
 % class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
@@ -781,12 +781,21 @@ considerations motivated by type parameters and dependent types.
 Two or more methods of a class or interface may have the same
 name if they have a different number of type parameters, or
 they have formal parameters of different types.  \Eg, the following is legal: 
+
+%~~gen
+%
+%~~vis
 \begin{xten}
+class Mful{
    def m() = 1;
    def m[T]() = 2;
    def m(x:Int) = 3;
    def m[T](x:Int) = 4;
+}
 \end{xten}
+%~~siv
+%
+%~~neg
 
 \XtenCurrVer{} does not permit overloading based on constraints. That is, the
 following is {\em not} legal, although either method definition individually
