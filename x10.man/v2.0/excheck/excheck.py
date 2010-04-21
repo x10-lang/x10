@@ -26,6 +26,7 @@ def dealWithExample(f, line, basename):
     if cmd == "stmt" : doStmt(cmd, args, f, line, basename)
     elif cmd == "gen" : doGen(cmd, args, f, line, basename)
     elif cmd == "exp" : doExp(cmd, args, f, line, basename)
+    elif cmd == "type" : doType(cmd, args, f, line, basename)
     else:
         doom("In " + basename + " the command is \""+cmd + "\" -- what the feersnar is this line: " + line)
 
@@ -47,7 +48,6 @@ def parsley(line):
 #         I:Int = a+b;
 #     }}
 def doStmt(cmd, args, f, line, basename):
-    print "doStmt: " + cmd + " on " + "!".join(args)
     if len(args) != 3 and len(args) != 4:
         doom("'stmt' takes 3 args -- in " + basename  + "\nline="  + line + " ... plus optionally a fourth for imports and such.")
     starter = args[0]
@@ -72,7 +72,6 @@ def doStmt(cmd, args, f, line, basename):
 #     def check(a:Int) = a+4;
 #   }
 def doExp(cmd, args, f, line, basename):
-    print "doStmt: " + cmd + " on " + "!".join(args)
     if len(args) != 3 and len(args) != 4:
         doom("'exp' takes 3 args -- in " + basename  + "\nline="  + line + " ... plus optionally a fourth for imports and such.")
     starter = args[0]
@@ -88,6 +87,30 @@ def doExp(cmd, args, f, line, basename):
           "  }"])
     writeX10File(classname, code)
 
+# IN:
+#   %~~type~~xcd`~~`~~a:Int
+#   The nerve is of type \xcd`Tofu{a==3}`, unfortunately.
+# OUT:
+#   public class TofuChk8 {
+#     def check(a:Int) {
+#        var checkycheck : Tofu{a==3};
+#     }}
+def doType(cmd, args, f, line, basename):
+    if len(args) != 3 and len(args) != 4:
+        doom("'type' takes 3 args -- in " + basename  + "\nline="  + line + " ... plus optionally a fourth for imports and such.")
+    starter = args[0]
+    ender = args[1]
+    formals = args[2].strip()
+    importses = args[3] if len(args)==4 else ""
+    typer = extract(f, starter, ender, basename)
+    classname = numberedName(basename)
+    code = "\n".join([
+          importses, 
+          "public class " + classname + "{",
+          "  def check(" + formals + ") throws Exception { ",
+          "     var checkycheck : " + typer + ";"
+          "  }}"])
+    writeX10File(classname, code)
 
 
 # IN: 
