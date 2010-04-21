@@ -258,8 +258,12 @@ class X10PlatformConf implements IX10PlatformConf {
         return false;
       }
       if (! commConf.shouldTakeDefaultToolCommands()) {
-        if (! hasData(commConf.getLaunchCommand()) || ! hasData(commConf.getDebugCommand()) ||
-            ! hasData(commConf.getDiscoverCommand())) {
+      	if (! hasData(commConf.getDiscoverCommand())) {
+      		return false;
+      	}
+      	final boolean isAutoDetect = PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(commConf.getServiceTypeId()) &&
+        														(commConf.getOpenMPIVersion() == EOpenMPIVersion.EAutoDetect);
+        if (! isAutoDetect && (! hasData(commConf.getLaunchCommand()) || ! hasData(commConf.getDebugCommand()))) {
           return false;
         }
       }
