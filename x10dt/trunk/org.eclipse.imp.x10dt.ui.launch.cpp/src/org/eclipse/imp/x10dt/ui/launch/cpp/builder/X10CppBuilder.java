@@ -72,7 +72,10 @@ public final class X10CppBuilder extends AbstractX10Builder {
       
       final String execPath = getProject().getPersistentProperty(Constants.EXEC_PATH);
       if (execPath != null) {
-        targetOpHelper.getStore(execPath).delete(EFS.NONE, nullMonitor);
+        final IFileStore fileStore = targetOpHelper.getStore(execPath);
+        if (fileStore.fetchInfo().exists()) {
+        	fileStore.delete(EFS.NONE, nullMonitor);
+        }
       }
       monitor.worked(1);
     } finally {
