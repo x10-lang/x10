@@ -760,9 +760,16 @@ property def rail(): Boolean = rect && onePlace == here && zeroBased;
 %}
 %~~neg
 
+%~~gen
+% package classes.not.muskrats.instead.of.blueberry.cake.with.honey;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%~~vis
 \begin{xten}
 property rail: Boolean = rect && onePlace == here && zeroBased;
 \end{xten}}
+%~~siv
+%}
+%~~neg
 
 \subsection{Method overloading, overriding, hiding, shadowing and obscuring}
 \label{MethodOverload}
