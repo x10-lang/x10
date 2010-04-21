@@ -197,6 +197,10 @@ into a class with \Xcd{global} fields and methods.
 \subsection{Examples}
 
 An example illustrating pairing:
+
+%~~gen
+%
+%~~vis
 \begin{xten}
 struct Pair[S,T]  {
   val x: S;
@@ -207,13 +211,16 @@ struct Pair[S,T]  {
   }
   def x()=x;
   def y()=y;  
-  final def hashCode() = x.hashCode() + y.hashCode();
-  final def equalsX[U](o:Pair[S,U]) = x==o.x;
-  final def equalsY[U](o:Pair[U,T]) = y==o.y;
-  final def equals(that:Any) = this == that;
-  final def equals(that:Pair[X,Y]) = this==that;
+  public global safe def hashCode() = x.hashCode() + y.hashCode();
+  public def equalsX[U](o:Pair[S,U]) = x==o.x;
+  public def equalsY[U](o:Pair[U,T]) = y==o.y;
+  public global safe def equals(that:Any) = this == that;
+  public def equals(that:Pair[S,T]) = this==that;
 }
 \end{xten}
+%~~siv
+% 
+%~~neg
 
 The following types all make sense: 
 \begin{itemize}
