@@ -96,22 +96,23 @@ and properties defined in the interface.
         Classes and interfaces may have <em>properties</em>,
         public <b>val</b> instance fields bound on object creation.  
         For example, the following code declares a class named
-        <b>Point</b> with properties <b>x</b> and <b>y</b>
+        <b>Coords</b> with properties <b>x</b> and <b>y</b>
         and a <b>move</b> method.  The properties are bound
         using the <b>property</b> statement in the constructor.
 
 <div class="p"><!----></div>
+package not.x10.lang;
 <pre>
-class Point(x: Int, y: Int) {
+class Coords(x: Int, y: Int) {
   def this(x: Int, y: Int) { property(x, y); }
-  def move(dx: Int, dy: Int) = new Point(x+dx, y+dy);
+  def move(dx: Int, dy: Int) = new Coords(x+dx, y+dy);
 }
 </pre>
 
 <div class="p"><!----></div>
         The properties of a class or interface may be
         constrained with a boolean expression.  The type
-        <b>Point{x==0}</b> is the set of all points whose <b>x</b>
+        <b>Coords{x==0}</b> is the set of all points whose <b>x</b>
         property is <b>0</b>.
 
 <div class="p"><!----></div>

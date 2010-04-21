@@ -41,13 +41,39 @@ type arguments. This limitation may be removed in future versions of
 the language.
 
 <div class="p"><!----></div>
-A <em>function literal</em> <b>(x1:T1,..,xn:Tn){c}:T=&#62;e</b> creates a
-function of type<br /><b>(x1:T1,...,xn:Tn){c}=&#62;T</b>
-(&#167;). The body {e} of such an expression is
-type-checked in an environment in which {c} is true. At runtime,
-function execution results in the evaluation of {e} in an
-environment in which each formal is bound to the given actual
-parameter.
+A <em>function literal</em> <b>(x1:T1,..,xn:Tn){c}:T=&#62;e</b> creates a function of
+type<br /><b>(x1:T1,...,xn:Tn){c}=&#62;T</b> (&#167;). The body {e}
+of such an expression is type-checked in an environment in which {c} is
+true. 
+
+<div class="p"><!----></div>
+A function literal evaluates to a function entity &#981;. When &#981; is
+applied to a suitable list of actual parameters <b>a1</b>-<b>an</b>, it
+evaluates <b>e</b> with the formal parameters bound to the actual parameters.
+So, the following are equivalent, where <b>e</b> is an expression involving
+<b>x1</b> and <b>x2</b><a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+<pre>
+{
+  val f = (x1:T1,x2:T2){true}:T =&#62; e;
+  val a1 : T1 = arg1();
+  val a2 : T2 = arg2();
+  result = f(a1,a2);
+}
+</pre>
+and 
+<pre>
+{
+  val a1 : T1 = arg1();
+  val a2 : T2 = arg2();
+  {
+     val x1 : T1 = a1;
+     val x2 : T2 = a2;
+     result = e;
+  }  
+}
+</pre>
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 The <em>method selector expression</em> <b>e.m.(x1:T1,...,xn:Tn)</b> (&#167;)

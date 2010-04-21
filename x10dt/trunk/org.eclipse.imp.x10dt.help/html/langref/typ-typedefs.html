@@ -22,7 +22,6 @@
 <a name="TypeDefs">
 </a>
 
-<div class="p"><!----></div>
 With value arguments, type arguments, and constraints, the
 syntax for X10 types can often be verbose;
 X10 therefore provides <em>type definitions</em>
@@ -45,11 +44,10 @@ Constraint<sup>?</sup>&nbsp;<b>=</b> Type </td></tr>
 <div class="p"><!----></div>
 A type definition can be thought of as a type-valued function,
 mapping type parameters and value parameters to a concrete type.
-The following examples are legal type definitions:
+The following examples are legal type definitions, given <b>import x10.util.*</b>:
 <pre>
 type StringSet = Set[String];
 type MapToList[K,V] = Map[K,List[V]];
-type Nat = UInt{self!=0};
 type Int(x: Int) = Int{self==x};
 type Dist(r: Int) = Dist{self.rank==r};
 type Dist(r: Region) = Dist{self.region==r};

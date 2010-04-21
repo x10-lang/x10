@@ -26,7 +26,7 @@
 <a name="FunctionEquality">
 </a>Two functions <b>f</b> and <b>g</b> are equal ("<b>==</b>") if both are
 instances of classes and the same object, or if both were obtained by
-the same evaluation of a function literal.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> Further, it is guaranteed that if two functions are
+the same evaluation of a function literal.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a> Further, it is guaranteed that if two functions are
 equal then they refer to the same locations in the environment and
 represent the "same code" (so their executions in an identical
 environment are comparable).
@@ -63,7 +63,12 @@ The method <b>f.home()</b> always returns <b>here</b>. The call
 <hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>A literal may
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Strictly, there are a few other requirements;
+   , <b>result</b> must be a <b>var</b> of type <b>T</b> defined outside the
+  outer block, the variables <b>a1</b> and <b>a2</b> had better not appear in
+  <b>e</b>, and everything in sight had better typecheck properly.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>A literal may
   occur in program text within a loop, and hence may be evaluated
   multiple times.
 

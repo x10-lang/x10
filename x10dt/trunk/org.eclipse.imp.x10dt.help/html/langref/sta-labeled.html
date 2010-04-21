@@ -24,14 +24,14 @@
   :  |        <em>  
 <table>
 <tr><td align="right">Statement ::= LabeledStatement </td></tr>
-<tr><td align="right">LabeledStatement ::= Identifier <b>:</b> Statement </td></tr>
+<tr><td align="right">LabeledStatement ::= Identifier <b>:</b> LoopStatement </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-Statements may be labeled.  The label may be used as the target
-of a break or continue statement.  The scope of a label is the
-statement labeled.
+Loop statements (<b>for</b>, <b>while</b>, <b>do</b>, <b>ateach</b>,
+<b>foreach</b>) may be labeled. The label may be used as the target of a break
+or continue statement. The scope of a label is the statement labeled.
 
 <div class="p"><!----></div>
 

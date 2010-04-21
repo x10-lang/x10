@@ -27,23 +27,44 @@
 </a>
 
 <div class="p"><!----></div>
-        Given a type <b>T</b>, a <em>constrained type</em>
-        <b>T{e}</b> may be
-        constructed by constraining its
-        properties with a
-        boolean expression <b>e</b>.
+        Given a type <b>T</b>, a <em>constrained type</em> <b>T{e}</b> may be constructed
+by constraining its properties with a boolean expression of a limited sort
+<b>e</b>. The values of <b>T{e}</b> are those values of type <b>T</b> for which
+<b>e</b> evaluates to <b>true</b>.  , <b>Point</b> has a property
+<b>rank:Int</b>.  If <b>p : Point</b>, <b>p</b> may have any <b>rank</b>.
+<b>Pointrank == 3</b> is the point type constrained to only those values
+whose <b>rank</b> property is 3.   
 
 <div class="p"><!----></div>
-        <b>T{e}</b> is a <em>dependent type</em>, that is, a type
-        dependent on values.
-        The type <b>T</b> is called the
-        <em>base type</em> and <b>e</b> is called the <em>constraint</em>.
-        For reference types, the constraint may
-        specify the places at which the object resides.
+A common use of constrained types is to explain where objects are located.
+Every object has a <b>home</b> property. If <b>Person</b> is a type of people,
+then <b>Personhome==here</b> is the type of people whose data is stored at
+the current location.  As explained in &#167;, certain operations
+can only be performed at an object's home, so having this expressible as a
+type is crucial.
+
+<div class="p"><!----></div>
+<b>T{e}</b> is a <em>dependent type</em>, that is, a type dependent on values. The
+type <b>T</b> is called the <em>base type</em> and <b>e</b> is called the <em>
+constraint</em>. 
 
 <div class="p"><!----></div>
 For brevity, the constraint may be omitted and
 interpreted as <b>true</b>.
+
+<div class="p"><!----></div>
+Constraints may refer to values in the local environment: 
+<pre>
+     val n = 1;
+     var p : Point{rank == n};
+</pre>
+Indeed, there is technically no need for a constraint to refer to the
+properties of its type; it can refer entirely to the environment, thus: 
+<pre>
+     val m = 1;
+     val n = 2;
+     var p : Point{m != n};
+</pre>
 
 <div class="p"><!----></div>
 Constraints on properties induce a natural subtyping relationship:
@@ -90,6 +111,14 @@ types are permitted (&#167;).
 <div class="p"><!----></div>
 Type constraints may be subtyping and supertyping (<b>&lt;:</b> and
 <b>:&#62;</b>) expressions over types.
+
+<div class="p"><!----></div>
+The static constraint checker approximates computational reality in some
+cases.  For example, it assumes that built-in types are infinite. This is a
+good approximation for <b>Int</b>.  It is a poor approximation for <b>Boolean</b>,
+as the checker believes that <b>a != b &amp;&amp; a != c &amp;&amp; b != c</b> is satisfiable
+over <b>Boolean</b>, which it is not.  However, the checker is always correct
+when computing the truth or falsehood of a constraint.
 
 <div class="p"><!----></div>
 
@@ -367,31 +396,30 @@ the type is parametrically consistent.
 
 
 <div class="p"><!----></div>
-A class that represents a line has two distinct points:
+A class that represents a line has two distinct points:<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
 
 <div class="p"><!----></div>
 <pre>
-class Line(start: Point, 
-           end: Point{self != this.start}) {...}      
+class Position(x: Int, y: Int) {
+   def this(x:Int,y:Int){property(x,y);}
+   }
+class Line(start: Position, 
+           end: Position{self != start}) {}
 </pre>
 
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 One can use dependent type to define other closed geometric figures as well.
 
 <div class="p"><!----></div>
-Here is an example:
-<pre>
-class Point(x: Int, y: Int) {...}
-</pre>
-
-<div class="p"><!----></div>
-To see that the declaration <b>end: Point{self != start}</b> is
+To see that the declaration <b>end: Position{self != start}</b> is
 parametrically consistent, note that the following formula is valid:
 <pre>
-&#8704;this: Line. &#8707;self: Point. self != this.start  
+&#8704;this: Line. &#8707;self: Position. self != this.start  
 </pre>
- since the set of all <b>Point</b>s has more than one element.
+ since the set of all <b>Position</b>s has more than one element.
 
 
 <div class="p"><!----></div>

@@ -33,6 +33,8 @@
         StatementExpression ( <b>,</b> StatementExpression )<sup>*</sup>&nbsp;
 </td></tr>
 <tr><td align="right">&#124; LocalVariableDeclaration </td></tr>
+<tr><td align="right">ForUpdate ::=
+        StatementExpression ( <b>,</b> StatementExpression )<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right">EnhancedForStatement ::= <b>for</b> <b>(</b>
         Formal <b>in</b> Expression 
         <b>)</b> Statement </td></tr>
@@ -44,31 +46,46 @@ X10 provides two forms of for statement: a basic for
 statement and an enhanced for statement.
 
 <div class="p"><!----></div>
-A basic for statement consists of an initializer, a condition, an
-iterator, and a body.  First, the initializer is evaluated.
-The initializer may introduce local variables that are in scope
-throughout the for statement.  An empty initializer is
-permitted.
-Next, the condition is evaluated.  If <b>true</b>, the loop body
-is executed; otherwise, the loop exits.
-The condition may be omitted, in which case the condition is
-considered <b>true</b>.
-If the loop completes normally (either by reaching the end
-or via a <b>continue</b> statement with the loop header as
-target),
-the iterator is evaluated and then the condition is reevaluated
-and the loop repeats if
-<b>true</b>.  If the condition is <b>false</b>, the loop
-exits.
+A basic <b>for</b> statement provides for arbitrary iteration in a somewhat
+more organized fashion than a <b>while</b>.  <b>for(init; test; step)body</b> is
+equivalent to: 
+<pre>
+{
+   init;
+   while(test) {
+      body;
+      step;
+   }
+}
+</pre>
 
 <div class="p"><!----></div>
-The condition must be of type <b>Boolean</b>.
-The initializer and iterator are statements, not expressions
-and so do not have types.
+<b>init</b> is performed before the loop, and is traditionally used to declare
+and/or initialize the loop variables. It may be a single variable binding
+statement, such as <b>var i:Int = 0</b> or <b>var i:Int=0, j:Int=100</b>. (Note
+that a single variable binding statement may bind multiple variables.)
+Variables introduced by <b>init</b> may appear anywhere in the <b>for</b>
+statement, but not outside of it.  Or, it may be a sequence of expression
+statements, such as <b>i=0, j=100</b>, operating on already-defined variables.
+If omitted, <b>init</b> does nothing.
 
 <div class="p"><!----></div>
-In X10, unlike C, there is no provision multiple statements in the
-initialization or update clauses.  
+<b>test</b> is a Boolean-valued expression; an iteration of the loop will only
+proceed if <b>test</b> is true at the beginning of the loop, after <b>init</b>
+on the first iteration or or <b>step</b> on later ones. If omitted, <b>test</b>
+defaults to <b>true</b>, giving a loop that will run until stopped by some
+other means such as <b>break</b>, <b>return</b>, or <b>throw</b>.
+
+<div class="p"><!----></div>
+<b>step</b> is performed after the loop body, between one iteration and the
+next. It traditionally updates the loop variables from one iteration to the
+next: , <b>i++</b> and <b>i++,j-</b>.  If omitted, <b>step</b> does nothing.
+
+<div class="p"><!----></div>
+<b>body</b> is a statement, often a code block, which is performed whenever
+<b>test</b> is true.  If omitted, <b>body</b> does nothing.
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 <a name="ForAllLoop">

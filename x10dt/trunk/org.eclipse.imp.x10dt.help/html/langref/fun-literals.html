@@ -114,51 +114,87 @@ clause.
 In a function
 "(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} =&#62; { s }"
 the types , the guard <b>c</b> and the body <b>s</b>
-may access fields of enclosing classes and local variables and type
-parameters declared in an outer scope.
+may access many, though not all, sorts of variables from outer scopes.  
+Specifically, they can access: 
+
+<ul>
+<li> All fields of the enclosing object and class;
+<div class="p"><!----></div>
+</li>
+
+<li> All type parameters;
+<div class="p"><!----></div>
+</li>
+
+<li> All <b>val</b> variables;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>var</b> variables with the <b>shared</b> annotation.
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
-Recall that languages such as Java require that methods may
-access only those local variables declared in an enclosing scope
-("outer variables") which are <b>val</b>. This is valuable in
-preventing accidental races between multiple functions reading
-and writing the same outer variable. At the same time, it is
-desirable to support the following common idiom of expression:
-
-<div class="p"><!----></div>
-<pre>
-def allPositive(c: Collection): Boolean {
-  shared var result: Boolean = true;
-  c.applyToAll((x: Int) =&#62; { if (x &lt; 0) atomic {result=false;}});
-  return result;
-}
-</pre>
-
-<div class="p"><!----></div>
-This motivates the following rule:
-
-<div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-In an expression
-"(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>) =&#62; e",
-any outer local variable accessed by <b>e</b> must be <b>val</b> or
-must be declared
-as <b>shared</b> (&#167;).
-
+<em>Limitation: <b>shared</b> is not currently supported.</em>
 
 <div class="p"><!----></div>
 The function body may refer to instances of enclosing classes using
 the syntax <b>C.this</b>, where <b>C</b> is the name of the
-enclosing class.
+enclosing class.  <b>this</b> refers to the instance of the immediately
+enclosing class, as usual.
+
+<div class="p"><!----></div>
+For example, the following is legal.  However, it would not be legal to add
+<b>e</b> or <b>h</b> to the sum; they are non-<b>shared</b> <b>var</b>s from the
+surrounding scope.
+<pre>
+public class Lambda {
+   var a : Int = 0;
+   val b = 0;
+   def m(var c : Int, shared var d : Int,  val e : Int) {
+      var f : Int = 0;
+      shared var g : Int = 0;
+      val h : Int = 0;
+      val closure = (var i: Int, val j: Int) =&#62; {
+    	  return a + b + d + e + g + h + i + j + this.a + Lambda.this.a;
+      };
+      return closure;
+   }
+}
+</pre>
+
+<div class="p"><!----></div>
+<b>Rationale:</b> Non-<b>shared</b> <b>var</b>s like <b>e</b> and <b>h</b> are
+excluded in X10, as in many other languages, for practical implementation
+reasons. They are allocated on the stack, which is desirable for efficiency.
+However, the closure may exist for long after the stack frame containing
+<b>e</b> and <b>h</b> has been freed, so those storage locations are no longer
+valid for those variables. <b>shared var</b>s are heap-allocated, which is less
+efficient but allows them to exist after <b>m</b> returns. 
 
 <div class="p"><!----></div>
  Note:
-The main activity may run in parallel with any
-functions it creates. Hence even the read of an outer variable by the
-body of a function may result in a race condition. Since functions are
-first-class, the analysis of whether a function may execute in parallel
-with the activity that created it may be difficult.
+<b>shared</b> does not guarantee <b>atomic</b> access to the shared variable. As
+with any code that might mutate shared data concurrently, be sure to protect
+references to mutable shared state with <b>atomic</b>. For example, the
+following code returns a pair of closures which operate on the same shared
+variable <b>a</b>, which are concurrency-safe-even if invoked many times
+simultaneously. Without <b>atomic</b>, it would no longer be concurrency-safe.
 
+
+<div class="p"><!----></div>
+<pre>
+  def counters() {
+      shared var a : Int = 0;
+       return [
+          () =&#62; {atomic a ++;},
+          () =&#62; {atomic return a;}
+          ];
+   }
+</pre>
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 

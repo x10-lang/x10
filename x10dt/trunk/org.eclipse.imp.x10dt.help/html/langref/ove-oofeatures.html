@@ -74,7 +74,7 @@ the graph whose nodes are structs and edges s &#8594; t reflect
 that struct s has a field of (struct) type t. Thus a struct
 instance may be represented with exactly as much space as necessary to
 store the fields of that struct (modulo alignment considerations). Structs
-can be copied freely. 
+can be copied freely.
 
 <div class="p"><!----></div>
 X10 has no primitive classes. However, the standard library
@@ -95,7 +95,7 @@ array initializers.
 For example, the following method uses a function to increment
 elements of an array.
 <pre>
-def incr(A: Array[Int]): Array[Int] {
+def incr(A: Array[Int]!): Array[Int] {
     val f = (x: Int) =&#62; x+1; // e.g., f(1) == 2
     return A.lift(f);
 }
@@ -110,17 +110,17 @@ class or interface's properties.
 Properties enable the definition of <em>dependent types</em>.
 
 <div class="p"><!----></div>
-For example, the following code declares a class for a two-dimensional 
-<b>Point</b> class with an <b>add</b> method.
+For example, the following code declares a class for a two-dimensional
+<b>Vector</b> class with an <b>add</b> method.
 <pre>
-struct Point(x: Int, y: Int) {
-    def add(p: Point) = Point(x+p.x,y+p.y); 
+struct Vector(x: Int, y: Int) {
+    def add(p: Vector) = Vector(x+p.x,y+p.y);
 }
 </pre>
 The class has integer value properties <b>x</b> and <b>y</b>.
 The <b>add</b> method creates and returns a new point by
 element-wise addition.
-The dependent type <b>Point{x==0}</b> is the type of all points 
+The dependent type <b>Vector{x==0}</b> is the type of all points
 with <b>x</b> set to <b>0</b>; that is, all points along the y-axis.
 
 <div class="p"><!----></div>
@@ -130,7 +130,7 @@ with <b>x</b> set to <b>0</b>; that is, all points along the y-axis.
 <div class="p"><!----></div>
 Classes and interfaces may have type parameters, permitting the definition of
 <em>generic types</em>.  Type parameters may be instantiated by any type - a
-container type or a function type. 
+container type or a function type.
 
 <div class="p"><!----></div>
 For example,
@@ -141,9 +141,9 @@ type parameter <b>T</b>.
 <pre>
 class List[T] {
     var head: T;
-    var tail: List[T];
-    def this(h: T, t: List[T]) { head = h; tail = t; }
-    def append(x: T) {
+    var tail: List[T]!;
+    def this(h: T, t: List[T]!) { head = h; tail = t; }
+    def add(x: T) {
         if (this.tail == null)
             this.tail = new List(x, null);
         else
