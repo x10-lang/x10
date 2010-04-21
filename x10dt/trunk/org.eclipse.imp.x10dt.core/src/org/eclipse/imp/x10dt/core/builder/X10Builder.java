@@ -737,7 +737,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         try {
         	
         		ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
-        		
+        		 
       } catch (CoreException e) {
           e.printStackTrace();
       }
@@ -1028,7 +1028,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 ////        		    fProject.getWorkspace().getRoot().getFolder(pathEntry).refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
 //        		}
 //    	    }
-            //fProject.refreshLocal(IResource.DEPTH_INFINITE, fMonitor); //MV HERE
+            fProject.refreshLocal(IResource.DEPTH_INFINITE, fMonitor); 
         }
         return computeDependentProjects();
     }
