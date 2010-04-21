@@ -709,7 +709,8 @@ final class Pointlike(rank: Int)  {
     public operator this + (that: Pointlike{self.rank == this.rank})
        : Pointlike{self.rank == this.rank}
        {
-         val f : (Int)=>Int = (i:Int) => (this.coords)(i) + (that.coords)(i);
+         val f : (Int)=>Int = (i:Int) => 
+                 (this.coords)(i) + (that.coords)(i);
          val v = ValRail.make[Int](rank, f);
          return new Pointlike(v);
        }
@@ -723,6 +724,7 @@ final class Pointlike(rank: Int)  {
 %~~siv
 %
 %~~neg
+\end{example}
 
 \subsection{Property methods}
 
@@ -745,8 +747,20 @@ A property method definition may omit the formal parameters and
 the \xcd"def" keyword.  That is, the following are equivalent:
 
 {\footnotesize
+
+
+%~~gen
+% package classes.not.harpoons.instead.of.python;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%~~vis
 \begin{xten}
 property def rail(): Boolean = rect && onePlace == here && zeroBased;
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+\begin{xten}
 property rail: Boolean = rect && onePlace == here && zeroBased;
 \end{xten}}
 
