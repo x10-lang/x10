@@ -79,9 +79,16 @@ used as the placetype of fields, since the type of a field
 should be independent of the activity accessing it.
 
 \begin{example}
+
+%%TODO -- redo this example to something that's useful.
+
 The code:
+
+%~~gen
+% package Places.Are.For.Graces.Or.Maybe.Aces;
+%~~vis
 \begin{xten}
-public class F {
+class F {
   public def m(a: F) {
     val OldHere: Place = here;
     async (a) {
@@ -94,6 +101,9 @@ public class F {
   }
 }  
 \end{xten}
+%~~siv
+%
+%~~neg
 
 
 \noindent will print out \xcd"true" iff the computation was configured
