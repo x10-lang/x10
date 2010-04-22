@@ -236,8 +236,10 @@ enclosing class, as usual.
 For example, the following is legal.  However, it would not be legal to add
 \xcd`e` or \xcd`h` to the sum; they are non-\xcd`shared` \xcd`var`s from the
 surrounding scope.
+
+%%TODO -- this example uses 'shared', which is not currently available.
 \begin{xten}
-public class Lambda {
+class Lambda {
    var a : Int = 0;
    val b = 0;
    def m(var c : Int, shared var d : Int,  val e : Int) {
@@ -251,6 +253,7 @@ public class Lambda {
    }
 }
 \end{xten}
+
 
 {\bf Rationale:} Non-\xcd`shared` \xcd`var`s like \xcd`e` and \xcd`h` are
 excluded in X10, as in many other languages, for practical implementation
@@ -269,6 +272,11 @@ variable \xcd`a`, which are concurrency-safe---even if invoked many times
 simultaneously. Without \xcd`atomic`, it would no longer be concurrency-safe.
 \end{note}
 
+
+%~~gen
+% package Functions2.Are.All.Too.Much;
+% class Fun2Frivols {
+%~~vis
 \begin{xten}
   def counters() {
       shared var a : Int = 0;
@@ -278,6 +286,10 @@ simultaneously. Without \xcd`atomic`, it would no longer be concurrency-safe.
           ];
    }
 \end{xten}
+%~~siv
+%}
+%
+%~~neg
 
 
 %SHARED% \begin{note}
@@ -401,6 +413,36 @@ Boolean.!            $\equiv$ (x: Boolean): Boolean => !x
 Int.<(Int,Int)       $\equiv$ (x: Int, y: Int): Boolean => x < y
 Dist.|(Place)        $\equiv$ (d: Dist, p: Place): Dist => d | p
 \end{xtenmath}
+
+
+%%TODO -- fix commented-out lines!
+
+%~~gen
+% package Functions2.For.The.Lose;
+% class TypecheckThatSillyExample {
+%   def checker() {
+%    val l1 : (String, String) => String = String.+;
+%    val r1 : (String, String) => String = (x: String, y: String): String => x + y;
+%    val l2 : (Long,Long) => Long = Long.-;
+%    val r2 : (Long,Long) => Long = (x: Long, y: Long): Long => x - y;
+%//var v1 : (Float,Float) => Float = Float.-(Float,Float) ;
+%var v2 : (Float,Float) => Float = (x: Float, y: Float): Float => x - y;
+%//var v3 : (Int) => Int =  Int.-(Int)     ;      ;
+%var v4  : (Int) => Int  =  (x: Int): Int => -x;
+%var v5 : (Boolean,Boolean) => Boolean = Boolean.&            ;
+%var v6 : (Boolean,Boolean) => Boolean =  (x: Boolean, y: Boolean): Boolean => x & y;
+%//var v7 : (Boolean) => Boolean = Boolean.!            ;
+%var v8 : (Boolean) => Boolean =  (x: Boolean): Boolean => !x;
+%//var v9 : (Int,Int) => Boolean = Int.<(Int,Int)       ;
+%var v10: (Int,Int) => Boolean =  (x: Int, y: Int): Boolean => x < y;
+%//var v11 : (Dist,Place)=>Dist = Dist.|(Place)        ;
+%var v12 : (Dist,Place)=>Dist=  (d: Dist, p: Place): Dist => d | p;
+%}
+% }
+%~~vis
+%~~siv
+%
+%~~neg
 
 Unary and binary promotion (\Sref{XtenPromotions}) is not performed
 when invoking these

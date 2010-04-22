@@ -136,7 +136,7 @@ def doType(cmd, args, f, line, basename):
 # TeX comments in the LaTeX source, which must be stripped off for X10.
 
 def doGen(cmd, args, f, line, basename):
-    print("doGen: " + cmd + " on " + "!".join(args));
+    #print("doGen: " + cmd + " on " + "!".join(args));
     prelude = readLines(f, "%~~vis", True, False, basename)
     body = readLines(f, "%~~siv", False, True, basename)
     postlude = readLines(f, "%~~neg", True, False, basename)
@@ -189,7 +189,7 @@ def writeX10File(classname, code):
     f.write(code)
     f.flush()
     f.close()
-    print '***' + classname + " to " + fn  + "***\n" + code + "\n\n"
+    # print '***' + classname + " to " + fn  + "***\n" + code + "\n\n"
 
 # Return Foo1, Foo2, etc -- distinct class names for files from chapter Foo.
 name2number = {}
@@ -203,9 +203,12 @@ def numberedName(basename):
         name2number[basename] = 1
         return basename + "1"
 
+totalTestCases = 0
 def extractExamplesFrom(tf):
+    global totalTestCases
     basename = tf[0:len(tf)-4]
-    print tf + " -> \"" + basename + "\""
+    # print tf + " -> \"" + basename + "\""
+    name2number[basename] = 0
     with open(texsource+"/"+tf) as f:
          line = f.readline()
          while line != "": 
@@ -216,11 +219,15 @@ def extractExamplesFrom(tf):
                      "line=" + line + "\n" +
                      "file=" + tf + "\n")
             line = f.readline()
+    print basename.ljust(22) + " = " + str(name2number[basename])
+    totalTestCases += name2number[basename]
 
 def extractExamplesFromAllFiles():
+    global totalTestCases
     texfiles = [ fn  for fn in os.listdir(texsource) if fn.endswith(".tex") ]
     for tf in texfiles:
         extractExamplesFrom(tf)
+    print str(totalTestCases) + " test cases."
         
 
 extractExamplesFromAllFiles()
