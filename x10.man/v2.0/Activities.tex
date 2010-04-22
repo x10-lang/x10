@@ -701,10 +701,11 @@ placed on the guards and statements in a conditional atomic
 block. 
 \end{staticrule*}
 
-Guards are required not to have side-effects, not to spawn
-asynchronous activities and to have a statically determinable upper
-bound on their execution. These conditions are expected to be checked
-statically by the compiler.
+Guards are required not to have side-effects, not to spawn asynchronous
+activities (as for the \xcd`sequential` qualifier on methods) and to have a
+statically determinable upper bound on their execution (as for the
+\xcd`nonblocking` qualifier on methods). These conditions are expected to be
+checked statically by the compiler.
 
 The body of a \xcd"when" statement must satisfy the conditions
 for the body of an \xcd"atomic" block.
