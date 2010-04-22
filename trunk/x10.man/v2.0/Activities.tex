@@ -215,9 +215,20 @@ if you want to start a new activity at \xcd`p`, use
 
 As a consequence of this, \xcd`S` may contain constructs which only make sense
 within a single activity.  For example, 
+
+%~~gen
+% package Activities.For.Fun.And.Profit;
+% class Thing {
+% def nice():Boolean = true;
+% static def example(things:List[Thing]!):Thing {
+%~~vis
 \begin{xten}
   for(x in things) at(x.home) if (x.nice()) return x;
 \end{xten}
+%~~siv
+% return null;
+%}}
+%~~neg
 returns the first nice thing in a collection.   If we had used 
 \xcd`async at(x.home)`, this would not be allowed; 
 you can't \xcd`return` from an
