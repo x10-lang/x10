@@ -12,12 +12,21 @@ Statement \: \xcd";" \\
 
 The empty statement \xcd";" does nothing.  It is useful when a
 loop header is evaluated for its side effects.  For example,
-the following code sums the elements of an array.
+the following code sums the elements of a rail.
+
+%~~gen
+% package statements.should.be.called.commands.but.nobody.ever.does.that;
+% class EmptyStatementExample {
+% def summizmo (a:Rail[Int]!){
+%~~vis
 \begin{xten}
 var sum: Int = 0;
-for (var i: Int = 0; i < a.length; i++, sum += a[i])
+for (var i: Int = 0; i < a.length; i++, sum += a(i))
     ;
 \end{xten}
+%~~siv
+%}}
+%~~neg
 
 \section{Local variable declaration}
 
@@ -92,6 +101,12 @@ method, constructor, initializer, or closure.
 The following code searches for an element of a two-dimensional
 array and breaks out of the loop when found:
 
+
+%~~gen
+% package statements.come.from.banks.and.cranks;
+% class LabelledBreakeyBreakyHeart {
+% def findy(a:ValRail[ValRail[Int]], v:Int): Boolean {
+%~~vis
 \begin{xten}
 var found: Boolean = false;
 outer: for (var i: Int = 0; i < a.length; i++)
@@ -101,6 +116,10 @@ outer: for (var i: Int = 0; i < a.length; i++)
             break outer;
         }
 \end{xten}
+%~~siv
+% return found;
+%}}
+%~~neg
 
 \section{Continue statement}
 
@@ -321,10 +340,20 @@ must be a subclass of the class \xcd"x10.lang.Throwable".
 \begin{example}
 The following statement checks if an index is in range and
 throws an exception if not.
+
+%~~gen
+% package statements.are.from.mars.expressions.are.from.venus;
+% class ThrowStatementExample {
+% def thingie(i:Int, x:ValRail[Boolean]) throws MyIndexOutOfBoundsException {
+%~~vis
 \begin{xten}
-if (i < 0 || i > x.length)
-    throw new IndexOutOfBoundsException();
+if (i < 0 || i >= x.length)
+    throw new MyIndexOutOfBoundsException();
 \end{xten}
+%~~siv
+%} }
+% class MyIndexOutOfBoundsException extends Exception {}
+%~~neg
 \end{example}
 
 \section{Try--catch statement}
