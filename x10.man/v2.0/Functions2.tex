@@ -449,6 +449,11 @@ when invoking these
 operations; instead, the operands are coerced individually via implicit
 coercions (\Sref{XtenConversions}), as appropriate.
 
+
+\begin{planned}
+
+{\bf The following is not implemented in version 2.0.3:}
+
 Additionally, for every expression \xcd"e" of a type \xcd"T" at which a binary
 operator \xcd"OP" is defined, the expression \xcd"e.OP" or
 \xcd"e.OP(T)" represents the function
@@ -475,22 +480,24 @@ For example,
 one may write an expression that adds one to each member of a
 list \xcd"xs" by:
 
-
-%~~gen
+%%TODO -- when this topic works, make the example work too.
+%~x~gen
 % package Functions2.Wants.A.Dinner.Reservation;
 % import x10.util.*;
 % class Reservation {
 % def smerp() {
 %   val xs = new ArrayList[Int]();
-%~~vis
+%~x~vis
 \begin{xten}
-xs.map(1.+)
+xs.map(1.+);
 \end{xten}
-%~~siv
+%~x~siv
 % }
 % }
 %
-%~~neg
+%~x~neg
+\end{planned}
+
 
 \section{Functions as objects of type \Xcd{Any}}
 \label{FunctionAnyMethods}
