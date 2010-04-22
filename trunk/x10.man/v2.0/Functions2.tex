@@ -475,9 +475,22 @@ For example,
 one may write an expression that adds one to each member of a
 list \xcd"xs" by:
 
+
+%~~gen
+% package Functions2.Wants.A.Dinner.Reservation;
+% import x10.util.*;
+% class Reservation {
+% def smerp() {
+%   val xs = new ArrayList[Int]();
+%~~vis
 \begin{xten}
 xs.map(1.+)
 \end{xten}
+%~~siv
+% }
+% }
+%
+%~~neg
 
 \section{Functions as objects of type \Xcd{Any}}
 \label{FunctionAnyMethods}
