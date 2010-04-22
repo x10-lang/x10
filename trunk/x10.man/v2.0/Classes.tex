@@ -524,10 +524,10 @@ argument at an incomplete type must be \Xcd{void} or incomplete.  The
 return type of a constructor taking an argument at a \Xcd{proto} type
 must be incomplete.
  
-A generic class (method) type parameter \Xcd{T} can be
-  instantiated with the type \Xcd{proto S} (where \Xcd{S} is not a type
-  parameter itself), provided that the class (method) body satisfies
-  the conditions above for \Xcd{proto S}.
+A generic type parameter \Xcd{T} can be instantiated with the type \Xcd{proto
+  S} (where \Xcd{S} is not a type parameter itself), provided that the body of
+the entity being instantiated satisfies the conditions above for \Xcd{proto
+  S}.
 
 During code generation, the type \Xcd{proto T} is treated as if it were
 \Xcd{T}. That is, there is no run-time cost to \Xcd{proto} types.
