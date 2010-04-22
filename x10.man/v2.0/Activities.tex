@@ -213,17 +213,23 @@ if you want to start a new activity at \xcd`p`, use
 
 
 
+
 As a consequence of this, \xcd`S` may contain constructs which only make sense
 within a single activity.  For example, 
 
+
 %~~gen
 % package Activities.For.Fun.And.Profit;
+% import x10.util.*;
 % class Thing {
 % def nice():Boolean = true;
-% static def example(things:List[Thing]!):Thing {
+% def poke(){}
+% static def example(things:List[Thing]!) {
 %~~vis
 \begin{xten}
-  for(x in things) at(x.home) if (x.nice()) return x;
+  for(x in things) 
+    if (at(x.home) x.nice()) 
+        return x;
 \end{xten}
 %~~siv
 % return null;
@@ -377,25 +383,50 @@ distribution for the point. That is, if \xcd`D` is a \xcd`Dist`,
 \xcd"ateach(p in D) S" could be implemented as:
 \begin{xten}
 foreach (p in D.region) 
-  async (D(p)) S
+  async (D(p)) S(p)
 \end{xten}
 
 However, the compiler may implement it more efficiently to avoid extraneous
 communications.  In particular, it is recommended that \xcd`ateach(p in D)S`
 be implemented as the following code, which coordinates with each place of
 \xcd`D` just once, rather than once per element of \xcd`D` at that place: 
+
+%~~gen
+% package Activities.Activities.Activities;
+% class EquivCode {
+% static def S(p:Place) {}
+% static def example(D:Dist) {
+%~~vis
 \begin{xten}
 foreach (p in D.places()) at (p) {
     foreach (pt in D|here) {
-        S
+        S(p);
     }
 }
 \end{xten}
+%~~siv
+%}} 
+%~~neg
 
-If \xcd`e` is an \xcd`Array[T]`, then \xcd`ateach (p in e)S` is identical to
+If \xcd`e` is an \xcd`DistArray[T]`, then \xcd`ateach (p in e)S` is identical to
 \xcd`ateach(p in e.dist)S`; the iteration is over the array's underlying
-distribution.   \xcd`ateach(p in A)dealWith(A(p));` is a common and generally
-efficient idiom for working with the elements of an array.
+distribution.   
+The code below is a common and generally efficient way to work with the
+elements of a distributed array:
+%~~gen
+%package Activities.For.Fnu.And.Pforit;
+%class Example[T]{
+% global def dealWith(T):Void = {}
+% def idiom(A:DistArray[T]){
+%~~vis
+\begin{xten}
+ateach(p in A) 
+  dealWith(A(p));
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
 
 
 
@@ -453,10 +484,19 @@ evaluation are stored in the future \xcd"f" and used to respond to all
 queries.
 
 
+
+%~~gen
+% package Activities.For.The.Future;
+% class FutureExample[T] {
+% def useFuture(a:DistArray[T](1), pt:Point(1)) {
+%~~vis
 \begin{xten}
-promise: Future[T] = future (a.dist(3)) a(3);
-value: T = promise();
+val promise: Future[T] = future (a.dist(pt)) a(pt);
+val value: T = promise();
 \end{xten}
+%~~siv
+%}}
+%~~neg
 
 
 \section{At expressions}
@@ -575,8 +615,14 @@ thrown an exception; it may not introduce a deadlock.
 
 The following class method implements a (generic) compare and swap (CAS) operation:
 
+
+%~~gen
+% package Activities.And.Protein;
+% class CASSizer{
+
+%~~vis
 \begin{xten}
-// target defined in lexically enclosing environment.
+var target:Object = null;
 public atomic def CAS(old: Object, new: Object): Boolean {
    if (target.equals(old)) {
      target = new;
@@ -585,6 +631,9 @@ public atomic def CAS(old: Object, new: Object): Boolean {
    return false;
 }
 \end{xten}
+%~~siv
+%}
+%~~neg
 
 \subsection{Conditional atomic blocks}
 
@@ -683,10 +732,14 @@ The following class shows how to implement a bounded buffer of size
 $1$ in \Xten{} for repeated communication between a sender and a
 receiver.
 
+
+%~~gen
+% package Activities;
+%~~vis
 \begin{xten}
 class OneBuffer {
-  datum: Object = null;
-  filled: Boolean = false;
+  var datum: Object = null;
+  var filled: Boolean = false;
   public def send(v: Object) {
     when (!filled) {
       this.datum = v;
@@ -703,6 +756,9 @@ class OneBuffer {
   }
 }
 \end{xten}
+%~~siv
+%
+%~~neg
 \end{example}
 
 \eat{
