@@ -41,6 +41,7 @@ class betweenessCentrality {
               val frontier: Rail[types.UVDSQuad]! = L;
               val flength = frontier.length();
               val frontierSize = world.sum(flength);
+              world.barrier();
               //x10.io.Console.OUT.println("frontier Size " + frontierSize + " " + flength);
               if (frontierSize == 0) break;
 
@@ -70,6 +71,7 @@ class betweenessCentrality {
 
 
               L = world.alltoallv[types.UVDSQuad](N);
+              world.barrier();
                    
              for ((i) in 0..L.length()-1) {
                val t = L(i);
@@ -118,7 +120,7 @@ class betweenessCentrality {
 
            finish ateach((p) in unique) {
 
-               kernel4.start();
+               //kernel4.start();
 
                val world: Comm! = Comm.WORLD();
 
@@ -131,18 +133,22 @@ class betweenessCentrality {
                //val a = world.sum(pg.owner(i) == here ? new_vertices as rail[types.UVPair]!)(i % chunkSize) 
                //val startVertex = world.sum(pg.owner(i) == here ? (new_vertices as Rail[types.UVPair]!)(i % chunkSize).second : 0); //actually a broadcast
                val startVertex = world.sum(pg.owner(i) == here ? i : 0); //actually a broadcast
-               //x10.io.Console.OUT.println ("i " + i + " " + startVertex);
+               x10.io.Console.OUT.println ("i " + i + " " + startVertex);
 
-               bfs.start();
+               //bfs.start();
                val vert = betweenessCentrality.compute_bfs(pg, p, world, startVertex, pred as Array[GrowableRail[types.VERT_T]](1)!, sig as Array[types.DOUBLE_T](1), d as Array[types.LONG_T](1));
-               bfs.stop();
+               //bfs.stop();
+               x10.io.Console.OUT.println ("i after " + i + " " + startVertex);
 
                val S: GrowableRail[types.VERT_T]! = vert.S as GrowableRail[types.VERT_T]!;
                val count: GrowableRail[types.INT_T]! = vert.count as GrowableRail[types.VERT_T]!;
 
                val c_length = count.length();
 
-                back.start();
+               x10.io.Console.OUT.println("before  barrier 1" );
+               world.barrier();     
+               x10.io.Console.OUT.println("after  barrier 1" );
+                //back.start();
                 for (var l: Int = c_length-1; l >0; l--) {
                  val start = count(l-1);
                  val end = count(l)-1;
@@ -174,30 +180,36 @@ class betweenessCentrality {
                  }
                 }
 
-                 val L = world.alltoallv[Triplet[types.VERT_T, Double, Double]](N);
-                 for ((k) in 0..L.length()-1) {
+                 val L =  Rail.make[Triplet[types.VERT_T, Double, Double]](10);
+                 //val L = world.alltoallv[Triplet[types.VERT_T, Double, Double]](N);
+                 /* for ((k) in 0..L.length()-1) {
                     val v = L(k).first;
                     val del_w = L(k).second;
                     val sig_w = L(k).third;
                     del(v) = del(v) + sig(v)*(((1.0+del_w) as double)/sig_w);
-                 }
+                 } */
                  for ((j) in start..end) {
                    val w = S(j);
      //             x10.io.Console.OUT.println("bc " + w + " " + del(w));
                    bc(w) += del(w);
                  }
           }
+               x10.io.Console.OUT.println("before barrier 2");
             world.barrier();     
-            back.stop();
+               x10.io.Console.OUT.println("after barrier 2");
+            //back.stop();
           } 
 
-               kernel4.stop();
+               //kernel4.stop();
         }
                //x10.io.Console.OUT.println ("ateach done" );
 
 
-          finish for((p) in unique) {
-             finish async (Place.places(p)) {
+          finish ateach((p) in unique) {
+               val world = Comm.WORLD();
+             for ((i) in unique ) {
+               world.barrier();
+               if (i !=here.id) continue;
                val bc = BC() as Array[types.DOUBLE_T](1)!;
                 for ((a) in bc.region) {
                  x10.io.Console.OUT.println ("BC " + bc(a));

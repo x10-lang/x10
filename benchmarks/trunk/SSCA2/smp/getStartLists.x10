@@ -32,7 +32,6 @@ class getStartLists  {
 		val lo = (G.numEdges as Rail[types.LONG_T]!)(i);
 		val hi = (G.numEdges as Rail[types.LONG_T]!)(i+1);
 		for((j) in lo..hi-1) {
-                        x10.io.Console.OUT.println("point 0.1" + pCount);
 			if ((G.weight as Rail[types.LONG_T]!)(j) >  local_max(tid)) {
 				local_max(tid) = (G.weight as Rail[types.LONG_T]!)(j); 
 				pCount = 0;
@@ -45,7 +44,6 @@ class getStartLists  {
 		}
 	}
 
-        x10.io.Console.OUT.println("point 1");
 	
 	p_end(tid) = pCount;
 	p_start(tid)= 0;
