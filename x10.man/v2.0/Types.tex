@@ -79,8 +79,8 @@ type constructors, described in the remainder of the chapter:
 \item An interface declaration defines an \emph{interface type}
 (\Sref{InterfaceTypes}).
 \item Classes and interface have \emph{type parameters}.
-A class or interface with one or more type parameters is a
-\emph{generic class} or \emph{generic interface}
+A class, interface, or struct or  with one or more type parameters is a
+\emph{generic class},  \emph{generic interface}, or \emph{generic struct}.
 (\Sref{Generics}).
 \item New type constructors may be defined with \emph{type
 definitions} (\Sref{TypeDefs}).
@@ -279,7 +279,9 @@ class Coords(x: Int, y: Int) {
 \label{Generics}
 \index{types!generic types}
         A {\em generic class} is a class
-        declared with one or more type parameters.  Generic
+        declared with one or more type parameters.  
+(Structs and interfaces may be generic as well.)
+Generic
         classes can be instantiated by instantiating the type
         parameters of the base type.
 
