@@ -77,9 +77,18 @@ clocks (e.g. \xcd"drop").
 
 Clocks are created using a factory method on \xcd"x10.lang.Clock":
 
+
+%~~gen
+% package Clocks.For.Spocks;
+%class Clockuser {
+% def example() {
+%~~vis
 \begin{xten}
-timeSynchronizer: Clock = Clock.make();
+val timeSynchronizer: Clock = Clock.make();
 \end{xten}
+%~~siv
+%}}
+%~~neg
 
 \eat{All clocked variables are implicitly \xcd`val`. The initializer for a
 local variable declaration of type \xcd"Clock" must be a new clock
@@ -108,12 +117,9 @@ A \xcd"ClockUseException"\index{clock!ClockUseException} is
 thrown if (and when) this condition is violated.
 
 An activity may check that it is registered on a clock \xcd"c" by
-executing:
-\begin{xten}
-c.registered()
-\end{xten}
-\noindent This call returns the \xcd"Boolean" value \xcd"true" iff the
-activity is registered on \xcd"c"; otherwise it returns \xcd"false".
+%~~exp~~`~~`~~c:Clock ~~
+the predicate \xcd`c.registered()`
+
 
 \begin{note}
 \Xten{} does not contain a ``register'' statement that would allow an
@@ -129,11 +135,11 @@ activity and read from that by another, the new activity cannot
 \Xten{} permits {\em split phase} clocks. An activity may wish
 to indicate that it has completed whatever work it wishes to perform
 in the current phase of a  clock \xcd"c" it is registered with, without
-suspending all activity. It may do so  by executing the method
-invocation:
-\begin{xten}
-c.resume();
-\end{xten}
+suspending all activity. It may do so  by executing 
+%~~exp~~`~~`~~c:Clock ~~
+\xcd`c.resume()`.
+
+
 
 An activity may invoke this method only on a clock it is registered
 with, and has not yet dropped (\Sref{sec:clock:drop}). A \xcd"ClockUseException"\index{clock!ClockUseException} is thrown if (and
@@ -181,10 +187,10 @@ on \xcd"c". An activity blocked on \xcd"next" resumes execution once
 it is marked for progress by all the clocks it is registered with.
 
 \subsection{Dropping clocks}\index{clock!drop}\label{sec:clock:drop}
-An activity may drop a clock by executing:
-\begin{xten}
-c.drop();
-\end{xten}
+%~~exp~~`~~`~~ c:Clock~~
+An activity may drop a clock by executing \xcd`c.drop()`.
+
+
 
 \noindent{} The activity is no longer considered registered with this
 clock.  A \xcd"ClockUseException" is thrown if the activity has
