@@ -377,7 +377,6 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	
 	    if (!pkgFrag.isDefaultPackage())
 	        buff.append("package " + pkgFrag.getElementName() + ";\n\n"); //$NON-NLS-1$ //$NON-NLS-2$
-	    buff.append("import x10.io.Console;\n\n"); //$NON-NLS-1$
 	    buff.append("public class " + typeName); //$NON-NLS-1$
 	    if (superClass != null && superClass.length() > 0 && !superClass.equals("x10.lang.Object")) //$NON-NLS-1$
 	        buff.append(" extends " + superClass); //$NON-NLS-1$
