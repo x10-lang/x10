@@ -63,6 +63,7 @@ public class CompilerDelegate {
        // ErrorQueue eq= new SilentErrorQueue(100, "stderr");
         ErrorQueue eq = new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
             protected void displayError(ErrorInfo error) {
+        	// TODO XTENLANG-1272 Need to filter out messages for other source files
             	Position pos = error.getPosition();
             	if (pos != null) {
             	    handler.handleSimpleMessage(error.getMessage(), pos.offset(), pos.endOffset(), pos.column(), pos.endColumn(), pos.line(), pos.endLine());
