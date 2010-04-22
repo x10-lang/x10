@@ -175,9 +175,18 @@ The expression \xcd"at (p) E" executes the statement \xcd"E"
 synchronously at place \xcd"p", returning the result to the
 originating place.  \Eg, if \xcd`obj` is an object with a non-\xcd`global`
 method \xcd`meth()`, the general way to call the method from anywhere is 
+%~~gen
+% package Activities.Are.Wonderful.And.Delicious;
+% class Methbearer {
+%   def meth() {}
+%   def useIt(x:Methbearer) {
+%~~vis
 \begin{xten}
 at(x.home) x.meth();
 \end{xten}
+%~~siv
+%}}
+%~~neg
 \noindent 
 Or, if you want to capture the result of the method call, use the
 \xcd`at`-expression:  
