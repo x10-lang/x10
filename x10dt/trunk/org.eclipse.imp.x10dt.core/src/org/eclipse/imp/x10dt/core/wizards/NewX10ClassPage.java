@@ -398,7 +398,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	        buff.append("         }\n"); //$NON-NLS-1$
 	        buff.append("         Console.OUT.println(\"Hello X10 world\");\n"); //$NON-NLS-1$
 	        buff.append("         val h = new Hello();  // final variable\n"); //$NON-NLS-1$
-	        buff.append("         var result = h.myMethod(); \n"); //$NON-NLS-1$
+	        buff.append("         var result: boolean = h.myMethod(); \n"); //$NON-NLS-1$
 	        buff.append("         Console.OUT.println(\"The answer is: \"+result);\n"); //$NON-NLS-1$
 	        buff.append("    }\n"); //$NON-NLS-1$
 	    }

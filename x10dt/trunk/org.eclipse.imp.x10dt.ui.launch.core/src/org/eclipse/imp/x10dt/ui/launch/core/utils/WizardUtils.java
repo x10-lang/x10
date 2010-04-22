@@ -98,7 +98,7 @@ public final class WizardUtils {
     sb.append("         }\n"); //$NON-NLS-1$
     sb.append("         Console.OUT.println(\"Hello X10 world\");\n"); //$NON-NLS-1$
     sb.append("         var h = new Hello(); // final variable\n"); //$NON-NLS-1$
-    sb.append("         var result = h.myMethod();\n"); //$NON-NLS-1$
+    sb.append("         var result: boolean = h.myMethod();\n"); //$NON-NLS-1$
     sb.append("         Console.OUT.println(\"The answer is: \" + result);\n"); //$NON-NLS-1$
     sb.append("    }\n"); //$NON-NLS-1$
     sb.append("    /** x10doc comment for myMethod */\n"); //$NON-NLS-1$
