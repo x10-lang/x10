@@ -961,10 +961,21 @@ public class Object (home: Place)
 \subsection{The class \Xcd{String}}
 \label{String}\index{\Xcd{String}}\index{\Xcd{x10.lang.String}}
 
-All strings in \Xten{} are instances of the class
-\xcd"x10.lang.String".
-A string object is immutable,
-and has a concatenation operator (\xcd"+") available on it.
+Strings in \Xten{} are instances of the class \xcd"x10.lang.String", and are
+all immutable.
+Strings are one of the few types with literals, rather than simply
+      constructors.  String literals are the familiar \xcd`"`-delimited
+      strings, like \xcd`"this"` and \xcd`"that"`.
+
+Every X10 value has a \xcd`String` print representation, given by
+      \xcd`whatever.toString()`.   
+All values can be implicitly converted to strings by the concatenation
+      operation \xcd`+`, which calls their \xcd`toString()` methods if they
+      are not strings already.  For example, 
+%~~exp~~`~~`~~ ~~
+      \xcd`"one " + 2 + here` 
+      evaluates to something like \xcd`one 2(Place 0)`.  
+
 
 
 \input{ArrayTypes}
