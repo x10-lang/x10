@@ -190,9 +190,18 @@ at(x.home) x.meth();
 \noindent 
 Or, if you want to capture the result of the method call, use the
 \xcd`at`-expression:  
+%~~gen
+% package Activities.Are.Cute.And.Bubbly;
+% class Methbearer {
+%   def meth():String = "Hi there!";
+%   def useIt(x:Methbearer) {
+%~~vis
 \begin{xten}
 val res = at(x.home)x.meth();
 \end{xten}
+%~~siv
+%}}
+%~~neg
 
 
 
