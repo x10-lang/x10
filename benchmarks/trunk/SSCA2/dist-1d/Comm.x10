@@ -234,6 +234,7 @@ final public class Comm {
 
       val B = Rail.make[T](size);     
 
+      barrier();
 
       { @Native ("c++",
                "FMGL(T)** dstOffset = new FMGL(T)*[nplaces];" + 
@@ -250,11 +251,12 @@ final public class Comm {
                "void* r = __pgasrt_tspcoll_ialltoallv(FMGL(my_id), (const void**) srcOffset, (const unsigned long*) srcSize->raw(), (void**) dstOffset, (const unsigned long*) dstSize->raw());" + 
                 "x10::lang::Runtime::increaseParallelism();" + 
                 "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" + 
-                "x10::lang::Runtime::decreaseParallelism(1);")  {} }
+                "x10::lang::Runtime::decreaseParallelism(1);"
+                  )  {} }
                
                  
      
-      //if(false) x10.io.Console.OUT.println("end of alltoall");
+      //x10.io.Console.OUT.println("end of alltoall");
 
       return B;
     }

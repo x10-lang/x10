@@ -70,6 +70,7 @@ class betweenessCentrality {
               }
 
 
+              world.barrier();
               L = world.alltoallv[types.UVDSQuad](N);
               world.barrier();
                    
@@ -110,50 +111,59 @@ class betweenessCentrality {
                NewVertices(here.id) =  util.random_permute_vertices(pg.restrict_here().vertices, n, Comm.WORLD());
            }
              val BC = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>new Array[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0d) as Array[types.DOUBLE_T](1)!);
-
-           for ((i) in 0..n-1) {
              val Sig = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>new Array[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0.0d) as Array[types.DOUBLE_T](1)!);
              val Del = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>new Array[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0.0d) as Array[types.DOUBLE_T](1)!);
              val D = PlaceLocalHandle.make[Array[types.LONG_T](1)](unique, ()=>new Array[types.LONG_T](pg.restrict_here().vertices, (p: Point(1))=>-1) as Array[types.LONG_T](1)!);
              val Pred = PlaceLocalHandle.make[Array[GrowableRail[types.VERT_T]](1)](unique, ()=>new Array[GrowableRail[types.VERT_T]](pg.restrict_here().vertices, (p:Point(1))=>new GrowableRail[types.VERT_T]()) as Array[GrowableRail[types.VERT_T]](1)!);
 
-
            finish ateach((p) in unique) {
-
-               //kernel4.start();
-
                val world: Comm! = Comm.WORLD();
-
                val pred = Pred() as Array[GrowableRail[types.VERT_T]](1);
                val del = Del() as Array[types.DOUBLE_T](1)!;
                val sig = Sig() as Array[types.DOUBLE_T](1)!;
                val d = D() as Array[types.LONG_T](1)!;
                val bc = BC() as Array[types.DOUBLE_T](1)!;
-               val new_vertices = NewVertices(here.id);
+
+           for ((i) in 0..n-1) {
+
+
+               //kernel4.start();
+
+               for ((k) in pg.restrict_here().vertices) {
+                        pred(k) =  new GrowableRail[types.VERT_T]();
+                        del(k) = 0;
+                        sig(k) = 0;
+                        d(k) = -1;
+               }
+
+               //val new_vertices = NewVertices(here.id);
                //val a = world.sum(pg.owner(i) == here ? new_vertices as rail[types.UVPair]!)(i % chunkSize) 
                //val startVertex = world.sum(pg.owner(i) == here ? (new_vertices as Rail[types.UVPair]!)(i % chunkSize).second : 0); //actually a broadcast
                val startVertex = world.sum(pg.owner(i) == here ? i : 0); //actually a broadcast
                x10.io.Console.OUT.println ("i " + i + " " + startVertex);
 
                //bfs.start();
+               world.barrier();
                val vert = betweenessCentrality.compute_bfs(pg, p, world, startVertex, pred as Array[GrowableRail[types.VERT_T]](1)!, sig as Array[types.DOUBLE_T](1), d as Array[types.LONG_T](1));
+               world.barrier();
                //bfs.stop();
                x10.io.Console.OUT.println ("i after " + i + " " + startVertex);
 
-               val S: GrowableRail[types.VERT_T]! = vert.S as GrowableRail[types.VERT_T]!;
+               /* val S: GrowableRail[types.VERT_T]! = vert.S as GrowableRail[types.VERT_T]!;
                val count: GrowableRail[types.INT_T]! = vert.count as GrowableRail[types.VERT_T]!;
 
                val c_length = count.length();
 
-               x10.io.Console.OUT.println("before  barrier 1" );
+               //x10.io.Console.OUT.println("before  barrier 1" );
                world.barrier();     
-               x10.io.Console.OUT.println("after  barrier 1" );
+               //x10.io.Console.OUT.println("after  barrier 1" );
                 //back.start();
                 for (var l: Int = c_length-1; l >0; l--) {
                  val start = count(l-1);
                  val end = count(l)-1;
 
                  val tsum = world.sum(end-start+1);
+                 world.barrier();
                  if (tsum == 0)  continue;
  //                x10.io.Console.OUT.println("tsum " + tsum);
 
@@ -171,30 +181,25 @@ class betweenessCentrality {
                   val owner = pg.owner(v);
                   N(owner.id).add(Triplet[types.VERT_T, Double, Double](v, del_w, sig_w));
                   
-                  /* finish async (owner) {
-                     val del = Del() as Array[types.DOUBLE_T](1)!;
-                     val sig = Sig() as Array[types.DOUBLE_T](1)!;
-                     atomic del(v) = del(v) + sig(v)*(((1.0+del_w) as double)/sig_w);
-                     //x10.io.Console.OUT.println("del " + i + " " +  v + " " + del(v));
-                  } */
                  }
                 }
 
-                 val L =  Rail.make[Triplet[types.VERT_T, Double, Double]](10);
-                 //val L = world.alltoallv[Triplet[types.VERT_T, Double, Double]](N);
-                 /* for ((k) in 0..L.length()-1) {
+                 val L = world.alltoallv[Triplet[types.VERT_T, Double, Double]](N);
+                 world.barrier();
+
+                  for ((k) in 0..L.length()-1) {
                     val v = L(k).first;
                     val del_w = L(k).second;
                     val sig_w = L(k).third;
                     del(v) = del(v) + sig(v)*(((1.0+del_w) as double)/sig_w);
-                 } */
+                 } 
                  for ((j) in start..end) {
                    val w = S(j);
      //             x10.io.Console.OUT.println("bc " + w + " " + del(w));
                    bc(w) += del(w);
                  }
-          }
-               x10.io.Console.OUT.println("before barrier 2");
+          } */
+              // x10.io.Console.OUT.println("before barrier 2");
             world.barrier();     
                x10.io.Console.OUT.println("after barrier 2");
             //back.stop();

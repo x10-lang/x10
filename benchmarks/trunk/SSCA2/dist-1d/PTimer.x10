@@ -100,7 +100,7 @@ final public class PTimer{
         val buf = new StringBuilder();
         for ((i) in 0..timers_copy.length()-1) {
           val lcl_time = timers_copy(i).acc(here.id)*1e-9;
-          buf.add("  " + lcl_time + "   ");
+          buf.add("\t" + lcl_time + "\t");
         }
         x10.io.Console.OUT.println (buf);
       }
@@ -113,11 +113,11 @@ final public class PTimer{
     val buf_variance = new StringBuilder();
     for (val timer: PTimer in  timers) {
       timer.gather();
-      buf_total.add(timer.sum(here.id) + " " );
-      buf_mean.add(timer.mean(here.id) + " " );
-      buf_max.add(timer.max(here.id) + " " );
-      buf_min.add(timer.min(here.id) + " " );
-      buf_variance.add(timer.variance(here.id) + " " );
+      buf_total.add("\t" + timer.sum(here.id) + "\t" );
+      buf_mean.add("\t" + timer.mean(here.id) + "\t" );
+      buf_max.add("\t" + timer.max(here.id) + "\t" );
+      buf_min.add("\t" + timer.min(here.id) + "\t" );
+      buf_variance.add(timer.variance(here.id) + "\t" );
     }
     x10.io.Console.OUT.println(buf_total);
     x10.io.Console.OUT.println(buf_max);
