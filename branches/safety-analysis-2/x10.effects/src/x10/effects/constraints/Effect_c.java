@@ -16,6 +16,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
+
 /**
  * A representation of an Effect.
  * An Effect carries two bits of information: a safety field which specifies whether it is SAFE, UNSAFE or PAR_SAFE, and
@@ -118,6 +119,74 @@ public class Effect_c implements Effect {
 		return result;
 	}
 
+    /* To deal with array indices read i is not a conflict with write a(i) */
+    private Set<Pair<Locs,Locs>> disjointwr(Set<Locs> a, Set<Locs> b, XConstraint c) {
+	    Set<Pair<Locs,Locs>> result= null;
+		for (Locs al : a) {
+			for (Locs bl: b) {
+				boolean disjointedness;
+				if  (al instanceof ArrayElementLocs && !(bl instanceof ArrayElementLocs))
+					 disjointedness = true;
+				else
+					disjointedness = al.disjointFrom(bl, c);
+					
+				if (!disjointedness) {
+				    if (result == null) {
+				        result= new HashSet<Pair<Locs,Locs>>();
+				    }
+                    result.add(new Pair<Locs,Locs>(al,bl));
+				}
+			}
+		}
+		return result;
+	}
+    
+    
+    
+    private Set<Pair<Locs,Locs>> disjointrw(Set<Locs> a, Set<Locs> b, XConstraint c) {
+	    Set<Pair<Locs,Locs>> result= null;
+		for (Locs al : a) {
+			for (Locs bl: b) {
+				boolean disjointedness;
+				if  (bl instanceof ArrayElementLocs && !(al instanceof ArrayElementLocs))
+					 disjointedness = true;
+				else
+					disjointedness = bl.disjointFrom(al, c);
+					
+				if (!disjointedness) {
+				    if (result == null) {
+				        result= new HashSet<Pair<Locs,Locs>>();
+				    }
+                    result.add(new Pair<Locs,Locs>(al,bl));
+				}
+			}
+		}
+		return result;
+	}
+    
+    /* Writing a(i) should not conflict with writing b(i) */
+    private Set<Pair<Locs,Locs>> disjointww(Set<Locs> a, Set<Locs> b, XConstraint c) {
+	    Set<Pair<Locs,Locs>> result= null;
+		for (Locs al : a) {
+			for (Locs bl: b) {
+				boolean disjointedness;
+				if  (bl instanceof ArrayElementLocs && al instanceof ArrayElementLocs)
+					 disjointedness = ((ArrayElementLocs)bl).disjointFrom1(al, c);
+				else
+					disjointedness = bl.disjointFrom(al, c);
+					
+				if (!disjointedness) {
+				    if (result == null) {
+				        result= new HashSet<Pair<Locs,Locs>>();
+				    }
+                    result.add(new Pair<Locs,Locs>(al,bl));
+				}
+			}
+		}
+		return result;
+	}
+    
+    
 	private interface EffectPairPopulator {
 	    void populateEffect(Pair<Locs,Locs> locPair, Effect e1, Effect e2);
 	}
@@ -197,19 +266,29 @@ public class Effect_c implements Effect {
         pairs1.addAll(pairs2);
         return pairs1;
     }
+    
+    /* A read on i should not conflict with a write on a(i) */
+
 
     public boolean commutesWith(Effect e, XConstraint c) {
+    	boolean ret;
         if (unsafe() || e.unsafe())
-            return false;
-        final Set<Locs> r = readSet(), w=writeSet(), a=atomicIncSet();
-        final Set<Locs> er = e.readSet(), ew=e.writeSet(), ea=e.atomicIncSet();
-        return disjoint(r, ew, c) == null &&
-               disjoint(r, ea, c) == null &&
-               disjoint(w, er, c) == null &&
-               disjoint(w, ew, c) == null &&
-               disjoint(w, ea, c) == null &&
-               disjoint(a, er, c) == null &&
-               disjoint(a, ew, c) == null;
+            ret =  false;
+        else {
+        	final Set<Locs> r = readSet(), w=writeSet(), a=atomicIncSet();
+        	final Set<Locs> er = e.readSet(), ew=e.writeSet(), ea=e.atomicIncSet();
+     
+        	ret =  disjointrw(r, ew, c) == null &&
+               disjointrw(r, ea, c) == null &&
+               disjointwr(w, er, c) == null &&
+               disjointww(w, ew, c) == null &&
+               disjointww(w, ea, c) == null &&
+               disjointwr(a, er, c) == null &&
+               disjointww(a, ew, c) == null;
+        }
+        if (!ret)
+        	System.out.println("Info: Clash :" + this + " and " + e);
+        return ret;
 //          && disjoint(a, ea,c); // RMF 9/11/09 - ok for atomically-updated locs to overlap
     }
 
@@ -416,6 +495,32 @@ public boolean commutesWith(Effect e, XConstraint c) {
 		result.initializedClockSet().remove(x);
 		return result;
 	}
+	
+	public void removeRailVar (Set<Locs> s, XTerm x) {
+		Locs toRemove = null;
+		for (Locs element: s ) {
+			if (element instanceof ArrayElementLocs) {
+				ArrayElementLocs arrayLoc = (ArrayElementLocs) element;
+				XTerm array = arrayLoc.array();
+				if (array.equals(x))
+					if (s.remove(element)) break;
+				}
+				
+			}
+		}
+	
+		
+
+	
+	public Effect existsRailElement(XTerm x) {
+	
+		Effect_c result = clone();
+		removeRailVar(result.readSet(), x);
+		removeRailVar(result.writeSet(), x);
+		removeRailVar(result.atomicIncSet(), x);
+		return result;
+	}
+	
 	/* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#exists(x10.constraint.XVar)
 	 */

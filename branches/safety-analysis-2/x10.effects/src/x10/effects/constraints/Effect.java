@@ -142,6 +142,8 @@ public interface Effect extends Cloneable {
 	 */
 	Effect exists(Locs ld);
 	
+	Effect existsRailElement(XTerm ld);
+	
 	/**
 	 * Given constraint c, return the effect this; e, using the rules for sequential composition of effect annotations.
 	 * Note that there may be no  such annotation -- e.g. an @parfun(read(r)) ; @fun(write(r)) is not
