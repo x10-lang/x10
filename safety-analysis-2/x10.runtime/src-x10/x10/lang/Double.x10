@@ -410,4 +410,6 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Double):Boolean;
+    
+    
 }
