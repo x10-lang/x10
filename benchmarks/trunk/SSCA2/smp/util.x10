@@ -33,7 +33,7 @@ public class util {
 			result(i) = input(i-1);
 		}
 		
-		//next;
+		next;
 		
 		val start =  tid*r + 1;
 		val end   = tid == nthreads-1? n+1 : (tid+1)*r;
@@ -43,7 +43,7 @@ public class util {
 		}
 		p(tid) = result(end-1);
 		
-		//next;
+		next;
 		
 		if (tid == 0) {
 			for ((j) in 1..nthreads-1){
@@ -51,7 +51,7 @@ public class util {
 			}
 		}
 		
-		//next;
+		next;
 		
 		if (tid>0) {
 			val add_value=p(tid-1);
@@ -59,7 +59,7 @@ public class util {
 				result(j) += add_value;
 		}
 		
-		//next;
+		next;
 	}
 	
 };

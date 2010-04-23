@@ -22,7 +22,7 @@ public class computeGraph  {
 			
 			c: Clock = Clock.make();
 		
-		foreach((tid) in 0..nthreads-1) /* clocked(c) */ {
+		foreach((tid) in 0..nthreads-1)  clocked(c)  {
 			
 			val chunkSize = m/nthreads;
 			
