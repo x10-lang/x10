@@ -19,8 +19,8 @@ class getStartLists  {
 	
 	finish  {
 		
-		//val c: Clock = Clock.make();
-	foreach ((tid) in 0..nthreads-1) /* clocked(c) */ {
+		val c: Clock = Clock.make();
+	foreach ((tid) in 0..nthreads-1)  clocked(c)  {
 		var pCount: Int = 0;
 	val chunkSize = n/nthreads;
 	
@@ -48,7 +48,7 @@ class getStartLists  {
 	p_end(tid) = pCount;
 	p_start(tid)= 0;
 	
-	//next;
+	next;
 	
 	if (tid==0) {
 		var tmp: types.LONG_T  = local_max(0);
@@ -60,11 +60,11 @@ class getStartLists  {
 	}
         x10.io.Console.OUT.println("point 2");
 	
-	//next;
+	next;
 	
 	if (maxWeight(0) != local_max(tid)) p_end(tid) = 0;
 	
-	//next;
+	next;
 	
 	if (tid==0) {
 		//scan
@@ -75,13 +75,13 @@ class getStartLists  {
 	}
         x10.io.Console.OUT.println("point 3");
 	
-	//next;
+	next;
 	
 	if (tid==0) { 
 		maxIntWtList(0) = Rail.make[defs.edge](p_end(nthreads-1));
 	}
 	
-	//next;
+	next;
 
 	for ((j) in p_start(tid)..p_end(tid)-1) {
 		val startVertex = pList(j-p_start(tid)).startVertex;
@@ -93,7 +93,7 @@ class getStartLists  {
         x10.io.Console.OUT.println("point 4");
 	}
 	
-	//c.drop();
+	c.drop();
 	} 
 	elapsed_time = util.x10_get_wtime() - elapsed_time;
 	return Pair[Double, Rail[defs.edge]!](elapsed_time, maxIntWtList(0) as Rail[defs.edge]!);
