@@ -1,0 +1,99 @@
+
+\begin{figure*}[t]
+\begin{center}
+\begin{tabular}{|c|}
+\hline
+$\typerule{
+  \Gamma[K \mapsto \Gamma[K] \cup \{ \hl \}] \vdash \he:\hT
+}{
+  \Gamma \vdash \code{e;return l} : \Gamma(\hl)
+}$
+~\RULE{(T-return)}
+\\\\
+
+$\typerule{
+\hK'=
+\begin{cases}
+\bot & \hK=\cooked \\
+\hK & \text{otherwise} \\
+\end{cases}
+    \gap
+  \mtype{}(\code{build},\code{C}^{\hK'})=\ol{\code{T}}\rightarrow\code{U}
+    \gap
+  \Gamma \vdash \ol{\he}:\ol{\code{V}}
+    \gap
+  \Gamma \vdash \ol{\code{V}} \st \ol{\code{T}}
+}{
+  \Gamma \vdash \code{new C}^\hK\code{(}\ol{\he}\code{)} : \code{C}^\hK
+}$
+\quad \RULE{(T-New)}\\
+
+$\typerule{
+}{
+  \Gamma \vdash \hx : \Gamma(\hx)
+}$
+\quad \RULE{(T-Var)}
+\qquad
+$\typerule{
+}{
+  \Gamma \vdash \code{null} : \hT
+}$
+\quad \RULE{(T-null)}
+\qquad
+$\typerule{
+}{
+  \Gamma \vdash \hl : \Gamma(\hl)
+}$
+\quad \RULE{(T-Location)}\\\\
+
+$\typerule{
+  \Gamma \vdash \he:\code{C}^\hK
+    \gap
+  \Gamma \vdash \hK \st \cooked
+    \gap
+  \ftype{}(\hf,\hC)=\hC_2
+}{
+  \Gamma \vdash \he.\hf : \hC_2^\hK
+}$
+\quad \RULE{(T-Field-Access)}\\\\
+
+
+$\typerule{
+  \Gamma \vdash \he:\code{C}^\hK
+    \gap
+  \big(\Gamma \vdash \hK \st \proto \text{~~or~~} \isVar{}(\hf,\hC)\big)
+    \gap
+  \ftype{}(\hf,\hC)=\hC_2
+    \gap
+  \Gamma \vdash \code{e'}:\code{T'}
+    \gap
+  \Gamma \vdash \code{T'} \Pst \code{C}^\hK
+}{
+  \Gamma \vdash \he.\hf = \code{e'} : \code{T'}
+}$
+\quad \RULE{(T-Field-Assignment)}\\\\
+
+$\typerule{
+  \Gamma \vdash \he_0:\code{C}^\hK
+    \gap
+  \mtype{}(\hm,\code{C}^\hK)=\ol{\code{T}}\rightarrow\code{U}
+    \gap
+  \Gamma \vdash \ol{\he}:\ol{\code{V}}
+    \gap
+  \Gamma \vdash \ol{\code{V}} \st \ol{\code{T}}
+    \gap
+  \mproto{}(\hm,\code{C})=\code{K}'
+    \gap
+  \Gamma \vdash \hK \st \code{K}'
+}{
+  \Gamma \vdash \he_0\code{.m(}\ol{\he}\code{)} : \code{U}
+}$
+\quad \RULE{(T-Invoke)}\\
+
+
+\hline
+\end{tabular}
+\end{center}
+\caption{FX10 Expression Typing Rules.} %(casting, field access, and method invocation are the same as in FJ)
+\label{Figure:expressions}
+\end{figure*}

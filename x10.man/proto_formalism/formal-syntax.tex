@@ -1,0 +1,34 @@
+
+\begin{figure*}[htpb!]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+
+$\hK ::= \proto ~|~ \cooked ~|~ \hl$ & cooKeer. \\
+
+$\code{T} ::= \hC^\hK$ & Type. \\
+
+$\code{F} ::= (\code{var}~|~\code{val})~\code{T}~\hf\texttt{;}$
+& Field declaration. \\
+
+$\hM ::= \code{T} ~ \hm\hparen{\ol{\code{T}} ~ \ol{\hx}}~\hK ~ \lb\ \hreturn ~ \he\texttt{;}~\rb$
+& Method declaration. \\
+
+$\hL ::= \hclass ~ \hC\code{~extends~C'} \lb\ \ol{\code{F}}~\ol{\hM}~\rb$
+& cLass declaration. \\
+
+
+$\hv ::= \code{null} ~|~ \hl $
+& Values: either \code{null} or a location~\hl. \\
+
+
+% No cast: \hparen{\hT} ~ \he ~|~
+$\he ::= \hv ~|~ \hx ~|~ \he.\hf ~|~ \he.\hf = \he ~|~ \he.\hm\hparen{\ol{\he}} ~|~ \hnew ~ \hT\hparen{\ol{\he}}  ~|~ \he\code{;return l}$
+& Expressions. \\ %: values, parameters, field access\&assignment, invocation, \code{new} start\&finish
+
+\hline
+\end{tabular}
+\end{center}
+\caption{FX10 Syntax.}
+\label{Figure:syntax}
+\end{figure*}
