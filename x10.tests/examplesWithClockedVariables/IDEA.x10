@@ -104,13 +104,13 @@ class IdeaTest {
 
 		// Generate user key randomly; eight 16-bit values in an array.
 
-		for ((i): Point in 0..7) {
+		/*for ((i): Point in 0..7) {
 			// Again, the random number function returns int. Converting
 			// to a short type preserves the bit pattern in the lower 16
 			// bits of the int and discards the rest.
 
 			userkey(i) =  rndnum.nextInt() as Short;
-		}
+		}*/
 
 		// Compute encryption and decryption subkeys.
 
@@ -155,7 +155,7 @@ class IdeaTest {
 		// rotating the whole key, this routine just grabs the 16 bits
 		// that are 25 bits to the right of the corresponding subkey
 		// eight positions below the current subkey. That 16-bit extent
-		// straddles two array members, so bits are shifted left in one
+		// straddles two array members, so bits are shifted left in onef
 		// member and right (with zero fill) in the other. For the last
 		// two subkeys in any group of eight, those 16 bits start to
 		// wrap around to the first two members of the previous eight.

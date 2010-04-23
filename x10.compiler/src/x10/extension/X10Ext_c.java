@@ -276,7 +276,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            		ec.emitMessage("Unable to compute effects of method " + pd.name(), pd.position());
 	            	} else if (result.unsafe()) {
 	            		ec.emitMessage("Method " + pd.name() + " is unsafe:"+ result, pd.position());
-	            	} else if (isMainMethod(pd, ec) && !result.safe()) {
+	            	} else if (isMainMethod(pd, ec) && result.unsafe()) {
 	            		ec.emitMessage("Main method is not safely parallelized; effect is: " + result, pd.position());
 	            	} else {
 				       System.out.println("Info: " + pd.position() + ": Method " + pd.name() + " is "+ result);
@@ -831,7 +831,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       // prune out the effects on local vars whose scope is this block.
       ec.diag("Computing effect of block " + b);
       List<Locs> blockDecls= collectDecls(b);
- 
+      List<XTerm> blockRailDecls = collectRailDecls(b);
      
       for(Stmt s: b.statements()) {
           Effect stmtEffect= effect(s);
@@ -841,6 +841,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
           if (stmtEffect != null)
         	  blockDecls.addAll(stmtEffect.initializedClockSet());
           Effect filteredEffect= removeLocalVarsFromEffect(blockDecls, stmtEffect, ec);
+          filteredEffect= removeLocalRailVarsFromEffect(blockRailDecls, filteredEffect, ec);
           ec.diag("             filtered effect = " + filteredEffect);
           result= ec.env().followedBy(result, filteredEffect);
           //System.out.println(stmtEffect + " After: " + result);
@@ -869,6 +870,27 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       }
       return result;
   }
+  
+  
+  
+  private Effect removeLocalRailVarsFromEffect(List<XTerm> decls, Effect effect, EffectComputer ec) {
+      Effect result= effect;
+      for(XTerm ld: decls) {
+          /*XVarDefWrapper localName = new XVarDefWrapper(ld.localDef());
+          if (ec.typeSystem().isValVariable(ld)) {
+              Expr init= ld.init();
+              XTerm initTerm= createTermForExpr(init);
+             // result= result.exists(XTerms.makeLocal(localName), initTerm);
+         	  //result= result.exists(XTerms.makeLocal(localName));
+          } else { */
+        	  // FIXME 
+        	  if (result != null)
+        		  result= result.existsRailElement(ld);
+      }
+      return result;
+  }
+  
+  
 
   private List<Locs> collectDecls(Block b) {
       List<Locs> result= new LinkedList<Locs>();
@@ -883,7 +905,24 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       return result;
   }
   
-
+  private List<XTerm> collectRailDecls(Block b) {
+      List<XTerm> result= new LinkedList<XTerm>();
+      
+      for(Stmt s: b.statements()) {
+          if (s instanceof LocalDecl) {
+        	 if (((LocalDecl) s).init() != null && ((LocalDecl) s).init() instanceof Call) {
+        		 Call c = (Call) ((LocalDecl) s).init();
+        		 if (c.target().toString().contentEquals("x10.lang.Rail")) {
+        	
+        	  		XVarDefWrapper localName = new XVarDefWrapper(((LocalDecl)s).localDef());
+        	  		XTerm arrayName = XTerms.makeLocal(localName);
+        	  		result.add(arrayName);
+        		 }
+        	  }
+          }
+      }        
+      return result;
+  }
 
  
   private static Effect effect(Node n) {
@@ -969,8 +1008,8 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       List<Type> annotations= xpd.annotations();
  
       boolean foundAnnotation= false;
-      Effect e = Effects.makeSafe(); /* FIXME ask vj */
-      //Effect e = Effects.makeParSafe();
+      //Effect e = Effects.makeSafe(); /* FIXME ask vj */
+      Effect e = Effects.makeParSafe();
       
       for (Type annoType : annotations) {
           if (annoType instanceof ClassType) {
