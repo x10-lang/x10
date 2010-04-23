@@ -1,0 +1,1298 @@
+\documentclass[10pt,a4paper]{article}
+
+%% For typesetting theorems and some math symbols.
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\usepackage{fullpage}
+
+\title{Featherweight X10}
+
+\author{}
+
+\date{}
+
+
+
+
+\input{commands}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\lstset{language=java,basicstyle=\ttfamily\small}
+
+%\chapter{Featherweight Ownership and Immutability Generic Java}
+\section{Introduction}
+
+
+We begin with some definitions.
+
+An expression/type is called \emph{closed} if it does not contain \proto nor
+    free variables (but it may contain \cooked).
+
+Given a method $\code{U m(}\ol{\hV}~\ol{\hx}\code{) K \lb~return e;~\rb}$ in class~\hC,
+    then
+\beqst
+    \code{\mtype{}(f,C)} &= \ol{\hV}\mapsto\hU\\
+    \code{\mtype{}(f,C}^\hK\code{)} &= [\hK/\proto]\code{\mtype{}(f,C)}\\
+    \code{\mbody{}(f,C)} &= \he\\
+    \code{\mproto{}(f,C)} &= \hK\\
+\eeq
+We also define \code{\ftype{}(f,C)} and \code{\isVar{}(f,C)}.
+
+%\begin{cases}
+%\hl & \he=\hl \\
+%\code{error} & \text{otherwise} \\
+%\end{cases}
+
+Given an expression~\he, we define~$R(\he)$ to be the set
+    of all ongoing constructors in~\he, i.e., all locations in subexpressions~\code{e;return l}.
+Formally,
+\[
+R(\he) =
+\begin{cases}
+    R(\code{e'}) \cup \{ l \} & \text{if~}\he=(\code{e';return l}) \\
+    R(\code{e'}) & \text{if~}\he=(\code{e'.f}) \\
+    R(\code{e'}) \cup R(\code{e"}) & \text{if~}\he=(\code{e'.f=e"}) \\
+    \cup R(\ol{\he'}) & \text{if~}\he=(\code{new T}\hparen{\ol{\he'}}) \\
+    R(\code{e"}) \cup R(\ol{\he'}) & \text{if~}\he=(\code{e".m}\hparen{\ol{\he'}}) \\
+    \end{cases}
+\]
+
+Summary of syntax used:
+Environment $\Gamma ::= \epsilon ~|~ \hx:\hT,\Gamma ~|~ \hl:\hT,\Gamma$.
+Proto locations (locations whose constructor is still ongoing) $P::= \epsilon ~|~ \hl,P$.
+
+
+
+
+A heap is a pair $\angular{H,S}$
+
+A \emph{well-typed} heap~$H$ satisfies:
+    (i)~there is a linear order~$\Tprec$ over~$\dom{}(H)$ such that for every location~\hl, $H[\hl]=\hC^{\hl'}$,
+        we have~$\hl' \Tprec \hl$,
+        and
+    (ii)~each non-null field location is a subtype (using $\Pst$) of the declared field type.
+A heap~$H$ is \emph{well-typed for~\he} if~$H[K \mapsto H[K]\cup R(\he)]$ is well-typed.
+
+\begin{smaller}
+\input{formal-syntax}
+\input{formal-subtyping}
+\input{formal-typing}
+\input{formal-reduction}
+\end{smaller}
+
+
+Next we describe the syntax (\Ref{Figure}{syntax}),
+    subtyping rules (\Ref{Figure}{subtyping}),
+    expression typing rules (\Ref{Figure}{expressions}),
+    and reduction rules (\Ref{Figure}{reduction}).
+
+\section{Syntax}
+Obviously, class declarations cannot contain locations.
+
+\section{Subtyping}
+
+
+\section{Typing}
+\paragraph{Method typing}
+If \proto appears in $\mtype{}(\hm,\hC)$ then $\mproto{}(\hm,\hC)=\proto$.
+
+An overriding method must keep the same $\mtype$ and $\mproto$.
+
+In class~\hC, when typing a method:
+        $\code{U} ~ \hm\hparen{\ol{\code{V}} ~ \ol{\hx}} ~ \hK~ \lb\ \hreturn ~ \he\texttt{;} \rb$\\
+        we use an environment~$\Gamma=\{\ol{\hx}:\ol{\code{T}}, \this:\code{C}^\hK\}$,
+        and we must prove that~$\Gamma \vdash \he:\code{S}$
+        and~$\Gamma \vdash \code{S} \st \code{U}$.
+
+\paragraph{Expression typing}
+See \Ref{Figure}{expressions}.
+
+
+
+\end{document}
+
+
+
+
+
+
+
+We next prove that a closed expression has a closed type.
+\begin{Lemma}[closed]
+If~$\Gamma \vdash \he" : \hT"$ and $\he"$ is closed and $\he"\neq\code{null}$, then $\hT"$ is closed.
+\end{Lemma}
+\begin{proof}
+Note that \code{null} can have any type $\hT"$ (even an open type) according to rule \RULE{T-null},
+    therefore we require that~$\he"\neq\code{null}$.
+
+We prove by induction on the structure of~$\he"$.
+\begin{description}
+  \item[Value~$\he"=\hv$] Because~$\he"\neq\code{null}$, then~$\hv=\hl$,
+    and the type of a location is always closed~$\hC\code{<NO,NI>}$.
+  \item[Value~$\he"=\code{e;return l}$] Similarly, the type of a location is always closed.
+  \item[Method parameter~$\he"=\hx$] We assumed $\he"$ is closed, thus it does not contain parameters.
+  \item[Object creation~$\he"= \code{new C<FO,VI>(}\ol{\he}\code{)}$]
+    From \RULE{T-New},~$\hT" =\hC\hgn{\code{FO},\code{VI}}$, and because~$\he"$ is closed then~$\hT"$ must be closed.
+  \item[Field access~$\he"=\he.\hf$]
+    Because~$\Gamma \vdash \he" : \hT"$, from \RULE{T-Field-Access} we have that~$\hT" = \hT$ and
+    \[
+    \Gamma \vdash \he:\code{C<MO,IP>}
+        \gap
+    \ftype{}(\he,\hf,\code{C<MO,IP>})=\code{T}
+    \]
+    By induction,~$\code{C<MO,IP>}$ is closed.
+    Therefore~$\hT$ does not contains~\hO nor~\hI.
+    Next we show it does not contain \This.
+    Because $\ftype$ did not return \code{error},
+        then either the field did not contain \This, or it was substituted.
+    Because $\he\neq\this$ then~$\he=\hl$, and \This was substituted with \hl.
+
+  \item[Field assignment~$\he"=\he.\hf = \code{e'}$]
+    Because~$\Gamma \vdash \he" : \hT"$, from \RULE{T-Field-Assignment} we have that~$\hT" = \hT'$ and
+        $
+        \Gamma \vdash \code{e'}:\code{T'}
+        $
+    By induction, \code{T'} is closed.
+
+  \item[Method invocation~$\he"=\he_0\code{.m(}\ol{\he}\code{)}$]
+    Because~$\Gamma \vdash \he" : \hT"$, from \RULE{T-Invoke} we have that
+    \[
+    \Gamma \vdash \he_0:\code{C<MO,IP>}
+        \gap
+    \mtype{}(\he_0,\hm,\code{C<MO,IP>})=\ol{\code{T}}\rightarrow\code{T"}
+    \]
+    By induction~$\code{C<MO,IP>}$ is closed, and similar reasoning to field access
+        concludes that \code{T"} is closed.
+\end{description}
+\end{proof}
+
+
+\section{Heap}
+
+We now prove that if the heap is well-typed, then it remains well-typed even if we remove locations from~$H[K]$,
+    i.e., being well-typed is a \emph{stable property}.
+
+\begin{Lemma}[well-typed]
+Given a well-typed heap~$H$,
+    then for any~$S \subset H[K]$,
+    the heap~$H' = H[K \mapsto S]$ is well-typed.
+\end{Lemma}
+\begin{proof}
+This is not trivial, because decreasing~$H[K]$ changes the subtyping relation by turning raw objects into cooked.
+
+First, note that the cookers of each location in $H$ and $H'$ are the same, i.e.,
+    the same linear order~$\Tprec$ satisfies (i) for~$H'$.
+Suppose to the contrary that $H'$ is not well-typed, i.e.,
+    there is some field location~$\code{l.f}$ of type~\hT that points to an object~\ho of type~\code{T"},
+    and~$\Gamma_{H'} \not \vdash \code{T"} \Pst \hT$.
+
+\end{proof}
+
+
+\section{Reduction}
+We consider only expressions that when reduced using the erased operational semantics,
+    do not result in \emph{null-pointer exceptions}.
+Null-pointer exceptions can be handled by adding special reduction rules that return \code{error},
+    but we prefer to leave the reduction process ``stuck".
+
+First we prove that a closed expression reduces in one step to another closed expression.
+\begin{Lemma}[reduction-closed]
+If~\he is closed and~$H,\he \rightarrow H',\he'$, then~$\he'$ is closed.
+\end{Lemma}
+\begin{proof}
+Rules~\RULE{K-New}, \RULE{K-Field-Access}, and \RULE{K-Field-assignment} result in a value, which is closed.
+Rule~\RULE{K-Invoke} results in an expression, but all free variables~$\ol{\hx}, \this, \This, \hO, \hI$ are substituted
+    with locations, \Immut, $\Immut_\hl$, or \Mutable.
+The proof of the congruence rules uses the induction hypothesis.
+\end{proof}
+
+\begin{Lemma}[constructors]
+If~$H,\he \rightarrow H",\he"$ then
+    (i)~$H[K]=H"[K]$,
+    (ii)~$\Gamma_H \subseteq \Gamma_{H"}$,
+    (iii)~$\Gamma_H \vdash \he' : \hT' \Rightarrow \Gamma_{H'} \vdash \he' : \hT'$, and
+    (iv)~$\Gamma_H \vdash \hT \st \hT' \Rightarrow \Gamma_{H'} \vdash \hT \st \hT'$.
+\end{Lemma}
+\begin{proof}
+Proved by induction on the reduction sequence.
+
+(i)~The only reduction rule that mentions~$H[K]$ is~\RULE{K-c1},
+    and from the induction hypothesis we have that~$H'[K] = H[K] \cup \{\hl\}$,
+    therefore the resulting heap is~$H" = H'[K \mapsto H'[K] \setminus \{\hl\}] = H'[K \mapsto H[K]]$,
+        i.e.,~$H"[K] = H[K]$.
+
+(ii)~None of the reduction rules removes locations or changes the type of a location,
+    therefore~$H"$ only includes additional locations, and from (i)~$H"[K] = H[K]$.
+
+Parts (iii) and (iv) are trivial from (ii).
+\end{proof}
+
+
+\begin{Theorem}[preservation]
+  \textbf{(Progress and Preservation)}
+    For every closed expression~$\he \neq \hv$, and a heap~$H$ that is well-typed for~\he,
+        if $\Gamma_{H} \vdash \he : \hT$,
+        then there exists~$H',\he',\hT'$ such that
+        (i)~$H,\he \rightarrow H',\he'$,
+        (ii)~$\Gamma_{H'} \vdash \he':\hT'$,
+        and~$\Gamma_{H'} \vdash \hT' \st \hT$,
+        (iii)~$H'$ is well-typed for~$\he'$,
+        (iv)~\hT, \hT', and $\he'$ are closed.
+\end{Theorem}
+\begin{proof}
+Part (iv) is proved from \Ref{Lemma}{reduction-closed} (we know that~$\grave{\he}$ is closed)
+    and from \Ref{Lemma}{closed} (we know that $\hT"$ and $\grave{\hT}$ are closed).
+
+We assume that there are no null-pointer exceptions,
+    i.e., that for field access, assignment and method invocation, the receiver is never \code{null}.
+
+It is easy to examine the reduction rules
+    and verify there is always at most one applicable reduction rule.
+We will split the proof into three stages:
+    (i)~\textbf{progress:} there is exactly one applicable reduction rule
+        (\Ref{Lemma}{part-progress}),
+    (ii)~\textbf{preservation:}~$\Gamma_{H'} \vdash \grave{\he}:\grave{\hT}$ and~$\Gamma_{H'} \vdash \grave{\hT} \st \hT"$
+        (\Ref{Lemma}{part-subtype}), and
+    (iii)~$H'$ is well-typed for~$\he'$ (\Ref{Lemma}{part-well-typed}).
+\end{proof}
+
+
+\begin{Lemma}[part-progress]
+  \textbf{(Progress)}
+    For every closed expression~$\he" \neq \hv$, and a heap~$H$ that is well-typed for~$\he"$,
+        if $\Gamma_{H} \vdash \he" : \hT"$,
+        then there exists~$H',\grave{\he}$ such that~$H,\he" \rightarrow H',\grave{\he}$.
+\end{Lemma}
+\begin{proof}
+We prove by examining the structure of~$\he"$.
+Because it is closed and not a value, then according to our syntax, it must have one of the following forms:
+\[
+    \he.\hf ~|~ \he.\hf = \he ~|~ \he.\hm\hparen{\ol{\he}} ~|~ \hnew ~ \hC\hgn{\code{FO},\code{VI}}\hparen{\ol{\he}}  ~|~ \he\code{;return l}
+\]
+If the subexpressions are not all values, then
+    we can always apply (exactly) one of the congruence rules.
+For example, if~$\he" = (\he\code{;return l})$ and~$\he$ is not a value,
+    then by induction we can apply \RULE{K-c1}.
+
+Therefore,~$\he"$ has one of the following forms:
+\[
+    \hv.\hf ~|~ \hv.\hf = \hv ~|~ \hv.\hm\hparen{\ol{\hv}} ~|~ \hnew ~ \hC\hgn{\code{FO},\code{VI}}\hparen{\ol{\hv}}  ~|~ \hv\code{;return l}
+\]
+Because we assumed we do not have \emph{null pointer exceptions} (in field access, assignment or method invocation), then
+    $\he"$ has one of the following forms:
+\[
+    \hl.\hf ~|~ \hl.\hf = \hv ~|~ \hl.\hm\hparen{\ol{\hv}} ~|~ \hnew ~ \hC\hgn{\code{FO},\code{VI}}\hparen{\ol{\hv}}  ~|~ \hv\code{;return l}
+\]
+We will next examine the matching five reduction rules
+    (\RULE{K-Field-Access},
+    \RULE{K-Field-Assignment},
+    \RULE{K-Invoke},
+    \RULE{K-New},
+    \RULE{K-return})
+    and show that their assumptions hold.
+
+\begin{description}
+  \item[Rule~\RULE{K-Field-Access}]
+  \[
+  \typerule{
+    H[\hl] = \code{C<NO,NI>}\hparen{\ol{\hv}}
+        \gap
+    \fields{}(\hC)=\ol{\hf}
+    }{
+    H,\hl.\hf_i \rightarrow H,\hv_i
+    }
+    \]
+  We assumed that~$\Gamma_{H} \vdash \hl.\hf_i : \hT"$,
+    therefore from \RULE{T-Field-Access}:
+    \[
+  \Gamma_{H} \vdash \hl:\code{C<MO,IP>}
+    \gap
+  \ftype{}(\hl,\hf_i,\code{C<MO,IP>})=\hT"
+    \]
+  From the definitions of~\ftype and~\fields, we know that~$\hf_i \in \fields{}(\hC)$.
+
+  \item[Rule~\RULE{K-Field-Assignment}]
+  \[
+  \typerule{
+  H[\hl] = \code{C<NO,NI>(}\ol{\hv}\code{)}
+    \gap
+  \fields{}(\hC)=\ol{\hf}
+    \gap
+  \code{NI}=\Mutable \text{~or~} \Cooker{\hl} \in H[K]
+    \gap
+  \hv'=\code{null} \text{~or~} \hl \Oprec \Owner{\hv'}
+}{
+  H,\hl.\hf_i = \hv' \rightarrow H[\hl \mapsto \code{C<NO,NI>(}[\hv'/\hv_i]\ol{\hv}\code{)}],\hv'
+}
+    \]
+Because~$H$ is well-typed, then from \Ref{Lemma}{owner-as-dominator},
+    we have that~$\hv'=\code{null} \text{~or~} \hl \Oprec \Owner{\hv'}$.
+
+We assumed that~$\Gamma_{H} \vdash \hl.\hf_i = \code{\hv'} : \hT'$,
+      therefore from \RULE{T-Field-Assignment}:
+      \[
+        \Gamma_{H} \vdash \hl.\hf_i : \hT
+            \gap
+        \Gamma_{H} \vdash \hl:\code{C<NO,NI>}
+            \gap
+        \Gamma_{H} \vdash \code{NI} \st \Raw
+      \]
+Similarly to field access, because~$\Gamma_{H} \vdash \hl.\hf_i : \hT$,
+    then~$\hf_i \in \fields{}(\hC)$.
+From our syntax~$\code{NI}$ is either \Mutable or $\Immut_{\hl'}$.
+We want to show that~$\code{NI}=\Mutable \text{~or~} \Cooker{\hl} \in H[K]$.
+Therefore we need to show that if~$\code{NI}=\Immut_{\hl'}$ then~$\hl' \in H[K]$.
+Because~$\Gamma_{H} \vdash \code{NI} \st \Raw$, it must be from \RULE{S10} and therefore~$\hl' \in H[K]$.
+
+  \item[Rule~\RULE{K-Invoke}]
+  \[
+ \typerule{
+  H[\hl] = \code{C<NO,NI>}\hparen{\ldots}
+    \gap
+  \mbody{}(\hm,\code{C})=\ol{\hx}.\he'
+}{
+  H,\hl\code{.m(}\ol{\hv}\code{)} \rightarrow H, [\ol{\hv}/\ol{\hx}, \hl/\this, \hl/\This, \code{NO}/\hO, \code{NI}/\hI]\he'
+}
+    \]
+  We assumed that~$\Gamma_{H} \vdash \hl\code{.m(}\ol{\hv}\code{)} : \hT"$,
+    therefore from \RULE{T-Invoke} we know that \[
+    \mtype{}(\hl,\hm,\code{C<NO,NI>})=\ol{\code{T}}\rightarrow\code{T"}
+    \]
+    Therefore~$\mbody{}(\hm,\code{C})$ is defined.
+
+  \item[Rule~\RULE{K-New}]
+  \[
+  \typerule{
+  \hl \not \in \dom(H)
+    \gap
+  \code{VI}' =
+    \begin{cases}
+    \Immut_\hl & \text{if~}\code{VI}=\Immut \text{~or~} (\code{VI}=\Immut_{\hc} \text{~and~} \hc \not \in H[K]) \\
+    \code{VI} & \text{otherwise} \\
+    \end{cases}
+    \gap
+  H'=H[\hl \mapsto \code{C<NO,VI'>}\hparen{\ol{\code{null}}}]
+}{
+  H,\code{new C<NO,VI>}\hparen{\ol{\hv}} \rightarrow H',\hl\code{.build}\hparen{\ol{\hv}}\code{;return l}
+}
+    \]
+    We assumed that~$\Gamma_{H} \vdash \code{new C<NO,VI>}\hparen{\ol{\hv}} : \hT"$,
+        therefore from \RULE{T-New} we know that \[
+          \mtype{}(\bot,\code{build},\code{C<NO,NI>})=\ol{\code{T}}\rightarrow\code{U}
+          \]
+    Thus there is a constructor with~$\#(\ol{\hv})$ of arguments.
+
+
+  \item[Rule~\RULE{K-return}]
+    Trivial because there are no assumptions for~\code{v;return l}
+\end{description}
+
+\end{proof}
+
+We prove \textbf{preservation} (\Ref{Lemma}{part-subtype}) for method invocation
+    by using \Ref{Lemma}{invoke-substitution} that uses
+    induction on the size of the method body.
+
+\begin{Lemma}[invoke-substitution]
+  \textbf{(Invocation Substitution)}
+    For every well-typed heap~$H$,
+        location~\hl, values~$\ol{\hv}$, types~$\code{U}$, and guard~\code{IG},
+        where \beqs{invoke-substitution1}
+            H[\hl] & = \code{C<NO,NI>}\\
+            \Gamma_H & \vdash \code{NI} \st \code{IG}\\
+            \Gamma_H & \vdash \ol{\hv} : \ol{\hU'}\\
+            \Gamma_H & \vdash \ol{\hU'} \st \ol{[\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{U}}\\
+        \eeq
+    Then, for any~$\he"$ such that
+        $\Gamma \vdash \he":\hS$,~$\Gamma = \{ \hI:\code{IG}, \ol{\hx}:\ol{\code{U}},\this:\code{C<O,I>} \}$,
+        then \beqst
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he" : \hS' \\
+        \Gamma_H & \vdash \hS' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hS\\
+        \eeq
+\end{Lemma}
+\begin{proof}
+
+We will prove by induction on the structure of~$\he"$.
+
+\begin{description}
+  \item[$\he"=(\code{e;return l})$] Impossible because $\Gamma$ does not contain locations.
+  \item[$\he"=(\hv)$] $\Gamma$ does not contain locations. Therefore,~$\hv=\code{null}$, and we can choose~$\hS' = [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hS$.
+  \item[$\he"=(\this)$] Then~$\hS = \code{C<O,I>}$,
+    and
+    \beqst
+        & [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he" = \hl \\
+        & [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hS = \code{C<NO,NI>}\\
+        & \hS' = \code{C<NO,NI>}\\
+        &\Gamma_H \vdash \hl : \hS' \\
+        & \Gamma_H \vdash \hS' \st \code{C<NO,NI>}\\
+        \eeq
+
+    \item[$\he"=(\hx_i)$] Then~$\hS = \hU_i$.
+    We assumed that \beqst
+        \Gamma_H & \vdash \hv_i : \hU'_i\\
+        \Gamma_H & \vdash \hU'_i \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{U}_i\\
+    \eeq
+    Therefore,
+    \beqst
+        & [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he" = \hv_i \\
+        & \hS' = \hU'_i\\
+        & \hS = \hU_i\\
+        &\Gamma_H \vdash \hv_i : \hS' \\
+        & \Gamma_H \vdash \hS' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hS\\
+        \eeq
+
+
+
+  \item[$\he"=(\code{new D<FO,VI>}\hparen{\ol{\he}})$]
+    We assumed that~$\Gamma \vdash \code{new D<FO,VI>}\hparen{\ol{\he}}:\hS$.
+    From \RULE{T-new}, $\hS = \code{D<FO,VI>}$ and \beq{new0}
+  \mtype{}(\bot,\code{build},\code{D<FO,VI>})=\ol{\code{T}}\rightarrow\code{U}
+    \gap
+  \Gamma \vdash \ol{\he}:\ol{\code{T}'}
+    \gap
+  \Gamma \vdash \ol{\code{T}'} \st \ol{\code{T}}
+    \eeq
+    By induction on~$\he_i$, we have that \beqs{new1}
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he_i : \code{V}_i \\
+        \Gamma_H & \vdash \code{V}_i \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{T}'_i\\
+        \eeq
+    From \Ref{Lemma}{subtyping-substitute} and~\eq{new0}, we have that \beq{new2}
+        \Gamma_H \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{T}'_i \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{T}_i
+    \eeq
+    From transitivity,~\eq{new1}, and~\eq{new2}, we have \beq{new3}
+        \Gamma_H \vdash \code{V}_i \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{T}_i
+    \eeq
+    From definition of $\mtype$ we have \beq{new4}
+        \mtype{}(\bot,\code{build},[\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<FO,VI>})=[\hl/\This,\code{NI}/\hI,\code{NO}/\hO](\ol{\code{T}}\rightarrow\code{U})
+    \eeq
+    From \RULE{T-new},~\eq{new3}, and~\eq{new4}, \beqst
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\code{new D<FO,VI>}\hparen{\ol{\he}} : [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<FO,VI>} \\
+    \eeq
+
+  \item[$\he"=(\code{e.f})$]
+    From \RULE{T-Field-Access}, \beqst
+        \Gamma &\vdash \he : \code{D<MO,IP>}\\
+        \Gamma &\vdash \code{e.f} : \hS\\
+        \hS &= \ftype(\he,\hf,\code{D<MO,IP>})\\
+    \eeq
+    Recall that~$\hS = \ftype{}(\he,\hf,\code{D<MO,IP>}) = \substitute(\he,\code{D<MO,IP>},\ftype{}(\hf,\code{D}))$.
+    Note that~\he is not a location, and thus if \hf is \this-owned, then $\he=\this$.
+    Consider first the case that \hf is \this-owned, thus $\he=\this$.
+    Let~$\ftype{}(\hf,\code{D})=\code{FT}$, and~$\Ofn{\code{FT}}=\This$.
+    We assumed that~$\Gamma \vdash \this.f:\hS$.
+    Then,~$\hS=\code{FT}$.
+    We need to show that
+        \beqst
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\code{this.f} : \hS' \\
+        \Gamma_H & \vdash \hS' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{FT}\\
+        \eeq
+    From \RULE{T-Field-Access} \[
+        \Gamma_H \vdash \code{l.f} : [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{FT}
+    \], i.e., $\hS' = [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{FT}$.
+
+    Now suppose that \hf is not \this-owned.
+    Therefore,~$\hS = [\code{IP}/\hI,\code{MO}/\hO]\code{FT}$.
+    We need to show that
+        \beqs{Access1}
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\code{e.f} : \hS' \\
+        \Gamma_H & \vdash \hS' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hS \gap \hS = [\code{IP}/\hI,\code{MO}/\hO]\code{FT}\\
+        \eeq
+    From the induction on~\he, we have that
+        \beqs{Access2}
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he : \hS" \\
+        \Gamma_H & \vdash \hS" \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<MO,IP>}\\
+        \eeq
+    From~\eq{Access2},~$\Ofn{\hS"}=[\hl/\This,\code{NO}/\hO]\code{MO}$.
+    From~\eq{Access1} and~\eq{Access2}, and \Ref{Lemma}{subtyping2}, we have that \beqst
+        &\hS' = \ftype{}(\bot,\hf,\hS") = [\Ifn{\hS"}/\hI,\Ofn{\hS"}/\hO]\code{FT}
+            \st [([\code{NI}/\hI]\code{IP})/\hI,([\hl/\This,\code{NO}/\hO]\code{MO})/\hO]\code{FT} =\\
+            &= [\hl/\This,\code{NI}/\hI,\code{NO}/\hO] ([\code{IP}/\hI,\code{MO}/\hO]\code{FT})\\
+    \eeq
+
+  \item[$\he"=(\code{e.f=e}')$]
+    The challenge in field assignment is that (by induction) the type of the substitution of~\he
+        changed covariantly (i.e., it is a subtype of the substitution of the type),
+        and $\he'$ also changed covariantly.
+    However, we will prove that because $\Ifn{\he}$ is \Raw, and \he is either \this or \this-owned, then \he is invariant.
+
+    We assumed that~$\Gamma \vdash \code{e.f=e}':\hS$.
+    From \RULE{T-Field-Assignment}, we know that \beqs{assign0}
+&\Gamma \vdash \he.\hf : \hT
+    \gap
+  \Gamma \vdash \he':\hS
+    \gap
+  \Gamma \vdash \hS \st \hT
+    \gap
+  \Gamma \vdash \he:\code{D<MO,IP>}
+    \\
+&  \Gamma \vdash \code{IP} \st \Raw
+    \gap
+  \isTransitive(\he,\Gamma,\code{D<MO,IP>})
+    \gap
+  \code{MO} \neq \code{?}\\
+  \eeq
+  We wish to prove all the assumptions in~\eq{assign0} after substituting~$[\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]$.
+
+
+
+  By induction on~$\he'$ we have that
+    \beqs{assign1}
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he' : \hS' \\
+        \Gamma_H & \vdash \hS' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hS\\
+        \eeq
+  By induction on~$\he.\hf$ we have that
+    \beqs{assign2}
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he.\hf : \hT' \\
+        \Gamma_H & \vdash \hT' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hT\\
+        \eeq
+  From the proof of field access above, we see that the class of~$\hT'$ and~\hT is the same.
+  By induction on~$\he$ we have that
+    \beqs{assign3}
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he : \code{D'<MO',IP'>} \\
+        \Gamma_H & \vdash \code{D'<MO',IP'>} \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<MO,IP>}\\
+        \eeq
+  Because~$\code{MO} \neq \code{?}$, from \Ref{Lemma}{Owners-Invariant} part (i), we have that~$\code{MO'}=\code{MO}$.
+
+  We now prove that the following holds:
+  \beqs{assign4}
+  & \Gamma_H \vdash [\code{NI}/\hI]\code{IP} \st \Raw\\
+  & \isTransitive([\hl/\this]\he,\Gamma,[\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<MO,IP>})\\
+    \eeq
+  From~\eq{assign0},~$\Gamma \vdash \code{IP} \st \Raw$.
+  From our syntax, and because~$\Gamma$ does not contain locations:\[
+    \code{IP} = \ReadOnly ~|~ \Immut ~|~ \Mutable ~|~ \hI
+  \]
+  If~$\code{IP}=\Mutable$ then we proved~\eq{assign4}.
+  Therefore, it must be that~$\code{IP}=\hI$ (thus~$[\code{NI}/\hI]\code{IP}=\code{NI}$)
+    and~$\Gamma(\hI)=\code{IG} \st \Raw$.
+  From~\eq{invoke-substitution1} ($\Gamma_H \vdash \code{NI} \st \code{IG}$),
+    we proved the first part of~\eq{assign4} that~$\Gamma_H \vdash [\code{NI}/\hI]\code{IP} \st \Raw$.
+  If~$\code{IG}=\Mutable$ then,
+    $\code{NI}=\Mutable$, which proved~\eq{assign4}.
+  Therefore~$\code{IG}=\Raw$, and from the definition of~$\isTransitive$ we have
+    that~$\code{e=\this{}}\text{~or~~}\code{MO}=\This$.
+  If~$\he=\this$ then~$\isTransitive(\hl,\ldots)$, which proved~\eq{assign4}.
+  Thus~$\code{MO}=\This$, and
+  \beqs{assign5}
+    \code{D<MO,IP>} &= \code{D<This,I>}\\
+    [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<MO,IP>} &= \code{D<\hl,\code{NI}>}\\
+  \eeq
+  From~\eq{invoke-substitution1},~$H[\hl] = \code{C<NO,NI>}$.
+  If~$\code{NI}=\Mutable$ then we proved~\eq{assign4}.
+  Otherwise~$\code{NI}=\Immut_{\hl'}$.
+  Because $H$ is well-typed, $\hl' \Tprec \hl$, thus~$\hl' \not \OprecNotEqual \hl$,   proving~\eq{assign4}
+    (because if~$\code{a} \OprecNotEqual \code{b}$ then~$\code{b} \TprecNotEqual \code{a}$).
+
+
+  \textbf{(i)~}If~$\he=\this$.
+    Let~$\ftype{}(\hf,\code{D})=\code{FT}$.
+    We assumed in~\eq{assign0} that~$\Gamma \vdash \this.f:\hT$.
+    Then,~$\hT=\code{FT}$.
+    From \RULE{T-Field-Access} \[
+        \Gamma_H \vdash \code{l.f} : [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{FT}
+    \]
+    From definition of~$\isTransitive{}$, we have that~$\isTransitive{}(\hl,\ldots)$ holds.
+    From \eq{assign0} ($\Gamma \vdash \hS \st \hT$) and \Ref{Lemma}{subtyping-substitute}, we have
+    \beqs{this0}
+        \Gamma_H \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hS \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hT
+    \eeq
+    From \eq{assign1}, \eq{this0}, and transitivity, we have
+    \beqs{this1}
+    \Gamma_H & \vdash \hS' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{FT}
+    \eeq
+    To summarize, from \eq{this1}, \eq{assign4} ($\Gamma_H \vdash \code{NI} \st \Raw$), we have that
+    \beqs{this2}
+    &\Gamma_H \vdash \hl.\hf : [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{FT}
+        \gap
+    \Gamma_H \vdash \he':\hS'
+        \gap
+    \Gamma_H \vdash \hS' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{FT}
+        \\
+    &\Gamma_H \vdash \hl:\code{C<NO,NI>}
+        \gap
+    \Gamma_H \vdash \code{NI} \st \Raw
+        \gap
+    \isTransitive(\hl,\ldots)
+  \eeq
+  Therefore, from~\eq{this2}, and \RULE{T-Field-Assignment}, we proved that \beqst
+    \Gamma_H &\vdash \code{l.f=e}' : \hS' \\
+    \Gamma_H &\vdash \hS' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{FT}\\
+  \eeq
+
+
+  \textbf{(ii)~}If $\he\neq\this$, then from~\eq{assign4}, we have
+  \beqs{not-this1}
+  & \isTransitive(\bot,\Gamma,[\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<MO,IP>})\\
+  \eeq
+    From~\eq{assign3} and~\eq{not-this1} and \Ref{Lemma}{isTransitive}, we have that~$\code{IP'}=[\code{NI}/\hI]\code{IP}$.
+  To summarize, from \eq{assign1}, \eq{assign2}, \eq{this0}, \eq{not-this1},
+  \beqs{not-this2}
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he.\hf : [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hT \\
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he' : \hS' \\
+        \Gamma_H & \vdash \hS' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hS\\
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hS \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hT\\
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he : \code{D'<MO,IP'>} \\
+        \Gamma_H & \vdash \code{IP'} \st \Raw\\
+        & \isTransitive(\bot,\Gamma,\code{D'<MO,IP'>})
+    \gap
+    \code{MO} \neq \code{?}\\
+  \eeq
+  Thus, from~\eq{not-this2}, and \RULE{T-Field-Assignment},  we proved that \beqst
+    \Gamma_H &\vdash \code{e.f=e}' : \hS' \\
+    \Gamma_H &\vdash \hS' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{S}\\
+  \eeq
+
+
+  \item[$\he"=(\he_0\code{.m}\hparen{\ol{\he}})$]
+    The proof is similar in spirit to field assignment:
+        the challenge is that both $\he_0$ and $\he_i$ change covariantly.
+    Let~$\code{IG'}$ be the guard of \hm.
+    If~$\code{IG'} = \ReadOnly$ then the parameters of \hm cannot include~\hI.
+    If~$\code{IG'} = \Mutable ~|~ \Immut$, then~\hI remains with the same bound.
+    The challenge is when~$\code{IG'} = \Raw$, then we use either the fact the~$\he_0$ is either \this or \this-owned,
+        to prove that $\he_0$ is invariant (like in field assignment).
+
+    With respect to wildcards, if the receiver $\he_0$ has a wildcard, then after the covariant change
+        it might no longer be the case.
+    Therefore we require that the owner of method parameters in this case must be \World.
+        (it cannot be \hO nor \This).
+
+
+    From \RULE{T-Invoke},
+    \beq{invoke1}
+    \typerule{
+  \Gamma \vdash \he_0:\code{D<MO,IP>}
+    \gap
+  \mtype{}(\he_0,\hm,\code{D<MO,IP>})=\ol{\code{T}}\rightarrow\code{W}
+    \gap
+  \Gamma \vdash \ol{\he}:\ol{\code{T'}}
+    \gap
+  \Gamma \vdash \ol{\code{T'}} \st \ol{\code{T}}
+    \gap
+  \mguard{}(\hm,\code{D})=\code{IG'}
+    \\
+  \Gamma \vdash \code{IP} \st \code{IG'}
+    \gap
+  \code{IG'}=\Raw \Rightarrow \isTransitive(\he_0,\Gamma,\code{D<MO,IP>})
+    \gap
+  \mtype{}(\hm,\code{D})=\ol{\code{U}}\rightarrow\code{V}
+    \gap
+  \Ofn{\ol{\code{T}}}=\code{?} \Rightarrow \Ofn{\ol{\code{U}}}=\code{?}
+}{
+  \Gamma \vdash \he_0\code{.m(}\ol{\he}\code{)} : \code{W}
+}
+\eeq
+
+By induction on~$\he_0$, we have that
+    \beqs{invoke3}
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he_0 : \code{D'<MO',IP'>} \\
+        \Gamma_H & \vdash \code{D'<MO',IP'>} \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<MO,IP>}\\
+        \eeq
+Note that, in contrast with field assignment, here we might have~$\code{MO}=\code{?}$, and then~$\code{MO'}\neq\code{MO}$.
+However, from \Ref{Lemma}{Owners-Invariant} part (i),
+\beq{invoke-owner-wildcard}
+    \code{MO}\neq\code{?} \Rightarrow \code{MO'}=[\hl/\This,\code{NO}/\hO]\code{MO}
+\eeq
+
+By induction on~$\he_i$, we have that
+    \beqs{invoke4}
+        \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he_i : \hS_i' \\
+        \Gamma_H & \vdash \hS'_i \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{T'}_i\\
+        \eeq
+From~\eq{invoke4} and~\eq{invoke1} and \Ref{Lemma}{subtyping-substitute}, we have
+    \beqs{invoke5}
+        &\Gamma_H \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{T'}_i \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hT_i\\
+    \eeq
+From transitivity,~\eq{invoke4}, and~\eq{invoke5},
+    \beqs{invoke6}
+        &\Gamma_H \vdash \hS'_i \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hT_i\\
+    \eeq
+
+
+Because method overriding maintains the same signature,
+    we have that
+\beqs{invoke-signature1}
+\mtype{}(\hm,\code{D'})=\mtype{}(\hm,\code{D})=\ol{\code{U}}\rightarrow\code{V}
+\eeq
+From definition of $\mtype$, \eq{invoke-signature1}, and because~$\he_0$ does not contain locations, we have that
+\beqs{invoke-signature2}
+\mtype{}(\he_0,\hm,\code{D<MO,IP>})=\ol{\code{T}}\rightarrow\code{W}=[\code{MO}/\hO, \code{IP}/\hI](\ol{\code{U}}\rightarrow\code{V})\\
+\mtype{}([\hl/\this]\he_0,\hm,\code{D'<MO',IP'>})=[\hl/\This,\code{MO'}/\hO, \code{IP'}/\hI](\ol{\code{U}}\rightarrow\code{V})\\
+\eeq
+We will always prove that the parameters are invariant, i.e.,
+\beq{invoke-signature-to-prove}
+\mtype{}([\hl/\this]\he_0,\hm,\code{D'<MO',IP'>})=\ol{[\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\hT_i}\rightarrow\code{W'}
+\eeq
+We will also prove that
+\beq{invoke-to-prove}
+    \Gamma_H \vdash \code{IP'} \st \code{IG'}
+    \gap
+  \code{IG'}=\Raw \Rightarrow \isTransitive([\hl/\this]\he_0,\Gamma,\code{D'<MO',IP'>})
+\eeq
+Because there are no wildcards after substitution, from~\eq{invoke-signature-to-prove} and~\eq{invoke-to-prove},
+    we will have that
+    \beqst
+    \Gamma_H & \vdash [\hl/\This,\code{NI}/\hI,\code{NO}/\hO, \ol{\hv}/\ol{\hx}, \hl/\this]\he_0\code{.m(}\ol{\he}\code{)} : \code{W}' \\
+    \Gamma_H & \vdash \code{W}' \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{W}\\
+    \eeq
+
+
+Next we prove~\eq{invoke-signature-to-prove} just for the owner parameter, i.e., we want to show that (from~\eq{invoke-signature2} and~\eq{invoke-signature-to-prove})
+\beq{invoke-owner0}
+    \Ofn{[\hl/\This,\code{MO'}/\hO]\code{U}_i} = \Ofn{[\hl/\This,\code{NO}/\hO]\hT_i}
+\eeq
+From~\eq{invoke-signature2},
+\beq{invoke-owner1}
+    \Ofn{\hT_i}=\Ofn{[\code{MO}/\hO]\code{U}_i}
+\eeq
+If~$\Ofn{\code{U}_i}=\This$, then both sides of \eq{invoke-owner0} are~\hl.
+If~$\Ofn{\code{U}_i}\neq\hO$, then both sides of \eq{invoke-owner0} are~$\Ofn{\code{U}_i}$.
+The last case is that~$\Ofn{\code{U}_i}=\hO$.
+From~\eq{invoke1}, we have
+\beq{invoke-owner2}
+    \Ofn{\code{T}_i}=\code{?} \Rightarrow \Ofn{\code{U}_i}=\code{?}
+\eeq
+On the one hand, if~$\code{MO}=\code{?}$, then~$\Ofn{\code{T}_i}=\code{?}$, thus~$\Ofn{\code{U}_i}=\code{?}$,
+    and both sides of \eq{invoke-owner0} are~$\code{?}$.
+On the other hand, if~$\code{MO}\neq\code{?}$, then from \eq{invoke-owner-wildcard} %\code{MO}\neq\code{?} \Rightarrow \code{MO'}=[\hl/\This,\code{NO}/\hO]\code{MO}$.
+    \[
+    \code{MO'}=[\hl/\This,\code{NO}/\hO]\code{MO}
+    \]
+which proves~\eq{invoke-owner0}.
+
+From \eq{invoke-owner0},
+    in order to prove~\eq{invoke-signature-to-prove}, we just need to show it for the immutability parameter,
+    i.e., (from \eq{invoke-signature2})
+\beq{invoke-immutability}
+\Ifn{[\code{IP'}/\hI]\code{U}_i}=\Ifn{[\code{NI}/\hI]([\code{IP}/\hI]\code{U}_i)}
+\eeq
+Recall the following:
+From~\eq{invoke3}, we know that
+        $\Gamma_H \vdash \code{D'<MO',IP'>} \st [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<MO,IP>}$.
+From~\eq{invoke1},~$\Gamma \vdash \code{IP} \st \code{IG'}$.
+From~\eq{invoke-substitution1},~$\Gamma_H \vdash \code{NI} \st \code{IG}$
+    and $\hI:\code{IG} \in \Gamma$.
+
+We will split the proof by the four possible values of $\code{IG'} = \ReadOnly ~|~ \Mutable ~|~ \Immut ~|~ \Raw$.
+For each case we need to prove~\eq{invoke-to-prove} and~\eq{invoke-immutability}.
+%\Gamma_H \vdash \code{IP'} \st \code{IG'}
+%    \gap
+%  \code{IG'}=\Raw \Rightarrow \isTransitive([\hl/\this]\he_0,\Gamma,\code{D'<MO',IP'>})
+
+\textbf{(i) $\code{IG'} =\ReadOnly$}
+Because any immutability is a subtype of \ReadOnly, we proved \eq{invoke-to-prove}.
+Furthermore, when $\code{IG'} =\ReadOnly$ the signature of parameters cannot contain~\hI,
+    i.e., $\Ifn{\code{U}_i}\neq\hI$, which proved~\eq{invoke-immutability}.
+
+\textbf{(ii) $\code{IG'} =\Mutable$}
+From~\eq{invoke1},~$\Gamma \vdash \code{IP} \st \Mutable$,
+    thus either $\code{IP}=\Mutable$ or~($\code{IG}=\Mutable$ and~$\code{IP}=\hI$).
+If $\code{IP}=\hI$, then from~\eq{invoke-substitution1},~$\Gamma_H \vdash \code{NI} \st \Mutable$, thus~$\code{NI} = \Mutable$.
+Thus,~$\Gamma_H \vdash [\code{NI}/\hI]\code{IP} \st \Mutable$.
+Therefore, from~\eq{invoke3} and \Ref{Lemma}{Guard} part (i), we have that~$\Gamma_H \vdash \code{IP'} \st \Mutable$,
+    which proved \eq{invoke-to-prove}.
+
+We showed that if $\code{IP}=\hI$, then~$\code{NI} = \Mutable$ and~$\code{IP'}=\Mutable$, proving~\eq{invoke-immutability}.
+We also showed that if $\code{IP}=\Mutable$ then~$\code{IP'}=\Mutable$, proving~\eq{invoke-immutability}.
+
+
+\textbf{(iii) $\code{IG'} =\Immut$}
+Exactly like part (ii), but we use \Ref{Lemma}{Guard} part (ii) instead of part (i),
+    and ($\Immut_{\hl'}$ where~$\hl' \not\in H[K]$) instead of \Mutable.
+
+\textbf{(iv) $\code{IG'} =\Raw$}
+Exactly like in field assignment, we prove that:
+\beqs{invoke2}
+  & \Gamma_H \vdash [\code{NI}/\hI]\code{IP} \st \Raw\\
+  & \isTransitive([\hl/\this]\he,\Gamma,[\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<MO,IP>})\\
+\eeq
+
+If $\he=\this$, then $\code{D}=\hC$, $\code{IP}=\hI$ (because~$\Gamma \vdash \this:\code{D<O,I>}$)
+    and~$\code{IP'} = \code{NI}$ (because~$\Gamma_H \vdash \hl:\code{D<NO,NI>}$),
+    therefore, \[
+\Ifn{[\code{NI}/\hI]\code{U}_i}=\Ifn{[\code{NI}/\hI]([\hI/\hI]\code{U}_i)}
+\]
+which proved \eq{invoke-immutability}.
+Furthermore, because~$\Gamma \vdash \code{IP} \st \Raw$ (and~$\code{IP}=\hI$),
+    we know that~$\code{IG} \st \Raw$.
+Thus from~\eq{invoke-substitution1},~$\Gamma_H \vdash \code{NI} \st \Raw$.
+Finally because \this was replaced with \hl, and $\isTransitive(\hl,\ldots)$ always holds,
+    then we proved \eq{invoke-to-prove}.
+
+If $\he\neq\this$, then from \eq{invoke2}, we have that
+    $\isTransitive(\bot,\Gamma,[\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<MO,IP>})$,
+    thus from definition of $\isTransitive$ we have that~$\code{MO}\neq\code{?}$.
+From \Ref{Lemma}{Guard} part (iii) and~\eq{invoke3}, we know that
+        $\code{IP'} = [\code{NI}/\hI]\code{IP}$,
+        which proved~\eq{invoke-immutability}.
+Combined with~\eq{invoke2}, we have that~$\Gamma_H \vdash \code{IP'} \st \Raw$.
+From \eq{invoke-owner-wildcard}, we have~$\code{MO'}=[\hl/\This,\code{NO}/\hO]\code{MO}$.
+Therefore,~$\code{D'<MO',IP'>} = [\hl/\This,\code{NI}/\hI,\code{NO}/\hO]\code{D<MO,IP>}$,
+    which proved \eq{invoke-to-prove}.
+\end{description}
+
+\end{proof}
+
+
+\begin{Lemma}[part-subtype]
+  \textbf{(Subtype preservation)}
+    For every closed expression~$\he" \neq \hv$, and a heap~$H$ that is well-typed for~$\he"$,
+        if $\Gamma_{H} \vdash \he" : \hT"$
+        and~$H,\he" \rightarrow H',\grave{\he}$,
+        then
+        $\Gamma_{H'} \vdash \grave{\he}:\grave{\hT}$ and~$\Gamma_{H'} \vdash \grave{\hT} \st \hT"$.
+\end{Lemma}
+\begin{proof}
+We prove by examining all possible reduction rules.
+\begin{description}
+  \item[Congruence for field access]
+Consider the congruence rule for field access \[
+    \typerule{H,\he \rightarrow H',\he'}{H,\he.\hf \rightarrow H',\he'.\hf}
+\]
+We assumed that $\Gamma_{H} \vdash \he.\hf : \hT"$ and
+    by induction~$\Gamma_{H} \vdash \he:\hT$,~$\Gamma_{H'} \vdash \he':\hT'$ and~$\Gamma_{H'} \vdash \hT' \st \hT$.
+Let~$\hT = \code{C<MO,IP>}$.
+Because $\he \neq \this$ (cause \he is closed) and~$\he \neq \hl$ (cause a location cannot be reduced further),
+    then field~$\hf$ is not \this-owned,
+    and~$\hT" = \ftype{}(\bot,\hf,\hT)$.
+
+Because~$\Gamma_{H'} \vdash \hT' \st \hT$,
+    from \Ref{Lemma}{Owners-Invariant} part (iii),
+    then~\code{C'} is a subtype of \code{C}.
+Therefore $\fields(\code{C'})$ must contain the same field~$\hf$ which is not \this-owned.
+Thus,~$\Gamma_{H'} \vdash \grave{\he}:\grave{\hT}$,
+    where~$\grave{\hT} = \ftype{}(\bot,\hf,\hT')$.
+The last thing we need to prove is that~$\Gamma_{H'} \vdash \grave{\hT} \st \hT"$,
+    which follows from \Ref{Lemma}{subtyping-substitute2}.
+
+  \item[Congruence for method receiver]
+Consider the congruence rule for method receiver \[
+    \typerule{H,\he_0 \rightarrow H',\he'_0}{H,\he_0\code{.m}\hparen{\ol{\he}} \rightarrow H',\he'_0\code{.m}\hparen{\ol{\he}}}
+\]
+Similarly to field access, because~$\he_0$ is not a location,
+    then none of the parameters or return type of method~\hm is \this-owned.
+Proving that~$\Gamma_{H'} \vdash \grave{\hT} \st \hT"$
+    (i.e., the return type is preserved)
+    is done similarly to field access,
+    by noting that method overriding maintains the same return type.
+    (The return type could also change covariantly and the proof would still hold.)
+However, proving that~$\Gamma_{H'} \vdash \grave{\he}:\grave{\hT}$ is more challenging
+    because:
+    (i)~we need to show that~$\he'_0$ satisfies the guard, and
+    (ii)~the type of method parameters after substitution can change covariantly (as opposed to FGJ, which is invariant).
+
+
+We will first prove that~$\he'_0$ satisfies the guard.
+We assumed that $\Gamma_{H} \vdash \he_0\code{.m}\hparen{\ol{\he}} : \hT"$ and
+    by induction~$\Gamma_{H} \vdash \he_0:\hT$,~$\Gamma_{H'} \vdash \he'_0:\hT'$ and~$\Gamma_{H'} \vdash \hT' \st \hT$.
+From \RULE{T-Invoke},
+    we know that \[
+  \Gamma_H \vdash \he_0:\code{C<MO,IP>}
+    \gap
+  \mguard{}(\hm,\code{C})=\code{IG}
+    \gap
+  \Gamma_H \vdash \code{IP} \st \code{IG}
+    \gap
+  \code{IG}=\Raw \Rightarrow \isTransitive(\he_0,\Gamma,\code{C<MO,IP>})
+    \]
+Because~$\he_0$ is neither \this nor \hl (because it was reduced),
+    then~$\code{IG}=\Raw \Rightarrow \isTransitive(\bot,\Gamma,\code{C<MO,IP>})$.
+Let~$\hT' = \code{C'<MO,IP'>}$ and~$\mguard{}(\hm,\code{C'})=\code{IG'}$.
+Because~$\Gamma_{H'} \vdash \hT' \st \hT$,
+    from \Ref{Lemma}{Owners-Invariant} part (iii),
+    then~\code{C'} is a subtype of \code{C}.
+From the restriction on method overriding with guards,~$\code{IG} \st \code{IG'}$.
+From \Ref{Lemma}{Guard} part (iv),
+    we have that~$\code{IP'} \st \code{IG}$.
+From transitivity,~$\code{IP'} \st \code{IG'}$.
+
+Next we show that~$\code{IG}=\Raw \Rightarrow \isTransitive(\he'_0,\Gamma,\code{C'<MO,IP'>})$.
+If~$\code{IG}=\Raw$ then we showed that~$\isTransitive(\bot,\Gamma,\code{C<MO,IP>})$.
+From \Ref{Lemma}{isTransitive} we have that~$\code{IP'}=\code{IP}$,
+    thus~$\code{IG}=\Raw \Rightarrow \isTransitive(\he'_0,\Gamma,\code{C'<MO,IP'>})$.
+
+Let
+\beqst
+\mtype{}(\he_0,\hm,\code{C<MO,IP>})=\ol{\code{U}}\rightarrow\code{V} \\
+\mtype{}(\he'_0,\hm,\code{C'<MO,IP'>})=\ol{\code{U'}}\rightarrow\code{V'} \\
+\Gamma \vdash \ol{\he}:\ol{\code{U"}}\\
+\eeq
+Because~$\Gamma \vdash \ol{\code{U"}} \st \ol{\code{U}}$,
+    from \Ref{Lemma}{invokeSubtype}, we have that~$\Gamma \vdash \ol{\code{U"}} \st \ol{\code{U'}}$.
+
+Therefore, all the assumptions in \RULE{T-Invoke} are fulfilled (the requirement for wildcards is fulfilled because all types are closed),
+    and we proved that~$\Gamma_{H'} \vdash \grave{\he}:\grave{\hT}$.
+
+
+  \item[Congruence for method argument]
+    Trivial.
+
+  \item[Congruence for new instance]
+    Trivial.
+
+  \item[Congruence for the rvalue of field assignment]
+    Trivial.
+
+  \item[Congruence for the receiver of field assignment]
+Consider the congruence rule for the receiver of field assignment \[
+    \typerule{H,\he \rightarrow H',\he'}{H,\code{e.f=e"} \rightarrow H',\code{e'.f=e"}}
+\]
+We assumed that $\Gamma_{H} \vdash \code{e.f=e"} : \hT"$ and
+    by induction~$\Gamma_{H} \vdash \he:\hT$,~$\Gamma_{H'} \vdash \he':\hT'$ and~$\Gamma_{H'} \vdash \hT' \st \hT$.
+We will show that~$\Gamma_{H} \vdash \code{e.f=e"} : \hT"$.
+From \RULE{T-Field-Assignment}:
+\[
+  \Gamma \vdash \he.\hf : \code{F}
+    \gap
+  \Gamma \vdash \code{e"}:\code{T"}
+    \gap
+  \Gamma \vdash \code{T"} \st \code{F}
+    \gap
+  \Gamma \vdash \he:\code{C<MO,IP>}
+    \gap
+  \Gamma \vdash \code{IP} \st \Raw
+    \gap
+  \isTransitive(\he,\Gamma,\code{C<MO,IP>})
+\]
+We need to show that:
+\[
+  \Gamma \vdash \he'.\hf : \code{F'}
+    \gap
+  \Gamma \vdash \code{T"} \st \code{F'}
+    \gap
+  \Gamma \vdash \he':\code{C'<MO,IP'>}
+    \gap
+  \Gamma \vdash \code{IP'} \st \Raw
+    \gap
+  \isTransitive(\he,\Gamma,\code{C'<MO,IP'>})
+\]
+Because \he was reduced, we know it is not a location, so~$\isTransitive(\bot,\Gamma,\code{C<MO,IP>})$.
+From \Ref{Lemma}{isTransitive}, we have that~$\code{IP}=\code{IP'}$.
+Therefore~$\code{F'}=\code{F}$ (because $\ftype(\hf,\hC)=\ftype(\hf,\hC')$),
+    and~$\isTransitive(\he,\Gamma,\code{C'<MO,IP'>})$.
+
+
+
+  \item[Congruence for return~\RULE{K-c1}]
+Consider the congruence rule for \code{e;return l} \[
+\typerule{
+  H"=H[K \mapsto H[K] \cup \{\hl\}] \gap H",\he \rightarrow \grave{H},\he' \gap H'= \grave{H}[K \mapsto \grave{H}[K] \setminus \{\hl\}]
+}{
+  H,\code{e;return l} \rightarrow H',\code{e';return l}
+}
+\]
+We assumed that \[
+    \Gamma_{H} \vdash \code{e;return l} : \hT"
+    \gap
+    \he"=\code{e;return l}
+    \gap
+    \grave{\he}=\code{e';return l}
+    \gap
+    \Gamma_{H"} \vdash \he:\hT
+    \gap
+    \Gamma_{\grave{H}} \vdash \he':\hT'
+    \gap
+    \Gamma_{\grave{H}} \vdash \hT' \st \hT
+    \]
+We need to prove that~$\Gamma_{H'} \vdash \grave{\he} :\grave{\hT}$ and~$\Gamma_{H'} \vdash \grave{\hT} \st \hT"$.
+
+From \Ref{Lemma}{constructors}, we have~$H[K] = H'[K]$ and~$H"[K] = \grave{H}[K]$.
+Thus~$H'[K] \cup \{\hl\} = \grave{H}[K]$.
+According to \RULE{T-return}:
+\[
+\typerule{
+  \Gamma_{H'}[K \mapsto \Gamma_{H'}[K] \cup \{ \hl \}] \vdash \he':\hT'
+}{
+  \Gamma_{H'} \vdash \code{e';return l} : \Gamma_{H'}(\hl)
+}
+\]
+Because $H'[K] \cup \{\hl\} = \grave{H}[K]$, we have
+    that~$\Gamma_{H'}[K \mapsto \Gamma_{H'}[K] \cup \{ \hl \}] =
+    \Gamma_{\grave{H}}$.
+Because~$\Gamma_{\grave{H}} \vdash \he':\hT'$, we proved that~$\Gamma_{H'} \vdash \code{e';return l} : \Gamma_{H'}(\hl)$,
+    i.e.,~$\Gamma_{H'} \vdash \grave{\he} :\grave{\hT}$.
+
+We still need to prove that~$\Gamma_{H'} \vdash \grave{\hT} \st \hT"$.
+Because~$\grave{\hT}=\Gamma_{H'}(\hl)$ and~$\hT" = \Gamma_{H}(\hl)$
+    then~$\grave{\hT}=\hT"$, and from reflexivity (\RULE{S2}) we have~$\Gamma_{H'} \vdash \grave{\hT} \st \hT"$.
+
+
+  \item[Rule~\RULE{K-return}] Trivial
+
+  \item[Rule~\RULE{K-New}]
+  According to \RULE{K-New} \[
+\typerule{
+  \hl \not \in \dom(H)
+    \gap
+  \code{VI}' =
+    \begin{cases}
+    \Immut_\hl & \text{if~}\code{VI}=\Immut \text{~or~} (\code{VI}=\Immut_{\hc} \text{~and~} \hc \not \in H[K]) \\
+    \code{VI} & \text{otherwise} \\
+    \end{cases}
+    \gap
+  H'=H[\hl \mapsto \code{C<NO,VI'>}\hparen{\ol{\code{null}}}]
+}{
+  H,\code{new C<NO,VI>}\hparen{\ol{\hv}} \rightarrow H',\hl\code{.build}\hparen{\ol{\hv}}\code{;return l}
+}
+\]
+We assumed that \[
+    \Gamma_{H} \vdash \he" : \hT"
+    \gap
+    \he"=\code{new C<NO,VI>}\hparen{\ol{\hv}}
+    \gap
+    \grave{\he}=\hl\code{.build}\hparen{\ol{\hv}}\code{;return l}
+    \]
+We need to prove that~$\Gamma_{H'} \vdash \grave{\he} :\grave{\hT}$ and~$\Gamma_{H'} \vdash \grave{\hT} \st \hT"$.
+
+From \RULE{T-New}
+\beq{K-new1}
+\typerule{
+  \mtype{}(\bot,\code{build},\code{C<NO,VI>})=\ol{\code{U}}\rightarrow\code{Z}
+    \gap
+  \Gamma_{H} \vdash \ol{\hv}:\ol{\code{V}}
+    \gap
+  \Gamma_{H} \vdash \ol{\code{V}} \st \ol{\code{U}}
+}{
+  \Gamma_{H} \vdash \code{new C<NO,VI>(}\ol{\hv}\code{)} : \code{C<NO,VI>}
+}
+\eeq
+Thus,~$\hT" = \code{C<NO,VI>}$.
+From~\RULE{T-return},~$\grave{\hT} = \code{C<NO,VI'>}$.
+Because~$\hl \not \in \Gamma_{H'}[K]$, then~$\Gamma_{H'} \vdash \Immut_\hl \st \Immut$,
+    thus~$\Gamma_{H'} \vdash \grave{\hT} \st \hT"$.
+
+We still need to prove that~$\Gamma_{H'} \vdash \grave{\he} :\grave{\hT}$,
+    and from~\RULE{T-return} we need to prove that \[
+    \Gamma_{H"} = \Gamma_{H'}[K \mapsto \Gamma_{H'}[K] \cup \{ \hl \}] \gap
+    \Gamma_{H"} \vdash \hl\code{.build}\hparen{\ol{\hv}}:\code{Z}
+    \]
+Because~\hl is a new location, all the equations in~\eq{K-new1} are still true
+    if we replace~$\Gamma_{H}$ with~$\Gamma_{H"}$.
+From \RULE{T-invoke}, and because the guard of \code{build} is \Raw:
+\[
+\typerule{
+  \Gamma_{H"} \vdash \hl:\grave{\hT}
+    \gap
+  \mtype{}(\hl,\code{build},\grave{\hT})=\ol{\code{W}}\rightarrow\code{Z'}
+    \gap
+  \Gamma_{H"} \vdash \ol{\hv}:\ol{\code{V}}
+    \gap
+  \Gamma_{H"} \vdash \ol{\code{V}} \st \ol{\code{W}}
+    \\
+  \Gamma_{H"} \vdash \code{VI'} \st \Raw
+    \gap
+  \isTransitive(\hl,\Gamma,\grave{\hT})
+}{
+  \Gamma_{H"} \vdash \hl\code{.build}\hparen{\ol{\hv}}:\code{Z'}
+}
+\]
+Assumption~$\isTransitive(\hl,\Gamma,\grave{\hT})$ holds because~\hl is a location.
+Because~$\hl \in \Gamma_{H"}[K]$ and \code{VI} is either \Mutable or \Immut or $\Immut_{\hl'}$,
+    then this assumption holds~$\Gamma_{H"} \vdash \code{VI'} \st \Raw$.
+The only assumption left to prove is that~$\Gamma_{H"} \vdash \ol{\code{V}} \st \ol{\code{W}}$.
+From~\eq{K-new1} we have that~$\Gamma_{H"} \vdash \ol{\code{V}} \st \ol{\code{U}}$.
+If $\code{VI}=\Mutable$ then~$\ol{\code{U}}=\ol{\code{W}}$.
+Otherwise $\code{VI}=\Immut$, ~$\grave{\hT} = \code{C<NO,\Immut}_\hl\code{VI>}$,
+    and we have that
+\beqst
+&    \mtype{}(\code{build},\hC) = \ol{\code{FT}}\rightarrow\code{Z"}\\
+&  \mtype{}(\hl,\code{build},\code{C<NO,\Immut}_\hl\code{VI>})=\ol{\code{W}}\rightarrow\code{Z'}\\
+&  \mtype{}(\bot,\code{build},\code{C<NO,\Immut>})=\ol{\code{U}}\rightarrow\code{Z}\\
+&    \code{W}_i = [\code{NO}/\hO,\Immut_\hl/\hI]\code{FT}_i\\
+&    \code{U}_i = [\code{NO}/\hO,\Immut/\hI]\code{FT}_i\\
+&    \Gamma_{H"} \vdash \code{V}_i \st \code{U}_i\\
+\eeq
+We want to prove that~$\Gamma_{H"} \vdash \code{V}_i \st \code{W}_i$.
+If~$\Ifn{\code{FT}_i}\neq\hI$ then~$\code{W}_i=\code{U}_i$.
+Because~$\Ofn{\code{FT}_i}\neq\This$, then it is either \hO or \World,
+    thus,~$\Owner{\code{W}_i}$ is either \code{NO} or \World.
+Finally note that~$\hl \OprecNotEqual \code{NO}$ (because~$\hl \mapsto \code{C<NO,\ldots>}$),
+    and we always have that~$\code{NO} \Oprec \World$, thus~$\hl \OprecNotEqual \World$.
+According to subtyping rule~\RULE{S13}, we have that~$\Gamma_{H"} \vdash  \code{U}_i \st \code{W}_i$,
+    and from transitivity~$\code{V}_i \st \code{U}_i \st \code{W}_i$.
+
+
+  \item[Rule~\RULE{K-Field-Access}]
+  According to \RULE{K-Field-Access} \[
+\typerule{
+  H[\hl] = \code{C<NO,NI>}\hparen{\ol{\hv}}
+    \gap
+  \fields{}(\hC)=\ol{\hf}
+}{
+  H,\hl.\hf_i \rightarrow H,\hv_i
+}
+\]
+We assumed that~$\Gamma_{H} \vdash \hl.\hf_i : \hT"$, and
+    we need to prove that~$\Gamma_{H} \vdash \hv_i :\grave{\hT}$ and~$\Gamma_{H} \vdash \grave{\hT} \st \hT"$.
+If~$\hv_i=\code{null}$ then we can choose~$\grave{\hT} = \hT"$,
+otherwise~$\hv_i\neq\code{null}$, and because the heap is well-typed, then~$\Gamma_{H} \vdash \grave{\hT} \st \hT"$.
+
+  \item[Rule~\RULE{K-Field-Assignment}]
+  According to \RULE{K-Field-Assignment} \[
+\typerule{
+  \ldots
+}{
+  H,\hl.\hf_i = \code{\hv'} \rightarrow H',\hv'
+}
+\]
+We assumed that~$\Gamma_{H} \vdash \hl.\hf_i = \code{\hv'} : \hT"$, and
+    we need to prove that~$\Gamma_{H'} \vdash \hv' :\grave{\hT}$ and~$\Gamma_{H'} \vdash \grave{\hT} \st \hT"$.
+Because we did not add any new locations, we have~$\Gamma_{H} = \Gamma_{H'}$.
+From \RULE{T-Field-Assignment}, we have that~$\Gamma_{H} \vdash \code{\hv'} : \hT"$, i.e.,~$\grave{\hT} = \hT"$.
+
+
+  \item[Rule~\RULE{K-Invoke}]
+According to \RULE{K-Invoke} \beqst
+\typerule{
+  H[\hl] = \code{C<NO,NI>}\hparen{\ldots}
+    \gap
+  \mbody{}(\hm,\code{C})=\ol{\hx}.\he'
+}{
+  H,\hl\code{.m(}\ol{\hv}\code{)} \rightarrow H, [\ol{\hv}/\ol{\hx}, \hl/\this, \hl/\This, \code{NO}/\hO, \code{NI}/\hI]\he'
+}
+\eeq
+We assumed that \beqst
+    \Gamma_{H} \vdash \he" : \hT"
+    \gap
+    \he"=\hl\code{.m(}\ol{\hv}\code{)}
+    \gap
+    \grave{\he}=[\ol{\hv}/\ol{\hx}, \hl/\this, \hl/\This, \code{NO}/\hO, \code{NI}/\hI]\he'
+    \eeq
+From \RULE{T-Invoke} we have that \beqst
+  \mtype{}(\hl,\hm,\code{C<NO,NI>})=\ol{\hT}\rightarrow\hT"
+    \gap
+  \Gamma_{H} \vdash \ol{\hv}:\ol{\hT'}
+    \gap
+  \Gamma_{H} \vdash \ol{\hT'} \st \ol{\hT}
+    \gap
+  \mguard{}(\hm,\code{C})=\code{IG}
+    \gap
+  \Gamma_{H} \vdash \code{NI} \st \code{IG}
+\eeq
+We know the method~\hm was typed-checked in~\hC, i.e.,
+\beqst
+ \Gamma & =\{\hI:\code{IG}, \ol{\hx}:\ol{\code{U}}, \this:\code{C<O,I>}\} \\
+ \mtype(\hm,\code{C}) & =\ol{\code{U}}\rightarrow\code{FT} \\
+ \Gamma &\vdash \he':\code{S} \\
+ \Gamma &\vdash \code{S} \st \code{FT}\\
+\eeq
+From the definition of \mtype:
+\beqst
+ \mtype{}(\hl,\hm,\code{C<NO,NI>})&=\substitute{}(\hl,\code{C<NO,NI>},\mtype(\hm,\code{C})) \\
+ \hT" &=  [\code{NO}/\hO,\code{NI}/\hI,\hl/\This]\code{FT}\\
+ \hT_i &=  [\code{NO}/\hO,\code{NI}/\hI,\hl/\This]\code{U}_i\\
+\eeq
+
+We need to prove that~$\Gamma_{H} \vdash \grave{\he} :\grave{\hT}$ and~$\Gamma_{H} \vdash \grave{\hT} \st \hT"$,
+    which follows immediately from \Ref{Lemma}{invoke-substitution}.
+\end{description}
+\end{proof}
+
+
+
+
+\begin{Lemma}[part-well-typed]
+  \textbf{(Well-typed heap preservation)}
+    For every closed expression~$\he" \neq \hv$, and a heap~$H$ that is well-typed for~$\he"$,
+        if $\Gamma_{H} \vdash \he" : \hT"$
+        and~$H,\he" \rightarrow H',\grave{\he}$,
+        then
+        $H'$ is well-typed for~$\grave{\he}$.
+\end{Lemma}
+\begin{proof}
+Recall that a {well-typed} heap~$H$ satisfies:
+    (i)~there is a linear order~$\Tprec$ over~$\dom{}(H)$ such that for every location~\hl,
+        $\Owner{\hl}=\World$ or $\Owner{\hl} \TprecNotEqual \hl$, and $\Ifn{\hl}=\Mutable$ or $\Cooker{\hl} \Tprec \hl$,
+        and
+    (ii)~each non-null field location is a subtype of the declared field type.
+Recall also that from the definition of a heap~$H$, every location~\hl in~$H$ has the form:
+    (iii)~$\hl \mapsto \hC\code{<\underline{NO,NI}>}\hparen{\ol{\hv}}$.
+Also recall that a heap~$H$ is {well-typed for~\he} if~$H[K \mapsto H[K]\cup R(\he)]$ is well-typed.
+
+Consider the congruence rules, such as \[
+    \typerule{H,\he \rightarrow H',\he'}{H,\he.f \rightarrow H',\he'.f}
+\]
+By the induction hypothesis~$H'$ is well-typed.
+
+The only rule that changes~$H[K]$ is \RULE{K-c1}:
+\[
+\typerule{
+  H' = H[K \mapsto H[K] \cup \{\hl\}] \gap
+  H',\he \rightarrow H",\code{e'}
+}{
+  H,\code{e;return l} \rightarrow H"[K \mapsto H"[K] \setminus \{\hl\}],\code{e';return l}
+}
+\]
+We need to prove that~$H"[K \mapsto H"[K] \setminus \{\hl\}]$ is well-typed for~\code{e';return l},
+    or equivalently that~$H"$ is well-typed for~$\code{e'}$.
+Because~$H$ is well-typed for~\code{e;return l},
+    then~$H'$ is well-typed for~\code{e},
+    and by induction~$H"$ is well-typed for~$\code{e'}$.
+From \Ref{Lemma}{constructors}, we know that~$H"[K]=H'[K]$, thus~$\hl \in H"[K]$,
+    and we have that~$H"$ is well-typed for~$\code{e';return l}$.
+From \Ref{Lemma}{well-typed},~$H"[K \mapsto H"[K] \setminus \{\hl\}]$ is well-typed for~$\code{e';return l}$.
+
+Rules \RULE{K-Field-Access} and \RULE{K-Invoke} do not change the heap.
+
+Rule \RULE{K-return} does not change the heap nor~$H[K]$,
+    however~$R(\grave{\he}) = R(\he") \setminus \{ \hl \}$,
+According to \Ref{Lemma}{well-typed}, the resulting heap~$H'$
+    is well-typed for~$\grave{\he}$.
+
+Rule \RULE{K-New} creates a new object with \code{null} fields:
+    \[
+    \code{VI}' =
+    \begin{cases}
+    \Immut_\hl & \text{if~}\code{VI}=\Immut \text{~or~} (\code{VI}=\Immut_{\hc} \text{~and~} \hc \not \in H[K]) \\
+    \code{VI} & \text{otherwise} \\
+    \end{cases}
+        \gap
+    \hl \not \in \dom(H)
+        \gap
+    H' = H[\hl \mapsto \code{C<NO,VI'>}\hparen{\ol{\code{null}}}]
+    \]
+The fields of the new object are all \code{null}, thus fulfilling demand (ii).
+
+We extend the linear order~$\Tprec$ by adding the new location~\hl at the end.
+Its owner~\code{NO} is either \World or an existing object~$\hl'$,
+    and either $\code{VI}=\Mutable$ or $\code{VI}=\Immut_{\hl'}$
+    (where~$\hl'$ is either an existing location or \hl),
+    thus fulfilling demand (i).
+
+Note that~$\he" = \code{new C<\underline{NO,VI}>}\hparen{\ol{\hv}}$, and because~$\he"$ is closed,
+    then we have that~$\code{NO}$ and~$\code{VI}$ do not contain~\hO, \hI, nor~\This.
+And if~$\code{VI}=\Immut$ then it is substituted with~$\Immut_\hl$, thus fulfilling demand (iii).
+Finally, note that~$\grave{\he}=(\hl\code{.build}\hparen{\ol{\hv}}\code{;return l})$,
+    i.e.,~$R(\grave{\he}) = R(\he") \cup \{ \hl \}$.
+However, because~\hl is a \emph{new} location, it does not change existing subtype relations (it does not affect existing objects
+    that do not refer to~\hl).
+Therefore, $H'$ is well-typed for~$\grave{\he}$.
+
+Finally, in rule \RULE{K-Field-Assignment},~$\he" = \hl.\hf_i = \code{\hv'}$,
+    $\grave{\he} = \code{\hv'}$,
+    and~$H' = H[\hl \mapsto \code{C<NO,NI>(}[\hv'/\hv_i]\ol{\hv}\code{)}]$.
+Note that~$R(\he") = R(\grave{\he}) = \{\}$, thus a if~$H'$ is well typed then it is well-typed for~$\grave{\he}$.
+Because the typing rule \RULE{T-Field-Assignment} require that: \[
+  \Gamma_H \vdash \hl.\hf : \hT
+    \gap
+  \Gamma_H \vdash \code{\hv'}:\code{T'}
+    \gap
+  \Gamma_H \vdash \code{T'} \st \hT
+    \]
+    then the heap~$H'$ is well-typed.
+\end{proof}
+
+
+
+\bibliographystyle{abbrv}
+\bibliography{bibstring-abbrev,igj-extra,alex,names,nicks,oopsla,ecoop}
+
+
+\end{document}

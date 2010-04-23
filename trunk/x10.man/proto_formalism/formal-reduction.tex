@@ -1,0 +1,69 @@
+
+\begin{figure*}[t]
+\begin{center}
+\begin{tabular}{|c|}
+\hline
+
+$\typerule{
+  \hl \not \in \dom(H)
+    \gap
+  \hl' =
+    \begin{cases}
+    \hl & \text{if~}\hK=\cooked \text{~or~} (\hK=\hl" \text{~and~} \hl" \not \in H[K]) \\
+    \hK & \text{otherwise} \\
+    \end{cases}
+}{
+  H,\code{new C}^\hK\hparen{\ol{\hv}} \rightarrow H[\hl \mapsto \code{C}^{\hl'}\hparen{\ol{\code{null}}}],\hl\code{.build}\hparen{\ol{\hv}}\code{;return l}
+}$
+\quad \RULE{(K-New)}\\\\
+
+
+$\typerule{
+  H[K \mapsto H[K] \cup \{\hl\}],\he \rightarrow H',\code{e'}
+}{
+  H,\code{e;return l} \rightarrow H'[K \mapsto H'[K] \setminus \{\hl\}],\code{e';return l}
+}$
+~\RULE{(K-c1)}
+\quad
+$\typerule{
+  H[\hl] = \code{C}^\hK\hparen{\ol{\hv}}
+    \gap
+  \fields{}(\hC)=\ol{\hf}
+}{
+  H,\hl.\hf_i \rightarrow H,\hv_i
+}$
+~\RULE{(K-Field-Access)}\\\\
+
+$\typerule{
+  H[\hl] = \code{C}^\hK\hparen{\ol{\hv}}
+    \gap
+  \fields{}(\hC)=\ol{\hf}
+}{
+  H,\hl.\hf_i = \hv' \rightarrow H[\hl \mapsto \code{C}^\hK\hparen{[\hv'/\hv_i]\ol{\hv}}],\hv'
+}$
+\quad \RULE{(K-Field-Assignment)}\\\\
+
+
+$\typerule{
+}{
+  H,\code{v;return l} \rightarrow H,\hl
+}$
+\quad\RULE{(K-return)}
+\gap
+
+$\typerule{
+  H[\hl] = \code{C}^\hK\hparen{\ldots}
+    \gap
+  \mbody{}(\hm,\code{C})=\ol{\hx}.\he'
+}{
+  H,\hl\code{.m(}\ol{\hv}\code{)} \rightarrow H, [\ol{\hv}/\ol{\hx}, \hl/\this, \hl/\proto]\he'
+}$
+\quad \RULE{(K-Invoke)}\\
+
+
+\hline
+\end{tabular}
+\end{center}
+\caption{FX10 Reduction Rules (excluding all congruence rules except the one for \code{e;return l} described in \RULE{K-c1}).} %(casting, field access, and method invocation are the same as in FJ)
+\label{Figure:reduction}
+\end{figure*}
