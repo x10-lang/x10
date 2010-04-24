@@ -2050,21 +2050,8 @@ public class Emitter {
                         }
                         else {
                             X10ClassDef cd = x10Type.x10Def();
-                            String pat = getJavaRTTRep(cd);
-                            if (pat != null) {
-                                // Check for @NativeRep with null RTT class
-                                Object[] components = new Object[1 + x10Type.typeArguments().size() * 2];
-                                int j = 0;
-                                components[j++] = new TypeExpander(this, x10Type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                                for (Type at : x10Type.typeArguments()) {
-                                    components[j++] = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                                    components[j++] = new RuntimeTypeExpander(this, at);
-                                }
-                                dumpRegex("Native", components, tr, pat);
-                            }
-                            else if (getJavaRep(cd) != null) {
-                                w.write("(x10.rtt.RuntimeType) ");
-                                w.write("x10.rtt.Types.runtimeType(");
+                            if (getJavaRep(cd) != null) {
+                                w.write("new x10.rtt.RuntimeType(");
                                 printType(x10Type, 0);
                                 w.write(".class");
                                 w.write(")");
@@ -2076,7 +2063,12 @@ public class Emitter {
                     }
                     w.write(", ");
                     Type ta = x10Type.typeArguments().get(i);
-                    if (ta instanceof ParameterType) {
+                    if (ta.typeEquals(def.asType(), tr.context())) {
+                        w.write("new x10.rtt.UnresolvedType(");
+                        w.write("-1");
+                        w.write(")");
+                    }
+                    else if (ta instanceof ParameterType) {
                         w.write("new x10.rtt.UnresolvedType(");
                         w.write("" + getIndex(def.typeParameters(), (ParameterType) ta));
                         w.write(")");
