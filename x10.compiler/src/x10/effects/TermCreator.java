@@ -149,7 +149,7 @@ public class TermCreator {
                 } else if (old instanceof Call) {
                     Call call = (Call) old;
                     
-                    throw new UnsupportedOperationException("Don't know how to create an XTerm for a method call.");
+                    //throw new UnsupportedOperationException("Don't know how to create an XTerm for a method call.");
                 } else if (old instanceof SettableAssign) {
                     SettableAssign sa= (SettableAssign) old;
                     Expr array= sa.array();
