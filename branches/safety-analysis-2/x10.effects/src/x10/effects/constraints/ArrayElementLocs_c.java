@@ -16,8 +16,10 @@ public class ArrayElementLocs_c extends RigidTerm_c implements ArrayElementLocs 
 	
 	XTerm index;
 	public ArrayElementLocs_c(XTerm array, XTerm index) {
+		
 		super(array);
 		this.index=index;
+
 	}
 	
 	public XTerm array() { return designator();}
