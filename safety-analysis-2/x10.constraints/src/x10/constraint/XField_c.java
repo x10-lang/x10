@@ -22,6 +22,7 @@ public class XField_c extends XVar_c implements XField {
 		super();
 		this.receiver = receiver;
 		this.field = field;
+		//assert (receiver != null);
 	}
 
 	public XTermKind kind() { return XTermKind.FIELD_ACCESS;}
@@ -56,7 +57,10 @@ public class XField_c extends XVar_c implements XField {
 	}
 
 	public int hashCode() {
-		return receiver.hashCode() + field.hashCode();
+		if (receiver != null)
+			return receiver.hashCode() + field.hashCode();
+		else return field.hashCode();
+			
 	}
 
 	public boolean equals(Object o) {
