@@ -47,8 +47,6 @@ class Timer {
     }
 
     public void mark() {
-	//@@@ahoaho
-	//base_time = System.currentTimeMillis();
 	base_time = System.nanoTime();
     }
 
@@ -57,8 +55,6 @@ class Timer {
     }
 
     public void record() {
-	//@@@ahoaho
-	//elapsed_time += (System.currentTimeMillis() - base_time);
 	elapsed_time += (System.nanoTime() - base_time);
     }
 
@@ -421,16 +417,16 @@ class IOTest {
     Timer bytetimer, blocktimer;
     static final int BUFSIZE = 100000;
     byte buffer[];
-    FileOutputStream out = null;
-    //BufferedOutputStream out = null;
+    //FileOutputStream out = null;
+    BufferedOutputStream out = null;
 
     public void start(PrintStream pstream) {
 	bytetimer = new Timer();
 	blocktimer = new Timer();
 
 	try {
-	    out = new FileOutputStream("tmpfile");
-	    //out = new BufferedOutputStream(new FileOutputStream("tmpfile"));
+	    //out = new FileOutputStream("tmpfile");
+	    out = new BufferedOutputStream(new FileOutputStream("tmpfile"));
 	} catch(IOException e) {
 	    pstream.println("Could not create \"tmpfile\" for IO benchmark");
 	    return;

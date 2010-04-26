@@ -1,3 +1,39 @@
+/*
+ * Copyright (c) 1996 The Regents of the University of California.
+ * All rights reserved.
+ *
+ * Authors: William G. Griswold (wgg@cs.ucsd.edu) and Paul S. Phillips
+ * (paulp@go2net.com)
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *      This product includes software developed by the University of
+ *      California, San Diego and its contributors.
+ * 4. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.io.Console;
@@ -6,10 +42,10 @@ import x10.io.File;
 import x10.io.FileWriter;
 
 class Timer {
-    private var base_time:long;
-    private var elapsed_time:long;
+    private var base_time: Long;
+    private var elapsed_time: Long;
 
-    private global val UNIT:long = 1000;
+    private static val UNIT = 1000L;
 
     def this() {
         clear();
@@ -27,75 +63,75 @@ class Timer {
         elapsed_time += (System.nanoTime() - base_time);
     }
 
-    def elapsed(): float {
-        // return (elapsed_time / UNIT) as float;
-        return (elapsed_time as float) / UNIT;
+    def elapsed(): Float {
+        return (elapsed_time as Float) / UNIT;
     }
 
     public def report(pstream: x10.io.Printer) {
-        elapsed_seconds:float = elapsed();
+        elapsed_seconds: Float = elapsed();
         pstream.println("Time " + elapsed_seconds + " msec");
     }
 }
 
-// mtake not checked
+// valid to X10-Java only
 class GCTest {
-    
     static class Counter {
-        var objs_collected:int;
+        var objs_collected: Int;
         def add() {
             ++objs_collected;
         }
     }
     
     @NativeRep("java", "java.lang.Runtime", null, null)
-    static class JavaRuntime {
-        @Native("java", "java.lang.Runtime.getRuntime()")
-        public native static def getRuntime(): JavaRuntime!;
+    static class NativeRuntime {
+	@Native("java", "java.lang.Runtime.getRuntime()")
+        public static def getRuntime(): NativeRuntime! {
+	    return new NativeRuntime();
+	}
         
-        @Native("java", "#0.gc()")
-        public native def gc(): Void;
+	@Native("java", "#0.gc()")
+	public def gc(): Void { }
         
-        @Native("java", "#0.totalMemory()")
-        public native def totalMemory(): long;
+	@Native("java", "#0.totalMemory()")
+	public def totalMemory(): Long { return 0L; }
         
-        @Native("java", "#0.freeMemory()")
-        public native def freeMemory(): long;
+	@Native("java", "#0.freeMemory()")
+	public def freeMemory(): Long { return 0L; }
         
-        @Native("java", "#0.runFinalization()")
-        public native def runFinalization() : Void;
+	@Native("java", "#0.runFinalization()")
+	public def runFinalization(): Void { }
     }
 
     // WGG - pick these sizes carefully: will kill some systems
-    static val GC_POINTERS:int = 200;
-    static val GC_OBJECTS:int = 2000;
-    static val MAX_OBJ_SIZE:int = 4000;
-    val objects = Rail.make[GCTestElem](GC_OBJECTS, (i:int) => null as GCTestElem);
+    static val GC_POINTERS = 200;
+    static val GC_OBJECTS = 2000;
+    static val MAX_OBJ_SIZE = 4000;
+    val objects = Rail.make[GCTestElem](GC_POINTERS, (i: Int) => null as GCTestElem);
     val counter: Counter! = new Counter();
-    var seed1:long  = 121393;  // WGG - no, I didn't look these up in Knuth
-    var seed2:long  = 196418;
-    var total_size:long  = 0;
-    var freememory:long, totalmemory:long;
-    var newfreememory:long, newtotalmemory:long, recoveredmemory:long;
-    var fullGCtimer:Timer!;
-    var incrGCtimer:Timer!;
+    var seed1: Long  = 121393;  // WGG - no, I didn't look these up in Knuth
+    var seed2: Long  = 196418;
+    var total_size: Long  = 0;
+    var freememory: Long, totalmemory: Long;
+    var newfreememory: Long, newtotalmemory: Long, recoveredmemory: Long;
+    var fullGCtimer: Timer!;
+    var incrGCtimer: Timer!;
     
     public def this() {}
     
     // WGG - this was Math.random(), but we need something a little less random
     //  and system-specific in order to achieve cross-platform repeatability.
-    def fiborandom():long = {
-        var sum:long = seed1 + seed2;
+    def fiborandom(): Long = {
+        var sum: Long = seed1 + seed2;
         if (sum < 0) sum *= -1;
 
         seed1 = seed2;
         seed2 = sum;
-      return sum;
+	return sum;
     }
     
     public def start(pstream:x10.io.Printer): Void {
-        var size:int, which:int;
-        RT: JavaRuntime! = JavaRuntime.getRuntime();
+        var size: Int, which: Int;
+        RT: NativeRuntime! = NativeRuntime.getRuntime();
 
         // Test the cost of a full mark-and-sweep (at least for Sun Java)
         totalmemory = RT.totalMemory();
@@ -107,36 +143,36 @@ class GCTest {
         fullGCtimer.record();
         newtotalmemory = RT.totalMemory();
         newfreememory = RT.freeMemory();
-        recoveredmemory = (newfreememory - freememory) -
-    		      (newtotalmemory - totalmemory);
+        recoveredmemory = (newfreememory - freememory) - (newtotalmemory - totalmemory);
 
         // Test the cost of a incremental GC (at least for Sun Java)
         incrGCtimer = new Timer();
         incrGCtimer.mark();
 
-        for (var i:int = 0; i < GC_OBJECTS; i++) {
-    	    size = (fiborandom() % MAX_OBJ_SIZE) as int;
+        for (var i: Int = 0; i < GC_OBJECTS; i++) {
+    	    size = (fiborandom() % MAX_OBJ_SIZE) as Int;
     	    total_size += size;
-    	    which = ((fiborandom() % GC_POINTERS) + 1) as int; // WGG - no 0 sized objects
-    	    objects(i) = new GCTestElem(counter, size);
+    	    which = ((fiborandom() % GC_POINTERS) as Int) + 1; // WGG - no 0 sized objects
+    	    objects(which) = new GCTestElem(counter, size);
         }
 
         incrGCtimer.record();
-      }
+    }
 
-      public def report(pstream: x10.io.Printer) {
-          pstream.println("System.gc() w/ " + freememory + "B memory avail of " + totalmemory + "B total");
-          StringHelper.bmfill(pstream, "GC'd " + recoveredmemory + "B, leaving " + newfreememory + "B of " + newtotalmemory + "B total: ", fullGCtimer.elapsed());
-          StringHelper.bmfill(pstream,GC_OBJECTS + " obj rand. new'd/assigned (avg " + (total_size / GC_OBJECTS) + "B), " + counter.objs_collected + " GC'd: ", incrGCtimer.elapsed());
+    public def report(pstream: x10.io.Printer) {
+	pstream.println("System.gc() w/ " + freememory + "B memory avail of " + totalmemory + "B total");
+	StringHelper.bmfill(pstream, "GC'd " + recoveredmemory + "B, leaving " + newfreememory + "B of " + newtotalmemory + "B total: ", fullGCtimer.elapsed());
+	StringHelper.bmfill(pstream, GC_OBJECTS + " obj rand. new'd/assigned (avg " + (total_size / GC_OBJECTS) + "B), " + counter.objs_collected + " GC'd: ", incrGCtimer.elapsed());
     }
 }
 
 class GCTestElem {
-    val collect: Rail[Byte] = Rail.make[Byte](1000, (i:int) => 0 as Byte);
+    val collect: Rail[Byte];
     val counter: GCTest.Counter!;
 
-    public def this(counter:GCTest.Counter!, size:int) {
+    public def this(counter: GCTest.Counter!, size: Int) {
         this.counter = counter;
+        collect = Rail.make[Byte](size, (i: Int) => 0 as Byte);
     }
 
     protected def finalize() {
@@ -145,79 +181,78 @@ class GCTestElem {
 }
 
 class LoopTest {
-    static val ITERATIONS:int = 1000000;
+    static val ITERATIONS = 1000000;
     var t: Timer!;
 
     public def start(): Void {
         t = new Timer();
         t.mark();
-        for (var i:int = 0; i < ITERATIONS; i++)
+        for (var i: Int = 0; i < ITERATIONS; i++)
             ;
         t.record();
     }
 
     public def report(pstream: x10.io.Printer): Void {
-          StringHelper.bmfill(pstream, "Empty loop iterated " + ITERATIONS + " times: ", t.elapsed());
+	StringHelper.bmfill(pstream, "Empty loop iterated " + ITERATIONS + " times: ", t.elapsed());
     }
 }
 
 class ArrayTest {
-    static val ARRAY_INTS:int = 1000000;
-    val arr = Rail.make[int](ARRAY_INTS, (x:int)=>0);
-    var t:Timer!;
+    static val ARRAY_INTS = 1000000;
+    val arr = Rail.make[Int](ARRAY_INTS, (x: Int)=>0);
+    var t: Timer!;
 
     public def start(): Void {
-        // for ((i) in 0..1) arr(i) += 5;
-        
         t = new Timer();
+        
         t.mark();
-        for (var i:int = 0; i < ARRAY_INTS; i++) {
+        for (var i: Int = 0; i < ARRAY_INTS; i++) {
             arr(i) = i;
         }
         t.record();
     }
 
     public def report(pstream: x10.io.Printer) {
-          StringHelper.bmfill(pstream,"Assigned to " + ARRAY_INTS + " array ints: ", t.elapsed());
+	StringHelper.bmfill(pstream,"Assigned to " + ARRAY_INTS + " array ints: ", t.elapsed());
     }
 }
 
 class FieldTest {
-    static val FIELD_ACCESSES:int = 1000000;
-    val fte:FieldTestElem! = new FieldTestElem();
-    var t:Timer!;
+    static val FIELD_ACCESSES = 1000000;
+    val fte: FieldTestElem! = new FieldTestElem();
+    var t: Timer!;
 
     public def start(): Void {
-        var temp:int;
+        var temp: Int;
 
         t = new Timer();
 
         t.mark();
-        for (var i:int = 0; i < FIELD_ACCESSES; i++) {
+        for (var i: Int = 0; i < FIELD_ACCESSES; i++) {
             temp = fte.data;
         }
         t.record();
     }
 
     public def report(pstream: x10.io.Printer): Void {
-          StringHelper.bmfill(pstream, FIELD_ACCESSES + " object int field accesses: ", t.elapsed());
+	StringHelper.bmfill(pstream, FIELD_ACCESSES + " object int field accesses: ", t.elapsed());
     }
 }
 
 class FieldTestElem {
-    var data:int = 1;
+    var data: Int = 1;
 }
 
 class ArithmeticTest {
-    static val ADDS:int = 1000000;
-    static val MULTS:int = 1000000;
-    static val FADDS:int = 1000000;
-    static val FMULTS:int = 1000000;
-    var intaddtimer:Timer!, intmulttimer:Timer!;
-    var doubleaddtimer:Timer!, doublemulttimer:Timer!;
-    var sum:int = 0, prod:int = 1;
-    var fsum:double = 0.0, fprod:double = 1.0;
-    val realnumber:double = new Random().nextDouble() * 43213.5752 + 1; // WGG - don't use int i
+    static val ADDS = 1000000;
+    static val MULTS = 1000000;
+    static val FADDS = 1000000;
+    static val FMULTS = 1000000;
+    var intaddtimer: Timer!, intmulttimer: Timer!;
+    var doubleaddtimer: Timer!, doublemulttimer: Timer!;
+    var sum: Int = 0, prod: Int = 1;
+    var fsum: Double = 0.0, fprod: Double = 1.0;
+    val realnumber = new Random().nextDouble() * 43213.5752 + 1; // WGG - don't use int i
 
     // WGG - note that there are extra adds hidden in the loop counter
     public def start(): Void {
@@ -227,42 +262,42 @@ class ArithmeticTest {
         doublemulttimer = new Timer();
 
         intaddtimer.mark();
-        for (var i:int = 0; i < ADDS; i++) {
+        for (var i: Int = 0; i < ADDS; i++) {
             sum += i;
         }
         intaddtimer.record();
 
         intmulttimer.mark();
-        for (var i:int = 1; i <= MULTS; i++) {
+        for (var i: Int = 1; i <= MULTS; i++) {
             prod *= i;
         }
         intmulttimer.record();
 
         doubleaddtimer.mark();
-        for (var i:int = 0; i < FADDS; i++) {
+        for (var i: Int = 0; i < FADDS; i++) {
             fsum += realnumber;
         }
         doubleaddtimer.record();
 
         doublemulttimer.mark();
-        for (var i:int = 1; i <= FMULTS; i++) {
+        for (var i: Int = 1; i <= FMULTS; i++) {
             fprod *= realnumber;
         }
         doublemulttimer.record();
     }
 
     public def report(pstream: x10.io.Printer): Void {
-          StringHelper.bmfill(pstream, "Added " + ADDS + " ints in loop: ", intaddtimer.elapsed());
-          StringHelper.bmfill(pstream, "Multipled " + MULTS + " ints in loop: ", intmulttimer.elapsed());
-          StringHelper.bmfill(pstream, "Added " + ADDS + " doubles in loop: ", doubleaddtimer.elapsed());
-          StringHelper.bmfill(pstream, "Multipled " + MULTS + " doubles in loop: ", doublemulttimer.elapsed());
+	StringHelper.bmfill(pstream, "Added " + ADDS + " ints in loop: ", intaddtimer.elapsed());
+	StringHelper.bmfill(pstream, "Multipled " + MULTS + " ints in loop: ", intmulttimer.elapsed());
+	StringHelper.bmfill(pstream, "Added " + ADDS + " doubles in loop: ", doubleaddtimer.elapsed());
+	StringHelper.bmfill(pstream, "Multipled " + MULTS + " doubles in loop: ", doublemulttimer.elapsed());
     }
 }
 
 class MethodTest {
-    static val METHOD_CALLS:int = 1000000;
-    var sametimer:Timer!, othertimer:Timer!;
-    var mt:MethodTest!;
+    static val METHOD_CALLS = 1000000;
+    var sametimer: Timer!, othertimer: Timer!;
+    var mt: MethodTest!;
 
     public def start(): Void {
         sametimer = new Timer();
@@ -270,21 +305,21 @@ class MethodTest {
         mt = new MethodTest();
 
         sametimer.mark();
-        for (var i:int = 0; i < METHOD_CALLS; i++) {
+        for (var i: Int = 0; i < METHOD_CALLS; i++) {
             empty();
         }
         sametimer.record();
 
         othertimer.mark();
-        for (var i:int = 0; i < METHOD_CALLS; i++) {
+        for (var i: Int = 0; i < METHOD_CALLS; i++) {
             mt.empty();
         }
         othertimer.record();
     }
 
     public def report(pstream: x10.io.Printer): Void {
-          StringHelper.bmfill(pstream, METHOD_CALLS + " method calls in same object: ", sametimer.elapsed());
-          StringHelper.bmfill(pstream, METHOD_CALLS + " method calls in other object: ", othertimer.elapsed());
+	StringHelper.bmfill(pstream, METHOD_CALLS + " method calls in same object: ", sametimer.elapsed());
+	StringHelper.bmfill(pstream, METHOD_CALLS + " method calls in other object: ", othertimer.elapsed());
     }
 
     public def empty() {
@@ -292,16 +327,16 @@ class MethodTest {
 }
 
 class ExceptionTest {
-    static val THROWS:int = 1000000;
-    var t:Timer!;
-    var exc:MyException;
+    static val THROWS = 1000000;
+    var t: Timer!;
+    var exc: MyException;
 
     public def start(): Void {
         t = new Timer();
         exc = new MyException();
 
         t.mark();
-        for (var i:int = 0; i < THROWS; i++) {
+        for (var i: Int = 0; i < THROWS; i++) {
             try {
                 throw exc;
             } catch (e:MyException) {
@@ -311,69 +346,55 @@ class ExceptionTest {
     }
 
     public def report(pstream: x10.io.Printer): Void {
-          StringHelper.bmfill(pstream, "Threw and caught " + THROWS + " exceptions: ", t.elapsed());
+	StringHelper.bmfill(pstream, "Threw and caught " + THROWS + " exceptions: ", t.elapsed());
     }
 }
 
 class MyException extends Exception {
 }
 
-// mtake not checked
+// valid to X10-Java only
 class ThreadTest {
     
     @NativeRep("java", "java.lang.Thread", null, null)
     final static class Thread {
-        @Native("java", "java.lang.Thread.yield()")
-        public native static def yield():Void;
+	@Native("java", "java.lang.Thread.yield()")
+	public static def yield(): Void { }
     }
     
-    static val THREADCNT:int = 3;
-    static val SWITCHES:int = 10000;
-    var t:Timer!;
-    var threadsDone:int = 0;
-    var i:int;
+    static val THREADCNT = 3;
+    static val SWITCHES = 10000;
+    var t: Timer!;
+    var i: Int;
 
     public def start(): Void {
         t = new Timer();
 
         t.mark();
-        
         finish {
-            for (var i:int = 0; i < THREADCNT; i++) {
+            for (var i: Int = 0; i < THREADCNT; i++) {
                 async {
-                    for (var j:int = 0; j < SWITCHES; j++) {
+                    for (var j: Int = 0; j < SWITCHES; j++) {
                         try {
                             Thread.yield();
                         } catch (e:Exception) {
                         }
                     }
-                    signal();
                 }
-            }
-        }
-
-        while (threadsDone != THREADCNT) {
-            try {
-                Thread.yield();
-            } catch (e:Exception) {
             }
         }
         t.record();
     }
 
-    public def signal(): Void {
-        threadsDone++;
-    }
-
     public def report(pstream: x10.io.Printer): Void {
-          StringHelper.bmfill(pstream,THREADCNT + " threads, switched " + SWITCHES + " times each: ", t.elapsed());
+	StringHelper.bmfill(pstream,THREADCNT + " threads, switched " + SWITCHES + " times each: ", t.elapsed());
     }
 }
 
 class IOTest {
-    var bytetimer:Timer!, blocktimer:Timer!;
-    static val BUFSIZE:int = 100000;
-    var buffer: Rail[Byte];
+    var bytetimer: Timer!, blocktimer: Timer!;
+    static val BUFSIZE = 100000;
+    var buffer: Rail[Byte]!;
     var out: FileWriter;
 
     public def start(pstream:x10.io.Printer): Void {
@@ -381,15 +402,14 @@ class IOTest {
         blocktimer = new Timer();
 
         try {
-            val file:File! = new File("tmpfile");
-            out = file.openWrite();
+            out = new File("tmpfile").openWrite();
         } catch (e: Exception) {
             pstream.println("Could not create \"tmpfile\" for IO benchmark");
             return;
         }
 
         bytetimer.mark();
-        for (var i:int = 0; i < BUFSIZE; i++) {
+        for (var i: Int = 0; i < BUFSIZE; i++) {
             try {
                 out.write(0);
             } catch (e: Exception) {
@@ -397,7 +417,7 @@ class IOTest {
         }
         bytetimer.record();
 
-        buffer = Rail.make[Byte](BUFSIZE, (i:int) => 0 as Byte);
+        buffer = Rail.make[Byte](BUFSIZE, (i: Int) => 0 as Byte);
         blocktimer.mark();
         try {
             out.write(buffer);
@@ -407,37 +427,37 @@ class IOTest {
     }
 
     public def report(pstream: x10.io.Printer): Void {
-          StringHelper.bmfill(pstream, BUFSIZE + " writes of 1 byte: ", bytetimer.elapsed());
-          StringHelper.bmfill(pstream, "1 write of " + BUFSIZE + " bytes: ", blocktimer.elapsed());
+	StringHelper.bmfill(pstream, BUFSIZE + " writes of 1 byte: ", bytetimer.elapsed());
+	StringHelper.bmfill(pstream, "1 write of " + BUFSIZE + " bytes: ", blocktimer.elapsed());
     }
 }
 
 class StringHelper {
 
-    public static def filler(amount:int, chr:String): String {
-        var pad:String = "";
-        for (var i:int = 1; i <= amount; i++)
+    public static def filler(amount: Int, chr: String): String {
+        var pad: String = "";
+        for (var i: Int = 1; i <= amount; i++)
             pad += chr;
         return pad;
     }
 
-    public static def fill(str1:String, str2:String, outto:int, chr:String): String {
-        val padamount:int = outto - (str1.length() + str2.length());
+    public static def fill(str1: String, str2: String, outto: Int, chr: String): String {
+        val padamount: Int = outto - (str1.length() + str2.length());
         return str1 + filler(padamount, chr) + str2;
     }
 
-    public static def floatfill(num:float, totalplaces:int):String {
-        var numstr:String = num + "";
-        var numlen:int = numstr.length();
-        var places:int = numlen - (numstr.indexOf('.') + 1);
+    public static def floatfill(num: Float, totalplaces: Int): String {
+        var numstr: String = num + "";
+        var numlen: Int = numstr.length();
+        var places: Int = numlen - (numstr.indexOf('.') + 1);
         return fill(numstr, "", numlen + (totalplaces - places), "0");
     }
 
-    public static def bmfill(ps: x10.io.Printer, str1: String, str2:String): Void {
+    public static def bmfill(ps: x10.io.Printer, str1: String, str2: String): Void {
         ps.println(fill(str1, str2, 64, " "));
     }
 
-    public static def bmfill(ps: x10.io.Printer, str1:String, num:float): Void {
+    public static def bmfill(ps: x10.io.Printer, str1: String, num: Float): Void {
         ps.println(fill(str1, floatfill(num, 3), 64, " "));
     }
 
@@ -445,31 +465,31 @@ class StringHelper {
 
 
 class BenchmarkX10 {
-    var next_:int;
+    var next: Int;
     var pstream: x10.io.Printer;
-    var cumtimer:Timer!;
-    var skipgc:boolean;
-    var mode:String;
-    var optflags:String;
-    static val version:String = "1.0";
+    var cumtimer: Timer!;
+    var skipgc: Boolean;
+    var mode: String;
+    var optflags: String;
+    static val version = "1.0";
 
-    def this(thestream:x10.io.Printer, SkipGc: boolean, OptFlags: String) {
+    def this(thestream: x10.io.Printer, SkipGc: Boolean, OptFlags: String) {
         cumtimer = new Timer();
         cumtimer.mark();
-        next_ = -1; // preincrements to 0
+        next = -1; // preincrements to 0
         pstream = thestream;
         skipgc = SkipGc;
         mode = (pstream == x10.io.Console.OUT) ? "application" : "applet";
         optflags = (OptFlags != null) ? OptFlags : "unspecified";
     }
 
-    public static def main(args:Rail[String]!): Void {
-        val bm:BenchmarkX10! = new BenchmarkX10(x10.io.Console.OUT, false, "unspecified");
+    public static def main(args: Rail[String]!): Void {
+        val bm = new BenchmarkX10(x10.io.Console.OUT, false, "unspecified");
 
         if (args.length == 0)
             bm.runbenchmarks();
         else {
-            for (var i:int = 0; i < args.length; i++)
+            for (var i: Int = 0; i < args.length; i++)
                 bm.runTest(args(i));
         }
     }
@@ -483,26 +503,24 @@ class BenchmarkX10 {
      * Using counter, choose the next test to run and then return with true
      *  if successful.  Increments the counter.
      */
-    public def nextTest(): boolean {
-        val test: Rail[String]! = [ "loop", "arithmetic", "array", "field", "method", "exception", "thread", "gc", "io" ];
+    public def nextTest(): Boolean {
+        val test = [ "loop", "arithmetic", "array", "field", "method", "exception", "thread", "gc", "io" ];
 
         // header
-        if (++next_ == 0) {
+        if (++next == 0) {
             StringHelper.bmfill(pstream, "Benchmark", "Time (msec)");
-            StringHelper.bmfill(pstream, "----------------------------------",
-                    "----------");
+            StringHelper.bmfill(pstream, "----------------------------------", "----------");
             pstream.println(" ");
         }
 
         // run the test or the cum
-        if (next_ < test.length) {
-            runTest(test(next_));
+        if (next < test.length) {
+            runTest(test(next));
             pstream.println(" ");
             return true;
-        } else if (next_ == test.length) {
+        } else if (next == test.length) {
             cumtimer.record();
-            StringHelper.bmfill(pstream, "Cumulative runtime: ", cumtimer
-                    .elapsed());
+            StringHelper.bmfill(pstream, "Cumulative runtime: ", cumtimer.elapsed());
             pstream.println();
             runGetProperties(pstream);
             return true;
@@ -515,7 +533,7 @@ class BenchmarkX10 {
      * Using a string, choose the test to run and then return with true
      *  if successful.
      */
-    public def runTest(str:String): boolean {
+    public def runTest(str: String): Boolean {
 
         if (str.equals("loop")) {
             runLoopTest(pstream);
@@ -548,15 +566,13 @@ class BenchmarkX10 {
             if (pstream == x10.io.Console.OUT)
                 runIOTest(pstream);
             else
-                pstream
-                        .println("WARNING: Cannot perform IO benchmark in applet");
+                pstream.println("WARNING: Cannot perform IO benchmark in applet");
             return true;
         } else if (str.equals("configuration")) {
             runGetProperties(pstream);
             return true;
         } else if (str.equals("-help") || true) {
-            pstream
-                    .println("usage: java Benchmark [-help] {loop | arithmetic | array | field | method | exception | thread | gc | io | configuration}*");
+            pstream.println("usage: java Benchmark [-help] {loop | arithmetic | array | field | method | exception | thread | gc | io | configuration}*");
             return false;
         }
 
@@ -564,22 +580,22 @@ class BenchmarkX10 {
     }
 
     @Native("java", "System.getProperty(\"os.arch\", \"?\")")
-    public native static def getArch(): String;
+    public static def getArch(): String { return "?"; }
     
     @Native("java", "System.getProperty(\"os.name\", \"?\")")
-    public native static def getOS(): String;
+    public static def getOS(): String { return "?"; }
     
     @Native("java", "System.getProperty(\"os.version\", \"?\")")
-    public native static def getOSVersion(): String;
+    public static def getOSVersion(): String { return "?"; }
     
     @Native("java", "System.getProperty(\"java.vendor\", \"?\")")
-    public native static def getJavaVendor(): String;
+    public static def getJavaVendor(): String { return "?"; }
     
     @Native("java", "System.getProperty(\"java.version\", \"?\")")
-    public native static def getJavaVersion(): String;
+    public static def getJavaVersion(): String { return "?"; }
     
     public def runGetProperties(pstream: x10.io.Printer): Void {
-        var arch:String, os:String, osversion:String, javavendor:String, javaversion:String;
+        var arch: String, os: String, osversion: String, javavendor: String, javaversion: String;
 
         pstream.println("\nSystem Configuration");
         pstream.println("--------------------");
@@ -606,55 +622,55 @@ class BenchmarkX10 {
     }
 
     public static def runGCTest(pstream: x10.io.Printer) {
-        val gc:GCTest! = new GCTest();
+        val gc = new GCTest();
         gc.start(pstream);
         gc.report(pstream);
     }
 
     public static def runLoopTest(pstream: x10.io.Printer) {
-        val lt:LoopTest! = new LoopTest();
+        val lt = new LoopTest();
         lt.start();
         lt.report(pstream);
     }
 
     public static def runArrayTest(pstream: x10.io.Printer) {
-        val arr_t:ArrayTest! = new ArrayTest();
+        val arr_t = new ArrayTest();
         arr_t.start();
         arr_t.report(pstream);
     }
 
     public static def runFieldTest(pstream: x10.io.Printer) {
-        val ft:FieldTest! = new FieldTest();
+        val ft = new FieldTest();
         ft.start();
         ft.report(pstream);
     }
 
     public static def runArithTest(pstream: x10.io.Printer) {
-        val arith_t:ArithmeticTest! = new ArithmeticTest();
+        val arith_t = new ArithmeticTest();
         arith_t.start();
         arith_t.report(pstream);
     }
 
     public static def runMethodTest(pstream: x10.io.Printer) {
-        val meth_t:MethodTest! = new MethodTest();
+        val meth_t = new MethodTest();
         meth_t.start();
         meth_t.report(pstream);
     }
 
     public static def runExceptionTest(pstream: x10.io.Printer) {
-        val throw_t:ExceptionTest! = new ExceptionTest();
+        val throw_t = new ExceptionTest();
         throw_t.start();
         throw_t.report(pstream);
     }
 
     public static def runThreadTest(pstream: x10.io.Printer) {
-        val thread_t:ThreadTest! = new ThreadTest();
+        val thread_t = new ThreadTest();
         thread_t.start();
         thread_t.report(pstream);
     }
 
     public static def runIOTest(pstream: x10.io.Printer) {
-        val io_t:IOTest! = new IOTest();
+        val io_t = new IOTest();
         io_t.start(pstream);
         io_t.report(pstream);
     }
