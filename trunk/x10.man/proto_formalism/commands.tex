@@ -55,16 +55,6 @@
 
 \newcommand{\hgn}[1]{\lt#1\gt} % type parameters and generic method parameters
 
-\newcommand{\Own}{{\it O}}
-\newcommand{\Ifn}[1]{\ensuremath{I(#1)}}
-\newcommand{\Ofn}[1]{\ensuremath{O(#1)}}
-\newcommand{\Cooker}[1]{\ensuremath{{\kappa}(#1)}}
-\newcommand{\Owner}[1]{\ensuremath{{\theta}(#1)}}
-\newcommand{\Oprec}[0]{\ensuremath{\preceq_{\theta}}}
-\newcommand{\Tprec}[0]{\ensuremath{\preceq^T}}
-\newcommand{\TprecNotEqual}[0]{\ensuremath{\prec^T}}
-\newcommand{\OprecNotEqual}[0]{\ensuremath{\prec_{\theta}}}
-\newcommand{\IfnDelta}[1]{\ensuremath{I_\Delta(#1)}}
 \newcommand\Abs[1]{\ensuremath{\left\lvert#1\right\rvert}}
 \newcommand{\erase}[1]{\ensuremath{\Abs{#1}}}
 
@@ -183,11 +173,10 @@
 
 \newcommand{\func}[1]{\text{\textnormal{\textit{\codesmaller #1}}}}
 
-
-\mynewcommand{\Pst}{\ensuremath{\mathrel{{\leq}}_\code{P}}}
-\mynewcommand{\st}{\ensuremath{\mathrel{{\leq}}}} %{\mathop{\textrm{\tt <:}}}
+\newcommand{\Tprec}[0]{\ensuremath{\leqslant^T}}
+\mynewcommand{\Pst}{\ensuremath{\trianglelefteq}}
+\mynewcommand{\st}{\ensuremath{\mathrel{{\preccurlyeq}}}} %{\mathop{\textrm{\tt <:}}}
 \mynewcommand{\notst}{\mathrel{\st\hspace{-1.5ex}\rule[-.25em]{.4pt}{1em}~}}
-\mynewcommand{\tl}{\ensuremath{\triangleleft}}
 \mynewcommand{\gap}{~ ~ ~ ~ ~ ~}
 
 
