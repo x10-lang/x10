@@ -743,10 +743,8 @@ will not terminate and the program will fail to compile.
 Property methods in classes are implicitly \xcd"final"; they cannot be
 overridden. Property methods are also implicitly \xcd"global".
 
-A property method definition may omit the formal parameters and
+A nullary property method definition may omit the formal parameters and
 the \xcd"def" keyword.  That is, the following are equivalent:
-
-{\footnotesize
 
 
 %~~gen
@@ -766,10 +764,44 @@ and
 %~~vis
 \begin{xten}
 property rail: Boolean = rect && onePlace == here && zeroBased;
-\end{xten}}
+\end{xten}
 %~~siv
 %}
 %~~neg
+
+Similarly, nullary property methods can be inspected in constraints without
+\xcd`()`.  
+%~~longexp~~`~~`
+% package classes.not.weasels;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%   def this(rect:Boolean, onePlace:Place, zeroBased:Boolean) 
+%          :Waif{self.rect==rect, self.onePlace==onePlace, self.zeroBased==zeroBased}
+%          = {property(rect, onePlace, zeroBased);}
+%   property rail: Boolean = rect && onePlace == here && zeroBased;
+%   static def zoink() {
+%      val w : Waif{
+%~~vis
+\xcd`w.rail`, with either definition above, 
+% }= new Waif(true, here, true);
+% }}
+%~~pxegnol
+is equivalent to 
+%~~longexp~~`~~`
+% package classes.not.ferrets;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%   def this(rect:Boolean, onePlace:Place, zeroBased:Boolean) 
+%          :Waif{self.rect==rect, self.onePlace==onePlace, self.zeroBased==zeroBased}
+%          = {property(rect, onePlace, zeroBased);}
+%   property rail: Boolean = rect && onePlace == here && zeroBased;
+%   static def zoink() {
+%      val w : Waif{
+%~~vis
+\xcd`w.rail()`
+% }= new Waif(true, here, true);
+% }}
+%~~pxegnol
+
+
 
 \subsection{Method overloading, overriding, hiding, shadowing and obscuring}
 \label{MethodOverload}
