@@ -85,7 +85,41 @@ keyword.  Elements of value arrays are also immutable.
 \section{Initial values of variables}
 \label{NullaryConstructor}\index{nullary constructor}
 
-Every variable declared to be a given type must always contain a value of that type.
+Every assignment, binding, or initialization to a variable of type \xcd`T{c}`
+must be an instance of type \xcd`T` satisfying the constraint \xcd`{c}`.
+Variables must be given a value before they are used. This may be done by
+initialization, which is the only way for immutable (\xcd`val`) variables and
+one option for mutable (\xcd`var`) ones: 
+
+%~~gen
+%package Vars.For.Bears;
+%class VarsForBears{
+%def check() {
+%~~vis
+\begin{xten}
+  val immut : Int = 3;
+  var mutab : Int = immut;
+  val use = immut + mutab;
+\end{xten}
+%~~siv
+%}}
+%~~neg
+Or, for mutable variables, it may be done by a later assignment.  
+
+%~~gen
+%package Vars.For.Stars;
+%class VarsForStars{
+%def check() {
+%~~vis
+\begin{xten}
+  var muta2 : Int;
+  muta2 = 4;
+  val use = muta2 * 10;
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
 
 Every class variable must be initialized before it is read, through
 the execution of an explicit initializer or a static block. Every
