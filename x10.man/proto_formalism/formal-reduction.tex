@@ -13,7 +13,7 @@ $\typerule{
     \hK & \text{otherwise} \\
     \end{cases}
 }{
-  P \vdash H,\code{new C<K>}\hparen{\ol{\hv}} \rightarrow H[\hl \mapsto \code{C<l'>}\hparen{\ol{\code{null}}}],\hl\code{.build}\hparen{\ol{\hv}}\code{;return l}
+  P \vdash H,\code{new C<K>}\hparen{\ol{\hv}} \rightsquigarrow H[\hl \mapsto \code{C<l'>}\hparen{\ol{\code{null}}}],\hl\code{.build}\hparen{\ol{\hv}}\code{;return l}
 }$
 \quad \RULE{(R-New)}\\\\
 
@@ -22,7 +22,7 @@ $\typerule{
     \gap
   \fields{}(\hC)=\ol{\hf}
 }{
-  P \vdash H,\hl.\hf_i \rightarrow H,\hv_i
+  P \vdash H,\hl.\hf_i \rightsquigarrow H,\hv_i
 }$
 \quad \RULE{(R-Field-Access)}
 \\\\
@@ -32,14 +32,14 @@ $\typerule{
     \gap
   \fields{}(\hC)=\ol{\hf}
 }{
-  P \vdash H,\hl.\hf_i = \hv' \rightarrow H[\hl \mapsto \code{C<K>}\hparen{[\hv'/\hv_i]\ol{\hv}}],\hv'
+  P \vdash H,\hl.\hf_i = \hv' \rightsquigarrow H[\hl \mapsto \code{C<K>}\hparen{[\hv'/\hv_i]\ol{\hv}}],\hv'
 }$
 \quad \RULE{(R-Field-Assignment)}\\\\
 
 
 $\typerule{
 }{
-  P \vdash H,\code{v;return l} \rightarrow H,\hl
+  P \vdash H,\code{v;return l} \rightsquigarrow H,\hl
 }$
 \quad \RULE{(R-return)}
 \gap
@@ -49,65 +49,65 @@ $\typerule{
     \gap
   \mbody{}(\hm,\code{C})=\ol{\hx}.\he'
 }{
-  P \vdash H,\hl\code{.m(}\ol{\hv}\code{)} \rightarrow H, [\ol{\hv}/\ol{\hx}, \hl/\this, \hl/\proto]\he'
+  P \vdash H,\hl\code{.m(}\ol{\hv}\code{)} \rightsquigarrow H, [\ol{\hv}/\ol{\hx}, \hl/\this, \hl/\proto]\he'
 }$
 \quad \RULE{(R-Invoke)}\\\\
 
 
 
 $\typerule{
-  P \cup \{\hl\} \vdash H,\he \rightarrow H',\code{e'}
+  P \cup \{\hl\} \vdash H,\he \rightsquigarrow H',\code{e'}
 }{
-  P \vdash H,\code{e;return l} \rightarrow H',\code{e';return l}
+  P \vdash H,\code{e;return l} \rightsquigarrow H',\code{e';return l}
 }$
 \quad \RULE{(R-c1)}
 \gap
 
 $\typerule{
-  P \vdash H,\he \rightarrow H',\code{e'}
+  P \vdash H,\he \rightsquigarrow H',\code{e'}
 }{
-  P \vdash H,\code{e.f} \rightarrow H',\code{e'.f}
+  P \vdash H,\code{e.f} \rightsquigarrow H',\code{e'.f}
 }$
 \quad \RULE{(R-c2)}
 \\\\
 
 $\typerule{
-  P \vdash H,\he \rightarrow H',\code{e'}
+  P \vdash H,\he \rightsquigarrow H',\code{e'}
 }{
-  P \vdash H,\code{e.f=e"} \rightarrow H',\code{e'.f=e"}
+  P \vdash H,\code{e.f=e"} \rightsquigarrow H',\code{e'.f=e"}
 }$
 \quad \RULE{(R-c3)}
 \gap
 
 $\typerule{
-  P \vdash H,\he \rightarrow H',\code{e'}
+  P \vdash H,\he \rightsquigarrow H',\code{e'}
 }{
-  P \vdash H,\code{l.f=e} \rightarrow H',\code{l.f=e'}
+  P \vdash H,\code{l.f=e} \rightsquigarrow H',\code{l.f=e'}
 }$
 \quad \RULE{(R-c4)}
 \\\\
 
 $\typerule{
-  P \vdash H,\he \rightarrow H',\code{e'}
+  P \vdash H,\he \rightsquigarrow H',\code{e'}
 }{
-  P \vdash H,\code{new C<K>}\hparen{\ol{\hv},\he,\ol{\code{e"}}} \rightarrow H',\code{new C<K>}\hparen{\ol{\hv},\code{e'},\ol{\code{e"}}}
+  P \vdash H,\code{new C<K>}\hparen{\ol{\hv},\he,\ol{\code{e"}}} \rightsquigarrow H',\code{new C<K>}\hparen{\ol{\hv},\code{e'},\ol{\code{e"}}}
 }$
 \quad \RULE{(R-c5)}
 \\\\
 
 
 $\typerule{
-  P \vdash H,\he \rightarrow H',\code{e'}
+  P \vdash H,\he \rightsquigarrow H',\code{e'}
 }{
-  P \vdash H,\he\code{.m(}\ol{\code{e"}}\code{)} \rightarrow H',\code{e'}\code{.m(}\ol{\code{e"}}\code{)}
+  P \vdash H,\he\code{.m(}\ol{\code{e"}}\code{)} \rightsquigarrow H',\code{e'}\code{.m(}\ol{\code{e"}}\code{)}
 }$
 \quad \RULE{(R-c6)}
 \gap
 
 $\typerule{
-  P \vdash H,\he \rightarrow H',\code{e'}
+  P \vdash H,\he \rightsquigarrow H',\code{e'}
 }{
-  P \vdash H,\code{l.m(}\ol{\hv},\he,\ol{\code{e"}}\code{)} \rightarrow H',\code{l.m(}\ol{\hv},\code{e'},\ol{\code{e"}}\code{)}
+  P \vdash H,\code{l.m(}\ol{\hv},\he,\ol{\code{e"}}\code{)} \rightsquigarrow H',\code{l.m(}\ol{\hv},\code{e'},\ol{\code{e"}}\code{)}
 }$
 \quad \RULE{(R-c7)}
 \gap

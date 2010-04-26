@@ -43,7 +43,7 @@ For example, the expression~$\code{new Foo<l>()}$ is closed, but $\code{new Foo<
 Given a field $\code{A}~\hT~\hf$ and a method $\code{U m(}\ol{\hV}~\ol{\hx}\code{) K \lb~return e;~\rb}$ in class~\hC,
     we define
 \beqst
-    \code{\mtype{}(m,C)} &= \ol{\hV}\mapsto\hU\\
+    \code{\mtype{}(m,C)} &= \ol{\hV}\rightarrow\hU\\
     \code{\mtype{}(m,C<K>)} &= [\hK/\proto]\code{\mtype{}(f,C)}\\
     \code{\mbody{}(m,C)} &= \he\\
     \code{\mproto{}(m,C)} &= \hK\\
@@ -100,7 +100,7 @@ Summary of judgements:
 \Gamma,P & \vdash \hT \st \code{T'}\\
 \Gamma,P & \vdash \hT \Pst \code{T'}\\
 \Gamma,P & \vdash \he : \hT\\
-P & \vdash H,\he \rightarrow H',\code{e'}\\
+P & \vdash H,\he \rightsquigarrow H',\code{e'}\\
 & \vdash \angular{H,P} \text{~is well-type}\\
 & \vdash \angular{H,P} \text{~is well-type for~\he}\\
 \eeq
