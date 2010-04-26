@@ -4,11 +4,11 @@
 \begin{tabular}{|c|}
 \hline
 $\typerule{
-  \Gamma[K \mapsto \Gamma[K] \cup \{ \hl \}] \vdash \he:\hT
+  \Gamma,P \cup \{ \hl \} \vdash \he:\hT
 }{
-  \Gamma \vdash \code{e;return l} : \Gamma(\hl)
+  \Gamma,P \vdash \code{e;return l} : \Gamma(\hl)
 }$
-~\RULE{(T-return)}
+\quad \RULE{(T-return)}
 \\\\
 
 $\typerule{
@@ -18,75 +18,73 @@ $\typerule{
 \hK & \text{otherwise} \\
 \end{cases}
     \gap
-  \mtype{}(\code{build},\code{C}^{\hK'})=\ol{\code{T}}\rightarrow\code{U}
+  \mtype{}(\code{build},\code{C<K'>})=\ol{\code{T}}\rightarrow\code{Object}
     \gap
-  \Gamma \vdash \ol{\he}:\ol{\code{V}}
+  \Gamma,P \vdash \ol{\he}:\ol{\code{V}}
     \gap
-  \Gamma \vdash \ol{\code{V}} \st \ol{\code{T}}
+  \Gamma,P \vdash \ol{\code{V}} \st \ol{\code{T}}
 }{
-  \Gamma \vdash \code{new C}^\hK\code{(}\ol{\he}\code{)} : \code{C}^\hK
+  \Gamma,P \vdash \code{new C<K>(}\ol{\he}\code{)} : \code{C<K>}
 }$
 \quad \RULE{(T-New)}\\
 
 $\typerule{
 }{
-  \Gamma \vdash \hx : \Gamma(\hx)
+  \Gamma,P \vdash \hx : \Gamma(\hx)
 }$
 \quad \RULE{(T-Var)}
 \qquad
 $\typerule{
 }{
-  \Gamma \vdash \code{null} : \hT
+  \Gamma,P \vdash \code{null} : \hT
 }$
 \quad \RULE{(T-null)}
 \qquad
 $\typerule{
 }{
-  \Gamma \vdash \hl : \Gamma(\hl)
+  \Gamma,P \vdash \hl : \Gamma(\hl)
 }$
 \quad \RULE{(T-Location)}\\\\
 
 $\typerule{
-  \Gamma \vdash \he:\code{C}^\hK
+  \Gamma,P \vdash \he:\code{C<K>}
     \gap
-  \Gamma \vdash \hK \st \cooked
+  \isCooked(\hK)
     \gap
-  \ftype{}(\hf,\hC)=\hC_2
+  \ftype{}(\hf,\hC)=\code{C'}
 }{
-  \Gamma \vdash \he.\hf : \hC_2^\hK
+  \Gamma,P \vdash \he.\hf : \code{C'<K>}
 }$
 \quad \RULE{(T-Field-Access)}\\\\
 
 
 $\typerule{
-  \Gamma \vdash \he:\code{C}^\hK
+  \Gamma,P \vdash \he:\code{C<K>}
     \gap
-  \big(\Gamma \vdash \hK \st \proto \text{~~or~~} \isVar{}(\hf,\hC)\big)
+  \ftype{}(\hf,\hC)=\code{C'}
     \gap
-  \ftype{}(\hf,\hC)=\hC_2
+  \Gamma,P \vdash \code{e'}:\code{T'}
     \gap
-  \Gamma \vdash \code{e'}:\code{T'}
-    \gap
-  \Gamma \vdash \code{T'} \Pst \code{C}^\hK
+  \Gamma,P \vdash \code{T'} \Pst \code{C'<K>}
+    \\
+  \big(\isProto(\hK) \text{~~or~~} \isVar{}(\hf,\hC)\big)
 }{
-  \Gamma \vdash \he.\hf = \code{e'} : \code{T'}
+  \Gamma,P \vdash \he.\hf = \code{e'} : \code{T'}
 }$
 \quad \RULE{(T-Field-Assignment)}\\\\
 
 $\typerule{
-  \Gamma \vdash \he_0:\code{C}^\hK
+  \Gamma,P \vdash \he':\code{C<K>}
     \gap
-  \mtype{}(\hm,\code{C}^\hK)=\ol{\code{T}}\rightarrow\code{U}
+  \mtype{}(\hm,\code{C<K>})=\ol{\code{T}}\rightarrow\code{U}
     \gap
-  \Gamma \vdash \ol{\he}:\ol{\code{V}}
+  \Gamma,P \vdash \ol{\he}:\ol{\code{V}}
     \gap
-  \Gamma \vdash \ol{\code{V}} \st \ol{\code{T}}
-    \gap
-  \mproto{}(\hm,\code{C})=\code{K}'
-    \gap
-  \Gamma \vdash \hK \st \code{K}'
+  \Gamma,P \vdash \ol{\code{V}} \st \ol{\code{T}}
+    \\
+  \isCooked(\hK)=\isCooked(\mproto{}(\hm,\code{C}))
 }{
-  \Gamma \vdash \he_0\code{.m(}\ol{\he}\code{)} : \code{U}
+  \Gamma,P \vdash \he'\code{.m(}\ol{\he}\code{)} : \code{U}
 }$
 \quad \RULE{(T-Invoke)}\\
 
@@ -94,6 +92,6 @@ $\typerule{
 \hline
 \end{tabular}
 \end{center}
-\caption{FX10 Expression Typing Rules.} %(casting, field access, and method invocation are the same as in FJ)
+\caption{FX10 Expression Typing Rules.}
 \label{Figure:expressions}
 \end{figure*}
