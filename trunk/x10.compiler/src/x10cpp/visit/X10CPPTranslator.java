@@ -46,6 +46,7 @@ import polyglot.ast.Return;
 import polyglot.ast.SourceCollection;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
+import polyglot.ast.SwitchBlock;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.Try;
 
@@ -134,6 +135,8 @@ public class X10CPPTranslator extends Translator {
 	        return outputLine;
 	    if (n instanceof Eval || n instanceof Branch || n instanceof Try)
 	        return outputLine;
+	    if (n instanceof Block)
+	        return outputLine;
 	    return outputLine - 1;
 	}
 
@@ -166,7 +169,7 @@ public class X10CPPTranslator extends Translator {
 		final int endLine = w.currentStream().getStreamLineNumber(); // for debug info
 
 		if (x10.Configuration.DEBUG && line > 0 &&
-		    ((n instanceof Stmt && !(n instanceof Block) && !(n instanceof Catch)) ||
+		    ((n instanceof Stmt && !(n instanceof SwitchBlock) && !(n instanceof Catch)) ||
 		     (n instanceof ClassMember)))
 		{
 		    final String cppFile = w.getStreamName(w.currentStream().ext);

@@ -489,6 +489,9 @@ public class LineNumberMap extends StringTable {
 	    }
 	}
 
+	private static final String _X10_DEBUG = "_X10_DEBUG";
+	private static final String _X10_DEBUG_DATA = "_X10_DEBUG_DATA";
+
 	/**
 	 * Generates code for the line number map as required by the Toronto C++
 	 * Debugger backend into the specified stream.
@@ -496,11 +499,13 @@ public class LineNumberMap extends StringTable {
 	 * @param m the map to export
 	 */
 	public static void exportForCPPDebugger(ClassifiedStream w, LineNumberMap m) {
+	    String debugSectionAttr = "__attribute__((section(\""+_X10_DEBUG+"\")))";
+	    String debugDataSectionAttr = "__attribute__((section(\""+_X10_DEBUG_DATA+"\")))";
 	    int size = m.size();
 	    int offset = 0;
 	    int[] offsets = new int[size];
 	    // All strings, concatenated, with intervening nulls.
-	    w.writeln("static const char _X10strings[] __attribute__((used)) =");
+	    w.writeln("static const char _X10strings[] __attribute__((used)) "+debugDataSectionAttr+" =");
 	    for (int i = 0; i < size; i++) {
 	        offsets[i] = offset;
 	        String s = m.lookupString(i);
@@ -513,7 +518,7 @@ public class LineNumberMap extends StringTable {
         if (!m.isEmpty()) {
 	    String[] files = m.allFiles();
 	    // A list of X10 source files that contributed to the generation of the current C++ file.
-	    w.writeln("static const struct _X10sourceFile _X10sourceList[] __attribute__((used)) = {");
+	    w.writeln("static const struct _X10sourceFile _X10sourceList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 	    for (int i = 0; i < files.length; i++) {
 	        w.write("    { ");
 	        w.write(""+0+", ");                                                // FIXME: _numLines
@@ -536,7 +541,7 @@ public class LineNumberMap extends StringTable {
 //	                                p.start_line));                            // _CPPline
 //	    }
 //	    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
-//	    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) = {");
+//	    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 //	    for (CPPLineInfo cppDebugInfo : x10toCPPlist) {
 //	        w.write("    { ");
 //	        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
@@ -564,7 +569,7 @@ public class LineNumberMap extends StringTable {
 	                                p.end_line));                              // _CPPtoline
 	    }
 	    Collections.sort(cpptoX10xrefList, CPPLineInfo.byCPPinfo());
-	    w.writeln("static const struct _CPPtoX10xref _CPPtoX10xrefList[] = {");
+	    w.writeln("static const struct _CPPtoX10xref _CPPtoX10xrefList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 	    for (CPPLineInfo cppDebugInfo : cpptoX10xrefList) {
 	        w.write("    { ");
 	        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
@@ -594,6 +599,8 @@ public class LineNumberMap extends StringTable {
 	                                    0));                                   // FIXME: _lineIndex
 	    }
 	    Collections.sort(x10MethodList);
+	    // FIXME: Cannot put _X10methodNameList in debugDataSectionAttr, because it's not constant
+	    // (the strings cause static initialization for some reason)
 	    w.writeln("static const struct _X10methodName _X10methodNameList[] __attribute__((used)) = {");
 	    for (CPPMethodInfo cppMethodInfo : x10MethodList) {
 	        w.write("    { ");
@@ -615,7 +622,7 @@ public class LineNumberMap extends StringTable {
         }
 
         // A meta-structure that refers to all of the above
-        w.write("static const struct _MetaDebugInfo_t _MetaDebugInfo __attribute__((used)) = {");
+        w.write("static const struct _MetaDebugInfo_t _MetaDebugInfo __attribute__((used)) "+debugSectionAttr+" = {");
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
