@@ -523,11 +523,10 @@ method parameters or \xcd`val` constructor parameters visible at \xcd"T", (d)
 
 \begin{staticrule}{Restrictions on \xcd"this"}
   The special variable \xcd"this" may be used in a dependent clause for a type \xcd"T"
-  only if (a)~\xcd"T" occurs in a property declaration for a
-  class, (b)~\xcd"T"
-  occurs in an instance method, (c)~\xcd"T" occurs in an
-  instance field, (d)~\xcd"T"
-  occurs in an instance initializer.
+  only if \xcd`this` may be used in an expression at that point.  \Viz, if 
+  \xcd"this" occurs in (a) a property declaration for a
+  class, (b) an instance method, (c) an
+  instance field, or (d) an instance initializer.
 
   In particular, \xcd"this" may not be used in types that occur in a static
   context, or in the arguments, body or return type of a constructor or
