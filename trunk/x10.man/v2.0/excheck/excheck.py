@@ -26,6 +26,7 @@ def dealWithExample(f, line, basename):
     if cmd == "stmt" : doStmt(cmd, args, f, line, basename)
     elif cmd == "gen" : doGen(cmd, args, f, line, basename)
     elif cmd == "exp" : doExp(cmd, args, f, line, basename)
+    elif cmd == "longexp" : doLongexp(cmd, args, f, line, basename)
     elif cmd == "type" : doType(cmd, args, f, line, basename)
     else:
         doom("In " + basename + " the command is \""+cmd + "\" -- what the feersnar is this line: " + line)
@@ -143,6 +144,41 @@ def doGen(cmd, args, f, line, basename):
     classname = numberedName(basename)
     code = "\n".join(prelude + body + postlude)
     writeX10File(classname, code)
+
+# IN
+#   %~~longexp~~`~~`
+#   % package whatever;
+#   % class Whatever{
+#   %  def zap() { val x = 
+#   %~~vis
+#   I think \xten`this` is a bad name for "self"    
+#   %~~siv
+#   % ;
+#   % }}
+# OUT:
+#   package whatever;
+#   class Whatever{
+#    def zap() { val x = this ; }}
+#
+# So it's got the invisible parts like %~~gen, but works on a part of a line like %~~exp
+def doLongexp(cmd, args, f, line, basename):
+    # Mirroring exp code to get the delimiters of the exp to check
+    if len(args) != 2:
+        doom("'longexp' takes exactly two args -- in " + basename  + "\nline="  + line)
+    starter = args[0].strip()
+    ender = args[1].strip()
+    # mirroring gen code to get the prelude
+    prelude = readLines(f, "%~~vis", True, False, basename)
+    # mirroring exp code to get the exp to check
+    exp = extract(f, starter, ender, basename)
+    # Back to gen code for postlude
+    postlude = readLines(f, "%~~pxegnol", True, False, basename)
+    classname = numberedName(basename)
+    # print "longexp: starter = '" + starter + "', ender = '" + ender + "', exp='" + exp + "'"
+    code = "\n".join(prelude + [exp] + postlude)
+    writeX10File(classname, code)
+    
+
 
 # Read lines from f.  Return the substring of f
 # between 'starter' and 'ender' (exclusive).
