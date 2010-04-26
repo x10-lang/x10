@@ -7,63 +7,115 @@
 $\typerule{
   \hl \not \in \dom(H)
     \gap
-  \hl' =
+  \code{l'} =
     \begin{cases}
-    \hl & \text{if~}\hK=\cooked \text{~or~} (\hK=\hl" \text{~and~} \hl" \not \in H[K]) \\
+    \hl & \text{if~}\isCooked(\hK) \\
     \hK & \text{otherwise} \\
     \end{cases}
 }{
-  H,\code{new C}^\hK\hparen{\ol{\hv}} \rightarrow H[\hl \mapsto \code{C}^{\hl'}\hparen{\ol{\code{null}}}],\hl\code{.build}\hparen{\ol{\hv}}\code{;return l}
+  P \vdash H,\code{new C<K>}\hparen{\ol{\hv}} \rightarrow H[\hl \mapsto \code{C<l'>}\hparen{\ol{\code{null}}}],\hl\code{.build}\hparen{\ol{\hv}}\code{;return l}
 }$
-\quad \RULE{(K-New)}\\\\
-
+\quad \RULE{(R-New)}\\\\
 
 $\typerule{
-  H[K \mapsto H[K] \cup \{\hl\}],\he \rightarrow H',\code{e'}
-}{
-  H,\code{e;return l} \rightarrow H'[K \mapsto H'[K] \setminus \{\hl\}],\code{e';return l}
-}$
-~\RULE{(K-c1)}
-\quad
-$\typerule{
-  H[\hl] = \code{C}^\hK\hparen{\ol{\hv}}
+  H[\hl] = \code{C<K>}\hparen{\ol{\hv}}
     \gap
   \fields{}(\hC)=\ol{\hf}
 }{
-  H,\hl.\hf_i \rightarrow H,\hv_i
+  P \vdash H,\hl.\hf_i \rightarrow H,\hv_i
 }$
-~\RULE{(K-Field-Access)}\\\\
+\quad \RULE{(R-Field-Access)}
+\\\\
 
 $\typerule{
-  H[\hl] = \code{C}^\hK\hparen{\ol{\hv}}
+  H[\hl] = \code{C<K>}\hparen{\ol{\hv}}
     \gap
   \fields{}(\hC)=\ol{\hf}
 }{
-  H,\hl.\hf_i = \hv' \rightarrow H[\hl \mapsto \code{C}^\hK\hparen{[\hv'/\hv_i]\ol{\hv}}],\hv'
+  P \vdash H,\hl.\hf_i = \hv' \rightarrow H[\hl \mapsto \code{C<K>}\hparen{[\hv'/\hv_i]\ol{\hv}}],\hv'
 }$
-\quad \RULE{(K-Field-Assignment)}\\\\
+\quad \RULE{(R-Field-Assignment)}\\\\
 
 
 $\typerule{
 }{
-  H,\code{v;return l} \rightarrow H,\hl
+  P \vdash H,\code{v;return l} \rightarrow H,\hl
 }$
-\quad\RULE{(K-return)}
+\quad \RULE{(R-return)}
 \gap
 
 $\typerule{
-  H[\hl] = \code{C}^\hK\hparen{\ldots}
+  H[\hl] = \code{C<K>}\hparen{\ldots}
     \gap
   \mbody{}(\hm,\code{C})=\ol{\hx}.\he'
 }{
-  H,\hl\code{.m(}\ol{\hv}\code{)} \rightarrow H, [\ol{\hv}/\ol{\hx}, \hl/\this, \hl/\proto]\he'
+  P \vdash H,\hl\code{.m(}\ol{\hv}\code{)} \rightarrow H, [\ol{\hv}/\ol{\hx}, \hl/\this, \hl/\proto]\he'
 }$
-\quad \RULE{(K-Invoke)}\\
+\quad \RULE{(R-Invoke)}\\\\
 
 
+
+$\typerule{
+  P \cup \{\hl\} \vdash H,\he \rightarrow H',\code{e'}
+}{
+  P \vdash H,\code{e;return l} \rightarrow H',\code{e';return l}
+}$
+\quad \RULE{(R-c1)}
+\gap
+
+$\typerule{
+  P \vdash H,\he \rightarrow H',\code{e'}
+}{
+  P \vdash H,\code{e.f} \rightarrow H',\code{e'.f}
+}$
+\quad \RULE{(R-c2)}
+\\\\
+
+$\typerule{
+  P \vdash H,\he \rightarrow H',\code{e'}
+}{
+  P \vdash H,\code{e.f=e"} \rightarrow H',\code{e'.f=e"}
+}$
+\quad \RULE{(R-c3)}
+\gap
+
+$\typerule{
+  P \vdash H,\he \rightarrow H',\code{e'}
+}{
+  P \vdash H,\code{l.f=e} \rightarrow H',\code{l.f=e'}
+}$
+\quad \RULE{(R-c4)}
+\\\\
+
+$\typerule{
+  P \vdash H,\he \rightarrow H',\code{e'}
+}{
+  P \vdash H,\code{new C<K>}\hparen{\ol{\hv},\he,\ol{\code{e"}}} \rightarrow H',\code{new C<K>}\hparen{\ol{\hv},\code{e'},\ol{\code{e"}}}
+}$
+\quad \RULE{(R-c5)}
+\\\\
+
+
+$\typerule{
+  P \vdash H,\he \rightarrow H',\code{e'}
+}{
+  P \vdash H,\he\code{.m(}\ol{\code{e"}}\code{)} \rightarrow H',\code{e'}\code{.m(}\ol{\code{e"}}\code{)}
+}$
+\quad \RULE{(R-c6)}
+\gap
+
+$\typerule{
+  P \vdash H,\he \rightarrow H',\code{e'}
+}{
+  P \vdash H,\code{l.m(}\ol{\hv},\he,\ol{\code{e"}}\code{)} \rightarrow H',\code{l.m(}\ol{\hv},\code{e'},\ol{\code{e"}}\code{)}
+}$
+\quad \RULE{(R-c7)}
+\gap
+
+\\
 \hline
 \end{tabular}
 \end{center}
-\caption{FX10 Reduction Rules (excluding all congruence rules except the one for \code{e;return l} described in \RULE{K-c1}).} %(casting, field access, and method invocation are the same as in FJ)
+\caption{FX10 Reduction Rules. The congruence rules have the initial \RULE{R-c}.}
 \label{Figure:reduction}
 \end{figure*}

@@ -7,67 +7,50 @@
 
 $\typerule{
 }{
-  \Gamma \vdash \hT \st \hT
+  \Gamma,P \vdash \hT \st \hT
 }$
 ~\RULE{(S1)}\quad
 
 $\typerule{
-  \Gamma \vdash \code{S} \st \hT
+  \Gamma,P \vdash \code{S} \st \hT
    \gap
-  \Gamma \vdash \hT \st \hU
+  \Gamma,P \vdash \hT \st \hU
 }{
-  \Gamma \vdash \code{S} \st \hU
+  \Gamma,P \vdash \code{S} \st \hU
 }$
 ~\RULE{(S2)}\quad
 $\typerule{
-  \code{class C}_1\code{~extends C}_2^\hK
+  \code{class C extends C'}\lb\ \ol{\code{F}}~\ol{\hM}~\rb
 }{
-  \Gamma \vdash \hC_1^\hK \st \code{C}_2^\hK
+  \Gamma,P \vdash \code{C<K>} \st \code{C'<K>}
 }$
 ~\RULE{(S3)}
 
 \\
 
 $\typerule{
-  \hl \in \Gamma[K]
+  \isCooked(\hK)
+    \gap
+  \isCooked(\code{K'})
 }{
-  \Gamma \vdash \hl \st \proto
+  \Gamma,P \vdash \code{C<K>} \st \code{C<K'>}
 }$
 ~\RULE{(S4)}\quad
-$\typerule{
-  \hl \not \in \Gamma[K]
-}{
-  \Gamma \vdash \hl \st \cooked
-}$
-~\RULE{(S5)}\quad
-$\typerule{
-  \hl \not \in \Gamma[K]
-}{
-  \Gamma \vdash \cooked \st \hl
-}$
-~\RULE{(S6)}\quad
-
-$\typerule{
-    \Gamma \vdash \code{K} \st \code{K}'
-}{
-  \Gamma \vdash \hC^\code{K} \st \hC^{\code{K}'}
-}$
-~\RULE{(S7)}\quad
 \\
 
 
 $\typerule{
-  \Gamma \vdash \code{T} \st \code{T}'
+  \Gamma,P \vdash \code{T} \st \code{T}'
 }{
-  \Gamma \vdash \code{T} \Pst \code{T}'
+  \Gamma,P \vdash \code{T} \Pst \code{T}'
 }$
-~\RULE{(S8)}\quad
+~\RULE{(S5)}\quad
 $\typerule{
-  \hl \not \in \Gamma[K]
+  \isCooked(\hK)
 }{
-  \Gamma \vdash \code{C}^\hl \Pst \code{C}^\hK
+  \Gamma,P \vdash \code{C<K>} \Pst \code{C<K'>}
 }$
-~\RULE{(S9)}\quad
+~\RULE{(S6)}\quad
 \\
 
 \hline
