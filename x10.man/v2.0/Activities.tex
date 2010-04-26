@@ -6,7 +6,7 @@ dynamic execution instance of a piece of code (with references to
 data). An activity is intended to execute in parallel with other
 activities. An activity may be thought of as a very light-weight
 thread.  In \XtenCurrVer{}, an activity may not be interrupted,
-suspended or resumed as the result of actions taken by any other
+blocked or resumed as the result of actions taken by any other
 activity.
 
 An activity is spawned in a given place and stays in that place for
@@ -63,7 +63,7 @@ serve to catch any exceptions thrown by the child thread.
 The presence of a root activity permits \Xten{} to adopt a different
 model.  In any state of the computation, say that an activity $A$ is
 {\em a root of} an activity $B$ if $A$ is an ancestor of $B$ and $A$
-is suspended at a statement (such as the \xcd"finish" statement
+is blocked at a statement (such as the \xcd"finish" statement
 \Sref{finish}) awaiting the termination of $B$ (and possibly other
 activities). For every \Xten{} computation, the
 \emph{root-of} relation
@@ -72,7 +72,7 @@ of the entire computation. If $A$ is the nearest root of $B$, the path
 from $A$ to $B$ is called the {\em activation path} for the
 activity.\footnote{Note that depending on the state of the computation
 the activation path may traverse activities that are running,
-suspended or terminated.}
+blocked or terminated.}
 
 We may now state the exception model for \Xten.  An uncaught exception
 propagates up the activation path to its nearest root activity, where
@@ -557,7 +557,7 @@ versions of the language.
 
 Such a statement is executed by an activity as if in a single step
 during which all other concurrent activities in the same place are
-suspended. If execution of the statement may throw an exception, it is
+blocked. If execution of the statement may throw an exception, it is
 the programmer's responsibility to wrap the atomic block within a
 \xcd"try"/{\xcd"finally" clause and include undo code in the finally
 clause. Thus the \xcd"atomic" statement only guarantees atomicity on
