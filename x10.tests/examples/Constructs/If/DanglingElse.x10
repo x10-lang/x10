@@ -32,6 +32,7 @@ public class DanglingElse extends x10Test.BardTest {
      passed = true;
      if (false) if (false) passed = false else passed = false;
      if (!passed) return false;
+     return true;
   }
 }
 
