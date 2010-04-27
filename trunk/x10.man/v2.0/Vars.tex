@@ -1,86 +1,190 @@
 \chapter{Variables}\label{XtenVariables}\index{variables}
 
-A variable is a storage location.  \Xten{} supports seven kinds of
-variables: constant {\em class variables} (static variables), {\em
-  instance variables} (the instance fields of a class), {\em array
-  components}, {\em method parameters}, {\em constructor parameters},
-{\em exception-handler parameters} and {\em local variables}.
+%%OLDA variable is a storage location.  \Xten{} supports seven kinds of
+%%OLDvariables: constant {\em class variables} (static variables), {\em
+%%OLD  instance variables} (the instance fields of a class), {\em array
+%%OLD  components}, {\em method parameters}, {\em constructor parameters},
+%%OLD{\em exception-handler parameters} and {\em local variables}.
 
-Variables are declared thus:
+A {\em variable} is an X10 identifier associated with a value within some
+context. Variable bindings have these essential properties:
+\begin{itemize}
+\item {\bf Type:} What sorts of values can be bound to the identifier;
+\item {\bf Scope:} The region of code in which the identifier is associated
+      with the entity;
+\item {\bf Lifetime:} The interval of time in which the identifier is
+      associated with the entity.
+\item {\bf Visibility:} Which parts of the program can read or manipulate the
+      value through the variable.
+\end{itemize}
 
-\begin{grammar}
-VarDeclaratorWithType \: VarDeclaratorId ResultType \\
-VarDeclarator \: VarDeclaratorId ResultType\opt \\
-VarDeclaratorId \: Annotation\star Identifier \\
-              \| Annotation\star Identifier \xcd"(" VarDeclaratorList \xcd")" \\
-              \| Annotation\star \xcd"(" VarDeclaratorList \xcd")" \\
-VarDeclaratorList \: VarDeclarator ( \xcd"," VarDeclarator )\star \\
-ResultType \: \xcd":" Type \\
-\end{grammar}
+
+
+X10 has many varieties of variables, used for a number of purposes. They will
+be described in more detail in this chapter.  
+\begin{itemize}
+\item Class variables, also known as the static fields of a class, which hold
+      their values for the lifetime of the class.  
+\item Instance variables, which hold their values for the lifetime of an
+      object;
+\item Array elements, which are not individually named and hold their values
+      for the lifetime of an array;
+\item Formal parameters to methods, functions, and constructors, which hold
+      their values for the duration of method (etc.) invocation;
+\item Local variables, which hold their values for the duration of execution
+      of a block.
+\item Exception-handler parameters, which hold their values for the execution
+      of the exception being handled. 
+\end{itemize}
+A few other kinds of things are called variables for historical reasons; \eg,
+type parameters are often called type variables, despite not being variables
+in this sense because they do not refer to X10 values.  Other named entities,
+such as classes and methods, are not called variables.  However, all
+name-to-whatever bindings enjoy similar concepts of scope and visibility.  
+
+In the following example, \xcd`n` is an instance variable, and \xcd`next` is a
+local variable defined within the method \xcd`bump`.\footnote{This code is
+unnecessarily turgid for the sake of the example.  One would generally write
+\xcd`public def bump() = ++n;`.   }
+%~~gen
+% package Vars.For.Squares;
+%~~vis
+\begin{xten}
+class Counter {
+  private var n : Int = 0;
+  public def bump() : Int {
+    val next = n+1;
+    n = next;
+    return next;
+    }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+Both variables have type \xcd`Int` (or
+perhaps something more specific).    The scope of \xcd`n` is the body of
+\xcd`Counter`; the scope of \xcd`next` is the body of \xcd`bump`.  The
+lifetime of \xcd`n` is the lifetime of the \xcd`Counter` object holding it;
+the lifetime of \xcd`next` is the duration of the call to \xcd`bump`. Neither
+variable can be seen from outside of its scope.
 
 \label{exploded-syntax}
 \label{VariableDeclarations}
 \index{variable declaration}
 
-All variables are initialized with a value and cannot be observed without
-a value. 
 
-Variables whose value may not be changed after initialization
-are said to be  {\em immutable}, or {\em constants} (\Sref{FinalVariables}).
-The programmer indicates that a variable is immutable by declaring
-it with the \xcd"val" keyword rather than the \xcd"var" keyword.
-Variables that are annotated neither \xcd"val" nor \xcd"var"
-are considered immutable.
-
-A variable of a reference data type \xcd"T" where \xcd"T" is the name
-of a reference class (possibly with type arguments) always holds a
-reference to an instance of the class \xcd"T" or a class that is a
-subclass of \xcd"T", or a \xcd"null" reference.
+Variables whose value may not be changed after initialization are said to be
+{\em immutable}, or {\em constants} (\Sref{FinalVariables}), or simply
+\xcd`val` variables. Variables whose value may change are {\em mutable} or
+simply \xcd`var` variables. \xcd`var` variables are declared by the \xcd`var`
+keyword. \xcd`val` variables may be declared by the \xcd`val` keyword; when a
+variable declaration does not include either \xcd`var` or \xcd`val`, it is
+considered \xcd`val`. 
 
 
+%~~gen
+%package Vars.For.Bears.In.Chairs;
+%class VarExample{
+%static def example() {
+%~~vis
+\begin{xten}
+val a : Int = 0;               // Full 'val' syntax
+b : Int = 0;                   // 'val' implied
+val c = 0;                     // Type inferred
+var d : Int = 0;               // Full 'var' syntax
+var e : Int;                   // Not initialized
+var f : Int{self != 100} = 0;  // Constrained type
+\end{xten}
+%~~siv
+%}}
+%~~neg
 
-A variable of a rail type \xcd"Rail[T]" has
-as many variables as the size of the rail.
-A variable of a rail type \xcd"ValRail[T]" has
-as many variables as the size of the rail.
-Each of these variables is immutable and has the type \xcd"T".
 
-%XXX
-%A variable of a nullable (reference or value) data type \xcd"nullable[T]"
-%always holds either the value (named by) \xcd"null" or a value of
-%type \xcd"T" (these cases are not mutually exclusive).
 
-A variable of an interface type \xcd"I" always holds either a
-reference to a reference class implementing \xcd"I" (including possibly
-a boxed struct that implements \xcd"I"), or a \xcd"null"
-reference.
 
-A variable of a struct data type \xcd"T"  always takes as much
-space as necessary to represent an instance of \xcd"T". That is
-structs are implemented ``inline'' or in an unboxed fashion.
 
-A variable of a function type always holds a reference to enough
-memory to represent the constants accessed within the body of the
-function.
+
 
 \section{Immutable variables}
 \label{FinalVariables}
 \index{variable!immutable}
 \index{immutable variable}
-An immutable variable satisfies two conditions: 
-\begin{itemize}
-\item it can be assigned to at most once, 
-\item it must be assigned to before use. 
-\end{itemize}
 
-\Xten{} follows \java{} language rules in this respect \cite[\S
-4.5.4,8.3.1.2,16]{jls2}. Briefly, the compiler must undertake a
-specific analysis to statically guarantee the two properties above.
+Immutable variables can be given values (by initialization or assignment) at
+most once, and must be given values before they are used.  Usually this is
+achieved by declaring and initializing the variable in a single statement.
+%~~gen
+% package Vars.In.Snares;
+% class ABitTedious{
+% def example() {
+%~~vis
+\begin{xten}
+val a : Int = 10;
+val b = (a+1)*(a-1);
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\xcd`a` and \xcd`b` cannot be assigned to further.
 
-Immutable local variables and fields are defined by the \xcd"val"
-keyword.  Elements of value arrays are also immutable.
+In other cases, the declaration and assignment are separate.  One such
+case is how constructors give values to \xcd`val` fields of objects.  The
+\xcd`Example` class has an immutable field \xcd`n`, which is given different
+values depending on which constructor was called. \xcd`n` can't be given its
+value by initialization when it is declared, since it is not knowable which
+constructor is called at that point.  
+%~~gen
+% package Vars.For.Cares;
+%~~vis
+\begin{xten}
+class Example {
+  val n : Int; // not initialized here
+  def this() { n = 1; }
+  def this(dummy:Boolean) { n = 2;}
+}
+\end{xten}
+%~~siv
+%
+%~~neg
 
-\oldtodo{Check if this analysis needs to be revisited.}
+Another common case of separating declaration and assignment is in function
+and method call.  The formal parameters are bound to the corresponding actual
+parameters, but the binding does not happen until the function is called.  In
+the code below, \xcd`x` is initialized to \xcd`3` in the first call and
+\xcd`4` in the second.
+%~~gen
+%package Vars.For.Swears;
+%class Examplement {
+%static def whatever() {
+%~~vis
+\begin{xten}
+val sq = (x:Int) => x*x;
+x10.io.Console.OUT.println("3 squared = " + sq(3));
+x10.io.Console.OUT.println("4 squared = " + sq(4));
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+
+
+
+
+%%IMMUTABLE%% An immutable variable satisfies two conditions: 
+%%IMMUTABLE%% \begin{itemize}
+%%IMMUTABLE%% \item it can be assigned to at most once, 
+%%IMMUTABLE%% \item it must be assigned to before use. 
+%%IMMUTABLE%% \end{itemize}
+%%IMMUTABLE%% 
+%%IMMUTABLE%% \Xten{} follows \java{} language rules in this respect \cite[\S
+%%IMMUTABLE%% 4.5.4,8.3.1.2,16]{jls2}. Briefly, the compiler must undertake a
+%%IMMUTABLE%% specific analysis to statically guarantee the two properties above.
+%%IMMUTABLE%% 
+%%IMMUTABLE%% Immutable local variables and fields are defined by the \xcd"val"
+%%IMMUTABLE%% keyword.  Elements of value arrays are also immutable.
+%%IMMUTABLE%% 
+%%IMMUTABLE%% \oldtodo{Check if this analysis needs to be revisited.}
 
 \section{Initial values of variables}
 \label{NullaryConstructor}\index{nullary constructor}
@@ -125,13 +229,16 @@ Every class variable must be initialized before it is read, through
 the execution of an explicit initializer or a static block. Every
 instance variable must be initialized before it is read, through the
 execution of an explicit initializer or a constructor.
+\bard{Revise this in light of initial values}
 Mutable instance variables of class type are initialized to 
 to \xcd"null".
 Mutable instance variables of struct type are 
 assumed to have an initializer that sets the value to the
 result of invoking the nullary constructor on the class. 
-An initializer is required if the default initial value is not
-assignable to the variable's type.
+An initializer is required if the default initial value of the variable's type
+is not
+assignable to the variable's type, \eg, \xcd`Int` variables are initialized to
+zero, but that doesn't work for \xcd`val x:Int{x!=0}`.
 
 Each method and constructor parameter is initialized to the
 corresponding argument value provided by the invoker of the method. An
