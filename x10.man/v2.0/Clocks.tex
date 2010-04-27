@@ -13,6 +13,63 @@ deadlock cannot be introduced by using clock operations, and that
 clock operations do not introduce any races.
 
 
+The following minimalist example of clocked code has two worker activities A
+and B, and three phases. In the first phase, each worker activity says its
+name followed by 1; in the second phase, by a 2, and in the third, by a 3.  
+So, if \xcd`say` prints its argument, 
+\xcd`A-1 B-1 A-2 B-2 A-3 B-3`
+would be a legitimate run of the program, but
+\xcd`A-1 A-2 B-1 B-2 A-3 B-3`
+(with \xcd`A-2` before \xcd`B-1`) would not.
+
+The program creates a clock \xcd`cl` to manage the phases.  Each worker does
+the work of its first phase, and then executes \xcd`next;` to signal that it
+is finished with that work. \xcd`next;` is blocking, and causes the worker to
+wait until all workers have finished with the phase -- as measured by the
+clock \xcd`cl` to which they are both registered.  
+Then they do the second phase, and another \xcd`next;` to make sure that
+neither proceeds to the third phase until both are ready.  This example uses
+\xcd`finish` to wait for both workers to finish.  The parent thread is also
+registered on the clock just as the workers are, and executes \xcd`next;next;`
+to run through the phases.
+
+
+%%TODO -- put the 'atomic' back in when that's legal.
+
+%~~gen
+%package Clocks.For.Spock;
+%class ClockEx {
+%  static def say(s:String) = 
+% { /*atomic{x10.io.Console.OUT.println(s);}*/ }
+%  public static def main(argv:Rail[String]!) {
+%~~vis
+\begin{xten}
+    val cl = Clock.make();
+    finish{
+      async clocked(cl) {// Activity A
+        say("A-1");
+        next;
+        say("A-2");
+        next;
+        say("A-3"); 
+      }// Activity A
+
+      async clocked(cl) {// Activity B
+        say("B-1");
+        next;
+        say("B-2");
+        next;
+        say("B-3"); 
+      }// Activity B
+      next;next;       
+    }
+    say("All done");
+
+\end{xten}
+%~~siv
+%  }
+% }
+%~~neg
 
 This chapter describes the syntax and semantics of clocks and
 statements in the language that have parameters of type \xcd"Clock". 
