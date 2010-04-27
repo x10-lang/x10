@@ -90,15 +90,16 @@ val timeSynchronizer: Clock = Clock.make();
 %}}
 %~~neg
 
-\eat{All clocked variables are implicitly \xcd`val`. The initializer for a
-local variable declaration of type \xcd"Clock" must be a new clock
-expression. Thus \Xten{} does not permit aliasing of clocks.
-Clocks are created in the place global heap and hence outlive the
-lifetime of the creating activity.  Clocks are structs, hence may be freely
-copied from place to 
-place. (Clock instances typically contain references to mutable state
-that maintains the current state of the clock.)
-}
+%%CLOCKVAR%% \eat{All clocked variables are implicitly \xcd`val`. The initializer for a
+%%CLOCKVAR%% local variable declaration of type \xcd"Clock" must be a new clock
+%%CLOCKVAR%% expression. Thus \Xten{} does not permit aliasing of clocks.
+%%CLOCKVAR%% Clocks are created in the place global heap and hence outlive the
+%%CLOCKVAR%% lifetime of the creating activity.  Clocks are structs, hence may be freely
+%%CLOCKVAR%% copied from place to 
+%%CLOCKVAR%% place. (Clock instances typically contain references to mutable state
+%%CLOCKVAR%% that maintains the current state of the clock.)
+%%CLOCKVAR%% }
+
 The current activity is automatically registered with the newly
 created clock.  It may deregister using the \xcd"drop" method on
 clocks (see the documentation of \xcd"x10.lang.Clock"). All activities
