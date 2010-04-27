@@ -65,48 +65,107 @@ Like values of any other type, places may be passed as arguments
 to methods, returned from methods, stored in fields etc.
 
 \section{\Xcd{here}}\index{here}\label{Here}
-\Xten{} supports a special indexical constant\footnote{
-An indexical constant is one whose value depends on its context
-of use.} \xcd"here":
+\Xten{} supports a special indexical constant\footnote{ An indexical constant
+  is one whose value depends on its context of use, like \xcd`this`.}
+\xcd"here", which evaluates to the place at which the current activity is
+running.
 
 \begin{grammar}
-ExpressionName \: \xcd"here" \\
+Expression \: \xcd"here" \\
 \end{grammar}
 
-The constant evaluates to the place at which the current activity is
-running. Unlike other place expressions, this constant cannot be 
-used as the placetype of fields, since the type of a field 
-should be independent of the activity accessing it.
-
 \begin{example}
-
-%%TODO -- redo this example to something that's useful.
-
-The code:
-
+For example, the following method looks through a collection of \xcd`Thing`s
+for ones which belong in the current place \xcd`here`, and deals with the
+things which do.  Note that every object \xcd`thing` has a property
+\xcd`thing.home` giving its home location.
 %~~gen
-% package Places.Are.For.Graces.Or.Maybe.Aces;
+%package Places.Are.For.Graces;;
+%abstract class Thing {}
+%class DoMine {
+%  static def dealWith(Thing) {}	
 %~~vis
 \begin{xten}
-class F {
-  public def m(a: F) {
-    val OldHere: Place = here;
-    async (a) {
-      Console.OUT.println("OldHere == here:" 
-                         + (OldHere == here));
-    }
+  public static def dealWithLocal(things: Rail[Thing]) {
+     for(thing in things) {
+    	 if (thing.home == here) 
+            dealWith(thing);
+     }	  
   }
-  public static def main(Rail[String]) {
-    new F().m( (at(Place.FIRST_PLACE.next()) new F()));
-  }
-}  
 \end{xten}
 %~~siv
-%
+%}
 %~~neg
 
 
-\noindent will print out \xcd"true" iff the computation was configured
-to start with the number of places set to \xcd"1". 
+
 \end{example}
+
+\xcd`here` is frequently used in constraints, quite often of the form
+\xcd`obh.home == here`. Such constraints are necessary to check that a
+non-global method can be called on \xcd`ob`: 
+
+
+%TODO~~gen
+% package Places.Are.For.Aces.Of.Spaces;
+% class Thing {
+% def nonGlobalMethod():Void{}
+% static def example() {
+%TODO~~vis
+\begin{xten}
+val ob : Thing{self.home == here} = new Thing();
+ob.nonGlobalMethod();
+\end{xten}
+%TODO~~siv
+%}}
+%TODO~~neg
+
+This idiom is so common and useful that the constraint
+\xcd`T{self.home==here}` can be abbreviated as \xcd`T!`: 
+
+%TODO~~gen
+% package Places.Are.For.Aces.Of.Graces;
+% class Thing {
+% def nonGlobalMethod():Void{}
+% static def example() {
+%TODO~~vis
+\begin{xten}
+val ob : Thing! = new Thing();
+ob.nonGlobalMethod();
+\end{xten}
+%TODO~~siv
+%}}
+%TODO~~neg
+
+%%PLACES-REMOVED-EXAMPLE%%\begin{example}
+%%PLACES-REMOVED-EXAMPLE%%
+%%PLACES-REMOVED-EXAMPLE%%%%TODO -- redo this example to something that's useful.
+%%PLACES-REMOVED-EXAMPLE%%
+%%PLACES-REMOVED-EXAMPLE%%The code:
+%%PLACES-REMOVED-EXAMPLE%%
+%%PLACES-REMOVED-EXAMPLE%%%~-~gen
+%%PLACES-REMOVED-EXAMPLE%%% package Places.Are.For.Graces.Or.Maybe.Aces;
+%%PLACES-REMOVED-EXAMPLE%%%~-~vis
+%%PLACES-REMOVED-EXAMPLE%%\begin{xten}
+%%PLACES-REMOVED-EXAMPLE%%class F {
+%%PLACES-REMOVED-EXAMPLE%%  public def m(a: F) {
+%%PLACES-REMOVED-EXAMPLE%%    val OldHere: Place = here;
+%%PLACES-REMOVED-EXAMPLE%%    async (a) {
+%%PLACES-REMOVED-EXAMPLE%%      Console.OUT.println("OldHere == here:" 
+%%PLACES-REMOVED-EXAMPLE%%                         + (OldHere == here));
+%%PLACES-REMOVED-EXAMPLE%%    }
+%%PLACES-REMOVED-EXAMPLE%%  }
+%%PLACES-REMOVED-EXAMPLE%%  public static def main(Rail[String]) {
+%%PLACES-REMOVED-EXAMPLE%%    new F().m( (at(Place.FIRST_PLACE.next()) new F()));
+%%PLACES-REMOVED-EXAMPLE%%  }
+%%PLACES-REMOVED-EXAMPLE%%}  
+%%PLACES-REMOVED-EXAMPLE%%\end{xten}
+%%PLACES-REMOVED-EXAMPLE%%%~-~siv
+%%PLACES-REMOVED-EXAMPLE%%%
+%%PLACES-REMOVED-EXAMPLE%%%~-~neg
+%%PLACES-REMOVED-EXAMPLE%%
+%%PLACES-REMOVED-EXAMPLE%%
+%%PLACES-REMOVED-EXAMPLE%%\noindent will print out \xcd"true" iff the computation was configured
+%%PLACES-REMOVED-EXAMPLE%%to start with the number of places set to \xcd"1". 
+%%PLACES-REMOVED-EXAMPLE%%\end{example}
 
