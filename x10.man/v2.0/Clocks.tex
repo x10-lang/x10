@@ -12,6 +12,8 @@ the nested clock.  Nevertheless the design of clocks ensures that
 deadlock cannot be introduced by using clock operations, and that
 clock operations do not introduce any races.
 
+
+
 This chapter describes the syntax and semantics of clocks and
 statements in the language that have parameters of type \xcd"Clock". 
 
@@ -129,13 +131,33 @@ with on termination (normal or abrupt).
 \subsection{Registering new activities on clocks}
 \index{clock!clocked statements}\label{sec:clock:register}
 
-The programmer may specify which clocks a new activity is to be
-registered with using the \xcd"clocked" clause.
+The statement 
 
-An activity may transmit only those clocks that are registered with and
-has not quiesced on (\Sref{resume}). 
-A \xcd"ClockUseException"\index{clock!ClockUseException} is
-thrown if (and when) this condition is violated.
+%~~gen
+%package Clocks.For.Jocks;
+%class Qlocked{
+%static def S():Void{}
+%static def flock() { 
+% val c1 = Clock.make(), c2 = Clock.make(), c3 = Clock.make();
+%~~vis
+\begin{xten}
+  async clocked (c1, c2, c3) S
+\end{xten}
+%~~siv
+%();
+%}}
+%~~neg
+starts a new activity, initially registered with
+clocks \xcd`c1`, \xcd`c2`, and \xcd`c3`, and  running \xcd`S`. The activity running this code must
+be registered on those clocks. Furthermore, it cannot be quiescent on any of
+them (see \Sref{resume}), because that would introduce a race condition.
+Violations of these conditions are punished by the throwing of a
+\xcd"ClockUseException"\index{clock!ClockUseException}. 
+
+% An activity may transmit only those clocks that are registered with and
+% has not quiesced on (\Sref{resume}). 
+% A \xcd"ClockUseException"\index{clock!ClockUseException} is
+%thrown if (and when) this condition is violated.
 
 An activity may check that it is registered on a clock \xcd"c" by
 %~~exp~~`~~`~~c:Clock ~~
@@ -143,11 +165,13 @@ the predicate \xcd`c.registered()`
 
 
 \begin{note}
-\Xten{} does not contain a ``register'' statement that would allow an
-activity to discover a clock in a datastructure and register itself on
-it. Therefore, while clocks may be stored in a datastructure by one
-activity and read from that by another, the new activity cannot
-``use'' the clock unless it is already registered with it.
+\Xten{} does not contain a ``register'' operation that would allow an activity
+to discover a clock in a datastructure and register itself on it. Therefore,
+while a clock \xcd`c` may be stored in a data structure by one activity
+\xcd`a` and read from it by another activity \xcd`b`, \xcd`b` cannot do much
+with \xcd`c` unless it is already registered with it.  In particular, it
+cannot register itself on \xcd`c`, and, lacking that registration, cannot
+register a sub-activity on it with \xcd`clocked(c) async S`.
 \end{note}
 
 \oldtodo{Add text on arrays of clocks.}
