@@ -25,26 +25,46 @@ are exactly those that it creates. In particular it is not possible
 for an activity to register itself with a clock it discovers by
 reading a data-structure.
 
-An activity may perform the following operations on a clock \xcd"c".
-It may {\em unregister} with \xcd"c" by executing \xcd"c.drop();".
-After this, it may perform no further actions on \xcd"c"
-for its lifetime. It may {\em check} to see if it is unregistered on a
-clock. It may {\em register} a newly forked activity with \xcd"c".
-%% It may {\em post} a statement \xcd"S" for completion in the current phase
-%% of \xcd"c" by executing the statement \xcd"now(c) S". 
-Once registered and "active" (see below), it may also perform the following operations.
-It may {\em resume} the clock by executing \xcd"c.resume();". This
-indicates to \xcd"c" that it has finished posting all statements it
-wishes to perform in the current phase. Finally, it may {\em block}
-(by executing \xcd"next;") on all the clocks that it is registered
-with. (This operation implicitly \xcd"resume"'s all clocks for the
-activity.) It will resume from this statement only when all these
-clocks are ready to advance to the next phase.
+The primary operations that an activity \xcd`a` may perform on a clock \xcd`c`
+that it is registered upon are: 
+\begin{itemize}
+\item It may {\em register} a newly-created activity on \xcd`c`: 
+      \xcd`clocked(c) async{S}`.
+\item It may {\em unregister} itself from \xcd`c`, with \xcd`c.drop()`.  After
+      doing so, it can no longer use most primary operations on \xcd`c`.
+\item It may {\em resume} the clock, with \xcd`c.resume()`, indicating that it
+      has finished with the current phase associated with \xcd`c` and is ready
+      to move on to the next one.
+\item It may {\em block} on all the clocks it is registered with
+      simultaneously, by the command \xcd`next;`, which indicates that it 
+      has finished the current phase according to all of them; this statement 
+      \xcd`resume()`s all of them. \xcd`a` will only continue executing when
+      all of these clocks have been \xcd`resume()`d by all activities
+      registered upon them.
+\item Other miscellaneous operations are available as well; see the
+      \xcd`Clock` API.
+\end{itemize}
 
-A clock becomes ready to advance to the next phase when every activity
-registered with the clock has executed at least one \xcd"resume"
-operation on that clock and all statements posted for completion in
-the current phase have been completed.
+%%CLOCK%% An activity may perform the following operations on a clock \xcd"c".
+%%CLOCK%% It may {\em unregister} with \xcd"c" by executing \xcd"c.drop();".
+%%CLOCK%% After this, it may perform no further actions on \xcd"c"
+%%CLOCK%% for its lifetime. It may {\em check} to see if it is unregistered on a
+%%CLOCK%% clock. It may {\em register} a newly forked activity with \xcd"c".
+%%CLOCK%% %% It may {\em post} a statement \xcd"S" for completion in the current phase
+%%CLOCK%% %% of \xcd"c" by executing the statement \xcd"now(c) S". 
+%%CLOCK%% Once registered and "active" (see below), it may also perform the following operations.
+%%CLOCK%% It may {\em resume} the clock by executing \xcd"c.resume();". This
+%%CLOCK%% indicates to \xcd"c" that it has finished posting all statements it
+%%CLOCK%% wishes to perform in the current phase. Finally, it may {\em block}
+%%CLOCK%% (by executing \xcd"next;") on all the clocks that it is registered
+%%CLOCK%% with. (This operation implicitly \xcd"resume"'s all clocks for the
+%%CLOCK%% activity.) It will resume from this statement only when all these
+%%CLOCK%% clocks are ready to advance to the next phase.
+
+%%CLOCK%% A clock becomes ready to advance to the next phase when every activity
+%%CLOCK%% registered with the clock has executed at least one \xcd"resume"
+%%CLOCK%% operation on that clock and all statements posted for completion in
+%%CLOCK%% the current phase have been completed.
 
 Though clocks introduce a blocking statement (\xcd"next") an important
 property of \Xten{} is that clocks cannot introduce deadlocks. That
