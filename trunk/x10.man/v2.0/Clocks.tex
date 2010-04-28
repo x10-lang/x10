@@ -88,7 +88,7 @@ The primary operations that an activity \xcd`a` may perform on a clock \xcd`c`
 that it is registered upon are: 
 \begin{itemize}
 \item It may {\em register} a newly-created activity on \xcd`c`: 
-      \xcd`clocked(c) async{S}`.
+      \xcd`async clocked(c){S}`.
 \item It may {\em unregister} itself from \xcd`c`, with \xcd`c.drop()`.  After
       doing so, it can no longer use most primary operations on \xcd`c`.
 \item It may {\em resume} the clock, with \xcd`c.resume()`, indicating that it
