@@ -245,12 +245,11 @@ class IDEAOrigTest {
 	 */
 	 
 	private def cipher_idea(text1: Rail[Int]!, text2: Rail[Int]!, key: Rail[Int]!)  {
-		finish for (var i:Int = 0; i < (text1.length)/8; i ++)  {
+		finish foreach ((i) in 0..(text1.length)/8 - 1)  {
 			val itmp = i * 8;
-			async { 
-		
-		//finish foreach ((ii): Point in 0..(text1.length-1/8)) {
-		  //  var i: Int = 8 * itmp;
+			{
+	
+
 		    var i1: Int = itmp;                 // Index into first text array.
 		    var i2: Int = itmp;                 // Index into second text array.
 		    var ik: Int;                     // Index into key array.

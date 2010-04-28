@@ -5,6 +5,7 @@ public class Pipeline {
 
 
    public def pipeline() {
+   		finish {
   		val c = Clock.make(); 
    		val op = Int.+;
       	shared var a: int @ Clocked[int] (c, op, 0) = 0;
@@ -30,6 +31,7 @@ public class Pipeline {
                         val o = b + 1;
                         Console.OUT.println(o);
                  }
+          }
         }
 
    

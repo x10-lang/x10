@@ -40,22 +40,22 @@ class RandomAccess {
         logLocalTableSize: Int, numUpdates: Long) @ ClockedM (c){
         val mask = (1<<logLocalTableSize)-1;
         val local_updates = numUpdates / NTASKS;
-        for ((p) in 0..NTASKS-1) {
-            async  clocked (c) 
-            @Immediate finish {
+         finish for ((p) in 0..NTASKS-1) {
+            async  clocked (c) {
                 var ran:Long = HPCC_starts(p*(numUpdates/NTASKS));
 
                 for (var i:Long=0 ; i<local_updates ; ++i) {
                     val task_id = ((ran>>logLocalTableSize) & (NTASKS-1)) as Int;
                     val index = (ran & mask as Int);
                     val update = ran;
+                    
                    
                     val dest = task_id;
                     val rail = rails(task_id) as Rail[Long @ Clocked[Long](c, op, 0L)]!;
                     @Immediate async clocked(c) {
                         rail(index) = update;
                     } 
-                    ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
+                    
                 }
             }
         }

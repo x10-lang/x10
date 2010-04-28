@@ -27,6 +27,7 @@ public class KMeansScalar {
 
 
     def computeMeans() {
+      finish {
       val c = Clock.make();
        val rnd = new Random(0);
        val iop = Int.+;
@@ -71,7 +72,7 @@ public class KMeansScalar {
         } // end for
          
        for ((k) in 0..K-1) Console.OUT.println(redCluster(k));
-       
+      } 
     }
   
     public static def main (args : Rail[String]) {

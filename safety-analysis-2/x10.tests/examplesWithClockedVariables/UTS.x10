@@ -137,7 +137,7 @@ class UTS {
 
     def run() @ ClockedM(c) {
   
-	
+	finish {
      for (var i:int=0;i<tiles.length;i++) {
          val j =i; 	  
 	  async clocked(c)  visitRegion(tiles(j),j);
@@ -157,6 +157,7 @@ class UTS {
         
     
         // should always get same size tree
+       }
         return size as double;
     }
      

@@ -150,6 +150,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
        
         mi.setThisVar(((X10ClassDef) ct).thisVar());
        
+       
         this.placeTerm = PlaceChecker.methodPT(flags, ct);
         return mi;
     }
@@ -392,7 +393,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         if (this.body() != null && this.body().ext() != null) {
         	((X10MethodDef_c)mi).setBodyAnnotations(((X10Ext)this.body().ext()).annotations());
+            ((X10MethodDef_c)mi).setMethodDecl((X10MethodDecl)this.copy());
+        	
         }
+
         
         if (((X10TypeSystem) tc.typeSystem()).isStructType(mi.container().get())) {
         	Flags xf = X10Flags.toX10Flags(mi.flags()).Global().Final();
@@ -456,7 +460,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             if (! ok)
                 throw new SemanticException("Property method body must be a constraint expression.", position());
         }
-
+       
         n = (X10MethodDecl_c) n.superTypeCheck(tc);
 
         dupFormalCheck(typeParameters, formals);
@@ -934,7 +938,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             ((Ref<Type>) nn.returnType().typeRef()).update(t);
             nn = (X10MethodDecl) nn.returnType(nf.CanonicalTypeNode(nn.returnType().position(), t));
         }
-
+  
         return nn;
     }
 

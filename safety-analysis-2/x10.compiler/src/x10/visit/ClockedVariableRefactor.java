@@ -461,7 +461,14 @@ public class ClockedVariableRefactor extends ContextVisitor {
 		  List<Type> typeArgs = new ArrayList<Type>();
 		
 		try {
-			if (((X10ParsedClassType)((ConstrainedType)sa.array().type()).baseType().get()).def().toString().contentEquals("x10.lang.Rail")) {
+			
+			if (!(sa.array().type() instanceof ConstrainedType))
+				return sa;
+			ConstrainedType ct = (ConstrainedType)sa.array().type();
+			if (!(ct.baseType().get() instanceof  X10ParsedClassType))
+				return sa;
+			
+			if (((X10ParsedClassType) ct.baseType().get()).def().toString().contentEquals("x10.lang.Rail")) {
 				type = xts.typeForName(RAIL);
 				typeArgs.add(sa.right().type());
 			
