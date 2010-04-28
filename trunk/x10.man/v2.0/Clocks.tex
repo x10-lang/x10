@@ -240,15 +240,14 @@ suspending all activity. It may do so  by executing
 
 
 
-An activity may invoke this method only on a clock it is registered
-with, and has not yet dropped (\Sref{sec:clock:drop}). A \xcd"ClockUseException"\index{clock!ClockUseException} is thrown if (and
-when) this condition is violated.  Nothing happens if the activity has
-already invoked a \xcd"resume" on this clock in the current phase.
-Otherwise execution of this statement indicates that the activity will
-not transmit \xcd"c" to an \xcd"async" (through a \xcd"clocked"
-clause),
-% or invoke \xcd"now" 
-until it terminates, drops \xcd"c" or executes a \xcd"next". 
+An activity may invoke \xcd`resume()` only on a clock it is registered with,
+and has not yet dropped (\Sref{sec:clock:drop}). A
+\xcd"ClockUseException"\index{clock!ClockUseException} is thrown if this
+condition is violated. Nothing happens if the activity has already invoked a
+\xcd"resume" on this clock in the current phase. Otherwise, \xcd`c.resume()`
+indicates that the activity will not transmit \xcd"c" to an 
+\xcd"async" (through a \xcd"clocked" clause), 
+until it terminates, drops \xcd"c" or executes a \xcd"next".
 
 \begin{staticrule*}
 It is a static error if any activity has a potentially
