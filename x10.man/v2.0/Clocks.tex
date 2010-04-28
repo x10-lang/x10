@@ -139,18 +139,11 @@ The only other possibility is that an activity may be stuck on
 in the wait-for graph. A more rigorous proof may be found in \cite{X10-concur05}.
 
 \section{Clock operations}\label{sec:clock}
-The special statements introduced for clock operations are listed below.
-%%479 NowStatement ::= 
-%%      now ( Clock ) Statement
-
-\begin{grammar}
-Statement \: ClockedStatement \\
-ClockedStatement \: \xcd"clocked" \xcd"(" ClockList \xcd")" Statement \\
-NextStatement \: \xcd"next" \xcd";" \\
-\end{grammar}
-
-Note that \xcd"x10.lang.Clock" provides several useful methods on
-clocks (e.g. \xcd"drop").
+There are two language constructs for working with clocks. 
+\xcd`async clocked(cl) S` starts a new activity registered on one or more
+clocks.  \xcd`next;` blocks the current activity until all the activities
+sharing clocks with it are ready to proceed. 
+Clocks are objects, and have a number of useful methods on them as well.
 
 \subsection{Creating new clocks}\index{clock!creation}\label{sec:clock:create}
 
