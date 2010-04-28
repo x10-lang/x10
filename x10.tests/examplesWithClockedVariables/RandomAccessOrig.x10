@@ -38,8 +38,7 @@ class RandomAccessOrig {
         val mask = (1<<logLocalTableSize)-1;
         val local_updates = numUpdates / NTASKS;
         finish for ((p) in 0..NTASKS-1) {
-            async 
-            @Immediate finish {
+            async {
                 var ran:Long = HPCC_starts(p*(numUpdates/NTASKS));
 
                 for (var i:Long=0 ; i<local_updates ; ++i) {

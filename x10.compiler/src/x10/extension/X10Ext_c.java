@@ -10,6 +10,7 @@ package x10.extension;
 import polyglot.ast.NamedVariable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,6 +88,7 @@ import x10.types.X10ClassType;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.X10LocalDef;
+import x10.types.X10MethodDef;
 import x10.types.X10MethodDef_c;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
@@ -108,6 +110,7 @@ import x10.types.X10ClassDef;
 public class X10Ext_c extends Ext_c implements X10Ext {
     String comment;
     List<AnnotationNode> annotations;
+    HashMap procHash = new HashMap();
     
     public String comment() {
         return this.comment;
@@ -240,48 +243,11 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	                 result=computeEffect((New) n, ec);
 	                 //System.out.println("***" + result);
 	            } else if (n instanceof ProcedureDecl) {
-	            	ProcedureDecl pd= (ProcedureDecl) n;
-	            
-	            	// vj: This doesnt make sense, need to set up effects separately, just like return types of methods.
-	            	result= effect(pd.body());
-	            	if (result == null) /* FIXME */
-	            		result = Effects.makeSafe();
 	            	
-	            	Set<Locs> methodClocks = new HashSet<Locs>();
-	            	List<AnnotationNode> methodAnnotations = ((X10Ext)pd.body().ext()).annotations();
-	        		for (AnnotationNode an: methodAnnotations) {
-	      	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
-	              				X10ParsedClassType anc = (X10ParsedClassType)an.annotationType().type();
-	              				Expr e = anc.propertyInitializer(0);
-	                  	        	Locs locs= computeLocFor(e, ec);
-	                  	        	methodClocks.add(locs);
-	      	  			}
-	        		}
-	         
-
-	        		
-	        for (Locs mc: result.mustClockSet()) {
-	      	  	boolean found = false;
-	        		for (Locs rc: methodClocks) {
-	        			if (mc.equals(rc)) {
-	        				found = true;
-	        				break;
-	        			}
-	        		}
-	        	if (found == false)
-	        			ec.emitMessage( mc + " is not clocked on the method " + pd.name(), pd.position());
-	        }	
-	         
-	            	if (result == null) {
-	            		ec.emitMessage("Unable to compute effects of method " + pd.name(), pd.position());
-	            	} else if (result.unsafe()) {
-	            		ec.emitMessage("Method " + pd.name() + " is unsafe:"+ result, pd.position());
-	            	} else if (isMainMethod(pd, ec) && result.unsafe()) {
-	            		ec.emitMessage("Main method is not safely parallelized; effect is: " + result, pd.position());
-	            	} else {
-				       System.out.println("Info: " + pd.position() + ": Method " + pd.name() + " is "+ result);
-	            	}
-
+	              result = computeEffect((ProcedureDecl) n, ec);
+	            
+	     
+	            	
 	            } else if (n instanceof SettableAssign) {
 	                result=computeEffect((SettableAssign) n, ec);
 	            } else if (n instanceof Unary) {
@@ -304,6 +270,58 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	        }
 	}
 
+	private Effect computeEffect (ProcedureDecl pd, EffectComputer ec) {
+		Effect result = Effects.makeSafe();
+	
+
+		// vj: This doesnt make sense, need to set up effects separately, just like return types of methods.
+	
+			result= effect(pd.body());
+		
+			if (result == null) /* FIXME */
+				result = Effects.makeSafe();
+	
+			Set<Locs> methodClocks = new HashSet<Locs>();
+			List<AnnotationNode> methodAnnotations = ((X10Ext)pd.body().ext()).annotations();
+			for (AnnotationNode an: methodAnnotations) {
+	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
+      				X10ParsedClassType anc = (X10ParsedClassType)an.annotationType().type();
+      				Expr e = anc.propertyInitializer(0);
+          	        	Locs locs= computeLocFor(e, ec);
+          	        	methodClocks.add(locs);
+	  			}
+			}
+ 
+
+		
+		for (Locs mc: result.mustClockSet()) {
+			boolean found = false;
+			for (Locs rc: methodClocks) {
+				if (mc.equals(rc)) {
+					found = true;
+					break;
+			}
+		}
+			if (found == false)
+				ec.emitMessage( mc + " is not clocked on the method " + pd.name(), pd.position());
+		}	
+ 
+    	if (result == null) {
+    		ec.emitMessage("Unable to compute effects of method " + pd.name(), pd.position());
+    	} else if (!result.safe()) {
+    		ec.emitMessage("Method " + pd.name() + " is unsafe:"+ result, pd.position());
+    	} else if (isMainMethod(pd, ec) && !result.safe()) {
+    		ec.emitMessage("Main method is not safely parallelized; effect is: " + result, pd.position());
+    	} else {
+	       System.out.println("Info: " + pd.position() + ": Method " + pd.name() + " is "+ result);
+    	}
+    	
+		
+    	return result;
+	}	
+    
+    
+	
 
 	private boolean isMainMethod(ProcedureDecl pd, EffectComputer ec) {
 		if (!(pd instanceof MethodDecl)) return false;
@@ -456,8 +474,10 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       ConstructorInstance ctorInstance = neew.constructorInstance();
       List<Expr> args = neew.arguments();
       result= computeEffect(args, ec);
-      result= ec.env().followedBy(result, getMethodEffects(ctorInstance, args, ec));
-  
+      
+      /* FIXME */
+      //result= ec.env().followedBy(result, getMethodEffects(ctorInstance, args, ec));
+      result = Effects.makeSafe();
       	
       
       X10ParsedClassType className = (X10ParsedClassType)neew.constructorInstance().def().container().get();
@@ -801,6 +821,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
   }*/
 
   private Effect computeEffect(ForLoop forLoop, EffectComputer ec) {
+	  
       Effect bodyEff= effect(forLoop.body());
       // Abstract any effects that involve the loop induction variable
       // TODO How to properly bound the domain of the loop induction variable?
@@ -841,7 +862,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
           if (stmtEffect != null)
         	  blockDecls.addAll(stmtEffect.initializedClockSet());
           Effect filteredEffect= removeLocalVarsFromEffect(blockDecls, stmtEffect, ec);
-          filteredEffect= removeLocalRailVarsFromEffect(blockRailDecls, filteredEffect, ec);
+         // filteredEffect= removeLocalRailVarsFromEffect(blockRailDecls, filteredEffect, ec);
           ec.diag("             filtered effect = " + filteredEffect);
           result= ec.env().followedBy(result, filteredEffect);
           //System.out.println(stmtEffect + " After: " + result);
@@ -1006,10 +1027,18 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       X10ProcedureInstance xpi= (X10ProcedureInstance) procInstance;
       X10ProcedureDef xpd= (X10ProcedureDef) xpi.def();
       List<Type> annotations= xpd.annotations();
- 
+     
+      
+      
       boolean foundAnnotation= false;
       //Effect e = Effects.makeSafe(); /* FIXME ask vj */
-      Effect e = Effects.makeParSafe();
+      Effect e;
+
+      ProcedureDecl pd = ((X10MethodDef_c)xpd).methodDecl();
+      if (pd == null)
+    	  e = Effects.makeSafe();
+      else 
+    	  e = computeEffect(pd, ec);
       
       for (Type annoType : annotations) {
           if (annoType instanceof ClassType) {

@@ -1,4 +1,4 @@
-example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR )
+example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil RandomAccess)
 for ((i = 0; i < ${#example[@]}; i++))
 do
 	
@@ -6,6 +6,7 @@ do
 	echo "----${example[$i]}-----"
 	echo ""
 	../../../x10.dist/bin/x10c -SAFE_PARALLELIZATION_CHECK=true ../${example[$i]}.x10 > out.txt 
+	echo "Compiled"
 	time ../../../x10.dist/bin/x10  ${example[$i]}.x10 
 
 	echo ""

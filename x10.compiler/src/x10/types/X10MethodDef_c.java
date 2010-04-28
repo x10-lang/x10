@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.Block;
+import polyglot.ast.MethodDecl;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef_c;
@@ -58,6 +60,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     Ref<XTerm> body;
     protected Ref<? extends Effect> effect;
     List<AnnotationNode> bodyAnnotations;
+    MethodDecl methodDecl;
 
     public X10MethodDef_c(TypeSystem ts, Position pos,
             Ref<? extends StructType> container,
@@ -157,6 +160,16 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     public void setBodyAnnotations(List<AnnotationNode> bodyAnnotations) {
     	this.bodyAnnotations = bodyAnnotations;
     }
+    
+    public void setMethodDecl(MethodDecl methodDecl) {
+    	this.methodDecl = methodDecl;
+    }
+    
+    public MethodDecl methodDecl() {
+    	return methodDecl;
+    }
+   
+    
     
     public List<AnnotationNode> bodyAnnotations() {
     	return bodyAnnotations;

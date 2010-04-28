@@ -164,27 +164,7 @@ public class Effect_c implements Effect {
 		return result;
 	}
     
-    /* Writing a(i) should not conflict with writing b(i) */
-    private Set<Pair<Locs,Locs>> disjointww(Set<Locs> a, Set<Locs> b, XConstraint c) {
-	    Set<Pair<Locs,Locs>> result= null;
-		for (Locs al : a) {
-			for (Locs bl: b) {
-				boolean disjointedness;
-				if  (bl instanceof ArrayElementLocs && al instanceof ArrayElementLocs)
-					 disjointedness = ((ArrayElementLocs)bl).disjointFrom1(al, c);
-				else
-					disjointedness = bl.disjointFrom(al, c);
-					
-				if (!disjointedness) {
-				    if (result == null) {
-				        result= new HashSet<Pair<Locs,Locs>>();
-				    }
-                    result.add(new Pair<Locs,Locs>(al,bl));
-				}
-			}
-		}
-		return result;
-	}
+    
     
     
 	private interface EffectPairPopulator {
@@ -278,13 +258,13 @@ public class Effect_c implements Effect {
         	final Set<Locs> r = readSet(), w=writeSet(), a=atomicIncSet();
         	final Set<Locs> er = e.readSet(), ew=e.writeSet(), ea=e.atomicIncSet();
      
-        	ret =  disjointrw(r, ew, c) == null &&
-               disjointrw(r, ea, c) == null &&
-               disjointwr(w, er, c) == null &&
-               disjointww(w, ew, c) == null &&
-               disjointww(w, ea, c) == null &&
-               disjointwr(a, er, c) == null &&
-               disjointww(a, ew, c) == null;
+        	ret =  disjoint(r, ew, c) == null &&
+               disjoint(r, ea, c) == null &&
+               disjoint(w, er, c) == null &&
+               disjoint(w, ew, c) == null &&
+               disjoint(w, ea, c) == null &&
+               disjoint(a, er, c) == null &&
+               disjoint(a, ew, c) == null;
         }
         if (!ret)
         	System.out.println("Info: Clash :" + this + " and " + e);

@@ -9,6 +9,6 @@ public interface ArrayElementLocs extends Locs {
 	XTerm array();
 	XTerm index();
 	ArrayLocs generalize(XVar x);
-	public boolean disjointFrom1(Locs other, XConstraint c);
+	
 
 }

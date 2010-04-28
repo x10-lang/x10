@@ -9,4 +9,6 @@ MontyPiParallel - JGF
 SOR - JGF
 IDEA - JGF
 Stream - HPCC
-
+KMEANS - STAMP
+UTS - UTS Benchmark
+RandomAccess - HPCC
