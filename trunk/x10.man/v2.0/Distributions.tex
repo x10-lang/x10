@@ -48,18 +48,18 @@ out.}
 \subsection{Operations returning distributions}
 
 Let \xcd"R" be a region, \xcd"Q" a set of places \{\xcd"p1", \dots, \xcd"pk"\}
-(enumerated in canonical order), and \xcd"P" a place. All the operations
-described below may be performed on \xcd"Dist.factory".
+(enumerated in canonical order), and \xcd"P" a place.  
 
 \paragraph{Unique distribution} \index{distribution!unique}
-The distribution \xcd"unique(Q)" is the unique distribution from the
+The distribution \xcd"Dist.makeUnique(Q)" is the unique distribution from the
 region \xcd"1..k" to \xcd"Q" mapping each point \xcd"i" to \xcd"pi".
 
 \paragraph{Constant distributions.} \index{distribution!constant}
-The distribution \xcd"R->P" maps every point in \xcd"R" to \xcd"P".
+The distribution \xcd"R->P" maps every point in \xcd"R" to \xcd"P", as does
+\xcd`Dist.makeConstant(R,P)`. 
 
 \paragraph{Block distributions.}\index{distribution!block}
-The distribution \xcd"block(R, Q)" distributes the elements of \xcd"R"
+The distribution \xcd"Dist.makeBlock(R, Q)" distributes the elements of \xcd"R"
 (in order) over the set of places \xcd"Q" in blocks  as
 follows. Let $p$ equal \xcd"|R| div N" and $q$ equal \xcd"|R| mod N",
 where \xcd"N" is the size of \xcd"Q", and 
@@ -67,29 +67,30 @@ where \xcd"N" is the size of \xcd"Q", and
 successive blocks of size $(p+1)$ and the remaining places get blocks of
 size $p$.
 
-The distribution \xcd"block(R)" is the same distribution as {\cf
-block(R, Place.places)}.
+The distribution \xcd"Dist.makeBlock(R)" is the same distribution as {\cf
+Dist.makeBlock(R, Place.places)}.
 
 \oldtodo{Check into block distributions per dimension.}
 \paragraph{Cyclic distributions.} \index{distribution!cyclic}
-The distribution \xcd"cyclic(R, Q)" distributes the points in \xcd"R"
+The distribution \xcd"Dist.makeCyclic(R, Q)" distributes the points in \xcd"R"
 cyclically across places in \xcd"Q" in order.
 
-The distribution \xcd"cyclic(R)" is the same distribution as \xcd"cyclic(R, Place.places)".
+The distribution \xcd"Dist.makeCyclic(R)" is the same distribution as
+\xcd"Dist.makeCyclic(R, Place.places)". 
 
-Thus the distribution \xcd"cyclic(Place.MAX_PLACES)" provides a 1--1
+Thus the distribution \xcd"Dist.makeCyclic(Place.MAX_PLACES)" provides a 1--1
 mapping from the region \xcd"Place.MAX_PLACES" to the set of all
-places and is the same as the distribution \xcd"unique(Place.places)".
+places and is the same as the distribution \xcd"Dist.makeCyclic(Place.places)".
 
 \paragraph{Block cyclic distributions.}\index{distribution!block cyclic}
-The distribution \xcd"blockCyclic(R, N, Q)" distributes the elements
+The distribution \xcd"Dist.makeBlockCyclic(R, N, Q)" distributes the elements
 of \xcd"R" cyclically over the set of places \xcd"Q" in blocks of size
 \xcd"N".
 
 \paragraph{Arbitrary distributions.} \index{distribution!arbitrary}
-The distribution \xcd"arbitrary(R,Q)" arbitrarily allocates points in {\cf
-R} to \xcd"Q". As above, \xcd"arbitrary(R)" is the same distribution as
-\xcd"arbitrary(R, Place.places)".
+The distribution \xcd"Dist.makeArbitrary(R,Q)" arbitrarily allocates points in {\cf
+R} to \xcd"Q". As above, \xcd"Dist.makeArbitrary(R)" is the same distribution as
+\xcd"Dist.makeArbitrary(R, Place.places)".
 
 \oldtodo{Determine which other built-in distributions to provide.}
 
