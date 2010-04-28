@@ -49,12 +49,13 @@ public class MergeSort{
      			return;
         	
          /* Sort into myArray */
+        finish {
         async clocked (c) sort (c, myArray, fstart, fend);
         /* Sort into myArray */
 		sort (c, myArray, sstart, ssend);
         next; /* Like a finish */
         
-      
+      	}
         	/* merge from myArray into myArray */
         merge(c, myArray, fstart, fend, sstart, ssend);
   

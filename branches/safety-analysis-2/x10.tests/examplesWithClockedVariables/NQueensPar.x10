@@ -71,7 +71,7 @@ public class NQueensPar {
             if (q.length == 0) {
                 val R = block(0..N-1, P);
                 //val d = at (NQueensPar.this) c;
-                for ((q) in 0..P-1)
+                finish for ((q) in 0..P-1)
                   async clocked (c) search(R(q));
             } else search(0..N-1);
         }

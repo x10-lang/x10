@@ -13,6 +13,8 @@ public class Prefix {
        		a(hi)= e + a(hi);
         	return;
         }
+        
+        finish {
         val mid = lo + ((hi-lo+1)/2);
          async clocked(c) run(lo, mid-1);
          run(mid, hi);
@@ -24,6 +26,7 @@ public class Prefix {
                     a(p) = e + a(p);
             next;
         }
+       }
     }
     public def print() @ ClockedM(c) {
         for ((p) in 0..N-1)

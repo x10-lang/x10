@@ -79,13 +79,14 @@ class IdeaTest {
 
 		// Create three byte arrays that will be used (and reused) for
 		// encryption/decryption operations.
-
-		val zero = (Int) => 0;
-		plain1 = Rail.make[Int @ Clocked[int](c, op, 0) ](array_rows, zero);
-		crypt1 = Rail.make[Int @ Clocked[int](c, op, 0)](array_rows, zero);
-		plain2 = Rail.make[Int @ Clocked[int](c,op,0)](array_rows, zero);
-
-		val rndnum: Random! = new Random(136506717L);  // Create random number generator.
+	
+			val zero = (Int) => 0;
+		
+			plain1 = Rail.make[Int @ Clocked[int](c, op, 0) ](array_rows, zero);
+			crypt1 = Rail.make[Int @ Clocked[int](c, op, 0)](array_rows, zero);
+			plain2 = Rail.make[Int @ Clocked[int](c,op,0)](array_rows, zero);
+		
+		val rndnum: Random!  = new Random(136506717L);  // Create random number generator.
 
 		// Allocate three arrays to hold keys: userkey is the 128-bit key.
 		// Z is the set of 16-bit encryption subkeys derived from userkey,
@@ -113,9 +114,9 @@ class IdeaTest {
 		}*/
 
 		// Compute encryption and decryption subkeys.
-
-		calcEncryptKey();
-		calcDecryptKey();
+	
+		 calcEncryptKey();
+		 calcDecryptKey();
 
 		// Fill plain1 with "text."
 		for (var i: int = 0; i < array_rows; i++)
@@ -250,12 +251,9 @@ class IdeaTest {
 	 */
 	 
 	private def cipher_idea(text1: Rail[Int @ Clocked[int](c,op,0)]!, text2: Rail[Int @ Clocked[int](c,op,0)]!, key: Rail[Int]!) @ ClockedM(c) {
-		finish for (var i:Int = 0; i < (text1.length)/8; i ++)  {
+		finish foreach ((i) in 0..(text1.length)/8 - 1) clocked (c)  {
 			val itmp = i * 8;
-			async clocked(c) { 
-		
-		//finish foreach ((ii): Point in 0..(text1.length-1/8)) {
-		  //  var i: Int = 8 * itmp;
+			{
 		    var i1: Int = itmp;                 // Index into first text array.
 		    var i2: Int = itmp;                 // Index into second text array.
 		    var ik: Int;                     // Index into key array.

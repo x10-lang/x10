@@ -3,6 +3,8 @@ import clocked.Clocked;
 class Convolve {
 
     static def run(w:ValRail[Int], x:ValRail[Int]) {
+    
+    		finish {
  			 val c = Clock.make();       
              val n = x.length;
              val op = Int.+;
@@ -29,7 +31,7 @@ class Convolve {
                         Console.ERR.print(yi(w.length-1)+ " " );
                 }
                  Console.ERR.println();
-        
+        	}
     }
 
     public static def main(args: Rail[String]) {
