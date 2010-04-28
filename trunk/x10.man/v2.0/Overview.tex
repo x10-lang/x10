@@ -10,59 +10,92 @@ language for high-end, high-performance, high-productivity computing.
 \section{Object-oriented features}
 
 The sequential core of \Xten{} is a {\em container-based} object-oriented language
-similar to \java{} or Scala.
-Programmers write \Xten{} code by defining containers for behavior called
+similar to \java{} and C++, and more recent language such as Scala.  
+Programmers write \Xten{} code by defining containers for data and behavior called
 \emph{interfaces}
 (\Sref{XtenInterfaces}),
 \emph{classes}
 (\Sref{XtenClasses}) and
 \emph{structs}
 (\Sref{XtenStructs}).
+X10 provides inheritance and subtyping in fairly traditional ways. 
 
+\begin{example}
+
+\xcd`Normed` describes entities with a \xcd`norm()` method. \xcd`Normed` is
+intended to be used for entities with a position in some coordinate system,
+and \xcd`norm()` gives the distance between the entity and the origin. A
+\xcd`Slider` is an object which can be moved around on a line; a
+\xcd`PlanePoint` is a fixed position in a plane. Both \xcd`Slider`s and
+\xcd`PlanePoint`s have a sensible \xcd`norm()` method, and implement
+\xcd`Normed`.
+
+%~~gen
+% package Overview;
+%~~vis
+\begin{xten}
+interface Normed {
+  def norm():Double;
+}
+class Slider implements Normed {
+  var x : Double = 0;
+  public def norm() = Math.abs(x);
+  public def move(dx:Double) { x += dx; }
+}
+struct PlanePoint implements Normed {
+  val x : Double, y:Double;
+  public def this(x:Double, y:Double) {
+    this.x = x; this.y = y;
+  }
+  public def norm() = Math.sqrt(x*x+y*y);
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\end{example}
 
 \paragraph{Interfaces}
 
-An \Xten{} interface specifies a collection of abstract methods (a
-{\em signature}). Interfaces may extend one or more interfaces, can be
-extended by other interfaces and implemented by classes and structs.
-To implement an interface a class or struct must declare that it
-implements that interface, and provide definitions for all the methods
-defined in that interface.
+An \Xten{} interface specifies a collection of abstract methods; \xcd`Normed`
+specifies just \xcd`norm()`. Classes and
+structs can be specified to {\em implement} interfaces, as \xcd`Slider` and
+\xcd`PlanePoint` implement \xcd`Normed` , and, when they do so, must provide
+all the methods that the interface demands.
+
+Interfaces are
+purely abstract. Every value of type \xcd`Normed` must be an instance of some
+class like \xcd`Slider` or some struct like \xcd`PlanePoint` which implements
+\xcd`Normed`; no value can be \xcd`Normed` and nothing else. 
+
 
 \paragraph{Classes and Structs}
 
 There are two kinds of concrete containers: \emph{classes}
-(\Sref{ReferenceClasses}) and \emph{structs}
-(\Sref{Structs}). Containers may have type parameters, have fields,
-methods and inner containing types and can implement one or more
-interfaces. A method or an immutable field of a
-container may be marked \Xcd{global}.  For a given entity (instance of
-a container), global fields and methods may be accessed from any
-place. Otherwise they may be accessed only in the place in which they
-were created.
+(\Sref{ReferenceClasses}) and \emph{structs} (\Sref{Structs}). Concrete
+containers hold data in {\em fields}, and give concrete implementations of
+methods, as \xcd`Slider` and \xcd`PlainPoint` above.
 
-Classes are organized in a single-inheritance tree. Classes may have
-mutable fields.  Instances of classes with mutable fields may not be
-freely copied from place to place. Non-global methods may be invoked
-on such an object only by an activity in the same place as the object.
-The \xcd"null" reference is a value of any reference type.
+Classes are organized in a single-inheritance tree: a class may have only a
+single parent class, though it may implement many interfaces and have many
+subclasses. Classes may have mutable fields, as \xcd`Slider` does.
 
-In contrast, structs are ``headerless'' objects that can be onlined in
-the containing object.  Structs cannot inherit code -- hence a
-variable of a struct type contains an instance of precisely that
-struct. Structs may not be recursive, i.e.{} there can be no cycles in
-the graph whose nodes are structs and edges $s \rightarrow t$ reflect
-that struct $s$ has a field of (struct) type $t$. Thus a struct
-instance may be represented with exactly as much space as necessary to
-store the fields of that struct (modulo alignment considerations). Structs
-can be copied freely.
+In contrast, structs are headerless values, lacking the internal organs
+which give objects their intricate behavior.  This makes them less powerful
+than objects (\eg, structs cannot inherit methods, though objects can), but also
+cheaper (\eg, they can be inlined, and they require less space than objects).  
+Structs are immutable, though their fields may be immutably set to objects
+which are themselves mutable.  They behave like objects in all ways consistent
+with these limitations; \eg, while they cannot {\em inherit} methods, they can
+have them -- as \xcd`PlanePoint` does.
 
-\Xten{} has no primitive classes. However, the standard library
-\xcd"x10.lang" supplies structs \xcd"Boolean", \xcd"Byte",
-\xcd"Short", \xcd"Char", \xcd"Int", \xcd"Long", \xcd"Float",
-\xcd"Double", \xcd"Complex" and \xcd"String". The user may defined
-additional arithmetic structs using the facilities of the
-language.
+\Xten{} has no primitive classes per se. However, the standard library
+\xcd"x10.lang" supplies structs \xcd"Boolean", \xcd"Byte", \xcd"Short",
+\xcd"Char", \xcd"Int", \xcd"Long", \xcd"Float", \xcd"Double", \xcd"Complex"
+and \xcd"String". The user may defined additional arithmetic structs using the
+facilities of the language.
+
+%%BARD-HERE
 
 \paragraph{Functions.}
 \Xten{} provides functions (\Sref{Closures}) to allow code to be used
