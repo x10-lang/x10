@@ -229,8 +229,10 @@ method compiles under those definitions.
 abstract class Mat(rows:Int, cols:Int) {
  static type Mat(r:Int, c:Int) = Mat{self.rows==r&&self.cols==c};
  static def makeMat(r:Int,c:Int) : Mat(r,c) = null;
- abstract global operator this + (y:Mat(this.rows,this.cols)):Mat(this.rows, this.cols);
- abstract global operator this * (y:Mat) {this.cols == y.rows} : Mat(this.rows, y.cols);
+ abstract global operator this + (y:Mat(this.rows,this.cols))
+                 :Mat(this.rows, this.cols);
+ abstract global operator this * (y:Mat) {this.cols == y.rows} 
+                 :Mat(this.rows, y.cols);
 \end{xten}
 %~~siv
 %  static def example(a:Int, b:Int, c:Int) {
@@ -244,28 +246,6 @@ abstract class Mat(rows:Int, cols:Int) {
 
 
 
-
-Classes and interfaces may declare \emph{properties}: immutable object members bound at object construction.
-Types may be defined by constraining a
-class or interface's properties.
-Properties enable the definition of \emph{dependent types}.
-
-For example, the following code declares a class for a two-dimensional
-\xcd"Vector" class with an \xcd"add" method.
-%~~gen
-%~~vis
-\begin{xten}
-struct Vector(x: Int, y: Int) {
-    def add(p: Vector) = Vector(x+p.x,y+p.y);
-}
-\end{xten}
-%~~siv
-%~~neg
-The class has integer value properties \xcd"x" and \xcd"y".
-The \xcd"add" method creates and returns a new point by
-element-wise addition.
-The dependent type \xcd"Vector{x==0}" is the type of all points
-with \xcd"x" set to \xcd"0"; that is, all points along the $y$-axis.
 
 %%BARD-HERE
 
