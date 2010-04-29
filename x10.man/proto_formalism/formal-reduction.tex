@@ -9,7 +9,7 @@ $\typerule{
     \gap
   \code{l'} =
     \begin{cases}
-    \hl & \text{if~}\isCooked(\hK) \\
+    \hl & \text{if~}\cooker{\hK}=\code{cooked} \\
     \hK & \text{otherwise} \\
     \end{cases}
 }{
@@ -18,7 +18,7 @@ $\typerule{
 \quad \RULE{(R-New)}\\\\
 
 $\typerule{
-  H[\hl] = \code{C<K>}\hparen{\ol{\hv}}
+  H(\hl) = \code{C<K>}\hparen{\ol{\hv}}
     \gap
   \fields{}(\hC)=\ol{\hf}
 }{
@@ -28,7 +28,7 @@ $\typerule{
 \\\\
 
 $\typerule{
-  H[\hl] = \code{C<K>}\hparen{\ol{\hv}}
+  H(\hl) = \code{C<K>}\hparen{\ol{\hv}}
     \gap
   \fields{}(\hC)=\ol{\hf}
 }{
@@ -45,7 +45,7 @@ $\typerule{
 \gap
 
 $\typerule{
-  H[\hl] = \code{C<K>}\hparen{\ldots}
+  H(\hl) = \code{C<K>}\hparen{\ldots}
     \gap
   \mbody{}(\hm,\code{C})=\ol{\hx}.\he'
 }{

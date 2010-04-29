@@ -173,33 +173,28 @@
 
 \newcommand{\func}[1]{\text{\textnormal{\textit{\codesmaller #1}}}}
 
+\mynewcommand{\Fdef}{\ensuremath{\triangleq}} %=_{\code{def}}
 \newcommand{\Tprec}[0]{\ensuremath{\leqslant^T}}
-\mynewcommand{\Pst}{\ensuremath{\trianglelefteq}}
+\newcommand{\Ppoints}[2]{\ensuremath{#1 \rightarrow_P #2}}
+\newcommand{\Pequals}[2]{\ensuremath{#1 \equiv_P #2}}
 \mynewcommand{\st}{\ensuremath{\mathrel{{\preccurlyeq}}}} %{\mathop{\textrm{\tt <:}}}
 \mynewcommand{\notst}{\mathrel{\st\hspace{-1.5ex}\rule[-.25em]{.4pt}{1em}~}}
 \mynewcommand{\gap}{~ ~ ~ ~ ~ ~}
 
 
 \newcommand{\RULE}[1]{\textsc{\scriptsize{}#1}} %\RULEhape\scriptsize}
+\newcommand{\closed}[1]{\ensuremath{\func{closed}(#1)}}
 
-
-\mynewcommand{\DA}{\texttt{DA}}
-\mynewcommand{\ok}{\texttt{OK}}
-\mynewcommand{\subterm}{\func{subterm}}
-\mynewcommand{\TP}{\func{TP}} % function that returns type parameters in a type
-\mynewcommand{\CT}{\func{CT}} % class table
+\mynewcommand{\NPE}{\func{NPE}}
 \mynewcommand{\mtype}{\func{mtype}}
 \mynewcommand{\mbody}{\func{mbody}}
-\mynewcommand{\mproto}{\func{mproto}}
+\mynewcommand{\mcooker}{\func{mcooker}}
 \mynewcommand{\isVar}{\func{isVar}}
-\mynewcommand{\isCooked}{\func{isCooked}_P}
-\mynewcommand{\isProto}{\func{isProto}_P}
+\newcommand{\cooker}[1]{\ensuremath{\func{cooker}(P,#1)}}
 \mynewcommand{\bound}{\func{bound}_\Delta}
 \mynewcommand{\substitute}{\func{substitute}}
 \mynewcommand{\fields}{\func{fields}}
-\mynewcommand{\ftype}{\func{ftype}}
-\mynewcommand{\mguard}{\func{mguard}}
-\mynewcommand{\isTransitive}{\func{isTransitive}}
+\mynewcommand{\fclass}{\func{fclass}}
 \DeclareMathOperator{\dom}{dom}
 
 
