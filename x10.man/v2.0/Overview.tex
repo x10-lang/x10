@@ -95,32 +95,156 @@ have them -- as \xcd`PlanePoint` does.
 and \xcd"String". The user may defined additional arithmetic structs using the
 facilities of the language.
 
-%%BARD-HERE
+
 
 \paragraph{Functions.}
-\Xten{} provides functions (\Sref{Closures}) to allow code to be used
-as values.  The body of a function may capture variables in the
-function's environment (technically, then, functions are {\em
-  closures}).  Functions are used implicitly in asyncs, futures, and
-array initializers.
-%
-For example, the following method uses a function to increment
-elements of an array.
+
+X10 provides functions (\Sref{Closures}) to allow code to be used
+as values.  Functions are first-class data: they can be stored in lists,
+passed between activities, and so on.  \xcd`square`, below, is a function
+which squares an \xcd`Int`.  \xcd`of4` takes an \xcd`Int`-to-\xcd`Int`
+function and applies it to the number \xcd`4`.  So, \xcd`fourSquared` computes
+\xcd`of4(square)`, which is \xcd`square(4)`, which is 16, in a fairly
+complicated way.
 %~~gen
-%class ThingieForIncrArray {
+% package Overview.of.Functions.one;
+% class Whatever{
+% def chkplz() {
 %~~vis
 \begin{xten}
-def incr(A: Array[Int]!): Array[Int] {
-    val f = (x: Int) => x+1; // e.g., f(1) == 2
-    return A.lift(f);
-}
+  val square = (i:Int) => i*i;
+  val of4 = (f: (Int)=>Int) => f(4);
+  val fourSquared = of4(square);
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+
+
+They are used extensively in X10
+programs.  For example, the normal way to construct a \xcd`Rail[Int]` --
+that is, a fixed-length array of numbers, like an \xcd`int[]` in Java -- is to
+pass two arguments to a factory method: the first argument being the length of
+the rail, and the second being a function which computes the initial value of
+the \xcd`i`{$^{th}$} element.  The following code constructs a rail
+initialized to the squares of 0,1,...,9: \xcd`r(0) == 0`, \xcd`r(5)==25`, etc. 
+%~~gen
+% package Overview.of.Functions.two;
+% class Whatevermore {
+%  def plzchk(){
+%    val square = (i:Int) => i*i;
+%~~vis
+\begin{xten}
+  val r : Rail[Int] = Rail.make[Int](10, square);
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+
+
+
+%%BARD-HERE
+
+
+
+\paragraph{Constrained Types}
+
+X10 containers may declare {\em properties}, which are fields bound immutably
+at the creation of the container.  The static analysis system understands
+properties, and can work with them logically.   
+
+
+For example, an implementation of matrices \xcd`Mat` might have the numbers of
+rows and columns as properties.  A little bit of care in definitions allows
+the definition of a \xcd`+` operation that works on matrices of the same
+shape, and \xcd`*` that works on matrices with appropriately matching shapes
+The following code typechecks, but an attempt to compute \xcd`axb1 + bxc` or
+\xcd`bxc * axb1` would result in a compile-time type error:
+%~~gen
+%package Overview.Mat1;
+%abstract class Mat(rows:Int, cols:Int) {
+%  static type Mat(r:Int, c:Int) = Mat{self.rows==r&&self.cols==c};
+%  public def this(r:Int, c:Int) : Mat(r,c) = {property(r,c);}
+%  static def makeMat(r:Int,c:Int) : Mat(r,c) = null;
+%  abstract global operator this + (y:Mat(this.rows,this.cols)):Mat(this.rows, this.cols);
+%  abstract global operator this * (y:Mat) {this.cols == y.rows} : Mat(this.rows, y.cols);
+%~~vis
+\begin{xten}
+  static def example(a:Int, b:Int, c:Int) {
+    val axb1 : Mat(a,b) = makeMat(a,b);
+    val axb2 : Mat(a,b) = makeMat(a,b);
+    val bxc  : Mat(b,c) = makeMat(b,c);
+    val axc  : Mat(a,c) = (axb1 +axb2) * bxc;
+  }
+
 \end{xten}
 %~~siv
 %}
 %~~neg
 
+The ``little bit of care'' shows off many of the features of constrained
+types.    
+The \xcd`(rows:Int, cols:Int)` in the class definition declares two
+properties, \xcd`rows` and \xcd`cols`.\footnote{The class is officially declared
+abstract to allow for multiple implementations, like sparse and band matrices,
+but in fact is abstract to avoid having to write the actual definitions of
+\xcd`+` and \xcd`*`.}  
 
-\paragraph{Dependent types}
+A constrained type looks like \xcd`Mat{self.rows==r && self.cols==c}`: a type
+name, followed by a Boolean expression in braces.  The special variable
+\xcd`self` refers to the matrix whose number of rows and columns is being
+checked.  The \xcd`type` declaration on the second line makes
+\xcd`Mat(2,3)` be a synonym for \xcd`Mat{self.rows==r && self.cols==c}`,
+allowing for compact types in many places.
+
+Functions can return constrained types.  
+The \xcd`makeMat(r,c)` method returns a \xcd`Mat(r,c)` -- a matrix whose shape
+is given by the arguments to the method.  For the sake of brevity in
+the example, it returns \xcd`null`; in real code, it would actually produce a
+matrix -- which must be statically provable to have the right shape.
+
+The arguments of methods can have type constraints as well.  The 
+\xcd`operator this +` line lets \xcd`A+B` add two matrices.  The type of the
+second argument \xcd`y` is constrained to have the same number of rows and
+columns as the first argument \xcd`this`. Attempts to add mismatched matrices
+will be flagged as type errors at compilation.
+
+At times it is more convenient to put the constraint on the method as a whole,
+as seen in the \xcd`operator this *` line. Unlike for \xcd`+`, there is no
+need to constrain both dimensions; we simply need to check that the columns of
+the left factor match the rows of the right. This constraint is written in
+\xcd`{...}` after the argument list.  The shape of the result is computed from
+the shapes of the arguments.
+
+And that is all that is necessary for a user-defined class of matrices to have
+shape-checking for matrix addition and multiplication.  The \xcd`example`
+method compiles under those definitions.
+
+%~~gen
+%package Overview.Mat2;
+%~~vis
+\begin{xten}
+abstract class Mat(rows:Int, cols:Int) {
+ static type Mat(r:Int, c:Int) = Mat{self.rows==r&&self.cols==c};
+ static def makeMat(r:Int,c:Int) : Mat(r,c) = null;
+ abstract global operator this + (y:Mat(this.rows,this.cols)):Mat(this.rows, this.cols);
+ abstract global operator this * (y:Mat) {this.cols == y.rows} : Mat(this.rows, y.cols);
+\end{xten}
+%~~siv
+%  static def example(a:Int, b:Int, c:Int) {
+%    val axb1 : Mat(a,b) = makeMat(a,b);
+%    val axb2 : Mat(a,b) = makeMat(a,b);
+%    val bxc  : Mat(b,c) = makeMat(b,c);
+%    val axc  : Mat(a,c) = (axb1 +axb2) * bxc;
+%  }
+%}
+%~~neg
+
+
+
+
 Classes and interfaces may declare \emph{properties}: immutable object members bound at object construction.
 Types may be defined by constraining a
 class or interface's properties.
@@ -142,6 +266,8 @@ The \xcd"add" method creates and returns a new point by
 element-wise addition.
 The dependent type \xcd"Vector{x==0}" is the type of all points
 with \xcd"x" set to \xcd"0"; that is, all points along the $y$-axis.
+
+%%BARD-HERE
 
 \paragraph{Generic types}
 
