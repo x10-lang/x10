@@ -203,7 +203,9 @@ Functions can return constrained types.
 The \xcd`makeMat(r,c)` method returns a \xcd`Mat(r,c)` -- a matrix whose shape
 is given by the arguments to the method.  For the sake of brevity in
 the example, it returns \xcd`null`; in real code, it would actually produce a
-matrix -- which must be statically provable to have the right shape.
+matrix -- which must be statically provable to have the right shape.  In
+particular, constructors can have constrained return types to provide specific
+information about the constructed values.
 
 The arguments of methods can have type constraints as well.  The 
 \xcd`operator this +` line lets \xcd`A+B` add two matrices.  The type of the
@@ -247,18 +249,16 @@ abstract class Mat(rows:Int, cols:Int) {
 
 
 
-%%BARD-HERE
+
 
 \paragraph{Generic types}
 
-Classes and interfaces may have type parameters, permitting the definition of
-{\em generic types}.  Type parameters may be instantiated by any type -- a
-container type or a function type.
-
-For example,
-the following code declares a simple \xcd"List" class with a
-type parameter \xcd"T".
-
+Containers may have type parameters, permitting the definition of
+{\em generic types}.  Type parameters may be instantiated by any X10 type.  It
+is thus possible to make a list of integers \xcd`List[Int]`, a list of
+non-zero integers \xcd`List[Int{self != 0}]`, or a list of people
+\xcd`List[Person]`.  In the definition of \xcd`List`, \xcd`T` is a type
+parameter; it can be instantiated with any type.
 %~~gen
 %~~vis
 \begin{xten}
@@ -281,76 +281,29 @@ The \xcd"add" method appends an element to the list.
 \xcd"List" is a generic type.  When  instances of \xcd"List" are
 allocated, the type \param{} \xcd"T" must be bound to a concrete
 type.  \xcd"List[Int]" is the type of lists of element type
-\xcd"Int", \xcd"List[String]" is the type of lists of element
-type \xcd"String".
+\xcd"Int", \xcd"List[List[String]]" is the type of lists whose elements are
+themselves lists of string, and so on.
 
-\section{The sequential core}
+%%BARD-HERE
 
-\paragraph{Control flow.}  \Xten{} supports standard sequential control flow
-constructs: \xcd"if" statements, \xcd"while" loops, \xcd"for" loops,
-\xcd"switch" statements, etc.  \Xten{} also supports exceptions: exceptions are
-raised by \xcd"throw" statements and are handled by \xcd"try"--\xcd"catch"
-statements.
+\section{The sequential core of X10}
 
-\paragraph{Primitive operations.}  The language provides syntax for performing
-binary and unary operations on values. The programmer may specify code
-by using \Xcd{operator} definitions.
-%% TODOvj: Add link to operator section.
+The sequential aspects of X10 are mostly familiar from C and its progeny.
+\Xten{} enjoys the familiar control flow constructs: \xcd"if" statements,
+\xcd"while" loops, \xcd"for" loops, \xcd"switch" statements, \xcd`throw` to
+raise exceptions and \xcd`try...catch` to handle them, and so on.
 
-
-\paragraph{Allocation.}
-Objects are allocated with the \xcd"new" operator
-(\Sref{ClassCreation}), which takes a class name and type and value
-arguments to pass to the class's constructor.  The constructor must
-ensure that all properties of the class and its superclasses are
-bound. Structs are created through the invocation of a constructor
-without using the \Xcd{new} operator and live on the heap only in
-the fields of objects.
-
-\paragraph{Coercions and conversions}
-\Xten{} supports implicit and explicit coercions and
-conversions (\Sref{XtenConversions}).
-
-Values of one type can be converted to another type using the
-\xcd"as" operation:
-%~~gen
-%class AsIsizer {
-%~~vis
-\begin{xten}
-val x: Int = 65535;
-val y: Byte = x as Byte; // convert to Byte,
-                         // retaining the lower 8 bits
-\end{xten}
-%~~siv
-%}
-%~~neg
-The \xcd"as" operation does not necessarily preserve equality
-and for numeric values may
-result in a loss of precision.
-
-References may be coerced to another type, preserving object
-identity.  A run-time check is performed to ensure the reference
-is to an object of the target type.  If not,
-a \xcd"ClassCastException" is thrown.
-%TODO -- needs dynamic test case.
-%~~gen
-% class B{}
-% class C extends B{}
-% class D extends B{}
-% class Whudnut { def plurd() {
-%~~vis
-\begin{xten}
-// C and D are immediate subclasses of B.
-val x: B = new C();
-val y: C = x as C; // run-time check succeeds
-val z: D = x as D; // run-time check fails
-\end{xten}
-%~~siv
-%}}
-%~~neg
-
+X10 has both implicit coercions and explicit conversions, and both can be
+defined on user-defined types.  Explicit conversions are written with the
+\xcd`as` operation: \xcd`n as Int`.  The types can be constrained: 
+%~~exp~~`~~`~~n:Int~~package Overview.Seq;
+\xcd`n as Int{self != 0}` converts \xcd`n` to a non-zero integer, and throws a
+runtime exception if its value as an integer is zero.
 
 \section{Places and activities}
+
+The full power of X10 starts to emerge with concurrency.
+
 An \Xten{} program is intended to run on a wide range of computers,
 from uniprocessors to large clusters of parallel processors supporting
 millions of concurrent operations. To support this scale, \Xten{}
