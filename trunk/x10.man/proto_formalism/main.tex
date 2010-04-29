@@ -205,21 +205,23 @@ See \Ref{Figure}{reduction}.
   \textbf{(Progress and Preservation)}
     For every expression~$\he$, heap~$H$, and proto-set~$P$,
         there exists~$H'$ and~$\he'$
-        such that if
-        \beqst
+        such that
+        \[
+        \begin{cases}
         & \he \neq \hv\\
-        & \closed{\he}\\
         & \NPE(\he)=\code{false}\\
+        & \closed{\he}\\
         & P \cup R(\he) \vdash H\\
         & \emptyset,H,P \vdash \he : \hT\\
-        \eeq
-        then
-        \beqst
+        \end{cases}
+        \Longrightarrow
+        \begin{cases}
         & P \vdash H,\he \rightarrow H',\he'\\
-        &P \cup R(\he') \vdash H'\\
         &\closed{\he'}\\
+        &P \cup R(\he') \vdash H'\\
         &\emptyset,H',P \vdash \he':\hT\\
-        \eeq
+        \end{cases}
+        \]
 \end{Theorem}
 
 
