@@ -35,6 +35,8 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
             cxxCmd.add("-arch");
             cxxCmd.add("x86_64");
         }
+        cxxCmd.add("-msse2");
+        cxxCmd.add("-mfpmath=sse");
     }
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
