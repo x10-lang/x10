@@ -1651,7 +1651,8 @@ example, an ordered dictionary structure could allow subscripting by numbers
 with \xcd`def apply(i:Int)`, and by string-valued keys with 
 \xcd`def apply(s:String)`.  
 
-\xcd`a(i)=b` is short for the method call \xcd`a.set(b,i)`. (This has a
+\xcd`a(i)=b` is short for the method call \xcd`a.set(b,i)`, with one or more
+indices \xcd`i`. (This has a
 possibly surprising consequence for the order of evaluation: in \xcd`a(i)=b`,
 as in \xcd`a.set(b,i)`, \xcd`a` is evaluated first, then \xcd`b`, and finally
 \xcd`i`.)  Again, it is possible to overload \xcd`set` to provide a variety of
