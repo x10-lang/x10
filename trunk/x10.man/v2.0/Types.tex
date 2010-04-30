@@ -4,14 +4,15 @@
 {}\Xten{} is a {\em strongly typed} object-oriented language: every
 variable and expression has a type that is known at compile-time.
 Types limit the values that variables can hold and specify the places
-at which these values lie.
+at which these values can lie.
 
 
 {}\Xten{} supports three kinds of runtime entities, {\em objects},
 {\em structs}, and {\em functions}. Objects are instances of {\em
   classes} (\Sref{ReferenceClasses}). They may contain mutable fields
-and must stay resident in the place in which they were
-created. Objects are said to be {\em boxed} in that variables of a
+and stay resident in the place in which they were
+created. 
+Objects are said to be {\em boxed} in that variables of a
 class type are implemented through a single memory location that
 contains a reference to the memory containing the declared state of
 the object (and other meta-information such as the list of methods of
@@ -19,34 +20,31 @@ the object). Thus objects are represented through an extra level of
 indirection. A consequence of this flexibility is that every class
 type contains the value \Xcd{null} corresponding to the invalid
 reference. \Xcd{null} is often useful as a default value. Further, two
-objects may be compared for equality (\Xcd{==}) in constant time by
+objects may be compared for identity (\Xcd{==}) in constant time by
 simply containing references to the memory used to represent the
 objects.
 
-Structs are instances of {\em struct types} (\Sref{StructClasses}). They are
-immutable and may be freely copied from place to place. Further, they may be
-allocated inline, \ie, using only as much memory as necessary to hold the
-fields of the struct (and any additional memory necessary to satisfy alignment
-constraints for data layout).
+Structs are instances of {\em struct types} (\Sref{StructClasses}). They are a
+restricted variant of classes, lacking meta-information; this makes them less
+flexible, but in many cases more efficient. When it is semantically
+meaningful, converting a class into a struct or vice-versa is quite easy.
+Structs are immutable and may be freely copied from place to place. Further,
+they may be allocated inline, using only as much memory as necessary to hold
+and align the fields of the struct.
 
-Functions are instances of {\em function types|} {\Sref{Functions})
-  and are created using function literals
-  \Xcd{(x1:T1,...,xn:Tn)\{c\}:T => e}. Functions contain no
-  user-visible mutable or immutable state; their representation,
-  however, contains enough memory to hold the values of the variables
-  in the environment that are referenced in the body of the function
-  (\Xcd{e}). Functions may be freely copied from place to place and
-  may be repeatedly applied to a set of arguments, provided that the
-  precondition \Xcd{c} is satisfied.
+Functions, called closures or lambda-expressions in other languages, are
+instances of {\em function types|} {\Sref{Functions}). Functions can refer to
+%~~exp~~`~~`~~y:Int ~~
+variables from the surrounding environment; \eg, \xcd`(x:Int)=>x*y` is a unary
+integer function which multiplies its argument by the variable \xcd`y` from
+the surrounding block.  
+Functions may be freely copied from place to place and may be repeatedly
+applied to a set of arguments.
 
-These runtime entities are classified into different groups using {\em
-  types}.  Types are used in variable declarations, explicit coercions
-and conversions, object creation, array creation, class literals,
-static state and method accessors, and \xcd"instanceof"
-expressions.\footnote{In order to allow this version of the language
-  to focus on the core new ideas, \XtenCurrVer{} does not have
-  user-definable class loaders, though there is no technical reason
-  why they could not have been added.}
+These runtime entities are classified by {\em types}. Types are used in
+variable declarations, explicit coercions and conversions, object creation,
+array creation, class literals, static state and method accessors, and
+\xcd"instanceof" expressions.
 
 \Xten{} has a unified type system. The top of the type hierarchy
 is the interface \Xcd{x10.lang.Any}. This specifies the following signature:
@@ -63,13 +61,17 @@ public interface Any {
 }
 \end{xten}
 
-Properties are described in (\Sref{properties}): in brief they are
-immutable instance fields of objects and structs that can be used to
-construct types through constraints. Property methods (\Sref{properties}) permit
-more complex expressions to be defined using properties and other property methods.
-A method is \Xcd{safe} if it has certain behavioral characteristics \Sref{SafeAnnotation}.
-It is \Xcd{global} if it can be invoked at any place.
 
+\bard{What is this para here for?}
+Properties are described in (\Sref{properties}): in brief they are immutable
+instance fields of values that can be used at compile type to express static
+constraints. Property methods (\Sref{properties}) permit more complex
+expressions to be defined using properties and other property methods. A
+method is \Xcd{safe} if it has certain behavioral characteristics
+\Sref{SafeAnnotation}. It is \Xcd{global} if it can be invoked at any place.
+
+
+\bard{Squish this list into text?}
 Types in \Xten{} are specified through declarations and through
 type constructors, described in the remainder of the chapter:
 

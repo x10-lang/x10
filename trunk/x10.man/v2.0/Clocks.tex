@@ -4,17 +4,8 @@ Many concurrent algorithms proceed in phases: in phase {$k$}, several
 activities work independently, but synchronize together before proceeding on
 to phase {$k+1$}. X10 supports this communication structure (and many
 variations on it) with a generalization of barriers \bard{cite something}
-called {\em clocks}.  Clocks are structured to allow barrier synchronization
-without introducing either deadlocks or race conditions.
-
-%%CLOCK-INTRO%% Clocks permit dynamically created
-%%CLOCK-INTRO%% activities to register and deregister. An activity may be registered
-%%CLOCK-INTRO%% with multiple clocks at the same time. In particular, nested clocks
-%%CLOCK-INTRO%% are permitted: an activity may create a nested clock and within one
-%%CLOCK-INTRO%% phase of the outer clock schedule activities to run to completion on
-%%CLOCK-INTRO%% the nested clock.  Nevertheless the design of clocks ensures that
-%%CLOCK-INTRO%% deadlock cannot be introduced by using clock operations, and that
-%%CLOCK-INTRO%% clock operations do not introduce any races.
+called {\em clocks}. Clocks are designed so that programs which follow a
+simple syntactic discipline will not have either deadlocks or race conditions.
 
 
 The following minimalist example of clocked code has two worker activities A
@@ -98,12 +89,13 @@ that it is registered upon are:
 \item It may {\em resume} the clock, with \xcd`c.resume()`, indicating that it
       has finished with the current phase associated with \xcd`c` and is ready
       to move on to the next one.
+\item It may {\em wait} on the clock, with \xcd`c.next()`.  This first does
+      \xcd`c.resume()`, and then blocks the current activity until the start
+      of the next phase, \viz, until all other activities registered on that
+      clock have called \xcd`c.resume()`.
 \item It may {\em block} on all the clocks it is registered with
-      simultaneously, by the command \xcd`next;`, which indicates that it 
-      has finished the current phase according to all of them; this statement 
-      \xcd`resume()`s all of them. \xcd`a` will only continue executing when
-      all of these clocks have been \xcd`resume()`d by all activities
-      registered upon them.
+      simultaneously, by the command \xcd`next;`.  This calls \xcd`c.next()`
+      on all clocks \xcd`c` that the current activity is registered with.
 \item Other miscellaneous operations are available as well; see the
       \xcd`Clock` API.
 \end{itemize}
@@ -130,17 +122,18 @@ that it is registered upon are:
 %%CLOCK%% the current phase have been completed.
 
 Though clocks introduce a blocking statement (\xcd"next") an important
-property of \Xten{} is that clocks cannot introduce deadlocks. That
-is, the system cannot reach a quiescent state (in which no activity is
-progressing) from which it is unable to progress. For, before blocking
-each activity resumes all clocks it is registered with. Thus if a
-configuration were to be stuck (that is, no activity can progress) all
-clocks will have been resumed. But this implies that all activities
-blocked on \xcd"next" may continue and the configuration is not stuck.
-The only other possibility is that an activity may be stuck on
-\xcd"finish". But the interaction rule between \xcd"finish" and clocks
-(\Sref{sec:finish:clock-rule}) guarantees that this cannot cause a cycle
-in the wait-for graph. A more rigorous proof may be found in \cite{X10-concur05}.
+property of \Xten{} is that clocks -- when used with the \xcd`next;` {\em
+  statement} only, without the \xcd`c.next()` method call -- cannot introduce
+deadlocks. That is, the system cannot reach a quiescent state (in which no
+activity is progressing) from which it is unable to progress. For, before
+blocking each activity resumes all clocks it is registered with. Thus if a
+configuration were to be stuck (that is, no activity can progress) all clocks
+will have been resumed. But this implies that all activities blocked on
+\xcd"next" may continue and the configuration is not stuck. The only other
+possibility is that an activity may be stuck on \xcd"finish". But the
+interaction rule between \xcd"finish" and clocks
+(\Sref{sec:finish:clock-rule}) guarantees that this cannot cause a cycle in
+the wait-for graph. A more rigorous proof may be found in \cite{X10-concur05}.
 
 \section{Clock operations}\label{sec:clock}
 There are two language constructs for working with clocks. 
