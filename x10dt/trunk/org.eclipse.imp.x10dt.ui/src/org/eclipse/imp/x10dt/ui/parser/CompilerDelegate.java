@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.MessageHandlerAdapter;
@@ -55,18 +56,18 @@ public class CompilerDelegate {
 
     private final IJavaProject fX10Project;
 
-    CompilerDelegate(Monitor monitor, final IMessageHandler handler, IProject project) {
+    CompilerDelegate(Monitor monitor, final IMessageHandler handler, final IProject project, final IPath filePath) {
         this.fX10Project= (project != null) ? JavaCore.create(project) : null;
-
-        fExtInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapter(handler));
+        fExtInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath));
         buildOptions(fExtInfo);
        // ErrorQueue eq= new SilentErrorQueue(100, "stderr");
         ErrorQueue eq = new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
             protected void displayError(ErrorInfo error) {
-        	// TODO XTENLANG-1272 Need to filter out messages for other source files
-            	Position pos = error.getPosition();
+        	 	Position pos = error.getPosition();
             	if (pos != null) {
-            	    handler.handleSimpleMessage(error.getMessage(), pos.offset(), pos.endOffset(), pos.column(), pos.endColumn(), pos.line(), pos.endLine());
+            		IPath errorPath = new Path(pos.file());
+            		if (filePath.equals(errorPath))
+            			handler.handleSimpleMessage(error.getMessage(), pos.offset(), pos.endOffset(), pos.column(), pos.endColumn(), pos.line(), pos.endLine());
             	} else {
             	    handler.handleSimpleMessage(error.getMessage(), 0, 0, 1, 1, 1, 1);
             	}

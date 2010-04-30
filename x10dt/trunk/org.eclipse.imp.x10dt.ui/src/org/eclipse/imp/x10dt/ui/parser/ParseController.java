@@ -22,6 +22,7 @@ import lpg.runtime.IToken;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.ILexer;
 import org.eclipse.imp.parser.IMessageHandler;
@@ -87,7 +88,9 @@ public class ParseController extends SimpleLPGParseController {
             IProject proj= (fProject != null) ? fProject.getRawProject() : null;
 
             streams.add(fileSource);
-            fCompiler= new CompilerDelegate(fMonitor, handler, proj); // Create the compiler
+            IPath sourcePath = Platform.getLocation().append(fProject.getName()).append(fFilePath);
+    		
+            fCompiler= new CompilerDelegate(fMonitor, handler, proj, sourcePath); // Create the compiler
             // RMF 5/11/2009 - Make sure to create new parser/lexer delegates, so that no one
             // gets stale information (e.g. prev token stream) if they go through the delegates.
             fCompiler.compile(streams);

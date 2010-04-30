@@ -52,6 +52,7 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.parser.MessageHandlerAdapter;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
@@ -92,7 +93,8 @@ public class X10Builder extends IncrementalProjectBuilder {
     /**
      * Problem marker ID for X10 compiler errors/warnings/infos. Must match the ID of the marker extension defined in plugin.xml.
      */
-    public static final String PROBLEMMARKER_ID= X10DTCorePlugin.kPluginID + ".problemMarker";
+   //public static final String PROBLEMMARKER_ID= X10DTCorePlugin.kPluginID + ".problemMarker";
+    public static final String PROBLEMMARKER_ID= IMarker.PROBLEM;
 
     private static final String ClasspathError= "Classpath error in project: ";
 
