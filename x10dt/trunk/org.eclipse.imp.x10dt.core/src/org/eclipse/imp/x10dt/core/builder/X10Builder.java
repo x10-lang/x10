@@ -93,8 +93,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     /**
      * Problem marker ID for X10 compiler errors/warnings/infos. Must match the ID of the marker extension defined in plugin.xml.
      */
-   //public static final String PROBLEMMARKER_ID= X10DTCorePlugin.kPluginID + ".problemMarker";
-    public static final String PROBLEMMARKER_ID= IMarker.PROBLEM;
+    public static final String PROBLEMMARKER_ID= X10DTCorePlugin.kPluginID + ".problemMarker";
 
     private static final String ClasspathError= "Classpath error in project: ";
 
