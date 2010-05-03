@@ -6,6 +6,7 @@
 #include <numeric>
 #include <sys/time.h>
 #include <queue>
+#include <vector>
 
 std::deque<sha1_rand> work_queue;
 
@@ -17,6 +18,7 @@ static uint32_t num_nodes = 0; // There is a root node that we don't count
 static const double NORMALIZER = std::numeric_limits<int>::max();
 static bool work_response_received = false;
 static bool termination_initiated = false;
+static std::vector<bool> terminated_process_list;
 
 static double wsmprtc(void) {
   struct timeval tp;
@@ -46,19 +48,25 @@ static void binomial_tree_search ();
 
 // Handle a work request
 static void recv_work_request (const x10rt_msg_params* request_ptr) {
-  static unsigned char* work = static_cast<unsigned char*>
-                                (x10rt_msg_realloc (NULL, 0, 20));
+  const x10rt_place stealer = *(static_cast<x10rt_place*>(request_ptr->msg));
+#if DEBUG
+  std::cout << x10rt_here() << " got work request: " << stealer << std::endl;
+#endif
   if (!work_queue.empty()) {
+    unsigned char* work = 
+      static_cast<unsigned char*> (x10rt_msg_realloc (NULL, 0, 20));
     work_queue.back().copy (work);
     work_queue.pop_back();
-    x10rt_msg_params work_packet = 
-    {*(static_cast<x10rt_place*>(request_ptr->msg)), WORK, work, 20};
+    x10rt_msg_params work_packet = {stealer, WORK, work, 20};
+#if DEBUG
     std::cout << x10rt_here() << " sending work out" << std::endl;
+#endif
     x10rt_send_msg (&work_packet);
   } else {
-    x10rt_msg_params work_packet = 
-    {*(static_cast<x10rt_place*>(request_ptr->msg)), WORK, NULL, 0};
+    x10rt_msg_params work_packet = {stealer, WORK, NULL, 0};
+#if DEBUG
     std::cout << x10rt_here() << " no work to send out" << std::endl;
+#endif
     x10rt_send_msg (&work_packet);
   }
 }
@@ -66,52 +74,100 @@ static void recv_work_request (const x10rt_msg_params* request_ptr) {
 // Handle work coming in
 static void recv_work (const x10rt_msg_params* work_ptr) {
   work_response_received = true;
-  if (20==work_ptr->len) { // got work
+  if (0!=work_ptr->len) { // got work
+#if DEBUG
     std::cout << x10rt_here() << " got work" << std::endl;
+#endif
     work_queue.push_back(sha1_rand(static_cast<unsigned char*>(work_ptr->msg)));
   } else { // no work
     // nothing 
+#if DEBUG
     std::cout << x10rt_here() << " did not get work" << std::endl;
+#endif
   }
 }
 
 // Handle termination 
 static void recv_termination (const x10rt_msg_params* terminate_ptr) {
   // Process all the remaining nodes
-  std::cout << x10rt_here() << " termination notice received" << std::endl;
-  while (!work_queue.empty()) process_node();
-  termination_initiated = true;
-}
+  const x10rt_place terminated_rank = 
+                  *(static_cast<x10rt_place*>(terminate_ptr->msg));
+  terminated_process_list [terminated_rank] = true;
 
-static void initiate_termination () {
-  static x10rt_place* my_place = static_cast<x10rt_place*>
-                (x10rt_msg_realloc (NULL, NULL, sizeof(x10rt_place)));
+#if DEBUG
+  std::cout << x10rt_here() << " termination notice received from " 
+            << terminated_rank << std::endl;
+#endif
 
-  std::cout << *my_place << " initiating termination" << std::endl;
+  // Add up the count at 0
+  if (0==x10rt_here()) {
+    const unsigned int num_remote_nodes = 
+                *(static_cast <unsigned int*> (terminate_ptr->msg)+2);
+    num_nodes += num_remote_nodes;
 
-  for (int i=0; i<x10rt_nplaces(); ++i) {
-    if (x10rt_here() != i) {
-      x10rt_msg_params message = 
-                    {i, TERMINATE, my_place, sizeof(x10rt_place)};
-      x10rt_send_msg (&message);
-    }
+#if DEBUG
+    std::cout << "Adding " << num_remote_nodes << std::endl;
+#endif
+
+#if DEBUG
+    std::cout << x10rt_here() << " num nodes = " << num_nodes << std::endl;
+#endif
   }
 }
 
-static void get_work(void) {
-  static x10rt_place* my_place = static_cast<x10rt_place*>
-                (x10rt_msg_realloc (NULL, NULL, sizeof(x10rt_place)));
-  *my_place = x10rt_here ();
 
-  std::cout << *my_place << " trying to steal work" << std::endl;
+/* When a termination notice is received, all we have to do is send the count
+ * to place 0 and then exit.
+ */
+static void initiate_termination () {
+#if DEBUG
+  std::cout << x10rt_here() << " initiating termination" << std::endl;
+#endif
+
+  unsigned int* num_nodes_buffer = static_cast <unsigned int*> 
+                      (x10rt_msg_realloc (NULL, 0, sizeof(unsigned int)));
+  for (int i=0; i<x10rt_nplaces(); ++i) {
+    if (x10rt_here() != i) {
+      if (0==i) {
+        void* num_nodes_buffer = 
+      (x10rt_msg_realloc (NULL, 0, sizeof(unsigned int)+sizeof(x10rt_place)));
+        *(static_cast<x10rt_place*>(num_nodes_buffer)) = x10rt_here();
+        *(static_cast<unsigned int*>(num_nodes_buffer)+2) = num_nodes;
+        x10rt_msg_params terminate_msg = 
+                      {i, TERMINATE, num_nodes_buffer, 
+                       sizeof (unsigned int)+sizeof (x10rt_place)};
+        x10rt_send_msg (&terminate_msg);
+
+      } else {
+        x10rt_place* id_buffer = static_cast <x10rt_place*> 
+                   (x10rt_msg_realloc (NULL, 0, sizeof(x10rt_place)));
+        *id_buffer = x10rt_here();
+        x10rt_msg_params terminate_msg = 
+                      {i, TERMINATE, id_buffer, sizeof (x10rt_place)};
+        x10rt_send_msg (&terminate_msg);
+      }
+    }
+  }
+  terminated_process_list [x10rt_here()] = true;
+  termination_initiated = true;
+}
+
+static void get_work(void) {
+#if DEBUG
+  std::cout << x10rt_here() << " trying to steal work" << std::endl;
+#endif
 
   for (int i=0; i<x10rt_nplaces(); ++i) {
     if (x10rt_here() != i) {
+      x10rt_place* my_rank = static_cast <x10rt_place*> 
+          (x10rt_msg_realloc (NULL, 0, sizeof(x10rt_place)));
+      *my_rank = x10rt_here();
       x10rt_msg_params message = 
-                    {i, WORK_REQUEST, my_place, sizeof(x10rt_place)};
+                    {i, WORK_REQUEST, my_rank, sizeof(x10rt_place)};
       x10rt_send_msg (&message);
       work_response_received = false;
-      while (!work_response_received) x10rt_probe (); 
+      while (!work_response_received && !terminated_process_list[i]) 
+                                                          x10rt_probe (); 
       if (!work_queue.empty()) break;
     }
   }
@@ -126,10 +182,26 @@ static void process_node (void) {
   const sha1_rand rng = work_queue.back ();
   work_queue.pop_back ();
   const int num_children = (static_cast<double>(rng()) < q) ? m : 0;
+
   for (int i=0; i<num_children; ++i) {
     work_queue.push_back(sha1_rand(rng, i));
   }
   ++num_nodes;
+#if DEBUG
+  std::cout << x10rt_here() << "," << num_nodes << ", Number: " << rng()
+            << ", Children: " << num_children
+            << std::endl;
+#endif
+
+#if DEBUG
+  std::cout << x10rt_here() << " num nodes = " << num_nodes << std::endl;
+#endif
+}
+
+static bool all_process_are_terminated() {
+  for (int i=0; i<terminated_process_list.size(); ++i) 
+    if (false == terminated_process_list[i]) return false;
+  return true;
 }
 
 /*
@@ -160,6 +232,10 @@ static void binomial_tree_search (void) {
     // Handle requests
     x10rt_probe ();
   }
+
+  if (0==x10rt_here()) {
+    while (!all_process_are_terminated()) x10rt_probe();
+  }
 }
 
 int main (int argc, char** argv) {
@@ -186,19 +262,24 @@ int main (int argc, char** argv) {
     } else if (0 == strcmp (argv[i], "-q")) {
       q = static_cast<double> (atof (argv[i+1]));
       // Optimization --- don't have to multiply everytime
-      q *= NORMALIZER;
     } else {
       std::cout << "Error --- invalid option: " << argv[i] << std::endl;
       exit (3);
     }
   } // End for
+  
+  // Optimization --- dont have to normalize the rng() if we do this.
+  q *= NORMALIZER;
+
+  // Allocate the placeholder for the terminated processes
+  terminated_process_list.resize(x10rt_nplaces(), false);
 
   if (0==x10rt_here ()) {
     std::cout << "==================== UTS ======================" << std::endl;
     std::cout << "Root branching factor (b0) = " << b0 << std::endl;
     std::cout << "Root seed (r) = " << r << std::endl;
     std::cout << "Number of children (m) = " << m << std::endl;
-    std::cout << "Probability of a child (q) = " << q/NORMALIZER << std::endl;
+    std::cout << "Probability of a child (q) = " << q << std::endl;
   }
 
   // Add all the children of the root node at PLACE 0

@@ -33,6 +33,13 @@ static int binomial_tree_search (const sha1_rand& rng) {
 
   int num_children = (prob < q) ? m : 0;
   int num_descendents = 0;
+
+#if DEBUG
+  std::cout << " Number: " << random_number 
+            << " Children: " << num_children
+            << std::endl;
+#endif
+
   for (int i=0; i<num_children; ++i) 
     num_descendents += binomial_tree_search (sha1_rand (rng, i)); 
  
