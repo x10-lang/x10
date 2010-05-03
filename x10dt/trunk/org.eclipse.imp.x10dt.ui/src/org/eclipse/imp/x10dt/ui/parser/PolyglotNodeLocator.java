@@ -247,6 +247,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
     }
 
     public Object getParentNodeOf(Object node, Object root) {
+        if (root == null) { return null; }
         fNode[0]= null;
         fTargetNode= (Node) node;
         ((Node) root).visit(fParentNodeVisitor);
