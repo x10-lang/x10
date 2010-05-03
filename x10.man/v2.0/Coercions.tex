@@ -38,11 +38,14 @@ approximation is good enough.
 \begin{itemize}
 \item Casting a number to a {\em wider} numeric type is safe and effective,
       and can be done by an implicit conversion as well as an explicit
+%~~exp~~`~~`~~ ~~
       coercion.  For example, \xcd`4 as Long` produces the \xcd`Long` value of
       4. 
 \item Casting a floating-point value to an integer value truncates the digits
       after the decimal point, thereby rounding the number towards zero.  
+%~~exp~~`~~`~~
       \xcd`54.321 as Int` is \xcd`54`, and 
+%~~exp~~`~~`~~ ~~
       \xcd`-54.321 as Int` is \xcd`-54`.
       If the floating-point value is too large to represent as that kind of
       integer, the coercion returns the largest or smallest value of that type
@@ -50,17 +53,26 @@ approximation is good enough.
       \xcd`Int.MAX_VALUE`, \xcd`2147483647`. 
 
 \item Casting a \xcd`Double` to a \xcd`Float` normally truncates digits: 
+%~~exp~~`~~`~~ ~~
       \xcd`0.12345678901234567890 as Float` is \xcd`0.12345679f`.  This can
       turn a nonzero \xcd`Double` into \xcd`0.0f`, the zero of type
-      \xcd`Float`: \xcd`1e-100 as Float` is \xcd`0.0f`.  Since 
+      \xcd`Float`: 
+%~~exp~~`~~`~~ ~~
+      \xcd`1e-100 as Float` is \xcd`0.0f`.  Since 
       \xcd`Double`s can be as large as about \xcd`1.79E308` and \xcd`Float`s
       can only be as large as about \xcd`3.4E38f`, a large \xcd`Double` will
       be converted to the special \xcd`Float` value of \xcd`Infinity`: 
+%~~exp~~`~~`~~ ~~
       \xcd`1e100 as Float` is \xcd`Infinity`.
 \item Integers are coerced to smaller integer types by truncating the
       high-order bits. If the value of the large integer fits into the smaller
-      integer's range, this gives the same number in the smaller type: \xcd`12 as Byte` is the \xcd`Byte`-sized 12, \xcd`-12 as Byte` is -12. 
+      integer's range, this gives the same number in the smaller type: 
+%~~exp~~`~~`~~ ~~
+      \xcd`12 as Byte` is the \xcd`Byte`-sized 12, 
+%~~exp~~`~~`~~ ~~
+      \xcd`-12 as Byte` is -12. 
       However, if the larger integer {\em doesn't} fit in the smaller type,
+%~~exp~~`~~`~~ ~~
       the numeric value and even the sign can change: \xcd`254 as Byte` is
       \xcd`Byte`-sized \xcd`-2`.  
 
@@ -121,6 +133,10 @@ of \Xcd{B}.
 
 \begin{example}
 Consider the following code:  
+
+
+
+%~~stmt~~\begin{xten}~~\end{xten}~~ ~~
 \begin{xten}
 val p  = [2, 2, 2, 2, 2] as Point;
 val q = [1, 1, 1, 1, 1] as Point;
@@ -128,6 +144,7 @@ val a = p - q;
 \end{xten}
 This code fragment compiles successfully, given the above operator definition. 
 The type of \Xcd{p} is inferred to be \Xcd{Point(5)} (i.e.{} the type 
-\xcd"Point{self.rank==5}".
+%~~type~~`~~`~~ ~~
+\xcd`Point{self.rank==5}`.
 Similarly for \Xcd{q}. Hence the application of the operator ``\Xcd{-}'' is legal (it requires both arguments to have the same rank). The type of \Xcd{a} is computed as \Xcd{Point(5)}.
 \end{example}

@@ -42,6 +42,8 @@ namespace x10aux {
         #endif
     }
 
+    template<class T, class R> R* alloc_aligned_rail(x10_int length, x10_int alignment);
+
     template<class T, class R> R* alloc_rail(x10_int length);
     template<class T, class R> R* alloc_rail(x10_int length, T v0);
     template<class T, class R> R* alloc_rail(x10_int length, T v0, T v1);
@@ -82,15 +84,19 @@ namespace x10aux {
     }
 
     
-    template<class T, class R> R* alloc_rail_internal(x10_int length, bool remote) {
+    template<class T, class R> R* alloc_rail_internal(x10_int length,
+                                                      bool remote,
+                                                      x10_int alignment) {
         bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+        // assert power of 2
+        assert((alignment & (alignment-1)) == 0);
         /*
          * We allocate a single piece of storage that is big enough for both
          * R and its (aligned) backing data array. We then do some pointer arithmetic
          * to get the aligned "interior pointer" to use for data and pass it as
          * an argument to R's constructor (R's data ptr is declared const to enable compiler optimization).
          */
-        size_t alignPad = 8;
+        size_t alignPad = alignment;
         size_t alignDelta = alignPad-1;
         size_t alignMask = ~alignDelta;
         size_t sz = sizeof(R) + alignPad + length*sizeof(T);
@@ -104,14 +110,18 @@ namespace x10aux {
         return rail;
     }
 
-    template<class T, class R> R* alloc_rail(x10_int length) {
-        R* rail = alloc_rail_internal<T,R>(length, false);
+    template<class T, class R> R* alloc_aligned_rail(x10_int length, x10_int alignment) {
+        R* rail = alloc_rail_internal<T,R>(length, false, alignment);
         rail->x10::lang::Object::_constructor();
         return rail;
     }
 
+    template<class T, class R> R* alloc_rail(x10_int length) {
+        return alloc_aligned_rail<T,R>(length, 8);
+    }
+
     template<class T, class R> R* alloc_rail_remote(x10_int length) {
-        return alloc_rail_internal<T,R>(length, true);
+        return alloc_rail_internal<T,R>(length, true, 8);
     }
     
     template<class T, class R> R* alloc_rail(x10_int length, T v0) {

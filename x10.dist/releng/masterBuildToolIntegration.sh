@@ -26,7 +26,7 @@ if [[ -z "$rev" ]]; then
     exit 1
 fi
 
-ssh orquesta "mkdir -p /var/www/localhost/htdocs/x10dt/x10-builds/$rev"
+ssh orquesta.watson.ibm.com "mkdir -p /var/www/localhost/htdocs/x10dt/x10-builds/$rev"
 
 for host in $hosts
 do
@@ -37,7 +37,7 @@ do
     echo "transfering file from $host to localhost"
     scp "$host:/tmp/x10-tib-$USER/x10/x10.dist/x10-tib*.tgz" .
     echo "transfering from localhost to orquesta"
-    scp x10-tib_*.tgz orquesta:/var/www/localhost/htdocs/x10dt/x10-builds/$rev
+    scp x10-tib_*.tgz orquesta.watson.ibm.com:/var/www/localhost/htdocs/x10dt/x10-builds/$rev
     rm x10-tib_*.tgz
     #ssh $host rm -rf /tmp/x10-tib-$USER 
 done

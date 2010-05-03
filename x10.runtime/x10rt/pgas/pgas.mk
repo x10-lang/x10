@@ -24,10 +24,12 @@ PLATFORM_SUPPORTS_BGP := no
 LAPI_LDFLAGS    = $(CUDA_LDFLAGS)
 BGP_LDFLAGS     = $(CUDA_LDFLAGS)
 SOCKETS_LDFLAGS = $(CUDA_LDFLAGS)
+PANE_LDFLAGS    = $(CUDA_LDFLAGS)
 
 LAPI_LDLIBS     = -lx10rt_pgas_lapi $(CUDA_LDLIBS)
 BGP_LDLIBS      = -lx10rt_pgas_bgp $(CUDA_LDLIBS)
 SOCKETS_LDLIBS  = -lx10rt_pgas_sockets -lpthread $(CUDA_LDLIBS)
+PANE_LDLIBS     = -lx10rt_pgas_pane $(CUDA_LDLIBS)
 
 ifeq ($(X10RT_PLATFORM), bgp)
   WPLATFORM      := bgp_g++4
@@ -39,6 +41,7 @@ ifeq ($(X10RT_PLATFORM), aix_xlc)
   WPLATFORM      := aix_xlc
   PLATFORM_SUPPORTS_LAPI       := yes
   #PLATFORM_SUPPORTS_SOCKETS    := yes
+  PLATFORM_SUPPORTS_PANE       := yes
 endif
 ifeq ($(X10RT_PLATFORM), aix_gcc)
   WPLATFORM      := aix_g++4
@@ -46,6 +49,7 @@ ifeq ($(X10RT_PLATFORM), aix_gcc)
   LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
   LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
   #PLATFORM_SUPPORTS_SOCKETS    := yes
+  PLATFORM_SUPPORTS_PANE       := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64)
   WPLATFORM      := linux_ppc_64_g++4

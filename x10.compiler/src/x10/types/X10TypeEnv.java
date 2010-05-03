@@ -39,6 +39,7 @@ public interface X10TypeEnv extends TypeEnv {
      * @return
      */
     List<Type> upperBounds(Type t, boolean includeObject);
+    List<Type> upperBounds(Type t);
 
     List<Type> lowerBounds(Type t);
 

@@ -1,0 +1,36 @@
+
+\begin{figure*}[htpb!]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+
+$\hK ::= \proto ~|~ \cooked ~|~ \textbf{\hl}$ & cooKer. \\
+
+$\code{T} ::= \code{C<K>}$ & Type. \\
+
+$\code{A} ::= \code{var}~|~\code{val}$ & Assignable (\code{var}) or final (\code{val}) field. \\
+
+$\code{F} ::= \code{A}~\hC~\hf\texttt{;}$ & Field declaration. \\
+
+$\hM ::= \code{T} ~ \hm\hparen{\ol{\code{T}} ~ \ol{\hx}}~\hK ~ \lb\ \hreturn ~ \he\texttt{;}~\rb$
+& Method declaration. \\
+
+$\hL ::= \hclass ~ \hC\code{~extends~C'} \lb\ \ol{\code{F}}~\ol{\hM}~\rb$
+& cLass declaration. \\
+
+
+$\hv ::= \code{null} ~|~ \textbf{\hl} $
+& Values: either \code{null} or a location~\hl. \\
+
+
+% No cast: \hparen{\hT} ~ \he ~|~
+$\he ::= \hv ~|~ \hx ~|~ \he.\hf ~|~ \he.\hf = \he ~|~ \he.\hm\hparen{\ol{\he}} ~|~ \hnew ~ \hT\hparen{\ol{\he}}  ~|~ \textbf{\he\code{;return l}}$
+& Expressions. \\ %: values, parameters, field access\&assignment, invocation, \code{new} start\&finish
+
+\hline
+\end{tabular}
+\end{center}
+\caption{FX10 Syntax. Class declarations in FX10 cannot contain locations~\hl (marked with a boldface).
+    Such locations are created during the reduction process (see \RULE{R-New} in \Ref{Figure}{reduction}).}
+\label{Figure:syntax}
+\end{figure*}

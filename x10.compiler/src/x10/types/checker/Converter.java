@@ -137,14 +137,11 @@ public class Converter {
 			if (tn.type() != toType) {
 				// alright, now we actually synthesized a new depexpr. 
 				// lets splice it in.
-
 				result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
-
-				if (dynamicCallp) {
-					Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
-				}
 			}
-
+			if (dynamicCallp) {
+				Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
+			}
 		}
 
 		
@@ -539,19 +536,20 @@ public class Converter {
 	    }
 
 		// Added 03/28/10 to support new call conversion semantics.
-		if (! Configuration.STATIC_CALLS)
-			if (cast.conversionType() == ConversionType.CALL_CONVERSION 
-					&& ts.isCastValid(fromType, toType, context)) {
-				X10Cast n = cast.conversionType(ConversionType.CHECKED); 
-				XVar sv = X10TypeMixin.selfVarBinding(fromType);
-				if (sv != null) 
-					try {
-						toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
-					} catch (XFailure f) {
-						throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
-					}
-					return n.type(toType);
-			}
+		if (ts.isSubtype(X10TypeMixin.baseType(fromType), X10TypeMixin.baseType(toType), context))
+			if (! Configuration.STATIC_CALLS)
+				if (cast.conversionType() == ConversionType.CALL_CONVERSION 
+						&& ts.isCastValid(fromType, toType, context)) {
+					X10Cast n = cast.conversionType(ConversionType.CHECKED); 
+					XVar sv = X10TypeMixin.selfVarBinding(fromType);
+					if (sv != null) 
+						try {
+							toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
+						} catch (XFailure f) {
+							throw new SemanticError("Inconsistent type: " + toType + " {self==" + sv+"}", cast.position());
+						}
+						return n.type(toType);
+				}
 		throw new Errors.CannotConvertExprToType(cast.expr(), cast.conversionType(), toType, cast.position());
 	}
 		

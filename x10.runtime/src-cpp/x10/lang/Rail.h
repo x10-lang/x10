@@ -109,11 +109,11 @@ namespace x10 {
 
             virtual x10aux::ref<Iterator<T> > iterator();
 
-            static R make(x10_int length);
-            static R make(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init);
-            static R make(x10aux::ref<ValRail<T> > other);
-            static R make(x10_int length, x10_int offset, x10aux::ref<ValRail<T> > other);
-            static R make(x10_int length, x10_int offset, x10aux::ref<Rail<T> > other);
+            static R make(x10_int length, x10_int alignment=8);
+            static R make(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init, x10_int alignment=8);
+            static R make(x10aux::ref<ValRail<T> > other, x10_int alignment=8);
+            static R make(x10_int length, x10_int offset, x10aux::ref<ValRail<T> > other, x10_int alignment=8);
+            static R make(x10_int length, x10_int offset, x10aux::ref<Rail<T> > other, x10_int alignment=8);
 
             void reset(x10aux::ref<Fun_0_1<x10_int,T> > init);
             void reset(T val);
@@ -260,16 +260,17 @@ namespace x10 {
             x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<Rail<T> >())
         };
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length) {
-            x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
+        template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length, x10_int alignment) {
+            x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             // Memset both for efficiency and to allow T to be a struct.
             memset(rail->raw(), 0, length * sizeof(T));
             return rail;
         }
 
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length,
-                                                               x10aux::ref<Fun_0_1<x10_int,T> > init ) {
-            R rail = x10aux::alloc_rail<T,Rail<T> >(length);
+                                                               x10aux::ref<Fun_0_1<x10_int,T> > init,
+                                                               x10_int alignment ) {
+            R rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             x10aux::ref<x10::lang::Reference> initAsRef = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Reference> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsRef->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
@@ -279,9 +280,10 @@ namespace x10 {
         }
 
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length, x10_int offset,
-                                                               x10aux::ref<ValRail<T> > other) {
+                                                               x10aux::ref<ValRail<T> > other,
+                                                               x10_int alignment) {
             x10aux::nullCheck(other);
-            R rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            R rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i+offset];
             }
@@ -289,19 +291,21 @@ namespace x10 {
         }
 
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length, x10_int offset,
-                                                               x10aux::ref<Rail<T> > other) {
+                                                               x10aux::ref<Rail<T> > other,
+                                                               x10_int alignment) {
             x10aux::nullCheck(other);
-            R rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            R rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i+offset];
             }
             return rail;
         }
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10aux::ref<ValRail<T> > other) {
+        template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10aux::ref<ValRail<T> > other,
+                                                               x10_int alignment) {
             x10aux::nullCheck(other);
             x10_int length = other->FMGL(length);
-            R rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            R rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i];
             }

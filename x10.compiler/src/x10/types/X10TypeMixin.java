@@ -951,10 +951,16 @@ public class X10TypeMixin {
 			return false;
 		if (X10TypeMixin.disEntailsSelf(t, XTerms.NULL))
 			return false;
-		if (((X10TypeSystem) t.typeSystem()).isParameterType(t))
+		X10TypeSystem ts = ((X10TypeSystem) t.typeSystem());
+		if (ts.isParameterType(t)) {
+			List<Type> upper =  ts.env(ts.emptyContext()).upperBounds(t);
+			for (Type type : upper) {
+				if (permitsNull(type)) 
+					return true;
+			}
 			return false;
+		}
 		return true;
-		
 	}
 
 	public static XRoot thisVar(XRoot xthis, Type thisType) {

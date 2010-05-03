@@ -57,8 +57,9 @@ import x10.types.constraints.Constraints;
  * <p> TODO: Propagate through rails A(0) = v; ... A(0) --> v. TODO: Dead code
  * elimination. visitor.
  * 
- * @param theValueIfBindingTimeIsStatic
- * @return
+ * FIXME: [IP] propagate closure literals
+ * 
+ * @author nystrom
  */
 public class ConstantPropagator extends ContextVisitor {
     public ConstantPropagator(Job job, TypeSystem ts, NodeFactory nf) {

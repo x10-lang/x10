@@ -58,7 +58,12 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 		length++;
 		set(v, length-1);
 	}
-	
+
+	public void setLength(int newLength) {
+		grow(newLength);
+		length = newLength;
+	}
+
 	public void removeLast() {
 		if (array instanceof Object[])
 			set(null, length-1);

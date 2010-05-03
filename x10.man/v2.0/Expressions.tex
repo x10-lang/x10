@@ -97,10 +97,14 @@ actual target substituted for \xcd"this" in the type.
 The field accessed is selected from the fields and value properties
 of the static type of the target and its superclasses.
 
-If the field target is given by the keyword \xcd"super",
-the target's type is
-the superclass of the enclosing class, as
-constrained by the superclass's class invariant, if any.
+If the field target is given by the keyword \xcd"super", the target's type is
+the superclass of the enclosing class.  This form is used to access fields of
+the parent class shadowed by same-named fields of the current class.
+
+If the field target is \xcd`Cls.super`, then the target's type is \xcd`Cls`,
+which must be an ancestor class of the enclosing class.  This (admittedly
+obscure) form is used to access fields of an ancestor class which are shadowed
+by same-named fields of some more recent ancestor.
 
 If the field target is \xcd"null", a \xcd"NullPointerException"
 is thrown.
