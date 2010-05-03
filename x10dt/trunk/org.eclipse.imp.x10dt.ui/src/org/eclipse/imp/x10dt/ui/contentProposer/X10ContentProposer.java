@@ -374,7 +374,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         Node previousNode = (previousToken != null)? (Node) locator.findNode(currentAst, previousToken.getStartOffset(), previousToken.getEndOffset()): null;
      
         boolean in_between_tokens = index < 0;
-        if (offset == tokenToComplete.getStartOffset())
+        if (offset == tokenToComplete.getStartOffset()) // TODO Handle case where caret is within whitespace between tokens
         	in_between_tokens = true;
         
         if (previousToken != null && previousToken.getKind() == TK_DOT) { //Display members following a dot
