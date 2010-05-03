@@ -96,9 +96,14 @@ public class CXXCommandBuilder {
     
     protected static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String X10_DIST = System.getenv("X10_DIST");
-    protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
-    protected static final boolean ENABLE_PROFLIB = System.getenv("X10_ENABLE_PROFLIB") != null;
+    protected static final boolean USE_XLC = (PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null) || System.getenv("USE_XLC")!=null;
+    //"mpCC_r -q64 -qrtti=all -qarch=pwr5 -O3 -qtune=pwr5 -qhot -qinline"
+    //"mpCC_r -q64 -qrtti=all"
+    public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
+    public static final boolean USE_32BIT = System.getenv("USE_32BIT")!=null;
     
+    protected static final boolean ENABLE_PROFLIB = System.getenv("X10_ENABLE_PROFLIB") != null;
+  
     public static final String MANIFEST = "libx10.mft";
     public static final String[] MANIFEST_LOCATIONS = new String[] { X10_DIST+"/lib" };
 
@@ -130,8 +135,8 @@ public class CXXCommandBuilder {
         bdwgcOpts = new BDWGCPostCompileOptions(X10_DIST + "/etc/bdwgc.properties");
     }
 
-    protected String defaultPostCompiler() { 
-        return x10rtOpts.cxx;
+    protected String defaultPostCompiler() {
+	    return x10rtOpts.cxx;
     }
 
     /** Add the arguments that go before the output files */
@@ -155,6 +160,14 @@ public class CXXCommandBuilder {
             }
         }
         
+        if (USE_XLC) {
+            cxxCmd.add("-qsuppress=1540-0809:1540-1101:1500-029");
+            cxxCmd.add(USE_32BIT ? "-q32" : "-q64");
+            if (XLC_EXTRA_FLAGS != null) {
+                cxxCmd.add(XLC_EXTRA_FLAGS);
+            }
+        } 
+
         if (x10.Configuration.NO_CHECKS) {
             cxxCmd.add("-DNO_CHECKS");
         }
