@@ -305,38 +305,44 @@ may specify a \emph{guard} that is to be satisfied by the parameters
 to the list.
 
 \begin{example}
+%%TODO--rewrite this
 Here is another example, constructed as a simplified 
-version of \Xcd{x10.lang.Region}.
+version of \Xcd{x10.lang.Region}.  The \xcd`mockUnion` method 
+has the type that a true \xcd`union` method would have.
+
+%~~gen
+%package Classes.Are.For.Wussies.Wimps.And.People.With.Vowels.In.Their.Names;
+%~~vis
 \begin{xten}
-type MyRegion(n:Int)=MyRegion{self.rank==n};
 class MyRegion(rank:Int) {
+  static type MyRegion(n:Int)=MyRegion{self.rank==n};
   def this(r:Int):MyRegion(r) {
     property(r);
   }
   def this(diag:ValRail[Int]):MyRegion(diag.length){ 
-   ...
+    property(diag.length);
   }
-  def union(r:MyRegion(n)):MyRegion(n) { ...}
-  ...
-}
+  def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
+  def example() {
+    val R1 : MyRegion(3)! = new MyRegion([4,4,4]); 
+    val R2 : MyRegion(3)! = new MyRegion([5,4,1]); 
+    val R3 = R1.mockUnion(R2); // inferred type MyRegion(3)
+  }
 }
 \end{xten}
+%~~siv
+%
+%~~neg
 The first constructor returns the empty region of rank \Xcd{r}.  The
 second constructor takes a \Xcd{ValRail[Int]} of arbitrary length
 \Xcd{n} and returns a \Xcd{MyRegion(n)} (intended to represent the set
 of points in the rectangular parallelopiped between the origin and the
 \Xcd{diag}.)
 
-Now the following code type checks:
-\begin{xten}
-val R1 = new MyRegion([4,4,4]); // R1's type is MyRegion(3)
-val R2 = new MyRegion([5,4,1]); // R2's type is MyRegion(3)
-\end{xten}
-Hence the following code type checks and infers that \Xcd{R3}'s type is
-\Xcd{MyRegion(3)}:
-\begin{xten}
-val R3 = R1.union(R2);          // R3's type is MyRegion(3)
-\end{xten}
+The code in \xcd`example` typechecks, and \xcd`R3`'s type is inferred as
+\xcd`MyRegion(3)`.  
+
+
 \end{example}
 
 \begin{staticrule}{Super-invoke}
@@ -518,10 +524,10 @@ argument at an incomplete type must be \Xcd{void} or incomplete.  The
 return type of a constructor taking an argument at a \Xcd{proto} type
 must be incomplete.
  
-A generic class (method) type parameter \Xcd{T} can be
-  instantiated with the type \Xcd{proto S} (where \Xcd{S} is not a type
-  parameter itself), provided that the class (method) body satisfies
-  the conditions above for \Xcd{proto S}.
+A generic type parameter \Xcd{T} can be instantiated with the type \Xcd{proto
+  S} (where \Xcd{S} is not a type parameter itself), provided that the body of
+the entity being instantiated satisfies the conditions above for \Xcd{proto
+  S}.
 
 During code generation, the type \Xcd{proto T} is treated as if it were
 \Xcd{T}. That is, there is no run-time cost to \Xcd{proto} types.
@@ -560,6 +566,10 @@ This example shows how to create a fixed-size circular buffer.
 (Its pointer structure is immutable, though the contents of each
 field are mutable.)
 {\footnotesize
+
+%~~gen
+% package CircularBuffers.Are.For.The.Weak.And.Sickly.And.Also.Klingons.And.Romulans;
+%~~vis
 \begin{xten}
 class  CircularBuffer[A] {
   var a: A;
@@ -570,11 +580,14 @@ class  CircularBuffer[A] {
   def this(var n:Int) {
     var temp: proto CircularBuffer[A] = this;
     while (--n > 0) 
-    temp = new CircularBuffer[A](temp);
+      temp = new CircularBuffer[A](temp);
     next = temp;
   }
 }
 \end{xten}}
+%~~siv
+%
+%~~neg
 
 \end{example}
 \section{Field definitions}
@@ -680,27 +693,37 @@ The method body is either an expression, a block of statements,
 or a block ending with an expression.
 
 \begin{example}
-Consider the program:
+%%TODO--rewrite this.  I don't know what point it's trying to illustrate.
+The following program implements a subset of \xcd`Point`'s behavior.  
+
+%~~gen
+%package Classes.Pointlike.For.Fun.And.Profit;
+%~~vis
 \begin{xten}
-type Point(r:Int)=Point{self.rank==r};
-final public class Point(rank: Int) implements (Int) => Int {
-    public global val coords: ValRail[Int](rank);
-    public global safe def apply(i: Int) = coords(i);
-    public global safe def coords() = coords;
-    public global safe operator - this: Point(rank) 
-       = Point.make(rank, (i:Int)=>-this.coords(i));
-    public global safe operator this + (that: Point(rank)): Point(rank) 
-       = Point.make(rank, (i:Int)=> this.coords(i) + that.coords(i));
-    ...
+final class Pointlike(rank: Int)  {
+    public global val coords: ValRail[Int]{self.length == rank};
+    public def this(v:ValRail[Int]) {
+       property(v.length);
+       coords = v as ValRail[Int]{self.length == rank};
+    }
+    public operator this + (that: Pointlike{self.rank == this.rank})
+       : Pointlike{self.rank == this.rank}
+       {
+         val f : (Int)=>Int = (i:Int) => 
+                 (this.coords)(i) + (that.coords)(i);
+         val v = ValRail.make[Int](rank, f);
+         return new Pointlike(v);
+       }
+    static def example() {
+       val s <: Pointlike{self.rank==3} = new Pointlike([1,2,3]);
+       val t <: Pointlike{self.rank==3} = new Pointlike([-1,-1,-1]);
+       val u <: Pointlike{self.rank==3} = s + t;
+    }
 }
 \end{xten}
-
-The following code fragment will typecheck:
-\begin{xten}
-s: Point(3) = new Point([1,2,3]);
-t: Point(3) = new Point([-1,-1,-1]);
-u: Point(3) = s + u;
-\end{xten}
+%~~siv
+%
+%~~neg
 \end{example}
 
 \subsection{Property methods}
@@ -720,14 +743,65 @@ will not terminate and the program will fail to compile.
 Property methods in classes are implicitly \xcd"final"; they cannot be
 overridden. Property methods are also implicitly \xcd"global".
 
-A property method definition may omit the formal parameters and
+A nullary property method definition may omit the formal parameters and
 the \xcd"def" keyword.  That is, the following are equivalent:
 
-{\footnotesize
+
+%~~gen
+% package classes.not.harpoons.instead.of.python;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%~~vis
 \begin{xten}
 property def rail(): Boolean = rect && onePlace == here && zeroBased;
+\end{xten}
+%~~siv
+%}
+%~~neg
+and
+%~~gen
+% package classes.not.muskrats.instead.of.blueberry.cake.with.honey;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%~~vis
+\begin{xten}
 property rail: Boolean = rect && onePlace == here && zeroBased;
-\end{xten}}
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+Similarly, nullary property methods can be inspected in constraints without
+\xcd`()`.  
+%~~longexp~~`~~`
+% package classes.not.weasels;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%   def this(rect:Boolean, onePlace:Place, zeroBased:Boolean) 
+%          :Waif{self.rect==rect, self.onePlace==onePlace, self.zeroBased==zeroBased}
+%          = {property(rect, onePlace, zeroBased);}
+%   property rail: Boolean = rect && onePlace == here && zeroBased;
+%   static def zoink() {
+%      val w : Waif{
+%~~vis
+\xcd`w.rail`, with either definition above, 
+% }= new Waif(true, here, true);
+% }}
+%~~pxegnol
+is equivalent to 
+%~~longexp~~`~~`
+% package classes.not.ferrets;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%   def this(rect:Boolean, onePlace:Place, zeroBased:Boolean) 
+%          :Waif{self.rect==rect, self.onePlace==onePlace, self.zeroBased==zeroBased}
+%          = {property(rect, onePlace, zeroBased);}
+%   property rail: Boolean = rect && onePlace == here && zeroBased;
+%   static def zoink() {
+%      val w : Waif{
+%~~vis
+\xcd`w.rail()`
+% }= new Waif(true, here, true);
+% }}
+%~~pxegnol
+
+
 
 \subsection{Method overloading, overriding, hiding, shadowing and obscuring}
 \label{MethodOverload}
@@ -739,12 +813,21 @@ considerations motivated by type parameters and dependent types.
 Two or more methods of a class or interface may have the same
 name if they have a different number of type parameters, or
 they have formal parameters of different types.  \Eg, the following is legal: 
+
+%~~gen
+%
+%~~vis
 \begin{xten}
+class Mful{
    def m() = 1;
    def m[T]() = 2;
    def m(x:Int) = 3;
    def m[T](x:Int) = 4;
+}
 \end{xten}
+%~~siv
+%
+%~~neg
 
 \XtenCurrVer{} does not permit overloading based on constraints. That is, the
 following is {\em not} legal, although either method definition individually
@@ -988,3 +1071,625 @@ have been initialized correctly.
 Since static state is immutable and is replicated to all places via 
 the initialization phase as described above, it can be accessed from
 any place.
+
+
+\section{User-Defined Operators}
+
+It is often convenient to have methods named by symbols rather than words.
+For example, suppose that we wish to define a \xcd`Poly` class of
+polynomials -- for the sake of illustration, single-variable polynomials with
+\xcd`Int` coefficients.  It would be very nice to be able to manipulate these
+polynomials by the usual operations: \xcd`+` to add, \xcd`*` to multiply,
+\xcd`-` to subtract, and \xcd`p(x)` to compute the value of the polynomial at
+argument \xcd`x`.  We would like to write code thus: 
+%~~gen
+% package Classes.In.Poly101;
+% // Integer-coefficient polynomials of one variable.
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+% 
+%   public static safe operator (c : Int) as Poly! = new Poly([c]);
+% 
+%   public safe def apply(x:Int) {
+%     val d = this.degree();
+%     var s : Int = this.a(d);
+%     for( (i) in 1 .. this.degree() ) {
+%        s = x * s + a(d-i);
+%     }
+%     return s;
+%   }
+% 
+%   public operator this + (p:Poly!) =  new Poly(
+%      ValRail.make[Int](
+%         Math.max(this.coeff.length(), p.coeff.length()),
+%         (i:Int) => this.a(i) + p.a(i)
+%      ));
+%   public operator this - (p:Poly!) = this + (-1)*p;
+% 
+%   public operator this * (p:Poly!) = new Poly(
+%      ValRail.make[Int](
+%        this.degree() + p.degree() + 1,
+%        (k:Int) => sumDeg(k, this, p)
+%        )
+%      );
+%   
+% 
+%   public operator (n : Int) + this = (n as Poly) + this;
+%   public operator this + (n : Int) = (n as Poly) + this;
+% 
+%   public operator (n : Int) - this = (n as Poly) + (-1) * this;
+%   public operator this - (n : Int) = ((-n) as Poly) + this;
+% 
+%   public operator (n : Int) * this = new Poly(
+%      ValRail.make[Int](
+%        this.degree()+1,
+%        (k:Int) => n * this.a(k)
+%      ));
+%   private static def sumDeg(k:Int, a:Poly, b:Poly) {
+%      var s : Int = 0;
+%      for ( (i) in 0 .. k ) s += a.a(i) * b.a(k-i);
+%        // x10.io.Console.OUT.println("sumdeg(" + k + "," + a + "," + b + ")=" + s);
+%      return s;
+%      };
+%   public global final safe def toString() = {
+%      var allZeroSoFar : Boolean = true;
+%      var s : String ="";
+%      for ( (i) in 0..this.degree() ) {
+%        val ai = this.a(i);
+%        if (ai == 0) continue;
+%        if (allZeroSoFar) {
+%           allZeroSoFar = false;
+%           s = term(ai, i);
+%        }
+%        else 
+%           s += 
+%              (ai > 0 ? " + " : " - ")
+%             +term(ai, i);
+%      }
+%      if (allZeroSoFar) s = "0";
+%      return s;
+%   }
+%   private global final safe def term(ai: Int, n:Int) = {
+%      val xpow = (n==0) ? "" : (n==1) ? "x" : "x^" + n ;
+%      return (ai == 1) ? xpow : "" + Math.abs(ai) + xpow;
+%   }
+%   
+%   public static def Main(ss:Rail[String]) = main(ss);
+% 
+%~~vis
+\begin{xten}
+  public static def main(Rail[String]) {
+     val X = new Poly([0,1]);
+     val t <: Poly = 7 * X + 6 * X * X * X; 
+     val u <: Poly = 3 + 5*X - 7*X*X;
+     val v <: Poly = t * u - 1;
+     for ( (i) in -3 .. 3) {
+       x10.io.Console.OUT.println(
+         "" + i + "	X:" + X(i) + "	t:" + t(i) 
+         + "	u:" + u(i) + "	v:" + v(i)
+         );
+     }
+  }
+
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+Writing the same code with method calls, while possible, is far less elegant: 
+%~~gen
+%package Classes.In.Poly101;
+% // Integer-coefficient polynomials of one variable.
+% class UglyPoly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+% 
+%   public static safe operator (c : Int) as UglyPoly! = new UglyPoly([c]);
+% 
+%   public safe def apply(x:Int) {
+%     val d = this.degree();
+%     var s : Int = this.a(d);
+%     for( (i) in 1 .. this.degree() ) {
+%        s = x * s + a(d-i);
+%     }
+%     return s;
+%   }
+% 
+%   public operator this + (p:UglyPoly!) =  new UglyPoly(
+%      ValRail.make[Int](
+%         Math.max(this.coeff.length(), p.coeff.length()),
+%         (i:Int) => this.a(i) + p.a(i)
+%      ));
+%   public operator this - (p:UglyPoly!) = this + (-1)*p;
+% 
+%   public operator this * (p:UglyPoly!) = new UglyPoly(
+%      ValRail.make[Int](
+%        this.degree() + p.degree() + 1,
+%        (k:Int) => sumDeg(k, this, p)
+%        )
+%      );
+%   
+% 
+%   public operator (n : Int) + this = (n as UglyPoly) + this;
+%   public operator this + (n : Int) = (n as UglyPoly) + this;
+% 
+%   public operator (n : Int) - this = (n as UglyPoly) + (-1) * this;
+%   public operator this - (n : Int) = ((-n) as UglyPoly) + this;
+% 
+%   public operator (n : Int) * this = new UglyPoly(
+%      ValRail.make[Int](
+%        this.degree()+1,
+%        (k:Int) => n * this.a(k)
+%      ));
+%   private static def sumDeg(k:Int, a:UglyPoly, b:UglyPoly) {
+%      var s : Int = 0;
+%      for ( (i) in 0 .. k ) s += a.a(i) * b.a(k-i);
+%        // x10.io.Console.OUT.println("sumdeg(" + k + "," + a + "," + b + ")=" + s);
+%      return s;
+%      };
+%   public global final safe def toString() = {
+%      var allZeroSoFar : Boolean = true;
+%      var s : String ="";
+%      for ( (i) in 0..this.degree() ) {
+%        val ai = this.a(i);
+%        if (ai == 0) continue;
+%        if (allZeroSoFar) {
+%           allZeroSoFar = false;
+%           s = term(ai, i);
+%        }
+%        else 
+%           s += 
+%              (ai > 0 ? " + " : " - ")
+%             +term(ai, i);
+%      }
+%      if (allZeroSoFar) s = "0";
+%      return s;
+%   }
+%   private global final safe def term(ai: Int, n:Int) = {
+%      val xpow = (n==0) ? "" : (n==1) ? "x" : "x^" + n ;
+%      return (ai == 1) ? xpow : "" + Math.abs(ai) + xpow;
+%   }
+%   
+%   def mult(p:UglyPoly!) = this * p;
+%   def mult(n:Int) = n * this;
+%   def plus(p:UglyPoly!) = this + p;
+%   def plus(n:Int) = n + this;
+%   def minus(p:UglyPoly!) = this - p;
+%   def minus(n:Int) = this - n;
+%   static def const(n:Int) = n as UglyPoly;
+% 
+%   public static def Main(x:Rail[String]) = main(x);
+%   public static def main(Rail[String]) {
+%      val X = new UglyPoly([0,1]);
+%      val t <: UglyPoly = 7 * X + 6 * X * X * X; 
+% 
+%      val u <: UglyPoly = 3 + 5*X - 7*X*X;
+%      val v <: UglyPoly = t * u - 1;
+%      for ( (i) in -3 .. 3) {
+%        x10.io.Console.OUT.println(
+%          "" + i + "	X:" + X(i) + "	t:" + t(i) + "	u:" + u(i) + "	v:" + v(i)
+%          );
+%      }
+%      uglymain();
+%   }
+% 
+%~~vis
+\begin{xten}
+  public static def uglymain() {
+     val X = new UglyPoly([0,1]);
+     val t <: UglyPoly = X.mult(7).plus(X.mult(X).mult(X).mult(6));  
+     val u <: UglyPoly = const(3).plus(X.mult(5)).minus(X.mult(X).mult(7));
+     val v <: UglyPoly = t.mult(u).minus(1);
+     for ( (i) in -3 .. 3) {
+       x10.io.Console.OUT.println(
+         "" + i + "	X:" + X.apply(i) + "	t:" + t.apply(i) 
+          + "	u:" + u.apply(i) + "	v:" + v.apply(i)
+         );
+     }
+  }
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+The operator-using code can be written in X10, though a few variations are
+necessary to handle such exotic cases as \xcd`1+X`.
+
+\subsection{Binary Operators}
+
+Defining the sum \xcd`P+Q` of two polynomials looks much like a method
+definition.  It uses the \xcd`operator` keyword instead of \xcd`def`, and
+\xcd`this` appears in the definition in the place that a \xcd`Poly` would
+appear in a use of the operator.  So, 
+\xcd`operator this + (p:Poly!)` explains how to add \xcd`this` to a
+\xcd`Poly!` value.
+%~~gen
+% package Classes.In.Poly102;
+%~~vis
+\begin{xten}
+class Poly {
+  public global val coeff : ValRail[Int];
+  public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+  public global def degree() = coeff.length()-1;
+  public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+
+  public operator this + (p:Poly!) =  new Poly(
+     ValRail.make[Int](
+        Math.max(this.coeff.length(), p.coeff.length()),
+        (i:Int) => this.a(i) + p.a(i)
+     )); 
+  // ... 
+\end{xten}
+%~~siv
+%   public operator (n : Int) + this = new Poly([n]) + this;
+%   public operator this + (n : Int) = new Poly([n]) + this;
+% 
+%   def makeSureItWorks() {
+%      val x = new Poly([0,1]);
+%      val p <: Poly = x+x+x;
+%      val q <: Poly = 1+x;
+%      val r <: Poly = x+1;
+%   }
+%     
+% }
+%~~neg
+
+
+The sum of a polynomial and an integer, \xcd`P+3`, looks like
+an overloaded method definition.  
+%~~gen
+% package Classes.In.Poly103;
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+% 
+%   public operator this + (p:Poly!) =  new Poly(
+%      ValRail.make[Int](
+%         Math.max(this.coeff.length(), p.coeff.length()),
+%         (i:Int) => this.a(i) + p.a(i)
+%      ));
+%~~vis
+\begin{xten}
+   public operator (n : Int) + this = new Poly([n]) + this;
+\end{xten}
+%~~siv
+
+%   public operator this + (n : Int) = new Poly([n]) + this;
+% 
+%   def makeSureItWorks() {
+%      val x = new Poly([0,1]);
+%      val p <: Poly = x+x+x;
+%      val q <: Poly = 1+x;
+%      val r <: Poly = x+1;
+%   }
+%     
+% }
+%~~neg
+
+
+However, we want to allow the sum of an integer and a polynomial as well:
+\xcd`3+P`.  It would be quite inconvenient to have to define this as a method
+on \xcd`Int`; changing \xcd`Int` is far outside of normal coding.  So, we
+allow it as a method on \xcd`Poly` as well.
+
+
+%~~gen
+% package Classes.In.Poly104o;
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+% 
+%   public operator this + (p:Poly!) =  new Poly(
+%      ValRail.make[Int](
+%         Math.max(this.coeff.length(), p.coeff.length()),
+%         (i:Int) => this.a(i) + p.a(i)
+%      ));
+%    public operator (n : Int) + this = new Poly([n]) + this;
+%~~vis
+\begin{xten}
+   public operator this + (n : Int) = new Poly([n]) + this;
+\end{xten}
+%~~siv
+% 
+%   def makeSureItWorks() {
+%      val x = new Poly([0,1]);
+%      val p <: Poly = x+x+x;
+%      val q <: Poly = 1+x;
+%      val r <: Poly = x+1;
+%   }
+%     
+% }
+%~~neg
+
+Furthermore, it is sometimes convenient to express a binary operation as a
+static method on a class. 
+The definition for the sum of two
+\xcd`Poly`s could have been written:
+%~~gen
+% package Classes.In.Poly105;
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+%~~vis
+\begin{xten}
+  public static operator (p:Poly!) + (q:Poly!) =  new Poly(
+     ValRail.make[Int](
+        Math.max(q.coeff.length(), p.coeff.length()),
+        (i:Int) => q.a(i) + p.a(i)
+     ));
+\end{xten}
+%~~siv
+%
+%   public operator (n : Int) + this = new Poly([n]) + this;
+%   public operator this + (n : Int) = new Poly([n]) + this;
+% 
+%   def makeSureItWorks() {
+%      val x = new Poly([0,1]);
+%      val p <: Poly = x+x+x;
+%      val q <: Poly = 1+x;
+%      val r <: Poly = x+1;
+%   }
+%     
+% }
+%~~neg
+
+
+This requires the following syntax:\\ 
+\begin{grammar}
+MethodHeader \:
+  \xcd`operator` TypeParameterList\opt \xcd`this` BinOp \xcd`(`  FormalParameter \xcd")" \\
+  && Guard\opt ReturnType\opt  Throws\opt \\
+MethodHeader \:
+  \xcd`operator` TypeParameterList\opt \xcd`(`  FormalParameter \xcd")" BinOp \xcd`this`  \\
+  && Guard\opt ReturnType\opt  Throws\opt \\
+MethodHeader \:
+  \xcd`operator` TypeParameterList\opt \xcd`(`  FormalParameter \xcd")" BinOp  \xcd`(`  FormalParameter \xcd")"  \\
+  && Guard\opt ReturnType\opt  Throws\opt \\
+\end{grammar}
+
+When X10 attempts to typecheck a binary operator expression like \xcd`P+Q`, it
+first typechecks \xcd`P` and \xcd`Q`. Then, it looks for operator declarations
+for \xcd`+` in the types of \xcd`P` and \xcd`Q`. If there are none, it is a
+static error. If there is precisely one, that one will be used. If there are
+several, X10 looks for a {\em best-matching} operation, \viz{} one which does
+not require the operands to be converted to another type. For example,
+\xcd`operator this + (n:Long)` and \xcd`operator this + (n:Int)` both apply to
+\xcd`p+1`, because \xcd`1` can be converted from an \xcd`Int` to a \xcd`Long`.
+However, the \xcd`Int` version will be chosen because it does not require a
+conversion. If even the best-matching operation is not uniquely determined,
+the compiler will report a static error.
+
+The main difference between expressing a binary operation as an instance
+method (with a \xcd`this` in the definition) and a static one (no \xcd`this`)
+is that instance methods don't apply any conversions, while static methods
+attempt to convert both arguments. 
+\bard{give an example}
+
+\bard{List the operators which this works for, in precedence order}
+
+\subsection{Unary Operators}
+
+Unary operators are defined in a similar way, with \xcd`this` appearing in the
+\xcd`operator` definition where an actual value would occur in a unary
+expression.  The operator to negate a polynomial is: 
+
+%~~gen
+% package Classes.In.Poly106;
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+%~~vis
+\begin{xten}
+  public operator - this = new Poly(
+    ValRail.make[Int](coeff.length(), (i:Int) => -coeff(i))
+    );
+\end{xten}
+%~~siv
+%   def makeSureItWorks() {
+%      val x = new Poly([0,1]);
+%      val p <: Poly = -x;
+%   }
+% }
+%~~neg
+
+The syntax for unary operators is:
+
+\begin{grammar}
+MethodHeader \:
+  \xcd`operator` PrefixOp \xcd`this`    Guard\opt ReturnType\opt  Throws\opt 
+\end{grammar}
+
+The rules for typechecking a unary operation are the same as for methods; the
+complexities of binary operations are not needed.
+
+\bard{List the operators which this works for, in precedence order}
+
+
+\subsection{Type Conversions}
+
+Explicit type conversions, \xcd`e as T{c}`, can be defined as operators on
+class \xcd`T`.
+
+%~~gen
+% package Classes.And.Type.Conversions.For.Sea.Urchins;
+%~~vis
+\begin{xten}
+class Poly {
+  public global val coeff : ValRail[Int];
+  public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+  public static operator (a:Int) as Poly! = new Poly([a]);
+  public static def main(Rail[String]) {
+     val three : Poly! = 3 as Poly!;
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+
+You may define a type conversion to a constrained type, like \xcd`Poly!` in
+the previous example.   If you convert to a more specific constraint, X10 will use
+the conversion, but insert a dynamic check to make sure that you have
+satisfied the more specific constraint.  For example: 
+%~~gen
+%package Classes.And.Type.Conversions.For.Street.Urchins;
+%~~vis
+\begin{xten}
+class Uni(n:Int) {
+  public def this(n:Int) : Uni{self.n==n} = {property(n);}
+  static operator (String) as Uni{self.n != 9} = new Uni(3);
+  public static def main(Rail[String]) {
+    val u = "" as Uni{self.n != 9 && self.n != 3};
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+The string \xcd`""` is converted to \xcd`Uni{self.n != 9}` via the defined
+conversion operator, and that value is checked against the remaining
+constraints \xcd`{self.n != 3}` at runtime.  (In this case it will fail.)
+
+There may be many conversions from different types to \xcd`T`, but there may
+be at most one conversion from any given type to \xcd`T`. 
+
+\bard{Syntax}
+
+\subsection{Implicit Type Coercions}
+
+You may also define {\em implicit} type coercions to \xcd`T{c}` as static
+operators in class \xcd`T`.  The syntax for this is
+\xcd`static operator (x:U) : T{c} = e`.
+Implicit coercions are used automatically by the compiler.  
+\bard{How does this work?  One coercion, or a chain, and how about ambiguity?}
+
+For example, we can define an implicit coercion from \xcd`Int` to \xcd`Poly!`,
+and avoid having to define the sum of an integer and a polynomial
+as many special cases.  In the following example, we only define \xcd`+` on
+two polynomials (using a \xcd`static` operator, so that implicit coercions
+will be used -- they would not be for an instance method operator).  The
+calculation \xcd`1+x` coerces \xcd`1` to a polynomial and uses polynomial
+addition to add it to \xcd`x`.
+
+%~~gen
+% package Classes.And.Implicit.Coercions;
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+%   public global final safe def toString() = {
+%      var allZeroSoFar : Boolean = true;
+%      var s : String ="";
+%      for ( (i) in 0..this.degree() ) {
+%        val ai = this.a(i);
+%        if (ai == 0) continue;
+%        if (allZeroSoFar) {
+%           allZeroSoFar = false;
+%           s = term(ai, i);
+%        }
+%        else 
+%           s += 
+%              (ai > 0 ? " + " : " - ")
+%             +term(ai, i);
+%      }
+%      if (allZeroSoFar) s = "0";
+%      return s;
+%   }
+%   private global final safe def term(ai: Int, n:Int) = {
+%      val xpow = (n==0) ? "" : (n==1) ? "x" : "x^" + n ;
+%      return (ai == 1) ? xpow : "" + Math.abs(ai) + xpow;
+%   }
+
+%~~vis
+\begin{xten}
+  public static safe operator (c : Int) : Poly! = new Poly([c]);
+
+  public static operator (p:Poly!) + (q:Poly!) = new Poly(
+      ValRail.make[Int](
+        Math.max(p.coeff.length(), q.coeff.length()),
+        (i:Int) => p.a(i) + q.a(i)
+     ));
+
+  public static def main(ValRail[String]) {
+     val x = new Poly([0,1]);
+     x10.io.Console.OUT.println("1+x=" + (1+x));
+  }
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+\bard{Syntax}
+
+\subsection{\xcd`set` and \xcd`apply`}
+
+X10 allows types to implement the subscripting / function application
+operator, and indexed assignment.  The \xcd`Array`-like classes take advantage
+of both of these in \xcd`a(i) = a(i) + 1`.  Unlike unary and binary operators,
+subscripting and indexed assignment are done by methods, \xcd`apply` and
+\xcd`set` respectively.
+
+\xcd`a(b,c,d)` is short for the method call \xcd`a.apply(b,c,d)`.  Since it is
+possible to overload methods, the application syntax can be overloaded.  For
+example, an ordered dictionary structure could allow subscripting by numbers
+with \xcd`def apply(i:Int)`, and by string-valued keys with 
+\xcd`def apply(s:String)`.  
+
+\xcd`a(i)=b` is short for the method call \xcd`a.set(b,i)`, with one or more
+indices \xcd`i`. (This has a
+possibly surprising consequence for the order of evaluation: in \xcd`a(i)=b`,
+as in \xcd`a.set(b,i)`, \xcd`a` is evaluated first, then \xcd`b`, and finally
+\xcd`i`.)  Again, it is possible to overload \xcd`set` to provide a variety of
+subscripting operations.
+
+The \xcd`Oddvec` class of somewhat peculiar vectors illustrates this.
+\xcd`a()` returns a string representation of the oddvec, which probably should
+be done by \xcd`toString()` instead.  \xcd`a(i)` picks out one of the three
+coordinates of \xcd`a`, which is sensible.  \xcd`a(i)=b` assigns to one of the
+coordinates.  \xcd`a(i,j)=b` assigns different values to \xcd`a(i)` and
+\xcd`a(j)`, purely for the sake of the example.
+
+%~~gen
+% package Classes.Assignments.Are.Not.From.Any.Course.Of.Study;
+%~~vis
+\begin{xten}
+class Oddvec {
+  var v : Rail[Int]! = Rail.make[Int](3, (Int)=>0);
+  public def apply() = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
+  public def apply(i:Int) = v(i);
+  public def set(newval:Int, i:Int) = {v(i) = newval;}
+  public def set(newval:Int, i:Int, j:Int) = {
+       v(i) = newval; v(j) = newval+1;} 
+  // ... 
+\end{xten}
+%~~siv
+%  public static def main(argv:Rail[String]!) {
+%     val a = new Oddvec();
+%     x10.io.Console.OUT.println(a() + " ... " + a(0));
+%     a(1) = 20;
+%     x10.io.Console.OUT.println(a());
+%     a(0) = 30;
+%     x10.io.Console.OUT.println(a());
+%     a(0,1) = 100;
+%     x10.io.Console.OUT.println(a());
+%   }
+% }
+%~~neg
+
+

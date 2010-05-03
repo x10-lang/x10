@@ -143,7 +143,8 @@ public class RuntimeType<T> implements Type<T> {
                     Type<?>[] newParamsT = new Type<?>[paramsT.length];
                     for (int i = 0; i < paramsT.length; i ++ ) {
                         if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
-                            newParamsT[i] = any.getParam(((UnresolvedType) paramsT[i]).index);
+                            int index = ((UnresolvedType) paramsT[i]).index;
+                            newParamsT[i]= index == -1 ? rtt : any.getParam(index);
                         }
                         else {
                             newParamsT[i] = paramsT[i];
@@ -168,7 +169,8 @@ public class RuntimeType<T> implements Type<T> {
                     Type<?>[] newParamsT = new Type<?>[paramsT.length];
                     for (int i = 0; i < paramsT.length; i ++ ) {
                         if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
-                            newParamsT[i] = paramsRTT[((UnresolvedType) paramsT[i]).index];
+                            int index = ((UnresolvedType) paramsT[i]).index;
+                            newParamsT[i] = index == -1 ? rtt : paramsRTT[index];
                         }
                         else {
                             newParamsT[i] = paramsT[i];

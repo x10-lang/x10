@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import polyglot.ast.Assign;
+import polyglot.ast.Assign_c;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.Cast;
@@ -48,6 +49,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
+import polyglot.ast.Return_c;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.SwitchBlock;
@@ -56,6 +58,7 @@ import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -71,15 +74,22 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.Configuration;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
+import x10.ast.ClosureCall_c;
+import x10.ast.Closure_c;
 import x10.ast.ParExpr;
+import x10.ast.ParExpr_c;
 import x10.ast.SettableAssign_c;
+import x10.ast.StmtExpr;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
+import x10.ast.X10Local_c;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
+import x10.types.ClosureDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
@@ -87,24 +97,53 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
+import x10.util.Synthesizer;
+import x10cpp.visit.X10SearchVisitor;
 
 /**
  * This visitor inlines calls to methods and closures under the following
  * conditions:
  * <ul>
  * <li>The exact class of the method target is known.
- * <li>The call appears in either an Eval (e.g., 'm();') or an Eval(Assign) with
- * operator = (e.g., 'x = m();').
- * <li>The method being invoked is annotated @x10.compiler.Inline
+ * <li>The method being invoked is annotated @x10.compiler.Inline .
  * <li>The closure call target is a literal closure.
  * </ul>
  * 
- * @author nystrom
+ * Note that the code produced by the inliner is technically not valid
+ * X10 code -- it may use statement expressions, the variable
+ * declarations in inner blocks may shadow those in the outer blocks,
+ * and it may contain calls to methods and constructors (and accesses
+ * to fields) that would not normally be accessible from the starting
+ * context.
  * 
+ * To produce valid X10 code (by limiting the contexts for inlining),
+ * set ALLOW_STMTEXPR to false.
+ * 
+ * @author nystrom
+ * @author igor
  */
 public class Inliner extends ContextVisitor {
 
-    Type InlineType;
+    /**
+     * Allow inlining in all contexts.  Can only be done if the backend supports
+     * emitting statement expression nodes.  Otherwise, only inline in statement
+     * contexts.
+     * 
+     * This constant also controls the use of other non-X10 features, like
+     * having shadowed variable declarations, calls to inaccessible methods and
+     * constructors, and accesses to inaccessible fields.
+     */
+    private static final boolean ALLOW_STMTEXPR = true;
+
+    /**
+     * A rather arbitrary inlining depth limit.
+     */
+    private static final int INLINE_DEPTH_LIMIT = 10;
+
+    /**
+     * The cached type of the @Inline annotation.
+     */
+    private Type InlineType;
 
     public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -614,8 +653,7 @@ public class Inliner extends ContextVisitor {
         });
     }
 
-    static final int limit = 10;
-    int count;
+    private int count;
 
     /** Return a clone of this visitor, incrementing the counter. */
     public Inliner inc() {
@@ -624,11 +662,10 @@ public class Inliner extends ContextVisitor {
         return v;
     }
 
-    public Node propagate(Node n) {
+    public Node propagateConstants(Node n) {
         ConstantPropagator cp = new ConstantPropagator(job, ts, nf);
         cp = (ConstantPropagator) cp.context(context());
-        Node n1 = n.visit(cp);
-        return n1;
+        return n.visit(cp);
     }
 
     @Override
@@ -764,11 +801,234 @@ public class Inliner extends ContextVisitor {
         throw new MoreThanOne();
     }
 
+    /**
+     * Cast a given expression to a given type, unless it is already of that type.
+     * TODO: factor out to Synthesizer
+     * @param a the given expression
+     * @param fType the given type
+     * @return a cast node, or the original expression
+     */
+    private Expr cast(Expr a, Type fType) {
+        X10TypeSystem xts = (X10TypeSystem) typeSystem();
+        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+        Context context = context();
+        if (!xts.typeDeepBaseEquals(fType, a.type(), context)) {
+            Position pos = a.position();
+            a = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, fType), a,
+                            Converter.ConversionType.UNCHECKED).type(fType);
+        }
+        return a;
+    }
+
+    /**
+     * Create a reference to a local variable with a given def.
+     * TODO: factor out to Synthesizer.
+     * @param pos the position
+     * @param t the given local def
+     * @return the local node
+     */
+    private Expr local(Position pos, LocalDef t) {
+        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+        LocalInstance li = t.asInstance();
+        return xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
+    }
+
+    /**
+     * Rewrites a given closure so that it has exactly one return statement at the end.
+     * @author igor
+     * TODO: factor out into its own class
+     */
+    public class ClosureRewriter extends ContextVisitor {
+        private final ClosureDef closure;
+        private final LocalDef ret;
+        private final Name label;
+        public ClosureRewriter(Closure closure) {
+            super(Inliner.this.job(), Inliner.this.typeSystem(), Inliner.this.nodeFactory());
+            this.context = Inliner.this.context();
+            List<Stmt> body = closure.body().statements();
+            if (body.size() == 1 && body.get(0) instanceof Return_c) {
+                // Closure already has the right properties; make this visitor a no-op
+                this.closure = null;
+                this.ret = null;
+                this.label = null;
+            } else {
+                this.closure = closure.closureDef();
+                X10TypeSystem xts = (X10TypeSystem) typeSystem();
+                final ClosureDef cd = closure.closureDef();
+                Name rn = Name.makeFresh();
+                Type rt = cd.asInstance().returnType();
+                this.ret = rt.isVoid() ? null : xts.localDef(closure.position(), xts.NoFlags(), Types.ref(rt), rn);
+                this.label = Name.makeFresh("__ret");
+            }
+        }
+        // TODO: use override to short-circuit the traversal
+        public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+            if (n instanceof Closure_c)
+                return visitClosure((Closure_c)n);
+            if (n instanceof Return_c)
+                return visitReturn((Return_c)n);
+            return n;
+        }
+        // (`x:`T):R=>S -> (`x:`T)=>{r:R; L:do{ S[return v/r=v; break L;]; }while(false); return r;}
+        private Closure visitClosure(Closure_c n) throws SemanticException {
+            // First check that we are within the right closure
+            if (n.closureDef() != closure)
+                return n;
+            X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+            X10TypeSystem xts = (X10TypeSystem) typeSystem();
+            Position pos = n.position();
+            List<Stmt> newBody = new ArrayList<Stmt>();
+            if (ret != null) {
+                newBody.add(xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.NoFlags()),
+                            xnf.CanonicalTypeNode(pos, ret.type()),
+                            xnf.Id(pos, ret.name())).localDef(ret));
+            }
+            newBody.add(xnf.Labeled(pos, xnf.Id(pos, label),
+                        xnf.Do(pos, (Stmt) n.body().visit(this),
+                               (Expr) xnf.BooleanLit(pos, false).typeCheck(this))));
+            if (ret != null) {
+                Expr rval = xnf.Local(pos, xnf.Id(pos, ret.name())).localInstance(ret.asInstance()).type(ret.type().get());
+                newBody.add(xnf.Return(pos, rval));
+            } else {
+                newBody.add(xnf.Return(pos));
+            }
+            return (Closure) n.body(xnf.Block(n.body().position(), newBody));
+        }
+        // return v; -> r=v; break L;
+        private Stmt visitReturn(Return_c n) throws SemanticException {
+            // First check that we are within the right closure
+            if (!context.currentCode().equals(closure))
+                return n;
+            assert ((ret == null) == (n.expr() == null));
+            X10NodeFactory xnf = (X10NodeFactory) nf;
+            Position pos = n.position();
+            List<Stmt> retSeq = new ArrayList<Stmt>();
+            if (ret != null) {
+                Type rt = ret.type().get();
+                Expr xl = xnf.Local(pos, xnf.Id(pos, ret.name())).localInstance(ret.asInstance()).type(rt);
+                retSeq.add(xnf.Eval(pos, xnf.Assign(pos, xl, Assign_c.ASSIGN, n.expr()).type(rt)));
+            }
+            retSeq.add(xnf.Break(pos, xnf.Id(pos, label)));
+            return xnf.StmtSeq(pos, retSeq);
+        }
+    }
+
+    private Expr inlineClosureCall(ClosureCall c, Closure closure, List<Expr> args) {
+        // Ensure that the last statement of the body is the only return in the closure
+        closure = (Closure_c) closure.visit(new ClosureRewriter(closure));
+
+        Position pos = c.position();
+        Type retType = closure.returnType().type();
+        List<Formal> formals = closure.formals();
+        boolean clashes = false;
+        List<Expr> newArgs = new ArrayList<Expr>();
+        int i = 0;
+        for (Expr a : c.arguments()) {
+            Type fType = formals.get(i).type().type();
+            newArgs.add(cast(a, fType));
+            i++;
+            X10SearchVisitor<X10Local_c> xLocals = new X10SearchVisitor<X10Local_c>(X10Local_c.class);
+            a.visit(xLocals);
+            if (!xLocals.found())
+                continue;
+            ArrayList<X10Local_c> locals = xLocals.getMatches();
+            for (X10Local_c t : locals) {
+                Name name = t.localInstance().name();
+                for (Formal f : formals) {
+                    if (f.name().id().equals(name))
+                        clashes = true;
+                }
+            }
+        }
+        args = newArgs;
+
+        List<Stmt> body = closure.body().statements();
+        assert (body.get(body.size()-1) instanceof Return_c) : "Last statement is not a return";
+        // We know that the last statement has to be a return
+        Return_c ret = (Return_c) body.get(body.size()-1);
+        List<Stmt> statements = new ArrayList<Stmt>();
+        for (Stmt stmt : body) {
+            if (stmt != ret)
+                statements.add(stmt);
+        }
+        Expr e = ret.expr();
+        e = cast(e, retType);
+
+        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+        X10TypeSystem xts = (X10TypeSystem) typeSystem();
+        Synthesizer synth = new Synthesizer(xnf, xts);
+        StmtExpr result = (StmtExpr) xnf.StmtExpr(pos, statements, e).type(retType);
+
+        List<Stmt> declarations = new ArrayList<Stmt>();
+        LocalDef[] alt = null;
+        if (clashes) {
+            alt = new LocalDef[args.size()];
+            i = 0;
+            for (Expr a : args) {
+                Type fType = formals.get(i).type().type();
+                Name tmp = Name.makeFresh();
+                alt[i] = xts.localDef(pos, xts.Final(), Types.ref(fType), tmp);
+                declarations.add(synth.makeLocalVar(pos, alt[i], a));
+                i++;
+            }
+        }
+        i = 0;
+        for (Expr a : args) {
+            Formal f = closure.formals().get(i);
+            LocalDef t = alt[i];
+            Expr v = clashes ? local(pos, t) : a;
+            declarations.add(synth.makeLocalVar(pos, f.localDef(), v));
+            i++;
+        }
+
+        return result.prepend(declarations);
+    }
+
+    private Closure getClosureLiteral(Expr target) {
+        if (target instanceof Closure)
+            return (Closure) target;
+        if (target instanceof ParExpr)
+            return getClosureLiteral(((ParExpr)target).expr());
+        return null;
+    }
+
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         if (InlineType == null)
             return n;
 
-        // Inline simple getters and setters 
+        if (!ALLOW_STMTEXPR)
+            return n;  // FIXME: for now
+
+        if (n instanceof X10Call) {
+            X10Call c = (X10Call) n;
+            // TODO
+        }
+
+        if (n instanceof ClosureCall) {
+            ClosureCall c = (ClosureCall) n;
+            // If the target is a closure literal, inline the body
+            Closure lit = getClosureLiteral(c.target());
+            if (lit != null) {
+                X10MethodInstance ci = c.closureInstance();
+                X10TypeSystem xts = (X10TypeSystem) typeSystem();
+                X10NodeFactory nf = (X10NodeFactory) nodeFactory();
+                List<Expr> args = new ArrayList<Expr>();
+                int counter = 0;
+                for (Expr a : c.arguments()) {
+                    Type fType = ci.formalTypes().get(counter);
+                    a = cast(a, fType);
+                    args.add(a);
+                    counter++;
+                }
+                Expr result = inlineClosureCall(c, lit, args);
+                result = (Expr) propagateConstants(result);
+                result = (Expr) result.visit(this);
+                return result;
+            }
+            return c;
+        }
+
+        // Inline simple getters and setters // FIXME: dead for now
         if (n instanceof ClosureCall) {
             ClosureCall c = (ClosureCall) n;
             if (c.arguments().size() == 1 && c.target() instanceof Expr && ((Expr) c.target()).isConstant() && ((Expr) c.target()).constantValue() instanceof Object[]) {
@@ -796,10 +1056,10 @@ public class Inliner extends ContextVisitor {
                 d = d.init(null);
                 Local var = makeLocal(d);
                 Stmt s = inlineClosure((Closure) c.target(), c, var);
-                s = (Stmt) propagate(s);
+                s = (Stmt) propagateConstants(s);
                 Expr e = getVarRhs(s, var, false);
                 if (e != null) {
-                    if (count < limit) {
+                    if (count < INLINE_DEPTH_LIMIT) {
                         e = (Expr) parent.visitChild(e, inc());
                     }
                     return e;
@@ -822,7 +1082,7 @@ public class Inliner extends ContextVisitor {
                     Stmt s = (Stmt) leaveCall(parent, old, eval, v);
                     Expr e = getVarRhs(s, var, false);
                     if (e != null) {
-                        if (count < limit) {
+                        if (count < INLINE_DEPTH_LIMIT) {
                             e = (Expr) parent.visitChild(e, inc());
                         }
                         return r.expr(e);
@@ -872,8 +1132,8 @@ public class Inliner extends ContextVisitor {
             }
 
             if (s != d) {
-                s = propagate(s);
-                if (count < limit) {
+                s = propagateConstants(s);
+                if (count < INLINE_DEPTH_LIMIT) {
                     Node r = parent.visitChild(s, inc());
                     if (r instanceof LocalDecl) {
                         LocalDecl d2 = (LocalDecl) r;
@@ -909,8 +1169,8 @@ public class Inliner extends ContextVisitor {
             }
 
             if (s != eval) {
-                s = propagate(s);
-                if (count < limit) {
+                s = propagateConstants(s);
+                if (count < INLINE_DEPTH_LIMIT) {
                     return parent.visitChild(s, inc());
                 }
             }

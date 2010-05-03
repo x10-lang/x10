@@ -916,11 +916,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    X10ClassDef cd = ct.x10Def();
 		    String pat = er.getJavaRTTRep(cd);
 
-		    for (int i = 0; i < ct.typeArguments().size(); i++) {
-		        w.write(", ");
-//		        if (i == 0) w.write("new x10.rtt.Type[] {");
-		        new RuntimeTypeExpander(er, ct.typeArguments().get(i)).expand(tr);
-//		        if (i == ct.typeArguments().size() - 1 ) w.write("}");
+		    if (pat == null && er.getJavaRep(cd) == null) {
+		        for (int i = 0; i < ct.typeArguments().size(); i++) {
+		            w.write(", ");
+		            new RuntimeTypeExpander(er, ct.typeArguments().get(i)).expand(tr);
+		        }
 		    }
 		}
 		w.write(")");

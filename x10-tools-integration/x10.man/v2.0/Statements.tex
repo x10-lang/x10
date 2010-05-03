@@ -12,12 +12,21 @@ Statement \: \xcd";" \\
 
 The empty statement \xcd";" does nothing.  It is useful when a
 loop header is evaluated for its side effects.  For example,
-the following code sums the elements of an array.
+the following code sums the elements of a rail.
+
+%~~gen
+% package statements.should.be.called.commands.but.nobody.ever.does.that;
+% class EmptyStatementExample {
+% def summizmo (a:Rail[Int]!){
+%~~vis
 \begin{xten}
 var sum: Int = 0;
-for (var i: Int = 0; i < a.length; i++, sum += a[i])
+for (var i: Int = 0; i < a.length; i++, sum += a(i))
     ;
 \end{xten}
+%~~siv
+%}}
+%~~neg
 
 \section{Local variable declaration}
 
@@ -92,6 +101,12 @@ method, constructor, initializer, or closure.
 The following code searches for an element of a two-dimensional
 array and breaks out of the loop when found:
 
+
+%~~gen
+% package statements.come.from.banks.and.cranks;
+% class LabelledBreakeyBreakyHeart {
+% def findy(a:ValRail[ValRail[Int]], v:Int): Boolean {
+%~~vis
 \begin{xten}
 var found: Boolean = false;
 outer: for (var i: Int = 0; i < a.length; i++)
@@ -101,6 +116,10 @@ outer: for (var i: Int = 0; i < a.length; i++)
             break outer;
         }
 \end{xten}
+%~~siv
+% return found;
+%}}
+%~~neg
 
 \section{Continue statement}
 
@@ -130,17 +149,33 @@ IfThenElseStatement \: \xcd"if" \xcd"(" Expression \xcd")" Statement \xcd"else" 
 An if statement comes in two forms: with and without an else
 clause.
 
-The if-then statement evaluates a condition expression and 
-evaluates the consequent expression if the condition is
-\xcd"true".  If the 
-condition is \xcd"false",
-the if-then statement completes normally.
+The if-then statement evaluates a condition expression, which must be of type
+\xcd`Boolean`. If the condition is \xcd`true`, it evaluates the then-clause.
+If the condition is \xcd"false", the if-then statement completes normally.
 
 The if-then-else statement evaluates a condition expression and 
-evaluates the consequent expression if the condition is
-\xcd"true"; otherwise, the alternative statement is evaluated.
+evaluates the then-clause if the condition is
+\xcd"true"; otherwise, the \xcd`else`-clause is evaluated.
 
-The condition must be of type \xcd"Boolean".
+As is traditional in languages derived from Algol, the if-statement is
+ambiguous.  That is, 
+\begin{xten}
+if (B1) if (B2) S1 else S2
+\end{xten}
+could be intended to mean either 
+\begin{xten}
+if (B1) { if (B2) S1 else S2 }
+\end{xten} 
+or 
+\begin{xten}
+if (B1) {if (B2) S1} else S2
+\end{xten}
+X10, as is traditional, attaches an \xcd`else` clause to the most recent
+\xcd`if` that doesn't have one.
+This example is interpreted as 
+\xcd`if (B1) { if (B2) S1 else S2 }`. 
+
+
 
 \section{Switch statement}
 
@@ -321,10 +356,20 @@ must be a subclass of the class \xcd"x10.lang.Throwable".
 \begin{example}
 The following statement checks if an index is in range and
 throws an exception if not.
+
+%~~gen
+% package statements.are.from.mars.expressions.are.from.venus;
+% class ThrowStatementExample {
+% def thingie(i:Int, x:ValRail[Boolean]) throws MyIndexOutOfBoundsException {
+%~~vis
 \begin{xten}
-if (i < 0 || i > x.length)
-    throw new IndexOutOfBoundsException();
+if (i < 0 || i >= x.length)
+    throw new MyIndexOutOfBoundsException();
 \end{xten}
+%~~siv
+%} }
+% class MyIndexOutOfBoundsException extends Exception {}
+%~~neg
 \end{example}
 
 \section{Try--catch statement}

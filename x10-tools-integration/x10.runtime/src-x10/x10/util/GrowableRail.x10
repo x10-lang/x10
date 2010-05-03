@@ -45,6 +45,11 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     @Native("c++", "(#0)->length()")
     public native def length(): Int;
     
+    /** Set the length of the rail */
+    @Native("java", "#0.setLength(#1)")
+    @Native("c++", "(#0)->setLength(#1)")
+    public native def setLength(Int): Void;
+    
     /** Remove the last element of the rail, decrementing the length. */
     @Native("java", "#0.removeLast()")
     @Native("c++", "(#0)->removeLast()")
