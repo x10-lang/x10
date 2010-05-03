@@ -423,4 +423,16 @@ public interface X10TypeSystem extends TypeSystem {
     LazyRef<Type> lazyAny();
     
     ClassType load(String name);
+
+    public boolean isRegion(Type me);
+
+    public boolean isDistribution(Type me);
+
+    public boolean isDistributedArray(Type me);
+
+    public boolean isComparable(Type me);
+
+    public boolean isIterable(Type me);
+
+    public boolean isIterator(Type me);
 }

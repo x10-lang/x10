@@ -6,7 +6,7 @@ dynamic execution instance of a piece of code (with references to
 data). An activity is intended to execute in parallel with other
 activities. An activity may be thought of as a very light-weight
 thread.  In \XtenCurrVer{}, an activity may not be interrupted,
-suspended or resumed as the result of actions taken by any other
+blocked or resumed as the result of actions taken by any other
 activity.
 
 An activity is spawned in a given place and stays in that place for
@@ -63,7 +63,7 @@ serve to catch any exceptions thrown by the child thread.
 The presence of a root activity permits \Xten{} to adopt a different
 model.  In any state of the computation, say that an activity $A$ is
 {\em a root of} an activity $B$ if $A$ is an ancestor of $B$ and $A$
-is suspended at a statement (such as the \xcd"finish" statement
+is blocked at a statement (such as the \xcd"finish" statement
 \Sref{finish}) awaiting the termination of $B$ (and possibly other
 activities). For every \Xten{} computation, the
 \emph{root-of} relation
@@ -72,7 +72,7 @@ of the entire computation. If $A$ is the nearest root of $B$, the path
 from $A$ to $B$ is called the {\em activation path} for the
 activity.\footnote{Note that depending on the state of the computation
 the activation path may traverse activities that are running,
-suspended or terminated.}
+blocked or terminated.}
 
 We may now state the exception model for \Xten.  An uncaught exception
 propagates up the activation path to its nearest root activity, where
@@ -175,15 +175,33 @@ The expression \xcd"at (p) E" executes the statement \xcd"E"
 synchronously at place \xcd"p", returning the result to the
 originating place.  \Eg, if \xcd`obj` is an object with a non-\xcd`global`
 method \xcd`meth()`, the general way to call the method from anywhere is 
+%~~gen
+% package Activities.Are.Wonderful.And.Delicious;
+% class Methbearer {
+%   def meth() {}
+%   def useIt(x:Methbearer) {
+%~~vis
 \begin{xten}
 at(x.home) x.meth();
 \end{xten}
+%~~siv
+%}}
+%~~neg
 \noindent 
 Or, if you want to capture the result of the method call, use the
 \xcd`at`-expression:  
+%~~gen
+% package Activities.Are.Cute.And.Bubbly;
+% class Methbearer {
+%   def meth():String = "Hi there!";
+%   def useIt(x:Methbearer) {
+%~~vis
 \begin{xten}
 val res = at(x.home)x.meth();
 \end{xten}
+%~~siv
+%}}
+%~~neg
 
 
 
@@ -195,11 +213,28 @@ if you want to start a new activity at \xcd`p`, use
 
 
 
+
 As a consequence of this, \xcd`S` may contain constructs which only make sense
 within a single activity.  For example, 
+
+
+%~~gen
+% package Activities.For.Fun.And.Profit;
+% import x10.util.*;
+% class Thing {
+% def nice():Boolean = true;
+% def poke(){}
+% static def example(things:List[Thing]!) {
+%~~vis
 \begin{xten}
-  for(x in things) at(x.home) if (x.nice()) return x;
+  for(x in things) 
+    if (at(x.home) x.nice()) 
+        return x;
 \end{xten}
+%~~siv
+% return null;
+%}}
+%~~neg
 returns the first nice thing in a collection.   If we had used 
 \xcd`async at(x.home)`, this would not be allowed; 
 you can't \xcd`return` from an
@@ -348,25 +383,50 @@ distribution for the point. That is, if \xcd`D` is a \xcd`Dist`,
 \xcd"ateach(p in D) S" could be implemented as:
 \begin{xten}
 foreach (p in D.region) 
-  async (D(p)) S
+  async (D(p)) S(p)
 \end{xten}
 
 However, the compiler may implement it more efficiently to avoid extraneous
 communications.  In particular, it is recommended that \xcd`ateach(p in D)S`
 be implemented as the following code, which coordinates with each place of
 \xcd`D` just once, rather than once per element of \xcd`D` at that place: 
+
+%~~gen
+% package Activities.Activities.Activities;
+% class EquivCode {
+% static def S(p:Place) {}
+% static def example(D:Dist) {
+%~~vis
 \begin{xten}
 foreach (p in D.places()) at (p) {
     foreach (pt in D|here) {
-        S
+        S(p);
     }
 }
 \end{xten}
+%~~siv
+%}} 
+%~~neg
 
-If \xcd`e` is an \xcd`Array[T]`, then \xcd`ateach (p in e)S` is identical to
+If \xcd`e` is an \xcd`DistArray[T]`, then \xcd`ateach (p in e)S` is identical to
 \xcd`ateach(p in e.dist)S`; the iteration is over the array's underlying
-distribution.   \xcd`ateach(p in A)dealWith(A(p));` is a common and generally
-efficient idiom for working with the elements of an array.
+distribution.   
+The code below is a common and generally efficient way to work with the
+elements of a distributed array:
+%~~gen
+%package Activities.For.Fnu.And.Pforit;
+%class Example[T]{
+% global def dealWith(T):Void = {}
+% def idiom(A:DistArray[T]){
+%~~vis
+\begin{xten}
+ateach(p in A) 
+  dealWith(A(p));
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
 
 
 
@@ -424,10 +484,19 @@ evaluation are stored in the future \xcd"f" and used to respond to all
 queries.
 
 
+
+%~~gen
+% package Activities.For.The.Future;
+% class FutureExample[T] {
+% def useFuture(a:DistArray[T](1), pt:Point(1)) {
+%~~vis
 \begin{xten}
-promise: Future[T] = future (a.dist(3)) a(3);
-value: T = promise();
+val promise: Future[T] = future (a.dist(pt)) a(pt);
+val value: T = promise();
 \end{xten}
+%~~siv
+%}}
+%~~neg
 
 
 \section{At expressions}
@@ -488,7 +557,7 @@ versions of the language.
 
 Such a statement is executed by an activity as if in a single step
 during which all other concurrent activities in the same place are
-suspended. If execution of the statement may throw an exception, it is
+blocked. If execution of the statement may throw an exception, it is
 the programmer's responsibility to wrap the atomic block within a
 \xcd"try"/{\xcd"finally" clause and include undo code in the finally
 clause. Thus the \xcd"atomic" statement only guarantees atomicity on
@@ -546,8 +615,14 @@ thrown an exception; it may not introduce a deadlock.
 
 The following class method implements a (generic) compare and swap (CAS) operation:
 
+
+%~~gen
+% package Activities.And.Protein;
+% class CASSizer{
+
+%~~vis
 \begin{xten}
-// target defined in lexically enclosing environment.
+var target:Object = null;
 public atomic def CAS(old: Object, new: Object): Boolean {
    if (target.equals(old)) {
      target = new;
@@ -556,6 +631,9 @@ public atomic def CAS(old: Object, new: Object): Boolean {
    return false;
 }
 \end{xten}
+%~~siv
+%}
+%~~neg
 
 \subsection{Conditional atomic blocks}
 
@@ -623,10 +701,11 @@ placed on the guards and statements in a conditional atomic
 block. 
 \end{staticrule*}
 
-Guards are required not to have side-effects, not to spawn
-asynchronous activities and to have a statically determinable upper
-bound on their execution. These conditions are expected to be checked
-statically by the compiler.
+Guards are required not to have side-effects, not to spawn asynchronous
+activities (as for the \xcd`sequential` qualifier on methods) and to have a
+statically determinable upper bound on their execution (as for the
+\xcd`nonblocking` qualifier on methods). These conditions are expected to be
+checked statically by the compiler.
 
 The body of a \xcd"when" statement must satisfy the conditions
 for the body of an \xcd"atomic" block.
@@ -654,10 +733,14 @@ The following class shows how to implement a bounded buffer of size
 $1$ in \Xten{} for repeated communication between a sender and a
 receiver.
 
+
+%~~gen
+% package Activities;
+%~~vis
 \begin{xten}
 class OneBuffer {
-  datum: Object = null;
-  filled: Boolean = false;
+  var datum: Object = null;
+  var filled: Boolean = false;
   public def send(v: Object) {
     when (!filled) {
       this.datum = v;
@@ -674,6 +757,9 @@ class OneBuffer {
   }
 }
 \end{xten}
+%~~siv
+%
+%~~neg
 \end{example}
 
 \eat{

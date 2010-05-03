@@ -23,7 +23,7 @@ import x10.util.Pair;
  * future Rail may be deprecated in favor of single-place, zero-based linear
  * specialization of the array library.
  */
-@NativeRep("java", "x10.core.Rail<#1>", "x10.core.Rail.BoxedRail", "x10.core.Rail._RTT")
+@NativeRep("java", "x10.core.Rail<#1>", "x10.core.Rail.BoxedRail", "new x10.rtt.ParameterizedType(x10.core.Rail._RTT, #2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Rail<#1 > >", "x10::lang::Rail<#1 >", null)
 public final class Rail[T](length: Int)
     implements Settable[Int,T], Iterable[T]
@@ -43,6 +43,18 @@ public final class Rail[T](length: Int)
     public native static safe def make[S](length: Int, init: (Int) => S): Rail[S]!{self.length==length};
 
     /**
+     * Create an appropriately aligned Rail and initialize it by evaluating the given closure at each index.
+     *
+     * @param length The number of elements.
+     * @param init Evaluated once per element to initialize the Rail.
+     * @param alignment The 0th element will be located at an address that is an integer multiple of this param (must be power of 2).
+     * @return The reference to the new Rail.
+     */
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
+    @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5, #6)")
+    public native static safe def make[S](length: Int, init: (Int) => S, alignment: Int): Rail[S]!{self.length==length};
+
+    /**
      * Create a Rail and initialize it by copying elements from another Rail.
      *
      * @param length The number of Rail elements.
@@ -54,8 +66,24 @@ public final class Rail[T](length: Int)
     @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5, #6)")
     public native static safe def make[S](length: Int, off:Int, init:Rail[S]): Rail[S]!{self.length==length};
 
+
     /**
-     * Creates an unitiialized Rail, use with caution!
+     * Create an appropriately aligned Rail and initialize it by copying elements from
+     * another Rail.  Note that there is no connection between the alignment of the two rails involved.
+     *
+     * @param length The number of Rail elements.
+     * @param off Start copying elements from this offset of the given Rail.
+     * @param init The Rail to initialize from.
+     * @param alignment The 0th element will be located at an address that is an integer multiple of this param (must be power of 2).
+     * @return The reference to the new Rail.
+     */
+
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5, #6)")
+    @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5, #6, #7)")
+    public native static safe def make[S](length: Int, off:Int, init:Rail[S], alignment:Int): Rail[S]!{self.length==length};
+
+    /**
+     * Creates an uninitialized Rail, use with caution!
      *
      * @param length The number of Rail elements.
      * @return The reference to the new Rail.
@@ -63,6 +91,17 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
     public native static safe def make[S](length: Int): Rail[S]!{self.length==length};
+
+    /**
+     * Creates an appropriately aligned uninitialized Rail, use with caution!
+     *
+     * @param length The number of Rail elements.
+     * @param alignment The 0th element will be located at an address that is an integer multiple of this param (must be power of 2).
+     * @return The reference to the new Rail.
+     */
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
+    @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5)")
+    public native static safe def make[S](length: Int, alignment:Int): Rail[S]!{self.length==length};
 
     /**
      * Re-initializes a Rail.

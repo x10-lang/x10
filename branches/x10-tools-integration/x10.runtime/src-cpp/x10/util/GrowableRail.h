@@ -73,6 +73,8 @@ namespace x10 {
 
             x10aux::ref<x10::lang::ValRail<T> > toValRail();
 
+            void setLength(x10_int newLength);
+
         private:
             void grow(x10_int newSize);
 
@@ -137,6 +139,11 @@ namespace x10 {
                 (*ans)[i] = (*_array)[i];
             }
             return ans;
+        }
+
+        template<class T> void GrowableRail<T>::setLength(x10_int newLength) {
+            grow(newLength);
+            _len = newLength;
         }
 
         template<class T> void GrowableRail<T>::grow(x10_int newSize) {

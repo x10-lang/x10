@@ -1,4 +1,3 @@
-#!/bin/bash
 
 # If X10_FROM_SRC is set in your environment, then
 # this script will default to using paths that assume

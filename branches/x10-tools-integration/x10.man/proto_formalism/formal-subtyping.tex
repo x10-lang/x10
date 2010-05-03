@@ -1,0 +1,47 @@
+
+\begin{figure*}[!bt]
+\begin{center}
+\begin{tabular}{|c|}
+\hline
+
+
+$\typerule{
+}{
+  \code{C} \st \code{C}
+}$
+~\RULE{(S1)}\quad
+
+$\typerule{
+  \code{C} \st \code{C'}
+   \gap
+  \code{C'} \st \code{C"}
+}{
+  \code{C} \st \code{C"}
+}$
+~\RULE{(S2)}\quad
+$\typerule{
+  \code{class C extends C'}\lb\ \ol{\code{F}}~\ol{\hM}~\rb
+}{
+  \code{C} \st \code{C'}
+}$
+~\RULE{(S3)}
+
+\\
+
+$\typerule{
+  \code{C} \st \code{C'}
+  \gap
+  \Pequals{\hK}{\code{K'}}
+}{
+  P \vdash \code{C<K>} \st \code{C<K'>}
+}$
+~\RULE{(S4)}\quad
+\\
+
+
+\hline
+\end{tabular}
+\end{center}
+\caption{FX10 subclassing and subtyping rules.}
+\label{Figure:subtyping}
+\end{figure*}

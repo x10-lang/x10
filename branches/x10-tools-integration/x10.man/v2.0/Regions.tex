@@ -68,13 +68,19 @@ the form \xcdmath"(T$_1$ * $\cdots$ * T$_k$)" for some set of regions
 region satisfies the property that if two points $p_1$ and $p_3$ are
 in the region, then so is every point $p_2$ between them (that is, it is {\em convex}). 
 (Note that \xcd"||" may produce non-convex regions from convex regions, e.g.,
-\xcd"[1,1] || [3,3]" is a non-convex region.)
+\xcd"[1,1] || [3,3]" is a non-convex region.  The operation
+\xcd`R.boundingBox()` gives the smallest rectangular region containing
+\xcd`R`.)  
 
-For each region \xcd"R", the {\em rectangular closure} of \xcd"R" is the
-smallest rectangular region enclosing \xcd"R".  For each integer \xcd"i"
-less than \xcd"R.rank", the term \xcd"R(i)" represents the enumeration
-in the \xcd"i"th dimension of the rectangular closure of \xcd"R". It may be
-used in a type expression wherever an enumeration may be used.
+
+
+%%RECT.CLOSURE  For each region \xcd"R", the {\em rectangular closure} of \xcd"R" is the
+%%RECT.CLOSURE  smallest rectangular region enclosing \xcd"R".  For each integer \xcd"i"
+%%RECT.CLOSURE  less than \xcd"R.rank", the term \xcd"R(i)" represents the enumeration
+%%RECT.CLOSURE  in the \xcd"i"th dimension of the rectangular closure of \xcd"R". It may be
+%%RECT.CLOSURE  used in a type expression wherever an enumeration may be used.
+
+
 
 \subsection{Operations on regions}
 Various non side-effecting operators (i.e., pure functions) are
