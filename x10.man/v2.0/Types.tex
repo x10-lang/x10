@@ -46,60 +46,30 @@ variable declarations, explicit coercions and conversions, object creation,
 array creation, class literals, static state and method accessors, and
 \xcd"instanceof" expressions.
 
-\Xten{} has a unified type system. The top of the type hierarchy
-is the interface \Xcd{x10.lang.Any}. This specifies the following signature:
-\begin{xten}
-package x10.lang;
-public interface Any {
-  property def home():Place;
-  property def at(p:Object):Boolean;
-  property def at(p:Place):Boolean;
-  global safe def toString():String;
-  global safe def typeName():String;
-  global safe def equals(Any):Boolean;
-  global safe def hashCode():Int;
-}
-\end{xten}
+The basic relationship between values and types is {\em instantiation}. For
+example, \xcd`1` is an instance of type of integers, \xcd`Int`. It is also an
+instance of type of all entities \xcd`Any`, and of type of nonzero integers
+\xcd`Int{self != 0}`, and many others.
+
+The basic relationship between types is {\em subtyping}: \xcd`T <: U` holds if
+every instance of \xcd`T` is also an instance of \xcd`U`. Two important kinds
+of subtyping are {\em subclassing} and {\em strengthening}.  Subclassing is a
+familiar notion from object-oriented programming.  In a class
+hierarchy with classes \xcd`Animal` and \xcd`Cat` arranged in the usual way,
+every \xcd`Cat` is an \xcd`Animal`, so \xcd`Cat <: Animal` by subclassing.  
+Strengthening is an equally familiar notion from logic.   The instances of
+\xcd`Int{self != 0}` are all elements of \xcd`Int{true}` as well, because
+\xcd`self != 0` logically implies \xcd`true`; so 
+\xcd`Int{self != 0} <: Int{true} == Int` by strengthening.  X10 uses both
+notions of subtyping.
 
 
-\bard{What is this para here for?}
-Properties are described in (\Sref{properties}): in brief they are immutable
-instance fields of values that can be used at compile type to express static
-constraints. Property methods (\Sref{properties}) permit more complex
-expressions to be defined using properties and other property methods. A
-method is \Xcd{safe} if it has certain behavioral characteristics
-\Sref{SafeAnnotation}. It is \Xcd{global} if it can be invoked at any place.
 
 
-\bard{Squish this list into text?}
-Types in \Xten{} are specified through declarations and through
-type constructors, described in the remainder of the chapter:
+\subsection*{The Grammar of Types}
 
-\begin{itemize}
-\item A class declaration defines a \emph{class type}
-(\Sref{ReferenceTypes}).
-\item An interface declaration defines an \emph{interface type}
-(\Sref{InterfaceTypes}).
-\item Classes and interface have \emph{type parameters}.
-A class, interface, or struct or  with one or more type parameters is a
-\emph{generic class},  \emph{generic interface}, or \emph{generic struct}.
-(\Sref{Generics}).
-\item New type constructors may be defined with \emph{type
-definitions} (\Sref{TypeDefs}).
-\item Methods, constructors, closures, and type definitions may
-have \emph{type parameters}, which are instantiated with
-concrete types at invocation (\Sref{TypeParameters}).
-\item \emph{Function type} constructors are used to define
-function types; functions and method selectors have function
-type (\Sref{FunctionTypes}).
-\item A \emph{constrained type} constrains the properties of
-a base type (\Sref{ConstrainedTypes}).
-\item Types may be marked with user-defined annotations.
-\emph{Annotated types} (\Sref{AnnotatedTypes})
-may be processed by compiler plugins.
-\end{itemize}
-
-%%TODOvj: Revisit grammer for types.
+Types are described by the following grammar: 
+\bard{Is this still correct?}
 \begin{grammar}
 Type \: FunctionType \\
     \| ConstrainedType  \\
@@ -139,6 +109,40 @@ InterfaceBaseType \: TypeName \\
 
 % \paragraph{Class types.}
 
+\section{\xcd`Any`}
+
+It is quite convenient to have a type which all values are instances of; that
+is, a supertype of all types.\footnote{Java, for one, suffers a number of
+  inconveniences because some built-in types like \xcd`int` and \xcd`char`
+  aren't subtypes of anything else.}  X10's universal supertype is the
+  interface \xcd`Any`. 
+
+
+\begin{xten}
+package x10.lang;
+public interface Any {
+  property def home():Place;
+  property def at(p:Object):Boolean;
+  property def at(p:Place):Boolean;
+  global safe def toString():String;
+  global safe def typeName():String;
+  global safe def equals(Any):Boolean;
+  global safe def hashCode():Int;
+}
+\end{xten}
+
+\xcd`Any` provides a handful of essential methods that make sense and are
+useful for everything.\footnote{The behavioral annotation \xcd`property` is
+  explained in \Sref{properties}; \xcd`safe` in \Sref{SafeAnnotation}, and
+  \xcd`global` in \Sref{GlobalAnnotation}.} \xcd`a.toString()` produces a
+string representation of \xcd`a`, and \xcd`a.typeName()` the string
+representation of its type; both are useful for debugging.  \xcd`aequals(b)`
+is the programmer-overridable equality test, and \xcd`a.hashCode()` an integer
+useful for hashing.  \xcd`at()` and \xcd`home()` are used in multi-place
+computing. 
+
+
+
 \section{Classes and interfaces}
 \label{ReferenceTypes}
 
@@ -150,44 +154,81 @@ InterfaceBaseType \: TypeName \\
 \index{declaration!class declaration}
 \index{declaration!reference class declaration}
 
-        A {\em class declaration} (\Sref{XtenClasses})
-        introduces a 
-        {\em class type}
-        containing all instances of the class.
+A {\em class declaration} (\Sref{XtenClasses}) introduces a {\em class type}
+containing all instances of the class.  The \xcd`Position` class below
+could describe the position of a slider control, for example.
 
-        Class instances are created via
-        constructor calls.  Class instances have fields and
-        methods, type members, and
-        value properties bound at construction time.
-        In addition, classes have static
-        members: constant fields, type definitions, and member
-        classes and member interfaces.
+%~~gen
+% package Types.By.Cripes.Classes;
+%~~vis
+\begin{xten}
+class Position {
+  private var x : Int = 0;
+  public def move(dx:Int) { x += dx; }
+  public def pos() : Int = x;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+Class instances, also called objects, are created via constructor calls. Class
+instances have fields and methods, type members, and value properties bound at
+construction time. In addition, classes have static members: constant fields,
+type definitions, and member classes and member interfaces.
+
+A class with type parameters is {\em generic}. A class type is instantiatable
+only if all of its parameters are instantiated on concrete types.  The
+\xcd`Cell[T]` class provides a container capable of holding a value of type
+\xcd`T`, or being empty.
+
+%~~gen
+% package Types.For.Gripes.Of.Wesley.Snipes;
+%~~vis
+\begin{xten}
+class Cell[T] {
+  var empty : Boolean = true;
+  var contents : T;
+  public def putIn(t:T) { 
+    contents = t; empty = false; 
+  }
+  public def emptyOut() { empty = true; }
+  public def isEmpty() = empty;
+  public def getOut():T throws Exception {
+     if (empty) throw new Exception("Empty!");
+     return contents ;
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
 
 
-        A class with type parameters is {\em generic}.  A class
-        type is legal only if all of its parameters are instantiated
-        on concrete types.
-
-\Xten{} does not permit mutable static state, so the role of static methods and
-initializers is quite limited. Instead programmers should use
-singleton classes to carry mutable static state.
+\Xten{} does not permit mutable static state. A fundamental principle of the
+X10 model of computation is that all mutable state be local to some place
+(\Sref{XtenPlaces}), and, as static variables are globally available, they
+cannot be mutable. When mutable global state is necessary, programmers should
+use singleton classes, putting the state in an object and using place-shifting
+commands (\Sref{AtStatement}) and atomicity (\Sref{AtomicBlocks}) as necessary
+to mutate it safely.
 
 \index{\Xcd{Object}}
 \index{\Xcd{x10.lang.Object}}
 
-        Classes
-        are structured in a
-        single-inheritance hierarchy.  All classes
-        extend the class \xcd"x10.lang.Object".
-        Classes are declared to extend a single
-        superclass (except for \xcd"Object", which extends
-        no other class).
+Classes are structured in a single-inheritance hierarchy. All classes extend
+the class \xcd"x10.lang.Object", directly or indirectly. Each class other than
+\xcd`Object` extends a single parent class.  \xcd`Object` provides no behavior
+of its own, beyond that required by \xcd`Any`.
 
 \index{class!reference class}
 \index{reference class type}
 \index{\Xcd{Object}}
 \index{\Xcd{x10.lang.Object}}
 
+
+\index{null}
+\bard{We've got to say this better.}
 Variables of class type may contain the value \xcd"null". 
 
 \subsection{Interface types}
@@ -198,34 +239,77 @@ Variables of class type may contain the value \xcd"null".
 \index{interface declaration}
 \index{declaration!interface declaration}
 
-        An {\em interface declaration} (\Sref{XtenInterfaces})
-        defines an {\em interface type}, which specifies a set of
-        methods, type members, and properties to be implemented by any class
-        declared to implement the interface.  Interfaces can also
-        have static members: constant fields, type definitions,
-        and member classes and interfaces.
+An {\em interface declaration} (\Sref{XtenInterfaces}) defines an {\em
+interface type}, specifying a set of methods, type members, and
+properties which must be provided by any class declared to implement the
+interface. 
 
-        An interface may extend multiple interfaces.
+
+Interfaces can also have static members: constant fields, type definitions,
+and member classes and interfaces.  However, interfaces cannot specify that
+implementing classes must provide static members.
+
+An interface may extend multiple interfaces.  
+%~~gen
+%package Types.For.Snipes.Interfaces;
+%~~vis
+\begin{xten}
+interface Named {
+  def name():String;
+}
+interface Mobile {
+  def move(howFar:Int):Void;
+}
+interface Person extends Named, Mobile {}
+interface NamedPoint extends Named, Mobile{} 
+\end{xten}
+%~~siv
+%
+%~~neg
+
 
 Classes may be declared to implement multiple interfaces.
 Semantically, the interface type is the set of all objects that are
 instances of classes that implement the interface. A class implements
 an interface if it is declared to and if it implements all the methods
-and properties defined in the interface.
+and properties defined in the interface.  For example, \xcd`KimThePoint`
+implements \xcd`Person`, and hence \xcd`Named` and \xcd`Mobile`.  It would be
+a static error if \xcd`KimThePoint` had no \xcd`name` method.
+
+%~~gen
+%interface Named {
+%   def name():String;
+% }
+% interface Mobile {
+%   def move(howFar:Int):Void;
+% }
+% interface Person extends Named, Mobile {}
+% interface NamedPoint extends Named, Mobile{} 
+%~~vis
+\begin{xten}
+class KimThePoint implements Person {
+   var pos : Int = 0;
+   public def name() = "Kim (" + pos + ")";
+   public def move(dPos:Int) { pos += dPos; }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
 
 \subsection{Properties}
 \index{properties}
 \label{properties}
-        Classes and interfaces may have {\em properties},
-        public \xcd`val` instance fields bound on object creation.  
-%
-        For example, the following code declares a class named
-        \xcd"Coords" with properties \xcd"x" and \xcd"y"
-        and a \xcd"move" method.  The properties are bound
-        using the \xcd"property" statement in the constructor.
+
+Classes and interfaces may have {\em properties}, public \xcd`val` instance
+fields bound on object creation. For example, the following code declares a
+class named \xcd"Coords" with properties \xcd"x" and \xcd"y" and a \xcd"move"
+method. The properties are bound using the \xcd"property" statement in the
+constructor.
 
 %~~gen
-package not.x10.lang;
+%package not.x10.lang;
 %~~vis
 \begin{xten}
 class Coords(x: Int, y: Int) {
@@ -241,113 +325,188 @@ class Coords(x: Int, y: Int) {
         \xcd"Coords{x==0}" is the set of all points whose \xcd"x"
         property is \xcd"0".
 
-\section{Type parameters}
+
+
+\section{Type parameters and Generic Types}
 \label{TypeParameters}
 
 \index{types!type parameters}
 \index{methods!parametrized methods}
 \index{constructors!parametrized constructors}
 \index{closures!parametrized closures}
-\index{parametrized methods}
-\index{parametrized constructors}
-\index{parametrized closures}
-
-        A class, interface, method, or closure may have type parameters
-        whose scope is the signature and body of the declaring
-        class, interface, method,
-        or closure.
-
-        Similarly, a type definition may have
-        type parameters that scope over the body of the type
-        definition.
-
-        Type parameters may be constrained by a {\em guard} on the declaration
-        (\Sref{ClassGuard}, \Sref{TypeDefGuard},
-        \Sref{MethodGuard},\Sref{ClosureGuard}).
-        The type parameters of classes and interfaces must be
-        bound to concrete types (possibly to a type parameter)
-        for the type to be legal; thus \xcd"List[int]" and
-        \xcd"List[C]" are legal types, but \xcd"List" alone is
-        not.
-        The type parameters of
-        methods and closures
-        must be bound to
-        concrete types at invocation.
-        Parametrized type definitions specify new type
-        constructors; the type parameters of a type definition must be bound
-        to yield a type.
-
-\subsection{Generic types}
 \label{Generics}
 \index{types!generic types}
-        A {\em generic class} is a class
-        declared with one or more type parameters.  
-(Structs and interfaces may be generic as well.)
-Generic
-        classes can be instantiated by instantiating the type
-        parameters of the base type.
 
-Consider the following declaration of a \xcd"Cell" class.
+A class, interface, method, closure, or type definition  may have type
+parameters.  Type parameters can be used as types, and will be bound to types
+on instantiation.  For example, a generic stack class may be defined as 
+\xcd`Stack[T]{...}`.  Stacks can hold values of any type; \eg, 
+%~~type~~`~~`~~ ~~class Stack[T]{}
+\xcd`Stack[Int]` is a stack of integers, and 
+%~~type~~`~~`~~ ~~class Stack[T]{}
+\xcd`Stack[Point{self!=null}]`is a stack of non-null \xcd`Point`s.
+Generics {\em must} be instantiated when they are used: \xcd`Stack`, by
+itself, is not a valid type.
+Type parameters may be constrained by a guard on the declaration
+(\Sref{ClassGuard}, \Sref{TypeDefGuard},
+\Sref{MethodGuard},\Sref{ClosureGuard}).
+
+\index{types!concrete types}
+\index{concrete type}
+A {\em generic type} is a class, struct,  interface, or type declared with one or
+more type parameters.  When instantiated with concrete (\viz, non-generic)
+types for its parameters, a generic type becomes a concrete type and can be
+used like any other type. For example,
+\xcd`Stack` is a generic type, 
+%~~type~~`~~`~~ ~~class Stack[T]{}
+\xcd`Stack[Int]` is a concrete type, and can be used as one: 
+%~~stmt~~`~~`~~ ~~class Stack[T]{}
+\xcd`var stack : Stack[Int];`
+
+
+A \xcd`Cell[T]` is a generic object, capable of holding a value of type
+\xcd`T`.  For example, a \xcd`Cell[Int]` can hold an \xcd`Int`, and a
+\xcd`Cell[Cell[Int]{self!=0}]` can hold a \xcd`Cell[Int]` which in turn can
+only hold non-zero numbers.  \xcd`Cell`s are actually useful in situations
+where values must be bound immutably for one reason, but need to be mutable.
 %~~gen
 % package ch4;
 %~~vis
 \begin{xten}
-class Cell[X] {
-    var x: X;
-    def this(x: X) { this.x = x; }
-    def get(): X = x;
-    def set(x: X) = { this.x = x; }
+class Cell[T] {
+    var x: T;
+    def this(x: T) { this.x = x; }
+    def get(): T = x;
+    def set(x: T) = { this.x = x; }
 }
 \end{xten}
 %~~siv
 %~~neg
 
-This declares a class \xcd"Cell" with a type parameter \xcd"X".
-\xcd"Cell" may be used as a type by instantiating \xcd"X".
 
-\xcd"Cell[Int]" is the type of all \xcd"Cell" containing an
-\xcd"Int".  The \xcd"get" method returns an \xcd"Int"; the
+\xcd"Cell[Int]" is the type of \xcd`Int`-holding cells.  
+The \xcd"get" method on a \xcd`Cell[Int]` returns an \xcd"Int"; the
 \xcd"set" method takes an \xcd"Int" as argument.  Note that
 \xcd"Cell" alone is not a legal type because the parameter is
 not bound.
 
-Parameters may be declares as {\em invariant}, {\em covariant}, or
-{\em contravariant}.  The \xcd"X" parameter of \xcd"Cell" above is
+\subsection{Variance of Type Parameters}
+\index{covariant}
+\index{contravariant}
+\index{invariant}
+\index{type parameter!covariant}
+\index{type parameter!contravariant}
+\index{type parameter!invariant}
+
+Consider classes \xcd`Person :> Child`.  Every child is a person, but there
+are people who are not children.  What is the relationship between
+\xcd`Cell[Person]` and \xcd`Cell[Child]`?  
+
+\subsubsection{Why Variance Is Necessary}
+
+In this case, \xcd`Cell[Person]` and \xcd`Cell[Child]` should be unrelated.  
+If we had \xcd`Cell[Person] :> Cell[Child]`, the following code would let us
+assign a \xcd`old` (a \xcd`Person` but not a \xcd`Child`) to a
+variable \xcd`young` of type \xcd`Child`, thereby breaking the type system: 
+\begin{xten}
+// INCORRECTLY assuming Cell[Person] :> Cell[Child]
+val cc : Cell[Child] = new Cell[Child]();
+val cp : Cell[Person] = cc; // legal upcast
+cp.set(old);       // legal since old : Person
+val young : Child = cc.get(); 
+\end{xten}
+
+Similarly, if \xcd`Cell[Person] <: Cell[Child]`: 
+\begin{xten}
+// INCORRECTLY assuming Cell[Person] <: Cell[Child]
+val cp : Cell[Person] = new Cell[Person];
+val cc : Cell[Child] = cp; // legal upcast
+val cp.set(old); 
+val young : Child = cc.get();
+\end{xten}
+
+So, there cannot be a subtyping relationship in either direction between the
+two. And indeed, neither of these programs passes the X10 typechecker.
+
+
+\subsubsection{Legitimate Variance}
+
+The \xcd`Cell[Person]`-vs-\xcd`Cell[Child]` problems occur because it is
+possible to both store and retrieve values from the same object. However,
+entities with only one of the two capabilities {\em can} sensibly have some
+subtyping relations. Furthermore, both sorts of entity are useful. An entity
+which can store values but not retrieve them can nonetheless summarize them.
+An object which can retrieve values but not store values can be constructed
+with an initial value, providing a read-only cell.
+
+So, X10 provides {\em variance} to support these options.  Type parameters
+may be defined in one of three forms.  
+\begin{enumerate}
+\item {\em invariant}: Given a definition \xcd`class C[T]{...}`, \xcd`C[Person]` and
+      \xcd`C[Child]` are unrelated classes; neither is a subclass of the
+      other.
+\item {\em covariant}: Given a definition \xcd`class C[+T]{...}` (the \xcd`+` indicates
+      covariance), \xcd`C[Person] :> C[Child]`.  This is appropriate when
+      \xcd`C` allows retrieving values but not setting them.
+\item {\em contravariant}: Given a definition \xcd`class C[-T]{...}` (the \xcd`-` indicates
+      contravariance), \xcd`C[Person] <: C[Child]`.  This is appropriate when
+      \xcd`C` allows storing values but not retrieving them.
+\end{enumerate}
+
+
+The \xcd"T" parameter of \xcd"Cell" above is
 invariant.  
-Consider the following classes:
+
+A typical example of covariance is \xcd`Get`.  As the \xcd`example()` method
+shows, a \xcd`Get[T]` must be constructed with its value, and will return that
+value whenever desired.
 %~~gen
 % package ch4;
 %~~vis
 \begin{xten}
-class Get[+X] {
-    var x: X;
-    def this(x: X) { this.x = x; }
-    def get(): X = x;
+class Get[+T] {
+  var x: T;
+  def this(x: T) { this.x = x; }
+  def get(): T = x;
+  static def example() {
+     val g : Get[Int]! = new Get[Int](31);
+     val n : Int = g.get();
+     x10.io.Console.OUT.print("It's " + n);
+     x10.io.Console.OUT.print("It's still " + g.get());
+  }
 }
-
-class Set[-X] {
-    var x: X;
-    def this(x: X) { this.x = x; }
-    def set(x: X) = { this.x = x; }
-}
+\end{xten}
 %~~siv
 %~~neg
+
+
+A typical example of contravariance is \xcd`Set`.  As the \xcd`example()`
+method shows,  a variety of objects\footnote{Objects but no structs.  If we
+had wanted structs too, we could have used a \xcd`Cell[Any]`.}  can be put into a
+\xcd`Set[Object]`.  While the object itself cannot be retrieved, some summary
+information about it -- in this case, its \xcd`typeName` -- can be.  
+%~~gen
+% package ch4;
+%~~vis
+\begin{xten}
+class Set[-T] {
+  var x: T;
+  def this(x: T) { this.x = x; }
+  def set(x: T) = { this.x = x; } 
+  def summary(): String = this.x.typeName();
+  static def example() {
+    val s : Set[Object]! = new Set[Object](new Throwable());
+    s.summary(); // == "x10.lang.Throwable"
+    s.set("A String");
+    s.summary(); // == "x10.lang.String";
+  }    
+}
 \end{xten}
-The \xcd"X" parameter of the \xcd"Get" class is covariant;
-the \xcd"X" parameter of the \xcd"Set" class is contravariant.
+%~~siv
+%
+%~~neg
 
-A covariant type parameter is permitted to appear only in covariant type positions,
-and a contravariant type parameter in contravariant positions. 
-\begin{itemize}
-\item The return type of a method is a covariant position.
-\item The argument types of a method are contravariant positions.
-\item Whether a type argument position of a generic class, interface or struct type \Xcd{C}
-is covariant or contravariant is determined by the \Xcd{+} or \Xcd{-} annotation
-at that position in the declaration of \Xcd{C}.
-
-\end{itemize}
-
-
+The subtyping rules of covariance and contravariance are: 
 Given types \xcd"S" and \xcd"T".
 \begin{itemize}
 \item
@@ -365,6 +524,23 @@ If the parameter of \xcd"Cell" is invariant, then
 \xcd"Cell[S]" is a subtype of \xcd"Cell[T]" if
 \xcd"S" is a {\em equal} to \xcd"T".
 \end{itemize}
+
+
+In order to make types marked as covariant and contravariant semantically
+sound, X10 performs extra checks.  
+A covariant type parameter is permitted to appear only in covariant type positions,
+and a contravariant type parameter in contravariant positions. 
+\begin{itemize}
+\item The return type of a method is a covariant position.
+\item The argument types of a method are contravariant positions.
+\item Whether a type argument position of a generic class, interface or struct type \Xcd{C}
+is covariant or contravariant is determined by the \Xcd{+} or \Xcd{-} annotation
+at that position in the declaration of \Xcd{C}.
+\end{itemize}
+
+There are similar restrictions on use of covariant and contravariant values. 
+\bard{Get them!  What are they?}
+
 
 \section{Type definitions}
 \label{TypeDefs}
