@@ -16,14 +16,20 @@ public class X10Initializer extends PreferencesInitializer {
 		IPreferencesService service = X10DTCorePlugin.getInstance().getPreferencesService();
 
 		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_TABWIDTH, 4);
-		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_DEFAULTRUNTIME, "");
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_BADPLACERUNTIMECHECK, true);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_PERMITASSERT, true);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_STATICCALLS, false);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_VERBOSECALLS, false);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE, false);
+		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ADDITIONALCOMPILEROPTIONS, "-commandlineonly");
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_OPTIMIZE, false);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_LOOPOPTIMIZATIONS, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ARRAYOPTIMIZATIONS, true);
-		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_PERMITASSERT, true);
-		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE, false);
-		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_NUMPLACES, 4);
-		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ADDITIONALCOMPILEROPTIONS, "-commandlineonly");
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INLINEOPTIMIZATIONS, false);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_CLOSUREINLINING, true);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_WORKSTEALING, false);
+		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_DEFAULTRUNTIME, "");
+		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_NUMBEROFPLACES, 4);
 	}
 
 	/*

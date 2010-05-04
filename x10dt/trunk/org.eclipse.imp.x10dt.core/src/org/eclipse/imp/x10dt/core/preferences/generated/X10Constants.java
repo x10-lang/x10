@@ -15,20 +15,32 @@ public class X10Constants {
 
 	public static final String P_TABWIDTH = "tabWidth";
 
-	public static final String P_DEFAULTRUNTIME = "DefaultRuntime";
-
 	public static final String P_BADPLACERUNTIMECHECK = "BadPlaceRuntimeCheck";
+
+	public static final String P_PERMITASSERT = "PermitAssert";
+
+	public static final String P_STATICCALLS = "StaticCalls";
+
+	public static final String P_VERBOSECALLS = "VerboseCalls";
+
+	public static final String P_ECHOCOMPILEARGUMENTSTOCONSOLE = "EchoCompileArgumentsToConsole";
+
+	public static final String P_ADDITIONALCOMPILEROPTIONS = "AdditionalCompilerOptions";
+
+	public static final String P_OPTIMIZE = "Optimize";
 
 	public static final String P_LOOPOPTIMIZATIONS = "LoopOptimizations";
 
 	public static final String P_ARRAYOPTIMIZATIONS = "ArrayOptimizations";
 
-	public static final String P_PERMITASSERT = "PermitAssert";
+	public static final String P_INLINEOPTIMIZATIONS = "InlineOptimizations";
 
-	public static final String P_ECHOCOMPILEARGUMENTSTOCONSOLE = "EchoCompileArgumentsToConsole";
+	public static final String P_CLOSUREINLINING = "ClosureInlining";
 
-	public static final String P_NUMPLACES = "NumPlaces";
+	public static final String P_WORKSTEALING = "WorkStealing";
 
-	public static final String P_ADDITIONALCOMPILEROPTIONS = "AdditionalCompilerOptions";
+	public static final String P_DEFAULTRUNTIME = "DefaultRuntime";
+
+	public static final String P_NUMBEROFPLACES = "NumberOfPlaces";
 
 }

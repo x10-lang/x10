@@ -12,17 +12,17 @@ import org.osgi.service.prefs.Preferences;
 
 
 /**
- * The instance level preferences tab.
+ * The configuration level preferences tab.
  */
-public class X10InstanceTab extends InstancePreferencesTab {
+public class X10RuntimeConfigurationTab extends ConfigurationPreferencesTab {
 
-	public X10InstanceTab(IPreferencesService prefService) {
+	public X10RuntimeConfigurationTab(IPreferencesService prefService) {
 		super(prefService, true);
 	}
 
 	/**
 	 * Creates specific preference fields with settings appropriate to
-	 * the instance preferences level.
+	 * the configuration preferences level.
 	 *
 	 * Overrides an unimplemented method in PreferencesTab.
 	 *
@@ -33,16 +33,28 @@ public class X10InstanceTab extends InstancePreferencesTab {
 	{
 		List<FieldEditor> fields = new ArrayList<FieldEditor>();
 
-		IntegerFieldEditor tabWidth = fPrefUtils.makeNewIntegerField(
+		DirectoryFieldEditor DefaultRuntime = fPrefUtils.makeNewDirectoryField(
 			page, this, fPrefService,
-			"instance", "tabWidth", "Tab width",
-			"The number of spaces equivalent to one tab in the source editor",
+			"configuration", "DefaultRuntime", "Default runtime",
+			"Folder containing the default X10 runtime libraries",
+			parent,
+			true, true,
+			false, "Unspecified",
+			true, "",
+			true);
+		fields.add(DefaultRuntime);
+
+
+		IntegerFieldEditor NumberOfPlaces = fPrefUtils.makeNewIntegerField(
+			page, this, fPrefService,
+			"configuration", "NumberOfPlaces", "Number of places",
+			"The number of logical places upon which the application is executed",
 			parent,
 			true, true,
 			false, String.valueOf(0),
 			false, "0",
 			true);
-		fields.add(tabWidth);
+		fields.add(NumberOfPlaces);
 
 		return fields.toArray(new FieldEditor[fields.size()]);
 	}

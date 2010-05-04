@@ -35,7 +35,9 @@
       <super
             type="org.eclipse.core.resources.problemmarker">
       </super>
-      <persistent value="true"/>
+      <persistent
+            value="true">
+      </persistent>
       <super
             type="org.eclipse.core.resources.textmarker">
       </super>
@@ -118,6 +120,33 @@
             name="X10"
             class="org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencePage"
             id="org.eclipse.imp.x10dt.core.preferences.generated.X10">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Compiler"
+            category="org.eclipse.imp.x10dt.core.preferences.generated.X10"
+            class="org.eclipse.imp.x10dt.core.preferences.generated.X10CompilerPreferencePage"
+            id="org.eclipse.imp.x10dt.core.preferences.generated.X10.Compiler">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Optimizations"
+            category="org.eclipse.imp.x10dt.core.preferences.generated.X10.Compiler"
+            class="org.eclipse.imp.x10dt.core.preferences.generated.X10CompilerOptimizationsPreferencePage"
+            id="org.eclipse.imp.x10dt.core.preferences.generated.X10.Compiler.Optimizations">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Runtime"
+            category="org.eclipse.imp.x10dt.core.preferences.generated.X10"
+            class="org.eclipse.imp.x10dt.core.preferences.generated.X10RuntimePreferencePage"
+            id="org.eclipse.imp.x10dt.core.preferences.generated.X10.Runtime">
       </page>
    </extension>
 

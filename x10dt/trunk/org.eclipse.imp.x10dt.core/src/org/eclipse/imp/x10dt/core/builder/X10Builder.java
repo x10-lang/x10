@@ -39,7 +39,6 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -83,7 +82,6 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.Configuration;
-
 
 public class X10Builder extends IncrementalProjectBuilder {
 	/**
@@ -389,6 +387,11 @@ public class X10Builder extends IncrementalProjectBuilder {
             optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10Constants.P_BADPLACERUNTIMECHECK)));
             optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS)));
             optsList.add(0, "-ARRAY_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10Constants.P_ARRAYOPTIMIZATIONS)));
+            optsList.add(0, "-STATIC_CALLS="+(prefService.getBooleanPreference(X10Constants.P_STATICCALLS)));
+            optsList.add(0, "-VERBOSE_CALLS="+(prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS)));
+            optsList.add(0, "-OPTIMIZE="+(prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS)));
+            optsList.add(0, "-CLOSURE_INLINING="+(prefService.getBooleanPreference(X10Constants.P_CLOSUREINLINING)));
+            optsList.add(0, "-WORK_STEALING="+(prefService.getBooleanPreference(X10Constants.P_WORKSTEALING)));
             if (prefService.getBooleanPreference(X10Constants.P_PERMITASSERT)) {
                 optsList.add(0, "-assert");
             }
@@ -403,14 +406,15 @@ public class X10Builder extends IncrementalProjectBuilder {
                     }
                 }
             }
-            if(prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)){
+            if(prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)) {
             	echoBuildOptions(optsList);
 			}
             String[] optsArray = optsList.toArray(new String[optsList.size()]);
             opts.parseCommandLine(optsArray, new HashSet());
         } catch (UsageError e) {
-            if (!e.getMessage().equals("must specify at least one source file"))
-                System.err.println(e.getMessage());
+            if (!e.getMessage().equals("must specify at least one source file")) {
+                X10DTCorePlugin.getInstance().logException("Error parsing compiler options", e);
+            }
         } catch (JavaModelException e) {
             X10DTCorePlugin.getInstance().writeErrorMsg("Unable to determine project source folder location for " + fProject.getName());
         }
