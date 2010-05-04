@@ -296,7 +296,7 @@ raise exceptions and \xcd`try...catch` to handle them, and so on.
 X10 has both implicit coercions and explicit conversions, and both can be
 defined on user-defined types.  Explicit conversions are written with the
 \xcd`as` operation: \xcd`n as Int`.  The types can be constrained: 
-%~~exp~~`~~`~~n:Int~~package Overview.Seq;
+%~~exp~~`~~`~~n:Int~~
 \xcd`n as Int{self != 0}` converts \xcd`n` to a non-zero integer, and throws a
 runtime exception if its value as an integer is zero.
 
