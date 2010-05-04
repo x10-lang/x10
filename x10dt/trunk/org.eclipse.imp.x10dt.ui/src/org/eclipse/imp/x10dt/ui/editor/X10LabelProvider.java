@@ -7,7 +7,6 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
 /*
@@ -39,19 +38,17 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.TreeItem;
 
 import polyglot.ast.Call;
-import polyglot.ast.Call_c;
 import polyglot.ast.ClassDecl;
-import polyglot.ast.Expr;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.ProcedureDecl;
-import polyglot.ast.TypeNode;
+import polyglot.types.Flags;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Atomic;
@@ -61,10 +58,6 @@ import x10.ast.Future;
 import x10.ast.Next;
 import x10.ast.TypeDecl_c;
 import x10.ast.X10Loop;
-import polyglot.types.ArrayType;
-import polyglot.types.ClassType;
-import polyglot.types.Flags;
-import polyglot.types.MethodInstance;
 import x10.parser.X10Parser.JPGPosition;
 
 /**
@@ -75,7 +68,6 @@ import x10.parser.X10Parser.JPGPosition;
  * Static initializer block finds all thusly named fields and creates the images and does the registry
  * bookkeeping.
  * @author Beth Tibbitts
- *
  */
 public class X10LabelProvider implements ILabelProvider, ILanguageService {
     private Set<ILabelProviderListener> fListeners= new HashSet<ILabelProviderListener>();
@@ -158,7 +150,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 
     static {
         // Retrieve all images and put them in the appropriately-named fields
-        Class myClass= X10LabelProvider.class;
+        Class<?> myClass= X10LabelProvider.class;
         Field[] fields= myClass.getDeclaredFields();
 
         for(int i= 0; i < fields.length; i++) {
@@ -288,7 +280,6 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
                 (Node) element;
 
         if (node instanceof PackageNode) {
-        	
             PackageNode pNode = (PackageNode) node;
             
 			String pnName = pNode.package_().get().fullName().toString();
@@ -301,20 +292,16 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
             return filter(fd.name() + " : " + fd.type());
         } else if (node instanceof ProcedureDecl) {
     	    ProcedureDecl pd= (ProcedureDecl) node;
-    	    /*
-    	    if(node instanceof X10ConstructorDecl) {
-				X10ConstructorDecl cd = (X10ConstructorDecl) node;
-				String cdstr=cd.toString();
-				
-				Id cdname=cd.name();
-				String cdns=cdname.toString();
-				System.out.println("ctor name: "+cdname);
-    	    	
+            StringBuffer buff= new StringBuffer();
+
+    	    if (node instanceof ConstructorDecl) {
+    	        // Front-end replaces "this" with the containing class name, so handle this case specially
+				buff.append("this");
+    	    } else {
+                buff.append(pd.name().id().toString());//PORT1.7 note that ProcedureDecl.name() re-added 10/1/08 by Nate
     	    }
-*/
+
     	    List<Formal> formals= pd.formals();
-    	    StringBuffer buff= new StringBuffer();
-    	    buff.append(pd.name().id().toString());//PORT1.7 note that ProcedureDecl.name() re-added 10/1/08 by Nate
     	    buff.append("(");
     	    for (Iterator<Formal> iter = formals.iterator(); iter.hasNext();) {
 				Formal formal =  iter.next();
@@ -334,7 +321,6 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
             Atomic at= (Atomic) node;
             return "atomic {" + sourceText(at.body()) + "}";
         } else if (node instanceof Finish) {
-            Finish f= (Finish) node;
             return "finish";
         } else if (node instanceof ForEach) {
             ForEach fe= (ForEach) node;
