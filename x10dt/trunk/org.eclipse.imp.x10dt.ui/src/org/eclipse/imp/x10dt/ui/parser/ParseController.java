@@ -88,7 +88,7 @@ public class ParseController extends SimpleLPGParseController {
             IProject proj= (fProject != null) ? fProject.getRawProject() : null;
 
             streams.add(fileSource);
-            IPath sourcePath = Platform.getLocation().append(fProject.getName()).append(fFilePath);
+            IPath sourcePath = (fProject != null) ? Platform.getLocation().append(fProject.getName()).append(fFilePath) : fFilePath;
     		
             fCompiler= new CompilerDelegate(fMonitor, handler, proj, sourcePath); // Create the compiler
             // RMF 5/11/2009 - Make sure to create new parser/lexer delegates, so that no one
