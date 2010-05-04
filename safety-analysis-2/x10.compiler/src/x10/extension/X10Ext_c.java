@@ -275,23 +275,27 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	
 
 		// vj: This doesnt make sense, need to set up effects separately, just like return types of methods.
-	
-			result= effect(pd.body());
+			if (pd.body() != null)
+				result= effect(pd.body());
+			else
+				result = null;
 		
 			if (result == null) /* FIXME */
 				result = Effects.makeSafe();
 	
+			
 			Set<Locs> methodClocks = new HashSet<Locs>();
-			List<AnnotationNode> methodAnnotations = ((X10Ext)pd.body().ext()).annotations();
-			for (AnnotationNode an: methodAnnotations) {
-	  			if (an.toString().contains("clocked.Clocked")) { /* FIXME */
-      				X10ParsedClassType anc = (X10ParsedClassType)an.annotationType().type();
-      				Expr e = anc.propertyInitializer(0);
+			if (pd.body() != null) {
+				List<AnnotationNode> methodAnnotations = ((X10Ext)pd.body().ext()).annotations();
+				for (AnnotationNode an: methodAnnotations) {
+					if (an.toString().contains("clocked.Clocked")) { /* FIXME */
+						X10ParsedClassType anc = (X10ParsedClassType)an.annotationType().type();
+						Expr e = anc.propertyInitializer(0);
           	        	Locs locs= computeLocFor(e, ec);
           	        	methodClocks.add(locs);
-	  			}
+	  				}
+				}
 			}
- 
 
 		
 		for (Locs mc: result.mustClockSet()) {
@@ -947,7 +951,10 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
 
  
   private static Effect effect(Node n) {
-	  return ((X10Ext) n.ext()).effect();
+	  if (n == null)
+		  	return null;
+	  else
+		  return ((X10Ext) n.ext()).effect();
   }
   
   // ================
