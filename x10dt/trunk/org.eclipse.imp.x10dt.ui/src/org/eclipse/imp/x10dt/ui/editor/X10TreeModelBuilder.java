@@ -49,9 +49,9 @@ public class X10TreeModelBuilder extends TreeModelBuilderBase {
     @Override
     protected void visitTree(Object root) {
     	if (root == null) return;
-        Node node= (Node) root;
-        if (root == null)
-            return;
+
+    	Node node= (Node) root;
+
         node.visit(new HaltingVisitor() {// will override override()  //PORT1.7 HaltingVisitor added below
         	@Override
             public NodeVisitor enter(Node n) {
@@ -62,7 +62,7 @@ public class X10TreeModelBuilder extends TreeModelBuilderBase {
                 } else if (n instanceof ClassDecl) {
                     pushSubItem(n, TYPE_CATEGORY);
                 } else if (n instanceof ProcedureDecl) {
-                    if (((ProcedureDecl) n).position() != Position.COMPILER_GENERATED) {
+                    if (!isSynthetic((ProcedureDecl) n)) {
                         pushSubItem(n, METHOD_CATEGORY);
                     }
                 } else if (n instanceof FieldDecl) {
@@ -81,18 +81,22 @@ public class X10TreeModelBuilder extends TreeModelBuilderBase {
                 } else if (n instanceof Expr) {
                     return bypassChildren(n);
                 } else if (n instanceof Call) {// PORT1.7 do something similar for ArrayConstructor replacement?
-                    Call call = (Call) n;                                     // con't: then do something in leave() as well
+                    Call call = (Call) n; // con't: then do something in leave() as well
                     if (call.name().equals("force") && call.arguments().size() == 0) {
                         createSubItem(n, STATEMENT_CATEGORY);
                     }
                 }
                 return this;
             }
+            private boolean isSynthetic(ProcedureDecl pd) {
+                // HACK Synthetic constructors aren't marked as isCompilerGenerated(), so also look for an empty source extent
+                return (pd.position().isCompilerGenerated() || pd.position().offset() == pd.position().endOffset());
+            }
             @Override
             public Node leave(Node old, Node n, NodeVisitor v) {
                 if (n instanceof TopLevelDecl ||
                     n instanceof ClassDecl ||
-                    (n instanceof ProcedureDecl && ((ProcedureDecl) old).position() != Position.COMPILER_GENERATED) ||
+                    (n instanceof ProcedureDecl && !isSynthetic((ProcedureDecl) n)) ||
                     n instanceof Async || n instanceof AtEach || n instanceof ForEach ||
                     n instanceof Future || n instanceof Finish || n instanceof Atomic ||
                     n instanceof Next || n instanceof X10Loop  
