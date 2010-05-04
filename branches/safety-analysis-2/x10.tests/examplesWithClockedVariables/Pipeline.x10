@@ -17,16 +17,16 @@ public class Pipeline {
                                 next;  /*write phase over */
                         }
                 }
-                async clocked (c) {
+        async clocked (c) {
                         var i: int;
                         for (i = 0; i < 10; i++)  {
                                 next; /*write phase over */
                                 b = a + 1;
                         }
                 }
-                var i: int;
-                next; /*write phase over */
-                for (i = 0; i < 10; i++)  {
+      var i: int;
+      next; /*write phase over */
+      for (i = 0; i < 10; i++)  {
                         next; /*write phase over */
                         val o = b + 1;
                         Console.OUT.println(o);
