@@ -8,6 +8,9 @@ Benchmarks
 MontyPiParallel - JGF
 SOR - JGF
 IDEA - JGF
+RayTrace - JGF
+LUFact - JGF
+Series - JGF
 Stream - HPCC
 KMEANS - STAMP
 UTS - UTS Benchmark

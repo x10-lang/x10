@@ -318,7 +318,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(TypeChecked(job));
         
            if (job.userSpecified() && Configuration.SAFE_PARALLELIZATION_CHECK) {
-                   goals.add(EffectsCalculated(job));
+        	   /* Recurse upto depth 15 */
+                   goals.add(EffectsCalculated(job, true));
+                   for (int i = 0; i < 15; i++)
+                	   goals.add(EffectsCalculated(job, false));
+                   
            }
            goals.add(ClockedVariableRefractor(job));
         //   System.out.println("Done with Clocked Variable Refactoring");
@@ -429,10 +433,19 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return g2;
        }
       
-      public Goal EffectsCalculated(Job job) {
+  
+       EffectComputer ec;
+      public Goal EffectsCalculated(Job job, boolean firstTime) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("CalculateEffects", job, new EffectComputer(job, ts, nf));
+         
+           if (firstTime) {
+        	  ec = new EffectComputer(job, ts, nf);
+        
+           }
+           
+    	   return new VisitorGoal("CalculateEffects", job, ec);
+           
        }
 
       public Goal ClockedVariableRefractor(Job job) {
