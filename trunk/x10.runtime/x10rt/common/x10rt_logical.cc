@@ -27,6 +27,8 @@ namespace {
       x10rt_place **child; // maps node/accel index to global place id
     };
 
+    bool has_remote_op;
+
     x10rt_lgl_ctx g;
 }
 
@@ -195,6 +197,8 @@ namespace {
 
     void x10rt_lgl_internal_init (x10rt_lgl_cfg_accel *cfgv, x10rt_place cfgc, x10rt_msg_type *counter)
     {
+        x10rt_emu_init(counter);
+        has_remote_op = 0!=x10rt_net_supports(X10RT_OPT_REMOTE_OP);
         g.nhosts = x10rt_net_nhosts();
 
         x10rt_place num_local_spes = 0;
@@ -671,6 +675,36 @@ void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
     }
 }
 
+void x10rt_lgl_remote_op (x10rt_place d, x10rt_remote_ptr remote_addr,
+                          x10rt_op_type type, unsigned long long value)
+{
+    assert(d < x10rt_lgl_nplaces());
+
+    if (d < x10rt_lgl_nhosts()) {
+        x10rt_emu_remote_op(d,remote_addr,type,value);
+    } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
+        // local accelerator
+        switch (x10rt_lgl_type(d)) {
+            case X10RT_LGL_CUDA: {
+                fprintf(stderr,"CUDA remote ops still unsupported.\n");
+                abort();
+            } break;
+            case X10RT_LGL_SPE: {
+                fprintf(stderr,"SPE remote ops still unsupported.\n");
+                abort();
+            } break;
+            default: {
+                fprintf(stderr,"Place %lu has invalid type %d in remote_op_xor.\n",
+                               d, x10rt_lgl_type(d));
+                abort();
+            }
+        }
+    } else {
+        fprintf(stderr,"Routing of remote ops still unsupported.\n");
+        abort();
+    }
+}
+    
 void x10rt_lgl_remote_xor (x10rt_place d, x10rt_remote_ptr addr, long long update)
 {
     assert(d < x10rt_lgl_nplaces());

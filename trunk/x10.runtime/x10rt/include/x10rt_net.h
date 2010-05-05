@@ -116,6 +116,9 @@ X10RT_C void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz l
  */
 X10RT_C void x10rt_net_probe (void);
 
+X10RT_C void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
+                                  x10rt_op_type type, unsigned long long value);
+
 /** \see #x10rt_lgl_remote_xor
  * \param place As in x10rt_lgl_remote_xor
  * \param addr As in x10rt_lgl_remote_xor
@@ -130,5 +133,9 @@ X10RT_C void x10rt_net_remote_op_fence (void);
 /** Shut down the network layer.  \see #x10rt_lgl_finalize
  */
 X10RT_C void x10rt_net_finalize (void); 
+
+/** Return whether the x10rt_net implementation supports a particular feature.
+ */
+X10RT_C int x10rt_net_supports (x10rt_opt o);
 
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100

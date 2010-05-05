@@ -1090,3 +1090,16 @@ void x10rt_net_finalize(void) {
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
     global_state.finalized = true;
 }
+
+int x10rt_net_supports (x10rt_opt o) {
+    switch (o) {
+        default: return 0;
+    }
+}
+
+void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
+                          x10rt_op_type type, unsigned long long value)
+{
+    abort();
+}
+

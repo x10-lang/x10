@@ -45,6 +45,10 @@ void *x10rt_net_put_realloc (void *msg, size_t, size_t sz)
 void x10rt_net_send_put (x10rt_msg_params *, void *, x10rt_copy_sz)
 { stub(); }
 
+void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
+                          x10rt_op_type type, unsigned long long value)
+{ stub(); }
+
 void x10rt_net_remote_xor (unsigned long, unsigned long long, long long)
 { stub(); }
 
@@ -59,3 +63,10 @@ void x10rt_net_probe (void)
 
 void x10rt_net_finalize (void)
 { }
+
+int x10rt_net_supports (x10rt_opt o)
+{
+    switch (o) {
+        default: return 1;
+    }
+}
