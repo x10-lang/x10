@@ -114,68 +114,68 @@
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
+        <get usetimestamp="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
         <delete file="${lib}/lpgruntime.jar"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
-        <fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>
+        <fail message="Unable to get ${lpg.jar} from ${lpg.jar.url}" unless="lpg.jar.present"/>
     </target>
     <target name="lpg-local-jar" depends="init" if="local.lpg.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.lpg.jar}" tofile="${lib}/${lpg.jar}"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
-        <fail message="Unable to find ${lpg.jar}" unless="lpg.jar.present"/>
+        <fail message="Unable to find ${lpg.jar} at ${local.lpg.jar}" unless="lpg.jar.present"/>
     </target>
 
     <target name="ecj-jar" depends="init,ecj-local-jar" unless="local.ecj.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
+        <get usetimestamp="true" src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
-        <fail message="Unable to get ${ecj.jar}" unless="ecj.jar.present"/>
+        <fail message="Unable to get ${ecj.jar} from ${ecj.jar.url}" unless="ecj.jar.present"/>
     </target>
     <target name="ecj-local-jar" depends="init" if="local.ecj.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.ecj.jar}" tofile="${lib}/${ecj.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
-        <fail message="Unable to find ${ecj.jar}" unless="ecj.jar.present"/>
+        <fail message="Unable to find ${ecj.jar} at ${local.ecj.jar}" unless="ecj.jar.present"/>
     </target>
 
     <target name="polyglot-jar" depends="init,polyglot-local-jar" unless="local.polyglot.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
+        <get usetimestamp="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
         <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
-        <fail message="Unable to get ${polyglot.jar}" unless="polyglot.jar.present"/>
+        <fail message="Unable to get ${polyglot.jar} from ${polyglot.jar.url}" unless="polyglot.jar.present"/>
     </target>
     <target name="polyglot-local-jar" depends="init" if="local.polyglot.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.polyglot.jar}" tofile="${lib}/${polyglot.jar}"/>
         <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
-        <fail message="Unable to find ${polyglot.jar}" unless="polyglot.jar.present"/>
+        <fail message="Unable to find ${polyglot.jar} at ${local.polyglot.jar}" unless="polyglot.jar.present"/>
     </target>
 
     <target name="polyglot-bytecode-jar" depends="init,polyglot-bytecode-local-jar" unless="local.polyglot.bytecode.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${polyglot.bytecode.jar.url}" dest="${lib}/${polyglot.bytecode.jar}"/>
+        <get usetimestamp="true" src="${polyglot.bytecode.jar.url}" dest="${lib}/${polyglot.bytecode.jar}"/>
         <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
-        <fail message="Unable to get ${polyglot.bytecode.jar}" unless="polyglot.bytecode.jar.present"/>
+        <fail message="Unable to get ${polyglot.bytecode.jar} from ${polyglot.bytecode.jar.url}" unless="polyglot.bytecode.jar.present"/>
     </target>
     <target name="polyglot-bytecode-local-jar" depends="init" if="local.polyglot.bytecode.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.polyglot.bytecode.jar}" tofile="${lib}/${polyglot.bytecode.jar}"/>
         <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
-        <fail message="Unable to find ${polyglot.bytecode.jar}" unless="polyglot.bytecode.jar.present"/>
+        <fail message="Unable to find ${polyglot.bytecode.jar} at ${local.polyglot.bytecode.jar}" unless="polyglot.bytecode.jar.present"/>
     </target>
 
     <target name="asm-jar" depends="init,asm-local-jar" unless="local.asm.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${asm.jar.url}" dest="${lib}/${asm.jar}"/>
+        <get usetimestamp="true" src="${asm.jar.url}" dest="${lib}/${asm.jar}"/>
         <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
-        <fail message="Unable to get ${asm.jar}" unless="asm.jar.present"/>
+        <fail message="Unable to get ${asm.jar} from ${asm.jar.url}" unless="asm.jar.present"/>
     </target>
     <target name="asm-local-jar" depends="init" if="local.asm.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.asm.jar}" tofile="${lib}/${asm.jar}"/>
         <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
-        <fail message="Unable to find ${asm.jar}" unless="asm.jar.present"/>
+        <fail message="Unable to find ${asm.jar} at ${local.asm.jar}" unless="asm.jar.present"/>
     </target>
 
     <target name="build" depends="init,bin,etc,lpg-jar,ecj-jar,polyglot-jar,polyglot-bytecode-jar,asm-jar">
@@ -402,7 +402,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         <echo file="${bin}/script" append="yes" message="${custom.bash}"/>
     </target>
 
-	<target name="setupX10" unless="setupX10.up-to-date"
+    <target name="setupX10" unless="setupX10.up-to-date"
             depends="executable-defs"
             description="creates a configuration script for x10">
         <echo message="Creating ${bin}/setupX10"/>
