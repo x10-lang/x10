@@ -265,6 +265,15 @@ X10RT_C void x10rt_lgl_remote_xor (x10rt_place place, x10rt_remote_ptr addr, lon
  */
 X10RT_C void x10rt_lgl_remote_op_fence (void);
 
+/** \see #x10rt_remote_op
+ * \param place The place where the memory resides.
+ * \param addr The location of the word at the remote place.
+ * \param type The kind of operation to perform.
+ * \param value The operand (depends on the operation).
+ */
+X10RT_C void x10rt_lgl_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
+                                  x10rt_op_type type, unsigned long long value);
+
 /** \see #x10rt_blocks_threads
  * \param d as in x10rt_blocks_threads;
  * \param type as in x10rt_blocks_threads;

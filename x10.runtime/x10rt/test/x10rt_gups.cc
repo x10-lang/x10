@@ -6,6 +6,8 @@
 
 #include <x10rt_front.h>
 
+#define OP_NEW
+
 // {{{ nano_time
 #include <sys/time.h>
 
@@ -79,7 +81,7 @@ static void recv_dist (const x10rt_msg_params *p) {
 static void do_update (unsigned long long index, unsigned long long update) {
     localTable[index] ^= update;
 
-    #if defined(NO_REMOTE_XOR)
+    #ifdef OP_EMULATE
     decrement(0);
     #endif
 }
@@ -115,15 +117,20 @@ static void do_main (unsigned long long logLocalTableSize, unsigned long long nu
         if (x10rt_here()==place) {
             do_update(index,update);
         } else {
-            #ifdef NO_REMOTE_XOR
+            #ifdef OP_EMULATE
             char *buf2 = (char*)x10rt_msg_realloc(NULL,0, 16);
             memcpy(buf2+0, &index, 8);
             memcpy(buf2+8, &update, 8);
             x10rt_msg_params params = {place, UPDATE_ID, buf2, 16};
             x10rt_send_msg(&params);
-            #else
+            #endif
+            #ifdef OP_OLD
             unsigned long long remote_addr = globalTable[place];
             x10rt_remote_xor(place, remote_addr + sizeof(long long)*index, update);
+            #endif
+            #ifdef OP_NEW
+            unsigned long long remote_addr = globalTable[place];
+            x10rt_remote_op(place, remote_addr + sizeof(long long)*index, X10RT_OP_XOR, update);
             #endif
         }
 
@@ -131,8 +138,10 @@ static void do_main (unsigned long long logLocalTableSize, unsigned long long nu
     }
     // HOT LOOP ENDS
 
-    #ifndef NO_REMOTE_XOR
+    #ifndef OP_EMULATE
+    #ifdef OP_OLD
     x10rt_remote_op_fence();
+    #endif
     decrement(0);
     #endif
 }
@@ -185,7 +194,7 @@ void show_help(std::ostream &out, char* name)
 void runBenchmark (unsigned long long logLocalTableSize,
                    unsigned long long numUpdates)
 {
-    #ifdef NO_REMOTE_XOR
+    #ifdef OP_EMULATE
     pongs_outstanding=numUpdates;
     #else
     pongs_outstanding=x10rt_nhosts();
