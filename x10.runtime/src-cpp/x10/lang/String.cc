@@ -77,6 +77,22 @@ x10_int String::indexOf(x10_char c, x10_int i) {
     return i + (x10_int) (pos - haystack);
 }
 
+// [DC] Java defines whitespace as any unicode codepoint <= U0020
+// ref: javadoc for java.lang.String.trim()
+static bool isws (char x) { return x <= 20; }
+
+x10aux::ref<String> String::trim() {
+    const char *start = FMGL(content);
+    x10_int l = FMGL(content_length);
+    if (l==0) { return this; } // string is empty
+    while (isws(start[0]) && l>0) { start++; l--; }
+    while (isws(start[l-1]) && l>0) { l--; }
+    if (l==0) { return String::Lit(""); } // string was all whitespace
+    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+    this_->_constructor(start, l);
+    return this_;
+}
+
 
 static const char *my_strrstr(const char *haystack, const char *needle, int give_up) {
     const char *last_find = NULL;

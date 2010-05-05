@@ -237,6 +237,15 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
 
 
     /**
+     * Returns a copy of the string with leading and trailing whitespace removed.
+     * @return The new string with no leading/trailing whitespace.
+     */
+    @Native("java", "(#0).trim()")
+    @Native("c++", "(#0)->trim()")
+    public native global def trim(): String;
+
+
+    /**
      * Returns the String representation of the given entity.
      * The representation is exactly the one returned by the toString() method of the entity.
      * @param v the given entity
