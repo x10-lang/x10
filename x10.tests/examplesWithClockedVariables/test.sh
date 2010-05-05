@@ -1,4 +1,4 @@
-example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil RandomAccess Series RayTrace)
+example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil RandomAccess Series RayTrace LUFact)
 for ((i = 0; i < ${#example[@]}; i++))
 do
 	
