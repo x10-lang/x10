@@ -79,7 +79,7 @@ x10_int String::indexOf(x10_char c, x10_int i) {
 
 // [DC] Java defines whitespace as any unicode codepoint <= U0020
 // ref: javadoc for java.lang.String.trim()
-static bool isws (char x) { return x <= 20; }
+static bool isws (char x) { return x <= 0x20; }
 
 x10aux::ref<String> String::trim() {
     const char *start = FMGL(content);
