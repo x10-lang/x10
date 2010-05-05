@@ -79,13 +79,19 @@
         </and>
     </condition>
     <!-- darwin architectures -->
-	<condition property="darwin.32" value="-arch i386 " else="">
-        <istrue value="${env.USE_32BIT}" />
+    <condition property="darwin.32" value="-arch i386 " else="">
+        <and>
+            <os family="mac"/>
+            <istrue value="${env.USE_32BIT}" />
+        </and>
     </condition>
     <condition property="darwin.64" value="-arch x86_64 " else="">
-        <istrue value="${env.USE_64BIT}" />
+        <and>
+            <os family="mac"/>
+            <istrue value="${env.USE_64BIT}" />
+        </and>
     </condition>
-	<condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
+    <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
         <isset property="bdwgc.enabled" />
     </condition>
     <condition property="cppmake.optimize" value="OPTIMIZE=1" else="DEBUG=1">
@@ -120,7 +126,7 @@
     <target name="clean" depends="clean-java,clean-cpp,clean-x10rt"/>
     <target name="distclean-java" depends="clean-java"/>
     <target name="clean-java">
-        <delete dir="${build}"/>
+        <delete dir="${build}" failonerror="false"/>
     </target>
     <target name="distclean-cpp" depends="clean-cpp,clean-bdwgc"/>
     <target name="clean-cpp" depends="available-procs">

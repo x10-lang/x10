@@ -234,16 +234,16 @@ depend:
 
 #nuke only object code
 cleanobj:
-	find . \( -name '*.h.gch' -o -name '*.o' -o -name '*.rpo' \) -print0 | xargs -0 -t rm -fr
+	find . \( -name '*.h.gch' -o -name '*.o' -o -name '*.rpo' \) -print0 | xargs -0 -t $(RM) -r
 
 #nuke everything
 cleangen:
-	rm -rf gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
+	-$(RM) -r gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
 
 clean: cleanobj cleangen
 
 squeakyclean: clean
-	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t rm -f
+	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t $(RM)
 
 
 .PHONY: depend clean cleanobj cleangen squeakyclean
