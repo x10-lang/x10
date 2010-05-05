@@ -135,6 +135,18 @@ public class XConstraint_c implements XConstraint, Cloneable {
     	return null;
     }
 
+    // FIXME: Vijay, Igor and I think that this method has the intended semantics of bindingForVar and should replace it  - Bowen
+    /**
+     * {@inheritDoc}
+     */
+    public XTerm termBindingForVar(XVar v) {
+        XPromise p = lookup(v);
+        if (p != null && (!(p.term() instanceof XVar) || !p.term().equals(v))) {
+            return p.term();
+        }
+        return null;
+    }
+
  /*   public XConstraint removeVarBindings(XVar v) {
         try {
             XConstraint c = new XConstraint_c();

@@ -109,11 +109,19 @@ public interface XConstraint extends java.io.Serializable{
 
 	
 	
-	/** Return the term v is bound to in this constraint, and null
+	/**
+	 * Return the term v is bound to in this constraint, and null
 	 * if there is no such term. This term will be distinct from v.
 	 * */
 	XVar bindingForVar(XVar v);
 
+    // FIXME: Vijay, Igor and I think this method has the semantics intended for bindingForVar, which is incorrectly implemented.
+    // The javadoc comment supports this conclusion.  - Bowen
+    /**
+     * Return the term v is bound to in this constraint, and null
+     * if there is no such term. This term will be distinct from v.
+     */
+    XTerm termBindingForVar(XVar v);
 
 
 
