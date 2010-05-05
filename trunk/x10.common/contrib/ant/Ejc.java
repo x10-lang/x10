@@ -41,7 +41,7 @@ public class Ejc extends Javac {
             try {
                 adapter = (CompilerAdapter) getClass().forName(compilerImpl).newInstance();
             } catch (ClassNotFoundException e) {
-                System.err.println(EJC_COMPILER+" not found");
+                System.err.println(compilerImpl+" not found in "+System.getProperty("java.class.path"));
                 throw new BuildException(e, getLocation());
             } catch (IllegalAccessException e) {
             } catch (InstantiationException e) {
