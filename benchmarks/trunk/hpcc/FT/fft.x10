@@ -94,7 +94,7 @@ class fft {
         }
 
         def transpose() {           
-           x10.io.Console.OUT.println("begin transpose");                   
+//           x10.io.Console.OUT.println("begin transpose");                   
             val n0 = Place.MAX_PLACES;
             val n1 = nRows;
             val n2 = SQRTN;           
@@ -117,16 +117,16 @@ class fft {
                         }
                     }
                 }
-           x10.io.Console.OUT.println("before copyto");
+//           x10.io.Console.OUT.println("before copyto");
            if (Place.places(k) != here) B.copyTo(k * chunkSize, Place.places(k), Cs, dstIndex, chunkSize);
            else {
              for ((i): Point in [k*chunkSize..(k+1)*chunkSize-1]) {
                 C(i) = B(i); 
              }
            }
-           x10.io.Console.OUT.println("after copyto");
+//           x10.io.Console.OUT.println("after copyto");
             }
-           x10.io.Console.OUT.println("end transpose");                   
+//           x10.io.Console.OUT.println("end transpose");                   
         }
 
         def scatter() {
@@ -155,13 +155,13 @@ class fft {
     }
 
     static def transpose_A(FFT:PlaceLocalHandle[Block]) {
-        x10.io.Console.OUT.println("before FFT()" );
-        x10.io.Console.OUT.println(FFT());
+//        x10.io.Console.OUT.println("before FFT()" );
+//        x10.io.Console.OUT.println(FFT());
         finish ateach((p) in Dist.makeUnique()) FFT().transpose();
-        x10.io.Console.OUT.println("after FFT()" );
+//        x10.io.Console.OUT.println("after FFT()" );
         finish ateach ((p) in unique) FFT().transpose();
         finish ateach ((p) in unique) FFT().scatter();
-        x10.io.Console.OUT.println("after transpose");
+//        x10.io.Console.OUT.println("after transpose");
     }
 
     static def bytwiddle_A(FFT:PlaceLocalHandle[Block], sign:Int) {
