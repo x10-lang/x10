@@ -83,6 +83,8 @@ namespace x10 {
             }
             */
 
+            x10aux::ref<String> trim();
+
             x10aux::ref<String> toString() { return this; }
 
             x10_int hashCode();
