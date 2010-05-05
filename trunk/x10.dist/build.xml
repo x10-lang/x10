@@ -76,9 +76,9 @@
     </target>
 
     <target name="squeakyclean" depends="clean">
-        <delete dir="${etc}" />
+        <delete dir="${etc}" failonerror="false"/>
         <mkdir dir="${etc}" />
-        <delete dir="${incdir}" />
+        <delete dir="${incdir}" failonerror="false"/>
         <mkdir dir="${incdir}" />
         <mkdir dir="${lib}" />
         <delete> <!-- TODO: download jars elsewhere and copy -->
@@ -93,7 +93,7 @@
             </fileset>
         </delete>
         <!-- TODO: remove generated libs, but not downloaded ones
-        <delete dir="${lib}" />
+        <delete dir="${lib}" failonerror="false"/>
         <mkdir dir="${lib}" />
         -->
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
@@ -103,7 +103,7 @@
     </target>
 
     <target name="distclean" depends="squeakyclean">
-        <delete dir="${lib}" />
+        <delete dir="${lib}" failonerror="false"/>
         <mkdir dir="${lib}" />
         <ant antfile="${x10.runtime.location}/build.xml" target="distclean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
