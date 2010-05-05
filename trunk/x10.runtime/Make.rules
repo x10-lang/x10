@@ -75,16 +75,14 @@ ifdef ENABLE_CROSS_COMPILE_BGP
 else
 
   ifeq ($(shell uname -s),AIX)
-    ifndef X10_SHARED_LIB_DEFAULT_OVERRIDE
-      export X10_STATIC_LIB=1
-    endif
-
     ifdef USE_GCC
       export X10RT_PLATFORM=aix_gcc
       ifdef OPTIMIZE
         override CXXFLAGS += -O2 -finline-functions
       endif
       override CXXFLAGS += -maix64
+      override CXXFLAGS_SHARED += -shared -fPIC -Wl,-bexpall -Wl,-berok -Wl,-bnoentry
+      override LDFLAGS += -Wl,-brtl
       MPICXX ?= mpicxx
     else
       export X10RT_PLATFORM=aix_xlc
@@ -96,6 +94,9 @@ else
       else
         override CXXFLAGS += -q32
       endif
+      override CXXFLAGS_SHARED += -G -bbigtoc
+#      override CXXFLAGS_SHARED += -qmkshrobj -berok -brtl -bnortllib -bnosymbolic -bnoautoexp -bM:SRE -bnoentry
+      override LDFLAGS += -brtl
       ifdef OPTIMIZE
         override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
       endif
