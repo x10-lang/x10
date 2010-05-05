@@ -36,7 +36,6 @@ import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef_c;
-import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -53,10 +52,7 @@ import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SemanticError;
 import x10.ast.SubtypeTest;
-import x10.ast.X10ClassDecl_c;
-import x10.constraint.XEquals;
 import x10.constraint.XFailure;
-import x10.constraint.XLit;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
@@ -467,7 +463,7 @@ public class X10TypeMixin {
     }
 
     public static XVar selfVar(Type thisType) {
-	    CConstraint c = xclause(thisType);
+	    CConstraint c = xclause(thisType); // Should this be realX(thisType) ???  - Bowen
 	    return selfVar(c);
     }
 
@@ -477,7 +473,7 @@ public class X10TypeMixin {
     }
 
     public static XVar selfVarBinding(Type thisType) {
-	    CConstraint c = xclause(thisType);
+	    CConstraint c = xclause(thisType); // Should this be realX(thisType) ???  - Bowen
 	    return selfVarBinding(c);
     }
 
@@ -486,6 +482,16 @@ public class X10TypeMixin {
 	    return c.bindingForVar(c.self());
     }
 
+    public static XTerm selfBinding(Type thisType) {
+        CConstraint c = realX(thisType);
+        return selfBinding(c);
+    }
+    
+    public static XTerm selfBinding(CConstraint c) {
+        if (c == null) return null;
+        return c.bindingForVar(c.self());
+    }
+    
     public static Type setSelfVar(Type t, XVar v) throws SemanticException {
     	CConstraint c = xclause(t);
     	if (c == null) {
@@ -837,7 +843,7 @@ public class X10TypeMixin {
 
 	public static XTerm rank(Type t, X10Context context) {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-	    return findOrSythesize(t, Name.make("rank"));
+	    return findOrSynthesize(t, Name.make("rank"));
 	}
 
 	public static Type railBaseType(Type t) {
@@ -895,7 +901,7 @@ public class X10TypeMixin {
 	}
 
 
-	static XTerm findOrSythesize(Type t, Name propName) {
+	public static XTerm findOrSynthesize(Type t, Name propName) {
 	    return find(t, propName);
 	}
 
