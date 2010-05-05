@@ -41,6 +41,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.ProcedureCall;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Receiver;
+import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -175,15 +176,16 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     
     Effect effect;
     Safety safety;
+    ProcedureDecl main;
     
     public Effect effect() {
     	return this.effect;
     }
 	
     public X10Ext effect(Effect e) {
-        X10Ext_c n = (X10Ext_c) copy();
-        n.effect = e;
-        return n;
+        //X10Ext_c n = (X10Ext_c) copy();
+        this.effect = e;
+        return this;
     }
     	
 
@@ -259,7 +261,9 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	            } else if (n instanceof Loop) {
 	            	result = computeEffect((Loop) n, ec); 
 	            
-	            } else {
+	            } else if (n instanceof SourceFile) {
+	            	result = computeEffect((SourceFile) n, ec);
+	        	} else {
 	                //System.out.println(n);
 	                result = Effects.makeSafe();
 		        }
@@ -270,6 +274,12 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 	        }
 	}
 
+	
+	private Effect computeEffect(SourceFile n, EffectComputer ec) {
+		//computeEffect(main, ec);
+		return null;
+	}
+	
 	private Effect computeEffect (ProcedureDecl pd, EffectComputer ec) {
 		Effect result = Effects.makeSafe();
 	
@@ -314,13 +324,11 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     		ec.emitMessage("Unable to compute effects of method " + pd.name(), pd.position());
     	} else if (!result.safe()) {
     		ec.emitMessage("Method " + pd.name() + " is unsafe:"+ result, pd.position());
-    	} else if (isMainMethod(pd, ec) && !result.safe()) {
-    		ec.emitMessage("Main method is not safely parallelized; effect is: " + result, pd.position());
     	} else {
 	       System.out.println("Info: " + pd.position() + ": Method " + pd.name() + " is "+ result);
     	}
-    	
-		
+    	if (isMainMethod(pd, ec)) 
+    		this.main = pd;	
     	return result;
 	}	
     
@@ -673,7 +681,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
 	  		ConstrainedType ct = (ConstrainedType) li.x10Def().type().get();
 	  		X10ParsedClassType pct = (X10ParsedClassType) ct.baseType().get();
 	  		Type it = pct.typeArguments().get(0);
-	  		
+	  
 	  		if (it instanceof AnnotatedType) {
 	  				AnnotatedType at = (AnnotatedType) it; 
 	  			
@@ -689,6 +697,8 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
 	  				}
 	  			}
 	  		 }
+
+	  		
 	  	   } else if (array instanceof Field) {
 	  		    FieldInstance fi = ((Field)array).fieldInstance();
 	  		    ConstrainedType ct = (ConstrainedType) fi.def().type().get();
@@ -824,9 +834,11 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       return bodyEff.makeParSafe();
   }*/
 
-  private Effect computeEffect(ForLoop forLoop, EffectComputer ec) {
+  private Effect computeEffect(ForLoop forLoop, EffectComputer ec) throws XFailure {
 	  
       Effect bodyEff= effect(forLoop.body());
+      bodyEff = ec.env().followedBy(bodyEff, effect(forLoop.body()));
+     
       // Abstract any effects that involve the loop induction variable
       // TODO How to properly bound the domain of the loop induction variable?
       // It isn't quite correct to use universal quantification for that...
