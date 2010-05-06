@@ -506,8 +506,8 @@ class Set[-T] {
 %
 %~~neg
 
-The subtyping rules of covariance and contravariance are: 
-Given types \xcd"S" and \xcd"T".
+
+Given types \xcd"S" and \xcd"T": 
 \begin{itemize}
 \item
 If the parameter of \xcd"Get" is covariant, then
@@ -562,7 +562,73 @@ There are similar restrictions on use of covariant and contravariant values.
 \index{types!dependent types}
 \index{types!generic types}
 
-        
+
+Basic types, like \xcd`Int` and \xcd`List[String]`, provide useful
+descriptions of data.  Indeed, most typed programming languages get by with no
+more specific descriptions.
+
+However, there are a lot of things that one frequently wants to say about
+data.  One might want to know that a \xcd`String` variable is not \xcd`null`,
+or that a matrix is square, or that one matrix has the same number of columns
+that another has rows (so they can be multiplied).  In the multicore setting,
+one might wish to know that two values are located at the same processor.
+
+In most languages, there is simply no way to say these things statically.
+Programmers must made do with comments, \xcd`assert` statements, and dynamic
+tests.  X10 can do better, with {\em constraints} on types (and methods and
+other things).
+
+A constraint is a boolean expression \xcd`e` attached to a basic type \xcd`T`,
+written \xcd`T{e}`.  (Only a limited selection of boolean expressions is
+available.)  The values of type \xcd`T{e}` are the values of \xcd`T` for which
+\xcd`e` is true.  For example: 
+
+\begin{itemize}
+%~~type~~`~~`~~ ~~
+\item \xcd`String{self != null}` is the type of non-null strings.  \xcd`self`
+      is a special variable available only in constraints; it refers to the
+      datum being constrained.   
+\item If \xcd`Matrix` has properties \xcd`rows` and \xcd`cols`, 
+%~~type~~`~~`~~ ~~class Matrix(rows:Int,cols:Int){}
+      \xcd`Matrix{rows == cols}` is the type of square matrices.
+\item One way to say that \xcd`a` has the same number of columns that \xcd`b`
+      has rows (so that \xcd`a*b` is a valid matrix product), one could say: 
+%~~gen
+% package Types.cripes.whered.you.get.those.gripes;
+% class Matrix(rows:Int, cols:Int){
+% public static def someMatrix(): Matrix = null;
+% public static def example(){
+%~~vis
+\begin{xten}
+  val a : Matrix = someMatrix() ;
+  var b : Matrix{b.rows == a.cols} ;
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+\item One way to say that objects \xcd`c` and \xcd`d` are located at the same
+      place is: 
+%~~gen
+% package Types.flipes.knipes.shipes.wipes;
+% class Exampler {
+% static def someObject(): Object = null;
+% static def example() {
+%~~vis
+\begin{xten}
+  val a : Object = someObject();
+  var b : Object{a.home == b.home};
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\end{itemize}
+
+
+
+%%BARD-HERE
+
+
 Given a type \xcd"T", a {\em constrained type} \xcd"T{e}" may be constructed
 by constraining its properties with a boolean expression of a limited sort
 \xcd"e". The values of \xcd`T{e}` are those values of type \xcd`T` for which
