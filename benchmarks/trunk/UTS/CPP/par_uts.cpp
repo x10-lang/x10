@@ -55,16 +55,22 @@ static void recv_work_request (const x10rt_msg_params* request_ptr) {
 #endif
   if (!work_queue.empty()) {
     unsigned char* work = 
-      static_cast<unsigned char*> (x10rt_msg_realloc (NULL, 0, 20));
-    work_queue.back().copy (work);
+      static_cast<unsigned char*> 
+          (x10rt_msg_realloc (NULL, 0, 20+sizeof(unsigned int)));
+    *(reinterpret_cast<unsigned int*>(work)) = 20;
+    work_queue.back().copy (work+sizeof(unsigned int));
     work_queue.pop_back();
-    x10rt_msg_params work_packet = {stealer, WORK, work, 20};
+    x10rt_msg_params work_packet = 
+                    {stealer, WORK, work, 20+sizeof(unsigned int)};
 #if DEBUG
     std::cout << x10rt_here() << " sending work out" << std::endl;
 #endif
     x10rt_send_msg (&work_packet);
   } else {
-    x10rt_msg_params work_packet = {stealer, WORK, NULL, 0};
+    unsigned int* work = static_cast<unsigned int*>
+                        (x10rt_msg_realloc (NULL, 0, sizeof(unsigned int)));
+    *work = 0;
+    x10rt_msg_params work_packet = {stealer, WORK, work, sizeof(unsigned)};
 #if DEBUG
     std::cout << x10rt_here() << " no work to send out" << std::endl;
 #endif
@@ -75,11 +81,14 @@ static void recv_work_request (const x10rt_msg_params* request_ptr) {
 // Handle work coming in
 static void recv_work (const x10rt_msg_params* work_ptr) {
   work_response_received = true;
-  if (0!=work_ptr->len) { // got work
+  const unsigned int work_packet_length = 
+                      *(static_cast<unsigned int*>(work_ptr->msg));
+  if (0!=work_packet_length) { // got work
 #if DEBUG
     std::cout << x10rt_here() << " got work" << std::endl;
 #endif
-    work_queue.push_back(sha1_rand(static_cast<unsigned char*>(work_ptr->msg)));
+    work_queue.push_back
+  (sha1_rand(sizeof(unsigned int)+static_cast<unsigned char*>(work_ptr->msg)));
   } else { // no work
     // nothing 
 #if DEBUG
