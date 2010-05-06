@@ -14,6 +14,7 @@ static int b0 = 4; // Root branching factor
 static int r = 0; // Root seed for the random number
 static int m = 4; // Number of children 
 static double q = 15.0/64.0; // Probability of having a child
+static int k = m; // number of work packets that can be stolen at one go
 static uint32_t num_nodes = 0; // There is a root node that we don't count
 static const double NORMALIZER = std::numeric_limits<int>::max();
 static bool work_response_received = false;
@@ -54,14 +55,36 @@ static void recv_work_request (const x10rt_msg_params* request_ptr) {
   std::cout << x10rt_here() << " got work request: " << stealer << std::endl;
 #endif
   if (!work_queue.empty()) {
+    // Try to hand out STEAL_LIMIT if there is enough left over --- otherwise,
+    // go on decreasing the number of work packets handed out until something
+    // reasonable size is reached.
+    unsigned int num_work_packets = 1;
+
+    if (k < work_queue.size()) 
+      num_work_packets = k;
+    else if (k/2 < work_queue.size()) 
+      num_work_packets = k/2;
+    else 
+      num_work_packets = 1;
+
+#if DEBUG
+    std::cout << x10rt_here() << " transfering " << num_work_packets 
+              << " work packets to " << stealer << std::endl;
+#endif
+
+    const unsigned int msg_len = 20*num_work_packets + sizeof(unsigned int);
+
     unsigned char* work = 
-      static_cast<unsigned char*> 
-          (x10rt_msg_realloc (NULL, 0, 20+sizeof(unsigned int)));
-    *(reinterpret_cast<unsigned int*>(work)) = 20;
-    work_queue.back().copy (work+sizeof(unsigned int));
-    work_queue.pop_back();
-    x10rt_msg_params work_packet = 
-                    {stealer, WORK, work, 20+sizeof(unsigned int)};
+      static_cast<unsigned char*> (x10rt_msg_realloc (NULL, 0, msg_len));
+
+    *(reinterpret_cast<unsigned int*>(work)) = num_work_packets;
+
+    unsigned char* cur_work_ptr = work + sizeof(unsigned int);
+    for (int i=0; i<num_work_packets; ++i, cur_work_ptr+=20) {
+      work_queue.back().copy (cur_work_ptr);
+      work_queue.pop_back();
+    }
+    x10rt_msg_params work_packet = {stealer, WORK, work, msg_len};
 #if DEBUG
     std::cout << x10rt_here() << " sending work out" << std::endl;
 #endif
@@ -81,14 +104,17 @@ static void recv_work_request (const x10rt_msg_params* request_ptr) {
 // Handle work coming in
 static void recv_work (const x10rt_msg_params* work_ptr) {
   work_response_received = true;
-  const unsigned int work_packet_length = 
+  const unsigned int num_work_packets = 
                       *(static_cast<unsigned int*>(work_ptr->msg));
-  if (0!=work_packet_length) { // got work
+  if (0!=num_work_packets) { // got work
 #if DEBUG
     std::cout << x10rt_here() << " got work" << std::endl;
 #endif
-    work_queue.push_back
-  (sha1_rand(sizeof(unsigned int)+static_cast<unsigned char*>(work_ptr->msg)));
+    unsigned char* cur_work_ptr = static_cast<unsigned char*>(work_ptr->msg) + 
+                                  sizeof (unsigned int);
+    for (int i=0; i<num_work_packets; ++i, cur_work_ptr+=20) {
+      work_queue.push_back (sha1_rand(cur_work_ptr));
+    }
   } else { // no work
     // nothing 
 #if DEBUG
@@ -276,6 +302,8 @@ int main (int argc, char** argv) {
     } else if (0 == strcmp (argv[i], "-q")) {
       q = static_cast<double> (atof (argv[i+1]));
       // Optimization --- don't have to multiply everytime
+    } else if (0 == strcmp (argv[i], "-k")) {
+      k = atoi (argv[i+1]);
     } else {
       std::cout << "Error --- invalid option: " << argv[i] << std::endl;
       exit (3);
