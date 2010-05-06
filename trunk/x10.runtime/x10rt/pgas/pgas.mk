@@ -48,6 +48,8 @@ ifeq ($(X10RT_PLATFORM), aix_gcc)
   PLATFORM_SUPPORTS_LAPI       := yes
   LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
   LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  PANE_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
+  PANE_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
   #PLATFORM_SUPPORTS_SOCKETS    := yes
   PLATFORM_SUPPORTS_PANE       := yes
 endif
