@@ -81,7 +81,7 @@ else
         override CXXFLAGS += -O2 -finline-functions
       endif
       override CXXFLAGS += -maix64
-      override CXXFLAGS_SHARED += -shared -fPIC -Wl,-bexpall -Wl,-berok -Wl,-bnoentry
+      override CXXFLAGS_SHARED += -shared -fPIC -Wl,-bbigtoc -Wl,-bexpall -Wl,-berok -Wl,-bnoentry -Wl,-brtl -Wl,-bnortllib -Wl,-bnosymbolic -Wl,-bnoautoexp -Wl,-bM:SRE
       override LDFLAGS += -Wl,-brtl
       MPICXX ?= mpicxx
     else

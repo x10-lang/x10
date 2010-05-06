@@ -35,6 +35,7 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
             cxxCmd.add("-Wno-long-long");
             cxxCmd.add("-Wno-unused-parameter");
             cxxCmd.add("-maix64"); // Assume 64-bit
+            cxxCmd.add("-Wl,-brtl");
         }     
     }
 
