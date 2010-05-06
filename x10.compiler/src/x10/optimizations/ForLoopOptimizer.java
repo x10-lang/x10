@@ -239,8 +239,8 @@ public class ForLoopOptimizer extends ContextVisitor {
             for (int r=rank-1; 0<=r; r--) {
                 
                 // create new names for the r-th iterate and limits
-                Name varName  = null == formalVars || formalVars.size() != rank ? Name.makeFresh(prefix) 
-                                                                                : formalVars.get(r).name().id();
+                Name varName  = null == formalVars || formalVars.isEmpty() ? Name.makeFresh(prefix) 
+                                                                           : Name.makeFresh(formalVars.get(r).name().id());
                 Name minName  = Name.makeFresh(varName+ "min");
                 Name maxName  = Name.makeFresh(varName+ "max");
                 
@@ -260,7 +260,13 @@ public class ForLoopOptimizer extends ContextVisitor {
                 // create expressions for the second and third positions in the r-th for clause
                 Expr cond = createBinary(domain.position(), createLocal(pos, varLDecl), Binary.LE, createLocal(pos, maxLDecl));
                 Expr update = createAssign(domain.position(), createLocal(pos, varLDecl), Assign.ADD_ASSIGN, createIntLit(1));
-               
+                
+                List<Stmt> bodyStmts = new ArrayList<Stmt>(); 
+                
+                if (null != formalVars && !formalVars.isEmpty()) {
+                    bodyStmts.add(transformFormalToLocalDecl((X10Formal) formalVars.get(r), createLocal(pos, varLDecl)));
+                }
+                
                 // concoct declaration for formal, in case it might be referenced in the body
                 if (named) {
                     // set the r-th slot int the index rail to the current value of the r-th iterate
@@ -269,18 +275,18 @@ public class ForLoopOptimizer extends ContextVisitor {
                                                        SET, 
                                                        createLocal(pos, varLDecl), 
                                                        createIntLit(r) );
+                    bodyStmts.addAll(convertToStmtList(setExpr));
                     if (r+1 == rank) { // the innermost loop
                         // declare the formal variable as a local and initialize it to the index rail
                         Expr formExpr = createStaticCall(pos, formal.declType(), MAKE, createLocal(pos, indexLDecl));
-                        LocalDecl formDecl = transformFormalToLocalDecl(formal, formExpr);
-                        body = createBlock(pos, setExpr, formDecl, body);
-                    } else {
-                        body = createBlock(pos, setExpr, body);
+                        bodyStmts.add(transformFormalToLocalDecl(formal, formExpr));
                     }
                 }
+                bodyStmts.add(body);
+                body = createBlock(pos, bodyStmts);
                 
                 // create the AST node for the r-th concocted for-statement
-                body  = createStandardFor(pos, varLDecl, cond, update, body);
+                body = createStandardFor(pos, varLDecl, cond, update, body);
                 
             }
             
@@ -302,9 +308,16 @@ public class ForLoopOptimizer extends ContextVisitor {
                 throw new InternalCompilerError("Unable to cast "+nextExpr+" to the iterated type "+formal.declType(), pos);
             nextExpr = newNextExpr;
         }
-        LocalDecl varLDecl    = named ? transformFormalToLocalDecl(formal, nextExpr)
-                                      : createLocalDecl(pos, Flags.FINAL, Name.makeFresh(), nextExpr);
-        Stmt result           = createStandardFor(pos, iterLDecl, hasExpr, createBlock(pos, varLDecl, body));
+        List<Stmt> bodyStmts = new ArrayList<Stmt>();
+        LocalDecl varLDecl    = transformFormalToLocalDecl(formal, nextExpr);
+        bodyStmts.add(varLDecl);
+        if (null != formalVars && !formalVars.isEmpty()) try {
+            bodyStmts.addAll(formal.explode(this));
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("We cannot explode the formal.  Huh?", formal.position(), e);
+        }
+        bodyStmts.add(body);
+        Stmt result           = createStandardFor(pos, iterLDecl, hasExpr, createBlock(pos, bodyStmts));
         if (VERBOSE) result.dump(System.out);
         return result;
     }
@@ -500,6 +513,21 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public Block createBlock(Position pos, Term... terms) {
+        return createBlock(pos, convertToStmtList(terms));
+    }
+
+    /**
+     * Convert individual terms (statements and/or expressions) to a list of statements.
+     * If a term is already a Stmt, it is used as is.
+     * If it is an Expr, the Stmt is its evaluation.
+     * Otherwise an InvalidArgumentException is thrown.
+     * 
+     * @param terms the sequence of terms
+     * @return the newly constructed list of statements
+     * @throws IllegalArgumentException if one of the terms is not a Stmt or an Expr
+     * TODO: move into Synthesizer
+     */
+    public List<Stmt> convertToStmtList(Term... terms) {
         List<Stmt> stmts = new ArrayList<Stmt> (terms.length);
         for (Term term : terms) {
             if (term instanceof Expr) {
@@ -509,7 +537,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             }
             stmts.add((Stmt) term);
         }
-        return createBlock(pos, stmts);
+        return stmts;
     }
 
     // helper methods that create subclasses of Expr
