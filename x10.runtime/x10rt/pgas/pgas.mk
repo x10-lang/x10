@@ -49,7 +49,8 @@ ifeq ($(X10RT_PLATFORM), aix_gcc)
   LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
   LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
   PANE_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
-  PANE_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  PANE_ARLIBS     = -llapi_r -lpthread -lm
+  PANE_LDLIBS    += -lmpi_r -lvtd_r $(PANE_ARLIBS)
   #PLATFORM_SUPPORTS_SOCKETS    := yes
   PLATFORM_SUPPORTS_PANE       := yes
 endif
@@ -213,7 +214,7 @@ $(PGAS_DYNLIB_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(PGAS_DYNLIB_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(PANE_ARLIBS) -o $@ $^
 endif
 
 etc/x10rt_pgas_pane.properties:
