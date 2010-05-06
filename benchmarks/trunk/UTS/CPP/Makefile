@@ -4,12 +4,13 @@ X10_INCLUDE_DIR=${X10_HOME}/include
 X10_LIB_DIR=${X10_HOME}/lib
 X10_BIN_DIR=${X10_HOME}/bin
 CXX=g++
-#CXXFLAGS=-O3 -fomit-frame-pointer 
-CXXFLAGS=-O0 -g
+CXXFLAGS=-O3 -fomit-frame-pointer 
+#CXXFLAGS=-O0 -g -DDEBUG
 LDFLAGS=-Wl,-stack_size -Wl,100000000
 
 # The libraries that we want for the executable to be compiled
-X10RT_LIB=x10rt_pgas_sockets
+#X10RT_LIB=x10rt_pgas_sockets
+X10RT_LIB=x10rt_mpi
 
 # Runtime environment variables
 TCSH=/bin/tcsh
