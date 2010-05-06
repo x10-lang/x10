@@ -302,7 +302,7 @@ class KimThePoint implements Person {
 \index{properties}
 \label{properties}
 
-Classes and interfaces may have {\em properties}, public \xcd`val` instance
+Classes, interfaces, and structs may have {\em properties}, public \xcd`val` instance
 fields bound on object creation. For example, the following code declares a
 class named \xcd"Coords" with properties \xcd"x" and \xcd"y" and a \xcd"move"
 method. The properties are bound using the \xcd"property" statement in the
@@ -313,17 +313,20 @@ constructor.
 %~~vis
 \begin{xten}
 class Coords(x: Int, y: Int) {
-  def this(x: Int, y: Int) { property(x, y); }
+  def this(x: Int, y: Int) : Int{this.x==x, this.y==y} 
+    = { property(x, y); }
   def move(dx: Int, dy: Int) = new Coords(x+dx, y+dy);
 }
 \end{xten}
 %~~siv
 %~~neg
 
-        The properties of a class or interface may be
-        constrained with a boolean expression.  The type
-        \xcd"Coords{x==0}" is the set of all points whose \xcd"x"
-        property is \xcd"0".
+Properties, unlike other public \xcd`val` fields, can be used  
+at compile time in {\em constraints}. This allows us
+to specify subtypes based on properties, by appending a boolean expression to
+the type. For example, the type \xcd"Coords{x==0}" is the set of all points
+whose \xcd"x" property is \xcd"0".  Details of this substantial topic are
+found in \Sref{ConstrainedTypes}.
 
 
 

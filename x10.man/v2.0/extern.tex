@@ -155,6 +155,13 @@ in this case -- so the replacement should also be a statement.
 \bard{What constructs can be used in native code?  return? throw? type
 variables?}
 
+Other X10 constructs may or may not be available in Java and/or C++ code.  For
+example, type variables do not correspond exactly to type variables in either
+language, and may not be available there.  The exact compilation scheme is
+{\em not} fully specified.  You may inspect the generated Java or C++ code and
+see how to do specific things, but there is no guarantee that fancy extern
+coding will continue to work in later versions of X10.
+
 \section{External C++ Code}
 
 C++ code can be linked to X10 code, either by writing auxiliary C++ files and
@@ -216,13 +223,14 @@ x10c++ Test.x10 -post '# # -I /usr/local/blas # -L /usr/local/blas -lblas'
 \end{xten}
 
 \begin{itemize}
-\item The first \# means to use the default compiler for the architecture (from
+\item The first \xcd`#` means to use the default compiler for the architecture (from
       x10rt properties file). 
-\item The second \# is substituted for the .cc files and CXXFLAGS that would
+\item The second \xcd`#` is substituted for the .cc files and CXXFLAGS that would
       ordinarily be used. 
-\item The third \# is substituted for the libraries and LDFLAGS that would
+\item The third \xcd`#` is substituted for the libraries and LDFLAGS that would
       ordinarily used.
-\item For the second and third, if a \% is used instead of a \# then the
-      parameters are suppressed and suitable parameters must be provided
-      manually. This allows a complete override of the postcompiler behaviour.
+\item For the second and third, if a \xcd`%` is used instead of a \xcd`#` then the
+      the substitution does not occur in that position.  The \xcd`%` is
+      erased.  The desired parameter value should appear after the \xcd`%` on
+      the line. This allows a complete override of the postcompiler behaviour.
 \end{itemize}
