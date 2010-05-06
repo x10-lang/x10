@@ -112,6 +112,23 @@
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
     <target name="dist" depends="dist-java,dist-cpp"/>
 
+    <target name="check-jar-cache" depends="init">
+        <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+        <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
+        <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
+        <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
+        <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
+        <condition property="cache.up-to-date">
+            <and>
+                <isset property="lpg.jar.present"/>
+                <isset property="ecj.jar.present"/>
+                <isset property="polyglot.jar.present"/>
+                <isset property="polyglot.bytecode.jar.present"/>
+                <isset property="asm.jar.present"/>
+            </and>
+        </condition>
+    </target>
+
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
         <get usetimestamp="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
@@ -178,7 +195,13 @@
         <fail message="Unable to find ${asm.jar} at ${local.asm.jar}" unless="asm.jar.present"/>
     </target>
 
-    <target name="build" depends="init,bin,etc,lpg-jar,ecj-jar,polyglot-jar,polyglot-bytecode-jar,asm-jar">
+    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,polyglot-jar,polyglot-bytecode-jar,asm-jar"/>
+
+    <target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
+        <antcall target="update-jar-cache"/>
+    </target>
+
+    <target name="build" depends="init,bin,etc,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
