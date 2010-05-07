@@ -392,9 +392,9 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
         // dependency error, but instead get a less precise type.
         sym.update(t);
         
-        if (! n.typeArgs().isEmpty() || ! n.args().isEmpty())
+     /*   if (! n.typeArgs().isEmpty() || ! n.args().isEmpty())
             throw new SemanticException("Could not find or instantiate type \"" + n + "\".", position());
-            
+         */   
         CanonicalTypeNode result = nf.CanonicalTypeNode(position(), sym);
         // FIXME: [IP] HACK
         if (t instanceof MacroType) {
