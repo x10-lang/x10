@@ -6,6 +6,12 @@
 
 #include <x10rt_front.h>
 
+#ifdef _AIX_
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/vminfo.h>
+#endif
+
 #define OP_NEW
 
 // {{{ nano_time
@@ -274,7 +280,27 @@ int main(int argc, char **argv)
     unsigned long long tableSize = localTableSize * x10rt_nhosts();
     unsigned long long numUpdates = updates * tableSize;
 
+    #ifdef _AIX_
+    #define PAGESIZE_4K  0x1000
+    #define PAGESIZE_64K 0x10000
+    #define PAGESIZE_16M 0x1000000
+    int shm_id=shmget(IPC_PRIVATE, localTableSize*sizeof(unsigned long long), (IPC_CREAT|IPC_EXCL|0600));
+    if (shm_id == -1) {
+        std::cerr << "shmget failure" << std::endl;
+        abort();
+    }
+    struct shmid_ds shm_buf = { 0 };
+    shm_buf.shm_pagesize = PAGESIZE_16M;
+    if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
+        std::cerr << "Could not get 16M pages" << std::endl;
+        abort();
+    }
+    localTable = (unsigned long long*) shmat(shm_id,0,0); // map memory
+    shmctl(shm_id, IPC_RMID, NULL); // no idea what this does
+    #else
     localTable = (unsigned long long*) malloc(localTableSize*sizeof(unsigned long long));
+    #endif
+
     if (localTable == NULL) {
         std::cerr<<"Could not allocate memory for local table ("
                  << localTableSize*sizeof(unsigned long long) << " bytes)" << std::endl;
@@ -294,7 +320,7 @@ int main(int argc, char **argv)
     // make sure everyone knows the address of everyone else's rail
     pongs_outstanding = x10rt_nhosts();
     for (unsigned long i=0 ; i<x10rt_nhosts() ; ++i) {
-        uint64_t intptr = (uint64_t) (size_t) localTable;
+        uint64_t intptr = x10rt_register_mem(localTable, localTableSize*sizeof(unsigned long long));
         if (i==x10rt_here()) {
             globalTable[i] = intptr;
             pongs_outstanding--;
