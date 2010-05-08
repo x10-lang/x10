@@ -93,6 +93,9 @@ void x10rt_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
                       x10rt_op_type type, unsigned long long value)
 { x10rt_lgl_remote_op(place, remote_addr, type, value); }
 
+x10rt_remote_ptr x10rt_register_mem (void *ptr, size_t len)
+{ return x10rt_lgl_register_mem(ptr, len); }
+
 void x10rt_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long update)
 { x10rt_lgl_remote_xor(place, addr, update); }
 

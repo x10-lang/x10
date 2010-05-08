@@ -417,6 +417,20 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		free(p->msg);
 }
 
+void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
+                          x10rt_op_type type, unsigned long long value)
+{
+    // assume remote ops will be handled by regular x10rt_send_msg
+    abort();
+}
+
+x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t)
+{
+    // assume remote ops will be handled by regular x10rt_send_msg so
+    // no special work to do here
+    return (x10rt_remote_ptr)(size_t)ptr;
+}
+
 void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 { 
 	// originating place calls this method, to transfer data to a remote place.  It returns once the data transfer is complete.

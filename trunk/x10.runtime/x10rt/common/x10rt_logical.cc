@@ -681,7 +681,11 @@ void x10rt_lgl_remote_op (x10rt_place d, x10rt_remote_ptr remote_addr,
     assert(d < x10rt_lgl_nplaces());
 
     if (d < x10rt_lgl_nhosts()) {
-        x10rt_emu_remote_op(d,remote_addr,type,value);
+        if (has_remote_op) {
+            x10rt_net_remote_op(d,remote_addr,type,value);
+        } else {
+            x10rt_emu_remote_op(d,remote_addr,type,value);
+        }
     } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
         // local accelerator
         switch (x10rt_lgl_type(d)) {
@@ -705,6 +709,9 @@ void x10rt_lgl_remote_op (x10rt_place d, x10rt_remote_ptr remote_addr,
     }
 }
     
+x10rt_remote_ptr x10rt_lgl_register_mem (void *ptr, size_t len)
+{ return x10rt_net_register_mem(ptr, len); }
+
 void x10rt_lgl_remote_xor (x10rt_place d, x10rt_remote_ptr addr, long long update)
 {
     assert(d < x10rt_lgl_nplaces());
