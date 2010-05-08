@@ -15,6 +15,9 @@ import x10.io.File;
 import x10.io.Marshal;
 import x10.io.IOException;
 import x10.util.Random;
+import x10.util.OptionsParser;
+import x10.util.Option;
+import x10.util.DistributedRail;
 
 public class KMeansSPMD {
 
@@ -31,170 +34,132 @@ public class KMeansSPMD {
 
     public static def main (args : Rail[String]!) {
 
-        var fname_:String = "points.dat";
-        var DIM_:Int=3, CLUSTERS_:Int=8, POINTS_:Int=10000, ITERATIONS_:Int=500;
-        switch (args.length) {
-            case 5: ITERATIONS_ = Int.parse(args(4));
-            case 4: DIM_        = Int.parse(args(3));
-            case 3: CLUSTERS_   = Int.parse(args(2));
-            case 2: POINTS_     = Int.parse(args(1));
-            case 1: fname_      = args(0);
-        }
-        val fname = fname_, DIM = DIM_, CLUSTERS = CLUSTERS_,
-            POINTS = POINTS_, ITERATIONS = ITERATIONS_;
-
-        Console.OUT.println("points: "+POINTS+"  dim: "+DIM);
-        val points_region = [0,0]..[POINTS-1,DIM-1];
-        val clusters_region = [0,0]..[CLUSTERS-1,DIM-1];
-
-        val points_dist = Dist.makeBlock(points_region, 0);
-
         try {
 
-            val fr = (new File(fname)).openRead();
-            val m = Marshal.INT;
-            val init_points = (Int) => Float.fromIntBits(m.read(fr).reverseBytes());
-            val points_cache = ValRail.make[Float](POINTS*DIM, init_points);
-            val points = DistArray.make[Float](points_dist, (p:Point)=>points_cache(p(0)*DIM+p(1)));
+            val opts = new OptionsParser(args, [
+                Option("q","quiet","just print time taken"),
+                Option("v","verbose","print out each iteration")
+            ], [
+                Option("p","points","location of data file"),
+                Option("i","iterations","quit after this many iterations"),
+                Option("c","clusters","number of clusters to find"),
+                Option("d","dim","number of dimensions"),
+                Option("s","slices","factor by which to oversubscribe computational resources"),
+                Option("n","num","quantity of points")]);
+            val fname = opts("-p", "points.dat"), num_clusters=opts("-c",8),
+                num_slices=opts("-s",1), num_global_points=opts("-n", 100000),
+                iterations=opts("-i",50), dim=opts("-d", 4);
+            val verbose = opts("-v"), quiet = opts("-q");
 
-            val central_clusters = Rail.make[Float](CLUSTERS*DIM, (i:Int) => points_cache(i));
-            // used to measure convergence at each iteration:
-            val central_clusters_old =
-                Rail.make[Float](CLUSTERS*DIM, (i:Int) => central_clusters(i));
-            val central_cluster_counts = Rail.make[Int](CLUSTERS, (i:Int) => 0);
+            if (!quiet)
+                Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+4);
 
-            val finished = new Cell[Boolean](false);
-            // SPMD style for algorithm
-            val clk = Clock.make();
+            // file is dimension-major
+            val file = new File(fname), fr = file.openRead();
+            val init_points = (Int) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
+            val num_file_points = file.size() / dim / 4 as Int;
+            val file_points = ValRail.make(num_file_points*dim, init_points);
 
-            val start_time = System.currentTimeMillis();
+            var results : Rail[Float]!;
 
-            finish {
-                val closure = () => {
+            // clusters are dimension-major
+            val clusters       = new DistributedRail[Float](num_clusters*dim, file_points);
+            val cluster_counts = new DistributedRail[Int](num_clusters, (Int)=>0);
 
-                    val local_points = points.restriction(here) as DistArray[Float](2);
 
-                    val clusters = Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
-                    val new_clusters = Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
-                    val cluster_counts = Rail.make[Int](CLUSTERS, (i:Int) => 0);
+            finish async {
 
-                    for (var iter:Int=0 ; iter<ITERATIONS && !finished() ; iter++) {
+                val clk = Clock.make();
 
-                        Console.OUT.println("Iteration: "+iter);
+                val num_slice_points = num_global_points / num_slices;
 
-                        // fetch the latest clusters
-                        val home = here;
-                        at (central_clusters) {
-                            val central_clusters_copy = central_clusters as ValRail[Float];
-                            at (home) {
-                                for (var i:Int=0 ; i<CLUSTERS ; ++i) cluster_counts(i) = 0;
-                                for (var j:Int=0 ; j<CLUSTERS*DIM ; ++j) {
-                                    clusters(j) = central_clusters_copy(j);
-                                    new_clusters(j) = 0;
+                for ((slice) in 0..num_slices-1) {
+
+                    for (h in Place.places) async (h) clocked(clk) {
+
+                        // carve out local portion of points (point-major)
+                        val offset = slice*num_slice_points;
+                        if (!quiet)
+                            Console.OUT.println(h+" gets "+offset+" len "+num_slice_points);
+                        val num_slice_points_stride = num_slice_points;
+                        val init = (i:Int) => {
+                            val d=i/num_slice_points_stride, p=i%num_slice_points_stride;
+                            return p<num_slice_points ? file_points(((p+offset)%num_file_points)*dim + d) : 0;
+                        };
+
+                        // these are pretty big so allocate up front
+                        val host_points = Rail.make(num_slice_points_stride*dim, init);
+                        val host_nearest = Rail.make(num_slice_points, (Int)=>0);
+
+                        val host_clusters : Rail[Float]! = clusters();
+                        val host_cluster_counts : Rail[Int]! = cluster_counts();
+
+                        val start_time = System.currentTimeMillis();
+
+                        main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
+
+                            Console.OUT.println("Iteration: "+iter);
+
+                            val old_clusters = clusters() as ValRail[Float];
+
+                            host_clusters.reset(0);
+                            host_cluster_counts.reset(0);
+
+                            for (var p:Int=0 ; p<num_slice_points ; ++p) {
+                                var closest:Int = -1;
+                                var closest_dist:Float = Float.MAX_VALUE;
+                                for (var k:Int=0 ; k<num_clusters ; ++k) { 
+                                    var dist : Float = 0;
+                                    for (var d:Int=0 ; d<dim ; ++d) { 
+                                        val tmp = host_points(p+d*num_slice_points_stride) - old_clusters(k*dim+d);
+                                        dist += tmp * tmp;
+                                    }
+                                    if (dist < closest_dist) {
+                                        closest_dist = dist;
+                                        closest = k;
+                                    }
                                 }
-                            }
-                        }
-
-                        // compute new clusters and counters
-                        val min=local_points.region.min(0);
-                        val max=local_points.region.max(0);
-                        
-                        for (var p:Int=min ; p<max ; ++p) {
-                            var closest:Int = -1;
-                            var closest_dist:Float = Float.MAX_VALUE;
-                            for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
-                                var dist : Float = 0;
-                                for (var d:Int=0 ; d<DIM ; ++d) { 
-                                    val tmp = local_points(p,d) - clusters(k*DIM+d);
-                                    dist += tmp * tmp;
+                                for (var d:Int=0 ; d<dim ; ++d) { 
+                                    host_clusters(closest*dim+d) += host_points(p+d*num_slice_points_stride);
                                 }
-                                if (dist < closest_dist) {
-                                    closest_dist = dist;
-                                    closest = k;
-                                }
+                                host_cluster_counts(closest)++;
                             }
-                            for (var d:Int=0 ; d<DIM ; ++d) { 
-                                new_clusters(closest*DIM+d) += local_points(p,d);
+
+                            clusters.collectiveReduce(Float.+);
+                            cluster_counts.collectiveReduce(Int.+);
+
+                            for (var k:Int=0 ; k<num_clusters ; ++k) {
+                                for (var d:Int=0 ; d<dim ; ++d) host_clusters(k*dim+d) /= host_cluster_counts(k);
                             }
-                            cluster_counts(closest)++;
-                        }
 
-                        next;
-
-                        if (central_clusters.at(here)) {
-                            for (var j:Int=0 ; j<CLUSTERS ; ++j) central_cluster_counts(j) = 0;
-                            for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
-                                central_clusters_old(j) = central_clusters(j);
-                                central_clusters(j) = 0;
-                            }
-                        }
-
-                        next;
-
-
-                        // have to create valrails for serialisation
-                        val new_clusters_copy = new_clusters as ValRail[Float];
-                        val cluster_counts_copy = cluster_counts as ValRail[Int];
-
-                        at (central_clusters) atomic {
-                            for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
-                                central_clusters(j) += new_clusters_copy(j);
-                            }
-                            for (var j:Int=0 ; j<CLUSTERS ; ++j) {
-                                central_cluster_counts(j) += cluster_counts_copy(j);
-                            }
-                        }
-
-
-                        next;
-
-                        if (central_clusters.at(here)) {
-
-                            for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
-                                for (var d:Int=0 ; d<DIM ; ++d) { 
-                                    central_clusters(k*DIM+d) /= central_cluster_counts(k);
-                                }
+                            if (offset==0 && verbose) {
+                                Console.OUT.println("Iteration: "+iter);
+                                printClusters(clusters() as Rail[Float]!,dim);
                             }
 
                             // TEST FOR CONVERGENCE
-                            var b:Boolean = true;
-                            finished(true);
-                            for (var j:Int=0 ; j<CLUSTERS*DIM ; ++j) { 
-                                if (Math.abs(central_clusters_old(j)-central_clusters(j))>0.0001) {
-                                    finished(false);
-                                    break;
-                                }
+                            for (var j:Int=0 ; j<num_clusters*dim ; ++j) {
+                                if (true/*||Math.abs(clusters_old(j)-clusters(j))>0.0001*/) continue main_loop;
                             }
-                            
+
+                            break;
+
+                        } // main_loop
+
+                        if (offset==0) {
+                            val stop_time = System.currentTimeMillis();
+                            if (!quiet) Console.OUT.print(num_global_points+" "+num_clusters+" "+dim+" ");
+                            Console.OUT.println((stop_time-start_time)/1E3);
                         }
 
-                        next;
+                    } // async
 
+                } // slice
 
+            } // finish
 
-                    }
-
-
-                };
-
-                for (d in points_dist.places()) if (d!=here) async (d) clocked(clk) closure();
-
-                closure();
-
-                clk.drop();
-
-            }
-
-            printClusters(central_clusters,DIM);
-
-            val stop_time = System.currentTimeMillis();
-            Console.OUT.println("Time taken: "+(stop_time-start_time)/1E3);
-
-        } catch (e : IOException) {
-            Console.ERR.println("We had a little problem:");
+        } catch (e : Throwable) {
             e.printStackTrace(Console.ERR);
-            at (Place.FIRST_PLACE) System.setExitCode(1);
-            return;
         }
     }
 }
