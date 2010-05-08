@@ -198,7 +198,7 @@ namespace {
     void x10rt_lgl_internal_init (x10rt_lgl_cfg_accel *cfgv, x10rt_place cfgc, x10rt_msg_type *counter)
     {
         x10rt_emu_init(counter);
-        has_remote_op = 0!=x10rt_net_supports(X10RT_OPT_REMOTE_OP);
+        has_remote_op = getenv("X10RT_EMULATE_REMOTE_OP")==NULL && 0!=x10rt_net_supports(X10RT_OPT_REMOTE_OP);
         g.nhosts = x10rt_net_nhosts();
 
         x10rt_place num_local_spes = 0;
