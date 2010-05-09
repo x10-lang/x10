@@ -24,7 +24,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarDef;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -169,7 +169,7 @@ public interface X10Context extends Context {
 
     CodeDef definingCodeDef(Name name);
 
-    XRoot thisVar();
+    XVar thisVar();
 
     CConstraint constraintProjection(CConstraint... cs) throws XFailure;
     

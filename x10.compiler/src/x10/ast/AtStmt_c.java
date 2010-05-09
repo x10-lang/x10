@@ -42,9 +42,8 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
@@ -156,7 +155,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     
         if (c.currentCode() instanceof X10MethodDef) {
             X10MethodDef outer = (X10MethodDef) c.currentCode();
-            XRoot thisVar = outer.thisVar();
+            XVar thisVar = outer.thisVar();
             asyncInstance.setThisVar(thisVar);
             List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
             if (!capturedTypes.isEmpty()) {

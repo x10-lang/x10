@@ -11,10 +11,10 @@
 
 package x10.types;
 
-import x10.constraint.XLocal_c;
+import x10.constraint.XLocal;
 import x10.constraint.XTerms;
 
-public class X10XLocal_c extends XLocal_c {
+public class X10XLocal_c extends XLocal {
     X10LocalDef def;
     
     public X10XLocal_c(X10LocalDef def) {

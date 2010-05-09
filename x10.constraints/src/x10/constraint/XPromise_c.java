@@ -129,7 +129,7 @@ public class XPromise_c implements XPromise, Serializable {
                     XField f = (XField) p.term();
                     XName field = f.field();
                     if (field.equals(key))
-                        p.setTerm(XConstraint_c.makeField(term, field), visited);
+                        p.setTerm(XConstraint.makeField(term, field), visited);
                     else
                         System.out.println(term + "." + key + " = " + p + " (different field)");
                 }

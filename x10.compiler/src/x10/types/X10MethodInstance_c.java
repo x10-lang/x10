@@ -43,12 +43,12 @@ import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.Matcher;
 
@@ -180,7 +180,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return n;
     }
 
-    public static void buildSubst(X10MethodInstance mi, List<XVar> ys, List<XRoot> xs, XRoot thisVar) {
+    public static void buildSubst(X10MethodInstance mi, List<XVar> ys, List<XVar> xs, XVar thisVar) {
         if (mi.x10Def().thisVar() != null && mi.x10Def().thisVar() != thisVar) {
             ys.add(thisVar);
             xs.add(mi.x10Def().thisVar());
@@ -189,7 +189,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         buildSubst(mi.container(), ys, xs, thisVar);
     }
 
-    public static void buildSubst(Type t, List<XVar> ys, List<XRoot> xs, XRoot thisVar) {
+    public static void buildSubst(Type t, List<XVar> ys, List<XVar> xs, XVar thisVar) {
         Type container = X10TypeMixin.baseType(t);
         if (container instanceof X10ClassType) {
             X10ClassDef cd = ((X10ClassType) container).x10Def();
@@ -360,7 +360,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                 else {
                     CConstraint rc = X10TypeMixin.xclause(t);
                     if (rc == null)
-                        rc = new CConstraint_c();
+                        rc = new CConstraint();
 
                     XTerm receiver;
 

@@ -84,15 +84,13 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 
 public class X10Context_c extends Context_c implements X10Context {
@@ -135,7 +133,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	    return Collections.EMPTY_LIST;
 	}
 
-	public XRoot thisVar() {
+	public XVar thisVar() {
 	    if (this.inSuperTypeDeclaration()) {
 	        X10ClassDef t = this.supertypeDeclarationType();
 	        return t.thisVar();
@@ -179,7 +177,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		 }
 
 		 if (r == null) 
-			 r = new CConstraint_c();
+			 r = new CConstraint();
 
 		 // fold in the current constraint
 		 addSigma(r, currentConstraint(), m);
@@ -202,7 +200,7 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	 /* sigma(Gamma) restricted to the variables mentioned in c */
 	 private CConstraint constraintProjection(CConstraint c, Map<XTerm,CConstraint> m) throws XFailure {
-		 CConstraint r = new CConstraint_c();
+		 CConstraint r = new CConstraint();
 		 if (c != null)
 			 for (XTerm t : c.constraints()) {
 				 CConstraint tc = constraintProjection(t, m);
@@ -220,7 +218,7 @@ public class X10Context_c extends Context_c implements X10Context {
 			 return r;
 
 		 // pre-fill the cache to avoid infinite recursion
-		 m.put(t, new CConstraint_c());
+		 m.put(t, new CConstraint());
 
 		 if (t instanceof XLocal) {
 			 XLocal v = (XLocal) t;
@@ -233,7 +231,7 @@ public class X10Context_c extends Context_c implements X10Context {
 				 }
 				 CConstraint ci = X10TypeMixin.realX(ty);
 				 ci = ci.substitute(v, ci.self());
-				 r = new CConstraint_c();
+				 r = new CConstraint();
 				 r.addIn(ci);
 				 r.addIn(constraintProjection(ci, m));
 			 }
@@ -253,9 +251,9 @@ public class X10Context_c extends Context_c implements X10Context {
 				 Type ty = Types.get(fi.type());
 				 ci = X10TypeMixin.realX(ty);
 				 ci = ci.substitute(f, ci.self());
-				 XRoot v = ((X10ClassDef) Types.get(fi.container()).toClass().def()).thisVar();
+				 XVar v = ((X10ClassDef) Types.get(fi.container()).toClass().def()).thisVar();
 				 ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
-				 r = new CConstraint_c();
+				 r = new CConstraint();
 				 r.addIn(ci);
 				 r.addIn(constraintProjection(ci, m));
 				 if (rt != null) {
@@ -272,7 +270,7 @@ public class X10Context_c extends Context_c implements X10Context {
 				 CConstraint ca = constraintProjection(a, m);
 				 if (ca != null) {
 					 if (r == null) {
-						 r = new CConstraint_c();
+						 r = new CConstraint();
 					 }
 					 r.addIn(ca);
 				 }
@@ -285,7 +283,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		 if (r != null)
 			 m.put(t, r);
 		 else
-			 m.put(t, new CConstraint_c());
+			 m.put(t, new CConstraint());
 		 return r;
 	 }
 
@@ -314,7 +312,7 @@ public class X10Context_c extends Context_c implements X10Context {
     protected Ref<TypeConstraint> currentTypeConstraint;
     public TypeConstraint currentTypeConstraint() {
     	if (currentTypeConstraint == null)
-    		return new TypeConstraint_c();
+    		return new TypeConstraint();
     	return currentTypeConstraint.get(); }
     public void setCurrentTypeConstraint(Ref<TypeConstraint> c) {
     	currentTypeConstraint = c;
@@ -324,7 +322,7 @@ public class X10Context_c extends Context_c implements X10Context {
     protected CConstraint currentPlaceConstraint;
     public CConstraint currentPlaceConstraint() {
     	if (currentPlaceConstraint == null)
-    		return new CConstraint_c();
+    		return new CConstraint();
     	return currentPlaceConstraint;
     }
    */
@@ -363,7 +361,7 @@ public class X10Context_c extends Context_c implements X10Context {
     // vj: TODO: check if this is the right thing to do.
     public CConstraint currentConstraint() {
     	if (currentConstraint == null) {
-    		CConstraint c = new CConstraint_c();
+    		CConstraint c = new CConstraint();
     		if (! inStaticContext()) {
     			c.setThisVar(thisVar());
     		}
@@ -497,7 +495,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	            Type t = currentClass;
 	            X10TypeSystem xts = (X10TypeSystem) ts;
 
-	            XRoot thisVar = null;
+	            XVar thisVar = null;
 	            if (XTypeTranslator.THIS_VAR) {
 	                CodeDef cd = this.currentCode();
 	                if (cd instanceof X10MemberDef) {

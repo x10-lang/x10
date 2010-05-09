@@ -27,7 +27,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.types.constraints.TypeConstraint;
 
 /**
@@ -39,23 +39,23 @@ import x10.types.constraints.TypeConstraint;
  */
 public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     boolean isProperty;
-    XRoot thisVar;
+    XVar thisVar;
     
     public X10FieldDef_c(TypeSystem ts, Position pos,
             Ref<? extends StructType> container,
             Flags flags, 
             Ref<? extends Type> type,
-            Name name, XRoot thisVar) {
+            Name name, XVar thisVar) {
         super(ts, pos, container, flags, type, name);
         this.isProperty = false;
         this.thisVar = thisVar;
     }
     
-    public XRoot thisVar() {
+    public XVar thisVar() {
         return this.thisVar;
     }
 
-    public void setThisVar(XRoot thisVar) {
+    public void setThisVar(XVar thisVar) {
         this.thisVar = thisVar;
     }
 
