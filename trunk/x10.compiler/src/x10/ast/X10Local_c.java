@@ -44,7 +44,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 
 public class X10Local_c extends Local_c {
 
@@ -105,7 +105,7 @@ public class X10Local_c extends Local_c {
         			Type t = result.type();
 
         			CConstraint dep = X10TypeMixin.xclause(t);
-        			if (dep == null) dep = new CConstraint_c();
+        			if (dep == null) dep = new CConstraint();
         			else dep = dep.copy();
 //        			XTerm resultTerm = xts.xtypeTranslator().trans(result);
 //        			dep.addSelfBinding((XVar) resultTerm);

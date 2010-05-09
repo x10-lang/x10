@@ -19,7 +19,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem_c;
 import polyglot.util.InternalCompilerError;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ParameterType;
@@ -62,11 +62,11 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         // If c does have a selfVarBinding, v, then we want to set t to
         // t = T{exists v. (tc, this=v, ct)}
         XVar v = X10TypeMixin.selfVarBinding(ct);
-        XRoot vv = null;
+        XVar vv = null;
         if (v == null) {
         	v = vv =XTerms.makeUQV();
         }
-        XRoot oldThis = fi.x10Def().thisVar();
+        XVar oldThis = fi.x10Def().thisVar();
         if (oldThis != null && v == null && vv==null)
         	assert false;
         /*if (c != null) 
@@ -80,12 +80,12 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         		t = X10TypeMixin.constrainedType(X10TypeMixin.baseType(t), tc);
         		t = Subst.subst(t, 
         				new XVar[] {v},
-        				new XRoot[] {oldThis},
+        				new XVar[] {oldThis},
         				new Type[] {}, new ParameterType[] {});
         		if (vv != null) { // Hide vv, i.e. substitute in an anonymous EQV
         			t = Subst.subst(t, 
         					new XVar[] {XTerms.makeEQV()},
-        					new XRoot[] {vv},
+        					new XVar[] {vv},
         					new Type[] {}, new ParameterType[] {});
         		}
         	} catch (XFailure z) {
@@ -99,15 +99,15 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         		if (! contextKnowsReceiver)
         			tc.addIn(v, c);
         		rt = X10TypeMixin.constrainedType(X10TypeMixin.baseType(rt), tc);
-        		XRoot w = XTerms.makeEQV();
+        		XVar w = XTerms.makeEQV();
         		rt = Subst.subst(rt, 
         				(v != null ? new XVar[] {v} : new XVar[] { w, w}),
-        				(v != null ? new XRoot[] {oldThis} : new XRoot[] { vv, oldThis}),
+        				(v != null ? new XVar[] {oldThis} : new XVar[] { vv, oldThis}),
         				new Type[] {}, new ParameterType[] {});
         		if (vv != null) {
         			rt = Subst.subst(rt, 
         					new XVar[] {XTerms.makeEQV()},
-        					new XRoot[] {vv},
+        					new XVar[] {vv},
         					new Type[] {}, new ParameterType[] {});
         		}
         	} catch (XFailure z) {
@@ -115,7 +115,7 @@ public class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
         	}   
         } 
         
-        //rt = Subst.subst(rt, (new XVar[] { w }), (new XRoot[] { oldThis }), new Type[] {}, new ParameterType[] {});
+        //rt = Subst.subst(rt, (new XVar[] { w }), (new XVar[] { oldThis }), new Type[] {}, new ParameterType[] {});
         //if (v != null)
         //	rt = X10TypeMixin.setThisVar(rt, v);
         // }

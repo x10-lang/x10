@@ -45,7 +45,7 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -403,7 +403,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 
 						XVar selfValue = X10TypeMixin.selfVarBinding(domainType);
 						XVar selfVar = c != null ? c.self() : null;
-						XRoot thisVar = base instanceof X10ClassType ? 
+						XVar thisVar = base instanceof X10ClassType ? 
 								((X10ClassType) base).x10Def().thisVar() :null;
 
 								if (thisVar != null && selfVar != null)

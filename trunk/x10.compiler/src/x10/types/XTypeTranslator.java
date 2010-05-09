@@ -48,26 +48,24 @@ import x10.ast.Tuple;
 import x10.ast.X10Cast;
 import x10.ast.X10Field_c;
 import x10.ast.X10Special;
-import x10.constraint.XEQV_c;
+import x10.constraint.XEQV;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XLit_c;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRef_c;
-import x10.constraint.XRoot;
+import x10.constraint.XRef;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
-import x10.types.constraints.SubtypeConstraint_c;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
@@ -109,7 +107,7 @@ public class XTypeTranslator {
 	}
 
 	public XTerm trans(XTerm target, FieldInstance fi) {
-		return trans(new CConstraint_c(), target, fi);
+		return trans(new CConstraint(), target, fi);
 	}
 	public XTerm trans(CConstraint c, XTerm target, FieldInstance fi)  {
 		if (fi == null)
@@ -136,7 +134,7 @@ public class XTypeTranslator {
 	}
 	
 	public XTerm trans(XTerm target, FieldInstance fi, Type t) throws SemanticException {
-		return trans(new CConstraint_c(), target, fi, t);
+		return trans(new CConstraint(), target, fi, t);
 	}
 	public XTerm trans(CConstraint c, XTerm target, FieldInstance fi, Type t) throws SemanticException {
 		XTerm v;
@@ -197,7 +195,7 @@ public class XTypeTranslator {
 		        }
 		    }
 		    // why is this code not in X10Context_c.thisVar()?
-		    XRoot thisVar = xc == null ? null : xc.thisVar();
+		    XVar thisVar = xc == null ? null : xc.thisVar();
 		    for (X10Context outer = (X10Context) xc.pop();
 		    outer != null && thisVar == null;
 		    outer = (X10Context) outer.pop())
@@ -219,7 +217,7 @@ public class XTypeTranslator {
 	}
 
 	public CConstraint normalize(CConstraint c, X10Context xc) {
-		CConstraint result = new CConstraint_c();
+		CConstraint result = new CConstraint();
 		for (XTerm term : c.extConstraints()) {
 			try {
 			if (term instanceof XEquals) {
@@ -282,7 +280,7 @@ public class XTypeTranslator {
 //		return XTerms.makeLit(t);
 	}
 	
-	public static Type subst(Type t, XTerm y, XRoot x) throws SemanticException {
+	public static Type subst(Type t, XTerm y, XVar x) throws SemanticException {
 	    return Subst.subst(t, y, x);
 	}
 
@@ -322,7 +320,7 @@ public class XTypeTranslator {
 		return XTerms.makeLit(null);
 	}
 	
-	public static class XTypeLit_c extends XLit_c {
+	public static class XTypeLit_c extends XLit {
 	    private XTypeLit_c(Type l) {
 		super(l);
 	    }
@@ -335,7 +333,7 @@ public class XTypeTranslator {
 	    return X10TypeMixin.hasVar(type(), v);
 	    }
 
-	    public XTerm subst(XTerm y, XRoot x, boolean propagate) {
+	    public XTerm subst(XTerm y, XVar x, boolean propagate) {
 		XTypeLit_c n = (XTypeLit_c) super.subst(y, x, propagate);
 		if (n == this) n = (XTypeLit_c) clone();
 		try {
@@ -410,7 +408,7 @@ public class XTypeTranslator {
         private void transType(TypeConstraint c, SubtypeTest t, X10Context xc) throws SemanticException {
                 TypeNode left = t.subtype();
                 TypeNode right = t.supertype();
-                c.addTerm(new SubtypeConstraint_c(left.type(), right.type(), t.equals()));
+                c.addTerm(new SubtypeConstraint(left.type(), right.type(), t.equals()));
         }
 
         private XTerm simplify(Binary rb, XTerm v) {
@@ -516,9 +514,9 @@ public class XTypeTranslator {
 					body = body.subst(r, xmi.x10Def().thisVar());
 				}
 				for (int i = 0; i < t.arguments().size(); i++) {
-					//XRoot x = (XRoot) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
-					//XRoot x = (XRoot) xmi.formalTypes().get(i);
-					XRoot x = (XRoot) XTerms.makeLocal(new XNameWrapper(xmi.formalNames().get(i).def()));
+					//XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
+					//XVar x = (XVar) xmi.formalTypes().get(i);
+					XVar x = (XVar) XTerms.makeLocal(new XNameWrapper(xmi.formalNames().get(i).def()));
 					XTerm y = trans(c, t.arguments().get(i), xc);
 					if (y == null)
 						assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 
@@ -636,7 +634,7 @@ public class XTypeTranslator {
 	 * @throws SemanticException
 	 */
 	public CConstraint constraint(List<Formal> formals, Expr term, X10Context xc) throws SemanticException {
-            CConstraint c = new CConstraint_c();
+            CConstraint c = new CConstraint();
             if (term == null)
                 return c;
             
@@ -660,7 +658,7 @@ public class XTypeTranslator {
 	}
 	
 	public TypeConstraint typeConstraint(List<Formal> formals, Expr term, X10Context xc) throws SemanticException {
-	    TypeConstraint c = new TypeConstraint_c();
+	    TypeConstraint c = new TypeConstraint();
         if (term == null)
         	return c;
         

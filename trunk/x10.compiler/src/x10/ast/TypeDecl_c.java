@@ -44,7 +44,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.extension.X10Del_c;
 import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
@@ -56,7 +56,7 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 
 public class TypeDecl_c extends Term_c implements TypeDecl {
 	private TypeNode type;
@@ -230,7 +230,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 */		
 		TypeDef typeDef;
 
-		XRoot thisVar = ct != null ? ct.thisVar() : null;
+		XVar thisVar = ct != null ? ct.thisVar() : null;
 		
 		if (local) {
 		    typeDef = new TypeDef_c(ts, position(), Flags.NONE, name.id(), null,
@@ -267,11 +267,11 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        List<LocalDef> formalNames = new ArrayList<LocalDef>();
 	        for (Formal f : n.formals()) {
 	            final Formal f2 = f;
-	            final LazyRef<CConstraint> cref = Types.<CConstraint>lazyRef(new CConstraint_c());
+	            final LazyRef<CConstraint> cref = Types.<CConstraint>lazyRef(new CConstraint());
 	            Type t = X10TypeMixin.xclause(f.type().typeRef(), cref);
 	            cref.setResolver(new Runnable() {
 	        	public void run() {
-	        	    CConstraint c = new CConstraint_c();
+	        	    CConstraint c = new CConstraint();
 	        	    try {
 	        		c.addSelfBinding(ts.xtypeTranslator().trans(f2.localDef().asInstance()));
 	        	    }

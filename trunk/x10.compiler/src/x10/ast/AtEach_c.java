@@ -34,7 +34,7 @@ import x10.constraint.XTerms;
 import x10.types.X10Context;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -78,7 +78,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 			// FIXME: this creates a new place term; ideally, it should be the place associated with each
 			// point in the ateach distribution 
 			if (placeTerm == null) {
-				CConstraint d = new CConstraint_c();
+				CConstraint d = new CConstraint();
 				XTerm term = PlaceChecker.makePlace();
 				placeTerm = XConstrainedTerm.instantiate(d, term);
 			}

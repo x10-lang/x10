@@ -88,7 +88,7 @@ import x10.ast.X10NodeFactory;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
 import x10.constraint.XConstraint;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.emitter.Emitter;
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;

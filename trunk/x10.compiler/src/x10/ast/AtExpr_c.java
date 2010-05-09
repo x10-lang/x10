@@ -33,7 +33,6 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XTerm;
 import x10.types.ClosureDef;
 import x10.types.X10Context;

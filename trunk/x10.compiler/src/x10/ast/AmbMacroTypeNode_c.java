@@ -54,7 +54,6 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XRoot;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
@@ -235,7 +234,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         X10Context c = (X10Context) tc.context();
 
-        XRoot thisVar = c.thisVar();
+        XVar thisVar = c.thisVar();
 
         List<Type> typeArgs = new ArrayList<Type>(this.typeArgs.size());
 

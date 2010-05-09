@@ -11,11 +11,41 @@
 
 package x10.constraint;
 
+import java.util.Collections;
+import java.util.List;
+
+
 /**
- * Interface implemented by an existentially quantified variable.
+ * A representation of logical variables. 
+ * 
+ * <p> EQVs (created with hidden = true) are existentially quantified
+ * in each constraint in which they occur.
+
+  * <p> UQVs (created with hidden=false) are free in the constraint 
+ * and may occur in multiple constraints. 
  * @author vj
  *
  */
-public interface XEQV extends XLocal {
+public class XEQV extends XLocal  {
+	boolean hidden;
+
+
+	XEQV(XName name, boolean hidden) {
+		super(name);
+		this.hidden = hidden;
+	}
+
+	public boolean hasEQV() {
+		return hidden;
+	}
+	public boolean isEQV() {
+		return hidden;
+	}
+
+	public List<XEQV> eqvs() {
+		if (hasEQV())
+			return Collections.<XEQV>singletonList(this);
+		return Collections.EMPTY_LIST;
+	}
 
 }

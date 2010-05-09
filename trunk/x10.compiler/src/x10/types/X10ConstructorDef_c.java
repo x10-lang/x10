@@ -26,7 +26,7 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -53,7 +53,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             Ref<? extends ClassType> returnType,
             List<Ref<? extends Type>> typeParameters,
             List<Ref<? extends Type>> formalTypes, 
-            XRoot thisVar, List<LocalDef> formalNames,
+            XVar thisVar, List<LocalDef> formalNames,
             Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, 
             List<Ref<? extends Type>> throwTypes) {
         super(ts, pos, container, flags, formalTypes, throwTypes);
@@ -98,12 +98,12 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         this.returnType = r;
     }
 
-    XRoot thisVar;
-    public XRoot thisVar() {
+    XVar thisVar;
+    public XVar thisVar() {
         return this.thisVar;
     }
     
-    public void setThisVar(XRoot thisVar) {
+    public void setThisVar(XVar thisVar) {
         this.thisVar = thisVar;
     }
 

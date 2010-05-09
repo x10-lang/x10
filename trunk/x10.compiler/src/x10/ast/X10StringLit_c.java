@@ -26,7 +26,6 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
 
 /**
  * @author vj
@@ -45,7 +44,7 @@ public class X10StringLit_c extends StringLit_c {
 		X10TypeSystem xts= (X10TypeSystem) tc.typeSystem();
 		Type Type = xts.String();
 
-		CConstraint c = new CConstraint_c();
+		CConstraint c = new CConstraint();
 		XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (X10Context) tc.context());
 		try {
 			c.addSelfBinding(term);
