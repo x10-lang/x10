@@ -91,19 +91,24 @@ public class Scorer {
       val shortSize = shorter_.length();
       longSize  = longer_.length();
       tracebackMoves = Rail.make[Byte]((shortSize+1)*(longSize + 1));
-      for ((i) in 1..shortSize-1) tracebackMoves(i*(longSize + 1)) = STOP;
-      for ((j) in 0..longSize-1)  tracebackMoves(j) = STOP;
+      for (var i:int = 1; i<shortSize; i++) tracebackMoves(i*(longSize + 1)) = STOP;
+      for (var j:int = 0; j<longSize; j++)  tracebackMoves(j) = STOP;
       val bestScoreUpTo_I_J = Rail.make[Int](longSize + 1, (n: Int)=> 0);
       var winningScore : Long = 0;
       var shorterLast: Int = -1;
       var longerLast: Int = -1;
-      for((i) in 1..shortSize) {
+      for(var i:int =1; i<shortSize+1; i++) {
          var previousBestScore: Int = 0;
          var short_i_minus_1: Byte = shortRail(i-1);
-         for((j) in 1..longSize) { try {
+         for(var j:int = 1; j<longSize+1; j++) { try {
             //if (j-1 >= longSize) throw new IllegalArgumentException("long rail access fails: "+j+" versus "+longSize);
             var long_j: Byte = longRail(j-1);
-            var scoreOfMatchAtLast: Int = parms.getScore(short_i_minus_1, long_j);
+
+	    // Dave G:  Manually inline call to parms.getScore to eliminate calls from inner loop.
+            // Inlining should be done automatically by x10c++, but it isn't smart enough yet.
+	    // var scoreOfMatchAtLast: Int = parms.getScore(short_i_minus_1, long_j);
+	    var scoreOfMatchAtLast: Int = parms.scoringMatrix(parms.alphabetIndex(short_i_minus_1 as Int)*parms.alphabetSize + parms.alphabetIndex(long_j as Int));
+
             var scoreUsingLatestIJ: Int = previousBestScore + scoreOfMatchAtLast;
             var bestIfGapInsertedInI: Int =
             	bestScoreUpTo_I_J(j) - (tracebackMoves((i-1)*(longSize+1)+j)==UP ? parms.extendGapPenalty : parms.openGapPenalty);
