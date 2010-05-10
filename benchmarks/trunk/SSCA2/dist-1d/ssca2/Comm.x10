@@ -5,8 +5,6 @@ import x10.util.*;
 
 final public class Comm {
 
-    public static type KVPair = Pair[Int, Int];
-    public static type KVVTriplet = Triplet[Int, Int, Int];
     private global val my_id:Int;
 
     private static class Integer {
@@ -175,7 +173,7 @@ final public class Comm {
       return B;
     } 
 
-    public def allgatherv[T](A: Rail[T]!, my_size: long) {
+    public def allgatherv[T](A: GrowableRail[T]!, my_size: long) {
       val nplaces = Place.MAX_PLACES;
       val dstSize = Rail.make[long](nplaces);
       val srcSize = Rail.make[long](nplaces);
@@ -186,7 +184,7 @@ final public class Comm {
                "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" + 
                "x10::lang::Runtime::decreaseParallelism(1);"){} }
 
-      x10.io.Console.OUT.println(dstSize);
+      x10.io.Console.ERR.println(dstSize);
 
       var size: Int = 0; 
       for((i) in 0..nplaces-1) {
@@ -200,7 +198,7 @@ final public class Comm {
                       "dstSize->raw()[i] *= sizeof(FMGL(T));" + 
                       //"printf(\"hii %d\\n\", dstSize->raw()[i]);" +
                       "}"  + 
-               "void* r = __pgasrt_tspcoll_iallgatherv(FMGL(my_id), (void*) A->raw(), (void*) B->raw(), (unsigned long*) dstSize->raw());" +
+               "void* r = __pgasrt_tspcoll_iallgatherv(FMGL(my_id), (void*) A->_array->raw(), (void*) B->raw(), (unsigned long*) dstSize->raw());" +
                "x10::lang::Runtime::increaseParallelism();" +
                "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
                "x10::lang::Runtime::decreaseParallelism(1);"){} } 
@@ -210,12 +208,12 @@ final public class Comm {
     }
 
 
-    public def alltoallv[T] (A: Rail[GrowableRail[T]!]!) {
+    public def alltoallv[T] (A: Rail[GrowableRail[T]]!, B: GrowableRail[T]!) {
       val nplaces = A.length();
       val srcSize = Rail.make[long](nplaces, (i:Int)=>A(i).length() as Long); 
       val dstSize = Rail.make[long](nplaces, (i:Int)=>0l);
       var dummy: Int;
-      //x10.io.Console.OUT.println(srcSize + " " + dstSize);
+      //x10.io.Console.ERR.println(srcSize + " " + dstSize);
 
       barrier();
      { @Native ("c++",
@@ -225,21 +223,21 @@ final public class Comm {
                "x10::lang::Runtime::decreaseParallelism(1);"){} }
 
 
-      //x10.io.Console.OUT.println(srcSize + " " + dstSize);
+      //x10.io.Console.ERR.println(srcSize + " " + dstSize);
 
       var size: Int = 0; 
       for((i) in 0..nplaces-1) {
          size += dstSize(i);
       } 
 
-      val B = Rail.make[T](size);     
+      B.setLength(size);
 
       barrier();
 
       { @Native ("c++",
                "FMGL(T)** dstOffset = new FMGL(T)*[nplaces];" + 
                "FMGL(T)** srcOffset = new FMGL(T)*[nplaces];" +
-               "FMGL(T)* offset = B->raw();" + 
+               "FMGL(T)* offset = B->_array->raw();" + 
                " for (int i =0 ;i < nplaces; i++)" +
                       "{dstOffset[i] = offset;" + 
                       "srcOffset[i] =  (A->raw())[i]->_array->raw();" + 
@@ -256,19 +254,34 @@ final public class Comm {
                
                  
      
-      //x10.io.Console.OUT.println("end of alltoall");
+      //x10.io.Console.ERR.println("end of alltoall");
 
-      return B;
     }
 
-      public def usort[T](values: Rail[T]!, map: (T)=>Int) {
-          val tmp: Rail[GrowableRail[T]!]! = Rail.make[GrowableRail[T]!](Place.MAX_PLACES, (i:Int)=>new GrowableRail[T](0));
+      public def usort[T](values: Rail[T]!, map: (T)=>Int): GrowableRail[T]! {
+          val tmp: Rail[GrowableRail[T]]! = Rail.make[GrowableRail[T]](Place.MAX_PLACES, (i:Int)=>new GrowableRail[T](0));
           for ((i) in 0..values.length()-1) {
              tmp(map(values(i))).add(values(i));
           }
-          val out_pairs = this.alltoallv[T](tmp);
+          val out_pairs = new GrowableRail[T](0);
+          this.alltoallv[T](tmp, out_pairs);
           return out_pairs;
         } 
 
+      public def usort[T](values: Rail[T]!, map: (T)=>Int,g:GrowableRail[T]!) {
+          val tmp: Rail[GrowableRail[T]]! = Rail.make[GrowableRail[T]](Place.MAX_PLACES, (i:Int)=>new GrowableRail[T](0));
+          for ((i) in 0..values.length()-1) {
+             tmp(map(values(i))).add(values(i));
+          }
+          this.alltoallv[T](tmp, g);
+        } 
 
+
+      public def usort_val[V](values: Rail[V]!, map: (Int)=>Int,g:GrowableRail[V]!) {
+          val tmp: Rail[GrowableRail[V]]! = Rail.make[GrowableRail[V]](Place.MAX_PLACES, (i:Int)=>new GrowableRail[V](0));
+          for ((i) in 0..values.length()-1) {
+             tmp(map(i)).add(values(i));
+          }
+          this.alltoallv[V](tmp, g);
+      }
 }

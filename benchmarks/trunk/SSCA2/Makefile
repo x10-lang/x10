@@ -2,7 +2,7 @@
 # <BEGIN> user settings #
 
 export X10CXX 		?= x10c++
-export X10CXXFLAGS 	?= -commandlineonly -report postcompile=5 -VERBOSE_CALLS #-DISABLE_GC
+export X10CXXFLAGS 	?= -commandlineonly -report postcompile=5 -VERBOSE_CALLS -sourcepath ./ #-DISABLE_GC 
 export X10RTTRANSPORT	?= pgas_lapi
 export PGASTRANSPORT	?= lapi	   ### TEMPORARY! Added due to mismatch X10RT transport naming scheme and PGAS
 
@@ -58,11 +58,11 @@ dist-1d-dbg:
 dist-1d-clean:
 	$(MAKE) -C dist-1d clean
 
-spring-clean:
+sprng-clean:
 	$(MAKE) -C sprng2.0 clean
 
 
-clean: spring-clean smp-clean dist-1d-clean
+clean: sprng-clean smp-clean dist-1d-clean
 
 .PHONY: smp dist-1d
 .PHONY: clean

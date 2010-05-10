@@ -62,7 +62,7 @@ public class util {
 		//next;
 	}
 
-        public static def random_permute_vertices(r: Region(1), n: Int, world:Comm!): Rail[types.UVPair]! {
+        public static def random_permute_vertices(r: Region(1), n: Int, world:Comm!): GrowableRail[types.UVPair]! {
 
           val chunkSize_n = r.size();
           val rpairs = Rail.make[types.UVPair](chunkSize_n);
@@ -84,9 +84,11 @@ public class util {
                              }
                         }}
 
-                        val out_pairs: Rail[types.UVPair]! = world.usort[types.UVPair](rpairs, (i:types.UVPair)=>(i.first/(n/Place.MAX_PLACES)));
+                        val out_pairs: GrowableRail[types.UVPair]! = world.usort[types.UVPair](rpairs, (i:types.UVPair)=>(i.first/(n/Place.MAX_PLACES)));
 
                        return out_pairs;
-        }
+        }    
+
+
 
 };

@@ -2,7 +2,6 @@
 
 double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 
-
     VERT_T *S;         /* stack of vertices in the order of non-decreasing 
                           distance from s. Also used to implicitly 
                           represent the BFS queue */
@@ -27,8 +26,6 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 #pragma omp parallel
 {
 #endif
-
-   printf ("hello\n");
 
     VERT_T *myS, *myS_t;
     LONG_T myS_size;
@@ -232,8 +229,8 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
    
     for (p=0; p<n; p++) {
 
-        //i = Srcs[p];
-        i = p;
+//        i = Srcs[p];
+         i = p;
         if (G->numEdges[i+1] - G->numEdges[i] == 0) {
             continue;
         } else {
@@ -270,8 +267,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
                 v = S[vert];
                 for (j=G->numEdges[v]; j<G->numEdges[v+1]; j++) {
 
-/*#ifndef VERIFYK4*/
-#ifdef  BLAH
+#ifdef FILTER
                     /* Filter edges with weights divisible by 8 */
                     if ((G->weight[j] & 7) != 0) {
 #endif
@@ -297,11 +293,9 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
                                     d[w] = d[v] + 1;
                                     sig[w] = sig[v];
                                     P[w].list[P[w].count++] = v;
-                                    printf ("if: %d %d %f %d\n", v, w, sig[w], d[w]);
                                 } else if (d[w] == d[v] + 1) {
                                     sig[w] += sig[v];
                                     P[w].list[P[w].count++] = v;
-                                    printf ("else: %d %d %f %d\n", v, w, sig[w], d[w]);
                                 }
 #ifdef _OPENMP  
                             
@@ -317,8 +311,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 #endif
                             
                         }
-/*#ifndef VERIFYK4 */
-#ifdef BLAH
+#ifdef FILTER
                     }
 #endif
                 }
@@ -376,9 +369,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 #ifdef _OPENMP
                     omp_unset_lock(&vLock[v]);
 #endif
-                printf ("del %d %d %f\n", i, v, del[v]);
                 }
-                printf ("bc  %d %f\n", w, del[w]);
                 BC[w] += del[w];
             }
 
@@ -445,8 +436,6 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 #ifdef _OPENMP
 }    
 #endif
-
-
     /* Verification */
 #ifdef VERIFYK4
     double BCval;
@@ -470,7 +459,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 #endif
 
     int i = 0;
-    for (i = 0; i < G->n; i++) printf ("BC %f\n", BC[i]);
+    for (i = 0; i < G->n; i++) printf ("%d %f\n",i, BC[i]);
     return elapsed_time;
 }
 

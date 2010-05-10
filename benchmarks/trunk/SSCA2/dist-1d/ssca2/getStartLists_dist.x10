@@ -8,7 +8,7 @@ class getStartLists_dist  {
 	var local_max: Int = -1;
         var pCount: Int = 0;
         val tmpListSize = 1000;
-        val pList = Rail.make[defs.edge](tmpListSize);
+        val pList = new GrowableRail[defs.edge](tmpListSize);
 
             val pg_here = pg.restrict_here();
             for((vertex) in  pg_here.vertices) {
@@ -18,10 +18,11 @@ class getStartLists_dist  {
 			if (pg_here.weight(j) >  local_max){
 				local_max = pg_here.weight(j); 
 				pCount = 0;
-				pList(pCount) = defs.edge(vertex, pg_here.endV(j), j, local_max);
+                                pList.setLength(0);
+				pList.add(defs.edge(vertex, pg_here.endV(j), j, local_max));
 				pCount++;
 			} else if (pg_here.weight(j) == local_max){
-				pList(pCount) =  defs.edge(vertex, pg_here.endV(j), j, local_max);
+				pList.add(defs.edge(vertex, pg_here.endV(j), j, local_max));
 				pCount++;
 			}
 		}

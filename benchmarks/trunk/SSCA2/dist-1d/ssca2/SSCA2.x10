@@ -1,6 +1,8 @@
 package ssca2;
 
 import x10.compiler.Native;
+import x10.util.HashMap;
+import x10.util.GrowableRail;
 
 class SSCA2 {
 
@@ -19,7 +21,7 @@ class SSCA2 {
               val pg_here = pg.restrict_here();
 
               val lo = gNumEdges(pg_here.vertices.min(0));
-              x10.io.Console.OUT.println(pg_here.vertices + " " + lo);
+              x10.io.Console.ERR.println(pg_here.vertices + " " + lo);
 
               for ((i): Point in pg_here.vertices) {
                  pg_here.numEdges(i) = gNumEdges(i) - lo;
@@ -36,7 +38,7 @@ class SSCA2 {
                          val low = pg_here.numEdges(i);
                          val high = pg_here.numEdges(i+1);
                          for ((j) in  low..high-1) {
-                                 x10.io.Console.OUT.println("[ " + i + " " + pg_here.endV(j) +  " " + pg_here.weight(j) + "] " );
+                                 x10.io.Console.ERR.println("[ " + i + " " + pg_here.endV(j) +  " " + pg_here.weight(j) + "] " );
                          }
 
              } */
@@ -47,9 +49,9 @@ class SSCA2 {
         }
 	
 	public static def main (args:Rail[String]!): void {
-		
-		if (args.length != 3) {
-			x10.io.Console.OUT.println("Usage: ./SSCA2 <No. of threads> <SCALE>");
+
+		if (args.length < 3) {
+			x10.io.Console.ERR.println("Usage: ./SSCA2 <No. of threads> <SCALE>");
 			return;
 		}
 		
@@ -60,18 +62,25 @@ class SSCA2 {
 		
 		val SCALE = Int.parseInt(args(1));
 
-		val SERIAL_GRAPH_GEN = Boolean.parseBoolean(args(2));
-		
-		x10.io.Console.OUT.println("HPCS SSCA#2 Graph Analysis Benchmark v2.0");
-		x10.io.Console.OUT.println("Running...");
+
+		val USE_ASYNC = Boolean.parseBoolean(args(2));
+
+		val SERIAL_GRAPH_GEN = Boolean.parseBoolean(args(3));
+		val NOSELF = Boolean.parseBoolean(args(4));
+		val ALLGATHER = Boolean.parseBoolean(args(5));
+	
+                x10.io.Console.ERR.println( SERIAL_GRAPH_GEN + " " + USE_ASYNC + " " + NOSELF + " "  + ALLGATHER);
+	
+		x10.io.Console.ERR.println("HPCS SSCA#2 Graph Analysis Benchmark v2.0");
+		x10.io.Console.ERR.println("Running...");
 		//     val globals = new defs();
 		defs.init(SCALE);
 		
-		x10.io.Console.OUT.println("# of processors :" + THREADS);
-		x10.io.Console.OUT.println("SCALE :" + SCALE);
+		x10.io.Console.ERR.println("# of processors :" + THREADS);
+		x10.io.Console.ERR.println("SCALE :" + SCALE);
 		
-		x10.io.Console.OUT.println("Scalable Data Generator");
-		x10.io.Console.OUT.println("genScalData() begining exectuion" );
+		x10.io.Console.ERR.println("Scalable Data Generator");
+		x10.io.Console.ERR.println("genScalData() begining exectuion" );
 	
 
                 val GLOBALS = at (defs.container) {defs.container.globals};
@@ -83,7 +92,11 @@ class SSCA2 {
                  val  kernel3 = PTimer.make("kernel3");
 
                 var pg_real: defs.pGraph;
+
+                  
                 if (SERIAL_GRAPH_GEN == true) {
+
+                  x10.io.Console.ERR.println("in serial...");
 
                   kernel0.start();
 		  val genRet = genScaleData.compute();
@@ -95,17 +108,21 @@ class SSCA2 {
 
                   pg_real = distribute(compRet.second);
                 }else {
+                 val RVertices = PlaceLocalHandle.make[HashMap[types.VERT_T, types.VERT_T]](unique, ()=>new HashMap[types.VERT_T, types.VERT_T]());
+                 val Out_pairs = PlaceLocalHandle.make[GrowableRail[types.UVPair]](unique, ()=>new GrowableRail[types.UVPair](0));
                  pg_real = new defs.pGraph(GLOBALS.N, GLOBALS.M, unique);
                  val pg_tmp = pg_real;
                  finish ateach ((place) in unique) {
                     val world: Comm! = Comm.WORLD();
                     kernel0.start();
-                    val tmp0: defs.graphSDG_dist! = genScaleData_dist.compute(GLOBALS, place, world); 
+                    val tmp0: defs.graphSDG_dist! = genScaleData_dist.compute(GLOBALS, place, world, RVertices, Out_pairs, NOSELF, ALLGATHER);
                     kernel0.stop();
+                    world.barrier();
 
                     kernel1.start();
                     computeGraph_dist.compute(GLOBALS, tmp0, pg_tmp, place, world); 
                     kernel1.stop();
+                    world.barrier();
                   }
                 }
 
@@ -118,18 +135,21 @@ class SSCA2 {
                     kernel2.start();
                   val sourceList = getStartLists_dist.compute(pg, place, world); 
                     kernel2.stop();
+                    world.barrier();
 
                   val tmp:Rail[defs.edge]! = sourceList as Rail[defs.edge]!;
     
 for ((i) in 0..sourceList.length-1) {
-                          x10.io.Console.OUT.println("edge " + sourceList(i).e + "( " + sourceList(i).w + " ) " + " : " + "[ " + sourceList(i).startVertex + " , " + sourceList(i).endVertex + "]");
+                          x10.io.Console.ERR.println("edge " + sourceList(i).e + "( " + sourceList(i).w + " ) " + " : " + "[ " + sourceList(i).startVertex + " , " + sourceList(i).endVertex + "]");
                  }   
                     kernel3.start();
 	    	  findSubGraphs_dist.compute(pg, place, world, sourceList, GLOBALS.SubGraphPathLength);
                     kernel3.stop();
+                    world.barrier();
                 }
 
-               betweenessCentrality.compute(pg_real); 
+               val bc = new BetweenessCentrality(pg_real, USE_ASYNC);
+               bc.compute();
 
                PTimer.printDetailed();
 	}

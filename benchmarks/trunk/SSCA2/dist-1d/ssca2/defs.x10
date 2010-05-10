@@ -130,6 +130,12 @@ public static class pGraph {
 		this.w = w;
 		this.e = e;
 	}
+
+
+         public global safe def toString():String {
+          return "(" + startVertex + ", " + endVertex + ", " + w +  e + ")";
+        }
+
 	};
 	
 };

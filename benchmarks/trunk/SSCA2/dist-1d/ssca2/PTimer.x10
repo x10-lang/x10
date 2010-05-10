@@ -15,6 +15,14 @@ final public class PTimer{
 
   global val name: String;
 
+  public static def round_2(f:Double): String {
+    val tmp = Math.round(f*100) as Int;
+    val a = tmp/100;
+    val b = tmp % 100;
+    return a.toString() + "." + b.toString();
+
+  }
+
   def this (name: String): PTimer {
    val DIST: Dist(1) = Dist.makeUnique();
    start = DistArray.make[long](DIST, (var pt: Point(1)):long=>0);
@@ -54,7 +62,7 @@ final public class PTimer{
       
       val tmp = (acc(here.id)*1e-9 as double )- mean(here.id);
 
-      variance(here.id) = world.sum(tmp*tmp);
+      variance(here.id) = (world.sum(tmp*tmp)) / Place.MAX_PLACES;
     }
   }
 
@@ -75,7 +83,7 @@ final public class PTimer{
   }
 
   public global def print() {
-    x10.io.Console.OUT.println("PTimer " + name + " Seconds: " + acc(here.id)*1e-9);
+    x10.io.Console.ERR.println("PTimer " + name + " Seconds: " + acc(here.id)*1e-9);
   }
 
    public static def printTimers() {
@@ -89,41 +97,51 @@ final public class PTimer{
 
 
     val buf_title = new StringBuilder();
+    buf_title.add ("Place\t");
     for (val timer: PTimer in timers ) {
-          buf_title.add(timer.name + " " );
+          buf_title.add(timer.name + "\t\t" );
     }
-    x10.io.Console.OUT.println(buf_title);
+    x10.io.Console.ERR.println(buf_title);
 
     for((p) in unique) {
         val timers_copy = timers.toValRail();
       finish async (Place.places(p)) {
         val buf = new StringBuilder();
+        buf.add(here.id.toString() + "\t\t");
         for ((i) in 0..timers_copy.length()-1) {
           val lcl_time = timers_copy(i).acc(here.id)*1e-9;
-          buf.add("\t" + lcl_time + "\t");
+          buf.add(round_2(lcl_time) + "\t\t");
         }
-        x10.io.Console.OUT.println (buf);
+        x10.io.Console.ERR.println (buf);
       }
     }
 
+    val buf_sep = new StringBuilder();
+    buf_sep.add("----------------------------------------------------");
     val buf_total = new StringBuilder();
+    buf_total.add("total\t");
     val buf_max = new StringBuilder();
+    buf_max.add("max\t");
     val buf_min = new StringBuilder();
+    buf_min.add("min\t");
     val buf_mean = new StringBuilder();
+    buf_mean.add("mean\t");
     val buf_variance = new StringBuilder();
+    buf_variance.add("var\t");
     for (val timer: PTimer in  timers) {
       timer.gather();
-      buf_total.add("\t" + timer.sum(here.id) + "\t" );
-      buf_mean.add("\t" + timer.mean(here.id) + "\t" );
-      buf_max.add("\t" + timer.max(here.id) + "\t" );
-      buf_min.add("\t" + timer.min(here.id) + "\t" );
-      buf_variance.add(timer.variance(here.id) + "\t" );
+      buf_total.add(round_2(timer.sum(here.id)) + "\t\t" );
+      buf_mean.add( round_2(timer.mean(here.id)) + "\t\t" );
+      buf_max.add( timer.max(here.id).second + "\t\t" );
+      buf_min.add( timer.min(here.id).second + "\t\t" );
+      buf_variance.add( round_2(timer.variance(here.id))+ "\t\t");
     }
-    x10.io.Console.OUT.println(buf_total);
-    x10.io.Console.OUT.println(buf_max);
-    x10.io.Console.OUT.println(buf_min);
-    x10.io.Console.OUT.println(buf_mean);
-    x10.io.Console.OUT.println(buf_variance);
+    x10.io.Console.ERR.println(buf_sep);
+    x10.io.Console.ERR.println(buf_total);
+    x10.io.Console.ERR.println(buf_max);
+    x10.io.Console.ERR.println(buf_min);
+    x10.io.Console.ERR.println(buf_mean);
+    x10.io.Console.ERR.println(buf_variance);
   }
 
 }

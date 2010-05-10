@@ -70,12 +70,13 @@ double genScalData(graphSDG* SDGdata) {
         elapsed_time_part = get_seconds();
 #endif
 
+	stream = init_sprng(SPRNG_LCG64, 0, 1, seed, SPRNG_DEFAULT);
     /* Start adding edges */
 #ifdef _OPENMP
 #pragma omp for
 #endif    
     for (i=0; i<m; i++) {
-	stream = init_sprng(SPRNG_LCG64, i, m, seed, SPRNG_DEFAULT);
+	//stream = init_sprng(SPRNG_LCG64, i, m, seed, SPRNG_DEFAULT);
 
       do {
         u = 1;
@@ -163,7 +164,7 @@ double genScalData(graphSDG* SDGdata) {
     VERT_T *values = (VERT_T*) malloc(N*sizeof(VERT_T));
 
     for (i=0; i<n; i++) {
-	stream = init_sprng(SPRNG_LCG64, i, n, seed, SPRNG_DEFAULT);
+	//stream = init_sprng(SPRNG_LCG64, i, n, seed, SPRNG_DEFAULT);
         keys[i] =  (n*sprng(stream));
         values[i] = i;
 
@@ -210,7 +211,7 @@ double genScalData(graphSDG* SDGdata) {
     
     /* Generate edge weights */
     if (tid == 0) {
-	stream = init_sprng(SPRNG_LCG64, i, m, seed, SPRNG_DEFAULT);
+	//stream = init_sprng(SPRNG_LCG64, i, m, seed, SPRNG_DEFAULT);
         wt = (WEIGHT_T *) malloc(M*sizeof(WEIGHT_T));
         assert(wt != NULL);
     }

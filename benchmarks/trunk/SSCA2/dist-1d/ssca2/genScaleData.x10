@@ -12,10 +12,16 @@ public class genScaleData  {
 	}
 	public static def init_sprng_wrapper(val tid: Int, val nthreads: Int, val seed: Int): Long{
 		var tmp: Long = -1;
-	{@Native("c++", "tmp = (long) init_sprng(SPRNG_LCG64, tid, nthreads, 985456376, SPRNG_DEFAULT);") {} }
+	{@Native("c++", "tmp = (long) init_sprng(SPRNG_LCG64, tid, nthreads, seed, SPRNG_DEFAULT);") {} }
 	return tmp;
 	}
 	public static def compute():  Pair[Double, defs.graphSDG] {
+
+
+		/* val rand = PTimer.make("random");
+		val sort = PTimer.make("sort");
+		val perm = PTimer.make("permute");
+		val assign = PTimer.make("assign"); */
 		
 		val GLOBALS = at (defs.container) (defs.container.globals);
 		
@@ -27,18 +33,15 @@ public class genScaleData  {
 		val dest = Rail.make[types.VERT_T](m);
 		val wt = Rail.make[types.WEIGHT_T](m);
 		
-		val seed = 2387;
+		val seed = 985456376;
 		var elapsed_time: Double = util.get_seconds();
-		val stream = Rail.make[Long](nthreads);
 		
+		val stream = init_sprng_wrapper(0, 1, seed);
 		finish  {
 			
-			val c: Clock = Clock.make();
 		
-		
-		foreach((tid) in 0..nthreads-1) {
-			
-			next;
+                //rand.start();
+		for((tid) in 0..nthreads-1) {
 			
 			val chunkSize_m = m/nthreads;
 			val chunkSize_n = n/nthreads;
@@ -52,7 +55,6 @@ public class genScaleData  {
 			
 			for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
 
-			  val stream = init_sprng_wrapper(i, m, seed);
 				do{ 
 					u = 1;
 					v = 1;
@@ -109,61 +111,52 @@ public class genScaleData  {
 				src(i)= u-1;
 				dest(i) = v-1;
 			}
+
+                        //rand.stop();
 			
-			next;
 			
 			//x10.io.Console.OUT.println(src + " " + dest);
-           
-		         val key = Rail.make[types.VERT_T](n);
-		         val value = Rail.make[types.VERT_T](n);
+          
+                         //perm.start(); 
+		         val kv = Rail.make[types.UVPair](n);
 			 for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
-			       val stream = init_sprng_wrapper(i, n, seed);
-
                                 val j = (n*sprng_wrapper(stream)) as types.VERT_T;
-				key(i) = j;
-                                value(i) = i;
+				kv(i) = types.UVPair(j, i);
 			} 
+                         //perm.stop();
 			
-			next;
 			
-			 for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
+			  for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
                                 for ((j) in (i+1)..(tid+1)*chunkSize_n-1) {
                                    atomic {
-                                     if (key(i) > key(j)) {
-                                        val tmp = value(i);
-                                        value(i) = value(j);
-                                        value(j) = tmp;      
-                                        val tmp0 = key(i);
-                                        key(i) = key(j);
-                                        key(j) = tmp0;      
+                                     if (kv(i).first > kv(j).first) {
+                                        val tmp = kv(i);
+                                        kv(i) = kv(j);
+                                        kv(j) = tmp;      
                                       }
                                     }
                                 }
-                         }
-			
-			next; 
-			
+                         } 
+
+                	//sort.start(); 
+			val size = kv.length();
+                        //{@Native("c++", "mysort( (kv->raw()), size);") {} }
+			//sort.stop();
+
+	
+			//assign.start();		
 			 //x10.io.Console.OUT.println("perm "  +  " " + key + " " + value);
 			for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
-				src(i) = value(src(i));
-				dest(i) = value(dest(i));
-			}
-			
-			next;
-			
-			for ((i) in   tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
-			       val stream = init_sprng_wrapper(i, m, seed);
+				src(i) = kv(src(i)).second;
+				dest(i) = kv(dest(i)).second;
 				wt(i) = (1 + GLOBALS.MaxIntWeight * sprng_wrapper(stream)) as types.WEIGHT_T;
-			} 
-			
-			next;
+			}
+			//assign.stop();
 			
 			//free_sprng(stream);
 			
-			next;
 		}
 		
-		c.drop();
 		}
 		
 		elapsed_time = util.get_seconds() - elapsed_time;

@@ -8,7 +8,7 @@ public class computeGraph_dist  {
 
                 val pg_here = pg.restrict_here();	
                 val ledges = world.usort[types.UVWTriplet](SDGdata.etriplets, (i:types.UVWTriplet)=>pg.owner(i.first).id);
-                //x10.io.Console.OUT.println(pg_here.vertices + " " + ledges);
+                //x10.io.Console.ERR.println(pg_here.vertices + " " + ledges);
 			
 		val degree: Array[types.LONG_T](1) = new Array[types.LONG_T](pg_here.vertices, (pt:Point(1))=>0);
 		val pos = Rail.make[types.LONG_T](ledges.length(), (i:Int)=>0);
@@ -20,7 +20,7 @@ public class computeGraph_dist  {
 		}
 
 
-                //x10.io.Console.OUT.println("point 1\n");
+                //x10.io.Console.ERR.println("point 1\n");
 	
                 val lo = pg_here.vertices.min(0);
                 val hi = pg_here.vertices.max(0);
@@ -36,7 +36,7 @@ public class computeGraph_dist  {
                   }
                 }
 
-                //x10.io.Console.OUT.println("point 2\n");
+                //x10.io.Console.ERR.println("point 2\n");
 		
                  for ((i) in 0..ledges.length()-1) {
                    val u = ledges(i).first;
@@ -46,20 +46,20 @@ public class computeGraph_dist  {
                  }
 
 		
-                //x10.io.Console.OUT.println("point 3\n");
+                //x10.io.Console.ERR.println("point 3\n");
 		 /* for ((i) in 0..ledges.length()-1){
-			  x10.io.Console.OUT.println("[ " + ledges(i) + "] ");
+			  x10.io.Console.ERR.println("[ " + ledges(i) + "] ");
 		 }
 		 
 		 for((i) in pg_here.vertices) {
-			 x10.io.Console.OUT.println("[ " + pg_here.numEdges(i) + "] " );
+			 x10.io.Console.ERR.println("[ " + pg_here.numEdges(i) + "] " );
 		 }
 		 
 		 for((i) in pg_here.vertices) {
 			 val lo0 = pg_here.numEdges(i);
 			 val hi0 = pg_here.numEdges(i+1);
 			 for ((j) in  lo0..hi0-1) {
-			   x10.io.Console.OUT.println("[ " + i + " " + pg_here.endV(j) +  " " + pg_here.weight(j) + "] " );
+			   x10.io.Console.ERR.println("[ " + i + " " + pg_here.endV(j) +  " " + pg_here.weight(j) + "] " );
 			 }
 		 } */ 
 		
