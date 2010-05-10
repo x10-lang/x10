@@ -151,38 +151,53 @@ public class SW {
       val timings = new Timings(repetitions, phaseLeaders);
       val begin = timer.milliTime();
       var finalResult: Output = new Output();
+
+      // Step 1: read in the parameters and data
+      val startInput = timer.milliTime();
+      val parms = Parameters(parsedArgs.get("p").value);
+      if (parms.error.length() > 0) {
+         Console.ERR.println(parms.error);
+         at(Place.FIRST_PLACE) System.setExitCode(33);
+         return;
+      }
+      val shorterBuilder = new StringBuilder();
+      val longerBuilder = new StringBuilder();
+      finish {
+          async readInASequence(parsedArgs.get("s").value, parms.alphabetIndex, shorterBuilder);
+          async readInASequence(parsedArgs.get("l").value, parms.alphabetIndex, longerBuilder);
+      }
+      if (shorterBuilder.length() == 0 || longerBuilder.length()==0) {
+         at(Place.FIRST_PLACE) System.setExitCode(30);
+      }
+      val shorterAsString = shorterBuilder.result();
+      val longerAsString  = (longerBuilder as StringBuilder!).result();
+      val dataIsRead = timer.milliTime();
+      timings.add(INPUT_PHASE, 0, dataIsRead - startInput);
+
+      // Step 1a: setup distributed structures
+      val segInfo   = SegmentationInfo(parms, shorterAsString, longerAsString.length());
+      Console.OUT.println("Places available: "+Place.MAX_PLACES+"\r\nPlaces used: "+segInfo.segmentCount);
+      val segments  = Dist.makeBlock((0 .. (segInfo.segmentCount-1)));
+      val segmentedInput = Rail.make[String](segInfo.segmentCount, (i:int) => segInfo.slice(i, longerAsString));
+      val scorers   = DistArray.make[Scorer](segments);
+      val scores    = DistArray.make[Score](segments);
+
       for((rep) in (0..repetitions-1)) {
-         // Step 1: read in the parameters and data
-         val start = timer.milliTime();
-         val parms = Parameters(parsedArgs.get("p").value);
-         if (parms.error.length() > 0) {
-            Console.ERR.println(parms.error);
-            at(Place.FIRST_PLACE) System.setExitCode(33);
-            return;
-         }
-         val shorterBuilder = new StringBuilder();
-         val longerBuilder = new StringBuilder();
-         finish {
-             async(here) readInASequence(parsedArgs.get("s").value, parms.alphabetIndex, shorterBuilder);
-             async(here) readInASequence(parsedArgs.get("l").value, parms.alphabetIndex, longerBuilder);
-         }
-         if (shorterBuilder.length() == 0 || longerBuilder.length()==0) {
-            at(Place.FIRST_PLACE) System.setExitCode(30);
-         }
-         val shorterAsString = shorterBuilder.result();
-         val longerAsString  = (longerBuilder as StringBuilder!).result();
-         val dataIsRead = timer.milliTime();
-         timings.add(INPUT_PHASE, rep, dataIsRead - start);
-         
+         // To simplify distributed structure of code; input phase is performed once outside the repitions loop.
+         // Encode dummy timing here to support timing API.
+         if (rep != 0) timings.add(INPUT_PHASE, rep, 0);
+
          // Step 2: find the best scores and initialize the traceback matrices
-         val segInfo   = SegmentationInfo(parms, shorterAsString, longerAsString.length());
-         if(rep == 0) Console.OUT.println("Places available: "+Place.MAX_PLACES+"\r\nPlaces used: "+segInfo.segmentCount);
-         val segments  = Dist.makeBlock((0 .. (segInfo.segmentCount-1)));
-         val newScorer = (p: Point)=>new Scorer(parms, shorterAsString, segInfo.slice(p(0), longerAsString), segInfo);
-         val scorers   = DistArray.make[Scorer](segments, newScorer);
-         val scores    = DistArray.make[Score](segments, (p: Point{rank==1})=>scorers(p).score);
+         val startScoring = timer.milliTime();
+	 finish for (p in segments) {
+             val mySegment = segmentedInput(p(0));  // get the right sub-string outside of the async to minimize serialization
+             async (segments(p)) {
+                 scorers(p) = new Scorer(parms, shorterAsString, mySegment, segInfo);
+                 scores(p) = scorers(p).score;
+             }
+         }
          val scoringDone = timer.milliTime();
-         timings.add(SCORING_PHASE, rep, scoringDone-dataIsRead);
+         timings.add(SCORING_PHASE, rep, scoringDone-startScoring);
          
          //Step 3: place 0 gets to pick the winning place: that place alone does a traceback
          val bestScore = scores.reduce((a:Score, b:Score) => (a.beats(b)?a:b), scores(0));
