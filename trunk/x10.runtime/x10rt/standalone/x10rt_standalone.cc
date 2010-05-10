@@ -32,6 +32,10 @@
 
 //#define DEBUG // uncomment to turn on debug messages
 
+#ifdef __APPLE__
+#include "x10rt_standalone_macos.cc"
+#endif
+
 #ifdef __CYGWIN__
 #include "x10rt_standalone_cygwin.cc"
 #else
@@ -228,13 +232,14 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		state.numPlaces = atol(NPROCS);
 
 	// allocate the shared memory regions which hold the barrier and pointers to buffers between processes
-	int sharedStateHandle = open("/dev/zero", O_RDWR|O_EXCL, S_IRWXU);
-	if (sharedStateHandle < 0) error("Unable to open the initial shared memory region");
+//	int sharedStateHandle = open("/dev/zero", O_RDWR|O_EXCL, S_IRWXU);
+//	if (sharedStateHandle < 0) error("Unable to open the initial shared memory region");
 //	if (ftruncate(sharedStateHandle, sizeof(pthread_barrier_t) + (sizeof(struct x10StandalonePlaceState)*state.numPlaces)) < 0) error("Unable to truncate shared memory region"); // set the shared memory size
-	state.barrier = (pthread_barrier_t*)mmap(NULL, sizeof(pthread_barrier_t) + (sizeof(struct x10StandalonePlaceState)*state.numPlaces), PROT_READ|PROT_WRITE, MAP_SHARED, sharedStateHandle, 0);
+//	state.barrier = (pthread_barrier_t*)mmap(NULL, sizeof(pthread_barrier_t) + (sizeof(struct x10StandalonePlaceState)*state.numPlaces), PROT_READ|PROT_WRITE, MAP_SHARED, sharedStateHandle, 0);
+	state.barrier = (pthread_barrier_t*)mmap(NULL, sizeof(pthread_barrier_t) + (sizeof(struct x10StandalonePlaceState)*state.numPlaces), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, -1, 0);
 	if (state.barrier == MAP_FAILED) error("Unable to mmap the initial shared memory region");
 	state.perPlaceState = (x10StandalonePlaceState **)state.barrier+sizeof(pthread_barrier_t);
-	if (close(sharedStateHandle) < 0) error("Unable to close the initial shared memory handle");
+//	if (close(sharedStateHandle) < 0) error("Unable to close the initial shared memory handle");
 
 	// initialize our barrier to the number of places
 	pthread_barrierattr_t barrier_attr;
@@ -250,12 +255,13 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	for (x10rt_place i=0; i<state.numPlaces; i++)
 	{
 		// allocate the shared memory data buffer and associates structures
-		int placeStateHandle = open("/dev/zero", O_RDWR|O_EXCL, S_IRWXU);
-		if (placeStateHandle < 0) error("Unable to open the place-specific buffer");
+//		int placeStateHandle = open("/dev/zero", O_RDWR|O_EXCL, S_IRWXU);
+//		if (placeStateHandle < 0) error("Unable to open the place-specific buffer");
 //		if (ftruncate(placeStateHandle, sizeof(struct x10StandalonePlaceState))) error("Unable to truncate a place-specific buffer"); // set the shared memory size
-		state.perPlaceState[i] = (x10StandalonePlaceState *)mmap(NULL, sizeof(struct x10StandalonePlaceState), PROT_READ|PROT_WRITE, MAP_SHARED, placeStateHandle, 0);
+//		state.perPlaceState[i] = (x10StandalonePlaceState *)mmap(NULL, sizeof(struct x10StandalonePlaceState), PROT_READ|PROT_WRITE, MAP_SHARED, placeStateHandle, 0);
+		state.perPlaceState[i] = (x10StandalonePlaceState *)mmap(NULL, sizeof(struct x10StandalonePlaceState), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, -1, 0);
 		if (state.perPlaceState[i] == MAP_FAILED) error("Unable to mmap the place-specific buffer");
-		if (close(placeStateHandle) < 0) error("Unable to close the place-specific buffer handle");
+//		if (close(placeStateHandle) < 0) error("Unable to close the place-specific buffer handle");
 
 		if(pthread_mutex_init(&state.perPlaceState[i]->messageQueueLock, &mta) != 0) error("Unable to initialize the mutex for a place");
 		state.perPlaceState[i]->messageQueueHead = X10RT_DATABUFFERSIZE;
