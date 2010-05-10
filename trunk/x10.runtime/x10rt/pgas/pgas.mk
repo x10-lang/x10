@@ -214,7 +214,7 @@ $(PGAS_DYNLIB_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(PGAS_DYNLIB_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(PANE_ARLIBS) -o $@ $^
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(PANE_ARLIBS) -o $@ $(COMMON_OBJS) -Wl,-bexpfull lib/libxlpgas_pane.a 
 endif
 
 etc/x10rt_pgas_pane.properties:
