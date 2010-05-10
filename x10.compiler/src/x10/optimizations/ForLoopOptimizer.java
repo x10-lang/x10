@@ -221,6 +221,10 @@ public class ForLoopOptimizer extends ContextVisitor {
             List<Stmt> stmts      = new ArrayList<Stmt>();
             Name       prefix     = named ? formal.name().id() : Name.make("p");
             
+            // cache the value of domain in a local temporary variable
+            LocalDecl  domLDecl   = createLocalDecl(domain.position(), Flags.FINAL, Name.makeFresh(prefix), domain);
+            stmts.add(domLDecl);
+            
             // Prepare to redeclare the formal iterate as local Point variable (if the formal is not anonymous)
             Type       indexType  = null; // type of the formal var initializer (if any)
             LocalDecl  indexLDecl = null; // redeclaration of the formal var (if it has a name)
@@ -245,8 +249,8 @@ public class ForLoopOptimizer extends ContextVisitor {
                 Name maxName  = Name.makeFresh(varName+ "max");
                 
                 // create an AST node for the calls to domain.min() and domain.max()
-                Expr minVal   = createInstanceCall(pos, domain, MIN, createIntLit(r));
-                Expr maxVal   = createInstanceCall(pos, domain, MAX, createIntLit(r));
+                Expr minVal   = createInstanceCall(pos, createLocal(domain.position(), domLDecl), MIN, createIntLit(r));
+                Expr maxVal   = createInstanceCall(pos, createLocal(domain.position(), domLDecl), MAX, createIntLit(r));
                 
                 // create an AST node for the declaration of the temporary locations for the r-th var, min, and max
                 LocalDecl minLDecl = createLocalDecl(pos, Flags.FINAL, minName, minVal);
