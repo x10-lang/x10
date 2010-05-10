@@ -187,7 +187,7 @@ public class SW {
          //Step 3: place 0 gets to pick the winning place: that place alone does a traceback
          val bestScore = scores.reduce((a:Score, b:Score) => (a.beats(b)?a:b), scores(0));
          val p = Place.places(bestScore.where);
-         finalResult = at(p) scorers(bestScore.where).result();
+         finalResult = at(p) (scorers(bestScore.where) as Scorer!).result();
          val tracebackDone = timer.milliTime();
          timings.add(TRACEBACK_PHASE, rep, tracebackDone- scoringDone);
       }

@@ -7,13 +7,13 @@ import x10.util.ValRailBuilder;
  * to know about the best match.
  */
 public class Output {
-   val score:       Long;
-   val shortBegins: Int;
-   val longBegins:  Int;
-   val shortEnds:   Int;
-   val longEnds:    Int;
-   val shortMatch:  String;
-   val longMatch:   String;
+   global val score:       Long;
+   global val shortBegins: Int;
+   global val longBegins:  Int;
+   global val shortEnds:   Int;
+   global val longEnds:    Int;
+   global val shortMatch:  String;
+   global val longMatch:   String;
 
    public def this() {
       score = 0L;

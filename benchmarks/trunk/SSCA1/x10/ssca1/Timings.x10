@@ -75,7 +75,7 @@ public class Timings {
     * the last attempt, we compute the maxs and so on.
     * @throws IllegalArgumentException if the timings data is incomplete
     */
-   public global safe def computeStats() {
+   public safe def computeStats() {
       if (statsAreAvailable) return true;
       else if (!isComplete()) throw new IllegalArgumentException("timings not yet complete.");
       
@@ -122,7 +122,7 @@ public class Timings {
    /**
     * returns true if the garbage default value is not found in any timings entry
     */
-   public global def isComplete() { 
+   public def isComplete() { 
       for((n) in (0..phases-1)) if (!isComplete(n)) return false;
       return true;
    }
@@ -132,7 +132,7 @@ public class Timings {
     * phase n
     * @param n the phase whose completeness is at issue
     */
-   public global def isComplete(n: Int) {
+   public def isComplete(n: Int) {
       val timing = timings(n);
       for((m) in (0..iterations-1)) if (timing(m) == GARBAGE_INITIAL_VALUE) return false;
       return true;
@@ -143,7 +143,7 @@ public class Timings {
     * that deals with the computed statistics
     * @returns a string suitable for direct display as plain text
     */
-   public global safe def statsToString() {
+   public safe def statsToString() {
       if(!computeStats()) return "-- no stats --";
       val builder = new StringBuilder();
       if (iterations == 1) return "";
@@ -172,8 +172,17 @@ public class Timings {
       } catch(e: Exception) { Console.ERR.println("creating stat string: "+e); }
       return builder.result();
    }
-   
+
    public global safe def toString(): String {
+       if (here == home) {
+           return (this as Timings!).toStringInternal();
+       } else {
+           return "non-local Timings object";
+       }
+   }
+
+   
+   private safe def toStringInternal(): String {
       val builder = new StringBuilder();
       try { 
       if (iterations > 1) {

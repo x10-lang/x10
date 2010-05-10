@@ -91,16 +91,16 @@ public class Scorer {
       val shortSize = shorter_.length();
       longSize  = longer_.length();
       tracebackMoves = Rail.make[Byte]((shortSize+1)*(longSize + 1));
-      for ((i) in (1 .. shortSize-1)) tracebackMoves(i*(longSize + 1)) = STOP;
-      for ((j) in (0 .. longSize-1))  tracebackMoves(j) = STOP;
+      for ((i) in 1..shortSize-1) tracebackMoves(i*(longSize + 1)) = STOP;
+      for ((j) in 0..longSize-1)  tracebackMoves(j) = STOP;
       val bestScoreUpTo_I_J = Rail.make[Int](longSize + 1, (n: Int)=> 0);
       var winningScore : Long = 0;
       var shorterLast: Int = -1;
       var longerLast: Int = -1;
-      for((i) in (1..shortSize)) {
+      for((i) in 1..shortSize) {
          var previousBestScore: Int = 0;
          var short_i_minus_1: Byte = shortRail(i-1);
-         for((j) in (1..longSize)) { try {
+         for((j) in 1..longSize) { try {
             //if (j-1 >= longSize) throw new IllegalArgumentException("long rail access fails: "+j+" versus "+longSize);
             var long_j: Byte = longRail(j-1);
             var scoreOfMatchAtLast: Int = parms.getScore(short_i_minus_1, long_j);
@@ -146,7 +146,7 @@ public class Scorer {
     * @return an instance of Output that summarizes all one needs to know about the result
     *    and where in the original sequences it came from.
     */ 
-   public global def result() {
+   public def result() {
       var nextMove: Int = BAD;
       val shorterLast = score.shortEnds;
       val longerLast  = score.longEnds;
