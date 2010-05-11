@@ -83,6 +83,13 @@ namespace x10aux {
         #endif
     }
 
+// platform-specific min rail alignment
+#ifdef _POWER
+#define X10_MIN_RAIL_ALIGNMENT 16
+#else
+#define X10_MIN_RAIL_ALIGNMENT sizeof(x10_double)
+#endif
+    
     
     template<class T, class R> R* alloc_rail_internal(x10_int length,
                                                       bool remote,
@@ -90,6 +97,9 @@ namespace x10aux {
         bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
         // assert power of 2
         assert((alignment & (alignment-1)) == 0);
+        if (alignment < X10_MIN_RAIL_ALIGNMENT) {
+            alignment = X10_MIN_RAIL_ALIGNMENT;
+        }
         /*
          * We allocate a single piece of storage that is big enough for both
          * R and its (aligned) backing data array. We then do some pointer arithmetic
