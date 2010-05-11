@@ -574,7 +574,8 @@ However, there are a lot of things that one frequently wants to say about
 data.  One might want to know that a \xcd`String` variable is not \xcd`null`,
 or that a matrix is square, or that one matrix has the same number of columns
 that another has rows (so they can be multiplied).  In the multicore setting,
-one might wish to know that two values are located at the same processor.
+one might wish to know that two values are located at the same processor, or
+that one is located at the same place as the current computation.
 
 In most languages, there is simply no way to say these things statically.
 Programmers must made do with comments, \xcd`assert` statements, and dynamic
@@ -610,7 +611,8 @@ available.)  The values of type \xcd`T{e}` are the values of \xcd`T` for which
 %}}
 %~~neg
 
-\item One way to say that objects \xcd`c` and \xcd`d` are located at the same
+\item Every object has a \xcd`home` property telling where it is located.
+      One way to say that objects \xcd`c` and \xcd`d` are located at the same
       place is: 
 %~~gen
 % package Types.flipes.knipes.shipes.wipes;
@@ -625,35 +627,39 @@ available.)  The values of type \xcd`T{e}` are the values of \xcd`T` for which
 %~~siv
 %}}
 %~~neg
+
+\item  As explained in \Sref{XtenPlaces}, certain operations
+can only be performed at an object's home, so having this expressible as a
+type is crucial. One way to say that \xcd`e` is located \xcd`here`, \viz, the same place
+      as the current computation, is: 
+%~~gen
+% package Types.cripes.wipes.lipes;
+% class Examplorator {
+% static def someObject() : Object! = null;
+% static def example() {
+%~~vis
+\begin{xten}
+  val e : Object{self.home == here} = someObject();
+\end{xten}
+%~~siv
+%}}
+%~~neg
 \end{itemize}
 
+\index{self}When constraining a value of type \xcd`T`, \xcd`self` refers to the object of
+type \xcd`T` which is being constrained.  For example, \xcd`Int{self == 4}` is
+the type of \xcd`Int`s which are equal to 4 -- the best possible description
+of \xcd`4`, and a very difficult type to express without using \xcd`self`.  
 
 
-%%BARD-HERE
 
 
-Given a type \xcd"T", a {\em constrained type} \xcd"T{e}" may be constructed
-by constraining its properties with a boolean expression of a limited sort
-\xcd"e". The values of \xcd`T{e}` are those values of type \xcd`T` for which
-\xcd`e` evaluates to \xcd`true`.  \Eg, \xcd`Point` has a property
-\xcd`rank:Int`.  If \xcd`p : Point`, \xcd`p` may have any \xcd`rank`.
-\xcd`Point{rank == 3}` is the point type constrained to only those values
-whose \xcd`rank` property is 3.   
-
-A common use of constrained types is to explain where objects are located.
-Every object has a \xcd`home` property. If \xcd`Person` is a type of people,
-then \xcd`Person{home==here}` is the type of people whose data is stored at
-the current location.  As explained in \Sref{XtenPlaces}, certain operations
-can only be performed at an object's home, so having this expressible as a
-type is crucial.
 
 
 \xcd"T{e}" is a {\em dependent type}, that is, a type dependent on values. The
 type \xcd"T" is called the {\em base type} and \xcd"e" is called the {\em
-constraint}. 
-
-For brevity, the constraint may be omitted and
-interpreted as \xcd"true".
+  constraint}. If the constraint is omitted, it is \xcd`true`---that is, the
+  base type is unconstrained.
 
 Constraints may refer to values in the local environment: 
 %~~gen
@@ -686,48 +692,106 @@ Constraints on properties induce a natural subtyping relationship:
 \xcd"C{c}" is a subtype of
 \xcd"D{d}" if \xcd"C" is a subclass of \xcd"D" and
 \xcd"c" entails \xcd"d".
+For example: 
+\begin{itemize}
+\item \xcd`Int{self == 3} <: Int{self != 14}`.  The only value of
+      \xcd`Int{self ==3}` is 3.  All integers but 14 are members of
+      \xcd`Int{self != 14}`, and in particular 3 is.  
+\item Suppose we have classes \xcd`Child <: Person`, and \xcd`Person` has a
+      long \xcd`ssn` property.  If \xcd`rhys : Child{ssn == 123456789}`, then
+      \xcd`rhys` is also a \xcd`Person` and still has \xcd`ssn==123456789`, so 
+      \xcd`rhys : Person{ssn==123456789}` as well.  
+      So, \xcd`Child{ssn == 123456789} <: Person{ssn == 123456789}`.
+\item Furthermore, since \xcd`123456789 != 555555555`, 
+      \xcd`rhys : Person{ssn != 555555555}`.  
+      So, \xcd`Child{ssn == 123456789} <: Person{ssn != 555555555}`.  
+\item \xcd`T{e} <: T` for any type \xcd`T`.  That is, if you have a value
+      \xcd`v` of some base type \xcd`T` which satisfied \xcd`e`, then \xcd`v`
+      is of that base type \xcd`T` (with the constraint ignored).
+\item If \xcd`A <: B`, then \xcd`A{c} <: B{c}` for every constraint \xcd`{c}`
+      for which \xcd`A{c}` and \xcd`B{c}` are defined.  That is, if every
+      \xcd`A` is also a \xcd`B`, and \xcd`a : A{c}`, then 
+      \xcd`a` is an \xcd`A` and \xcd`c` is true of it. So \xcd`a` is also a
+      \xcd`B` (and \xcd`c` is still true of 
+      it), so \xcd`a : B{c}`.  
 
-Type parameters cannot be constrained.
+\end{itemize}
 
-\subsection{Constraints}
+
+\subsection{Constraint Expressions}
 
 \def\withmath#1{\relax\ifmmode#1\else{$#1$}\fi}
 \def\LL#1{\withmath{\lbrack\!\lbrack #1\rbrack\!\rbrack}}
 
-Expressions used as constraints are restricted by the constraint
-system in use to ensure that the constraints can be solved at compile
-time.  The \Xten{} compiler allows compiler plugins to be installed to
-extend the constraint language and the constraint system.  Constraints
-must be of type \xcd"Boolean".  The compiler supports the following
-constraint syntax.
+Only a few kinds of expressions can appear in constraints.  For fundamental
+reasons of mathematical logic, the more kinds of expressions that can appear
+in constraints, the harder it is to compute the essential properties of
+constrained type -- in particular, the harder it is to compute 
+\xcd`A{c} <: B{d}`.  It doesn't take much to make this basic fact undecidable.
+In order to
+make sure that it stays decidable, X10 places quite stringent restrictions on
+constraints.  
+
+Only the following forms of expression are allowed in constraints.  
+
+{\bf Value expressions in constraints} may be: 
+\begin{enumerate}
+\item Literal constants, like \xcd`3` and \xcd`true`;
+\item Accessible and immutable variables and parameters;
+\item Accessible and immutable fields of the containing object;
+\item Properties of the type being constrained;
+\item Property methods;
+\item \xcd`this`, if the constraint is in a place where \xcd`this` is defined.
+\item \xcd`here`
+\item \xcd`self`
+\end{enumerate}
 
 
-\begin{grammar}
-Constraint \: ValueArguments     Guard\opt \\
-           \| ValueArguments\opt Guard     \\
-           \\
-ValueArguments   \:  \xcd"(" ArgumentList\opt \xcd")" \\
-ArgumentList     \:  Expression ( \xcd"," Expression )\star \\
-Guard            \: \xcd"{" DepExpression \xcd"}" \\
-DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
-\end{grammar}
+{\bf Boolean expressions in constraints} may be any of the following, where
+all value expressions are of the forms which may appear in constraints: 
+\begin{enumerate}
+\item Equalities \xcd`e == f`,
+\item Inequalities of the form \xcd`e != f`.\footnote{Currently inequalities
+      of the form \xcd`e < f` are not supported.}
+\item Conjunctions of Boolean expressions
+\item Subtyping and supertyping expressions: \xcd`T <: U` and \xcd`T :> U`. 
+\item Type equalities and inequalities: \xcd`T == U` and \xcd`T != U`.
+\item Boolean value expressions.
+\end{enumerate}
 
-In \XtenCurrVer{} value constraints may be equalities (\xcd"=="),
-disequalities (\xcd"!=") and conjunctions thereof.  The terms over
-which these constraints are specified include literals and
-(accessible, immutable) variables and fields, property methods, and the special
-constants {\tt here}, {\tt self}, and {\tt this}. Additionally, place
-types are permitted (\Sref{PlaceTypes}).
-
-\index{self}
-When constraining a value of type \xcd`T`, \xcd`self` refers to the object of
-type \xcd`T` which is being constrained.  For example, \xcd`Int{self == 4}` is
-the type of \xcd`Int`s which are equal to 4 -- the best possible description
-of \xcd`4`, and a very difficult type to express without using \xcd`self`.  
+All variables appearing in a constraint expression must be visible wherever
+that expression can used.  \Eg, properties and public fields of an object are
+always permitted, but private fields of an object can only constrain private
+members.  (Consider a class \xcd`PriVio` with a private field \xcd`p` and a
+public method \xcd`m(x: Int{self != p})`, and a call \xcd`ob.m(10)` made
+outside of the class. Since \xcd`p` is only visible inside the class, there is
+no way to tell if \xcd`10` is of type \xcd`Int{self != p}` at the call site.)
 
 
-Type constraints may be subtyping and supertyping (\xcd"<:" and
-\xcd":>") expressions over types.
+
+
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% \begin{grammar}
+%%TYPES-CONSTR-EXP%% Constraint \: ValueArguments     Guard\opt \\
+%%TYPES-CONSTR-EXP%%            \| ValueArguments\opt Guard     \\
+%%TYPES-CONSTR-EXP%%            \\
+%%TYPES-CONSTR-EXP%% ValueArguments   \:  \xcd"(" ArgumentList\opt \xcd")" \\
+%%TYPES-CONSTR-EXP%% ArgumentList     \:  Expression ( \xcd"," Expression )\star \\
+%%TYPES-CONSTR-EXP%% Guard            \: \xcd"{" DepExpression \xcd"}" \\
+%%TYPES-CONSTR-EXP%% DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
+%%TYPES-CONSTR-EXP%% \end{grammar}
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% In \XtenCurrVer{} value constraints may be equalities (\xcd"=="),
+%%TYPES-CONSTR-EXP%% disequalities (\xcd"!=") and conjunctions thereof.  The terms over
+%%TYPES-CONSTR-EXP%% which these constraints are specified include literals and
+%%TYPES-CONSTR-EXP%% (accessible, immutable) variables and fields, property methods, and the special
+%%TYPES-CONSTR-EXP%% constants {\tt here}, {\tt self}, and {\tt this}. Additionally, place
+%%TYPES-CONSTR-EXP%% types are permitted (\Sref{PlaceTypes}).
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% \index{self}
+
+%%TYPES-CONSTR-EXP%% Type constraints may be subtyping and supertyping (\xcd"<:" and
+%%TYPES-CONSTR-EXP%% \xcd":>") expressions over types.
 
 The static constraint checker approximates computational reality in some
 cases.  For example, it assumes that built-in types are infinite. This is a
@@ -739,22 +803,22 @@ when computing the truth or falsehood of a constraint.
 
 % //, and existential quantification over typed variables.
 
-\emph{
-Subsequent implementations are intended to support boolean algebra,
-arithmetic, relational algebra, etc., to permit types over regions and
-distributions. We envision this as a major step towards removing most,
-if not all, dynamic array bounds and place checks from \Xten{}.
-}
+%%TYPES-CONSTR-EXP%% \emph{
+%%TYPES-CONSTR-EXP%% Subsequent implementations are intended to support boolean algebra,
+%%TYPES-CONSTR-EXP%% arithmetic, relational algebra, etc., to permit types over regions and
+%%TYPES-CONSTR-EXP%% distributions. We envision this as a major step towards removing most,
+%%TYPES-CONSTR-EXP%% if not all, dynamic array bounds and place checks from \Xten{}.
+%%TYPES-CONSTR-EXP%% }
 
 
 \subsubsection{Acyclicity restriction}
 
-To ensure that type-checking is decidable, we
-require that property graphs be acyclic.
-That is, it should not be the case at runtime that
-a set of objects can be created such that the
-graph formed by taking objects as nodes and adding an edge from $m$ to
-$n$ if $m$ has a property whose value is $n$ has a cycle in it.
+To ensure that type-checking is decidable, we require that property graphs be
+acyclic.  The property graph, at an instant in an X10 execution, is the graph
+whose nodes are all objects in existence at that instance, with an edge from
+{$x$} to {$y$} if {$x$} is an object with a property whose value is {$y$}{. 
+
+\bard{I think that \xcd`proto` handles this now ...? }
 
 Currently this restriction is not checked by the compiler. Future
 versions of the compiler will check this restriction by introducing
@@ -762,63 +826,60 @@ rules on escaping of \Xcd{this} (\Sref{protorules}) before the invocation of
 \Xcd{property} calls.
 
 
-\input{PlaceTypes}
+\subsection{Place constraints}
+\label{PlaceTypes}
+\label{PlaceType}
+\index{place types}
+\label{DepType:PlaceType}\index{placetype}
+
+An \Xten{} computation spans multiple places (\Sref{XtenPlaces}). Much data
+can only be accessed from the proper place, and often it is preferable to
+determine this statically. So, X10 has special syntax for working with places.
+\xcd`T!` is a value of type \xcd`T` located at the right place for the current
+computation, and \xcd`T!p` is one located at place \xcd`p`.
+
+\begin{grammar}
+PlaceConstraint     \: \xcd"!" Place\opt \\
+Place              \:   Expression \\
+\end{grammar}
+
+More specifically, All \Xten{} classes extend the class \xcd"x10.lang.Object",
+which defines a property \xcd"home" of type \xcd"Place".  \xcd`T!p`, when
+\xcd`T` is a class, is \xcd`T{self.home==p}`.  If \xcd`p` is omitted, it
+defaults to \xcd`here`.   \xcd`T!` is far and away the most common usage of
+\xcd`!`. 
+
+Structs don't have \xcd`home`; they are available everywhere.  For structs, 
+\xcd`T!` and \xcd`T!p` are synonyms for \xcd`T`. Since \xcd`T` is available
+everywhere, it is available \xcd`here` and at \xcd`p`. 
+
+\xcd`!` may be combined with other constraints.  \xcd`T{c}!` is the type of
+values of \xcd`T!` which satisfy \xcd`c`; it is \xcd`T{c && self.home==here}`
+for an object type and \xcd`T{c}` for a struct type.  
+\xcd`T{c}!p` is the type of
+values of \xcd`T!p` which satisfy \xcd`c`; it is \xcd`T{c && self.home==p}`
+for an object type and \xcd`T{c}` for a struct type.  
+
+
+
+% The place specifier \xcd"any" specifies that the object can be
+% located anywhere.  Thus, the location is unconstrained; that is,
+% \xcd"C{c}!any" is equivalent to \xcd"C{c}".
+
+% XXX ARRAY
+%The place specifier \xcd"current" on an array base type
+%specifies that an object with that type at point \xcd"p"
+%in the array 
+%is located at \xcd"dist(p)".  The \xcd"current" specifier can be
+%used only with array types.
+
+
+
 
 \subsection{Constraint semantics}
 
-\begin{staticrule}{Variable occurrence}
-In a dependent type \xcd"T" = \xcd"C{c}", the only variables that may
-occur in \xcd"c" are (a)
-\xcd"self", (b) properties visible at \xcd"T", (c)  local \xcd`val`s, \xcd`val`
-method parameters or \xcd`val` constructor parameters visible at \xcd"T", (d)
-\xcd`val` fields visible at \xcd"T"'s lexical place in the source program.  
-\end{staticrule}
 
-\begin{staticrule}{Restrictions on \xcd"this"}
-  The special variable \xcd"this" may be used in a dependent clause for a type \xcd"T"
-  only if \xcd`this` may be used in an expression at that point.  \Viz, if 
-  \xcd"this" occurs in (a) a property declaration for a
-  class, (b) an instance method, (c) an
-  instance field, or (d) an instance initializer.
 
-  In particular, \xcd"this" may not be used in types that occur in a static
-  context, or in the arguments, body or return type of a constructor or
-  in the extends or implements clauses of class and interface
-  definitions.  In these contexts, the object that \xcd"this" would
-  correspond to is not defined.
-\end{staticrule}
-
-\begin{staticrule}{Variable visibility}
-  If a type \xcd"T" occurs in a field, method or constructor
-  declaration, then all variables used in \xcd"T" must have at least the
-  same visibility as the declaration.  The relation ``at least the same
-  visibility as'' is given by the transitive closure of:
-
-\begin{xten}
-public > protected > package > private
-\end{xten}
-
-All inherited properties of a type \xcd"T" are visible in the property
-list of \xcd"T", and the body of \xcd"T".
-
-\end{staticrule}
-
-In general, variables (i.e., local variables, parameters,
-properties, fields) are visible at
-\xcd"T" if they are defined before \xcd"T" in the program. This rule applies to
-types in property lists as well as parameter lists (for methods and
-constructors).
-A formal parameter is visible in the types of all other formal
-parameters of the same method, constructor, or type definition,
-as well as in the method or constructor body itself.
-Properties are accessible via their containing object--\xcd"this"
-within the body of their class declaration.  The special
-variable \xcd"this" is in scope at each property
-declaration, constructor signatures and bodies, instance method signatures
-and bodies,
-and instance field signatures and initializers, but not in scope
-at \xcd"static" method or field declarations or \xcd"static"
-initializers.  
 
 We permit variable declarations \xcd"v: T" where \xcd"T" is obtained
 from a dependent type \xcd"C{c}" by replacing one or more occurrences
