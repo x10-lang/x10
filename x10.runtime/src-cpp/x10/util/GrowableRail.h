@@ -167,6 +167,7 @@ namespace x10 {
                 (*tmp)[i] = (*_array)[i];
             }
 
+            x10aux::dealloc(_array.operator->());
             _array = tmp;
         }
 
@@ -188,6 +189,7 @@ namespace x10 {
                 (*tmp)[i] = (*_array)[i];
             }
 
+            x10aux::dealloc(_array.operator->());
             _array = tmp;
         }
             
