@@ -8,8 +8,8 @@
 
 #include <windows.h>
 
-typedef SECURITY_ATTRIBUTES pthread_mutexattr;
-typedef HANDLE pthread_mutex;
+#define pthread_mutexattr_t SECURITY_ATTRIBUTES
+#define pthread_mutex_t HANDLE
 typedef char pthread_barrierattr_t;
 typedef struct barrier_t pthread_barrier_t;
 #define pthread_barrierattr_init(b) doNothing()
@@ -54,7 +54,7 @@ void winError(const char* message)
 }
 
 // mutex stuff
-int pthread_mutexattr_init(pthread_mutexattr *attr)
+int pthread_mutexattr_init(pthread_mutexattr_t *attr)
 {
 	attr->nLength = sizeof(SECURITY_ATTRIBUTES);
 	attr->lpSecurityDescriptor = NULL;
@@ -62,19 +62,19 @@ int pthread_mutexattr_init(pthread_mutexattr *attr)
 	return 0;
 }
 
-int pthread_mutexattr_setpshared(pthread_mutexattr *attr, int b)
+int pthread_mutexattr_setpshared(pthread_mutexattr_t *attr, int b)
 {
 //	if (b == PTHREAD_PROCESS_SHARED)
 //		attr->bInheritHandle = true;
 	return 0;
 }
 
-int pthread_mutexattr_destroy(pthread_mutexattr *attr)
+int pthread_mutexattr_destroy(pthread_mutexattr_t *attr)
 {
 	return 0;
 }
 
-int pthread_mutex_init(pthread_mutex *pthrd_mutex, pthread_mutexattr *attr)
+int pthread_mutex_init(pthread_mutex_t *pthrd_mutex, pthread_mutexattr_t *attr)
 {
 	char myName[50];
 	sprintf(myName, "Local\\X10RT.STANDALONE.%d", mutexCounter++);
@@ -88,21 +88,21 @@ int pthread_mutex_init(pthread_mutex *pthrd_mutex, pthread_mutexattr *attr)
 	return 0;
 }
 
-int pthread_mutex_lock(pthread_mutex *pthrd_mutex)
+int pthread_mutex_lock(pthread_mutex_t *pthrd_mutex)
 {
 	if (WaitForSingleObject(*pthrd_mutex, INFINITE) == WAIT_FAILED)
 		winError("Unable to lock mutex");
 	return 0;
 }
 
-int pthread_mutex_unlock(pthread_mutex *pthrd_mutex)
+int pthread_mutex_unlock(pthread_mutex_t *pthrd_mutex)
 {
 	if (ReleaseMutex(*pthrd_mutex) == 0)
 		winError("Unable to release mutex");
 	return 0;
 }
 
-int pthread_mutex_destroy(pthread_mutex *pthrd_mutex)
+int pthread_mutex_destroy(pthread_mutex_t *pthrd_mutex)
 {
 	CloseHandle(*pthrd_mutex);
 	return 0;
