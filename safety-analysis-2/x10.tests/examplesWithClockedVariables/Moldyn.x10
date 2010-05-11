@@ -392,7 +392,7 @@ class Random {
 
     if (rank != 0) return;
 
-    val P = MoldynOrig.P;
+    val P = Moldyn.P;
     
     val t = new md(mdsize, Rail.make[Particle!](mdsize));
 
@@ -431,6 +431,7 @@ class Random {
 
 
 class Particle {
+
 
  public var xcoord: double, ycoord: double, zcoord: double;
  public var xvelocity: double, yvelocity: double, zvelocity: double;
@@ -582,7 +583,7 @@ class Particle {
  *
  * @author kemal 3/2005
  */
-public class MoldynOrig {
+public class Moldyn {
   public static val NTHREADS: Int = 4;
   val size: Int;
 
@@ -599,20 +600,20 @@ public class MoldynOrig {
   }
 
   public def JGFinitialise() {
-    finish for ((j) in 0..P.length-1) async (P(j)).initialise();
+    finish foreach ((j) in 0..P.length-1) (P(j)).initialise();
   }
 
   public def JGFapplication() {
    // JGFInstrumentor.startTimer("Section3:MolDyn:Run");
     finish async {
       val C: Clock = Clock.make();
-      for((j) in 0..P.length-1) async clocked(C) P(j).runiters(C);
+      foreach ((j) in 0..P.length-1) clocked(C) P(j).runiters(C);
     }
    // JGFInstrumentor.stopTimer("Section3:MolDyn:Run");
   }
 
   public def JGFvalidate() {
-    finish for ((j) in 0..P.length-1) async {
+    finish foreach ((j) in 0..P.length-1) {
       val myNode = P(j);
 
       val refval: ValRail[double] = [ 275.97175611773514, 7397.392307839352 ];
@@ -636,7 +637,7 @@ public class MoldynOrig {
 
   // immutable instance field size is initialized in the constructor, so
   // argument size is not used in the body of JGFrun; it exists because
-  // MoldynOrig implements JGFSection3 which contains JGFrun(size: Int): void
+  // Moldyn implements JGFSection3 which contains JGFrun(size: Int): void
   
   public def JGFrun(size: Int) {
     //JGFInstrumentor.addTimer("Section3:MolDyn:Total", "Solutions", size);
@@ -662,7 +663,7 @@ public class MoldynOrig {
   }
 
 	public static def main(args:Rail[String]!)= {
-		new MoldynOrig(0).JGFrun(0);
+		new Moldyn(0).JGFrun(0);
 	}
 
 }
