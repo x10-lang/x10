@@ -142,9 +142,10 @@ class UTSOrig {
 	totSumb = 0;
 	totSize = 0;
 	
-        finish for (var i:int=0;i<tiles.length;i++) {
+        finish 
+       for (var i:int=0;i<tiles.length;i++) {
          val j =i; 	  
-	  async (here) visitRegion(tiles(j),j);
+	  	async (here) visitRegion(tiles(j),j);
 	}
 	for (var i:int=0;i< P;i++){
 	    totSumb += sumb(i);

@@ -416,5 +416,7 @@ public interface X10TypeSystem extends TypeSystem {
     ClassType load(String name);
     boolean isValVariable(VarInstance<?> vi);
     boolean isValVariable(VarDecl vd);
+    boolean isFinalVariable(VarInstance<?> vi);
+    boolean isFinalVariable(VarDecl vd);
 
 }
