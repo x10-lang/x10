@@ -88,10 +88,10 @@ public class Stencil {
     public static def main(args: Rail[String]!) {
        var n: int = args.length > 0 ? Int.parse(args(0)) : 100;
        var p: int = args.length > 1 ? Int.parse(args(1)) : 2;
-       // x10.io.Console.ERR.println("Starting: N=" + n + " P=" + p);
+       // x10.io.Console.OUT.println("Starting: N=" + n + " P=" + p);
         var time: Long = -System.nanoTime();
        val s = new Stencil(n, p); s.run();
         time += System.nanoTime();
-       x10.io.Console.ERR.println("N=" + n + " P=" + p + " Iters=" + s.iters + " time=" + time/(1000*1000) + " ms");
+       x10.io.Console.OUT.println("N=" + n + " P=" + p + " Iters=" + s.iters + " time=" + time/(1000*1000) + " ms");
     }
 }
