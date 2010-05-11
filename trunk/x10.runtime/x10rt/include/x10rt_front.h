@@ -462,7 +462,7 @@ X10RT_C void x10rt_remote_op_fence (void);
 /** Do an operation on a word at the remote place.  There is no way to determine if the operation
  * succeeded yet or at all.
  * \param place The place where the memory resides.
- * \param addr The location of the word at the remote place (returned by #x10rt_register_ptr).
+ * \param remote_addr The location of the word at the remote place (returned by #x10rt_register_mem).
  * \param type The kind of operation to perform.
  * \param value The operand (depends on the operation).
  */

@@ -126,9 +126,9 @@ X10RT_C void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr remote_add
                                   x10rt_op_type type, unsigned long long value);
 
 /** \see #x10rt_lgl_register_mem
- * \param ptr As in #x10rt_register_lgl_ptr
- * \param len As in #x10rt_register_lgl_ptr
- * \returns As in #x10rt_register_lgl_ptr
+ * \param ptr As in #x10rt_lgl_register_mem
+ * \param len As in #x10rt_lgl_register_mem
+ * \returns As in #x10rt_lgl_register_mem
  */
 X10RT_C x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len);
 
