@@ -20,8 +20,9 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-import polyglot.types.ConstructorDef;
+import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
+import polyglot.types.ProcedureDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.QuotedStringTokenizer;
@@ -54,6 +55,11 @@ public class LineNumberMap extends StringTable {
         public int hashCode() {
             return fileId + start_line + end_line;
         }
+        public boolean equals(Object o) {
+            if (getClass() != o.getClass()) return false;
+            Key k = (Key) o;
+            return fileId == k.fileId && start_line == k.start_line && end_line == k.end_line;
+        }
     }
     /** A map entry representing an X10 source file/line combination. */
     private static class Entry {
@@ -69,104 +75,121 @@ public class LineNumberMap extends StringTable {
     }
     private final HashMap<Key, Entry> map;
     private static class MethodDescriptor {
-    	public final int returnType;
-    	public final int container;
-    	public final int name;
-    	public final int[] args;
-    	public MethodDescriptor(int returnType, int container, int name, int[] args) {
-			this.returnType = returnType;
-			this.container = container;
-			this.name = name;
-			this.args = args;
-    	}
-		public boolean equals(Object obj) {
-			if (obj == null || obj.getClass() != getClass())
-				return false;
-			MethodDescriptor md = (MethodDescriptor) obj;
-			if (md.name != name || md.container != container ||
-				md.returnType != returnType || md.args.length != args.length)
-			{
-				return false;
-			}
-			for (int i = 0; i < args.length; i++) {
-				if (args[i] != md.args[i])
-					return false;
-			}
-			return true;
-		}
-		public int hashCode() {
-			int h = name;
-			h = 31*h + container;
-			h = 31*h + returnType;
-			for (int arg : args) {
-				h = 31*h + arg;
-			}
-			return h;
-		}
-    	public String toString() {
-    		StringBuilder res = new StringBuilder();
-    		res.append(returnType).append(" ");
-    		res.append(container).append(".");
-    		res.append(name).append("(");
-    		boolean first = true;
-    		for (int arg : args) {
-    			if (!first) res.append(",");
-    			first = false;
-    			res.append(arg);
-    		}
-    		res.append(")");
-    		return res.toString();
-    	}
-		public static MethodDescriptor parse(String str) {
-			StringTokenizer st = new StringTokenizer(str, ". (),", true);
-	        String s = st.nextToken(" ");
-	        int r = Integer.parseInt(s);
-	        s = st.nextToken();
-	        assert (s.equals(" "));
-	        s = st.nextToken(".");
-	        int c = Integer.parseInt(s);
-	        s = st.nextToken();
-	        assert (s.equals("."));
-	        s = st.nextToken("(");
-	        int n = Integer.parseInt(s);
-	        s = st.nextToken();
-	        assert (s.equals("("));
-	        ArrayList<String> al = new ArrayList<String>(); 
-	        while (st.hasMoreTokens()) {
-	            String t = st.nextToken(",)");
-	            if (t.equals(")"))
-	                break;
-	            al.add(t);
-	            t = st.nextToken();
-	            if (t.equals(")"))
-	            	break;
-	            assert (t.equals(","));
-	        }
-	        assert (!st.hasMoreTokens());
-	        int[] a = new int[al.size()];
-	        for (int i = 0; i < a.length; i++) {
-				a[i] = Integer.parseInt(al.get(i));
-			}
-			return new MethodDescriptor(r, c, n, a);
-		}
-    	public String toPrettyString(LineNumberMap map) {
-			return toPrettyString(map, true);
-		}
-		public String toPrettyString(LineNumberMap map, boolean includeReturnType) {
-    		StringBuilder res = new StringBuilder();
-    		if (includeReturnType)
-    			res.append(map.lookupString(returnType)).append(" ");
-    		res.append(map.lookupString(container)).append("::");
-    		res.append(map.lookupString(name)).append("(");
-    		boolean first = true;
-    		for (int arg : args) {
-    			if (!first) res.append(",");
-    			first = false;
-    			res.append(map.lookupString(arg));
-    		}
-    		res.append(")");
-    		return res.toString();
-    	}
+        public final int returnType;
+        public final int container;
+        public final int name;
+        public final int[] args;
+        public final Key lines;
+        public MethodDescriptor(int returnType, int container, int name, int[] args, Key lines) {
+            this.returnType = returnType;
+            this.container = container;
+            this.name = name;
+            this.args = args;
+            this.lines = lines;
+        }
+        public boolean equals(Object obj) {
+            if (obj == null || obj.getClass() != getClass())
+                return false;
+            MethodDescriptor md = (MethodDescriptor) obj;
+            if (md.name != name || md.container != container ||
+                    md.returnType != returnType || md.args.length != args.length)
+            {
+                return false;
+            }
+            for (int i = 0; i < args.length; i++) {
+                if (args[i] != md.args[i])
+                    return false;
+            }
+            return true;
+        }
+        public int hashCode() {
+            int h = name;
+            h = 31*h + container;
+            h = 31*h + returnType;
+            for (int arg : args) {
+                h = 31*h + arg;
+            }
+            return h;
+        }
+        public String toString() {
+            StringBuilder res = new StringBuilder();
+            res.append(returnType).append(" ");
+            res.append(container).append(".");
+            res.append(name).append("(");
+            boolean first = true;
+            for (int arg : args) {
+                if (!first) res.append(",");
+                first = false;
+                res.append(arg);
+            }
+            res.append(")");
+            res.append("{").append(lines.fileId);
+            res.append(",").append(lines.start_line);
+            res.append(",").append(lines.end_line);
+            res.append("}");
+            return res.toString();
+        }
+        public static MethodDescriptor parse(String str) {
+            StringTokenizer st = new StringTokenizer(str, ". (),", true);
+            String s = st.nextToken(" ");
+            int r = Integer.parseInt(s);
+            s = st.nextToken();
+            assert (s.equals(" "));
+            s = st.nextToken(".");
+            int c = Integer.parseInt(s);
+            s = st.nextToken();
+            assert (s.equals("."));
+            s = st.nextToken("(");
+            int n = Integer.parseInt(s);
+            s = st.nextToken();
+            assert (s.equals("("));
+            ArrayList<String> al = new ArrayList<String>(); 
+            while (st.hasMoreTokens()) {
+                String t = st.nextToken(",)");
+                if (t.equals(")"))
+                    break;
+                al.add(t);
+                t = st.nextToken();
+                if (t.equals(")"))
+                    break;
+                assert (t.equals(","));
+            }
+            int[] a = new int[al.size()];
+            for (int i = 0; i < a.length; i++) {
+                a[i] = Integer.parseInt(al.get(i));
+            }
+            s = st.nextToken("{,}");
+            assert (s.equals("{"));
+            s = st.nextToken();
+            int f = Integer.parseInt(s);
+            s = st.nextToken();
+            int l = Integer.parseInt(s);
+            s = st.nextToken();
+            int e = Integer.parseInt(s);
+            s = st.nextToken();
+            assert (s.equals("}"));
+            Key k = new Key(f, l, e);
+            assert (!st.hasMoreTokens());
+            return new MethodDescriptor(r, c, n, a, k);
+        }
+        public String toPrettyString(LineNumberMap map) {
+            return toPrettyString(map, true);
+        }
+        public String toPrettyString(LineNumberMap map, boolean includeReturnType) {
+            StringBuilder res = new StringBuilder();
+            if (includeReturnType)
+                res.append(map.lookupString(returnType)).append(" ");
+            res.append(map.lookupString(container)).append("::");
+            res.append(map.lookupString(name)).append("(");
+            boolean first = true;
+            for (int arg : args) {
+                if (!first) res.append(",");
+                first = false;
+                res.append(map.lookupString(arg));
+            }
+            res.append(")");
+            return res.toString();
+        }
     }
     private final HashMap<MethodDescriptor, MethodDescriptor> methods;
 
@@ -193,7 +216,7 @@ public class LineNumberMap extends StringTable {
         map.put(new Key(stringId(cppFile), startLine, endLine), new Entry(stringId(sourceFile), sourceLine));
     }
 
-	private MethodDescriptor createMethodDescriptor(String container, String name, String returnType, String[] args) {
+	private MethodDescriptor createMethodDescriptor(String container, String name, String returnType, String[] args, Key l) {
 		int c = stringId(container);
 		int n = stringId(name);
 		int r = stringId(returnType);
@@ -201,25 +224,26 @@ public class LineNumberMap extends StringTable {
 		for (int i = 0; i < a.length; i++) {
 			a[i] = stringId(args[i]);
 		}
-		return new MethodDescriptor(r, c, n, a);
+		return new MethodDescriptor(r, c, n, a, l);
 	}
 
 	/**
-	 * @param sourceMethod X10 method signature
+	 * @param def X10 method or constructor signature
+	 * @param cppFile generated file containing the method body
+	 * @param startLine first generated line of the method body
+	 * @param endLine last generated line of the method body
 	 */
-	public void addMethodMapping(MethodDef sourceMethod) {
-		addMethodMapping(sourceMethod.container().get(), sourceMethod.name().toString(),
-		                 sourceMethod.returnType().get(), sourceMethod.formalTypes());
+	public void addMethodMapping(MemberDef def, String cppFile, int startLine, int endLine) {
+	    Key tk = new Key(stringId(cppFile), startLine, endLine);
+	    Type container = def.container().get();
+	    assert (def instanceof ProcedureDef);
+	    String name = (def instanceof MethodDef) ? ((MethodDef) def).name().toString() : null;
+	    Type returnType = (def instanceof MethodDef) ? ((MethodDef) def).returnType().get() : null;
+	    List<Ref<? extends Type>> formalTypes = ((ProcedureDef) def).formalTypes();
+	    addMethodMapping(container, name, returnType, formalTypes, tk);
 	}
 
-	/**
-	 * @param sourceConstructor X10 constructor signature
-	 */
-	public void addMethodMapping(ConstructorDef sourceConstructor) {
-		addMethodMapping(sourceConstructor.container().get(), null, null, sourceConstructor.formalTypes());
-	}
-
-	private void addMethodMapping(Type c, String n, Type r, List<Ref<? extends Type>> f) {
+	private void addMethodMapping(Type c, String n, Type r, List<Ref<? extends Type>> f, Key tk) {
 		assert (c != null);
 		assert (f != null);
 		String sc = c.toString();
@@ -229,7 +253,7 @@ public class LineNumberMap extends StringTable {
 		for (int i = 0; i < sa.length; i++) {
 			sa[i] = f.get(i).get().toString();
 		}
-		MethodDescriptor src = createMethodDescriptor(sc, sn, sr, sa);
+		MethodDescriptor src = createMethodDescriptor(sc, sn, sr, sa, null);
 		String tc = Emitter.translateType(c);
 		String tn = n == null ? "_constructor" : Emitter.mangled_method_name(n);
 		String tr = r == null ? "void" : Emitter.translateType(r, true);
@@ -237,7 +261,7 @@ public class LineNumberMap extends StringTable {
 		for (int i = 0; i < ta.length; i++) {
 			ta[i] = Emitter.translateType(f.get(i).get(), true);
 		}
-		MethodDescriptor tgt = createMethodDescriptor(tc, tn, tr, ta);
+		MethodDescriptor tgt = createMethodDescriptor(tc, tn, tr, ta, tk);
 		assert (methods.get(tgt) == null);
 		methods.put(tgt, src);
 	}
@@ -386,10 +410,12 @@ public class LineNumberMap extends StringTable {
 //		        assert (false) : d.toPrettyString(n)+" already present";
 			assert (!m.methods.containsKey(d)) : d.toPrettyString(n)+" already present";
 			MethodDescriptor e = n.methods.get(d);
+			assert (e.lines == null);
+			Key dk = new Key(m.stringId(n.lookupString(d.lines.fileId)), d.lines.start_line, d.lines.end_line);
 			MethodDescriptor dp = m.createMethodDescriptor(n.lookupString(d.container),
-					n.lookupString(d.name), n.lookupString(d.returnType), n.lookupStrings(d.args));
+					n.lookupString(d.name), n.lookupString(d.returnType), n.lookupStrings(d.args), dk);
 			MethodDescriptor ep = m.createMethodDescriptor(n.lookupString(e.container),
-					n.lookupString(e.name), n.lookupString(e.returnType), n.lookupStrings(e.args));
+					n.lookupString(e.name), n.lookupString(e.returnType), n.lookupStrings(e.args), null);
 			m.methods.put(dp, ep);
 		}
 	}
@@ -427,16 +453,18 @@ public class LineNumberMap extends StringTable {
 	    public final int x10line;
 	    public final int cppfromline;
 	    public final int cpptoline;
-	    public CPPLineInfo(int x10index, int x10method, int cppindex, int x10line, int cppfromline) {
-	        this(x10index, x10method, cppindex, x10line, cppfromline, -1);
+	    public final int fileId;
+	    public CPPLineInfo(int x10index, int x10method, int cppindex, int x10line, int cppfromline, int fileId) {
+	        this(x10index, x10method, cppindex, x10line, cppfromline, -1, fileId);
 	    }
-	    public CPPLineInfo(int x10index, int x10method, int cppindex, int x10line, int cppfromline, int cpptoline) {
+	    public CPPLineInfo(int x10index, int x10method, int cppindex, int x10line, int cppfromline, int cpptoline, int fileId) {
 	        this.x10index = x10index;
 	        this.x10method = x10method;
 	        this.cppindex = cppindex;
 	        this.x10line = x10line;
 	        this.cppfromline = cppfromline;
 	        this.cpptoline = cpptoline;
+	        this.fileId = fileId;
 	    }
 	    public static Comparator<CPPLineInfo> byX10info() {
 	        return new Comparator<CPPLineInfo>() {
@@ -464,14 +492,13 @@ public class LineNumberMap extends StringTable {
 	    public final int x10rettype;
 	    public final int[] x10args;
 	    public final int cppclass;
-	    public final int cpplineindex;
-	    public CPPMethodInfo(int x10class, int x10method, int x10rettype, int[] x10args, int cppclass, int cpplineindex) {
+	    public int cpplineindex;
+	    public CPPMethodInfo(int x10class, int x10method, int x10rettype, int[] x10args, int cppclass) {
 	        this.x10class = x10class;
 	        this.x10method = x10method;
 	        this.x10rettype = x10rettype;
 	        this.x10args = x10args;
 	        this.cppclass = cppclass;
-	        this.cpplineindex = cpplineindex;
 	    }
 	    private String concatArgs() {
 	        StringBuilder sb = new StringBuilder();
@@ -538,7 +565,8 @@ public class LineNumberMap extends StringTable {
 //	                                0,                                         // FIXME: _X10method
 //	                                offsets[p.fileId],                         // _CPPindex
 //	                                e.line,                                    // _X10line
-//	                                p.start_line));                            // _CPPline
+//	                                p.start_line,                              // _CPPline
+//	                                p.fileId));
 //	    }
 //	    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
 //	    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) "+debugDataSectionAttr+" = {");
@@ -554,6 +582,21 @@ public class LineNumberMap extends StringTable {
 //	    w.writeln("};");
 //	    w.forceNewline();
 
+	    // A list of the X10 method names.
+	    // Sorted by X10 method name.
+	    ArrayList<CPPMethodInfo> x10MethodList = new ArrayList<CPPMethodInfo>(m.methods.size());
+	    HashMap<Key, CPPMethodInfo> keyToMethod = new HashMap<Key, CPPMethodInfo>();
+	    for (MethodDescriptor md : m.methods.keySet()) {
+	        MethodDescriptor sm = m.methods.get(md);
+	        final CPPMethodInfo cmi = m.new CPPMethodInfo(sm.container,        // _x10class
+	                                                      sm.name,             // _x10method
+	                                                      sm.returnType,       // _x10returnType
+	                                                      sm.args,             // _x10args
+	                                                      md.container);       // _cppClass
+	        x10MethodList.add(cmi);
+	        keyToMethod.put(md.lines, cmi);
+	    }
+
 	    // A cross reference of C++ statements to X10 statements.
 	    // Sorted by C++ file index and C++ source file line. 
 	    // A line range is used to minimize the storage required.
@@ -566,10 +609,12 @@ public class LineNumberMap extends StringTable {
 	                                offsets[p.fileId],                         // _CPPindex
 	                                e.line,                                    // _X10line
 	                                p.start_line,                              // _CPPfromline
-	                                p.end_line));                              // _CPPtoline
+	                                p.end_line,                                // _CPPtoline
+	                                p.fileId));
 	    }
 	    Collections.sort(cpptoX10xrefList, CPPLineInfo.byCPPinfo());
 	    w.writeln("static const struct _CPPtoX10xref _CPPtoX10xrefList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+	    int i = 0;
 	    for (CPPLineInfo cppDebugInfo : cpptoX10xrefList) {
 	        w.write("    { ");
 	        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
@@ -579,46 +624,39 @@ public class LineNumberMap extends StringTable {
 	        w.write(""+cppDebugInfo.cppfromline+", ");                         // _CPPfromline
 	        w.write(""+cppDebugInfo.cpptoline);                                // _CPPtoline
 	        w.writeln(" },");
+	        Key k = new Key(cppDebugInfo.fileId, cppDebugInfo.cppfromline, cppDebugInfo.cpptoline);
+	        CPPMethodInfo methodInfo = keyToMethod.get(k);
+	        if (methodInfo != null) {
+	            methodInfo.cpplineindex = i;                                   // _lineIndex
+	        }
+	        i++;
 	    }
 	    w.writeln("};");
 	    w.forceNewline();
-        }
 
         if (!m.methods.isEmpty()) {
-	    // A list of the X10 method names.
-	    // Sorted by X10 method name.
-	    ArrayList<CPPMethodInfo> x10MethodList = new ArrayList<CPPMethodInfo>(m.methods.size());
-	    for (MethodDescriptor md : m.methods.keySet()) {
-	        MethodDescriptor sm = m.methods.get(md);
-	        x10MethodList.add(
-	                m.new CPPMethodInfo(sm.container,                          // _x10class
-	                                    sm.name,                               // _x10method
-	                                    sm.returnType,                         // _x10returnType
-	                                    sm.args,                               // _x10args
-	                                    md.container,                          // _cppClass
-	                                    0));                                   // FIXME: _lineIndex
-	    }
-	    Collections.sort(x10MethodList);
-	    // FIXME: Cannot put _X10methodNameList in debugDataSectionAttr, because it's not constant
-	    // (the strings cause static initialization for some reason)
-	    w.writeln("static const struct _X10methodName _X10methodNameList[] __attribute__((used)) = {");
-	    for (CPPMethodInfo cppMethodInfo : x10MethodList) {
-	        w.write("    { ");
-	        w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
-	        w.write(""+offsets[cppMethodInfo.x10method]+", ");                 // _x10method
-	        w.write(""+offsets[cppMethodInfo.x10rettype]+", ");                // _x10returnType
-	        w.write("(uint64_t) ");
-	        for (int i = 0; i < cppMethodInfo.x10args.length; i++) {
-	            int a = cppMethodInfo.x10args[i];
-	            w.write("\""+encodeIntAsChars(offsets[a])+"\" ");              // _x10args
-	        }
-	        w.write("\"\", ");
-	        w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
-	        w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
-	        w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
-	        w.writeln(" },");
-	    }
-	    w.writeln("};");
+        Collections.sort(x10MethodList);
+        // FIXME: Cannot put _X10methodNameList in debugDataSectionAttr, because it's not constant
+        // (the strings cause static initialization for some reason)
+        w.writeln("static const struct _X10methodName _X10methodNameList[] __attribute__((used)) = {");
+        for (CPPMethodInfo cppMethodInfo : x10MethodList) {
+            w.write("    { ");
+            w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
+            w.write(""+offsets[cppMethodInfo.x10method]+", ");                 // _x10method
+            w.write(""+offsets[cppMethodInfo.x10rettype]+", ");                // _x10returnType
+            w.write("(uint64_t) ");
+            for (i = 0; i < cppMethodInfo.x10args.length; i++) {
+                int a = cppMethodInfo.x10args[i];
+                w.write("\""+encodeIntAsChars(offsets[a])+"\" ");              // _x10args
+            }
+            w.write("\"\", ");
+            w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
+            w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
+            w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
+            w.writeln(" },");
+        }
+        w.writeln("};");
+        }
         }
 
         // A meta-structure that refers to all of the above
