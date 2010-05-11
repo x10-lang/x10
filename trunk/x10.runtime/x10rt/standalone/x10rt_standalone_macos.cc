@@ -62,38 +62,17 @@ int mysem_open(pthread_mutex_t *s)
 
 int mysem_close(pthread_mutex_t *s)
 {
-	#ifdef DEBUG
-		printf("X10rt.Standalone: closing mutex\n");
-		fflush(stdout);
-	#endif
 	return sem_close(*s);
 }
 
 int mysem_wait(pthread_mutex_t *s)
 {
-	#ifdef DEBUG
-		printf("X10rt.Standalone: waiting on mutex...\n");
-		fflush(stdout);
-	#endif
-	int r = sem_wait(*s);
-	#ifdef DEBUG
-		printf("done waiting on mutex\n");
-		fflush(stdout);
-	#endif
-	return r;
+	return sem_wait(*s);
 }
 
 int mysem_post(pthread_mutex_t *s)
 {
-	#ifdef DEBUG
-		printf("X10rt.Standalone: unlocking mutex...");
-	#endif
-	int r = sem_post(*s);
-	#ifdef DEBUG
-		printf("done\n");
-		fflush(stdout);
-	#endif
-		return r;
+	return sem_post(*s);
 }
 
 int barrier_init(pthread_barrier_t *barrier, int numPlaces)

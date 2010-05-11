@@ -32,9 +32,9 @@
 
 //#define DEBUG // uncomment to turn on debug messages
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 #include "x10rt_standalone_macos.cc"
-#elif __CYGWIN__
+#elif defined(__CYGWIN__)
 #include "x10rt_standalone_cygwin.cc"
 #endif
 
@@ -492,6 +492,8 @@ void x10rt_net_probe (void)
 			entrySize = getTotalLength(entry);
 		}
 
+		unsigned int origPosition = myPlace->messageQueueHead + skippedMsgs;
+
 		// mark the message as in-process
 		entry->status = INPROCESS;
 
@@ -560,7 +562,7 @@ void x10rt_net_probe (void)
 		entry->status = COMPLETED;
 
 		// move the head pointer up in the array, to clear out this message for the next insert
-		if (skippedMsgs > 0)
+		if (origPosition != myPlace->messageQueueHead)
 		{
 			#ifdef DEBUG
 				printf("X10rt.Standalone: Place %lu finished processing a message of size %lu. Not moving head. Head=%u, Tail=%u\n", state.myPlaceId, entrySize, myPlace->messageQueueHead, myPlace->messageQueueTail);
