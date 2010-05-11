@@ -133,7 +133,7 @@ class UTS {
 	}
     }
 
-    global val tiles : Rail[Region(1)]!;
+    global val tiles : ValRail[Region(1)]!;
 
     def run() @ ClockedM(c) {
   

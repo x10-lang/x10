@@ -43,7 +43,7 @@ class SeriesTest {
 
 		val omega: double = 3.1415926535897932;
 
-		finish foreach ((i) in 1..array_rows-1) {
+		finish for ((i) in 1..array_rows-1) async {
 			// Calculate A[i] terms. Note, once again, that we
 			// can ignore the 2/period term outside the integral
 			// since the period is 2 and the term cancels itself

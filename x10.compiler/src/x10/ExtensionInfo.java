@@ -318,7 +318,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(TypeChecked(job));
         
            if (job.userSpecified() && Configuration.SAFE_PARALLELIZATION_CHECK) {
-        	   /* Recurse upto depth 15 */
+        	   /* Recurse upto depth 15 - propogate effects to caller */
                    goals.add(EffectsCalculated(job, true));
                    for (int i = 0; i < 15; i++)
                 	   goals.add(EffectsCalculated(job, false));

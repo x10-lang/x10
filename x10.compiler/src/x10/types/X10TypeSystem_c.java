@@ -2342,6 +2342,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
        return X10Flags.toX10Flags(vd.flags().flags()).isValue();
    }
 
+   
+   public boolean isFinalVariable(VarInstance<?> vi) {
+       return X10Flags.toX10Flags(vi.flags()).isFinal();
+   }
+
+   public boolean isFinalVariable(VarDecl vd) {
+       return X10Flags.toX10Flags(vd.flags().flags()).isFinal();
+   }
+
 
    
    Name homeName = Name.make("home");
