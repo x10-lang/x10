@@ -513,7 +513,7 @@ class RayTracer {
 		// All loops are reversed for 'speedup' (cf. thinking in java p331)
 		// For each line
 		//for (y = interval.yfrom; y < interval.yto; y++) { // }
-		finish foreach (val (y): Point in [interval.yfrom..interval.yto-1]) {
+		finish for(val (y): Point in [interval.yfrom..interval.yto-1]) async {
 			var r: Ray! = new Ray(view.from, voidVec) as Ray!;
 			var ylen: double = (2.0 * y) / interval.width - 1.0;
 			// For each pixel of the line

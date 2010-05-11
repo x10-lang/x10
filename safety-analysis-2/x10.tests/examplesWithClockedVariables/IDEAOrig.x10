@@ -245,7 +245,7 @@ class IDEAOrigTest {
 	 */
 	 
 	private def cipher_idea(text1: Rail[Int]!, text2: Rail[Int]!, key: Rail[Int]!)  {
-		finish foreach ((i) in 0..(text1.length)/8 - 1)  {
+		finish for ((i) in 0..(text1.length)/8 - 1) async {
 			val itmp = i * 8;
 			{
 	

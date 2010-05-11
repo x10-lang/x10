@@ -404,6 +404,8 @@ public class X10Ext_c extends Ext_c implements X10Ext {
       writeEff.addWrite(createArrayLoc(arrayExpr, indexExpr));
       X10TypeEnv env = ec.env();
       Effect result= env.followedBy(arrayEff, indexEff);
+      if (result == null)
+    	  result = Effects.makeSafe();
       boolean isClockedVar = analyzeClockedArrays (result, arrayExpr, indexExpr, ec);
       result= env.followedBy(result, rhsEff);
       if (!isClockedVar)
@@ -459,27 +461,47 @@ public class X10Ext_c extends Ext_c implements X10Ext {
   // ============
   // Expressions
   // ============
+  
+  
+  private boolean isArray (Expr e) {
+	  if (e.type().toString().contains("x10.lang.Rail") || e.type().toString().contains("x10.lang.Array")) 
+		  return true;
+	 else
+		  return false;
+}
+  
   private Effect computeEffect(Local local, EffectComputer ec) {
-      Effect result = null;
+      Effect result = Effects.makeSafe();
 
-      if (! ec.typeSystem().isValVariable(local.localInstance())) {
-          result= Effects.makeSafe();
+      if (! ec.typeSystem().isFinalVariable(local.localInstance())) {
+          
           boolean isClockedVar = analyzeClockedLocal(result, (X10LocalInstance)local.localInstance(), local, ec);
           if (!isClockedVar)
         	  result.addRead(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(local))));
       }
-      return result;
+      if (isArray(local)) {
+    	  boolean isClockedVar = this.analyzeClockedArrays(result, local, null, ec);
+    	  if (!isClockedVar)
+        	  result.addRead(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(local))));
+      }
+       return result;
   }
 
   private Effect computeEffect(Field field, EffectComputer ec) {
-      Receiver rcvr= field.target();
-      Effect result= Effects.makeSafe();
-      boolean isClockedVar = analyzeClockedField(result, (X10FieldInstance) field.fieldInstance(), field.target(), ec);
-      if (!isClockedVar)
-    	  result.addRead(Effects.makeFieldLocs(createTermForReceiver(rcvr, ec), new XVarDefWrapper(field)));
-      
+	  
+	  Effect result = null;
+	  if (!ec.typeSystem().isFinalVariable(field.fieldInstance()) || isArray(field)) {
+		  Receiver rcvr= field.target();
+		  result= Effects.makeSafe();
+		  boolean isClockedVar = analyzeClockedField(result, (X10FieldInstance) field.fieldInstance(), field.target(), ec);
+		  if (!isClockedVar)
+			  result.addRead(Effects.makeFieldLocs(createTermForReceiver(rcvr, ec), new XVarDefWrapper(field)));
+	  }
       return result;
   }
+  
+
+  
 
   private Effect computeEffect(New neew, EffectComputer ec) throws XFailure {
       Effect result= null;
@@ -556,6 +578,46 @@ private Effect computeEffect(Unary unary, EffectComputer ec) {
 
       return result;
   }
+  
+  
+  private Effect computeWriteEffect(Call call, EffectComputer ec) throws XFailure {
+      MethodInstance methodInstance= call.methodInstance();
+      StructType methodOwner= methodInstance.container();
+      Receiver target = call.target();
+      List<Expr> args = call.arguments();
+      Effect result= Effects.makeSafe();
+
+      // TODO Perform substitutions of actual parameters for formal parameters
+      if (methodOwner instanceof ClassType) {
+          ClassType ownerClassType = (ClassType) methodOwner;
+          String ownerClassName = ownerClassType.fullName().toString();
+
+          if (ownerClassName.equals("x10.lang.Array") || ownerClassName.equals("x10.lang.Rail")) {
+              if (methodInstance.flags().isStatic()) {
+                  if (call.name().id().toString().equals("make")) {
+                      
+                  }
+              } else {
+                  Expr targetExpr= (Expr) target;
+                  if (call.name().id().toString().equals("apply")) {
+                	  boolean isClockedVar = analyzeClockedArrays (result, targetExpr, args.get(0), ec);
+                	  if (!isClockedVar)
+                		  result= computeEffectOfArrayWrite(call, targetExpr, args.get(0), null,  ec);
+                      
+                  } else if (call.name().id().toString().equals("set")) {
+                	  boolean isClockedVar = analyzeClockedArrays (result, targetExpr, args.get(0), ec);
+                	  if (!isClockedVar)
+                		  result= computeEffectOfArrayWrite(call, targetExpr, args.get(0), args.get(1), ec);
+                    
+                  }
+                 
+                }
+          }
+      }
+      return result;
+  }
+  
+  
 
   private Effect computeEffect(Call call, EffectComputer ec) throws XFailure {
       MethodInstance methodInstance= call.methodInstance();
@@ -593,6 +655,7 @@ private Effect computeEffect(Unary unary, EffectComputer ec) {
               // First compute the effects of argument evaluation
               result= effect(target);
               X10TypeEnv env = ec.env();
+             // System.out.println(call)
               result= env.followedBy(result, computeEffect(args, ec));
               result= env.followedBy(result, getMethodEffects(methodInstance, args, ec));
           }
@@ -604,10 +667,16 @@ private Effect computeEffect(Unary unary, EffectComputer ec) {
   }
 
   private Effect computeEffect(List<Expr> args, EffectComputer ec) throws XFailure {
-      Effect result= null;
+      Effect result= Effects.makeSafe();
       for(Expr arg: args) {
-          Effect argEff= effect(arg);
+    	  Effect argEff = Effects.makeSafe();
+    	  Effect argReadEff = effect(arg);
+    	  if (argReadEff == null)
+    		  	continue;
+    	 for(Locs rs : argReadEff.readSet())
+    		argEff.addWrite(rs);
           result= ec.env().followedBy(result, argEff);
+         
       }
       return result;
   }
@@ -678,8 +747,14 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
 	  		X10LocalInstance li= (X10LocalInstance) l.localInstance();
 
 	  		//System.out.println(li.x10Def().type().get());
-	  		ConstrainedType ct = (ConstrainedType) li.x10Def().type().get();
-	  		X10ParsedClassType pct = (X10ParsedClassType) ct.baseType().get();
+	  		X10ParsedClassType pct = null;
+	  		if (li.x10Def().type().get() instanceof ConstrainedType) {
+	  			ConstrainedType ct = (ConstrainedType) li.x10Def().type().get();
+	  			pct = (X10ParsedClassType) ct.baseType().get();
+	  		}
+	  		else if (li.x10Def().type().get() instanceof X10ParsedClassType)
+	  			pct = (X10ParsedClassType) li.x10Def().type().get();
+	  	
 	  		Type it = pct.typeArguments().get(0);
 	  
 	  		if (it instanceof AnnotatedType) {
@@ -689,8 +764,12 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
 	  	      	  			if (an.toString().contains("clocked.Clocked")) { 
 	  	              				X10ClassType anc = (X10ClassType) an;
 	  	              				Expr e = anc.propertyInitializer(0);
-	  	                  	        Locs mc = computeLocFor(e, ec);             
-	  	                  	        Locs cv =(createArrayLoc(array, index));
+	  	                  	        Locs mc = computeLocFor(e, ec);
+	  	                  	        Locs cv;
+	  	                  	        if (index != null)
+	  	                  	        	cv =(createArrayLoc(array, index));
+	  	                  	        else 
+	  	                  	        	cv = computeLocFor(array, ec);
 	  	                  	        result.addClockedVar(cv);
 	  	                  	        result.addMustClock(mc);
 	  	                  	        isClockedVar = true;
@@ -848,8 +927,9 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
   }
 
 
-  private Effect computeEffect(Loop loop, EffectComputer ec) {
+  private Effect computeEffect(Loop loop, EffectComputer ec) throws XFailure {
       Effect bodyEff= effect(loop.body());
+      bodyEff = ec.env().followedBy(bodyEff, effect(loop.body()));
       // Abstract any effects that involve the loop induction variable
       // TODO How to properly bound the domain of the loop induction variable?
       // It isn't quite correct to use universal quantification for that...

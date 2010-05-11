@@ -145,7 +145,8 @@ class RandomAccess {
             async {
                 val rail = rails(i) as Rail[Long]!;
                 var err:Int = 0;
-                for (var j:Int=0; j<rail.length; j++)
+                var j: Int;
+                for (j=0; j<rail.length; j++)
                     if (rail(j) != j) err++;
                 Console.OUT.println("Found " + err + " errors.");
             }
