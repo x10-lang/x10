@@ -6,8 +6,19 @@
  * needed when compiling in cygwin.
  ********************************************************************************************/
 
-typedef struct barrier_t pthread_barrier_t;
-typedef char pthread_barrierattr_t;
+#include <semaphore.h>
+
+#define pthread_barrier_t struct barrier_t
+#define pthread_barrierattr_t char
+#define pthread_mutexattr_t char
+#define pthread_mutexattr_init(b) doNothing()
+#define pthread_mutexattr_destroy(b) doNothing()
+#define pthread_mutexattr_setpshared(b,a) doNothing()
+#define pthread_mutex_t sem_t*
+#define pthread_mutex_init(s,a) mysem_open(s)
+#define pthread_mutex_destroy(s) mysem_close(s)
+#define pthread_mutex_lock(a) mysem_wait(a)
+#define pthread_mutex_unlock(a) mysem_post(a)
 #define pthread_barrierattr_init(b) doNothing()
 #define pthread_barrierattr_setpshared(b,a) doNothing()
 #define pthread_barrierattr_destroy(b) doNothing()
@@ -16,12 +27,14 @@ typedef char pthread_barrierattr_t;
 #define pthread_barrier_wait(b) barrier_wait(b)
 #define PTHREAD_BARRIER_SERIAL_THREAD 1
 
+int mutexCounter = 0;
+
 struct barrier_t
 {
     int numPlaces;
     int numWaiting;
-    pthread_mutex_t mutex;
-    pthread_cond_t signal;
+    sem_t *mutex;
+    sem_t *barrier;
 };
 
 void macError(const char* message)
@@ -32,47 +45,102 @@ void macError(const char* message)
 
 int doNothing(){return 0;}
 
+int mysem_open(pthread_mutex_t *s)
+{
+	char myName[50];
+	myName[0] = '\0';
+	sprintf(myName, "/X10RT.STANDALONE.%d", mutexCounter++);
+	*s = sem_open(myName, O_CREAT|O_EXCL, S_IRUSR|S_IWUSR, 1);
+	if (SEM_FAILED == *s) macError("Failed to create a semaphore");
+	#ifdef DEBUG
+		printf("X10rt.Standalone: created mutex %s\n", myName);
+		fflush(stdout);
+	#endif
+	sem_unlink(myName); // this causes the semaphore to be freed when the close happens later.
+	return 0;
+}
+
+int mysem_close(pthread_mutex_t *s)
+{
+	#ifdef DEBUG
+		printf("X10rt.Standalone: closing mutex\n");
+		fflush(stdout);
+	#endif
+	return sem_close(*s);
+}
+
+int mysem_wait(pthread_mutex_t *s)
+{
+	#ifdef DEBUG
+		printf("X10rt.Standalone: waiting on mutex...\n");
+		fflush(stdout);
+	#endif
+	int r = sem_wait(*s);
+	#ifdef DEBUG
+		printf("done waiting on mutex\n");
+		fflush(stdout);
+	#endif
+	return r;
+}
+
+int mysem_post(pthread_mutex_t *s)
+{
+	#ifdef DEBUG
+		printf("X10rt.Standalone: unlocking mutex...");
+	#endif
+	int r = sem_post(*s);
+	#ifdef DEBUG
+		printf("done\n");
+		fflush(stdout);
+	#endif
+		return r;
+}
+
 int barrier_init(pthread_barrier_t *barrier, int numPlaces)
 {
     barrier->numPlaces = numPlaces;
     barrier->numWaiting = 0;
     
-    pthread_mutexattr_t ma;
-    if (pthread_mutexattr_init(&ma) != 0) macError("Unable to initialize barrier mutex attributes");
-    if (pthread_mutexattr_setpshared(&ma, PTHREAD_PROCESS_SHARED) != 0) macError("Unable to set barrier mutex attributes to shared");
-    if (pthread_mutex_init(&barrier->mutex, &ma) != 0) macError("Unable to initialize barrier mutex");
-    pthread_mutexattr_destroy(&ma);
+    barrier->barrier = sem_open("/X10RT.STANDALONE.BARRIER\0", O_CREAT|O_EXCL, S_IRUSR|S_IWUSR, 0);
+    if (SEM_FAILED == barrier->barrier) macError("Failed to create a barrier");
+    sem_unlink("/X10RT.STANDALONE.BARRIER\0");
 
-    pthread_condattr_t ca;
-    if (pthread_condattr_init(&ca) != 0) macError("Unable to initialize barrier cond attributes");
-    if (pthread_condattr_setpshared(&ca, PTHREAD_PROCESS_SHARED) != 0) macError("Unable to set barrier cond attributes to shared");
-    if (pthread_cond_init(&barrier->signal, &ca) != 0) macError("Unable to initialize barrier cond");
-    pthread_condattr_destroy(&ca);
+    barrier->mutex = sem_open("/X10RT.STANDALONE.B_LOCK\0", O_CREAT|O_EXCL, S_IRUSR|S_IWUSR, 1);
+    if (SEM_FAILED == barrier->mutex) macError("Failed to create a barrier semaphore");
+    sem_unlink("/X10RT.STANDALONE.B_LOCK\0");
+
+	#ifdef DEBUG
+		printf("X10rt.Standalone: barrier initialized with %i places\n", numPlaces);
+		fflush(stdout);
+	#endif
 
     return 0;
 }
 
 int barrier_destroy(pthread_barrier_t *barrier)
 {
-	pthread_mutex_destroy(&barrier->mutex);
-	pthread_cond_destroy(&barrier->signal);
-	return 0;
+	sem_close(barrier->barrier);
+	return sem_close(barrier->mutex);
 }
 
 int barrier_wait(pthread_barrier_t *barrier)
 {
 
-	if (pthread_mutex_lock(&barrier->mutex) != 0) macError("Unable to lock barrier mutex");
+	if (sem_wait(barrier->mutex) != 0) macError("Unable to lock barrier mutex");
 	barrier->numWaiting++;
 	if (barrier->numWaiting == barrier->numPlaces)
 	{
 		// everyone is here.  Signal the other places to go, and release the mutex
 		barrier->numWaiting = 0;
-		pthread_cond_broadcast(&barrier->signal);
-		pthread_mutex_unlock(&barrier->mutex);
+		if (sem_post(barrier->mutex) != 0) macError("Unable to unlock barrier mutex");
+		for (int i=1; i<barrier->numPlaces; i++)
+			if (sem_post(barrier->barrier) != 0) macError("Unable to free programs from the barrier");
 	}
 	else // release the mutex and wait for the barrier event
-		pthread_cond_wait(&barrier->signal, &barrier->mutex);
+	{
+		if (sem_post(barrier->mutex) != 0) macError("unable to unlock barrier mutex");
+		if (sem_wait(barrier->barrier) != 0) macError("Unable to lock barrier");
+	}
 
 	return 0;
 }

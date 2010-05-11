@@ -34,13 +34,8 @@
 
 #ifdef __APPLE__
 #include "x10rt_standalone_macos.cc"
-#endif
-
-#ifdef __CYGWIN__
+#elif __CYGWIN__
 #include "x10rt_standalone_cygwin.cc"
-#else
-typedef pthread_mutexattr_t pthread_mutexattr;
-typedef pthread_mutex_t pthread_mutex;
 #endif
 
 #define X10RT_STANDALONE_NUMPLACES "X10RT_STANDALONE_NUMPLACES" // environment variable
@@ -69,7 +64,7 @@ struct x10StandaloneMessageQueueEntry
 
 struct x10StandalonePlaceState
 {
-	pthread_mutex messageQueueLock; // lock is per place, so we have parallelism for all but the creation/destruction of the buffer entries
+	pthread_mutex_t messageQueueLock; // lock is per place, so we have parallelism for all but the creation/destruction of the buffer entries
 	unsigned int messageQueueHead; // the array index for the first non-blank slot in our queue.  Set to the buffer size when there are no messages.
 	unsigned int messageQueueTail; // the array index for the first blank spot in our queue
 
@@ -243,12 +238,12 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 
 	// initialize our barrier to the number of places
 	pthread_barrierattr_t barrier_attr;
-	if (pthread_barrierattr_init(&barrier_attr) != 0) error("Unable to initialize the synchronizarion barrier attributes");
-	if (pthread_barrierattr_setpshared(&barrier_attr, PTHREAD_PROCESS_SHARED) != 0) error("Unable to set the synchronizarion barrier to shared");
-	if (pthread_barrier_init(state.barrier, &barrier_attr, state.numPlaces) != 0) error("Unable to initialize the synchronizarion barrier");
-	if (pthread_barrierattr_destroy(&barrier_attr) != 0) error("Unable to initialize the synchronizarion barrier attributes");
+	if (pthread_barrierattr_init(&barrier_attr) != 0) error("Unable to initialize the synchronization barrier attributes");
+	if (pthread_barrierattr_setpshared(&barrier_attr, PTHREAD_PROCESS_SHARED) != 0) error("Unable to set the synchronization barrier to shared");
+	if (pthread_barrier_init(state.barrier, &barrier_attr, state.numPlaces) != 0) error("Unable to initialize the synchronization barrier");
+	if (pthread_barrierattr_destroy(&barrier_attr) != 0) error("Unable to initialize the synchronization barrier attributes");
 
-	pthread_mutexattr mta;
+	pthread_mutexattr_t mta;
 	if (pthread_mutexattr_init(&mta) != 0) error("Unable to initialize the mutex attributes");
 	if (pthread_mutexattr_setpshared(&mta, PTHREAD_PROCESS_SHARED) != 0) error("Unable to initialize the mutex attributes to shared");
 	// initialize structures for each individual place
@@ -291,7 +286,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 
 void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb)
 {
-	// register a pointer to methods that will handle specific mesage types.
+	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
 
 	// there are more efficient ways to do this, but this is not in our critical path of execution, so we do it the easy way
@@ -307,13 +302,13 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb
 	state.callBackTable[msg_type].notifier = NULL;
 
 	#ifdef DEBUG
-		printf("X10rt.Standalone: place %lu regestered standard message %u\n", state.myPlaceId, msg_type);
+		printf("X10rt.Standalone: place %lu registered standard message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
 
 void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1, x10rt_notifier *cb2)
 {
-	// register a pointer to methods that will handle specific mesage types.
+	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
 
 	// there are more efficient ways to do this, but this is not in our critical path of execution, so we do it the easy way
@@ -328,13 +323,13 @@ void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1
 	state.callBackTable[msg_type].notifier = cb2;
 
 	#ifdef DEBUG
-		printf("X10rt.Standalone: place %lu regestered put message %u\n", state.myPlaceId, msg_type);
+		printf("X10rt.Standalone: place %lu registered put message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
 
 void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1, x10rt_notifier *cb2)
 { 
-	// register a pointer to methods that will handle specific mesage types.
+	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
 
 	// there are more efficient ways to do this, but this is not in our critical path of execution, so we do it the easy way
@@ -349,7 +344,7 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1
 	state.callBackTable[msg_type].notifier = cb2;
 
 	#ifdef DEBUG
-		printf("X10rt.Standalone: place %lu regestered get message %u\n", state.myPlaceId, msg_type);
+		printf("X10rt.Standalone: place %lu registered get message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
 
