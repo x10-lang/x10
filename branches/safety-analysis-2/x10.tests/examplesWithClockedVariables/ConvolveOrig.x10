@@ -26,21 +26,21 @@ class ConvolveOrig {
                 } 
 
            
-                Console.ERR.print("y = ");
+                Console.OUT.print("y = ");
                 next;
                 next;
                 for ((j) in 1..n) {
                         next; // end of read phase, now you can write the values
-                        Console.ERR.print(yi(w.length-1)+ " " );
+                        Console.OUT.print(yi(w.length-1)+ " " );
                         next;
                 }
-                 Console.ERR.println();
+                 Console.OUT.println();
         
     }
 
     public static def main(args: Rail[String]) {
-        Console.ERR.print("Should get "); for (a in [3,8,14,20,26,32]) Console.ERR.print(a+ " ");
-        Console.ERR.println();
+        Console.OUT.print("Should get "); for (a in [3,8,14,20,26,32]) Console.OUT.print(a+ " ");
+        Console.OUT.println();
         run([1,2,3], [1,2,3,4,5,6]);
 
     }

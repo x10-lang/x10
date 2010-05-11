@@ -958,7 +958,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
           if (stmtEffect != null)
         	  blockDecls.addAll(stmtEffect.initializedClockSet());
           Effect filteredEffect= removeLocalVarsFromEffect(blockDecls, stmtEffect, ec);
-         // filteredEffect= removeLocalRailVarsFromEffect(blockRailDecls, filteredEffect, ec);
+          filteredEffect= removeLocalRailVarsFromEffect(blockRailDecls, filteredEffect, ec);
           ec.diag("             filtered effect = " + filteredEffect);
           result= ec.env().followedBy(result, filteredEffect);
           //System.out.println(stmtEffect + " After: " + result);
