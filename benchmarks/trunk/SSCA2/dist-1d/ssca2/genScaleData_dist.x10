@@ -112,7 +112,7 @@ public class genScaleData_dist  {
 
 	
                         val size = rpairs.length();
-	                {@Native("c++", "mysort( (rpairs->raw()), size);") {} }
+	                {@Native("c++", "std::sort((std::pair<int, int>*) (rpairs->raw()), ((std::pair<int,int>*)(rpairs->raw())) + size);") {} }
 
 
                         val out_pairs = Out_pairs();
@@ -121,7 +121,8 @@ public class genScaleData_dist  {
 
 
                         val size2 = tmp_pairs.length();
-	                {@Native("c++", "mysort( tmp_pairs->raw(), size2);") {} }
+	                //{@Native("c++", "mysort( tmp_pairs->_array->raw(), size2);") {} }
+	                {@Native("c++", "std::sort((std::pair<int, int>*) (tmp_pairs->_array->raw()), ((std::pair<int,int>*)(tmp_pairs->_array->raw())) + size2);") {} }
 
                         val etriplets = Rail.make[types.UVWTriplet](chunkSize_m);	
                      
