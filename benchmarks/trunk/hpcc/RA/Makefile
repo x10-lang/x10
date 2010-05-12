@@ -5,7 +5,7 @@ all: ra-opt ra-dbg
 
 ra-opt: ${SRCS}
 	${MKDIR} opt-gen
-	${X10CXX} -O -d opt-gen ${X10CXXFLAGS} ${SRCS} -post '# ${POSTCOMPILE_CXXFLAGS} ${POSTCOMPILE_OPTFLAGS} # # ${POSTCOMPILE_LDFLAGS}' -o $@
+	${X10CXX} -O -NO_CHECKS -d opt-gen ${X10CXXFLAGS} ${SRCS} -post '# ${POSTCOMPILE_CXXFLAGS} ${POSTCOMPILE_OPTFLAGS} # # ${POSTCOMPILE_LDFLAGS}' -o $@
 
 ra-dbg: ${SRCS}
 	${MKDIR} dbg-gen

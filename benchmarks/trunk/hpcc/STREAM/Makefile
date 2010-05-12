@@ -1,11 +1,11 @@
 
-SRCS	:= FSSimpleDist.x10
+SRCS	:= FSSimpleDist.x10 ../util/*.x10
 
 all: stream-opt stream-dbg
 
 stream-opt: ${SRCS}
 	${MKDIR} opt-gen
-	${X10CXX} -O -d opt-gen ${X10CXXFLAGS} ${SRCS} -post '# ${POSTCOMPILE_CXXFLAGS} ${POSTCOMPILE_OPTFLAGS} # # ${POSTCOMPILE_LDFLAGS}' -o $@
+	${X10CXX} -O -NO_CHECKS -d opt-gen ${X10CXXFLAGS} ${SRCS} -post '# ${POSTCOMPILE_CXXFLAGS} ${POSTCOMPILE_OPTFLAGS} # # ${POSTCOMPILE_LDFLAGS}' -o $@
 ifeq ($(USE_MEDIUM_PAGES), 1)
 ifeq ($(shell uname -s), AIX)
 	ldedit -bnolpdata $@
