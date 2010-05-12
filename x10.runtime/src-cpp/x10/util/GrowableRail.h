@@ -36,6 +36,9 @@ namespace x10 {
             x10_int _len;
             
         public:
+
+            T* raw() { return _array->raw(); }
+
             static x10aux::ref<GrowableRail<T> > _make() {
                 return (new (x10aux::alloc<GrowableRail<T> >()) GrowableRail<T>())->_constructor();
             }
