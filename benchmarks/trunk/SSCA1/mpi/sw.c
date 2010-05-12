@@ -237,7 +237,7 @@ static const int debugSW_ALL = 0; /*  if true, prints out verbose scoring */
 static const int debugTB = 0;     /*  if true, prints out the steps in the traceback. */
 
 typedef struct Timings {
-   char **phaseDescriptions; /* short descriptions of what each phase accomplishes */
+   const char * const *phaseDescriptions; /* short descriptions of what each phase accomplishes */
    int iterations; /* the number of timings for each phase */
    int phases;	   /* the number of time intervals into which the process has been divided */
    int *data;	   /* for each iteration and phase, the time in milliseconds it required */
@@ -290,7 +290,7 @@ static void saveResults(Output *output, const char * const shorter, const char *
  * initializes the timings from the number of iterations and the array of descriptive
  * info about each of the phases.
  */
-void startTimings(Output *output, int iterations, int phases, char **phaseDescriptions) {
+void startTimings(Output *output, int iterations, int phases, const char * const *phaseDescriptions) {
    output->iterations = output->phases = 0;
    output->fromShorter = NULL;
    output->fromLonger = NULL;
