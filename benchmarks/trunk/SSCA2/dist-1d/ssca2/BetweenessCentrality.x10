@@ -52,6 +52,7 @@ class BetweenessCentrality {
      global val L_cent: PlaceLocalHandle[GrowableRail[VDSTriplet]];
      global val N_bfs: PlaceLocalHandle[Rail[GrowableRail[UVDSQuad]]];
      global val L_bfs: PlaceLocalHandle[GrowableRail[UVDSQuad]];
+     global val Visited: PlaceLocalHandle[Array[Boolean](1)];
 
      //Stack computed during BFS and used during Back Propagation
      global val S: PlaceLocalHandle[GrowableRail[types.VERT_T]];
@@ -81,6 +82,7 @@ class BetweenessCentrality {
 
              S = PlaceLocalHandle.make[GrowableRail[types.VERT_T]](unique, ()=>new GrowableRail[types.VERT_T](0));
              Count = PlaceLocalHandle.make[GrowableRail[types.INT_T]](unique, ()=>new GrowableRail[types.INT_T](0));
+             Visited  = PlaceLocalHandle.make[Array[Boolean](1)](unique, ()=>new Array[Boolean](pg.restrict_here().vertices, (p: Point(1))=>false));
 
              if (!use_async) {
                 N_cent = PlaceLocalHandle.make[Rail[GrowableRail[VDSTriplet]]](unique, ()=>Rail.make[GrowableRail[VDSTriplet]](Place.MAX_PLACES, (n:Int)=>new GrowableRail[VDSTriplet](0)));
@@ -200,7 +202,7 @@ class BetweenessCentrality {
           }
       }
 
-      private global def compute_bfs_async (place: Int, world:Comm!,  source:types.VERT_T) {
+      private global def compute_bfs_async (place: Int, world:Comm!,  source:types.VERT_T, pg_here: defs.pGraphLocal!) {
 
            val d = D() as Array[types.LONG_T](1)!;
            val sig = Sig() as Array[types.DOUBLE_T](1)!;
@@ -208,9 +210,9 @@ class BetweenessCentrality {
 
            val s = S();
            val  count = Count();
-           val pg_here = pg.restrict_here();
            val vertices = pg_here.vertices;
-           val visited = new Array[Boolean](vertices, (p: Point(1))=>false);
+           val visited =  Visited() as Array[Boolean](1);
+           for ((i) in vertices) visited(i) =false;
 
               //x10.io.Console.ERR.println("inside bfs_async");
 
@@ -282,7 +284,7 @@ class BetweenessCentrality {
             }
 }
 
-      private global def compute_bfs_alltoall (place: Int, world: Comm!, source:types.VERT_T) {
+      private global def compute_bfs_alltoall (place: Int, world: Comm!, source:types.VERT_T, pg_here:defs.pGraphLocal!) {
 
               //x10.io.Console.ERR.println("enter alltoall");
           val N = N_bfs() as Rail[GrowableRail[UVDSQuad]]!;
@@ -297,9 +299,9 @@ class BetweenessCentrality {
            val s = S();
            val  count = Count();
 
-           val pg_here = pg.restrict_here();
            val vertices = pg_here.vertices;
-           val visited = new Array[Boolean](vertices, (p: Point(1))=>false);
+           val visited = Visited() as Array[Boolean](1);
+           for ((i) in vertices) visited(i) =false;
 
            if (pg.owner(source) == here)  {L.add(UVDSQuad(-1, source, 0, 0.0)); d(source ) = 0; sig(source) = 1;}
 
@@ -398,6 +400,7 @@ class BetweenessCentrality {
                val bc = BC() as Array[types.DOUBLE_T](1)!;
                val s = S();
                val count = Count();
+               val pg_here = pg.restrict_here() as defs.pGraphLocal!;
 
                //x10.io.Console.ERR.println("point 1");
            for ((i) in 0..n-1) {
@@ -418,7 +421,7 @@ class BetweenessCentrality {
                count.setLength(0);
                if (use_async){
                bfs.start();
-               compute_bfs_async(p, world, startVertex);
+               compute_bfs_async(p, world, startVertex, pg_here);
                bfs.stop();
                world.barrier();
                 back.start();
@@ -427,7 +430,7 @@ class BetweenessCentrality {
               } else {
                //x10.io.Console.ERR.println("bfs");
                bfs.start();
-               compute_bfs_alltoall(p, world,  startVertex);
+               compute_bfs_alltoall(p, world,  startVertex, pg_here);
                bfs.stop();
                //x10.io.Console.ERR.println("back");
                world.barrier();
@@ -436,7 +439,7 @@ class BetweenessCentrality {
                 back.stop();
               }
 
-               for ((k) in pg.restrict_here().vertices) {
+               for ((k) in pg_here.vertices) {
                         pred(k).setLength(0);
                         del(k) = 0;
                //         sig(k) = 0;

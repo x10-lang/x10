@@ -70,7 +70,7 @@ $(OUTDIR)/ssca2/PTimer.o
 
 .SUFFIXES: .cc .cxx .cpp .C .c .o .h .x10
 
-LIBS = -L/bench1/x10-2.0/x10.dist/lib -lx10 -lx10rt_pgas_lapi -ldl -lm -lpthread -bbigtoc -lptools_ptr
+LIBS = -brtl -L/vol/x10/new/x10-2.0/x10.dist/lib -lx10 -lx10rt_pgas_lapi -ldl -lm -lpthread -bbigtoc -lptools_ptr
 
 NATIVE_LIBS = $(PWD)/sprng2.0/lib/libsprng.a
 
@@ -99,4 +99,4 @@ $(FINAL)-dbg: $(CCSRCS) $(OBJS)
 	${POSTCOMPILE_CXX}  -q64 -o $@ $(OBJS)  $(LIBS) $(NATIVE_LIBS)
 
 .cc.o:
-	time $(POSTCOMPILE_CXX) $(OPT) -q64 -w -DTRANSPORT=$(PGASTRANSPORT) -I$(OUTDIR) -I/bench1/x10-2.0/x10.dist/include $(NATIVE_INCLUDES) -c $< -o $@
+	time $(POSTCOMPILE_CXX) $(OPT) -q64 -w -DTRANSPORT=$(PGASTRANSPORT) -I$(OUTDIR) -I/vol/x10/new//x10-2.0/x10.dist/include $(NATIVE_INCLUDES) -c $< -o $@
