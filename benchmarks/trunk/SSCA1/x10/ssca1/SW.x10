@@ -95,18 +95,19 @@ public class SW {
     * @param builder used to accumulate the sequence of characters we really care about.
     * @param commentStart starts text to be ignored through the next LF or CR.
     */
-   private static def readInASequence(path:String, alphabetIndex: ValRail[Byte], builder: StringBuilder!, commentStart: Char) {
+   private static def readInASequence(path:String, alphabetIndex: ValRail[Byte], builder: ValRailBuilder[Byte]!, commentStart: Char) {
       try { 
          val reader = (new File(path)).openRead();
          try {
             var inComment: Boolean = false;
             while(true) {
-               val b = reader.read() as Char;
-               if (b=='\n' ||b=='\r') inComment = false;
-               else if (b==commentStart) inComment = true;
+               val b = reader.read();
+	       val bAsChar = b as Char;
+               if (bAsChar == '\n' || bAsChar == '\r') inComment = false;
+               else if (bAsChar==commentStart) inComment = true;
                else if (!inComment) {
-                  if (alphabetIndex(b.ord())!=(-1 as Byte)) builder.add(b);
-                  else if (DEBUG) Console.ERR.println("Unexpected character, ASCII "+b.ord());
+                  if (alphabetIndex(b)!=(-1 as Byte)) builder.add(b);
+                  else if (DEBUG) Console.ERR.println("Unexpected character, ASCII "+b);
                }
             }
          } catch (eof: EOFException) { reader.close(); }
@@ -121,7 +122,7 @@ public class SW {
     *    is valid.
     * @param builder used to accumulate the sequence of characters we really care about.
     */
-   private static def readInASequence(path:String, alphabetIndex: ValRail[Byte], builder: StringBuilder!) {
+   private static def readInASequence(path:String, alphabetIndex: ValRail[Byte], builder: ValRailBuilder[Byte]!) {
       readInASequence(path, alphabetIndex, builder, DEFAULT_COMMENT_START);
    }
    
@@ -160,8 +161,8 @@ public class SW {
          at(Place.FIRST_PLACE) System.setExitCode(33);
          return;
       }
-      val shorterBuilder = new StringBuilder();
-      val longerBuilder = new StringBuilder();
+      val shorterBuilder = new ValRailBuilder[Byte]();
+      val longerBuilder = new ValRailBuilder[Byte]();
       finish {
           async readInASequence(parsedArgs.get("s").value, parms.alphabetIndex, shorterBuilder);
           async readInASequence(parsedArgs.get("l").value, parms.alphabetIndex, longerBuilder);
@@ -169,16 +170,16 @@ public class SW {
       if (shorterBuilder.length() == 0 || longerBuilder.length()==0) {
          at(Place.FIRST_PLACE) System.setExitCode(30);
       }
-      val shorterAsString = shorterBuilder.result();
-      val longerAsString  = (longerBuilder as StringBuilder!).result();
+      val shorter = shorterBuilder.result();
+      val longer  = longerBuilder.result();
       val dataIsRead = timer.milliTime();
       timings.add(INPUT_PHASE, 0, dataIsRead - startInput);
 
       // Step 1a: setup distributed structures
-      val segInfo   = SegmentationInfo(parms, shorterAsString, longerAsString.length());
+      val segInfo   = SegmentationInfo(parms, shorter, longer.length());
       Console.OUT.println("Places available: "+Place.MAX_PLACES+"\r\nPlaces used: "+segInfo.segmentCount);
       val segments  = Dist.makeBlock((0 .. (segInfo.segmentCount-1)));
-      val segmentedInput = Rail.make[String](segInfo.segmentCount, (i:int) => segInfo.slice(i, longerAsString));
+      val segmentedInput = Rail.make[ValRail[Byte]](segInfo.segmentCount, (i:int) => segInfo.slice(i, longer));
       val scorers   = DistArray.make[Scorer](segments);
       val scores    = DistArray.make[Score](segments);
 
@@ -192,7 +193,7 @@ public class SW {
 	 finish for (p in segments) {
              val mySegment = segmentedInput(p(0));  // get the right sub-string outside of the async to minimize serialization
              async (segments(p)) {
-                 scorers(p) = new Scorer(parms, shorterAsString, mySegment, segInfo);
+                 scorers(p) = new Scorer(parms, shorter, mySegment, segInfo);
                  scores(p) = scorers(p).score;
              }
          }

@@ -84,10 +84,10 @@ public class Scorer {
     * on this form of the loop better in writing the MPI code, because it made the communication
     * among processors a lot easier to understand. 
     */
-   public def this(parms: Parameters, shorter_: String, longer_: String, segInfo: SegmentationInfo) {
+   public def this(parms: Parameters, shorter_: ValRail[Byte], longer_: ValRail[Byte], segInfo: SegmentationInfo) {
       longOffset = segInfo.firstInLonger(here.id);  // where to start if shortfall == 0
-      longRail = longer_.bytes();
-      shortRail = shorter_.bytes();
+      longRail = longer_;
+      shortRail = shorter_;
       val shortSize = shorter_.length();
       longSize  = longer_.length();
       tracebackMoves = Rail.make[Byte]((shortSize+1)*(longSize + 1));
