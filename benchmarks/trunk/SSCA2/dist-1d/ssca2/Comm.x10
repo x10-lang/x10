@@ -219,7 +219,8 @@ final public class Comm {
       val nplaces = A.length();
       var dummy: Int;
 
-      for ((i) in 0..Place.MAX_PLACES-1) {
+      //for ((i) in 0..Place.MAX_PLACES-1) {
+       for (var i: Int = 0; i < Place.MAX_PLACES; i++) {
              dstSizes(i) = 0;
              srcSizes(i) = A(i).length();
       }
@@ -237,7 +238,8 @@ final public class Comm {
       //x10.io.Console.ERR.println(srcSizes + " " + dstSizes);
 
       var size: Int = 0; 
-      for((i) in 0..nplaces-1) {
+      //for((i) in 0..nplaces-1) {
+       for (var i: Int = 0; i < nplaces; i++) {
          size += dstSizes(i);
       } 
 

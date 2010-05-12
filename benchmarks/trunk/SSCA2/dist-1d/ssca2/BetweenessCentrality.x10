@@ -170,14 +170,18 @@ class BetweenessCentrality {
                  //world.barrier();
                  if (tsum == 0)  continue;
 
-                 for ((k) in 0..Place.MAX_PLACES-1)  (N(k) as GrowableRail[VDSTriplet]!).setLength(0);
+                 //for ((k) in 0..Place.MAX_PLACES-1)  
+                  for (var k: Int = 0; k < Place.MAX_PLACES; k++) 
+                   (N(k) as GrowableRail[VDSTriplet]!).setLength(0);
 
-                 for ((j) in start..end) {
+                 //for ((j) in start..end) {
+                 for (var j: Int = start; j <= end; j++) {
                  val w = s(j);
 
                 val pred_w  = pred(w);
                 val pred_length = (pred(w) as GrowableRail[types.VERT_T]!).length();
-                for ((k) in  0..pred_length-1) {
+                //for ((k) in  0..pred_length-1) {
+                  for (var k: Int = 0; k < pred_length; k++) {
                   val v = (pred_w as GrowableRail[types.VERT_T]!)(k);
                   val del_w = del(w);
                   val sig_w = sig(w);
@@ -189,13 +193,15 @@ class BetweenessCentrality {
 
                  world.alltoallv[VDSTriplet](N, L);
 
-                  for ((k) in 0..L.length()-1) {
+                  //for ((k) in 0..L.length()-1) {
+                  for (var k: Int = 0; k <L.length(); k++) {
                     val v = L(k).first;
                     val del_w = L(k).second;
                     val sig_w = L(k).third;
                     del(v) = del(v) + sig(v)*(((1.0+del_w) as double)/sig_w);
                  }
-                 for ((j) in start..end) {
+                 //for ((j) in start..end) {
+                  for (var j: Int = start; j <= end; j++) {
                    val w = s(j);
                    bc(w) += del(w);
                  }
@@ -296,7 +302,7 @@ class BetweenessCentrality {
            val sig = Sig() as Array[types.DOUBLE_T](1)!;
            val pred = Pred() as Array[GrowableRail[types.VERT_T]](1)!;
  
-           val s = S();
+           val s = S(); //rename to Stack
            val  count = Count();
 
            val vertices = pg_here.vertices;
@@ -309,8 +315,10 @@ class BetweenessCentrality {
             count.add(0);
             while (true) {
 
-              for ((i) in 0..Place.MAX_PLACES-1)  (N(i) as GrowableRail[UVDSQuad]!).setLength(0);
- 
+              //for ((i) in 0..Place.MAX_PLACES-1) 
+              for (var i: Int = 0; i < Place.MAX_PLACES; i++) 
+                 (N(i) as GrowableRail[UVDSQuad]!).setLength(0);
+
               val flength = L.length();
               //x10.io.Console.ERR.println("flength" + flength);
               val LSize = world.sum(flength);
@@ -319,7 +327,8 @@ class BetweenessCentrality {
               if (LSize == 0) break;
 
               count.add(count(l));
-              for ((i) in 0..flength-1) {
+              //for ((i) in 0..flength-1) {
+              for (var i: Int = 0; i < flength; i++) {
                 val vertex = L(i).second;
 
                 if (visited(vertex) == true) continue;
@@ -333,8 +342,9 @@ class BetweenessCentrality {
                 val hi = pg_here.numEdges(vertex+1)-1;
 
 
-                for ((k) in  lo..hi) {
-                  val neighbor = pg_here.endV(k);
+                //for ((k) in  lo..hi) {
+                  for (var k: Int = lo; k <= hi; k++) {
+                  val neighbor = pg_here.endV(k); //Rename neighbor to v; vertext to u
                   val owner = pg.owner(neighbor);
                   if (neighbor == vertex) continue;
                   (N(owner.id) as GrowableRail[UVDSQuad]!).add(UVDSQuad(vertex, neighbor, d(vertex), sig(vertex)));
@@ -345,7 +355,8 @@ class BetweenessCentrality {
               //world.barrier();
 
                    
-             for ((i) in 0..L.length()-1) {
+             //for ((i) in 0..L.length()-1) {
+             for (var i: Int = 0; i < L.length(); i++) {
                val t = L(i);
                val w = t.second;
                val v = t.first;
