@@ -313,7 +313,7 @@ constructor.
 %~~vis
 \begin{xten}
 class Coords(x: Int, y: Int) {
-  def this(x: Int, y: Int) : Int{this.x==x, this.y==y} 
+  def this(x: Int, y: Int) : Coords{self.x==x, self.y==y} 
     = { property(x, y); }
   def move(dx: Int, dy: Int) = new Coords(x+dx, y+dy);
 }
@@ -635,7 +635,7 @@ type is crucial. One way to say that \xcd`e` is located \xcd`here`, \viz, the sa
 %~~gen
 % package Types.cripes.wipes.lipes;
 % class Examplorator {
-% static def someObject() : Object! = null;
+% static def someObject() : Object{self.home==here} = null;
 % static def example() {
 %~~vis
 \begin{xten}
@@ -720,8 +720,8 @@ For example:
 
 \subsection{Constraint Expressions}
 
-\def\withmath#1{\relax\ifmmode#1\else{$#1$}\fi}
-\def\LL#1{\withmath{\lbrack\!\lbrack #1\rbrack\!\rbrack}}
+
+
 
 Only a few kinds of expressions can appear in constraints.  For fundamental
 reasons of mathematical logic, the more kinds of expressions that can appear
@@ -876,82 +876,68 @@ for an object type and \xcd`T{c}` for a struct type.
 
 
 
-\subsection{Constraint semantics}
+\subsection{Variables in Constraints}
+
+X10 permits a \xcd`val` variable to appear in constraints on its own type as
+%~~stmt~~`~~`~~ ~~
+it is being declared.  For example, \xcd`val nz: Int{nz != 0} = 1;` declares a
+non-zero variable \xcd`nz`.
+\bard{This will need to be explained further once the language issues are
+sorted out..}
+
+%%BARD-HERE
+
+%%TYPES-CONSTR-EXP%% We permit variable declarations \xcd"v: T" where \xcd"T" is obtained
+%%TYPES-CONSTR-EXP%% from a dependent type \xcd"C{c}" by replacing one or more occurrences
+%%TYPES-CONSTR-EXP%% of \xcd"self" in \xcd"c" by \xcd"v". (If such a declaration \xcd"v: T"
+%%TYPES-CONSTR-EXP%% is type-correct, it must be the case that the variable \xcd"v" is not
+%%TYPES-CONSTR-EXP%% visible at the type \xcd"T". Hence we can always recover the
+%%TYPES-CONSTR-EXP%% underlying dependent type \xcd"C{c}" by replacing all occurrences of \xcd"v"
+%%TYPES-CONSTR-EXP%% in the constraint of \xcd"T" by \xcd"self".)
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% For instance, \xcd"v: Int{v == 0}" is shorthand for \xcd"v: Int{self == 0}".
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% 
+%%TYPES-CONSTR-EXP%% A variable occurring in the constraint \xcd"c" of a dependent type, other than
+%%TYPES-CONSTR-EXP%% \xcd"self" or a property of \xcd"self", is said to be a {\em
+%%TYPES-CONSTR-EXP%% parameter} of \xcd"c".\label{DepType:Parameter} \index{parameter}
+
+\subsection{Operations on Constrained Types}
+
+An instance \xcd"o" of \xcd"C" is said to be of type \xcd"C{c}" (or: {\em
+belong to} \xcd"C{c}") if the constraint \xcd"c" evaluates to \xcd"true" in
+the current lexical environment, augmented with the binding \xcd"self"
+$\mapsto$ \xcd"o".
+
+The \xcd`instanceof` operation lets programs test type membership.  
+\xcd`e instanceof C{c}` returns true if \xcd`e` belongs to \xcd`C{c}`, and
+false otherwise.  
+%~~exp~~`~~`~~ ~~
+\xcd`1 instanceof Int{self != 2}` returns true, 
+and 
+%~~exp~~`~~`~~x:Int ~~
+\xcd`x instanceof Int{self == 1}` returns false if 
+\xcd`x==2`.
+However, it is a static error if \xcd`e` cannot possibly be an instance of \xcd`C{c}`; 
+the compiler will reject \xcd`1 instanceof Int{self == 2}` because \xcd`1` can
+never satisfy \xcd`Int{self == 2}`.  Similarly, \xcd`1 instanceof String` is a
+static error, rather than an expression always returning false. 
+\bard{Explain the reason for this discontinuous behavior!}
+
+The \xcd`as` operation attempts to convert a value to a given constrained
+type, as described in \Sref{ClassCast}.   As with \xcd`instanceof`, it may
+succeed, fail with a dynamic error, or, in the case where the cast is
+impossible, fail to compile.
 
 
-
-
-We permit variable declarations \xcd"v: T" where \xcd"T" is obtained
-from a dependent type \xcd"C{c}" by replacing one or more occurrences
-of \xcd"self" in \xcd"c" by \xcd"v". (If such a declaration \xcd"v: T"
-is type-correct, it must be the case that the variable \xcd"v" is not
-visible at the type \xcd"T". Hence we can always recover the
-underlying dependent type \xcd"C{c}" by replacing all occurrences of \xcd"v"
-in the constraint of \xcd"T" by \xcd"self".)
-
-For instance, \xcd"v: Int{v == 0}" is shorthand for \xcd"v: Int{self == 0}".
-
-\begin{staticrule}{Constraint type}
-The type of a constraint \xcd"c" must be \xcd"Boolean".  
-\end{staticrule}
-
-A variable occurring in the constraint \xcd"c" of a dependent type, other than
-\xcd"self" or a property of \xcd"self", is said to be a {\em
-parameter} of \xcd"c".\label{DepType:Parameter} \index{parameter}
-
-An instance \xcd"o" of \xcd"C" is said to be of type \xcd"C{c}"
-(or: {\em belong to}
-\xcd"C{c}") if the predicate \xcd"c" evaluates to \xcd"true" in the current lexical
-environment, augmented with the binding \xcd"self" $\mapsto$ \xcd"o". We shall
-use the function \LL{\mbox{\Xcd{C\{c\}}}} to denote the set of
-objects that belong to \xcd"C{c}". 
-
-
-\subsection{Consistency of dependent types}\label{DepType:Consistency}\index{dependent type,consistency}
-
-A dependent type \xcd"C{c}" may contain zero or more parameters. We require
-that a type never be empty---so that it is possible for a variable of
-the type to contain a value. This is accomplished by requiring that
-the constraint \xcd"c" must be satisfiable {\em regardless} of the value assumed
-by parameters to the constraint (if any). Formally, consider a type
-\xcd"T" = \xcd"C{c}", with the variables
-\xcdmath"f$_1$: F$_1$, $\dots$, f$_k$: F$_k$"
-free in \xcd"c".  Let 
-\xcdmath"$S$ = {f$_1$: F$_1$, $\dots$, f$_k$: F$_k$, f$_{k+1}$: F$_{k+1}$, $\dots$, f$_n$: F$_n$}"
-be the smallest set of
-declarations containing
-\xcdmath"f$_1$: F$_1$, $\dots$, f$_k$: F$_k$"
-and closed under the rule:
-\xcd"f: F" in $S$ if a reference to variable \xcd"f" (which
-is declared as \xcd"f: F") occurs in a type in $S$.
-
-(NOTE: The syntax rules for the language ensure that $S$ is always
-finite. The type for a variable \xcd"v" cannot reference a variable whose
-type depends on \xcd"v".)
-
-We say that \xcd"T" = \xcd"C{c}" is {\em parametrically consistent} (in brief:
-{\em consistent}) if:
-
-\begin{itemize}
-\item Each type \xcdmath"F$_1$, $\dots$, F$_n$" is (recursively) parametrically consistent, and
-\item It can be established that
-\xcdmath"$\forall$f$_1$: F$_1$, $\dots$, f$_n$: F$_n$. $\exists$self: C. c && $\mathit{inv}$(C)".
-\end{itemize}
-
-\noindent
-where \xcdmath"$\mathit{inv}$(C)" is the invariant associated
-with the type \xcd"C" (\Sref{DepType:TypeInvariant}).  Note by
-definition of $S$ the formula above has no free variables.
-
-\begin{staticrule*}
-For a declaration \xcd"v: T" to be type-correct, \xcd"T" must be parametrically
-consistent. The compiler issues an error if it cannot determine
-the type is parametrically consistent.
-\end{staticrule*}
+\subsection{Example of Constraints}
 
 \begin{example}
 
-A class that represents a line has two distinct points:\footnote{We call them
+Constraints can be used to express simple relationships between objects,
+enforcing some class invariants statically.  For example, in geometry, a line
+is determined by two {\em distinct} points; a \xcd`Line` class can specify the
+distinctness in a type constraint:\footnote{We call them
 \xcd`Position` to avoid confusion with the built-in class \xcd`Point`}
 
 %~~gen
@@ -964,24 +950,16 @@ class Position(x: Int, y: Int) {
 class Line(start: Position, 
            end: Position{self != start}) {}
 \end{xten}
-\end{example}
+
 %~~siv
 %~~neg
 
-
-\begin{example}
-One can use dependent type to define other closed geometric figures as well.
-
-To see that the declaration \xcd"end: Position{self != start}" is
-parametrically consistent, note that the following formula is valid:
-\begin{xtenmath}
-$\forall$this: Line. $\exists$self: Position. self != this.start  
-\end{xtenmath}
-\noindent since the set of all \xcd"Position"s has more than one element.
-\end{example}
-
-\begin{example}
-A triangle has three lines sharing three vertices.
+Extending this concept, a \xcd`Triangle` can be defined as a figure with three
+line segments which match up end-to-end.  Note that the degenerate case in
+which two or three of the triangle's vertices coincide is excluded by the
+constraint on \xcd`Line`.  However, not all degenerate cases can be excluded
+by the type system; in particular, it is impossible to check that the three
+vertices are not collinear. 
 
 %~~gen
 %package triangleExample;
@@ -996,8 +974,7 @@ A triangle has three lines sharing three vertices.
 class Triangle 
  (a: Line, 
   b: Line{a.end == b.start}, 
-  c: Line{b.end == c.start && c.end == a.start}) 
- {
+  c: Line{b.end == c.start && c.end == a.start})  {
    def this(a:Line,
             b: Line{a.end == b.start}, 
             c: Line{b.end == c.start && c.end == a.start}) 
@@ -1008,29 +985,8 @@ class Triangle
 %
 %~~neg
 
-Given \xcd"a: Line", the type \xcd"b: Line{a.end == b.start}" is consistent,
-and
-given the two, the type \xcd"c: Line{b.end == c.start, c.end == a.start}"
-is consistent.
 
-%%Similarly:
-%%
-%%   // A class with properties a, b,c,x satisfying the 
-%%   // given constraints.
-%%   class SolvableQuad(a: Int, b: Int, 
-%%                      c: Int{b*b - 4*a*c >= 0},
-%%                      x: Int{a*x*x + b*x + c==0}) { 
-%%     ...
-%%   }
-%%
-%%  // A class with properties r, x, and y satisfying
-%%  // the conditions for (x,y) to lie on a circle with center (0,0)
-%%  // and radius r.
-%%   class Circle (r: Int{r > 0},
-%%                 x: Int{r*r - x*x >= 0},
-%%                 y: Int{y*y == r*r -x*x}) { 
-%%   ...
-%%   }
+
 \end{example}
 
 \section{Function types}
@@ -1183,8 +1139,7 @@ and \xcd"T1" is a subtype of \xcd"T2".
 \paragraph{Constrained types.}
 
 Two dependent types \xcd"C{c}" and \xcd"C{d}" are said to be {\em equivalent} if 
-\xcd"c" is true whenever \xcd"d" is, and vice versa. Thus, 
-$\LL{\mbox{\Xcd{C\{c\}}}} = \LL{\mbox{\Xcd{C\{d\}}}}$.
+\xcd"c" is true whenever \xcd"d" is, and vice versa. 
 
 Note that two dependent type that are syntactically different may be
 equivalent. For instance, \xcd"Int{self >= 0}" and
@@ -1195,9 +1150,11 @@ type system extends the nominal type system of \Java{} to permit
 constraint-based equivalence.
 
 A dependent type \xcd"C{c}" is a subtype of a type \xcd"C{d}" if
-\xcd"c" implies \xcd"d".  When this subtyping relationship holds, 
-$\LL{\mbox{\Xcd{C\{c\}}}}$ is a
-subset of $\LL{\mbox{\Xcd{C\{d\}}}}$. All dependent types
+\xcd"c" implies \xcd"d".  
+%%TYPES-CONSTR-LL%% When this subtyping relationship holds, 
+%%TYPES-CONSTR-LL%% $\LL{\mbox{\Xcd{C\{c\}}}}$ is a
+%%TYPES-CONSTR-LL%% subset of $\LL{\mbox{\Xcd{C\{d\}}}}$. 
+All dependent types
 defined on a class \xcd"C"
 refine the unconstrained class type \xcd"C"; \xcd"C" is
 equivalent to \xcd"C{true}".
