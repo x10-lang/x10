@@ -16,17 +16,18 @@ public class Scorer {
     
    // input
    /** where this scorer's reponsibility starts in the long sequence */
-   global val longOffset: Int;
+   val longOffset: Int;
    /** the number of bytes this scorer is responsble for in the long sequence */
-   global val longSize: Int;
+   val longSize: Int;
    /** a local copy of the segment of the longer sequence this scorer looks at */
-   global val longRail: ValRail[Byte];
+   val longRail: ValRail[Byte];
    /** a local copy of the shorter sequence */
-   global val shortRail: ValRail[Byte];
+   val shortRail: ValRail[Byte];
 
    // output
    /** how to work our way back through the two sequences to the aligned subsequence starts */
-   global val tracebackMoves: Rail[Byte]!;
+   val tracebackMoves: Rail[Byte]!;
+
    /** 
     * all the info, other than the traceback matrix, that we need to compute the matched
     * subsequences, aligned to show where gaps had to be inserted
