@@ -33,10 +33,287 @@
 //#define DEBUG // uncomment to turn on debug messages
 
 #if defined(__APPLE__)
-#include "x10rt_standalone_macos.cc"
+// Mac OS X doesn't support cross-process pthread mutexes, or pthread barriers,
+// so these are over-ridden using named semaphores
+
+#include <semaphore.h>
+
+#define pthread_barrier_t struct barrier_t
+#define pthread_barrierattr_t char
+#define pthread_mutexattr_t char
+#define pthread_mutexattr_init(b) doNothing()
+#define pthread_mutexattr_destroy(b) doNothing()
+#define pthread_mutexattr_setpshared(b,a) doNothing()
+#define pthread_mutex_t sem_t*
+#define pthread_mutex_init(s,a) mysem_open(s)
+#define pthread_mutex_destroy(s) mysem_close(s)
+#define pthread_mutex_lock(a) mysem_wait(a)
+#define pthread_mutex_unlock(a) mysem_post(a)
+#define pthread_barrierattr_init(b) doNothing()
+#define pthread_barrierattr_setpshared(b,a) doNothing()
+#define pthread_barrierattr_destroy(b) doNothing()
+#define pthread_barrier_init(b,a,n) barrier_init(b,n)
+#define pthread_barrier_destroy(b) barrier_destroy(b)
+#define pthread_barrier_wait(b) barrier_wait(b)
+#define PTHREAD_BARRIER_SERIAL_THREAD 1
+
+int mutexCounter = 0;
+
+struct barrier_t
+{
+    int numPlaces;
+    int numWaiting;
+    sem_t *mutex;
+    sem_t *barrier;
+};
+
+void macError(const char* message)
+{
+	printf("Fatal MacOS Error: %s: %s\n", message, strerror(errno));
+	abort();
+}
+
+int doNothing(){return 0;}
+
+int mysem_open(pthread_mutex_t *s)
+{
+	char myName[50];
+	myName[0] = '\0';
+	sprintf(myName, "/X10RT.STANDALONE.%d", mutexCounter++);
+	*s = sem_open(myName, O_CREAT|O_EXCL, S_IRUSR|S_IWUSR, 1);
+	if (SEM_FAILED == *s) macError("Failed to create a semaphore");
+	#ifdef DEBUG
+		printf("X10rt.Standalone: created mutex %s\n", myName);
+		fflush(stdout);
+	#endif
+	sem_unlink(myName); // this causes the semaphore to be freed when the close happens later.
+	return 0;
+}
+
+int mysem_close(pthread_mutex_t *s)
+{
+	return sem_close(*s);
+}
+
+int mysem_wait(pthread_mutex_t *s)
+{
+	return sem_wait(*s);
+}
+
+int mysem_post(pthread_mutex_t *s)
+{
+	return sem_post(*s);
+}
+
+int barrier_init(pthread_barrier_t *barrier, int numPlaces)
+{
+    barrier->numPlaces = numPlaces;
+    barrier->numWaiting = 0;
+
+    barrier->barrier = sem_open("/X10RT.STANDALONE.BARRIER\0", O_CREAT|O_EXCL, S_IRUSR|S_IWUSR, 0);
+    if (SEM_FAILED == barrier->barrier) macError("Failed to create a barrier");
+    sem_unlink("/X10RT.STANDALONE.BARRIER\0");
+
+    barrier->mutex = sem_open("/X10RT.STANDALONE.B_LOCK\0", O_CREAT|O_EXCL, S_IRUSR|S_IWUSR, 1);
+    if (SEM_FAILED == barrier->mutex) macError("Failed to create a barrier semaphore");
+    sem_unlink("/X10RT.STANDALONE.B_LOCK\0");
+
+	#ifdef DEBUG
+		printf("X10rt.Standalone: barrier initialized with %i places\n", numPlaces);
+		fflush(stdout);
+	#endif
+
+    return 0;
+}
+
+int barrier_destroy(pthread_barrier_t *barrier)
+{
+	sem_close(barrier->barrier);
+	return sem_close(barrier->mutex);
+}
+
+int barrier_wait(pthread_barrier_t *barrier)
+{
+
+	if (sem_wait(barrier->mutex) != 0) macError("Unable to lock barrier mutex");
+	barrier->numWaiting++;
+	if (barrier->numWaiting == barrier->numPlaces)
+	{
+		// everyone is here.  Signal the other places to go, and release the mutex
+		barrier->numWaiting = 0;
+		if (sem_post(barrier->mutex) != 0) macError("Unable to unlock barrier mutex");
+		for (int i=1; i<barrier->numPlaces; i++)
+			if (sem_post(barrier->barrier) != 0) macError("Unable to free programs from the barrier");
+	}
+	else // release the mutex and wait for the barrier event
+	{
+		if (sem_post(barrier->mutex) != 0) macError("unable to unlock barrier mutex");
+		if (sem_wait(barrier->barrier) != 0) macError("Unable to lock barrier");
+	}
+
+	return 0;
+}
+
 #elif defined(__CYGWIN__)
-#include "x10rt_standalone_cygwin.cc"
-#endif
+// cygwin doesn't support barriers or cross-process mutexes in their pthread implementation,
+// so these components are reworked using windows native APIs.
+
+#include <windows.h>
+#define pthread_mutexattr_t SECURITY_ATTRIBUTES
+#define pthread_mutex_t HANDLE
+typedef char pthread_barrierattr_t;
+typedef struct barrier_t pthread_barrier_t;
+#define pthread_barrierattr_init(b) doNothing()
+#define pthread_barrierattr_setpshared(b,a) doNothing()
+#define pthread_barrierattr_destroy(b) doNothing()
+#define pthread_barrier_init(b,a,n) barrier_init(b,n)
+#define pthread_barrier_destroy(b) barrier_destroy(b)
+#define pthread_barrier_wait(b) barrier_wait(b)
+#define PTHREAD_BARRIER_SERIAL_THREAD 1
+
+int mutexCounter = 0;
+
+struct barrier_t
+{
+    int numPlaces;
+    int numWaiting;
+    HANDLE mutex;
+    HANDLE barrierReleaseEvent;
+};
+
+int doNothing(){return 0;}
+
+void winError(const char* message)
+{
+	LPVOID lpMsgBuf;
+	DWORD dw = GetLastError();
+
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		dw,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR) &lpMsgBuf,
+		0, NULL );
+
+	// Display the error message and exit the process
+	printf("Fatal WIN32 Error: %s: %s\n", message, (char *)lpMsgBuf);
+	LocalFree(lpMsgBuf);
+	ExitProcess(dw);
+}
+
+// mutex stuff
+int pthread_mutexattr_init(pthread_mutexattr_t *attr)
+{
+	attr->nLength = sizeof(SECURITY_ATTRIBUTES);
+	attr->lpSecurityDescriptor = NULL;
+	attr->bInheritHandle = true;
+	return 0;
+}
+
+int pthread_mutexattr_setpshared(pthread_mutexattr_t *attr, int b)
+{
+//	if (b == PTHREAD_PROCESS_SHARED)
+//		attr->bInheritHandle = true;
+	return 0;
+}
+
+int pthread_mutexattr_destroy(pthread_mutexattr_t *attr)
+{
+	return 0;
+}
+
+int pthread_mutex_init(pthread_mutex_t *pthrd_mutex, pthread_mutexattr_t *attr)
+{
+	char myName[50];
+	sprintf(myName, "Local\\X10RT.STANDALONE.%d", mutexCounter++);
+	HANDLE h = CreateMutex(attr, false, myName);
+	if (h == NULL) winError("Unable to create mutex");
+	#ifdef DEBUG
+		printf("X10rt.Standalone: created mutex %s\n", myName);
+		fflush(stdout);
+	#endif
+	*pthrd_mutex = h;
+	return 0;
+}
+
+int pthread_mutex_lock(pthread_mutex_t *pthrd_mutex)
+{
+	if (WaitForSingleObject(*pthrd_mutex, INFINITE) == WAIT_FAILED)
+		winError("Unable to lock mutex");
+	return 0;
+}
+
+int pthread_mutex_unlock(pthread_mutex_t *pthrd_mutex)
+{
+	if (ReleaseMutex(*pthrd_mutex) == 0)
+		winError("Unable to release mutex");
+	return 0;
+}
+
+int pthread_mutex_destroy(pthread_mutex_t *pthrd_mutex)
+{
+	CloseHandle(*pthrd_mutex);
+	return 0;
+}
+
+
+// barrier stuff (uses mutexes)
+int barrier_init(pthread_barrier_t *barrier, int numPlaces)
+{
+    barrier->numPlaces = numPlaces;
+    barrier->numWaiting = 0;
+
+    SECURITY_ATTRIBUTES attr;
+    attr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    attr.lpSecurityDescriptor = NULL;
+    attr.bInheritHandle = true;
+
+    barrier->mutex = CreateMutex(&attr, false, "Local\\X10RT.STANDALONE.BARRIER_MUTEX");
+    if (barrier->mutex == NULL) winError("Unable to create mutex");
+
+    barrier->barrierReleaseEvent = CreateEvent(&attr, false, false, "Local\\X10RT.STANDALONE.BARRIER");
+    if (barrier->barrierReleaseEvent == NULL) winError("Unable to initialize barrier");
+
+	#ifdef DEBUG
+		printf("X10rt.Standalone: barrier initialized with %i places\n", numPlaces);
+		fflush(stdout);
+	#endif
+    return 0;
+}
+
+int barrier_destroy(pthread_barrier_t *barrier)
+{
+	if (CloseHandle(barrier->mutex) == 0) winError("Unable to close barrier mutex");
+    if (CloseHandle(barrier->barrierReleaseEvent) == 0) winError("Unable to close barrier event");
+    return 0;
+}
+
+int barrier_wait(pthread_barrier_t *barrier)
+{
+	if (WaitForSingleObject(barrier->mutex, INFINITE) == WAIT_FAILED)
+		winError("Unable to lock barrier mutex");
+	barrier->numWaiting++;
+	if (barrier->numWaiting == barrier->numPlaces)
+	{
+		// everyone is here.  Signal the other places to go, and release the mutex
+		barrier->numWaiting = 0;
+		for (int i=1; i<barrier->numPlaces; i++)
+		{
+			if (SetEvent(barrier->barrierReleaseEvent) == 0)
+				winError("Unable to release a thread from the barrier");
+		}
+		if (ReleaseMutex(barrier->mutex) == 0)
+			winError("Unable to unlock barrier mutex");
+	}
+	else // release the mutex and wait for the barrier event
+		if (SignalObjectAndWait(barrier->mutex, barrier->barrierReleaseEvent, INFINITE, FALSE) == WAIT_FAILED) winError("Unable to block on the barrier");
+
+	return 0;
+}
+#endif // end platform-specific overrides of standard pthread stuff
 
 #define X10RT_STANDALONE_NUMPLACES "X10RT_STANDALONE_NUMPLACES" // environment variable
 #define X10RT_DATABUFFERSIZE 524300 // the size, in bytes, of the shared memory segment used for communications, per place
