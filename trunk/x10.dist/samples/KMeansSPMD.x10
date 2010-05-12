@@ -71,14 +71,14 @@ public class KMeansSPMD {
 
                 val clk = Clock.make();
 
-                val num_slice_points = num_global_points / num_slices;
+                val num_slice_points = num_global_points / num_slices / Place.MAX_PLACES;
 
                 for ((slice) in 0..num_slices-1) {
 
                     for (h in Place.places) async (h) clocked(clk) {
 
                         // carve out local portion of points (point-major)
-                        val offset = slice*num_slice_points;
+                        val offset = (here.id*num_slices) + slice*num_slice_points;
                         if (!quiet)
                             Console.OUT.println(h+" gets "+offset+" len "+num_slice_points);
                         val num_slice_points_stride = num_slice_points;
