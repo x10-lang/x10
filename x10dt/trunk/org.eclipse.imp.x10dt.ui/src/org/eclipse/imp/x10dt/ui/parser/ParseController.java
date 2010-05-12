@@ -131,6 +131,8 @@ public class ParseController extends SimpleLPGParseController {
 
     @Override
     public Object getCurrentAst() {
+    	if (fCompiler == null)
+    		return null;
         initializeGlobalsIfNeeded();
         return super.getCurrentAst();
     }
