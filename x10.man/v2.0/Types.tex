@@ -1150,70 +1150,71 @@ Nor is it a struct type, for it has no predefined notion of equality.
 \index{type equivalence}
 \index{subtyping}
 
-Subtyping is relation between types.  It is the
+Intuitively, type \xcdmath"T$_1$" is a subtype of type \xcdmath"T$_2$" if
+every instance of \xcdmath"T$_1$" is also an instance of \xcdmath"T$_2$".  For
+example, \xcd`Child` is a subtype of \xcd`Person` (assuming a suitably defined
+class hierarchy): every child is a person.  Similarly, \xcd`Int{self != 0}`
+is a subtype of \xcd`Int` -- every non-zero integer is an integer.  
+
+This section formalizes the concept of subtyping. 
+
+The subtyping relation \xcd`T <: U` is the 
 reflexive, transitive 
 closure of the {\em direct subtyping} relation, defined as
 follows.
 
-\paragraph{Class types.}  A class type is a direct subtype of
-any
-class it is declared to extend.  A class type is direct subtype
+
+\bard{
+I reformulated the following definition to be entirely in terms of direct
+subtyping.  It would be good to know that I haven't broken anything.
+}
+
+\begin{itemize}
+\item
+{\bf Class types:}  
+A class type is a direct subtype of
+any class it is declared to extend.  A class type is direct subtype
 of any interfaces it is declared to implement.
 
-\paragraph{Interface types.}  An interface type is a direct
+\item
+{\bf Interface types:}  An interface type is a direct
 subtype of any interfaces it is declared to extend.
 
-\paragraph{Function types.}
+\item 
+{\bf Struct types:} 
+A struct type is a direct subtype of any interface it is declared to
+implement. 
 
-Function types are covariant on their return type and
-contravariant on their argument types.
-For instance,
-a function type
-\xcd"(S1) => T1" 
-is a subtype of another function type
-\xcd"(S2) => T2" 
-if \xcd"S2" is a subtype of \xcd"S1"
-and \xcd"T1" is a subtype of \xcd"T2".
+\item
+{\bf Function types:}
+\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => T throws EX$_1$, $\dots$,EX$_k$"
+is a direct subtype of 
+\xcdmath"(x$'_1$: T$'_1$, $\dots$, x$'_n$: T$'_n$){c$'$} => T$'$ throws EX$'_1$, $\dots$, EX$'_{k'}$"
+if: 
+\begin{enumerate}
+\item Each \xcdmath"T$_i$" is a direct subtype of or equal to the corresponding
+      \xcdmath"T$'_i$";
+\item \xcd`c` entails \xcdmath"c$'$";
+\item \xcdmath"T$'$" is a direct subtype of or equal to \xcdmath"T";
+\item Every \xcdmath"EX$_j$" is a direct subtype of or equal to some \xcdmath"EX$'_{j'}$".
+\end{enumerate}
 
-\paragraph{Constrained types.}
+\item
+{\bf Constrained types:}
+\xcd`T{c}` is a direct subtype of \xcd`T{d}` if \xcd`c` entails \xcd`d`. 
 
-Two dependent types \xcd"C{c}" and \xcd"C{d}" are said to be {\em equivalent} if 
-\xcd"c" is true whenever \xcd"d" is, and vice versa. 
+\item 
+{\bf Type Variables}
+\bard{I don't know that this clause even makes sense -- are type variables
+types?  Also it defines direct subtyping }
+A type variable \xcd`X` appearing as a parameter of a class, interface,
+struct, or method is a direct subtype of another type \xcd`Y` if the
+constraints on the class etc. imply that \xcd`X <: Y`.
 
-Note that two dependent type that are syntactically different may be
-equivalent. For instance, \xcd"Int{self >= 0}" and
-\xcd"Int{self == 0 || self > 0}" are equivalent though they are syntactically
-distinct. The \Java{} type system is essentially a nominal system---two
-types are the same if and only if they have the same name. The \Xten{}
-type system extends the nominal type system of \Java{} to permit
-constraint-based equivalence.
+\end{itemize}
 
-A dependent type \xcd"C{c}" is a subtype of a type \xcd"C{d}" if
-\xcd"c" implies \xcd"d".  
-%%TYPES-CONSTR-LL%% When this subtyping relationship holds, 
-%%TYPES-CONSTR-LL%% $\LL{\mbox{\Xcd{C\{c\}}}}$ is a
-%%TYPES-CONSTR-LL%% subset of $\LL{\mbox{\Xcd{C\{d\}}}}$. 
-All dependent types
-defined on a class \xcd"C"
-refine the unconstrained class type \xcd"C"; \xcd"C" is
-equivalent to \xcd"C{true}".
 
-\paragraph{Type parameters.}
-
-A type parameter \xcd"X" of a class or interface \xcd"C"
-is a subtype of a type \xcd"T" if
-the 
-class invariant of \xcd"C" implies that \xcd"X" is a subtype of \xcd"T".
-Similarly, \xcd"T" is a subtype of parameter \xcd"X" if the
-class invariant implies the relationship.
-
-A type parameter \xcd"X" of a method
-\xcd"m"
-is a subtype of a type \xcd"T" if
-the 
-guard of \xcd"m" implies that \xcd"X" is a subtype of \xcd"T".
-Similarly, \xcd"T" is a subtype of parameter \xcd"X" if the
-guard implies the relationship.
+Two types are {\em equivalent}, \xcd`T == U`, if \xcd`T <: U` and \xcd`U <: T`. 
 
 
 \section{Least common ancestor of types}
