@@ -37,7 +37,6 @@ $(OUTDIR)/ssca2/defs__graphSDG_dist.cc\
 $(OUTDIR)/ssca2/defs__pGraph.cc\
 $(OUTDIR)/ssca2/defs__pGraphLocal.cc\
 $(OUTDIR)/ssca2/findSubGraphs_dist.cc\
-$(OUTDIR)/ssca2/retType.cc\
 $(OUTDIR)/ssca2/runtime_consts.cc\
 $(OUTDIR)/ssca2/types.cc\
 $(OUTDIR)/ssca2/util.cc
@@ -53,7 +52,6 @@ $(OUTDIR)/ssca2/defs__graphSDG.o\
 $(OUTDIR)/ssca2/defs__graphSDG_dist.o\
 $(OUTDIR)/ssca2/defs__pGraph.o\
 $(OUTDIR)/ssca2/defs__pGraphLocal.o\
-$(OUTDIR)/ssca2/retType.o\
 $(OUTDIR)/ssca2/runtime_consts.o\
 $(OUTDIR)/ssca2/types.o\
 $(OUTDIR)/ssca2/util.o \
@@ -70,7 +68,7 @@ $(OUTDIR)/ssca2/PTimer.o
 
 .SUFFIXES: .cc .cxx .cpp .C .c .o .h .x10
 
-LIBS = -brtl -L/vol/x10/new/x10-2.0/x10.dist/lib -lx10 -lx10rt_pgas_lapi -ldl -lm -lpthread -bbigtoc -lptools_ptr
+LIBS = -L$(X10HOME)/lib -lx10 -lx10rt_$(X10RTTRANSPORT)
 
 NATIVE_LIBS = $(PWD)/sprng2.0/lib/libsprng.a
 
@@ -79,24 +77,25 @@ FINAL = $(OUTDIR)/ssca2
 NATIVE_INCLUDES= ${POSTCOMPILE_INCLUDEOPT}pgasrt.h ${POSTCOMPILE_INCLUDEOPT}$(PWD)/sprng2.0/include/sprng.h ${POSTCOMPILE_INCLUDEOPT}iostream ${POSTCOMPILE_INCLUDEOPT}algorithm
 
 dist-1d-dbg: 
-	$(MAKE) CCGEN  
+	$(MAKE) $(OUTDIR)/CCGEN  
 	$(MAKE) $(FINAL)-dbg
 
 dist-1d-opt:
-	$(MAKE) CCGEN  
+	$(MAKE) $(OUTDIR)/CCGEN  
 	$(MAKE) $(FINAL)-opt
 
 
-CCGEN: $(SRCS)
+$(OUTDIR)/CCGEN: $(SRCS)
 	$(X10CXX) -c -d $(OUTDIR) $(X10CXXFLAGS) $?
-	touch CCGEN
+	touch $@
 
 $(FINAL)-opt: OPT=$(POSTCOMPILE_OPTFLAGS) 
 $(FINAL)-opt: $(CCSRCS) $(OBJS)
-	${POSTCOMPILE_CXX}  $(POSTCOMPILE_OPTFLAGS) -q64 -o $@ $(OBJS)  $(LIBS) $(NATIVE_LIBS)
+	${POSTCOMPILE_CXX}  $(OPT) $(POSTCOMPILE_CXXFLAGS) -o $@ $(OBJS)  $(LIBS) $(POSTCOMPILE_LDFLAGS) $(POSTCOMPILE_LIBS) $(NATIVE_LIBS)
 
+$(FINAL)-dbg: OPT=$(POSTCOMPILE_DBGFLAGS) 
 $(FINAL)-dbg: $(CCSRCS) $(OBJS)
-	${POSTCOMPILE_CXX}  -q64 -o $@ $(OBJS)  $(LIBS) $(NATIVE_LIBS)
+	${POSTCOMPILE_CXX}  $(OPT) $(POSTCOMPILE_CXXFLAGS) -o $@ $(OBJS)  $(LIBS) $(POSTCOMPILE_LDFLAGS) $(POSTCOMPILE_LIBS) $(NATIVE_LIBS)
 
 .cc.o:
-	time $(POSTCOMPILE_CXX) $(OPT) -q64 -w -DTRANSPORT=$(PGASTRANSPORT) -I$(OUTDIR) -I/vol/x10/new//x10-2.0/x10.dist/include $(NATIVE_INCLUDES) -c $< -o $@
+	time $(POSTCOMPILE_CXX) $(OPT) $(POSTCOMPILE_CXXFLAGS) -I$(OUTDIR) -I$(X10HOME)/include $(NATIVE_INCLUDES) -c $< -o $@

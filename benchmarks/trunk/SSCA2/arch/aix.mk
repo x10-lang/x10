@@ -21,9 +21,9 @@ else
 #AIX with XLC
 #
 export POSTCOMPILE_CXX		?= mpCC_r
-export POSTCOMPILE_CXXFLAGS 	?=
-export POSTCOMPILE_LDFLAGS	?= 
-export POSTCOMPILE_LIBS		?= 
+export POSTCOMPILE_CXXFLAGS 	?= -q64 -w -DTRANSPORT=${PGASTRANSPORT}
+export POSTCOMPILE_LDFLAGS	?= -brtl -bbigtoc
+export POSTCOMPILE_LIBS		?= -ldl -lm -lpthread -lptools_ptr
 
 export POSTCOMPILE_OPTFLAGS		?= -O3 -qrtti=all -qinline -DNO_CHECKS -DNDEBUG
 

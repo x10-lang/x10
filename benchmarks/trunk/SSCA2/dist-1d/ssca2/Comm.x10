@@ -13,7 +13,7 @@ final public class Comm {
 
     private static class Integer {
         var value:Int;
-        
+
         def this(i:Int) { value = i; }
     }
 
@@ -123,7 +123,7 @@ final public class Comm {
             "x10::lang::Runtime::decreaseParallelism(1);" +
             "return val2;") { return i; }
     }
-    
+
     public def max(d:Double):Double {
         @Native("c++",
             "x10_double val2;" +
@@ -165,12 +165,12 @@ final public class Comm {
     }
 
 
-   
+
 
     public def allgather[T](A: Rail[T]!, my_size: long) {
       val nplaces = Place.MAX_PLACES;
       val B = Rail.make[T](nplaces*my_size as Int);
- 
+
      { @Native ("c++",
                "void* r = __pgasrt_tspcoll_iallgather(FMGL(my_id), A->raw(), B->raw(), my_size*sizeof(FMGL(T))); " +
                "x10::lang::Runtime::increaseParallelism();" +
@@ -178,37 +178,38 @@ final public class Comm {
                "x10::lang::Runtime::decreaseParallelism(1);"){} }
 
       return B;
-    } 
+    }
 
     public def allgatherv[T](A: GrowableRail[T]!, my_size: long) {
       val nplaces = Place.MAX_PLACES;
-      val dstSizes = Rail.make[long](nplaces);
-      val srcSizes = Rail.make[long](nplaces);
-     
+
      { @Native ("c++",
-               "void* r = __pgasrt_tspcoll_iallgather(FMGL(my_id), &my_size, dstSizes->raw(), sizeof(long)); " +
-               "x10::lang::Runtime::increaseParallelism();" + 
-               "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" + 
+               "void* r = __pgasrt_tspcoll_iallgather(FMGL(my_id), &my_size, FMGL(dstSizes)->raw(), sizeof(long)); " +
+               "x10::lang::Runtime::increaseParallelism();" +
+               "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
                "x10::lang::Runtime::decreaseParallelism(1);"){} }
 
       x10.io.Console.ERR.println(dstSizes);
 
-      var size: Int = 0; 
+      var size: Int = 0;
       for((i) in 0..nplaces-1) {
          size += dstSizes(i);
-      } 
+      }
       val B: Rail[T]! = Rail.make[T](size);
 
        { @Native ("c++",
-               " for (int i =0 ;i < nplaces; i++)" +
-                      "{" + 
-                      "dstSizes->raw()[i] *= sizeof(FMGL(T));" + 
-                      //"printf(\"hii %d\\n\", dstSizes->raw()[i]);" +
-                      "}"  + 
-               "void* r = __pgasrt_tspcoll_iallgatherv(FMGL(my_id), (void*) A->raw(), (void*) B->raw(), (unsigned long*) dstSizes->raw());" +
+               "size_t* destSizes = new size_t[nplaces];" +
+               "for (int i =0 ;i < nplaces; i++)" +
+                      "{" +
+                      "destSizes[i] = FMGL(dstSizes)->raw()[i] * sizeof(FMGL(T));" +
+                      //"printf(\"hii %d\\n\", FMGL(dstSizes)->raw()[i]);" +
+                      "}"  +
+               "void* r = __pgasrt_tspcoll_iallgatherv(FMGL(my_id), (void*) A->raw(), (void*) B->raw(), destSizes);" +
                "x10::lang::Runtime::increaseParallelism();" +
                "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
-               "x10::lang::Runtime::decreaseParallelism(1);"){} } 
+               "x10::lang::Runtime::decreaseParallelism(1);" +
+               "delete [] destSizes;"
+             ){} }
 
 
       return B;
@@ -230,45 +231,49 @@ final public class Comm {
       barrier();
      { @Native ("c++",
                "void* r = __pgasrt_tspcoll_ialltoall(FMGL(my_id), FMGL(srcSizes)->raw(), FMGL(dstSizes)->raw(), sizeof(long)); " +
-               "x10::lang::Runtime::increaseParallelism();" + 
-               "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" + 
+               "x10::lang::Runtime::increaseParallelism();" +
+               "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
                "x10::lang::Runtime::decreaseParallelism(1);"){} }
 
 
       //x10.io.Console.ERR.println(srcSizes + " " + dstSizes);
 
-      var size: Int = 0; 
+      var size: Int = 0;
       //for((i) in 0..nplaces-1) {
        for (var i: Int = 0; i < nplaces; i++) {
          size += dstSizes(i);
-      } 
+      }
 
       B.setLength(size);
 
       barrier();
 
       { @Native ("c++",
-               "FMGL(T)** dstOffset = new FMGL(T)*[nplaces];" + 
+               "FMGL(T)** dstOffset = new FMGL(T)*[nplaces];" +
                "FMGL(T)** srcOffset = new FMGL(T)*[nplaces];" +
-               "FMGL(T)* offset = B->raw();" + 
-               " for (int i =0 ;i < nplaces; i++)" +
-                      "{dstOffset[i] = offset;" + 
-                      "srcOffset[i] =  (A->raw())[i]->raw();" + 
-                      "offset += FMGL(dstSizes)->raw()[i];" + 
-                      "FMGL(dstSizes)->raw()[i] *= sizeof(FMGL(T));" + 
-                      "FMGL(srcSizes)->raw()[i] *= sizeof(FMGL(T));" + 
+               "size_t* srcsSizes = new size_t[nplaces];" +
+               "size_t* destSizes = new size_t[nplaces];" +
+               "FMGL(T)* offset = B->raw();" +
+               "for (int i =0 ;i < nplaces; i++)" +
+                      "{dstOffset[i] = offset;" +
+                      "srcOffset[i] =  (A->raw())[i]->raw();" +
+                      "offset += FMGL(dstSizes)->raw()[i];" +
+                      "destSizes[i] = FMGL(dstSizes)->raw()[i] * sizeof(FMGL(T));" +
+                      "srcsSizes[i] = FMGL(srcSizes)->raw()[i] * sizeof(FMGL(T));" +
                       //"printf(\"hello%d\\n\", ((A->raw()[i])->raw())[0]);" +
-                      "}" + 
-               "void* r = __pgasrt_tspcoll_ialltoallv(FMGL(my_id), (const void**) srcOffset, (const unsigned long*) FMGL(srcSizes)->raw(), (void**) dstOffset, (const unsigned long*) FMGL(dstSizes)->raw());" + 
-                "x10::lang::Runtime::increaseParallelism();" + 
-                "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" + 
-                "x10::lang::Runtime::decreaseParallelism(1);" +
-                "delete [] dstOffset;" + 
-                "delete [] srcOffset;" 
-                  )  {} }
-               
-                 
-     
+                      "}" +
+               "void* r = __pgasrt_tspcoll_ialltoallv(FMGL(my_id), (const void**) srcOffset, srcsSizes, (void**) dstOffset, destSizes);" +
+               "x10::lang::Runtime::increaseParallelism();" +
+               "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
+               "x10::lang::Runtime::decreaseParallelism(1);" +
+               "delete [] dstOffset;" +
+               "delete [] srcOffset;" +
+               "delete [] destSizes;" +
+               "delete [] srcsSizes;"
+             )  {} }
+
+
+
       //x10.io.Console.ERR.println("end of alltoall");
 
     }
@@ -281,7 +286,7 @@ final public class Comm {
           val out_pairs = new GrowableRail[T](0);
           this.alltoallv[T](tmp, out_pairs);
           return out_pairs;
-        } 
+        }
 
       public def usort[T](values: Rail[T]!, map: (T)=>Int,g:GrowableRail[T]!) {
           val tmp: Rail[GrowableRail[T]]! = Rail.make[GrowableRail[T]](Place.MAX_PLACES, (i:Int)=>new GrowableRail[T](0));
@@ -289,7 +294,7 @@ final public class Comm {
              tmp(map(values(i))).add(values(i));
           }
           this.alltoallv[T](tmp, g);
-        } 
+        }
 
 
       public def usort_val[V](values: Rail[V]!, map: (Int)=>Int,g:GrowableRail[V]!) {

@@ -6,7 +6,7 @@ ifeq ($(PGASTRANSPORT), mpi)
 export POSTCOMPILE_CXX		?= mpicxx
 export POSTCOMPILE_CXXFLAGS 	?= -I/usr/local/mpi/include -I$(HOME)/mpi/libnbc-install/include
 export POSTCOMPILE_LDFLAGS	?= -L$(HOME)/mpi/libnbc-install/lib
-export POSTCOMPILE_LIBS		?= -lnbc
+export POSTCOMPILE_LIBS		?= -lnbc -ldl -lm -lpthread
 else
 export POSTCOMPILE_CXX		?= g++
 export POSTCOMPILE_CXXFLAGS 	?= 
