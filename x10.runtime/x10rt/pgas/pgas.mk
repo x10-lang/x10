@@ -214,7 +214,11 @@ $(PGAS_DYNLIB_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(PGAS_DYNLIB_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(PANE_ARLIBS) -o $@ $(COMMON_OBJS) -Wl,-bexpfull lib/libxlpgas_pane.a 
+ifeq ($(X10RT_PLATFORM),aix_xlc)
+	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(PANE_ARLIBS) -o $@ $(COMMON_OBJS) -Wl,-bexpfull lib/libxlpgas_pane.a 
+else
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(PANE_ARLIBS) -o $@ $(COMMON_OBJS) -Wl,-bexpfull lib/libxlpgas_pane.a 
+endif
 endif
 
 etc/x10rt_pgas_pane.properties:
@@ -264,7 +268,11 @@ $(PGAS_DYNLIB_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(PGAS_DYNLIB_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
+ifeq ($(X10RT_PLATFORM),aix_xlc)
+	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
+else
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
+endif
 endif
 
 etc/x10rt_pgas_lapi.properties:
