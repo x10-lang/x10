@@ -32,7 +32,7 @@ public class Scorer {
     * all the info, other than the traceback matrix, that we need to compute the matched
     * subsequences, aligned to show where gaps had to be inserted
     */
-   global val score: Score;
+   val score: Score;
    
    private static DEBUG = false;
  
@@ -85,42 +85,50 @@ public class Scorer {
     * on this form of the loop better in writing the MPI code, because it made the communication
     * among processors a lot easier to understand. 
     */
-   public def this(parms: Parameters, shorter_: ValRail[Byte], longer_: ValRail[Byte], segInfo: SegmentationInfo) {
+   public def this(parms: Parameters, shorter: ValRail[Byte], longer: ValRail[Byte], segInfo: SegmentationInfo) {
       longOffset = segInfo.firstInLonger(here.id);  // where to start if shortfall == 0
-      longRail = longer_;
-      shortRail = shorter_;
-      val shortSize = shorter_.length();
-      longSize  = longer_.length();
-      tracebackMoves = Rail.make[Byte]((shortSize+1)*(longSize + 1));
-      for (var i:int = 1; i<shortSize; i++) tracebackMoves(i*(longSize + 1)) = STOP;
-      for (var j:int = 0; j<longSize; j++)  tracebackMoves(j) = STOP;
-      val bestScoreUpTo_I_J = Rail.make[Int](longSize + 1, (n: Int)=> 0);
+      longRail = longer;
+      shortRail = shorter;
+      val shortSize = shorter.length();
+      longSize  = longer.length();
+      val longSize_ = longSize;
+      tracebackMoves = Rail.make[Byte]((shortSize+1)*(longSize_ + 1));
+      val tracebackMoves_ = tracebackMoves;	
+      for (var i:int = 1; i<shortSize; i++) tracebackMoves_(i*(longSize_ + 1)) = STOP;
+      for (var j:int = 0; j<longSize_; j++)  tracebackMoves_(j) = STOP;
+      val bestScoreUpTo_I_J = Rail.make[Int](longSize_ + 1);
       var winningScore : Long = 0;
       var shorterLast: Int = -1;
       var longerLast: Int = -1;
+
+      // TODO: Compiler really should be capable of licm for these loads, but it isn't doing it.  Sigh.
+      val scoringMatrix = parms.scoringMatrix;
+      val alphabetIndex = parms.alphabetIndex;
+      val alphabetSize = parms.alphabetSize;
+      val extendGapPenalty = parms.extendGapPenalty;
+      val openGapPenalty = parms.openGapPenalty;
+
       for(var i:int =1; i<shortSize+1; i++) {
          var previousBestScore: Int = 0;
-         var short_i_minus_1: Byte = shortRail(i-1);
-         for(var j:int = 1; j<longSize+1; j++) { try {
-            //if (j-1 >= longSize) throw new IllegalArgumentException("long rail access fails: "+j+" versus "+longSize);
-            var long_j: Byte = longRail(j-1);
+         val short_i_minus_1: Byte = shorter(i-1);
+         for(var j:int = 1; j<longSize_+1; j++) { // try {
+            //if (j-1 >= longSize_) throw new IllegalArgumentException("long rail access fails: "+j+" versus "+longSize_);
+            val long_j:Byte = longer(j-1);
 
 	    // Dave G:  Manually inline call to parms.getScore to eliminate calls from inner loop.
             // Inlining should be done automatically by x10c++, but it isn't smart enough yet.
 	    // var scoreOfMatchAtLast: Int = parms.getScore(short_i_minus_1, long_j);
-	    var scoreOfMatchAtLast: Int = parms.scoringMatrix(parms.alphabetIndex(short_i_minus_1 as Int)*parms.alphabetSize + parms.alphabetIndex(long_j as Int));
+	    val scoreOfMatchAtLast = scoringMatrix(alphabetIndex(short_i_minus_1 as Int)*alphabetSize + alphabetIndex(long_j as Int));
 
-            var scoreUsingLatestIJ: Int = previousBestScore + scoreOfMatchAtLast;
-            var bestIfGapInsertedInI: Int =
-            	bestScoreUpTo_I_J(j) - (tracebackMoves((i-1)*(longSize+1)+j)==UP ? parms.extendGapPenalty : parms.openGapPenalty);
-            var bestIfGapInsertedInJ: Int =
-            	bestScoreUpTo_I_J(j-1) - (tracebackMoves(i*(longSize+1)+j-1) == LEFT ? parms.extendGapPenalty : parms.openGapPenalty);     
+            val scoreUsingLatestIJ = previousBestScore + scoreOfMatchAtLast;
+            val bestIfGapInsertedInI = bestScoreUpTo_I_J(j) - (tracebackMoves_((i-1)*(longSize_+1)+j)==UP ? extendGapPenalty : openGapPenalty);
+            val bestIfGapInsertedInJ = bestScoreUpTo_I_J(j-1) - (tracebackMoves_(i*(longSize_+1)+j-1) == LEFT ? extendGapPenalty : openGapPenalty);     
             previousBestScore = bestScoreUpTo_I_J(j);  // save for the next time around the loop. 
-            var winner: Long = bestScoreUpTo_I_J(j) = maxOrZero(scoreUsingLatestIJ, bestIfGapInsertedInI, bestIfGapInsertedInJ);
-            if (winner == 0)                          tracebackMoves(i*(longSize + 1) + j) = STOP;
-            else if (winner == scoreUsingLatestIJ)    tracebackMoves(i*(longSize + 1) + j) = DIAGONAL;
-            else if (winner == bestIfGapInsertedInI)  tracebackMoves(i*(longSize + 1) + j) = UP;
-            else                                      tracebackMoves(i*(longSize + 1) + j) = LEFT;
+            var winner: Int = bestScoreUpTo_I_J(j) = maxOrZero(scoreUsingLatestIJ, bestIfGapInsertedInI, bestIfGapInsertedInJ);
+            if (winner == 0)                          tracebackMoves_(i*(longSize_ + 1) + j) = STOP;
+            else if (winner == scoreUsingLatestIJ)    tracebackMoves_(i*(longSize_ + 1) + j) = DIAGONAL;
+            else if (winner == bestIfGapInsertedInI)  tracebackMoves_(i*(longSize_ + 1) + j) = UP;
+            else                                      tracebackMoves_(i*(longSize_ + 1) + j) = LEFT;
             // Should we set the traceback to start at the current cell? 
             if (winner > winningScore) { //  yes, a new champ!
                winningScore = winner;
@@ -132,12 +140,15 @@ public class Scorer {
 */             shorterLast = i;  
                longerLast = j; 
             }
+/*
         } catch(e: Exception) {
              val message = "["+here.id+"] scoring index of range: i="+i+", j="+j+"\r\n"+e;
              throw new ArrayIndexOutOfBoundsException(message);
-         }}
+         }
+*/
+        }
       }
-      if (DEBUG) Console.ERR.println("long offset="+longOffset+", last="+longerLast+", array end="+longSize);
+//      if (DEBUG) Console.ERR.println("long offset="+longOffset+", last="+longerLast+", array end="+longSize_);
       score = Score(winningScore, shorterLast, longerLast, longOffset);
    }
 

@@ -193,8 +193,9 @@ public class SW {
 	 finish for (p in segments) {
              val mySegment = segmentedInput(p(0));  // get the right sub-string outside of the async to minimize serialization
              async (segments(p)) {
-                 scorers(p) = new Scorer(parms, shorter, mySegment, segInfo);
-                 scores(p) = scorers(p).score;
+	         val s = new Scorer(parms, shorter, mySegment, segInfo);
+                 scorers(p) = s;
+                 scores(p) = s.score;
              }
          }
          val scoringDone = timer.milliTime();
