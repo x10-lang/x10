@@ -88,13 +88,15 @@ else
       export X10RT_PLATFORM=aix_xlc
       CXX = mpCC_r
       MPICXX ?= mpCC_r
+      SHLINK ?= xlC_r
       override CXXFLAGS -= -g
       ifndef USE_32BIT
         override CXXFLAGS += -q64
       else
         override CXXFLAGS += -q32
       endif
-      override CXXFLAGS_SHARED += -G -bbigtoc
+      override CXXFLAGS_SHARED += -qpic=large
+      override LDFLAGS_SHARED += -bnoentry -G -bbigtoc -llapi_r -lpthreads -lm -lptools_ptr
 #      override CXXFLAGS_SHARED += -qmkshrobj -berok -brtl -bnortllib -bnosymbolic -bnoautoexp -bM:SRE -bnoentry
       override LDFLAGS += -brtl
       ifdef OPTIMIZE
