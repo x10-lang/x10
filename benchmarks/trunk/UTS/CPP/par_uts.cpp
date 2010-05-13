@@ -16,7 +16,7 @@ static int m = 4; // Number of children
 static double q = 15.0/64.0; // Probability of having a child
 static int k = m; // number of work packets that can be stolen at one go
 static uint32_t num_nodes = 0; // There is a root node that we don't count
-static const double NORMALIZER = std::numeric_limits<int>::max();
+static const double NORMALIZER = static_cast<double>(2147483647);
 static bool work_response_received = false;
 static bool termination_initiated = false;
 static std::vector<bool> terminated_process_list;

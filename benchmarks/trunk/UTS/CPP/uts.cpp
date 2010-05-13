@@ -10,7 +10,7 @@ static int b0 = 4; // Root branching factor
 static int r = 0; // Root seed for the random number
 static int m = 4; // Number of children 
 static double q = 15.0/64.0; // Probability of having a child
-static const double NORMALIZER = std::numeric_limits<int>::max();
+static const double NORMALIZER = static_cast<double>(2147483647);
 
 static double wsmprtc(void) {
   struct timeval tp;
