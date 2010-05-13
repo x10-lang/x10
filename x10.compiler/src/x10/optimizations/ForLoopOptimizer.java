@@ -107,36 +107,6 @@ public class ForLoopOptimizer extends ContextVisitor {
         return n;
     }
 
-    // this is dead code left around to point out the need to better optimize Regions where the limits are compile-time constant
-    private Node oldVisitForLoop(ForLoop_c loop) {
-        Type domainType = loop.domainType();
-        Type regionType = syn.addRankConstraintToSelf(xts.Region(), 1, xts);
-        regionType = syn.addRectConstraintToSelf(regionType);
-
-        if (xts.isSubtype(domainType, regionType, context())) {
-            // Now check if domain is actually a RegionMaker, i.e. a parsing of
-            // e1..e2
-            if (loop.domain() instanceof RegionMaker) {
-                List<Expr> args = ((RegionMaker) loop.domain()).arguments();
-                if (args.size() == 2) {
-                    Expr low = args.get(0);
-                    Expr high = args.get(1);
-                    X10Formal xf = (X10Formal) loop.formal();
-                    // Only handle the case |for ((i) in e1..e2) S| for now
-                    if (xf.isUnnamed()) {
-                        X10Formal index = (X10Formal) xf.vars().get(0);
-                        Node n = syn.makeForLoop(loop.position(), index, low,
-                                high, loop.body(), (X10Context) context());
-                        return n;
-                    }
-
-                }
-
-            }
-        }
-        return loop;
-    }
-
     private static final boolean VERBOSE = false;
     
     /**
@@ -212,6 +182,43 @@ public class ForLoopOptimizer extends ContextVisitor {
                                   (null != formalVars) ? formalVars.size() : 
                                   -1;
         assert null == formalVars || formalVars.isEmpty() || formalVars.size() == rank;
+
+        // SPECIAL CASE (XTENLANG-1340):
+        // for (p(i) in e1..e2) S  =>
+        //     val min=e1; val max=e2; for(var z:Int=min; z<=max; z++){ val p=Point.make(z); val i=z; S }
+        // TODO inline (min and max), scalar replace Region object and its constituent ValRails then delete this code
+        //
+        if (1 == rank && domain instanceof RegionMaker) {
+            List<Expr> args = ((RegionMaker) loop.domain()).arguments();
+            assert (args.size() == 2);
+            Expr low = args.get(0);
+            Expr high = args.get(1);
+            Name varName  = null == formalVars || formalVars.isEmpty() ? Name.makeFresh("i") 
+                                                                       : Name.makeFresh(formalVars.get(0).name().id());
+            Name minName  = Name.makeFresh(varName+ "min");
+            Name maxName  = Name.makeFresh(varName+ "max");
+            LocalDecl minLDecl = createLocalDecl(pos, Flags.FINAL, minName, low);
+            LocalDecl maxLDecl = createLocalDecl(pos, Flags.FINAL, maxName, high);
+            
+            LocalDecl varLDecl = createLocalDecl(pos, Flags.NONE, varName, createLocal(pos, minLDecl));
+            Expr cond = createBinary(domain.position(), createLocal(pos, varLDecl), Binary.LE, createLocal(pos, maxLDecl));
+            Expr update = createAssign(domain.position(), createLocal(pos, varLDecl), Assign.ADD_ASSIGN, createIntLit(1));
+            
+            List<Stmt> bodyStmts = new ArrayList<Stmt>();
+            if (named) {
+                // declare the formal variable as a local and initialize it 
+                Expr formExpr = createStaticCall(pos, formal.declType(), MAKE, createLocal(pos, varLDecl));
+                LocalDecl formalLDecl = transformFormalToLocalDecl(formal, formExpr);
+                bodyStmts.add(formalLDecl);
+            }
+            if (null != formalVars && !formalVars.isEmpty()) {
+                bodyStmts.add(transformFormalToLocalDecl((X10Formal) formalVars.get(0), createLocal(pos, varLDecl)));
+            }
+            bodyStmts.add(body);
+            body = createBlock(loop.body().position(), bodyStmts);
+            For forLoop = createStandardFor(pos, varLDecl, cond, update, body);
+            return createBlock(pos, minLDecl, maxLDecl, forLoop);
+        }
 
         // transform rectangular regions of known rank 
         if (xts.isRegion(domain.type()) && isRect && rank > 0) {
