@@ -307,7 +307,9 @@ class BetweenessCentrality {
 
            val vertices = pg_here.vertices;
            val visited = Visited() as Array[Boolean](1);
-           for ((i) in vertices) visited(i) =false;
+           //for ((i) in vertices) 
+             for (var i: Int = vertices.min(0); i <= vertices.max(0); i++)
+               visited(i) =false;
 
            if (pg.owner(source) == here)  {L.add(UVDSQuad(-1, source, 0, 0.0)); d(source ) = 0; sig(source) = 1;}
 
@@ -332,7 +334,7 @@ class BetweenessCentrality {
                 val vertex = L(i).second;
 
                 if (visited(vertex) == true) continue;
-
+               
                if (l >0 ) {
                  s.add(vertex);
                  count(l+1)++;
@@ -450,7 +452,8 @@ class BetweenessCentrality {
                 back.stop();
               }
 
-               for ((k) in pg_here.vertices) {
+               /* for ((k) in pg_here.vertices)  */
+               for (var k: Int = pg_here.vertices.min(0); k <= pg_here.vertices.max(0); k++) {
                         pred(k).setLength(0);
                         del(k) = 0;
                //         sig(k) = 0;
@@ -470,8 +473,8 @@ class BetweenessCentrality {
         }
 
 
+
          //write the output to a file for verification
-         try {
 
           finish ateach((p) in unique) {
              val world = Comm.WORLD();
@@ -479,18 +482,13 @@ class BetweenessCentrality {
              for ((i) in unique ) {
                world.barrier();
                if (i !=here.id) continue;
-               val printer = new FileWriter(new File("BC.txt"));
                val bc = BC() as Array[types.DOUBLE_T](1)!;
                 for ((a) in bc.region) {
-                 val s = a.toString() + " " + bc(a).toString();
-                 x10.io.Console.OUT.println(s);
+                 x10.io.Console.OUT.println(a + " " + bc(a));
                 }
              }
          }
 
-       } catch (e: IOException ) {
-
-       } 
     }
 }
 	
