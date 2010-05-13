@@ -1,11 +1,10 @@
+set terminal jpeg
+set output "plot.jpg"
+set grid
 set autoscale
-unset log 
-unset label 
-set xtic 1
-set ytic auto
-set title "Number of nodes/second versus Number of processes"
+set title "UTS: Plot of nodes processed per second. k = number of nodes stolen per steal."
 set xlabel "Number of processes"
-set ylabel "Number of nodes per second (in Millions)"
+set ylabel "Number of nodes (in millions) per second"
 set style fill solid 1.0 border -1
 plot "par_uts.1.log" using 5:xtic(1) title "k=1" with histogram, \
      "par_uts.2.log" using 5:xtic(1) title "k=2" with histogram, \

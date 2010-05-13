@@ -193,7 +193,13 @@ static void get_work(void) {
   std::cout << x10rt_here() << " trying to steal work" << std::endl;
 #endif
 
-  for (int i=0; i<x10rt_nplaces(); ++i) {
+  const int begging_start_node = x10rt_here();
+  const int begging_stop_node = (begging_start_node + x10rt_nplaces()) 
+                                % x10rt_nplaces();
+
+  for (int i=begging_start_node; 
+       i!=begging_stop_node;
+       i=(i+1)%x10rt_nplaces()) {
     if (x10rt_here() != i) {
       x10rt_place* my_rank = static_cast <x10rt_place*> 
           (x10rt_msg_realloc (NULL, 0, sizeof(x10rt_place)));
