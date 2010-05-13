@@ -109,38 +109,6 @@ InterfaceBaseType \: TypeName \\
 
 % \paragraph{Class types.}
 
-\section{\xcd`Any`}
-
-It is quite convenient to have a type which all values are instances of; that
-is, a supertype of all types.\footnote{Java, for one, suffers a number of
-  inconveniences because some built-in types like \xcd`int` and \xcd`char`
-  aren't subtypes of anything else.}  X10's universal supertype is the
-  interface \xcd`Any`. 
-
-
-\begin{xten}
-package x10.lang;
-public interface Any {
-  property def home():Place;
-  property def at(p:Object):Boolean;
-  property def at(p:Place):Boolean;
-  global safe def toString():String;
-  global safe def typeName():String;
-  global safe def equals(Any):Boolean;
-  global safe def hashCode():Int;
-}
-\end{xten}
-
-\xcd`Any` provides a handful of essential methods that make sense and are
-useful for everything.\footnote{The behavioral annotation \xcd`property` is
-  explained in \Sref{properties}; \xcd`safe` in \Sref{SafeAnnotation}, and
-  \xcd`global` in \Sref{GlobalAnnotation}.} \xcd`a.toString()` produces a
-string representation of \xcd`a`, and \xcd`a.typeName()` the string
-representation of its type; both are useful for debugging.  \xcd`aequals(b)`
-is the programmer-overridable equality test, and \xcd`a.hashCode()` an integer
-useful for hashing.  \xcd`at()` and \xcd`home()` are used in multi-place
-computing. 
-
 
 
 \section{Classes and interfaces}
@@ -885,7 +853,7 @@ non-zero variable \xcd`nz`.
 \bard{This will need to be explained further once the language issues are
 sorted out..}
 
-%%BARD-HERE
+
 
 %%TYPES-CONSTR-EXP%% We permit variable declarations \xcd"v: T" where \xcd"T" is obtained
 %%TYPES-CONSTR-EXP%% from a dependent type \xcd"C{c}" by replacing one or more occurrences
@@ -1062,18 +1030,15 @@ which differ only in the names of formals (following the usual rules for
 renaming of variables, as in {$\alpha$}-renaming in the {$\lambda$} calculus
 \bard{cite something}) are considered equal.  \Eg, 
 %~~type~~`~~`~~ ~~
-\xcd`(b:Rail[String]{b.length==a}, a:Int) => Boolean`
+\xcd`(a:Int, b:Rail[String]{b.length==a}) => Boolean`
 and 
 %~~type~~`~~`~~ ~~
-\xcd`(a:Rail[String]{a.length==b}, b:Int) => Boolean`
+\xcd`(b:Int, a:Rail[String]{a.length==b}) => Boolean`
 are equivalent types.
 
-The formal parameter names are in scope throughout the function
-signature---they may be used in the types of other formal parameters
-and in the return type.  In particular, the common pattern that variables must
-be
-declared before they are used does not apply within a type, as the previous
-example shows. 
+The formal parameter names are in scope from the point of definition to the
+end of the function type---they may be used in the types of other formal parameters
+and in the return type. 
 Value parameters names may be
 omitted if they are not used; the type of the reciprocal function can be
 written as
@@ -1203,6 +1168,9 @@ if:
 {\bf Constrained types:}
 \xcd`T{c}` is a direct subtype of \xcd`T{d}` if \xcd`c` entails \xcd`d`. 
 
+\item {\bf Any:} 
+Every type \xcd`T` is a direct subtype of \xcd`x10.lang.Any`.
+
 \item 
 {\bf Type Variables}
 \bard{I don't know that this clause even makes sense -- are type variables
@@ -1224,28 +1192,69 @@ To compute the type of conditional expressions
 (\Sref{Conditional}),
 and of rail constructors
 (\Sref{RailConstructors}), the least common ancestor of types
-must be computed.
+must be computed.  For example, the type of 
+%~~exp~~`~~`~~b:Boolean ~~
+\xcd`b ? 1 : true`
+has to be something which admits both \xcd`1` and \xcd`true` as values. 
 
-The least common ancestor of two  types
-\xcdmath"T$_1$" and \xcdmath"T$_2$"
-is the
-unique most-specific type
-that is a supertype of both
-\xcdmath"T$_1$" and \xcdmath"T$_2$".
+Given types \xcd`T` and \xcd`U`, if there exists a 
+type \xcd`V` such that \xcd`T <: V`, and \xcd`U <: V`, and, for all types
+\xcd`W` such that \xcd`T <: W` and \xcd`U <: W` it is the case that 
+\xcd`V <: W`, then \xcd`V` is a least common ancestor of \xcd`T` and \xcd`U`.  
+If there is no such \xcd`V`, then \xcd`x10.lang.Any` is defined to be the
+least common ancestor of \xcd`T` and \xcd`U`. 
 
-If the most-specific type is not unique (which can happen when
-\xcdmath"T$_1$" and \xcdmath"T$_2$" both implement two
-or more incomparable interfaces), then
-least common ancestor type is \xcd"x10.lang.Any".
+While there are, in general, many least common ancestors of \xcd`T` and
+\xcd`U`, they are all equivalent.  (If \xcd`V` and \xcd`W` are least common
+ancestors, then \xcd`V <: W` and \xcd`W <: V` by the definition of ``a least
+common ancestor'', whence \xcd`V == W`.)  The X10 compiler may pick any one of
+them when it needs to do this computation. 
 
-\input{Coercions}
+\bard{This definition is flawed at best.  There is a [near]infinite 
+descending chain of common ancestors for \xcd`0U` and \xcd`1U`, but no
+reasonable least one.  The matter is under consideration now.}
+
+
 
 %\subsection{Syntactic abbreviations}\label{DepType:SyntaxAbbrev}
 
 \section{Built-in types}
 
-The package \xcd"x10.lang" provides a number of built-in class and
+The package \xcd"x10.lang" provides a number of built-in class, struct, and
 interface declarations that can be used to construct types.
+
+\subsection{\xcd`Any`}
+
+It is quite convenient to have a type which all values are instances of; that
+is, a supertype of all types.\footnote{Java, for one, suffers a number of
+  inconveniences because some built-in types like \xcd`int` and \xcd`char`
+  aren't subtypes of anything else.}  X10's universal supertype is the
+  interface \xcd`Any`. 
+
+
+\begin{xten}
+package x10.lang;
+public interface Any {
+  property def home():Place;
+  property def at(p:Object):Boolean;
+  property def at(p:Place):Boolean;
+  global safe def toString():String;
+  global safe def typeName():String;
+  global safe def equals(Any):Boolean;
+  global safe def hashCode():Int;
+}
+\end{xten}
+
+\xcd`Any` provides a handful of essential methods that make sense and are
+useful for everything.\footnote{The behavioral annotation \xcd`property` is
+  explained in \Sref{properties}; \xcd`safe` in \Sref{SafeAnnotation}, and
+  \xcd`global` in \Sref{GlobalAnnotation}.} \xcd`a.toString()` produces a
+string representation of \xcd`a`, and \xcd`a.typeName()` the string
+representation of its type; both are useful for debugging.  \xcd`aequals(b)`
+is the programmer-overridable equality test, and \xcd`a.hashCode()` an integer
+useful for hashing.  \xcd`at()` and \xcd`home()` are used in multi-place
+computing. 
+
 
 \subsection{The class \Xcd{Object}}
 \label{Object}
@@ -1254,21 +1263,9 @@ interface declarations that can be used to construct types.
 
 The class \xcd"x10.lang.Object" is the supertype of all classes.
 A variable of this type can hold a reference to any object.
-The code for this class (with annotations removed) is:
-\begin{xten}
-public class Object (home: Place) 
-     implements Any
-{
-    public native def this();
-    public property def home() = home;
-    public property def at(p:Place) = home==p;
-    public property def at(r:Object) = home==r.home;
-    public global safe native def toString() : String;
-    public global safe native def typeName() : String;
-    public global safe def equals(x:Any) = this == x;
-    public global safe native def hashCode():Int;
-}
-\end{xten}
+\xcd`Object` implements \xcd`Any`. It also has a property \xcd`home:Place`,
+described more in \Sref{XtenPlaces}.
+
 
 \subsection{The class \Xcd{String}}
 \label{String}\index{\Xcd{String}}\index{\Xcd{x10.lang.String}}
@@ -1289,7 +1286,7 @@ All values can be implicitly converted to strings by the concatenation
       evaluates to something like \xcd`one 2(Place 0)`.  
 
 
-
+%%BARD-HERE
 \input{ArrayTypes}
 \input{FutureTypes}
 
