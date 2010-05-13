@@ -1,4 +1,5 @@
 import x10.util.Timer;
+import util.Comm;
 
 public class FSSimpleDist {
 
@@ -27,7 +28,7 @@ public class FSSimpleDist {
                 val p = pp;
                 
                 async(Place.places(p)) {
-                    
+                    val world = Comm.WORLD();
                     val a = Rail.make[double](localSize);
                     val b = Rail.make[double](localSize);
                     val c = Rail.make[double](localSize);
@@ -41,8 +42,9 @@ public class FSSimpleDist {
                     
                     for (var j:int=0; j<NUM_TIMES; j++) {
                         if (p==0) (times as Rail[Double]!)(j) = -now(); 
-                        for (var i:int=0; i<localSize; i++)
+			for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + beta*c(i);
+			world.barrier();
                         if (p==0) (times as Rail[Double]!)(j) = (times as Rail[Double]!)(j) + now();
                     }
                     
@@ -56,7 +58,7 @@ public class FSSimpleDist {
         }
 
         var min:double = 1000000;
-        for (var j:int=0; j<NUM_TIMES; j++)
+        for (var j:int=1; j<NUM_TIMES; j++)
             if (times(j) < min)
                 min = times(j);
         printStats(N, min, verified(0));
