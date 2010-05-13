@@ -924,6 +924,13 @@ never satisfy \xcd`Int{self == 2}`.  Similarly, \xcd`1 instanceof String` is a
 static error, rather than an expression always returning false. 
 \bard{Explain the reason for this discontinuous behavior!}
 
+\limitation{
+X10 does not currently handle \xcd`instanceof` of generics in the way you
+%~~exp~~`~~`~~r:ValRail[Int] ~~
+might expect.  For example, \xcd`r instanceof ValRail[Int{self != 0}]` does
+not test that every element of \xcd`r` is non-zero.
+}
+
 The \xcd`as` operation attempts to convert a value to a given constrained
 type, as described in \Sref{ClassCast}.   As with \xcd`instanceof`, it may
 succeed, fail with a dynamic error, or, in the case where the cast is
@@ -995,30 +1002,83 @@ class Triangle
 \index{function!types}
 \index{types!function types}
 
-        Function types are defined via the \xcd"=>" type
-        constructor.  Closures (\Sref{Closures}) and method
-        selectors (\Sref{MethodSelectors}) are of function type.
-        The general form of a function type is:
+X10 functions, like mathematical functions, take some arguments and produce a
+result.  X10 functions, like other X10 code, can change mutable state and
+throw exceptions.  Closures (\Sref{Closures}) and method
+selectors (\Sref{MethodSelectors}) are of function type.
+Typical functions are the reciprocal function: 
+%~~gen
+% package Types.Functions;
+% class RecipEx {
+% static 
+%~~vis
+\begin{xten}
+val recip = (x : Double) => 1/x;
+\end{xten}
+%~~siv
+%}
+%~~neg
+and a function which increments  element \xcd`i` of a rail \xcd`r`, or throws an exception
+if there is no such element, where, for the sake of example, we constrain the
+type of \xcd`i`:  
+%~~gen
+% package Types.Functions;
+% class IncrElEx {
+% static def example() throws DoomExn {
+%~~vis
+\begin{xten}
+val inc = (r:Rail[Int]!, i: Int{i != r.length}) => {
+  if (i < 0 || i >= r.length) throw new DoomExn();
+  r(i)++;
+};
+\end{xten}
+%~~siv
+%}}
+%class DoomExn extends Exception{}
+%~~neg
+
+So, in general, a function type needs to list the types 
+\xcdmath"T$_i$"
+of all the formal parameters,
+and their distinct names \xcdmath"x$_i$" in case other types refer to them; a
+constraint 
+\xcd"c" on the
+function as a whole; a return type \xcd"T"; and the exceptions \xcdmath"EX$_j$"
+that the function might throw when applied: 
+
+
+\limitation{The \xcd`throws` clause is not currently implemented.  Also,
+some method modifiers (\xcd`safe`, \xcd`atomic`, etc.) will apply to function
+types as well.}
+
 \begin{xtenmath}
 (x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => T
-        throws S$_1$, $\dots$, S$_k$
+        throws EX$_1$, $\dots$, EX$_k$
 \end{xtenmath}
-        This
-        is the type of functions that take 
-        value parameters
-        \xcdmath"x$_i$"
-        of types
-        \xcdmath"T$_i$"
-        such that the guard \xcd"c" holds
-        and returns a value of type \xcd"T" or throws
-        exceptions of 
-        types S$_i$.
 
-The value parameters are in scope throughout the function
+
+The names \xcdmath"x$_i$" of the formal parameters are not relevant.  Types
+which differ only in the names of formals (following the usual rules for
+renaming of variables, as in {$\alpha$}-renaming in the {$\lambda$} calculus
+\bard{cite something}) are considered equal.  \Eg, 
+%~~type~~`~~`~~ ~~
+\xcd`(b:Rail[String]{b.length==a}, a:Int) => Boolean`
+and 
+%~~type~~`~~`~~ ~~
+\xcd`(a:Rail[String]{a.length==b}, b:Int) => Boolean`
+are equivalent types.
+
+The formal parameter names are in scope throughout the function
 signature---they may be used in the types of other formal parameters
-and in the return type.  Value parameters names  may be
-omitted if they are not used.  The guard specifies a condition that 
-must hold for an application to be well-typed.
+and in the return type.  In particular, the common pattern that variables must
+be
+declared before they are used does not apply within a type, as the previous
+example shows. 
+Value parameters names may be
+omitted if they are not used; the type of the reciprocal function can be
+written as
+%~~type~~`~~`~~ ~~
+\xcd`(Double)=>Double`. 
 
 \begin{grammar}
 FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")" Constraint\opt
@@ -1030,24 +1090,9 @@ Formals \: Formal ( \xcd"," Formal )\star \\
 \end{grammar}
 
 
-For every sequence of types \xcd"T1,..., Tn,T", and \xcd"n" distinct variables
-\xcd"x1,...,xn" and constraint \xcd"c", the expression
-\xcd"(x1:T1,...,xn:Tn){c}=>T" is a \emph{function type}. It stands for
- the set of all functions \xcd"f" which can be applied in a place \xcd"p" to a
- list of values \xcd"(v1,...,vn)" provided that the constraint
- \xcd"c[v1,...,vn,p/x1,...,xn,here]" is true, and which returns a value of
- type \xcd"T[v1,...vn/x1,...,xn]". When \xcd"c" is true, the clause \xcd"{c}" can be
- omitted. When \xcd"x1,...,xn" do not occur in \xcd"c" or \xcd"T", they can be
- omitted. Thus the type \xcd"(T1,...,Tn)=>T" is actually shorthand for
- \xcd"(x1:T1,...,xn:Tn){true}=>T", for some variables \xcd"x1,...,xn".
 
 
-Juxtaposition is used to express function application: the expression
-\xcd"f(a1,..,an)" expresses the application of a function \xcd"f" to the argument
-list \xcd"a1,...,an".
 
-\index{Exception!unchecked}
-Note that function invocation may throw unchecked exceptions. 
 
 A function type is covariant in its result type and contravariant in
 each of its argument types. That is, let 
@@ -1057,34 +1102,28 @@ types satisfying \xcd"Si <: Ti" and \xcd"S <: T". Then
 \xcd"(x1:S1,...,xn:Sn){c}=>T".
 
 
-A value \xcd"f" of a function type \xcd"(x1:T1,...,xn:Tn){c}=>T" also
-has all the methods of \Xcd{Any} associated with it (see \Sref{FunctionAnyMethods}).
+%%BARD-HERE
+
+A class or struct definition may use a function type 
+\xcd"F = (x1:T1,...,xn:Tn){c}=>T" in its 
+implements clause; 
+this is equivalent to implementing an interface requiring the single method
+\xcd"def apply(x1:T1,...,xn:Tn){c}:T". 
+Similarly, an interface
+definition may specify a function type \xcd"F" in its \xcd"extends" clause.
+Values of a class or struct implementing \xcd`F` 
+can be used as functions of type \xcd`F` in all ways.  
+In particular, applying one to suitable arguments calls the \xcd`apply`
+method. 
 
 
-A function type \xcd"F=(x1:T1,...,xn:Tn){c}=>T" can be used as the declared type of local variables, parameters, loop variables, return types of methods and in \xcd"_  instanceof F" and \xcd"_ as F" expressions. 
-
-
-A class or struct definition may use a function type \xcd"F" in its
-implements clause; this declares an abstract method 
-\xcd"def apply(x1:T1,...,xn:Tn){c}:T" on that class. Similarly, an interface
-definition may specify a function type "F" in its "extends" clause. A
-class or struct implementing such an interface implicitly defines an
-abstract method \xcd"def apply(x1:T1,..,xn:Tn){c}:T". Expressions of such
-a struct, class or interface type can be assigned to variables of type
-\xcd"F" and can be applied via juxtaposition to an argument list of the
-right type.
-
-
-Thus, objects and structs in \Xten{} may behave like functions. 
 
 A function type \xcd"F" is not a class type in that it does not extend any
-type or implement any interfaces, or support equality tests. \xcd"F" cannot be extended by any type. It
-is not an interface type in that it is not a subtype of
-\xcd"x10.lang.Object". (Values of type \xcd"F" cannot be assigned to variables of
-type \xcd"x10.lang.Object".) It is not a struct type in that it has no
-defined fields and hence no notion of structural equality.
+type or implement any interfaces, or support equality tests. 
+\xcd`F` may be implemented, but not extended, by a class or function type. 
+Nor is it a struct type, for it has no predefined notion of equality.
 
-\xcd"null" is a legal value for a function type. 
+
 
 
 \section{Annotated types}
