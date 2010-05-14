@@ -1,5 +1,5 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
+i *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
  *  You may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10Formal;
+import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
 import x10.constraint.XDisEquals;
@@ -846,7 +847,21 @@ public class Synthesizer {
 
         return (X10ClassDecl) cDecl.body(body.members(cMembers));
     }
-	
+
+    /**
+     * Insert methods to the given x10 class. Return a new class with the new methods added in.
+     * @param cDecl The original class with parallel methods
+     * @param methods The methods to be inserted in
+     * @return A newly created class with methods as members
+     */
+    public X10ClassDecl addMethods(X10ClassDecl cDecl, Set<X10MethodDecl> methods){
+        List<ClassMember> cm = new ArrayList<ClassMember>();
+        cm.addAll(cDecl.body().members());
+        cm.addAll(methods);
+        ClassBody cb = cDecl.body();
+        return (X10ClassDecl) cDecl.body(cb.members(cm));
+    }
+    
 	
 	public FieldDef findFieldDef(ClassDef cDef, Name fName) throws SemanticException {
 	    for (FieldDef df : cDef.fields()) {
