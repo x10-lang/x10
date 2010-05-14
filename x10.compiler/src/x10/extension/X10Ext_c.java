@@ -850,7 +850,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       return bodyEff.makeParSafe();
   }
 
-  private Effect computeEffect(ForEach fe, EffectComputer ec) {
+  private Effect computeEffect(ForEach fe, EffectComputer ec) throws XFailure {
       Effect bodyEff= effect(fe.body());
       Set<Locs> registeredClocks = new HashSet<Locs>(); 
        for (Expr c: fe.clocks()) {
@@ -870,6 +870,7 @@ private boolean analyzeClockedLocal (Effect result, X10LocalInstance li, Local l
       			ec.emitMessage( mc + " is not in registered clocks of async", fe.position());
       }
       System.out.println("Info: " + fe.position() + ": ForEach is " + bodyEff);
+      bodyEff = ec.env().followedBy(bodyEff, effect(fe.body()));
       return bodyEff.makeParSafe();
   	}
 
