@@ -107,7 +107,7 @@ extern INT_T K4approx;
 
 /* Function declarations */
 
-void init(int);
+void init(int, int);
 double genScalData(graphSDG*);
 double gen2DTorus(graphSDG*);
 
@@ -115,7 +115,7 @@ double gen2DTorus(graphSDG*);
 double computeGraph(graph*, graphSDG*);
 double getStartLists(graph*, edge**, INT_T*);
 double findSubGraphs(graph*, edge*, INT_T);
-double betweennessCentrality(graph*, DOUBLE_T *);
+double betweennessCentrality(graph*, DOUBLE_T *, int);
 
 /* other useful routines */
 void prefix_sums(LONG_T*, LONG_T*, LONG_T*, LONG_T);

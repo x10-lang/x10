@@ -22,14 +22,17 @@ import x10.io.IOException;
   * Computes the betweeness_centrality indices for all the vertices in a distributed graph.
   * <p>
   * For every vertex, computation happens in two phases. In the first phase, BFS traversal is performed
-  * starting from the vertex. During this phase, the depth of each vertex visited is recorded. Also, 
-  * the predecessors for each vertex are recorded.  
+  * starting from the given source vertex (source).  During BFS, For each vertex v, its child "w" is visited only if d(w)==-1 or d(w)=d(v)+1.
+  * (d(v) is depth of a vertex from a "source" vertex). The # of shortest paths for w (sig(w)) is also updated while vising w.
+  * and the predecessors of w are stored. Additionally, the visited vertices are "stacked" in S. 
   * <p>
   * In the second phase, the graph is traversed in the backward direction to that of the BFS. During the traversal,
-  * quantitiies for each vertex are updated using the following recurrence relation: TODO.
-  * BetweenessCentrality of a vertex, bc(v) is simply obtained by computing the running sum of del(v).
-   
-
+  * for each vertex w, and for all of its predecessor v, del(v) is updated as follows:
+  *       del (v) = del(v) + sig(v)/sig(w)*(1+del(w).
+  *
+  * BetweenessCentrality of a vertex, bc(v), is simply obtained by computing the running sum of del(v).
+  * 
+  *
   * @author: Ganesh Bikshandi
   */
 
@@ -60,6 +63,7 @@ class BetweenessCentrality {
 
      //switch to use the async version
      global val use_async: Boolean;
+     global val filter: Boolean;
      
      // the graph for which we need to compute the BC.
      global val pg: defs.pGraph;
@@ -67,7 +71,7 @@ class BetweenessCentrality {
      /**
        * Constructor
        */
-     public def this(pg: defs.pGraph, val use_async: Boolean) {
+     public def this(pg: defs.pGraph, val use_async: Boolean, val filter: Boolean) {
 
              val unique = Dist.makeUnique();
 
@@ -100,6 +104,7 @@ class BetweenessCentrality {
 
             }
 
+             this.filter = filter;
              this.use_async = use_async;
              this.pg = pg;
      }
@@ -162,7 +167,7 @@ class BetweenessCentrality {
                 val N = N_cent();
                 val L = L_cent();
 
-                for (var l: Int = c_length-1; l >0; l--) {
+                for (var l: Int = c_length-1; l > 1; l--) {
                  val start = count(l-1);
                  val end = count(l)-1;
 
@@ -306,46 +311,38 @@ class BetweenessCentrality {
            val  count = Count();
 
            val vertices = pg_here.vertices;
-           val visited = Visited() as Array[Boolean](1);
-           //for ((i) in vertices) 
-             for (var i: Int = vertices.min(0); i <= vertices.max(0); i++)
-               visited(i) =false;
 
-           if (pg.owner(source) == here)  {L.add(UVDSQuad(-1, source, 0, 0.0)); d(source ) = 0; sig(source) = 1;}
+           if (pg.owner(source) == here)  {s.add(source);count.add(0); count.add(1); d(source ) = 0; sig(source) = 1;}
+            else { count.add(0); count.add(0);}
 
-            var l: Int = 0;
-            count.add(0);
+            var l: Int = 1;
             while (true) {
 
               //for ((i) in 0..Place.MAX_PLACES-1) 
               for (var i: Int = 0; i < Place.MAX_PLACES; i++) 
                  (N(i) as GrowableRail[UVDSQuad]!).setLength(0);
 
-              val flength = L.length();
+              val start = count(l-1);
+              val end = count(l)-1;
+              val flength =  end-start+1;
               //x10.io.Console.ERR.println("flength" + flength);
               val LSize = world.sum(flength);
               //x10.io.Console.ERR.println("LSize " + LSize);
               //world.barrier();
               if (LSize == 0) break;
 
-              count.add(count(l));
               //for ((i) in 0..flength-1) {
-              for (var i: Int = 0; i < flength; i++) {
-                val vertex = L(i).second;
+              for (var i: Int = start; i <=end; i++) {
+                val vertex = s(i);
 
-                if (visited(vertex) == true) continue;
-               
-               if (l >0 ) {
-                 s.add(vertex);
-                 count(l+1)++;
-               }
-                visited(vertex) = true;
                 val lo = pg_here.numEdges(vertex);
                 val hi = pg_here.numEdges(vertex+1)-1;
 
-
                 //for ((k) in  lo..hi) {
                   for (var k: Int = lo; k <= hi; k++) {
+
+                  if (((pg_here.weight(k) & 7) ==0) && filter) continue;
+
                   val neighbor = pg_here.endV(k); //Rename neighbor to v; vertext to u
                   val owner = pg.owner(neighbor);
                   if (neighbor == vertex) continue;
@@ -358,11 +355,14 @@ class BetweenessCentrality {
 
                    
              //for ((i) in 0..L.length()-1) {
+             count.add(count(l));
              for (var i: Int = 0; i < L.length(); i++) {
                val t = L(i);
                val w = t.second;
                val v = t.first;
               if(d(w) == -1) {
+               s.add(w);
+                count(l+1)++;
                d(w)  = t.third + 1;
                sig(w) = t.fourth;
                (pred(w) as GrowableRail[types.VERT_T]!).add(v);
@@ -381,7 +381,7 @@ class BetweenessCentrality {
       /**
         * compute the Betweneess Centrality Metric 
         */ 
-      public global def compute () {
+      public global def compute (val GLOBALS: runtime_consts) {
 
           val  kernel4 = PTimer.make("kernel4");
           val  bfs = PTimer.make("bfs");
@@ -400,6 +400,8 @@ class BetweenessCentrality {
 
            //x10.io.Console.ERR.println("inside bc..");
 
+           val numV = 1<<GLOBALS.K4Approx;
+
            finish ateach((p) in unique) {
                val world: Comm! = Comm.WORLD();
 
@@ -414,6 +416,8 @@ class BetweenessCentrality {
                val s = S();
                val count = Count();
                val pg_here = pg.restrict_here() as defs.pGraphLocal!;
+      
+               var num_traversals: Int = 0;
 
                //x10.io.Console.ERR.println("point 1");
            for ((i) in 0..n-1) {
@@ -426,9 +430,15 @@ class BetweenessCentrality {
                //val new_vertices = NewVertices(here.id);
                //val a = world.sum(pg.owner(i) == here ? new_vertices as rail[types.UVPair]!)(i % chunkSize) 
                //val startVertex = world.sum(pg.owner(i) == here ? (new_vertices as Rail[types.UVPair]!)(i % chunkSize).second : 0); //actually a broadcast
-               val startVertex = world.sum(pg.owner(i) == here ? i : 0); //actually a broadcast
+               val startVertex = world.sum(pg.owner(i) == here ? ((pg_here.numEdges(i+1) - pg_here.numEdges(i)) > 0 ? i : -1) : 0); //actually a broadcast
+         
+               if (startVertex==-1) continue;
 
-               x10.io.Console.ERR.println("main " + i);
+               num_traversals++;
+
+               if (num_traversals == numV + 1) break;
+
+               //x10.io.Console.ERR.println("main " + i);
 
                s.setLength(0);
                count.setLength(0);
@@ -472,16 +482,13 @@ class BetweenessCentrality {
 
         }
 
+     }
 
-
+      public global def dump() {
          //write the output to a file for verification
-
-          finish ateach((p) in unique) {
-             val world = Comm.WORLD();
-
-             for ((i) in unique ) {
-               world.barrier();
-               if (i !=here.id) continue;
+          val unique = Dist.makeUnique();
+          finish for((p) in unique) {
+               finish async (Place.places(p)) {
                val bc = BC() as Array[types.DOUBLE_T](1)!;
                 for ((a) in bc.region) {
                  x10.io.Console.OUT.println(a + " " + bc(a));

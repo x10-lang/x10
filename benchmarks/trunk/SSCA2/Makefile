@@ -56,8 +56,11 @@ dist-1d-opt:
 dist-1d-dbg:
 	$(MAKE) -C dist-1d OUTDIR=dbg-gen dist-1d-dbg
 
-dist-1d-clean:
-	$(MAKE) -C dist-1d clean
+dist-1d-dbg-clean:
+	$(MAKE) -C dist-1d OUTDIR=dbg-gen clean
+
+dist-1d-opt-clean:
+	$(MAKE) -C dist-1d OUTDIR=opt-gen clean
 
 sprng-clean:
 	$(MAKE) -C sprng2.0 clean

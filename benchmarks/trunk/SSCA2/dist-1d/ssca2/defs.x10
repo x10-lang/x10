@@ -5,12 +5,14 @@ import x10.lang.PlaceLocalHandle;
 public class defs {
 	public static val container: defs! = new defs();
 	
-	public static  def init (val SCALE: types.INT_T) {
+	public static  def init (val SCALE: types.INT_T, CUTSHORT: Boolean) {
 		val N = 1 << SCALE  as types.LONG_T;
 		val M = 8*N as types.LONG_T;
 		val MaxIntWeight = (1<<SCALE) as  types.WEIGHT_T;
 		val SubGraphPathLength = 3; 
-		val K4Approx = SCALE < 10 ? SCALE: 10;
+
+                val K4Approx = CUTSHORT ? (SCALE < 10 ? SCALE: 10) : SCALE;
+
 		container.globals = runtime_consts (SCALE, N, M, MaxIntWeight, SubGraphPathLength, K4Approx);
 	} 
 	

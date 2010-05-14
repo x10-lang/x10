@@ -189,7 +189,7 @@ final public class Comm {
                "while(!__pgasrt_tspcoll_isdone(r)) x10rt_probe();" +
                "x10::lang::Runtime::decreaseParallelism(1);"){} }
 
-      x10.io.Console.ERR.println(dstSizes);
+//      x10.io.Console.ERR.println(dstSizes);
 
       var size: Int = 0;
       for((i) in 0..nplaces-1) {

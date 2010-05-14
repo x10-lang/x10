@@ -1,6 +1,6 @@
 #include "defs.h"
 
-double betweennessCentrality(graph* G, DOUBLE_T* BC) {
+double betweennessCentrality(graph* G, DOUBLE_T* BC, int filter) {
 
     VERT_T *S;         /* stack of vertices in the order of non-decreasing 
                           distance from s. Also used to implicitly 
@@ -267,10 +267,8 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
                 v = S[vert];
                 for (j=G->numEdges[v]; j<G->numEdges[v+1]; j++) {
 
-#ifdef FILTER
-                    /* Filter edges with weights divisible by 8 */
-                    if ((G->weight[j] & 7) != 0) {
-#endif
+                     if ((G->weight[j] & 7) == 0 && filter==1) continue; 
+
                         w = G->endV[j];
                         if (v != w) {
 
@@ -311,9 +309,6 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
 #endif
                             
                         }
-#ifdef FILTER
-                    }
-#endif
                 }
              }
             /* Merge all local stacks for next iteration */
@@ -458,7 +453,6 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC) {
     }
 #endif
 
-    int i = 0;
     for (i = 0; i < G->n; i++) printf ("%d %f\n",i, BC[i]);
     return elapsed_time;
 }

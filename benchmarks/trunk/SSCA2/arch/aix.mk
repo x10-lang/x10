@@ -21,7 +21,7 @@ else
 #AIX with XLC
 #
 export POSTCOMPILE_CXX		?= mpCC_r
-export POSTCOMPILE_CXXFLAGS 	?= -q64 -w -DTRANSPORT=${PGASTRANSPORT}
+export POSTCOMPILE_CXXFLAGS 	?= -q64 -w -DTRANSPORT=${PGASTRANSPORT} -qtemplateregistry
 export POSTCOMPILE_LDFLAGS	?= -brtl -bbigtoc
 export POSTCOMPILE_LIBS		?= -ldl -lm -lpthread -lptools_ptr
 
@@ -44,4 +44,3 @@ export POSTCOMPILE_ARFLAGS	?= -X64 -rv
 export POSTCOMPILE_RANLIB   	?= ranlib
 export MKDIR	?= mkdir -p
 export CP	?= cp 
-export OUTDIR ?= /bench1/ganesh

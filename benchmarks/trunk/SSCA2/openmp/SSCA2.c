@@ -22,8 +22,10 @@ int main(int argc, char** argv)
     
     DOUBLE_T elapsed_time;
 
+    int filter, cutshort;
+
 #ifdef _OPENMP
-    if (argc != 3) {
+    if (argc < 3) {
         
         fprintf(stderr, "Usage: ./SSCA2 <No. of threads> <SCALE>\n");
         exit(-1);
@@ -31,12 +33,16 @@ int main(int argc, char** argv)
     NUM_THREADS = atoi(argv[1]);
     SCALE = atoi(argv[2]);
     omp_set_num_threads(NUM_THREADS);
+    filter = atoi(argv[3]);
+    cutshort = atoi(argv[4]);
 #else
-    if (argc != 2) {
+    if (argc < 2) {
         fprintf(stderr, "Usage: ./SSCA2 <SCALE>\n");
         exit(-1);
     }
     SCALE = atoi(argv[1]);
+    filter = atoi(argv[2]);
+    cutshort = atoi(argv[3]);
 #endif
 
     /* ------------------------------------ */
@@ -46,7 +52,7 @@ int main(int argc, char** argv)
     fprintf(stderr, "\nHPCS SSCA Graph Analysis Benchmark v2.2\n");
     fprintf(stderr, "Running...\n\n");
 
-    init(SCALE);
+    init(SCALE, cutshort);
 
 #ifdef _OPENMP
     fprintf(stderr, "\nNo. of threads: %d\n", NUM_THREADS);
@@ -139,7 +145,7 @@ int main(int argc, char** argv)
             "beginning execution...\n");  
     
     BC = (DOUBLE_T *) calloc(N, sizeof(DOUBLE_T));
-    elapsed_time = betweennessCentrality(G, BC);
+    elapsed_time = betweennessCentrality(G, BC, filter);
     fprintf(stderr, "\nTime taken for Kernel 4 is %9.6f sec.\n\n", 
             elapsed_time);
     fprintf(stderr, "TEPS score for Kernel 4 is %lf\n\n", 

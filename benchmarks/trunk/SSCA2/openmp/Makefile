@@ -3,7 +3,7 @@ include ../arch/aix.mk
 TARGET = SSCA2
 
 CC=${POSTCOMPILE_CXX}
-CFLAGS=${POSTCOMPILE_NATIVE_LIB_FLAGS} -qsmp=omp
+CFLAGS=${POSTCOMPILE_NATIVE_LIB_FLAGS} 
 INC=-I../sprng2.0/include
 LIB=-L../sprng2.0/lib -lsprng
 

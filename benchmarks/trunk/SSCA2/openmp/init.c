@@ -15,7 +15,7 @@ WEIGHT_T MaxIntWeight;
 INT_T SubGraphPathLength;
 INT_T K4approx;
 
-void init(int SCALE) {
+void init(int SCALE, int cutshort) {
 
 	/* Binary Scaling Heuristic */
 	// SCALE 
@@ -35,12 +35,14 @@ void init(int SCALE) {
 
     MaxIntWeight = (1<<SCALE);
     SubGraphPathLength = 3;
-#ifndef VERIFYK4    
+
+if (cutshort) {
     if (SCALE < 10)
         K4approx = SCALE;
     else 
         K4approx = 10;
-#else
+}
+else
     K4approx = SCALE;
-#endif
+
 }

@@ -74,16 +74,24 @@ NATIVE_LIBS = $(PWD)/sprng2.0/lib/libsprng.a
 
 FINAL = $(OUTDIR)/ssca2
 
-NATIVE_INCLUDES= ${POSTCOMPILE_INCLUDEOPT}$(PWD)/sprng2.0/include/sprng.h ${POSTCOMPILE_INCLUDEOPT}iostream ${POSTCOMPILE_INCLUDEOPT}algorithm
+NATIVE_INCLUDES= ${POSTCOMPILE_INCLUDEOPT}pgasrt.h ${POSTCOMPILE_INCLUDEOPT}$(PWD)/sprng2.0/include/sprng.h ${POSTCOMPILE_INCLUDEOPT}iostream ${POSTCOMPILE_INCLUDEOPT}algorithm
 
 dist-1d-dbg: 
+	rm -f templateregistry
 	$(MAKE) $(OUTDIR)/CCGEN  
 	$(MAKE) $(FINAL)-dbg
 
 dist-1d-opt:
+	rm -f templateregistry
 	$(MAKE) $(OUTDIR)/CCGEN  
 	$(MAKE) $(FINAL)-opt
 
+clean: 
+	rm -r -f $(OUTDIR)/ssca2
+	rm -r -f $(OUTDIR)/CCGEN
+	rm -f $(FINAL)-dbg
+	rm -f $(FINAL)-opt
+	rm -f templateregistry
 
 $(OUTDIR)/CCGEN: $(SRCS)
 	$(X10CXX) -c -d $(OUTDIR) $(X10CXXFLAGS) $?
