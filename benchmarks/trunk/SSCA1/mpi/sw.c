@@ -790,6 +790,8 @@ int scoreFromPaths(Output *out) {
    return 0;
 }
 
+extern void autobind (int ntasks, int mytask);
+
 /**
  * The command line has options
  *    -s path    path for the file containing the shorter of the two sequences
@@ -812,6 +814,7 @@ int main(int argc, char **argv) {
    MPI_Init(&argc,&argv);
    MPI_Comm_rank(MPI_COMM_WORLD, &processId);
    MPI_Comm_size(MPI_COMM_WORLD, &processCount);
+   autobind(processCount, processId);
    output.shorterPath = output.longerPath = output.outputPath = NULL;
    repetitionCount = 1;
    begin = MPI_Wtime();
