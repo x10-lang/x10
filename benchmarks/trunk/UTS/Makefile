@@ -1,11 +1,35 @@
-CXX=g++
-CXXFLAGS=-O3 -fomit-frame-pointer 
+# A top-level Makefile to compile all X10 sources
+
+# <BEGIN> user settings #
+
+export X10CXX 		?= x10c++
+
+#leave blank by default, let x10c++ choose a sensible default
+#export X10RTTRANSPORT	?= -x10rt pgas_lapi
+
+export X10CXXFLAGS 	?= -report postcompile=5 $(X10RTTRANSPORT)
+
+# <END> user settings #
+
+ifeq ($(shell uname -s),AIX)
+   include arch/aix.mk
+endif
+ifeq ($(shell uname -s),Linux)
+   include arch/linux.mk
+endif
+ifeq ($(shell uname -s),Darwin)
+   include arch/darwin.mk
+endif
+ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
+   include arch/cygwin.mk
+endif
+ifeq ($(BGP_CROSS_COMPILE), 1)
+   include arch/bgp.mk
+endif
+
 X10RUN?=runx10
 X10CXX?=x10c++ 
-#X10RT_TRANSPORT?=-x10rt mpi
 X10CXXFLAGS=-report postcompile=5 $(X10RT_TRANSPORT)
-ARCHIVER=ar
-ARCHIVERFLAGS=rcs
 
 HEADERS=sha_endian.h \
         types.h \
@@ -25,14 +49,14 @@ libsha1.a: ${SOURCES} ${HEADERS}
 
 uts: uts.cpp sha1_rand.hpp libsha1.a
 	${CXX} ${CXXFLAGS} $< -o $@ -L. -lsha1
-	
+
 UTS: UTS.x10 sha1_rand.hpp sha1.c
 	${X10CXX} -O -NO_CHECKS ${X10CXXFLAGS} $< -o $@ -report postcompile=5	
 
 run-UTS: UTS
 	${X10RUN} ./UTS
 	#${X10RUN} gdb ./UTS
-	
+
 test: Sha1Rand.cpp libsha1.a
 	${CXX} ${CXXFLAGS} -DSHA1_TEST $< -o $@ -L. -lsha1
 

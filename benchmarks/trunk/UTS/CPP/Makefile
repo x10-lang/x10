@@ -1,12 +1,35 @@
+# <BEGIN> user settings #
+
+X10_HOME?=${HOME}/x10-trunk/x10.dist
+export X10CXX 		?= x10c++
+
+#leave blank by default, let x10c++ choose a sensible default
+#export X10RTTRANSPORT	?= -x10rt pgas_lapi
+
+export X10CXXFLAGS 	?= -report postcompile=5 $(X10RTTRANSPORT)
+
+# <END> user settings #
+
+ifeq ($(shell uname -s),AIX)
+   include ../arch/aix.mk
+endif
+ifeq ($(shell uname -s),Linux)
+   include ../arch/linux.mk
+endif
+ifeq ($(shell uname -s),Darwin)
+   include ../arch/darwin.mk
+endif
+ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
+   include ../arch/cygwin.mk
+endif
+ifeq ($(BGP_CROSS_COMPILE), 1)
+   include ../arch/bgp.mk
+endif
+
 # Environment variables holding my stuff for now
-X10_HOME=${HOME}/x10-trunk/x10.dist
 X10_INCLUDE_DIR=${X10_HOME}/include
 X10_LIB_DIR=${X10_HOME}/lib
 X10_BIN_DIR=${X10_HOME}/bin
-CXX=g++
-CXXFLAGS=-O3 -fomit-frame-pointer 
-#CXXFLAGS=-O0 -g -DDEBUG
-#LDFLAGS=-Wl,-stack_size -Wl,100000000
 
 # The libraries that we want for the executable to be compiled
 #X10RT_LIB=x10rt_pgas_sockets
@@ -24,7 +47,10 @@ SOURCES=sha1.c
 
 OBJS=$(SOURCES:.c=.o)
 
-TARGETS=libsha1.a uts
+TARGETS=libsha1.a uts par_uts
+
+# Actual rules
+all: ${TARGETS}
 
 uts: uts.cpp libsha1.a
 	${CXX} ${CXXFLAGS} $< -o $@ -I${X10_INCLUDE_DIR} -L${X10_LIB_DIR} \
@@ -37,9 +63,6 @@ par_uts: par_uts.cpp libsha1.a
 libsha1.a: ${SOURCES} ${HEADERS}
 	${CXX} -c ${CXXFLAGS} ${SOURCES}
 	ar rcs $@ ${OBJS}
-
-# Actual rules
-all: ${TARGETS}
 
 ping_pong: ping_pong.cpp
 	${CXX} $< -I${X10_INCLUDE_DIR} -L${X10_LIB_DIR} -l${X10RT_LIB} -o $@
