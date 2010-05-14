@@ -1,4 +1,4 @@
-example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil RandomAccess Series RayTrace LUFact)
+example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil RandomAccess Series RayTrace LUFact SparseMatMul)
 
 rm out.txt
 COUNT=10

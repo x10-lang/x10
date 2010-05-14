@@ -23,7 +23,6 @@
     <property name="asm.jar.url" value="${asm.url}/asm-all-3.2.jar"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
-    
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="common.jar" value="x10common.jar"/>
     <property name="x10.effects.location" location="${x10.home}/x10.effects"/>
@@ -92,8 +91,8 @@
         <mkdir dir="${lib}" />
         -->
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
-         <ant antfile="${x10.effects.location}/build.xml" target="clean" inheritAll="false" dir="${x10.effects.location}"/>
- 	<ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
+        <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
+        <ant antfile="${x10.effects.location}/build.xml" target="clean" inheritAll="false" dir="${x10.effects.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
         <ant antfile="${x10.compiler.location}/build.xml" target="clean" inheritAll="false" dir="${x10.compiler.location}"/>
     </target>
@@ -104,15 +103,15 @@
         <ant antfile="${x10.runtime.location}/build.xml" target="distclean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
-    <target name="dist-java" depends="init,build,common-jar,constraints-jar,effects-jar,compiler-jar,runtime-java"/>
+    <target name="dist-java" depends="init,build,common-jar,effects-jar,constraints-jar,compiler-jar,runtime-java"/>
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
     <target name="dist" depends="dist-java,dist-cpp"/>
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
-       <!-- <mkdir dir="${lib}"/>
+        <mkdir dir="${lib}"/>
         <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
-        <fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>-->
+        <fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>
     </target>
     <target name="lpg-local-jar" depends="init" if="local.lpg.jar">
         <mkdir dir="${lib}"/>
@@ -122,10 +121,10 @@
     </target>
 
     <target name="ecj-jar" depends="init,ecj-local-jar" unless="local.ecj.jar">
-        <!--<mkdir dir="${lib}"/>
+        <mkdir dir="${lib}"/>
         <get usetimestamp="true" ignoreerrors="true" src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
-        <fail message="Unable to get ${ecj.jar}" unless="ecj.jar.present"/>-->
+        <fail message="Unable to get ${ecj.jar}" unless="ecj.jar.present"/>
     </target>
     <target name="ecj-local-jar" depends="init" if="local.ecj.jar">
         <mkdir dir="${lib}"/>
@@ -135,12 +134,11 @@
     </target>
 
     <target name="polyglot-jar" depends="init,polyglot-local-jar" unless="local.polyglot.jar">
-        <!-- <mkdir dir="${lib}"/>
+        <mkdir dir="${lib}"/>
         <get usetimestamp="true" ignoreerrors="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
         <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
         <fail message="Unable to get ${polyglot.jar}" unless="polyglot.jar.present"/>
-    -->
-	</target>
+    </target>
     <target name="polyglot-local-jar" depends="init" if="local.polyglot.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.polyglot.jar}" tofile="${lib}/${polyglot.jar}"/>
@@ -149,12 +147,11 @@
     </target>
 
     <target name="polyglot-bytecode-jar" depends="init,polyglot-bytecode-local-jar" unless="local.polyglot.bytecode.jar">
-        <!--<mkdir dir="${lib}"/>
+        <mkdir dir="${lib}"/>
         <get usetimestamp="true" ignoreerrors="true" src="${polyglot.bytecode.jar.url}" dest="${lib}/${polyglot.bytecode.jar}"/>
         <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
         <fail message="Unable to get ${polyglot.bytecode.jar}" unless="polyglot.bytecode.jar.present"/>
-  --> 
-</target>
+    </target>
     <target name="polyglot-bytecode-local-jar" depends="init" if="local.polyglot.bytecode.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.polyglot.bytecode.jar}" tofile="${lib}/${polyglot.bytecode.jar}"/>
@@ -163,12 +160,11 @@
     </target>
 
     <target name="asm-jar" depends="init,asm-local-jar" unless="local.asm.jar">
-        <!--<mkdir dir="${lib}"/>
+        <mkdir dir="${lib}"/>
         <get usetimestamp="true" ignoreerrors="true" src="${asm.jar.url}" dest="${lib}/${asm.jar}"/>
         <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
         <fail message="Unable to get ${asm.jar}" unless="asm.jar.present"/>
-    	-->
-	</target>
+    </target>
     <target name="asm-local-jar" depends="init" if="local.asm.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.asm.jar}" tofile="${lib}/${asm.jar}"/>
@@ -180,7 +176,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="runtime-java" depends="init,common-jar,constraints-jar">
+    <target name="runtime-java" depends="init,common-jar,effects-jar,constraints-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-java" inheritAll="false" dir="${x10.runtime.location}"/>
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
@@ -202,16 +198,10 @@
         </copy>
         -->
     </target>
-    <target name="effects-jar" depends="init">
-               <ant antfile="${x10.effects.location}/build.xml" target="build" inheritAll="false" dir="${x10.effects.location}"/>
-               <!--
-               <ant antfile="${x10.effects.location}/build.xml" target="jar" inheritAll="false" dir="${x10.effects.location}"/>
-               <mkdir dir="${lib}"/>
-               <copy todir="${lib}">
-                   <fileset dir="${x10.effects.location}/${builddir}" includes="${effects.jar}"/>
-               </copy>
-               -->
-           </target>
+
+    <target name="effects-jar" depends="init, constraints-jar">
+        <ant antfile="${x10.effects.location}/build.xml" target="build" inheritAll="false" dir="${x10.effects.location}"/>
+    </target>
 
     <target name="common-jar" depends="init">
         <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}"/>
@@ -224,7 +214,7 @@
         -->
     </target>
 
-    <target name="compiler-jar" depends="init,common-jar,constraints-jar">
+    <target name="compiler-jar" depends="init,common-jar,constraints-jar, effects-jar">
         <ant antfile="${x10.compiler.location}/build.xml" target="jar" inheritAll="false" dir="${x10.compiler.location}"/>
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
@@ -487,6 +477,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
             <zipfileset prefix="x10.compiler" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
+            <zipfileset prefix="x10.effects" dir="${x10.effects.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.common" dir="${x10.common.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
         </zip>
