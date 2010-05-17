@@ -15,13 +15,13 @@ export POSTCOMPILE_LDFLAGS	?=
 export POSTCOMPILE_LIBS		?=  -ldl -lm -lpthread -lrt 
 else
 export POSTCOMPILE_CXX		?= g++
-export POSTCOMPILE_CXXFLAGS 	?= -m64 
+export POSTCOMPILE_CXXFLAGS 	?=  -m64 
 export POSTCOMPILE_LDFLAGS	?= 
 export POSTCOMPILE_LIBS		?=  -ldl -lm -lpthread -lrt 
 endif
 
-export POSTCOMPILE_OPTFLAGS	?= -O3 -DNO_CHECKS
-export POSTCOMPILE_DBGFLAGS	?= -g
+export POSTCOMPILE_OPTFLAGS	?= -O3 -DNO_CHECKS -DNDEBUG 
+export POSTCOMPILE_DBGFLAGS	?= -g -pg
 
 export POSTCOMPILE_NATIVE_LIB_FLAGS ?= -O3 -DNDEBUG
 

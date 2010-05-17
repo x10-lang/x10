@@ -10,7 +10,7 @@ class SSCA2 {
 
        val GLOBALS = at (defs.container) {defs.container.globals};
          val unique = Dist.makeUnique();
-         val pg = new defs.pGraph(g.n, g.m, unique);
+         val pg = defs.pGraph(g.n, g.m, unique);
          val  gNumEdges = ValRail.make[types.LONG_T](g.numEdges.length, (i: Int)=>(g.numEdges as Rail[types.LONG_T])(i));
 
          val  gEndV = ValRail.make[types.VERT_T](g.endV.length, (i: Int)=>(g.endV as Rail[types.VERT_T])(i));
@@ -113,7 +113,7 @@ class SSCA2 {
                 }else {
                  val RVertices = PlaceLocalHandle.make[HashMap[types.VERT_T, types.VERT_T]](unique, ()=>new HashMap[types.VERT_T, types.VERT_T]());
                  val Out_pairs = PlaceLocalHandle.make[GrowableRail[types.UVPair]](unique, ()=>new GrowableRail[types.UVPair](0));
-                 pg_real = new defs.pGraph(GLOBALS.N, GLOBALS.M, unique);
+                 pg_real = defs.pGraph(GLOBALS.N, GLOBALS.M, unique);
                  val pg_tmp = pg_real;
                  finish ateach ((place) in unique) {
                     val world: Comm! = Comm.WORLD();
@@ -151,7 +151,7 @@ for ((i) in 0..sourceList.length-1) {
                     world.barrier();
                 }
 
-               val bc = new BetweenessCentrality(pg_real, USE_ASYNC, FILTER);
+               val bc = new BetweenessCentrality(pg_real, USE_ASYNC, FILTER, SCALE);
                bc.compute(GLOBALS);
                if (SERIAL_GRAPH_GEN==true) bc.dump();
 

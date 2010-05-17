@@ -1,9 +1,9 @@
-include ../arch/aix.mk
+include ../arch/linux.mk
 
 TARGET = SSCA2
 
 CC=${POSTCOMPILE_CXX}
-CFLAGS=${POSTCOMPILE_NATIVE_LIB_FLAGS} 
+CFLAGS=${POSTCOMPILE_NATIVE_LIB_FLAGS}  -m64
 INC=-I../sprng2.0/include
 LIB=-L../sprng2.0/lib -lsprng
 

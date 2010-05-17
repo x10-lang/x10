@@ -73,14 +73,14 @@ Rail[types.WEIGHT_T]!) {
 
 	
 	public static class pGraphLocal {
-	global val n: types.LONG_T;
+	 val n: types.LONG_T;
 	
-	public global val numEdges: Array[types.LONG_T](1)!;
+	public  val numEdges: Array[types.LONG_T](1)!;
 
-	public global val endV: GrowableRail[types.VERT_T]!;
-	public global val weight : GrowableRail[types.WEIGHT_T]!;
+	public  val endV: GrowableRail[types.VERT_T]!;
+	public  val weight : GrowableRail[types.WEIGHT_T]!;
 
-        public global val vertices: Region(1);
+        public  val vertices: Region(1);
 	
          public def this (n: types.LONG_T, dist: Dist) {
             this.n = n / dist.places().length;
@@ -95,10 +95,14 @@ Rail[types.WEIGHT_T]!) {
 
 	};
 
-public static class pGraph {
+public static struct pGraph {
 
         global val N: types.LONG_T; /* total n */
         global val M: types.LONG_T; /* total m */
+ 
+        val chunkSize: types.LONG_T;
+        val logChunkSize: types.LONG_T;
+
         global val sections :  PlaceLocalHandle[pGraphLocal]; /* sections of graph on p */
         global val dist: Dist(1);
 
@@ -107,6 +111,8 @@ public static class pGraph {
                  N = n;
                  sections = PlaceLocalHandle.make[pGraphLocal](dist, ()=>new pGraphLocal(n, dist));
                  this.dist = dist;
+                 this.chunkSize = N/dist.places().length();
+                 this.logChunkSize = Math.log2(chunkSize);
         }
 
          public global def restrict_here () : pGraphLocal! {
@@ -114,7 +120,10 @@ public static class pGraph {
          }
 
         public global def  owner(v: types.VERT_T) {
-            return Place.places(v/(N/dist.places().length()));
+            return Place(v/chunkSize);
+       }
+        public global def  owner_id(v: types.VERT_T) {
+            return v >> logChunkSize;
        }
 
         };

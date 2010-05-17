@@ -382,6 +382,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC, int filter) {
 #endif
         for (j=0; j<count; j++) {
             w = S[j];
+            //fprintf (stderr, "w: %d\n", w);
             d[w] = -1;
             del[w] = 0;
             P[w].count = 0;
@@ -453,7 +454,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC, int filter) {
     }
 #endif
 
-    for (i = 0; i < G->n; i++) printf ("%d %f\n",i, BC[i]);
+    for (i = 0; i < G->n; i++) printf ("BC: %d %f\n",i, BC[i]);
     return elapsed_time;
 }
 
