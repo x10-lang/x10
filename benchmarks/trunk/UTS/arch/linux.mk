@@ -17,6 +17,7 @@ else
 export BLAS_LIB		?= -lblas
 endif
 
+export POSTCOMPILE_CXX		?= g++
 export POSTCOMPILE_AR		?= ar
 export POSTCOMPILE_ARFLAGS	?= rv
 export POSTCOMPILE_RANLIB   	?= ranlib

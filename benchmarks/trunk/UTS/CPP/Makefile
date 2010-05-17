@@ -1,6 +1,6 @@
 # <BEGIN> user settings #
 
-X10_HOME?=${HOME}/x10-trunk/x10.dist
+X10_DIST?=${HOME}/x10-trunk/x10.dist
 export X10CXX 		?= x10c++
 
 #leave blank by default, let x10c++ choose a sensible default
@@ -27,13 +27,23 @@ ifeq ($(BGP_CROSS_COMPILE), 1)
 endif
 
 # Environment variables holding my stuff for now
-X10_INCLUDE_DIR=${X10_HOME}/include
-X10_LIB_DIR=${X10_HOME}/lib
-X10_BIN_DIR=${X10_HOME}/bin
+X10_INCLUDE_DIR=${X10_DIST}/include
+X10_LIB_DIR=${X10_DIST}/lib
+X10_BIN_DIR=${X10_DIST}/bin
+
+CXX = $(POSTCOMPILE_CXX)
+CXXFLAGS = $(POSTCOMPILE_CXXFLAGS)
+AR = $(POSTCOMPILE_AR)
+ARFLAGS = $(POSTCOMPILE_ARFLAGS)
 
 # The libraries that we want for the executable to be compiled
 #X10RT_LIB=x10rt_pgas_sockets
+
+ifeq ($(shell uname -s),AIX)
+X10RT_LIB=x10rt_pgas_lapi
+else
 X10RT_LIB=x10rt_mpi
+endif
 
 # Runtime environment variables
 TCSH=/bin/tcsh
@@ -53,8 +63,8 @@ TARGETS=libsha1.a uts par_uts
 all: ${TARGETS}
 
 uts: uts.cpp libsha1.a
-	${CXX} ${CXXFLAGS} $< -o $@ -I${X10_INCLUDE_DIR} -L${X10_LIB_DIR} \
-  -l${X10RT_LIB} ${LDFLAGS} -L. -lsha1 
+	${CXX} ${CXXFLAGS} $< -o $@ -I${X10_INCLUDE_DIR} \
+	${LDFLAGS} -L${X10_LIB_DIR} -l${X10RT_LIB} -L. -lsha1 
 
 par_uts: par_uts.cpp libsha1.a
 	${CXX} ${CXXFLAGS} $< -o $@ -I${X10_INCLUDE_DIR} -L${X10_LIB_DIR} \
@@ -62,7 +72,7 @@ par_uts: par_uts.cpp libsha1.a
 
 libsha1.a: ${SOURCES} ${HEADERS}
 	${CXX} -c ${CXXFLAGS} ${SOURCES}
-	ar rcs $@ ${OBJS}
+	$(AR) $(ARFLAGS) $@ ${OBJS}
 
 ping_pong: ping_pong.cpp
 	${CXX} $< -I${X10_INCLUDE_DIR} -L${X10_LIB_DIR} -l${X10RT_LIB} -o $@
