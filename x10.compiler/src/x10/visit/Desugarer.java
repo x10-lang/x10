@@ -723,7 +723,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     // a(i)=v -> a.set(v, i) or a(i)op=v -> ((x:A,y:I,z:T)=>x.set(x.apply(y) op z,y))(a,i,v)
-    private Expr visitSettableAssign(SettableAssign_c n) throws SemanticException {
+    protected Expr visitSettableAssign(SettableAssign_c n) throws SemanticException {
         Position pos = n.position();
         MethodInstance mi = n.methodInstance();
         List<Expr> args = new ArrayList<Expr>(n.index());
