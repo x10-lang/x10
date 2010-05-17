@@ -1067,7 +1067,6 @@ types satisfying \xcd"Si <: Ti" and \xcd"S <: T". Then
 \xcd"(x1:S1,...,xn:Sn){c}=>T".
 
 
-%%BARD-HERE
 
 A class or struct definition may use a function type 
 \xcd"F = (x1:T1,...,xn:Tn){c}=>T" in its 
@@ -1185,43 +1184,32 @@ constraints on the class etc. imply that \xcd`X <: Y`.
 Two types are {\em equivalent}, \xcd`T == U`, if \xcd`T <: U` and \xcd`U <: T`. 
 
 
-\section{Least common ancestor of types}
+\section{Common ancestors of types}
 \label{LCA}
 
-To compute the type of conditional expressions
-(\Sref{Conditional}),
-and of rail constructors
-(\Sref{RailConstructors}), the least common ancestor of types
-must be computed.  For example, the type of 
-%~~exp~~`~~`~~b:Boolean ~~
-\xcd`b ? 1 : true`
-has to be something which admits both \xcd`1` and \xcd`true` as values. 
-
-Given types \xcd`T` and \xcd`U`, if there exists a 
-type \xcd`V` such that \xcd`T <: V`, and \xcd`U <: V`, and, for all types
-\xcd`W` such that \xcd`T <: W` and \xcd`U <: W` it is the case that 
-\xcd`V <: W`, then \xcd`V` is a least common ancestor of \xcd`T` and \xcd`U`.  
-If there is no such \xcd`V`, then \xcd`x10.lang.Any` is defined to be the
-least common ancestor of \xcd`T` and \xcd`U`. 
-
-While there are, in general, many least common ancestors of \xcd`T` and
-\xcd`U`, they are all equivalent.  (If \xcd`V` and \xcd`W` are least common
-ancestors, then \xcd`V <: W` and \xcd`W <: V` by the definition of ``a least
-common ancestor'', whence \xcd`V == W`.)  The X10 compiler may pick any one of
-them when it needs to do this computation. 
-
-\bard{This definition is flawed at best.  There is a [near]infinite 
-descending chain of common ancestors for \xcd`0U` and \xcd`1U`, but no
-reasonable least one.  The matter is under consideration now.}
+\bard{This is a troublesome topic.  It is necessary to compute some common
+ancestor of types: the conditional expression \xcd`t ? a : b` 
+and a function with multiple return sites 
+\xcd`def f(x:Int) { ... return a; ... return b; ...}`
+will be given some type generalizing both 
+\xcd`typeof(a)` and \xcd`typeof(b)`.
+However, both the constraint system and covariant generic types allow the
+possibility of types without a {\bf least} common ancestor. 
+Current concept: X10 may compute any common ancestor, possibly all the way to
+\xcd`Any`. However, it will try to compute a good one. 
+guarantee that if the types of \xcd`a` and \xcd`b` are
+identical, the common ancestor chosen is that type too.  If the types are
+\xcd`T{e}` and \xcd`T{f}`, the common ancestor will be \xcd`T{g}` for some
+\xcd`g` (entailed by both \xcd`e` and \xcd`f` -- perhaps just \xcd`true`). 
+}
 
 
 
 %\subsection{Syntactic abbreviations}\label{DepType:SyntaxAbbrev}
 
-\section{Built-in types}
+\section{Fundamental types}
 
-The package \xcd"x10.lang" provides a number of built-in class, struct, and
-interface declarations that can be used to construct types.
+Certain types are used in fundamental ways by X10.  
 
 \subsection{\xcd`Any`}
 
@@ -1230,7 +1218,6 @@ is, a supertype of all types.\footnote{Java, for one, suffers a number of
   inconveniences because some built-in types like \xcd`int` and \xcd`char`
   aren't subtypes of anything else.}  X10's universal supertype is the
   interface \xcd`Any`. 
-
 
 \begin{xten}
 package x10.lang;
@@ -1267,28 +1254,6 @@ A variable of this type can hold a reference to any object.
 described more in \Sref{XtenPlaces}.
 
 
-\subsection{The class \Xcd{String}}
-\label{String}\index{\Xcd{String}}\index{\Xcd{x10.lang.String}}
-
-Strings in \Xten{} are instances of the class \xcd"x10.lang.String", and are
-all immutable.
-Strings are one of the few types with literals, rather than simply
-      constructors.  String literals are the familiar \xcd`"`-delimited
-      strings, like \xcd`"this"` and \xcd`"that"`.
-
-Every X10 value has a \xcd`String` print representation, given by
-      \xcd`whatever.toString()`.   
-All values can be implicitly converted to strings by the concatenation
-      operation \xcd`+`, which calls their \xcd`toString()` methods if they
-      are not strings already.  For example, 
-%~~exp~~`~~`~~ ~~
-      \xcd`"one " + 2 + here` 
-      evaluates to something like \xcd`one 2(Place 0)`.  
-
-
-%%BARD-HERE
-\input{ArrayTypes}
-\input{FutureTypes}
 
 \section{Type inference}
 \label{TypeInference}
@@ -1296,36 +1261,131 @@ All values can be implicitly converted to strings by the concatenation
 \index{type inference}
 
 \XtenCurrVer{} supports limited local type inference, permitting
-variable types and return types to be elided.
+certain variable types and return types to be elided.
 It is a static error if an omitted type cannot be inferred or
 uniquely determined.
 
 \subsection{Variable declarations}
 
-The type of a variable declaration can be omitted if the
+The type of a \xcd`val` variable declaration can be omitted if the
 declaration has an initializer.  The inferred type of the
 variable is the computed type of the initializer.
+For example, 
+%~~stmt~~`~~`~~ ~~
+\xcd`val seven = 7;`
+is identical to 
+%~~stmt~~`~~`~~ ~~
+\xcd`val seven: Int{self==7} = 7;`
+Note that type inference gives the most precise X10 type, which might be more
+specific than the type that a programmer would write.
+
+\limitation{At the moment, only \xcd`val` declarations can have their types
+elided in this way.  
+}
 
 \subsection{Return types}
 
-The return type of a method can be omitted if the method has a
-body (i.e., is not \xcd"abstract" or \xcd"extern").  The
-inferred return type is the computed type of the body.
+The return type of a method can be omitted if the method has a body (\ie, is
+not \xcd"abstract" or \xcd"native"). The inferred return type is the computed
+type of the body.  In the following example, the return type inferred for
+\xcd`isTriangle` is 
+%~~type~~`~~`~~ ~~
+\xcd`Boolean{self==false}`
+%~~gen
+% package Types.Inferred.Return;
+%~~vis
+\begin{xten}
+class Shape {
+  def isTriangle() = false; 
+}  
+\end{xten}
+%~~siv
+%
+%~~neg
+Note that, as with other type inference, methods are given the most specific
+type.  In many cases, this interferes with subtyping.  For example, if one
+tried to write: 
+\begin{xten}
+class Triangle extends Shape {
+  def isTriangle() = true;
+}
+\end{xten}
+\noindent
+the X10 compiler would reject this program for attempting to override
+\xcd`isTriangle()` by a method with the wrong type, \viz,
+\xcd`Boolean{self==true}`.  In this case, supply the type that is actually
+intended for \xcd`isTriangle`, such as \xcd`def isTriangle():Boolean=false;`. 
 
 The return type of a closure can be omitted.
 The inferred return type is the computed type of the body.
 
 The return type of a constructor can be omitted if the
-constructor has a body (i.e., is not \xcd"extern").
+constructor has a body.
 The inferred return type is the enclosing class type with
 properties bound to the arguments in the constructor's \xcd"property"
 statement, if any, or to the unconstrained class type.
+For example, the \xcd`Spot` class has two constructors, the first of which has
+inferred return type \xcd`Spot{x==0}` and the second of which has 
+inferred return type \xcd`Spot{x==xx}`. 
+%~~gen
+% package Types.Inferred.By.Phone;
+%~~vis
+\begin{xten}
+class Spot(x:Int) {
+  def this() {property(0);}
+  def this(xx: Int) { property(xx); }
+}
+\end{xten}
+%~~siv
+%class Confirm{ 
+% static val s0 : Spot{x==0} = new Spot();
+% static val s1 : Spot{x==1} = new Spot(1);
+%}
+%~~neg
+
 
 \index{Void}
-The inferred type of a method or closure body is the least common ancestor
-of the types of the expressions in \xcd"return" statements
-in the body.  If the method does not return a value, the
-inferred type is \xcd"Void".
+
+A method or closure that has expression-free \xcd`return` statements
+(\xcd`return;` rather than \xcd`return e;`) is said to return \xcd`Void`.
+\xcd`Void` is not a type; there are no \xcd`Void` values, nor can \xcd`Void`
+be used as the argument of a generic type. However, \xcd`Void` takes the
+syntactic place of a type. A method returning \xcd`Void` can be specified by
+\xcd`def m():Void`: 
+
+%~~gen
+% package Types.Voidd;
+% class Voidddd {
+% static 
+%~~vis
+\begin{x10}
+val f : () => Void = () => {return;};
+\end{x10}
+%~~siv
+%}
+%~~neg
+
+By a convenient abuse of language, \xcd`Void` is sometimes
+lumped in with types; \eg, we may say ``return type of a method'' rather than
+the formally correct but rather more awkward ``return type of a method, or
+\xcd`Void`''.   Despite this informal usage, \xcd`Void` is not a type.  For
+example, given 
+%~~gen
+% package Types.Voidd;
+% class EEEEVil {
+%~~vis
+\begin{x10}
+  static def eval[T] (f:()=>T):T = f();
+\end{x10}
+%~~siv
+% }
+%~~neg
+\noindent
+The call \xcd`eval[Void](f)` does {\em not} typecheck; \xcd`Void` is not a
+type and thus cannot be used as a type argument.  There is no way in X10 to
+write a generic function which works with both functions which return a value
+and functions which do not.  In most cases, functions which have no sensible
+return value can be provided with a dummy return value.
 
 \subsection{Type arguments}
 
