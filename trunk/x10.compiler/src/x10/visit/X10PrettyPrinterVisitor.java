@@ -1146,13 +1146,73 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 	public void visit(X10Call_c c) {
+	    Type type = X10TypeMixin.baseType(c.type());
+	    X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
+	    if (!(type instanceof ParameterType) && (xts.isRail(c.target().type()) || xts.isValRail(c.target().type()))) {
+	        String methodName = c.methodInstance().name().toString();
+	        // e.g. rail.set(a,i) -> ((Object[]) rail.value)[i] = a or ((int[]/* primitive array */)rail.value)[i] = a
+	        if (methodName.equals("set")) {
+	            w.write("(");
+	            w.write("(");
+	            if (c.type().isBoolean() || c.type().isNumeric() || c.type().isChar()) {
+	                new TypeExpander(er, c.type(), 0).expand();
+	            }
+	            else {
+	                w.write("Object");
+	            }
+	            w.write("[]");
+	            w.write(")");
+	            c.print(c.target(), w, tr);
+	            w.write(".value");
+	            w.write(")");
+
+	            w.write("[");
+	            c.print(c.arguments().get(1), w, tr);
+	            w.write("]");
+
+	            w.write(" = ");
+	            c.print(c.arguments().get(0), w, tr);
+	            return;
+	        }
+	        // e.g. rail.apply(i) -> ((String)((Object[])rail.value)[i]) or ((int[])rail.value)[i]
+	        if (methodName.equals("apply")) {
+	            if (!(c.type().isBoolean() || c.type().isNumeric() || c.type().isChar())) {
+	                    w.write("(");
+	                    w.write("(");
+	                    new TypeExpander(er, c.type(), true, false, false).expand();
+	                    w.write(")");
+	            }
+	            
+	            w.write("(");
+	            w.write("(");
+	            if (c.type().isBoolean() || c.type().isNumeric() || c.type().isChar()) {
+	                new TypeExpander(er, c.type(), 0).expand();
+	            }
+	            else {
+	                w.write("Object");
+	            }
+	            w.write("[]");
+	            w.write(")");
+	            c.print(c.target(), w, tr);
+	            w.write(".value");
+	            w.write(")");
+
+	            w.write("[");
+	            c.print(c.arguments().get(0), w, tr);
+	            w.write("]");
+
+	            if (!(c.type().isBoolean() || c.type().isNumeric() || c.type().isChar())) {
+	                w.write(")");
+	            }
+	            return;
+	        }
+	    }
+	    
 		X10Context context = (X10Context) tr.context();
 
 		Receiver target = c.target();
 		Type t = target.type();
 		boolean base = false;
-
-		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 
 		X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
 
@@ -1828,6 +1888,26 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		else if (! effects) {
 			Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
 			Name methodName = X10Binary_c.binaryMethodName(op);
+			X10TypeSystem xts = (X10TypeSystem) ts;
+			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()))) {
+			    w.write("(");
+			    w.write("(");
+			    new TypeExpander(er, t, 0).expand();
+			    w.write("[])");
+			    er.arrayPrint(n, array, w, tmp);
+			    w.write(".value");
+			    w.write(")");
+			    w.write("[");
+			    new Join(er, ", ", index).expand(tr);
+			    w.write("]");
+			    w.write(" ");
+			    w.write(op.toString());
+			    w.write("=");
+			    w.write(" ");
+			    tr.print(n, n.right(), w);
+			    return;
+			}
+			
 			er.arrayPrint(n, array, w, tmp);
 			w.write(".set");
 			w.write("((");
@@ -1856,6 +1936,25 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
 			Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
 			Name methodName = X10Binary_c.binaryMethodName(op);
+                        X10TypeSystem xts = (X10TypeSystem) ts;
+                        if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()))) {			    w.write("(");
+			    w.write("(");
+			    new TypeExpander(er, t, 0).expand();
+			    w.write("[])");
+			    er.arrayPrint(n, array, w, tmp);
+			    w.write(".value");
+			    w.write(")");
+			    w.write("[");
+			    new Join(er, ", ", index).expand(tr);
+			    w.write("]");
+			    w.write(" ");
+			    w.write(op.toString());
+			    w.write("=");
+			    w.write(" ");
+			    tr.print(n, n.right(), w);
+			    return;
+			}
+			
 			w.write("new java.lang.Object() {");
 			w.allowBreak(0, " ");
 			w.write("final ");
