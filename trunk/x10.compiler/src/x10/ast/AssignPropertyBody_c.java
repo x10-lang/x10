@@ -24,12 +24,12 @@ import x10.types.X10ConstructorDef;
 public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBody {
 	final X10ConstructorDef ci;
 	final List<FieldInstance> fi;
-	public AssignPropertyBody_c(Position pos, List<Stmt> statements, 
-			X10ConstructorDef ci, List<FieldInstance> fi) {
-		super(pos, statements);
+	public AssignPropertyBody_c(X10NodeFactory xnf, Position pos, List<Stmt> statements,
+	                            X10ConstructorDef ci, List<FieldInstance> fi)
+	{
+		super(xnf, pos, statements);
 		this.ci = ci;
 		this.fi = fi;
-		
 	}
 	
 	public X10ConstructorDef constructorInstance() { return ci; }

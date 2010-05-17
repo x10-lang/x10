@@ -723,7 +723,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	public StmtSeq StmtSeq(Position pos, List<Stmt> statements) {
-		StmtSeq n = new StmtSeq_c(pos, statements);
+		StmtSeq n = new StmtSeq_c(this, pos, statements);
 		n = (StmtSeq)n.ext(extFactory().extBlock());
 		n = (StmtSeq)n.del(delFactory().delBlock());
 		return n;
@@ -795,7 +795,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 	public AssignPropertyBody AssignPropertyBody(Position pos, List<Stmt> statements, 
 			X10ConstructorDef ci, List<FieldInstance> fi) {
-		AssignPropertyBody  n = new AssignPropertyBody_c(pos, statements, ci, fi);
+		AssignPropertyBody  n = new AssignPropertyBody_c(this, pos, statements, ci, fi);
 		n = (AssignPropertyBody) n.ext(extFactory().extStmt());
 		n= (AssignPropertyBody) n.del(delFactory().delStmt());
 		return n;
