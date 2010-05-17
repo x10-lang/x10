@@ -81,6 +81,21 @@ namespace x10aux {
         return ret;
     }
     
+    template<class T>inline T* system_alloc(size_t size = sizeof(T)) {
+        _M_("system_alloc: Allocating " << size << " bytes of type " << TYPENAME(T));
+        return (T*)::malloc(size);
+    }
+
+    template<class T> T* system_realloc(T* src, size_t dsz) {
+        _M_("system_alloc: Reallocing chunk " << (void*)src << " of type " << TYPENAME(T));
+        return (T*)::realloc(src, dsz);
+    }
+
+    template<class T> void system_dealloc(const T* obj_) {
+        _M_("system_alloc: Freeing chunk " << (void*)obj_ << " of type " << TYPENAME(T));
+        ::free(obj_);
+    }
+
     template<class T> inline T* alloc(size_t size = sizeof(T), bool containsPtrs = true) {
         _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
         return (T*)alloc_internal(size, containsPtrs);
