@@ -66,11 +66,9 @@ namespace x10aux {
     void freeStringStream (std::stringstream *ss);
 #endif
 
-    extern ref<x10::lang::String> emptyRailToString;
-    
     template<class T> ref<x10::lang::String> railToString(x10_int length, T* data) {
         if (0 == length) {
-            return emptyRailToString;
+            return string_utils::lit("[]");
         }
         #ifndef NO_IOSTREAM
         std::stringstream *ss = allocStringStream();
