@@ -62,7 +62,7 @@ public class StmtSeq_c extends AbstractBlock_c implements StmtSeq {
     public Block toBlock() {
         return xnf.Block(position(), statements());
     }
-    // Do not push a block in. StmtSeq_c difers from AbstractBlock_c
+    // Do not push a block in. StmtSeq_c differs from AbstractBlock_c
     // only in that it does not create a new scope block.
     public Context enterScope(Context c) {
         return c;

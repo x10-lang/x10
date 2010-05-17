@@ -13,27 +13,35 @@ package x10.ast;
 
 import java.util.List;
 
+import polyglot.ast.AbstractBlock_c;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
+import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.types.X10ConstructorDef;
 
-public class AssignPropertyBody_c extends StmtSeq_c implements AssignPropertyBody {
+public class AssignPropertyBody_c extends AbstractBlock_c implements AssignPropertyBody {
 	final X10ConstructorDef ci;
 	final List<FieldInstance> fi;
-	public AssignPropertyBody_c(X10NodeFactory xnf, Position pos, List<Stmt> statements,
-	                            X10ConstructorDef ci, List<FieldInstance> fi)
+	public AssignPropertyBody_c(Position pos, List<Stmt> statements, X10ConstructorDef ci,
+	                            List<FieldInstance> fi)
 	{
-		super(xnf, pos, statements);
+		super(pos, statements);
 		this.ci = ci;
 		this.fi = fi;
 	}
 	
 	public X10ConstructorDef constructorInstance() { return ci; }
 	public List<FieldInstance> fieldInstances() { return fi; }
+
+	// Do not push a block in. AssignPropertyBody_c differs from AbstractBlock_c
+	// only in that it does not create a new scope block.
+	public Context enterScope(Context c) {
+		return c;
+	}
 
 	@Override
 	public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
