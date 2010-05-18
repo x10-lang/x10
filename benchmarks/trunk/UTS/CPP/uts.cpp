@@ -60,13 +60,13 @@ int main (int argc, char** argv) {
   for (int i =1; // Program name is always the first argument -- argc >= 1
        i < argc; // Till all the arguments are consumed
        i += 2) { // Consume two at a time
-    if (0 == strcmp (argv[i], "-b0")) {
+    if (0 == strncmp (argv[i], "-b0", 3)) {
       b0 = atoi (argv[i+1]);
-    } else if (0 == strcmp (argv[i], "-r")) {
+    } else if (0 == strncmp (argv[i], "-r", 2)) {
       r = atoi (argv[i+1]);
-    } else if (0 == strcmp (argv[i], "-m")) {
+    } else if (0 == strncmp (argv[i], "-m", 2)) {
       m = atoi (argv[i+1]);
-    } else if (0 == strcmp (argv[i], "-q")) {
+    } else if (0 == strncmp (argv[i], "-q", 2)) {
       q = static_cast<double> (atof (argv[i+1]));
     } else {
       std::cout << "Error --- invalid option: " << argv[i] << std::endl;
