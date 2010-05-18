@@ -1196,7 +1196,7 @@ val z : Cplx{self.x == self.y} = new Cplx(1.8,1.8);
 <a name="src-self-diff-1"/>
 <tr class="ex"><td><a href="#self-diff-1" class="ex">1</a></td><td class="ex"><code>val r : ValRail[Int]{self.length == 3} = [1,2,3];</code></td></tr>
 <a name="src-self-diff-2"/>
-<tr class="ex"><td><a href="#self-diff-2" class="ex">2</a></td><td class="ex"><code>val z : Cplx{self.x = self.y} = new Cplx(1.8,1.8);</code></td></tr>
+<tr class="ex"><td><a href="#self-diff-2" class="ex">2</a></td><td class="ex"><code>val z : Cplx{self.x == self.y} = new Cplx(1.8,1.8);</code></td></tr>
 </table>
 
 <a name="self-diff-1"/>
@@ -1351,7 +1351,7 @@ code bodies.
 
 <p>
 When there are two sets of braces, the first one is for the constraint, and
-the second one is for the cody body.
+the second one is for the code body.
 </p>
 
 <p>
