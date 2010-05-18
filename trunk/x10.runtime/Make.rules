@@ -100,7 +100,7 @@ else
 #      override CXXFLAGS_SHARED += -qmkshrobj -berok -brtl -bnortllib -bnosymbolic -bnoautoexp -bM:SRE -bnoentry
       override LDFLAGS += -brtl
       ifdef OPTIMIZE
-        override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
+        override CXXFLAGS += -O3 -qinline -qarch=auto -qtune=auto -qhot
       endif
       override CXXFLAGS += -qrtti=all
       override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
