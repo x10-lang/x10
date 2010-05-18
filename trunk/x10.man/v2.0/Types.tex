@@ -61,7 +61,8 @@ Strengthening is an equally familiar notion from logic.   The instances of
 \xcd`Int{self != 0}` are all elements of \xcd`Int{true}` as well, because
 \xcd`self != 0` logically implies \xcd`true`; so 
 \xcd`Int{self != 0} <: Int{true} == Int` by strengthening.  X10 uses both
-notions of subtyping.
+notions of subtyping.  See \Sref{DepType:Equivalence} for the full definition
+of subtyping in X10.
 
 
 
@@ -1130,46 +1131,72 @@ about types.   For example:
 % package Types.subtyping.cons;
 %~fails~vis
 \begin{xten}
-class ConsTy[T,U]{T <: U} {
-   def upcast(t:T):U = t;
+class ConsTy[T,U] {
+   def upcast(t:T){T <: U} :U = t;
 }
 \end{xten}
 %~fails~siv
 %
 %~fails~neg
 \noindent
-Inside \xcd`ConsTy`, \xcd`T` is constrained to be a subtype of \xcd`U`.
-Outside of \xcd`ConsTy`, even if \xcd`T` and \xcd`U` are both defined as type
-variables, there 
-is no reason to expect any relationship between them. 
+Inside \xcd`upcast`, \xcd`T` is constrained to be a subtype of \xcd`U`, and so
+\xcd`T <: U` is true, and \xcd`t` can be treated as a value of type \xcd`U`.  
+Outside of \xcd`upcast`, there is no reason to expect any relationship between
+them, and \xcd`T <: U` may be false.
+However, subtyping of types that have no free variables does not depend
+on the context.    \xcd`Int{self != 0} <: Int` is always
+true, regardless of what else is going on.
 
 \limitation{Subtyping of type variables does not currently work.}
 
-Subtyping of types that have no free variables does not depend
-on the context, however.    For example, \xcd`Int{self != 0} <: Int` is always
-true, regardless of what else is going on.
+
 
 \begin{itemize}
 \item {\bf Reflexivity:} Every type \xcd`T` is a subtype of itself: \xcd`T <: T`.
 
 \item {\bf Transitivity:} If \xcd`T <: U` and \xcd`U <: V`, then \xcd`T <: V`. 
 
+\iffalse
 {\bf Class types:}  
 Given the definition 
-\xcd`class C extends D{d} implements I1, ..., In {...}`
-then \xcd`C` is a subtype of \xcd`D{d}`, \xcd`I1`, ..., \xcd`In`. 
+\xcd`class C[$\vec{X}$] extends D[$\vec{Y}$]{d} implements I1, ..., In {...}`
+where {$\vec{X}$} is a vector of type variables, and 
+{$\vec{Y$} a vector of types possibly involving variables from {$\vec{X}$}, 
+and {$\vec{T$} an instantiation of {$\vec{X$} and {$\vec{U$} the corresponding
+instantiation of {$\vec{Y$}, 
+then 
+\xcdmath"C[$\vec{T}$]`"is a subtype of \xcd`D[$\vec{U}$]{d}`, \xcd`I1`, ..., \xcd`In`. 
 
 \item
 {\bf Interface types:}  
 Given the definition 
-\xcd`interface I extends I1, ... In {...}`
-then \xcd`I` is a subtype of \xcd`I1`, ..., \xcd`In`.
+\xcdmath"interface I[$\vec{X}$] extends I1, ... In {...}`"
+then \xcdmath"I` is a subtype of \xcd`"1`, ..., \xcd`In`.
 
 \item 
 {\bf Struct types:} 
 Given the definition 
-\xcd`struct S implements I1, ..., In {...}`
-then \xcd`S` is a subtype of \xcd`I1`, ..., \xcd`In`. 
+\xcdmath"struct S implements I1, ..., In {...}`"then \xcd`S` is a 
+subtype of \xcd`I1`, ..., \xcd`In`. 
+\fi
+
+\item {\bf Direct Subclassing:} 
+Let {$\vec{X}$} be a (possibly empty) vector of type variables, and
+{$\vec{Y}$}, {$\vec{Y_i}$} be vectors of type terms over {$\vec{X}$}.
+Let {$\vec{T}$} be an instantiation of {$\vec{X}$}, 
+and {$\vec{U}$}, {$\vec{U_i}$} the corresponding instantiation of 
+{$\vec{Y}$}, {$\vec{Y_i}$}.  Suppose that \xcd`C` is declared by one of the
+forms: 
+\begin{enumerate}
+\item \xcdmath"class C[$\vec{X}$] extends D[$\vec{Y}$]{d} implements I$_1[\vec{Y_1}]$,...,I$_n[\vec{Y_n}]${"
+\item \xcdmath"interface C[$\vec{X}$] extends I$_1[\vec{Y_1}]$,...,I$_n[\vec{Y_n}]${"
+\item \xcdmath"struct C[$\vec{X}$] implements I$_1[\vec{Y_1}]$,...,I$_n[\vec{Y_n}]${"
+\end{enumerate}
+Then: 
+\begin{enumerate}
+\item \xcdmath"C[$\vec{T}$] <: D[$\vec{Y}$]{d}" for a class
+\item \xcdmath"C[$\vec{T}$] <: I$_i$[$\vec{Y_i}$]" for all cases.
+\end{enumerate}
 
 
 \item
@@ -1194,8 +1221,27 @@ Every type \xcd`T` is a subtype of \xcd`x10.lang.Any`.
 
 \item 
 {\bf Type Variables:}
-In the scope of a constraint which entails a relations between type
-expressions  \xcd`A <: B`, \xcd`A` is a subtype of \xcd`B`. 
+Inside the scope of a constraint \xcd`c` which entails \xcd`A <: B`, we have
+\xcd`A <: B`.  \eg, \xcd`upcast` above.
+
+
+\item 
+{\bf Covariant Generic Types:} 
+If \xcd`C` is a generic type whose {$i$}th type parameter is covariant, 
+and {\xcdmath"T$'_i$ <: T$_i$"}
+and  {\xcdmath"T$'_j$ == T$_j$"} for all {$j \ne i$}, 
+then {\xcdmath"C[T$'_1$, \ldots, T$'_n$] <: C[T$'_1$, $\ldots$, T$'_n$]"}.
+\Eg, \xcd`class C[T1, +T2, T3]` with {$i=2$}, and \xcd"U2 <: T2", then
+\xcd`C[T1,U2,T3] <: C[T1,T2,T3]`.
+
+\item 
+{\bf Contravariant Generic Types:} 
+If \xcd`C` is a generic type whose {$i$}th type parameter is contravariant, 
+and \xcdmath"T$'_i$ <: T$_i$"
+and  \xcdmath"T$'_j$ == T$_j$" for all {$j \ne i$}, 
+then \xcdmath"C[T$'_1$, \ldots, T$'_n$] :> C[T$'_1$, $\ldots$, T$'_n$]".
+\Eg, \xcd`class C[T1, -T2, T3]` with {$i=2$}, and \xcdmath"U2 <: T2", then
+\xcd`C[T1,U2,T3] :> C[T1,T2,T3]`.
 
 \end{itemize}
 
@@ -1230,7 +1276,7 @@ identical, the common ancestor chosen is that type too.  If the types are
 
 Certain types are used in fundamental ways by X10.  
 
-\subsection{\xcd`Any`}
+\subsection{The interface \xcd`Any`}
 
 It is quite convenient to have a type which all values are instances of; that
 is, a supertype of all types.\footnote{Java, for one, suffers a number of
@@ -1377,9 +1423,9 @@ syntactic place of a type. A method returning \xcd`Void` can be specified by
 % class Voidddd {
 % static 
 %~~vis
-\begin{x10}
+\begin{xten}
 val f : () => Void = () => {return;};
-\end{x10}
+\end{xten}
 %~~siv
 %}
 %~~neg
@@ -1393,9 +1439,9 @@ example, given
 % package Types.Voidd;
 % class EEEEVil {
 %~~vis
-\begin{x10}
+\begin{xten}
   static def eval[T] (f:()=>T):T = f();
-\end{x10}
+\end{xten}
 %~~siv
 % }
 %~~neg
@@ -1407,6 +1453,9 @@ and functions which do not.  In most cases, functions which have no sensible
 return value can be provided with a dummy return value.
 
 \subsection{Type arguments}
+
+\limitation{This does not seem to work at all currently.}
+\bard{Is this material even currently under consideration?}
 
 A call to a polymorphic method %, closure, or constructor 
 may omit the
