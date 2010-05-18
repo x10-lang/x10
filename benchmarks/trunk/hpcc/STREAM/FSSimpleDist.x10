@@ -42,9 +42,9 @@ public class FSSimpleDist {
                     
                     for (var j:int=0; j<NUM_TIMES; j++) {
                         if (p==0) (times as Rail[Double]!)(j) = -now(); 
-			for (var i:int=0; i<localSize; i++)
+                        for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + beta*c(i);
-			world.barrier();
+                        world.barrier();
                         if (p==0) (times as Rail[Double]!)(j) = (times as Rail[Double]!)(j) + now();
                     }
                     
