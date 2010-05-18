@@ -76,6 +76,10 @@ FINAL = $(OUTDIR)/ssca2
 
 NATIVE_INCLUDES=  ${POSTCOMPILE_INCLUDEOPT}$(PWD)/sprng2.0/include/sprng.h ${POSTCOMPILE_INCLUDEOPT}iostream ${POSTCOMPILE_INCLUDEOPT}algorithm
 
+ifeq ($(PGASTRANSPORT), lapi)
+NATIVE_INCLUDES += ${POSTCOMPILE_INCLUDEOPT}pgasrt.h
+endif
+
 
 dist-1d-dbg: 
 	rm -f templateregistry

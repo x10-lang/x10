@@ -213,10 +213,10 @@ class BetweenessCentrality {
 
                  //for ((k) in 0..Place.MAX_PLACES-1)  
                   for (var k: Int = 0; k < Place.MAX_PLACES; k++) 
-                   (N(k) as GrowableRail[VDSTriplet]!).rewind();
+                   (N(k) as GrowableRail[VDSTriplet]!).setLength(0);
 
                  //for ((j) in start..end) 
-                 L.rewind();
+                 L.setLength(0);
                  for (var j: Int = start; j <= end; j++) {
                  val w = s(j);
 
@@ -328,7 +328,7 @@ class BetweenessCentrality {
                   }
                 }
               }
-              L.rewind();
+              L.setLength(0);
             //  world.barrier();
 
              phase++; 
@@ -361,7 +361,7 @@ class BetweenessCentrality {
 
               //for ((i) in 0..Place.MAX_PLACES-1) 
               for (var i: Int = 0; i < Place.MAX_PLACES; i++) 
-                 (N(i) as GrowableRail[UVDSQuad]!).rewind();
+                 (N(i) as GrowableRail[UVDSQuad]!).setLength(0);
 
               val start = count(l-1);
               val end = count(l)-1;
@@ -372,7 +372,7 @@ class BetweenessCentrality {
               //world.barrier();
               if (LSize == 0) break;
 
-                L.rewind();
+                L.setLength(0);
               //for ((i) in 0..flength-1) {
              count.add(count(l));
               for (var i: Int = start; i <=end; i++) {
@@ -391,14 +391,14 @@ class BetweenessCentrality {
                   //if (neighbor == vertex) continue;
                   if (owner == here.id) { 
                     if (d(neighbor) == -1) {
-                      s.addWithin(neighbor);
+                      s.add(neighbor);
                       count(l+1) ++;
                       d(neighbor) = d(vertex) + 1;
                       sig(neighbor) = sig(vertex);
-                       (pred(neighbor) as GrowableRail[types.VERT_T]!).addWithin(vertex);
+                       (pred(neighbor) as GrowableRail[types.VERT_T]!).add(vertex);
                     }  else if (d(neighbor) == d(vertex) + 1) {
                            sig(neighbor) += sig(vertex);
-                          (pred(neighbor) as GrowableRail[types.VERT_T]!).addWithin(vertex);
+                          (pred(neighbor) as GrowableRail[types.VERT_T]!).add(vertex);
        
                     }
 
@@ -417,15 +417,15 @@ class BetweenessCentrality {
                val w = t.second;
                val v = t.first;
               if(d(w) == -1) {
-               s.addWithin(w);
+               s.add(w);
                 count(l+1)++;
                d(w)  = t.third + 1;
                sig(w) = t.fourth;
-               (pred(w) as GrowableRail[types.VERT_T]!).addWithin(v);
+               (pred(w) as GrowableRail[types.VERT_T]!).add(v);
 
              } else if (d(w) ==  t.third+1) {
                   sig(w) += t.fourth;
-                 (pred(w) as GrowableRail[types.VERT_T]!).addWithin(v);
+                 (pred(w) as GrowableRail[types.VERT_T]!).add(v);
              }
              } 
              l++; 
@@ -477,7 +477,7 @@ class BetweenessCentrality {
 
                //x10.io.Console.ERR.println("point 1");
                  for (var k: Int = pred.region.min(0); k <= pred.region.max(0); k++) {
-                        pred(k).rewind();
+                        pred(k).setLength(0);
                         bc(k) = 0.0d;
                         sig(k) = 0.0d;
                         del(k) = 0.0d;
@@ -502,8 +502,8 @@ class BetweenessCentrality {
 
                //x10.io.Console.ERR.println("main " + i);
 
-               s.rewind();
-               count.rewind();
+               s.setLength(0);
+               count.setLength(0);
                //x10.io.Console.ERR.println("bfs");
                //bfs.start();
                //compute_bfs_alltoall(p, world,  startVertex, pg_here);
@@ -517,7 +517,7 @@ class BetweenessCentrality {
            val vertices = pg_here.vertices;
 
            val src_owner = pg.owner_id(source);
-           if (src_owner ==here.id)  {s.addWithin(source);count.add(0); count.add(1); d(source ) = 0; sig(source) = 1;}
+           if (src_owner ==here.id)  {s.add(source);count.add(0); count.add(1); d(source ) = 0; sig(source) = 1;}
             else { count.add(0); count.add(0);}
 
             var l: Int = 1;
@@ -525,7 +525,7 @@ class BetweenessCentrality {
 
               //for ((i) in 0..Place.MAX_PLACES-1) 
               for (var i0: Int = 0; i0 < Place.MAX_PLACES; i0++) 
-                 (N(i0) as GrowableRail[UVDSQuad]!).rewind();
+                 (N(i0) as GrowableRail[UVDSQuad]!).setLength(0);
 
               val start = count(l-1);
               val end = count(l)-1;
@@ -536,7 +536,7 @@ class BetweenessCentrality {
               //world.barrier();
               if (LSize == 0) break;
 
-                L.rewind();
+                L.setLength(0);
               //for ((i) in 0..flength-1) {
              count.add(count(l));
               for (var i1: Int = start; i1 <=end; i1++) {
@@ -555,14 +555,14 @@ class BetweenessCentrality {
                   //if (neighbor == vertex) continue;
                   if (owner == here.id) { 
                     if (d(neighbor) == -1) {
-                      s.addWithin(neighbor);
+                      s.add(neighbor);
                       count(l+1) ++;
                       d(neighbor) = d(vertex) + 1;
                       sig(neighbor) = sig(vertex);
-                       (pred(neighbor) as GrowableRail[types.VERT_T]!).addWithin(vertex);
+                       (pred(neighbor) as GrowableRail[types.VERT_T]!).add(vertex);
                     }  else if (d(neighbor) == d(vertex) + 1) {
                            sig(neighbor) += sig(vertex);
-                          (pred(neighbor) as GrowableRail[types.VERT_T]!).addWithin(vertex);
+                          (pred(neighbor) as GrowableRail[types.VERT_T]!).add(vertex);
                     }
 
                   } else { (N(owner) as GrowableRail[UVDSQuad]!).add(UVDSQuad(vertex, neighbor, d(vertex), sig(vertex))); }
@@ -580,15 +580,15 @@ class BetweenessCentrality {
                val w = t.second;
                val v = t.first;
               if(d(w) == -1) {
-               s.addWithin(w);
+               s.add(w);
                 count(l+1)++;
                d(w)  = t.third + 1;
                sig(w) = t.fourth;
-               (pred(w) as GrowableRail[types.VERT_T]!).addWithin(v);
+               (pred(w) as GrowableRail[types.VERT_T]!).add(v);
 
              } else if (d(w) ==  t.third+1) {
                   sig(w) += t.fourth;
-                 (pred(w) as GrowableRail[types.VERT_T]!).addWithin(v);
+                 (pred(w) as GrowableRail[types.VERT_T]!).add(v);
              }
              } 
              l++; 
@@ -616,10 +616,10 @@ class BetweenessCentrality {
 
                  //for ((k) in 0..Place.MAX_PLACES-1)  
                   for (var k: Int = 0; k < Place.MAX_PLACES; k++) 
-                   (N2(k) as GrowableRail[VDSTriplet]!).rewind();
+                   (N2(k) as GrowableRail[VDSTriplet]!).setLength(0);
 
                  //for ((j) in start..end) 
-                 L2.rewind();
+                 L2.setLength(0);
                  for (var j: Int = start; j <= end; j++) {
                  val w = s(j);
 
@@ -657,7 +657,7 @@ class BetweenessCentrality {
                 //back.stop();
                /* for ((k) in pg_here.vertices)  */
                 /* for (var k: Int = pg_here.vertices.min(0); k <= pg_here.vertices.max(0); k++) {
-                        pred(k).rewind();
+                        pred(k).setLength(0);
                         del(k) = 0;
                //         sig(k) = 0;
                         d(k) = -1;
@@ -666,7 +666,7 @@ class BetweenessCentrality {
                /* for ((k) in 0..s.length()-1)  */
                  for (var k: Int = 0; k < s.length(); k++) {
                         //x10.io.Console.ERR.println("w: " + s(k));
-                        pred(s(k)).rewind();
+                        pred(s(k)).setLength(0);
                         del(s(k)) = 0.0d;
                         sig(s(k)) = 0.0d;
                         d(s(k)) = -1;

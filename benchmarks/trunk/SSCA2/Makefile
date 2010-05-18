@@ -2,7 +2,7 @@
 # <BEGIN> user settings #
 
 export X10CXX 		?= x10c++
-export X10CXXFLAGS 	?= -commandlineonly -report postcompile=5 -VERBOSE_CALLS -sourcepath . #-DISABLE_GC 
+export X10CXXFLAGS 	?= -commandlineonly -report postcompile=5 -VERBOSE_CALLS -NO_CHECKS -sourcepath . #-DISABLE_GC 
 export X10RTTRANSPORT	?= pgas_lapi
 export PGASTRANSPORT	?= lapi	   ### TEMPORARY! Added due to mismatch X10RT transport naming scheme and PGAS
 export X10HOME		?= /vol/x10/new/x10-2.0/x10.dist    ## v20 default

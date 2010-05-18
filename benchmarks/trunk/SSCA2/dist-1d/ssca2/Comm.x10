@@ -304,4 +304,16 @@ final public class Comm {
           }
           this.alltoallv[V](tmp, g);
       }
+
+       public def usort[T](values: GrowableRail[T]!, map: (T)=>Int) {
+          val tmp: Rail[GrowableRail[T]]! = Rail.make[GrowableRail[T]](Place.MAX_PLACES, (i:Int)=>new GrowableRail[T](0));
+          for ((i) in 0..values.length()-1) {
+             tmp(map(values(i))).add(values(i));
+          }
+          val g = new GrowableRail[T](0);
+          this.alltoallv[T](tmp, g);
+          return g;
+        }
+
+
 }
