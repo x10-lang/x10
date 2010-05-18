@@ -624,7 +624,7 @@ public class Desugarer extends ContextVisitor {
      * node factory screws up.
      * @throws SemanticException
      */
-    private Assign assign(Position pos, Expr e, Assign.Operator asgn, Expr val) throws SemanticException {
+    protected Assign assign(Position pos, Expr e, Assign.Operator asgn, Expr val) throws SemanticException {
         Assign a = (Assign) xnf.Assign(pos, e, asgn, val).type(e.type());
         if (a instanceof FieldAssign) {
             assert (e instanceof Field);
@@ -659,7 +659,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     // x++ -> ((t:Int)=>t-1)(x+=1) or x-- -> ((t:Int)=>t+1)(x-=1)
-    private Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
+    protected Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
         Type ret = e.type();
         CanonicalTypeNode retTN = xnf.CanonicalTypeNode(pos, ret);
         Expr one = xnf.X10Cast(pos, retTN,
