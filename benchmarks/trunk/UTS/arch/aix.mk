@@ -4,7 +4,7 @@
 
 # AIX with XLC
 #
-export POSTCOMPILE_NATIVE_LIB_FLAGS ?= -O3 -q64 -qarch=pwr5 -qtune=pwr5 -qhot -qinline -qrtti=all -DNDEBUG
+export POSTCOMPILE_NATIVE_LIB_FLAGS ?= -O3 -q64 -qarch=auto -qtune=auto -qhot -qinline -qrtti=all -DNDEBUG
 
 export USE_MEDIUM_PAGES ?= 1
 

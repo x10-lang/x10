@@ -29,7 +29,7 @@ export POSTCOMPILE_OPTFLAGS		?= -O3 -qrtti=all -qinline -DNO_CHECKS -DNDEBUG
 
 export POSTCOMPILE_DBGFLAGS	?= -g
 
-export POSTCOMPILE_NATIVE_LIB_FLAGS ?= -O3 -q64 -qarch=pwr5 -qtune=pwr5 -qhot -qinline -qrtti=all -DNDEBUG
+export POSTCOMPILE_NATIVE_LIB_FLAGS ?= -O3 -q64 -qarch=auto -qtune=auto -qhot -qinline -qrtti=all -DNDEBUG
 
 export POSTCOMPILE_INCLUDEOPT ?= -qinclude=
 
