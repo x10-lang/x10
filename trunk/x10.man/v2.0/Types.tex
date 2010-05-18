@@ -1114,69 +1114,88 @@ Nor is it a struct type, for it has no predefined notion of equality.
 \index{type equivalence}
 \index{subtyping}
 
-Intuitively, type \xcdmath"T$_1$" is a subtype of type \xcdmath"T$_2$" if
+Intuitively, type \xcdmath"T$_1$" is a subtype of type \xcdmath"T$_2$", 
+written \xcdmath"T$_1$ <: T$_2$", 
+if
 every instance of \xcdmath"T$_1$" is also an instance of \xcdmath"T$_2$".  For
 example, \xcd`Child` is a subtype of \xcd`Person` (assuming a suitably defined
 class hierarchy): every child is a person.  Similarly, \xcd`Int{self != 0}`
 is a subtype of \xcd`Int` -- every non-zero integer is an integer.  
 
-This section formalizes the concept of subtyping. 
+This section formalizes the concept of subtyping. Subtyping of types depends
+on a {\em type context}, \viz. a set of constraints which may say something
+about types.   For example: 
 
-The subtyping relation \xcd`T <: U` is the 
-reflexive, transitive 
-closure of the {\em direct subtyping} relation, defined as
-follows.
-
-
-\bard{
-I reformulated the following definition to be entirely in terms of direct
-subtyping.  It would be good to know that I haven't broken anything.
+%~fails~gen
+% package Types.subtyping.cons;
+%~fails~vis
+\begin{xten}
+class ConsTy[T,U]{T <: U} {
+   def upcast(t:T):U = t;
 }
+\end{xten}
+%~fails~siv
+%
+%~fails~neg
+\noindent
+Inside \xcd`ConsTy`, \xcd`T` is constrained to be a subtype of \xcd`U`.
+Outside of \xcd`ConsTy`, even if \xcd`T` and \xcd`U` are both defined as type
+variables, there 
+is no reason to expect any relationship between them. 
+
+\limitation{Subtyping of type variables does not currently work.}
+
+Subtyping of types that have no free variables does not depend
+on the context, however.    For example, \xcd`Int{self != 0} <: Int` is always
+true, regardless of what else is going on.
 
 \begin{itemize}
-\item
+\item {\bf Reflexivity:} Every type \xcd`T` is a subtype of itself: \xcd`T <: T`.
+
+\item {\bf Transitivity:} If \xcd`T <: U` and \xcd`U <: V`, then \xcd`T <: V`. 
+
 {\bf Class types:}  
-A class type is a direct subtype of
-any class it is declared to extend.  A class type is direct subtype
-of any interfaces it is declared to implement.
+Given the definition 
+\xcd`class C extends D{d} implements I1, ..., In {...}`
+then \xcd`C` is a subtype of \xcd`D{d}`, \xcd`I1`, ..., \xcd`In`. 
 
 \item
-{\bf Interface types:}  An interface type is a direct
-subtype of any interfaces it is declared to extend.
+{\bf Interface types:}  
+Given the definition 
+\xcd`interface I extends I1, ... In {...}`
+then \xcd`I` is a subtype of \xcd`I1`, ..., \xcd`In`.
 
 \item 
 {\bf Struct types:} 
-A struct type is a direct subtype of any interface it is declared to
-implement. 
+Given the definition 
+\xcd`struct S implements I1, ..., In {...}`
+then \xcd`S` is a subtype of \xcd`I1`, ..., \xcd`In`. 
+
 
 \item
 {\bf Function types:}
 \xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => T throws EX$_1$, $\dots$,EX$_k$"
-is a direct subtype of 
+is a  subtype of 
 \xcdmath"(x$'_1$: T$'_1$, $\dots$, x$'_n$: T$'_n$){c$'$} => T$'$ throws EX$'_1$, $\dots$, EX$'_{k'}$"
 if: 
 \begin{enumerate}
-\item Each \xcdmath"T$_i$" is a direct subtype of or equal to the corresponding
-      \xcdmath"T$'_i$";
+\item Each \xcdmath"T$_i$ <: T$'_i$";
 \item \xcd`c` entails \xcdmath"c$'$";
-\item \xcdmath"T$'$" is a direct subtype of or equal to \xcdmath"T";
-\item Every \xcdmath"EX$_j$" is a direct subtype of or equal to some \xcdmath"EX$'_{j'}$".
+\item \xcdmath"T$'$ <: T";
+\item Each  \xcdmath"EX$_j$ <: EX$'_{j'}$".
 \end{enumerate}
 
 \item
 {\bf Constrained types:}
-\xcd`T{c}` is a direct subtype of \xcd`T{d}` if \xcd`c` entails \xcd`d`. 
+\xcd`T{c}` is a subtype of \xcd`T{d}` if \xcd`c` entails \xcd`d`. 
 
 \item {\bf Any:} 
-Every type \xcd`T` is a direct subtype of \xcd`x10.lang.Any`.
+Every type \xcd`T` is a subtype of \xcd`x10.lang.Any`.
 
 \item 
-{\bf Type Variables}
-\bard{I don't know that this clause even makes sense -- are type variables
-types?  Also it defines direct subtyping }
-A type variable \xcd`X` appearing as a parameter of a class, interface,
-struct, or method is a direct subtype of another type \xcd`Y` if the
-constraints on the class etc. imply that \xcd`X <: Y`.
+{\bf Type Variables:}
+In the scope of a constraint which entails a relations between type
+expressions  \xcd`A <: B`, \xcd`A` is a subtype of \xcd`B`. 
 
 \end{itemize}
 
