@@ -262,7 +262,7 @@ class BetweenessCentrality {
            val s = S();
            val  count = Count();
            val vertices = pg_here.vertices;
-           val visited =  Visited() as Array[Boolean](1);
+           val visited =  Visited() as Array[Boolean](1)!;
            for ((i) in vertices) visited(i) =false;
 
               //x10.io.Console.ERR.println("inside bfs_async");
@@ -312,7 +312,7 @@ class BetweenessCentrality {
                   async (owner) {
                     val d = D() as Array[types.LONG_T](1)!;
                      val sig = Sig() as Array[types.DOUBLE_T](1)!;
-                   val L_next = Frontier()((cur_phase+1)%2);
+                   val L_next = Frontier()((cur_phase+1)%2) as GrowableRail[types.VERT_T]!;
                    val pred = Pred() as Array[GrowableRail[types.VERT_T]](1)!;
                    atomic {
                    L_next.add(w);
@@ -464,7 +464,7 @@ class BetweenessCentrality {
                //x10.io.Console.ERR.println("world");
 
                /* place locals accessed by asyncs */
-               val pred = Pred() as Array[GrowableRail[types.VERT_T]](1);
+               val pred = Pred() as Array[GrowableRail[types.VERT_T]](1)!;
                val del = Del() as Array[types.DOUBLE_T](1)!;
                val sig = Sig() as Array[types.DOUBLE_T](1)!;
                val d = D() as Array[types.LONG_T](1)!;

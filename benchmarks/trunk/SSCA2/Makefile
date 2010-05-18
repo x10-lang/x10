@@ -56,6 +56,8 @@ dist-1d-opt:
 dist-1d-dbg:
 	$(MAKE) -C dist-1d OUTDIR=dbg-gen dist-1d-dbg
 
+dist-1d-clean: dist-1d-opt-clean dist-1d-dbg-clean
+
 dist-1d-dbg-clean:
 	$(MAKE) -C dist-1d OUTDIR=dbg-gen clean
 

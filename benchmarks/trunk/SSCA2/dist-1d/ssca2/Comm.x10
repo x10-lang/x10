@@ -8,8 +8,8 @@ final public class Comm {
     private global val my_id:Int;
 
     // buffer used in alltoallv
-    global val srcSizes : Rail[long];
-    global val dstSizes : Rail[long];
+    global val srcSizes : Rail[long]!;
+    global val dstSizes : Rail[long]!;
 
     private static class Integer {
         var value:Int;
