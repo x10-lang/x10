@@ -152,10 +152,6 @@ void RuntimeType::initStageTwo(const char* baseName_,
         for (int i=0; i<parentsc; i++) {
             parents[i] = parents_[i];
         }
-// NOTE: BDWGC on Leopard is not able to track the following pointers
-#if defined(X10_USE_BDWGC) && defined(__APPLE__)
-        x10aux::ReferenceLogger::log(parents);
-#endif
     } else {
         parents = NULL;
     }
@@ -166,10 +162,6 @@ void RuntimeType::initStageTwo(const char* baseName_,
             params[i] = params_[i];
             variances[i] = variances_[i];
         }
-#if defined(X10_USE_BDWGC) && defined(__APPLE__)
-        x10aux::ReferenceLogger::log(params);
-        x10aux::ReferenceLogger::log(variances);
-#endif
     } else {
         params = NULL;
         variances = NULL;
