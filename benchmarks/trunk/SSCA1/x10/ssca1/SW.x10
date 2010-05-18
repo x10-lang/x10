@@ -182,7 +182,7 @@ public class SW {
          val segInfo   = SegmentationInfo(parms, shorter, longer.length());
          if (rep == 0) Console.OUT.println("Places available: "+Place.MAX_PLACES+"\r\nPlaces used: "+segInfo.segmentCount);
          val segmentedInput = ValRail.make[ValRail[Byte]](segInfo.segmentCount, (i:int) => segInfo.slice(i, longer));
-	 finish for (var p:Int =0; p<segInfo.segmentCount; p++) {
+	 finish for ((p) in 0..segInfo.segmentCount-1) {
              val mySegment = segmentedInput(p);  // extract the subsegment here to minimize captured state in async body.
 	     val capturedP = p;
              async (Place.places(p)) {

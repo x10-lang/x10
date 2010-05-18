@@ -94,8 +94,8 @@ public class Scorer {
       val longSize_ = longSize;
       tracebackMoves = Rail.make[Byte]((shortSize+1)*(longSize_ + 1));
       val tracebackMoves_ = tracebackMoves;	
-      for (var i:int = 1; i<shortSize; i++) tracebackMoves_(i*(longSize_ + 1)) = STOP;
-      for (var j:int = 0; j<longSize_; j++)  tracebackMoves_(j) = STOP;
+      for ((i) in 1..shortSize-1) tracebackMoves_(i*(longSize_ + 1)) = STOP;
+      for ((j) in 0..longSize_-1)  tracebackMoves_(j) = STOP;
       val bestScoreUpTo_I_J = Rail.make[Int](longSize_ + 1);
       var winningScore : Long = 0;
       var shorterLast: Int = -1;
@@ -108,10 +108,10 @@ public class Scorer {
       val extendGapPenalty = parms.extendGapPenalty;
       val openGapPenalty = parms.openGapPenalty;
 
-      for(var i:int =1; i<shortSize+1; i++) {
+      for((i) in 1..shortSize) {
          var previousBestScore: Int = 0;
          val short_i_minus_1: Byte = shorter(i-1);
-         for(var j:int = 1; j<longSize_+1; j++) { // try {
+         for((j) in 1..longSize_) { // try {
             //if (j-1 >= longSize_) throw new IllegalArgumentException("long rail access fails: "+j+" versus "+longSize_);
             val long_j:Byte = longer(j-1);
 
