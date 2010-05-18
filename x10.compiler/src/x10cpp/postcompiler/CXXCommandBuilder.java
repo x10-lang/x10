@@ -157,6 +157,8 @@ public class CXXCommandBuilder {
             cxxCmd.add(USE_XLC ? "-qinline" : "-finline-functions");
             if (USE_XLC) {
                 cxxCmd.add("-qhot");
+                cxxCmd.add("-qtune=auto");
+                cxxCmd.add("-qarch=auto");
             }
         }
         
