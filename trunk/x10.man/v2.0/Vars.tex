@@ -250,28 +250,51 @@ using the rules for definite assignment \cite[\S~16]{jls2}.
 
 \section{Destructuring syntax}
 \index{variable declarator!destructuring}
+\index{destructuring}
 \Xten{} permits a \emph{destructuring} syntax for local variable
-declarations and formal parameters.
-At present, \XtenCurrVer{} supports this feature only for
-variables of
-type \xcd"Point"; future versions of the language may support 
-general pattern matching.
-Intuitively, this syntax allows a
-point to be ``destructured'' into its corresponding \xcd"Int" 
-indices in a pattern-matching style.
-The $k$th declarator in a \xcd"Point"
-\grammarrule{VarDeclaratorList}
-is treated as a variable of type \xcd"Int"
-that is initialized with the value of the $k$th index of the point. 
-The second form of the syntax permits the specification of only
-the index variables.
+declarations and formal parameters of type \xcd`Point`, \Sref{point-syntax}.
+(Future versions of X10 may allow destructuring of other types as well.) 
+A point is a sequence of {$r \ge 0$} \xcd`Int`-valued coordinates.  
+It is often useful to get at the coordinates directly, in variables. 
 
-For example, the following code binds the \xcd"Int" variable \xcd"i" to
-\xcd"0" and \xcd"j" to \xcd"1", and the variable \xcd"p" to the
-point object.
+The following code makes an anonymous point with one coordinate \xcd`11`, and
+binds \xcd`i` to \xcd`11`.  Then it makes a point with coordinates \xcd`22`
+and \xcd`33`, binds \xcd`p` to that point, and \xcd`j` and \xcd`k` to \xcd`22`
+and \xcd`33` respectively.
+%~~gen
+% package Vars.For.Glares;
+% class DestructuringEx1 {
+% def whyJustForLocals() {
+%~~vis
 \begin{xten}
-p(i,j): Point = new Point(0,1);
+val (i) : Point = Point.make(11);
+val p(j,k) = Point.make(22,33);
 \end{xten}
+%~~siv
+%}}
+%~~neg
+
+A useful idiom for iterating over a range of numbers is: 
+%~~gen
+%package Vars.For.Bears;
+% class ForBear {
+% def forbear() {
+%~~vis
+\begin{xten}
+var sum : Int = 0;
+for ((i) in 1..100) sum += i;
+\end{xten}
+%~~siv
+% ; } } 
+%~~neg
+\noindent
+The parentheses in \xcd`(i)` introduce destructuring, making X10 treat \xcd`i`
+as an \xcd`Int`; without them, it would be a \xcd`Point`.  
+
+In general, a pattern of the form \xcdmath"(i$_1$,$\ldots$,i$_n$)" matches a
+point with {$n$} coordinates, binding \xcdmath"i$_j$" to coordinate {$j$}.  
+A pattern of the form \xcdmath"p(i$_1$,$\ldots$,i$_n$)" does the same, , but
+also binds \xcd`p` to the point.
 
 \section{Formal parameters}
 Formal parameters are always declared with a type.
