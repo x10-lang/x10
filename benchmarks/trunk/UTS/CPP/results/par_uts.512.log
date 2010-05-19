@@ -1,6 +1,55 @@
-1 512 4112897 2.87456 1.43079
-2 512 4112897 1.66994 2.4629
-4 512 4033187 0.810409 4.97673
-8 512 4112897 0.531812 7.73374
-16 512 4112897 0.505706 8.13298
-32 512 4112897 0.429034 9.58641
+--------------------------------
+--------------------------------------------------------------------------
+mpirun was unable to launch the specified application as it could not access
+or execute an executable:
+
+Executable: ./par_uts
+Node: triloka1.watson.ibm.com
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun was unable to launch the specified application as it could not access
+or execute an executable:
+
+Executable: ./par_uts
+Node: triloka1.watson.ibm.com
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun was unable to launch the specified application as it could not access
+or execute an executable:
+
+Executable: ./par_uts
+Node: triloka1.watson.ibm.com
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun was unable to launch the specified application as it could not access
+or execute an executable:
+
+Executable: ./par_uts
+Node: triloka1.watson.ibm.com
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun was unable to launch the specified application as it could not access
+or execute an executable:
+
+Executable: ./par_uts
+Node: triloka1.watson.ibm.com
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun was unable to launch the specified application as it could not access
+or execute an executable:
+
+Executable: ./par_uts
+Node: triloka1.watson.ibm.com
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
