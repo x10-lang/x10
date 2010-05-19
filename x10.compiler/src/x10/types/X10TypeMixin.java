@@ -772,7 +772,7 @@ public class X10TypeMixin {
 		  CConstraint c = realX(t);
 		    if (c != null) {
 			    // build the synthetic term.
-			    XTerm var = selfVar(c);
+			    XTerm var = selfVar(t);
 			    if (var !=null) {
 				    X10FieldInstance fi = getProperty(t, propName);
 				    if (fi != null) {
