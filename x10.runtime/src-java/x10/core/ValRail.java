@@ -42,6 +42,10 @@ public final class ValRail<T> implements AnyRail<T> {
         this.value = rail;
     }
     
+    public void copyToLocal(Integer src_off, Rail<T> dst, Integer dst_off, Integer len) {
+        System.arraycopy(value, src_off, dst.value, dst_off, len);
+    }
+
 	public Iterator<T> iterator() {
 		return new RailIterator();
 	}

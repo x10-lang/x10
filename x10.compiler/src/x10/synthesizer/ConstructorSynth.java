@@ -149,7 +149,9 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
     }
 
     public CodeBlockSynth createConstructorBody(Position pos) {
-        codeBlockSynth = new CodeBlockSynth(xnf, xct, pos);
+        if(codeBlockSynth == null){
+            codeBlockSynth = new CodeBlockSynth(xnf, xct, pos);     
+        }
         return codeBlockSynth;
     }
 

@@ -26,15 +26,15 @@ import polyglot.util.Pair;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
-import x10.types.constraints.SubtypeConstraint_c;
+import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
+
 
 /**
  * Comments by vj.
@@ -243,7 +243,7 @@ public class TypeParamSubst {
 		assert typeArguments.size() == n;
 
 		XTerm[] ys = new XTerm[n];
-		XRoot[] xs = new XRoot[n];
+		XVar[] xs = new XVar[n];
 
 		for (int i = 0; i < n; i++) {
 			ParameterType pt = typeParameters.get(i);
@@ -254,8 +254,8 @@ public class TypeParamSubst {
 
 			ys[i] = a;
 
-			if (p instanceof XRoot) {
-				xs[i] = (XRoot) p;
+			if (p instanceof XVar) {
+				xs[i] = (XVar) p;
 			}
 			else {
 				xs[i] = XTerms.makeLit(XTerms.makeName("error"));
@@ -268,7 +268,7 @@ public class TypeParamSubst {
 			result = c.substitute(ys, xs);
 		}
 		catch (XFailure e) {
-			result = new CConstraint_c();
+			result = new CConstraint();
 			result.setInconsistent();
 		}
 
@@ -293,9 +293,9 @@ public class TypeParamSubst {
 				Type t2 = s.supertype();
 				Type t1_ = reinstantiate(t1);
 				Type t2_ = reinstantiate(t2);
-				terms.add(new SubtypeConstraint_c(t1_, t2_, s.isEqualityConstraint()));
+				terms.add(new SubtypeConstraint(t1_, t2_, s.isEqualityConstraint()));
 			}
-			TypeConstraint_c c_ = new TypeConstraint_c();
+			TypeConstraint c_ = new TypeConstraint();
 			c_.addTerms(terms);
 			c = c_;
 		}
@@ -318,8 +318,8 @@ public class TypeParamSubst {
 			XTerm p = ts.xtypeTranslator().trans(pt);
 			XTerm a = ts.xtypeTranslator().trans(at);
 
-			if (p instanceof XRoot) {
-				t = t.subst(p, (XRoot) a);
+			if (p instanceof XVar) {
+				t = t.subst(p, (XVar) a);
 			}
 		}
 

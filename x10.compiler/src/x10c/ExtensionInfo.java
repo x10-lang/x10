@@ -21,6 +21,7 @@ import polyglot.frontend.VisitorGoal;
 import polyglot.types.TypeSystem;
 import x10.visit.SharedBoxer;
 import x10c.visit.CastRemover;
+import x10c.visit.Desugarer;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
     @Override
@@ -52,6 +53,13 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new VisitorGoal("castRemover", job, new CastRemover(job, ts, nf)).intern(this);
+        }
+        
+        @Override
+        public Goal Desugarer(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
         }
     }
 }

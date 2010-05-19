@@ -34,9 +34,8 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
@@ -63,7 +62,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             Name name,
             List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
-            XRoot thisVar,
+            XVar thisVar,
             List<LocalDef> formalNames,
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard,
@@ -77,12 +76,12 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         this.body = body;
     }
 
-    XRoot thisVar;
-    public XRoot thisVar() {
+    XVar thisVar;
+    public XVar thisVar() {
         return this.thisVar;
     }
     
-    public void setThisVar(XRoot thisVar) {
+    public void setThisVar(XVar thisVar) {
         this.thisVar = thisVar;
     }
 
@@ -180,7 +179,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         return asInstance;
     }
     
-    public static boolean hasVar(Type type, XRoot var) {
+    public static boolean hasVar(Type type, XVar var) {
 	    if (type instanceof ConstrainedType) {
 		    XConstraint rc = X10TypeMixin.realX(type);
 		    if (rc != null && rc.hasVar(var))

@@ -8,20 +8,29 @@
  *
  *  (C) Copyright IBM Corporation 2006-2010.
  */
-
 package x10.constraint;
 
+import java.util.List;
+
 /**
- * A variable that represents an array. The constraint
+ * Represents t1 + t2
+ * 
+ * Intended as placeholder for special treatment for propagation rules and simplification rules
+ * for +.
  * @author vj
  *
  */
-public class XArray_c extends XLocal_c implements XArray {
+public class XPlus extends XFormula {
 
-	public XArray_c(XName name) {
-		super(name);
-		
+	public XPlus(List<XTerm> args) {
+		super(XTerms.plusName, args);
 	}
-	public XTermKind kind() { return XTermKind.ARRAY;}
 
+	public XPlus(XTerm... args) {
+		super(XTerms.plusName, args);
+	}
+
+	public String toString() {
+		return arguments.get(0) + "+" + arguments.get(1);
+	}
 }

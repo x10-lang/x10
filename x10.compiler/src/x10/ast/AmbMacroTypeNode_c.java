@@ -54,7 +54,6 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XRoot;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
@@ -235,7 +234,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         X10Context c = (X10Context) tc.context();
 
-        XRoot thisVar = c.thisVar();
+        XVar thisVar = c.thisVar();
 
         List<Type> typeArgs = new ArrayList<Type>(this.typeArgs.size());
 
@@ -392,9 +391,9 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
         // dependency error, but instead get a less precise type.
         sym.update(t);
         
-        if (! n.typeArgs().isEmpty() || ! n.args().isEmpty())
+     /*   if (! n.typeArgs().isEmpty() || ! n.args().isEmpty())
             throw new SemanticException("Could not find or instantiate type \"" + n + "\".", position());
-            
+         */   
         CanonicalTypeNode result = nf.CanonicalTypeNode(position(), sym);
         // FIXME: [IP] HACK
         if (t instanceof MacroType) {

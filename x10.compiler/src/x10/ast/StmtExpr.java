@@ -40,4 +40,14 @@ public interface StmtExpr extends Expr, Block {
      * statement expression.
      */
     public StmtExpr prepend(List<Stmt> stmts);
+
+    /**
+     * Get the result of the statement expression.
+     */
+    public Expr result();
+
+    /**
+     * Set the result of the statement expression.
+     */
+    public StmtExpr result(Expr result);
 }

@@ -39,16 +39,16 @@ import polyglot.util.TypedList;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     protected List<ParameterType.Variance> variances;
-    XRoot thisVar;
+    XVar thisVar;
     
     public X10ClassDef_c(TypeSystem ts, Source fromSource) {
         super(ts, fromSource);
@@ -58,7 +58,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         this.thisVar = null;
     }
     
-    public XRoot thisVar() {
+    public XVar thisVar() {
         if (thisVar == null) {
             String fullNameWithThis = fullName() + "#this";
             XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
@@ -67,7 +67,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         return this.thisVar;
     }
 
-    public void setThisVar(XRoot thisVar) {
+    public void setThisVar(XVar thisVar) {
         this.thisVar = thisVar;
     }
 
@@ -152,11 +152,11 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public CConstraint getRootClause() {
 	    if (rootClause == null) {
 		    if (computing) {
-			    /*this.rootClause = Types.<CConstraint>ref(new CConstraint_c());
+			    /*this.rootClause = Types.<CConstraint>ref(new CConstraint());
 			    this.rootClauseInvalid = 
 				    new SemanticException("The real clause of " + this + " depends upon itself.", position());
 			    return rootClause.get();*/
-		    	return new CConstraint_c();
+		    	return new CConstraint();
 		    }
 		    
 		    computing = true;
@@ -166,9 +166,9 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    
 			    X10TypeSystem xts = (X10TypeSystem) ts;
 
-			    CConstraint result = new CConstraint_c();
+			    CConstraint result = new CConstraint();
 			    
-			    XRoot oldThis = xts.xtypeTranslator().transThisWithoutTypeConstraint();
+			    XVar oldThis = xts.xtypeTranslator().transThisWithoutTypeConstraint();
 			    
 			    try {
 				    // Add in constraints from the supertypes.  This is
@@ -181,7 +181,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 						CConstraint rs = X10TypeMixin.realX(type);
 						if (rs != null) {
 							if (rs.thisVar() != null)
-								rs = rs.substitute(oldThis, (XRoot) rs.thisVar());
+								rs = rs.substitute(oldThis, (XVar) rs.thisVar());
 						    result.addIn(rs);
 						}
 					    }
@@ -202,7 +202,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 				    // add in the bindings from the property declarations.
 				    for (X10FieldDef fi : properties) {
 					    Type type = fi.asInstance().type();   // ### check for recursive call here
-					    XRoot fiThis = fi.thisVar();
+					    XVar fiThis = fi.thisVar();
 					    CConstraint rs = X10TypeMixin.realX(type);
 					    if (rs != null) {
 						    // Given: C(:c) f
@@ -266,13 +266,13 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    }
 		    }
 		    catch (XFailure e) {
-		    	CConstraint result = new CConstraint_c();
+		    	CConstraint result = new CConstraint();
 			    result.setInconsistent();
 			    this.rootClause = Types.ref(result);
 			    this.rootClauseInvalid = new SemanticException(e.getMessage(), position());
 		    }
 		    catch (SemanticException e) {
-		    	CConstraint result = new CConstraint_c();
+		    	CConstraint result = new CConstraint();
 			    result.setInconsistent();
 			    this.rootClause = Types.ref(result);
 			    this.rootClauseInvalid = e;

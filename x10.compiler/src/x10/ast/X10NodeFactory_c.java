@@ -723,7 +723,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	public StmtSeq StmtSeq(Position pos, List<Stmt> statements) {
-		StmtSeq n = new StmtSeq_c(pos, statements);
+		StmtSeq n = new StmtSeq_c(this, pos, statements);
 		n = (StmtSeq)n.ext(extFactory().extBlock());
 		n = (StmtSeq)n.del(delFactory().delBlock());
 		return n;

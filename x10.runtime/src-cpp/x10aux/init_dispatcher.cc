@@ -93,7 +93,7 @@ InitDispatcher::runInitializers_() {
 void *
 InitDispatcher::addInitializer(Initializer init) {
     if (NULL == it) {
-        it = new (alloc<InitDispatcher>()) InitDispatcher();
+        it = new (system_alloc<InitDispatcher>()) InitDispatcher();
     }
     it->addInitializer_(init);
     return (void*)0x7777; // we call addInitializer(...) to initialise the global vars

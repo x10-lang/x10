@@ -109,7 +109,7 @@ bool RuntimeType::initStageOne(const RuntimeType *canonical_) {
     // operating on it and we don't get a race with multiple threads partially
     // initializing an RTT.
     while (NULL == initRTTLock) {
-        reentrant_lock* tmpLock = new (alloc<reentrant_lock>())reentrant_lock();
+        reentrant_lock* tmpLock = new (system_alloc<reentrant_lock>())reentrant_lock();
         x10aux::atomic_ops::store_load_barrier();
         atomic_ops::compareAndSet_ptr((volatile void**)(&initRTTLock), NULL, tmpLock);
     }
@@ -148,28 +148,20 @@ void RuntimeType::initStageTwo(const char* baseName_,
     paramsc = paramsc_;
     containsPtrs = true; // TODO: Eventually the compiler should analyze structs and where possible set containsPtrs for their RTT's to false.
     if (parentsc > 0) {
-        parents = alloc<const RuntimeType*>(parentsc * sizeof(const RuntimeType*));
+        parents = system_alloc<const RuntimeType*>(parentsc * sizeof(const RuntimeType*));
         for (int i=0; i<parentsc; i++) {
             parents[i] = parents_[i];
         }
-// NOTE: BDWGC on Leopard is not able to track the following pointers
-#if defined(X10_USE_BDWGC) && defined(__APPLE__)
-        x10aux::ReferenceLogger::log(parents);
-#endif
     } else {
         parents = NULL;
     }
     if (paramsc > 0) {
-        params = alloc<const RuntimeType*>(paramsc * sizeof(const RuntimeType*));
-        variances = alloc<Variance>(paramsc * sizeof(Variance));
+        params = system_alloc<const RuntimeType*>(paramsc * sizeof(const RuntimeType*));
+        variances = system_alloc<Variance>(paramsc * sizeof(Variance));
         for (int i=0; i<paramsc; i++) {
             params[i] = params_[i];
             variances[i] = variances_[i];
         }
-#if defined(X10_USE_BDWGC) && defined(__APPLE__)
-        x10aux::ReferenceLogger::log(params);
-        x10aux::ReferenceLogger::log(variances);
-#endif
     } else {
         params = NULL;
         variances = NULL;

@@ -56,7 +56,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.types.ClosureDef;
 import x10.types.X10ClassDef;
@@ -268,7 +268,7 @@ public class Closure_c extends Expr_c implements Closure {
         CodeDef code = (CodeDef) def;
         
         // Get the enclosing this variable.
-        XRoot thisVar; // = XTerms.makeLocal(XTerms.makeFreshName("this"));
+        XVar thisVar; // = XTerms.makeLocal(XTerms.makeFreshName("this"));
         
         if (code instanceof X10MemberDef) {
             thisVar = ((X10MemberDef) code).thisVar();

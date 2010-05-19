@@ -40,7 +40,7 @@ serialization_id_t DeserializationDispatcher::addDeserializer (Deserializer dese
                                                                const char *kernel)
 {
     if (NULL == it) {
-        it = new (alloc<DeserializationDispatcher>()) DeserializationDispatcher();
+        it = new (system_alloc<DeserializationDispatcher>()) DeserializationDispatcher();
     }
     return it->addDeserializer_(deser, is_async, cuda_pre, cubin, kernel);
 }

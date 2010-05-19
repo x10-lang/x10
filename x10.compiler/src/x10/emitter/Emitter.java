@@ -73,16 +73,16 @@ import x10.ast.ParExpr_c;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ClockedLoop;
 import x10.ast.X10MethodDecl_c;
-import x10.constraint.XAnd_c;
-import x10.constraint.XEQV_c;
-import x10.constraint.XEquals_c;
-import x10.constraint.XField_c;
-import x10.constraint.XFormula_c;
-import x10.constraint.XLit_c;
-import x10.constraint.XLocal_c;
+import x10.constraint.XAnd;
+import x10.constraint.XEQV;
+import x10.constraint.XEquals;
+import x10.constraint.XField;
+import x10.constraint.XFormula;
+import x10.constraint.XLit;
+import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XNot_c;
+import x10.constraint.XNot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.extension.X10Ext;
@@ -682,38 +682,38 @@ public class Emitter {
 			w.write("self()");
 		} else if (term == XTerms.OPERATOR) {
 			w.write(XTERMS + ".OPERATOR");
-		} else if (term instanceof XAnd_c) {
+		} else if (term instanceof XAnd) {
 			w.write(XTERMS + ".makeAnd(");
 			w.begin(0);
-			serializeTerm(((XAnd_c) term).left(), parent);
+			serializeTerm(((XAnd) term).left(), parent);
 			w.write(",");
 			w.allowBreak(0, " ");
-			serializeTerm(((XAnd_c) term).right(), parent);
+			serializeTerm(((XAnd) term).right(), parent);
 			w.end();
 			w.write(")");
-		} else if (term instanceof XEquals_c) {
+		} else if (term instanceof XEquals) {
 			w.write(XTERMS + ".makeEquals(");
 			w.begin(0);
-			serializeTerm(((XEquals_c) term).left(), parent);
+			serializeTerm(((XEquals) term).left(), parent);
 			w.write(",");
 			w.allowBreak(0, " ");
-			serializeTerm(((XEquals_c) term).right(), parent);
+			serializeTerm(((XEquals) term).right(), parent);
 			w.end();
 			w.write(")");
-		} else if (term instanceof XNot_c) {
+		} else if (term instanceof XNot) {
 			w.write(XTERMS + ".makeNot(");
 			w.begin(0);
-			serializeTerm(((XNot_c) term).unaryArg(), parent);
+			serializeTerm(((XNot) term).unaryArg(), parent);
 			w.end();
 			w.write(")");
-		} else if (term instanceof XFormula_c) {
-			if (!((XFormula_c) term).isAtomicFormula())
+		} else if (term instanceof XFormula) {
+			if (!((XFormula) term).isAtomicFormula())
 				throw new RuntimeException("Non-atomic formula encountered: "
 						+ term);
 			w.write(XTERMS + ".makeAtom(");
 			w.begin(0);
-			serializeName(((XFormula_c) term).operator());
-			List<XTerm> arguments = ((XFormula_c) term).arguments();
+			serializeName(((XFormula) term).operator());
+			List<XTerm> arguments = ((XFormula) term).arguments();
 			for (XTerm arg : arguments) {
 				w.write(",");
 				w.allowBreak(0, " ");
@@ -728,8 +728,8 @@ public class Emitter {
 					.expand(tr);
 			w.end();
 			w.write(")");
-		} else if (term instanceof XLit_c) {
-			Object val = ((XLit_c) term).val();
+		} else if (term instanceof XLit) {
+			Object val = ((XLit) term).val();
 			w.write(XTERMS + ".makeLit(");
 			w.begin(0);
 			if (val == null) {
@@ -761,28 +761,28 @@ public class Emitter {
 			}
 			w.end();
 			w.write(")");
-		} else if (term instanceof XField_c) {
+		} else if (term instanceof XField) {
 			w.write(XTERMS + ".makeField((x10.constraint.XVar)");
 			w.begin(0);
-			serializeTerm(((XField_c) term).receiver(), parent);
+			serializeTerm(((XField) term).receiver(), parent);
 			w.write(",");
 			w.allowBreak(0, " ");
-			serializeName(((XField_c) term).field());
+			serializeName(((XField) term).field());
 			w.end();
 			w.write(")");
-		} else if (term instanceof XEQV_c) {
+		} else if (term instanceof XEQV) {
 			w.write("genEQV(");
 			w.begin(0);
-			serializeName(((XEQV_c) term).name());
+			serializeName(((XEQV) term).name());
 			w.write(",");
 			w.allowBreak(0, " ");
-			w.write("" + ((XEQV_c) term).isEQV());
+			w.write("" + ((XEQV) term).isEQV());
 			w.end();
 			w.write(")");
-		} else if (term instanceof XLocal_c) {
+		} else if (term instanceof XLocal) {
 			w.write(XTERMS + ".makeLocal(");
 			w.begin(0);
-			serializeName(((XLocal_c) term).name());
+			serializeName(((XLocal) term).name());
 			w.end();
 			w.write(")");
 		} else {

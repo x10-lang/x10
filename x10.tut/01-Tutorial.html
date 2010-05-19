@@ -176,7 +176,7 @@ including yourself, a year from now! -- what you meant.)  You could just as
 well have written the same line with explicit types: 
 </p>
 <code class="ex">
-   val sum : Int = 13 + 21;
+   val sum <: Int = 13 + 21;
 </code>
 <p>
 and used the <kbd>: Int</kbd> to say, unambiguously, that you
@@ -184,11 +184,20 @@ want <kbd>sum</kbd> to be an integer.  Of course, if your idiot co-worker were
 confused about how addition worked, and wrote 
 </p>
 <code class="ex">
-   val sum : Boolean = 13 + 21;
+   val sum <: Boolean = 13 + 21;
 </code>
 <p>
 the X10 compiler would give a compile-time error message and refuse to execute
 such nonsense.
+</p>
+
+<p>
+In X10 2.0.3, the <kbd>&lt;:</kbd> symbol is optionally used
+with <kbd>val</kbd> to give types. If you want to declare a variable that you
+can change, you'll use <kbd>var i : Int = 1;</kbd>, with a <kbd>:</kbd> rather
+than a <kbd>&lt;:</kbd>. This fine point will make more sense later (and may
+become more uniform in later versions of X10); for now, just take it as an
+idiom.
 </p>
 
 <p>
@@ -201,12 +210,12 @@ start with.
 
 <p>
 The feature of X10 that will give you the most power, and the most trouble,
-is <b>places</b>. A place generally corresponds to a processor (though you can
-run with more places than processors if you like).   Some data
-is <i>global</i>, meaning that it can be read from any place.  
-Most data is <i>non-global</i>: it exists in one place, and, if you want to
-work with it, you need to do so at that place. This is quite easy, but you
-will have to do it intentionally. </p>
+is <b>places</b>. A place generally corresponds to a process or processor
+(though you can run with more places than processors if you like). Some data
+is <i>global</i>, meaning that it can be read from any place. Most data
+is <i>non-global</i>: it exists in one place, and, if you want to work with
+it, you need to do so at that place. This is quite easy, but you will have to
+do it intentionally. </p>
 
 <p>
 (<b>Note:</b> In X10, global data is always <i>immutable</i>.  You can create
@@ -220,8 +229,8 @@ specific place.  We'll see how to do that soon.)
 <b>Advantage:</b> You will always be in control of where your
 data lives and your computation is happening.   You will be able to tune your
 program for peak performance.  
-<b>Disadvantage:</b> You will have to give X10 clues about where data is, even
-when it's obvious to you.
+<b>Disadvantage:</b> You will have to give X10 clues about where data is, or
+accept the costs of X10's attempts to find out, even when it's obvious to you.
 </p>
 
 <blockquote class="xiom">
@@ -233,8 +242,8 @@ X10 has a basic built-in data type <kbd>Place</kbd>. Every non-global piece of
 data, and every segment of computation, exists in precisely one place, called
 its <i>home</i>. (Every global piece of data exists conceptually in all
 places. There are no global computations. A special class of data,
-the <i>array</i>, distributes non-global data across several places, but we'll
-get to that later.) The set of places in your
+the <i>distributed array</i>, distributes non-global data across several
+places, but we'll get to that later.) The set of places in your
 program, <kbd>Place.places</kbd>, is chosen when you start your program, and
 does not change.
 </p>
@@ -342,8 +351,10 @@ be marked <kbd>global</kbd>, and you have to use them from the object's home.
 programs would sort of work. However, global fields are expensive on
 multiprocessors -- the system has to make sure that every processor which
 needs their value has it. Also, global fields are <i>immutable</i>; you can't
-change them. For best performance, you should make as little global as you
-possibly can.)
+change them. For best performance, you should make as few fields global as you
+possibly can. Global <i>methods</i> are not particularly expensive, but are a
+bit harder to code than non-global ones; you can make them global whenever you
+feel like doing the extra work.)
 </p>
 
 
@@ -424,7 +435,7 @@ And here's the same program done wrong:
 public class BadPlace {
   public static def main(argv:Rail[String]!) {
     val b : BadPlace = new BadPlace();
-    x10.io.Console.OUT.println(b.name()); // ERROR!
+    x10.io.Console.OUT.println(b.name()); // CAST OR ERROR
   }
   def name() = "Bad Place";
 }
@@ -439,7 +450,7 @@ public class BadPlace {
 <a name="src-badplace-4"/>
 <tr class="ex"><td><a href="#badplace-4"
                       class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println(b.name());
-                      // ERROR</code></td></tr>
+                      // CAST OR ERROR</code></td></tr>
 <a name="src-badplace-5"/>
 <tr class="ex"><td><a href="#badplace-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
 <a name="src-badplace-6"/>
@@ -467,12 +478,14 @@ This line does <i>not</i> get a compiler error, though.  It's perfectly fine
 <a name="badplace-4"/>
 <p>  <a href="#src-badplace-4">line 4: </a><kbd class="ex">
     x10.io.Console.OUT.println(b.name());</kbd><br/>
-This line will get a compiler error -- specifically a place error, starting
-    with <kbd>Place type error</kbd>.  The problem is, we're only allowed to
+This line will get a compiler warning or error.  
+(There are two compiler modes, one of which is fussier about this kind of
+    error than the other.)
+The problem is, we're only allowed to
     call a non-global method from the place that the object <kbd>b</kbd>
     lives, but we have told the compiler that we don't know where <kbd>b</kbd>
     lives.  Since we don't know that <kbd>b</kbd> lives <kbd>here</kbd>, we
-    can't call <kbd>name</kbd> on it.
+    can't call <kbd>name</kbd> on it freely..
 </p>
 <a name="badplace-5"/>
 <!--<p>  <a href="#src-badplace-5">line 5: </a><kbd class="ex">  }</kbd><br/></p>-->
@@ -544,30 +557,34 @@ convert the anything to a string and concatenate, much as in Java.
 <p>
 Compiling this, however, produces some error messages:</p>
 <pre class="output">
-~/x10/src/x10/x10.tut/example/02: x10c Hello2_Wrong.x10
-/Users/bard/x10/src/x10/x10.tut/example/02/Hello2_Wrong.x10:4: 
-  Place type error: method target argv cannot be determined to be at x10.lang.Place.FIRST_PLACE{}
-/Users/bard/x10/src/x10/x10.tut/example/02/Hello2_Wrong.x10:4: 
-  Place type error: method target argv cannot be determined to be at x10.lang.Place.FIRST_PLACE{}
-2 errors.
+/Users/bard/x10/src/x10/x10.tut/example/02/Hello2_Wrong.x10:4: Place type error: Method should be global. (Called within a global method.)    
+     	 Method: apply
 </pre>
 
-<p>
-<b>Apology:</b> The v.2.0.1 compiler often produces double error messages: a
-known compiler flaw, which the X10 team apologizes for and will fix at some
-point. 
-</p>
 
 <p>
 This error message says that there's an error at line 4
-of <kbd>Hello2_Wrong.x10</kbd>.  We're trying to evaluate <kbd>argv(0)</kbd>,
+of <kbd>Hello2_Wrong.x10</kbd>.  The line number (between the colons) is an
+important clue.  
+We're trying to evaluate <kbd>argv(0)</kbd>,
 to get the first element of the <kbd>Rail[String]</kbd>
-called <kbd>argv</kbd>. This is actually a method call, even if it doesn't
+called <kbd>argv</kbd>. This is actually a method call to a method
+called <kbd>apply</kbd>, even if it doesn't 
 look like one, and a call of a non-global method at that.  
+(Fortunately, almost all method calls look like method calls.  There are few
+that have special syntax.  <i>Advantage: </i> You can define a method that
+has function-call-like syntax.  <i>Disadvantage:</i> You have to be aware of
+the true names of such methods.)
 <a href="#location-location-location">As noted above,</a> you can't call
 non-global methods unless the compiler can be sure that the object you're
-calling the method on is located <kbd>here</kbd>.
+calling the method on is located <kbd>here</kbd>, and <kbd>argv</kbd> is not.
 </p>
+
+<p>
+The X10 compiler helpfully guesses what might have caused this particular
+problem.  
+</p>
+
 
 <p>
 All the compiler officially knows about <kbd>argv</kbd> is what we have told
@@ -586,9 +603,6 @@ located <kbd>here</kbd>.
 
 
 
-<p class="todo">
-Explain the error message, once I understand it.
-</p>
 
 <p>
 Adding this <kbd>!</kbd> to the code, we get: 
@@ -638,6 +652,39 @@ follow the name of the main class on the command line.
 % x10 Hello2_Right Kim
 Hello, Kim
 </pre>
+
+<h2>Compiler Modes: normal and -STATIC_CALLS (v 2.0.3)</h2>
+
+<p>
+The X10 compiler, version 2.0.3, has a choice of modes for fussiness about the
+places of calls. In the <b>strict</b> mode (with the compiler
+flag <kbd>-STATIC_CALLS</kbd>), places are treated strictly.  Calls that the
+compiler cannot confirm to be at the right place are simply not allowed.  
+</p>
+
+<p>
+In the normal mode (no flag), calls that the compiler cannot
+confirm <i>are</i> allowed.  However, since they are not semantically correct,
+the compiler will sneakily insert runtime checks.  In normal mode, the
+improper call 
+to <kbd>b.name()</kbd> <a href="#src-badplace-4">above</a> is compiled much as
+if it were <kbd>here != b.home ? signal_runtime_error() : b.name() </kbd>.
+That is, it will signal an error if <kbd>b</kbd> turns out to be wrong
+somehow.  
+</p>
+
+<p>
+Since normal mode is less safe than strict, the compiler will warn you that
+it's done something questionable.  It prints: 
+</p>
+<pre>
+x10c: 1 dynamically checked calls or field accesses.
+</pre>
+<p>
+to indicate that it had to insert one dynamic (<i>viz.</i> runtime) check.
+You can see what checks it inserted with <kbd>-VERBOSE_CALLS</kbd>.  
+</p>
+
 
 <h3>Exercise: Optional Name</h3>
 

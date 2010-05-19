@@ -56,22 +56,20 @@ import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.constraint.XVar_c;
 import x10.errors.Errors;
 import x10.types.ParameterType.Variance;
 import x10.types.X10TypeSystem_c.Bound;
 import x10.types.X10TypeSystem_c.Kind;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
-import x10.types.constraints.SubtypeConstraint_c;
+import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
@@ -187,16 +185,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         X10MethodInstance mi = (X10MethodInstance) mi0;
         X10MethodInstance mj = (X10MethodInstance) mj0;
 
-        XRoot thisVar =  XTerms.makeUQV(XTerms.makeFreshName("this")); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+        XVar thisVar =  XTerms.makeUQV(XTerms.makeFreshName("this")); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
         List<XVar> ys = new ArrayList<XVar>(2);
-        List<XRoot> xs = new ArrayList<XRoot>(2);
+        List<XVar> xs = new ArrayList<XVar>(2);
 
         X10MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
         X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
         X10MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
-        final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
+        final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
         Context cxt = PlaceChecker.pushHereTerm(mi.def(), (X10Context) context);
         X10TypeEnv_c newEnv = new X10TypeEnv_c(cxt);
@@ -762,7 +760,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		//                    newEnv = Collections.EMPTY_LIST;
 
     		X10Context xc2 = (X10Context) xcontext.pushBlock();
-    		TypeConstraint ec = new TypeConstraint_c();
+    		TypeConstraint ec = new TypeConstraint();
     		for (SubtypeConstraint tt : newEnv) {
     			ec.addTerm(tt);
     		}
@@ -933,7 +931,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			for (Type parentType : l) {
     				boolean tryIt = false;
     				Type pt =  parentType;
-    				XRoot thisVar = childRT.x10Def().thisVar();
+    				XVar thisVar = childRT.x10Def().thisVar();
     				try {
     					parentType = Subst.subst(parentType, x, thisVar);
     				} catch (SemanticException z) {
@@ -1002,7 +1000,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             newEnv = Collections.EMPTY_LIST;
 
             X10Context xc2 = (X10Context) xc.pushBlock();
-            TypeConstraint ec = new TypeConstraint_c();
+            TypeConstraint ec = new TypeConstraint();
             for (SubtypeConstraint tt : newEnv) {
                 ec.addTerm(tt);
             }
@@ -1370,7 +1368,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             XLit val = XTerms.makeLit(value);
 
             try {
-                CConstraint c = new CConstraint_c();
+                CConstraint c = new CConstraint();
                 c.addSelfBinding(val);
                 return entails(c, X10TypeMixin.realX(toType));
             }
@@ -1618,16 +1616,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         StructType rt = mi.container();
 
-        XRoot thisVar = mi.x10Def().thisVar();
+        XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
             thisVar = XTerms.makeLocal(XTerms.makeFreshName("this"));
 
         List<XVar> ys = new ArrayList<XVar>(2);
-        List<XRoot> xs = new ArrayList<XRoot>(2);
+        List<XVar> xs = new ArrayList<XVar>(2);
         X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
         X10MethodInstance_c.buildSubst(rt, ys, xs, thisVar);
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
-        final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
+        final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
         mi = fixThis(mi, y, x);
 
@@ -1652,24 +1650,24 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     public List<MethodInstance> implemented(MethodInstance jmi) {
         X10MethodInstance mi = (X10MethodInstance) jmi;
-        XRoot thisVar = mi.x10Def().thisVar();
+        XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
             thisVar = XTerms.makeLocal(XTerms.makeFreshName("this"));
         return implemented(mi, mi.container(), thisVar);
     }
 
-    protected List<MethodInstance> implemented(MethodInstance jmi, StructType st, XRoot thisVar) {
+    protected List<MethodInstance> implemented(MethodInstance jmi, StructType st, XVar thisVar) {
         X10MethodInstance  mi = (X10MethodInstance) jmi;
         if (st == null) {
             return Collections.<MethodInstance>emptyList();
         }
 
         List<XVar> ys = new ArrayList<XVar>(2);
-        List<XRoot> xs = new ArrayList<XRoot>(2);
+        List<XVar> xs = new ArrayList<XVar>(2);
         X10MethodInstance_c.buildSubst((X10MethodInstance) mi, ys, xs, thisVar);
         X10MethodInstance_c.buildSubst(st, ys, xs, thisVar);
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
-        final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
+        final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
         mi = fixThis((X10MethodInstance) mi, y, x);
 
@@ -1698,8 +1696,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return l;
     }
     
-    XRoot[] genSymbolicVars(int n) {
-    	XRoot[] result = new XRoot[n];
+    XVar[] genSymbolicVars(int n) {
+    	XVar[] result = new XVar[n];
     	String prefix = "arg";
     	for (int i =0; i < n; ++i) {
     		result[i] = XTerms.makeUQV(XTerms.makeFreshName(prefix));
@@ -1735,9 +1733,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         assert miFormals.size() ==  mj.formalNames().size();
         
         boolean allEqual = false;
-        XRoot[] newSymbols = genSymbolicVars(mj.formalNames().size());
-        XRoot[] miSymbols = Matcher.getSymbolicNames(mi.formalTypes(), mi.formalNames(),xts);
-        XRoot[] mjSymbols = Matcher.getSymbolicNames(mj.formalTypes(), mj.formalNames(),xts);
+        XVar[] newSymbols = genSymbolicVars(mj.formalNames().size());
+        XVar[] miSymbols = Matcher.getSymbolicNames(mi.formalTypes(), mi.formalNames(),xts);
+        XVar[] mjSymbols = Matcher.getSymbolicNames(mj.formalTypes(), mj.formalNames(),xts);
         
         if (mi.typeParameters().size() == mj.typeParameters().size() 
         		&& mi.formalTypes().size() == mj.formalTypes().size()) {
@@ -1746,7 +1744,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             for (int j = 0; j < mi.typeParameters().size(); j++) {
                 Type p1 = mi.typeParameters().get(j);
                 Type p2 = mj.typeParameters().get(j);
-                env.add(new SubtypeConstraint_c(p1, p2, true));
+                env.add(new SubtypeConstraint(p1, p2, true));
             }
             List<Type> miTypes = Subst.subst(mi.formalTypes(), newSymbols, miSymbols);
             List<Type> mjTypes = Subst.subst(mj.formalTypes(), newSymbols, mjSymbols);
@@ -1829,16 +1827,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         String fullNameWithThis = mi.x10Def().thisVar().toString();
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XRoot thisVar = XTerms.makeLocal(thisName);
+        XVar thisVar = XTerms.makeLocal(thisName);
         thisVar = mi.x10Def().thisVar();
 
         List<XVar> ys = new ArrayList<XVar>(2);
-        List<XRoot> xs = new ArrayList<XRoot>(2);
+        List<XVar> xs = new ArrayList<XVar>(2);
 
         X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
         X10MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
-        final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
+        final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
         mi = fixThis(mi, y, x);
         mj = fixThis(mj, y, x);
@@ -1963,15 +1961,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (mi.name().equals(mj.name())) {
             String fullNameWithThis = mi.x10Def().thisVar().toString();
             XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-            XRoot thisVar = XTerms.makeLocal(thisName);
+            XVar thisVar = XTerms.makeLocal(thisName);
 
             List<XVar> ys = new ArrayList<XVar>(2);
-            List<XRoot> xs = new ArrayList<XRoot>(2);
+            List<XVar> xs = new ArrayList<XVar>(2);
 
             X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
             X10MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
             final XVar[] y = ys.toArray(new XVar[ys.size()]);
-            final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
+            final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
             mi = fixThis(mi, y, x);
             mj = fixThis(mj, y, x);
@@ -2056,7 +2054,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	return acceptable;
     }
 
-	public  X10MethodInstance fixThis(final X10MethodInstance mi, final XVar[] y, final XRoot[] x) {
+	public  X10MethodInstance fixThis(final X10MethodInstance mi, final XVar[] y, final XVar[] x) {
 	    X10MethodInstance mj = mi;
 	
 	    final X10TypeSystem ts = (X10TypeSystem) mi.typeSystem();
@@ -2079,7 +2077,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	                	}
 	                }
 	                if ( y.length > 0 && y[0] instanceof XEQV) // this is a synthetic variable
-	                	newRetType = Subst.project(newRetType, (XRoot) y[0]);  			
+	                	newRetType = Subst.project(newRetType, (XVar) y[0]);  			
 	                tref.update(newRetType);
 	            }
 	            catch (SemanticException e) {

@@ -56,12 +56,23 @@ public class CodeBlockSynth extends AbstractStateSynth{
     public void addStmt(Stmt stmt) {
         stmtSythns.add(new SimpleStmtSynth(stmt));
     }
-
+    
     public void addStmts(List<Stmt> stmts) {
         for(Stmt stmt : stmts){
             addStmt(stmt);
         }
     }
+    
+    public void addStmtInFront(Stmt stmt) {
+        stmtSythns.add(0, new SimpleStmtSynth(stmt));
+    }
+    
+    public void addStmtsInFront(List<Stmt> stmts){
+        for(int i = stmts.size() - 1; i >=0; i--){
+            addStmtInFront(stmts.get(i));
+        } 
+    }
+    
     
     public void addStmtSynth(IStmtSynth iss) {
         stmtSythns.add(iss);

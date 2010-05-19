@@ -1,5 +1,5 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
+i *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
  *  You may not use this file except in compliance with the License.
@@ -72,15 +72,16 @@ import x10.ast.X10ClassDecl;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10Formal;
+import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
 import x10.constraint.XDisEquals;
-import x10.constraint.XEQV_c;
+import x10.constraint.XEQV;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XLit;
-import x10.constraint.XLocal_c;
+import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNot;
 import x10.constraint.XTerm;
@@ -102,7 +103,7 @@ import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
 
 /**
@@ -249,7 +250,7 @@ public class Synthesizer {
 	 public Type addRectConstraintToSelf(Type type) {
 	     XVar receiver = X10TypeMixin.self(type);
 	     if (receiver == null) {
-	         CConstraint c = new CConstraint_c();
+	         CConstraint c = new CConstraint();
 	         type = X10TypeMixin.xclause(type, c);
 	         receiver = c.self();
 	     }
@@ -266,7 +267,7 @@ public class Synthesizer {
 	 public Type addRankConstraintToSelf(Type type,  int n, X10TypeSystem ts) {
 		 XVar receiver = X10TypeMixin.self(type);
 		 if (receiver == null) {
-			 CConstraint c = new CConstraint_c();
+			 CConstraint c = new CConstraint();
 			 type = X10TypeMixin.xclause(type, c);
 			 receiver = c.self();
 		 }
@@ -715,7 +716,7 @@ public class Synthesizer {
 	}
 
 	public Field firstPlace() {
-		CConstraint c = new CConstraint_c();
+		CConstraint c = new CConstraint();
 		XTerm id = makeProperty(xts.Int(), c.self(), "id");
 		try {
 			c.addBinding(id, XTerms.makeLit(0));
@@ -846,7 +847,21 @@ public class Synthesizer {
 
         return (X10ClassDecl) cDecl.body(body.members(cMembers));
     }
-	
+
+    /**
+     * Insert methods to the given x10 class. Return a new class with the new methods added in.
+     * @param cDecl The original class with parallel methods
+     * @param methods The methods to be inserted in
+     * @return A newly created class with methods as members
+     */
+    public X10ClassDecl addMethods(X10ClassDecl cDecl, Set<X10MethodDecl> methods){
+        List<ClassMember> cm = new ArrayList<ClassMember>();
+        cm.addAll(cDecl.body().members());
+        cm.addAll(methods);
+        ClassBody cb = cDecl.body();
+        return (X10ClassDecl) cDecl.body(cb.members(cm));
+    }
+    
 	
 	public FieldDef findFieldDef(ClassDef cDef, Name fName) throws SemanticException {
 	    for (FieldDef df : cDef.fields()) {
@@ -1373,10 +1388,10 @@ public class Synthesizer {
 			return makeExpr((XEquals) t, pos);
 		if (t instanceof XDisEquals)
 			return makeExpr((XDisEquals) t, pos);
-		if (t instanceof XEQV_c)
-			return makeExpr((XEQV_c) t, pos); // this must occur before XLocal_c
-		if (t instanceof XLocal_c)
-			return makeExpr((XLocal_c) t, pos);
+		if (t instanceof XEQV)
+			return makeExpr((XEQV) t, pos); // this must occur before XLocal_c
+		if (t instanceof XLocal)
+			return makeExpr((XLocal) t, pos);
 		if (t instanceof XNot)
 			return makeExpr((XNot) t, pos);
 		return null;
@@ -1386,7 +1401,7 @@ public class Synthesizer {
 		Name n = Name.make(t.field().toString());
 		return xnf.Field(pos, r, xnf.Id(pos, n));
 	}
-	Expr makeExpr(XEQV_c t, Position pos) {
+	Expr makeExpr(XEQV t, Position pos) {
 		String str = t.toString();
 		//if (str.startsWith("_place"))
 		//	assert ! str.startsWith("_place");
@@ -1404,7 +1419,7 @@ public class Synthesizer {
 		
 		return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(str)));
 	}
-	Expr makeExpr(XLocal_c t, Position pos) {
+	Expr makeExpr(XLocal t, Position pos) {
 		String str = t.name().toString();
 		//if (str.startsWith("_place"))
 		//	assert ! str.startsWith("_place");

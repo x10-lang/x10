@@ -88,7 +88,7 @@ import x10.ast.X10NodeFactory;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
 import x10.constraint.XConstraint;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.emitter.Emitter;
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
@@ -624,7 +624,7 @@ public class Desugarer extends ContextVisitor {
      * node factory screws up.
      * @throws SemanticException
      */
-    private Assign assign(Position pos, Expr e, Assign.Operator asgn, Expr val) throws SemanticException {
+    protected Assign assign(Position pos, Expr e, Assign.Operator asgn, Expr val) throws SemanticException {
         Assign a = (Assign) xnf.Assign(pos, e, asgn, val).type(e.type());
         if (a instanceof FieldAssign) {
             assert (e instanceof Field);
@@ -659,7 +659,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     // x++ -> ((t:Int)=>t-1)(x+=1) or x-- -> ((t:Int)=>t+1)(x-=1)
-    private Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
+    protected Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
         Type ret = e.type();
         CanonicalTypeNode retTN = xnf.CanonicalTypeNode(pos, ret);
         Expr one = xnf.X10Cast(pos, retTN,
@@ -723,7 +723,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     // a(i)=v -> a.set(v, i) or a(i)op=v -> ((x:A,y:I,z:T)=>x.set(x.apply(y) op z,y))(a,i,v)
-    private Expr visitSettableAssign(SettableAssign_c n) throws SemanticException {
+    protected Expr visitSettableAssign(SettableAssign_c n) throws SemanticException {
         Position pos = n.position();
         MethodInstance mi = n.methodInstance();
         List<Expr> args = new ArrayList<Expr>(n.index());
