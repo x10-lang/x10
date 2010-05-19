@@ -21,8 +21,6 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-ref<String> x10aux::emptyRailToString = String::Lit("[]");
-
 #ifndef NO_IOSTREAM
 std::stringstream* x10aux::allocStringStream() {
     return new (x10aux::alloc<std::stringstream>()) std::stringstream();

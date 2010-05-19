@@ -11,6 +11,76 @@
 
 package x10.constraint;
 
-public interface XLocal extends XRoot {
-	XName name();
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * The representation of a local variable reference in the constraint system.
+ * 
+ * @author vj
+ * 
+ */
+public class XLocal extends XVar  {
+	public final XName name;
+
+	public XLocal(XName name) {
+		this.name = name;
+	}
+	public XTermKind kind() { return XTermKind.LOCAL;}
+	public XVar[] vars() {
+		return new XVar[] { this };
+	}
+	
+	public List<XEQV> eqvs() {
+	    return Collections.EMPTY_LIST;
+	}
+
+	public XVar rootVar() {
+		return this;
+	}
+
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	public boolean hasVar(XVar v) {
+		return equals(v);
+	}
+
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o instanceof XLocal) {
+			XLocal other = (XLocal) o;
+			return name.equals(other.name());
+		}
+		return false;
+	}
+
+	public XName name() {
+		return name;
+	}
+
+	public String toString() {
+		String s = name.toString();
+		if (s.startsWith("self"))
+			return "self";
+		if (s.startsWith("this"))
+			return "this";
+		return s;
+	}
+
+	public boolean prefixes(XTerm t) {
+		if (equals(t))
+			return true;
+		if (!(t instanceof XVar))
+			return false;
+		XTerm[] vars = ((XVar) t).vars();
+
+		return vars.length > 0 && equals(vars[0]);
+	}
+
+	public void variables(List<XVar> vars) {
+		vars.add(this);
+	}
 }

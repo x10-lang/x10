@@ -39,12 +39,10 @@ import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import x10.ast.SemanticError;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
 import x10.types.matcher.Subst;
 
 /** 08/11/09 
@@ -180,8 +178,8 @@ implements X10ParsedClassType
 	    Type sup = super.superClass();
 	    Type base = X10TypeMixin.baseType(sup);
 	    if (base instanceof X10ClassType) {
-	        XRoot supVar = ((X10ClassType) base).x10Def().thisVar();
-	        XRoot thisVar = x10Def().thisVar();
+	        XVar supVar = ((X10ClassType) base).x10Def().thisVar();
+	        XVar thisVar = x10Def().thisVar();
 	        try {
 	            sup = Subst.subst(sup, thisVar, supVar);
 	        }
@@ -201,8 +199,8 @@ implements X10ParsedClassType
 	    for (Type sup : interfaces) {
 	        Type base = X10TypeMixin.baseType(sup);
 	        if (base instanceof X10ClassType) {
-	            XRoot supVar = ((X10ClassType) base).x10Def().thisVar();
-	            XRoot thisVar = x10Def().thisVar();
+	            XVar supVar = ((X10ClassType) base).x10Def().thisVar();
+	            XVar thisVar = x10Def().thisVar();
 	            try {
 	                sup = Subst.subst(sup, thisVar, supVar);
 	            }
@@ -426,7 +424,7 @@ implements X10ParsedClassType
 	
 	public CConstraint getXClause() {
 		if (xClause == null) {
-			xClause = new CConstraint_c();
+			xClause = new CConstraint();
 			try {
 			xClause.setThisVar(X10TypeMixin.getThisVar(typeArguments()));
 			} catch (XFailure f) {

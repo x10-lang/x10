@@ -48,8 +48,8 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRef_c;
-import x10.constraint.XRoot;
+import x10.constraint.XRef;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -375,7 +375,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             			Type t =  tc.context().currentClass();
             			CConstraint dep = X10TypeMixin.xclause(t);
             			if (c != null && dep != null) {
-            				XRoot thisVar = ((X10MemberDef) constructorDef()).thisVar();
+            				XVar thisVar = ((X10MemberDef) constructorDef()).thisVar();
             				if (thisVar != null)
             				    dep = dep.substitute(thisVar, c.self());
 //            				dep = dep.copy();

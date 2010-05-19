@@ -38,8 +38,8 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 
 import x10.constraint.XFailure;
-import x10.constraint.XRef_c;
-import x10.constraint.XRoot;
+import x10.constraint.XRef;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.errors.Errors;
@@ -50,7 +50,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 
 /**
  * @author vj
@@ -199,11 +199,11 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 		 {
 			CConstraint known = Types.get(thisConstructor.supClause());
-			known = (known==null ? new CConstraint_c() : known.copy());
+			known = (known==null ? new CConstraint() : known.copy());
 			try {
 				known.addIn(Types.get(thisConstructor.guard()));
 
-				XRoot thisVar = thisConstructor.thisVar();
+				XVar thisVar = thisConstructor.thisVar();
 
 				for (int i = 0; i < arguments.size(); i++) {
 					Expr initializer = arguments.get(i);

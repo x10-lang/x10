@@ -457,6 +457,7 @@ type \xcd"Future[T]" is defined as if by:
 \begin{xten}
 package x10.lang;
 public interface Future[T] implements () => T {
+  public def apply(): T;
   global def forced(): Boolean;
   global def force(): T;
 }

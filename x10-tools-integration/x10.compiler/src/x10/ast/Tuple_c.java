@@ -41,7 +41,7 @@ import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 
 /** 
  * An immutable representation of the X10 rail constructor [e1, ..., ek]. 
@@ -173,7 +173,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 
 	    Type r = ts.ValRail();
 	    Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
-	    CConstraint c = new CConstraint_c();
+	    CConstraint c = new CConstraint();
 	    FieldInstance lengthField = ((X10ClassType) t).fieldNamed(Name.make("length"));
 	    if (lengthField == null)
 	        throw new InternalCompilerError("Could not find length field of " + t, position());

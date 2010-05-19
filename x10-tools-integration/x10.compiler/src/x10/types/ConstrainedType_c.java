@@ -39,12 +39,11 @@ import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 
 /**
  * 09/11/09
@@ -205,7 +204,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 
 		try {
 			realClause.addIn(depClause);
-			realClause.setThisVar(CConstraint_c.getThisVar(rootClause, depClause));
+			realClause.setThisVar(CConstraint.getThisVar(rootClause, depClause));
 		}
 		catch (XFailure f) {
 			realClause.setInconsistent();
@@ -325,7 +324,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 			public Type transform(Type o) {
 				X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
 				CConstraint c2 = X10TypeMixin.xclause(o);
-				c2 = c2 != null ? c2.copy() : new CConstraint_c();
+				c2 = c2 != null ? c2.copy() : new CConstraint();
 				try {
 					if (c2.thisVar() != null)
 						c2.addBinding(c2.thisVar(), tt);
@@ -359,7 +358,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		    final XTerm t = c.bindingForVar(c.self());
 		    if (t != null) {
 		        CConstraint c2 = X10TypeMixin.xclause(o);
-		        c2 = c2 != null ? c2.copy() : new CConstraint_c();
+		        c2 = c2 != null ? c2.copy() : new CConstraint();
 		        try {
 		            X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
 		            c2.addSelfBinding(t);

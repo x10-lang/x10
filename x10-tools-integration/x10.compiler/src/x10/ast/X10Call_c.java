@@ -64,7 +64,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XLocal;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.parser.X10ParsedName;
@@ -152,7 +152,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			// Override to change the type from C to C{self==this}.
 			Type t = currentClass;
 			X10TypeSystem xts = (X10TypeSystem) ts;
-			XRoot thisVar = null;
+			XVar thisVar = null;
 			if (XTypeTranslator.THIS_VAR) {
 				CodeDef cd = xc.currentCode();
 				if (cd instanceof X10MemberDef) {
@@ -324,7 +324,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		Receiver r;
 		if (mi.flags().isStatic()) {
 			Type container = findContainer(ts, mi);       
-			XRoot this_ = getThis(container);
+			XVar this_ = getThis(container);
 			if (this_ != null)
 			    container = X10TypeMixin.setSelfVar(container, this_);
 			r = nf.CanonicalTypeNode(position().startOf(), container).typeRef(Types.ref(container));
@@ -338,7 +338,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		
 
 			if (! ts.typeEquals(scope, c.currentClass(), c)) {
-				XRoot this_ = getThis(scope);
+				XVar this_ = getThis(scope);
 				if (this_ != null)
 				    scope = X10TypeMixin.setSelfVar(scope, this_);
 				r = (Special) nf.This(position().startOf(),
@@ -366,7 +366,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 					+ " must be declared as a proto method since it is called on a receiver " + 
 					target() + " with a proto type.");
 	}
-	XRoot getThis(Type t) {
+	XVar getThis(Type t) {
 	    t = X10TypeMixin.baseType(t);
 	    if (t instanceof X10ClassType) {
 	        return ((X10ClassType) t).x10Def().thisVar();

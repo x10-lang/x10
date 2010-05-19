@@ -30,10 +30,10 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 
 /**
  * 
@@ -115,7 +115,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                 else {
                     CConstraint rc = X10TypeMixin.xclause(t);
                     if (rc == null)
-                        rc = new CConstraint_c();
+                        rc = new CConstraint();
 
                     XTerm receiver;
 
@@ -135,9 +135,9 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                         XTerm self = xts.xtypeTranslator().trans(c, receiver, this, t);
                         // Add {self = receiver.field} clause.
                         c.addSelfBinding(self);
-                        if (receiver instanceof XRoot) {
+                        if (receiver instanceof XVar) {
                         	// this is the case if we are not in static context.
-                        	c.setThisVar((XRoot) receiver);
+                        	c.setThisVar((XVar) receiver);
                         }
 
                         rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);

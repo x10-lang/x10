@@ -33,7 +33,7 @@ import x10.ast.Closure;
 import x10.ast.X10NodeFactory;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
@@ -81,7 +81,7 @@ public class ClosureSynthesizer {
 	                Types.ref(retType), 
 	            //    Collections.EMPTY_LIST,
 	                fTypes, 
-	                (XRoot) null, 
+	                (XVar) null, 
 	                fNames, 
 	                null, 
 	             //   null, 
@@ -258,7 +258,7 @@ public class ClosureSynthesizer {
         String fullNameWithThis = fullName + "#this";
         //String fullNameWithThis = "this";
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XRoot thisVar = XTerms.makeLocal(thisName);
+        XVar thisVar = XTerms.makeLocal(thisName);
 
         if (formalNames == null) {
         	formalNames = xts.dummyLocalDefs(argTypes);

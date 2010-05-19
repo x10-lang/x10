@@ -58,6 +58,7 @@ def doStmt(cmd, args, f, line, basename):
     stmt = extract(f, starter, ender, basename)
     classname = numberedName(basename)
     code = "\n".join([
+          " package stmtsome." + classname + ";",
           importses, 
           "public class " + classname + "{",
           "  def check(" + formals + ") throws Exception {",
@@ -82,6 +83,7 @@ def doExp(cmd, args, f, line, basename):
     exp = extract(f, starter, ender, basename)
     classname = numberedName(basename)
     code = "\n".join([
+          " package expsome." + classname + ";",
           importses, 
           "public class " + classname + "{",
           "  def check(" + formals + ") throws Exception = " + exp + ";"
@@ -92,6 +94,7 @@ def doExp(cmd, args, f, line, basename):
 #   %~~type~~xcd`~~`~~a:Int
 #   The nerve is of type \xcd`Tofu{a==3}`, unfortunately.
 # OUT:
+#   package TofuChk8;
 #   public class TofuChk8 {
 #     def check(a:Int) {
 #        var checkycheck : Tofu{a==3};
@@ -106,6 +109,7 @@ def doType(cmd, args, f, line, basename):
     typer = extract(f, starter, ender, basename)
     classname = numberedName(basename)
     code = "\n".join([
+          "package " + "typesome." + classname + ";",
           importses, 
           "public class " + classname + "{",
           "  def check(" + formals + ") throws Exception { ",
@@ -265,5 +269,7 @@ def extractExamplesFromAllFiles():
         extractExamplesFrom(tf)
     print str(totalTestCases) + " test cases."
         
-
+os.chdir(gennedFileDir);
+os.system("rm -r " + gennedFileDir + "/*");
 extractExamplesFromAllFiles()
+os.system("x10c -STATIC_CALLS *.x10")

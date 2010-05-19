@@ -209,13 +209,13 @@ public class KMeansCUDA {
             finish async {
 
                 // SPMD style for algorithm
-                //val clk = Clock.make();
+                val clk = Clock.make();
 
                 val num_slice_points = num_global_points / num_slices;
 
                 for ((slice) in 0..num_slices-1) {
 
-                    for (h in Place.places) for (gpu in h.children()) async (h) /*clocked(clk)*/ {
+                    for (h in Place.places) for (gpu in h.children()) async (h) clocked(clk) {
 
                         // carve out local portion of points (point-major)
                         val num_local_points = num_slice_points / Place.NUM_ACCELS;
@@ -308,7 +308,7 @@ public class KMeansCUDA {
 
                             if (offset==0 && verbose) {
                                 Console.OUT.println("Iteration: "+iter);
-                                printClusters(clusters(),4);
+                                printClusters(clusters() as Rail[Float]!,4);
                             }
 
                             // TEST FOR CONVERGENCE

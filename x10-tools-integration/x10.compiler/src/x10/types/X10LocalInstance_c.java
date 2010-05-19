@@ -29,7 +29,7 @@ import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 
 /**
  * @author vj
@@ -77,7 +77,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         // do this even if depclause==null.
         try {
         	CConstraint c = X10TypeMixin.xclause(rightType);
-        	c = c==null? new CConstraint_c() : c.copy();
+        	c = c==null? new CConstraint() : c.copy();
 
         	X10TypeSystem xts = (X10TypeSystem) ts;
         	XLocal var = xts.xtypeTranslator().trans(this.type(rightType), rightType);

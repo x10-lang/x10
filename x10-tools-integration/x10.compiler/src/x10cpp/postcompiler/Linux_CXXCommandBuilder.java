@@ -25,15 +25,21 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
         assert (CXXCommandBuilder.PLATFORM.startsWith("linux_"));
     }
 
+    protected String defaultPostCompiler() {
+	  return USE_XLC ? "xlC_r" : super.defaultPostCompiler();
+    }
+
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        cxxCmd.add("-Wno-long-long");
-        cxxCmd.add("-Wno-unused-parameter");
-        cxxCmd.add("-pthread");
-        if (USE_X86) {
-            cxxCmd.add("-msse2");
-            cxxCmd.add("-mfpmath=sse");
-        }
+		if (!USE_XLC) {
+            cxxCmd.add("-Wno-long-long");
+            cxxCmd.add("-Wno-unused-parameter");
+            cxxCmd.add("-pthread");
+            if (USE_X86) {
+                cxxCmd.add("-msse2");
+                cxxCmd.add("-mfpmath=sse");
+            }
+		}
     }
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {

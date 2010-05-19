@@ -21,7 +21,7 @@
         <mkdir dir="${build}"/>
     </target>
     <target name="clean">
-        <delete dir="${build}"/>
+        <delete dir="${build}" failonerror="false"/>
     </target>
     <target name="dist" depends="jar" description="generate part of the distribution">
         <mkdir dir="${lib}"/>

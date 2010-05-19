@@ -1,191 +1,259 @@
-\if 0
-\chapter{Linking with Java code}
-\label{JavaLink}
+\chapter{Native Code Integration}
+\label{NativeCode}
+\index{native code}
 
-On some platforms,
-\XtenCurrVer{} allows \java{} code to be called directly from
-\Xten{} code.  \java{} classes and packages are in the same namespace as
-\Xten{} classes and packages.  When a \java{} class is loaded by
-the \Xten{} run-time system, types are mapped from \java{} types
-to \Xten{} types as follows.
+At times it becomes necessary to call non-X10 code from X10, perhaps to make
+use of specialized libraries in other languages or to write more precisely
+controlled code than X10 generally makes available. The
+\xcd`@Native(lang,code) Phrase` annotation from \xcd`x10.compiler.Native` in
+X10 can be used to tell the X10 compiler to generate \xcd`code` for certain
+kinds of \xcd`Phrase`, instead of what it would normally compile to, when
+compiling to the \xcd`lang` back end.
 
-\begin{tabular}{|l|l|}
-\hline
-\multicolumn{1}{|c|}{\bf \java{} types} &
-\multicolumn{1}{|c|}{\bf \Xten{} type} \\
-\hline
-\hline
-\xcd"java.lang.Object" & \xcd"x10.lang.Object" \\
-\hline
-\xcd"java.lang.String" & \xcd"x10.lang.String" \\
-\hline
-\xcd"boolean", \xcd"java.lang.Boolean" & \xcd"x10.lang.Boolean" \\
-\hline
-\xcd"byte", \xcd"java.lang.Byte" & \xcd"x10.lang.Byte" \\
-\hline
-\xcd"short", \xcd"java.lang.Short" & \xcd"x10.lang.Short" \\
-\hline
-\xcd"char", \xcd"java.lang.Character" & \xcd"x10.lang.Char" \\
-\hline
-\xcd"int", \xcd"java.lang.Integer" & \xcd"x10.lang.Int" \\
-\hline
-\xcd"long", \xcd"java.lang.Long" & \xcd"x10.lang.Long" \\
-\hline
-\xcd"float", \xcd"java.lang.Float" & \xcd"x10.lang.Float" \\
-\hline
-\xcd"double", \xcd"java.lang.Double" & \xcd"x10.lang.Double" \\
-\hline
-\xcd"void" & \xcd"x10.lang.Void" \\
-\hline
-\xcd"T[]" & \xcd"x10.lang.NativeRail[T]" \\
-\hline
-\end{tabular}
 
-This mapping allows \Xten{} objects
-to be stored in fields of \java{} objects or in \java{} arrays.
-\Xten{} objects are treated as subtypes of \xcd"java.lang.Object"
-by \java{} code
+\section{Native \xcd`static` Methods}
 
-%XXX TODO
+\xcd`static` methods can be given native implementations.  Note that these
+implementations are syntactically {\em expressions}, not statements, in C++ or
+Java.   Also, it is possible (and common) to provide native implementations
+into both Java and C++ for the same method.
+%~~gen
+% package Extern.or_current_turn;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Son {
+  @Native("c++", "printf(\"Hi!\")")
+  @Native("java", "System.out.println(\"Hi!\")")
+  static def printNatively():Void = {};
+}
+\end{xten}
+%~~siv
+%
+%~~neg
 
-\java{} objects imported into \Xten{} are augmented with a \xcd"home" field.
-Java code can determine the home of an object by
-invoking the static method
-\xcd"x10java.Place.getLocation(java.lang.Object)".
+If only some back-end languages are given, the X10 code will be used for the
+remaining back ends: 
+%~~gen
+% package Extern.or.burn;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Land {
+  @Native("c++", "printf(\"Hi from C++!\")")
+  static def example():Void = {
+    x10.io.Console.OUT.println("Hi from X10!");
+  };
+}
+\end{xten}
+%~~siv
+%
+%~~neg
 
-\java{} generics are not supported.
-\java{}'s threading and synchronization are not supported.
+The \xcd`native` modifier on methods indicates that the method must not have
+an X10 code body, and \xcd`@Native` implementations must be given for all back
+ends:
+%~~gen
+% package Extern.or_current_turn;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Plants {
+  @Native("c++", "printf(\"Hi!\")")
+  @Native("java", "System.out.println(\"Hi!\")")
+  static native def printNatively():Void;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
 
+
+Values may be returned from external code to X10.  Scalar types in Java and
+C++ correspond directly to the analogous types in X10.  
+%~~gen
+% package Extern.hardy;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Return {
+  @Native("c++", "1")
+  @Native("java", "1")
+  static native def one():Int;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+Parameters may be passed to external code.  \xcd`(#1)`  is the first parameter,
+\xcd`(#2)` the second, and so forth.  (\xcd`(#0)` is the name of the enclosing
+class.)  Be aware that this is macro substitution rather than normal parameter
+passing; \eg, if the first actual parameter is \xcd`i++`, and \xcd`(#1)`
+appears twice in the external code, \xcd`i` will be incremented twice.
+For example, a (ridiculous) way to print the sum of two numbers is: 
+%~~gen
+% package Extern.or_current_turn;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Species {
+  @Native("c++", "printf(\"Sum=%d\", ((#1)+(#2)) )")
+  @Native("java", "System.out.println(\"Hi!\")")
+  static native def printNatively(x:Int, y:Int):Void;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+Static variables in the class are available in the external code. 
+\iffalse
+%~~gen
+%package Extern.or.Die;
+%~~vis
+\begin{xten}
+import x10.compiler.Native;
+class Ability {
+  static val a : Int = 1;
+  @Native("java", "a")
+  static native def fromStatic():Int;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
 \fi
 
-\chapter{Linking with native code}\label{extern}\index{extern}
 
-On some platforms,
-\XtenCurrVer{} supports a simple facility to permit the efficient
-intra-thread communication of an array of primitive type to code
-written in the language {\tt C}.  The array must be a ``local''
-array. The primary intent of this design is to permit the reuse of
-native code that efficiently implements some numeric array/matrix
-calculation.
 
-Future language releases are expected to support similar bindings to
-{\sc Fortran}, and to support parallel native processing of
-distributed \Xten{} arrays. 
+\section{Native Blocks}
 
-The interface consists of two parts. First, an array intended to be
-communicated to native code must be created as an unsafe array
-via the \xcd"unsafe" annotation.
+Any block may be annotated with \xcd`@Native(lang,stmt)`, indicating that, in
+the given back end, it should be implemented as \xcd`stmt`. All value
+variables from the surrounding context are available inside \xcd`stmt`. For
+example, the method call \xcd`born.example(10)`, if compiled to Java, changes
+the field \xcd`y` of a \xcd`Born` object to 10. If compiled to C++ (for which
+there is no \xcd`@Native`), it sets it to 3. 
+%~~gen
+%package Extern.me.plz; 
+%~~vis
 \begin{xten}
-new unsafe Array[T](dist)
-\end{xten}
-Unsafe arrays can be of any dimension. However, \XtenCurrVer{}
-requires that unsafe arrays be of a primitive type, and local
-(i.e.,
-with an underlying distribution that maps all elements in its region
-to \xcd"here").
-
-Unsafe arrays are allocated in a special array of memory that permits
-their efficient transmission to natively linked code.
-%% Comment about when this memory is freed.
-
-Second, the \Xten{} programmer may specify that certain methods are to
-be implemented natively by using the modifier \xcd"extern":
-
-\begin{grammar}
-   MethodModifier \: \xcd"extern"
-\end{grammar}
-
-Such a method must be declared \xcd"static" and may not have a
-method body.\footnote{This
-restriction is likely to be lifted in the future.}  Primitive types in
-the method argument are translated to their corresponding JNI type
-(e.g., {\tt Float} is translated to {\tt jfloat}, {\tt Double} to
-{\tt jdouble}, etc.).  The only non-primitive type permitted in an
-\xcd"extern" method is an unsafe array. This is passed at type
-\xcd"jlong" as an eight-byte address into the unsafe region that contains
-the data for the array.  Note that {\tt jlong} is not the same as {\tt long} on
-32-bit machines.
-
-
-Since only the starting address of an array is passed, if the array is
-multidimensional, the user must explicitly communicate (or have a
-guarantee of) the rank of the passed array, and must either typecast
-or explicitly code the address calculation.  Note that all \Xten{}
-arrays are created in row-major order, and so any native routine must
-also access them in the same order.
-
-For each class \xcd"C" that contains an \xcd"extern" method, the
-\Xten{} compiler generates a text file {\tt C\_x10stub.c}.  This file
-contains generated \xcd"C" stub functions that are called from the
-\xcd"extern" routines.  The name of the stub function is derived from
-the name of the \xcd"extern" method. If the method is
-{\tt C.process()}, the stub function will be
-{\tt Java\_C\_C\_process()}. The name is suffixed with the signature of the
-method if the method is overloaded.
-
-The programmer must write C code to implement the native method,
-using the methods in the \xcd"C" stub file to call the actual native
-method.  The programmer must compile these files and link them into a
-dynamically linked library (DLL).  Note that the {\tt jni.h} header file
-must be in the include path.  The programmer must ensure this library
-is loaded by the program before the method is called, e.g., by
-adding a
-{\tt x10.lang.System.loadLibrary} call (in a static initializer of the
-\Xten{} class).
-
-\begin{example}
-The following class illustrates the use of \xcd"unsafe" and native
-linking. 
-\begin{xten}
-public class IntArrayExternUnsafe {
-  public static extern 
-      def process(yy: unsafe Rail[Int], size: Int);
-  static { System.loadLibrary("IntArrayExternUnsafe"); }
-  public static def main(args: Rail[String]) {
-     val b = (new IntArrayExternUnsafe()).run();
-     System.out.println("++++++ Test "
-                         +(b?"succeeded.":"failed."));
-     System.exit(b?0:1);
+import x10.compiler.Native;
+class Born {
+  var y : Int = 1; 
+  public def example(x:Int):Int{
+    @Native("java", "y=x;") 
+    {y = 3;}
+    return y;
   }
-  public def run() : Boolean {
-    val high = 10;
-    val d = (0..high) -> here;
-    val y: Array[Int] = new unsafe Array[Int](d);
-    for (val (j) in y.region) {
-        y(j) = j;
-    process(y,high);
-    for (val (j) in y.region) {
-      val expected = j+100;
-      if(y(j) != expected) {
-        System.out.println("y("+j+")="
-                           +y(j)+" != "+expected);
-        return false;
-       }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+Note that the code being replaced is a statement -- the block \xcd`{y = 3;}`
+in this case -- so the replacement should also be a statement. 
+
+
+Other X10 constructs may or may not be available in Java and/or C++ code.  For
+example, type variables do not correspond exactly to type variables in either
+language, and may not be available there.  The exact compilation scheme is
+{\em not} fully specified.  You may inspect the generated Java or C++ code and
+see how to do specific things, but there is no guarantee that fancy extern
+coding will continue to work in later versions of X10.
+
+
+
+The full facilities of C++ or Java are available in native code blocks.
+However, there is no guarantee that advanced features behave sensibly. You
+must follow the exact conventions that the code generator does, or you will
+get unpredictable results.  Furthermore, the code generator's conventions may
+change without notice or documentation from version to version.  In most cases
+the  code should either be a very simple expression, or a method
+or function call to external code.
+
+
+\section{External Java Code}
+
+When X10 is compiled to Java, mentioning a Java class name in native code will
+cause the Java compiler to find it in the sourcepath or classpath, in the
+usual way.  This requires no particular extra work from the programmer.
+
+
+\section{External C++ Code}
+
+C++ code can be linked to X10 code, either by writing auxiliary C++ files and
+adding them with suitable annotations, or by linking libraries.
+
+\subsection{Auxiliary C++ Files}
+
+Auxiliary C++ code can be written in \xcd`.h` and \xcd`.cc` files, which
+should be put in the same directory as the the X10 file using them.
+Connecting with the library uses the \xcd`@NativeCPPInclude(dot_h_file_name)`
+annotation to include the header file, and the 
+\xcd`@NativeCPPCompilationUnit(dot_cc_file_name)` annotation to include the
+C++ code proper.  For example: 
+
+{\bf MyCppCode.h}: 
+\begin{xten}
+void foo();
+\end{xten}
+
+
+{\bf MyCppCode.cc}:
+\begin{xten}
+#include <cstdlib>
+#include <cstdio>
+void foo() {
+    printf("Hello World!\n");
+}
+\end{xten}
+
+{\bf Test.x10}:
+\begin{xten}
+import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
+import x10.compiler.NativeCPPCompilationUnit;
+
+@NativeCPPInclude("MyCPPCode.h")
+@NativeCPPCompilationUnit("MyCPPCode.cc")
+public class Test {
+    public static def main (args:Rail[String]!) {
+        { @Native("c++","foo();") {} }
     }
-    return true;
-  }
 }
 \end{xten}
 
-The programmer may then write the {\tt C} code thus:
+\subsection{C++ System Libraries}
+
+If we want to additionally link to more libraries in \xcd`/usr/lib` for
+example, it is necessary to adjust the post-compilation directly.  The
+post-compilation is the compilation of the C++ which the X10-to-C++ compiler
+\xcd`x10c++` produces.  
+
+The mechanism used for this is the \xcd`-post` command line parameter to
+\xcd`x10c++`. The following example shows how to compile \xcd`blas` into the
+executable via post compiler parameters.
+
 \begin{xten}
-void IntArrayExternUnsafe_process(jlong yy, signed int size) {
-  int i;
-  int* array = (int*) (long) yy;
-  for (i = 0; i < size; i++) {
-    array[i] += 100;
-  }
-}
-/* automatically generated in C_x10stub.c */
-void 
-Java_IntArrayExternUnsafe_IntArrayExternUnsafe_process
-(JNIEnv *env, jobject obj, jlong yy, jint size) {
-   IntArrayExternUnsafe_process(yy, size);
-}
+x10c++ Test.x10 -post '# # -I /usr/local/blas # -L /usr/local/blas -lblas'
 \end{xten}
 
-This code may be linked with the stub file (or textually placed
-in it). The programmer must then compile and link the C code and
-ensure that the DLL is on the appropriate classpath. 
+\begin{itemize}
+\item The first \xcd`#` means to use the default compiler for the architecture (from
+      x10rt properties file). 
+\item The second \xcd`#` is substituted for the .cc files and CXXFLAGS that would
+      ordinarily be used. 
+\item The third \xcd`#` is substituted for the libraries and LDFLAGS that would
+      ordinarily used.
+\item For the second and third, if a \xcd`%` is used instead of a \xcd`#` then the
+      the substitution does not occur in that position.  The \xcd`%` is
+      erased.  The desired parameter value should appear after the \xcd`%` on
+      the line. This allows a complete override of the postcompiler behaviour.
+\end{itemize}
 
-\end{example}
+

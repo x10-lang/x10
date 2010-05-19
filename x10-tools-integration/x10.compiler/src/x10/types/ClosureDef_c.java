@@ -26,7 +26,7 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -54,7 +54,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             Ref<? extends Type> returnType,
      //       List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
-            XRoot thisVar,
+            XVar thisVar,
             List<LocalDef> formalNames, 
             Ref<CConstraint> guard,
        //     Ref<TypeConstraint> typeGuard,
@@ -140,12 +140,12 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 	//    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
     }
     
-    XRoot thisVar;
-    public XRoot thisVar() {
+    XVar thisVar;
+    public XVar thisVar() {
         return this.thisVar;
     }
     
-    public void setThisVar(XRoot thisVar) {
+    public void setThisVar(XVar thisVar) {
         this.thisVar = thisVar;
     }
 

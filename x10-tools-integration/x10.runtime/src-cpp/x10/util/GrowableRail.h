@@ -36,6 +36,9 @@ namespace x10 {
             x10_int _len;
             
         public:
+
+            T* raw() { return _array->raw(); }
+
             static x10aux::ref<GrowableRail<T> > _make() {
                 return (new (x10aux::alloc<GrowableRail<T> >()) GrowableRail<T>())->_constructor();
             }
@@ -79,7 +82,11 @@ namespace x10 {
             void grow(x10_int newSize);
 
             void shrink(x10_int newSize);
-                
+
+            void grow_internal(x10_int newSize);
+
+            void shrink_internal(x10_int newSize);
+
             x10_int size();
         };
     }
@@ -102,18 +109,22 @@ namespace x10 {
             return this;
         }
 
-        template<class T> T GrowableRail<T>::set(T v, x10_int i) {
+        template<class T> inline x10_int GrowableRail<T>::size() { return _array->FMGL(length); }
+
+        template<class T> inline x10_int GrowableRail<T>::length() { return _len; }
+
+        template<class T> inline T GrowableRail<T>::set(T v, x10_int i) {
             grow(i+1);
             return (*_array)[i] = v;
         }
 
-        template<class T> void GrowableRail<T>::add(T v) {
+        template<class T> inline void GrowableRail<T>::add(T v) {
             grow(_len+1);
             (*_array)[_len] = v;
             _len++;
         }
 
-        template<class T> T GrowableRail<T>::apply(x10_int i) {
+        template<class T> inline T GrowableRail<T>::apply(x10_int i) {
             return (*_array)[i];
         }
 
@@ -122,8 +133,6 @@ namespace x10 {
             _len--;
             shrink(_len+1);
         }
-
-        template<class T> x10_int GrowableRail<T>::length() { return _len; }
 
         template<class T> x10aux::ref<x10::lang::Rail<T> > GrowableRail<T>::toRail() {
             x10aux::ref<x10::lang::Rail<T> > ans = x10::lang::Rail<T>::make(_len);
@@ -146,12 +155,15 @@ namespace x10 {
             _len = newLength;
         }
 
-        template<class T> void GrowableRail<T>::grow(x10_int newSize) {
+        template<class T> inline void GrowableRail<T>::grow(x10_int newSize) {
+            if (newSize > size()) {
+                grow_internal(newSize);
+            }
+        }
+
+        template<class T> void GrowableRail<T>::grow_internal(x10_int newSize) {
             x10_int oldStorage = size();
 
-            if (newSize <= oldStorage) {
-                return;
-            }
             if (newSize < oldStorage*2) {
                 newSize = oldStorage*2;
             }
@@ -167,11 +179,16 @@ namespace x10 {
                 (*tmp)[i] = (*_array)[i];
             }
 
+            x10aux::dealloc(_array.operator->());
             _array = tmp;
         }
 
-
-        template<class T> void GrowableRail<T>::shrink(x10_int newSize) {
+        template<class T> inline void GrowableRail<T>::shrink(x10_int newSize) {
+            if (newSize <= size()/2 && newSize >= 8) {
+                shrink_internal(newSize);
+            }
+        }
+        template<class T> void GrowableRail<T>::shrink_internal(x10_int newSize) {
             if (newSize > size()/2 || newSize < 8) {
                 return;
             }
@@ -188,11 +205,10 @@ namespace x10 {
                 (*tmp)[i] = (*_array)[i];
             }
 
+            x10aux::dealloc(_array.operator->());
             _array = tmp;
         }
             
-        template<class T> x10_int GrowableRail<T>::size() { return _array->FMGL(length); }
-
         template<class T> void GrowableRail<T>::_initRTT() {
             if (rtt.initStageOne(x10aux::getRTT<GrowableRail<void> >())) return;
             x10::util::_initRTTHelper_GrowableRail(&rtt, x10aux::getRTT<T>());

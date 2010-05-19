@@ -28,10 +28,10 @@ import java.util.List;
  */
 public class XTerms {
    
-	public static final XLit NULL = new XLit_c(null);
-	public static final XLit TRUE = new XLit_c(true);
-	public static final XLit FALSE = new XLit_c(false);
-	public static final XLit OPERATOR = new XLit_c(new Object()) { 
+	public static final XLit NULL = new XLit(null);
+	public static final XLit TRUE = new XLit(true);
+	public static final XLit FALSE = new XLit(false);
+	public static final XLit OPERATOR = new XLit(new Object()) { 
 		public String toString() { return "o"; } 
 	};
 
@@ -58,19 +58,19 @@ public class XTerms {
 		return makeUQV(makeFreshName());
 	}
 	public static XEQV makeEQV(XName name) {
-		return new XEQV_c(name, true);
+		return new XEQV(name, true);
 	}
 	public static XEQV makeUQV(XName name) {
-		return new XEQV_c(name, false);
+		return new XEQV(name, false);
 	}
 	public static final XEQV makeEQV(String prefix) {
-		return new XEQV_c(makeFreshName(prefix), true);
+		return new XEQV(makeFreshName(prefix), true);
 	}
 	public static final XEQV makeUQV(String prefix) {
-		return new XEQV_c(makeFreshName(prefix), false);
+		return new XEQV(makeFreshName(prefix), false);
 	}
 	public static XEQV makeEQV(XName name, boolean hidden) {
-		return new XEQV_c(name, hidden);
+		return new XEQV(name, hidden);
 	}
 	    
 	public static final XLocal makeFreshLocal() {
@@ -92,14 +92,12 @@ public class XTerms {
 	}
 	
 	public static final XLocal makeLocal(XName name) {
-		return new XLocal_c(name);
+		return new XLocal(name);
 	}
-	public static final XLocal makeArray(XName name) {
-		return new XArray_c(name);
-	}
+	
 
 	public static final XField makeField(XVar receiver, XName field) {
-		return new XField_c(receiver, field);
+		return new XField(receiver, field);
 	}
 	
 	
@@ -111,7 +109,7 @@ public class XTerms {
 		if (o == null) return NULL;
 		if (o.equals(true)) return TRUE;
 		if (o.equals(false)) return FALSE;
-		return new XLit_c(o);
+		return new XLit(o);
 	}
 	
 	/**
@@ -139,7 +137,7 @@ public class XTerms {
 	public static XTerm makeAtom(XName op, boolean atomicFormula, List<XTerm> terms) {
 		assert op != null;
 		assert terms != null;
-		XFormula f = new XFormula_c(op, terms);
+		XFormula f = new XFormula(op, terms);
 		if (atomicFormula) {
 			f.markAsAtomicFormula();
 		}
@@ -154,10 +152,10 @@ public class XTerms {
 	 */
 	public static XTerm makeTerm(XName op, XTerm... terms) {
 		if (op.equals(plusName)) {
-			return new XPlus_c(terms);
+			return new XPlus(terms);
 		}
 		if (op.equals(minusName)) {
-			return new XMinus_c(terms);
+			return new XMinus(terms);
 		}
 		
 		return makeAtom(op, false, Arrays.asList(terms));
@@ -175,7 +173,7 @@ public class XTerms {
 		        else
 		            return XTerms.FALSE;
 		}
-		return new XEquals_c(left, right);
+		return new XEquals(left, right);
 	}
 	
 	public static XTerm makeDisEquals(XTerm left, XTerm right) {
@@ -188,7 +186,7 @@ public class XTerms {
 		        else
 		            return XTerms.TRUE;
 		}
-		return new XDisEquals_c(left, right);
+		return new XDisEquals(left, right);
 	}
 
     /**
@@ -198,7 +196,7 @@ public class XTerms {
 	public static XTerm makeAnd(XTerm left, XTerm right) {
 		assert left != null;
 		assert right != null;
-		return new XAnd_c(left, right);
+		return new XAnd(left, right);
 	}
 
     /** Make and return not (arg). arg should be a boolean term. (not
@@ -206,21 +204,14 @@ public class XTerms {
      */
 	public static XTerm makeNot(XTerm arg) {
 		assert arg != null;
-		return new XNot_c(arg);
+		return new XNot(arg);
 	}
 	/**
 	 * Return the constraint true.
 	 * @return
 	 */
 	public static XConstraint makeTrueConstraint() {
-		return new XConstraint_c();
+		return new XConstraint();
 	}
-	/**
-	 * Create a term representing an array access a(t)
-	 * @arg array -- a
-	 * @arg index -- t
-	 */
-	public static XArrayElement makeArrayElement(XArray array, XTerm index) {
-		return new XArrayElement_c(array, index);
-	}
+	
 }

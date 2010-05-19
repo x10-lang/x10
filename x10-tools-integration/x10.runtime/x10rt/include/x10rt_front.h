@@ -455,9 +455,27 @@ X10RT_C void x10rt_remote_free (x10rt_place place, x10rt_remote_ptr ptr);
  */
 X10RT_C void x10rt_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long update);
 
-/** Wait for outstanding operations to complete.  \see x10rt_remote_xor
+/** Wait for outstanding x10rt_remote_xor operations to complete.
  */
 X10RT_C void x10rt_remote_op_fence (void);
+
+/** Do an operation on a word at the remote place.  There is no way to determine if the operation
+ * succeeded yet or at all.
+ * \param place The place where the memory resides.
+ * \param remote_addr The location of the word at the remote place (returned by #x10rt_register_mem).
+ * \param type The kind of operation to perform.
+ * \param value The operand (depends on the operation).
+ */
+X10RT_C void x10rt_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
+                              x10rt_op_type type, unsigned long long value);
+
+/** Prepare memory for use by #x10rt_remote_op.
+ * \param ptr Some memory at the local place.
+ * \param len The amount of memory to register (should be a multiple of 8).
+ * \returns An integer that should be used by remote places in calls to #x10rt_remote_op (can be
+ * offset in the positive direction my a multiple of 8, up to len).
+ */
+X10RT_C x10rt_remote_ptr x10rt_register_mem (void *ptr, size_t len);
 
 /** Perform a global SPMD-style barrier. Blocks until every place calls the barrier operation.
  * \bug Should be a non-blocking operation. \bug Should allow a subset of places. \bug Should be

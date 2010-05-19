@@ -22,6 +22,9 @@ import x10.util.Pair;
         @Native("c++", "true")
         private static def isCPP () = false as Boolean;
 
+        @Native("java", "true")
+        private static def isJava () = false;
+
         private static def useNativeFor (x:Place) = isCPP() && x!=here;
 
         // VERSIONS WITH REMOTE RAIL
@@ -32,12 +35,22 @@ import x10.util.Pair;
                                               dst: Rail[T], dst_off:Int,
                                               len:Int) : Void;
 
+        // VERSIONS WITH LOCAL RAIL
+
+        @Native("c++", "printf(\"Should never occur, see ValRail.x10\")")
+        @Native("java", "(#4).copyToLocal(#5,#6,#7,#8)")
+        public static native def copyToLocal_[T] (src: ValRail[T], src_off:Int,
+                                              dst: Rail[T], dst_off:Int,
+                                              len:Int) : Void;
+
         public static def copyTo[T] (src: ValRail[T], src_off:Int,
                                      dst: Rail[T], dst_off:Int,
                                      len:Int) : Void {
+            if (dst.home == here && isJava()) { copyToLocal_(src,src_off,dst,dst_off,len); return; }
             //NOT IMPLEMENTED! if (useNativeFor(dst.home)) { copyTo_(src,src_off,dst,dst_off,len); return; }
             // could be further optimised to send only the part of the valrail needed
             at (dst) {
+                if (isJava()) { copyToLocal_(src,src_off,dst,dst_off,len); } else
                 //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
                 for (var i:Int=0 ; i<len ; ++i) {
                     dst(dst_off+i) = src(src_off+i);

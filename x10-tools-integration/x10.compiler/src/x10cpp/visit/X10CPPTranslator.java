@@ -62,6 +62,7 @@ import polyglot.main.Report;
 
 import polyglot.types.ClassType;
 import polyglot.types.Context;
+import polyglot.types.MemberDef;
 import polyglot.types.Name;
 import polyglot.types.Package;
 import polyglot.types.QName;
@@ -181,12 +182,12 @@ public class X10CPPTranslator extends Translator {
 		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
 		        // [DC] avoid NPE when writing to .cu files
 		        if (lineNumberMap != null) {
-		            if (n instanceof MethodDecl) {
-		                lineNumberMap.addMethodMapping(((MethodDecl) n).methodDef());
-		            }
-		            if (n instanceof ConstructorDecl) {
-		                lineNumberMap.addMethodMapping(((ConstructorDecl) n).constructorDef());
-		            }
+		            final MemberDef def =
+		                (n instanceof Block) ?
+		                    (parent instanceof MethodDecl) ? ((MethodDecl) parent).methodDef() :
+		                    (parent instanceof ConstructorDecl) ? ((ConstructorDecl) parent).constructorDef()
+		                    : null
+		                : null;
 		            if (n instanceof Stmt) {
 		                final int adjustedStartLine = adjustSLNForNode(startLine, n);
 		                final int adjustedEndLine = adjustELNForNode(endLine, n);
@@ -197,6 +198,9 @@ public class X10CPPTranslator extends Translator {
 		                        int cppEndLine = s.getStartLineOffset()+fixedEndLine;
 //		                        System.out.println("Adding line number entry: "+cppFile+":"+cppStartLine+"-"+cppEndLine+"->"+file+":"+line);
 		                        lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line);
+		                        if (def != null) {
+		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine);
+		                        }
 		                    }
 		                });
 		            }
