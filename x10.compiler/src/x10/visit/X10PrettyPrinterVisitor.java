@@ -2214,20 +2214,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Binary.Operator op = n.operator();
 
 
-//        if (l.isNumeric() && r.isNumeric()) {
-//            visit((Binary_c)n);
-//            return;
-//        }
-//
-//        if (l.isBoolean() && r.isBoolean()) {
-//            visit((Binary_c)n);
-//            return;
-//        }
-//
-//        if (l.isChar() && r.isChar()) {
-//            visit((Binary_c)n);
-//            return;
-//        }
+        if (l.isNumeric() && r.isNumeric()) {
+            visit((Binary_c)n);
+            return;
+        }
+
+        if (l.isBoolean() && r.isBoolean()) {
+            visit((Binary_c)n);
+            return;
+        }
+
+        if (l.isChar() && r.isChar()) {
+            visit((Binary_c)n);
+            return;
+        }
 
 		if (op == Binary.EQ) {
 			new Template(er, "equalsequals", left, right).expand();
@@ -2237,16 +2237,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (op == Binary.NE) {
 			new Template(er, "notequalsequals", left, right).expand();
 			return;
-		}
-
-		if (l.isNumeric() && r.isNumeric()) {
-		    visit((Binary_c)n);
-		    return;
-		}
-
-		if (l.isBoolean() && r.isBoolean()) {
-		    visit((Binary_c)n);
-		    return;
 		}
 
 		if (op == Binary.ADD && (l.isSubtype(xts.String(), tr.context()) || r.isSubtype(xts.String(), tr.context()))) {
