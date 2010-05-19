@@ -1,8 +1,15 @@
 #include "defs.h"
+#include "mysort.h"
 
 /* Set this variable to zero to run the data generator 
    on one thread (for debugging purposes) */
 #define PARALLEL_SDG 0
+
+struct pairs {
+
+   VERT_T key;
+   VERT_T value;
+};
 
 double genScalData(graphSDG* SDGdata) {
 
@@ -160,16 +167,19 @@ double genScalData(graphSDG* SDGdata) {
         assert(permV != NULL);
     }
 
-    VERT_T *keys = (VERT_T*) malloc(N*sizeof(VERT_T));
-    VERT_T *values = (VERT_T*) malloc(N*sizeof(VERT_T));
+    struct pairs *kv= (struct pairs*)  malloc(N*sizeof(struct pairs));
 
     for (i=0; i<n; i++) {
 	//stream = init_sprng(SPRNG_LCG64, i, n, seed, SPRNG_DEFAULT);
-        keys[i] =  (n*sprng(stream));
-        values[i] = i;
+        kv[i].key =  (n*sprng(stream));
+        kv[i].value = i;
 
     }
 
+   mysort((void*) (kv), n);
+
+
+/*
        for (i=0; i < n; i++) {
           for (j=i+1; j < n; j++ ){
 
@@ -186,14 +196,14 @@ double genScalData(graphSDG* SDGdata) {
              }
            }
          }
-
+*/
 
 #ifdef _OPENMP
 #pragma omp for
 #endif    
     for (i=0; i<m; i++) {
-        src[i] = values[src[i]];
-        dest[i] = values[dest[i]];
+        src[i] = kv[src[i]].value;
+        dest[i] = kv[dest[i]].value;
     } 
 
 

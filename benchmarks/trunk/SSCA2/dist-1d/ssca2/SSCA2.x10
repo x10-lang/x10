@@ -109,7 +109,8 @@ class SSCA2 {
 		  val compRet = computeGraph.compute(genRet.second);
                   kernel1.stop();
 
-                  pg_real = distribute(compRet.second);
+		 pg_real = distribute(compRet.second);
+
                 }else {
                  val RVertices = PlaceLocalHandle.make[HashMap[types.VERT_T, types.VERT_T]](unique, ()=>new HashMap[types.VERT_T, types.VERT_T]());
                  val Out_pairs = PlaceLocalHandle.make[GrowableRail[types.UVPair]](unique, ()=>new GrowableRail[types.UVPair](0));
@@ -153,7 +154,8 @@ for ((i) in 0..sourceList.length-1) {
 
                val bc = new BetweenessCentrality(pg_real, USE_ASYNC, FILTER, SCALE);
                bc.compute(GLOBALS);
-               if (SERIAL_GRAPH_GEN==true) bc.dump();
+               //if (SERIAL_GRAPH_GEN==true) 
+               bc.dump();
 
                PTimer.printDetailed();
 	}

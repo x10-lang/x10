@@ -53,7 +53,8 @@ public class genScaleData  {
 			var cv: Double;
 			var dv: Double;
 			
-			for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
+			//for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
+			for (var i: Int = tid*chunkSize_m; i < (tid+1)*chunkSize_m; i++) {
 
 				do{ 
 					u = 1;
@@ -119,13 +120,14 @@ public class genScaleData  {
           
                          //perm.start(); 
 		         val kv = Rail.make[types.UVPair](n);
-			 for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
+			// for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
+			for (var i: Int = tid*chunkSize_n; i < (tid+1)*chunkSize_n; i++) {
                                 val j = (n*sprng_wrapper(stream)) as types.VERT_T;
 				kv(i) = types.UVPair(j, i);
 			} 
                          //perm.stop();
 			
-			
+		/*	
 			  for ((i) in tid*chunkSize_n..(tid+1)*chunkSize_n-1) {
                                 for ((j) in (i+1)..(tid+1)*chunkSize_n-1) {
                                    atomic {
@@ -136,17 +138,20 @@ public class genScaleData  {
                                       }
                                     }
                                 }
-                         } 
+                         } */ 
 
                 	//sort.start(); 
 			val size = kv.length();
+			{@Native("c++", "std::sort((std::pair<int, int>*) (kv->raw()), ((std::pair<int,int>*)(kv->raw())) + size);") {} }
+
                         //{@Native("c++", "mysort( (kv->raw()), size);") {} }
 			//sort.stop();
 
 	
 			//assign.start();		
 			 //x10.io.Console.OUT.println("perm "  +  " " + key + " " + value);
-			for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
+			//for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
+			for (var i: Int = tid*chunkSize_m; i < (tid+1)*chunkSize_m; i++) {
 				src(i) = kv(src(i)).second;
 				dest(i) = kv(dest(i)).second;
 				wt(i) = (1 + GLOBALS.MaxIntWeight * sprng_wrapper(stream)) as types.WEIGHT_T;

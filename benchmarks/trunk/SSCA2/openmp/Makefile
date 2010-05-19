@@ -9,9 +9,12 @@ LIB=-L../sprng2.0/lib -lsprng
 
 OBJS = SSCA2.o init.o utils.o genScalData.o gen2DTorus.o \
     computeGraph.o getStartLists.o findSubGraphs.o  \
-    betweennessCentrality.o
+    betweennessCentrality.o mysort.o \
 
 .c.o: defs.h Makefile
+	$(CC) $(INC) $(CFLAGS) -c $<
+
+.cc.o: 
 	$(CC) $(INC) $(CFLAGS) -c $<
 
 
