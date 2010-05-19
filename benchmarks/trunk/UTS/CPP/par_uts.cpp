@@ -1,4 +1,5 @@
 #include "sha1_rand.hpp"
+#include <cstdio>
 #include <iostream>
 #include <x10rt_front.h>
 #include <cassert>
@@ -15,13 +16,14 @@ static int r = 42; // Root seed for the random number
 static int m = 8; // Number of children 
 static double q = 0.124875; // Probability of having a child
 static int k = m; // number of work packets that can be stolen at one go
-static uint32_t num_nodes = 0; // There is a root node that we don't count
+static unsigned int num_nodes = 0; // There is a root node that we don't count
 static const double NORMALIZER = static_cast<double>(2147483647);
 static bool work_response_received = false;
 static bool termination_initiated = false;
 static std::vector<bool> terminated_process_list;
 static x10rt_place my_true_rank;
-static unsigned long long num_steals = 0;
+static std::vector<double> load_breakdown;
+
 
 static double wsmprtc(void) {
   struct timeval tp;
@@ -111,7 +113,6 @@ static void recv_work (const x10rt_msg_params* work_ptr) {
 #if DEBUG
     std::cout << x10rt_here() << " got work" << std::endl;
 #endif
-    ++num_steals;
     unsigned char* cur_work_ptr = static_cast<unsigned char*>(work_ptr->msg) + 
                                   sizeof (unsigned int);
     for (int i=0; i<num_work_packets; ++i, cur_work_ptr+=20) {
@@ -144,12 +145,11 @@ static void recv_termination (const x10rt_msg_params* terminate_ptr) {
     num_nodes += num_remote_nodes;
 
 #if DEBUG
-    std::cout << "Adding " << num_remote_nodes << std::endl;
+    std::cout << "Adding " << num_remote_nodes 
+              << " from " << terminated_rank 
+              << ", total = " << num_nodes << std::endl;
 #endif
-
-#if DEBUG
-    std::cout << x10rt_here() << " num nodes = " << num_nodes << std::endl;
-#endif
+    load_breakdown [terminated_rank] = static_cast<double>(num_remote_nodes);
   }
 }
 
@@ -160,8 +160,6 @@ static void recv_termination (const x10rt_msg_params* terminate_ptr) {
 static void initiate_termination () {
 #if DEBUG
   std::cout << x10rt_here() << " initiating termination" << std::endl;
-  std::cout << x10rt_here() << " stole " << num_steals*k << " nodes" << std::endl;
-  std::cout << x10rt_here() << " processed " << num_nodes << " nodes" << std::endl;
 #endif
 
 
@@ -326,6 +324,7 @@ int main (int argc, char** argv) {
 
   // Allocate the placeholder for the terminated processes
   terminated_process_list.resize(x10rt_nplaces(), false);
+  load_breakdown.resize(x10rt_nplaces(), 0.0);
 
   my_true_rank = x10rt_here();
 
@@ -359,9 +358,28 @@ int main (int argc, char** argv) {
   }
 #endif
   if (0==x10rt_here ()) {
+    // Lets calculate the load breakdown of all the places
+    unsigned int nodes_processed_outside_rank_0 = 0;
+    for (int i=1; i<x10rt_nplaces(); ++i) {
+      nodes_processed_outside_rank_0 +=
+                     static_cast<unsigned int>(load_breakdown[i]);
+      load_breakdown[i] /= static_cast<double>(num_nodes+1);
+    }
+    load_breakdown[0] = 
+      static_cast<double>(num_nodes+1-nodes_processed_outside_rank_0)/
+      static_cast<double>(num_nodes+1);
+
     std::cout << x10rt_nplaces() << " " << k << " " << (num_nodes+1) << " " 
               << time << " "
-              << static_cast<double>(1+num_nodes)/(time*1e06) << std::endl;
+              << static_cast<double>(1+num_nodes)/(time*1e06) << " ";
+
+    // print out the load breakdown
+    std::cout << "(";
+    for (int i=0; i<x10rt_nplaces(); ++i) {
+      printf ("%0.3f%%", load_breakdown[i]);
+      if ((x10rt_nplaces()-1)!=i) std::cout << " ";
+    }
+    std::cout << ")" << std::endl;
   }
 
   // Finalize the runtime
