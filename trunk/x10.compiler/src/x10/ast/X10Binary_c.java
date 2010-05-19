@@ -46,9 +46,13 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.PrettyPrinter;
+import polyglot.visit.Translator;
+import x10.emitter.Emitter;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -703,5 +707,46 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         return ldRef3;
 
     }
+
+    @Override
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        Type l = left.type();
+        Type r = right.type();
+        boolean compareAsPrimitive = false;
+        Emitter er = null;
+        if (op == Binary.EQ || op == Binary.NE) {
+            if (l.isNumeric() && r.isNumeric()) {
+                compareAsPrimitive = true;
+                er = new Emitter(w, (Translator) tr);
+            }
+            else if (l.isBoolean() && r.isBoolean()) {
+                compareAsPrimitive = true;
+                er = new Emitter(w, (Translator) tr);
+            }
+            else if (l.isChar() && r.isChar()) {
+                compareAsPrimitive = true;
+                er = new Emitter(w, (Translator) tr);
+            }
+        }
+        
+        if (compareAsPrimitive) {
+            w.write("((");
+            er.printType(l, 0);
+            w.write(") ");
+        }
+        printSubExpr(left, true, w, tr);
+        if (compareAsPrimitive) w.write(")");
+        w.write(" ");
+        w.write(op.toString());
+        w.allowBreak(type() == null || type().isPrimitive() ? 2 : 0, " ");
+        if (compareAsPrimitive) {
+            w.write("((");
+            er.printType(r, 0);
+            w.write(") ");
+        }
+        printSubExpr(right, false, w, tr);
+        if (compareAsPrimitive) w.write(")");
+    }
+
 }
 
