@@ -26,6 +26,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance_c;
+import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.PrimitiveType;
 import polyglot.types.ProcedureInstance;
@@ -64,6 +65,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     public X10MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends X10MethodDef> def) {
         super(ts, pos, def);
     }
+
+    lkjlkj
+
+    
 
     @Override
     public boolean moreSpecific(ProcedureInstance<MethodDef> p, Context context) {
@@ -281,8 +286,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public String signature() {
         StringBuilder sb = new StringBuilder();
+        Name name = this.name();
         sb.append(name != null ? name : def().name());
         List<String> params = new ArrayList<String>();
+        List<Type> typeParameters = this.typeParameters();
         if (typeParameters != null) {
             for (int i = 0; i < typeParameters.size(); i++) {
                 params.add(typeParameters.get(i).toString());
@@ -299,7 +306,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             sb.append("]");
         }
         List<String> formals = new ArrayList<String>();
+        List<Type> formalTypes = this.formalTypes();
         if (formalTypes != null) {
+            List<LocalInstance> formalNames = this.formalNames();
             for (int i = 0; i < formalTypes.size(); i++) {
                 String s = "";
                 String t = formalTypes.get(i).toString();
@@ -324,14 +333,17 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         sb.append("(");
         sb.append(CollectionUtil.listToString(formals));
         sb.append(")");
+        CConstraint guard = this.guard();
         if (guard != null)
             sb.append(guard);
         else if (x10Def().guard() != null)
             sb.append(x10Def().guard());
+        TypeConstraint typeGuard = this.typeGuard();
         if (typeGuard != null)
             sb.append(typeGuard);
         else if (x10Def().typeGuard() != null)
             sb.append(x10Def().typeGuard());
+        Ref<? extends Type> returnType = this.returnTypeRef();
         if (returnType != null && returnType.known()) {
             sb.append(": ");
             sb.append(returnType);

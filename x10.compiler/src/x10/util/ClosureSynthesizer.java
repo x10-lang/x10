@@ -176,7 +176,7 @@ public class ClosureSynthesizer {
     public static X10ClassDef closureBaseInterfaceDef(final X10TypeSystem_c xts, final int numTypeParams, 
     		final int numValueParams, 
     		final boolean isVoid, 
-    		List<LocalDef> formalNames, 
+    		List<LocalDef> formalNames1,
     		final Ref<CConstraint> guard) {
         final Position pos = Position.COMPILER_GENERATED;
 
@@ -260,10 +260,8 @@ public class ClosureSynthesizer {
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XVar thisVar = XTerms.makeLocal(thisName);
 
-        if (formalNames == null) {
-        	formalNames = xts.dummyLocalDefs(argTypes);
-        }
-        X10MethodDef mi = xts.methodDef(pos, Types.ref(ct), 
+        List<LocalDef> formalNames = xts.dummyLocalDefs(argTypes);
+        X10MethodDef mi = xts.methodDef(pos, Types.ref(ct),
         		Flags.PUBLIC.Abstract(), Types.ref(rt),
         		Name.make("apply"), 
         		typeParams, 

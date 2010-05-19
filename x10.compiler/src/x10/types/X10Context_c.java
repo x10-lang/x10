@@ -225,11 +225,8 @@ public class X10Context_c extends Context_c implements X10Context {
 			 X10LocalDef ld = getLocal(v);
 			 if (ld != null) {
 				 Type ty = Types.get(ld.type());
-				
-				 if (ld instanceof X10LocalDef) {
-				   ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ((X10LocalDef) ld).placeTerm());
-				 }
-				 CConstraint ci = X10TypeMixin.realX(ty);
+                 ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ld.placeTerm());
+                 CConstraint ci = X10TypeMixin.realX(ty);
 				 ci = ci.substitute(v, ci.self());
 				 r = new CConstraint();
 				 r.addIn(ci);
