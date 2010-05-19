@@ -34,7 +34,7 @@ import x10.ast.AnnotationNode;
 import x10.ast.X10StringLit_c;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
@@ -89,7 +89,7 @@ public class Struct {
        String fullNameWithThis = fullName + "#this";
        //String fullNameWithThis = "this";
        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-       XRoot thisVar = XTerms.makeLocal(thisName);
+       XVar thisVar = XTerms.makeLocal(thisName);
 
        final LazyRef<X10ParsedClassType> PLACE = Types.lazyRef(null);
        PLACE.setResolver(new Runnable() {

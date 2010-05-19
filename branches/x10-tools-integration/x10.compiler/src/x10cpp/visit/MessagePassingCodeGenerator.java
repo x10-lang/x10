@@ -3058,13 +3058,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                    if (clsType.flags().isInterface()) {
 		                        invokeInterface(n, (Expr) target, args, make_ref(REFERENCE_TYPE), clsType, mi, needsPlaceCheck, needsNullCheck);
 		                        sw.end();
-		                        return;
+		                        if (needsCast) {
+		                            sw.write(")");
+		                        }
+		                        return; // FIXME: unify with the regular return
 		                    }
 		                } else if (xts.isParameterType(t)) {
 		                    if (mi.container().isClass() && mi.container().toClass().flags().isInterface()) {
 		                        invokeInterface(n, (Expr) target, args, Emitter.translateType(t), mi.container(), mi, true, true);
 		                        sw.end();
-		                        return;
+		                        if (needsCast) {
+		                            sw.write(")");
+		                        }
+		                        return; // FIXME: unify with the regular return
 		                    }
 		                }
 

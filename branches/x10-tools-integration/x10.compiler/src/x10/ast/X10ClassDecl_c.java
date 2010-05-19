@@ -86,7 +86,7 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.extension.X10Del;
@@ -110,9 +110,8 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 import x10.util.Synthesizer;
 /**
@@ -451,14 +450,14 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         final DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, childTb);
         n = (X10ClassDecl_c) n.classInvariant(ci);
 
-        final LazyRef<CConstraint> c = new LazyRef_c<CConstraint>(new CConstraint_c());
+        final LazyRef<CConstraint> c = new LazyRef_c<CConstraint>(new CConstraint());
 
         final X10ClassDecl_c nn = n;
         
         // Add all the constraints on the supertypes into the invariant.
         c.setResolver(new Runnable() {
         	public void run() {
-        		CConstraint x = new CConstraint_c();
+        		CConstraint x = new CConstraint();
         		try {
         			if (ci != null) {
         				CConstraint xi = ci.valueConstraint().get();
@@ -497,13 +496,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         def.setClassInvariant(c);
         
-        final LazyRef<TypeConstraint> tc = new LazyRef_c<TypeConstraint>(new TypeConstraint_c());
+        final LazyRef<TypeConstraint> tc = new LazyRef_c<TypeConstraint>(new TypeConstraint());
 
         
         // Set the type bounds for the def.
        tc.setResolver(new Runnable() {
         	public void run() {
-        		TypeConstraint x = new TypeConstraint_c();
+        		TypeConstraint x = new TypeConstraint();
 
         		if (ci != null) {
 

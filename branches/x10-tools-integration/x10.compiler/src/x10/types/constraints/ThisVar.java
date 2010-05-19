@@ -9,7 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.constraint;
+package x10.types.constraints;
+
+import x10.constraint.XVar;
 
 public interface ThisVar {
 

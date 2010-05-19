@@ -61,6 +61,7 @@ import x10.ast.X10ProcedureCall;
 import x10.ast.X10New_c.MatcherMaker;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
+import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
@@ -406,7 +407,7 @@ public class Converter {
 		if (ts.isSubtype(fromType, toType, context)) {
 		    // Add the clause self==x if the fromType's self binding is x,
 		    // since for these casts we know the result is identical to expr.
-		    XVar sv = X10TypeMixin.selfVarBinding(fromType);
+		    XTerm sv = X10TypeMixin.selfBinding(fromType);
 		    if (sv != null) 
 		        try {
 		        toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
@@ -429,7 +430,7 @@ public class Converter {
 					&& ! ts.isParameterType(toType) 
 					&& ts.isCastValid(fromType, toType, context)) {
 				X10Cast n = cast.conversionType(ConversionType.CHECKED); 
-				XVar sv = X10TypeMixin.selfVarBinding(fromType);
+				XTerm sv = X10TypeMixin.selfBinding(fromType);
 				if (sv != null) 
 				    try {
 				        toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
@@ -541,8 +542,8 @@ public class Converter {
 				if (cast.conversionType() == ConversionType.CALL_CONVERSION 
 						&& ts.isCastValid(fromType, toType, context)) {
 					X10Cast n = cast.conversionType(ConversionType.CHECKED); 
-					XVar sv = X10TypeMixin.selfVarBinding(fromType);
-					if (sv != null) 
+					XVar sv = X10TypeMixin.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
+					if (sv != null)
 						try {
 							toType = X10TypeMixin.addSelfBinding((Type) toType.copy(), sv);
 						} catch (XFailure f) {

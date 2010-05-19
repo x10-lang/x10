@@ -41,7 +41,7 @@ import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XLit;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -171,7 +171,7 @@ public interface X10TypeSystem extends TypeSystem {
     		Ref<? extends CodeInstance<?>> methodContainer, 
     				Ref<? extends Type> returnType,
     				List<Ref<? extends Type>> argTypes, 
-    				XRoot thisVar, 
+    				XVar thisVar, 
     				List<LocalDef> formalNames,
     				Ref<CConstraint> guard, 
     				List<Ref<? extends Type>> throwTypes);
@@ -179,7 +179,7 @@ public interface X10TypeSystem extends TypeSystem {
   
     
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
-	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
+	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
 	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
 
     /**
@@ -322,7 +322,7 @@ public interface X10TypeSystem extends TypeSystem {
     boolean equalTypeParameters(List<Type> a, List<Type> b, Context context);
 
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
-	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
+	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
 	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes);
 
     Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
@@ -391,7 +391,7 @@ public interface X10TypeSystem extends TypeSystem {
 
     X10FieldDef fieldDef(Position pos,
             Ref<? extends StructType> container, Flags flags,
-            Ref<? extends Type> type, Name name, XRoot thisVar);
+            Ref<? extends Type> type, Name name, XVar thisVar);
 
     boolean isUnsigned(Type r);
 

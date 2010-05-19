@@ -45,7 +45,7 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -303,31 +303,33 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 
 	public Expr cond() { return null; }
 	
-	// Type inference works as follows. We first seek to establish that the domainType
-	// is a subtype of Iterable[T] for some T. If we can establish this, we then infer
-	// that the indexType is T. This must be consistent with the type for T that
-	// may have been declared or inferred from the structure of the index expression.
-	// For instance if the index expression is (i), then we will infer from this
-	// structure that its type is Point{self.rank==1}. 
-	//
-	// Used to record the domainType. Note that this may change as a result of 
-	// type inference -- We need to extract a proposed indexType from the domainType
-	// and later we will need to check that Iterable[indexType] is a subtype of
-	// domainType. Now we may need to create a new existentially quantified variable
-	// (standing for "this") to share between indexType and domainType. Hence the need
-	// to record this in domainTypeRef.
-	
-	// The canonical example for this is for ((i) in 0..9) S. Here 0..0 will have the
-	// type Region{self.zeroBased, self.rank=1, self.rectangular}. Now since
-	// Rectangular implements the interface Iterable[Point{self.rank=this.rank}]
-	// it is necessary to create a new variable, var, representing this, and update
-	// the domain type to be Region{self=var, self.zeroBased, self.rank=1, self.rectangular}
-	// and infer the indexType to be Point{self.rank=var.rank}. 
-	
-	// Subsequently the 
-	// type checker will be able to verify var:Region{self.zeroBased, self.rank=1} |-  
-	// var <: Iterable[Point{self.rank=var.rank}] and hence the for loop typechecking
-	// obligation (Iterable[indexType] <: domainType) is satisfied.
+	/*
+	 * Type inference works as follows.
+	 * 
+	 * We first seek to infer the type of the index expression i in the for loop for (i in D) S
+	 * (if this type is not specified explicitly).
+	 * 
+	 * There are two source of information about index type. First, the index expression itself.
+	 * If it is of the form (k1,..., kn) we should infer that the type is Point(n). 
+	 * 
+	 * Second, we look to find if the type DT of the domain expression D is of the form Iterable[T].
+	 * In this case, the inferred type of i is T. 
+	 * 
+	 * The subtlety here is that T may have a reference to Foo@this; this needs to be replaced with
+	 * a logical variable corresponding to D. However, D may not have a self var binding. So we have
+	 * to create such a variable. 
+	 * 
+	 * Examples that should work:
+	 * 	
+	def g(g:Dist(1)): Dist(1) = g;
+	def m(gridDist:Dist(1)) {
+		for ((i) in g(gridDist) ) ;
+		for ((i) in 0..9) ;
+		for ((i) in gridDist | here);
+		//for ((i,j) in 0..9) ;
+	}
+	 * 
+	 */
 	
 	LazyRef<Type> domainTypeRef = Types.lazyRef(null);
 	public Type domainType() {
@@ -366,7 +368,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 				final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
 				final ClassDef curr = v.context().currentClassDef();
 
-				// Now, get the index type from the domain.
+				// Now, infer index Type.
 				r.setResolver(new Runnable() { 
 					Type getIndexType(Type domainType) {
 						Type base = X10TypeMixin.baseType(domainType);
@@ -393,54 +395,63 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 					}
 
 					public void run() {
+						
+						Type indexType = null;
+						int length = ((X10Formal) f).vars().size();
+						if (length > 0) {
+							indexType = ts.Point();
+
+							// Add a self.rank=n clause, if the formal
+							// has n components.
+							XVar self = X10TypeMixin.xclause(indexType).self();
+							Synthesizer synth = new Synthesizer(nf, ts);
+							XTerm v = synth.makePointRankTerm((XVar) self);
+							XTerm rank = XTerms.makeLit(new Integer(length));
+							indexType = X10TypeMixin.addBinding(indexType, v, rank);
+							r.update(indexType);
+							return;
+						}
+						
 						Type domainType = domainTypeRef.get();
-						Type indexType = getIndexType(domainType);    
+						indexType = getIndexType(domainType);    
 						if (indexType == null) 
 						    return;
-
 						Type base = X10TypeMixin.baseType(domainType);
-						CConstraint c = X10TypeMixin.xclause(domainType);
+						
 
 						XVar selfValue = X10TypeMixin.selfVarBinding(domainType);
-						XVar selfVar = c != null ? c.self() : null;
-						XRoot thisVar = base instanceof X10ClassType ? 
+						boolean generated = false;
+						if (selfValue == null) {
+							selfValue = XTerms.makeUQV();
+							generated = true;
+						}
+						XVar thisVar = base instanceof X10ClassType ? 
 								((X10ClassType) base).x10Def().thisVar() :null;
 
-								if (thisVar != null && selfVar != null)
-									try {
-
-										// Generate a new local variable if needed
-										XVar var = selfValue != null ? selfValue : XTerms.makeUQV();
-										// And substitute it for this in indexType
-										indexType = Subst.subst(indexType, var, thisVar);
-										if (ts.isSubtype(indexType, ts.Point(),tcp.context())) {
-											int length = ((X10Formal) f).vars().size();
-											if (length > 0) {
-												// Add a self.rank=n clause, if the formal
-												// has n components.
-												XVar self = X10TypeMixin.xclause(indexType).self();
-												Synthesizer synth = new Synthesizer(nf, ts);
-												XTerm v = synth.makePointRankTerm((XVar) self);
-												XTerm rank = XTerms.makeLit(new Integer(length));
-												indexType = X10TypeMixin.addBinding(indexType, v, rank);
-
-											}
-
-
-										}
-
-										// and add self=this in domainType, updating domainTypeRef.
-										if (selfValue == null) {
-											domainType = X10TypeMixin.addBinding(domainType, var, selfVar);
-											domainTypeRef.update(domainType);
-										}
-									}
-								catch (SemanticException e) {
+						// Now the problem is that indexType may 
+						// have a non-null thisVar (e.g. Foo#this). We need to 
+						// replace thisVar with var. 
+						if (thisVar != null)
+							try {
+								
+								indexType = Subst.subst(indexType, selfValue, thisVar);
+								if (generated) {
+									CConstraint c = X10TypeMixin.xclause(domainType);
+									c=c.substitute(selfValue, c.self());
+									indexType = X10TypeMixin.addConstraint(indexType, c);
+									indexType = Subst.subst(indexType, XTerms.makeEQV(), selfValue);
 								}
-								r.update(indexType);
+								
+							}
+						catch (XFailure z) {
+							
+						}
+						catch (SemanticException e) {
+						}
+						r.update(indexType);
 					}
-					});
-				}
+				});
+			}
 		}
 
 		return super.setResolverOverride(parent, v);

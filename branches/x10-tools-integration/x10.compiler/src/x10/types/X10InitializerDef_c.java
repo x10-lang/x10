@@ -23,22 +23,22 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.types.constraints.TypeConstraint;
 
 public class X10InitializerDef_c extends InitializerDef_c implements X10InitializerDef {
-    XRoot thisVar;
+    XVar thisVar;
 
-    public X10InitializerDef_c(TypeSystem ts, Position pos, Ref<? extends ClassType> container, Flags flags, XRoot thisVar) {
+    public X10InitializerDef_c(TypeSystem ts, Position pos, Ref<? extends ClassType> container, Flags flags, XVar thisVar) {
         super(ts, pos, container, flags);
         this.thisVar = thisVar;
     }
 
-    public void setThisVar(XRoot thisVar) {
+    public void setThisVar(XVar thisVar) {
         this.thisVar = thisVar;
     }
 
-    public XRoot thisVar() {
+    public XVar thisVar() {
         return thisVar;
     }
 

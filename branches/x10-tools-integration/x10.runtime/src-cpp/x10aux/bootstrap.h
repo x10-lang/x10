@@ -115,13 +115,14 @@ namespace x10aux {
     void initialize_xrx();
 
     template<class Runtime, class T> int template_main(int ac, char **av) {
-#ifdef X10_USE_BDWGC
-        GC_INIT();
-#endif
+
         setlinebuf(stdout);
 
         x10aux::network_init(ac,av);
 
+#ifdef X10_USE_BDWGC
+        GC_INIT();
+#endif
         x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args = x10aux::null;
 
 #ifndef NO_EXCEPTIONS

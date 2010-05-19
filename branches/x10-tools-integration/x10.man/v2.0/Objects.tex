@@ -70,7 +70,9 @@ from the place where the object was created to the referencing place
 will be incurred at most once per referencing place, according to the
 rule for \xcd`val` fields discussed above.
 
-{}\item Method invocation (\Sref{MethodInvocation}).  A method may be
+{}\item Method invocation (\Sref{MethodInvocation}).  
+\label{GlobalAnnotation}
+A method may be
 marked \Xcd{global}. A \Xcd{global} method may be invoked at any
 place. It may access only the global fields of the object. The
 mutable fields of an object may be accessed only by activities

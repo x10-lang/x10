@@ -25,7 +25,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+
 
 /**
  * An immutable representation of a float lit, modified from JL 
@@ -48,7 +48,7 @@ public class X10FloatLit_c extends FloatLit_c {
 		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		  Type Type =  (kind==FLOAT ? xts.Float() : xts.Double());
 		  
-			  CConstraint c = new CConstraint_c();
+			  CConstraint c = new CConstraint();
 			  XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (X10Context) tc.context());
 			  try {
 				  c.addSelfBinding(term);

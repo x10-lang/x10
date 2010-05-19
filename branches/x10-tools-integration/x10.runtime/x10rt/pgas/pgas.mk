@@ -10,7 +10,7 @@
 #
 
 X10_VERSION=svn head
-VERSION=20100323
+VERSION=20100508
 SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
 LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
 BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
@@ -48,6 +48,9 @@ ifeq ($(X10RT_PLATFORM), aix_gcc)
   PLATFORM_SUPPORTS_LAPI       := yes
   LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
   LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  PANE_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
+  PANE_ARLIBS     = -llapi_r -lpthread -lm
+  PANE_LDLIBS    += -lmpi_r -lvtd_r $(PANE_ARLIBS)
   #PLATFORM_SUPPORTS_SOCKETS    := yes
   PLATFORM_SUPPORTS_PANE       := yes
 endif
@@ -211,7 +214,11 @@ $(PGAS_DYNLIB_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(PGAS_DYNLIB_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
+ifeq ($(X10RT_PLATFORM),aix_xlc)
+	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(PANE_ARLIBS) -o $@ $(COMMON_OBJS) -Wl,-bexpfull lib/libxlpgas_pane.a 
+else
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) $(PANE_ARLIBS) -o $@ $(COMMON_OBJS) -Wl,-bexpfull lib/libxlpgas_pane.a 
+endif
 endif
 
 etc/x10rt_pgas_pane.properties:
@@ -261,7 +268,11 @@ $(PGAS_DYNLIB_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(PGAS_DYNLIB_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
+ifeq ($(X10RT_PLATFORM),aix_xlc)
+	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
+else
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
+endif
 endif
 
 etc/x10rt_pgas_lapi.properties:

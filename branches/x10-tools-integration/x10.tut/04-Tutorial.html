@@ -1190,13 +1190,13 @@ But <kbd>self</kbd> means different things in different type expressions.
 
 <!--
 val r : ValRail[Int]{self.length == 3} = [1,2,3];
-val z : Cplx{self.x = self.y} = new Cplx(1.8,1.8);
+val z : Cplx{self.x == self.y} = new Cplx(1.8,1.8);
 -->
 <table class="ex">
 <a name="src-self-diff-1"/>
 <tr class="ex"><td><a href="#self-diff-1" class="ex">1</a></td><td class="ex"><code>val r : ValRail[Int]{self.length == 3} = [1,2,3];</code></td></tr>
 <a name="src-self-diff-2"/>
-<tr class="ex"><td><a href="#self-diff-2" class="ex">2</a></td><td class="ex"><code>val z : Cplx{self.x = self.y} = new Cplx(1.8,1.8);</code></td></tr>
+<tr class="ex"><td><a href="#self-diff-2" class="ex">2</a></td><td class="ex"><code>val z : Cplx{self.x == self.y} = new Cplx(1.8,1.8);</code></td></tr>
 </table>
 
 <a name="self-diff-1"/>
@@ -1207,7 +1207,7 @@ This <kbd>self</kbd> is talking about <kbd>r</kbd> --
 </p>
 <a name="self-diff-2"/>
 <p>  <a href="#src-self-diff-2">line 2: </a><kbd class="ex">val z :
-    Cplx{self.x = self.y} = new Cplx(1.8,1.8);</kbd><br/>
+    Cplx{self.x == self.y} = new Cplx(1.8,1.8);</kbd><br/>
 This <kbd>self</kbd> is talking about <kbd>z</kbd> -- a <kbd>Cplx</kbd>
   value. 
 </p>
@@ -1223,14 +1223,14 @@ a good idea to do it.
 
 <!--
 val r : ValRail[Int]{r.length == 3} = [1,2,3];
-val z : Cplx{z.x = z.y} = new Cplx(1.8,1.8);
+val z : Cplx{z.x = z.y} == new Cplx(1.8,1.8);
 
 -->
 <table class="ex">
 <a name="src-var-as-self-1"/>
 <tr class="ex"><td><a href="#var-as-self-1" class="ex">1</a></td><td class="ex"><code>val r : ValRail[Int]{r.length == 3} = [1,2,3];</code></td></tr>
 <a name="src-var-as-self-2"/>
-<tr class="ex"><td><a href="#var-as-self-2" class="ex">2</a></td><td class="ex"><code>val z : Cplx{z.x = z.y} = new Cplx(1.8,1.8);</code></td></tr>
+<tr class="ex"><td><a href="#var-as-self-2" class="ex">2</a></td><td class="ex"><code>val z : Cplx{z.x == z.y} = new Cplx(1.8,1.8);</code></td></tr>
 </table>
 
 <a name="var-as-self-1"/>
@@ -1241,7 +1241,7 @@ a <kbd>ValRail[Int]</kbd>, called <kbd>r</kbd>, whose <kbd>length</kbd> is 3.
 </p>
 <a name="var-as-self-2"/>
 <p>  <a href="#src-var-as-self-2">line 2: </a><kbd class="ex">val z : Cplx{z.x
-    = z.y} = new Cplx(1.8,1.8);</kbd><br/>
+    == z.y} = new Cplx(1.8,1.8);</kbd><br/>
 <kbd>z</kbd> is used in place of <kbd>self</kbd> here -- we're asking for
 a <kbd>Cplx</kbd> whose <kbd>x</kbd> and <kbd>y</kbd> are equal.
 </p>
@@ -1351,7 +1351,7 @@ code bodies.
 
 <p>
 When there are two sets of braces, the first one is for the constraint, and
-the second one is for the cody body.
+the second one is for the code body.
 </p>
 
 <p>

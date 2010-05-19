@@ -137,35 +137,4 @@ ob.nonGlobalMethod();
 %}}
 %TODO~~neg
 
-%%PLACES-REMOVED-EXAMPLE%%\begin{example}
-%%PLACES-REMOVED-EXAMPLE%%
-%%PLACES-REMOVED-EXAMPLE%%%%TODO -- redo this example to something that's useful.
-%%PLACES-REMOVED-EXAMPLE%%
-%%PLACES-REMOVED-EXAMPLE%%The code:
-%%PLACES-REMOVED-EXAMPLE%%
-%%PLACES-REMOVED-EXAMPLE%%%~-~gen
-%%PLACES-REMOVED-EXAMPLE%%% package Places.Are.For.Graces.Or.Maybe.Aces;
-%%PLACES-REMOVED-EXAMPLE%%%~-~vis
-%%PLACES-REMOVED-EXAMPLE%%\begin{xten}
-%%PLACES-REMOVED-EXAMPLE%%class F {
-%%PLACES-REMOVED-EXAMPLE%%  public def m(a: F) {
-%%PLACES-REMOVED-EXAMPLE%%    val OldHere: Place = here;
-%%PLACES-REMOVED-EXAMPLE%%    async (a) {
-%%PLACES-REMOVED-EXAMPLE%%      Console.OUT.println("OldHere == here:" 
-%%PLACES-REMOVED-EXAMPLE%%                         + (OldHere == here));
-%%PLACES-REMOVED-EXAMPLE%%    }
-%%PLACES-REMOVED-EXAMPLE%%  }
-%%PLACES-REMOVED-EXAMPLE%%  public static def main(Rail[String]) {
-%%PLACES-REMOVED-EXAMPLE%%    new F().m( (at(Place.FIRST_PLACE.next()) new F()));
-%%PLACES-REMOVED-EXAMPLE%%  }
-%%PLACES-REMOVED-EXAMPLE%%}  
-%%PLACES-REMOVED-EXAMPLE%%\end{xten}
-%%PLACES-REMOVED-EXAMPLE%%%~-~siv
-%%PLACES-REMOVED-EXAMPLE%%%
-%%PLACES-REMOVED-EXAMPLE%%%~-~neg
-%%PLACES-REMOVED-EXAMPLE%%
-%%PLACES-REMOVED-EXAMPLE%%
-%%PLACES-REMOVED-EXAMPLE%%\noindent will print out \xcd"true" iff the computation was configured
-%%PLACES-REMOVED-EXAMPLE%%to start with the number of places set to \xcd"1". 
-%%PLACES-REMOVED-EXAMPLE%%\end{example}
 

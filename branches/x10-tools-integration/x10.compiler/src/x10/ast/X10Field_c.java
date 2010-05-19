@@ -39,7 +39,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -57,7 +57,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.matcher.Subst;
 import x10.errors.Errors;
 
@@ -177,10 +177,10 @@ public class X10Field_c extends Field_c {
 		// therefore we temporarily replace this.home with a new UQV, currentPlace, and then on
 		// return from the matcher, substitute it back in.
 		XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
-		XRoot currentPlace = XTerms.makeUQV("place");
+		XVar currentPlace = XTerms.makeUQV("place");
 		try {
 		
-		   Type tType2 = placeTerm==null ? tType : Subst.subst(tType, currentPlace, (XRoot) placeTerm);
+		   Type tType2 = placeTerm==null ? tType : Subst.subst(tType, currentPlace, (XVar) placeTerm);
 			X10FieldInstance fi = (X10FieldInstance) 
 			ts.findField(tType, ts.FieldMatcher(tType2, X10TypeMixin.contextKnowsType(target), name.id(), c));
 			if (fi == null) {
@@ -221,7 +221,7 @@ public class X10Field_c extends Field_c {
 
 			// Check the guard
 			CConstraint guard = ((X10FieldInstance) result.fieldInstance()).guard();
-			if (guard != null && ! new CConstraint_c().entails(guard, 
+			if (guard != null && ! new CConstraint().entails(guard, 
 					c.constraintProjection(guard))) {
 				throw new SemanticException("Cannot access field.  Field guard not satisfied.", position());
 			}
@@ -275,7 +275,7 @@ public class X10Field_c extends Field_c {
 				
 				if (receiver == null)
 					receiver = XTerms.makeEQV();
-				t = Subst.subst(t, (new XVar[] { receiver }), (new XRoot[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
+				t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
 			}
 		}
 		return t;
@@ -294,7 +294,7 @@ public class X10Field_c extends Field_c {
 					try {
 						XVar receiver = X10TypeMixin.selfVarBinding(target.type());
 						//assert receiver != null;
-						XRoot root = null;
+						XVar root = null;
 						if (receiver == null) {
 							receiver = root = XTerms.makeUQV();
 							

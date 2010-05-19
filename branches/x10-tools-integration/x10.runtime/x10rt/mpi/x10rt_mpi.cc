@@ -999,6 +999,9 @@ void x10rt_net_remote_xor(unsigned long place,
     abort();
 }
 
+x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t)
+{ return (x10rt_remote_ptr)(size_t)ptr; }
+
 void x10rt_net_remote_op_fence(void) {
     fprintf(stderr, "x10rt_remote_op_fence on MPI currently unimplemented\n");
     abort();
@@ -1090,3 +1093,16 @@ void x10rt_net_finalize(void) {
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
     global_state.finalized = true;
 }
+
+int x10rt_net_supports (x10rt_opt o) {
+    switch (o) {
+        default: return 0;
+    }
+}
+
+void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
+                          x10rt_op_type type, unsigned long long value)
+{
+    abort();
+}
+

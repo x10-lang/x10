@@ -32,7 +32,7 @@ import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 
@@ -80,7 +80,7 @@ public class Here_c extends Expr_c
 		Type tt = ts.Place();
 		XConstrainedTerm h = xc.currentPlaceTerm();
 		if (h != null) {
-			CConstraint cc = new CConstraint_c();
+			CConstraint cc = new CConstraint();
 			try {
 				cc.addSelfBinding(xc.currentPlaceTerm());
 			}

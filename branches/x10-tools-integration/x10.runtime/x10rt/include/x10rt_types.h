@@ -80,6 +80,21 @@ typedef void *x10rt_finder(const x10rt_msg_params *, x10rt_copy_sz);
  */
 typedef void x10rt_notifier(const x10rt_msg_params *, x10rt_copy_sz);
 
+/** The list of remote operations supported.
+ */
+typedef enum {
+    X10RT_OP_ADD = 0, 
+    X10RT_OP_AND = 1,
+    X10RT_OP_OR  = 2,
+    X10RT_OP_XOR = 3
+} x10rt_op_type;
+
+/** The list of optional x10rt_net features.
+ */
+typedef enum {
+    X10RT_OPT_REMOTE_OP = 0
+} x10rt_opt;
+
 #endif
 
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100

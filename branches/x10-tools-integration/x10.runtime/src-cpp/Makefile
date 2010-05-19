@@ -163,10 +163,17 @@ $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
             $(ALL_MANUAL_OBJECTS)
 else
 $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
+ifeq ($(X10RT_PLATFORM),aix_xlc)
+	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ \
+	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
+            $(ALL_MANUAL_OBJECTS) \
+	    $(XRX_DEP_LIBS)
+else
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ \
 	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
             $(ALL_MANUAL_OBJECTS) \
 	    $(XRX_DEP_LIBS)
+endif
 endif
 
 
@@ -234,16 +241,16 @@ depend:
 
 #nuke only object code
 cleanobj:
-	find . \( -name '*.h.gch' -o -name '*.o' -o -name '*.rpo' \) -print0 | xargs -0 -t rm -fr
+	find . \( -name '*.h.gch' -o -name '*.o' -o -name '*.rpo' \) -print0 | xargs -0 -t $(RM) -r
 
 #nuke everything
 cleangen:
-	rm -rf gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
+	-$(RM) -r gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
 
 clean: cleanobj cleangen
 
 squeakyclean: clean
-	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t rm -f
+	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t $(RM)
 
 
 .PHONY: depend clean cleanobj cleangen squeakyclean

@@ -32,7 +32,7 @@ import polyglot.util.Position;
 import x10.ast.ClosureCall;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -47,10 +47,9 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
-import x10.types.constraints.SubtypeConstraint_c;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 
 
@@ -71,7 +70,7 @@ public class Matcher {
 	    final List<Type> formals = me.formalTypes();
 	
 	    if (typeActuals.isEmpty() && ! typeFormals.isEmpty()) {
-	        Type[] Y = TypeConstraint_c.inferTypeArguments(me, thisType, actuals, formals, typeFormals, context);
+	        Type[] Y = TypeConstraint.inferTypeArguments(me, thisType, actuals, formals, typeFormals, context);
 	        return inferAndCheckAndInstantiate(context, me, thisType, Arrays.asList(Y), actuals, pos);
 	    }
 	    
@@ -146,7 +145,7 @@ public class Matcher {
 	        // (This does mean that the parameter can therefore not occur in other types, so
 	        // we should not have to generate a symbolic name for it anyway. Here we do this just for simplicity.)
 	
-	        XRoot[] x = getSymbolicNames(formals, me.formalNames(), xts); 
+	        XVar[] x = getSymbolicNames(formals, me.formalNames(), xts); 
 	        
 	        // hasSymbol[i] iff actuals[i] already has a symbolic value, and hence does not need a gensym.
 	        //final boolean[] haveSymbols = haveSymbolicNames(actuals);
@@ -160,11 +159,11 @@ public class Matcher {
 
 	
 	        // We'll subst selfVar for THIS.
-	        XRoot xthis = null; // xts.xtypeTranslator().transThis(thisType);
+	        XVar xthis = null; // xts.xtypeTranslator().transThis(thisType);
 	
 	        if (! isStatic ) {
 	        	if (me.def() instanceof X10ProcedureDef)
-	        		xthis = (XRoot) ((X10ProcedureDef) me.def()).thisVar();
+	        		xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
 
 	        	if (xthis == null)
 	        		xthis = XTerms.makeLocal(XTerms.makeFreshName("this"));
@@ -190,7 +189,7 @@ public class Matcher {
 	        PI newMe = (PI) me.copy();
 	        newMe = (PI) newMe.typeParameters(Arrays.asList(Y));
 
-	        final XRoot[] x2 = isStatic ? x : new XRoot[x.length+2];
+	        final XVar[] x2 = isStatic ? x : new XVar[x.length+2];
 	        final XTerm[] y2eqv = isStatic ? ySymbols  : new XTerm[ySymbols.length+2];
 	        if (! isStatic) {
 	        	x2[0] = xthis;
@@ -225,12 +224,12 @@ public class Matcher {
 	        						*/
 	        						for (int i= isStatic ? 1 : 0; i < hasSymbol.length; ++i) {
 	        							if (! hasSymbol[i]) {
-	        								newReturnType = Subst.project(newReturnType, (XRoot) ys[i]);  
+	        								newReturnType = Subst.project(newReturnType, (XVar) ys[i]);  
 	        							}
 	        						}
 	        					//	XConstrainedTerm placeTerm = ((X10Context) context).currentPlaceTerm();
 	        					//	if (placeTerm != null && PlaceChecker.isGlobalPlace(placeTerm.term())) {
-	        					//		newReturnType = Subst.project(newReturnType, (XRoot) placeTerm.term());  
+	        					//		newReturnType = Subst.project(newReturnType, (XVar) placeTerm.term());  
 	        					//	}
 	        					} catch (XFailure z) {
 	        						throw new Errors.InconsistentReturnType(newReturnType, me);
@@ -277,7 +276,7 @@ public class Matcher {
 	        				}
 	        			}
 	        			if (! isStatic && ! hasSymbol[0]) {
-	        				t = Subst.project(t, (XRoot) ys[0]);
+	        				t = Subst.project(t, (XVar) ys[0]);
 	        			}
 
 	        			newFormals.add(t);
@@ -329,9 +328,9 @@ public class Matcher {
 	        }
 	        
 	        List<Type> typeFormals2 = newMe.typeParameters();
-	        TypeConstraint tenv = new TypeConstraint_c();
+	        TypeConstraint tenv = new TypeConstraint();
 	        for (int i = 0; i < typeFormals.size(); i++) {
-	        	tenv.addTerm(new SubtypeConstraint_c(typeFormals2.get(i), Y[i], true));
+	        	tenv.addTerm(new SubtypeConstraint(typeFormals2.get(i), Y[i], true));
 	        }
 	       
 	        if (! tenv.consistent(context2)) {
@@ -377,7 +376,7 @@ public class Matcher {
 				env = env.copy().instantiateSelf(ythis);
 		}
 		if (env == null)
-			env = new CConstraint_c();
+			env = new CConstraint();
 
 	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
 	    	
@@ -406,7 +405,7 @@ public class Matcher {
 				env = env.copy().instantiateSelf(ythis);
 		}
 		if (env == null)
-			env = new CConstraint_c();
+			env = new CConstraint();
 	
 	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
 	    	if (! hasSymbol[i+1]) {
@@ -448,9 +447,9 @@ public class Matcher {
           }
           return ySymbols;
     }
-    public static XRoot[] getSymbolicNames(List<Type> formals, List<LocalInstance> formalNames, X10TypeSystem xts) 
+    public static XVar[] getSymbolicNames(List<Type> formals, List<LocalInstance> formalNames, X10TypeSystem xts) 
     throws SemanticException {
-    	 XRoot[] x = new XRoot[formals.size()];
+    	 XVar[] x = new XVar[formals.size()];
          for (int i = 0; i < formals.size(); i++) {
              x[i]=xts.xtypeTranslator().trans(formalNames.get(i), formals.get(i));
              assert x[i] != null;
@@ -466,7 +465,7 @@ public class Matcher {
 	 * @param y
 	 * @param x
 	 */
-	public static void updateFormalTypes(List<Type> formals, XVar ythis, XRoot xthis, XVar[] y, XRoot[] x, 
+	public static void updateFormalTypes(List<Type> formals, XVar ythis, XVar xthis, XVar[] y, XVar[] x, 
 			boolean isStatic)
 	throws SemanticException {
 		for (int i=0; i < formals.size(); ++i) {

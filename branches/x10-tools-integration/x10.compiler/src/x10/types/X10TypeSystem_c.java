@@ -89,18 +89,15 @@ import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.parser.X10ParsedName;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
 import x10.types.constraints.SubtypeConstraint;
-import x10.types.constraints.SubtypeConstraint_c;
+import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.X10ConstructorMatcher;
 import x10.types.matcher.X10FieldMatcher;
@@ -136,27 +133,27 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags) {
         String fullNameWithThis = "<init>#this";
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XRoot thisVar = XTerms.makeLocal(thisName);
+        XVar thisVar = XTerms.makeLocal(thisName);
 
         return initializerDef(pos, container, flags, thisVar);
     }
 
-    public InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags, XRoot thisVar) {
+    public InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags, XVar thisVar) {
         assert_(container);
         return new X10InitializerDef_c(this, pos, container, flags, thisVar);
     }
 
-    public List<MethodInstance> methods(StructType t, Name name, List<Type> typeParams, List<Type> argTypes, XRoot thisVar, Context context) {
+    public List<MethodInstance> methods(StructType t, Name name, List<Type> typeParams, List<Type> argTypes, XVar thisVar, Context context) {
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         for (Iterator<MethodInstance> i = t.methodsNamed(name).iterator(); i.hasNext();) {
             X10MethodInstance mi = (X10MethodInstance) i.next();
 
             List<XVar> ys = new ArrayList<XVar>(2);
-            List<XRoot> xs = new ArrayList<XRoot>(2);
+            List<XVar> xs = new ArrayList<XVar>(2);
 
             X10MethodInstance_c.buildSubst((X10MethodInstance) mi, ys, xs, thisVar);
             final XVar[] y = ys.toArray(new XVar[ys.size()]);
-            final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
+            final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
             mi = new X10TypeEnv_c(context).fixThis((X10MethodInstance) mi, y, x);
 
@@ -168,7 +165,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             for (int j = 0; j < mi.typeParameters().size(); j++) {
                 Type p1 = mi.typeParameters().get(j);
                 Type p2 = typeParams.get(j);
-                env.add(new SubtypeConstraint_c(p1, p2, true));
+                env.add(new SubtypeConstraint(p1, p2, true));
             }
 
             if (CollectionUtil.allElementwise(mi.formalTypes(), argTypes, new TypeEquals(context))) {
@@ -208,14 +205,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context) {
         X10MethodInstance mi = (X10MethodInstance) jmi;
 
-        XRoot thisVar = ((X10ClassDef) ct.def()).thisVar(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+        XVar thisVar = ((X10ClassDef) ct.def()).thisVar(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
         List<XVar> ys = new ArrayList<XVar>(2);
-        List<XRoot> xs = new ArrayList<XRoot>(2);
+        List<XVar> xs = new ArrayList<XVar>(2);
         X10MethodInstance_c.buildSubst((X10MethodInstance) mi, ys, xs, thisVar);
         X10MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
-        final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
+        final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
         mi = new X10TypeEnv_c(context).fixThis((X10MethodInstance) mi, y, x);
 
@@ -309,11 +306,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             TypeConstraint c = Types.get(ct.x10Def().typeBounds());
             if (c != null) {
                 TypeParamSubst subst = ((X10ParsedClassType_c) ct).subst();
-                TypeConstraint equals = new TypeConstraint_c();
+                TypeConstraint equals = new TypeConstraint();
                 for (int i = 0; i < ct.typeArguments().size(); i++) {
                     Type Y = ct.typeArguments().get(i);
                     ParameterType X = ct.x10Def().typeParameters().get(i);
-                    equals.addTerm(new SubtypeConstraint_c(X, Y, true));
+                    equals.addTerm(new SubtypeConstraint(X, Y, true));
                 }
                 X10Context xc = (X10Context) context.pushBlock();
                 equals.addIn(xc.currentTypeConstraint());
@@ -977,7 +974,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         
         	String fullNameWithThis = name + "#this";
         	XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        	XRoot thisVar = XTerms.makeLocal(thisName);
+        	XVar thisVar = XTerms.makeLocal(thisName);
         
 
         // set up null thisVar for method def's, so the outer contexts are searched for thisVar.
@@ -989,7 +986,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, 
     		Flags flags, Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, 
-            XRoot thisVar, List<LocalDef> formalNames, 
+            XVar thisVar, List<LocalDef> formalNames, 
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, 
             List<Ref<? extends Type>> excTypes, 
@@ -1034,7 +1031,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
-            Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes, XRoot thisVar,
+            Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes, XVar thisVar,
             List<LocalDef> formalNames, Ref<CConstraint> guard,
             List<Ref<? extends Type>> throwTypes) {
         return new ClosureDef_c(this, p, typeContainer, methodContainer, returnType, 
@@ -1477,12 +1474,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
         String fullNameWithThis = name + "#this";
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XRoot thisVar = XTerms.makeLocal(thisName);
+        XVar thisVar = XTerms.makeLocal(thisName);
 
         return fieldDef(pos, container, flags, type, name, thisVar);
     }
 
-    public X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name, XRoot thisVar) {
+    public X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name, XVar thisVar) {
         assert_(container);
         assert_(type);
         return new X10FieldDef_c(this, pos, container, flags, type, name, thisVar);
@@ -2075,13 +2072,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
         String fullNameWithThis = "this#this";
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        XRoot thisVar = XTerms.makeLocal(thisName);
+        XVar thisVar = XTerms.makeLocal(thisName);
 		
         return constructorDef(pos, container, flags, Types.ref(Types.get(container)), Collections.EMPTY_LIST, argTypes, thisVar, dummyLocalDefs(argTypes), null, null, throwTypes);
     }
 
     public X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
-            List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
+            List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes) {
         assert_(container);
         assert_(argTypes);
@@ -2281,7 +2278,23 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		Context context = matcher.context();
 		
 		Collection<FieldInstance> fields = findFields(container, matcher);
-
+		
+		if (fields.size() >= 2) {
+			Collection<FieldInstance> newFields = new HashSet<FieldInstance>();
+			for (FieldInstance fi : fields) {
+				if ((fi.flags().isStatic())){
+					newFields.add(fi);
+					continue;
+				}
+				
+				if (! (fi.container().toClass().flags().isInterface())){
+					newFields.add(fi);
+				}
+				
+					
+			}
+			fields = newFields;
+		}
 		if (fields.size() == 0) {
 		    throw new NoMemberException(NoMemberException.FIELD,
 		                                "Field " + matcher.signature() +
@@ -2289,19 +2302,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		                                container + "\".");
 		}
 
-		
-		if (fields.size() >= 2) {
-			Collection<FieldInstance> newFields = new HashSet<FieldInstance>();
-			for (FieldInstance fi : fields) {
-				
-				if (! (fi.container().toClass().flags().isInterface())){
-					newFields.add(fi);
-				}
-					
-			}
-			fields = newFields;
-		}
-		
 		Iterator<FieldInstance> i = fields.iterator();
 		FieldInstance fi = i.next();
 

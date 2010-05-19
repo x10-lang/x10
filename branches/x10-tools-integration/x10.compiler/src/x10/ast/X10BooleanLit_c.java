@@ -25,7 +25,6 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
 
 /**
  * @author vj
@@ -46,7 +45,7 @@ public class X10BooleanLit_c extends BooleanLit_c {
 	      X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		  Type Boolean =  xts.Boolean();
 		 
-		  CConstraint c = new CConstraint_c();
+		  CConstraint c = new CConstraint();
 		  XTerm term = xts.xtypeTranslator().trans(c, this.type(Boolean), (X10Context) tc.context());
 		  try {
 			  c.addSelfBinding(term);

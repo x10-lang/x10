@@ -13,11 +13,12 @@ package x10.ast;
 
 import java.util.List;
 
+import polyglot.ast.Block;
 import polyglot.types.FieldInstance;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 
-public interface AssignPropertyBody extends StmtSeq {
+public interface AssignPropertyBody extends Block {
 	public X10ConstructorDef constructorInstance();
 	public List<FieldInstance> fieldInstances();
 }
