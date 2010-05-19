@@ -2278,7 +2278,23 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		Context context = matcher.context();
 		
 		Collection<FieldInstance> fields = findFields(container, matcher);
-
+		
+		if (fields.size() >= 2) {
+			Collection<FieldInstance> newFields = new HashSet<FieldInstance>();
+			for (FieldInstance fi : fields) {
+				if ((fi.flags().isStatic())){
+					newFields.add(fi);
+					continue;
+				}
+				
+				if (! (fi.container().toClass().flags().isInterface())){
+					newFields.add(fi);
+				}
+				
+					
+			}
+			fields = newFields;
+		}
 		if (fields.size() == 0) {
 		    throw new NoMemberException(NoMemberException.FIELD,
 		                                "Field " + matcher.signature() +
@@ -2286,19 +2302,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		                                container + "\".");
 		}
 
-		
-		if (fields.size() >= 2) {
-			Collection<FieldInstance> newFields = new HashSet<FieldInstance>();
-			for (FieldInstance fi : fields) {
-				
-				if (! (fi.container().toClass().flags().isInterface())){
-					newFields.add(fi);
-				}
-					
-			}
-			fields = newFields;
-		}
-		
 		Iterator<FieldInstance> i = fields.iterator();
 		FieldInstance fi = i.next();
 
