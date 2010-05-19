@@ -1185,17 +1185,22 @@ Let {$\vec{X}$} be a (possibly empty) vector of type variables, and
 {$\vec{Y}$}, {$\vec{Y_i}$} be vectors of type terms over {$\vec{X}$}.
 Let {$\vec{T}$} be an instantiation of {$\vec{X}$}, 
 and {$\vec{U}$}, {$\vec{U_i}$} the corresponding instantiation of 
-{$\vec{Y}$}, {$\vec{Y_i}$}.  Suppose that \xcd`C` is declared by one of the
+{$\vec{Y}$}, {$\vec{Y_i}$}.  Let \xcd`c` be a constraint, and \xcdmath"c$'$"
+be the corresponding instantiation.
+We elide properties, and interpret empty vectors as absence of the relevant
+clauses. 
+Suppose that \xcd`C` is declared by one of the
 forms: 
 \begin{enumerate}
-\item \xcdmath"class C[$\vec{X}$] extends D[$\vec{Y}$]{d} implements I$_1[\vec{Y_1}]$,...,I$_n[\vec{Y_n}]${"
-\item \xcdmath"interface C[$\vec{X}$] extends I$_1[\vec{Y_1}]$,...,I$_n[\vec{Y_n}]${"
-\item \xcdmath"struct C[$\vec{X}$] implements I$_1[\vec{Y_1}]$,...,I$_n[\vec{Y_n}]${"
+\item \xcdmath"class C[$\vec{X}$]{c} extends D[$\vec{Y}$]{d} implements I$_1[\vec{Y_1}]${i$_1$},...,I$_n[\vec{Y_n}]${i$_n$}{"
+\item \xcdmath"interface C[$\vec{X}$]{c} extends I$_1[\vec{Y_1}]${i$_1$},...,I$_n[\vec{Y_n}]${i$_n$}{"
+\item \xcdmath"struct C[$\vec{X}$]{c} implements I$_1[\vec{Y_1}]${i$_1$},...,I$_n[\vec{Y_n}]${i$_n$}{"
 \end{enumerate}
 Then: 
 \begin{enumerate}
-\item \xcdmath"C[$\vec{T}$] <: D[$\vec{Y}$]{d}" for a class
-\item \xcdmath"C[$\vec{T}$] <: I$_i$[$\vec{Y_i}$]" for all cases.
+\item \xcdmath"C[$\vec{T}$] <: D[$\vec{U}$]{d}" for a class
+\item \xcdmath"C[$\vec{T}$] <: I$_i$[$\vec{U_i}$]{i$_i$}" for all cases.
+\item \xcdmath"C[$\vec{T}$] <: C[$\vec{T}$]{c$'$}" for all cases.
 \end{enumerate}
 
 
