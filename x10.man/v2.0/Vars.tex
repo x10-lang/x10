@@ -297,9 +297,15 @@ A pattern of the form \xcdmath"p(i$_1$,$\ldots$,i$_n$)" does the same, , but
 also binds \xcd`p` to the point.
 
 \section{Formal parameters}
-Formal parameters are always declared with a type.
+
+Formal parameters are the variables which hold values transmitted into a
+method or function.  
+They are always declared with a type.  (Type inference is not
+advisable, because there is no single expression to deduce a type from.)
 The variable name can be omitted if it is not to be used in the
-scope of the declaration.
+scope of the declaration, as in the type of the method 
+\xcd`static def main(Rail[String])` executed at the start of a program that
+does not use its command-line arguments.
 
 \begin{grammar}
 Formal
@@ -312,37 +318,102 @@ FormalModifier \: Annotation \\
 \end{grammar}
 
 \xcd`var`, \xcd`val`, and \xcd`shared` behave just as they do for local
-variables, \Sref{local-variables}.
+variables, \Sref{local-variables}.  In particular, the following \xcd`inc`
+method is allowed, but, unlike some languages, does {\em not} increment its
+actual parameter.  \xcd`inc(j)` creates a new local 
+variable \xcd`i` for the method call, initializes \xcd`i` with the value of
+\xcd`j`, increments \xcd`i`, and then returns.  \xcd`j` is never changed.
+%~~gen
+% package Vars.For.Squares.Of.Mares;
+% class Ink {
+%~~vis
+\begin{xten}
+static def inc(var i:Int) { i += 1; }
+\end{xten}
+%~~siv
+%}
+%~~neg
+
 
 \section{Local variables}\label{local-variables}
-Local variable declarations may have
+Local variables are declared in a limited scope, and, dynamically, keep their
+values only for so long as the scope is being executed.  They may be \xcd`var`
+or \xcd`val`.  
+They may have 
 initializer expressions: \xcd`var i:Int = 1;` introduces 
 a variable \xcd`i` and initializes it to 1.
-The initializer must be a subtype of
-the declared type of the variable.  If the variable is immutable
+If the variable is immutable
 (\xcd"val")
 the type may be omitted and
 inferred from the initializer type (\Sref{TypeInference}).
 Variables marked \xcd`shared` can be used by many activities at once; see
 \Sref{Shared}.
 
-\begin{grammar}
-LocalDeclaration
-        \: LocalModifier\star \xcd"var" LocalDeclaratorsWithType \\&& ( \xcd"," LocalDeclaratorsWithType )\star \\
-        \| LocalModifier\star \xcd"val" LocalDeclarators \\&& ( \xcd"," LocalDeclarators )\star \\
-        \| LocalModifier\star LocalDeclaratorsWithType \\&& ( \xcd"," LocalDeclaratorsWithType )\star \\
-LocalDeclarators
-        \: LocalDeclaratorsWithType \\
-        \: LocalDeclaratorWithInit \\
-LocalDeclaratorWithInit
-        \: VarDeclarator Init \\
-LocalDeclaratorsWithType
-        \: VarDeclaratorId
-                ( \xcd"," VarDeclaratorId )\star ResultType \\
-LocalModifier \: Annotation \\
-              \| \xcd"shared" \\
-Init \: \xcd"=" Expression \\
-\end{grammar}
+The variable declaration \xcd`val x:T=e;` confirms that \xcd`e`'s value is of
+type \xcd`T`, and then introduces the variable \xcd`x` with type \xcd`T`.  For
+example, 
+%~~gen
+% package Vars.Local;
+% class Tub{
+% def example() {
+%~~vis
+\begin{xten}
+   val t : Tub = new Tub();
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\noindent
+produces a variable \xcd`t` of type \xcd`Tub`, even though the expression
+\xcd`new Tub()` produces a value of type \xcd`Tub!` -- that is, a \xcd`Tub`
+located \xcd`here`.    This can be inconvenient if, \eg, it is desired to make
+method calls upon \xcd`t`.  
+
+Including type information in variable declarations is generally good
+programming practice: it explains to both the compiler and human readers
+something of the intent of the variable.  However, including types in 
+\xcd`val t:T=e` can obliterate helpful information.  So, X10 allows a {\em
+documentation type declaration}, written \xcd`val t <: T = e`.  This 
+has the same effect as \xcd`val t = e`, giving \xcd`t` the full type inferred
+from \xcd`e`; but it also confirms statically that that type is at least
+\xcd`T`.  For example, the following gives \xcd`t` the type \xcd`Tub!` as
+desired: 
+%~~gen
+% package Vars.Local;
+% class TubBounded{
+% def example() {
+%~~vis
+\begin{xten}
+   val t <: Tub = new Tub();
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\noindent
+However, replacing \xcd`Tub` by \xcd`Int` would result in a compilation error. 
+
+Variables do not need to be initialized at the time of definition -- not even
+\xcd`val`s. They must be initialized by the time of use, and \xcd`val`s may
+only be assigned to once. The X10 compiler performs static checks guaranteeing
+this restriction. The following is correct, albeit obtuse: 
+%~~gen
+%package Vars.Local;
+% class NotInitVal {
+%~~vis
+\begin{xten}
+static def main(r: Rail[String]) {
+  val a : Int;
+  a = r.length;
+  val b : String;
+  if (a == 5) b = "five?"; else b = "" + a + " args"; 
+  // ... 
+\end{xten}
+%~~siv
+%} }
+%~~neg
+
+
+\bard{Give grammar}
 
 \section{Fields}
 Fields are declared either \xcd"var" (mutable, non-static),
