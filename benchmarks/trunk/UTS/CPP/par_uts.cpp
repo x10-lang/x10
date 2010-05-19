@@ -21,6 +21,7 @@ static bool work_response_received = false;
 static bool termination_initiated = false;
 static std::vector<bool> terminated_process_list;
 static x10rt_place my_true_rank;
+static unsigned long long num_steals = 0;
 
 static double wsmprtc(void) {
   struct timeval tp;
@@ -110,6 +111,7 @@ static void recv_work (const x10rt_msg_params* work_ptr) {
 #if DEBUG
     std::cout << x10rt_here() << " got work" << std::endl;
 #endif
+    ++num_steals;
     unsigned char* cur_work_ptr = static_cast<unsigned char*>(work_ptr->msg) + 
                                   sizeof (unsigned int);
     for (int i=0; i<num_work_packets; ++i, cur_work_ptr+=20) {
@@ -158,7 +160,9 @@ static void recv_termination (const x10rt_msg_params* terminate_ptr) {
 static void initiate_termination () {
 #if DEBUG
   std::cout << x10rt_here() << " initiating termination" << std::endl;
+  std::cout << x10rt_here() << " stole " << num_steals*k << " nodes" << std::endl;
 #endif
+
 
   unsigned int* num_nodes_buffer = static_cast <unsigned int*> 
                       (x10rt_msg_realloc (NULL, 0, sizeof(unsigned int)));
@@ -324,6 +328,7 @@ int main (int argc, char** argv) {
 
   my_true_rank = x10rt_here();
 
+#if DEBUG
   if (0==x10rt_here ()) {
     std::cout << "==================== UTS ======================" << std::endl;
     std::cout << "Root branching factor (b0) = " << b0 << std::endl;
@@ -331,6 +336,7 @@ int main (int argc, char** argv) {
     std::cout << "Number of children (m) = " << m << std::endl;
     std::cout << "Probability of a child (q) = " << q << std::endl;
   }
+#endif
 
   // Add all the children of the root node at PLACE 0
   if (0==x10rt_here ()) {
@@ -344,10 +350,17 @@ int main (int argc, char** argv) {
   if (0==x10rt_here ()) time = wsmprtc () - time;
 
   // Print out the statistics at PLACE 0
+#if DEBUG
   if (0==x10rt_here ()) {
     std::cout << "There were " << (1+num_nodes) << " nodes mined in " 
               << time << " secs" << std::endl;
     std::cout << "===============================================" << std::endl;
+  }
+#endif
+  if (0==x10rt_here ()) {
+    std::cout << x10rt_nplaces() << " " << k << " " << (num_nodes+1) << " " 
+              << time << " "
+              << static_cast<double>(1+num_nodes)/(time*1e06) << std::endl;
   }
 
   // Finalize the runtime
