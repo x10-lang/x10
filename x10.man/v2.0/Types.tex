@@ -1235,7 +1235,7 @@ Inside the scope of a constraint \xcd`c` which entails \xcd`A <: B`, we have
 If \xcd`C` is a generic type whose {$i$}th type parameter is covariant, 
 and {\xcdmath"T$'_i$ <: T$_i$"}
 and  {\xcdmath"T$'_j$ == T$_j$"} for all {$j \ne i$}, 
-then {\xcdmath"C[T$'_1$, \ldots, T$'_n$] <: C[T$'_1$, $\ldots$, T$'_n$]"}.
+then {\xcdmath"C[T$'_1$, $\ldots$, T$'_n$] <: C[T$'_1$, $\ldots$, T$'_n$]"}.
 \Eg, \xcd`class C[T1, +T2, T3]` with {$i=2$}, and \xcd"U2 <: T2", then
 \xcd`C[T1,U2,T3] <: C[T1,T2,T3]`.
 
@@ -1244,7 +1244,7 @@ then {\xcdmath"C[T$'_1$, \ldots, T$'_n$] <: C[T$'_1$, $\ldots$, T$'_n$]"}.
 If \xcd`C` is a generic type whose {$i$}th type parameter is contravariant, 
 and \xcdmath"T$'_i$ <: T$_i$"
 and  \xcdmath"T$'_j$ == T$_j$" for all {$j \ne i$}, 
-then \xcdmath"C[T$'_1$, \ldots, T$'_n$] :> C[T$'_1$, $\ldots$, T$'_n$]".
+then \xcdmath"C[T$'_1$, $\ldots$, T$'_n$] :> C[T$'_1$, $\ldots$, T$'_n$]".
 \Eg, \xcd`class C[T1, -T2, T3]` with {$i=2$}, and \xcdmath"U2 <: T2", then
 \xcd`C[T1,U2,T3] :> C[T1,T2,T3]`.
 
