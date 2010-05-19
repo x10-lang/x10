@@ -10,10 +10,10 @@
 
 std::deque<sha1_rand> work_queue;
 
-static int b0 = 4; // Root branching factor
-static int r = 0; // Root seed for the random number
-static int m = 4; // Number of children 
-static double q = 15.0/64.0; // Probability of having a child
+static int b0 = 2000; // Root branching factor
+static int r = 42; // Root seed for the random number
+static int m = 8; // Number of children 
+static double q = 0.124875; // Probability of having a child
 static int k = m; // number of work packets that can be stolen at one go
 static uint32_t num_nodes = 0; // There is a root node that we don't count
 static const double NORMALIZER = static_cast<double>(2147483647);
@@ -161,6 +161,7 @@ static void initiate_termination () {
 #if DEBUG
   std::cout << x10rt_here() << " initiating termination" << std::endl;
   std::cout << x10rt_here() << " stole " << num_steals*k << " nodes" << std::endl;
+  std::cout << x10rt_here() << " processed " << num_nodes << " nodes" << std::endl;
 #endif
 
 
@@ -197,14 +198,14 @@ static void get_work(void) {
   std::cout << x10rt_here() << " trying to steal work" << std::endl;
 #endif
 
-  const int begging_start_node = x10rt_here();
-  const int begging_stop_node = (begging_start_node + x10rt_nplaces()) 
+  const int begging_start_node = (x10rt_here()+1) % x10rt_nplaces();
+  const int begging_stop_node = (begging_start_node+x10rt_nplaces()-1) 
                                 % x10rt_nplaces();
 
   for (int i=begging_start_node; 
        i!=begging_stop_node;
        i=(i+1)%x10rt_nplaces()) {
-    if (x10rt_here() != i) {
+    if (x10rt_here() != i && !terminated_process_list[i]) {
       x10rt_place* my_rank = static_cast <x10rt_place*> 
           (x10rt_msg_realloc (NULL, 0, sizeof(x10rt_place)));
       *my_rank = x10rt_here();
