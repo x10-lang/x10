@@ -85,7 +85,7 @@ namespace x10aux {
 #ifdef _POWER
 #define X10_MIN_RAIL_ALIGNMENT 16
 #else
-#define X10_MIN_RAIL_ALIGNMENT sizeof(x10_double)
+#define X10_MIN_RAIL_ALIGNMENT ((x10_int)sizeof(x10_double))
 #endif
     
     
