@@ -37,7 +37,7 @@ def dealWithExample(f, line, basename):
 def parsley(line):
     L = line[len(clue):len(line)]
     S = L.split(sep)
-    R = [S[0].strip(), S[1:len(S)]]
+    R = [S[0].strip(), [s.strip() for s in S[1:len(S)]]]
     return R
 
     
@@ -139,6 +139,12 @@ def doType(cmd, args, f, line, basename):
 # 
 # The prelude and postlude  (%~~gen..%~~vis and %~~siv..%~~neg) have
 # TeX comments in the LaTeX source, which must be stripped off for X10.
+#
+# Addendum
+#
+#    #~~gen~~foon
+#      puts the output in the file named "foon.x10"
+
 
 def doGen(cmd, args, f, line, basename):
     #print("doGen: " + cmd + " on " + "!".join(args));
@@ -146,6 +152,8 @@ def doGen(cmd, args, f, line, basename):
     body = readLines(f, "%~~siv", False, True, basename)
     postlude = readLines(f, "%~~neg", True, False, basename)
     classname = numberedName(basename)
+    if len(args) >= 1:
+        classname = args[0];
     code = "\n".join(prelude + body + postlude)
     writeX10File(classname, code)
 
