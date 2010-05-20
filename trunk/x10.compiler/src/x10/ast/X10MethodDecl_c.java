@@ -302,7 +302,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         // Add the method guard into the environment.
         if (guard != null) {
             Ref<CConstraint> vc = guard.valueConstraint();
-            Ref<TypeConstraint> tc = guard.typeConstraint();
+            Ref<TypeConstraint> tc = guard.typeConstraint(); // todo: tc is ignored
         
             if (vc != null || tc != null) {
                 c = c.pushBlock();
