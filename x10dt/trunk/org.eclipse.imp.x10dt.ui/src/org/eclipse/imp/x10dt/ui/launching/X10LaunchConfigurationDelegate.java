@@ -26,8 +26,8 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
-import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.core.X10Util;
+import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
 import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IVMInstall;
@@ -88,8 +88,8 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
     public String getRuntimeArguments(ILaunchConfiguration configuration) throws CoreException {
 		String arguments = configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, ""); //$NON-NLS-1$
 		IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
-		if (prefStore.contains(X10PreferenceConstants.P_NUM_PLACES)) {
-			String numPlacesArg = " -NUMBER_OF_LOCAL_PLACES=" + prefStore.getInt(X10PreferenceConstants.P_NUM_PLACES);
+		if (prefStore.contains(X10Constants.P_NUMBEROFPLACES)) {
+			String numPlacesArg = " -NUMBER_OF_LOCAL_PLACES=" + prefStore.getInt(X10Constants.P_NUMBEROFPLACES);
 			arguments += numPlacesArg;
 		}
 		
