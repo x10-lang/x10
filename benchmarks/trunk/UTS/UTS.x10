@@ -151,7 +151,7 @@ public class UTS {
           for (var pi:Int=1 ; pi<Place.MAX_PLACES ; ++pi) {
             val p = Place(pi);
             if (at (p) st().state != STATE_ARRESTED) {
-              //Console.OUT.println(here+": Discovered there is still work to do, restarting everyone.");
+              // Discovered work. Restart everyone.
               for (var pi2:Int=1 ; pi2<Place.MAX_PLACES ; ++pi2) {
                 val p2 = Place(pi2);
                 at (p2) {
