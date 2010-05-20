@@ -47,10 +47,12 @@ import polyglot.ast.NamedVariable;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
+import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
+import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
@@ -121,7 +123,10 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		}
 		else if (target instanceof LocalDecl) {
 			LocalDecl localDecl = (LocalDecl) target;
-			LocalInstance li = localDecl.localDef().asInstance(); // PORT1.7   was localDecl.localInstance();
+			LocalDef ld= localDecl.localDef();
+			if (ld == null)
+			    return null;
+            LocalInstance li = ld.asInstance(); // PORT1.7   was localDecl.localInstance();
 			target = li;		
 		}
 		if (target instanceof FieldInstance) {
@@ -157,7 +162,9 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		} else if (target instanceof Call) {
 			if(traceOn)System.out.println("==>Call");
 			Call call = (Call) target;
-			MethodInstance mi = call.methodInstance();    
+			MethodInstance mi = call.methodInstance();
+			if (mi == null)
+			    return null;
 			ObjectType ownerType = (ObjectType)mi.container();//PORT1.7 ReferenceType->ObjectType.  We assume the cast will succeed.
 
 			if (ownerType.isClass()) {
@@ -274,15 +281,20 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		} else if (target instanceof ClassDecl) {
 			ClassDecl cd = (ClassDecl)target;
 			String name=cd.name().id().toString();//PORT1.7 want fullname, how to get from ClassDecl?
-			String fullName = cd.classDef().fullName().toString(); ////PORT1.7 is this right?? ask Nate
+			ClassDef cdef= cd.classDef();
+			if (cdef == null)
+			    return null;
+            String fullName = cdef.fullName().toString(); ////PORT1.7 is this right?? ask Nate
 			String doc = getX10DocFor(fullName,cd);
 			return doc;
 		}
 		else if (target instanceof MethodDecl) {
 			MethodDecl md = (MethodDecl) target;
 			String tempNameMd=md.toString();// does not include pkg info: public int foo(...);
-			//MethodInstance mi = md.methodInstance();
-			MethodInstance mi=md.methodDef().asInstance();//PORT1.7 was md.methodInstance();
+			MethodDef mdef= md.methodDef();
+			if (mdef == null)
+			    return null;
+			MethodInstance mi=mdef.asInstance();//PORT1.7 was md.methodInstance();
 			String tempName=mi.toString(); // lots of info: method public int my.pkg.foo(type,type);
 			String name="";
 			MethodInstance test;
@@ -322,7 +334,9 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				New n = (New) parent;		
 				return getX10DocFor(n.constructorInstance());
 			} else {
-				Type type = typeNode.type();			
+				Type type = typeNode.type();
+				if (type == null)
+				    return null;
 				String qualifiedName = typeNode.qualifierRef().get().toString();//PORT1.7 was qualifier()->qualifierRef().get()
 				qualifiedName = stripArraySuffixes(qualifiedName);
 				return getJavaOrX10DocFor(qualifiedName, type, parseController); 
