@@ -416,31 +416,25 @@ static def main(r: Rail[String]) {
 \bard{Give grammar}
 
 \section{Fields}
-Fields are declared either \xcd"var" (mutable, non-static),
-\xcd"val" (immutable, non-static), or \xcd"const" (immutable, static);
-the default is \xcd"val".
-Field declarations may have optional
-initializer expressions.  The initializer must be a subtype of
-the declared type of the variable.
-For \xcd"var" fields,
-if the initializer is omitted, the constructor must initialize
-the field, or else the field is initialized with
-\xcd"null" if a reference type, \xcd"0" if an \xcd"Int", \xcd"0L"
-if a \xcd"Long",
-\xcd"0.0F" if a \xcd"Float", \xcd"0.0" if a \xcd"Double", or
-\xcd"false" if a \xcd"Boolean".  It is a static error if the
-default value is not a member of the type (e.g., it is a static
-error to elide the initializer for \xcd"Int{self==1}").
 
-If the variable is immutable,
-the type may be omitted and
-inferred from the initializer type (\Sref{TypeInference}).
-Mutable fields must be declared with a type.
+Like most other kinds of variables in X10, 
+the fields of an object can be either \xcd`val` or \xcd`var`. 
+Fields can be \xcd`static`,\xcd`global`, or \xcd`property`; see
+\Sref{FieldDefinitions} and \Sref{PropertiesInClasses}.
+Field declarations may have optional
+initializer expressions, as for local variables, \Sref{local-variables}.
+\xcd`var` fields without an initializer are initialized with the default value
+of their type. \xcd`val` fields without an initializer must be initialized by
+each constructor.
+
+
+For \xcd`val` fields, as for \xcd`val` local variables, the type may be
+omitted and inferred from the initializer type (\Sref{TypeInference}).
+\xcd`var` files, like \xcd`var` local variables, must be declared with a type.
 
 \begin{grammar}
 FieldDeclaration
         \: FieldModifier\star \xcd"var" FieldDeclaratorsWithType \\&& ( \xcd"," FieldDeclaratorsWithType )\star \\
-        \| FieldModifier\star \xcd"const" FieldDeclarators \\&& ( \xcd"," FieldDeclarators )\star \\
         \| FieldModifier\star \xcd"val" FieldDeclarators \\&& ( \xcd"," FieldDeclarators )\star \\
         \| FieldModifier\star FieldDeclaratorsWithType \\&& ( \xcd"," FieldDeclaratorsWithType )\star \\
 FieldDeclarators
@@ -454,18 +448,8 @@ FieldDeclaratorWithInit
 FieldDeclaratorsWithType
         \: FieldDeclaratorId ( \xcd"," FieldDeclaratorId )\star ResultType \\
 FieldModifier \: Annotation \\
-                \| \xcd"static" \\
+                \| \xcd"static" \\ \| \xcd`property` \\ \| \xcd`global` \\
 \end{grammar}
 
 
 
-\section{Properties}
-Property declarations are always declared with a type and are
-always immutable (either explicitly declared \xcd"val" or implicitly by default).
-
-\begin{grammar}
-Property
-        \: PropertyModifier\star \xcd"val" Identifier ResultType \\
-        \| PropertyModifier\star Identifier ResultType \\
-PropertyModifier \: Annotation \\
-\end{grammar}
