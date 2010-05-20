@@ -115,6 +115,18 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
     public Expr addFormal(Position pos, Type type, String name){
         return addFormal(pos, Flags.NONE, type, Name.make(name));
     }
+ 
+    /**
+     * Add a formal to this method, and return a ref to this formal
+     * @param pos
+     * @param flags
+     * @param type
+     * @param name
+     * @return
+     */
+    public Expr addFormal(Position pos, Flags flags, Type type, String name){
+        return addFormal(pos, flags, type, Name.make(name));
+    }
     
     /**
      * Add a formal to this method, and return a ref to this formal
