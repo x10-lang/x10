@@ -106,6 +106,10 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
         return classDef;
     }
 
+    public void setSuperType(Type superType){
+        classDef.superType(Types.ref(superType));
+    }
+    
     public void setFlags(Flags flags) {
         try {
             checkClose();
