@@ -66,10 +66,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         super(ts, pos, def);
     }
 
-    lkjlkj
-
-    
-
     @Override
     public boolean moreSpecific(ProcedureInstance<MethodDef> p, Context context) {
         return X10TypeMixin.moreSpecificImpl(this, p, context);
