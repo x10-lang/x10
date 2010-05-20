@@ -38,7 +38,6 @@ public class UTS {
 
       var nodesCounter:UInt = 0;
       var stealsAttempted:UInt = 0;
-      var stealDepth:UInt = 0;
       var stealsPerpetrated:UInt = 0;
       var stealsReceived:UInt = 0;
       var stealsSuffered:UInt = 0;
@@ -48,7 +47,9 @@ public class UTS {
       }
 
       public final def processSubtree (rng:SHA1Rand) {
-	  val numChildren = (rng() < q) ? m : 0;
+	  processSubtree(rng, (rng() < q) ? m : 0);
+      }
+      public final def processSubtree (rng:SHA1Rand, numChildren:Int) {
 	  nodesCounter++;
 	  /* Iterate over all the children and push on stack. */
 	  for (var i:Int=0 ; i<numChildren ; ++i) {
@@ -118,27 +119,18 @@ public class UTS {
           async (Place(pi)) st().nonHomeMain(st);
         }
 
-        // add root node
-        nodesCounter++;
-
-        // Iterate over all the children and accumulate the counts
-        for (var i:Int=0 ; i<b0 ; ++i) {
-          processSubtree(SHA1Rand(rng, i));
-        }
-
-
-        //Console.OUT.println(here+": All work completed or stolen.");
-
-        // Place 0 ran out of work *BUT* there may be work elsewhere that was stolen, so try to steal some back
+	// Initialize the work.
+	processSubtree(rng, b0);
 
         STEAL_LOOP:
         while (true) {
 	    processStack();
+        // Place 0 ran out of work *BUT* there may be work elsewhere that was stolen, so try to steal some back
+
           if (attemptSteal(st)) {
             continue STEAL_LOOP;
           }
 
-          //Console.OUT.println(here+": Could not steal work back from places > 0.");
 
           // no work, suspect global quiescence
           // the rest of this loop body is relatively slow but should be executed rarely.
@@ -197,12 +189,11 @@ public class UTS {
         val ss = st().stealsSuffered;
         val sr = st().stealsReceived;
         val sp = st().stealsPerpetrated;
-        val sd = st().stealDepth;
         at (nodeSum) {
           val pc = sa==0U ? "NaN" : ""+((100U*sp)/sa);
           Console.OUT.println(there+": "+
 			      nodes+" nodes,  "+
-			      sp+"/"+sa+"="+pc+"% successful steals (AvgDepth "+((sd as Double)/sp)+")  ("+ss+"/"+sr+"="+((ss as Double)/sr)+"% suffered)");
+			      sp+"/"+sa+"="+pc+"% successful steals ("+ss+"/"+sr+"="+((ss as Double)/sr)+"% suffered)");
           atomic {
             nodeSum(nodeSum()+nodes);
           }
