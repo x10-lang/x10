@@ -6,10 +6,15 @@
 #include <numeric>
 #include <sys/time.h>
 
-static int b0 = 4; // Root branching factor
-static int r = 0; // Root seed for the random number
-static int m = 4; // Number of children 
-static double q = 15.0/64.0; // Probability of having a child
+#ifndef IMPLEMENTATION
+#  warning "Implementation not defined, defaulting to QUEUE"
+#  define IMPLEMENTATION QUEUE
+#endif
+
+static int b0 = 2000; // Root branching factor
+static int r = 42; // Root seed for the random number
+static int m = 8; // Number of children 
+static double q = .124975; // Probability of having a child
 static const double NORMALIZER = static_cast<double>(2147483647);
 
 static double wsmprtc(void) {
@@ -27,9 +32,11 @@ static double wsmprtc(void) {
           (tp.tv_usec-startu)*1.e-6);
 }
 
+#if (IMPLEMENTATION==RECURSIVE)
+#warning "Using RECURSIVE"
 static int binomial_tree_search (const sha1_rand& rng) {
   const int random_number = rng();
-  const double prob = static_cast<double>(random_number)/NORMALIZER;
+  const double prob = static_cast<double>(random_number);
 
   int num_children = (prob < q) ? m : 0;
   int num_descendents = 0;
@@ -55,6 +62,69 @@ static int root_binomial_tree_search (const sha1_rand& rng) {
  
   return (num_children+num_descendents);
 }
+#elif (IMPLEMENTATION==STACK)
+#warning "Using STACK"
+#include <stack>
+std::stack<sha1_rand> work_queue;
+
+static unsigned int binomial_tree_search () {
+  unsigned int num_nodes = 0;
+  while (!work_queue.empty()) {
+    const sha1_rand rng = work_queue.top();
+    work_queue.pop();
+    const int num_children = (static_cast<double>(rng()) < q) ? m : 0;
+
+    for (int i=0; i<num_children; ++i) {
+      work_queue.push(sha1_rand(rng, i));
+    }
+    ++num_nodes;
+  }
+
+  return num_nodes;
+}
+#elif (IMPLEMENTATION==QUEUE)
+#warning "Using QUEUE"
+#include <queue>
+std::queue<sha1_rand> work_queue;
+
+static unsigned int binomial_tree_search () {
+  unsigned int num_nodes = 0;
+  while (!work_queue.empty()) {
+    const sha1_rand rng = work_queue.front();
+    work_queue.pop_front();
+    const int num_children = (static_cast<double>(rng()) < q) ? m : 0;
+
+    for (int i=0; i<num_children; ++i) {
+      work_queue.push_back(sha1_rand(rng, i));
+    }
+    ++num_nodes;
+  }
+
+  return num_nodes;
+}
+#elif (IMPLEMENTATION==DEQUE)
+#warning "Using DEQUE"
+#include <queue>
+std::deque<sha1_rand> work_queue;
+
+static unsigned int binomial_tree_search () {
+  unsigned int num_nodes = 0;
+  while (!work_queue.empty()) {
+    const sha1_rand rng = work_queue.front();
+    work_queue.pop_front();
+    const int num_children = (static_cast<double>(rng()) < q) ? m : 0;
+
+    for (int i=0; i<num_children; ++i) {
+      work_queue.push_back(sha1_rand(rng, i));
+    }
+    ++num_nodes;
+  }
+
+  return num_nodes;
+}
+#else
+#error "Define implementation"
+#endif
 
 int main (int argc, char** argv) {
   for (int i =1; // Program name is always the first argument -- argc >= 1
@@ -74,6 +144,9 @@ int main (int argc, char** argv) {
     }
   } // End for
 
+  // optimization
+  q *= NORMALIZER;
+
   std::cout << "==================== UTS ======================" << std::endl;
   std::cout << "Root branching factor (b0) = " << b0 << std::endl;
   std::cout << "Root seed (r) = " << r << std::endl;
@@ -81,12 +154,28 @@ int main (int argc, char** argv) {
   std::cout << "Probability of a child (q) = " << q << std::endl;
 
   double time = wsmprtc ();
+#if (IMPLEMENTATION==RECURSIVE)
   int num_nodes = 1 + root_binomial_tree_search (sha1_rand (r));
+#elif (IMPLEMENTATION==STACK)
+  sha1_rand root_rng(r);
+  for (int i=0; i<b0; ++i) work_queue.push(sha1_rand(root_rng, i));
+  const unsigned int num_nodes = 1 + binomial_tree_search ();
+#elif (IMPLEMENTATION==STACK)
+  sha1_rand root_rng(r);
+  for (int i=0; i<b0; ++i) work_queue.push_back(sha1_rand(root_rng, i));
+  const unsigned int num_nodes = 1 + binomial_tree_search ();
+#elif (IMPLEMENTATION==DEQUE)
+  sha1_rand root_rng(r);
+  for (int i=0; i<b0; ++i) work_queue.push_back(sha1_rand(root_rng, i));
+  const unsigned int num_nodes = 1 + binomial_tree_search ();
+#else
+#error "Define implementation"
+#endif
   time = wsmprtc () - time;
 
-  std::cout << "There were " << num_nodes << " nodes mined in " 
-            << time << " secs" << std::endl;
-  std::cout << "===============================================" << std::endl;
+  std::cout << "Sequential " << (num_nodes) << " " 
+            << time << " "
+            << static_cast<double>(num_nodes)/(time*1e06) << std::endl;
 
   return 0;
 }
