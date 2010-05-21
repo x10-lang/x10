@@ -2204,28 +2204,51 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		//	    }
 	}
 
-	public void visit(X10Binary_c n) {
+	// This is an enhanced version of Binary_c#prettyPrint(CodeWriter,Å@PrettyPrinter)
+    private void prettyPrint(X10Binary_c n) {
+        Expr left = n.left();
+        Type l = left.type();
+        Expr right = n.right();
+        Type r = right.type();
+        Binary.Operator op = n.operator();
+
+        boolean asPrimitive = false;
+        if (op == Binary.EQ || op == Binary.NE) {
+            if (l.isNumeric() && r.isNumeric() || l.isBoolean() && r.isBoolean() || l.isChar() && r.isChar()) {
+                asPrimitive = true;
+            }
+        }
+
+        if (asPrimitive) {
+            w.write("((");
+            er.printType(l, 0);
+            w.write(") ");
+        }
+        n.printSubExpr(left, true, w, tr);
+        if (asPrimitive) w.write(")");
+        w.write(" ");
+        w.write(op.toString());
+        w.allowBreak(n.type() == null || n.type().isPrimitive() ? 2 : 0, " ");
+        if (asPrimitive) {
+            w.write("((");
+            er.printType(r, 0);
+            w.write(") ");
+        }
+        n.printSubExpr(right, false, w, tr);
+        if (asPrimitive) w.write(")");
+    }
+
+    public void visit(X10Binary_c n) {
 		Expr left = n.left();
 		Type l = left.type();
 		Expr right = n.right();
 		Type r =  right.type();
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-		NodeFactory nf = tr.nodeFactory();
 		Binary.Operator op = n.operator();
 
 
-        if (l.isNumeric() && r.isNumeric()) {
-            visit((Binary_c)n);
-            return;
-        }
-
-        if (l.isBoolean() && r.isBoolean()) {
-            visit((Binary_c)n);
-            return;
-        }
-
-        if (l.isChar() && r.isChar()) {
-            visit((Binary_c)n);
+        if (l.isNumeric() && r.isNumeric() || l.isBoolean() && r.isBoolean() || l.isChar() && r.isChar()) {
+            prettyPrint(n);
             return;
         }
 
@@ -2240,7 +2263,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		if (op == Binary.ADD && (l.isSubtype(xts.String(), tr.context()) || r.isSubtype(xts.String(), tr.context()))) {
-			visit((Binary_c)n);
+            prettyPrint(n);
 			return;
 		}
 		if (n.invert()) {
