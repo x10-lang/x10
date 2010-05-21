@@ -39,11 +39,9 @@ public class UTS {
 		}
 
 		public final def main (b0:Int, rng:SHA1Rand) {
-
 			processSubtree(rng, b0);
-			val nodes = nodesCounter;
-			Console.OUT.println(nodes+" nodes. ");
-			return nodes;
+			Console.OUT.println(nodesCounter+" nodes. ");
+			return nodesCounter;
 		}
 	}
 	static class BinomialState {
@@ -90,9 +88,10 @@ public class UTS {
 		}
 
 		public final def processStack() {
+			var count:Int=0;
 			while (stack.size() > 0) {
 				processSubtree(stack.pop());
-				if (probe_rnd.nextDouble() < 0.01) 
+				if ((count++ % 20 == 0) && probe_rnd.nextDouble() < 0.01) 
 					Runtime.probe();
 			}
 		}
