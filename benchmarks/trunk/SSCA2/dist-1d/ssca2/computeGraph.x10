@@ -17,7 +17,7 @@ public class computeGraph  {
 		
 		var time: Double = util.x10_get_wtime();
 		
-		//x10.io.Console.OUT.println("computeGraph " + "loop 1");
+		//x10.io.Console.ERR.println("computeGraph " + "loop 1");
 		finish {
 			
 			c: Clock = Clock.make();
@@ -34,11 +34,11 @@ public class computeGraph  {
 			next;
 			
 			util.prefix_sums(degree, numEdges, pSums,n, tid);
-			//x10.io.Console.OUT.println("computeGraph " + "loop 2 " + " " + numEdges);
+			//x10.io.Console.ERR.println("computeGraph " + "loop 2 " + " " + numEdges);
 			
 			next;
 			
-			//x10.io.Console.OUT.println("computeGraph " + "loop 3");
+			//x10.io.Console.ERR.println("computeGraph " + "loop 3");
 			for ((i) in tid*chunkSize..(tid+1)*chunkSize-1) {
 				val u = (SDGdata.startVertex as Rail[types.VERT_T])(i);
 				val j = numEdges(u) + pos(i);
@@ -57,18 +57,18 @@ public class computeGraph  {
 		val G  = defs.graph(n, m, endV, numEdges, w);
 		
 		 /* for ((i) in 0..SDGdata.m-1) {
-			  x10.io.Console.OUT.println("[ " + (SDGdata.startVertex as Rail[types.VERT_T]!)(i) + " " + (SDGdata.endVertex as Rail[types.VERT_T]!)(i) + " " + (SDGdata.weight as Rail[types.LONG_T]!)(i) + "]"); 
+			  x10.io.Console.ERR.println("[ " + (SDGdata.startVertex as Rail[types.VERT_T]!)(i) + " " + (SDGdata.endVertex as Rail[types.VERT_T]!)(i) + " " + (SDGdata.weight as Rail[types.LONG_T]!)(i) + "]"); 
 		 }
 		 
 		 for((i) in 0..G.n-1) {
-			 x10.io.Console.OUT.println("[ " + (G.numEdges as Rail[types.LONG_T]!)(i) + "] " );
+			 x10.io.Console.ERR.println("[ " + (G.numEdges as Rail[types.LONG_T]!)(i) + "] " );
 		 }
 		 
 		 for ((i) in 0..G.n-1) {
 			 val lo = (G.numEdges as Rail[types.LONG_T]!)(i);
 			 val hi = (G.numEdges as Rail[types.LONG_T]!)(i+1);
 			 for ((j) in  lo..hi-1) {
-				 x10.io.Console.OUT.println("[ " + i + " " + (G.endV as Rail[types.VERT_T]!)(j) +  " " + (G.weight as Rail[types.LONG_T]!)(j) + "] " );
+				 x10.io.Console.ERR.println("[ " + i + " " + (G.endV as Rail[types.VERT_T]!)(j) +  " " + (G.weight as Rail[types.LONG_T]!)(j) + "] " );
 			 }
 		 } */ 
 		

@@ -70,6 +70,10 @@ final public class PTimer{
     acc(here.id) += Timer.nanoTime() - start(here.id);
   }
 
+   public global def elapsed() {
+         return acc(here.id);
+   }
+
   public global def reset() {
     acc(here.id)  = 0;
   }
@@ -83,7 +87,7 @@ final public class PTimer{
   }
 
   public global def print() {
-    x10.io.Console.ERR.println("PTimer " + name + " Seconds: " + acc(here.id)*1e-9);
+    x10.io.Console.OUT.println("PTimer " + name + " Seconds: " + acc(here.id)*1e-9);
   }
 
    public static def printTimers() {
@@ -101,7 +105,7 @@ final public class PTimer{
     for (val timer: PTimer in timers ) {
           buf_title.add(timer.name + "\t\t" );
     }
-    x10.io.Console.ERR.println(buf_title);
+    x10.io.Console.OUT.println(buf_title);
 
     for((p) in unique) {
         val timers_copy = timers.toValRail();
@@ -112,7 +116,7 @@ final public class PTimer{
           val lcl_time = timers_copy(i).acc(here.id)*1e-9;
           buf.add(round_2(lcl_time) + "\t\t");
         }
-        x10.io.Console.ERR.println (buf);
+        x10.io.Console.OUT.println (buf);
       }
     }
 
@@ -136,12 +140,12 @@ final public class PTimer{
       buf_min.add( timer.min(here.id).second + "\t\t" );
       buf_variance.add( round_2(timer.variance(here.id))+ "\t\t");
     }
-    x10.io.Console.ERR.println(buf_sep);
-    x10.io.Console.ERR.println(buf_total);
-    x10.io.Console.ERR.println(buf_max);
-    x10.io.Console.ERR.println(buf_min);
-    x10.io.Console.ERR.println(buf_mean);
-    x10.io.Console.ERR.println(buf_variance);
+    x10.io.Console.OUT.println(buf_sep);
+    x10.io.Console.OUT.println(buf_total);
+    x10.io.Console.OUT.println(buf_max);
+    x10.io.Console.OUT.println(buf_min);
+    x10.io.Console.OUT.println(buf_mean);
+    x10.io.Console.OUT.println(buf_variance);
   }
 
 }

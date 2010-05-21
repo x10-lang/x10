@@ -675,8 +675,9 @@ class BetweenessCentrality {
             world.barrier();     
           } 
                kernel4.stop();
-
         }
+         val elapsed_time = kernel4.elapsed()*1e-9;
+          x10.io.Console.OUT.println( "TEPS score for Kernel 4 is " +   ((7*GLOBALS.N*(1<<GLOBALS.K4Approx)) as double)/elapsed_time + "\n");
 
      }
 
@@ -687,7 +688,7 @@ class BetweenessCentrality {
                finish async (Place.places(p)) {
                val bc = BC() as Array[types.DOUBLE_T](1)!;
                 for ((a) in bc.region) {
-                 x10.io.Console.OUT.println("BC: " + a + " " + bc(a));
+                 x10.io.Console.ERR.println("BC: " + a + " " + bc(a));
                 }
              }
          }

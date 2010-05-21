@@ -21,7 +21,7 @@ class SSCA2 {
               val pg_here = pg.restrict_here();
 
               val lo = gNumEdges(pg_here.vertices.min(0));
-              //x10.io.Console.ERR.println(pg_here.vertices + " " + lo);
+              //x10.io.Console.OUT.println(pg_here.vertices + " " + lo);
 
               for ((i): Point in pg_here.vertices) {
                  pg_here.numEdges(i) = gNumEdges(i) - lo;
@@ -38,7 +38,7 @@ class SSCA2 {
                          val low = pg_here.numEdges(i);
                          val high = pg_here.numEdges(i+1);
                          for ((j) in  low..high-1) {
-                                 x10.io.Console.ERR.println("[ " + i + " " + pg_here.endV(j) +  " " + pg_here.weight(j) + "] " );
+                                 x10.io.Console.OUT.println("[ " + i + " " + pg_here.endV(j) +  " " + pg_here.weight(j) + "] " );
                          }
 
              } */
@@ -51,7 +51,7 @@ class SSCA2 {
 	public static def main (args:Rail[String]!): void {
 
 		if (args.length < 3) {
-			x10.io.Console.ERR.println("Usage: ./SSCA2 <No. of threads> <SCALE>");
+			x10.io.Console.OUT.println("Usage: ./SSCA2 <No. of threads> <SCALE>");
 			return;
 		}
 		
@@ -61,7 +61,6 @@ class SSCA2 {
 		util.x10_set_num_threads(THREADS);
 		
 		val SCALE = Int.parseInt(args(1));
-
 
 		val USE_ASYNC = args.length > 2 ?  Boolean.parseBoolean(args(2)) : false;
 
@@ -73,18 +72,19 @@ class SSCA2 {
 		val NOSELF = args.length > 6 ? Boolean.parseBoolean(args(6)) : true;
 		val ALLGATHER = args.length > 7 ?  Boolean.parseBoolean(args(7)) : false;
 	
-                x10.io.Console.ERR.println( SERIAL_GRAPH_GEN + " " + " " + FILTER + " " + CUTSHORT + " " +  USE_ASYNC + " " + NOSELF + " "  + ALLGATHER);
+                x10.io.Console.OUT.println( SERIAL_GRAPH_GEN + " " + " " + FILTER + " " + CUTSHORT + " " +  USE_ASYNC + " " + NOSELF + " "  + ALLGATHER);
 	
-		x10.io.Console.ERR.println("HPCS SSCA#2 Graph Analysis Benchmark v2.0");
-		x10.io.Console.ERR.println("Running...");
+		x10.io.Console.OUT.println("HPCS SSCA#2 Graph Analysis Benchmark v2.0");
+		x10.io.Console.OUT.println("Running...");
 		//     val globals = new defs();
 		defs.init(SCALE, CUTSHORT);
 		
-		x10.io.Console.ERR.println("# of threads/place:" + THREADS);
-		x10.io.Console.ERR.println("SCALE :" + SCALE);
+		x10.io.Console.OUT.println("# of places:" + Place.MAX_PLACES);
+		x10.io.Console.OUT.println("# of threads/place:" + THREADS);
+		x10.io.Console.OUT.println("SCALE :" + SCALE);
 		
-		x10.io.Console.ERR.println("Scalable Data Generator");
-		x10.io.Console.ERR.println("genScalData() begining exectuion" );
+		x10.io.Console.OUT.println("Scalable Data Generator");
+		x10.io.Console.OUT.println("genScalData() begining exectuion" );
 	
 
                 val GLOBALS = at (defs.container) {defs.container.globals};
@@ -144,7 +144,7 @@ class SSCA2 {
                   /* val tmp:Rail[defs.edge]! = sourceList as Rail[defs.edge]!;
     
 for ((i) in 0..sourceList.length-1) {
-                          x10.io.Console.ERR.println("edge " + sourceList(i).e + "( " + sourceList(i).w + " ) " + " : " + "[ " + sourceList(i).startVertex + " , " + sourceList(i).endVertex + "]");
+                          x10.io.Console.OUT.println("edge " + sourceList(i).e + "( " + sourceList(i).w + " ) " + " : " + "[ " + sourceList(i).startVertex + " , " + sourceList(i).endVertex + "]");
                  }  */  
                     kernel3.start();
 	    	  findSubGraphs_dist.compute(pg, place, world, sourceList, GLOBALS.SubGraphPathLength);

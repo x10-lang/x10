@@ -105,7 +105,7 @@ public class genScaleData  {
 							u += step;
 							v += step;
 						}
-						//x10.io.Console.OUT.println("u v " + tid + " " +  u + " " + v + " " + p1 + " " + GLOBALS.SCALE);
+						//x10.io.Console.ERR.println("u v " + tid + " " +  u + " " + v + " " + p1 + " " + GLOBALS.SCALE);
 					}
 				} while (u == v);
 				
@@ -116,7 +116,7 @@ public class genScaleData  {
                         //rand.stop();
 			
 			
-			//x10.io.Console.OUT.println(src + " " + dest);
+			//x10.io.Console.ERR.println(src + " " + dest);
           
                          //perm.start(); 
 		         val kv = Rail.make[types.UVPair](n);
@@ -149,7 +149,7 @@ public class genScaleData  {
 
 	
 			//assign.start();		
-			 //x10.io.Console.OUT.println("perm "  +  " " + key + " " + value);
+			 //x10.io.Console.ERR.println("perm "  +  " " + key + " " + value);
 			//for ((i) in tid*chunkSize_m..(tid+1)*chunkSize_m-1) {
 			for (var i: Int = tid*chunkSize_m; i < (tid+1)*chunkSize_m; i++) {
 				src(i) = kv(src(i)).second;

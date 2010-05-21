@@ -32,9 +32,9 @@ class findSubGraphs_dist  {
               for ((i) in 0..Place.MAX_PLACES-1) N(i).setLength(0); 
               val frontier: GrowableRail[types.VERT_T]! = L;
               val flength = frontier.length();
-//              x10.io.Console.ERR.println("frontier Size " + flength);
+//              x10.io.Console.OUT.println("frontier Size " + flength);
               val frontierSize = world.sum(flength);
-  //            x10.io.Console.ERR.println("frontier Size " + frontierSize);
+  //            x10.io.Console.OUT.println("frontier Size " + frontierSize);
               if (frontierSize == 0) break;
 
               for ((i) in 0..flength-1) {
@@ -46,14 +46,14 @@ class findSubGraphs_dist  {
                 visited(vertex) = true;
                 val lo = pg_here.numEdges(vertex);
                 val hi = pg_here.numEdges(vertex+1)-1;
-                  //x10.io.Console.ERR.println("lo..hi " + lo + " " + hi);
+                  //x10.io.Console.OUT.println("lo..hi " + lo + " " + hi);
 
                 lcount++;
 
                 for ((k) in  lo..hi) {
                   val neighbor = pg_here.endV(k);
                   val owner = pg.owner(neighbor);
-  //                x10.io.Console.ERR.println("neibhor " + neighbor + " " + owner);
+  //                x10.io.Console.OUT.println("neibhor " + neighbor + " " + owner);
                   N(owner.id).add(neighbor);
                 }
               }
@@ -70,7 +70,7 @@ class findSubGraphs_dist  {
             val count = world.sum(lcount);
 
             if (place == 0)
-             x10.io.Console.ERR.println("Search from <" + srcEdge.startVertex + " ," + srcEdge.endVertex + " > " + "number of vertices visited: " + count);
+             x10.io.Console.OUT.println("Search from <" + srcEdge.startVertex + " ," + srcEdge.endVertex + " > " + "number of vertices visited: " + count);
              world.barrier();
          }         
 }
