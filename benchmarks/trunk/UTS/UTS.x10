@@ -39,6 +39,7 @@ public class UTS {
 		}
 
 		public final def main (b0:Int, rng:SHA1Rand) {
+
 			processSubtree(rng, b0);
 			val nodes = nodesCounter;
 			Console.OUT.println(nodes+" nodes. ");
@@ -231,7 +232,7 @@ public class UTS {
 
 					 Option("a", "", "Tree shape function"),
 					 Option("d", "", "Tree depth"),
-
+					 Option("s", "", "Sequential"),
 					 Option("q", "", "BIN: probability of a non-leaf node"),
 					 Option("m", "", "BIN: number of children for non-leaf node"),
 
@@ -260,11 +261,12 @@ public class UTS {
 			val geo_to_bin_shift_depth_ratio:Double = opts ("-f", 0.5);
 
 			Console.OUT.println("--------");
-			Console.OUT.println("Places = "+Place.MAX_PLACES);
-			Console.OUT.println("b0 = " + b0 +
-					"   r = " + r +
-					"   m = " + mf +
-					"   q = " + q);
+			Console.OUT.println("Places="+Place.MAX_PLACES);
+			Console.OUT.println("b0=" + b0 +
+					"   r=" + r +
+					"   m=" + mf +
+					"   s=" + seq +
+					"   q=" + q);
 
 			val qq = (q*NORMALIZER) as Long;
 
