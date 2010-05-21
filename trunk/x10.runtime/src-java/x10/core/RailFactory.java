@@ -11,6 +11,8 @@
 
 package x10.core;
 
+import java.util.Arrays;
+
 import x10.core.fun.Fun_0_1;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -34,22 +36,40 @@ public class RailFactory {
         return array;
     }
     
+    public static <T> void resetLocal(Object value, T v) {
+        if (value instanceof boolean[]) {
+            Arrays.fill((boolean[]) value, (Boolean) v);
+        } else if (value instanceof byte[]) {
+            Arrays.fill((byte[]) value, (Byte) v);
+        } else if (value instanceof char[]) {
+            Arrays.fill((char[]) value, (Character) v);
+        } else if (value instanceof short[]) {
+            Arrays.fill((short[]) value, (Short) v);
+        } else if (value instanceof int[]) {
+            Arrays.fill((int[]) value, (Integer) v);
+        } else if (value instanceof long[]) {
+            Arrays.fill((long[]) value, (Long) v);
+        } else if (value instanceof float[]) {
+            Arrays.fill((float[]) value, (Float) v);
+        } else if (value instanceof double[]) {
+            Arrays.fill((double[]) value, (Double) v);
+        } else {
+            Arrays.fill((Object[]) value, v);
+        }
+    }
+
     public static <T> ValRail<T> makeValRail(Type type, int length) {
         Object o = type.makeArray(length);
         ValRail<T> array = new ValRail<T>(type, length, o);
         T zero = (T) type.zeroValue();
-        for (int i = 0; i < length; i++) {
-            type.setArray(o, i, zero);
-        }
+        resetLocal(array.value, zero);
         return array;
     }
     
     public static <T> Rail<T> makeVarRail(Type type, int length) {
         Rail<T> array = new Rail<T>(type, length);
         T zero = (T) type.zeroValue();
-        for (int i = 0; i < length; i++) {
-            array.set(zero, i);
-        }
+        resetLocal(array.value, zero);
         return array;
     }
 
