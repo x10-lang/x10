@@ -6,9 +6,21 @@
 #include <numeric>
 #include <sys/time.h>
 
-#ifndef IMPLEMENTATION
-#  warning "Implementation not defined, defaulting to QUEUE"
-#  define IMPLEMENTATION QUEUE
+#if defined(RECURSIVE)
+# warning "Using RECURSIVE"
+# define IMPLEMENTATION 1
+#elif defined(STACK)
+# warning "Using STACK"
+# define IMPLEMENTATION 2
+#elif defined(QUEUE)
+# warning "Using QUEUE"
+# define IMPLEMENTATION 3
+#elif defined(DEQUE)
+# warning "Using DEQUE"
+# define IMPLEMENTATION 4
+#else
+#warning "Implementation not defined, using QUEUE"
+# define IMPLEMENTATION 3
 #endif
 
 static int b0 = 2000; // Root branching factor
@@ -32,8 +44,7 @@ static double wsmprtc(void) {
           (tp.tv_usec-startu)*1.e-6);
 }
 
-#if (IMPLEMENTATION==RECURSIVE)
-#warning "Using RECURSIVE"
+#if (IMPLEMENTATION==1)
 static int binomial_tree_search (const sha1_rand& rng) {
   const int random_number = rng();
   const double prob = static_cast<double>(random_number);
@@ -62,8 +73,7 @@ static int root_binomial_tree_search (const sha1_rand& rng) {
  
   return (num_children+num_descendents);
 }
-#elif (IMPLEMENTATION==STACK)
-#warning "Using STACK"
+#elif (IMPLEMENTATION==2)
 #include <stack>
 std::stack<sha1_rand> work_queue;
 
@@ -82,8 +92,7 @@ static unsigned int binomial_tree_search () {
 
   return num_nodes;
 }
-#elif (IMPLEMENTATION==QUEUE)
-#warning "Using QUEUE"
+#elif (IMPLEMENTATION==3)
 #include <queue>
 std::queue<sha1_rand> work_queue;
 
@@ -91,19 +100,18 @@ static unsigned int binomial_tree_search () {
   unsigned int num_nodes = 0;
   while (!work_queue.empty()) {
     const sha1_rand rng = work_queue.front();
-    work_queue.pop_front();
+    work_queue.pop();
     const int num_children = (static_cast<double>(rng()) < q) ? m : 0;
 
     for (int i=0; i<num_children; ++i) {
-      work_queue.push_back(sha1_rand(rng, i));
+      work_queue.push(sha1_rand(rng, i));
     }
     ++num_nodes;
   }
 
   return num_nodes;
 }
-#elif (IMPLEMENTATION==DEQUE)
-#warning "Using DEQUE"
+#elif (IMPLEMENTATION==4)
 #include <queue>
 std::deque<sha1_rand> work_queue;
 
@@ -154,17 +162,17 @@ int main (int argc, char** argv) {
   std::cout << "Probability of a child (q) = " << q << std::endl;
 
   double time = wsmprtc ();
-#if (IMPLEMENTATION==RECURSIVE)
+#if (IMPLEMENTATION==1)
   int num_nodes = 1 + root_binomial_tree_search (sha1_rand (r));
-#elif (IMPLEMENTATION==STACK)
+#elif (IMPLEMENTATION==2)
   sha1_rand root_rng(r);
   for (int i=0; i<b0; ++i) work_queue.push(sha1_rand(root_rng, i));
   const unsigned int num_nodes = 1 + binomial_tree_search ();
-#elif (IMPLEMENTATION==STACK)
+#elif (IMPLEMENTATION==3)
   sha1_rand root_rng(r);
-  for (int i=0; i<b0; ++i) work_queue.push_back(sha1_rand(root_rng, i));
+  for (int i=0; i<b0; ++i) work_queue.push(sha1_rand(root_rng, i));
   const unsigned int num_nodes = 1 + binomial_tree_search ();
-#elif (IMPLEMENTATION==DEQUE)
+#elif (IMPLEMENTATION==4)
   sha1_rand root_rng(r);
   for (int i=0; i<b0; ++i) work_queue.push_back(sha1_rand(root_rng, i));
   const unsigned int num_nodes = 1 + binomial_tree_search ();
