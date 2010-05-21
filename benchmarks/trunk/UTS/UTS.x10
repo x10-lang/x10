@@ -19,6 +19,32 @@ public class UTS {
 		public def apply () : Int = 0;
 	}
 
+	static class SeqBinomialState {
+		// params that define the tree
+		val q:Long, m:Int;
+
+		var nodesCounter:UInt = 0;
+		public def this (q:Long, m:Int) {
+			this.q = q; this.m = m; 
+		}
+
+		public final def processSubtree (rng:SHA1Rand) {
+			processSubtree(rng, (rng() < q) ? m : 0);
+		}
+		public final def processSubtree (rng:SHA1Rand, numChildren:Int) {
+			nodesCounter++;
+			/* Iterate over all the children and push on stack. */
+			for (var i:Int=0 ; i<numChildren ; ++i) 
+				processSubtree(SHA1Rand(rng, i));
+		}
+
+		public final def main (b0:Int, rng:SHA1Rand) {
+			processSubtree(rng, b0);
+			val nodes = nodesCounter;
+			Console.OUT.println(nodes+" nodes. ");
+			return nodes;
+		}
+	}
 	static class BinomialState {
 
 		const STATE_PLACE_ZERO = 0; // the first place does not use a state machine, use this value as placeholder
@@ -34,16 +60,14 @@ public class UTS {
 		// params that define the tree
 		val q:Long, m:Int;
 
-		val k:Int; // the number to be stolen
-
 		var nodesCounter:UInt = 0;
 		var stealsAttempted:UInt = 0;
 		var stealsPerpetrated:UInt = 0;
 		var stealsReceived:UInt = 0;
 		var stealsSuffered:UInt = 0;
 		val probe_rnd = new Random();
-		public def this (q:Long, m:Int, k:Int) {
-			this.q = q; this.m = m; this.k = k;
+		public def this (q:Long, m:Int) {
+			this.q = q; this.m = m; 
 		}
 
 		public final def processSubtree (rng:SHA1Rand) {
@@ -66,11 +90,9 @@ public class UTS {
 
 		public final def processStack() {
 			while (stack.size() > 0) {
-				val work = stack.pop();
-				processSubtree(work);
-				if (probe_rnd.nextDouble() < 0.01) {
+				processSubtree(stack.pop());
+				if (probe_rnd.nextDouble() < 0.01) 
 					Runtime.probe();
-				}
 			}
 		}
 
@@ -109,9 +131,9 @@ public class UTS {
 
 		public final def main (st:PLH, b0:Int, rng:SHA1Rand) : UInt {
 			finish {
-				for (var pi:Int=1 ; pi<Place.MAX_PLACES ; ++pi) {
-					async (Place(pi)) st().nonHomeMain(st);
-				}
+				for (var pi:Int=1 ; pi<Place.MAX_PLACES ; ++pi) 
+					async (Place(pi)) 
+					   st().nonHomeMain(st);
 
 				// Initialize the work.
 				processSubtree(rng, b0);
@@ -122,10 +144,8 @@ public class UTS {
 						// Place 0 ran out of work *BUT* there may be work elsewhere that was stolen, 
 						// so try to steal some back
 
-						if (attemptSteal(st)) {
+						if (attemptSteal(st)) 
 							continue STEAL_LOOP;
-						}
-
 
 						// no work, suspect global quiescence
 						// the rest of this loop body is relatively slow but should be executed rarely.
@@ -194,10 +214,8 @@ public class UTS {
 					}
 				}
 			}
-
 			return nodeSum();
 		}
-
 	}
 
 	static type PLH = PlaceLocalHandle[BinomialState];
@@ -226,6 +244,7 @@ public class UTS {
 			val tree_type:Int = opts ("-t", 0);
 
 			val b0 = opts ("-b", 4);
+			val seq = opts("-s", 0);
 			val r:Int = opts ("-r", 0);
 
 			// geometric options
@@ -247,15 +266,21 @@ public class UTS {
 					"   m = " + mf +
 					"   q = " + q);
 
-
 			val qq = (q*NORMALIZER) as Long;
 
-			val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
-					()=>new BinomialState(qq, mf, k));
-			var time:Long = System.nanoTime();
-			val nodes = st().main(st, b0, SHA1Rand(r));
+			if (seq != 0) {
+				var time:Long = System.nanoTime();
+			val nodes = new SeqBinomialState(qq, mf).main(b0, SHA1Rand(r));
 			time = System.nanoTime() - time;
 			Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
+			} else {
+				val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
+						()=>new BinomialState(qq, mf));
+				var time:Long = System.nanoTime();
+				val nodes = st().main(st, b0, SHA1Rand(r));
+				time = System.nanoTime() - time;
+				Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
+			}
 			Console.OUT.println("--------");
 
 		} catch (e:Throwable) {
