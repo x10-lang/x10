@@ -7,7 +7,8 @@ import x10.util.Stack;
 
 public class UTS {
 
-	private static val NORMALIZER = 2147483648.0;
+	static type PLH = PlaceLocalHandle[BinomialState];
+	private static val NORMALIZER = 2147483648.0; // does not depend on input parameters
 
 	@NativeRep ("c++", "UTS__SHA1Rand", "UTS__SHA1Rand", null)
 	@NativeCPPCompilationUnit ("sha1.c")
@@ -44,7 +45,35 @@ public class UTS {
 			return nodesCounter;
 		}
 	}
-	static class BinomialState {
+	/*
+	static class ImplicitStealBinomialState {
+		// params that define the tree
+		val q:Long, m:Int, k:Int;
+
+		var nodesCounter:UInt = 0;
+		public def this (q:Long, m:Int, k:Int) {
+			this.q = q; this.m = m; this.k=k;
+		}
+
+		public final def processSubtree (st:PLH, rng:SHA1Rand) {
+			processSubtree(rng, (rng() < q) ? m : 0);
+		}
+		public final def processSubtree (st: PLH, rng:SHA1Rand, numChildren:Int) {
+			offer 1; 
+			// Iterate over all the children and push on stack. 
+			for (var i:Int=0 ; i<numChildren ; ++i) 
+				@global async 
+				   st().processSubtree(st, SHA1Rand(rng, i));
+		}
+
+		public final def main (st: PLH, b0:Int, rng:SHA1Rand) {
+			val count = finish(Int.+) { processSubtree(st, rng, b0) };
+			Console.OUT.println(nodesCounter+" nodes. ");
+			return nodesCounter;
+		}
+	}
+	*/
+	static final class BinomialState {
 
 		const STATE_PLACE_ZERO = 0; // the first place does not use a state machine, use this value as placeholder
 		const STATE_STEALING = 1; // actively stealing work from other places
@@ -57,7 +86,7 @@ public class UTS {
 		val stack = new Stack[SHA1Rand]();
 
 		// params that define the tree
-		val q:Long, m:Int;
+		val q:Long, m:Int, k:Int;
 
 		var nodesCounter:UInt = 0;
 		var stealsAttempted:UInt = 0;
@@ -65,29 +94,21 @@ public class UTS {
 		var stealsReceived:UInt = 0;
 		var stealsSuffered:UInt = 0;
 		val probe_rnd = new Random();
-		public def this (q:Long, m:Int) {
-			this.q = q; this.m = m; 
+		public def this (q:Long, m:Int, k:Int) {
+			this.q = q; this.m = m; this.k=k;
 		}
 
-		public final def processSubtree (rng:SHA1Rand) {
+		def processSubtree (rng:SHA1Rand) {
 			processSubtree(rng, (rng() < q) ? m : 0);
 		}
-		public final def processSubtree (rng:SHA1Rand, numChildren:Int) {
+		def processSubtree (rng:SHA1Rand, numChildren:Int) {
 			nodesCounter++;
 			/* Iterate over all the children and push on stack. */
 			for (var i:Int=0 ; i<numChildren ; ++i) 
 				stack.push(SHA1Rand(rng, i));
 		}
 
-		final def pop(k:Int) = ValRail.make[SHA1Rand](k, (int)=> stack.pop());
-
-		public final def trySteal () : ValRail[SHA1Rand] {
-			stealsReceived++;
-			val length = stack.size();
-			return length >= 2 ? pop(length/2) : null;
-		}
-
-		public final def processStack() {
+		def processStack() {
 			var count:Int=0;
 			while (stack.size() > 0) {
 				processSubtree(stack.pop());
@@ -95,24 +116,18 @@ public class UTS {
 					Runtime.probe();
 			}
 		}
+		
+		def pop(k:Int) = ValRail.make[SHA1Rand](k, (int)=> stack.pop());
 
-		public final def nonHomeMain (st:PLH) {
-			while (state != STATE_DEATH_ROW) {
-				while (state == STATE_STEALING) {
-					attemptSteal(st);
-					Runtime.probe(); // have to check that we've not been arrested
-					processStack();
-				}
-				// We are not in STATE_STEALING.
-				// So we must have processed a message that forced us into 
-				// STATE_ARRESTED. Keep processing messages until you you 
-				// get the killer message or a re-awakening message.
-				Runtime.probe(); // check that we've not been put on death row
-			}
-			// place > 0 now exits
+		def trySteal () : ValRail[SHA1Rand] {
+			stealsReceived++;
+			val length = stack.size();
+			val numSteals = k==0 ? (length >=2 ? length/2 : 0)
+					: (k < length ? k : (k/2 < length ? k/2 : 1));
+			return numSteals==0 ? null: pop(numSteals);
 		}
-
-		public final def attemptSteal(st:PLH) {
+		
+		def attemptSteal(st:PLH) {
 			for (var pi:Int=0 ; pi<Place.MAX_PLACES ; ++pi) {
 				val p = Place(pi);
 				if (p==here) continue;
@@ -129,7 +144,23 @@ public class UTS {
 			return false;
 		}
 
-		public final def main (st:PLH, b0:Int, rng:SHA1Rand) : UInt {
+		def nonHomeMain (st:PLH) {
+			while (state != STATE_DEATH_ROW) {
+				while (state == STATE_STEALING) {
+					attemptSteal(st);
+					Runtime.probe(); // have to check that we've not been arrested
+					processStack();
+				}
+				// We are not in STATE_STEALING.
+				// So we must have processed a message that forced us into 
+				// STATE_ARRESTED. Keep processing messages until you you 
+				// get the killer message or a re-awakening message.
+				Runtime.probe(); // check that we've not been put on death row
+			}
+			// place > 0 now exits
+		}
+
+		def main (st:PLH, b0:Int, rng:SHA1Rand) : UInt {
 			finish {
 				for (var pi:Int=1 ; pi<Place.MAX_PLACES ; ++pi) 
 					async (Place(pi)) 
@@ -218,7 +249,6 @@ public class UTS {
 		}
 	}
 
-	static type PLH = PlaceLocalHandle[BinomialState];
 
 	public static def main (args : Rail[String]!) {
 		try {
@@ -237,7 +267,7 @@ public class UTS {
 
 					 Option("f", "", "Hybrid switch-over depth "),
 
-					 Option("k", "", "Number of items to steal "),
+					 Option("k", "", "Number of items to steal; default 0. If 0, steal half. "),
 
 					 Option("D", "", "Depth (performance tweak, default 5)")]);
 
@@ -254,7 +284,7 @@ public class UTS {
 			// binomial options
 			val q:Double = opts ("-q", 15.0/64.0);
 			val mf:Int = opts ("-m", 4);
-			val k:Int = opts ("-k", mf);
+			val k:Int = opts ("-k", 0);
 
 			// hybrid options
 			val geo_to_bin_shift_depth_ratio:Double = opts ("-f", 0.5);
@@ -276,7 +306,7 @@ public class UTS {
 			Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
 			} else {
 				val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
-						()=>new BinomialState(qq, mf));
+						()=>new BinomialState(qq, mf,k));
 				var time:Long = System.nanoTime();
 				val nodes = st().main(st, b0, SHA1Rand(r));
 				time = System.nanoTime() - time;
