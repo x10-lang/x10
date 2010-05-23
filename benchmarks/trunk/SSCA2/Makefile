@@ -50,10 +50,10 @@ smp-clean:
 
 dist-1d: dist-1d-opt dist-1d-dbg
 
-dist-1d-opt:
+dist-1d-opt: sprng
 	$(MAKE) -C dist-1d OUTDIR=opt-gen dist-1d-opt
 
-dist-1d-dbg:
+dist-1d-dbg: sprng
 	$(MAKE) -C dist-1d OUTDIR=dbg-gen dist-1d-dbg
 
 dist-1d-clean: dist-1d-opt-clean dist-1d-dbg-clean
