@@ -25,7 +25,7 @@ export POSTCOMPILE_CXXFLAGS 	?= -q64 -w -DTRANSPORT=${PGASTRANSPORT} -qtemplater
 export POSTCOMPILE_LDFLAGS	?= -brtl -bbigtoc
 export POSTCOMPILE_LIBS		?= -ldl -lm -lpthread -lptools_ptr
 
-export POSTCOMPILE_OPTFLAGS		?= -O3 -qrtti=all -qinline -qtune=pwr5 -qarch=pwr5 -DNO_CHECKS -DNDEBUG
+export POSTCOMPILE_OPTFLAGS		?= -O3 -qrtti=all -qinline -qtune=auto -qarch=auto -DNO_CHECKS -DNDEBUG
 
 export POSTCOMPILE_DBGFLAGS	?= -g
 
