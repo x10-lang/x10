@@ -677,7 +677,7 @@ class BetweenessCentrality {
                kernel4.stop();
         }
          val elapsed_time = kernel4.elapsed()*1e-9;
-          x10.io.Console.OUT.println( "TEPS score for Kernel 4 is " +   ((7*GLOBALS.N*(1<<GLOBALS.K4Approx)) as double)/elapsed_time + "\n");
+          x10.io.Console.OUT.println( "TEPS score for Kernel 4 is " +   ((7 * (GLOBALS.N as Long) * (1<<GLOBALS.K4Approx) as Long) as double)/elapsed_time + "\n");
 
      }
 

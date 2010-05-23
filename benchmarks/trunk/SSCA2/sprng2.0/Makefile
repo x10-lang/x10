@@ -12,7 +12,7 @@ AR=${POSTCOMPILE_AR}
 ARFLAGS=${POSTCOMPILE_ARFLAGS}
 RANLIB=${POSTCOMPILE_RANLIB}
 FFXN = -DAdd__
-SPRNGCFLAGS = $(CFLAGS) -DLittleEndian 
+SPRNGCFLAGS = $(CFLAGS) #-DLittleEndian
 
 SPRNG_COMMON_DEPEND = primes_32.o primes_64.o \
 			  fwrap_mpi.o cputime.o \
