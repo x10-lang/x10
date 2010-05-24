@@ -84,7 +84,7 @@ public class Equality {
             return a.equals(b);
         }
     }
-    public static boolean equalsequals(Struct a, Struct b) { return a.equals(b); }
+    public static boolean equalsequals(Struct a, Struct b) { return a.structEquals(b); }
     public static boolean equalsequals(Ref a, Ref b) { return a == b; }
 
     public static boolean equalsequals(Object a, boolean b) { return equalsequals(a, (Object) b); }
@@ -109,7 +109,7 @@ public class Equality {
         if (a instanceof Number && b instanceof Number)
             return equalsNumbers(a, b);
         if (a instanceof Comparable) return ((Comparable) a).compareTo(b) == 0;
-        if (a instanceof Struct) return ((Struct) a).equals(b);
+        if (a instanceof Struct) return ((Struct) a).structEquals(b);
         
         return false;
     }

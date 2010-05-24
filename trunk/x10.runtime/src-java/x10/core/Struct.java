@@ -24,7 +24,7 @@ public abstract class Struct implements Any {
 
     public Struct() {}
 
-    public boolean equals(Object o) {
+    public boolean structEquals(Object o) {
         if (o == null)
             return false;
         if (o == this)
