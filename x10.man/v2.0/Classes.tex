@@ -4,53 +4,36 @@
 \section{Principles of X10 Objects}\label{XtenObjects}\index{Object}
 
 \subsection{Basic Design}
-An object is an instance of a scalar class or an array type.  It is
-created by using an allocation expression
-(\Sref{ClassCreation}) or an array creation
-(\Sref{ArrayInitializer}) expression, such as an array
-initializer. 
 
-All classes subclass from \xcd"x10.lang.Object".
-This class has one property \xcd"home" of type
-\xcd"x10.lang.Place". \index{place.home} Thus all objects in \Xten{}
-are located (have a place). 
+Objects are instances of classes: the most common and most powerful sort of
+value in X10.  The other kinds of values, structs and functions, are more
+specialized, better in some circumstances but not in all.
+\xcd"x10.lang.Object" is the most general class; all other classes inherit
+from it, directly or indirectly. 
 
-In \XtenCurrVer{} an object stays resident at the place at
-which it was created for its entire lifetime. However, the
-programmer may designate certain immutable field of an object
-as \Xcd{global}. The value of these fields is accessible 
-at every place the object can be referenced.
 
-{}\Xten{} has no operation to dispose of a reference.  Instead, the
-collection of all objects across all places is globally garbage
-collected.
+Unlike \java{}, {}\Xten{} objects do not have locks associated with them.
+Programmers should use atomic blocks (\Sref{AtomicBlocks}) for mutual
+exclusion and clocks (\Sref{XtenClocks}) for sequencing multiple parallel
+operations.
 
-Unlike \java{},
-{}\Xten{} objects do not have any synchronization information (e.g.,
-a lock) associated with them. 
-Instead, programmers should use atomic blocks
-(\Sref{AtomicBlocks}) for mutual exclusion and clocks
-(\Sref{XtenClocks}) for sequencing multiple parallel operations.
+\xcd`Object` has one property \xcd"home" of type
+\xcd"x10.lang.Place"\index{place.home}, telling where the object is located.
+Objects stay resident at the place at which they were created for their entire
+lifetime. However, the programmer may designate certain immutable field of an
+object as \Xcd{global}, accessible from everywhere.
 
-An object may have many references, stored in fields of
-objects or components of arrays. A change to an object made through
-one reference is visible through another reference. 
 
-Note that the creation of a remote async activity
-(\Sref{AsyncActivity}) \xcd"A" at \xcd"P" may cause the automatic creation of
-references to remote objects at \xcd"P". (A reference to a remote
-object is called a {\em remote object reference}, to a local object a
-{\em local object reference}.)  For instance \xcd"A" may be created
-with a reference to an object at \xcd"P" held in a variable referenced
-by the statement in \xcd"A".  Similarly the return of a value by a
-\xcd"future" may cause the automatic creation of a remote object
-reference, incurring some communication cost.  An {}\Xten{}
+Activities at places other than \xcd`ob.home` are allowed to have references
+to object \xcd`ob`.   These {\em remote references} do not grant all the
+privileges of a local reference; only \xcd`ob`'s \xcd`global` methods and
+fields are usable remotely. An X10
 implementation should try to ensure that the creation of a second or
 subsequent reference to the same remote object at a given place does
 not incur any (additional) communication cost.
 
 A reference to an object carries with it the values of  \Xcd{global} \xcd`val`
-fields
+fields 
 of the object. The implementation should try to ensure that the cost
 of communicating the values of \xcd`val` fields of an object from the
 place where it is hosted to any other place is not incurred more than
@@ -63,49 +46,37 @@ performed on the bound object, as indicated below. The operations on
 objects and object references include:
 \begin{itemize}
 
-{}\item Field access (\Sref{FieldAccess}). An activity holding a
-reference to an object may perform this operation only if the
-object is local.  (By contrast, an activity holding a reference to a struct
-may perform this operation regardless of the location of the struct, 
-since structs can be copied freely from place to place.).  The
-implementation should try to ensure that the cost of copying the field
-from the place where the object was created to the referencing place
-will be incurred at most once per referencing place, according to the
-rule for \xcd`val` fields discussed above.
+{}\item Field access (\Sref{FieldAccess}). 
+All fields can be accessed locally; only \xcd`global` fields can be accessed
+remotely.   \xcd`global` fields are more expensive than non-\xcd`global` ones,
+and should be used sparingly as needed.  Properties are global fields.
 
 {}\item Method invocation (\Sref{MethodInvocation}).  
 \label{GlobalAnnotation}
-A method may be
-marked \Xcd{global}. A \Xcd{global} method may be invoked at any
-place. It may access only the global fields of the object. The
-mutable fields of an object may be accessed only by activities
-operating in its home.  Any activity may use an \Xcd{at} statement
-to place-shift to the place of the object. Methods may also be
-marked \Xcd{pinned}, \Xcd{nonblocking}, \Xcd{sequential},
-\Xcd{safe}, and \Xcd{pure} (\Sref{MethodQualifier})..
+All methods can be accessed locally; only \xcd`global` methods can be accessed
+remotely.  \xcd`global` methods are no more expensive than local ones, and can
+be used freely where possible.  However, \xcd`global` methods can only perform
+a subset of operations (\Sref{GlobalMethod}).
 
-{}\item Casting (\Sref{ClassCast}).  An activity can perform this
-operation on local or remote objects, and should not incur
-communication costs (to bring over type information) more than once
-per place.
-
-{}\item \xcd"instanceof" operator (\Sref{instanceOf}).  An activity
-can perform this operation on local or remote objects, and should not
-incur communication costs (to bring over type information) more than
-once per place.
+{}\item Casting (\Sref{ClassCast}) and instance testing with \xcd`instanceof`
+(\Sref{instanceOf}) Objects can be cast or tested either locally or remotely.
+These operations involve the class and the object's properties, both of which
+are available globally.
 
 \item The equality operators \xcd"==" and \xcd"!="
 (\Sref{StableEquality}). On creation, each object is associated with a globally
-unique identifier (guid). Two object references are \xcd"==" iff they refer to objects
-with the  same guid.
+unique identifier. Two object references are \xcd"==" iff they refer to objects
+with the same identifier.
 
 \end{itemize}
 
-\Xten{} has a rather simple \emph{distributed object model}. 
+\subsection{Distributed Object Model}
 
 The state of an object is partitioned into \emph{global} state (a
 programmer defined subset of \Xcd{val} fields, \Sref{GlobalField}) and
-\emph{non-global} state.
+\emph{non-global} state.  Global state is available from anywhere without
+communication at the time of reference; non-global state is only available
+directly from the object's home place. 
 
  \begin{itemize}
 \item Field definitions are marked with the qualifier \Xcd{global} if
@@ -146,32 +117,23 @@ transmitted to \Xcd{P} it automatically becomes a local reference to
 to a remote reference simply cannot arise.
 
 The \Xten{} compiler ensures that non-global methods on \Xcd{o} can
-only be invoked in a place where \Xcd{here== o.home()}, i.e. the place
+only be invoked in a place where \Xcd{here == o.home()}, i.e. the place
 where \Xcd{o} was created.
 
 \paragraph{Implementation notes}
-Remote references to an object \Xcd{o} are intended to be implemented
-by serializing the global state of \Xcd{o} across the network,
-together with a globally unique id (guid). The data is deserialized at
-the receiver to create an implementation-level entity that is the
-remote reference. There is no requirement that the implementation
-intern such entities; however the implementation must correctly
-implement equality (see below).
-
-There is no requirement that a remote reference use only as much space as a local reference.
+Remote references to an object \Xcd{o} are intended to be implemented by
+serializing the global state of \Xcd{o} and sending it across the network,
+together with a globally unique id. The data is deserialized at the receiver
+to create an implementation-level entity that is the remote reference.
+There is no requirement that a remote reference use only as much space as a
+local reference; \eg, it is possible that remote references have space for
+global data, and local references do not.
 
   
-\paragraph{Local execution}
- The semantics of \Xcd{atomic} and \Xcd{when} constructs requires that their
- bodies do not execute any \Xcd{at} operations, implicitly or
- explicitly. Hence the compiler must establish that if a non-global method
-\Xcd{m} is being invoked on a reference \Xcd{o} in the body of such a construct,
- then \Xcd{o} is a local reference. This can be done using place types (\Sref{PlaceType}).
 
   
-\subsection{Examples}
-Assume the class declarations. 
-
+\subsection{Examples of Local and Remote References}
+Given the class declarations: 
 \begin{xten}
 class C { } 
 class D {
@@ -180,7 +142,9 @@ class D {
 \end{xten}
 
 %%TODO--Add a variant of the following code to the test suite
-Then the following code behaves as stated.
+Let \xcd`P` and \xcd`Q` be different places, neither equal to \xcd`here`.
+Then all of the \xcd`truly(b)`'s in the following code have \xcd`b==true`.
+The locality of references is described in comments.
 %~~gen
 % package objects.dwiffle.and.a.half.a.moon;
 % class C { } 
@@ -188,23 +152,24 @@ Then the following code behaves as stated.
 %    var f:C=null;
 % }
 % class Fudders {
+% global def truly(b:Boolean) {}
 % def plongent(P:Place, Q:Place) throws Exception {
 %~~vis
 \begin{xten}
 
 val x = new C(); 
-// C object o1 created, reference stored in x. 
+// C object o1 created, local reference stored in x. 
 at (P) { 
-      // In the body x contains a remote reference to o
+      // In the body x contains a remote reference to o1
       val d = new D();
       d.f  = x; // remote reference stored in d.f
-      Console.OUT.println(d.f == x);        // must print true
-      Console.OUT.println(x == x);          // must print true
+      truly(d.f == x);        
+      truly(x == x);          
       at (Q) { 
          // x continues to be a remote reference to o1.
          at (P) {  
-             Console.OUT.println(d.f == x);   // must print true
-             Console.OUT.println(x == x);   // must print true
+             truly(d.f == x); 
+             truly(x == x);   
          }
       }
 }
@@ -246,150 +211,45 @@ at (P) {
 %}}
 %~~neg
  
-\subsection{Programming Methodology}
-
-A programmer wishing to ensure that a \Xcd{val} field is not serialized when
-the containing object is serialized (e.g. because it contains a large
-cache which makes sense only in the current place) must ensure the
-field is \emph{not} marked global.
-
-
-
+\subsection{Class Declaration Syntax}
 
 The {\em class declaration} has a list of type \params, properties, a
-constraint (the {\em class invariant}), a single superclass, one or
-more interfaces, and a class body containing the the definition of
-fields, properties, methods, and member types.  Each such declaration introduces a
+constraint (the {\em class invariant}), a single superclass, zero or more
+interfaces, and a class body containing the the definition of fields,
+properties, methods, and member types. Each such declaration introduces a
 class type (\Sref{ReferenceTypes}).
 
+\bard{Redo grammar}
 
-\begin{grammar}
-NormalClassDeclaration \:
-      ClassModifiers\opt \xcd"class" Identifier  \\
-   && TypeParameterList\opt PropertyList\opt Guard\opt \\
-   && Super\opt Interfaces\opt ClassBody \\
-\\
-TypeParameterList     \:  \xcd"[" TypeParameters \xcd"]" \\
-TypeParameters        \:  TypeParameter ( \xcd"," TypeParameter )\star \\
-TypeParameter         \:  Variance\opt Annotation\star Identifier     \\
-Variance \: \xcd"+" \\
-         && \xcd"-" \\
-\\
-PropertyList     \:  \xcd"(" Properties \xcd")" \\
-Properties       \:  Property ( \xcd"," Property )\star \\
-Property         \:  Annotation\star \xcd"val"\opt Identifier \xcd":" Type \\
-\\
-Super \: \xcd"extends" ClassType \\
-Interfaces \: \xcd"implements" InterfaceType ( \xcd"," InterfaceType)\star \\
-\\
-ClassBody \: ClassMember\star \\
-ClassMember \: ClassDeclaration \\
-            \| InterfaceDeclaration \\
-            \| FieldDeclaration \\
-            \| MethodDeclaration \\
-            \| ConstructorDeclaration \\
-\end{grammar}
-
-A type parameter declaration is given by an optional variance tag and an identifier.
-A type parameter must be bound to a concrete type when an instance of the class is created.
+%%OW  
+%%OW  \begin{grammar}
+%%OW  NormalClassDeclaration \:
+%%OW        ClassModifiers\opt \xcd"class" Identifier  \\
+%%OW     && TypeParameterList\opt PropertyList\opt Guard\opt \\
+%%OW     && Super\opt Interfaces\opt ClassBody \\
+%%OW  \\
+%%OW  TypeParameterList     \:  \xcd"[" TypeParameters \xcd"]" \\
+%%OW  TypeParameters        \:  TypeParameter ( \xcd"," TypeParameter )\star \\
+%%OW  TypeParameter         \:  Variance\opt Annotation\star Identifier     \\
+%%OW  Variance \: \xcd"+" \\
+%%OW           && \xcd"-" \\
+%%OW  \\
+%%OW  PropertyList     \:  \xcd"(" Properties \xcd")" \\
+%%OW  Properties       \:  Property ( \xcd"," Property )\star \\
+%%OW  Property         \:  Annotation\star \xcd"val"\opt Identifier \xcd":" Type \\
+%%OW  \\
+%%OW  Super \: \xcd"extends" ClassType \\
+%%OW  Interfaces \: \xcd"implements" InterfaceType ( \xcd"," InterfaceType)\star \\
+%%OW  \\
+%%OW  ClassBody \: ClassMember\star \\
+%%OW  ClassMember \: ClassDeclaration \\
+%%OW              \| InterfaceDeclaration \\
+%%OW              \| FieldDeclaration \\
+%%OW              \| MethodDeclaration \\
+%%OW              \| ConstructorDeclaration \\
+%%OW  \end{grammar}
+%%OW  
  
-\subsection{Properties}
-\label{PropertiesInClasses}
-
-A property has a name and a type.   Properties
-are accessible in the same way as \xcd"public" \xcd"val"
-fields.
-
-\begin{staticrule*}
-It is a compile-time error for a class
-defining a property \xcd"x: T" to have an ancestor class that defines
-a property with the name \xcd"x".  
-\end{staticrule*}
-
-Each class \xcd"C" defining a property \xcd"x: T" implicitly has a field
-
-\begin{xten}
-public val x : T;
-\end{xten} 
-
-\noindent and a getter method
-
-\begin{xten}
-public final def x()=x;
-\end{xten}
-
-\noindent Each interface \xcd"I" defining a property \xcd"x: T"
-implicitly has a getter method
-
-\begin{xten}
-public def x(): T;
-\end{xten}
-
-\begin{staticrule*}
-It is a compile-time error for a class or
-interface defining a property \xcd"x :T" to have an existing method with
-the signature \xcd"x(): T".
-\end{staticrule*}
-
-Properties are used to build dependent types from classes, as
-described in \Sref{DepType:DepType}.
-
-Properties are initialized by the invocation of a special \Xcd{property} call in each constructor
-of the class:
-\begin{xten}
-property(e1,..., en);
-\end{xten}
-The number and type of arguments to the \Xcd{property} call must match the number
-and type of properties in the class declaration, in left to right lexical order. Each constructor is required to initialize its properties before normal termination.
-\index{property!call}
-\index{property!initialization}
-\label{PropertyCall}
-
-\label{ClassGuard}
-
-The \grammarrule{Guard} in a class or interface declaration specifies an
-explicit condition on the properties of the type, and is discussed further
-in \Sref{DepType:ClassGuard}.
-
-\begin{staticrule*}
-     Every constructor for a class defining
-   properties \xcdmath"x$_1$: T$_1$, $\ldots$, x$_n$: T$_n$" must ensure that each of the fields
-   corresponding to the properties is definitely initialized
-   (cf. requirement on initialization of final fields in Java) before the
-   constructor returns.
-\end{staticrule*}
-
-Type \params{} are used to define generic classes and
-interfaces, as described in \Sref{Generics}.
-
-Classes are structured in a single-inheritance code
-hierarchy, may implement multiple interfaces, may have static and
-instance fields, may have static and instance methods, may have
-constructors, may have static and instance initializers, may have
-static and instance inner classes and interfaces. \Xten{} does not
-permit mutable static state.
-
-Method signatures may specify checked exceptions. Method definitions
-may be overridden by subclasses; the overriding definition may have a
-declared return type that is a subclass of the return type of the
-definition being overridden. Multiple methods with the same name but
-different signatures may be provided on a class (ad hoc
-polymorphism). The \Xcd{public}/\Xcd{private}/\Xcd{protected}/default-protected access
-modification framework may be used.
-
-
-\oldtodo{Figure out class modifiers. Figure out which new ones need to be added to support IEEE FP.}
-
-\index{class}\label{ReferenceClasses}
-
-Class declarations may
-be used to construct class types (\Sref{ReferenceTypes}). Classes may
-have mutable fields. Instances of a class are always created in a
-fixed place and in \XtenCurrVer{} stay there for the lifetime of the
-object.  Variables declared at a class type always store a reference
-to the object, regardless of whether the object is local or remote.
-
-
 \section{Type invariants}\label{DepType:ClassGuard}
 \index{type invariants}
 \index{class invariants}
@@ -822,29 +682,9 @@ references (including itself) returns.
 This example shows how to create a fixed-size circular buffer.
 (Its pointer structure is immutable, though the contents of each
 field are mutable.)
-{\footnotesize
 
-%~~gen
-% package CircularBuffers.Are.For.The.Weak.And.Sickly.And.Also.Klingons.And.Romulans;
-%~~vis
-\begin{xten}
-class  CircularBuffer[A] {
-  var a: A;
-  val next: CircularBuffer[A];
-  private def this(x: proto CircularBuffer[A]): proto CircularBuffer[A] {
-    next = x;
-  }
-  def this(var n:Int) {
-    var temp: proto CircularBuffer[A] = this;
-    while (--n > 0) 
-      temp = new CircularBuffer[A](temp);
-    next = temp;
-  }
-}
-\end{xten}}
-%~~siv
-%
-%~~neg
+\bard{Write this example}
+
 
 \end{example}
 \section{Field definitions}
@@ -888,6 +728,103 @@ A \Xcd{global} field must be immutable. It may be read from any place.
 Properties and static fields are implicitly marked \Xcd{global}.
 Fields not marked \Xcd{global} cannot be overridden by fields marked
 \Xcd{global}.
+
+\section{Properties}
+\label{PropertiesInClasses}
+
+A property has a name and a type.   Properties
+are accessible in the same way as \xcd"public" \xcd"val"
+fields.
+
+\begin{staticrule*}
+It is a compile-time error for a class
+defining a property \xcd"x: T" to have an ancestor class that defines
+a property with the name \xcd"x".  
+\end{staticrule*}
+
+Each class \xcd"C" defining a property \xcd"x: T" implicitly has a field
+
+\begin{xten}
+public val x : T;
+\end{xten} 
+
+\noindent and a getter method
+
+\begin{xten}
+public final def x()=x;
+\end{xten}
+
+\noindent Each interface \xcd"I" defining a property \xcd"x: T"
+implicitly has a getter method
+
+\begin{xten}
+public def x(): T;
+\end{xten}
+
+\begin{staticrule*}
+It is a compile-time error for a class or
+interface defining a property \xcd"x :T" to have an existing method with
+the signature \xcd"x(): T".
+\end{staticrule*}
+
+Properties are used to build dependent types from classes, as
+described in \Sref{DepType:DepType}.
+
+Properties are initialized by the invocation of a special \Xcd{property} call in each constructor
+of the class:
+\begin{xten}
+property(e1,..., en);
+\end{xten}
+The number and type of arguments to the \Xcd{property} call must match the number
+and type of properties in the class declaration, in left to right lexical order. Each constructor is required to initialize its properties before normal termination.
+\index{property!call}
+\index{property!initialization}
+\label{PropertyCall}
+
+\label{ClassGuard}
+
+The \grammarrule{Guard} in a class or interface declaration specifies an
+explicit condition on the properties of the type, and is discussed further
+in \Sref{DepType:ClassGuard}.
+
+\begin{staticrule*}
+     Every constructor for a class defining
+   properties \xcdmath"x$_1$: T$_1$, $\ldots$, x$_n$: T$_n$" must ensure that each of the fields
+   corresponding to the properties is definitely initialized
+   (cf. requirement on initialization of final fields in Java) before the
+   constructor returns.
+\end{staticrule*}
+
+Type \params{} are used to define generic classes and
+interfaces, as described in \Sref{Generics}.
+
+Classes are structured in a single-inheritance code
+hierarchy, may implement multiple interfaces, may have static and
+instance fields, may have static and instance methods, may have
+constructors, may have static and instance initializers, may have
+static and instance inner classes and interfaces. \Xten{} does not
+permit mutable static state.
+
+Method signatures may specify checked exceptions. Method definitions
+may be overridden by subclasses; the overriding definition may have a
+declared return type that is a subclass of the return type of the
+definition being overridden. Multiple methods with the same name but
+different signatures may be provided on a class (ad hoc
+polymorphism). The \Xcd{public}/\Xcd{private}/\Xcd{protected}/default-protected access
+modification framework may be used.
+
+
+\oldtodo{Figure out class modifiers. Figure out which new ones need to be added to support IEEE FP.}
+
+\index{class}\label{ReferenceClasses}
+
+Class declarations may
+be used to construct class types (\Sref{ReferenceTypes}). Classes may
+have mutable fields. Instances of a class are always created in a
+fixed place and in \XtenCurrVer{} stay there for the lifetime of the
+object.  Variables declared at a class type always store a reference
+to the object, regardless of whether the object is local or remote.
+
 
 \section{Method definitions}
 

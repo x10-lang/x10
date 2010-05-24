@@ -114,30 +114,40 @@ class Circle implements KnowsPi {
 
 \subsection{Fine Points of Fields}
 
-It is a static error for two fields of an interface to have the same name.
-This can happen accidentally due to multiple inheritance.  The following
-example is wrong: 
+It can happen that two parent interfaces give fields of the same name.  In
+that case, those fields must be referred to by qualified names.
+%~fails~gen
+%
+%~fails~vis
 \begin{xten}
 interface E1 {static val a = 1;}
-interface E2 {static val a = 1;}
+interface E2 {static val a = 2;}
 interface E3 extends E1, E2{}
+class Example implements E3 {
+  def example() = E1.a + E2.a;
+}
 \end{xten}
+%~fails~siv
+%
+%~fails~neg
 
-However, it is not
-an error to have one field inherited repeatedly via different paths.  So, the
-following example is correct: 
-%~~gen
+If the {\em same} field \xcd`a` is inherited through many paths, there is no need to
+disambiguate it:
+%~fails~gen
 % package Interfaces.Mult.Inher.Field;
-%~~vis
+%~fails~vis
 \begin{xten}
 interface I1 { static val a = 1;} 
 interface I2 extends I1 {}
 interface I3 extends I1 {}
 interface I4 extends I2,I3 {}
+class Example implements I4 {
+  def example() = a;
+}
 \end{xten}
-%~~siv
+%~fails~siv
 %
-%~~neg
+%~fails~neg
 
 \section{Interfaces Specifying Properties}
 
