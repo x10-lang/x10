@@ -73,47 +73,48 @@ public class UTS {
 		}
 	}
 	*/
-	static final class BinomialState {
+    static final class BinomialState {
 
-		const STATE_PLACE_ZERO = 0; // the first place does not use a state machine, use this value as placeholder
-		const STATE_STEALING = 1; // actively stealing work from other places
-		const STATE_ARRESTED = 2; // no-longer stealing but still alive and could potentially steal again
-		const STATE_DEATH_ROW = 3; // will soon be dead, will never steal again
+	const STATE_PLACE_ZERO = 0; // the first place does not use a state machine, use this value as placeholder
+	const STATE_STEALING = 1; // actively stealing work from other places
+	const STATE_ARRESTED = 2; // no-longer stealing but still alive and could potentially steal again
+	const STATE_DEATH_ROW = 3; // will soon be dead, will never steal again
+	
+	// places > 0 start off life stealing
+	var state:Int = here == Place.FIRST_PLACE ? STATE_PLACE_ZERO : STATE_STEALING;
 
-		// places > 0 start off life stealing
-		var state:Int = here == Place.FIRST_PLACE ? STATE_PLACE_ZERO : STATE_STEALING;
+	val stack = new Stack[SHA1Rand]();
 
-		val stack = new Stack[SHA1Rand]();
+	// params that define the tree
+	val q:Long, m:Int, k:Int, nu:Int;
 
-		// params that define the tree
-		val q:Long, m:Int, k:Int;
-		var nodesCounter:UInt = 0;
-		var stealsAttempted:UInt = 0;
-		var stealsPerpetrated:UInt = 0;
-		var stealsReceived:UInt = 0;
-		var stealsSuffered:UInt = 0;
-		var nodesGiven:UInt = 0;
-		var nodesReceived:UInt = 0;
-		val myRandom = new Random();
-		public def this (q:Long, m:Int, k:Int) {
-			this.q = q; this.m = m; this.k=k;
-		}
+	var nodesCounter:UInt = 0;
+	var stealsAttempted:UInt = 0;
+	var stealsPerpetrated:UInt = 0;
+	var stealsReceived:UInt = 0;
+	var stealsSuffered:UInt = 0;
+	var nodesGiven:UInt = 0;
+	var nodesReceived:UInt = 0;
+	val myRandom = new Random();
+	public def this (q:Long, m:Int, k:Int, nu:Int) {
+	    this.q = q; this.m = m; this.k=k; this.nu=nu;
+	}
 
-		def processSubtree (rng:SHA1Rand) {
-			processSubtree(rng, (rng() < q) ? m : 0);
-		}
-		def processSubtree (rng:SHA1Rand, numChildren:Int) {
-			nodesCounter++;
-			/* Iterate over all the children and push on stack. */
-			for (var i:Int=0 ; i<numChildren ; ++i) 
-				stack.push(SHA1Rand(rng, i));
-		}
+	def processSubtree (rng:SHA1Rand) {
+	    processSubtree(rng, (rng() < q) ? m : 0);
+	}
+	def processSubtree (rng:SHA1Rand, numChildren:Int) {
+	    nodesCounter++;
+	    /* Iterate over all the children and push on stack. */
+	    for (var i:Int=0 ; i<numChildren ; ++i) 
+		stack.push(SHA1Rand(rng, i));
+	}
 
-	    def processStack() {
+	def processStack() {
 		var count:Int=0;
 		while (stack.size() > 0) {
 		    processSubtree(stack.pop());
-		    if (count++ % 200 == 0) 
+		    if (count++ % nu == 0) 
 			Runtime.probe();
 		}
 	    }
@@ -145,8 +146,11 @@ public class UTS {
 		    if (steal_result!=null) {
 			stealsPerpetrated++;
 			nodesReceived += steal_result.length();
+			var count:Int=0;
 			for (r in steal_result) {
 			    processSubtree(r);
+			    if (count++ % nu == 0) 
+				Runtime.probe();
 			}
 			return true;
 		    }
@@ -158,7 +162,7 @@ public class UTS {
 		while (state != STATE_DEATH_ROW) {
 		    while (state == STATE_STEALING) {
 			attemptSteal(st);
-			Runtime.probe(); // have to check that we've not been arrested
+			Runtime.probe(); // have to check for arrest.
 			processStack();
 		    }
 		    // We are not in STATE_STEALING.
@@ -183,7 +187,8 @@ public class UTS {
 		    STEAL_LOOP:
 		    while (true) {
 			processStack();
-			// Place 0 ran out of work *BUT* there may be work elsewhere that was stolen, 
+			// Place 0 ran out of work *BUT* there 
+			// may be work elsewhere that was stolen, 
 			// so try to steal some back
 			if (attemptSteal(st)) 
 			    continue STEAL_LOOP;
@@ -290,12 +295,13 @@ public class UTS {
 				   Option("q", "", "BIN: probability of a non-leaf node"),
 				   Option("m", "", "BIN: number of children for non-leaf node"),
 				   
-				   Option("f", "", "Hybrid switch-over depth "),
 				   
 				   Option("k", "", "Number of items to steal; default 0. If 0, steal half. "),
 				   Option("v", "", "Verbose, default 0 (no)."),
+				   Option("n", "", "Number of nodes to process before probing.")
+				   ]);
 				   
-				   Option("D", "", "Depth (performance tweak, default 5)")]);
+
 	    
 	    val tree_type:Int = opts ("-t", 0);
 	    
@@ -303,6 +309,7 @@ public class UTS {
 	    val seq = opts("-s", 0);
 	    val r:Int = opts ("-r", 0);
 	    val verbose = opts("-v",0)==1;
+	    val nu:Int = opts("-n",200);
 
 	    // geometric options
 	    val geo_tree_shape_fn:Int = opts ("-a", 0);
@@ -333,7 +340,7 @@ public class UTS {
 		Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
 	    } else {
 		val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
-							      ()=>new BinomialState(qq, mf,k));
+							      ()=>new BinomialState(qq, mf,k,nu));
 		var time:Long = System.nanoTime();
 		st().main(st, b0, SHA1Rand(r));
 		time = System.nanoTime() - time;
