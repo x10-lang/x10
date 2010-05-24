@@ -154,8 +154,7 @@ for ((i) in 0..sourceList.length-1) {
 
                val bc = new BetweenessCentrality(pg_real, USE_ASYNC, FILTER, SCALE);
                bc.compute(GLOBALS);
-               //if (SERIAL_GRAPH_GEN==true) 
-               //bc.dump();
+               if (SERIAL_GRAPH_GEN==true && SCALE < 10) bc.dump();
 
                PTimer.printDetailed();
 	}

@@ -69,6 +69,8 @@ class BetweenessCentrality {
      global val pg: defs.pGraph;
 
 
+     global val alltoallv_timer : PTimer;
+
      public static  def computeInDegree(val pg: defs.pGraph) {
 
            val unique = Dist.makeUnique();
@@ -93,7 +95,7 @@ class BetweenessCentrality {
        */
      public def this(pg: defs.pGraph, val use_async: Boolean, val filter: Boolean, val SCALE: types.INT_T) {
 
-
+            alltoallv_timer = PTimer.make("alltoallv");
 
 
              val unique = Dist.makeUnique();
@@ -236,7 +238,9 @@ class BetweenessCentrality {
                  }
                 }
 
+             alltoallv_timer.start();
                  if (Place.MAX_PLACES > 1) world.alltoallv[VDSTriplet](N, L);
+             alltoallv_timer.stop();
 
                   //for ((k) in 0..L.length()-1) {
                   for (var k: Int = 0; k <L.length(); k++) {
@@ -570,7 +574,10 @@ class BetweenessCentrality {
                 }
               }
 
+             alltoallv_timer.start();
 	      if (Place.MAX_PLACES > 1) world.alltoallv[UVDSQuad](N,L);
+             alltoallv_timer.stop();
+
               //world.barrier();
 
                    
