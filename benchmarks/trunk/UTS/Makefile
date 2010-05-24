@@ -2,12 +2,12 @@
 
 # <BEGIN> user settings #
 
-export X10CXX 		?= x10c++
+export X10CXX 		?= ~/x10-trunk/x10.dist/bin/x10c++
 
 #leave blank by default, let x10c++ choose a sensible default
-#export X10RTTRANSPORT	?= -x10rt pgas_lapi
+export X10RTTRANSPORT	?= 
 
-export X10CXXFLAGS 	?= -report postcompile=5 $(X10RTTRANSPORT)
+export X10CXXFLAGS 	?= -report postcompile=5 
 
 # <END> user settings #
 
@@ -28,7 +28,6 @@ ifeq ($(BGP_CROSS_COMPILE), 1)
 endif
 
 X10RUN?=runx10
-X10CXX?=x10c++ 
 X10CXXFLAGS=-report postcompile=5 $(X10RT_TRANSPORT)
 
 HEADERS=sha_endian.h \
@@ -51,10 +50,10 @@ uts: uts.cpp sha1_rand.hpp libsha1.a
 	${CXX} ${CXXFLAGS} $< -o $@ -L. -lsha1
 
 UTS: UTS.x10 sha1_rand.hpp sha1.c
-	${X10CXX} -O -NO_CHECKS ${X10CXXFLAGS} $< -o $@ -report postcompile=5	
+	${X10CXX} -v -NO_CHECKS -O  ${X10CXXFLAGS} ${X10RTTRANSPORT} $< -o $@ 
 
 run-UTS: UTS
-	${X10RUN} ./UTS
+	mpirun -np 4 -hostfile host.list ./UTS -r 42 -b 2000 -m 8 -q 0.124975
 	#${X10RUN} gdb ./UTS
 
 test: Sha1Rand.cpp libsha1.a
