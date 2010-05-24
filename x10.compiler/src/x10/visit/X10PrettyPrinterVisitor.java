@@ -320,6 +320,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			boxPrimitives = false;
 		if (mi.name() == Name.make("equals") && mi.formalTypes().size() == 1)
 			boxPrimitives = false;
+        if (mi.name() == Name.make("structEquals") && mi.formalTypes().size() == 1)
+            boxPrimitives = false;
 		if (mi.name() == Name.make("hasNext") && mi.formalTypes().size() == 0)
 			boxPrimitives = false;
 
