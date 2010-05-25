@@ -1,7 +1,10 @@
 package ssca2;
 
 import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
 import x10.util.*;
+
+ @NativeCPPInclude("pgasrt.h") {} 
 
 final public class Comm {
 

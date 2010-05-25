@@ -26,7 +26,6 @@ ifeq ($(BGP_CROSS_COMPILE), 1)
    include arch/bgp.mk
 endif
 
-
 all: sprng all_dbg all_opt
 
 sprng:

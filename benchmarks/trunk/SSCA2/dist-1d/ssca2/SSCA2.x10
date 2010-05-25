@@ -62,7 +62,7 @@ class SSCA2 {
 		
 		val SCALE = Int.parseInt(args(1));
 
-		val USE_ASYNC = args.length > 2 ?  Boolean.parseBoolean(args(2)) : false;
+		val DUMP = args.length > 2 ?  Boolean.parseBoolean(args(2)) : false;
 
 		val SERIAL_GRAPH_GEN = args.length > 3 ? Boolean.parseBoolean(args(3)) : false;
 
@@ -72,6 +72,8 @@ class SSCA2 {
 		val NOSELF = args.length > 6 ? Boolean.parseBoolean(args(6)) : true;
 		val ALLGATHER = args.length > 7 ?  Boolean.parseBoolean(args(7)) : false;
 	
+		val USE_ASYNC = args.length > 8 ?  Boolean.parseBoolean(args(8)) : false;
+
                 x10.io.Console.OUT.println( SERIAL_GRAPH_GEN + " " + " " + FILTER + " " + CUTSHORT + " " +  USE_ASYNC + " " + NOSELF + " "  + ALLGATHER);
 	
 		x10.io.Console.OUT.println("HPCS SSCA#2 Graph Analysis Benchmark v2.0");
@@ -154,7 +156,7 @@ for ((i) in 0..sourceList.length-1) {
 
                val bc = new BetweenessCentrality(pg_real, USE_ASYNC, FILTER, SCALE);
                bc.compute(GLOBALS);
-               if (SERIAL_GRAPH_GEN==true && SCALE < 10) bc.dump();
+               if (DUMP) bc.dump();
 
                PTimer.printDetailed();
 	}

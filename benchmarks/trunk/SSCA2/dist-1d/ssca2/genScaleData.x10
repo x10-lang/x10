@@ -2,6 +2,11 @@ package ssca2;
 
 import x10.util.*;
 import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
+
+ @NativeCPPInclude("iostream") {}
+ @NativeCPPInclude("algorithm") {}
+ @NativeCPPInclude("sprng.h") {}
 
 public class genScaleData  {
 	

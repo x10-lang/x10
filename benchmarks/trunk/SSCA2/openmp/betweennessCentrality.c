@@ -454,7 +454,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC, int filter) {
     }
 #endif
 
-    for (i = 0; i < G->n; i++) printf ("BC: %d %f\n",i, BC[i]);
+    for (int i = 0; i < G->n; i++) printf ("BC: %d %f\n",i, BC[i]);
     return elapsed_time;
 }
 

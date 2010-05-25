@@ -18,6 +18,7 @@ ssca2/Quad.x10
 
 CSRCS= \
 $(OUTDIR)/ssca2/BetweenessCentrality.cc\
+$(OUTDIR)/ssca2/BetweenessCentrality__WrapRail.cc\
 $(OUTDIR)/ssca2/PTimer.cc\
 $(OUTDIR)/ssca2/SSCA2.cc\
 $(OUTDIR)/ssca2/genScaleData.cc\
@@ -64,6 +65,7 @@ $(OUTDIR)/ssca2/computeGraph_dist.o\
 $(OUTDIR)/ssca2/getStartLists_dist.o\
 $(OUTDIR)/ssca2/findSubGraphs_dist.o\
 $(OUTDIR)/ssca2/BetweenessCentrality.o\
+$(OUTDIR)/ssca2/BetweenessCentrality__WrapRail.o\
 $(OUTDIR)/ssca2/PTimer.o
 
 .SUFFIXES: .cc .cxx .cpp .C .c .o .h .x10
@@ -73,11 +75,6 @@ LIBS = -L$(X10HOME)/lib -lx10 -lx10rt_$(X10RTTRANSPORT)
 NATIVE_LIBS = $(PWD)/sprng2.0/lib/libsprng.a
 
 FINAL = $(OUTDIR)/ssca2
-
-NATIVE_INCLUDES=  ${POSTCOMPILE_INCLUDEOPT}$(PWD)/sprng2.0/include/sprng.h ${POSTCOMPILE_INCLUDEOPT}iostream ${POSTCOMPILE_INCLUDEOPT}algorithm
-
-NATIVE_INCLUDES += ${POSTCOMPILE_INCLUDEOPT}pgasrt.h
-
 
 dist-1d-dbg: 
 	rm -f templateregistry
@@ -109,4 +106,4 @@ $(FINAL)-dbg: $(CCSRCS) $(OBJS)
 	${POSTCOMPILE_CXX}  $(OPT) $(POSTCOMPILE_CXXFLAGS) -o $@ $(OBJS)  $(LIBS) $(POSTCOMPILE_LDFLAGS) $(POSTCOMPILE_LIBS) $(NATIVE_LIBS)
 
 .cc.o:
-	time $(POSTCOMPILE_CXX) $(OPT) $(POSTCOMPILE_CXXFLAGS) -I$(OUTDIR) -I$(X10HOME)/include $(NATIVE_INCLUDES) -c $< -o $@
+	time $(POSTCOMPILE_CXX) $(OPT) $(POSTCOMPILE_CXXFLAGS) -I$(OUTDIR) -I$(X10HOME)/include -I$(PWD)/sprng2.0/include -c $< -o $@
