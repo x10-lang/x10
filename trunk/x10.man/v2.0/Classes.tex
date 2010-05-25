@@ -254,21 +254,33 @@ class type (\Sref{ReferenceTypes}).
 
 
 
-\section{Field definitions}
+\section{Fields}
 \label{FieldDefinitions}
 
-A class may have zero or more mutable or immutable fields. 
-No two fields declared in a class may have the same name. 
+Objects may have {\em instance fields}, or simply {\em fields}: places to
+store data that is pertinent to the object. Fields, like variables, may be
+either mutable (\xcd`val`) or immutable (\xcd`var`).
 
-Fields may be marked \xcd{static}. Only one instance of such a field
-exists, and it may be accessed through the name of the class in which
-it is defined (\Sref{StaticInitialization}).  Fields not marked
-\xcd{static} are said to be {\em instance} fields. One copy of such a
-field exists for every instance of the class.
+Class may have {\em static fields}, which store data pertinent to the
+entire class of objects.   Static fields are global, \viz{} they may be
+accessed from any place.  Like all globals, static fields must be immutable
+(\xcd`val`).  See \Sref{StaticInitialization} for more information.
 
+No two fields of the same class may have the same name.
 To avoid an ambiguity, it is a static error for a class to
 declare a field with a function type (\Sref{FunctionTypes}) with
-the same name and signature  as a method of the same class.
+the same name and signature  as a method of the same class.  
+(Consider the class 
+\begin{xten}
+class Crash {
+  val f : (Int) => Boolean = (Int)=>true;
+  def f(Int) = false;
+}
+\end{xten}
+\noindent
+Then \xcd`crash.f(3)` might either mean ``call the function \xcd`crash.f` on
+argument \xcd`3`'', or ``invoke the method \xcd`f` on argument \xcd`3`''.)
+
 
 \subsection{Field hiding}
 
@@ -276,6 +288,49 @@ A subclass that defines a field \xcd"f" hides any field \xcd"f"
 declared in a superclass, regardless of their types.  The
 superclass field \xcd"f" may be accessed within the body of
 the subclass via the reference \xcd"super.f".
+
+%~~gen
+% package classes.fields.primus;
+%~~vis
+\begin{xten}
+class Super{ 
+  val f = 1; 
+}
+class Sub extends Super {
+  val f = true;
+  def superf() : Int = super.f; // 1
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+With inner classes, it is occasionally necessary to 
+write \xcd`Cls.super.f` to get at a hidden field \xcd`f` of an outer class
+\xcd`Cls`, as in 
+%~~gen
+% package classes.fields.secundus;
+%~~vis
+\begin{xten}
+class A {
+   global val f = 3;
+}
+class B extends A {
+   global val f = 4;
+   class C extends B {
+      val f = 5;
+      def foo()
+         = f          // 5
+         + super.f    // 4
+         + B.this.f   // 4 (the "f" of the outer instance)
+         + B.super.f; // 3 (the "super.f" of the outer instance)
+    }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
 
 \subsection{Field qualifiers}
 \label{FieldQualifier}
