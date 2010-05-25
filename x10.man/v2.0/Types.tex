@@ -1257,23 +1257,107 @@ Two types are {\em equivalent}, \xcd`T == U`, if \xcd`T <: U` and \xcd`U <: T`.
 \section{Common ancestors of types}
 \label{LCA}
 
-\bard{This is a troublesome topic.  It is necessary to compute some common
-ancestor of types: the conditional expression \xcd`t ? a : b` 
-and a function with multiple return sites 
-\xcd`def f(x:Int) { ... return a; ... return b; ...}`
-will be given some type generalizing both 
-\xcd`typeof(a)` and \xcd`typeof(b)`.
-However, both the constraint system and covariant generic types allow the
-possibility of types without a {\bf least} common ancestor. 
-Current concept: X10 may compute any common ancestor, possibly all the way to
-\xcd`Any`. However, it will try to compute a good one. 
-guarantee that if the types of \xcd`a` and \xcd`b` are
-identical, the common ancestor chosen is that type too.  If the types are
-\xcd`T{e}` and \xcd`T{f}`, the common ancestor will be \xcd`T{g}` for some
-\xcd`g` (entailed by both \xcd`e` and \xcd`f` -- perhaps just \xcd`true`). 
+There are several situations where X10 must find a type \xcd`T` that describes
+values of two or more different types.  This arises when X10 is trying to find
+a good type to describe: 
+\begin{itemize}
+%~~exp~~`~~`~~test:Boolean ~~
+\item Conditional expressions, like \xcd`test ? 0 : "non-zero"` or even 
+%~~exp~~`~~`~~test:Boolean ~~
+      \xcd`test ? 0 : 1`;
+%~~exp~~`~~`~~ ~~
+\item ValRail construction, like \xcd`[0, "non-zero"]` and 
+%~~exp~~`~~`~~ ~~
+      \xcd`[0,1]`;
+\item Functions with multiple returns, like
+%~~gen
+% package Types.For.Gripes.About.Pipes;
+% class Examplerator {
+%~~vis
+\begin{xten}
+def f(a:Int) {
+  if (a == 0) return 0;
+  else return "non-zero";
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+\end{itemize}
+
+In some cases, there is a unique best type describing the expression.  For
+example, if \xcd`B` and \xcd`C` are direct subclasses of \xcd`A`, \xcd`pick`
+will have return type \xcd`A`: 
+%~~gen
+% package Types.For.Gripes.About.Pipes;
+%  class A {} class B extends A{} class C extends A{}
+% class D {
+%~~vis
+\begin{xten}
+static def pick(t:Boolean, b:B, c:C) = t ? b : c;  
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+However, in many common cases, there is no unique best type describing the
+expression.  For example, consider the expression {$E=$} \xcd`b ? 0 : 1`.  The
+best type of \xcd`0` 
+is \xcd`Int{self==0}`, and the best type of 1 is \xcd`Int{self==1}`.
+Certainly {$E$} could be given the type \xcd`Int`, or even \xcd`Any`, and that
+would describe all possible results.  However, we actually know more.
+\xcd`Int{self != 2}` is a better description of the type of {$E$}---certainly
+the result of {$E$} can never be \xcd`2`.   \xcd`Int{self != 2, self != 3}` is
+an even better description; {$E$} can't be \xcd`3` either.  We can continue
+this process forever, adding integers which {$E$} will definitely not return
+and getting better and better approximations. (If the constraint
+sublanguage had \xcd`||`, we could give it the type 
+\xcd`Int{self == 0 || self == 1`, which would be nearly perfect.  But 
+\xcd`||` makes typechecking far more expensive, so it is excluded.)
+No X10 type is the best description of {$E$}; there is always a better one.
+
+Similarly, consider two unrelated interfaces: 
+%~~gen
+% package Types.For.Gripes.About.Snipes;
+%~~vis
+\begin{xten}
+interface I1 {}
+interface I2 {}
+class A implements I1, I2 {}
+class B implements I1, I2 {}
+class C {
+  static def example(t:Boolean, a:A, b:B) = t ? a : b;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\xcd`I1` and \xcd`I2` are both perfectly good descriptions of \xcd`t ? a : b`, 
+but neither one is better than the other, and there is no single X10 type
+which is better than both. (Some languages have {\em conjunctive
+    types}, and could say that the return type of \xcd`example` was 
+\xcd`I1 && I2`.  This, too, complicates typechecking.)
 }
 
-
+So, when confronted with expressions like this, X10 computes {\em some}
+satisfactory type for the expression, but not necessarily the {\em best} type.  
+X10 provides certain guarantees about the common type \xcd`V{v}` computed for 
+\xcd`T{t}` and \xcd`U{u}`: 
+\begin{itemize}
+\item If \xcd`T{t} == U{u}`, then \xcd`V{v} == T{t} == U{u}`.  So, if X10's
+      algorithm produces an utterly untenable type for \xcd`a ? b : c`, and
+      you want the result to have type \xcd`T{t}`, you can 
+      (in the worst case) rewrite it to 
+      \xcd`a ? b as T{t} : c as T{t}`.
+\item If \xcd`T == U`, then \xcd`V == T == U`.  For example, 
+      X10 will compute the type of \xcd`b ? 0 : 1` as 
+      \xcd`Int{c}` for some constraint \xcd`c`---perhaps simply 
+      picking \xcd`Int{true}`, \viz, \xcd`Int`. 
+\item X10 preserves place information, because it is so important. If both
+      \xcd`t` and \xcd`u` entail \xcd`self.home==p`, then  
+      \xcd`v` will also entail \xcd`self.home==p`.  In particular, the common
+      type for \xcd`T!` and \xcd`U!` has the form \xcd`V!`.  
+\end{itemize}
 
 %\subsection{Syntactic abbreviations}\label{DepType:SyntaxAbbrev}
 
@@ -1468,6 +1552,7 @@ explicit type arguments.  If the method has a type parameter
 \xcd"T", the type argument corresponding to \xcd"T" is inferred
 to be the least common ancestor of the types of any formal
 parameters of type \xcd"T".
+\bard{Not least!}
 
 %TODO--check this!
 Consider the following method:
