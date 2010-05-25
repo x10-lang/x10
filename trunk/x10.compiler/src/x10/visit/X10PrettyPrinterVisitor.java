@@ -27,6 +27,7 @@ import polyglot.ast.Block_c;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Catch;
+import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign_c;
@@ -320,8 +321,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			boxPrimitives = false;
 		if (mi.name() == Name.make("equals") && mi.formalTypes().size() == 1)
 			boxPrimitives = false;
-        if (mi.name() == Name.make("structEquals") && mi.formalTypes().size() == 1)
-            boxPrimitives = false;
 		if (mi.name() == Name.make("hasNext") && mi.formalTypes().size() == 0)
 			boxPrimitives = false;
 
@@ -592,7 +591,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (n.typeParameters().size() > 0) {
 			w.newline(4);
 			w.begin(0);
-			if (! n.flags().flags().isInterface()) {
+			if (! flags.isInterface()) {
 				for (TypeParamNode tp : n.typeParameters()) {
 					w.write("private final ");
 					w.write(X10_RUNTIME_TYPE_CLASS);
@@ -605,7 +604,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.end();
 		}
 
-		if (! n.flags().flags().isInterface()) {
+		if (! flags.isInterface()) {
 			if (n.properties().size() > 0) {
 				w.newline(4);
 				w.begin(0);
@@ -618,6 +617,36 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		n.print(n.body(), w, tr);
+		w.newline();
+		
+		// Generate structEquals for structs
+        if (flags.isStruct()) {
+            w.write("final public boolean structEquals(final java.lang.Object o) {");
+            w.newline(4);
+            w.begin(0);
+            w.write("if (!(o instanceof " + def.fullName() +")) return false;");
+            w.newline();
+            for (PropertyDecl pd : n.properties()) {
+                w.write("if (!x10.rtt.Equality.equalsequals(this." + pd.name() + ", ((" + def.fullName() + ") o)." + pd.name() + ")) return false;");
+                w.newline();
+            }
+            for (ClassMember member : n.body().members()) {
+                if (member instanceof FieldDecl_c) {
+                    FieldDecl_c field = (FieldDecl_c) member;
+                    if (field.flags().flags().isStatic()) continue;
+                    w.write("if (!x10.rtt.Equality.equalsequals(this." + field.name() + ", ((" + def.fullName() + ") o)." + field.name() + ")) return false;");
+                    w.newline();
+                }
+            }
+            w.write("return true;");
+            w.newline();
+            w.end();
+            w.write("}");
+            w.newline();            
+
+            w.newline();            
+        }
+
 		w.write("}");
 		w.newline(0);
 
