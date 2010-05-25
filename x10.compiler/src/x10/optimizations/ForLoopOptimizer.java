@@ -641,15 +641,17 @@ public class ForLoopOptimizer extends ContextVisitor {
                                           expr, 
                                           Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION ).typeCheck(this);
         } catch (SemanticException e) {
-            // return null; // FIXME: the following code is a work around for XTENLANG-1335
+            /*  // work around for XTENLANG-1335
             try {
                 return (X10Cast) xnf.X10Cast( pos, 
                                               xnf.CanonicalTypeNode(pos, toType), 
                                               expr, 
                                               Converter.ConversionType.UNCHECKED ).typeCheck(this);
             } catch (SemanticException x) {
-                return null;
+                // return null;
             }
+            */  // end work around for XTENLANG-1335
+            return null;
         }
     }
 
