@@ -19,7 +19,8 @@ public class computeGraph  {
 		
 		//x10.io.Console.ERR.println("computeGraph " + "loop 1");
 		finish {
-			
+		
+		if (nthreads > 1) {	
 			c: Clock = Clock.make();
 		
 		foreach((tid) in 0..nthreads-1) clocked(c) {
@@ -49,8 +50,31 @@ public class computeGraph  {
 			next;
 		}
 		c.drop();
-		}
-		
+		} else {
+			val tid = 0;
+            val chunkSize = m/nthreads;
+            
+            for ((i) in tid*chunkSize..(tid+1)*chunkSize-1) {
+                val u = (SDGdata.startVertex as Rail[types.VERT_T]!)(i);
+                atomic {pos(i) = degree(u); degree(u)++;}
+            }
+            
+            
+            util.prefix_sums(degree, numEdges, pSums,n, tid);
+            //x10.io.Console.ERR.println("computeGraph " + "loop 2 " + " " + numEdges);
+            
+            
+            //x10.io.Console.ERR.println("computeGraph " + "loop 3");
+            for ((i) in tid*chunkSize..(tid+1)*chunkSize-1) {
+                val u = (SDGdata.startVertex as Rail[types.VERT_T])(i);
+                val j = numEdges(u) + pos(i);
+                endV(j) = (SDGdata.endVertex as Rail[types.VERT_T])(i);
+                w(j) = (SDGdata.weight as Rail[types.LONG_T])(i);
+            }
+            
+        }
+        }
+        
 		
 		time = util.x10_get_wtime() - time; 
 		
