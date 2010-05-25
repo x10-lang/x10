@@ -47,14 +47,17 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Special_c;
+import polyglot.ast.Stmt;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.types.ClassDef;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.MethodInstance_c;
 import polyglot.types.Name;
@@ -63,9 +66,11 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.InnerClassRemover;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.Translator;
 import x10.Configuration;
 import x10.ast.Async_c;
@@ -191,7 +196,68 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(StmtExpr_c n) {
-		assert false : "Statement expressions are not handled in the Java backend";
+	    final Context c = tr.context();
+	    final ArrayList<LocalInstance> capturedVars = new ArrayList<LocalInstance>();
+	    // This visitor (a) finds all captured local variables,
+	    // (b) adds a qualifier to every "this", and
+	    // (c) rewrites fields and calls to use an explicit "this" target.
+	    n = (StmtExpr_c) n.visit(new ContextVisitor(tr.job(), tr.typeSystem(), tr.nodeFactory()) {
+	        public Node leaveCall(Node n) {
+	            if (n instanceof Local) {
+	                Local l = (Local) n;
+	                assert (l.name() != null) : l.position().toString();
+	                VarInstance<?> found = c.findVariableSilent(l.name().id());
+	                if (found != null) {
+	                    VarInstance<?> local = context().findVariableSilent(l.name().id());
+	                    if (found.equals(local)) {
+	                        assert (found.equals(l.localInstance())) : l.toString();
+	                        capturedVars.add(l.localInstance());
+	                    }
+	                }
+	            }
+	            if (n instanceof Field_c) {
+	                Field_c f = (Field_c) n;
+	                return f.target((Receiver) f.target()).targetImplicit(false);
+	            }
+	            if (n instanceof X10Call_c) {
+	                X10Call_c l = (X10Call_c) n;
+	                return l.target((Receiver) l.target()).targetImplicit(false);
+	            }
+	            if (n instanceof Special_c) {
+	                NodeFactory nf = nodeFactory();
+	                Special_c s = (Special_c) n;
+	                if (s.qualifier() == null) {
+	                    return s.qualifier(nf.CanonicalTypeNode(n.position(), s.type()));
+	                }
+	            }
+	            return n;
+	        }
+	    }.context(c.pushBlock()));
+	    boolean valid = true;
+	    for (LocalInstance li : capturedVars) {
+	        if (!li.flags().isFinal()) {
+	            valid = false;
+	            break;
+	        }
+	    }
+	    if (!valid) {
+	        throw new InternalCompilerError("Statement expression uses non-final variables from the outer scope", n.position());
+	    }
+	    w.write("(new Object() { ");
+	    er.printType(n.type(), PRINT_TYPE_PARAMS);
+	    w.write(" eval() {");
+	    w.newline(4); w.begin(0);
+	    Translator tr = this.tr.context(c.pushBlock());
+	    List<Stmt> statements = n.statements();
+	    for (Stmt stmt : statements) {
+	        tr.print(n, stmt, w);
+	        w.newline();
+	    }
+	    w.write("return ");
+	    tr.print(n, n.result(), w);
+	    w.write(";");
+	    w.end(); w.newline();
+	    w.write("} }.eval())");
 	}
 
 	public void visit(Node n) {
@@ -2235,7 +2301,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		//	    }
 	}
 
-	// This is an enhanced version of Binary_c#prettyPrint(CodeWriter,Å@PrettyPrinter)
+	// This is an enhanced version of Binary_c#prettyPrint(CodeWriter, PrettyPrinter)
     private void prettyPrint(X10Binary_c n) {
         Expr left = n.left();
         Type l = left.type();
