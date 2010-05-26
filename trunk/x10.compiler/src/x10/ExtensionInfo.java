@@ -607,7 +607,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                //Use reflect to load the class from
                ClassLoader cl = Thread.currentThread().getContextClassLoader();
                Class<?> c = cl
-               .loadClass("x10.compiler.ws.visit.WSCodeGenerator");
+               .loadClass("x10.compiler.ws.WSCodeGenerator");
                Constructor<?> con = c.getConstructor(Job.class,
                                                      TypeSystem.class,
                                                      NodeFactory.class);
