@@ -38,6 +38,7 @@ class fft {
         val fftwInversePlan:Long;
         val world:Comm! = Comm.WORLD();
         var nCopy:Int;
+        var alltoall_timer:Long = 0;
  
         def this(I:Int, nRows:Int, localSize:Int, N:Long, SQRTN:Int, verify:Boolean, Cs:PlaceLocalHandle[Rail[Double]]) {
             this.I = I; this.nRows = nRows; this.N = N; this.SQRTN = SQRTN; this.Cs = Cs;
@@ -129,11 +130,13 @@ class fft {
                //x10.io.Console.OUT.println("here" + C.length +  " " + dstIndex);
                 //B.copyTo(k * chunkSize, Place.places(k), Cs, dstIndex, chunkSize, ()=>{++nCopy;});
             }
+            alltoall_timer -= System.nanoTime();
             world.alltoall(B, C, chunkSize);
+            alltoall_timer += System.nanoTime();
             //await (nCopy == Place.MAX_PLACES);
             //nCopy = 0;
             //x10.io.Console.OUT.println("before barrier" + here.id);                   
-	    world.barrier();
+	    //world.barrier();
             //x10.io.Console.OUT.println("after barrier" + here.id);                   
         }
 
@@ -230,6 +233,7 @@ class fft {
         // FFT
         if (p==0) Console.OUT.println("Start FFT");
         var secs:Double = compute(FFT, true, N);
+        if (p==0) Console.OUT.println("alltoall: " + FFT().alltoall_timer/1e9 + " s");
         if (p==0) Console.OUT.println("FFT complete");
 
         // Reverse FFT
