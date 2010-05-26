@@ -425,14 +425,14 @@ char *timingsToString(Timings *t, int totalTime){
    int cursor, i, leaderSize, length, n, size_n;
    if (t->iterations > 1) {
  	 char *stats = statsToString(t);
- 	 answer = calloc(4000+strlen(stats), sizeof(char));
+ 	 answer = calloc(40000+strlen(stats), sizeof(char));
  	 sprintf(answer, "There were %d iterations, which took %d milliseconds in all.\r\n\r\n", t->iterations, totalTime);
  	 strcat(answer, stats);
  	 //free(stats);
  	 strcat(answer, "\r\nIndividual timings:\r\n\r\n");
    }
    else {
- 	 answer = calloc(4000, sizeof(char));
+ 	 answer = calloc(40000, sizeof(char));
    }
    leaderSize = 0;
    for(n = 0;  n<t->phases; n++) {
