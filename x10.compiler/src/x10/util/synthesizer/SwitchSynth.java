@@ -46,6 +46,12 @@ public class SwitchSynth extends AbstractStateSynth implements IStmtSynth{
         switchBlockTable = new ArrayList<List<Stmt>>();
     }
     
+    public void insertStatementsInCondition(int cond, List<Stmt> stmts){
+        for(Stmt s : stmts){
+            insertStatementInCondition(cond, s);
+        }
+    }
+    
     /**
      * Will insert the statement in the condition( case cond:)
      * If there is no such a condition, just create it, and insert it according to the order
@@ -62,13 +68,13 @@ public class SwitchSynth extends AbstractStateSynth implements IStmtSynth{
                 stmts = switchBlockTable.get(i);
                 break;
             }
-            if( c > cond){
-                //in order to make it clear, the condition should be inserted here
-                stmts = new ArrayList<Stmt>();
-                switchTable.add(i, cond);
-                switchBlockTable.add(i, stmts);
-                break;
-            }
+//            if( c > cond){
+//                //in order to make it clear, the condition should be inserted here
+//                stmts = new ArrayList<Stmt>();
+//                switchTable.add(i, cond);
+//                switchBlockTable.add(i, stmts);
+//                break;
+//            }
         }
         
         if(stmts == null){
@@ -79,6 +85,17 @@ public class SwitchSynth extends AbstractStateSynth implements IStmtSynth{
         stmts.add(stmt);
     }
     
+    
+    
+    
+    public ArrayList<Integer> getSwitchTable() {
+        return switchTable;
+    }
+
+    public List<Stmt> getStmtsInCondtion(int i) {
+        return switchBlockTable.get(i);
+    }
+
     public Switch genStmt(){
         ArrayList<SwitchElement> switchElements = new ArrayList<SwitchElement>();
         //iterate all switch block and statements table to insert it
