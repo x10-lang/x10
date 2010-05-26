@@ -133,7 +133,7 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
 
     // set this thread's attributes
     // guardsize
-#ifdef _AIX_
+#ifdef _AIX
     size_t guardsize = PAGESIZE;
 #else
     size_t guardsize = getpagesize();
