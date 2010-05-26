@@ -15,7 +15,7 @@ import x10.errors.Errors;
 import x10.types.X10TypeEnv_c;
 
 /**
- * Flags an error if visited node contsains a mutable variable or field.
+ * Flags an error if visited node contains a mutable variable or field.
  * @author vj
  *
  */
