@@ -1503,6 +1503,17 @@ public class Synthesizer {
     }
     
     /**
+     * Get an boolean value expression
+     * @param value true or false
+     * @param pos
+     * @return
+     */
+    public Expr booleanValueExpr(boolean value, Position pos){
+        return xnf.BooleanLit(pos, value).type(xts.Boolean());
+    }
+    
+    
+    /**
      * Get this expression, ((ClassType)this)
      * @param classType
      * @param pos

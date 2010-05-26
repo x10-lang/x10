@@ -52,7 +52,7 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
         typeNodes = new ArrayList<TypeNode>();
         argTypes = new ArrayList<Type>();
         args = new ArrayList<Expr>();
-        returnType = xct.typeSystem().Void(); //default
+        returnType = null; //default null, refer from expression
     }
     
     public InstanceCallSynth(X10NodeFactory xnf, X10Context xct, Position pos, Receiver insRef, String methodName){
@@ -97,6 +97,12 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
 
         MethodInstance mi = xts.findMethod(methodLocationType, xts.MethodMatcher(methodLocationType, methodName, typeArgs,
                                                                               argTypes, xct));
+        
+        //handle return type
+        if(returnType == null){ //not set
+            returnType = mi.returnType();
+        }
+        
         Expr result =  xnf.X10Call(pos, insRef, xnf.Id(pos, methodName), typeNodes, args).methodInstance(mi)
                 .type(returnType);
         return result;
@@ -106,6 +112,5 @@ public class InstanceCallSynth extends AbstractStateSynth implements IStmtSynth,
     public Stmt genStmt() throws SemanticException {
         return xnf.Eval(pos, genExpr());
     }
-
 
 }
