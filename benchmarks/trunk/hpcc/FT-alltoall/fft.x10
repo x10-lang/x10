@@ -136,7 +136,7 @@ class fft {
             //await (nCopy == Place.MAX_PLACES);
             //nCopy = 0;
             //x10.io.Console.OUT.println("before barrier" + here.id);                   
-	    //world.barrier();
+	    world.barrier();
             //x10.io.Console.OUT.println("after barrier" + here.id);                   
         }
 
