@@ -343,6 +343,17 @@ public class X10Context_c extends Context_c implements X10Context {
 		cxt.currentPlaceTerm = t;
 		return cxt;
     }
+    
+    Type currentCollectingFinishType=null;
+    public Context pushCollectingFinishScope(Type t) {
+    	assert t!=null;
+    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+    	cxt.currentCollectingFinishType =t;
+    	return cxt;
+    }
+    public Type collectingFinishType() {
+    	return currentCollectingFinishType;
+    }
     protected XConstrainedTerm thisPlace = null;
     public XConstrainedTerm currentThisPlace() {
     	/*if (thisPlace == null) {

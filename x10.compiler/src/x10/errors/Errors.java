@@ -716,7 +716,7 @@ public class Errors {
 			return((CannotGenerateCast)o).position().equals(position());
 		}
 	}
-	
+		
 	public static class StructMustHaveStructSupertype extends SemanticException {
 	    private static final long serialVersionUID = -7826831387240378409L;
 	    public StructMustHaveStructSupertype(Ref<? extends Type> superType, ClassDef type, Position pos) {
@@ -728,5 +728,47 @@ public class Errors {
 	            return false;
 	        return((StructMustHaveStructSupertype)o).position().equals(position());
 	    }
+	}
+	public static class NoCollectingFinishFound extends SemanticException {
+		private static final long serialVersionUID = 9107601200096892236L;
+		public NoCollectingFinishFound(String offer, Position position) {
+			super("Cannot find enclosing collecting finish for offer statement."
+					+ "\n\t Offer: "  + offer,
+					
+					position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof NoCollectingFinishFound) )
+				return false;
+			return((NoCollectingFinishFound)o).position().equals(position());
+		}
+	}
+	public static class OfferDoesNotMatchCollectingFinishType extends SemanticException {
+		private static final long serialVersionUID = -4277756733682836855L;
+		public OfferDoesNotMatchCollectingFinishType(Type eType, Type fType, Position position) {
+			super("The type of the offer expression does not match the type of the collecting finish."
+					+ "\n\t Offer expression type: "  + eType
+					+ "\n\t Collecting finish type: "  + fType,
+					position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof OfferDoesNotMatchCollectingFinishType) )
+				return false;
+			return((OfferDoesNotMatchCollectingFinishType)o).position().equals(position());
+		}
+	}
+	public static class IsNotReducible extends SemanticException {
+
+		public IsNotReducible(Expr expr,  Position position) {
+			super("The reducer must be of type Reducible[T], for some type T."
+					+ "\n\t Reducer: " + expr
+					+ "\n\t Reducer type: "  + expr.type(),
+					position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof OfferDoesNotMatchCollectingFinishType) )
+				return false;
+			return((OfferDoesNotMatchCollectingFinishType)o).position().equals(position());
+		}
 	}
 }

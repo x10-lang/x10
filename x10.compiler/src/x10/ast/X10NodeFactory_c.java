@@ -347,7 +347,18 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (Next) n.ext(extFactory().extStmt());
 		return (Next) n.del(delFactory().delStmt());
 	}
+	
+	public Offer Offer(Position pos, Expr e) {
+		Offer n = new Offer_c(pos,e);
+		n = (Offer) n.ext(extFactory().extStmt());
+		return (Offer) n.del(delFactory().delStmt());
+	}
 
+	public FinishExpr FinishExpr(Position pos, Expr e, Stmt s) {
+		FinishExpr n = new FinishExpr_c(pos, e, s);
+		n = (FinishExpr) n.ext(extFactory().extStmt());
+		return (FinishExpr) n.del(delFactory().delStmt());
+	}
 	public Now Now(Position pos, Expr expr, Stmt stmt) {
 		Now n = new Now_c(pos, expr, stmt);
 		n = (Now) n.ext(extFactory().extStmt());
