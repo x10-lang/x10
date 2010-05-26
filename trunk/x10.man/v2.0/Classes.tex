@@ -288,6 +288,31 @@ class Crash {
 Then \xcd`crash.f(3)` might either mean ``call the function \xcd`crash.f` on
 argument \xcd`3`'', or ``invoke the method \xcd`f` on argument \xcd`3`''.)
 
+\subsection{Field Initialization}
+
+Fields may be given values via {\em field initialization expressions}: 
+\xcd`val f1 = E;` and \xcd`var f2 : Int = F;`.  There are a few restrictions
+on the initializer expressions \xcd`E`: 
+\begin{itemize}
+\item No checked exceptions may be thrown.  (There is no place to put a
+      \xcd`try-catch` block to deal with them.)
+\item Other fields of \xcd`this` may be referenced, but only those that {\em
+      precede} the field being initialized.  For example, this is correct, but
+      would not be if the fields were reversed: 
+%~~gen
+%package Classes.Are.For.Lasses.Structs.Are.For.Bucks;
+%~~vis
+\begin{xten}
+class Fld{
+  val a = 1;
+  val b = 2+a;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+\end{itemize}
 
 \subsection{Field hiding}
 
@@ -687,6 +712,8 @@ is equivalent to
 \subsection{Method overloading, overriding, hiding, shadowing and obscuring}
 \label{MethodOverload}
 
+\bard{Import this from Java!}
+
 The definitions of method overloading, overriding, hiding, shadowing
 and obscuring in \Xten{} are the same as in \Java, modulo the following
 considerations motivated by type parameters and dependent types.
@@ -792,55 +819,51 @@ whose guard \xcd"d" is implied by \xcd"c".
 \label{MethodQualifier}
 \index{Qualifier!method}
 
+There are a number of qualifiers which may be applied to X10 methods.
+
+\begin{grammar}
+  MethodModifier \: \xcd"atomic"  \\
+  MethodModifier \: \xcd"global"  \\
+  MethodModifier \: \xcd"pinned"  \\
+  MethodModifier \: \xcd"nonblocking"  \\
+  MethodModifier \: \xcd"sequential"  \\
+  MethodModifier \: \xcd"safe"  
+\end{grammar}
+
+
 \subsubsection{\Xcd{atomic} qualifier}
 \label{AtomicAnnotation}
 \index{atomic}
 
-A method may be declared \xcd"atomic".
-
-\begin{grammar}
-  MethodModifier \: \xcd"atomic"  
-\end{grammar}
-
-Such a method is treated as if the statement in its body is wrapped 
-implicitly in an \xcd"atomic" statement.
+A method may be declared \xcd"atomic", indicating that it will be executed
+atomically---as if its body were wrapped in an \xcd`atomic` statement.
 
 \subsubsection{\Xcd{global} qualifier}
 \label{LocalAnnotation}
 \label{GlobalMethod}
 \index{global!method}
 
-A method may be declared \xcd"global".
-
-\begin{grammar}
-  MethodModifier \: \xcd"global"  
-\end{grammar}
-
-A \xcd"global" method can be invoked on an object \Xcd{o} in any place. The
-body of such a method is type-checked without assuming that
-\Xcd{here==this.home}. This permits \Xcd{global} fields of \Xcd{o} to
-be accessed, but not local fields. The programmer must insert an explicit
-\Xcd{at(this)...} to get to the place where the object lives and access
-the field.
+A method may be declared \xcd"global", indicating that it can be invoked in
+any place. Unlike non-global methods, the body of a global method is
+type-checked without assuming that 
+\Xcd{here==this.home}. This permits \Xcd{global} fields of \Xcd{o} to be
+accessed, but not local fields. The programmer must insert an explicit
+\Xcd{at(this)...} to get to the place where the object lives to access local fields.
 
 \Xcd{global} methods can be overridden only by methods also marked \Xcd{global}.
+
 
 \subsubsection{\Xcd{pinned} qualifier}
 \label{PinnedAnnotation}
 \label{PinnedMethod}
 \index{pinned!method}
 
-A method may be declared \xcd"pinned".
-
-\begin{grammar}
-  MethodModifier \: \xcd"pinned"  
-\end{grammar}
-
+A method may be declared \xcd"pinned", indicating that the evaluation of the
+method takes place entirely \xcd`here`, without any communication necessary.
 A \Xcd{pinned} method may not
 contain any \Xcd{at} statement or expression whose place argument
 is not statically equivalent to \Xcd{here}. It must call only
-\Xcd{pinned} methods. That is, a \Xcd{pinned} method does not cause
-any communication.
+\Xcd{pinned} methods. 
 
 \Xcd{pinned} methods can be overridden only by methods marked \Xcd{pinned}.
 
@@ -849,16 +872,11 @@ any communication.
 \label{NonblockingMethod}
 \index{nonblocking!method}
 
-A method may be declared \xcd"nonblocking".
-
-\begin{grammar}
-  MethodModifier \: \xcd"nonblocking"  
-\end{grammar}
-
+A method may be declared \xcd"nonblocking", indicating that it does not block.  
 A \Xcd{nonblocking} method may not
 contain any \Xcd{when} statement whose condition
 is not statically equivalent to \Xcd{true}. It must call only
-\Xcd{nonblocking} methods. That is, a \Xcd{nonblocking} method does not block.
+\Xcd{nonblocking} methods. 
 
 \Xcd{nonblocking} methods can be overridden only by methods marked \Xcd{nonblocking}.
 
@@ -867,15 +885,10 @@ is not statically equivalent to \Xcd{true}. It must call only
 \label{SequentialMethod}
 \index{sequential!method}
 
-A method may be declared \xcd"sequential".
-
-\begin{grammar}
-  MethodModifier \: \xcd"sequential"  
-\end{grammar}
-
+A method may be declared \xcd"sequential", indicating that it does not spawn
+any other activities.
 A \Xcd{sequential} method may not contain any \Xcd{async}
-statement. It must call only \Xcd{sequential} methods. That is, a
-\Xcd{sequential} method does not spawn any activity.
+statement. It must call only \Xcd{sequential} methods. 
 
 \Xcd{sequential} methods can be overridden only by methods marked \Xcd{sequential}.
 
@@ -884,23 +897,124 @@ statement. It must call only \Xcd{sequential} methods. That is, a
 \label{SafeMethod}
 \index{safe!method}
 
-A method may be declared \xcd"safe".
+A method may be declared \xcd"safe", indicating that it is 
+\xcd`pinned`, \xcd`nonblocking`, and \xcd`sequential`.
+Safe methods are the only methods which can be called inside of \xcd`atomic`
+and \xcd`when` statements.
 
-\begin{grammar}
-  MethodModifier \: \xcd"safe"  
-\end{grammar}
-
-The \Xcd{safe} annotation is considered shorthand for \Xcd{pinned
-  nonblocking sequential}.
+\section{Instance Initialization}
 
 \section{Constructors}
+
+Constructors allow the initialization of objects by the execution of
+almost-arbitrary code.  Like methods, constructors can have formal parameters,
+a constraint, a return type, a \xcd`throws` clause, and a body. The formals,
+constraint, and \xcd`throws` clauses are identical to those for a method.
+A constructor is declared by \xcd`def this()...`; that is, as if it were a
+method whose name were the reserved word \xcd`this`.  
+
+
+\subsection{Constructor Return Types}
+
+The return type of a constructor describes the values that constructor can
+create.  While all constructors for class \xcd`C` create objects of base class
+\xcd`C`, some individual constructors may construct objects with more specific
+constraints.    For example, in
+%~~gen
+% package Classes.Are.For.Grasses;
+%~~vis
+\begin{xten}
+class Crate(n:Int) {
+  def this() : Crate{self.n==0} = { property(0); }
+  def this(b:Boolean) : Crate{self.n==1} = { property(1); }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\noindent
+the nullary constructor call \xcd`new Crate()` will return a value of type 
+\xcd`Crate{self.n == 0}`--- the \xcd`n` field is zero and the compiler knows
+it.  The unary Boolean constructor will return an object of type 
+\xcd`Crate{self.n==1}`.
+
+If the constructor type is omitted, the constructor returns 
+the type of its class, constrained by the actual parameters to the
+\xcd`property` call in the constructor.  That is, the first constructor 
+call above could be abbreviated:
+%~~gen
+% package Classes.Are.For.Grasses.In.Mountain.Passes;
+% class Crate(n:Int) {
+%~~vis
+\begin{xten}
+  def this() { property(0); }
+  // And to prove that the nullary constructor knows n==0: 
+  static def confirm() {
+    val v : Crate{self.n == 0} = new Crate();
+  }
+\end{xten}
+%~~siv
+% }
+%~~neg
+
+\subsection{Constructor Bodies}
+
+Constructors have many restrictions, designed to ensure that objects behave
+sanely while being constructed.  
+
+\bard{Finish this section}
+
+
+
+
 
 \bard{Write this!}
 \subsection{\Xcd{ proto} qualifier on types}
 \label{Prototypes}
 \index{proto}
 \Xten{} ensures that every variable must have a value consistent with its type
-before it is read.
+before it is read.  This is to prevent the unfortunate situations possible in
+other languages, such as: 
+\begin{xten}
+class Evil {
+   val f : Int; // uninitialized
+   def getf() = this.f;
+   def this() { 
+       val f0 = this.getf();
+       println("initially, f0=" + f0);
+       this.f = f0 + 1;
+       println("now, this.f =" + this.f);
+   }
+}
+\end{xten}
+\noindent
+\xcd`f` is a \xcd`val` field and should never change.  However, in this
+example, it starts out uninitialized.  Its uninitialized value is read by the
+call \xcd`this.getf()`, giving a meaningless value---no value could be
+meaningful, since the field is not initialized.  The constructor prints
+\xcd`f`'s initial value, increments it, initializes \xcd`f` to the incremented
+value, and prints the new value.  This program prints two different numbers.
+That is, a \xcd`val` field---supposedly immutable---has been observed to
+change.  
+
+This approach can be extended to give almost arbitrarily bad behavior 
+for partially-initialized objects.  The issue is particularly pernicious with
+concurrency, where one activity initializes an object while another one uses
+it.  
+
+Many languages with constructors simply admit (or avoid admitting) that method
+calls on partially-initialized objects are dangerous and should be avoided.
+X10 takes a more careful approach: some method calls in constructors are
+allowed, but ones which could cause this problem are not.  
+
+The approach is based on \xcd`proto` types. If \xcd`C` is a class, 
+\xcd`proto C` is a type that describes partially-initialized values of
+\xcd`C`.  The rules in this section are designed to allow methods to {\em
+write} into fields of a \xcd`proto C` object, thus initializing it, but not
+{\em read} them and thus not stumble into the error above.
+
+%%BARD-HERE
+
 
 For local variables, this is ensured by using a pre-specified static
 analysis to ensure that every local variable is written into before it
@@ -1033,6 +1147,7 @@ have been initialized correctly.
 Since static state is immutable and is replicated to all places via 
 the initialization phase as described above, it can be accessed from
 any place.
+
 
 
 \section{User-Defined Operators}
