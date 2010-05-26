@@ -277,8 +277,6 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        	    }
 	        	    catch (XFailure e) {
 	        	    }
-	        	    catch (SemanticException e) {
-	        	    }
 	        	    cref.update(c);
 	        	}
 	            });

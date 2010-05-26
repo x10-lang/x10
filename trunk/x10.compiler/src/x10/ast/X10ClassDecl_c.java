@@ -122,7 +122,7 @@ import x10.util.Synthesizer;
  *
  */
 public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
-   
+    
     List<PropertyDecl> properties;
 
     public List<PropertyDecl> properties() { return properties; }
@@ -542,9 +542,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
      * @param tc
      * @param childtc
      * @return
-     * @throws SemanticException
      */
-    public Node adjustAbstractMethods( ContextVisitor tc) throws SemanticException {
+    public Node adjustAbstractMethods( ContextVisitor tc) {
     	X10ClassDecl_c n = this;
     	
     	if (n.flags().flags().isInterface())
@@ -621,9 +620,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     
     
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
 
-X10ClassDecl_c n = this;
+        X10ClassDecl_c n = this;
     	
     	NodeVisitor v = tc.enter(parent, n);
     	
@@ -635,11 +634,14 @@ X10ClassDecl_c n = this;
     	TypeChecker oldchildtc = (TypeChecker) childtc.copy();
     	ContextVisitor oldtc = (ContextVisitor) tc.copy();
     	
-    	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
-    	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
-    	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
-    	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
-    
+    	try {
+    	    n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
+    	    n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
+    	    n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
+    	    n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
+    	} catch (SemanticException e) {
+    	    Errors.issue(tc.job(), e, this);
+        }
     	
     	n = (X10ClassDecl_c) X10Del_c.visitAnnotations(n, childtc);
 
@@ -649,10 +651,10 @@ X10ClassDecl_c n = this;
         if (type.superType() != null) {
         	if (((X10ClassDef) type).isStruct()) {
         		if (! (X10TypeMixin.isX10Struct(type.superType().get()))) {
-        		
-        			throw new SemanticException(type.superType() 
-        					+ " cannot be the superclass for " + type 
-        					+ "; a struct must subclass a struct.",position());
+        			Errors.issue(tc.job(),
+        			             new Errors.StructMustHaveStructSupertype(type.superType(),
+        			                                                      type,
+        			                                                      position()));
         		}
         	}
         }
@@ -696,10 +698,10 @@ X10ClassDecl_c n = this;
         
         // Check for instance type definitions -- these are not supported.
         for (TypeDef def : ((X10ClassDef) type).memberTypes()) {
-        	  MacroType mt = def.asType();
-          	if (mt.container() != null && !mt.flags().isStatic()) {
-          	    throw new SemanticException("Illegal type def " + mt + ": type-defs must be static.", def.position());
-          	}
+            MacroType mt = def.asType();
+            if (mt.container() != null && !mt.flags().isStatic()) {
+                Errors.issue(tc.job(), new Errors.TypedefMustBeStatic(mt, def.position()), this);
+            }
         }
       
         
@@ -709,27 +711,28 @@ X10ClassDecl_c n = this;
             if (t != null) {
                 if (!t.typeEquals(ct, tc.context())) {
                     String kind = ct.flags().isInterface() ? "interface" : "class";
-                    throw new Errors.CannotExtendTwoInstancesSameInterfaceLimitation(t, ct, position());
+                    Errors.issue(tc.job(),
+                                 new Errors.CannotExtendTwoInstancesSameInterfaceLimitation(t, ct,
+                                                                                            position()));
                 }
             }
             map.put(ct.x10Def(), ct);
         }
         
-        
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	
     	if (X10Flags.toX10Flags(flags().flags()).isStruct()) {
     		if (n.classDef().isInnerClass() && ! flags().flags().isStatic()) {
-    			throw new Errors.StructMustBeStatic(n);
+    			Errors.issue(tc.job(), new Errors.StructMustBeStatic(n));
     		}
     		n.checkStructMethods(parent, tc);
-    		
     	}
     	
     	return n;
     }
     
-    protected void checkStructMethods(Node parent, ContextVisitor tc) throws SemanticException {
+    // TODO
+    protected void checkStructMethods(Node parent, ContextVisitor tc) {
     	
     }
 

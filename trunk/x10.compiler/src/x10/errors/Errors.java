@@ -25,10 +25,12 @@ import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
+import polyglot.types.ClassDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
@@ -36,6 +38,7 @@ import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import x10.ExtensionInfo;
+import x10.ast.DepParameterExpr;
 import x10.ast.SemanticError;
 import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
@@ -43,6 +46,7 @@ import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldAssign_c;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;
+import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10FieldInstance;
@@ -252,6 +256,19 @@ public class Errors {
 		}
 	}
 	
+	public static class DependentClauseIsInconsistent extends SemanticException {
+	    private static final long serialVersionUID = -737687218058693221L;
+	    public DependentClauseIsInconsistent(String entity, DepParameterExpr e) {
+	        super("The "+entity+"'s dependent clause is inconsistent.",
+	              e == null ? null : e.position());
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof DependentClauseIsInconsistent) )
+	            return false;
+	        return((DependentClauseIsInconsistent)o).position().equals(position());
+	    }	    
+	}
+	
 	public static class CannotAccessStaticFieldOfTypeParameter extends SemanticException {
 		private static final long serialVersionUID = -8016592273145691613L;
 		public CannotAccessStaticFieldOfTypeParameter(Type t,Position pos) {
@@ -397,6 +414,17 @@ public class Errors {
 			return((TernaryConditionalTypeUndetermined)o).position().equals(position());
 		}
 	}
+	public static class TypedefMustBeStatic extends SemanticException {
+	    private static final long serialVersionUID = -1088534868188898121L;
+	    public TypedefMustBeStatic(MacroType mt, Position pos) {
+	        super("Illegal type def " + mt + ": type-defs must be static.", pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof TypedefMustBeStatic) )
+	            return false;
+	        return((TypedefMustBeStatic)o).position().equals(position());
+	    }
+	}
 	public static class StructMustBeStatic extends SemanticException {
 		private static final long serialVersionUID = 1450037642852701286L;
 		public StructMustBeStatic(X10ClassDecl cd) {
@@ -464,7 +492,7 @@ public class Errors {
 		}
 	}
 	
-		public static class CannotExtendTwoInstancesSameInterfaceLimitation extends SemanticException {
+	public static class CannotExtendTwoInstancesSameInterfaceLimitation extends SemanticException {
 		private static final long serialVersionUID = -1984266198367743732L;
 		public CannotExtendTwoInstancesSameInterfaceLimitation(Type t1, Type t2, Position pos) {
 			super("LIMITATION: Cannot extend different instantiations of the same type."
@@ -479,7 +507,20 @@ public class Errors {
 		}
 	}
 	
-
+	public static class TypeIsNotASubtypeOfTypeBound extends SemanticException {
+	    private static final long serialVersionUID = 5054688602611389407L;
+	    public TypeIsNotASubtypeOfTypeBound(Type type, Type hasType, Position pos) {
+	        super("Computed type is not a subtype of type bound." + 
+	              "\n\t Computed Type: " + type +
+	              "\n\t Type Bound: " + hasType, pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof TypeIsNotASubtypeOfTypeBound) )
+	            return false;
+	        return((TypeIsNotASubtypeOfTypeBound)o).position().equals(position());
+	    }
+	}
+	
 	public static class TypeIsMissingParameters extends SemanticException {
 		private static final long serialVersionUID = 1254563921501323608L;
 		public TypeIsMissingParameters(Type t1, List<ParameterType> t2, Position pos) {
@@ -675,5 +716,17 @@ public class Errors {
 			return((CannotGenerateCast)o).position().equals(position());
 		}
 	}
-
+	
+	public static class StructMustHaveStructSupertype extends SemanticException {
+	    private static final long serialVersionUID = -7826831387240378409L;
+	    public StructMustHaveStructSupertype(Ref<? extends Type> superType, ClassDef type, Position pos) {
+	        super(superType + " cannot be the superclass for " + type +
+	              "; a struct must subclass a struct.", pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof StructMustHaveStructSupertype) )
+	            return false;
+	        return((StructMustHaveStructSupertype)o).position().equals(position());
+	    }
+	}
 }
