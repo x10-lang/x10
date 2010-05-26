@@ -12,6 +12,13 @@ specialized, better in some circumstances but not in all.
 from it, directly or indirectly. 
 
 
+Classes are structured in a single-inheritance code
+hierarchy, may implement multiple interfaces, may have static and
+instance fields, may have static and instance methods, may have
+constructors, may have static and instance initializers, may have
+static and instance inner classes and interfaces. \Xten{} does not
+permit mutable static state.
+
 Unlike \java{}, {}\Xten{} objects do not have locks associated with them.
 Programmers should use atomic blocks (\Sref{AtomicBlocks}) for mutual
 exclusion and clocks (\Sref{XtenClocks}) for sequencing multiple parallel
@@ -336,27 +343,60 @@ class B extends A {
 \label{FieldQualifier}
 \index{Qualifier!field}
 
+The behavior of a field may be changed by a field qualifier, such as
+\xcd`static` or \xcd`global`.  
+
 \subsubsection{\Xcd{global} qualifier}
 \index{global!field}
 \label{GlobalField}
 
-A field may be declared \xcd"global".
+A \xcd`val` field may be declared \xcd"global". Global fields are available at
+all places, and should be thought of as being part of remote object references
+to the object. Global fields are good for distributing data, but increase
+space and communication costs; they should be used sparingly as required.
 
 \begin{grammar}
   FieldModifier \: \xcd"global"  
 \end{grammar}
 
-A \Xcd{global} field must be immutable. It may be read from any place.
-Properties and static fields are implicitly marked \Xcd{global}.
+Properties and static fields are implicitly \Xcd{global}.
 Fields not marked \Xcd{global} cannot be overridden by fields marked
 \Xcd{global}.
 
-\subsection{Properties}
+
+
+\subsubsection{\Xcd{static} qualifier}
+
+A \xcd`val` field may be declared to be {\em static}, as described in
+\Sref{FieldDefinitions}. 
+
+\section{Properties}
 \label{PropertiesInClasses}
 
-A property has a name and a type.   Properties
-are accessible in the same way as \xcd"public" \xcd"val"
-fields.
+The properties of an object (or struct) are global, public \xcd`val` fields
+usable at compile time in constraints.\footnote{In many cases, a 
+\xcd`global val` field can be upgraded to a \xcd`property`, which 
+entails no compile-time or runtime cost.  Some cannot be, \eg, in cases where
+cyclic structures of \xcd`val` fields are required.} Every
+object has a \xcd`home` property, 
+telling what place the object lives in. Every array has a \xcd`rank` telling
+how many subscripts it takes.  User-defined classes can have whatever
+properties are desired. 
+
+Properties are defined in parentheses, after the name of the class.  They are
+given values by the \xcd`property` command in constructors.
+%~~gen
+% package Classes.Toss.Freedom.Disk2;
+%~~vis
+\begin{xten}
+class Proper(t:Int) {
+  def this(t:Int) {property(t);}
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
 
 \begin{staticrule*}
 It is a compile-time error for a class
@@ -364,24 +404,37 @@ defining a property \xcd"x: T" to have an ancestor class that defines
 a property with the name \xcd"x".  
 \end{staticrule*}
 
-Each class \xcd"C" defining a property \xcd"x: T" implicitly has a field
-
+A property \xcd`x:T` induces a field with the same name and type, 
+as if defined with: 
+%~~gen
+% package Classes.For.Masses.Of.NevermindTheRest;
+% class Exampll[T] {
+%~~vis
 \begin{xten}
-public val x : T;
+public global val x : T;
 \end{xten} 
-
-\noindent and a getter method
-
+%~~siv
+% def this(y:T) { x=y; }
+% }
+%~~neg
+\noindent It also defines a nullary getter method, 
+%~~gen
+% package Classes.For.Masses.Of.NevermindTheRest;
+% class Exampllll[T] {
+% public global val x : T;
+% def this(y:T) { x=y; }
+%~~vis
 \begin{xten}
-public final def x()=x;
+public global final def x()=x;
 \end{xten}
+%~~siv
+%}
+%~~neg
 
-\noindent Each interface \xcd"I" defining a property \xcd"x: T"
-implicitly has a getter method
+\noindent (As noted in \Sref{DepType:Interface}, interfaces can define
+properties too. They define the same nullary getter methods, though they do
+not require fields.)
 
-\begin{xten}
-public def x(): T;
-\end{xten}
 
 \begin{staticrule*}
 It is a compile-time error for a class or
@@ -389,51 +442,34 @@ interface defining a property \xcd"x :T" to have an existing method with
 the signature \xcd"x(): T".
 \end{staticrule*}
 
-Properties are used to build dependent types from classes, as
-described in \Sref{DepType:DepType}.
 
-Properties are initialized by the invocation of a special \Xcd{property} call in each constructor
-of the class:
+Properties are initialized by the invocation of a special \Xcd{property}
+statement, which must be performed in each constructor of the class:
 \begin{xten}
 property(e1,..., en);
 \end{xten}
-The number and type of arguments to the \Xcd{property} call must match the number
-and type of properties in the class declaration, in left to right lexical order. Each constructor is required to initialize its properties before normal termination.
+The number and types of arguments to the \Xcd{property} statement must match
+the number and types of the properties in the class declaration.  
+Every constructor of a class with properties must invoke \xcd`property(...)`
+precisely once; it is a static error if X10 cannot prove that this holds.
+
+The requirement to use the \xcd`property` statement means that all properties
+must be given values at the same time.  
+
+By construction, the graph whose nodes are values and whose edges are
+properties is acyclic.  \Eg, there cannot be values \xcd`a` and \xcd`b` with
+properties \xcd`c` and \xcd`d` such that \xcd`a.c == b` and \xcd`b.d == a`.
+(The similar graph whose edges are \xcd`global public val` fields {\em can} have
+cycles..) 
+
+
 \index{property!call}
 \index{property!initialization}
 \label{PropertyCall}
 
-\label{ClassGuard}
 
-The \grammarrule{Guard} in a class or interface declaration specifies an
-explicit condition on the properties of the type, and is discussed further
-in \Sref{DepType:ClassGuard}.
 
-\begin{staticrule*}
-     Every constructor for a class defining
-   properties \xcdmath"x$_1$: T$_1$, $\ldots$, x$_n$: T$_n$" must ensure that each of the fields
-   corresponding to the properties is definitely initialized
-   (cf. requirement on initialization of final fields in Java) before the
-   constructor returns.
-\end{staticrule*}
 
-Type \params{} are used to define generic classes and
-interfaces, as described in \Sref{Generics}.
-
-Classes are structured in a single-inheritance code
-hierarchy, may implement multiple interfaces, may have static and
-instance fields, may have static and instance methods, may have
-constructors, may have static and instance initializers, may have
-static and instance inner classes and interfaces. \Xten{} does not
-permit mutable static state.
-
-Method signatures may specify checked exceptions. Method definitions
-may be overridden by subclasses; the overriding definition may have a
-declared return type that is a subclass of the return type of the
-definition being overridden. Multiple methods with the same name but
-different signatures may be provided on a class (ad hoc
-polymorphism). The \Xcd{public}/\Xcd{private}/\Xcd{protected}/default-protected access
-modification framework may be used.
 
 
 \oldtodo{Figure out class modifiers. Figure out which new ones need to be added to support IEEE FP.}
@@ -448,9 +484,23 @@ object.  Variables declared at a class type always store a reference
 to the object, regardless of whether the object is local or remote.
 
 
-\section{Method definitions}
+\section{Methods}
 
-\Xten{} permits guarded method definitions. 
+As is common in object-oriented languages, objects can have {\em methods}, of
+two sorts.  {\em Static methods} are functions, conceptually associated with a
+class and defined in its namespace.  {\em Instance methods} are parameterized
+code bodies associated with an instance of the class, which execute with
+priveleged access to that instance's fields. 
+
+Each method has a {\em signature}, telling what arguments it accepts, what
+type it returns, what precondition it requires, and what exceptions it may
+throw. Method definitions may be overridden by subclasses; the overriding
+definition may have a declared return type that is a subclass of the return
+type of the definition being overridden. Multiple methods with the same name
+but different signatures may be provided on a class (ad hoc polymorphism).
+Methods may be declared \Xcd{public}, \Xcd{private}, \Xcd{protected}, or given
+default access rights.
+
 
 \begin{grammar}
 MethodDeclaration \: MethodHeader \xcd";" \\
@@ -462,17 +512,65 @@ MethodHeader \:
   && ReturnType\opt Throws\opt \\
 \end{grammar}
 
-A formal parameter may optionally have a \xcd"val" or \xcd"var"
-modifier (default: \xcd"val").  
+A formal parameter may have a \xcd"val" or \xcd"var"
+modifier; \xcd`val` is the default.
 The body of the method is executed in an environment in which 
-each formal parameter corresponds to a local variable
+each formal parameter corresponds to a local variable (\xcd`var` iff the
+formal parameter is \xcd`var`)
 and is initialized with the value of the actual parameter.
-The local variable  is mutable if and only if the
-parameter is a \xcd"var" parameter.
 
+
+\subsection{Method Guards}
 \label{MethodGuard}
 
-The guard (specified by \grammarrule{Guard})
+Often, a method will only make sense to invoke under certain
+statically-determinable conditions.  For example, \xcd`example(x)` is only
+well-defined when \xcd`x != null`, as \xcd`null.toString()` throws a null
+pointer exception: 
+%~~gen
+% package Classes.Make.Passes.At.Girls.Who.Wear.Glasses;
+%~~vis
+\begin{xten}
+class Example {
+   var f : String = "";
+   def example(x:Object){x != null} = {
+      this.f = x.toString();
+   }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\noindent
+(We could have used a constrained type \xcd`Object{self!=null}` instead; in
+most cases it is a matter of personal preference or convenience of expression
+which one to use.) 
+
+The requirement of having a method guard is that callers must demonstrate to
+the X10
+compiler that the guard is satisfied.  (As usual with static constraint
+checking, there is no runtime cost.  Indeed, this code can be more efficient
+than usual, as it is statically provable that \xcd`x != null`.)
+This may require a cast: 
+%~~gen
+% package Classes.Make.Asses.Of.Girls.With.Fake.Passes;
+% class Example {var f : String = ""; def example(x:Object){x != null} = {this.f = x.toString();}}
+% class Eyample {
+%~~vis
+\begin{xten}
+  def exam(e:Example!, x:Object) {
+    if (x != null) 
+       e.example(x as Object{x != null});
+    // WRONG: if (x != null) e.example(x);
+  }
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+The guard \xcd`{c}` 
+in a guarded method 
+\xcd`def m(){c} = E;`
 specifies a constraint \xcd"c" on the
 properties of the class \xcd"C" on which the method is being defined. The
 method exists only for those instances of \xcd"C" which satisfy \xcd"c".  It is
@@ -486,7 +584,8 @@ not a subtype of \xcd"C{c}".
     \xcdmath"e$_i$" must have a
     static type \xcdmath"S$_i$" that is a subtype of the declared type
     \xcdmath"T$_i$" for the $i$th
-    argument of the method, and the conjunction of static types
+    argument of the method, and the conjunction of the constraints on the
+    static types 
     of the arguments must entail the guard in the parameter list
     of the method.
 
@@ -506,56 +605,21 @@ not a subtype of \xcd"C{c}".
     \xcdmath"x$_1$, $\dots$, x$_n$" are the formal
     parameters of the method.
 \end{staticrule*}
-The method body is either an expression, a block of statements,
-or a block ending with an expression.
 
-\begin{example}
-%%TODO--rewrite this.  I don't know what point it's trying to illustrate.
-The following program implements a subset of \xcd`Point`'s behavior.  
-
-%~~gen
-%package Classes.Pointlike.For.Fun.And.Profit;
-%~~vis
-\begin{xten}
-final class Pointlike(rank: Int)  {
-    public global val coords: ValRail[Int]{self.length == rank};
-    public def this(v:ValRail[Int]) {
-       property(v.length);
-       coords = v as ValRail[Int]{self.length == rank};
-    }
-    public operator this + (that: Pointlike{self.rank == this.rank})
-       : Pointlike{self.rank == this.rank}
-       {
-         val f : (Int)=>Int = (i:Int) => 
-                 (this.coords)(i) + (that.coords)(i);
-         val v = ValRail.make[Int](rank, f);
-         return new Pointlike(v);
-       }
-    static def example() {
-       val s <: Pointlike{self.rank==3} = new Pointlike([1,2,3]);
-       val t <: Pointlike{self.rank==3} = new Pointlike([-1,-1,-1]);
-       val u <: Pointlike{self.rank==3} = s + t;
-    }
-}
-\end{xten}
-%~~siv
-%
-%~~neg
-\end{example}
 
 \subsection{Property methods}
 
 A method declared with the modifier \xcd"property" may be used
 in constraints.  A property method declared in a class must have
-a body and must not be \xcd"void".  The body of the method must
+a body and must not be \xcd"Void".  The body of the method must
 consist of only a single \xcd"return" statement or a single
 expression.  It is a static error if the expression cannot be
 represented in the constraint system. 
 
-The expression may contain invocations of other properties. It is the
-responsibility of the programmer to ensure that the evaluation of 
-a property terminates at compile-time, otherwise the type-checker
-will not terminate and the program will fail to compile.
+The expression may contain invocations of other property methods. It is the
+responsibility of the programmer to ensure that the evaluation of a property
+terminates at compile-time, otherwise the type-checker will not terminate and
+the program will fail to compile in a potentially most unfortunate way.
 
 Property methods in classes are implicitly \xcd"final"; they cannot be
 overridden. Property methods are also implicitly \xcd"global".
