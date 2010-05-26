@@ -320,7 +320,7 @@ on instantiation.  For example, a generic stack class may be defined as
 Generics {\em must} be instantiated when they are used: \xcd`Stack`, by
 itself, is not a valid type.
 Type parameters may be constrained by a guard on the declaration
-(\Sref{ClassGuard}, \Sref{TypeDefGuard},
+(\Sref{TypeDefGuard},
 \Sref{MethodGuard},\Sref{ClosureGuard}).
 
 \index{types!concrete types}
@@ -1356,7 +1356,11 @@ X10 provides certain guarantees about the common type \xcd`V{v}` computed for
 \item X10 preserves place information, because it is so important. If both
       \xcd`t` and \xcd`u` entail \xcd`self.home==p`, then  
       \xcd`v` will also entail \xcd`self.home==p`.  In particular, the common
-      type for \xcd`T!` and \xcd`U!` has the form \xcd`V!`.  
+      type for \xcd`T!` and \xcd`U!` has the form \xcd`V!`. 
+\item X10 similarly preserves nullity information.  If \xcd`t` and \xcd`u`
+      both entail \xcd`x == null` or \xcd`x != null` for some variable
+      \xcd`x`, then \xcd`v` will also entail it as well.
+
 \end{itemize}
 
 %\subsection{Syntactic abbreviations}\label{DepType:SyntaxAbbrev}
