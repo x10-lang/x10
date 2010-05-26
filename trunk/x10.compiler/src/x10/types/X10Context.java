@@ -77,6 +77,20 @@ public interface X10Context extends Context {
 	 */
 	XConstrainedTerm currentThisPlace();
 	
+	/**
+	 * We are entering the scope of a collecting finish. All offers
+	 * within this scope must return an expression of type t.
+	 * @param t -- the type of the collecting finish.
+	 * @return
+	 */
+	Context pushCollectingFinishScope(Type t);
+	
+	/**
+	 * The type of the collecting finish whose scope we are in.
+	 * null if we are not in the scope of a collecting finish
+	 * @return
+	 */
+	Type collectingFinishType();
 	
 	/** Current constraint on here. */
 	//CConstraint currentPlaceConstraint();
