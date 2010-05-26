@@ -173,6 +173,15 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         return null;
     }
 
+    public void setMethodBody(CodeBlockSynth codeBlockSynth) {
+        try {
+            checkClose();
+            this.codeBlockSynth = codeBlockSynth;
+        } catch (StateSynthClosedException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public CodeBlockSynth createMethodBody(Position pos) {
         codeBlockSynth = new CodeBlockSynth(xnf, xct, pos);
         return codeBlockSynth;
