@@ -58,6 +58,7 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XVar;
 import x10.constraint.XTerms;
+import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.X10ClassDef;
 import x10.types.X10Context;
@@ -413,9 +414,7 @@ public class Closure_c extends Expr_c implements Closure {
           		throw ac.error;
           	}
         }
-      	
-      	
-        
+
         if (n.returnType() instanceof UnknownTypeNode) {
         	NodeFactory nf = tc.nodeFactory();
         	TypeSystem ts = tc.typeSystem();
@@ -429,25 +428,19 @@ public class Closure_c extends Expr_c implements Closure {
         	n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), t));
         	
         }
-        
-    	
-    	
-   	 
-        
+
         // Create an anonymous subclass of the closure type.
         ClosureDef def = n.closureDef;
         ClassDef cd = ClosureSynthesizer.closureAnonymousClassDef(xts, def);
-        n=(Closure_c) n.type(cd.asType());
+        n = (Closure_c) n.type(cd.asType());
         if (hasType != null) {
-      		 final TypeNode h = (TypeNode) n.visitChild(n.hasType, tc);
-           	Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) tc.context());
-           	n =  n.hasType(h);
-           	if (! Globals.TS().isSubtype(n.returnType().type(), hasType,tc.context())) {
-           		throw new SemanticException("Computed type is not a subtype of  type bound." 
-           				+ "\n\t Computed Type: " + type
-           				+ "\n\t Type Bound: " + hasType, position());
-           	}
-           }
+            final TypeNode h = (TypeNode) n.visitChild(n.hasType, tc);
+            Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) tc.context());
+            n =  n.hasType(h);
+            if (! Globals.TS().isSubtype(n.returnType().type(), hasType, tc.context())) {
+                throw new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position());
+            }
+        }
         return n;
     }
     
