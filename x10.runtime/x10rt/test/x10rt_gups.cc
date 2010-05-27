@@ -157,7 +157,7 @@ static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
             #endif
             #ifdef OP_NEW
             uint64_t remote_addr = globalTable[place];
-            remote_addr += sizeof(uint64_t)*index;
+            remote_addr += sizeof(uint64_t)*(index);
             x10rt_remote_op(place, remote_addr, X10RT_OP_XOR, update);
             #endif
         }
@@ -272,26 +272,26 @@ int main(int argc, char **argv)
     uint64_t updates = 4;
 
     for (int i=1 ; i<argc; ++i) {
-        if (!strcmp(argv[i], "--help")) {
+        if (!strncmp(argv[i], "--help", 100)) {
             show_help(std::cout,argv[0]);
             exit(EXIT_SUCCESS);
-        } else if (!strcmp(argv[i], "-h")) {
+        } else if (!strncmp(argv[i], "-h", 100)) {
             show_help(std::cout,argv[0]);
             exit(EXIT_SUCCESS);
 
-        } else if (!strcmp(argv[i], "--mem")) {
+        } else if (!strncmp(argv[i], "--mem", 100)) {
             logLocalTableSize = strtoul(argv[++i],NULL,0);
-        } else if (!strcmp(argv[i], "-m")) {
+        } else if (!strncmp(argv[i], "-m", 100)) {
             logLocalTableSize = strtoul(argv[++i],NULL,0);
 
-        } else if (!strcmp(argv[i], "--updates")) {
+        } else if (!strncmp(argv[i], "--updates", 100)) {
             updates = strtoul(argv[++i],NULL,0);
-        } else if (!strcmp(argv[i], "-u")) {
+        } else if (!strncmp(argv[i], "-u", 100)) {
             updates = strtoul(argv[++i],NULL,0);
 
-        } else if (!strcmp(argv[i], "--validate")) {
+        } else if (!strncmp(argv[i], "--validate", 100)) {
             enable_validate = true;
-        } else if (!strcmp(argv[i], "-v")) {
+        } else if (!strncmp(argv[i], "-v", 100)) {
             enable_validate = true;
 
         } else {
