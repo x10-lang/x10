@@ -1,5 +1,5 @@
 import x10.util.Timer;
-import x10.compiler.Uncounted;
+import x10.compiler.Immediate;
 
 class FRASimpleDist {
 
@@ -47,23 +47,11 @@ class FRASimpleDist {
                    
                     val dest = Place(place_id);
 
-                    @Uncounted async (dest) {
+                    @Immediate async (dest) {
                         grail()(index) ^= update;
                     } 
-
 /*
-                    if (dest==here) {
-                        grail()(index) ^= update;
-                    } else {
-                        magic(dest, grail(), index, update);
- r                  }
-*/
-
-/*
-                    val rail = rails(place_id) as Rail[Long]{self.at(dest)};
-                    @Uncounted async (dest) {
-                        rail(index) ^= update;
-                    } 
+                    x10rt_remote_xor(dest, grail(), index, update);
 */
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
@@ -125,17 +113,7 @@ class FRASimpleDist {
         val numUpdates = updates_*tableSize;
 
         // create local rails
-/*
-        val rails_ = Rail.make[Rail[Long]](Place.MAX_PLACES, (p:Int) => null);
-        finish for ((p) in 0..Place.MAX_PLACES-1) {
-            async (Place.places(p)) {
-                val tmp = Rail.make(localTableSize, (i:Int)=>i as Long);
-                at (rails_) rails_(p) = tmp;
-            }
-        }
-        val rails = rails_ as ValRail[Rail[Long]];
-*/
-        val grails = PlaceLocalHandle.make[Rail[Long]](Dist.makeUnique(), ()=>Rail.make[Long](localTableSize, (i:Int)=>i as Long));
+        val grails = PlaceLocalHandle.make[Rail[Long]](Dist.makeUnique(), ()=>Rail.makePinned[Long](localTableSize, (i:Int)=>i as Long));
 
         // print some info
         Console.OUT.println("Main table size:   2^"+logLocalTableSize+"*"+Place.MAX_PLACES

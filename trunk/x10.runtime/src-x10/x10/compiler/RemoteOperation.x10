@@ -16,7 +16,7 @@ package x10.compiler;
  */
 public final class RemoteOperation {
     // FIXME: HACK
-    @Native("c++", "x10rt_remote_xor((#1)->FMGL(id),((((x10_ulong)x10aux::get_remote_ref((#2).operator->())) + sizeof(x10::lang::Rail<x10_long>)+7)&~0x7) + ((#3)*sizeof(x10_long)),#4)")
+    @Native("c++", "x10rt_remote_xor((#1)->FMGL(id), (x10rt_remote_ptr) &(((#2).operator->())[(#3)]), #4)")
     public static def xor(p:Place, r:Rail[Long]/*!p*/, i:Int, v:Long) {
         async (p) {
             (r as Rail[Long]!)(i) ^= v;
