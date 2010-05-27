@@ -150,7 +150,7 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
 
     public CodeBlockSynth createConstructorBody(Position pos) {
         if(codeBlockSynth == null){
-            codeBlockSynth = new CodeBlockSynth(xnf, xct, pos);     
+            codeBlockSynth = new CodeBlockSynth(xnf, xct, this, pos);     
         }
         return codeBlockSynth;
     }
@@ -171,6 +171,8 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
             getDef();
         }
 
+        closed = true;
+        
         // Method Decl
         List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
         for (Ref<? extends Type> t : conDef.throwTypes()) {
@@ -182,7 +184,7 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
         if (codeBlockSynth == null) {
             block = xnf.Block(pos);
         } else {
-            block = codeBlockSynth.genCodeGen();
+            block = codeBlockSynth.close();
         }
 
         // constructor

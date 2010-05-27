@@ -51,6 +51,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -409,6 +410,28 @@ public class Synthesizer {
 		}
 		return result;
 	}
+	
+	    /** 
+	     * Create a local variable reference.
+	     * 
+	     * @param pos the Position of the reference in the source code
+	     * @param decl the declaration of the local variable
+	     * @return the synthesized Local variable reference
+	     */
+	    public Local createLocal(Position pos, LocalDecl decl) {
+	        return createLocal(pos, decl.localDef().asInstance());
+	    }
+
+	    /** 
+	     * Create a local variable reference.
+	     * 
+	     * @param pos the Position of the reference in the source code
+	     * @param li a type system object representing this local variable
+	     * @return the synthesized Local variable reference
+	     */
+	    public Local createLocal(Position pos, LocalInstance li) {
+	        return (Local) xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
+	    }
 	
 	/**
 	 * Make a field access for r.name. Throw a SemanticException if such a field does not exist.

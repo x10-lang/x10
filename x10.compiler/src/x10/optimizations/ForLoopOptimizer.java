@@ -574,7 +574,8 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @param pos the Position of the reference in the source code
      * @param decl the declaration of the local variable
      * @return the synthesized Local variable reference
-     * TODO: move into Synthesizer
+     * TODO: moved into synthesizer, rewrite others
+     * @deprecated
      */
     public Local createLocal(Position pos, LocalDecl decl) {
         return createLocal(pos, decl.localDef().asInstance());
@@ -586,7 +587,8 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @param pos the Position of the reference in the source code
      * @param li a type system object representing this local variable
      * @return the synthesized Local variable reference
-     * TODO: move into Synthesizer
+     * TODO: moved into synthesizer, rewrite others
+     * @deprecated
      */
     public Local createLocal(Position pos, LocalInstance li) {
         return (Local) xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());

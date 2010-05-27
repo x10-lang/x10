@@ -41,37 +41,33 @@ import x10.types.checker.PlaceChecker;
 
 /**
  * Synthesizer to construct a class
- *
+ * 
  */
 public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth {
 
-
-    
     X10ClassDef classDef;
     X10ClassDecl classDecl;
-    
+
     List<IClassMemberSynth> membersSynth;
-    
-    public ClassSynth(X10NodeFactory xnf, X10Context xct, ClassDecl classDecl){
+
+    public ClassSynth(X10NodeFactory xnf, X10Context xct, ClassDecl classDecl) {
         super(xnf, xct, classDecl.position());
         this.classDecl = (X10ClassDecl) classDecl;
         this.classDef = (X10ClassDef) classDecl.classDef();
-        //no need to set others
+        // no need to set others
         membersSynth = new ArrayList<IClassMemberSynth>();
     }
-    
-    
-    public ClassSynth(X10NodeFactory xnf, X10Context xct, Position pos,
-                      Type superType,  Name className, List<Type> interfaces, 
-                      Flags flags, Kind kind) {
+
+    public ClassSynth(X10NodeFactory xnf, X10Context xct, Position pos, Type superType, Name className,
+            List<Type> interfaces, Flags flags, Kind kind) {
         super(xnf, xct, pos);
         membersSynth = new ArrayList<IClassMemberSynth>();
-        
+
         classDef = (X10ClassDef) xts.createClassDef();
-        classDef.superType(Types.ref(superType)); //And the super Type
-        
+        classDef.superType(Types.ref(superType)); // And the super Type
+
         List<Ref<? extends Type>> interfacesRef = new ArrayList<Ref<? extends Type>>();
-        for(Type t : interfaces){
+        for (Type t : interfaces) {
             interfacesRef.add(Types.ref(t));
         }
         classDef.setInterfaces(interfacesRef);
@@ -82,34 +78,32 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
 
     /**
      * Create a class def with no interaces, Flags.None and top.level
+     * 
      * @param xnf
      * @param xct
      * @param superType
      * @param className
      */
-    public ClassSynth(X10NodeFactory xnf, X10Context xct,
-                      Type superType,  String className){
-       this(xnf, xct, compilerPos, superType, className);
-   }
-    
-    public ClassSynth(X10NodeFactory xnf, X10Context xct,
-                      Position pos, Type superType, String className){
-        this(xnf, xct, pos, superType, Name.make(className),
-             new ArrayList<Type>(), Flags.NONE, ClassDef.TOP_LEVEL);
+    public ClassSynth(X10NodeFactory xnf, X10Context xct, Type superType, String className) {
+        this(xnf, xct, compilerPos, superType, className);
+    }
+
+    public ClassSynth(X10NodeFactory xnf, X10Context xct, Position pos, Type superType, String className) {
+        this(xnf, xct, pos, superType, Name.make(className), new ArrayList<Type>(), Flags.NONE, ClassDef.TOP_LEVEL);
     }
 
     public X10ClassDef getClassDef() {
         return classDef;
     }
-    
+
     public X10ClassDef getDef() {
         return classDef;
     }
 
-    public void setSuperType(Type superType){
+    public void setSuperType(Type superType) {
         classDef.superType(Types.ref(superType));
     }
-    
+
     public void setFlags(Flags flags) {
         try {
             checkClose();
@@ -128,8 +122,8 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
         }
 
     }
-    
-    public void addInterface(Type interf){
+
+    public void addInterface(Type interf) {
         try {
             checkClose();
             classDef.addInterface(Types.ref(interf));
@@ -137,87 +131,81 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
             e.printStackTrace();
         }
     }
-    
-    public FieldSynth createField(Position pos, String name, Type type){
+
+    public FieldSynth createField(Position pos, String name, Type type) {
         FieldSynth fsynth = new FieldSynth(xnf, xct, pos, classDef, name, type);
         membersSynth.add(fsynth);
         return fsynth;
     }
-    
-    public ConstructorSynth createConstructor(Position pos){
+
+    public ConstructorSynth createConstructor(Position pos) {
         ConstructorSynth conSynth = new ConstructorSynth(xnf, xct, pos, classDef);
         membersSynth.add(conSynth);
         return conSynth;
     }
-    
+
     /**
-     * This will create a constructor of CType something like this(o:CType!)
-     * The body is: super(o) and copy all fields from o to this
+     * This will create a constructor of CType something like this(o:CType!) The
+     * body is: super(o) and copy all fields from o to this
+     * 
      * @param pos
      * @return CodeBlockSynth so that more statements could be added
-     * @throws SemanticException 
+     * @throws SemanticException
      */
-    public CodeBlockSynth createCopyConstructor(Position pos) throws SemanticException{
+    public CodeBlockSynth createCopyConstructor(Position pos) throws SemanticException {
         Type cType = (Type) classDef.asType();
         Type ccType = PlaceChecker.AddIsHereClause(cType, xct);
         Type sType = classDef.superType().get();
         Type scType = PlaceChecker.AddIsHereClause(sType, xct);
-        
-        
-        ConstructorSynth conSynth = createConstructor(pos);        
+
+        ConstructorSynth conSynth = createConstructor(pos);
         Expr otherRef = conSynth.addFormal(compilerPos, ccType, "o");
         CodeBlockSynth conStmtsSynth = conSynth.createConstructorBody(compilerPos);
         SuperCallSynth superCallSynth = conStmtsSynth.createSuperCall(compilerPos, classDef);
         superCallSynth.addArgument(scType, otherRef);
-        
-        //now try to add fields copy directly
+
+        // now try to add fields copy directly
         Receiver leftReceiver = xnf.This(compilerPos).type(cType);
         for (FieldDef df : classDef.fields()) {
             Name fieldName = df.name();
-            Stmt s = xnf.Eval(compilerPos,
-                              synth.makeFieldToFieldAssign(compilerPos, leftReceiver, fieldName, otherRef, fieldName, xct));
+            Stmt s = xnf.Eval(compilerPos, synth.makeFieldToFieldAssign(compilerPos, leftReceiver, fieldName, otherRef,
+                                                                        fieldName, xct));
             conStmtsSynth.addStmt(s);
         }
-        
-        
+
         return conStmtsSynth;
-        
+
     }
-    
-    
-    
-    
-    public ClassSynth createInnerClass(Position pos, Type type, String className){
-        ClassSynth cSynth = new ClassSynth(xnf, xct, pos, type, className); 
+
+    public ClassSynth createInnerClass(Position pos, Type type, String className) {
+        ClassSynth cSynth = new ClassSynth(xnf, xct, pos, type, className);
         membersSynth.add(cSynth);
         return cSynth;
     }
-    
-    public MethodSynth createMethod(Position pos, String methodName){
-        MethodSynth mSynth = new MethodSynth(xnf, xct, pos, classDef, methodName); 
+
+    public MethodSynth createMethod(Position pos, String methodName) {
+        MethodSynth mSynth = new MethodSynth(xnf, xct, pos, classDef, methodName);
         membersSynth.add(mSynth);
         return mSynth;
     }
 
-    
-
     public X10ClassDecl close() throws SemanticException {
-        //should trigger all member gen to generate the decl,
-        //add add it into the class decl
-        if(closed){
+        // should trigger all member gen to generate the decl,
+        // add add it into the class decl
+        if (closed) {
             return classDecl;
         }
 
         closed = true;
-        
-        if(classDecl == null){
-            //a new class - classdecl
+
+        if (classDecl == null) {
+            // a new class - classdecl
             FlagsNode fNode = xnf.FlagsNode(pos, classDef.flags());
             Id id = xnf.Id(pos, classDef.name());
             TypeNode superTN = (TypeNode) xnf.CanonicalTypeNode(pos, classDef.superType());
             List<ClassMember> cmembers = new ArrayList<ClassMember>();
-            //iterate all memberSynths
-            
+            // iterate all memberSynths
+
             ClassBody body = xnf.ClassBody(pos, cmembers);
             List<TypeNode> interfaceTN = new ArrayList<TypeNode>();
             for (Ref<? extends Type> t : classDef.interfaces()) {
@@ -226,28 +214,27 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
 
             X10ClassDecl cDecl = (X10ClassDecl) xnf.ClassDecl(pos, fNode, id, superTN, interfaceTN, body);
 
-            classDecl = (X10ClassDecl) cDecl.classDef(classDef);            
+            classDecl = (X10ClassDecl) cDecl.classDef(classDef);
         }
-        //now tries to add all the members
+        // now tries to add all the members
         ClassBody b = classDecl.body();
-        for(IClassMemberSynth cms : membersSynth){
+        for (IClassMemberSynth cms : membersSynth) {
             ClassMember cm = cms.close();
-            if(cm instanceof X10ConstructorDecl){
-                ((X10ConstructorDecl)cm).typeParameters(classDecl.typeParameters());
+            if (cm instanceof X10ConstructorDecl) {
+                ((X10ConstructorDecl) cm).typeParameters(classDecl.typeParameters());
             }
             b = b.addMember(cm);
         }
         classDecl = (X10ClassDecl) classDecl.body(b);
         return classDecl;
     }
-    
-    public X10ClassDecl getClassDecl(){
-        if(closed){
+
+    public X10ClassDecl getClassDecl() {
+        if (closed) {
             return classDecl;
-        }
-        else{
+        } else {
             System.out.println("[ClassSynth_ERR]Try to get the ClassDecl before the class synthesizer is closed!");
-            return null; //the class is not generated yet
+            return null; // the class is not generated yet
         }
     }
 }
