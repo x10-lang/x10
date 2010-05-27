@@ -64,7 +64,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		assert ts != null;
 		this.baseType = baseType;
 		if ((baseType.known() && baseType.getCached() instanceof UnknownType))
-			throw new InternalError("Base type must be known.");
+			throw new InternalCompilerError("Base type must be known.");
 			
 		
 		//assert  :
