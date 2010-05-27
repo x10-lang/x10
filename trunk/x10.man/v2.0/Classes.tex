@@ -937,6 +937,8 @@ the nullary constructor call \xcd`new Crate()` will return a value of type
 \xcd`Crate{self.n == 0}`--- the \xcd`n` field is zero and the compiler knows
 it.  The unary Boolean constructor will return an object of type 
 \xcd`Crate{self.n==1}`.
+A less trivial example might be a specialized constructor for a square matrix, 
+which returned type \xcd`Matrix{self.rows==self.cols}`.  
 
 If the constructor type is omitted, the constructor returns 
 the type of its class, constrained by the actual parameters to the
@@ -1014,7 +1016,7 @@ write} into fields of a \xcd`proto C` object, thus initializing it, but not
 {\em read} them and thus not stumble into the error above.
 
 %%BARD-HERE
-
+\bard{The rest of this is under reconsideration}
 
 For local variables, this is ensured by using a pre-specified static
 analysis to ensure that every local variable is written into before it

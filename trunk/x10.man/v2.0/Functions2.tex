@@ -5,20 +5,13 @@
 \label{Closures}
 
 \section{Overview}
-The runtime entities in \Xten{} are of three kinds: \emph{structs},
-\emph{objects}, and \emph{functions}. This section is concerned with
-functions and their types -- how they are created, and what operations
-can be performed on them.
-
-Intuitively, a function is a piece of code which can be applied to a
-set of arguments to produce a value. The application may not
-terminate, or may terminate abruptly. Functions may throw checked and
-unchecked exceptions. The body of a function may be any \Xten{}
-expression: hence a function evaluation may spawn multiple activities,
-read and write mutable locations, wait until memory locations contain
-a desired value, and execute over multiple places. In particular,
-function evaluation may be non-deterministic. When applied to the same
-input twice, a function may yield two different results.
+Functions, the last of the three kinds of values in X10, encapsulate pieces of
+code which can be applied to a vector of arguments to produce a value.  
+Functions, when applied, can do anything that any other code could do: fail to
+terminate, throw an exception, modify variables, spawn activities, execute in
+several places, and so on.  X10 functions are not mathematical functions: the
+\xcd`f(1)` may return \xcd`true` on one call and \xcd`false` on an immediately
+following call.
 
 It is a limitation of \XtenCurrVer{} that functions do not support
 type arguments. This limitation may be removed in future versions of
