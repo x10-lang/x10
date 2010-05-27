@@ -317,7 +317,7 @@ namespace x10 {
 
         template <class T> x10aux::ref<Rail<T> > Rail<T>::makePinned(x10_int length,
                                                                      x10aux::ref<Fun_0_1<x10_int,T> > init) {
-            R rail = x10aux::alloc_aligned_rail<T,Rail<T> >(0);
+            R rail = x10aux::alloc_rail<T,Rail<T> >(0);
             rail->raw = (T*)x10aux::alloc_internal_pinned(length * sizeof(T));
             x10aux::ref<x10::lang::Reference> initAsRef = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Reference> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsRef->_getITables());
