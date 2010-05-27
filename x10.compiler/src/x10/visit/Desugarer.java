@@ -345,13 +345,14 @@ public class Desugarer extends ContextVisitor {
         Expr p = a.place();
         Expr r = ((SettableAssign_c) e).array();
         Expr v = ((SettableAssign_c) e).right();
-        if (!isGloballyAvailable(r) || !isGloballyAvailable(i) || !isGloballyAvailable(v))
+        if (/*!isGloballyAvailable(r) || */!isGloballyAvailable(i) || !isGloballyAvailable(v))
             return null;
-        List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
+/*        List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
         if (!v.type().isLong() || !xts.isRailOf(r.type(), xts.Long()))
             return null;
         if (!PlaceChecker.isAtPlace(r, p, xContext()))
             return null;
+*/
         ClassType RemoteOperation = (ClassType) xts.typeForName(REMOTE_OPERATION);
         Position pos = a.position();
         List<Expr> args = new ArrayList<Expr>();
