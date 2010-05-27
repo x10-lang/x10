@@ -145,7 +145,7 @@ public class PlaceChecker {
 			if (xct.currentPlaceTerm() !=null) 
 				type = Subst.subst(type, xct.currentPlaceTerm().term(), here()); 
 		} catch (SemanticException z) {
-			throw new InternalError("Unexpectedly inconsistent constraint.");
+			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
 		return type;
 		/*CConstraint xclause = X10TypeMixin.xclause(type);
@@ -174,7 +174,7 @@ public class PlaceChecker {
 			if (term != null)
 				type = Subst.subst(type,  term, here()); 
 		} catch (SemanticException z) {
-			throw new InternalError("Unexpectedly inconsistent constraint.");
+			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
 		return type;
 	}
@@ -184,7 +184,7 @@ public class PlaceChecker {
 			if ( term instanceof XVar)
 				type = Subst.subst(type,  here(), (XVar) term); 
 		} catch (SemanticException z) {
-			throw new InternalError("Unexpectedly inconsistent constraint.");
+			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
 		return type;
 	}
