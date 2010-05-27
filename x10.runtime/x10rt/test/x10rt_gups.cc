@@ -9,8 +9,10 @@
 #include <x10rt_net.h>
 #include <x10rt_logical.h>
 
+#ifdef X10RT_PANE_HACK
 #define TRANSPORT pane
 #include <pgasrt.h>
+#endif
 
 #ifdef _AIX
 #define PAGESIZE_4K  0x1000
