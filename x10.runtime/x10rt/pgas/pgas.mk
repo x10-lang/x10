@@ -24,7 +24,7 @@ PLATFORM_SUPPORTS_BGP := no
 LAPI_LDFLAGS    = $(CUDA_LDFLAGS)
 BGP_LDFLAGS     = $(CUDA_LDFLAGS)
 SOCKETS_LDFLAGS = $(CUDA_LDFLAGS)
-PANE_LDFLAGS    = $(CUDA_LDFLAGS)
+PANE_LDFLAGS    = $(CUDA_LDFLAGS) -blpdata
 
 LAPI_LDLIBS     = -lx10rt_pgas_lapi $(CUDA_LDLIBS)
 BGP_LDLIBS      = -lx10rt_pgas_bgp $(CUDA_LDLIBS)
@@ -199,7 +199,7 @@ LIBS += $(PGAS_DYNLIB_PANE)
 PROPERTIES += etc/x10rt_pgas_pane.properties
 
 %.pgas_pane: %.cc $(PGAS_DYNLIB_PANE)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(PANE_LDFLAGS) $(PANE_LDLIBS) $(X10RT_TEST_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -DX10RT_PANE_HACK $(PANE_LDFLAGS) $(PANE_LDLIBS) $(X10RT_TEST_LDFLAGS)
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_pane.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_pane.a include/pgasrt.h
