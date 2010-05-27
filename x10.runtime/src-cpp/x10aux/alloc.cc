@@ -112,7 +112,7 @@ size_t x10aux::heap_size() {
 #endif
 }
 
-void *alloc_internal_pinned(size_t size) {
+void *x10aux::alloc_internal_pinned(size_t size) {
     void *obj;
 
 #ifdef _AIX
