@@ -113,6 +113,8 @@ size_t x10aux::heap_size() {
 }
 
 void *alloc_internal_pinned(size_t size) {
+    void *obj;
+
 #ifdef _AIX
     int shm_id=shmget(IPC_PRIVATE, size, (IPC_CREAT|IPC_EXCL|0600));
     if (shm_id == -1) {
@@ -125,7 +127,7 @@ void *alloc_internal_pinned(size_t size) {
         std::cerr << "Could not get 16M pages" << std::endl;
         abort();
     }
-    void *obj = shmat(shm_id,0,0);  // map memory
+    obj = shmat(shm_id,0,0);  // map memory
     shmctl(shm_id, IPC_RMID, NULL); // no idea what this does
 
     // pagesizes OK?
@@ -145,10 +147,11 @@ void *alloc_internal_pinned(size_t size) {
     }
 
 #else
-    void *obj = alloc_internal(size, false);
+    // Need to implement on other platforms...
+    abort();
 #endif
 
-    return obj;
+    return (void*)x10rt_register_mem(obj, size);
 }
 
         
