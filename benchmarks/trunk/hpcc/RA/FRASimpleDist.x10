@@ -1,5 +1,5 @@
 import x10.util.Timer;
-import x10.compiler.Immediate;
+import x10.compiler.Uncounted;
 
 class FRASimpleDist {
 
@@ -32,13 +32,12 @@ class FRASimpleDist {
         return ran;
     }
 
-    static def runBenchmark(rails: ValRail[Rail[Long]],
+    static def runBenchmark(grail: PlaceLocalHandle[Rail[Long]],
         logLocalTableSize: Int, numUpdates: Long) {
         val mask = (1<<logLocalTableSize)-1;
         val local_updates = numUpdates / Place.MAX_PLACES;
         finish for ((p) in 0..Place.MAX_PLACES-1) {
-            async (Place.places(p)) 
-            @Immediate finish {
+            async (Place.places(p)) {
                 var ran:Long = HPCC_starts(p*(numUpdates/Place.MAX_PLACES));
 
                 for (var i:Long=0 ; i<local_updates ; ++i) {
@@ -46,11 +45,26 @@ class FRASimpleDist {
                     val index = (ran & mask as Int);
                     val update = ran;
                    
-                    val dest = Place.places(place_id);
+                    val dest = Place(place_id);
+
+                    @Uncounted async (dest) {
+                        grail()(index) ^= update;
+                    } 
+
+/*
+                    if (dest==here) {
+                        grail()(index) ^= update;
+                    } else {
+                        magic(dest, grail(), index, update);
+ r                  }
+*/
+
+/*
                     val rail = rails(place_id) as Rail[Long]{self.at(dest)};
-                    @Immediate async (dest) {
+                    @Uncounted async (dest) {
                         rail(index) ^= update;
                     } 
+*/
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
             }
@@ -111,6 +125,7 @@ class FRASimpleDist {
         val numUpdates = updates_*tableSize;
 
         // create local rails
+/*
         val rails_ = Rail.make[Rail[Long]](Place.MAX_PLACES, (p:Int) => null);
         finish for ((p) in 0..Place.MAX_PLACES-1) {
             async (Place.places(p)) {
@@ -119,6 +134,8 @@ class FRASimpleDist {
             }
         }
         val rails = rails_ as ValRail[Rail[Long]];
+*/
+        val grails = PlaceLocalHandle.make[Rail[Long]](Dist.makeUnique(), ()=>Rail.make[Long](localTableSize, (i:Int)=>i as Long));
 
         // print some info
         Console.OUT.println("Main table size:   2^"+logLocalTableSize+"*"+Place.MAX_PLACES
@@ -128,7 +145,7 @@ class FRASimpleDist {
 
         // time it
         var cpuTime:Double = -Timer.nanoTime() * 1e-9D;
-        runBenchmark(rails, logLocalTableSize, numUpdates);
+        runBenchmark(grails, logLocalTableSize, numUpdates);
         cpuTime += Timer.nanoTime() * 1e-9D;
 
         // print statistics
@@ -137,13 +154,12 @@ class FRASimpleDist {
         Console.OUT.println(GUPs+" Billion(10^9) Updates per second (GUP/s)");
 
         // repeat for testing.
-        runBenchmark(rails, logLocalTableSize, numUpdates);
+        runBenchmark(grails, logLocalTableSize, numUpdates);
         for ((i) in 0..Place.MAX_PLACES-1) {
             async (Place.places(i)) {
-                val rail = rails(i) as Rail[Long]{self.at(here)};
                 var err:Int = 0;
-                for (var j:Int=0; j<rail.length; j++)
-                    if (rail(j) != j) err++;
+                for (var j:Int=0; j<grails().length; j++)
+                    if (grails()(j) != j) err++;
                 Console.OUT.println("Found " + err + " errors.");
             }
         }
