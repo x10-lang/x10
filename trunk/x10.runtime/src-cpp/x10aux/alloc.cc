@@ -19,6 +19,15 @@
 #include <x10aux/throw.h>
 #include <x10/lang/OutOfMemoryError.h>
 
+#ifdef _AIX
+#define PAGESIZE_4K  0x1000
+#define PAGESIZE_64K 0x10000
+#define PAGESIZE_16M 0x1000000
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/vminfo.h>
+#endif
+
 using namespace x10aux;
 
 #ifdef __CYGWIN__

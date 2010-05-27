@@ -24,7 +24,7 @@ PLATFORM_SUPPORTS_BGP := no
 LAPI_LDFLAGS    = $(CUDA_LDFLAGS)
 BGP_LDFLAGS     = $(CUDA_LDFLAGS)
 SOCKETS_LDFLAGS = $(CUDA_LDFLAGS)
-PANE_LDFLAGS    = $(CUDA_LDFLAGS) -blpdata
+PANE_LDFLAGS    = $(CUDA_LDFLAGS) -btextpsize:64K -bdatapsize:64K -bstackpsize:64K
 
 LAPI_LDLIBS     = -lx10rt_pgas_lapi $(CUDA_LDLIBS)
 BGP_LDLIBS      = -lx10rt_pgas_bgp $(CUDA_LDLIBS)
