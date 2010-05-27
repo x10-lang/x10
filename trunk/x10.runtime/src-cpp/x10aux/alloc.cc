@@ -103,9 +103,44 @@ size_t x10aux::heap_size() {
 #endif
 }
 
-    
+void *alloc_internal_pinned(size_t size) {
+#ifdef _AIX
+    int shm_id=shmget(IPC_PRIVATE, size, (IPC_CREAT|IPC_EXCL|0600));
+    if (shm_id == -1) {
+        std::cerr << "shmget failure" << std::endl;
+        abort();
+    }
+    struct shmid_ds shm_buf = { 0 };
+    shm_buf.shm_pagesize = PAGESIZE_16M;
+    if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
+        std::cerr << "Could not get 16M pages" << std::endl;
+        abort();
+    }
+    void *obj = shmat(shm_id,0,0);  // map memory
+    shmctl(shm_id, IPC_RMID, NULL); // no idea what this does
 
+    // pagesizes OK?
+    for (char *p = (char*)obj; p < ((char*)obj) + size;) {
+        struct vm_page_info pginfo;
+        pginfo.addr = (uint64_t) (size_t) p;
+        vmgetinfo(&pginfo,VM_PAGE_INFO,sizeof(struct vm_page_info));
+        if (pginfo.pagesize < PAGESIZE_64K) {
+            fprintf(stderr, "alloc_internal_pinned: Found a page smaller than 64K at %p of %p\n", p, obj);
+            abort();
+        }
+        if (pginfo.pagesize < PAGESIZE_16M) {
+            fprintf(stderr, "alloc_internal_pinned: Found a page smaller than 16M at %p of %p (not checking for any more)\n", p, obj);
+            break;
+        }
+        p += pginfo.pagesize;
+    }
 
+#else
+    void *obj = alloc_internal(size, false);
+#endif
+
+    return obj;
+}
 
         
 
