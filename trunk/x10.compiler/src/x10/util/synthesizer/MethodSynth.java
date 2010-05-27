@@ -19,6 +19,7 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
+import polyglot.ast.Local;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.Flags;
@@ -74,6 +75,8 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
                 throwTypeRefs);//this constructor will not set formal names
         methodDef.setFormalNames(formalNames);
         classDef.addMethod(methodDef);
+        
+        codeBlockSynth = new CodeBlockSynth(xnf, xct, this, pos);
     }
     
     public MethodSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, String methodName){
@@ -165,7 +168,9 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
             Name name = formal.name().id();
             LocalDef lDef = formal.localDef();
             Type type = formal.type().type();
-            return xnf.Local(pos, xnf.Id(pos, name)).localInstance(lDef.asInstance()).type(type);
+            Local formalRef = (Local) xnf.Local(pos, xnf.Id(pos, name)).localInstance(lDef.asInstance()).type(type);
+            codeBlockSynth.addLocal(formalRef);
+            return formalRef;
         } catch (StateSynthClosedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -173,17 +178,17 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         return null;
     }
 
-    public void setMethodBody(CodeBlockSynth codeBlockSynth) {
+    public void setMethodBodySynth(CodeBlockSynth codeBlockSynth) {
         try {
             checkClose();
+            codeBlockSynth.setContainerSynth(this);
             this.codeBlockSynth = codeBlockSynth;
         } catch (StateSynthClosedException e) {
             e.printStackTrace();
         }
     }
     
-    public CodeBlockSynth createMethodBody(Position pos) {
-        codeBlockSynth = new CodeBlockSynth(xnf, xct, pos);
+    public CodeBlockSynth getMethodBodySynth(Position pos) {
         return codeBlockSynth;
     }
     
@@ -208,13 +213,7 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         FlagsNode flagNode = xnf.FlagsNode(pos, methodDef.flags());
         TypeNode returnTypeNode = xnf.CanonicalTypeNode(pos, methodDef.returnType());
         
-        Block block;
-        if(codeBlockSynth == null){
-            block = xnf.Block(pos);
-        }
-        else{
-            block = codeBlockSynth.genCodeGen();
-        }
+        Block block = codeBlockSynth.close();
         methodDecl = (X10MethodDecl) xnf.MethodDecl(pos, flagNode, returnTypeNode, xnf.Id(pos, methodDef.name()), 
                 formals, throwTypeNodes, block);
 
