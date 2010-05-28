@@ -147,8 +147,19 @@ void *x10aux::alloc_internal_pinned(size_t size) {
     }
 
 #else
-    // Need to implement on other platforms...
-    abort();
+    if (x10rt_nplaces() == 1) {
+        // Because there is only a single place, we can just fall back to malloc
+        // Don't call x10rt_register_mem because on most transports, it is
+        // unimplemented and unhelpfully returns 0 to indicate that.
+        return x10aux::alloc_internal(size, false);
+    } else {
+        // In a multi-place run, we have to return the same virtual address in all
+        // places or the program won't work.  Getting here indicates that we can't
+        // do that, so we must abort the program.
+        std::cerr << "alloc_internal_pinned not supported in multi-place executions on this platform\n";
+        std::cerr << "aborting execution\n";
+        abort();
+    }
 #endif
 
     return (void*)x10rt_register_mem(obj, size);
