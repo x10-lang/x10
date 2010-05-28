@@ -17,7 +17,13 @@
 
 namespace x10aux {
 
-    extern GPUSAFE x10_boolean compare_references(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y);
+    extern GPUSAFE x10_boolean compare_references_slow(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y);
+    inline GPUSAFE x10_boolean compare_references(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y) {
+        if (x == y) return true;
+        if (x.isNull()) return y.isNull();
+        if (y.isNull()) return false; // x != null.  needed for remote refs
+        return compare_references_slow(x, y);
+    }        
 
     template<class T, class U> struct StructEquals { static inline GPUSAFE x10_boolean _(T x, U y) {
         return x._struct_equals(y); // two structs
