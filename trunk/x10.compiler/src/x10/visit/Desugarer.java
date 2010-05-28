@@ -84,6 +84,7 @@ import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
+import x10.ast.X10New;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
@@ -130,6 +131,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name RUN_ASYNC = Name.make("runAsync");
     private static final Name RUN_UNCOUNTED_ASYNC = Name.make("runUncountedAsync");
     private static final Name HERE = Name.make("here");
+    private static final Name HERE_INT = Name.make("hereInt");
     private static final Name NEXT = Name.make("next");
     private static final Name LOCK = Name.make("lock");
     private static final Name AWAIT = Name.make("await");
@@ -343,28 +345,57 @@ public class Desugarer extends ContextVisitor {
             return null;
         Expr i = is.get(0);
         Expr p = a.place();
-        Expr r = ((SettableAssign_c) e).array();
-        Expr v = ((SettableAssign_c) e).right();
-        if (/*!isGloballyAvailable(r) || */!isGloballyAvailable(i) || !isGloballyAvailable(v))
-            return null;
-/*        List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
-        if (!v.type().isLong() || !xts.isRailOf(r.type(), xts.Long()))
-            return null;
-        if (!PlaceChecker.isAtPlace(r, p, xContext()))
-            return null;
-*/
-        ClassType RemoteOperation = (ClassType) xts.typeForName(REMOTE_OPERATION);
-        Position pos = a.position();
-        List<Expr> args = new ArrayList<Expr>();
-        Expr p1 = (Expr) leaveCall(null, p, this);
-        args.add(p1);
-        args.add((Expr) leaveCall(null, r, this));
-        args.add((Expr) leaveCall(null, i, this));
-        args.add((Expr) leaveCall(null, v, this));
-        Stmt alt = xnf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, xts.Void(), xContext()));
-        Expr cond = xnf.Binary(pos, p1, Binary_c.EQ, visitHere(xnf.Here(pos))).type(xts.Boolean());
-        Stmt cns = a.body();
-        return xnf.If(pos, cond, cns, alt);
+        if (p instanceof X10New) {
+            // TODO: make sure we calling the place constructor
+            // TODO: decide between rail and place-local handle
+            X10New n = (X10New) p;
+            Expr q =  n.arguments().get(0);
+            Expr r = ((SettableAssign_c) e).array();
+            Expr v = ((SettableAssign_c) e).right();
+            if (/*!isGloballyAvailable(r) || */!isGloballyAvailable(i) || !isGloballyAvailable(v))
+                return null;
+    /*        List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
+            if (!v.type().isLong() || !xts.isRailOf(r.type(), xts.Long()))
+                return null;
+            if (!PlaceChecker.isAtPlace(r, p, xContext()))
+                return null;
+    */
+            ClassType RemoteOperation = (ClassType) xts.typeForName(REMOTE_OPERATION);
+            Position pos = a.position();
+            List<Expr> args = new ArrayList<Expr>();
+            Expr p1 = (Expr) leaveCall(null, q, this);
+            args.add(p1);
+            args.add((Expr) leaveCall(null, r, this));
+            args.add((Expr) leaveCall(null, i, this));
+            args.add((Expr) leaveCall(null, v, this));
+            Stmt alt = xnf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, xts.Void(), xContext()));
+            Expr cond = xnf.Binary(pos, q, Binary_c.EQ, call(pos, HERE_INT, xts.Int())).type(xts.Boolean());
+            Stmt cns = a.body();
+            return xnf.If(pos, cond, cns, alt);
+        } else {
+            Expr r = ((SettableAssign_c) e).array();
+            Expr v = ((SettableAssign_c) e).right();
+            if (/*!isGloballyAvailable(r) || */!isGloballyAvailable(i) || !isGloballyAvailable(v))
+                return null;
+    /*        List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
+            if (!v.type().isLong() || !xts.isRailOf(r.type(), xts.Long()))
+                return null;
+            if (!PlaceChecker.isAtPlace(r, p, xContext()))
+                return null;
+    */
+            ClassType RemoteOperation = (ClassType) xts.typeForName(REMOTE_OPERATION);
+            Position pos = a.position();
+            List<Expr> args = new ArrayList<Expr>();
+            Expr p1 = (Expr) leaveCall(null, p, this);
+            args.add(p1);
+            args.add((Expr) leaveCall(null, r, this));
+            args.add((Expr) leaveCall(null, i, this));
+            args.add((Expr) leaveCall(null, v, this));
+            Stmt alt = xnf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, xts.Void(), xContext()));
+            Expr cond = xnf.Binary(pos, p, Binary_c.EQ, call(pos, HERE, xts.Place())).type(xts.Boolean());
+            Stmt cns = a.body();
+            return xnf.If(pos, cond, cns, alt);
+        }
     }
 
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place) throws SemanticException {
