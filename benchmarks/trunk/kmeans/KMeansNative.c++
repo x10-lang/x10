@@ -55,6 +55,16 @@ int main (int argc, char **argv)
             
         // these are pretty big so allocate up front
         float *host_points = zmalloc<float>(num_slice_points_stride*dim);
+        for (int p=0 ; p<num_slice_points ; ++p) {
+                for (int d=0 ; d<dim ; ++d) {
+                        host_points[p+d*num_slice_points_stride] = rand()/(RAND_MAX+1.0);
+                }
+        }
+        for (int p=0 ; p<num_clusters ; ++p) {
+                for (int d=0 ; d<dim ; ++d) {
+                        host_clusters[p*dim+d] = host_points[p+d*num_slice_points_stride];
+                }
+        }
             
         unsigned long long k_start_time = currentTimeMillis();
         for (int i=0 ; i<iterations ; ++i) {
