@@ -1054,7 +1054,7 @@ public final class Runtime {
      * Return the id of the current place
      */
     @Native("c++", "x10aux::here")
-    static def hereInt():int = Thread.currentThread().locInt();
+    public static def hereInt():int = Thread.currentThread().locInt();
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.

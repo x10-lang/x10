@@ -23,6 +23,13 @@ public final class RemoteOperation {
         }
     }
 
+    @Native("c++", "x10rt_remote_op((#1), (x10rt_remote_ptr) &(((#2)->raw())[(#3)]), X10RT_OP_XOR, #4)")
+    public static def xor(id:Int, r:Rail[Long]/*!p*/, i:Int, v:Long) {
+        async (Place(id)) {
+            (r as Rail[Long]!)(i) ^= v;
+        }
+    }
+
     @Native("c++", "x10rt_remote_op_fence()")
     public static def fence() { }
 }
