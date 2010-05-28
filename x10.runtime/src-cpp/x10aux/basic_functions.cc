@@ -106,5 +106,16 @@ ref<String> x10aux::to_string(x10_char v) {
     return x10aux::string_utils::lit(v_);
 }
 
+
+GPUSAFE x10_boolean x10aux::compare_references(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y) {
+    if (x.isNull()) {
+        return y.isNull();
+    } else if (y.isNull()) {
+        return false; // x != null, needed for remote refs
+    } else {
+        return x->_struct_equals(y);
+    }
+}
+
 // vim:tabstop=4:shiftwidth=4:expandtab
 

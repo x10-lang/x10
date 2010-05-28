@@ -16,6 +16,7 @@
 #include <x10aux/ref.h>
 #include <x10aux/hash.h>
 #include <x10aux/string_utils.h>
+#include <x10aux/struct_equals.h>
 
 #include <x10/lang/IBox.struct_h>
 
@@ -195,60 +196,6 @@ namespace x10aux {
     inline x10_boolean equals(const x10_ubyte x,   const x10_ubyte y)    { return x==y; }
     inline x10_boolean equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
     inline x10_boolean equals(const x10_boolean x, const x10_boolean y) { return x==y; }
-
-    /*******  struct_equals (==) ********/
-
-    inline GPUSAFE x10_boolean compare_references(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y) {
-        if (x.isNull()) {
-            return y.isNull();
-        } else if (y.isNull()) {
-            return false; // x != null, needed for remote refs
-        } else {
-            return x->_struct_equals(y);
-        }
-    }
-
-    template<class T, class U> struct StructEquals { static inline GPUSAFE x10_boolean _(T x, U y) {
-        return x._struct_equals(y); // two structs
-    } };
-
-    template<class T, class U> struct StructEquals<ref<T>,U> { static inline GPUSAFE x10_boolean _(ref<T> x, U y) {
-        return false; // a ref and a struct
-    } };
-
-    template<class T, class U> struct StructEquals<T,ref<U> > { static inline GPUSAFE x10_boolean _(T x, ref<U> y) {
-        return false; // a struct and a ref
-    } };
-
-    template<class T, class U> struct StructEquals<ref<T>,ref<U> > { static inline GPUSAFE x10_boolean _(ref<T> x, ref<U> y) {
-        return compare_references(x, y); // two refs
-    } };
-
-    //template<class T> struct StructEquals<T,T> { static inline GPUSAFE x10_boolean _(T x, T y) {
-    //    return x == y; // two structs of the same type
-    //} };
-    //
-    //template<class T> struct StructEquals<ref<T>,ref<T> > { static inline GPUSAFE x10_boolean _(ref<T> x, ref<T> y) {
-    //    return compare_references(x, y); // two refs of the same type
-    //} };
-
-    inline x10_boolean struct_equals(const x10_double x,  const x10_double y)  { return x==y; }
-    inline x10_boolean struct_equals(const x10_float x,   const x10_float y)   { return x==y; }
-    inline x10_boolean struct_equals(const x10_long x,    const x10_long y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_int x,     const x10_int y)     { return x==y; }
-    inline x10_boolean struct_equals(const x10_short x,   const x10_short y)   { return x==y; }
-    inline x10_boolean struct_equals(const x10_byte x,    const x10_byte y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_ulong x,   const x10_ulong y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_uint x,    const x10_uint y)     { return x==y; }
-    inline x10_boolean struct_equals(const x10_ushort x,  const x10_ushort y)   { return x==y; }
-    inline x10_boolean struct_equals(const x10_ubyte x,   const x10_ubyte y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
-    inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
-
-    template<class T, class U>
-    inline x10_boolean struct_equals(T x, U y) {
-        return StructEquals<T,U>::_(x, y);
-    }
 
     /******* hash_code ********/
 
