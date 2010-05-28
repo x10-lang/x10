@@ -78,7 +78,7 @@ public class KMeansSPMD {
                     for (h in Place.places) async (h) clocked(clk) {
 
                         // carve out local portion of points (point-major)
-                        val offset = (here.id*num_slices) + slice*num_slice_points;
+                        val offset = (here.id*num_slices*num_slice_points) + slice*num_slice_points;
                         if (!quiet)
                             Console.OUT.println(h+" gets "+offset+" len "+num_slice_points);
                         val num_slice_points_stride = num_slice_points;
