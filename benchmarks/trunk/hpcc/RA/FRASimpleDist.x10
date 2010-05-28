@@ -47,18 +47,22 @@ class FRASimpleDist {
             async (Place.places(p)) {
                 var ran:Long = HPCC_starts(p*(numUpdates/Place.MAX_PLACES));
 		val rail = grail();
+                val size = logLocalTableSize;
+                val mask1 = mask;
+                val mask2 = Place.MAX_PLACES - 1;
+                val poly = POLY;
                 barrier();
-                for (var i:Long=0 ; i<local_updates ; ++i) {
-                    val place_id = ((ran>>logLocalTableSize) & (Place.MAX_PLACES-1)) as Int;
-                    val index = (ran & mask as Int);
+                for (var i:Long=0 ; i<local_updates ; i+=1L) {
+                    val place_id = ((ran>>size) as Int) & mask2;
+                    val index = (ran as Int) & mask1;
                     val update = ran;
                    
-                    val dest = Place(place_id);
-                    @Immediate async (dest) {
+                    //val dest = Place(place_id);
+                    @Immediate async (Place(place_id)) {
                         rail(index) ^= update;
                     } 
 
-                    ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
+                    ran = (ran << 1) ^ (ran<0L ? poly : 0L);
                 }
                 barrier();
             }
