@@ -1,7 +1,14 @@
 import x10.util.Timer;
 import x10.compiler.Immediate;
+import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
+
+@NativeCPPInclude("pgas_collectives.h")
 
 class FRASimpleDist {
+
+    @Native("c++", "__pgasrt_tsp_barrier()")
+    static def barrier() {}
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
@@ -39,22 +46,21 @@ class FRASimpleDist {
         finish for ((p) in 0..Place.MAX_PLACES-1) {
             async (Place.places(p)) {
                 var ran:Long = HPCC_starts(p*(numUpdates/Place.MAX_PLACES));
-
+		val rail = grail();
+                barrier();
                 for (var i:Long=0 ; i<local_updates ; ++i) {
                     val place_id = ((ran>>logLocalTableSize) & (Place.MAX_PLACES-1)) as Int;
                     val index = (ran & mask as Int);
                     val update = ran;
                    
                     val dest = Place(place_id);
-
                     @Immediate async (dest) {
-                        grail()(index) ^= update;
+                        rail(index) ^= update;
                     } 
-/*
-                    x10rt_remote_xor(dest, grail(), index, update);
-*/
+
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
+                barrier();
             }
         }
     }
