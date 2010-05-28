@@ -14,14 +14,17 @@ import x10.lang.Clock;
 
 
 
-public class ClockedVar[T] implements ClockableVar{
+public class ClockedRail[T] implements ClockableVar{
 
   
-    var xRead:T;
-    var xWrite: T;
+    var xRead: Rail[T]!;
+    var xWrite: Rail[T]!;
     val op:(T,T)=>T;
     val opInit:T;
     var changed:Boolean;
+    
+    
+    
     
    @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
    @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
@@ -41,49 +44,53 @@ public class ClockedVar[T] implements ClockableVar{
     
     val lock = new Lock();
 
-    
 
-    public def this (c: Clock!, oper: (T,T)=>T!, opInitial:T) {
-    	c.addClockedVar(this); 
+
+    public def this (c: Clock!, oper: (T,T)=>T!, opInitial:T, length:int) {
+    	//c.addClockedVar[T](this); 
+    	xRead = Rail.make[T] (length);
+    	xWrite = Rail.make[T] (length);
      	op = oper;
      	opInit = opInitial;
      	changed = false;	
-     	xWrite = opInitial;
+     	//xWrite = opInitial;
      }
      
-    public def this(c:Clock, oper: (T,T)=>T, opInitial:T, x:T)
+    public def this(c:Clock, oper: (T,T)=>T, opInitial:T, length:int, x:T)
      {
     	val clk = c as Clock!; 
-    	xRead = x;
-        clk.addClockedVar(this); 
+    	xRead = Rail.make[T] (length);
+    	xWrite = Rail.make[T] (length, (i: int) => opInitial);
+
+        //clk.addClockedVar(this); 
         op = oper; 
         opInit = opInitial;
         changed = false;
-        xWrite = opInitial; 
+        //xWrite = opInitial; 
       }
       
-    public def get():T {
-    	  return xRead;
+    public def get(index: int):T {
+    	  return xRead(index);
    }
 
 
 
-    public def set(x:T) {
+    public def set(index:int, x:T) {
     	changed = true;
         lock.lock();
-        this.xWrite = op(this.xWrite, x);
+        this.xWrite(index) = op(this.xWrite(index), x);
         lock.unlock();
     } 
     
-    public def setR(x:T){this.xRead=x;}
+    public def setR(index: int, x:T){this.xRead(index)=x;}
     
-    public def getW(){return xWrite;}
+    public def getW(index: int){return xWrite(index);}
     
 
     public def move(): Void {
         if (changed)
-        	this.xRead = this.xWrite; 
-     	this.xWrite = opInit;
+        	this.xRead = this.xWrite;
+     	//this.xWrite = opInit;
     	this.changed = false;
     }
 
