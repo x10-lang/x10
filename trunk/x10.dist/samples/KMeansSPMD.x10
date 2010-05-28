@@ -96,6 +96,12 @@ public class KMeansSPMD {
 
                         val start_time = System.currentTimeMillis();
 
+                        var compute_time:ULong = 0;
+                        var comm_time:ULong = 0;
+                        var next_time:ULong = 0;
+
+                        next; // ensure everyone is ready before we start timing
+
                         main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
 
                             Console.OUT.println("Iteration: "+iter);
@@ -105,6 +111,7 @@ public class KMeansSPMD {
                             host_clusters.reset(0);
                             host_cluster_counts.reset(0);
 
+                            val compute_start = System.nanoTime();
                             for (var p:Int=0 ; p<num_slice_points ; ++p) {
                                 var closest:Int = -1;
                                 var closest_dist:Float = Float.MAX_VALUE;
@@ -124,9 +131,18 @@ public class KMeansSPMD {
                                 }
                                 host_cluster_counts(closest)++;
                             }
+                            compute_time += System.nanoTime() - compute_start;
 
+/*
+                            val next_start = System.nanoTime();
+                            next;
+                            next_time += System.nanoTime() - next_start;
+*/
+
+                            val comm_start = System.nanoTime();
                             clusters.collectiveReduce(Float.+);
                             cluster_counts.collectiveReduce(Int.+);
+                            comm_time += System.nanoTime() - comm_start;
 
                             for (var k:Int=0 ; k<num_clusters ; ++k) {
                                 for (var d:Int=0 ; d<dim ; ++d) host_clusters(k*dim+d) /= host_cluster_counts(k);
@@ -151,6 +167,11 @@ public class KMeansSPMD {
                             if (!quiet) Console.OUT.print(num_global_points+" "+num_clusters+" "+dim+" ");
                             Console.OUT.println((stop_time-start_time)/1E3);
                         }
+                        Console.OUT.println("Computation time: "+compute_time/1E9);
+                        Console.OUT.println("'next' time: "+next_time/1E9);
+                        Console.OUT.println("Communication time: "+comm_time/1E9);
+
+                        
 
                     } // async
 
