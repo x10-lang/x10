@@ -32,9 +32,9 @@ using namespace x10::lang;
 using namespace x10aux;
 
 // caches to avoid repeatedly calling into x10rt for trivial things
-x10aux::place x10aux::num_places = 0;
-x10aux::place x10aux::num_hosts = 0;
-x10aux::place x10aux::here = -1;
+const x10aux::place x10aux::num_places = 0;
+const x10aux::place x10aux::num_hosts = 0;
+const x10aux::place x10aux::here = -1;
 bool x10aux::x10rt_initialized = false;
 
 // keep a counter for the session.
@@ -130,9 +130,9 @@ void x10aux::registration_complete (void)
 
 void x10aux::network_init (int ac, char **av) {
     x10rt_init(&ac, &av);
-    x10aux::here = x10rt_here();
-    x10aux::num_places = x10rt_nplaces();
-    x10aux::num_hosts = x10rt_nhosts();
+    const_cast<x10aux::place&>(x10aux::here) = x10rt_here();
+    const_cast<x10aux::place&>(x10aux::num_places) = x10rt_nplaces();
+    const_cast<x10aux::place&>(x10aux::num_hosts) = x10rt_nhosts();
 }
 
 /*

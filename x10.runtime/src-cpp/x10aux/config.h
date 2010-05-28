@@ -168,7 +168,7 @@ namespace x10aux {
     extern inline bool trace_ser()
     { if (!init_config_bools_done) init_config_bools() ; return trace_ser_; }
 
-    extern x10_int here;
+    extern const x10_int here;
     extern bool x10rt_initialized;
 }
 
