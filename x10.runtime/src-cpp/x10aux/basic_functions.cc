@@ -107,7 +107,7 @@ ref<String> x10aux::to_string(x10_char v) {
 }
 
 
-GPUSAFE x10_boolean x10aux::compare_references(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y) {
+GPUSAFE x10_boolean x10aux::compare_references_slow(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y) {
     if (x.isNull()) {
         return y.isNull();
     } else if (y.isNull()) {
