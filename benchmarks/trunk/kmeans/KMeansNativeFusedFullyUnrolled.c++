@@ -55,7 +55,6 @@ int main (int argc, char **argv)
             
         // these are pretty big so allocate up front
         float *host_points = zmalloc<float>(num_slice_points_stride*dim);
-        int *the_closest = zmalloc<int>(num_slice_points_stride);
         for (int p=0 ; p<num_slice_points ; ++p) {
                 for (int d=0 ; d<dim ; ++d) {
                         host_points[p+d*num_slice_points_stride] = rand()/(RAND_MAX+1.0);
@@ -75,30 +74,31 @@ int main (int argc, char **argv)
                 ::memset(host_clusters, 0, num_clusters*dim*sizeof(*host_clusters));
                 ::memset(host_cluster_counts, 0, num_clusters*sizeof(*host_cluster_counts));
 
-                for (int p=0 ; p<num_slice_points ; p++) {
-                        int closest = -1;
-                        float closest_dist = FLT_MAX;
+                #define UR 8
+                for (int p=0 ; p<num_slice_points ; p+=UR) {
+                        int closest[UR];
+                        for (int i=0 ; i<UR ; ++i) closest[i] = -1;
+                        float closest_dist[UR];
+                        for (int i=0 ; i<UR ; ++i) closest_dist[i] = FLT_MAX;
                         for (int k=0 ; k<num_clusters ; ++k) {
-                                float dist = 0;
+                                float dist[UR];
+                                for (int i=0 ; i<UR ; ++i) dist[i] = 0;
                                 for (int d=0 ; d<dim ; ++d) {
-                                        float tmp = host_points[p+d*num_slice_points_stride] - old_clusters[k*dim+d];
-                                        //float tmp = host_points[p*dim+d] - old_clusters[k*dim+d];
-                                        dist += tmp * tmp;
+                                        float tmp[UR];
+                                        for (int i=0 ; i<UR ; ++i) tmp[i] = host_points[(p+i)+d*num_slice_points_stride] - old_clusters[k*dim+d];
+                                        //for (int i=0 ; i<UR ; ++i) tmp[i] = host_points[(p+i)*dim+d] - old_clusters[k*dim+d];
+                                        for (int i=0 ; i<UR ; ++i) dist[i] += tmp[i] * tmp[i];
                                 }
-                                if (dist < closest_dist) {
-                                        closest_dist = dist;
-                                        closest = k;
+                                for (int i=0 ; i<UR ; ++i) if (dist[i] < closest_dist[i]) {
+                                        closest_dist[i] = dist[i];
+                                        closest[i] = k;
                                 }
                         }
-                        the_closest[p] = closest;
-                }
-                for (int p=0 ; p<num_slice_points ; p++) {
-                        int closest = the_closest[p];
                         for (int d=0 ; d<dim ; ++d) {
-                                host_clusters[closest*dim+d] += host_points[p+d*num_slice_points_stride];
-                                //host_clusters[closest*dim+d] += host_points[p*dim+d];
+                                for (int i=0 ; i<UR ; ++i) host_clusters[closest[i]*dim+d] += host_points[(p+i)+d*num_slice_points_stride];
+                                //for (int i=0 ; i<UR ; ++i) host_clusters[closest[i]*dim+d] += host_points[(p+i)*dim+d];
                         }
-                        host_cluster_counts[closest]++;
+                        for (int i=0 ; i<UR ; ++i) host_cluster_counts[closest[i]]++;
                 }
 
                 for (int k=0 ; k<num_clusters ; ++k) {

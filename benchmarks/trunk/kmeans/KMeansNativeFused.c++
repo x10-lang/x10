@@ -55,7 +55,6 @@ int main (int argc, char **argv)
             
         // these are pretty big so allocate up front
         float *host_points = zmalloc<float>(num_slice_points_stride*dim);
-        int *the_closest = zmalloc<int>(num_slice_points_stride);
         for (int p=0 ; p<num_slice_points ; ++p) {
                 for (int d=0 ; d<dim ; ++d) {
                         host_points[p+d*num_slice_points_stride] = rand()/(RAND_MAX+1.0);
@@ -82,7 +81,7 @@ int main (int argc, char **argv)
                                 float dist = 0;
                                 for (int d=0 ; d<dim ; ++d) {
                                         float tmp = host_points[p+d*num_slice_points_stride] - old_clusters[k*dim+d];
-                                        //float tmp = host_points[p*dim+d] - old_clusters[k*dim+d];
+                                        //float tmp= host_points[p*dim+d] - old_clusters[k*dim+d];
                                         dist += tmp * tmp;
                                 }
                                 if (dist < closest_dist) {
@@ -90,10 +89,6 @@ int main (int argc, char **argv)
                                         closest = k;
                                 }
                         }
-                        the_closest[p] = closest;
-                }
-                for (int p=0 ; p<num_slice_points ; p++) {
-                        int closest = the_closest[p];
                         for (int d=0 ; d<dim ; ++d) {
                                 host_clusters[closest*dim+d] += host_points[p+d*num_slice_points_stride];
                                 //host_clusters[closest*dim+d] += host_points[p*dim+d];

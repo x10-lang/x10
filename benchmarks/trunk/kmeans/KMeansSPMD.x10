@@ -185,12 +185,6 @@ public class KMeansSPMD {
                             }
                             compute_time += System.nanoTime() - compute_start;
 
-/*
-                            val next_start = System.nanoTime();
-                            next;
-                            next_time += System.nanoTime() - next_start;
-*/
-
                             val comm_start = System.nanoTime();
                             clusters.collectiveReduceSumFloat();
                             cluster_counts.collectiveReduceSumInt();
@@ -220,7 +214,6 @@ public class KMeansSPMD {
                             Console.OUT.println((stop_time-start_time)/1E3);
                         }
                         Console.OUT.println("Computation time: "+compute_time/1E9);
-                        Console.OUT.println("'next' time: "+next_time/1E9);
                         Console.OUT.println("Communication time: "+comm_time/1E9);
 
                         
