@@ -719,6 +719,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sh.writeln("#include <x10aux/ref.h>");
             sh.writeln("#include <x10aux/RTT.h>");
             sh.writeln("#include <x10aux/serialization.h>");
+            sh.writeln("#include <x10aux/struct_equals.h>");
             sh.forceNewline(0);
         }
 
@@ -1378,44 +1379,36 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             emitter.printType(xts.Boolean(), sh);
             sh.write(" " + mangled_method_name(STRUCT_EQUALS_METHOD) + "(");
             sh.write(StructCType + " that");
-            sh.write(");");
-            sh.newline();
-
-            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            emitter.printType(xts.Boolean(), sw);
-            sw.write(" " + Emitter.translateType(currentClass, false)
-                     + "::" + mangled_method_name(STRUCT_EQUALS_METHOD)+ "(");
-            sw.write(StructCType + " that");
-            sw.write(") {");
-            sw.newline(4);
-            sw.begin(0);
+            sh.write(") {");
+            sh.newline(4);
+            sh.begin(0);
             if (superClass != null) {
-                sw.write("if (!this->" + Emitter.translateType(superClass)
+                sh.write("if (!this->" + Emitter.translateType(superClass)
                          + "::" + mangled_method_name(STRUCT_EQUALS_METHOD)
                          + "(that))");
-                sw.newline(4);
-                sw.begin(0);
-                sw.write("return false;");
-                sw.end();
-                sw.newline();
+                sh.newline(4);
+                sh.begin(0);
+                sh.write("return false;");
+                sh.end();
+                sh.newline();
             }
             for (FieldInstance fi : currentClass.fields()) {
                 if (!fi.flags().isStatic()) {
                     String name = fi.name().toString();
-                    sw.write("if (!" + STRUCT_EQUALS + "(this->"+ mangled_field_name(name)
+                    sh.write("if (!" + STRUCT_EQUALS + "(this->"+ mangled_field_name(name)
                              + ", that->"+ mangled_field_name(name) + "))");
-                    sw.newline(4);
-                    sw.begin(0);
-                    sw.write("return false;");
-                    sw.end();
-                    sw.newline();
+                    sh.newline(4);
+                    sh.begin(0);
+                    sh.write("return false;");
+                    sh.end();
+                    sh.newline();
                 }
             }
-            sw.write("return true;");
-            sw.end();
-            sw.newline();
-            sw.write("}");
-            sw.newline();
+            sh.write("return true;");
+            sh.end();
+            sh.newline();
+            sh.write("}");
+            sh.newline();
 
             emitter.generateStructSerializationMethods(currentClass, sw);
             sw.forceNewline();
