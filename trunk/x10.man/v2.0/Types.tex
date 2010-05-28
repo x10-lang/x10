@@ -76,7 +76,7 @@ Type \: FunctionType \\
     \| ConstrainedType  \\
 
 FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")"
-Constraint\opt Throws\opt \xcd"=>" Type \\
+Constraint\opt Throws\opt \xcd"=>" TypeOrVoid \\
 TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter )\star \xcd"]" \\
 TypeParameter \: Identifier \\
 Throws \: \xcd"throws" TypeName ( \xcd"," TypeName )\star \\
@@ -88,7 +88,8 @@ BaseType \: ClassBaseType \\
      \| InterfaceBaseType \\
      \| PathType \\
      \| \xcd"(" Type \xcd")" \\
-
+TypeOrVoid \: Type \\
+     \| \xcd`Void`\\
 ClassType \: Annotation\star ClassBaseType Constraint\opt
 PlaceConstraint\opt \\
 InterfaceType \: Annotation\star InterfaceBaseType Constraint\opt
