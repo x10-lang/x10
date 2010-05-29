@@ -73,6 +73,9 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
 public class KMeansSPMD {
 
+    @Native("c++", "__pgasrt_tsp_barrier()")
+    static def barrier() {}
+
     public static def printClusters (clusters:Rail[Float]!, dims:Int) {
         for (var d:Int=0 ; d<dims ; ++d) { 
             for (var k:Int=0 ; k<clusters.length/dims ; ++k) { 
@@ -121,13 +124,11 @@ public class KMeansSPMD {
 
             finish async {
 
-                val clk = Clock.make();
-
                 val num_slice_points = num_global_points / num_slices / Place.MAX_PLACES;
 
                 for ((slice) in 0..num_slices-1) {
 
-                    for (h in Place.places) async (h) clocked(clk) {
+                    for (h in Place.places) async (h) {
 
                         // carve out local portion of points (point-major)
                         val offset = (here.id*num_slices*num_slice_points) + slice*num_slice_points;
@@ -152,7 +153,8 @@ public class KMeansSPMD {
                         var comm_time:ULong = 0;
                         var next_time:ULong = 0;
 
-                        next; // ensure everyone is ready before we start timing
+                        // ensure everyone is ready before we start timing
+                        barrier();
 
                         main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
 
