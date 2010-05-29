@@ -13,7 +13,13 @@ package org.eclipse.imp.x10dt.core.builder;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.ParseErrorCodes;
@@ -22,6 +28,7 @@ import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Scheduler;
+import polyglot.frontend.SourceGoal_c;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
@@ -30,9 +37,17 @@ import x10.parser.X10Parser;
 
 public class BuilderExtensionInfo extends x10.ExtensionInfo {
     private final X10Builder fBuilder;
-
-    public BuilderExtensionInfo(X10Builder builder) {
+    private final Collection<IFile> fSources;
+    
+    private final Collection<Job> fJobs = new HashSet<Job>();
+    
+    public BuilderExtensionInfo(X10Builder builder, Collection<IFile> sources) {
         this.fBuilder= builder;
+        this.fSources = sources;
+    }
+    
+    public Collection<Job> getJobs(){
+    	return fJobs;
     }
 
     @Override
@@ -46,11 +61,35 @@ public class BuilderExtensionInfo extends x10.ExtensionInfo {
                     throw new IllegalStateException("Not an End Goal?");
                 }
                 endGoal.addPrereq(new CollectBookmarksGoal(job, fBuilder));
+                goals.add(0, RetrieveJob(job));
                 return goals;
+            }
+            
+            Goal RetrieveJob(Job job) {
+                return new SourceGoal_c("Job retriever", job) {
+                    @Override
+                    public boolean runTask() {
+                    	if (contains(fSources, job))
+                    		BuilderExtensionInfo.this.fJobs.add(job);
+                        return true;
+                    }
+                }.intern(scheduler);
+            }
+            
+            private boolean contains(Collection<IFile> sources, Job job){
+            	for(IFile file: sources){
+            		IPath filePath = fBuilder.fProject.getWorkspace().getRoot().getLocation().append(file.getFullPath());
+            		IPath jobPath = new Path(job.source().path());
+            		if (filePath.equals(jobPath)){
+            			return true;
+            		}
+            	}
+            	return false;
             }
         };
     }
 
+   
     /**
      * Exactly like the base-class implementation, but sets the lexer up with an IMessageHandler.
      */

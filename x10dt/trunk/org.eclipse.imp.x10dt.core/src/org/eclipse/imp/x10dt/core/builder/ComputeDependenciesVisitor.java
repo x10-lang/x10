@@ -117,6 +117,7 @@ class ComputeDependenciesVisitor extends ContextVisitor {
     }
     @Override
     public NodeVisitor enterCall(Node n) throws SemanticException {
+    	try {
         if (n instanceof SourceFile) {
             fFromFile= (SourceFile) n;
             if (DEBUG)
@@ -218,6 +219,13 @@ class ComputeDependenciesVisitor extends ContextVisitor {
 //        		recordTypeDependency(formal.type().type());
 //        	}
 //        }
+    	} catch(Exception e) {
+    		//System.err.println(e);
+    	} catch(InternalError e){
+    		//System.err.println(e);
+    		//n.dump(System.err);
+    		//System.err.println("here1");
+    	}
         return super.enterCall(n);
     }
     

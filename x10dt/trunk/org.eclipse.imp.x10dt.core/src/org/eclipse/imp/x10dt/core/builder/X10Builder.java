@@ -51,7 +51,6 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.parser.MessageHandlerAdapter;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
@@ -72,8 +71,8 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import polyglot.frontend.Compiler;
-import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
+import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
@@ -88,13 +87,39 @@ public class X10Builder extends IncrementalProjectBuilder {
      * Builder ID for the X10 compiler. Must match the ID of the builder extension defined in plugin.xml.
      */
     public static final String BUILDER_ID= X10DTCorePlugin.kPluginID + ".X10Builder";
+
     /**
      * Problem marker ID for X10 compiler errors/warnings/infos. Must match the ID of the marker extension defined in plugin.xml.
      */
     public static final String PROBLEMMARKER_ID= X10DTCorePlugin.kPluginID + ".problemMarker";
-
     private static final String ClasspathError= "Classpath error in project: ";
+    protected IProject fProject;
+    private IJavaProject fX10Project;
+    private IProgressMonitor fMonitor;
+    private X10ResourceVisitor fResourceVisitor= new X10ResourceVisitor();
+    private final X10DeltaVisitor fDeltaVisitor= new X10DeltaVisitor();
+    private Collection<IFile> fSourcesToCompile= new HashSet<IFile>();
+    private Collection<IFile> fSourcesToDelete = new HashSet<IFile>(); //contains .x10 files that have been just deleted
+    private static PluginBase sPlugin= null;
+    protected PolyglotDependencyInfo fDependencyInfo;
+    private Collection<IPath> fSrcFolderPaths; // project-relative paths
+    private static final boolean traceOn=false;
+    
+    /**
+     * The very first build of a project needs to build all sources, to start with a fresh state for dependencies.
+     * fBuildAll is reset in collectSourcesToCompile.
+     */
+    private boolean fBuildAll = true;
+    
+    private Collection<ErrorInfo> fErrors;
 
+    public X10Builder() {}
+
+    
+    /******************
+     * Visitors
+     ******************/
+    
     private final class X10DeltaVisitor implements IResourceDeltaVisitor {
         public boolean visit(IResourceDelta delta) throws CoreException {
         	if (delta.getKind() == IResourceDelta.REMOVED){
@@ -110,31 +135,10 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
 
-    private IProject fProject;
-    private IJavaProject fX10Project;
-    private IProgressMonitor fMonitor;
-    private X10ResourceVisitor fResourceVisitor= new X10ResourceVisitor();
-    private final X10DeltaVisitor fDeltaVisitor= new X10DeltaVisitor();
-    private Collection<IFile> fSourcesToCompile= new HashSet<IFile>();
-    private Collection<IFile> fSourcesToDelete = new HashSet<IFile>(); //contains .x10 files that have been just deleted
-   // private BuilderExtensionInfo fExtInfo;
-    private static PluginBase sPlugin= null;
-    protected PolyglotDependencyInfo fDependencyInfo;
-
-    private Collection<IPath> fSrcFolderPaths; // project-relative paths
-    private static final boolean traceOn=false;
+//    public Collection<ErrorInfo> getErrors(){
+//    	return fErrors;
+//    }
     
-    //The very first build of a project needs to build all sources, to start with a fresh state for dependencies.
-    //fBuildAll is reset in collectSourcesToCompile.
-    private boolean fBuildAll = true;
-    
-    private Collection<ErrorInfo> fErrors;
-
-    public X10Builder() {}
-
-    public Collection<ErrorInfo> getErrors(){
-    	return fErrors;
-    }
     protected boolean processResource(final IResource resource) {
             	if (resource instanceof IFile) {
             		IFile file= (IFile) resource;
@@ -167,7 +171,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 			return false;
     	return true;
     }
-
+    
     protected boolean isSourceFile(IFile file) {
         String exten= file.getFileExtension();
 
@@ -192,101 +196,242 @@ public class X10Builder extends IncrementalProjectBuilder {
         return resource.getFullPath().lastSegment().equals("bin"); //TODO: Fix 
     }
 
-    protected void clearMarkersOn(final Collection<IFile> sources) {
-    	IWorkspace ws= ResourcesPlugin.getWorkspace();
-    	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
-            public void run(IProgressMonitor monitor) {
-            	try {
-                    // Remove the project-level "compiler crash" marker, if any
-                    fProject.deleteMarkers(PROBLEMMARKER_ID, true, 0);
-                } catch (CoreException e1) {
-                	
-                }
-                for(Iterator<IFile> iter= sources.iterator(); iter.hasNext(); ) {
-                    IFile file= iter.next();
+    /******************
+     * END - Visitors
+     ******************/
+    
+    public String toString() {
+        return "X10 Builder for project " + fProject.getName();
+    }
+    
+    /***********************
+     * Collecting Sources
+     ***********************/
+    /**
+     * @return a list of all workspace-relative CPE_SOURCE-type classpath entries.
+     * @throws JavaModelException
+     */
+    private List<IPath> getProjectSrcPath() throws JavaModelException {
+        List<IPath> srcPath= new ArrayList<IPath>();
+        IJavaProject javaProject= JavaCore.create(fProject);
+        IClasspathEntry[] classPath= javaProject.getResolvedClasspath(true);
 
-                    try {
-                        file.deleteMarkers(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE);
-                    } catch (CoreException e) {
-                    	
-                    }
-                }
+        for(int i= 0; i < classPath.length; i++) {
+            IClasspathEntry e= classPath[i];
+
+            if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
+            	//The path is relative to the workspace but actually considered absolute because it starts with '/'
+            	//We call makeRelative() to remove the initial '/'
+            	//This will allow method pathListToPathString(...) to correctly append the absolute path of the workspace.
+                srcPath.add(e.getPath().makeRelative());
+            else if (e.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+            	//PORT1.7 Compiler needs to see X10 source for all referenced compilation units,
+            	// so add source path entries of referenced projects to this project's sourcepath.
+            	// Assume that goal dependencies are such that Polyglot will not be compelled to
+            	// compile referenced X10 source down to Java source (causing duplication; see below).
+            	//
+                // RMF 6/4/2008 - Don't add referenced projects to the source path:
+                // 1) doing so should be unnecessary, since the classpath will include
+                //    the project, and the class files should satisfy all references,
+                // 2) doing so will cause Polyglot to compile the source files found in
+                //    the other project to Java source files located in the *referencing*
+                //    project, causing duplication, which is not what we want.
+                //
+            	IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getPath().toPortableString());
+            	IJavaProject refJavaProject= JavaCore.create(refProject);
+            	IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
+            	for(int j= 0; j < refJavaCPEntries.length; j++) {
+            		if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+            			srcPath.add(refJavaCPEntries[j].getPath());
+            		}
+            	}
+            } else if (e.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+            	// PORT1.7 Add the X10 runtime jar to the source path, since the compiler
+            	// needs to see the X10 source for the user-visible runtime classes (like
+            	// x10.lang.Region) to get the extra type information (for deptypes) that
+            	// can't be stored in Java class files, and for now, these source files
+            	// actually live in the X10 runtime jar.
+            	IPath path= e.getPath();
+            	if (path.toPortableString().contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID)) {
+            		srcPath.add(path);
+            	}
             }
-    	};
-        try {
-        	ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
-        } catch (CoreException e) {
-            e.printStackTrace();
+        }
+        if (srcPath.size() == 0)
+            srcPath.add(fProject.getLocation());
+        return srcPath;
+    }
+
+   
+    private List<Source> collectStreamSources(Collection<IFile> sourceFiles) {
+        List<Source> streams= new ArrayList<Source>();
+
+        for(Iterator<IFile> it= sourceFiles.iterator(); it.hasNext(); ) {
+            IFile sourceFile= it.next();
+
+            try {
+                final String filePath= sourceFile.getLocation().toOSString();
+                StreamSource srcStream= new StreamSource(sourceFile.getContents(), filePath);
+                streams.add(srcStream);
+            } catch (IOException e) {
+                X10DTCorePlugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
+            } catch (CoreException e) {
+                X10DTCorePlugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
+            }
+        }
+        return streams;
+    }
+
+    /**
+     * Collects the set of source folders in this project, to be used in filtering out
+     * files in non-src folders that the builder should not attempt to compile.
+     * @see isSourceFile()
+     */
+    private void collectSourceFolders() throws JavaModelException {
+        fSrcFolderPaths= new HashSet<IPath>();
+        IClasspathEntry[] cpEntries= fX10Project.getResolvedClasspath(true);
+
+        for(int i= 0; i < cpEntries.length; i++) {
+            IClasspathEntry cpEntry= cpEntries[i];
+            if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                final IPath entryPath= cpEntry.getPath();
+                if (!entryPath.segment(0).equals(fX10Project.getElementName())) {
+                    X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Source classpath entry refers to another project: " + entryPath);
+                    continue;
+                }
+                fSrcFolderPaths.add(entryPath.removeFirstSegments(1));
+            }
+        }
+    }
+
+    private void collectChangeDependents() {
+        Collection<IFile> changeDependents= new ArrayList<IFile>();
+        for(Iterator<IFile> iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
+        	IFile srcFile= iter.next();
+        	changeDependents.addAll(getChangeDependents(srcFile));
+        }
+        for (IFile file: changeDependents){
+        	fSourcesToCompile.add(file);
+        }
+    }
+
+    private Collection<IFile> getChangeDependents(IFile srcFile){
+    	Collection<IFile> result = new ArrayList<IFile>();
+        Set<String> fileDependents= fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
+        IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
+        if (fileDependents != null) {
+            for(Iterator<String> iterator= fileDependents.iterator(); iterator.hasNext(); ) {
+                String depPath= iterator.next();
+                IFile depFile= wsRoot.getFile(new Path(depPath));
+                	result.add(depFile);
+            }
+        }
+        return result;
+    }
+    
+    private void collectSourcesToCompile() throws CoreException {
+        collectSourceFolders();
+
+        IResourceDelta delta= getDelta(fProject);
+        if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
+
+        if (delta != null) {
+        	X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
+            delta.accept(fDeltaVisitor);
+            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10 delta scan completed for project '" + fProject.getName() + "'...");
         } 
-        try {
-			fProject.refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        if (fBuildAll || delta == null){
+            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning for X10 source files in project '" + fProject.getName() + "'... <==");
+            fProject.accept(fResourceVisitor);
+            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
+        }
+        if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
+        collectChangeDependents();
+        //collectFilesWithErrors();
+        //collectFilesWithNoJavaFile();
+        if (fBuildAll) fBuildAll = false;
     }
 
-    protected void addMarkerTo(final IFile sourceFile, final String type, final String msg, final int severity, final String loc, final int priority, final int lineNum, final int startOffset, final int endOffset) {
-    	IWorkspace ws= ResourcesPlugin.getWorkspace();
-    	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
-            public void run(IProgressMonitor monitor) {
-            	try {
-                    IMarker marker= sourceFile.createMarker(type);
-                    //TODO: change to setAttributes
-                    marker.setAttribute(IMarker.MESSAGE, msg);
-                    marker.setAttribute(IMarker.SEVERITY, severity);
-                    marker.setAttribute(IMarker.LOCATION, loc);
-                    marker.setAttribute(IMarker.PRIORITY, priority);
-                    marker.setAttribute(IMarker.LINE_NUMBER, (lineNum >= 1) ? lineNum : 1);
-                    if (startOffset >= 0) {
-                        marker.setAttribute(IMarker.CHAR_START, startOffset);
-                        marker.setAttribute(IMarker.CHAR_END, endOffset + 1);
-                    } else {
-                        marker.setAttribute(IMarker.CHAR_START, 0);
-                        marker.setAttribute(IMarker.CHAR_END, 0);
-                    }
-                } catch (CoreException e) {
-                    X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to file " + sourceFile);
+   
+
+	/**
+	 * Assumes that each path is either workspace-relative or filesystem-absolute.
+	 * Note that a path starting with '/' is considered absolute.
+	 * @param pathList
+	 * @return semicolon-separated list of filesystem-absolute paths. For workspace-relative paths, adds the absolute path of the workspace.
+	 */
+    private String pathListToPathString(List<IPath> pathList) {
+        StringBuffer buff= new StringBuffer();
+        IPath wsLoc= fProject.getWorkspace().getRoot().getLocation();
+
+        for(Iterator<IPath> iter= pathList.iterator(); iter.hasNext();) {
+            IPath path= iter.next();
+            if (path.isAbsolute()){
+            	buff.append(path.toOSString());
+            } else { 
+            	buff.append(wsLoc.append(path).toOSString());
+            } 
+            if (iter.hasNext())
+                buff.append(File.pathSeparatorChar);
+        }
+        return buff.toString();
+    }
+    
+    
+    /***********************
+     * END - Collecting Sources
+     ***********************/
+    
+    /***********************
+     * Compilation
+     ***********************/
+    
+    private Collection<IProject> doCompile() throws CoreException {
+        if (!fSourcesToCompile.isEmpty()) {
+        	if(traceOn)System.out.println("X10Builder.doCompile() fSourcesToCompile: "+fSourcesToCompile);
+    	    invokeX10C(fSourcesToCompile);
+    	    // Now do a refresh to make sure the Java compiler sees the Java
+    	    // source files that Polyglot just created.
+            fProject.refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
+        }
+        return computeDependentProjects();
+    }
+
+    private Collection<IProject> computeDependentProjects() {
+        Collection<IProject> dependentProjects= new ArrayList<IProject>();
+        try {
+
+            IClasspathEntry[] cpEntries= fX10Project.getResolvedClasspath(false);
+            IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
+
+            for(int i= 0; i < cpEntries.length; i++) {
+                IClasspathEntry cpEntry= cpEntries[i];
+    
+                if (cpEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+                    IProject proj= wsRoot.getProject(cpEntry.getPath().segment(0));
+    
+                    dependentProjects.add(proj);
                 }
             }
-        };
-        try {
-        	ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
-        } catch (CoreException e) {
-            e.printStackTrace();
-        }  
+        } catch (JavaModelException e) {
+            X10DTCorePlugin.getInstance().logException("Unable to resolve X10 project classpath", e);
+        }
+        return dependentProjects;
     }
 
-    protected void addProblemMarkerTo(IFile sourceFile, String msg, int severity, String loc, int priority, int lineNum, int startOffset, int endOffset) {
-        addMarkerTo(sourceFile, PROBLEMMARKER_ID, msg, severity, loc, priority, lineNum, startOffset, endOffset);
+    private String fileSetToString(Collection<IFile> sources) {
+        StringBuffer buff= new StringBuffer();
+
+        for(Iterator<IFile> iter= sources.iterator(); iter.hasNext(); ) {
+            IFile file= iter.next();
+
+            buff.append(file.getProjectRelativePath());
+            if (iter.hasNext())
+                buff.append(',');
+        }
+        return buff.toString();
     }
-
-    protected void addTaskTo(IFile sourceFile, String msg, int severity, int priority, int lineNum, int startOffset, int endOffset) {
-        addMarkerTo(sourceFile, IMarker.TASK, msg, severity, "", priority, lineNum, startOffset, endOffset);
-    }
-
-    protected void addProblemMarkerTo(final IProject project, final String msg, final int severity, final int priority) {
-    	IWorkspace ws= ResourcesPlugin.getWorkspace();
-    	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
-            public void run(IProgressMonitor monitor) {
-            	try {
-                    IMarker marker= project.createMarker(PROBLEMMARKER_ID);
-
-                    marker.setAttribute(IMarker.MESSAGE, msg);
-                    marker.setAttribute(IMarker.SEVERITY, severity);
-                    marker.setAttribute(IMarker.PRIORITY, priority);
-                } catch (CoreException e) {
-                    X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to project " + project.getName());
-                }
-            }
-        };
-        try {
-        	ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
-        } catch (CoreException e) {
-            e.printStackTrace();
-        } 
-    }
-
+   
     /**
      * Run the X10 compiler on the given Collection of source IFile's.
      * @param sources
@@ -299,6 +444,10 @@ public class X10Builder extends IncrementalProjectBuilder {
         IWorkspace ws= ResourcesPlugin.getWorkspace();
     	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
         	public void run(IProgressMonitor monitor) {
+        		//Due to bug XTENLANG-1368, we can't hand all the source files at once to the compiler
+        		//Once this is fixed, remove the for loop below.
+        		//compileAllSources(sources, fErrors);
+        	
         		for(IFile f: sources){
         			Collection<IFile> c = new ArrayList<IFile>();
         			c.add(f);
@@ -315,9 +464,10 @@ public class X10Builder extends IncrementalProjectBuilder {
         X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10C completed on source file set.");
     }
 
+ 
     private void compileAllSources(Collection<IFile> sources, final Collection<ErrorInfo> errors) {  
-    	final BuilderExtensionInfo extInfo = new BuilderExtensionInfo(this);
-        buildOptions(extInfo);
+    	final BuilderExtensionInfo extInfo = new BuilderExtensionInfo(this,sources);
+    	buildOptions(extInfo);
     	final Compiler compiler= new Compiler(extInfo, new AbstractErrorQueue(1000000, extInfo.compilerName()) {
             protected void displayError(ErrorInfo error) {
                 errors.add(error);
@@ -328,6 +478,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         List<Source> streams= collectStreamSources(sources);
         try {
         		compiler.compile(streams);
+        		computeDependencies(/*extInfo.getJobs());*/  extInfo.scheduler().commandLineJobs());
         } catch (InternalCompilerError ice) {
             // HACK - RMF 2/1/2005: Polyglot may throw an InternalCompilerError when a
             // source file (say A) references a type residing in a package directory when
@@ -382,7 +533,6 @@ public class X10Builder extends IncrementalProjectBuilder {
             String projectSrcPath= pathListToPathString(projectSrcLoc);// note this is user's src dir, plus runtime jar.
             String outputDir= fProject.getWorkspace().getRoot().getLocation().append((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
             //BRT note: probably won't work if > 1 src folder
-            // TODO RMF 11/9/2006 - Remove the "-noserial" option; it's really for the demo
             List<String> optsList = new ArrayList();
             String[] stdOptsArray = new String[] {
 //	            "-assert", // default preference (see below under P_PERMITASSERT)
@@ -392,7 +542,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 "-d", outputDir,
                 "-sourcepath", 
                 projectSrcPath,
-                "-commandlineonly",  
+                "-commandlineonly",
                 "-c"
             };
             for (String s: stdOptsArray) {
@@ -464,229 +614,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 		}
 		plugin.showConsole();
 	}
-
-	/**
-	 * Assumes that each path is either workspace-relative or filesystem-absolute.
-	 * Note that a path starting with '/' is considered absolute.
-	 * @param pathList
-	 * @return semicolon-separated list of filesystem-absolute paths. For workspace-relative paths, adds the absolute path of the workspace.
-	 */
-    private String pathListToPathString(List<IPath> pathList) {
-        StringBuffer buff= new StringBuffer();
-        IPath wsLoc= fProject.getWorkspace().getRoot().getLocation();
-
-        for(Iterator<IPath> iter= pathList.iterator(); iter.hasNext();) {
-            IPath path= iter.next();
-            if (path.isAbsolute()){
-            	buff.append(path.toOSString());
-            } else { 
-            	buff.append(wsLoc.append(path).toOSString());
-            } 
-            if (iter.hasNext())
-                buff.append(File.pathSeparatorChar);
-        }
-        return buff.toString();
-    }
-
-    /**
-     * @return a list of all workspace-relative CPE_SOURCE-type classpath entries.
-     * @throws JavaModelException
-     */
-    private List<IPath> getProjectSrcPath() throws JavaModelException {
-        List<IPath> srcPath= new ArrayList<IPath>();
-        IJavaProject javaProject= JavaCore.create(fProject);
-        IClasspathEntry[] classPath= javaProject.getResolvedClasspath(true);
-
-        for(int i= 0; i < classPath.length; i++) {
-            IClasspathEntry e= classPath[i];
-
-            if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
-            	//The path is relative to the workspace but actually considered absolute because it starts with '/'
-            	//We call makeRelative() to remove the initial '/'
-            	//This will allow method pathListToPathString(...) to correctly append the absolute path of the workspace.
-                srcPath.add(e.getPath().makeRelative());
-            else if (e.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-            	//PORT1.7 Compiler needs to see X10 source for all referenced compilation units,
-            	// so add source path entries of referenced projects to this project's sourcepath.
-            	// Assume that goal dependencies are such that Polyglot will not be compelled to
-            	// compile referenced X10 source down to Java source (causing duplication; see below).
-            	//
-                // RMF 6/4/2008 - Don't add referenced projects to the source path:
-                // 1) doing so should be unnecessary, since the classpath will include
-                //    the project, and the class files should satisfy all references,
-                // 2) doing so will cause Polyglot to compile the source files found in
-                //    the other project to Java source files located in the *referencing*
-                //    project, causing duplication, which is not what we want.
-                //
-            	IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getPath().toPortableString());
-            	IJavaProject refJavaProject= JavaCore.create(refProject);
-            	IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
-            	for(int j= 0; j < refJavaCPEntries.length; j++) {
-            		if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-            			srcPath.add(refJavaCPEntries[j].getPath());
-            		}
-            	}
-            } else if (e.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-            	// PORT1.7 Add the X10 runtime jar to the source path, since the compiler
-            	// needs to see the X10 source for the user-visible runtime classes (like
-            	// x10.lang.Region) to get the extra type information (for deptypes) that
-            	// can't be stored in Java class files, and for now, these source files
-            	// actually live in the X10 runtime jar.
-            	IPath path= e.getPath();
-            	if (path.toPortableString().contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID)) {
-            		srcPath.add(path);
-            	}
-            }
-        }
-        if (srcPath.size() == 0)
-            srcPath.add(fProject.getLocation());
-        return srcPath;
-    }
-
-    private void createMarkers(final Collection<ErrorInfo> errors) {
-        final IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
-
-        for(Iterator<ErrorInfo> iter= errors.iterator(); iter.hasNext();) {
-            ErrorInfo errorInfo= (ErrorInfo) iter.next();
-            Position errorPos= errorInfo.getPosition();
-
-            if (errorPos == null)
-                continue;
-
-            IFile errorFile= wsRoot.getFileForLocation(new Path(errorPos.file()));
-
-            if (errorFile == null)
-                errorFile= findFileInSrcPath(errorPos.file(), wsRoot);
-
-            // if file is still null (e.g. file isn't within eclipse project), then attach it to this project, so we don't lose it
-            if (errorFile == null) {      	
-            	String msg = "Error on runtime library file " + errorPos.nameAndLineString()+" - "+errorInfo.getMessage();
-            	addProblemMarkerTo(fProject, msg, IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
-            } else {
-            	int severity= (errorInfo.getErrorKind() == ErrorInfo.WARNING ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR);
-
-            	if (errorPos == Position.COMPILER_GENERATED)
-            		X10DTCorePlugin.getInstance().writeErrorMsg(errorInfo.getMessage());
-            	else
-            		addProblemMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), errorPos
-                        .offset(), errorPos.endOffset());
-            }
-        }
-    }
-
-    private IFile findFileInSrcPath(String fileName, IWorkspaceRoot wsRoot) {
-        IFile entryFile= null;
-
-        try {
-            IClasspathEntry[] cp= fX10Project.getResolvedClasspath(true);
-
-            for(int i= 0; i < cp.length && entryFile == null; i++) {
-                IClasspathEntry entry= cp[i];
-
-                if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-                    IPath entryPath= entry.getPath();
-                    IFolder cpDir= wsRoot.getFolder(entryPath);
-
-                    if (cpDir != null) {
-                        entryFile= recursiveSearchDirectories(wsRoot, cpDir, fileName);
-                    }
-                }
-            }
-        } catch (JavaModelException e) {
-            e.printStackTrace();
-        } catch (CoreException e) {
-            e.printStackTrace();
-        }
-        return entryFile;
-    }
-
-    /**
-     * Find first file with name, fileName existing in cpDir or subdirectory of cpDir.
-     * @return resource file, null if not found
-     */
-    private IFile recursiveSearchDirectories(IWorkspaceRoot wsRoot, IFolder cpDir, String fileName) throws CoreException {
-        IPath entryPath= cpDir.getFullPath();
-        IFile entryFile= wsRoot.getFile(entryPath.append(fileName));
-        if (entryFile == null || !entryFile.exists()) {
-            entryFile= null;
-            IResource[] chillen= cpDir.members();
-            for(int i= 0; entryFile == null && i < chillen.length; ++i) {
-                if (chillen[i].getType() == IResource.FOLDER) {
-                    entryFile= recursiveSearchDirectories(wsRoot, (IFolder) chillen[i], fileName);
-                }
-            }
-        }
-        return entryFile;
-    }
-
-    private List<Source> collectStreamSources(Collection<IFile> sourceFiles) {
-        List<Source> streams= new ArrayList<Source>();
-
-        for(Iterator<IFile> it= sourceFiles.iterator(); it.hasNext(); ) {
-            IFile sourceFile= it.next();
-
-            try {
-                final String filePath= sourceFile.getLocation().toOSString();
-                StreamSource srcStream= new StreamSource(sourceFile.getContents(), filePath);
-                streams.add(srcStream);
-            } catch (IOException e) {
-                X10DTCorePlugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
-            } catch (CoreException e) {
-                X10DTCorePlugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
-            }
-        }
-        return streams;
-    }
-
-    private String buildClassPathSpec() {
-        StringBuffer buff= new StringBuffer();
-
-        try {
-            IWorkspaceRoot wsRoot= ResourcesPlugin.getWorkspace().getRoot();
-            IClasspathEntry[] classPath= fX10Project.getResolvedClasspath(true);
-
-            for(int i= 0; i < classPath.length; i++) {
-                IClasspathEntry entry= classPath[i];
-
-                if (i > 0)
-                    buff.append(File.pathSeparatorChar);
-                if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
-                    buff.append(entry.getPath().toOSString());
-                else if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-                    // Add the output location of each CPE_SOURCE classpath entry in the referenced project
-                    IProject refProject= wsRoot.getProject(entry.getPath().toPortableString());
-                    IJavaProject refJavaProject= JavaCore.create(refProject);
-                    IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
-                    for(int j= 0; j < refJavaCPEntries.length; j++) {
-                        if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-                            IPath outputLoc= refJavaCPEntries[j].getOutputLocation();
-                            if (outputLoc == null) {
-                                outputLoc= refJavaProject.getOutputLocation();
-                            }
-                            buff.append(wsRoot.getLocation().append(outputLoc).toOSString());
-                        }
-                    }
-                }
-            }
-        } catch (JavaModelException e) {
-            X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
-        }
-        return buff.toString();
-    }
-
-    private String fileSetToString(Collection<IFile> sources) {
-        StringBuffer buff= new StringBuffer();
-
-        for(Iterator<IFile> iter= sources.iterator(); iter.hasNext(); ) {
-            IFile file= iter.next();
-
-            buff.append(file.getProjectRelativePath());
-            if (iter.hasNext())
-                buff.append(',');
-        }
-        return buff.toString();
-    }
-   
+	
     protected IProject[] build(final int kind, final Map args, IProgressMonitor monitor) throws CoreException {
     	
         final String[] buildKind= { "0", "1", "2", "3", "4", "5", "Full", "7", "8", "Auto", "Incremental", "11", "12", "13", "14", "Clean" };
@@ -716,17 +644,22 @@ public class X10Builder extends IncrementalProjectBuilder {
             fDependencyInfo.clearAllDependencies();
         fSourcesToCompile.clear();
         fSourcesToDelete.clear();
-
         fMonitor.beginTask("Scanning and compiling X10 source files...", 0);
 
         collectSourcesToCompile();
         cleanGeneratedFiles();
         Collection<IProject> dependents= doCompile();
-
         fMonitor.done();
         return (IProject[]) dependents.toArray(new IProject[dependents.size()]);
     }
     
+    private void computeDependencies(Collection<Job> jobs){
+    	for(Job job: jobs){
+    		ComputeDependenciesVisitor visitor = new ComputeDependenciesVisitor(job, job.extensionInfo().typeSystem(), fDependencyInfo);
+    		if (job.ast() != null)
+    			job.ast().visit(visitor.begin());
+    	}
+    }
 
     private boolean cleanGeneratedFiles() {
     	IWorkspace ws= ResourcesPlugin.getWorkspace();
@@ -781,18 +714,47 @@ public class X10Builder extends IncrementalProjectBuilder {
             return false;
         }
 
-		try {
-			fProject.refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 		return true;
 	}
     
   
+    private String buildClassPathSpec() {
+        StringBuffer buff= new StringBuffer();
 
+        try {
+            IWorkspaceRoot wsRoot= ResourcesPlugin.getWorkspace().getRoot();
+            IClasspathEntry[] classPath= fX10Project.getResolvedClasspath(true);
+
+            for(int i= 0; i < classPath.length; i++) {
+                IClasspathEntry entry= classPath[i];
+
+                if (i > 0)
+                    buff.append(File.pathSeparatorChar);
+                if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
+                    buff.append(entry.getPath().toOSString());
+                else if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+                    // Add the output location of each CPE_SOURCE classpath entry in the referenced project
+                    IProject refProject= wsRoot.getProject(entry.getPath().toPortableString());
+                    IJavaProject refJavaProject= JavaCore.create(refProject);
+                    IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
+                    for(int j= 0; j < refJavaCPEntries.length; j++) {
+                        if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                            IPath outputLoc= refJavaCPEntries[j].getOutputLocation();
+                            if (outputLoc == null) {
+                                outputLoc= refJavaProject.getOutputLocation();
+                            }
+                            buff.append(wsRoot.getLocation().append(outputLoc).toOSString());
+                        }
+                    }
+                }
+            }
+        } catch (JavaModelException e) {
+            X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
+        }
+        return buff.toString();
+    }
+
+    
     private void readCompilerConfig() {
     	// PORT1.7 RMF 9/28/2008 - Not sure we even need to do this any more - check w/ compiler team
         // Read configuration at every compiler invocation, in case it changes (e.g. via
@@ -818,76 +780,271 @@ public class X10Builder extends IncrementalProjectBuilder {
                 postMsgDialog("X10 Error", e.getMessage());
         }
     }
+   
+    /***********************
+     * END - Compilation
+     ***********************/
+    
+    
+    /***********************
+     * Handling Markers
+     ***********************/
+    private void createMarkers(final Collection<ErrorInfo> errors) {
+        final IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
 
-    private final class OpenProjectPropertiesHelper implements Runnable {
-        public void run() {
-            // Open the project properties dialog and go to the "Java Build Path" page
-            PreferenceDialog d= PreferencesUtil.createPropertyDialogOn(null, getProject(), BuildPathsPropertyPage.PROP_ID, null, null);
+        for(Iterator<ErrorInfo> iter= errors.iterator(); iter.hasNext();) {
+            ErrorInfo errorInfo= (ErrorInfo) iter.next();
+            Position errorPos= errorInfo.getPosition();
 
-            d.open();
+            if (errorPos == null)
+                continue;
+
+            IFile errorFile= wsRoot.getFileForLocation(new Path(errorPos.file()));
+
+            if (errorFile == null)
+                errorFile= findFileInSrcPath(errorPos.file(), wsRoot);
+
+            // if file is still null (e.g. file isn't within eclipse project), then attach it to this project, so we don't lose it
+            if (errorFile == null) {      	
+            	String msg = "Error on runtime library file " + errorPos.nameAndLineString()+" - "+errorInfo.getMessage();
+            	addProblemMarkerTo(fProject, msg, IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
+            } else {
+            	int severity= (errorInfo.getErrorKind() == ErrorInfo.WARNING ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR);
+
+            	if (errorPos == Position.COMPILER_GENERATED)
+            		X10DTCorePlugin.getInstance().writeErrorMsg(errorInfo.getMessage());
+            	else
+            		addProblemMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), errorPos
+                        .offset(), errorPos.endOffset());
+            }
         }
     }
 
-    private boolean fSuppressClasspathWarnings= false;
-
-    private class MaybeSuppressFutureClasspathWarnings implements Runnable {
-        public void run() {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                public void run() {
-                    postQuestionDialog("Classpath error", "Suppress future classpath warnings",
-                            new Runnable() {
-                                public void run() {
-                                    fSuppressClasspathWarnings= true;
-                                }
-                            }, null);
+    protected void clearMarkersOn(final Collection<IFile> sources) {
+    	IWorkspace ws= ResourcesPlugin.getWorkspace();
+    	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
+            public void run(IProgressMonitor monitor) {
+            	try {
+                    // Remove the project-level "compiler crash" marker, if any
+                    fProject.deleteMarkers(PROBLEMMARKER_ID, true, 0);
+                } catch (CoreException e1) {
+                	
                 }
-            });
-        }
-    }
+                for(Iterator<IFile> iter= sources.iterator(); iter.hasNext(); ) {
+                    IFile file= iter.next();
 
-    private class UpdateProjectClasspathHelper implements Runnable {
-        public void run() {
-            updateProjectClasspath();
-        }
-    }
-                                                                                                                                                                                           
-
-    private void updateProjectClasspath() {
-        try {
-            IClasspathEntry[] entries= fX10Project.getRawClasspath();
-            List<Integer> runtimeIndexes= X10RuntimeUtils.findAllX10RuntimeClasspathEntries(entries);//PORT1.7 moved to X10runtimeUtils
-            IPath languageRuntimePath= X10RuntimeUtils.getLanguageRuntimePath();//PORT1.7 moved to X10runtimeUtils
-            IClasspathEntry newEntry;
-            if (languageRuntimePath == null) {
-                return;
-            }
-            if (languageRuntimePath.isAbsolute()) {
-                newEntry= JavaCore.newLibraryEntry(languageRuntimePath, null, null);
-            } else {
-                newEntry= JavaCore.newVariableEntry(languageRuntimePath, null, null);
-            }
-            IClasspathEntry[] newEntries;
-
-            if (runtimeIndexes.size() == 0) { // no entry, broken or otherwise
-                newEntries= new IClasspathEntry[entries.length + 1];
-                System.arraycopy(entries, 0, newEntries, 0, entries.length);
-                newEntries[entries.length]= newEntry;
-            } else {
-                newEntries= new IClasspathEntry[entries.length - runtimeIndexes.size() + 1];
-                int idx= 0;
-                for(int i=0; i < entries.length; i++) {
-                    if (!runtimeIndexes.contains(i)) {
-                        newEntries[idx++]= entries[i];
+                    try {
+                        file.deleteMarkers(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE);
+                    } catch (CoreException e) {
+                    	
                     }
                 }
-                newEntries[idx]= newEntry;
             }
-            fX10Project.setRawClasspath(newEntries, new NullProgressMonitor());
-        } catch (JavaModelException e) {
+    	};
+        try {
+        	ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+        } catch (CoreException e) {
             e.printStackTrace();
         }
     }
 
+    protected void addMarkerTo(final IFile sourceFile, final String type, final String msg, final int severity, final String loc, final int priority, final int lineNum, final int startOffset, final int endOffset) {
+    	IWorkspace ws= ResourcesPlugin.getWorkspace();
+    	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
+            public void run(IProgressMonitor monitor) {
+            	try {
+                    IMarker marker= sourceFile.createMarker(type);
+                    //TODO: change to setAttributes
+                    marker.setAttribute(IMarker.MESSAGE, msg);
+                    marker.setAttribute(IMarker.SEVERITY, severity);
+                    marker.setAttribute(IMarker.LOCATION, loc);
+                    marker.setAttribute(IMarker.PRIORITY, priority);
+                    marker.setAttribute(IMarker.LINE_NUMBER, (lineNum >= 1) ? lineNum : 1);
+                    if (startOffset >= 0) {
+                        marker.setAttribute(IMarker.CHAR_START, startOffset);
+                        marker.setAttribute(IMarker.CHAR_END, endOffset + 1);
+                    } else {
+                        marker.setAttribute(IMarker.CHAR_START, 0);
+                        marker.setAttribute(IMarker.CHAR_END, 0);
+                    }
+                } catch (CoreException e) {
+                    X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to file " + sourceFile);
+                }
+            }
+        };
+        try {
+        	ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }  
+    }
+
+    protected void addProblemMarkerTo(IFile sourceFile, String msg, int severity, String loc, int priority, int lineNum, int startOffset, int endOffset) {
+        addMarkerTo(sourceFile, PROBLEMMARKER_ID, msg, severity, loc, priority, lineNum, startOffset, endOffset);
+    }
+
+    protected void addTaskTo(IFile sourceFile, String msg, int severity, int priority, int lineNum, int startOffset, int endOffset) {
+        addMarkerTo(sourceFile, IMarker.TASK, msg, severity, "", priority, lineNum, startOffset, endOffset);
+    }
+
+    protected void addProblemMarkerTo(final IProject project, final String msg, final int severity, final int priority) {
+    	IWorkspace ws= ResourcesPlugin.getWorkspace();
+    	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
+            public void run(IProgressMonitor monitor) {
+            	try {
+                    IMarker marker= project.createMarker(PROBLEMMARKER_ID);
+
+                    marker.setAttribute(IMarker.MESSAGE, msg);
+                    marker.setAttribute(IMarker.SEVERITY, severity);
+                    marker.setAttribute(IMarker.PRIORITY, priority);
+                } catch (CoreException e) {
+                    X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to project " + project.getName());
+                }
+            }
+        };
+        try {
+        	ws.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+        } catch (CoreException e) {
+            e.printStackTrace();
+        } 
+    }
+
+    private IFile findFileInSrcPath(String fileName, IWorkspaceRoot wsRoot) {
+        IFile entryFile= null;
+
+        try {
+            IClasspathEntry[] cp= fX10Project.getResolvedClasspath(true);
+
+            for(int i= 0; i < cp.length && entryFile == null; i++) {
+                IClasspathEntry entry= cp[i];
+
+                if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                    IPath entryPath= entry.getPath();
+                    IFolder cpDir= wsRoot.getFolder(entryPath);
+
+                    if (cpDir != null) {
+                        entryFile= recursiveSearchDirectories(wsRoot, cpDir, fileName);
+                    }
+                }
+            }
+        } catch (JavaModelException e) {
+            e.printStackTrace();
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }
+        return entryFile;
+    }
+
+    /**
+     * Find first file with name, fileName existing in cpDir or subdirectory of cpDir.
+     * @return resource file, null if not found
+     */
+    private IFile recursiveSearchDirectories(IWorkspaceRoot wsRoot, IFolder cpDir, String fileName) throws CoreException {
+        IPath entryPath= cpDir.getFullPath();
+        IFile entryFile= wsRoot.getFile(entryPath.append(fileName));
+        if (entryFile == null || !entryFile.exists()) {
+            entryFile= null;
+            IResource[] chillen= cpDir.members();
+            for(int i= 0; entryFile == null && i < chillen.length; ++i) {
+                if (chillen[i].getType() == IResource.FOLDER) {
+                    entryFile= recursiveSearchDirectories(wsRoot, (IFolder) chillen[i], fileName);
+                }
+            }
+        }
+        return entryFile;
+    }
+
+    
+    /***********************
+     * END - Handling Markers
+     ***********************/
+    
+    /***********************
+     * Unused Methods
+     ***********************/
+    
+    /*
+     * Visitor to find sources that have no Java visitor
+     */
+    private class NoJavaVisitor implements IResourceVisitor {
+    	public boolean visit(IResource res) throws CoreException {
+    		return processResource(res);
+    	}
+    	
+    	protected boolean processResource(IResource resource) throws CoreException {
+    		 if (resource instanceof IFile) {
+                 IFile file= (IFile) resource;
+                 if (isSourceFile(file) && hasNoJava(file)) {
+                     fSourcesToCompile.add(file);
+                 }
+             } else if (isBinaryFolder(resource)) {
+                 return false;
+             }
+             return true;
+    	}
+    }
+
+    private boolean hasNoJava(IFile file){
+    	 IPath genJavaFile= file.getFullPath().removeFileExtension().addFileExtension("java");
+    	 IFile javaFile= fProject.getWorkspace().getRoot().getFile(genJavaFile);
+         if (!javaFile.exists()) 
+        	 return true;
+         return false;
+    }
+    
+    private NoJavaVisitor fNoJavaVisitor= new NoJavaVisitor();
+
+    private void collectFilesWithNoJavaFile() {
+        try {
+            fProject.accept(fNoJavaVisitor);
+        } catch (CoreException e) {
+            X10DTCorePlugin.getInstance().logException("Error while looking for source files with no Java file", e);
+        }
+    }
+    
+    /*
+     * Visitor to find files that have a compilation error
+     */
+    private class X10ErrorVisitor implements IResourceVisitor {
+        private boolean fCompileAll= false;
+       
+        public boolean visit(IResource res) throws CoreException {
+            return processResource(res);
+        }
+        protected boolean processResource(IResource resource) throws CoreException {
+            if (resource instanceof IFile) {
+                IFile file= (IFile) resource;
+                if (isSourceFile(file) && (fCompileAll || hasErrors(file))) {
+                	fSourcesToCompile.add(file);
+                }
+            } else if (isBinaryFolder(resource)) {
+                return false;
+            }
+            return true;
+        }
+        public void setCompileAll(boolean yesNo) {
+            fCompileAll= yesNo;
+        }
+    }
+    
+    private boolean hasErrors(IFile file) throws CoreException{
+    	return file.findMaxProblemSeverity(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE) == IMarker.SEVERITY_ERROR;
+    }
+
+    private X10ErrorVisitor fErrorVisitor= new X10ErrorVisitor();
+
+    private void collectFilesWithErrors() {
+        try {
+            // The only project-level error we issue is for a compiler crash, for which we get no
+            // info as to what file caused the problem. So we play it safe and recompile
+            // everything in that case.
+        	fErrorVisitor.setCompileAll(fProject.findMaxProblemSeverity(PROBLEMMARKER_ID, false, 0) == IMarker.SEVERITY_ERROR);
+            fProject.accept(fErrorVisitor);
+        } catch (CoreException e) {
+            X10DTCorePlugin.getInstance().logException("Error while looking for source files with errors", e);
+        }
+    }
+    
     /**
      * Checks the project's classpath to make sure that an X10 runtime is available,
      * and warns the user if not.
@@ -974,177 +1131,81 @@ public class X10Builder extends IncrementalProjectBuilder {
         });
     }
 
-    private Collection<IProject> doCompile() throws CoreException {
-        if (!fSourcesToCompile.isEmpty()) {
-        	if(traceOn)System.out.println("X10Builder.doCompile() fSourcesToCompile: "+fSourcesToCompile);
-    	    invokeX10C(fSourcesToCompile);
-    	    // Now do a refresh to make sure the Java compiler sees the Java
-    	    // source files that Polyglot just created.
-            fProject.refreshLocal(IResource.DEPTH_INFINITE, fMonitor); 
+
+    private final class OpenProjectPropertiesHelper implements Runnable {
+        public void run() {
+            // Open the project properties dialog and go to the "Java Build Path" page
+            PreferenceDialog d= PreferencesUtil.createPropertyDialogOn(null, getProject(), BuildPathsPropertyPage.PROP_ID, null, null);
+
+            d.open();
         }
-        return computeDependentProjects();
     }
 
-    private Collection<IProject> computeDependentProjects() {
-        Collection<IProject> dependentProjects= new ArrayList<IProject>();
-        try {
+    private boolean fSuppressClasspathWarnings= false;
 
-            IClasspathEntry[] cpEntries= fX10Project.getResolvedClasspath(false);
-            IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
-
-            for(int i= 0; i < cpEntries.length; i++) {
-                IClasspathEntry cpEntry= cpEntries[i];
-    
-                if (cpEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-                    IProject proj= wsRoot.getProject(cpEntry.getPath().segment(0));
-    
-                    dependentProjects.add(proj);
+    private class MaybeSuppressFutureClasspathWarnings implements Runnable {
+        public void run() {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                public void run() {
+                    postQuestionDialog("Classpath error", "Suppress future classpath warnings",
+                            new Runnable() {
+                                public void run() {
+                                    fSuppressClasspathWarnings= true;
+                                }
+                            }, null);
                 }
+            });
+        }
+    }
+
+    private class UpdateProjectClasspathHelper implements Runnable {
+        public void run() {
+            updateProjectClasspath();
+        }
+    }
+                                                                                                                                                                                           
+
+    private void updateProjectClasspath() {
+        try {
+            IClasspathEntry[] entries= fX10Project.getRawClasspath();
+            List<Integer> runtimeIndexes= X10RuntimeUtils.findAllX10RuntimeClasspathEntries(entries);//PORT1.7 moved to X10runtimeUtils
+            IPath languageRuntimePath= X10RuntimeUtils.getLanguageRuntimePath();//PORT1.7 moved to X10runtimeUtils
+            IClasspathEntry newEntry;
+            if (languageRuntimePath == null) {
+                return;
             }
+            if (languageRuntimePath.isAbsolute()) {
+                newEntry= JavaCore.newLibraryEntry(languageRuntimePath, null, null);
+            } else {
+                newEntry= JavaCore.newVariableEntry(languageRuntimePath, null, null);
+            }
+            IClasspathEntry[] newEntries;
+
+            if (runtimeIndexes.size() == 0) { // no entry, broken or otherwise
+                newEntries= new IClasspathEntry[entries.length + 1];
+                System.arraycopy(entries, 0, newEntries, 0, entries.length);
+                newEntries[entries.length]= newEntry;
+            } else {
+                newEntries= new IClasspathEntry[entries.length - runtimeIndexes.size() + 1];
+                int idx= 0;
+                for(int i=0; i < entries.length; i++) {
+                    if (!runtimeIndexes.contains(i)) {
+                        newEntries[idx++]= entries[i];
+                    }
+                }
+                newEntries[idx]= newEntry;
+            }
+            fX10Project.setRawClasspath(newEntries, new NullProgressMonitor());
         } catch (JavaModelException e) {
-            X10DTCorePlugin.getInstance().logException("Unable to resolve X10 project classpath", e);
-        }
-        return dependentProjects;
-    }
-
-    private void collectChangeDependents() {
-        Collection<IFile> changeDependents= new ArrayList<IFile>();
-        for(Iterator<IFile> iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
-        	IFile srcFile= iter.next();
-        	changeDependents.addAll(getChangeDependents(srcFile));
-        }
-        for (IFile file: changeDependents){
-        	fSourcesToCompile.add(file);
+            e.printStackTrace();
         }
     }
 
-    private Collection<IFile> getChangeDependents(IFile srcFile){
-    	Collection<IFile> result = new ArrayList<IFile>();
-        Set<String> fileDependents= fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
-        IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
-        if (fileDependents != null) {
-            for(Iterator<String> iterator= fileDependents.iterator(); iterator.hasNext(); ) {
-                String depPath= iterator.next();
-                IFile depFile= wsRoot.getFile(new Path(depPath));
-                	result.add(depFile);
-            }
-        }
-        return result;
-    }
+ 
+ 
     
-    private void collectSourcesToCompile() throws CoreException {
-        collectSourceFolders();
-
-        IResourceDelta delta= getDelta(fProject);
-        if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
-
-        if (delta != null) {
-        	X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
-            delta.accept(fDeltaVisitor);
-            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10 delta scan completed for project '" + fProject.getName() + "'...");
-        } 
-        if (fBuildAll || delta == null){
-            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning for X10 source files in project '" + fProject.getName() + "'... <==");
-            fProject.accept(fResourceVisitor);
-            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
-        }
-        if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
-        collectChangeDependents();
-        collectFilesWithErrors();
-        collectFilesWithNoJavaFile();
-        if (fBuildAll) fBuildAll = false;
-    }
-
-    private class NoJavaVisitor implements IResourceVisitor {
-    	public boolean visit(IResource res) throws CoreException {
-    		return processResource(res);
-    	}
-    	protected boolean processResource(IResource resource) throws CoreException {
-    		 if (resource instanceof IFile) {
-                 IFile file= (IFile) resource;
-                 if (isSourceFile(file)) {
-                	 IPath genJavaFile= file.getFullPath().removeFileExtension().addFileExtension("java");
-                	 IFile javaFile= fProject.getWorkspace().getRoot().getFile(genJavaFile);
-                     if (!javaFile.exists()) {
-                         fSourcesToCompile.add(file);
-                     }
-                 }
-             } else if (isBinaryFolder(resource)) {
-                 return false;
-             }
-             return true;
-    	}
-    }
-
-    private NoJavaVisitor fNoJavaVisitor= new NoJavaVisitor();
-
-    private void collectFilesWithNoJavaFile() {
-        try {
-            fProject.accept(fNoJavaVisitor);
-        } catch (CoreException e) {
-            X10DTCorePlugin.getInstance().logException("Error while looking for source files with no Java file", e);
-        }
-    }
+    /***********************
+     * END - Unused Methods
+     ***********************/
     
-    private class X10ErrorVisitor implements IResourceVisitor {
-        private boolean fCompileAll= false;
-        public boolean visit(IResource res) throws CoreException {
-            return processResource(res);
-        }
-        protected boolean processResource(IResource resource) throws CoreException {
-            if (resource instanceof IFile) {
-                IFile file= (IFile) resource;
-                if (isSourceFile(file) && (fCompileAll || file.findMaxProblemSeverity(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE) == IMarker.SEVERITY_ERROR)) {
-                	fSourcesToCompile.add(file);
-                }
-            } else if (isBinaryFolder(resource)) {
-                return false;
-            }
-            return true;
-        }
-        public void setCompileAll(boolean yesNo) {
-            fCompileAll= yesNo;
-        }
-    }
-
-    private X10ErrorVisitor fErrorVisitor= new X10ErrorVisitor();
-
-    private void collectFilesWithErrors() {
-        try {
-            // The only project-level error we issue is for a compiler crash, for which we get no
-            // info as to what file caused the problem. So we play it safe and recompile
-            // everything in that case.
-            fErrorVisitor.setCompileAll(fProject.findMaxProblemSeverity(PROBLEMMARKER_ID, false, 0) == IMarker.SEVERITY_ERROR);
-
-            fProject.accept(fErrorVisitor);
-        } catch (CoreException e) {
-            X10DTCorePlugin.getInstance().logException("Error while looking for source files with errors", e);
-        }
-    }
-
-    /**
-     * Collects the set of source folders in this project, to be used in filtering out
-     * files in non-src folders that the builder should not attempt to compile.
-     * @see isSourceFile()
-     */
-    private void collectSourceFolders() throws JavaModelException {
-        fSrcFolderPaths= new HashSet<IPath>();
-        IClasspathEntry[] cpEntries= fX10Project.getResolvedClasspath(true);
-
-        for(int i= 0; i < cpEntries.length; i++) {
-            IClasspathEntry cpEntry= cpEntries[i];
-            if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-                final IPath entryPath= cpEntry.getPath();
-                if (!entryPath.segment(0).equals(fX10Project.getElementName())) {
-                    X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Source classpath entry refers to another project: " + entryPath);
-                    continue;
-                }
-                fSrcFolderPaths.add(entryPath.removeFirstSegments(1));
-            }
-        }
-    }
-
-    public String toString() {
-        return "X10 Builder for project " + fProject.getName();
-    }
 }
