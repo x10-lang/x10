@@ -69,12 +69,17 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
         "void *r = __pgasrt_tspcoll_iallreduce(0, local->raw(), local->raw(), PGASRT_OP_ADD, PGASRT_DT_flt, len);" +
         "while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();") {}
     }
+
+    public global def barrier() {
+        @Native("c++", 
+            "void *r = __pgasrt_tspcoll_ibarrier(0);" +
+            "while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();") {}
+    }
+
+
 }
 
 public class KMeansSPMD {
-
-    @Native("c++", "__pgasrt_tsp_barrier()")
-    static def barrier() {}
 
     public static def printClusters (clusters:Rail[Float]!, dims:Int) {
         for (var d:Int=0 ; d<dims ; ++d) { 
@@ -99,15 +104,14 @@ public class KMeansSPMD {
                 Option("i","iterations","quit after this many iterations"),
                 Option("c","clusters","number of clusters to find"),
                 Option("d","dim","number of dimensions"),
-                Option("s","slices","factor by which to oversubscribe computational resources"),
                 Option("n","num","quantity of points")]);
             val fname = opts("-p", "points.dat"), num_clusters=opts("-c",8),
-                num_slices=opts("-s",1), num_global_points=opts("-n", 100000),
+                num_global_points=opts("-n", 100000),
                 iterations=opts("-i",50), dim=opts("-d", 4);
             val verbose = opts("-v"), quiet = opts("-q");
 
             if (!quiet)
-                Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+4);
+                Runtime.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+dim);
 
             // file is dimension-major
             val file = new File(fname), fr = file.openRead();
@@ -122,18 +126,16 @@ public class KMeansSPMD {
             val cluster_counts = new DistributedRail[Int](num_clusters, (Int)=>0);
 
 
-            finish async {
+            finish {
 
-                val num_slice_points = num_global_points / num_slices / Place.MAX_PLACES;
-
-                for ((slice) in 0..num_slices-1) {
+                val num_slice_points = num_global_points / Place.MAX_PLACES;
 
                     for (h in Place.places) async (h) {
 
                         // carve out local portion of points (point-major)
-                        val offset = (here.id*num_slices*num_slice_points) + slice*num_slice_points;
-                        if (!quiet)
-                            Console.OUT.println(h+" gets "+offset+" len "+num_slice_points);
+                        val offset = here.id*num_slice_points;
+                        if (!quiet && offset==0)
+                            Runtime.println(h+" gets "+offset+" len "+num_slice_points);
                         val num_slice_points_stride = num_slice_points;
                         val init = (i:Int) => {
                             val d=i/num_slice_points_stride, p=i%num_slice_points_stride;
@@ -151,14 +153,15 @@ public class KMeansSPMD {
 
                         var compute_time:ULong = 0;
                         var comm_time:ULong = 0;
-                        var next_time:ULong = 0;
+                        var barr_time:ULong = 0;
 
                         // ensure everyone is ready before we start timing
-                        barrier();
+                        clusters.barrier();
 
                         main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
 
-                            Console.OUT.println("Iteration: "+iter);
+                            if (!quiet && offset==0)
+                                Runtime.println("Iteration: "+iter);
 
                             val old_clusters = clusters() as ValRail[Float];
 
@@ -187,6 +190,10 @@ public class KMeansSPMD {
                             }
                             compute_time += System.nanoTime() - compute_start;
 
+                            //val barr_start = System.nanoTime();
+                            //clusters.barrier();
+                            //barr_time += System.nanoTime() - barr_start;
+
                             val comm_start = System.nanoTime();
                             clusters.collectiveReduceSumFloat();
                             cluster_counts.collectiveReduceSumInt();
@@ -197,8 +204,7 @@ public class KMeansSPMD {
                             }
 
                             if (offset==0 && verbose) {
-                                Console.OUT.println("Iteration: "+iter);
-                                printClusters(clusters() as Rail[Float]!,dim);
+                                //printClusters(clusters() as Rail[Float]!,dim);
                             }
 
                             // TEST FOR CONVERGENCE
@@ -212,17 +218,16 @@ public class KMeansSPMD {
 
                         if (offset==0) {
                             val stop_time = System.currentTimeMillis();
-                            if (!quiet) Console.OUT.print(num_global_points+" "+num_clusters+" "+dim+" ");
-                            Console.OUT.println((stop_time-start_time)/1E3);
+                            //if (!quiet) Runtime.println(num_global_points+" "+num_clusters+" "+dim+" ");
+                            Runtime.println(""+(stop_time-start_time)/1E3);
                         }
-                        Console.OUT.println("Computation time: "+compute_time/1E9);
-                        Console.OUT.println("Communication time: "+comm_time/1E9);
+                        Runtime.println("Computation time: "+compute_time/1E9);
+                        Runtime.println("Communication time: "+comm_time/1E9);
+                        //Runtime.println("Barrier time: "+barr_time/1E9);
 
                         
 
                     } // async
-
-                } // slice
 
             } // finish
 
