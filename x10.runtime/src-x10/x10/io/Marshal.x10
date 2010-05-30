@@ -129,7 +129,7 @@ public interface Marshal[T] {
         public global def read(r: Reader): Short throws IOException {
             val b1 = r.read();
             val b2 = r.read();
-            return (((b1 & 0xff) << 8) | b2) as Short;
+            return (((b1 & 0xff) << 8) | (b2 & 0xff)) as Short;
         }
 
         public global def write(w: Writer, s: Short): Void throws IOException {
