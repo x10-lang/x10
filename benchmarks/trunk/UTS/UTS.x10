@@ -104,10 +104,10 @@ public class UTS {
 	    this.q = q; this.m = m; this.k=k; this.nu=nu;
 	}
 
-	def processSubtree (rng:SHA1Rand) {
+	final def processSubtree (rng:SHA1Rand) {
 	    processSubtree(rng, (rng() < q) ? m : 0);
 	}
-	def processSubtree (rng:SHA1Rand, numChildren:Int) {
+	final def processSubtree (rng:SHA1Rand, numChildren:Int) {
 	    nodesCounter++;
 	    /* Iterate over all the children and push on stack. */
 	    for (var i:Int=0 ; i<numChildren ; ++i) 
@@ -123,7 +123,7 @@ public class UTS {
 		}
 	    }
 		
-	    def pop(k:Int) = ValRail.make[SHA1Rand](k, (int)=> stack.pop());
+	    final def pop(k:Int) = ValRail.make[SHA1Rand](k, (int)=> stack.pop());
 
 	    def trySteal () : ValRail[SHA1Rand] {
 		stealsReceived++;
@@ -238,13 +238,12 @@ public class UTS {
 	}
 
     static final class BinomialState2 extends BinomialState {
-		var thief_:Int; 
+		var thief:Int; 
 		val width:Int;
-		static val IDLE=0, PROCESSING=1, STEALING=2;
 		public def this (q:Long, m:Int, k:Int, nu:Int, w:Int) {
 			super(q,m,k,nu);
 			width=w;
-			thief_= -1;
+			thief= -1;
 		}
 		def processStack(st:PLH2) {
 			var count:Int=0;
@@ -260,13 +259,12 @@ public class UTS {
 		    	processLoot(st, loot);
 		}
 		def distribute(st:PLH2) {
-			if (thief_ >= 0) {
-    			val loot = trySteal(thief_);
+			if (thief >= 0) {
+    			val loot = trySteal(thief);
     			if (loot != null) {
-    				val thief = thief_;
     				async (Place(thief)) 
     				st().processLoot(st, loot);
-    				thief_ = -1;
+    				thief = -1;
     			}
     		}
 		}
@@ -301,14 +299,12 @@ public class UTS {
 		def trySteal (p:Int) : ValRail[SHA1Rand] {
 			stealsReceived++;
 			val length = stack.size();
-			val numSteals = 
-				(k > 0 ? (k < length ?  k : (k/2 < length ? k/2 :0))
-						: length/2);
-			if (length <= 2 || numSteals==0) {
-				if (here.id == (p+1)% Place.MAX_PLACES)
-					thief_ = p;
+			if (length <= 2) {
+				if (here.id == (p+1)% Place.MAX_PLACES) //lifeline
+					thief = p;
 				return null;
 			}
+			val numSteals = length/2;
 			stealsSuffered++;
 			nodesGiven += numSteals;
 			return pop(numSteals);
