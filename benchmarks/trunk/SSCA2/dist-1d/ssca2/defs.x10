@@ -75,7 +75,7 @@ Rail[types.WEIGHT_T]!) {
 	public static class pGraphLocal {
 	 val n: types.LONG_T;
 	
-	public  val numEdges: Array[types.LONG_T](1)!;
+	public  val numEdges: LinearArray[types.LONG_T]!;
 
 	public  val endV: GrowableRail[types.VERT_T]!;
 	public  val weight : GrowableRail[types.WEIGHT_T]!;
@@ -86,7 +86,7 @@ Rail[types.WEIGHT_T]!) {
             this.n = n / dist.places().length;
             this.vertices = this.n*here.id..((here.id+1)*this.n-1);
             val vertices_ext = this.n*here.id..((here.id+1)*this.n);
-            numEdges = new Array[types.LONG_T](vertices_ext) as Array[types.LONG_T](1)!;
+            numEdges = new LinearArray[types.LONG_T](vertices_ext); 
                
             endV = new GrowableRail[types.VERT_T](0);
             weight = new GrowableRail[types.WEIGHT_T](0);

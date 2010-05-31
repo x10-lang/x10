@@ -19,6 +19,7 @@ ssca2/Quad.x10
 CSRCS= \
 $(OUTDIR)/ssca2/BetweenessCentrality.cc\
 $(OUTDIR)/ssca2/BetweenessCentrality__WrapRail.cc\
+$(OUTDIR)/ssca2/LinearArray.cc\
 $(OUTDIR)/ssca2/PTimer.cc\
 $(OUTDIR)/ssca2/SSCA2.cc\
 $(OUTDIR)/ssca2/genScaleData.cc\
@@ -66,6 +67,7 @@ $(OUTDIR)/ssca2/getStartLists_dist.o\
 $(OUTDIR)/ssca2/findSubGraphs_dist.o\
 $(OUTDIR)/ssca2/BetweenessCentrality.o\
 $(OUTDIR)/ssca2/BetweenessCentrality__WrapRail.o\
+$(OUTDIR)/ssca2/LinearArray.o\
 $(OUTDIR)/ssca2/PTimer.o
 
 .SUFFIXES: .cc .cxx .cpp .C .c .o .h .x10

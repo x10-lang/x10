@@ -7,7 +7,7 @@ RESULT_DIR=dist-1d/results;
 
 `mkdir  -p $RESULT_DIR`;
 
-for nprocs in  1 2 4 8 16 32 64 128  256
+for nprocs in  64 32 16 8 4 2 1
 do
   date_qualifier=`date +"%d-%m-%y"`;
   procs_qualifier=`printf "%04d"  $nprocs`;

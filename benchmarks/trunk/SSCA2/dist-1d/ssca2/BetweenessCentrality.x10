@@ -18,6 +18,11 @@ import x10.io.File;
 import x10.io.FileWriter;
 import x10.io.IOException;
 
+import x10.compiler.NativeCPPInclude;
+
+ @NativeCPPInclude("sprng.h") {}
+
+
 /**
   * Computes the betweeness_centrality indices for all the vertices in a distributed graph.
   * <p>
@@ -35,6 +40,51 @@ import x10.io.IOException;
   *
   * @author: Ganesh Bikshandi
   */
+
+class LinearArray[T] {
+
+  val size: Int;
+   val data: Rail[T];
+   val ptr: Long;
+   val dummy: T;
+
+   public static def make[T] (r: Region(1), init:(Int)=>T)  = new LinearArray[T](r, init);
+
+   public def this (r: Region(1)){
+     size = r.size();
+     data = Rail.make[T](size);
+     val offset = r.min(0);
+     ptr = 0;
+     dummy = data(0);
+     { @Native ("c++", "FMGL(ptr) = (x10_long) (FMGL(data)->raw() - offset);") {} }
+   }
+
+   public def this (r: Region(1), init:(Int)=>T) {
+     size = r.size();
+     data = Rail.make[T](size, init);
+     val offset = r.min(0);
+     ptr = 0;
+     dummy = data(0);
+     { @Native ("c++", "FMGL(ptr) = (x10_long) (FMGL(data)->raw() - offset);") {} }
+   }
+
+    @Native("c++", "((#2*) (#0)->FMGL(ptr))[#1]")
+   public native safe def apply(i: Int): T  ;
+
+/* {
+     val a: T= dummy;
+     {@Native ("c++", "a = ((FMGL(T)*) FMGL(ptr))[i];"){}}
+      return a;
+   } */
+
+    @Native("c++", "((#3*) (#0)->FMGL(ptr))[#2] = #1;")
+   public native safe def set(elem:T, i: Int): T;
+/* {
+     {@Native ("c++", "((FMGL(T)*) FMGL(ptr))[i] = elem;"){}}
+     return elem;
+   } */
+};
+
 
 
 class BetweenessCentrality {
@@ -67,16 +117,21 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
 
 };
 
+
      public static type UVDSQuad= Quad[VERT_T, VERT_T, types.LONG_T, types.DOUBLE_T];
 
      public static type VERT_T=types.VERT_T;
 
+     public static NUM_PLACES = Place.MAX_PLACES;
+
+
+
      //PlaceLocal storge for program variables for each vertex
-     global val BC: PlaceLocalHandle[Array[types.DOUBLE_T](1)];
-     global val Sig: PlaceLocalHandle[Array[types.DOUBLE_T](1)];
-     global  val Del: PlaceLocalHandle[Array[types.DOUBLE_T](1)];
-     global val D: PlaceLocalHandle[Array[types.LONG_T](1)];
-     global val Pred: PlaceLocalHandle[Array[WrapRail[VERT_T]](1)];
+     global val BC: PlaceLocalHandle[LinearArray[types.DOUBLE_T]];
+     global val Sig: PlaceLocalHandle[LinearArray[types.DOUBLE_T]];
+     global  val Del: PlaceLocalHandle[LinearArray[types.DOUBLE_T]];
+     global val D: PlaceLocalHandle[LinearArray[types.LONG_T]];
+     global val Pred: PlaceLocalHandle[LinearArray[WrapRail[VERT_T]]];
      global val Frontier: PlaceLocalHandle[Rail[GrowableRail[VERT_T]]];
 
      // alltoall buffers , N_*: Input, L_*: output 
@@ -101,22 +156,28 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
 
 
      global val alltoallv_timer: PTimer;
+     global val kernel4: PTimer;
 
-     public static  def computeInDegree(val pg: defs.pGraph) {
+     public  def computeInDegree(val pg: defs.pGraph) {
 
            val unique = Dist.makeUnique();
-           val InDegree = PlaceLocalHandle.make[Array[types.LONG_T](1)](unique, ()=>new Array[types.LONG_T](pg.restrict_here().vertices, (p: Point(1))=>0) as Array[types.LONG_T](1)!);
+           val InDegree = PlaceLocalHandle.make[Rail[types.LONG_T]](unique, ()=>Rail.make[types.LONG_T](pg.restrict_here().vertices.size(), (i:Int)=>0));
+
+         kernel4.start();
          finish ateach((p) in unique) {
             val world = Comm.WORLD();
             val pg_here = pg.restrict_here();
             val tmp = world.usort[VERT_T](pg_here.endV, (v:VERT_T)=>pg.owner_id(v));
             val inDegree = InDegree();
+            val voffset = pg.restrict_here().vertices.min(0);
             for (var i : Int = 0 ; i < tmp.length(); i++) {
-              (inDegree as Array[types.LONG_T](1)!)(tmp(i)) += 1;
+              inDegree(tmp(i)-voffset) += 1;
             } 
             /* for (var i : Int = inDegree.region.min(0); i <= inDegree.region.max(0); i++ ) 
                x10.io.Console.ERR.println((inDegree as Array[types.LONG_T](1)!)(i)); */
          }
+         kernel4.stop();
+
          return InDegree;
 
       }
@@ -129,18 +190,18 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
 
 
              alltoallv_timer = PTimer.make("alltoallv");
+             kernel4 = PTimer.make("kernel4");
 
              val unique = Dist.makeUnique();
 
 
              val InDegree = computeInDegree(pg);
 
-             BC = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>new Array[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0d) as Array[types.DOUBLE_T](1)!);
-             Sig = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>new Array[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0.0d) as Array[types.DOUBLE_T](1)!);
-             Del = PlaceLocalHandle.make[Array[types.DOUBLE_T](1)](unique, ()=>new Array[types.DOUBLE_T](pg.restrict_here().vertices, (p: Point(1))=>0.0d) as Array[types.DOUBLE_T](1)!);
-             D = PlaceLocalHandle.make[Array[types.LONG_T](1)](unique, ()=>new Array[types.LONG_T](pg.restrict_here().vertices, (p: Point(1))=>-1) as Array[types.LONG_T](1)!);
-
-             Pred = PlaceLocalHandle.make[Array[WrapRail[VERT_T]](1)](unique, ()=>new Array[WrapRail[VERT_T]](pg.restrict_here().vertices, ((p):Point(1))=>new WrapRail[VERT_T]((InDegree() as Array[VERT_T](1)!)(p))) as Array[WrapRail[VERT_T]](1)!);
+             BC = PlaceLocalHandle.make[LinearArray[types.DOUBLE_T]](unique, ()=>LinearArray.make[types.DOUBLE_T](pg.restrict_here().vertices, (i:Int)=>0d));
+             Sig = PlaceLocalHandle.make[LinearArray[types.DOUBLE_T]](unique, ()=>LinearArray.make[types.DOUBLE_T](pg.restrict_here().vertices, (i:Int)=>0d));
+             Del = PlaceLocalHandle.make[LinearArray[types.DOUBLE_T]](unique, ()=>LinearArray.make[types.DOUBLE_T](pg.restrict_here().vertices, (i:Int)=>0d));
+             D = PlaceLocalHandle.make[LinearArray[types.LONG_T]](unique, ()=>LinearArray.make[types.LONG_T](pg.restrict_here().vertices, (i:Int)=>-1));
+             Pred = PlaceLocalHandle.make[LinearArray[WrapRail[VERT_T]]](unique, ()=> LinearArray.make[WrapRail[VERT_T]](pg.restrict_here().vertices, (i:Int)=>new WrapRail[VERT_T]((InDegree()(i)))));
 
              Frontier = PlaceLocalHandle.make[Rail[GrowableRail[VERT_T]]](unique, ()=>Rail.make[GrowableRail[VERT_T]](2, (i:Int)=>new GrowableRail[VERT_T]()) as Rail[GrowableRail[VERT_T]]!);
 
@@ -148,10 +209,10 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
              Count = PlaceLocalHandle.make[WrapRail[types.INT_T]](unique, ()=>new WrapRail[types.INT_T](50));
 
              if (!use_async) {
-                N_cent = PlaceLocalHandle.make[Rail[GrowableRail[Pair[VERT_T, Double]]]](unique, ()=>Rail.make[GrowableRail[Pair[VERT_T, Double]]](Place.MAX_PLACES, (n:Int)=>new GrowableRail[Pair[VERT_T, Double]](0)));
+                N_cent = PlaceLocalHandle.make[Rail[GrowableRail[Pair[VERT_T, Double]]]](unique, ()=>Rail.make[GrowableRail[Pair[VERT_T, Double]]](NUM_PLACES, (n:Int)=>new GrowableRail[Pair[VERT_T, Double]](0)));
                L_cent =  PlaceLocalHandle.make[GrowableRail[Pair[VERT_T, Double]]](unique, ()=>new GrowableRail[Pair[VERT_T,Double]](0));
 
-                N_bfs = PlaceLocalHandle.make[Rail[GrowableRail[UVDSQuad]]](unique, ()=>Rail.make[GrowableRail[UVDSQuad]](Place.MAX_PLACES,(n:Int)=>new GrowableRail[UVDSQuad](0)));
+                N_bfs = PlaceLocalHandle.make[Rail[GrowableRail[UVDSQuad]]](unique, ()=>Rail.make[GrowableRail[UVDSQuad]](NUM_PLACES,(n:Int)=>new GrowableRail[UVDSQuad](0)));
                 L_bfs = PlaceLocalHandle.make[GrowableRail[UVDSQuad]](unique, ()=>new GrowableRail[UVDSQuad](10));
 
              }else {
@@ -170,59 +231,15 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
      }
 
 
-/*
-       private global def compute_back_async(place: Int, world:Comm!) {
-              //x10.io.Console.ERR.println("inside back_async");
-               val pred = Pred() as Array[GrowableRail[VERT_T]](1)!;
-               val del = Del() as Array[types.DOUBLE_T](1)!;
-               val sig = Sig() as Array[types.DOUBLE_T](1)!;
-               val d = D() as Array[types.LONG_T](1)!;
-               val bc = BC() as Array[types.DOUBLE_T](1)!;
-
-               val s = S();
-               val count = Count();
-               val c_length = count.length;
-
-                for (var l: Int = c_length-1; l >0; l--) {
-                 val start = count(l-1);
-                 val end = count(l)-1;
-
-                 val tsum = world.sum(end-start+1);
-                 //world.barrier();
-                 if (tsum == 0)  continue;
-
-                 for ((j) in start..end) {
-                 val w = s(j);
-
-                val pred_w  = pred(w);
-                val pred_length = (pred(w) as GrowableRail[VERT_T]!).length();
-                for ((k) in  0..pred_length-1) {
-                  val v = (pred_w as GrowableRail[VERT_T]!)(k);
-                  val del_w = del(w);
-                  val sig_w = sig(w);
-                  val owner = pg.owner(v);
-                  finish async (owner) {
-                     val del = Del() as Array[types.DOUBLE_T](1)!;
-                     val sig = Sig() as Array[types.DOUBLE_T](1)!;
-                     atomic del(v) = del(v) + sig(v)*(((1.0+del_w) as double)/sig_w);
-                     //x10.io.Console.ERR.println("del " + i + " " +  v + " " + del(v));
-                  } 
-
-                 }
-                 bc(w) += del(w);
-                }
-              }
-           } */
-
       private global def compute_bc_alltoall (val source: VERT_T, world:Comm!) {
           val N = N_bfs(); 
           val L = L_bfs();
 
-           val pred = Pred() as Array[WrapRail[VERT_T]](1)!;
-               val del = Del() as Array[types.DOUBLE_T](1)!;
-               val sig = Sig() as Array[types.DOUBLE_T](1)!;
-               val d = D() as Array[types.LONG_T](1)!;
-               val bc = BC() as Array[types.DOUBLE_T](1)!;
+           val pred = Pred() ;
+               val del = Del();
+               val sig = Sig();
+               val d = D();
+               val bc = BC();
                val s = S();
                val count = Count();
                val pg_here = pg.restrict_here() as defs.pGraphLocal!;
@@ -234,17 +251,21 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
            if (src_owner ==here.id)  {s.add(source);count.add(0); count.add(1); d(source ) = 0; sig(source) = 1;}
             else { count.add(0); count.add(0);}
 
+            val endV = pg_here.endV;
+            val numEdges = pg_here.numEdges;
+            val weight = pg_here.weight;
+
             var l: Int = 1;
             while (true) {
 
-              for (var i: Int = 0; i < Place.MAX_PLACES; i++) 
+              for (var i: Int = 0; i < NUM_PLACES; i++) 
                  (N(i) as GrowableRail[UVDSQuad]!).setLength(0);
 
               val start = count(l-1);
               val end = count(l)-1;
               val flength =  end-start+1;
               //x10.io.Console.ERR.println("flength" + flength);
-              val LSize = Place.MAX_PLACES == 1 ? flength: world.sum(flength);
+              val LSize = NUM_PLACES == 1 ? flength: world.sum(flength);
               //x10.io.Console.ERR.println("LSize " + LSize);
               //world.barrier();
               if (LSize == 0) break;
@@ -254,21 +275,19 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
               for (var i: Int = start; i <=end; i++) {
                 val vertex = s(i);
 
-                val lo = pg_here.numEdges(vertex);
-                val hi = pg_here.numEdges(vertex+1)-1;
+                val lo = numEdges(vertex);
+                val hi = numEdges(vertex+1)-1;
 
                 //for ((k) in  lo..hi) 
                   for (var k: Int = lo; k <= hi; k++) {
 
-                  if (((pg_here.weight(k) & 7) ==0) && filter) continue;
+                  if (((weight(k) & 7) ==0) && filter) continue;
 
-                  val neighbor = pg_here.endV(k); //Rename neighbor to v; vertext to u
-                  val owner = pg.owner_id(neighbor);
-                  //if (neighbor == vertex) continue;
-                  if (owner == here.id) { 
+                  val neighbor = endV(k); //Rename neighbor to v; vertext to u
+                  if (NUM_PLACES == 1){
                     if (d(neighbor) == -1) {
                       s.add(neighbor);
-                      count(l+1) ++;
+                      count(l+1)++;
                       d(neighbor) = d(vertex) + 1;
                       sig(neighbor) = sig(vertex);
                        (pred(neighbor) as WrapRail[VERT_T]!).add(vertex);
@@ -277,13 +296,14 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
                           (pred(neighbor) as WrapRail[VERT_T]!).add(vertex);
                     }
 
-                  } else { (N(owner) as GrowableRail[UVDSQuad]!).add(UVDSQuad(vertex, neighbor, d(vertex), sig(vertex))); }
-
+                  } else { 
+                    val owner = pg.owner_id(neighbor);   
+                    (N(owner) as GrowableRail[UVDSQuad]!).add(UVDSQuad(vertex, neighbor, d(vertex), sig(vertex))); }
                 }
               }
 
                  alltoallv_timer.start();
-	      if (Place.MAX_PLACES > 1) world.alltoallv[UVDSQuad](N,L);
+	      if (NUM_PLACES > 1) world.alltoallv[UVDSQuad](N,L);
                  alltoallv_timer.stop();
 
               //world.barrier();
@@ -317,12 +337,12 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
                  val start = count(level-1);
                  val end = count(level)-1;
 
-                 val tsum = Place.MAX_PLACES == 1 ? end-start+1 : world.sum(end-start+1);
+                 val tsum = NUM_PLACES == 1 ? end-start+1 : world.sum(end-start+1);
                  //world.barrier();
                  if (tsum == 0)  continue;
 
-                 //for ((k) in 0..Place.MAX_PLACES-1)  
-                  for (var k: Int = 0; k < Place.MAX_PLACES; k++) 
+                 //for ((k) in 0..NUM_PLACES-1)  
+                  for (var k: Int = 0; k < NUM_PLACES; k++) 
                    N2(k).setLength(0);
 
                  //for ((j) in start..end) 
@@ -336,17 +356,19 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
                   val v = pred_w(k);
                   val del_w = del(w);
                   val sig_w = sig(w);
-                  val owner = pg.owner_id(v);
-                  if (owner == here.id) {
+                  if (NUM_PLACES == 1) {
                      del(v) = del(v) + sig(v)*(((1.0+del_w) as double)/sig_w);
                   }
-                  else N2(owner).add(Pair[VERT_T, Double](v, ((1.0+del_w) as double) / sig_w));
+                  else{
+                       val owner = pg.owner_id(v);
+                       N2(owner).add(Pair[VERT_T, Double](v, ((1.0+del_w) as double) / sig_w));
+                   }
 
                  }
                 }
 
                  alltoallv_timer.start();
-                 if (Place.MAX_PLACES > 1) world.alltoallv[Pair[VERT_T, Double]](N2, L2);
+                 if (NUM_PLACES > 1) world.alltoallv[Pair[VERT_T, Double]](N2, L2);
                  alltoallv_timer.stop();
 
                   for (var k: Int = 0; k <L2.length(); k++) {
@@ -361,109 +383,32 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
           }
       }
 
-      /* private global def compute_bfs_async (place: Int, world:Comm!,  source:VERT_T, pg_here: defs.pGraphLocal!) {
-
-           val d = D() as Array[types.LONG_T](1)!;
-           val sig = Sig() as Array[types.DOUBLE_T](1)!;
-           val frontier = Frontier();
-
-           val s = S();
-           val  count = Count();
-           val vertices = pg_here.vertices;
-           val visited =  Visited() as Array[Boolean](1)!;
-           for ((i) in vertices) visited(i) =false;
-
-              //x10.io.Console.ERR.println("inside bfs_async");
-
-           val L0 = frontier(0) as GrowableRail[VERT_T]!;
-           if (pg.owner_id(source) ==here.id)  {L0.add(source); d(source ) = 0; sig(source) = 1;}
-           
-            var phase: Int = 0;
-            count.add(0);
-            while (true) {
-
- 
-              val L = frontier(phase%2) as GrowableRail[VERT_T]!;
-
-              val flength = L.length();
-              val LSize = world.sum(flength);
-              //x10.io.Console.ERR.println("size " + flength + " " + LSize);
-              //world.barrier();
-              if (LSize == 0) break;
-
-              count.add(count(phase));
-              finish for ((i) in 0..flength-1) {
-                val v = L(i);
-
-                if (visited(v) == true) continue;
-
-               if (phase >0 ) {
-                 s.add(v);
-                 count(phase+1)++;
-               }
-                visited(v) = true;
-                val lo = pg_here.numEdges(v);
-                val hi = pg_here.numEdges(v+1)-1;
-
-
-                for ((k) in  lo..hi) {
-                  val w = pg_here.endV(k);
-                  if (w == v) continue;
-                  val owner = pg.owner(w);
-
-                   val sig_v = sig(v);
-                   val d_v = d(v);
-                  val cur_phase = phase;
-                    
-                 ////x10.io.Console.ERR.println("phase " + cur_phase + " " + d_v + " " + sig_v);
-             
-                  async (owner) {
-                    val d = D() as Array[types.LONG_T](1)!;
-                     val sig = Sig() as Array[types.DOUBLE_T](1)!;
-                   val L_next = Frontier()((cur_phase+1)%2) as GrowableRail[VERT_T]!;
-                   val pred = Pred() as Array[GrowableRail[VERT_T]](1)!;
-                   atomic {
-                   L_next.add(w);
-                   if (d(w)==-1) {
-                     d(w) = d_v + 1;
-                     sig(w) = sig_v;
-                     pred(w).add(v);
-                   } else if (d(w) == d_v+1) {
-                      sig(w) += sig_v;
-                      pred(w).add(v);
-                    }
-                  }
-                  }
-                }
-              }
-              L.setLength(0);
-            //  world.barrier();
-
-             phase++; 
-            }
-} */
-
 
       /**
         * compute the Betweneess Centrality Metric 
         */ 
       public global def compute (val GLOBALS: runtime_consts) {
 
-          val  kernel4 = PTimer.make("kernel4");
           val  bfs = PTimer.make("bfs");
           val  back = PTimer.make("back");
+ 
+          val seed =  2387;
+          val stream = genScaleData.init_sprng_wrapper(0, 1, seed);
 
+ 
            val n = pg.N;
-           val chunkSize = pg.N / Place.MAX_PLACES;
+           val chunkSize = pg.N / NUM_PLACES;
            val unique = Dist.makeUnique();
 
-           // TODO: Permutation
-           /* val NewVertices = DistArray.make[GrowableRail[types.UVPair]](unique);
-           finish ateach((p) in unique) {
-               val world: Comm! = Comm.WORLD();
-               NewVertices(here.id) =  util.random_permute_vertices(pg.restrict_here().vertices, n, Comm.WORLD());
-           } */
-
+           // TODO: parallelize this
+             val Srcs = Rail.make[types.VERT_T](n, (i:Int)=>i);
+             for (var i: Int=0; i < n; i++) {
+                 val j = (n*genScaleData.sprng_wrapper(stream)) as types.VERT_T;
+                 val tmp = Srcs(i);
+                 Srcs(i) = Srcs(j);
+                 Srcs(j) = tmp;
+             }
+               
            //x10.io.Console.ERR.println("inside bc..");
 
            val numV = 1<<GLOBALS.K4Approx;
@@ -474,11 +419,11 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
                //x10.io.Console.ERR.println("world");
 
                /* place locals accessed by asyncs */
-               val pred = Pred() as Array[WrapRail[VERT_T]](1)!;
-               val del = Del() as Array[types.DOUBLE_T](1)!;
-               val sig = Sig() as Array[types.DOUBLE_T](1)!;
-               val d = D() as Array[types.LONG_T](1)!;
-               val bc = BC() as Array[types.DOUBLE_T](1)!;
+               val pred = Pred();
+               val del = Del();
+               val sig = Sig();
+               val d = D() ;
+               val bc = BC();
                val s = S();
                val count = Count();
                val pg_here = pg.restrict_here() as defs.pGraphLocal!;
@@ -486,7 +431,7 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
                var num_traversals: Int = 0;
 
                //x10.io.Console.ERR.println("point 1");
-                 for (var k: Int = pred.region.min(0); k <= pred.region.max(0); k++) {
+                 for (var k: Int = pg_here.vertices.region.min(0); k <= pg_here.vertices.region.max(0); k++) {
                         pred(k).reset();
                         bc(k) = 0.0d;
                         sig(k) = 0.0d;
@@ -497,14 +442,15 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
 
            for (var i: Int = 0; i < n; i++ ) {
 
-               //x10.io.Console.ERR.println("point 2");
 
                //val new_vertices = NewVertices(here.id);
                //val a = world.sum(pg.owner_id(i) ==here.id ? new_vertices as rail[types.UVPair]!)(i % chunkSize) 
                //val startVertex = world.sum(pg.owner_id(i) ==here.id ? (new_vertices as Rail[types.UVPair]!)(i % chunkSize).second : 0); //actually a broadcast
-               val startVertex = world.sum(pg.owner_id(i) ==here.id ? ((pg_here.numEdges(i+1) - pg_here.numEdges(i)) > 0 ? i : -1) : 0); //actually a broadcast
+               val startVertex = world.sum(here.id == 0 ? Srcs(i) : 0);//actually a broadcast
+               val outDegree = world.sum(pg.owner_id(startVertex) ==here.id ? pg_here.numEdges(startVertex+1) - pg_here.numEdges(startVertex) : 0); 
          
-               if (startVertex==-1) continue;
+               //x10.io.Console.ERR.println("start: " + startVertex);
+               if (outDegree==0) continue;
 
                num_traversals++;
 
@@ -537,10 +483,11 @@ class WrapRail[T] implements Indexable[Int,T], Settable[Int,T] {
       public global def dump() {
          //write the output to a file for verification
           val unique = Dist.makeUnique();
+          val pg_here =pg.restrict_here();
           finish for((p) in unique) {
                finish async (Place.places(p)) {
-               val bc = BC() as Array[types.DOUBLE_T](1)!;
-                for ((a) in bc.region) {
+               val bc = BC();
+                for ((a) in pg.restrict_here().vertices) {
                  x10.io.Console.ERR.println("BC: " + a + " " + bc(a));
                 }
              }
