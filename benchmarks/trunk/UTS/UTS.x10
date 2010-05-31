@@ -8,6 +8,7 @@ import x10.util.Stack;
 public class UTS {
 
 	static type PLH = PlaceLocalHandle[BinomialState];
+	static type PLH2= PlaceLocalHandle[BinomialState2];
 	private static val NORMALIZER = 2147483648.0; // does not depend on input parameters
 
 	@NativeRep ("c++", "UTS__SHA1Rand", "UTS__SHA1Rand", null)
@@ -73,7 +74,19 @@ public class UTS {
 		}
 	}
 	*/
-    static final class BinomialState {
+	
+
+    static class Counters {
+    	var nodesCounter:UInt = 0;
+    var stealsAttempted:UInt = 0;
+    var stealsPerpetrated:UInt = 0;
+    var stealsReceived:UInt = 0;
+    var stealsSuffered:UInt = 0;
+    var nodesGiven:UInt = 0;
+    var nodesReceived:UInt = 0;
+    }
+    
+    static final class BinomialState extends Counters {
 
 	const STATE_PLACE_ZERO = 0; // the first place does not use a state machine, use this value as placeholder
 	const STATE_STEALING = 1; // actively stealing work from other places
@@ -88,13 +101,6 @@ public class UTS {
 	// params that define the tree
 	val q:Long, m:Int, k:Int, nu:Int;
 
-	var nodesCounter:UInt = 0;
-	var stealsAttempted:UInt = 0;
-	var stealsPerpetrated:UInt = 0;
-	var stealsReceived:UInt = 0;
-	var stealsSuffered:UInt = 0;
-	var nodesGiven:UInt = 0;
-	var nodesReceived:UInt = 0;
 	val myRandom = new Random();
 	public def this (q:Long, m:Int, k:Int, nu:Int) {
 	    this.q = q; this.m = m; this.k=k; this.nu=nu;
@@ -233,7 +239,112 @@ public class UTS {
 	    }
 	}
 
-    static def stats(st:PlaceLocalHandle[BinomialState], time:Long, verbose:Boolean) {
+    static final class BinomialState2 extends Counters {
+
+		val stack = new Stack[SHA1Rand]();
+
+		// the gang of places waiting for this place to get some work.
+		val gang = new Stack[Int]();
+
+		// params that define the tree
+		val q:Long, m:Int, k:Int, nu:Int;
+
+		public def this (q:Long, m:Int, k:Int, nu:Int) {
+			this.q = q; this.m = m; this.k=k; this.nu=nu;
+		}
+
+		def processSubtree (rng:SHA1Rand) {
+			processSubtree(rng, (rng() < q) ? m : 0);
+		}
+		def processSubtree (rng:SHA1Rand, numChildren:Int) {
+			nodesCounter++;
+			/* Iterate over all the children and push on stack. */
+			for (var i:Int=0 ; i<numChildren ; ++i) 
+				stack.push(SHA1Rand(rng, i));
+		}
+
+		def processStack(st:PLH2, var ganged:Boolean) {
+			var count:Int=0;
+            while (stack.size() > 0) {
+                processSubtree(stack.pop());
+                if (count++ % nu == 0) {
+                	Runtime.probe();
+                	if (ganged)
+                	  ganged = distribute(st);
+                }
+		    }
+            attemptSteal(st);
+		}
+
+		def attemptSteal(st:PLH2) {
+			stealsAttempted++;
+			val p = here.id;
+			val q = (p+ 1) % Place.MAX_PLACES;
+			val loot = at (q) st().trySteal(p);
+			if (loot != null) {
+			  processLoot(st, loot);
+			}
+		}
+		def processLoot(st:PLH2, loot:ValRail[SHA1Rand]) {
+            stealsPerpetrated++;
+            nodesReceived += loot.length();
+            for (r in loot) {
+			   processSubtree(r);
+		    }
+            processStack(st, gang.size() > 0);
+        }
+		def pop(k:Int) = ValRail.make[SHA1Rand](k, (int)=> stack.pop());
+
+		def trySteal (p:Int) : ValRail[SHA1Rand] {
+			stealsReceived++;
+			val length = stack.size();
+			val numSteals = 
+				(k > 0 ? (k < length ?  k : (k/2 < length ? k/2 :0))
+						: length/2);
+			if (length <= 2 || numSteals==0) {
+				gang.push(p);
+				return null;
+			}
+			stealsSuffered++;
+			nodesGiven += numSteals;
+			return pop(numSteals);
+		}
+
+		def distribute(st:PLH2) {
+			val t = gang.size();
+			var t1:Int = t;
+			val length = stack.size();
+			var portion:Int = length/ t1;
+			if (portion == 0) {
+				t1 = t/2;
+				portion = length/t1;
+			}
+			if (portion ==0)
+				return true; // no disbursements
+			for (var q:Int=0; q < t; q++) {
+				val s = gang.pop();
+				val disbursement = pop(portion);
+				async (Place(s)) 
+				  st().processLoot(st, disbursement);
+			}
+			nodesGiven += portion*t1;
+			stealsSuffered += t1;
+			return  t1 < t;
+		}
+
+		def main (st:PLH2, b0:Int, rng:SHA1Rand) {
+			val P=Place.MAX_PLACES;
+			finish {
+				for (var pi:Int=1 ; pi<P ; ++pi) 
+					async (Place(pi)) 
+					  st().attemptSteal(st);
+				processSubtree(rng, b0);
+				processStack(st, false);
+			} 
+		}
+	}
+
+    static def stats(st:PlaceLocalHandle[Counters], time:Long, verbose:Boolean) {
 	val P = Place.MAX_PLACES;
 	var nodeSum_:Int=0;
 	var stolenSum_:Int=0;
@@ -339,12 +450,14 @@ public class UTS {
 		time = System.nanoTime() - time;
 		Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
 	    } else {
-		val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
-							      ()=>new BinomialState(qq, mf,k,nu));
+		val st = PlaceLocalHandle.make[BinomialState2](Dist.makeUnique(), 
+							      ()=>new BinomialState2(qq, mf,k,nu));
 		var time:Long = System.nanoTime();
 		st().main(st, b0, SHA1Rand(r));
 		time = System.nanoTime() - time;
-		stats(st, time, verbose);
+		val st2 = PlaceLocalHandle.make[Counters](Dist.makeUnique(), 
+			      ()=>st());
+		stats(st2, time, verbose);
 	    }
 	    Console.OUT.println("--------");
 	    
