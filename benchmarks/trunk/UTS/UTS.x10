@@ -297,10 +297,10 @@ public class UTS {
 			if (t==0) return false;
 			var t1:Int = t;
 			val length = stack.size();
-			var portion:Int = length/ t1;
+			var portion:Int = length/ (t1+1);
 			if (portion == 0) {
 				t1 = t/2;
-				portion = length/t1;
+				portion = length/(t1+1);
 			}
 			if (portion ==0)
 				return true; // no disbursements
