@@ -262,6 +262,7 @@ public class UTS {
 			stealsAttempted++;
 			val p = here.id;
 			val q = (p+ 1) % Place.MAX_PLACES;
+			if (q==p) return;
 			val loot = at (q) st().trySteal(p);
 			if (loot != null) {
 			  processLoot(st, loot);
