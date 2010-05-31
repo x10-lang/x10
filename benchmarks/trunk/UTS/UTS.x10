@@ -294,6 +294,7 @@ public class UTS {
 
 		def distribute(st:PLH2) {
 			val t = gang.size();
+			if (t==0) return false;
 			var t1:Int = t;
 			val length = stack.size();
 			var portion:Int = length/ t1;
@@ -321,7 +322,7 @@ public class UTS {
 					async (Place(pi)) 
 					  st().attemptSteal(st);
 				processSubtree(rng, b0);
-				processStack(st, false);
+				processStack(st, true);
 			} 
 		}
 	}
