@@ -61,15 +61,17 @@ public class RailFactory {
     public static <T> ValRail<T> makeValRail(Type type, int length) {
         Object o = type.makeArray(length);
         ValRail<T> array = new ValRail<T>(type, length, o);
-        T zero = (T) type.zeroValue();
-        resetLocal(array.value, zero);
+        // zero clear of a new Java array is redundant.
+        //T zero = (T) type.zeroValue();
+        //resetLocal(array.value, zero);
         return array;
     }
     
     public static <T> Rail<T> makeVarRail(Type type, int length) {
         Rail<T> array = new Rail<T>(type, length);
-        T zero = (T) type.zeroValue();
-        resetLocal(array.value, zero);
+        // zero clear of a new Java array is redundant.
+        //T zero = (T) type.zeroValue();
+        //resetLocal(array.value, zero);
         return array;
     }
 
