@@ -238,35 +238,56 @@ public class UTS {
 	}
 
     static final class BinomialState2 extends BinomialState {
-	
-		// the gang of places waiting for this place to get some work.
-		val gang = new Stack[Int]();
-	
-		public def this (q:Long, m:Int, k:Int, nu:Int) {
+		var thief_:Int; 
+		val width:Int;
+		static val IDLE=0, PROCESSING=1, STEALING=2;
+		public def this (q:Long, m:Int, k:Int, nu:Int, w:Int) {
 			super(q,m,k,nu);
+			width=w;
+			thief_= -1;
 		}
-
-		def processStack(st:PLH2, var ganged:Boolean) {
+		def processStack(st:PLH2) {
 			var count:Int=0;
-            while (stack.size() > 0) {
-            	if (ganged)
-              	  ganged = distribute(st);
-                processSubtree(stack.pop());
-                if (count++ % nu == 0) {
-                	Runtime.probe();	
-                }
+		    while (stack.size() > 0) {
+		    	processSubtree(stack.pop());
+		    	if ((count++ & nu) == 0) {
+		    		Runtime.probe();	
+		    		distribute(st);
+		    	}
 		    }
-            attemptSteal(st);
+		    val loot = attemptSteal(st);
+		    if (loot != null)
+		    	processLoot(st, loot);
 		}
-		def attemptSteal(st:PLH2) {
-			stealsAttempted++;
+		def distribute(st:PLH2) {
+			if (thief_ >= 0) {
+    			val loot = trySteal(thief_);
+    			if (loot != null) {
+    				val thief = thief_;
+    				async (Place(thief)) 
+    				st().processLoot(st, loot);
+    				thief_ = -1;
+    			}
+    		}
+		}
+		def attemptSteal(st:PLH2):ValRail[SHA1Rand] {
+			val P = Place.MAX_PLACES;
+			if (P == 1) return null;
 			val p = here.id;
-			val q = (p+ 1) % Place.MAX_PLACES;
-			if (q==p) return;
-			val loot = at (q) st().trySteal(p);
-			if (loot != null) {
-			  processLoot(st, loot);
+			val lifeline = (p+1) % P;
+			for (var i:Int=0; i < width; i++) {
+				var q_:Int = myRandom.nextInt(P);
+					 while(q_ == p) {
+						 q_ = myRandom.nextInt(P);
+					 }
+				val q = q_;
+				stealsAttempted++;
+				val loot = at (Place(q)) st().trySteal(p);
+				if (loot != null)
+					return loot;
 			}
+			val loot = at(Place(lifeline)) st().trySteal(p); // this will call back even if there is no imm work
+			return loot;
 		}
 		def processLoot(st:PLH2, loot:ValRail[SHA1Rand]) {
             stealsPerpetrated++;
@@ -274,9 +295,9 @@ public class UTS {
             for (r in loot) {
 			   processSubtree(r);
 		    }
-            processStack(st, gang.size() > 0);
+        	distribute(st);
+            processStack(st);
         }
-
 		def trySteal (p:Int) : ValRail[SHA1Rand] {
 			stealsReceived++;
 			val length = stack.size();
@@ -284,63 +305,51 @@ public class UTS {
 				(k > 0 ? (k < length ?  k : (k/2 < length ? k/2 :0))
 						: length/2);
 			if (length <= 2 || numSteals==0) {
-				gang.push(p);
+				if (here.id == (p+1)% Place.MAX_PLACES)
+					thief_ = p;
 				return null;
 			}
 			stealsSuffered++;
 			nodesGiven += numSteals;
 			return pop(numSteals);
 		}
-
-		def distribute(st:PLH2) {
-			val t = gang.size();
-			if (t==0) return false;
-			var t1:Int = t;
-			val length = stack.size();
-			var portion:Int = length/ (t1+1);
-			if (portion == 0) {
-				t1 = t/2;
-				portion = length/(t1+1);
-			}
-			if (portion ==0)
-				return true; // no disbursements
-			for (var q:Int=0; q < t; q++) {
-				val s = gang.pop();
-				val disbursement = pop(portion);
-				async (Place(s)) 
-				  st().processLoot(st, disbursement);
-			}
-			nodesGiven += portion*t1;
-			stealsSuffered += t1;
-			return  t1 < t;
-		}
-
 		def main (st:PLH2, b0:Int, rng:SHA1Rand) {
 			val P=Place.MAX_PLACES;
 			finish {
 				for (var pi:Int=1 ; pi<P ; ++pi) 
 					async (Place(pi)) 
-					  st().attemptSteal(st);
+					  st().processStack(st);
 				processSubtree(rng, b0);
-				processStack(st, true);
+				processStack(st);
 			} 
 		}
 	}
 
+    static def abs(i:Float)  = i < 0.0F ? -i : i;
+    static def absMax(i:Float, j:Float) = abs(i) < abs(j) ? j : i;
     static def stats(st:PLH2, time:Long, verbose:Boolean) {
 	val P = Place.MAX_PLACES;
 	var nodeSum_:Int=0;
 	var stolenSum_:Int=0;
 	var steals_:Int=0;
 	for ((i) in 0..P-1) {
-	    nodeSum_ += at (Place(i)) st().nodesCounter;
-	    stolenSum_ += at (Place(i)) st().nodesReceived;
-	    steals_ += at (Place(i)) st().stealsPerpetrated;
+		val there = Place(i);
+	    nodeSum_ += at (there) st().nodesCounter;
+	    stolenSum_ += at (there) st().nodesReceived;
+	    steals_ += at (there) st().stealsPerpetrated;
 	}
 	val nodeSum = nodeSum_;
 	val stolenSum = stolenSum_;
 	val steals = steals_;
 	val idealRatio = 1.0/P;
+	var balance:Float = 0.0F;
+	for ((i) in 0..P-1) {
+		val there = Place(i);
+		val nodes = at (there) st().nodesCounter;
+		val ratio = (1.0*nodes)/nodeSum;
+		val iBalance = ((100.0*(ratio-idealRatio))/idealRatio) as Float;
+		balance = absMax(balance, iBalance);
+	}
 	if (verbose)
 	for ((i) in 0..P-1) at (Place(i)) {
 	    val there = here;
@@ -368,8 +377,11 @@ public class UTS {
 				+ ns + " nodes.");
 	}
 	Console.OUT.println("Overhead = " + stolenSum + " nodes stolen."); 
-	Console.OUT.println("\t" + ((stolenSum*1.0)/steals) + " nodes stolen per attempt"); 
-	Console.OUT.println("Performance = "+nodeSum+"/"+(time/1E9)+"="+ (nodeSum/(time/1E3)) + "M nodes/s");
+	val theftEfficiency = (stolenSum*1.0)/steals;
+	Console.OUT.println("\t" + ("" + theftEfficiency).substring(0,6)+ " nodes stolen per attempt"); 
+	Console.OUT.println("\t" + ("" + balance).substring(0,6) + "% absmax imbalance.");
+	Console.OUT.println("Performance = "+nodeSum+"/"+("" + (time/1E9)).substring(0,6)
+			+"="+ ("" + (nodeSum/(time/1E3))).substring(0,6) + "M nodes/s");
 
     }
 	
@@ -392,7 +404,8 @@ public class UTS {
 				   
 				   Option("k", "", "Number of items to steal; default 0. If 0, steal half. "),
 				   Option("v", "", "Verbose, default 0 (no)."),
-				   Option("n", "", "Number of nodes to process before probing.")
+				   Option("n", "", "Number of nodes to process before probing."),
+				   Option("w", "", "Number of thieves to send out, less 1. (Default 0, so 1 thief will be sent out.)")
 				   ]);
 				   
 
@@ -404,6 +417,7 @@ public class UTS {
 	    val r:Int = opts ("-r", 0);
 	    val verbose = opts("-v",0)==1;
 	    val nu:Int = opts("-n",200);
+	    val w:Int = opts("-w", 0);
 
 	    // geometric options
 	    val geo_tree_shape_fn:Int = opts ("-a", 0);
@@ -434,11 +448,10 @@ public class UTS {
 		Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
 	    } else {
 		val st = PlaceLocalHandle.make[BinomialState2](Dist.makeUnique(), 
-							      ()=>new BinomialState2(qq, mf,k,nu));
+							      ()=>new BinomialState2(qq, mf,k,nu, w));
 		var time:Long = System.nanoTime();
 		st().main(st, b0, SHA1Rand(r));
 		time = System.nanoTime() - time;
-		 Console.OUT.println("Completed: time = "  + time);
 		stats(st, time, verbose);
 	    }
 	    Console.OUT.println("--------");
