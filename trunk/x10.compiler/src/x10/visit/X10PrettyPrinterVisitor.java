@@ -22,7 +22,6 @@ import java.util.Set;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
-import polyglot.ast.Binary_c;
 import polyglot.ast.Block_c;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
@@ -69,8 +68,8 @@ import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
-import polyglot.visit.InnerClassRemover;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.InnerClassRemover;
 import polyglot.visit.Translator;
 import x10.Configuration;
 import x10.ast.Async_c;
@@ -91,6 +90,7 @@ import x10.ast.Future_c;
 import x10.ast.Here_c;
 import x10.ast.Next_c;
 import x10.ast.Now_c;
+import x10.ast.ParExpr;
 import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
 import x10.ast.SettableAssign_c;
@@ -163,6 +163,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public static final boolean serialize_runtime_constraints = false;
 	public static final boolean reduce_generic_cast = true;
 
+	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
 
 	final public CodeWriter w;
 	final public Translator tr;
@@ -393,7 +394,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// Olivier: uncomment hack below to generate java code with unboxed primitives 
 		//	    if (mi.name() != Name.make("apply") && mi.name() != Name.make("write") && mi.name() != Name.make("read") && mi.name() != Name.make("set"))
 		//            boxPrimitives = false;
-		er.generateMethodDecl(n, boxPrimitives);
+		er.generateMethodDecl(n, false);
 	}
 
 
@@ -653,6 +654,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		// Generate dispatcher methods.
 		er.generateDispatchers(def);
+
+		er.generateBridgeMethods(def);
 
 		if (n.typeParameters().size() > 0) {
 			w.newline(4);
@@ -1169,6 +1172,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		c.printSubExpr(target, w, tr);
 		w.write(".");
 		w.write("apply");
+		Expr expr = target;
+		if (target instanceof ParExpr) {
+		    expr = ((ParExpr) target).expr();
+		}
+		if (
+		    (!(expr instanceof Closure_c) && !mi.returnType().isVoid())
+		    || (expr instanceof Closure_c && X10TypeMixin.baseType(mi.returnType()) instanceof ParameterType)) {
+		    w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+		}
 		w.write("(");
 		w.begin(0);
 		
@@ -1331,12 +1343,27 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES);
 				}
 			}
-            List<Type> typeArguments  = Collections.<Type>emptyList();
-            if (mi.container().isClass() && !mi.flags().isStatic()) {
-                X10ClassType ct = (X10ClassType) mi.container().toClass();
-                typeArguments = ct.typeArguments();
-            }
-			er.emitNativeAnnotation(pat, targetArg, mi.typeParameters(), c.arguments(), typeArguments);
+			List<Type> typeArguments  = Collections.<Type>emptyList();
+			if (mi.container().isClass() && !mi.flags().isStatic()) {
+			    X10ClassType ct = (X10ClassType) mi.container().toClass();
+			    typeArguments = ct.typeArguments();
+			}
+			
+			List<CastExpander> args = new ArrayList<CastExpander>();
+			List<Expr> arguments = c.arguments();
+			for (int i = 0; i < arguments.size(); ++ i) {
+			    Type ft = c.methodInstance().def().formalTypes().get(i).get();
+			    if ((ft.isBoolean() || ft.isNumeric() || ft.isChar()) && X10TypeMixin.baseType(ft) instanceof ParameterType) {
+			        args.add(new CastExpander(w, er, arguments.get(i)).castTo(arguments.get(i).type(), BOX_PRIMITIVES));
+			    }
+			    else if ((ft.isBoolean() || ft.isNumeric() || ft.isChar())) {
+			        args.add(new CastExpander(w, er, arguments.get(i)).castTo(arguments.get(i).type(), 0));
+			    }
+			    else {
+			        args.add(new CastExpander(w, er, arguments.get(i)));                                    
+			    }
+			}
+			er.emitNativeAnnotation(pat, targetArg, mi.typeParameters(), args, typeArguments);
 			return;
 		}
 
@@ -1411,6 +1438,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		w.write(Emitter.mangleToJava(c.name().id()));
 
+		boolean isInstantiateReturn = false;
+		List<MethodInstance> list = mi.implemented(tr.context());
+		for (MethodInstance mj : list) {
+		    if (
+		        mj.container().typeEquals(mi.container(), context) &&
+		        X10TypeMixin.baseType(mj.def().returnType().get()) instanceof ParameterType) {
+		        isInstantiateReturn = true;
+		        break;
+		    }
+		}
+		
+		Type returnType = X10TypeMixin.baseType(mi.def().returnType().get());
+		if (returnType instanceof ParameterType || (isInstantiateReturn)) {
+		    w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+		}
+
 		w.write("(");
 		w.begin(0);
 
@@ -1426,13 +1469,48 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		List<Expr> exprs = c.arguments();
 		for (int i = 0; i < exprs.size(); ++i) {
 			Expr e = exprs.get(i);
-			
 			if (runAsync && e instanceof Closure_c) {
 				c.print(((Closure_c)e).methodContainer(mi), w, tr);
-			} else if (!er.isNoArgumentType(e)) {
-				new CastExpander(w, er, e).castTo(e.type(), BOX_PRIMITIVES).expand();
-			} else {
-				c.print(e, w, tr);
+			}
+//			else if (!er.isNoArgumentType(e)) {
+//				new CastExpander(w, er, e).castTo(e.type(), BOX_PRIMITIVES).expand();
+//			}
+			else {
+			        if (e.type().isBoolean() || e.type().isNumeric() || e.type().isChar()) {
+			            if (X10TypeMixin.baseType(c.methodInstance().formalTypes().get(i)) instanceof ParameterType) {
+			                w.write("(");
+			                er.printType(e.type(), BOX_PRIMITIVES);
+			                w.write(")");
+			            } else {
+			                w.write("(");
+			                er.printType(e.type(), 0);
+			                w.write(")");
+			                if (e instanceof X10Call) {
+			                    if (X10TypeMixin.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType) {
+			                        w.write("(");
+			                        er.printType(e.type(), BOX_PRIMITIVES);
+			                        w.write(")");
+			                    }
+			                }
+			                else if (e instanceof ClosureCall) {
+			                    ClosureCall cl = (ClosureCall) e;
+			                    Expr expr = cl.target();
+			                    if (expr instanceof ParExpr) {
+			                        expr = (ParExpr) expr;
+			                    }
+			                    if (!(expr instanceof Closure_c) && X10TypeMixin.baseType(cl.closureInstance().def().returnType().get()) instanceof ParameterType) {
+                                                w.write("(");
+                                                er.printType(e.type(), BOX_PRIMITIVES);
+                                                w.write(")");
+			                    }
+			                }
+			            }
+			            w.write("(");
+			        } 
+			        c.print(e, w, tr);
+			        if (e.type().isBoolean() || e.type().isNumeric() || e.type().isChar()) {
+			            w.write(")");
+			        }
 			}
 			
 			if (i != exprs.size() - 1) {
@@ -1455,7 +1533,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			typeArgs.add(ft); // must box formals
 			formals.add(new Expander(er) {
 				public void expand(Translator tr) {
-					er.printFormal(tr, n, f, true);
+				    er.printFormal(tr, n, f, false);
 				}
 			});
 		}
@@ -1485,9 +1563,52 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		w.write("() {");
+		
+		if (containsPrimitive(n) || !n.returnType().type().isVoid() && !(X10TypeMixin.baseType(n.returnType().type()) instanceof ParameterType)) {
+		    w.write("public final ");
+		    ret.expand(tr2);
+		    w.write(" apply");
+		    if (!n.returnType().type().isVoid()) {
+		        w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+		    }
+		    w.write("(");
+		    List<Formal> formals2 = n.formals();
+		    for (int i = 0; i < formals2.size(); ++i) {
+		        if (i != 0) w.write(",");
+		        er.printFormal(tr2, n, formals2.get(i), true);
+		    }
+		    w.write(") { ");
+		    if (!n.returnType().type().isVoid()) {
+		        w.write("return ");
+		    }
+		    w.write("apply");
+		    if (X10TypeMixin.baseType(n.returnType().type()) instanceof ParameterType) {
+		        w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+		    }
+		    w.write("(");
+		    String delim = "";
+		    for (Formal f: formals2) {
+		        w.write(delim);
+		        delim = ",";
+		        if (f.type().type().isBoolean() || f.type().type().isNumeric() || f.type().type().isChar()) {
+		            w.write("(");
+		            er.printType(f.type().type(), 0);
+		            w.write(")");
+		        }
+		        w.write(f.name().toString());
+		    }
+		    w.write(");");
+		    w.write("}");
+		    w.newline();
+		}
+		
 		w.write("public final ");
-		ret.expand(tr2);
-		w.write(" apply(");
+		new TypeExpander(er, n.returnType().type(), true, false, false).expand(tr2);
+		w.write(" apply");
+		if (X10TypeMixin.baseType(n.returnType().type()) instanceof ParameterType) {
+		    w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+		}
+		w.write("(");
 		new Join(er, ", ", formals).expand(tr2);
 		w.write(") { ");
 		
@@ -1583,6 +1704,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("}");
 	}
 
+	private boolean containsPrimitive(Closure_c n) {
+	    Type t = n.returnType().type();
+	    if (t.isBoolean() || t.isNumeric() || t.isChar()) {
+	        return true;
+            }
+	    for (Formal f:n.formals()) {
+	        Type type = f.type().type();
+	        if (type.isBoolean() || type.isNumeric() || type.isChar()) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+	    
 	public void visit(FieldDecl_c n) {
 		if (er.hasAnnotation(n, QName.make("x10.lang.shared"))) {
 			w.write ("volatile ");
