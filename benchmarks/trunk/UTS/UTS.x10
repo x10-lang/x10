@@ -240,6 +240,8 @@ public class UTS {
     static final class BinomialState2 extends BinomialState {
 		var thief:Int; 
 		val width:Int;
+        var lifelines:UInt=0;
+        var lifelineNodes:UInt=0;
 		public def this (q:Long, m:Int, k:Int, nu:Int, w:Int) {
 			super(q,m,k,nu);
 			width=w;
@@ -260,10 +262,10 @@ public class UTS {
 		}
 		def distribute(st:PLH2) {
 			if (thief >= 0) {
-    			val loot = trySteal(thief);
+    			val loot = trySteal(thief, true);
     			if (loot != null) {
     				async (Place(thief)) 
-    				st().processLoot(st, loot);
+    				st().processLoot2(st, loot);
     				thief = -1;
     			}
     		}
@@ -287,6 +289,11 @@ public class UTS {
 			val loot = at(Place(lifeline)) st().trySteal(p); // this will call back even if there is no imm work
 			return loot;
 		}
+		def processLoot2(st:PLH2, loot:ValRail[SHA1Rand]) {
+			lifelines ++;
+			lifelineNodes += loot.length();
+			processLoot(st, loot);
+		}
 		def processLoot(st:PLH2, loot:ValRail[SHA1Rand]) {
             stealsPerpetrated++;
             nodesReceived += loot.length();
@@ -296,15 +303,16 @@ public class UTS {
         	distribute(st);
             processStack(st);
         }
-		def trySteal (p:Int) : ValRail[SHA1Rand] {
+		def trySteal (p:Int)=trySteal(p, false);
+		def trySteal (p:Int, isLifeline:Boolean) : ValRail[SHA1Rand] {
 			stealsReceived++;
 			val length = stack.size();
-			if (length <= 2) {
+			val numSteals = isLifeline? (4*length)/5 : length/2;
+			if (length <= 2 || numSteals == 0) {
 				if (here.id == (p+1)% Place.MAX_PLACES) //lifeline
 					thief = p;
 				return null;
 			}
-			val numSteals = length/2;
 			stealsSuffered++;
 			nodesGiven += numSteals;
 			return pop(numSteals);
@@ -325,14 +333,17 @@ public class UTS {
     static def absMax(i:Float, j:Float) = abs(i) < abs(j) ? j : i;
     static def stats(st:PLH2, time:Long, verbose:Boolean) {
 	val P = Place.MAX_PLACES;
-	var nodeSum_:Int=0;
-	var stolenSum_:Int=0;
-	var steals_:Int=0;
+	var nodeSum_:UInt=0;
+	var stolenSum_:UInt=0;
+	var steals_:UInt=0;
+	var ll_:UInt=0, llN_:UInt=0;
 	for ((i) in 0..P-1) {
 		val there = Place(i);
 	    nodeSum_ += at (there) st().nodesCounter;
 	    stolenSum_ += at (there) st().nodesReceived;
 	    steals_ += at (there) st().stealsPerpetrated;
+	    ll_ += at (there) st().lifelines;
+	    llN_ += at (there) st().lifelineNodes;
 	}
 	val nodeSum = nodeSum_;
 	val stolenSum = stolenSum_;
@@ -363,6 +374,8 @@ public class UTS {
 	    val ratioS = (""+ratio).substring(0,6);
 	    val imbalance = (100.0*(ratio-idealRatio))/idealRatio;
 	    val imbalanceS = (""+ imbalance).substring(0,6);
+	    Console.OUT.println("\t " + st().lifelines + " lifeline steals received "  
+				+ st().lifelineNodes + " (total nodes).");
 	    Console.OUT.println("\t " + ratioS + " ratio, "  
 				+ imbalanceS + "% balance.");
 	    Console.OUT.println("\t" + sp+"/"+sa+"="
@@ -372,9 +385,12 @@ public class UTS {
 				+ pr + "% suffered, gave " 
 				+ ns + " nodes.");
 	}
-	Console.OUT.println("Overhead = " + stolenSum + " nodes stolen."); 
+	Console.OUT.println("Overhead::\n\t" + stolenSum + " total nodes stolen."); 
 	val theftEfficiency = (stolenSum*1.0)/steals;
-	Console.OUT.println("\t" + ("" + theftEfficiency).substring(0,6)+ " nodes stolen per attempt"); 
+	Console.OUT.println("\t" + ("" + steals).substring(0,6)+ " direct steals."); 
+	Console.OUT.println("\t" + ("" + theftEfficiency).substring(0,8)+ " nodes stolen per attempt."); 
+	Console.OUT.println("\t" + ll_ + " lifeline steals.");
+	Console.OUT.println("\t" + ("" + (1.0*llN_)/ll_).substring(0,8) + " nodes stolen/lifeline steal.");
 	Console.OUT.println("\t" + ("" + balance).substring(0,6) + "% absmax imbalance.");
 	Console.OUT.println("Performance = "+nodeSum+"/"+("" + (time/1E9)).substring(0,6)
 			+"="+ ("" + (nodeSum/(time/1E3))).substring(0,6) + "M nodes/s");
