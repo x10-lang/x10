@@ -64,7 +64,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply(#1)")
+    @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
     public global native safe def apply(i: Int): T;

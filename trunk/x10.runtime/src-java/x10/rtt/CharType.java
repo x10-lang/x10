@@ -48,7 +48,7 @@ public class CharType extends RuntimeType<Character> {
     @Override
     public Fun_0_2<Character, Character, Character> maxOperator() {
         return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
+            public Character apply$G(Character x, Character y) {
                 return (x > y ? x : y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -58,7 +58,7 @@ public class CharType extends RuntimeType<Character> {
     @Override
     public Fun_0_2<Character, Character, Character> minOperator() {
         return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
+            public Character apply$G(Character x, Character y) {
                 return (x < y ? x : y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }

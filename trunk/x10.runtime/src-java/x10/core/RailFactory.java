@@ -22,7 +22,7 @@ public class RailFactory {
     public static <T> ValRail<T> makeValRail(Type type, int length, Fun_0_1<Integer,T> init) {
         Object o = type.makeArray(length);
         for (int i = 0; i < length; i++) {
-            type.setArray(o, i, init.apply(i));
+            type.setArray(o, i, init.apply$G(i));
         }
         ValRail<T> array = new ValRail<T>(type, length, o);
         return array;
@@ -31,7 +31,7 @@ public class RailFactory {
     public static <T> Rail<T> makeVarRail(Type type, int length, Fun_0_1<Integer,T> init) {
         Rail<T> array = new Rail<T>(type, length);
         for (int i = 0; i < length; i++) {
-            array.set(init.apply(i), i);
+            array.set$G(init.apply$G(i), i);
         }
         return array;
     }
