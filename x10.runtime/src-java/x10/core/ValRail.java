@@ -42,7 +42,7 @@ public final class ValRail<T> implements AnyRail<T> {
         this.value = rail;
     }
     
-    public void copyToLocal(Integer src_off, Rail<T> dst, Integer dst_off, Integer len) {
+    public void copyToLocal(int src_off, Rail<T> dst, int dst_off, int len) {
         System.arraycopy(value, src_off, dst.value, dst_off, len);
     }
 
@@ -70,8 +70,8 @@ public final class ValRail<T> implements AnyRail<T> {
 			return i < length;
 		}
 
-		public T next() {
-			return apply(i++);
+		public T next$G() {
+			return apply$G(i++);
 		}
 	}
     
@@ -132,20 +132,27 @@ public final class ValRail<T> implements AnyRail<T> {
     	return (Object[]) value;
     }
 
-    public Integer length() {
+    public int length() {
     	return length;
     }
     
-    public T get(Integer i) {
-    	return apply(i);
+    public T get(int i) {
+    	return apply$G(i);
     }
     
-    public T apply(Integer i) {
-    	return type.getArray(value, i);
+    public T apply$G(Integer i) {
+    	return apply$G((int)i);
+    }
+    public T apply$G(int i) {
+        return type.getArray(value, i);
     }
     
-    protected T set$(T v, Integer i) {
-    	return type.setArray(value, i, v);
+    protected T set$G(T v, Integer i) {
+    	return set$G(v, (int)i);
+    }
+
+    protected T set$G(T v, int i) {
+        return type.setArray(value, i, v);
     }
     
     public boolean isZero() {
@@ -162,7 +169,7 @@ public final class ValRail<T> implements AnyRail<T> {
         for (int i = 0; i < length; i++) {
             if (i > 0)
                 sb.append(", ");
-            sb.append(apply(i));
+            sb.append(apply$G(i));
         }
         sb.append("]");
         return sb.toString();
