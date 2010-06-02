@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
@@ -34,6 +35,7 @@ import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -96,8 +98,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
 	public void platformCommunicationInterfaceValidationFailure(final String message) {
 		this.fValidateAction.setImageDescriptor(this.fInvalidPlatformImg);
 		IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
-                                         LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg, IMarker.SEVERITY_ERROR, 
-                                         IMarker.PRIORITY_HIGH);
+                                         NLS.bind(LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg, Constants.EMPTY_STR),
+                                         IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
     DialogsFactory.createErrorBuilder().setDetailedMessage(message)
     					    .createAndOpen(getSite(), LaunchMessages.XPCFE_CommInterfaceFailure, 
     					                   LaunchMessages.XPCFE_DiscoveryCmdDialogMsg);
@@ -131,8 +133,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   public void remoteConnectionFailure(final Exception exception) {
     final IAction validationAction = this.fValidateAction;
     IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
-                                         LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg, IMarker.SEVERITY_ERROR, 
-                                         IMarker.PRIORITY_HIGH);
+                                         NLS.bind(LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg, Constants.EMPTY_STR),
+                                         IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
     getSite().getShell().getDisplay().syncExec(new Runnable() {
       
       public void run() {

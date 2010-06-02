@@ -261,6 +261,8 @@ public class LaunchMessages extends NLS {
 
   public static String LLTCP_TemplateFileGroup;
 
+  public static String LLTCP_TemplateFileTooltipDescription;
+
   public static String LLTCP_TraceBt;
 
   public static String LLTCP_WarningBt;
