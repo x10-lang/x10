@@ -31,7 +31,11 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import polyglot.ast.ClassMember;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.SourceFile;
+import polyglot.ast.TopLevelDecl;
+import polyglot.ast.TypeNode;
 import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
@@ -44,12 +48,14 @@ import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
 import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Parser;
+import polyglot.frontend.ParserGoal;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.SourceGoal_c;
 import polyglot.frontend.TargetFactory;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
+import polyglot.types.Flags;
 import polyglot.types.MemberClassResolver;
 import polyglot.types.MethodDef;
 import polyglot.types.QName;
@@ -350,6 +356,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            
            goals.add(PreTypeCheck(job));
            goals.add(TypesInitializedForCommandLine());
+           goals.add(EnsureNoErrors(job));
            goals.add(TypeChecked(job));
            goals.add(ReassembleAST(job));
            
@@ -394,7 +401,50 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        
            return goals;
        }
+
+       public Goal EnsureNoErrors(Job job) {
+           return new SourceGoal_c("EnsureNoErrors", job) {
+               public boolean runTask() {
+                   return !job.reportedErrors();
+               }
+           }.intern(this);
+       }    
        
+       public Goal Parsed(Job job) {
+           return new X10ParserGoal(extInfo.compiler(), job).intern(this);
+       }    
+
+       /**
+        * This goal never fails.  Instead, if the parser does not create an AST, this
+        * creates a dummy AST with a single class with the expected name, and succeeds.
+        * The {@link #EnsureNoErrors(Job)} goal should be used to check before proceeding
+        * to typecheck the job.
+        * @author igor
+        */
+       static class X10ParserGoal extends ParserGoal {
+           public X10ParserGoal(Compiler compiler, Job job) {
+               super(compiler, job);
+           }
+           private SourceFile createDummyAST() {
+               NodeFactory nf = job().extensionInfo().nodeFactory();
+               String fName = job.source().name();
+               Position pos = new Position(job.source().name(), fName);
+               String name = fName.substring(fName.lastIndexOf(File.separatorChar)+1, fName.lastIndexOf('.'));
+               TopLevelDecl decl = nf.ClassDecl(pos, nf.FlagsNode(pos, Flags.PUBLIC),
+                                                nf.Id(pos, name), null, Collections.<TypeNode>emptyList(),
+                                                nf.ClassBody(pos, Collections.<ClassMember>emptyList()));
+               SourceFile ast = nf.SourceFile(pos, Collections.singletonList(decl)).source(job.source());
+               return ast;
+           }
+           public boolean runTask() {
+               boolean result = super.runTask();
+               if (job().ast() == null) {
+                   job().ast(createDummyAST());
+               }
+               return true;
+           }
+       }
+
        Goal PrintWeakCallsCount;
        @Override
        protected Goal EndAll() {
@@ -477,14 +527,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
 //       @Override
 //       public Goal ImportTableInitialized(Job job) {
-//	   TypeSystem ts = job.extensionInfo().typeSystem();
-//	   NodeFactory nf = job.extensionInfo().nodeFactory();
-//	   Goal g = new VisitorGoal("ImportTableInitialized", job, new X10InitImportsVisitor(job, ts, nf));
-//	   Goal g2 = g.intern(this);
-//	   if (g == g2) {
-//	       g.addPrereq(TypesInitializedForCommandLine());
-//	   }
-//	   return g2;
+//           TypeSystem ts = job.extensionInfo().typeSystem();
+//           NodeFactory nf = job.extensionInfo().nodeFactory();
+//           Goal g = new VisitorGoal("ImportTableInitialized", job, new X10InitImportsVisitor(job, ts, nf));
+//           Goal g2 = g.intern(this);
+//           if (g == g2) {
+//               g.addPrereq(TypesInitializedForCommandLine());
+//           }
+//           return g2;
 //       }
 
        public Goal LoadPlugins() {
@@ -607,7 +657,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                //Use reflect to load the class from
                ClassLoader cl = Thread.currentThread().getContextClassLoader();
                Class<?> c = cl
-               .loadClass("x10.compiler.ws.visit.WSCodeGenerator");
+               .loadClass("x10.compiler.ws.WSCodeGenerator");
                Constructor<?> con = c.getConstructor(Job.class,
                                                      TypeSystem.class,
                                                      NodeFactory.class);

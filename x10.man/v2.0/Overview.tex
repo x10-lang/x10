@@ -312,10 +312,13 @@ a computational unit with a finite (though perhaps changing) number of
 hardware threads and a bounded amount of shared memory, uniformly
 accessible by all threads.
 
-An \Xten{} computation acts on \emph{data objects}(\Sref{XtenObjects}) through
+
+\bard{The following para is mostly obsolete.}
+An \Xten{} computation acts on \emph{values}(\Sref{XtenObjects}) through
 the execution of lightweight threads called
-\emph{activities}(\Sref{XtenActivities}). Objects are of two kinds. A
-\emph{scalar} object has a small, statically fixed set of fields, each of
+\emph{activities}(\Sref{XtenActivities}). Values are of three kinds.  
+An {\em object}
+ has a small, statically fixed set of fields, each of
 which has a distinct name. A scalar object is located at a single place and
 stays at that place throughout its lifetime. An \emph{aggregate} object has
 many fields (the number may be known only when the object is created),

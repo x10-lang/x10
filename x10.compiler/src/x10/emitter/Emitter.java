@@ -1276,13 +1276,15 @@ public class Emitter {
 			w.write("> ");
 
 		printType(
-				n.returnType().type(),
-				X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-						| (boxPrimitives ? X10PrettyPrinterVisitor.BOX_PRIMITIVES
-								: 0));
+		    n.returnType().type(),
+		    X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
+		);
 		w.allowBreak(2, 2, " ", 1);
 		tr.print(n, n.name(), w);
 
+		if (X10TypeMixin.baseType(n.returnType().type()) instanceof ParameterType) {
+		    w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+		}
 		w.write("(");
 
 		w.allowBreak(2, 2, "", 0);
@@ -1313,10 +1315,10 @@ public class Emitter {
 
 			tr.print(n, f.flags(), w);
 			printType(
-					f.type().type(),
-					X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-							| (boxPrimitives ? X10PrettyPrinterVisitor.BOX_PRIMITIVES
-									: 0));
+			    f.type().type(),
+			    X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
+			    | (boxPrimitives ? X10PrettyPrinterVisitor.BOX_PRIMITIVES
+			        : 0));
 			w.write(" ");
 
 			Name name = f.name().id();
@@ -1370,6 +1372,362 @@ public class Emitter {
 		} else {
 			w.write(";");
 		}
+	}
+
+	public void generateBridgeMethods(X10ClassDef cd) {
+	    if (cd.flags().isInterface()) {
+	        return;
+	    }
+
+	    X10ClassType ct = (X10ClassType) cd.asType();
+	    List<MethodInstance> methods;
+	    for (MethodDef md : cd.methods()) {
+	        if (mangleToJava(md.name()).startsWith("$")) continue;
+	        
+	        methods = getInstantiatedMethods(ct, md.asInstance());
+	        for (MethodInstance mi : methods) {
+	            printBridgeMethod(md.asInstance(), mi.def());
+	        }
+	    }
+	    
+	    List<MethodInstance> inheriteds = new ArrayList<MethodInstance>();
+	    getInheritedMethods(ct, inheriteds);
+	    for (MethodInstance mi : inheriteds) {
+	        if (isInstantiate(mi.def().returnType().get(), mi.returnType())) {
+	            printInheritedMethodBridge(mi, mi.def());
+	            break;
+	        }
+	        for (int i = 0; i < mi.formalTypes().size(); ++ i) {
+	            if (isPrimitive(mi.formalTypes().get(i)) && isInstantiate(mi.def().formalTypes().get(i).get(), mi.formalTypes().get(i))) {
+	                printInheritedMethodBridge(mi, mi.def());
+	                break;
+	            }
+	        }
+	        
+	    }
+	}
+	
+	private List<MethodInstance> getInstantiatedMethods(X10ClassType ct, MethodInstance mi) {
+	    List<MethodInstance> methods = new ArrayList<MethodInstance>();
+	    for (MethodInstance impled : mi.implemented(tr.context())) {
+	        if (mi.container().typeEquals(impled.container(), tr.context())) continue;
+	        if (isContainInstantiateSamePlace(methods, impled)) continue;
+	        Type ti = impled.container();
+	        ti = X10TypeMixin.baseType(ti);
+	        if (ti instanceof X10ClassType && !((X10ClassType) ti).flags().isInterface()) {
+	            if (
+	                ti.typeEquals(ct.superClass(), tr.context()) 
+	                || (ct.outer() != null && ti.typeEquals(ct.outer(), tr.context()))
+	            ) {
+
+	                Type returnType = mi.returnType();
+	                // instantiate return type
+	                if (
+	                    isInstantiate(impled.def().returnType().get(), returnType)
+	                ) {
+	                    methods.add(impled);
+	                    continue;
+	                }
+	                else {
+	                    // instantiate a formal type with primitive
+	                    List<Ref<? extends Type>> types = impled.def().formalTypes();
+	                    for (int i = 0;i < types.size(); ++i) {
+	                        if (
+	                            isPrimitive(mi.formalTypes().get(i)) &&
+	                            isInstantiate(types.get(i).get(), mi.formalTypes().get(i))
+	                        ) {
+	                            methods.add(impled);
+	                            continue;
+	                        }
+	                    }
+	                }
+	            }
+	        } else {
+	            for (Type t:ct.interfaces()) {
+	                if (existMethodInterfaces(t, ti, impled, mi)) {
+	                    methods.add(impled);
+	                    continue;
+	                }
+	            }
+	        }
+	    }
+	    return methods;
+	}
+
+	private static boolean isInstantiate(Type sup, Type t) {
+	    return X10TypeMixin.baseType(sup) instanceof ParameterType && !(X10TypeMixin.baseType(t) instanceof ParameterType);
+	}
+
+	private boolean existMethodInterfaces(Type t, Type type, MethodInstance mi, MethodInstance mdi) {
+	    if (t.typeEquals(type, tr.context())) {
+	        Type returnType = mdi.returnType();
+	        if (X10TypeMixin.baseType(mi.def().returnType().get()) instanceof ParameterType && !(X10TypeMixin.baseType(returnType) instanceof ParameterType)) {
+	            return true;
+	        }
+	        List<Ref<? extends Type>> types = mi.def().formalTypes();
+	        for (int i = 0;i < types.size(); ++i) {
+	            if (isPrimitive(mdi.formalTypes().get(i)) && types.get(i).get() instanceof ParameterType && !(mdi.formalTypes().get(i) instanceof ParameterType)) {
+	                return true;
+	            }
+	        }
+	    }
+	    t = X10TypeMixin.baseType(t);
+	    if (t instanceof X10ClassType) {
+	        for (Type ti : ((X10ClassType) t).interfaces()) {
+	            if (existMethodInterfaces(ti, type, mi, mdi)) {
+	                return true;
+	            }
+	        }
+	    }
+	    return false;
+	}
+
+	private static boolean isPrimitive(Type type) {
+	    return type.isBoolean() || type.isNumeric() || type.isChar();
+	}
+
+	private void printBridgeMethod(MethodInstance impl, MethodDef def) {
+	    w.write("// bridge for " + def);
+	    w.newline();
+
+	    Flags flags = X10Flags.toX10Flags(impl.flags());
+
+	    w.begin(0);
+	    w.write(flags.clearAbstract()
+	        .clear(X10Flags.GLOBAL)
+	        .clear(X10Flags.SAFE)
+	        .clear(X10Flags.NATIVE)
+	        .translate()
+	    );
+
+	    // e.g int m() overrides or implements T m()
+	    boolean instantiateReturnType = X10TypeMixin.baseType(def.returnType().get()) instanceof ParameterType;
+	    if (instantiateReturnType) {
+	        printType(impl.returnType(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	    }
+	    else {
+	        printType(impl.returnType(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+	    }
+
+	    w.allowBreak(2, 2, " ", 1);
+	    w.write(mangleToJava(impl.name()));
+
+	    if (instantiateReturnType) {
+	        w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+	    }
+
+	    w.write("(");
+	    for (int i = 0; i < def.formalTypes().size(); i++) {
+	        Type f = impl.formalTypes().get(i);
+	        if (i != 0) {
+	            w.write(",");
+	            w.allowBreak(0, " ");
+	        }
+	        if (X10TypeMixin.baseType(def.formalTypes().get(i).get()) instanceof ParameterType) {
+	            printType(f, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        } else {
+	            printType(f, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+	        }
+	        w.write(" ");
+
+	        Name name = Name.make("a" + (i + 1));
+	        w.write(name.toString());
+	    }
+
+	    w.end();
+	    w.write(")");
+
+	    if (!impl.throwTypes().isEmpty()) {
+	        w.allowBreak(6);
+	        w.write("throws ");
+	        for (Iterator<Type> i = impl.throwTypes().iterator(); i.hasNext();) {
+	            Type t = i.next();
+	            printType(t, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+	            if (i.hasNext()) {
+	                w.write(",");
+	                w.allowBreak(4, " ");
+	            }
+	        }
+	    }
+
+	    w.write("{");
+	    if (!impl.returnType().isVoid()) {
+	        w.write("return ");
+	    }
+
+	    w.write(mangleToJava(impl.name()));
+
+	    if (X10TypeMixin.baseType(impl.returnType()) instanceof ParameterType) {
+	        w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+	    }
+
+	    w.write("(");
+	    for (int i = 0; i < impl.formalTypes().size(); i++) {
+	        Type f = impl.formalTypes().get(i);
+	        if (i != 0) {
+	            w.write(",");
+	            w.allowBreak(0, " ");
+	        }
+	        if (isPrimitive(f)) {
+	            w.write("(");
+	            printType(f, 0);
+	            w.write(")");
+	        }
+	        w.write(" ");
+
+	        Name name = Name.make("a" + (i + 1));
+	        w.write(name.toString());
+	    }
+	    w.write(")");
+
+	    w.write(";");
+	    w.write("}");
+	    w.newline();
+	}
+
+	private void getInheritedMethods(X10ClassType ct, List<MethodInstance> results) {
+	    ArrayList<MethodInstance> list = new ArrayList<MethodInstance>(ct.methods());
+	    list.addAll(results);
+	    List<MethodInstance> overrides = new ArrayList<MethodInstance>();
+	    for (MethodInstance mi : list) {
+	        for (MethodInstance mi2 : mi.overrides(tr.context())) {
+	            if (ct.superClass() != null && mi2.container().typeEquals(ct.superClass(), tr.context())) {
+	                overrides.add(mi2);
+	            }
+	        }
+	    }
+	    Type sup = ct.superClass();
+	    if (sup instanceof X10ClassType) {
+	        for (MethodInstance mi : ((X10ClassType)(sup)).methods()) {
+	            if (!mi.flags().isStatic()) {
+	                boolean contains = false;
+	                for (MethodInstance mi2 : overrides) {
+	                    if (mi2.isSameMethod(mi, tr.context())) {
+	                        contains = true;
+	                        break;
+	                    }
+	                }
+	                if (!contains) {
+	                    results.add(mi);
+	                }
+	            }
+	        }
+	        getInheritedMethods((X10ClassType) sup, results);
+	    }       
+	}
+
+	private void printInheritedMethodBridge(MethodInstance impl, MethodDef def) {
+	    w.write("// bridge for " + def);
+	    w.newline();
+
+	    Flags flags = X10Flags.toX10Flags(impl.flags());
+
+	    w.begin(0);
+	    w.write(flags.clearAbstract()
+	        .clear(X10Flags.GLOBAL)
+	        .clear(X10Flags.SAFE)
+	        .clear(X10Flags.NATIVE)
+	        .translate()
+	    );
+
+	    printType(impl.returnType(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+
+	    w.allowBreak(2, 2, " ", 1);
+	    w.write(mangleToJava(impl.name()));
+
+	    if (X10TypeMixin.baseType(impl.returnType()) instanceof ParameterType) {
+	        w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+	    }
+
+	    w.write("(");
+	    for (int i = 0; i < def.formalTypes().size(); i++) {
+	        Type f = impl.formalTypes().get(i);
+	        if (i != 0) {
+	            w.write(",");
+	            w.allowBreak(0, " ");
+	        }
+	        printType(f, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+	        w.write(" ");
+
+	        Name name = Name.make("a" + (i + 1));
+	        w.write(name.toString());
+	    }
+
+	    w.end();
+	    w.write(")");
+
+	    if (!impl.throwTypes().isEmpty()) {
+	        w.allowBreak(6);
+	        w.write("throws ");
+	        for (Iterator<Type> i = impl.throwTypes().iterator(); i.hasNext();) {
+	            Type t = i.next();
+	            printType(t, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+	            if (i.hasNext()) {
+	                w.write(",");
+	                w.allowBreak(4, " ");
+	            }
+	        }
+	    }
+
+	    w.write("{");
+	    if (!impl.returnType().isVoid()) {
+	        w.write("return ");
+	    }
+
+	    w.write("super.");
+	    w.write(mangleToJava(impl.name()));
+
+	    if (X10TypeMixin.baseType(def.returnType().get()) instanceof ParameterType) {
+	        w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
+	    }
+
+	    w.write("(");
+	    for (int i = 0; i < impl.formalTypes().size(); i++) {
+	        Type f = impl.formalTypes().get(i);
+	        if (i != 0) {
+	            w.write(",");
+	            w.allowBreak(0, " ");
+	        }
+	        if (isPrimitive(f) && isInstantiate(def.formalTypes().get(i).get(), f)) {
+	            w.write("(");
+	            printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	            w.write(")");
+	        }
+	        w.write(" ");
+
+	        Name name = Name.make("a" + (i + 1));
+	        w.write(name.toString());
+	    }
+	    w.write(")");
+
+	    w.write(";");
+	    w.write("}");
+	    w.newline();
+	}
+
+	private boolean isContainInstantiateSamePlace(List<MethodInstance> methods, MethodInstance impled) {
+	    for (MethodInstance mi : methods) {
+	        if (
+	            !(
+	                (X10TypeMixin.baseType(mi.def().returnType().get()) instanceof ParameterType && X10TypeMixin.baseType(impled.def().returnType().get()) instanceof ParameterType)
+	                || (!(X10TypeMixin.baseType(mi.def().returnType().get()) instanceof ParameterType) && !(X10TypeMixin.baseType(impled.def().returnType().get()) instanceof ParameterType))
+	            )
+	        ) {
+	            return false;
+	        }
+	        List<Ref<? extends Type>> types = mi.def().formalTypes();
+	        for (int i = 0;i < types.size(); ++i) {
+	            if (
+	                !(
+	                    (X10TypeMixin.baseType(types.get(i).get()) instanceof ParameterType && X10TypeMixin.baseType(impled.def().formalTypes().get(i).get()) instanceof ParameterType))
+	                    || (!(X10TypeMixin.baseType(types.get(i).get()) instanceof ParameterType) && !(X10TypeMixin.baseType(impled.def().formalTypes().get(i).get()) instanceof ParameterType))
+	            ) {
+	                return false;
+	            }
+	        }
+	        return true;
+	    }
+	    return false;
 	}
 
 	public void generateRTType(X10ClassDef def) {

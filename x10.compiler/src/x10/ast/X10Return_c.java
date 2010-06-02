@@ -87,8 +87,6 @@ public class X10Return_c extends Return_c {
 	                XEQV x = XTerms.makeEQV();
 	                c = c.substitute(x, l);
 	            }
-	            catch (SemanticException e) {
-	            }
 	            catch (XFailure e) {
 	            }
 	        }

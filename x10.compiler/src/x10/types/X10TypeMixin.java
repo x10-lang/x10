@@ -1114,4 +1114,33 @@ public class X10TypeMixin {
 			
 		
 	}
+	/**
+	 * Return T if type implements Reducer[T];
+	 * @param type
+	 * @return
+	 */
+	public static Type reducerType(Type type) {
+		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+			Type base = X10TypeMixin.baseType(type);
+
+			if (base instanceof X10ClassType) {
+				if (ts.hasSameClassDef(base, ts.Reducible())) {
+					return X10TypeMixin.getParameterType(base, 0);
+				}
+				else {
+					Type sup = ts.superClass(type);
+					if (sup != null) {
+						Type t = reducerType(sup);
+						if (t != null) return t;
+					}
+					for (Type ti : ts.interfaces(type)) {
+						Type t = reducerType(ti);
+						if (t != null) {
+							return t;
+						}
+					}
+				}
+			}
+			return null;
+		}
 }

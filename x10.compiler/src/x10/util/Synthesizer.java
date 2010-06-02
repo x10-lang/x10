@@ -51,6 +51,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -87,7 +88,6 @@ import x10.constraint.XNot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.errors.Errors.PlaceTypeErrorFieldShouldBeGlobal;
 import x10.extension.X10Del;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -100,9 +100,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
-import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
 
@@ -409,6 +407,28 @@ public class Synthesizer {
 		}
 		return result;
 	}
+	
+	    /** 
+	     * Create a local variable reference.
+	     * 
+	     * @param pos the Position of the reference in the source code
+	     * @param decl the declaration of the local variable
+	     * @return the synthesized Local variable reference
+	     */
+	    public Local createLocal(Position pos, LocalDecl decl) {
+	        return createLocal(pos, decl.localDef().asInstance());
+	    }
+
+	    /** 
+	     * Create a local variable reference.
+	     * 
+	     * @param pos the Position of the reference in the source code
+	     * @param li a type system object representing this local variable
+	     * @return the synthesized Local variable reference
+	     */
+	    public Local createLocal(Position pos, LocalInstance li) {
+	        return (Local) xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
+	    }
 	
 	/**
 	 * Make a field access for r.name. Throw a SemanticException if such a field does not exist.
@@ -826,7 +846,7 @@ public class Synthesizer {
      *            the inner classes to be inserted into the class
      * @return A newly created class with inner classes as members
      */
-    public X10ClassDecl addInnerClasses(X10ClassDecl cDecl, Set<X10ClassDecl> innerClasses) {
+    public X10ClassDecl addInnerClasses(X10ClassDecl cDecl, List<X10ClassDecl> innerClasses) {
 
         List<ClassMember> cMembers = new ArrayList<ClassMember>();
         ClassBody body = cDecl.body();
@@ -1501,6 +1521,17 @@ public class Synthesizer {
     public Expr intValueExpr(int value, Position pos){
         return xnf.IntLit(pos, IntLit.INT, value).type(xts.Int());
     }
+    
+    /**
+     * Get an boolean value expression
+     * @param value true or false
+     * @param pos
+     * @return
+     */
+    public Expr booleanValueExpr(boolean value, Position pos){
+        return xnf.BooleanLit(pos, value).type(xts.Boolean());
+    }
+    
     
     /**
      * Get this expression, ((ClassType)this)

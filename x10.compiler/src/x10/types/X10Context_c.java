@@ -225,11 +225,8 @@ public class X10Context_c extends Context_c implements X10Context {
 			 X10LocalDef ld = getLocal(v);
 			 if (ld != null) {
 				 Type ty = Types.get(ld.type());
-				
-				 if (ld instanceof X10LocalDef) {
-				   ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ((X10LocalDef) ld).placeTerm());
-				 }
-				 CConstraint ci = X10TypeMixin.realX(ty);
+                 ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ld.placeTerm());
+                 CConstraint ci = X10TypeMixin.realX(ty);
 				 ci = ci.substitute(v, ci.self());
 				 r = new CConstraint();
 				 r.addIn(ci);
@@ -345,6 +342,17 @@ public class X10Context_c extends Context_c implements X10Context {
     	X10Context_c cxt = (X10Context_c) super.pushBlock();
 		cxt.currentPlaceTerm = t;
 		return cxt;
+    }
+    
+    Type currentCollectingFinishType=null;
+    public Context pushCollectingFinishScope(Type t) {
+    	assert t!=null;
+    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+    	cxt.currentCollectingFinishType =t;
+    	return cxt;
+    }
+    public Type collectingFinishType() {
+    	return currentCollectingFinishType;
     }
     protected XConstrainedTerm thisPlace = null;
     public XConstrainedTerm currentThisPlace() {

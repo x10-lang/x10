@@ -120,6 +120,7 @@
     nonblocking
     now
     null
+    offer
     or
     operator
     package
@@ -602,6 +603,11 @@
               | w h i l e
         /.$BeginAction
                 $setResult($_while);
+          $EndAction
+        ./
+                   | o f f e r
+        /.$BeginAction
+                $setResult($_offer);
           $EndAction
         ./
 %End

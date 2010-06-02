@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 compiler
 Bundle-SymbolicName: x10.compiler
-Bundle-Version: 2.0.3.qualifier
+Bundle-Version: 2.0.4.qualifier
 Bundle-Localization: plugin
 Require-Bundle: x10.common,
  x10.constraints,
@@ -16,11 +16,11 @@ Export-Package: x10,
  x10.parser,
  x10.plugin,
  x10.query,
- x10.synthesizer,
  x10.types,
  x10.types.checker,
  x10.types.constraints,
  x10.util,
+ x10.util.synthesizer,
  x10.visit,
  x10bc,
  x10cpp,

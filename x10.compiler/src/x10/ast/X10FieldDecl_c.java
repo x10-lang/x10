@@ -304,61 +304,62 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    return super.setResolverOverride(parent, v);
 	    }
 
-	        @Override
-	        public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-	        	 
-	        	if (hasType != null && ! flags().flags().isFinal()) {
-	        		throw new Errors.OnlyValMayHaveHasType(this);
-	        	}
-	            if (type() instanceof UnknownTypeNode) {
-	            	  NodeVisitor childtc = tc.enter(parent, this);
-	                
-	                Expr init = (Expr) this.visitChild(init(), childtc);
-	                if (init != null) {
-	                    Type t = init.type();
-	                    if (t instanceof X10ClassType) {
-	                        X10ClassType ct = (X10ClassType) t;
-	                        if (ct.isAnonymous()) {
-	                            if (ct.interfaces().size() > 0)
-	                                t = ct.interfaces().get(0);
-	                            else
-	                                t = ct.superClass();
+	    @Override
+	    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
+
+	        if (hasType != null && ! flags().flags().isFinal()) {
+	            Errors.issue(tc.job(), new Errors.OnlyValMayHaveHasType(this));
+	        }
+	        if (type() instanceof UnknownTypeNode) {
+	            NodeVisitor childtc = tc.enter(parent, this);
+
+	            Expr init = (Expr) this.visitChild(init(), childtc);
+	            if (init != null) {
+	                Type t = init.type();
+	                if (t instanceof X10ClassType) {
+	                    X10ClassType ct = (X10ClassType) t;
+	                    if (ct.isAnonymous()) {
+	                        if (ct.interfaces().size() > 0)
+	                            t = ct.interfaces().get(0);
+	                        else
+	                            t = ct.superClass();
+	                    }
+	                }
+	                X10Context xc = (X10Context) enterChildScope(type(), tc.context());
+	                t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
+	                LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
+	                r.update(t);
+	                {
+	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
+	                    TypeNode htn  = null;
+	                    if (hasType != null) {
+	                        htn = (TypeNode) visitChild(hasType, childtc);
+	                        if (! Globals.TS().isSubtype(type().type(), htn.type(),tc.context())) {
+	                            Errors.issue(tc.job(),
+	                                         new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
+	                                                                                 htn.type(),
+	                                                                                 position()));
 	                        }
 	                    }
-	                    X10Context xc = (X10Context) enterChildScope(type(), tc.context());
-	                    t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
-	                    LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
-	                    r.update(t);
-	                    {
-	                    	TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
-	                    	TypeNode htn  = null;
-	                    	if (hasType != null) {
-	                    		htn = (TypeNode) visitChild(hasType, childtc);
-	                    		if (! Globals.TS().isSubtype(type().type(), htn.type(),tc.context())) {
-	                    			throw new SemanticException("Computed type is not a subtype of  type bound." 
-	                    					+ "\n\t Computed Type: " + type().type()
-	                    					+ "\n\t Type Bound: " + htn.type(), position());
-	                    		}
-	                    	}
-	                    }
-	                    FlagsNode flags = (FlagsNode) this.visitChild(flags(), childtc);
-	                    Id name = (Id) this.visitChild(name(), childtc);
-	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
-	                    
-	                    Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init), childtc);
-	                    List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
-	                    if (oldAnnotations == null || oldAnnotations.isEmpty()) {
-	                            return n;
-	                    }
-	                    List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
-	                    if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
-	                            return ((X10Del) n.del()).annotations(newAnnotations);
-	                    }
+	                }
+	                FlagsNode flags = (FlagsNode) this.visitChild(flags(), childtc);
+	                Id name = (Id) this.visitChild(name(), childtc);
+	                TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
+
+	                Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init), childtc);
+	                List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
+	                if (oldAnnotations == null || oldAnnotations.isEmpty()) {
 	                    return n;
 	                }
+	                List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
+	                if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
+	                    return ((X10Del) n.del()).annotations(newAnnotations);
+	                }
+	                return n;
 	            }
-	            return super.typeCheckOverride(parent, tc);
 	        }
+	        return null;
+	    }
 	     
 	    @Override
 	    public Node typeCheck(ContextVisitor tc) throws SemanticException {

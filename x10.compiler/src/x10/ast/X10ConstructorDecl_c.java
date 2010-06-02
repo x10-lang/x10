@@ -38,6 +38,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
+import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -291,7 +292,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     }
 
 
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	X10ConstructorDecl nn = this;
     	X10ConstructorDecl old = nn;
 
@@ -305,7 +306,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         nn = (X10ConstructorDecl) nn.typeParameters(processedTypeParams);
     	List<Formal> processedFormals = nn.visitList(nn.formals(), childtc);
         nn = (X10ConstructorDecl) nn.formals(processedFormals);
-        if (tc.hasErrors()) throw new SemanticException();
         
         nn = (X10ConstructorDecl) X10Del_c.visitAnnotations(nn, childtc);
 
@@ -333,7 +333,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         if (nn.guard() != null) {
         	DepParameterExpr processedWhere = (DepParameterExpr) nn.visitChild(nn.guard(), childtc);
         	nn = (X10ConstructorDecl) nn.guard(processedWhere);
-        	if (tc.hasErrors()) throw new SemanticException();
         
         	// Now build the new formal arg list.
         	// TODO: Add a marker to the TypeChecker which records
@@ -386,13 +385,16 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             		}
             	}
             	catch (XFailure e) {
-            		throw new SemanticException(e.getMessage(), position());
+                    tc.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, e.getMessage(), position());
+                    c = null;
             	}
 
         	// Check if the guard is consistent.
         	if (c != null && ! c.consistent()) {
-        		throw new SemanticException("The constructor's dependent clause is inconsistent.",
-        				 guard != null ? guard.position() : position());
+                Errors.issue(tc.job(),
+                        new Errors.DependentClauseIsInconsistent("constructor", guard),
+                        this);
+                // FIXME: [IP] mark constraint clause as invalid
         	}
         }
 
@@ -414,8 +416,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	(( X10Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
     	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
     	Ref<? extends Type> ref = r.typeRef();
-    	Type t = Types.get(ref);
-    	if (childtc1.hasErrors()) throw new SemanticException();
+    	Type type = Types.get(ref);
         nn = (X10ConstructorDecl) nn.returnType(r);
         ((Ref<Type>) nnci.returnType()).update(r.type());
         
@@ -443,23 +444,24 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
        	//Report.report(1, "X10MethodDecl_c: after visiting formals " + childtc2.context());
        	// Now process the body.
         nn = (X10ConstructorDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
-        if (childtc2.hasErrors()) throw new SemanticException();
         nn = (X10ConstructorDecl) childtc2.leave(parent, old, nn, childtc2);
         
-        X10MethodDecl_c.dupFormalCheck(typeParameters, formals);
+        try {
+            X10MethodDecl_c.dupFormalCheck(typeParameters, formals);
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
+        }
         {
-
-          	 if (hasType != null) {
-          		 final TypeNode h = (TypeNode) nn.visitChild(((X10ConstructorDecl_c) nn).hasType, childtc1);
-               	Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
-               	nn = (X10ConstructorDecl) ((X10ConstructorDecl_c) nn).hasType(h);
-               	if (! Globals.TS().isSubtype(nnci.returnType().get(), hasType,tc.context())) {
-               		throw new SemanticException("Computed type is not a subtype of  type bound." 
-               				+ "\n\t Computed Type: " + t
-               				+ "\n\t Type Bound: " + hasType, position());
-               	}
-               }
-           }
+            if (hasType != null) {
+                final TypeNode h = (TypeNode) nn.visitChild(((X10ConstructorDecl_c) nn).hasType, childtc1);
+                Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
+                nn = (X10ConstructorDecl) ((X10ConstructorDecl_c) nn).hasType(h);
+                if (! Globals.TS().isSubtype(nnci.returnType().get(), hasType,tc.context())) {
+                    Errors.issue(tc.job(),
+                            new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
+                }
+            }
+        }
 
         return nn;
     }
