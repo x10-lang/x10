@@ -301,7 +301,6 @@ public class UTS {
         	distribute(st);
             processStack(st);
         }
-		//def trySteal (p:Int)=trySteal(p, false);
 		def trySteal (p:Int) : ValRail[SHA1Rand] {
 			stealsReceived++;
 			val length = stack.size();
@@ -313,7 +312,7 @@ public class UTS {
 			val numSteals = length/2; // isLifeline? (4*length)/5 : length/2;
 			stealsSuffered++;
 			nodesGiven += numSteals;
-			return pop(numSteals);
+			return stack.pop(numSteals);
 		}
 		def main (st:PLH2, b0:Int, rng:SHA1Rand) {
 			val P=Place.MAX_PLACES;
