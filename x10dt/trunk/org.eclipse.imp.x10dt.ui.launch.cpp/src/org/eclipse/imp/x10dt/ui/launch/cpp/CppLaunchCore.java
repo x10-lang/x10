@@ -38,6 +38,7 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformChecker;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformValidationListener;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.PlatformCheckerFactory;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -325,7 +326,7 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
 
 				public void run(final IProgressMonitor localMonitor) throws CoreException {
 					IResourceUtils.addPlatformConfMarker(CommunicationInterfaceListener.this.fPlatformConfFile,
-					                                     LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg,
+					                                     NLS.bind(LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg, message),
 					                                     IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
 				}
 			
@@ -346,7 +347,8 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
 
 				public void run(final IProgressMonitor localMonitor) throws CoreException {
 					IResourceUtils.addPlatformConfMarker(CommunicationInterfaceListener.this.fPlatformConfFile,
-					                                     LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg,
+					                                     NLS.bind(LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg, 
+					                                              exception.getMessage()),
 					                                     IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
 				}
 			
