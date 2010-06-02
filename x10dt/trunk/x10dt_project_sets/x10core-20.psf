@@ -5,7 +5,6 @@
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/trunk/x10.compiler,x10.compiler"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/trunk/x10.constraints,x10.constraints"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/trunk/x10.dist,x10.dist"/>
-<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/trunk/x10.effects,x10.effects"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/trunk/x10.runtime,x10.runtime"/>
 </provider>
 </psf>
