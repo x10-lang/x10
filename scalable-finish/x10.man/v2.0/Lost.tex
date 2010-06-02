@@ -1,0 +1,26 @@
+\chapter{Lost Bits}
+
+\bard{This chapter should not exist.  The material in it was misplaced.  It 
+is stored here temporarily
+so it doesn't get lost}
+
+\section{Visibility of Local Variables and Formals}
+
+In general, variables (\ie, local variables, parameters,
+properties, fields) are visible at
+a point in the c
+if they are defined before \xcd"T" in the program. This rule applies to
+types in property lists as well as parameter lists (for methods and
+constructors).
+A formal parameter is visible in the types of all other formal
+parameters of the same method, constructor, or type definition,
+as well as in the method or constructor body itself.
+Properties are accessible via their containing object--\xcd"this"
+within the body of their class declaration.  The special
+variable \xcd"this" is in scope at each property
+declaration, constructor signatures and bodies, instance method signatures
+and bodies,
+and instance field signatures and initializers, but not in scope
+at \xcd"static" method or field declarations or \xcd"static"
+initializers.  
+

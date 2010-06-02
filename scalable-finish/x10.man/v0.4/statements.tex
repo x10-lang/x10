@@ -1,0 +1,35 @@
+\section{Statements}
+First, we introduce  $k$-dimensional versions of iteration operations {\tt for} and {\tt forall}:
+
+\begin{code}
+   forall (  ind1, ..., indk : A) {S}
+\end{code}
+
+Assume that {\tt A} is an array and {\tt [T1,..., Tk]} is the convex closure of its underlying region. 
+Then the execution of this statement results in the parallel execution of an activity
+
+\begin{code}
+   { final T1 Ind1 = i1; 
+     ...
+     final Tk Indk = ik;
+     S
+   }
+\end{code}
+\noindent for each value {\tt [i1,\ldots, ik]} in the region underlying {\tt A}.
+
+In a similar fashion we introduce the syntax:
+\begin{code}
+   ateach( Ind1, ..., Indk : A) {S}
+\end{code}
+\noindent to stand for
+\begin{code}
+   forall (  ind1, ..., indk : A ) async (A[ind1,...,indk]) {S}
+\end{code}
+
+In method definitions, for a region {\tt R} we allow the syntax 
+\begin{code}
+     R i1,...,ik; 
+\end{code} 
+
+\noindent to introduce {\tt k} new parameters which range over the component enumerations of the convex closure of
+{\tt R}.

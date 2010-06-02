@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/polyglot3/src/polyglot/main/Main.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="X10RT_IMPL" value="pgas_sockets"/>
+<mapEntry key="X10_DIST" value="${project_loc:x10.dist}"/>
+<mapEntry key="X10_PLATFORM" value="${target.os}_${target.arch}"/>
+</mapAttribute>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="polyglot.main.Main"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-extclass x10cpp.ExtensionInfo ${resource_loc} -sourcepath ${project_loc:x10.runtime}/src-x10 -noserial -assert -d out -disable CheckNativeAnnotations ${project_loc:x10.tests}/examples/x10lib/harness/x10Test.x10"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="x10.compiler"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Xmx256m"/>
+<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${container_loc}"/>
+</launchConfiguration>
