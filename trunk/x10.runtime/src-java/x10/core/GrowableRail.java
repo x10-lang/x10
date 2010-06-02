@@ -24,7 +24,7 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 	private Type<T> elementType;
 	private Object array;
 	private int length;
-	
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
@@ -36,27 +36,28 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 		sb.append("]");
 		return sb.toString();
 	}
-	
+
 	public GrowableRail(Type<T> t) {
 		this(t, 1);
 	}
-	
+
 	public GrowableRail(Type<T> t, int size) {
 		this.elementType = t;
 		this.array = t.makeArray(size);
 		this.length = 0;
 	}
-	
+
 	public T set$G(T v, Integer i) {
 	    return set$G(v, (int)i);
-	}      
-        public T set$G(T v, int i) {
-            grow(i+1);
-            assert i >= 0 : i + " < 0";
-            assert i < length: i + " >= length==" + length;
-            assert i < size(): i + " >= size()==" + size();
-            return elementType.setArray(array, i, v);
-        }
+	}
+
+	public T set$G(T v, int i) {
+		grow(i+1);
+		assert i >= 0 : i + " < 0";
+		assert i < length: i + " >= length==" + length;
+		assert i < size(): i + " >= size()==" + size();
+		return elementType.setArray(array, i, v);
+	}
 
 	public void add(T v) {
 		grow(length+1);
@@ -76,6 +77,20 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 		shrink(length+1);
 	}
 
+	public ValRail<T> moveSectionToValRail(int i, int j) {
+		int len = j - i + 1;
+		if (len < 1) return RailFactory.makeValRail(elementType, 0);
+		Object tmp = elementType.makeArray(len);
+		System.arraycopy(array, i, tmp, 0, len);
+		System.arraycopy(array, j+1, array, i, length-j-1);
+		if (array instanceof Object[]) {
+			java.util.Arrays.fill((Object[])array, length-len, length, null);
+		}
+		length-=len;
+		shrink(length+1);
+		return RailFactory.makeValRailFromJavaArray(elementType, tmp);
+	}
+
 	public Iterator<T> iterator() {
 		return new RailIterator();
 	}
@@ -91,7 +106,7 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 			return apply$G(i++);
 		}
 	}
-	
+
 	private void grow(int newSize) {
 		if (newSize <= size())
 			return;
@@ -102,7 +117,7 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 		System.arraycopy(array, 0, tmp, 0, length);
 		array = tmp;
 	}
-	
+
 	private void shrink(int newSize) {
 		if (newSize > size()/2 || newSize < 8)
 			return;
@@ -112,7 +127,7 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 		System.arraycopy(array, 0, tmp, 0, length);
 		array = tmp;
 	}
-	
+
 	public T apply$G(Integer i) {
 		return apply$G((int)i);
 	}
@@ -122,15 +137,15 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 	    assert i < size(): i + " >= size()==" + size();
 	    return elementType.getArray(array, i);
 	}
-	
+
 	public int length() {
 		return length;
 	}
-	
+
     private int size() {
     	return elementType.arrayLength(array);
     }
-	
+
 	public Rail<T> toRail() {
 		Object tmp = elementType.makeArray(length);
 		System.arraycopy(array, 0, tmp, 0, length);
@@ -142,7 +157,7 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 		System.arraycopy(array, 0, tmp, 0, length);
 		return RailFactory.makeValRailFromJavaArray(elementType, tmp);
 	}
-	
+
     //
     // Runtime type information
     //
