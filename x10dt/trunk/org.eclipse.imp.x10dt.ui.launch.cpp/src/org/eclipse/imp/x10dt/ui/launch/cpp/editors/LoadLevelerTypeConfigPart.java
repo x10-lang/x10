@@ -148,6 +148,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     templateGrp.setLayout(new TableWrapLayout());
     templateGrp.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     templateGrp.setText(LaunchMessages.LLTCP_TemplateFileGroup);
+    templateGrp.setToolTipText(LaunchMessages.LLTCP_TemplateFileTooltipDescription);
     addControl(templateGrp);
     
     final Pair<Text, Button> pair3 = SWTFormUtils.createLabelTextButton(templateGrp, LaunchMessages.RMCP_LocationLabel, 
