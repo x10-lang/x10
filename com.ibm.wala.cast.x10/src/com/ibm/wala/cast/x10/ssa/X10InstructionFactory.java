@@ -16,8 +16,8 @@ public interface X10InstructionFactory extends AstJavaInstructionFactory {
 	
 	SSAAtomicInstruction Atomic(boolean isEnter);
 	
-	SSAFinishInstruction Finish(boolean isEnter);
-	
+	//SSAFinishInstruction Finish(boolean isEnter);
+	SSAFinishInstruction Finish(boolean isEnter, int line, int column);
 	SSAForceInstruction Force(int retValue, int targetValue, TypeReference valueType);
 	
 	SSAHereInstruction Here(int retValue);
@@ -40,5 +40,5 @@ public interface X10InstructionFactory extends AstJavaInstructionFactory {
 
 	NewTupleInstruction NewTuple(int retValue, int[] slotValues);
 	
-	SSAAtStmtInstruction AtStmt(boolean isEnter);
+	SSAAtStmtInstruction AtStmt(boolean isEnter,int line, int column);
 }
