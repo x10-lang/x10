@@ -7,8 +7,12 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.builder.target_op;
 
+import java.util.Collection;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 /**
  * Provides file operations useful for X10 builder regarding the X10 generated files.
@@ -28,6 +32,16 @@ public interface IX10BuilderFileOp {
   public void archive(final IProgressMonitor monitor) throws CoreException;
   
   /**
+   * Cleans all the artifacts created by X10 compiler as well as the compiled files generated on them.
+   * 
+   * @param sourcesToCompile The X10 source files to consider.
+   * @param monitor The monitor to consider for reporting progress or canceling the operation.
+   * @throws CoreException Occurs if we could not delete some generated and/or compiled files.
+   */
+  public void clearGeneratedAndCompiledFiles(final Collection<IFile> sourcesToCompile, 
+                                             final SubMonitor monitor) throws CoreException;
+  
+  /**
    * Compiles the generated files on the target platform.
    * 
    * @param monitor The monitor to consider for reporting progress or canceling the operation.
@@ -36,20 +50,6 @@ public interface IX10BuilderFileOp {
    * logged.
    */
   public boolean compile(final IProgressMonitor monitor) throws CoreException;
-  
-  /**
-   * Returns the helper class allowing file and process management independently of the connection type.
-   * 
-   * @return A non-null object.
-   */
-  public ITargetOpHelper getTargetOpHelper();
-  
-  /**
-   * Returns the directory for the target machine where files can be generated and compiled.
-   * 
-   * @return A non-null directory path.
-   */
-  public String getWorkspaceDir();
   
   /**
    * Returns if yes or no we have all prerequisites in order to satisfy the operations provided with this interface.

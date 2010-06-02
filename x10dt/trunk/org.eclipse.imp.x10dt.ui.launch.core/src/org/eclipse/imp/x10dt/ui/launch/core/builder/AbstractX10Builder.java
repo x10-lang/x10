@@ -57,17 +57,6 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   // --- Abstract methods definition
   
   /**
-   * Clears with the help of source files provided the related generated and compiled files on the target machine.
-   * 
-   * @param builderFileOp The helper class for file operations.
-   * @param x10SourceFiles The X10 source files to use.
-   * @param monitor The monitor to use for reporting progress and/or cancel the operation.
-   * @throws CoreException Occurs if we could not delete some particular resource.
-   */
-  public abstract void clearGeneratedAndCompiledFiles(final IX10BuilderFileOp builderFileOp,
-                                                      final Collection<IFile> x10SourceFiles, 
-                                                      final SubMonitor monitor) throws CoreException;
-  /**
    * Creates the Polyglot extension information that controls the compiler options for the particular back-end.
    * 
    * @param classPath The class path to consider for compilation.
@@ -105,7 +94,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       final Set<IProject> dependentProjects = new HashSet<IProject>();
       collectSourceFilesToCompile(dependentProjects, subMonitor.newChild(5));
       
-      clearMarkers(kind);
+      clearMarkers();
       
       if (this.fX10BuilderFileOp == null) {
       	this.fX10BuilderFileOp = createX10BuilderFileOp();
@@ -117,8 +106,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         }
       }
       
-      clearGeneratedAndCompiledFiles(this.fX10BuilderFileOp, this.fSourcesToCompile, subMonitor);
-            
+      this.fX10BuilderFileOp.clearGeneratedAndCompiledFiles(this.fSourcesToCompile, subMonitor);
+
       final String localOutputDir = JavaProjectUtils.getProjectOutputDirPath(getProject());
       compileX10Files(localOutputDir, subMonitor.newChild(30));
       
@@ -153,7 +142,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         }
         // No need to persist dependent projects here since it will be repeated later on.
         collectSourceFilesToCompile(new HashSet<IProject>(), subMonitor.newChild(1));
-        clearGeneratedAndCompiledFiles(this.fX10BuilderFileOp, this.fSourcesToCompile, subMonitor.newChild(1));
+        this.fX10BuilderFileOp.clearGeneratedAndCompiledFiles(this.fSourcesToCompile, subMonitor.newChild(1));
       }
     } finally {
       monitor.done();
@@ -173,7 +162,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   // --- Private code
   
-  private void clearMarkers(final int kind) {
+  private void clearMarkers() {
     for (final IFile file : this.fSourcesToCompile) {
       IResourceUtils.deleteBuildMarkers(file);
     }
