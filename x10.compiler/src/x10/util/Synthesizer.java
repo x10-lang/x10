@@ -88,7 +88,6 @@ import x10.constraint.XNot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.errors.Errors.PlaceTypeErrorFieldShouldBeGlobal;
 import x10.extension.X10Del;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -101,9 +100,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
-import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
 
@@ -849,7 +846,7 @@ public class Synthesizer {
      *            the inner classes to be inserted into the class
      * @return A newly created class with inner classes as members
      */
-    public X10ClassDecl addInnerClasses(X10ClassDecl cDecl, Set<X10ClassDecl> innerClasses) {
+    public X10ClassDecl addInnerClasses(X10ClassDecl cDecl, List<X10ClassDecl> innerClasses) {
 
         List<ClassMember> cMembers = new ArrayList<ClassMember>();
         ClassBody body = cDecl.body();
