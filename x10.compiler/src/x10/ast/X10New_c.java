@@ -21,6 +21,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -32,6 +33,7 @@ import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
@@ -141,6 +143,69 @@ public class X10New_c extends New_c implements X10New {
         return n;
     }
 
+    /**
+     * @param ar
+     * @param ct
+     * @throws SemanticException
+     */
+    protected New findQualifier(TypeChecker ar, ClassType ct) throws SemanticException {
+        // If we're instantiating a non-static member class, add a "this"
+        // qualifier.
+        NodeFactory nf = ar.nodeFactory();
+        TypeSystem ts = ar.typeSystem();
+        Context c = ar.context();
+
+        // Search for the outer class of the member.  The outer class is
+        // not just ct.outer(); it may be a subclass of ct.outer().
+        Type outer = null;
+        
+        Name name = ct.name();
+        ClassType t = c.currentClass();
+        
+        // We're in one scope too many.
+        if (t == anonType) {
+            t = t.outer();
+        }
+        
+        // Search all enclosing classes for the type.
+        while (t != null) {
+            try {
+                Type mt = ts.findMemberType(t, name, c);
+
+                if (mt instanceof ClassType) {
+                    ClassType cmt = (ClassType) mt;
+                    if (cmt.def() == ct.def()) {
+                    outer = t;
+                    break;
+                    }
+                }
+            }
+            catch (SemanticException e) {
+            }
+            
+            t = t.outer();
+        }
+        
+        if (outer == null) {
+            throw new SemanticException("Could not find non-static member class \"" +
+                                        name + "\".", position());
+        }
+        
+        // Create the qualifier.
+        Expr q;
+
+        if (outer.typeEquals(c.currentClass(), ar.context())) {
+            q = nf.This(Position.COMPILER_GENERATED);
+        }
+        else {
+            q = nf.This(Position.COMPILER_GENERATED,
+                        nf.CanonicalTypeNode(Position.COMPILER_GENERATED, outer));
+        }
+        
+        q = q.type(outer);
+        return qualifier(q);
+    }
+    
     public New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException {
         X10NodeFactory nf = (X10NodeFactory) childtc.nodeFactory();
         X10TypeSystem ts = (X10TypeSystem) childtc.typeSystem();
