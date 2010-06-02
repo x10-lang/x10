@@ -1208,36 +1208,42 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	
 	public void visit(Try_c c) {
 		
-		TryCatchExpander expander;
-		final List<Catch> catchBlocks = c.catchBlocks();
-		
-		if (catchBlocks.isEmpty()) {
-			expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
-		} else {
-			expander = new TryCatchExpander(w, er, c.tryBlock(), null);
-			expander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", "__$generated_wrappedex$__", new Expander(er) {
-				public void expand(Translator tr) {
-					for (int i = 0; i < catchBlocks.size(); ++i) {
-						Catch cb = catchBlocks.get(i);
-					    w.newline(0);
-					    w.write("if (__$generated_wrappedex$__.getCause() instanceof ");
-					    new TypeExpander(er, cb.catchType(), false, false, false).expand(tr);
-					    w.write(") {");
-					    w.newline(0);
-					    w.write("throw (");
-					    new TypeExpander(er, cb.catchType(), false, false, false).expand(tr);
-					    w.write(") __$generated_wrappedex$__.getCause();");
-					    w.newline(0);
-					    w.write("}");
-					}
-					w.write("throw __$generated_wrappedex$__;");
-				}
-			});
-			
-			expander = new TryCatchExpander(w, er, expander, c.finallyBlock());
-			for (int i = 0; i < catchBlocks.size(); ++i) {
-				expander.addCatchBlock(catchBlocks.get(i));
-			}
+        TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
+        final List<Catch> catchBlocks = c.catchBlocks();
+        
+		if (!catchBlocks.isEmpty()) {
+		    final String temp = "__$generated_wrappedex$__";
+		    expander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", temp, new Expander(er) {
+		        public void expand(Translator tr) {
+                    w.newline();
+
+                    for (int i = 0; i < catchBlocks.size(); ++i) {
+		                Catch cb = catchBlocks.get(i);
+		                w.write("if (" + temp + ".getCause() instanceof ");
+		                new TypeExpander(er, cb.catchType(), false, false, false).expand(tr);
+		                w.write(") {");
+		                w.newline();
+	                        
+		                cb.formal().prettyPrint(w, tr);
+		                w.write(" = (");
+		                new TypeExpander(er, cb.catchType(), false, false, false).expand(tr);
+		                w.write(") " + temp + ".getCause();");
+		                w.newline();
+		                
+		                cb.body().prettyPrint(w, tr);
+		                w.newline();
+		                
+		                w.write("}");
+                        w.newline();
+		            }
+		            w.write("throw " + temp + ";");
+                    w.newline();
+		        }
+		    });
+		    
+		    for (int i = 0; i < catchBlocks.size(); ++i) {
+		        expander.addCatchBlock(catchBlocks.get(i));
+		    }
 		}
 		
 		expander.expand(tr);
