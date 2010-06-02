@@ -369,6 +369,13 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     updateDirtyFlag();
   }
   
+  public void setSuspendProxyAtStartupFlag(final String ciType, final boolean shouldSuspendProxy) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fSuspendProxyAtStartup = shouldSuspendProxy;
+    updateDirtyFlag();
+  }
+  
   public void setUsePortForwardingFlag(final String ciType, final boolean shouldUsePortForwarding) {
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
     final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
@@ -392,27 +399,11 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     updateDirtyFlag();
   }
   
-  public void setSuspendProxyFlag(final boolean shouldSuspendProxy) {
-    final String ciType = PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID;
-    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final ParallelEnvironmentConf conf = (ParallelEnvironmentConf) super.fCommInterfaceFact.getOrCreate(ciType);
-    conf.fSuspendProxy = shouldSuspendProxy;
-    updateDirtyFlag();
-  }
-  
   public void setUseLoadLeveler(final boolean shouldUseLoadLeveler) {
     final String ciType = PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID;
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
     final ParallelEnvironmentConf conf = (ParallelEnvironmentConf) super.fCommInterfaceFact.getOrCreate(ciType);
     conf.fUseLoadLeveler = shouldUseLoadLeveler;
-    updateDirtyFlag();
-  }
-  
-  public void setDebugLoopFlag(final boolean shouldDebugLoop) {
-    final String ciType = PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID;
-    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final LoadLevelerConf conf = (LoadLevelerConf) super.fCommInterfaceFact.getOrCreate(ciType);
-    conf.fDebugLoop = shouldDebugLoop;
     updateDirtyFlag();
   }
   

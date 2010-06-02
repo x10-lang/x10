@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
+import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
 import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 
@@ -33,10 +34,6 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
   public ELLTemplateOpt getTemplateOption() {
     return (this.fTemplateOpt == null) ? ELLTemplateOpt.ENeverWrite : this.fTemplateOpt;
   }
-
-  public boolean shouldDebugLoop() {
-    return this.fDebugLoop;
-  }
   
   public boolean shouldUsePortForwarding() {
     return this.fUsePortForwarding;
@@ -49,7 +46,15 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
       return false;
     }
     final IIBMLLResourceManagerConfiguration llRMConf = (IIBMLLResourceManagerConfiguration) rmConfiguration;
-    if (! llRMConf.getLibraryPath().equals(getAlternateLibraryPath())) {
+    if (! llRMConf.getProxyServerPath().equals(getProxyServerPath())) {
+      return false;
+    }
+    final boolean manualLaunch = (llRMConf.getOptions() & IRemoteProxyOptions.MANUAL_LAUNCH) != 0;
+    if (manualLaunch != shouldLaunchProxyManually()) {
+      return false;
+    }
+    final boolean portForwarding = (llRMConf.getOptions() & IRemoteProxyOptions.PORT_FORWARDING) != 0;
+    if (portForwarding != shouldUsePortForwarding()) {
       return false;
     }
     switch (getClusterMode()) {
@@ -69,8 +74,11 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
         }
         break;
     }
-    if ((llRMConf.getJobPolling() != this.fJobPolling) || (llRMConf.getMinNodePolling() != this.fNodePollingMin) ||
-        (llRMConf.getMaxNodePolling() != this.fNodePollingMax)) {
+    if ((llRMConf.getJobPolling() != getJobPolling()) || (llRMConf.getMinNodePolling() != getNodePollingMin()) ||
+        (llRMConf.getMaxNodePolling() != getNodePollingMax())) {
+      return false;
+    }
+    if (! llRMConf.getLibraryPath().equals(getAlternateLibraryPath())) {
       return false;
     }
     final String traceOpt = ((this.fProxyMsgOpts & CLoadLevelerProxyMsgs.TRACE) == 0) ? LL_NO : LL_YES;
@@ -97,9 +105,6 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
     if (! argsOpt.equals(llRMConf.getArgsMessage())) {
       return false;
     }
-    if (! llRMConf.getProxyServerPath().equals(getProxyServerPath())) {
-      return false;
-    }
     if (! llRMConf.getTemplateFile().equals(getTemplateFilePath())) {
       return false;
     }
@@ -115,8 +120,14 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
         }
         break;
     }
-    if (! LL_YES.equals(llRMConf.getDebugLoop())) {
-      return false;
+    if (shouldSuspendProxyAtStartup()) {
+      if (! LL_YES.equals(llRMConf.getDebugLoop())) {
+        return false;
+      }
+    } else {
+      if (LL_YES.equals(llRMConf.getDebugLoop())) {
+        return false;
+      }
     }
     return true;
   }
@@ -140,20 +151,19 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
     final LoadLevelerConf rhsObj = (LoadLevelerConf) rhs;
     return Arrays.equals(new Object[] { this.fTemplateFilePath, this.fTemplateOpt }, 
                          new Object[] { rhsObj.fTemplateFilePath, rhsObj.fTemplateOpt }) &&
-           (this.fProxyMsgOpts == rhsObj.fProxyMsgOpts) && (this.fDebugLoop == rhsObj.fDebugLoop);
+           (this.fProxyMsgOpts == rhsObj.fProxyMsgOpts);
   }
   
   public int hashCode() {
     return super.hashCode() + 
-           CodingUtils.generateHashCode(7646, this.fProxyMsgOpts, this.fTemplateFilePath, this.fTemplateOpt, this.fDebugLoop);
+           CodingUtils.generateHashCode(7646, this.fProxyMsgOpts, this.fTemplateFilePath, this.fTemplateOpt);
   }
   
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append(super.toString()).append("\nProxy message options: ").append(this.fProxyMsgOpts) //$NON-NLS-1$
       .append("\nTemplate file path: ").append(this.fTemplateFilePath) //$NON-NLS-1$
-      .append("\nTemplate option: ").append(this.fTemplateOpt) //$NON-NLS-1$
-      .append("\nDebug loop: ").append(this.fDebugLoop); //$NON-NLS-1$
+      .append("\nTemplate option: ").append(this.fTemplateOpt); //$NON-NLS-1$
     return sb.toString();
   }
   
@@ -166,7 +176,6 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
     this.fProxyMsgOpts = source.fProxyMsgOpts;
     this.fTemplateFilePath = source.fTemplateFilePath;
     this.fTemplateOpt = source.fTemplateOpt;
-    this.fDebugLoop = source.fDebugLoop;
   }
   
   // --- Fields
@@ -176,7 +185,5 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
   String fTemplateFilePath;
   
   ELLTemplateOpt fTemplateOpt;
-  
-  boolean fDebugLoop;
     
 }

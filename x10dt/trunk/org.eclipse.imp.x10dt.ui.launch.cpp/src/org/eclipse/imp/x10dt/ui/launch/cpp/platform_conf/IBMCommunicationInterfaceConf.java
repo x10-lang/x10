@@ -45,6 +45,10 @@ abstract class IBMCommunicationInterfaceConf extends AbstractCommunicationInterf
     return this.fLaunchProxyManually;
   }
   
+  public boolean shouldSuspendProxyAtStartup() {
+    return this.fSuspendProxyAtStartup;
+  }
+  
   public boolean shouldUsePortForwarding() {
     return this.fUsePortForwarding;
   }
@@ -60,6 +64,7 @@ abstract class IBMCommunicationInterfaceConf extends AbstractCommunicationInterf
                          new Object[] { rhsObj.fAlternateLibPath, rhsObj.fClusterMode, rhsObj.fProxyServerPath }) &&
            (this.fJobPolling == rhsObj.fJobPolling) && (this.fNodePollingMin == rhsObj.fNodePollingMin) &&
            (this.fNodePollingMax == rhsObj.fNodePollingMax) && (this.fLaunchProxyManually == rhsObj.fLaunchProxyManually) &&
+           (this.fSuspendProxyAtStartup == rhsObj.fSuspendProxyAtStartup) &&
            (this.fUsePortForwarding == rhsObj.fUsePortForwarding);
   }
   
@@ -67,7 +72,7 @@ abstract class IBMCommunicationInterfaceConf extends AbstractCommunicationInterf
     return super.hashCode() + 
            CodingUtils.generateHashCode(7646, this.fAlternateLibPath, this.fClusterMode, this.fJobPolling, 
                                         this.fNodePollingMin, this.fNodePollingMax, this.fProxyServerPath, 
-                                        this.fLaunchProxyManually, this.fUsePortForwarding);
+                                        this.fLaunchProxyManually, this.fSuspendProxyAtStartup, this.fUsePortForwarding);
   }
   
   public boolean isComplete() {
@@ -87,6 +92,7 @@ abstract class IBMCommunicationInterfaceConf extends AbstractCommunicationInterf
       .append("\nMode polling max: ").append(this.fNodePollingMax) //$NON-NLS-1$
       .append("\nProxy server path: ").append(this.fProxyServerPath) //$NON-NLS-1$
       .append("\nLaunch proxy manually: ").append(this.fLaunchProxyManually) //$NON-NLS-1$
+      .append("\nSuspend proxy at startup: ").append(this.fSuspendProxyAtStartup) //$NON-NLS-1$
       .append("\nUse port forwarding: ").append(this.fUsePortForwarding); //$NON-NLS-1$
     return sb.toString();
   }
@@ -104,6 +110,7 @@ abstract class IBMCommunicationInterfaceConf extends AbstractCommunicationInterf
     this.fNodePollingMax = source.fNodePollingMax;
     this.fProxyServerPath = source.fProxyServerPath;
     this.fLaunchProxyManually = source.fLaunchProxyManually;
+    this.fSuspendProxyAtStartup = source.fSuspendProxyAtStartup;
     this.fUsePortForwarding = source.fUsePortForwarding;
   }
   
@@ -122,6 +129,8 @@ abstract class IBMCommunicationInterfaceConf extends AbstractCommunicationInterf
   String fProxyServerPath;
   
   boolean fLaunchProxyManually;
+  
+  boolean fSuspendProxyAtStartup;
   
   boolean fUsePortForwarding;
 

@@ -199,8 +199,6 @@ public class LaunchMessages extends NLS {
 
   public static String PETCP_RunAfterProxy;
 
-  public static String PETCP_SuspendMiniProxyAtStartup;
-
   public static String PETCP_TraceOpts;
 
   public static String PETCP_UseLoadLeveler;
@@ -247,7 +245,7 @@ public class LaunchMessages extends NLS {
 
   public static String LLTCP_ArgsBt;
 
-  public static String LLTCP_DebugLoop;
+  public static String LLTCP_DebugProxy;
 
   public static String LLTCP_ErrorBt;
 

@@ -43,15 +43,4 @@ public interface ILoadLevelerConf extends IIBMCommunicationInterfaceConf {
    */
   public ELLTemplateOpt getTemplateOption();
   
-  /**
-   * Returns the policy to debug the proxy.
-   * 
-   * <p>If you are debugging the proxy, you can force the proxy into a spin loop in the main entry point allowing a 
-   * debugger to be attached. Once a debugger has been attached then breakpoints can be assigned and the loop canceled 
-   * by setting the "debug_loop" variable to 0 in the debugger and continuing execution.
-   * 
-   * @return True to stop at the main proxy entry, false otherwise.
-   */
-  public boolean shouldDebugLoop();
-  
 }

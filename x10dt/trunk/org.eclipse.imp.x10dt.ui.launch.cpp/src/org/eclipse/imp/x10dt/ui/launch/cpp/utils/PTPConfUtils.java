@@ -479,7 +479,7 @@ public final class PTPConfUtils {
           break;
       }
       peConf.setRunMiniproxy(configuration.shouldRunMiniProxy() ? OPTION_YES : OPTION_NO);
-      peConf.setSuspendProxy(configuration.shouldSuspendProxy() ? OPTION_YES : OPTION_NO);
+      peConf.setSuspendProxy(configuration.shouldSuspendProxyAtStartup() ? OPTION_YES : OPTION_NO);
       peConf.setUseLoadLeveler(configuration.shouldUseLoadLeveler() ? OPTION_YES : OPTION_NO);
     }
 
@@ -512,7 +512,7 @@ public final class PTPConfUtils {
       llConf.setTemplateFile(configuration.getTemplateFilePath());
       llConf.setTemplateWriteAlways((configuration.getTemplateOption() == ELLTemplateOpt.EAlwaysWrite) ? LL_YES : LL_NO);
       llConf.setSuppressTemplateWrite((configuration.getTemplateOption() == ELLTemplateOpt.ENeverWrite) ? LL_YES : LL_NO);
-      llConf.setDebugLoop(configuration.shouldDebugLoop() ? LL_YES : LL_NO);
+      llConf.setDebugLoop(configuration.shouldSuspendProxyAtStartup() ? LL_YES : LL_NO);
     }
     
     // --- Private code

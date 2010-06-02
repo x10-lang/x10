@@ -64,6 +64,17 @@ public interface IIBMCommunicationInterfaceConf extends ICommunicationInterfaceC
   public boolean shouldLaunchProxyManually();
   
   /**
+   * Returns the policy to stop at the proxy startup for debugging.
+   * 
+   * <p>If you are debugging the proxy, you can force the proxy into a spin loop in the main entry point allowing a 
+   * debugger to be attached. Once a debugger has been attached then breakpoints can be assigned and the loop canceled 
+   * by setting the "debug_loop" variable to 0 in the debugger and continuing execution.
+   * 
+   * @return True to stop at the main proxy entry, false otherwise.
+   */
+  public boolean shouldSuspendProxyAtStartup();
+  
+  /**
    * Indicates if we should use port forwarding or not.
    * 
    * @return True if we should use port forwarding, false otherwise.

@@ -8,6 +8,7 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
+import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
 import org.eclipse.ptp.rm.ibm.pe.core.PEPreferenceConstants;
 import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
@@ -26,6 +27,14 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
     if (! peRMConf.getProxyServerPath().equals(getProxyServerPath())) {
       return false;
     }
+    final boolean manualLaunch = (peRMConf.getOptions() & IRemoteProxyOptions.MANUAL_LAUNCH) != 0;
+    if (manualLaunch != shouldLaunchProxyManually()) {
+      return false;
+    }
+    final boolean portForwarding = (peRMConf.getOptions() & IRemoteProxyOptions.PORT_FORWARDING) != 0;
+    if (portForwarding != shouldUsePortForwarding()) {
+      return false;
+    }
     
     if (this.fUseLoadLeveler) {
       if (! PEPreferenceConstants.OPTION_YES.equals(peRMConf.getUseLoadLeveler())) {
@@ -37,12 +46,6 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
       }
     }
     if (this.fUseLoadLeveler) {
-      if (! peRMConf.getLibraryOverride().equals(getAlternateLibraryPath())) {
-        return false;
-      }
-      if (! peRMConf.getJobPollInterval().equals(getJobPolling())) {
-        return false;
-      }
       switch (getClusterMode()) {
         case DEFAULT:
           if (! "d".equals(peRMConf.getLoadLevelerMode())) { //$NON-NLS-1$
@@ -60,10 +63,16 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
           }
           break;
       }
-      if (! peRMConf.getNodeMinPollInterval().equals(getNodePollingMin())) {
+      if (! peRMConf.getNodeMinPollInterval().equals(String.valueOf(getNodePollingMin()))) {
         return false;
       }
-      if (! peRMConf.getNodeMaxPollInterval().equals(getNodePollingMax())) {
+      if (! peRMConf.getNodeMaxPollInterval().equals(String.valueOf(getNodePollingMax()))) {
+        return false;
+      }
+      if (! peRMConf.getJobPollInterval().equals(String.valueOf(getJobPolling()))) {
+        return false;
+      }
+      if (! peRMConf.getLibraryOverride().equals(getAlternateLibraryPath())) {
         return false;
       }
     }
@@ -94,7 +103,7 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
         }
         break;
     }
-    if (this.fSuspendProxy) {
+    if (shouldSuspendProxyAtStartup()) {
       if (! PEPreferenceConstants.OPTION_YES.equals(peRMConf.getSuspendProxy())) {
         return false;
       }
@@ -120,10 +129,6 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
     return this.fRunMiniProxy;
   }
 
-  public boolean shouldSuspendProxy() {
-    return this.fSuspendProxy;
-  }
-
   public boolean shouldUseLoadLeveler() {
     return this.fUseLoadLeveler;
   }
@@ -142,12 +147,11 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
     }
     final ParallelEnvironmentConf rhsObj = (ParallelEnvironmentConf) rhs;
     return CodingUtils.equals(this.fCIDebugLevel, rhsObj.fCIDebugLevel) &&
-           (this.fRunMiniProxy == rhsObj.fRunMiniProxy) && (this.fSuspendProxy == rhsObj.fSuspendProxy) && 
-           (this.fUseLoadLeveler == rhsObj.fUseLoadLeveler);
+           (this.fRunMiniProxy == rhsObj.fRunMiniProxy) && (this.fUseLoadLeveler == rhsObj.fUseLoadLeveler);
   }
   
   public int hashCode() {
-    return super.hashCode() + CodingUtils.generateHashCode(34545, this.fCIDebugLevel, this.fRunMiniProxy, this.fSuspendProxy,
+    return super.hashCode() + CodingUtils.generateHashCode(34545, this.fCIDebugLevel, this.fRunMiniProxy, 
                                                            this.fUseLoadLeveler);
   }
   
@@ -155,7 +159,6 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
     final StringBuilder sb = new StringBuilder();
     sb.append(super.toString()).append("\nDebugging level: ").append(this.fCIDebugLevel) //$NON-NLS-1$
       .append("\nRun mini proxy: ").append(this.fRunMiniProxy) //$NON-NLS-1$
-      .append("\nSuspend proxy after startup: ").append(this.fSuspendProxy) //$NON-NLS-1$
       .append("\nUse LoadLeveler: ").append(this.fUseLoadLeveler); //$NON-NLS-1$
     return sb.toString();
   }
@@ -168,7 +171,6 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
     super(source);
     this.fCIDebugLevel = source.fCIDebugLevel;
     this.fRunMiniProxy = source.fRunMiniProxy;
-    this.fSuspendProxy = source.fSuspendProxy;
     this.fUseLoadLeveler = source.fUseLoadLeveler;
   }
   
@@ -177,8 +179,6 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
   ECIDebugLevel fCIDebugLevel;
   
   boolean fRunMiniProxy;
-  
-  boolean fSuspendProxy;
   
   boolean fUseLoadLeveler;
 

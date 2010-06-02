@@ -136,7 +136,7 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
     traceOptCombo.setData(LaunchMessages.PETCP_FunctionTraceOpt, ECIDebugLevel.FUNCTION);
     traceOptCombo.add(LaunchMessages.PETCP_DetailedTraceOpt);
     traceOptCombo.setData(LaunchMessages.PETCP_DetailedTraceOpt, ECIDebugLevel.DETAILED);
-    final Button suspendProxyBt = toolkit.createButton(ecCompo, LaunchMessages.PETCP_SuspendMiniProxyAtStartup, SWT.CHECK);
+    final Button suspendProxyBt = toolkit.createButton(ecCompo, LaunchMessages.LLTCP_DebugProxy, SWT.CHECK);
     addControl(suspendProxyBt);
     
     ec.setClient(ecCompo);
@@ -306,7 +306,7 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
     suspendProxyBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        x10PlatformConf.setSuspendProxyFlag(suspendProxyBt.getSelection());
+        x10PlatformConf.setSuspendProxyAtStartupFlag(PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID, suspendProxyBt.getSelection());
         formPart.updateDirtyState(managedForm);
       }
       
@@ -379,7 +379,7 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
         traceLevelIndex = 0;
     }
     traceOptCombo.select(traceLevelIndex);
-    suspendProxyBt.setSelection(ciConf.shouldSuspendProxy());
+    suspendProxyBt.setSelection(ciConf.shouldSuspendProxyAtStartup());
   }
   
   // --- Fields

@@ -378,6 +378,7 @@ class X10PlatformConf implements IX10PlatformConf {
     ciConf.fNodePollingMax = getIntegerValue(ciMemento, NODE_POLLING_MAX, 0);
     ciConf.fProxyServerPath = getTextDataValue(ciMemento, PROXY_SERVER_PATH);
     ciConf.fLaunchProxyManually = getBooleanValue(ciMemento, LAUNCH_PROXY_MANUALLY, false);
+    ciConf.fSuspendProxyAtStartup = getBooleanValue(ciMemento, SUSPEND_PROXY_AT_STARTUP, false);
     ciConf.fUsePortForwarding = getBooleanValue(ciMemento, USE_PORT_FORWARDING, false);
   }
   
@@ -387,7 +388,6 @@ class X10PlatformConf implements IX10PlatformConf {
     final IMemento dbgLvl = ciMemento.getChild(PE_DEBUG_LEVEL);
     ciConf.fCIDebugLevel = (dbgLvl == null) ? null : ECIDebugLevel.valueOf(dbgLvl.getTextData());
     ciConf.fRunMiniProxy = getBooleanValue(ciMemento, PE_RUN_MINI_PROXY, false);
-    ciConf.fSuspendProxy = getBooleanValue(ciMemento, PE_SUSPEND_PROXY, false);
     ciConf.fUseLoadLeveler = getBooleanValue(ciMemento, PE_USE_LOADLEVELER, false);
   }
   
@@ -398,7 +398,6 @@ class X10PlatformConf implements IX10PlatformConf {
     ciConf.fTemplateFilePath = getTextDataValue(ciMemento, LL_TEMPLATE_FILE_PATH);
     final IMemento tmpOpt = ciMemento.getChild(LL_TEMPLATE_OPT);
     ciConf.fTemplateOpt = (tmpOpt == null) ? null : ELLTemplateOpt.valueOf(tmpOpt.getTextData());
-    ciConf.fDebugLoop = getBooleanValue(ciMemento, LL_DEBUG_LOOP, false);
   }
   
   private void save(final IMemento communicationInterfaceTag, final MessagePassingInterfaceConf ciConf) {
@@ -449,6 +448,7 @@ class X10PlatformConf implements IX10PlatformConf {
       ciMemento.createChild(PROXY_SERVER_PATH).putTextData(ciConf.fProxyServerPath);
     }
     ciMemento.putBoolean(LAUNCH_PROXY_MANUALLY, ciConf.fLaunchProxyManually);
+    ciMemento.putBoolean(SUSPEND_PROXY_AT_STARTUP, ciConf.fSuspendProxyAtStartup);
     ciMemento.putBoolean(USE_PORT_FORWARDING, ciConf.fUsePortForwarding);
   }
   
@@ -459,7 +459,6 @@ class X10PlatformConf implements IX10PlatformConf {
       ciMemento.createChild(PE_DEBUG_LEVEL).putTextData(ciConf.fCIDebugLevel.name());
     }
     ciMemento.putBoolean(PE_RUN_MINI_PROXY, ciConf.fRunMiniProxy);
-    ciMemento.putBoolean(PE_SUSPEND_PROXY, ciConf.fSuspendProxy);
     ciMemento.putBoolean(PE_USE_LOADLEVELER, ciConf.fUseLoadLeveler);
   }
 
@@ -473,7 +472,6 @@ class X10PlatformConf implements IX10PlatformConf {
     if (ciConf.fTemplateOpt != null) {
       ciMemento.createChild(LL_TEMPLATE_OPT).putTextData(ciConf.fTemplateOpt.name());
     }
-    ciMemento.putBoolean(LL_DEBUG_LOOP, ciConf.fDebugLoop);
   }
   
   // --- Fields
@@ -553,7 +551,7 @@ class X10PlatformConf implements IX10PlatformConf {
   
   private static final String PE_RUN_MINI_PROXY = "pe-run-mini-proxy"; //$NON-NLS-1$
   
-  private static final String PE_SUSPEND_PROXY = "pe-suspend-proxy"; //$NON-NLS-1$
+  private static final String SUSPEND_PROXY_AT_STARTUP = "pe-suspend-proxy"; //$NON-NLS-1$
   
   private static final String PE_USE_LOADLEVELER = "pe-user-loadleveler"; //$NON-NLS-1$
   
@@ -562,8 +560,6 @@ class X10PlatformConf implements IX10PlatformConf {
   private static final String LL_TEMPLATE_FILE_PATH = "ll-template-file"; //$NON-NLS-1$
   
   private static final String LL_TEMPLATE_OPT = "ll-template-opt"; //$NON-NLS-1$
-  
-  private static final String LL_DEBUG_LOOP = "ll-debug-loop"; //$NON-NLS-1$
 
 
   private static final String CPP_COMPILATION_TAG = "cpp-compilation"; //$NON-NLS-1$

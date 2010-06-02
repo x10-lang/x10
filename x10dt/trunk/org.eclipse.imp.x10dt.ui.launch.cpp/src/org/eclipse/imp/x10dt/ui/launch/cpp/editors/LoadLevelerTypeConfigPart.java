@@ -163,20 +163,21 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     templateOptCombo.setData(LaunchMessages.LLTCP_AlwaysWriteOpt, ELLTemplateOpt.EAlwaysWrite);
     addControl(templateOptCombo);
     
-    final Button debugLoopBt = toolkit.createButton(ecCompo, LaunchMessages.LLTCP_DebugLoop, SWT.CHECK);
-    addControl(debugLoopBt);
+    final Button suspendProxyAtStartupBt = toolkit.createButton(ecCompo, LaunchMessages.LLTCP_DebugProxy, SWT.CHECK);
+    addControl(suspendProxyAtStartupBt);
     
     ec.setClient(ecCompo);
     
     initializeControls(formPart, managedForm, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf(), 
                        proxyExecPathText, usePortFwdBt, launchServerManuallyBt, multiClusterCombo, 
                        nodePollingMinSp, nodePollingMaxSp, jobPollingSp, alternateLibPathText, pair.second,
-                       traceBt, infoBt, warningBt, errorBt, fatalBt, argsBt, pair3.first, templateOptCombo, debugLoopBt);
+                       traceBt, infoBt, warningBt, errorBt, fatalBt, argsBt, pair3.first, templateOptCombo, 
+                       suspendProxyAtStartupBt);
     
     addListeners(x10PlatformConf, managedForm, formPart, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf(),
                  proxyExecPathText, usePortFwdBt, launchServerManuallyBt, multiClusterCombo, nodePollingMinSp, 
                  nodePollingMaxSp, jobPollingSp, alternateLibPathText, traceBt, infoBt, warningBt, errorBt, fatalBt, argsBt, 
-                 pair3.first, templateOptCombo, debugLoopBt);
+                 pair3.first, templateOptCombo, suspendProxyAtStartupBt);
   }
 
   public String getServiceProviderId() {
@@ -203,7 +204,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
                             final Spinner jobPollingSp, final Text alternateLibPathText, final Button traceBt, 
                             final Button infoBt, final Button warningBt, final Button errorBt, final Button fatalBt, 
                             final Button argsBt, final Text templateFilePathText, final Combo templateOptCombo, 
-                            final Button debugLoopBt) {
+                            final Button suspendProxyAtStartupBt) {
     proxyExecPathText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
@@ -384,10 +385,10 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
       }
       
     });
-    debugLoopBt.addSelectionListener(new SelectionListener() {
+    suspendProxyAtStartupBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        x10PlatformConf.setDebugLoopFlag(debugLoopBt.getSelection());
+        x10PlatformConf.setSuspendProxyAtStartupFlag(LOAD_LEVELER_SERVICE_PROVIDER_ID, suspendProxyAtStartupBt.getSelection());
         formPart.updateDirtyState(managedForm);
       }
       
@@ -405,7 +406,8 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
                                   final Spinner nodePollingMaxSp, final Spinner jobPollingSp, final Text alternateLibPathText,
                                   final Button proxyServerBrowseBt, final Button traceBt, final Button infoBt, 
                                   final Button warningBt, final Button errorBt, final Button fatalBt, final Button argsBt,
-                                  final Text templateFilePathText, final Combo templateOptCombo, final Button debugLoopBt) {
+                                  final Text templateFilePathText, final Combo templateOptCombo, 
+                                  final Button suspendProxyAtStartupBt) {
     proxyExecPathText.setText(ciConf.getProxyServerPath());
     formPart.handleTextValidation(new EmptyTextInputChecker(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath), 
                                   managedForm, proxyExecPathText);
@@ -462,7 +464,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     if (templateOptIndex != -1) {
       templateOptCombo.select(templateOptIndex);
     }
-    debugLoopBt.setSelection(ciConf.shouldDebugLoop());
+    suspendProxyAtStartupBt.setSelection(ciConf.shouldSuspendProxyAtStartup());
   }
   
   // --- Fields

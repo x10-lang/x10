@@ -28,8 +28,6 @@ public interface IParallelEnvironmentConf extends IIBMCommunicationInterfaceConf
    */
   public boolean shouldRunMiniProxy();
   
-  public boolean shouldSuspendProxy();
-  
   /**
    * Indicates if LoadLeveler is used to manage access to system resources.
    * 

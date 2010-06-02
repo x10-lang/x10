@@ -155,6 +155,8 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setLaunchProxyManuallyFlag(final String ciType, final boolean shouldLaunchProxyManually);
   
+  public void setSuspendProxyAtStartupFlag(final String ciType, final boolean shouldSuspendProxy);
+  
   public void setUsePortForwardingFlag(final String ciType, final boolean shouldUsePortForwarding);
   
   /// IBM Parallel Environment
@@ -163,13 +165,9 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setRunMiniProxyFlag(final boolean shouldRunMiniProxy);
   
-  public void setSuspendProxyFlag(final boolean shouldSuspendProxy);
-  
   public void setUseLoadLeveler(final boolean shouldUseLoadLeveler);
   
   /// IBM LoadLeveler
-  
-  public void setDebugLoopFlag(final boolean shouldDebugLoop);
   
   public void setProxyMessageOptions(final int options);
   
