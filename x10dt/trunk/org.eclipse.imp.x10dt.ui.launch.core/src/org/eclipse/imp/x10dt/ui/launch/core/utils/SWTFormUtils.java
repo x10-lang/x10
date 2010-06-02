@@ -14,9 +14,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
@@ -28,6 +30,133 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
  * @author egeay
  */
 public class SWTFormUtils {
+  
+  /**
+   * Calls {@link #createLabelAndCombo(Composite, String, FormToolkit, Collection)} with no container to collect the widgets.
+   * 
+   * @param parent The parent composite to consider.
+   * @param labelText The text for the label.
+   * @param toolkit The toolkit to use for creating the label and combo widgets.
+   * @param controlContainer A container that, if it is not <b>null</b> will contain after the call the label and combo 
+   * controls. Can be useful for enabling/disabling of groups of controls easily.
+   * @return The non-null Combo widget created.
+   */
+  public static Combo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit) {
+    return createLabelAndCombo(parent, labelText, toolkit, null);
+  }
+  
+  /**
+   * Creates a label and combo widgets on the same row in a SWT form.
+   * 
+   * @param parent The parent composite to consider.
+   * @param labelText The text for the label.
+   * @param toolkit The toolkit to use for creating the label and combo widgets.
+   * @param controlContainer A container that, if it is not <b>null</b> will contain after the call the label and combo 
+   * controls. Can be useful for enabling/disabling of groups of controls easily.
+   * @return The non-null Combo widget created.
+   */
+  public static Combo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit,
+                                          final Collection<Control> controlContainer) {
+    final Composite composite = toolkit.createComposite(parent);
+    final boolean isTableWrapLayout = parent.getLayout() instanceof TableWrapLayout;
+    composite.setFont(parent.getFont());
+    if (isTableWrapLayout) {
+      final TableWrapLayout tableWrapLayout = new TableWrapLayout();
+      tableWrapLayout.numColumns = 2;
+      composite.setLayout(tableWrapLayout);
+      composite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    } else {
+      composite.setLayout(new GridLayout(2, false));
+      composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    }
+    if (controlContainer != null) {
+      controlContainer.add(composite);
+    }
+    
+    final Label label = toolkit.createLabel(composite, labelText, SWT.NONE);
+    if (isTableWrapLayout) {
+      label.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+    } else {
+      label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+    }
+    if (controlContainer != null) {
+      controlContainer.add(label);
+    }
+    final Combo combo = new Combo(composite, SWT.READ_ONLY);
+    if (isTableWrapLayout) {
+      combo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    } else {
+      combo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    }
+    if (controlContainer != null) {
+      controlContainer.add(combo);
+    }
+    return combo;
+  }
+  
+  /**
+   * Calls {@link #createLabelAndSpinner(Composite, String, FormToolkit, Collection)} with no container to collect the
+   * widgets.
+   * 
+   * @param parent The parent composite to consider.
+   * @param labelText The text for the label.
+   * @param toolkit The toolkit to use for creating the label and spinner widgets.
+   * @param controlContainer A container that, if it is not <b>null</b> will contain after the call the label and spinner 
+   * controls. Can be useful for enabling/disabling of groups of controls easily.
+   * @return The non-null spinner widget created.
+   */
+  public static Spinner createLabelAndSpinner(final Composite parent, final String labelText, final FormToolkit toolkit) {
+    return createLabelAndSpinner(parent, labelText, toolkit, null);
+  }
+  
+  /**
+   * Creates a label and spinner widgets on the same row in a SWT form.
+   * 
+   * @param parent The parent composite to consider.
+   * @param labelText The text for the label.
+   * @param toolkit The toolkit to use for creating the label and spinner widgets.
+   * @param controlContainer A container that, if it is not <b>null</b> will contain after the call the label and spinner 
+   * controls. Can be useful for enabling/disabling of groups of controls easily.
+   * @return The non-null spinner widget created.
+   */
+  public static Spinner createLabelAndSpinner(final Composite parent, final String labelText, final FormToolkit toolkit,
+                                              final Collection<Control> controlContainer) {
+    final Composite composite = toolkit.createComposite(parent);
+    final boolean isTableWrapLayout = parent.getLayout() instanceof TableWrapLayout;
+    composite.setFont(parent.getFont());
+    if (isTableWrapLayout) {
+      final TableWrapLayout tableWrapLayout = new TableWrapLayout();
+      tableWrapLayout.numColumns = 2;
+      composite.setLayout(tableWrapLayout);
+      composite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    } else {
+      composite.setLayout(new GridLayout(2, false));
+      composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    }
+    if (controlContainer != null) {
+      controlContainer.add(composite);
+    }
+    
+    final Label label = toolkit.createLabel(composite, labelText, SWT.NONE);
+    if (isTableWrapLayout) {
+      label.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+    } else {
+      label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+    }
+    if (controlContainer != null) {
+      controlContainer.add(label);
+    }
+    final Spinner spinner = new Spinner(composite, SWT.NONE);
+    if (isTableWrapLayout) {
+      spinner.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    } else {
+      spinner.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    }
+    if (controlContainer != null) {
+      controlContainer.add(spinner);
+    }
+    return spinner;
+  }
   
   /**
    * Calls {@link #createLabelAndText(Composite, String, FormToolkit, Collection, int)} with no container to collect the
@@ -98,6 +227,9 @@ public class SWTFormUtils {
     } else {
       composite.setLayout(new GridLayout(2, false));
       composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    }
+    if (controlContainer != null) {
+      controlContainer.add(composite);
     }
     
     final Label label = toolkit.createLabel(composite, labelText, SWT.NONE);
@@ -178,6 +310,9 @@ public class SWTFormUtils {
       composite.setLayout(new GridLayout(3, false));
       composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     }
+    if (controlContainer != null) {
+      controlContainer.add(composite);
+    }
     
     final Label label = toolkit.createLabel(composite, labelText, SWT.NONE);
     if (isTableWrapLayout) {
@@ -208,9 +343,9 @@ public class SWTFormUtils {
     }
     final Button button = toolkit.createButton(composite, buttonText, SWT.PUSH);
     if (isTableWrapLayout) {
-      button.setLayoutData(new TableWrapData(TableWrapData.FILL));
+      button.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
     } else {
-      button.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
+      button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
     }
     button.setEnabled(false);
     if (controlContainer != null) {

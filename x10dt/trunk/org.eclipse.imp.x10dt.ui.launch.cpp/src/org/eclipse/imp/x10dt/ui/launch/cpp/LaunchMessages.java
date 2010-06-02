@@ -10,7 +10,7 @@ package org.eclipse.imp.x10dt.ui.launch.cpp;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Bundle class for all messages of "oorg.eclipse.imp.x10dt.ui.cpp.launch".
+ * Bundle class for all messages of "org.eclipse.imp.x10dt.ui.cpp.launch".
  *
  * @author egeay
  */
@@ -18,6 +18,8 @@ import org.eclipse.osgi.util.NLS;
 public class LaunchMessages extends NLS {
   
   public static String ACSFP_SelectDirLoc;
+
+  public static String ACSFP_SelectFileLoc;
 
   public static String APCC_ArchivingTaskMsg;
   
@@ -165,6 +167,44 @@ public class LaunchMessages extends NLS {
   
   public static String FFSD_DialogTitle;
   
+  public static String PETCP_AdvancedSettings;
+
+  public static String PETCP_AltLibraryPath;
+
+  public static String PETCP_DefaultCluster;
+
+  public static String PETCP_DetailedTraceOpt;
+
+  public static String PETCP_FunctionTraceOpt;
+
+  public static String PETCP_JobPolling;
+
+  public static String PETCP_LaunchServerManually;
+
+  public static String PETCP_LocalCluster;
+
+  public static String PETCP_MultiCluster;
+
+  public static String PETCP_MultiClusterMode;
+
+  public static String PETCP_NodePollingMax;
+
+  public static String PETCP_NodePollingMin;
+
+  public static String PETCP_NoTraceOpt;
+
+  public static String PETCP_PortFwrd;
+
+  public static String PETCP_ProxyExecPath;
+
+  public static String PETCP_RunAfterProxy;
+
+  public static String PETCP_SuspendMiniProxyAtStartup;
+
+  public static String PETCP_TraceOpts;
+
+  public static String PETCP_UseLoadLeveler;
+
   public static String PW_PrjCancelationErrorMsg;
 
   public static String PW_PrjCancelationErrorTitle;
@@ -203,8 +243,30 @@ public class LaunchMessages extends NLS {
 
   public static String PWSP_UpdateProjectTaskName;
 
-  public static String DBG_Attributes_1;
-  
+  public static String LLTCP_AlwaysWriteOpt;
+
+  public static String LLTCP_ArgsBt;
+
+  public static String LLTCP_DebugLoop;
+
+  public static String LLTCP_ErrorBt;
+
+  public static String LLTCP_FatalBt;
+
+  public static String LLTCP_InfoBt;
+
+  public static String LLTCP_NeverWriteOpt;
+
+  public static String LLTCP_Option;
+
+  public static String LLTCP_ProxyMsgOpts;
+
+  public static String LLTCP_TemplateFileGroup;
+
+  public static String LLTCP_TraceBt;
+
+  public static String LLTCP_WarningBt;
+
   public static String RMCP_AddBt;
 
   public static String RMCP_AdvancedSettingsExpandableCompo;
@@ -307,6 +369,8 @@ public class LaunchMessages extends NLS {
 
   public static String XPC_ArchivingFailure;
 
+  public static String XPC_CITypeNotSupported;
+
   public static String XPC_CompilationFailure;
 
   public static String XPC_InputStreamReadingError;
@@ -326,6 +390,8 @@ public class LaunchMessages extends NLS {
 	public static String XPCFE_DiscoveryCmdFailedMarkerMsg;
 
 	public static String XPCFE_FormTitle;
+
+  public static String XPCFE_PlatformConfNotComplete;
 
   public static String XPCFE_RemoteConnFailureMarkerMsg;
 

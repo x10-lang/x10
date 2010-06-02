@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -27,7 +28,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
@@ -40,11 +41,11 @@ class X10PlatformConf implements IX10PlatformConf {
   
   X10PlatformConf(final IFile file) {
     this.fConnectionConf = new ConnectionConfiguration();
-    this.fCommInterfaceConf = new CommunicationInterfaceConfiguration();
     this.fCppCompilationConf = new CppCompilationConfiguration();
+    this.fCommInterfaceFact = new CommInterfaceFactory();
     try {
 			if (isNonEmpty(file)) {
-			  load(new BufferedReader(new InputStreamReader(file.getContents())));
+			  load(file, new BufferedReader(new InputStreamReader(file.getContents())));
 			} else {
 			  this.fId = UUID.randomUUID().toString();
 			}
@@ -62,7 +63,7 @@ class X10PlatformConf implements IX10PlatformConf {
   }
   
   public final ICommunicationInterfaceConf getCommunicationInterfaceConf() {
-    return this.fCommInterfaceConf;
+    return this.fCommInterfaceFact.getCurrentCommunicationInterface();
   }
   
   public final IConnectionConf getConnectionConf() {
@@ -87,7 +88,7 @@ class X10PlatformConf implements IX10PlatformConf {
   
   public boolean isComplete(final boolean onlyCompilation) {
     if (hasData(this.fName) && isCppCompilationComplete() && isConnectionComplete()) {
-      return onlyCompilation ? true : isCommunicationInterfaceComplete();
+      return onlyCompilation ? true : this.fCommInterfaceFact.getCurrentCommunicationInterface().isComplete();
     } else {
       return false;
     }
@@ -114,37 +115,21 @@ class X10PlatformConf implements IX10PlatformConf {
     }
     
     final IMemento communicationInterfaceTag = platformTag.createChild(COMMUNICATION_INTERFACE_TAG);
-    communicationInterfaceTag.putBoolean(DEFAULT_TOOL_CMDS_ATTR, this.fCommInterfaceConf.fDefaultToolCmds);
-    communicationInterfaceTag.putBoolean(DEFAULT_INSTALLATION_ATTR, this.fCommInterfaceConf.fDefaultIntallLocation);
-    if (hasData(this.fCommInterfaceConf.fServiceTypeId)) {
-      communicationInterfaceTag.createChild(SERVICE_TYPE_ID_TAG).putTextData(this.fCommInterfaceConf.fServiceTypeId);
+    final ICommunicationInterfaceConf commInterfaceConf = this.fCommInterfaceFact.getCurrentCommunicationInterface();
+    if (hasData(commInterfaceConf.getServiceTypeId())) {
+      communicationInterfaceTag.createChild(SERVICE_TYPE_ID_TAG).putTextData(commInterfaceConf.getServiceTypeId());
     }
-    if (hasData(this.fCommInterfaceConf.fServiceModeId)) {
-      communicationInterfaceTag.createChild(SERVICE_MODE_ID_TAG).putTextData(this.fCommInterfaceConf.fServiceModeId);
+    if (hasData(commInterfaceConf.getServiceModeId())) {
+      communicationInterfaceTag.createChild(SERVICE_MODE_ID_TAG).putTextData(commInterfaceConf.getServiceModeId());
     }
-    final EOpenMPIVersion mpiVersion;
-    if (this.fCommInterfaceConf.fOpenMPIVersion == null) {
-      mpiVersion = EOpenMPIVersion.EAutoDetect;
-    } else {
-      mpiVersion = this.fCommInterfaceConf.fOpenMPIVersion;
-    }
-    communicationInterfaceTag.createChild(OPEN_MPI_VERSION_TAG).putTextData(mpiVersion.name());
-    if (hasData(this.fCommInterfaceConf.fLaunchCmd)) {
-      communicationInterfaceTag.createChild(LAUNCH_CMD_TAG).putTextData(this.fCommInterfaceConf.fLaunchCmd);
-    }
-    if (hasData(this.fCommInterfaceConf.fDebugCmd)) {
-      communicationInterfaceTag.createChild(DEBUG_CMD_TAG).putTextData(this.fCommInterfaceConf.fDebugCmd);
-    }
-    if (hasData(this.fCommInterfaceConf.fDiscoverCmd)) {
-      communicationInterfaceTag.createChild(DISCOVER_CMD_TAG).putTextData(this.fCommInterfaceConf.fDiscoverCmd);
-    }
-    if (hasData(this.fCommInterfaceConf.fMonitorCmd)) {
-      communicationInterfaceTag.createChild(MONITOR_CMD_TAG).putTextData(this.fCommInterfaceConf.fMonitorCmd);
-    }
-    final String period = String.valueOf(this.fCommInterfaceConf.fMonitoringPeriod);
-    communicationInterfaceTag.createChild(MONITOR_PERIOD_TAG).putTextData(period);
-    if (hasData(this.fCommInterfaceConf.fInstallLocation)) {
-      communicationInterfaceTag.createChild(INSTALL_LOCATION_TAG).putTextData(this.fCommInterfaceConf.fInstallLocation);
+    if (commInterfaceConf instanceof OpenMPIInterfaceConf) {
+      save(communicationInterfaceTag, (OpenMPIInterfaceConf) commInterfaceConf);
+    } else if (commInterfaceConf instanceof MPICH2InterfaceConf) {
+      save(communicationInterfaceTag, (MessagePassingInterfaceConf) commInterfaceConf);
+    } else if (commInterfaceConf instanceof ParallelEnvironmentConf) {
+      save(communicationInterfaceTag, (ParallelEnvironmentConf) commInterfaceConf);
+    } else if (commInterfaceConf instanceof LoadLevelerConf) {
+      save(communicationInterfaceTag, (LoadLevelerConf) commInterfaceConf);
     }
     
     final IMemento cppCompilationTag = platformTag.createChild(CPP_COMPILATION_TAG);
@@ -205,15 +190,15 @@ class X10PlatformConf implements IX10PlatformConf {
   public final boolean equals(final Object rhs) {
     final X10PlatformConf rhsObj = (X10PlatformConf) rhs;
     if (CodingUtils.equals(this.fName, rhsObj.fName)) {
-      return Arrays.equals(new Object[] { this.fConnectionConf, this.fCommInterfaceConf, this.fCppCompilationConf },
-                           new Object[] { rhsObj.fConnectionConf, rhsObj.fCommInterfaceConf, rhsObj.fCppCompilationConf });
+      return Arrays.equals(new Object[] { this.fConnectionConf, this.fCommInterfaceFact, this.fCppCompilationConf },
+                           new Object[] { rhsObj.fConnectionConf, rhsObj.fCommInterfaceFact, rhsObj.fCppCompilationConf });
     } else {
       return false;
     }
   }
   
   public final int hashCode() {
-    return CodingUtils.generateHashCode(565, this.fName, this.fDescription, this.fConnectionConf, this.fCommInterfaceConf,
+    return CodingUtils.generateHashCode(565, this.fName, this.fDescription, this.fConnectionConf, this.fCommInterfaceFact,
                                         this.fCppCompilationConf);
   }
   
@@ -221,7 +206,7 @@ class X10PlatformConf implements IX10PlatformConf {
     final StringBuilder sb = new StringBuilder();
     sb.append("Id: ").append(this.fId).append("\nName: ").append(this.fName) //$NON-NLS-1$ //$NON-NLS-2$
       .append("\nDescription: ").append(this.fDescription) //$NON-NLS-1$
-      .append('\n').append(this.fConnectionConf).append('\n').append(this.fCommInterfaceConf)
+      .append('\n').append(this.fConnectionConf).append('\n').append(this.fCommInterfaceFact)
       .append('\n').append(this.fCppCompilationConf);
     return sb.toString();
   }
@@ -232,7 +217,7 @@ class X10PlatformConf implements IX10PlatformConf {
     this.fName = source.fName;
     this.fDescription = source.fDescription;
     this.fConnectionConf = new ConnectionConfiguration(source.fConnectionConf);
-    this.fCommInterfaceConf = new CommunicationInterfaceConfiguration(source.fCommInterfaceConf);
+    this.fCommInterfaceFact = new CommInterfaceFactory(source.fCommInterfaceFact);
     this.fCppCompilationConf = new CppCompilationConfiguration(source.fCppCompilationConf);
   }
   
@@ -249,31 +234,10 @@ class X10PlatformConf implements IX10PlatformConf {
     final Boolean value = memento.getBoolean(tag);
     return (value == null) ? defaultValue : value;
   }
- 
-  private boolean isCommunicationInterfaceComplete() {
-    final ICommunicationInterfaceConf commConf = this.fCommInterfaceConf;
-    if (hasData(commConf.getServiceTypeId()) && hasData(commConf.getServiceModeId())) {
-      if (PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(commConf.getServiceTypeId()) &&
-          (commConf.getOpenMPIVersion() == null)) {
-        return false;
-      }
-      if (! commConf.shouldTakeDefaultToolCommands()) {
-      	if (! hasData(commConf.getDiscoverCommand())) {
-      		return false;
-      	}
-      	final boolean isAutoDetect = PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(commConf.getServiceTypeId()) &&
-        														(commConf.getOpenMPIVersion() == EOpenMPIVersion.EAutoDetect);
-        if (! isAutoDetect && (! hasData(commConf.getLaunchCommand()) || ! hasData(commConf.getDebugCommand()))) {
-          return false;
-        }
-      }
-      if (! commConf.shouldTakeDefaultInstallLocation()) {
-        return hasData(commConf.getInstallLocation());
-      }
-      return true;
-    } else {
-      return false;
-    }
+  
+  private int getIntegerValue(final IMemento memento, final String tag, final int defaultValue) {
+    final Integer value = memento.getInteger(tag);
+    return (value == null) ? defaultValue : value;
   }
   
   private boolean isConnectionComplete() {
@@ -329,7 +293,7 @@ class X10PlatformConf implements IX10PlatformConf {
   	}
   }
   
-  private void load(final Reader reader) throws WorkbenchException {
+  private void load(final IFile file, final Reader reader) throws WorkbenchException {
     final XMLMemento platformMemento = XMLMemento.createReadRoot(reader);
     
     this.fId = getTextDataValue(platformMemento, ID_TAG);
@@ -345,19 +309,25 @@ class X10PlatformConf implements IX10PlatformConf {
     this.fConnectionConf.initTargetElement();
     
     final IMemento ciMemento = platformMemento.getChild(COMMUNICATION_INTERFACE_TAG);
-    this.fCommInterfaceConf.fServiceTypeId = getTextDataValue(ciMemento, SERVICE_TYPE_ID_TAG);
-    this.fCommInterfaceConf.fServiceModeId = getTextDataValue(ciMemento, SERVICE_MODE_ID_TAG);
-    final IMemento mpiMemento = ciMemento.getChild(OPEN_MPI_VERSION_TAG);
-    this.fCommInterfaceConf.fOpenMPIVersion = (mpiMemento == null) ? null : EOpenMPIVersion.valueOf(mpiMemento.getTextData());
-    this.fCommInterfaceConf.fDefaultToolCmds = getBooleanValue(ciMemento, DEFAULT_TOOL_CMDS_ATTR, true);
-    this.fCommInterfaceConf.fLaunchCmd = getTextDataValue(ciMemento, LAUNCH_CMD_TAG);
-    this.fCommInterfaceConf.fDebugCmd = getTextDataValue(ciMemento, DEBUG_CMD_TAG);
-    this.fCommInterfaceConf.fDiscoverCmd = getTextDataValue(ciMemento, DISCOVER_CMD_TAG);
-    this.fCommInterfaceConf.fMonitorCmd = getTextDataValue(ciMemento, MONITOR_CMD_TAG);
-    final IMemento ciPeriodMemento = ciMemento.getChild(MONITOR_PERIOD_TAG);
-    this.fCommInterfaceConf.fMonitoringPeriod = (ciPeriodMemento == null) ? 0 : Integer.valueOf(ciPeriodMemento.getTextData());
-    this.fCommInterfaceConf.fDefaultIntallLocation = getBooleanValue(ciMemento, DEFAULT_INSTALLATION_ATTR, true);
-    this.fCommInterfaceConf.fInstallLocation = getTextDataValue(ciMemento, INSTALL_LOCATION_TAG);
+    final String ciType = getTextDataValue(ciMemento, SERVICE_TYPE_ID_TAG);
+    final AbstractCommunicationInterfaceConfiguration ciConf = this.fCommInterfaceFact.getOrCreate(ciType);
+    if (ciConf == null) {
+      IResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPC_CITypeNotSupported, 
+                                           IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
+    } else {
+      this.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+      ciConf.fServiceModeId = getTextDataValue(ciMemento, SERVICE_MODE_ID_TAG);
+      ciConf.fServiceTypeId = ciType;
+      if (ciConf instanceof OpenMPIInterfaceConf) {
+        load(ciMemento, (OpenMPIInterfaceConf) ciConf);
+      } else if (ciConf instanceof MPICH2InterfaceConf) {
+        load(ciMemento, (MessagePassingInterfaceConf) ciConf);
+      } else if (ciConf instanceof ParallelEnvironmentConf) {
+        load(ciMemento, (ParallelEnvironmentConf) ciConf);
+      } else if (ciConf instanceof LoadLevelerConf) {
+        load(ciMemento, (LoadLevelerConf) ciConf);
+      }
+    }
     
     final IMemento cppCmdsMemento = platformMemento.getChild(CPP_COMPILATION_TAG);
     final IMemento targetOSMemento = cppCmdsMemento.getChild(TARGET_OS_TAG);
@@ -380,6 +350,132 @@ class X10PlatformConf implements IX10PlatformConf {
     this.fCppCompilationConf.fValidationErrorMsg = getTextDataValue(cppCmdsMemento, COMP_VALIDATION_ERR_MSG_TAG);
   }
   
+  private void load(final IMemento ciMemento, final OpenMPIInterfaceConf ciConf) {
+    load(ciMemento, (MessagePassingInterfaceConf) ciConf);
+    
+    final IMemento mpiMemento = ciMemento.getChild(OPEN_MPI_VERSION_TAG);
+    ciConf.fOpenMPIVersion = (mpiMemento == null) ? null : EOpenMPIVersion.valueOf(mpiMemento.getTextData());   
+  }
+  
+  private void load(final IMemento ciMemento, final MessagePassingInterfaceConf ciConf) {
+    ciConf.fDefaultToolCmds = getBooleanValue(ciMemento, DEFAULT_TOOL_CMDS_ATTR, true);
+    ciConf.fLaunchCmd = getTextDataValue(ciMemento, LAUNCH_CMD_TAG);
+    ciConf.fDebugCmd = getTextDataValue(ciMemento, DEBUG_CMD_TAG);
+    ciConf.fDiscoverCmd = getTextDataValue(ciMemento, DISCOVER_CMD_TAG);
+    ciConf.fMonitorCmd = getTextDataValue(ciMemento, MONITOR_CMD_TAG);
+    final IMemento ciPeriodMemento = ciMemento.getChild(MONITOR_PERIOD_TAG);
+    ciConf.fMonitoringPeriod = (ciPeriodMemento == null) ? 0 : Integer.valueOf(ciPeriodMemento.getTextData());
+    ciConf.fDefaultIntallLocation = getBooleanValue(ciMemento, DEFAULT_INSTALLATION_ATTR, true);
+    ciConf.fInstallLocation = getTextDataValue(ciMemento, INSTALL_LOCATION_TAG);
+  }
+  
+  private void load(final IMemento ciMemento, final IBMCommunicationInterfaceConf ciConf) {
+    ciConf.fAlternateLibPath = getTextDataValue(ciMemento, ALTERNATE_LL_LIB_PATH);
+    final IMemento clusterMM = ciMemento.getChild(LL_CLUSTER_MODE);
+    ciConf.fClusterMode = (clusterMM == null) ? EClusterMode.DEFAULT : EClusterMode.valueOf(clusterMM.getTextData());
+    ciConf.fJobPolling = getIntegerValue(ciMemento, JOB_POLLING, 0);
+    ciConf.fNodePollingMin = getIntegerValue(ciMemento, NODE_POLLING_MIN, 0);
+    ciConf.fNodePollingMax = getIntegerValue(ciMemento, NODE_POLLING_MAX, 0);
+    ciConf.fProxyServerPath = getTextDataValue(ciMemento, PROXY_SERVER_PATH);
+    ciConf.fLaunchProxyManually = getBooleanValue(ciMemento, LAUNCH_PROXY_MANUALLY, false);
+    ciConf.fUsePortForwarding = getBooleanValue(ciMemento, USE_PORT_FORWARDING, false);
+  }
+  
+  private void load(final IMemento ciMemento, final ParallelEnvironmentConf ciConf) {
+    load(ciMemento, (IBMCommunicationInterfaceConf) ciConf);
+    
+    final IMemento dbgLvl = ciMemento.getChild(PE_DEBUG_LEVEL);
+    ciConf.fCIDebugLevel = (dbgLvl == null) ? null : ECIDebugLevel.valueOf(dbgLvl.getTextData());
+    ciConf.fRunMiniProxy = getBooleanValue(ciMemento, PE_RUN_MINI_PROXY, false);
+    ciConf.fSuspendProxy = getBooleanValue(ciMemento, PE_SUSPEND_PROXY, false);
+    ciConf.fUseLoadLeveler = getBooleanValue(ciMemento, PE_USE_LOADLEVELER, false);
+  }
+  
+  private void load(final IMemento ciMemento, final LoadLevelerConf ciConf) {
+    load(ciMemento, (IBMCommunicationInterfaceConf) ciConf);
+    
+    ciConf.fProxyMsgOpts = getIntegerValue(ciMemento, LL_PROXY_MSG_OPTS, 0);
+    ciConf.fTemplateFilePath = getTextDataValue(ciMemento, LL_TEMPLATE_FILE_PATH);
+    final IMemento tmpOpt = ciMemento.getChild(LL_TEMPLATE_OPT);
+    ciConf.fTemplateOpt = (tmpOpt == null) ? null : ELLTemplateOpt.valueOf(tmpOpt.getTextData());
+    ciConf.fDebugLoop = getBooleanValue(ciMemento, LL_DEBUG_LOOP, false);
+  }
+  
+  private void save(final IMemento communicationInterfaceTag, final MessagePassingInterfaceConf ciConf) {
+    communicationInterfaceTag.putBoolean(DEFAULT_TOOL_CMDS_ATTR, ciConf.fDefaultToolCmds);
+    communicationInterfaceTag.putBoolean(DEFAULT_INSTALLATION_ATTR, ciConf.fDefaultIntallLocation);
+    if (hasData(ciConf.fLaunchCmd)) {
+      communicationInterfaceTag.createChild(LAUNCH_CMD_TAG).putTextData(ciConf.fLaunchCmd);
+    }
+    if (hasData(ciConf.fDebugCmd)) {
+      communicationInterfaceTag.createChild(DEBUG_CMD_TAG).putTextData(ciConf.fDebugCmd);
+    }
+    if (hasData(ciConf.fDiscoverCmd)) {
+      communicationInterfaceTag.createChild(DISCOVER_CMD_TAG).putTextData(ciConf.fDiscoverCmd);
+    }
+    if (hasData(ciConf.fMonitorCmd)) {
+      communicationInterfaceTag.createChild(MONITOR_CMD_TAG).putTextData(ciConf.fMonitorCmd);
+    }
+    final String period = String.valueOf(ciConf.fMonitoringPeriod);
+    communicationInterfaceTag.createChild(MONITOR_PERIOD_TAG).putTextData(period);
+    if (hasData(ciConf.fInstallLocation)) {
+      communicationInterfaceTag.createChild(INSTALL_LOCATION_TAG).putTextData(ciConf.fInstallLocation);
+    }
+  }
+  
+  private void save(final IMemento communicationInterfaceTag, final OpenMPIInterfaceConf ciConf) {
+    save(communicationInterfaceTag, (MessagePassingInterfaceConf) ciConf);
+    
+    final EOpenMPIVersion mpiVersion;
+    if (ciConf.fOpenMPIVersion == null) {
+      mpiVersion = EOpenMPIVersion.EAutoDetect;
+    } else {
+      mpiVersion = ciConf.fOpenMPIVersion;
+    }
+    communicationInterfaceTag.createChild(OPEN_MPI_VERSION_TAG).putTextData(mpiVersion.name());
+  }
+  
+  private void save(final IMemento ciMemento, final IBMCommunicationInterfaceConf ciConf) {
+    if (hasData(ciConf.fAlternateLibPath)) {
+      ciMemento.createChild(ALTERNATE_LL_LIB_PATH).putTextData(ciConf.fAlternateLibPath);
+    }
+    if (ciConf.fClusterMode != null) {
+      ciMemento.createChild(LL_CLUSTER_MODE).putTextData(ciConf.fClusterMode.name());
+    }
+    ciMemento.putInteger(JOB_POLLING, ciConf.fJobPolling);
+    ciMemento.putInteger(NODE_POLLING_MIN, ciConf.fNodePollingMin);
+    ciMemento.putInteger(NODE_POLLING_MAX, ciConf.fNodePollingMax);
+    if (hasData(ciConf.fProxyServerPath)) {
+      ciMemento.createChild(PROXY_SERVER_PATH).putTextData(ciConf.fProxyServerPath);
+    }
+    ciMemento.putBoolean(LAUNCH_PROXY_MANUALLY, ciConf.fLaunchProxyManually);
+    ciMemento.putBoolean(USE_PORT_FORWARDING, ciConf.fUsePortForwarding);
+  }
+  
+  private void save(final IMemento ciMemento, final ParallelEnvironmentConf ciConf) {
+    save(ciMemento, (IBMCommunicationInterfaceConf) ciConf);
+   
+    if (ciConf.fCIDebugLevel != null) {
+      ciMemento.createChild(PE_DEBUG_LEVEL).putTextData(ciConf.fCIDebugLevel.name());
+    }
+    ciMemento.putBoolean(PE_RUN_MINI_PROXY, ciConf.fRunMiniProxy);
+    ciMemento.putBoolean(PE_SUSPEND_PROXY, ciConf.fSuspendProxy);
+    ciMemento.putBoolean(PE_USE_LOADLEVELER, ciConf.fUseLoadLeveler);
+  }
+
+  private void save(final IMemento ciMemento, final LoadLevelerConf ciConf) {
+    save(ciMemento, (IBMCommunicationInterfaceConf) ciConf);
+    
+    ciMemento.putInteger(LL_PROXY_MSG_OPTS, ciConf.fProxyMsgOpts);
+    if (hasData(ciConf.fTemplateFilePath)) {
+      ciMemento.createChild(LL_TEMPLATE_FILE_PATH).putTextData(ciConf.fTemplateFilePath);
+    }
+    if (ciConf.fTemplateOpt != null) {
+      ciMemento.createChild(LL_TEMPLATE_OPT).putTextData(ciConf.fTemplateOpt.name());
+    }
+    ciMemento.putBoolean(LL_DEBUG_LOOP, ciConf.fDebugLoop);
+  }
+  
   // --- Fields
   
   String fName;
@@ -390,9 +486,10 @@ class X10PlatformConf implements IX10PlatformConf {
     
   final ConnectionConfiguration fConnectionConf;
   
-  final CommunicationInterfaceConfiguration fCommInterfaceConf;
-  
   final CppCompilationConfiguration fCppCompilationConf;
+  
+  final CommInterfaceFactory fCommInterfaceFact;
+  
   
   private static final String ID_TAG = "id"; //$NON-NLS-1$
     
@@ -435,6 +532,38 @@ class X10PlatformConf implements IX10PlatformConf {
   private static final String DEFAULT_INSTALLATION_ATTR = "default-installation"; //$NON-NLS-1$
   
   private static final String INSTALL_LOCATION_TAG = "install-location"; //$NON-NLS-1$
+  
+  private static final String ALTERNATE_LL_LIB_PATH = "alternate-ll-lib-path"; //$NON-NLS-1$
+  
+  private static final String LL_CLUSTER_MODE = "ll-cluster-mode"; //$NON-NLS-1$
+  
+  private static final String JOB_POLLING = "job-polling"; //$NON-NLS-1$
+  
+  private static final String NODE_POLLING_MIN = "node-polling-min"; //$NON-NLS-1$
+  
+  private static final String NODE_POLLING_MAX = "node-mode-max"; //$NON-NLS-1$
+  
+  private static final String PROXY_SERVER_PATH = "proxy-server-path"; //$NON-NLS-1$
+  
+  private static final String LAUNCH_PROXY_MANUALLY = "launch-proxy-manually"; //$NON-NLS-1$
+  
+  private static final String USE_PORT_FORWARDING = "use-port-forwarding"; //$NON-NLS-1$
+  
+  private static final String PE_DEBUG_LEVEL = "pe-debug-level"; //$NON-NLS-1$
+  
+  private static final String PE_RUN_MINI_PROXY = "pe-run-mini-proxy"; //$NON-NLS-1$
+  
+  private static final String PE_SUSPEND_PROXY = "pe-suspend-proxy"; //$NON-NLS-1$
+  
+  private static final String PE_USE_LOADLEVELER = "pe-user-loadleveler"; //$NON-NLS-1$
+  
+  private static final String LL_PROXY_MSG_OPTS = "ll-proxy-msg-opts"; //$NON-NLS-1$
+  
+  private static final String LL_TEMPLATE_FILE_PATH = "ll-template-file"; //$NON-NLS-1$
+  
+  private static final String LL_TEMPLATE_OPT = "ll-template-opt"; //$NON-NLS-1$
+  
+  private static final String LL_DEBUG_LOOP = "ll-debug-loop"; //$NON-NLS-1$
 
 
   private static final String CPP_COMPILATION_TAG = "cpp-compilation"; //$NON-NLS-1$

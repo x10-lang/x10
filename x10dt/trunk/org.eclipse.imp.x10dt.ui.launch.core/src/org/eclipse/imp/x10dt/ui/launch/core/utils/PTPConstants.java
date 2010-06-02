@@ -30,6 +30,11 @@ public final class PTPConstants {
   public static final String LAUNCH_SERVICE_ID = "org.eclipse.ptp.core.LaunchService"; //$NON-NLS-1$
 
   /**
+   * Defines the IBM Load Leveler service provider id.
+   */
+  public static final String LOAD_LEVELER_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.ibm.ll.LLServiceProvider"; //$NON-NLS-1$
+
+  /**
    * Defines the Open MPI service provider id.
    */
   public static final String MPICH2_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.mpi.mpich2.MPICH2ServiceProvider"; //$NON-NLS-1$
@@ -40,8 +45,24 @@ public final class PTPConstants {
   public static final String OPEN_MPI_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.mpi.openmpi.OpenMPIServiceProvider"; //$NON-NLS-1$
   
   /**
+   * Defines the IBM Parallel Environment service provider id.
+   */
+  public static final String PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.ibm.pe.PEServiceProvider"; //$NON-NLS-1$
+  
+  /**
+   * Defines the Portable Batch System service provider id.
+   */
+  public static final String PBS_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.pbs.PBSServiceProvider"; //$NON-NLS-1$
+     
+  /**
    * Defines the Runtime service category id.
    */
   public static final String RUNTIME_SERVICE_CATEGORY_ID = "org.eclipse.ptp.core.category.Runtime"; //$NON-NLS-1$
+  
+  /**
+   * Defines the SLURM service provider id.
+   */
+  public static final String SLURM_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.slurm.SLURMServiceProvider"; //$NON-NLS-1$
+  
   
 }

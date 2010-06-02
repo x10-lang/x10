@@ -276,10 +276,15 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   private void save() {
     final IFile file = ((IFileEditorInput) getEditorInput()).getFile();
     synchronized (file) {
+      IResourceUtils.deletePlatformConfMarkers(file);
       try {
         this.fX10PlatformConfWorkCopy.applyChanges();
         X10PlatformConfFactory.save(file, this.fX10PlatformConfWorkCopy);
         commitPages(true);
+        if (! this.fX10PlatformConfWorkCopy.isComplete(false)) {
+          IResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPCFE_PlatformConfNotComplete, IMarker.SEVERITY_WARNING, 
+                                               IMarker.PRIORITY_HIGH);
+        }
       } catch (CoreException except) {
         DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
                       .createAndOpen(getEditorSite(), LaunchMessages.XPCFE_ConfSavingErrorDlgTitle,

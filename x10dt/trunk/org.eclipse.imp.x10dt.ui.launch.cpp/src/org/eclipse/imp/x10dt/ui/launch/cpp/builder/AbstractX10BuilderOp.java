@@ -10,17 +10,26 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.utils.ConsoleUtil;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
@@ -79,7 +88,8 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
       });
     
       if (returnCode != 0) {
-        IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_LibCreationError, archiveCmd), IMarker.SEVERITY_ERROR,
+        IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_LibCreationError, archiveCmd), 
+                                        IMarker.SEVERITY_ERROR,
                                         getProject().getFullPath().toString(), IMarker.PRIORITY_HIGH);
       }
     } catch (IOException except) {
@@ -89,6 +99,44 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     } catch (InterruptedException except) {
       IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
                                       IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
+    } finally {
+      monitor.done();
+    }
+  }
+  
+  public final void clearGeneratedAndCompiledFiles(final Collection<IFile> x10SourceFiles, 
+                                                   final SubMonitor monitor) throws CoreException {
+    final NullProgressMonitor nullMonitor = new NullProgressMonitor();
+    try {
+      monitor.beginTask(null, x10SourceFiles.size() + 1);
+      final IPath wDirPath = new Path(this.fWorkspaceDir);
+      
+      for (final IFile sourceFile : x10SourceFiles) {
+        if (monitor.isCanceled()) {
+          return;
+        }
+        final String rootName = sourceFile.getFullPath().removeFileExtension().lastSegment();
+        
+        this.fTargetOpHelper.getStore(wDirPath.append(rootName + CC_EXT).toString()).delete(EFS.NONE, nullMonitor);
+        this.fTargetOpHelper.getStore(wDirPath.append(rootName + ".h").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
+        this.fTargetOpHelper.getStore(wDirPath.append(rootName + ".inc").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
+        this.fTargetOpHelper.getStore(wDirPath.append(rootName + ".o").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
+      
+        monitor.worked(1);
+      }
+      
+      final IFileStore parentStore = this.fTargetOpHelper.getStore(this.fWorkspaceDir);
+      parentStore.getChild("xxx_main_xxx.cc").delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
+      parentStore.getChild("lib" + getProject().getName() + ".a").delete(EFS.NONE, nullMonitor); //$NON-NLS-1$ //$NON-NLS-2$
+      
+      final String execPath = getProject().getPersistentProperty(Constants.EXEC_PATH);
+      if (execPath != null) {
+        final IFileStore fileStore = this.fTargetOpHelper.getStore(execPath);
+        if (fileStore.fetchInfo().exists()) {
+          fileStore.delete(EFS.NONE, nullMonitor);
+        }
+      }
+      monitor.worked(1);
     } finally {
       monitor.done();
     }
@@ -159,14 +207,6 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     return true;
   }
   
-  public final String getWorkspaceDir() {
-    return this.fWorkspaceDir;
-  }
-  
-  public final ITargetOpHelper getTargetOpHelper() {
-    return this.fTargetOpHelper;
-  }
-  
   public final boolean hasAllPrerequisites() {
     return (this.fTargetOpHelper != null) && this.fPlatformConf.isComplete(true);
   }
@@ -179,6 +219,14 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
 
   protected final IProject getProject() {
     return this.fProject;
+  }
+  
+  protected final ITargetOpHelper getTargetOpHelper() {
+    return this.fTargetOpHelper;
+  }
+  
+  protected final String getWorkspaceDir() {
+    return this.fWorkspaceDir;
   }
   
   // --- Fields

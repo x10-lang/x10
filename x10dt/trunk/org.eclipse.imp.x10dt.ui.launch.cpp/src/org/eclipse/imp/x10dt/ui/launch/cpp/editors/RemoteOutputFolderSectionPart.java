@@ -15,11 +15,8 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -27,6 +24,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.TableWrapData;
+import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 
 final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart implements IConnectionTypeListener, IFormPart {
@@ -38,9 +37,9 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
     getSection().setFont(parent.getFont());
     getSection().setText(LaunchMessages.XPCP_RemoteOutputFolderSection);
     getSection().setDescription(LaunchMessages.XPCP_RemoteOutputFolderSectionDescr);
-    getSection().setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    getSection().setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit(), x10PlatformConf);
+    createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit());
     addCompletePartListener(getFormPage());
   }
   
@@ -86,15 +85,16 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
     });
   }
   
-  private void createClient(final IManagedForm managedForm, final FormToolkit toolkit, 
-                            final IX10PlatformConfWorkCopy x10PlatformConf) {
+  private void createClient(final IManagedForm managedForm, final FormToolkit toolkit) {
     this.fControlsAffectedByLocalRM = new ArrayList<Control>();
     this.fControlsAffectedByLocalRM.add(getSection());
     
     final Composite sectionClient = toolkit.createComposite(getSection());
-    sectionClient.setLayout(new GridLayout(3, false));
+    final TableWrapLayout twLayout = new TableWrapLayout();
+    twLayout.numColumns = 3;
+    sectionClient.setLayout(twLayout);
     sectionClient.setFont(getSection().getFont());
-    sectionClient.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    sectionClient.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
 
     final Pair<Text, Button> pair = createLabelTextBrowseBt(sectionClient, LaunchMessages.XPCP_FolderLabel, 
                                                             LaunchMessages.XPCP_BrowseBt, toolkit, 

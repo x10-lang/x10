@@ -10,14 +10,9 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
@@ -34,41 +29,20 @@ final class ConnectionAndCommunicationConfPage extends X10FormPage {
   
   protected void createFormContent(final IManagedForm managedForm) {
     final Composite body = managedForm.getForm().getBody();
-    body.setLayout(new GridLayout(2, true));
+    final TableWrapLayout bodyLayout = new TableWrapLayout();
+    bodyLayout.numColumns = 2;
+    bodyLayout.makeColumnsEqualWidth = true;
+    body.setLayout(bodyLayout);
     
     final Collection<IServiceConfigurationListener> rmConfPageListeners = new ArrayList<IServiceConfigurationListener>();
     
-    final Composite upper = managedForm.getToolkit().createComposite(body, SWT.NONE);
-    upper.setFont(body.getFont());
-    final TableWrapLayout upperLayout = new TableWrapLayout();
-    upperLayout.numColumns = 4;
-    upperLayout.makeColumnsEqualWidth = true;
-    upper.setLayout(new GridLayout(4, true));
-    upper.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1));
-    new Label(upper, SWT.NONE).setText(Constants.EMPTY_STR);
-    managedForm.addPart(new ConfNameSectionPart(upper, this, getPlatformConf(), rmConfPageListeners));
+    managedForm.addPart(new ConfNameSectionPart(body, this, getPlatformConf(), rmConfPageListeners));
     
-    final Composite left = managedForm.getToolkit().createComposite(body);
-    left.setFont(body.getFont());
-    left.setLayout(new GridLayout(1,false));
-    final GridData gd1 = new GridData(SWT.FILL, SWT.FILL, true, true);
-    gd1.widthHint = 0;
-    gd1.heightHint = 0;
-    left.setLayoutData(gd1);
-    
-    final ConnectionSectionPart connSection = new ConnectionSectionPart(left, this, getPlatformConf());
+    final ConnectionSectionPart connSection = new ConnectionSectionPart(body, this, getPlatformConf());
     rmConfPageListeners.add(connSection);
     managedForm.addPart(connSection);
     
-    final Composite right = managedForm.getToolkit().createComposite(body);
-    right.setFont(body.getFont());
-    right.setLayout(new GridLayout(1,false));
-    final GridData gd2 = new GridData(SWT.FILL, SWT.FILL, true, true);
-    gd2.widthHint = 0;
-    gd2.heightHint = 0;
-    right.setLayoutData(gd2);
-    
-    final CommunicationInterfaceSectionPart ciSection = new CommunicationInterfaceSectionPart(right, this, getPlatformConf());
+    final CommunicationInterfaceSectionPart ciSection = new CommunicationInterfaceSectionPart(body, this, getPlatformConf());
     rmConfPageListeners.add(ciSection);
     managedForm.addPart(ciSection);
   }

@@ -2,12 +2,10 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.widgets.Form;
+import org.eclipse.ui.forms.widgets.TableWrapData;
+import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 
 final class X10CompilationConfigurationPage extends X10FormPage {
@@ -22,27 +20,16 @@ final class X10CompilationConfigurationPage extends X10FormPage {
 
   protected void createFormContent(final IManagedForm managedForm) {
     final Form form = managedForm.getForm().getForm();
-    form.getBody().setLayout(new GridLayout(2, true));
-    form.getBody().setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    final TableWrapLayout bodyLayout = new TableWrapLayout();
+    bodyLayout.numColumns = 2;
+    bodyLayout.makeColumnsEqualWidth = true;
+    form.getBody().setLayout(bodyLayout);
+    form.getBody().setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    final Composite left = managedForm.getToolkit().createComposite(form.getBody());
-    left.setFont(form.getBody().getFont());
-    left.setLayout(new GridLayout(1,false));
-    final GridData gd1 = new GridData(SWT.FILL, SWT.FILL, true, true);
-    gd1.widthHint = 0;
-    gd1.heightHint = 0;
-    left.setLayoutData(gd1);
-    managedForm.addPart(new CompilationAndLinkingSectionPart(left, this, getPlatformConf()));
+    managedForm.addPart(new CompilationAndLinkingSectionPart(form.getBody(), this, getPlatformConf()));
     
-    final Composite right = managedForm.getToolkit().createComposite(form.getBody());
-    right.setFont(form.getBody().getFont());
-    right.setLayout(new GridLayout(1, false));
-    final GridData gd2 = new GridData(SWT.FILL, SWT.FILL, true, true);
-    gd2.widthHint = 0;
-    gd2.heightHint = 0;
-    right.setLayoutData(gd2);
-    managedForm.addPart(new RemoteOutputFolderSectionPart(right, this, getPlatformConf()));
-    managedForm.addPart(new X10DistributionSectionPart(right, this, getPlatformConf()));
+    managedForm.addPart(new RemoteOutputFolderSectionPart(form.getBody(), this, getPlatformConf()));
+    managedForm.addPart(new X10DistributionSectionPart(form.getBody(), this, getPlatformConf()));
   }
   
   public void dispose() {

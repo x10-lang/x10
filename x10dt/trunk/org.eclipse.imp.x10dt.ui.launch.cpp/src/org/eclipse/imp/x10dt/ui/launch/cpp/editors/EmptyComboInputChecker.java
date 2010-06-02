@@ -43,7 +43,6 @@ final class EmptyComboInputChecker implements IFormChecker {
     } else {
       messageManager.removeMessage(this.fCombo, control);
     }
-    managedForm.reflow(true);
   }
   
   // --- Fields

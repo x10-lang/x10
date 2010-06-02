@@ -22,8 +22,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -32,6 +30,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.TableWrapData;
+import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 
 final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPart 
@@ -44,9 +44,11 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     getSection().setFont(parent.getFont());
     getSection().setText(LaunchMessages.XPCP_CompilationLinkingSection);
     getSection().setDescription(LaunchMessages.XPCP_CompilationLinkingSectionDescr);
-    getSection().setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    final TableWrapData twData = new TableWrapData(TableWrapData.FILL_GRAB);
+    twData.rowspan = 2;
+    getSection().setLayoutData(twData);
     
-    createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit(), x10PlatformConf);
+    createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit());
     addCompletePartListener(formPage);
   }
 
@@ -211,26 +213,27 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     });
   }
   
-  private void createClient(final IManagedForm managedForm, final FormToolkit toolkit, 
-                            final IX10PlatformConfWorkCopy x10PlatformConf) {
+  private void createClient(final IManagedForm managedForm, final FormToolkit toolkit) {
     final Composite sectionClient = toolkit.createComposite(getSection());
-    sectionClient.setLayout(new GridLayout(1, false));
+    sectionClient.setLayout(new TableWrapLayout());
     sectionClient.setFont(getSection().getFont());
-    sectionClient.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    sectionClient.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
     final Composite osComposite = toolkit.createComposite(sectionClient);
     osComposite.setFont(getSection().getFont());
-    osComposite.setLayout(new GridLayout(2, false));
-    osComposite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    final TableWrapLayout osLayout = new TableWrapLayout();
+    osLayout.numColumns = 2;
+    osComposite.setLayout(osLayout);
+    osComposite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
     toolkit.createLabel(osComposite, LaunchMessages.XPCP_OSLabel);
     this.fOSCombo = new Combo(osComposite, SWT.READ_ONLY);
-    this.fOSCombo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    this.fOSCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
     final Group compilingGroup = new Group(sectionClient, SWT.NONE);
     compilingGroup.setFont(sectionClient.getFont());
-    compilingGroup.setLayout(new GridLayout(1, false));
-    compilingGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    compilingGroup.setLayout(new TableWrapLayout());
+    compilingGroup.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     compilingGroup.setText(LaunchMessages.XPCP_CompilingGroup);
         
     final Pair<Text, Button> compPair = createLabelTextBrowseBt(compilingGroup, LaunchMessages.XPCP_CompilerLabel, 
@@ -243,8 +246,8 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     
     final Group archivingGroup = new Group(sectionClient, SWT.NONE);
     archivingGroup.setFont(sectionClient.getFont());
-    archivingGroup.setLayout(new GridLayout(1, false));
-    archivingGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    archivingGroup.setLayout(new TableWrapLayout());
+    archivingGroup.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     archivingGroup.setText(LaunchMessages.XPCP_ArchivingGroup);
     
     final Pair<Text, Button> archPair = createLabelTextBrowseBt(archivingGroup, LaunchMessages.XPCP_ArchiverLabel, 
@@ -257,8 +260,8 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     
     final Group linkingGroup = new Group(sectionClient, SWT.NONE);
     linkingGroup.setFont(sectionClient.getFont());
-    linkingGroup.setLayout(new GridLayout(1, false));
-    linkingGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    linkingGroup.setLayout(new TableWrapLayout());
+    linkingGroup.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     linkingGroup.setText(LaunchMessages.XPCP_LinkingGroup);
     
     final Pair<Text, Button> linkPair = createLabelTextBrowseBt(linkingGroup, LaunchMessages.XPCP_LinkerLabel, 
@@ -272,8 +275,8 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     
     final Composite archComposite = toolkit.createComposite(sectionClient);
     archComposite.setFont(getSection().getFont());
-    archComposite.setLayout(new GridLayout(1, false));
-    archComposite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    archComposite.setLayout(new TableWrapLayout());
+    archComposite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
     this.fArchBt = toolkit.createButton(archComposite, LaunchMessages.XPCP_ArchitectureBt, SWT.CHECK);
     

@@ -74,7 +74,6 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
 import org.eclipse.ptp.launch.ui.LaunchImages;
 import org.eclipse.swt.SWT;
@@ -167,8 +166,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           	try {
           		final String workspaceDir = PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project);
           		configuration.setAttribute(ATTR_WORK_DIRECTORY, workspaceDir);
-          		configuration.setAttribute(ATTR_EXECUTABLE_PATH, getExecutablePath(mainCppFilePath, workspaceDir, 
-          		                                                                   configuration));
+          		configuration.setAttribute(ATTR_EXECUTABLE_PATH, getExecutablePath(mainCppFilePath, workspaceDir));
           	} catch (CoreException except) {
           		// Let's forget it will be handled by the validation step.
           	}
@@ -457,8 +455,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     this.fProjectBt.addSelectionListener(new ProjectBtSelectionListener());
   }
   
-  private String getExecutablePath(final String mainCppFilePath, final String workspaceDir, 
-                                   final ILaunchConfiguration configuration) {
+  private String getExecutablePath(final String mainCppFilePath, final String workspaceDir) {
     final StringBuilder execPathBuilder = new StringBuilder();
     execPathBuilder.append(workspaceDir).append('/');
     
@@ -537,8 +534,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     }
   }
   
-  private void setMainType(final IProject project, final IResourceManager resourceManager,
-                           final ClassType mainType) throws CoreException {
+  private void setMainType(final IProject project, final ClassType mainType) throws CoreException {
     if (this.fX10PlatformConf != null) {
       final ITargetOpHelper targetOpHelper = getTargetOpHelper();
       if (targetOpHelper == null) {
@@ -686,7 +682,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
             if (dialog.open() == Window.OK) {
               final ClassType resultType = (ClassType) dialog.getResult()[0];
               try {
-                setMainType(project, getResourceManager(getLaunchConfiguration()), resultType);
+                setMainType(project, resultType);
               } catch (CoreException except) {
                 DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
                               .createAndOpen(getShell(), LaunchMessages.CAT_SetMainTypeError, 

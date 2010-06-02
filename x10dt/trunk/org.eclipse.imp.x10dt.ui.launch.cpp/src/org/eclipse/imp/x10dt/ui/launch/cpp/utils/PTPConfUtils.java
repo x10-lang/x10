@@ -9,6 +9,13 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.utils;
 
 import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.LOCAL_CONN_SERVICE_ID;
 import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
+import static org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.CLoadLevelerProxyMsgs.*;
+import static org.eclipse.ptp.rm.ibm.ll.core.IBMLLPreferenceConstants.*;
+import static org.eclipse.ptp.rm.ibm.pe.core.PEPreferenceConstants.OPTION_NO;
+import static org.eclipse.ptp.rm.ibm.pe.core.PEPreferenceConstants.OPTION_YES;
+import static org.eclipse.ptp.rm.ibm.pe.core.PEPreferenceConstants.TRACE_DETAIL;
+import static org.eclipse.ptp.rm.ibm.pe.core.PEPreferenceConstants.TRACE_FUNCTION;
+import static org.eclipse.ptp.rm.ibm.pe.core.PEPreferenceConstants.TRACE_NOTHING;
 
 import java.util.Map;
 
@@ -20,8 +27,16 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.EClusterMode;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ELLTemplateOpt;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICIConfOptionsVisitor;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ILoadLevelerConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IMPICH2InterfaceConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IMessagePassingInterfaceConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IOpenMPIInterfaceConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IParallelEnvironmentConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
@@ -33,6 +48,7 @@ import org.eclipse.ptp.core.events.IRemoveResourceManagerEvent;
 import org.eclipse.ptp.core.listeners.IModelManagerChildListener;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
+import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
@@ -43,6 +59,9 @@ import org.eclipse.ptp.remotetools.environment.core.ITargetEnvironmentEventListe
 import org.eclipse.ptp.remotetools.environment.core.TargetElement;
 import org.eclipse.ptp.remotetools.environment.core.TargetEnvironmentManager;
 import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
+import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
+import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
+import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IService;
 import org.eclipse.ptp.services.core.IServiceConfiguration;
@@ -101,8 +120,10 @@ public final class PTPConfUtils {
     if ((pair == null) || (pair.second == null)) {
       return null;
     }
-    final IToolRMConfiguration rmConf = (IToolRMConfiguration) pair.second;
-    setCommunicationInterfaceParameters(rmConf, commConf);
+    final IResourceManagerConfiguration rmConf = (IResourceManagerConfiguration) pair.second;
+    
+    commConf.visitInterfaceOptions(new CommunicationInterfaceInitializer(rmConf));
+    
     final IConnectionConf connConf = platformConf.getConnectionConf();
     if (! connConf.isLocal() && findTargetElement(connConf.getConnectionName()) == null) {
       createRemoteConnection(connConf.getConnectionName(), connConf.getAttributes());
@@ -189,14 +210,11 @@ public final class PTPConfUtils {
       final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
       
 			if (rmConf.getResourceManagerId().equals(communicationInterfaceConf.getServiceTypeId()) &&
-					((IServiceProvider) rmConf).getServiceId().equals(communicationInterfaceConf.getServiceModeId()) &&
-					(rmConf instanceof IToolRMConfiguration)) {
-				final IToolRMConfiguration toolRMConf = (IToolRMConfiguration) rmConf;
-
-				if (communicationInterfaceConf.hasSameCommunicationInterfaceInfo(toolRMConf)) {
+					((IServiceProvider) rmConf).getServiceId().equals(communicationInterfaceConf.getServiceModeId())) {
+				if (communicationInterfaceConf.hasSameCommunicationInterfaceInfo(rmConf)) {
 					if (platformConf.getConnectionConf().isLocal()) {
-						return PTPConstants.LOCAL_CONN_SERVICE_ID.equals(toolRMConf.getRemoteServicesId()) ? resourceManager : null;
-					} else if (PTPConstants.REMOTE_CONN_SERVICE_ID.equals(toolRMConf.getRemoteServicesId())) {
+						return PTPConstants.LOCAL_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId()) ? resourceManager : null;
+					} else if (PTPConstants.REMOTE_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId())) {
 						final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
 						final IRemoteServices remoteServices = plugin.getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
 
@@ -358,22 +376,6 @@ public final class PTPConfUtils {
     return null;
   }
   
-  private static void setCommunicationInterfaceParameters(final IToolRMConfiguration rmConfiguration, 
-                                                          final ICommunicationInterfaceConf commConf) {
-    rmConfiguration.setUseToolDefaults(commConf.shouldTakeDefaultToolCommands());
-    if (! commConf.shouldTakeDefaultToolCommands()) {
-      rmConfiguration.setLaunchCmd(commConf.getLaunchCommand());
-      rmConfiguration.setDebugCmd(commConf.getDebugCommand());
-      rmConfiguration.setDiscoverCmd(commConf.getDiscoverCommand());
-      rmConfiguration.setPeriodicMonitorCmd(commConf.getMonitorCommand());
-      rmConfiguration.setPeriodicMonitorTime(commConf.getMonitorPeriod());
-    }
-    rmConfiguration.setUseInstallDefaults(commConf.shouldTakeDefaultInstallLocation());
-    if (! commConf.shouldTakeDefaultInstallLocation()) {
-      rmConfiguration.setRemoteInstallPath(commConf.getInstallLocation());
-    }
-  }
-  
   // --- Private classes
   
   private static final class ResourceManagerListener implements IModelManagerChildListener {
@@ -404,6 +406,137 @@ public final class PTPConfUtils {
 		
 		private IResourceManager fResourceManager;
   	
+  }
+  
+  private static final class CommunicationInterfaceInitializer implements ICIConfOptionsVisitor {
+    
+    CommunicationInterfaceInitializer(final IResourceManagerConfiguration rmConf) {
+      this.fRMConf = rmConf;
+    }
+    
+    // --- Interface methods implementation
+
+    public void visit(final IMPICH2InterfaceConf configuration) {
+      initMessagePassingInterface(configuration);
+    }
+
+    public void visit(final IOpenMPIInterfaceConf configuration) {
+      initMessagePassingInterface(configuration);
+      
+      final IOpenMPIResourceManagerConfiguration rmConf = (IOpenMPIResourceManagerConfiguration) this.fRMConf;
+      switch(configuration.getOpenMPIVersion()) {
+        case EAutoDetect:
+          rmConf.setVersionId(IOpenMPIResourceManagerConfiguration.VERSION_AUTO);
+          break;
+        case EVersion_1_2:
+          rmConf.setVersionId(IOpenMPIResourceManagerConfiguration.VERSION_12);
+          break;
+        case EVersion_1_3:
+          rmConf.setVersionId(IOpenMPIResourceManagerConfiguration.VERSION_13);
+          break;
+        case EVersion_1_4:
+          rmConf.setVersionId(IOpenMPIResourceManagerConfiguration.VERSION_14);
+          break;
+      }
+    }
+    
+    public void visit(final IParallelEnvironmentConf configuration) {
+      final IPEResourceManagerConfiguration peConf = (IPEResourceManagerConfiguration) this.fRMConf;
+      peConf.setLibraryOverride(configuration.getAlternateLibraryPath());
+      peConf.setJobPollInterval(String.valueOf(configuration.getJobPolling()));
+      switch (configuration.getClusterMode()) {
+        case DEFAULT:
+          peConf.setLoadLevelerMode("d"); //$NON-NLS-1$
+          break;
+        case LOCAL:
+          peConf.setLoadLevelerMode("n"); //$NON-NLS-1$
+          break;
+        case MULTI_CLUSTER:
+          peConf.setLoadLevelerMode("y"); //$NON-NLS-1$
+          break;
+      }
+      peConf.setNodeMinPollInterval(String.valueOf(configuration.getNodePollingMin()));
+      peConf.setNodeMaxPollInterval(String.valueOf(configuration.getNodePollingMax()));
+      peConf.setProxyServerPath(configuration.getProxyServerPath());
+      int options = 0;
+      if (configuration.shouldLaunchProxyManually()) {
+        options |= IRemoteProxyOptions.MANUAL_LAUNCH;
+      }
+      if (configuration.shouldUsePortForwarding()) {
+        options |= IRemoteProxyOptions.PORT_FORWARDING;
+      }
+      peConf.setOptions(options);
+      
+      switch (configuration.getDebuggingLevel()) {
+        case NONE:
+          peConf.setDebugLevel(TRACE_NOTHING);
+          break;
+        case FUNCTION:
+          peConf.setDebugLevel(TRACE_FUNCTION);
+          break;
+        case DETAILED:
+          peConf.setDebugLevel(TRACE_DETAIL);
+          break;
+      }
+      peConf.setRunMiniproxy(configuration.shouldRunMiniProxy() ? OPTION_YES : OPTION_NO);
+      peConf.setSuspendProxy(configuration.shouldSuspendProxy() ? OPTION_YES : OPTION_NO);
+      peConf.setUseLoadLeveler(configuration.shouldUseLoadLeveler() ? OPTION_YES : OPTION_NO);
+    }
+
+    public void visit(final ILoadLevelerConf configuration) {
+      final IIBMLLResourceManagerConfiguration llConf = (IIBMLLResourceManagerConfiguration) this.fRMConf;
+      llConf.setLibraryPath(configuration.getAlternateLibraryPath());
+      llConf.setDefaultMulticluster((configuration.getClusterMode() == EClusterMode.DEFAULT) ? LL_YES : LL_NO);
+      llConf.setForceProxyLocal((configuration.getClusterMode() == EClusterMode.LOCAL) ? LL_YES : LL_NO);
+      llConf.setForceProxyMulticluster((configuration.getClusterMode() == EClusterMode.MULTI_CLUSTER) ? LL_YES : LL_NO);
+      llConf.setJobPolling(configuration.getJobPolling());
+      llConf.setMinNodePolling(configuration.getNodePollingMin());
+      llConf.setMaxNodePolling(configuration.getNodePollingMax());
+      llConf.setProxyServerPath(configuration.getProxyServerPath());
+      int options = 0;
+      if (configuration.shouldLaunchProxyManually()) {
+        options |= IRemoteProxyOptions.MANUAL_LAUNCH;
+      }
+      if (configuration.shouldUsePortForwarding()) {
+        options |= IRemoteProxyOptions.PORT_FORWARDING;
+      }
+      llConf.setOptions(options);
+      
+      llConf.setTraceOption(((configuration.getProxyMessageOptions() & TRACE) != 0) ? LL_YES : LL_NO);
+      llConf.setInfoMessage(((configuration.getProxyMessageOptions() & INFO) != 0) ? LL_YES : LL_NO);
+      llConf.setWarningMessage(((configuration.getProxyMessageOptions() & WARNING) != 0) ? LL_YES : LL_NO);
+      llConf.setErrorMessage(((configuration.getProxyMessageOptions() & ERROR) != 0) ? LL_YES : LL_NO);
+      llConf.setFatalMessage(((configuration.getProxyMessageOptions() & FATAL) != 0) ? LL_YES : LL_NO);
+      llConf.setArgsMessage(((configuration.getProxyMessageOptions() & ARGS) != 0) ? LL_YES : LL_NO);
+      llConf.setProxyServerPath(configuration.getProxyServerPath());
+      llConf.setTemplateFile(configuration.getTemplateFilePath());
+      llConf.setTemplateWriteAlways((configuration.getTemplateOption() == ELLTemplateOpt.EAlwaysWrite) ? LL_YES : LL_NO);
+      llConf.setSuppressTemplateWrite((configuration.getTemplateOption() == ELLTemplateOpt.ENeverWrite) ? LL_YES : LL_NO);
+      llConf.setDebugLoop(configuration.shouldDebugLoop() ? LL_YES : LL_NO);
+    }
+    
+    // --- Private code
+    
+    private void initMessagePassingInterface(final IMessagePassingInterfaceConf configuration) {
+      final IToolRMConfiguration rmConf = (IToolRMConfiguration) this.fRMConf;
+      rmConf.setUseToolDefaults(configuration.shouldTakeDefaultToolCommands());
+      if (! configuration.shouldTakeDefaultToolCommands()) {
+        rmConf.setLaunchCmd(configuration.getLaunchCommand());
+        rmConf.setDebugCmd(configuration.getDebugCommand());
+        rmConf.setDiscoverCmd(configuration.getDiscoverCommand());
+        rmConf.setPeriodicMonitorCmd(configuration.getMonitorCommand());
+        rmConf.setPeriodicMonitorTime(configuration.getMonitorPeriod());
+      }
+      rmConf.setUseInstallDefaults(configuration.shouldTakeDefaultInstallLocation());
+      if (! configuration.shouldTakeDefaultInstallLocation()) {
+        rmConf.setRemoteInstallPath(configuration.getInstallLocation());
+      }
+    }
+    
+    // --- Fields
+    
+    private final IResourceManagerConfiguration fRMConf;
+    
   }
   
   // --- Fields

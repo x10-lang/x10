@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -114,30 +115,7 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     if (controlsContainer != null) {
       controlsContainer.remove(pair.second);
     }
-    pair.second.addSelectionListener(new SelectionListener() {
-      
-      public void widgetDefaultSelected(final SelectionEvent event) {
-        widgetSelected(event);
-      }
-
-      public void widgetSelected(final SelectionEvent event) {
-        final String path;
-        if (getPlatformConf().getConnectionConf().isLocal()) {
-          final DirectoryDialog dialog = new DirectoryDialog(getFormPage().getSite().getShell());
-          dialog.setText(LaunchMessages.ACSFP_SelectDirLoc);
-          path = dialog.open();
-        } else {
-          final IRemoteConnection rmConnection = PTPConfUtils.findRemoteConnection(getPlatformConf().getConnectionConf());
-          assert rmConnection != null; // By construction it should never be null.
-          path = PTPUtils.remoteBrowse(getFormPage().getSite().getShell(), rmConnection, LaunchMessages.ACSFP_SelectDirLoc, 
-                                       Constants.EMPTY_STR, true /* browseDirectory */);
-        }
-        if (path != null) {
-          pair.first.setText(path);
-        }
-      }
-      
-    });
+    pair.second.addSelectionListener(new DirectoryDialogSelectionListener(pair.first));
     return pair;
   }
   
@@ -176,6 +154,78 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
         managedForm.staleStateChanged();
       }
     }
+  }
+  
+  // --- Internal classes
+  
+  final class DirectoryDialogSelectionListener implements SelectionListener {
+    
+    DirectoryDialogSelectionListener(final Text text) {
+      this.fText = text;
+    }
+    
+    // --- Interface methods implementation
+    
+    public void widgetDefaultSelected(final SelectionEvent event) {
+      widgetSelected(event);
+    }
+
+    public void widgetSelected(final SelectionEvent event) {
+      final String path;
+      if (getPlatformConf().getConnectionConf().isLocal()) {
+        final DirectoryDialog dialog = new DirectoryDialog(getFormPage().getSite().getShell());
+        dialog.setText(LaunchMessages.ACSFP_SelectDirLoc);
+        path = dialog.open();
+      } else {
+        final IRemoteConnection rmConnection = PTPConfUtils.findRemoteConnection(getPlatformConf().getConnectionConf());
+        assert rmConnection != null; // By construction it should never be null.
+        path = PTPUtils.remoteBrowse(getFormPage().getSite().getShell(), rmConnection, LaunchMessages.ACSFP_SelectDirLoc, 
+                                     Constants.EMPTY_STR, true /* browseDirectory */);
+      }
+      if (path != null) {
+        this.fText.setText(path);
+      }
+    }
+    
+    // --- Fields
+    
+    private final Text fText;
+    
+  }
+  
+  final class FileDialogSelectionListener implements SelectionListener {
+    
+    FileDialogSelectionListener(final Text text) {
+      this.fText = text;
+    }
+    
+    // --- Interface methods implementation
+    
+    public void widgetDefaultSelected(final SelectionEvent event) {
+      widgetSelected(event);
+    }
+
+    public void widgetSelected(final SelectionEvent event) {
+      final String path;
+      if (getPlatformConf().getConnectionConf().isLocal()) {
+        final FileDialog dialog = new FileDialog(getFormPage().getSite().getShell());
+        dialog.setText(LaunchMessages.ACSFP_SelectFileLoc);
+        path = dialog.open();
+      } else {
+        final IRemoteConnection rmConnection = PTPConfUtils.findRemoteConnection(getPlatformConf().getConnectionConf());
+        assert rmConnection != null; // By construction it should never be null.
+        path = PTPUtils.remoteBrowse(getFormPage().getSite().getShell(), rmConnection, LaunchMessages.ACSFP_SelectDirLoc, 
+                                     Constants.EMPTY_STR, false /* browseDirectory */);
+      }
+      if (path != null) {
+        this.fText.setText(path);
+      }
+    }
+    
+    // --- Fields
+    
+    private final Text fText;
+    
   }
   
   // --- Private code

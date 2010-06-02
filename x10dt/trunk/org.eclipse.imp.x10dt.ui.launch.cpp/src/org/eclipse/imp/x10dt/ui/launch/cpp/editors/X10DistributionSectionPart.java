@@ -20,8 +20,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -29,6 +27,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.TableWrapData;
+import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 
 final class X10DistributionSectionPart extends AbstractCommonSectionFormPart implements IConnectionTypeListener, IFormPart {
@@ -39,9 +39,9 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     
     getSection().setText(LaunchMessages.XPCP_X10DistribSection);
     getSection().setDescription(LaunchMessages.XPCP_X10DistribSectionDescr);
-    getSection().setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    getSection().setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit(), x10PlatformConf);
+    createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit());
     addCompletePartListener(getFormPage());
   }
   
@@ -135,19 +135,18 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     });
   }
   
-  private void createClient(final IManagedForm managedForm, final FormToolkit toolkit, 
-                            final IX10PlatformConfWorkCopy x10PlatformConf) {
+  private void createClient(final IManagedForm managedForm, final FormToolkit toolkit) {
     this.fControlsAffectedByLocalRM = new ArrayList<Control>();
     this.fControlsAffectedByLocalRM.add(getSection());
     
     final Composite sectionClient = toolkit.createComposite(getSection());
-    sectionClient.setLayout(new GridLayout(1, false));
+    sectionClient.setLayout(new TableWrapLayout());
     sectionClient.setFont(getSection().getFont());
-    sectionClient.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    sectionClient.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
     final Pair<Text, Button> pair1 = createLabelTextBrowseBt(sectionClient, LaunchMessages.XPCP_X10DistLabel, 
-                                                            LaunchMessages.XPCP_BrowseBt, toolkit, 
-                                                            this.fControlsAffectedByLocalRM);
+                                                             LaunchMessages.XPCP_BrowseBt, toolkit, 
+                                                             this.fControlsAffectedByLocalRM);
     this.fX10DistLocText = pair1.first;
     this.fX10DistBrowseBt = pair1.second;
     

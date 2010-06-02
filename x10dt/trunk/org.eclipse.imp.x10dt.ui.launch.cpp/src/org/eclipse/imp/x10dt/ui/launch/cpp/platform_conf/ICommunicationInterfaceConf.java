@@ -7,8 +7,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 
-import org.eclipse.imp.x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
-import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
+import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
+
 
 /**
  * Encapsulates the communication interface configuration parameters.
@@ -17,56 +17,6 @@ import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
  */
 public interface ICommunicationInterfaceConf {
 
-  /**
-   * Returns the communication interface command that should be run in debug mode.
-   * 
-   * @return A possibly <b>null</b> value if we take the default command or it hasn't yet been defined.
-   */
-  public String getDebugCommand();
-  
-  /**
-   * Returns the command to use in order to discover certain communication interface properties.
-   * 
-   * @return A possibly <b>null</b> value if we take the default command or it hasn't yet been defined.
-   */
-  public String getDiscoverCommand();
-  
-  /**
-   * Returns the communication interface command that should be run in debug mode.
-   * 
-   * @return A possibly <b>null</b> value if we take the default location or if it hasn't yet been defined..
-   */
-  public String getInstallLocation();
-  
-  /**
-   * Returns the communication interface command that should be run in launch mode.
-   * 
-   * @return A possibly <b>null</b> value if we take the default command or it hasn't yet been defined.
-   */
-  public String getLaunchCommand();
-  
-  /**
-   * Returns the command that can be used to periodically monitor system/job status.
-   * 
-   * @return A possibly <b>null</b> value if we take the default command or it hasn't yet been defined.
-   */
-  public String getMonitorCommand();
-  
-  /**
-   * Returns the time interval to delay between issuing periodic monitor commands.
-   * 
-   * @return A natural number.
-   */
-  public int getMonitorPeriod();
-  
-  /**
-   * Returns the OpenMPI version to consider. This is valid only if the call to {@link #getServiceTypeId()} identifies an
-   * OpenMPI communication interface.
-   * 
-   * @return A non-null value.
-   */
-  public EOpenMPIVersion getOpenMPIVersion();
-  
   /**
    * Returns the id that identifies the communication service mode in PTP. Right now it is Launch, Debug or Profile.
    * 
@@ -88,21 +38,21 @@ public interface ICommunicationInterfaceConf {
    * @param rmConfiguration The resource manager configuration to consider.
    * @return True if it is equals, false otherwise.
    */
-  public boolean hasSameCommunicationInterfaceInfo(final IToolRMConfiguration rmConfiguration);
+  public boolean hasSameCommunicationInterfaceInfo(final IResourceManagerConfiguration rmConfiguration);
   
   /**
-   * Returns if yes or no we should take the default install location for the communication interface defined by all the 
-   * parameters.
+   * Returns true if the current configuration contains all the required information to define properly the communication
+   * interface.
    * 
-   * @return True if we should take default install location, false otherwise.
+   * @return True if it is complete, false otherwise.
    */
-  public boolean shouldTakeDefaultInstallLocation();
+  public boolean isComplete();
   
   /**
-   * Returns if yes or no we should take the default communication interface commands defined by PTP.
+   * Accepts a visitor to access the options dependent of the communication interface type.
    * 
-   * @return True if we should take the default PTP commands for the given communication interface type, false otherwise.
+   * @param visitor The visitor implementation to consider.
    */
-  public boolean shouldTakeDefaultToolCommands();
+  public void visitInterfaceOptions(final ICIConfOptionsVisitor visitor);
 
 }

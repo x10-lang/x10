@@ -95,12 +95,12 @@ final class CppCompilationChecker implements ICppCompilationChecker {
       final String uniqueDirName = createUniqueDirName();
       this.fWorkDir = String.format(PATH_SEP_STRFORMAT, getTempDirectory(), uniqueDirName);
       fileManager.getResource(this.fWorkDir).mkdir(EFS.NONE, new NullProgressMonitor());
-      final File testFilePath = createTestFile(fileManager, uniqueDirName, monitor.newChild(1));
+      final File testFilePath = createTestFile(uniqueDirName, monitor.newChild(1));
 
       // X10 compilation
       final Pair<String, String> compilationResults = compileX10File(testFilePath, getContentSampleStream(),
-                                                                     this.fWorkDir, x10DistLoc, pgasDistLoc,
-                                                                     x10LibsLocs, fileManager, monitor.newChild(5));
+                                                                     this.fWorkDir, x10LibsLocs, fileManager, 
+                                                                     monitor.newChild(5));
       if (compilationResults.first != null) {
         fileManager.getResource(this.fWorkDir).delete(EFS.NONE, new NullProgressMonitor());
         return compilationResults.first;
@@ -137,8 +137,8 @@ final class CppCompilationChecker implements ICppCompilationChecker {
   
   @SuppressWarnings("unchecked")
   private Pair<String, String> compileX10File(final File testFilePath, final InputStream sourceInputStream, 
-                                              final String workspaceDir, final String x10DistLoc, final String pgasDistLoc, 
-                                              final String[] x10LibsLocs, final IRemoteFileManager fileManager, 
+                                              final String workspaceDir, final String[] x10LibsLocs, 
+                                              final IRemoteFileManager fileManager, 
                                               final SubMonitor monitor) throws Exception {
     monitor.beginTask(LaunchMessages.APCC_GeneratingFilesMsg, 10);
     
@@ -200,8 +200,7 @@ final class CppCompilationChecker implements ICppCompilationChecker {
     }
   }
   
-  private File createTestFile(final IRemoteFileManager fileManager, final String uniqueDirName,
-                              final SubMonitor monitor) throws Exception {
+  private File createTestFile(final String uniqueDirName, final SubMonitor monitor) throws Exception {
     final String dirPath = String.format(PATH_SEP_STRFORMAT, System.getProperty(TMPDIR_JAVA_ENV_VAR), uniqueDirName);
     final String testFilePath = String.format(PATH_SEP_STRFORMAT, dirPath, TEST_FILENAME);
     final File localTestFileDir = new File(dirPath);

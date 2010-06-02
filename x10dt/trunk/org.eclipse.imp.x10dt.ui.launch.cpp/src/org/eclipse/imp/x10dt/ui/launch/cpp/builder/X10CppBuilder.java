@@ -8,21 +8,11 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.AbstractX10Builder;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
@@ -41,47 +31,6 @@ import x10cpp.X10CPPCompilerOptions;
 public final class X10CppBuilder extends AbstractX10Builder {
   
   // --- Abstract methods implementation
-  
-  public void clearGeneratedAndCompiledFiles(final IX10BuilderFileOp builderFileOp, final Collection<IFile> x10SourceFiles, 
-                                             final SubMonitor monitor) throws CoreException {
-    final ITargetOpHelper targetOpHelper = builderFileOp.getTargetOpHelper();
-    
-    final NullProgressMonitor nullMonitor = new NullProgressMonitor();
-    try {
-      final String workspaceDir = builderFileOp.getWorkspaceDir();
-      monitor.beginTask(null, x10SourceFiles.size() + 1);
-      final IPath wDirPath = new Path(workspaceDir);
-      
-      for (final IFile sourceFile : x10SourceFiles) {
-        if (monitor.isCanceled()) {
-          return;
-        }
-        final String rootName = sourceFile.getFullPath().removeFileExtension().lastSegment();
-        
-        targetOpHelper.getStore(wDirPath.append(rootName + ".cc").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-        targetOpHelper.getStore(wDirPath.append(rootName + ".h").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-        targetOpHelper.getStore(wDirPath.append(rootName + ".inc").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-        targetOpHelper.getStore(wDirPath.append(rootName + ".o").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-      
-        monitor.worked(1);
-      }
-      
-      final IFileStore parentStore = targetOpHelper.getStore(workspaceDir);
-      parentStore.getChild("xxx_main_xxx.cc").delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-      parentStore.getChild("lib" + getProject().getName() + ".a").delete(EFS.NONE, nullMonitor); //$NON-NLS-1$ //$NON-NLS-2$
-      
-      final String execPath = getProject().getPersistentProperty(Constants.EXEC_PATH);
-      if (execPath != null) {
-        final IFileStore fileStore = targetOpHelper.getStore(execPath);
-        if (fileStore.fetchInfo().exists()) {
-        	fileStore.delete(EFS.NONE, nullMonitor);
-        }
-      }
-      monitor.worked(1);
-    } finally {
-      monitor.done();
-    }
-  }
   
   public ExtensionInfo createExtensionInfo(final String classPath, final List<File> sourcePath, final String localOutputDir,
                                            final boolean withMainMethod, final IProgressMonitor monitor) {

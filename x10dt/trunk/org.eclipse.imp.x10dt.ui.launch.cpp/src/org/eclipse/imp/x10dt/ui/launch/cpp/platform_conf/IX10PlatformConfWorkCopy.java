@@ -115,26 +115,66 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
       
   // --- ICommunicationInterface's setter methods
   
-  public void setDebugCommand(final String debugCommand);
+  /// Message Passing Interface
   
-  public void setDefaultInstallLocationFlag(final boolean shouldTakeInstallLocation);
+  public void setDebugCommand(final String ciType, final String debugCommand);
   
-  public void setDefaultToolCommands(final boolean shouldTakeDefaultToolCommands);
+  public void setDefaultInstallLocationFlag(final String ciType, final boolean shouldTakeInstallLocation);
   
-  public void setDiscoverCommand(final String discoverCommand);
+  public void setDefaultToolCommands(final String ciType, final boolean shouldTakeDefaultToolCommands);
   
-  public void setInstallLocation(final String installLocation);
+  public void setDiscoverCommand(final String ciType, final String discoverCommand);
   
-  public void setLaunchCommand(final String launchCommand);
+  public void setInstallLocation(final String ciType, final String installLocation);
   
-  public void setMonitorCommand(final String monitorCommand);
+  public void setLaunchCommand(final String ciType, final String launchCommand);
   
-  public void setMonitorPeriod(final int monitorPeriod);
+  public void setMonitorCommand(final String ciType, final String monitorCommand);
+  
+  public void setMonitorPeriod(final String ciType, final int monitorPeriod);
   
   public void setOpenMPIVersion(final EOpenMPIVersion openMPIVersion);
   
-  public void setServiceModeId(final String seriveModeId);
+  public void setServiceModeId(final String ciType, final String serviceModeId);
   
-  public void setServiceTypeId(final String serviceTypeId);
+  public void setServiceTypeId(final String ciType);
+  
+  /// IBM Parallel Environment & LoadLeveler
+  
+  public void setAlternateLibraryPath(final String ciType, final String libPath);
+  
+  public void setClusterMode(final String ciType, final EClusterMode mode);
+  
+  public void setJobPolling(final String ciType, final int jobPolling);
+  
+  public void setNodeMinPolling(final String ciType, final int nodeMinPolling);
+  
+  public void setNodeMaxPolling(final String ciType, final int nodeMaxPolling);
+  
+  public void setProxyServerPath(final String ciType, final String proxyServerPath);
+  
+  public void setLaunchProxyManuallyFlag(final String ciType, final boolean shouldLaunchProxyManually);
+  
+  public void setUsePortForwardingFlag(final String ciType, final boolean shouldUsePortForwarding);
+  
+  /// IBM Parallel Environment
+  
+  public void setDebuggingLevel(final ECIDebugLevel debugLevel);
+  
+  public void setRunMiniProxyFlag(final boolean shouldRunMiniProxy);
+  
+  public void setSuspendProxyFlag(final boolean shouldSuspendProxy);
+  
+  public void setUseLoadLeveler(final boolean shouldUseLoadLeveler);
+  
+  /// IBM LoadLeveler
+  
+  public void setDebugLoopFlag(final boolean shouldDebugLoop);
+  
+  public void setProxyMessageOptions(final int options);
+  
+  public void setTemplateFilePath(final String templateFilePath);
+  
+  public void setTemplateOption(final ELLTemplateOpt templateOpt);
   
 }

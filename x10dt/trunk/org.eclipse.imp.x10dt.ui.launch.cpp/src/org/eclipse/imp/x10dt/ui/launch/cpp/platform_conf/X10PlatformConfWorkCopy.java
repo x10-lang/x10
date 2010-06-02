@@ -7,7 +7,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 
-import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.*;
+import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.MPICH2_SERVICE_PROVIDER_ID;
+import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +47,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     this.fSource.fName = super.fName;
     this.fSource.fDescription = super.fDescription;
     this.fSource.fConnectionConf.applyChanges(this.fConnectionConf);
-    this.fSource.fCommInterfaceConf.applyChanges(this.fCommInterfaceConf);
+    this.fSource.fCommInterfaceFact.applyChanges(super.fCommInterfaceFact);
     this.fSource.fCppCompilationConf.applyChanges(this.fCppCompilationConf);
     this.fIsDirty = false;
   }
@@ -56,15 +57,23 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       initLocalCppCompilationCommands();
       initLocalX10DistribLocation();
     }
-    if (this.fCommInterfaceConf.fServiceTypeId == null) {
-      final boolean isWindows = this.fCppCompilationConf.getTargetOS() == ETargetOS.WINDOWS;
-      this.fCommInterfaceConf.fServiceTypeId = isWindows ? MPICH2_SERVICE_PROVIDER_ID : OPEN_MPI_SERVICE_PROVIDER_ID;
-      this.fCommInterfaceConf.fOpenMPIVersion = EOpenMPIVersion.EAutoDetect;
-      this.fCommInterfaceConf.fDefaultToolCmds = true;
-      this.fCommInterfaceConf.fDefaultIntallLocation = true;
+    final boolean isWindows = this.fCppCompilationConf.getTargetOS() == ETargetOS.WINDOWS;
+    AbstractCommunicationInterfaceConfiguration ciConf = super.fCommInterfaceFact.getCurrentCommunicationInterface();
+    if ((ciConf == null) || (ciConf.fServiceTypeId == null)) {
+      final String ciType = isWindows ? MPICH2_SERVICE_PROVIDER_ID : OPEN_MPI_SERVICE_PROVIDER_ID;
+      ciConf = super.fCommInterfaceFact.getOrCreate(ciType);
+      super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+      ciConf.fServiceTypeId = ciType;
+      ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
+      final MessagePassingInterfaceConf mpiConf = (MessagePassingInterfaceConf) ciConf;
+      mpiConf.fDefaultToolCmds = true;
+      mpiConf.fDefaultIntallLocation = true;
+      if (! isWindows) {
+        ((OpenMPIInterfaceConf) mpiConf).fOpenMPIVersion = EOpenMPIVersion.EAutoDetect;
+      }
     }
-    if (this.fCommInterfaceConf.fServiceModeId == null) {
-      this.fCommInterfaceConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
+    if (ciConf.fServiceModeId == null) {
+      ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
     }
     if (this.fName  == null) {
       String connectionName = this.fConnectionConf.fIsLocal ? LaunchMessages.RMCP_DefaultLocalConnName : 
@@ -72,8 +81,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       if (connectionName.trim().length() == 0) {
         connectionName = LaunchMessages.RMCP_UnknownTargetName;
       }
-      this.fName = NLS.bind(LaunchMessages.RMCP_DefaultConnName, 
-                            PTPConfUtils.getCommunicationInterfaceTypeName(this.fCommInterfaceConf),
+      this.fName = NLS.bind(LaunchMessages.RMCP_DefaultConnName, PTPConfUtils.getCommunicationInterfaceTypeName(ciConf),
                             connectionName);
     }
   }
@@ -234,58 +242,201 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   
   // --- ICommunicationInterface's setter methods
   
-  public void setDebugCommand(final String debugCommand) {
-    super.fCommInterfaceConf.fDebugCmd = debugCommand;
+  public void setDebugCommand(final String ciType, final String debugCommand) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final MessagePassingInterfaceConf conf = (MessagePassingInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fDebugCmd = debugCommand;
     updateDirtyFlag();
   }
   
-  public void setDefaultInstallLocationFlag(final boolean shouldTakeInstallLocation) {
-    super.fCommInterfaceConf.fDefaultIntallLocation = shouldTakeInstallLocation;
+  public void setDefaultInstallLocationFlag(final String ciType, final boolean shouldTakeInstallLocation) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final MessagePassingInterfaceConf conf = (MessagePassingInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fDefaultIntallLocation = shouldTakeInstallLocation;
     updateDirtyFlag();
   }
   
-  public void setDefaultToolCommands(final boolean shouldTakeDefaultToolCommands) {
-    super.fCommInterfaceConf.fDefaultToolCmds = shouldTakeDefaultToolCommands;
+  public void setDefaultToolCommands(final String ciType, final boolean shouldTakeDefaultToolCommands) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final MessagePassingInterfaceConf conf = (MessagePassingInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fDefaultToolCmds = shouldTakeDefaultToolCommands;
     updateDirtyFlag();
   }
   
-  public void setDiscoverCommand(final String discoverCommand) {
-    super.fCommInterfaceConf.fDiscoverCmd = discoverCommand;
+  public void setDiscoverCommand(final String ciType, final String discoverCommand) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final MessagePassingInterfaceConf conf = (MessagePassingInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fDiscoverCmd = discoverCommand;
     updateDirtyFlag();
   }
   
-  public void setInstallLocation(final String installLocation) {
-    super.fCommInterfaceConf.fInstallLocation = installLocation;
+  public void setInstallLocation(final String ciType, final String installLocation) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final MessagePassingInterfaceConf conf = (MessagePassingInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fInstallLocation = installLocation;
     updateDirtyFlag();
   }
   
-  public void setLaunchCommand(final String launchCommand) {
-    super.fCommInterfaceConf.fLaunchCmd = launchCommand;
+  public void setLaunchCommand(final String ciType, final String launchCommand) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final MessagePassingInterfaceConf conf = (MessagePassingInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fLaunchCmd = launchCommand;
     updateDirtyFlag();
   }
   
-  public void setMonitorCommand(final String monitorCommand) {
-    super.fCommInterfaceConf.fMonitorCmd = monitorCommand;
+  public void setMonitorCommand(final String ciType, final String monitorCommand) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final MessagePassingInterfaceConf conf = (MessagePassingInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fMonitorCmd = monitorCommand;
     updateDirtyFlag();
   }
   
-  public void setMonitorPeriod(final int monitorPeriod) {
-    super.fCommInterfaceConf.fMonitoringPeriod = monitorPeriod;
+  public void setMonitorPeriod(final String ciType, final int monitorPeriod) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final MessagePassingInterfaceConf conf = (MessagePassingInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fMonitoringPeriod = monitorPeriod;
     updateDirtyFlag();
   }
   
   public void setOpenMPIVersion(final EOpenMPIVersion openMPIVersion) {
-    super.fCommInterfaceConf.fOpenMPIVersion = openMPIVersion;
+    final String ciType = PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final OpenMPIInterfaceConf conf = (OpenMPIInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fOpenMPIVersion = openMPIVersion;
     updateDirtyFlag();
   }
   
-  public void setServiceModeId(final String seriveModeId) {
-    super.fCommInterfaceConf.fServiceModeId = seriveModeId;
+  public void setServiceModeId(final String ciType, final String serviceModeId) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final AbstractCommunicationInterfaceConfiguration configuration = super.fCommInterfaceFact.getOrCreate(ciType);
+    configuration.fServiceModeId = serviceModeId;
     updateDirtyFlag();
   }
   
-  public void setServiceTypeId(final String serviceTypeId) {
-    super.fCommInterfaceConf.fServiceTypeId =  serviceTypeId;
+  public void setServiceTypeId(final String ciType) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final AbstractCommunicationInterfaceConfiguration configuration = super.fCommInterfaceFact.getOrCreate(ciType);
+    configuration.fServiceTypeId = ciType;
+    updateDirtyFlag();
+  }
+  
+  public void setAlternateLibraryPath(final String ciType, final String libPath) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fAlternateLibPath = libPath;
+    updateDirtyFlag();
+  }
+  
+  public void setClusterMode(final String ciType, final EClusterMode mode) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fClusterMode = mode;
+    updateDirtyFlag();
+  }
+  
+  public void setJobPolling(final String ciType, final int jobPolling) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fJobPolling = jobPolling;
+    updateDirtyFlag();
+  }
+  
+  public void setNodeMinPolling(final String ciType, final int nodeMinPolling) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fNodePollingMin = nodeMinPolling;
+    updateDirtyFlag();
+  }
+  
+  public void setNodeMaxPolling(final String ciType, final int nodeMaxPolling) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fNodePollingMax = nodeMaxPolling;
+    updateDirtyFlag();
+  }
+  
+  public void setProxyServerPath(final String ciType, final String proxyServerPath) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fProxyServerPath = proxyServerPath;
+    updateDirtyFlag();
+  }
+  
+  public void setLaunchProxyManuallyFlag(final String ciType, final boolean shouldLaunchProxyManually) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fLaunchProxyManually = shouldLaunchProxyManually;
+    updateDirtyFlag();
+  }
+  
+  public void setUsePortForwardingFlag(final String ciType, final boolean shouldUsePortForwarding) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fUsePortForwarding = shouldUsePortForwarding;
+    updateDirtyFlag();
+  }
+  
+  public void setDebuggingLevel(final ECIDebugLevel debugLevel) {
+    final String ciType = PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final ParallelEnvironmentConf conf = (ParallelEnvironmentConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fCIDebugLevel = debugLevel;
+    updateDirtyFlag();
+  }
+  
+  public void setRunMiniProxyFlag(final boolean shouldRunMiniProxy) {
+    final String ciType = PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final ParallelEnvironmentConf conf = (ParallelEnvironmentConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fRunMiniProxy = shouldRunMiniProxy;
+    updateDirtyFlag();
+  }
+  
+  public void setSuspendProxyFlag(final boolean shouldSuspendProxy) {
+    final String ciType = PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final ParallelEnvironmentConf conf = (ParallelEnvironmentConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fSuspendProxy = shouldSuspendProxy;
+    updateDirtyFlag();
+  }
+  
+  public void setUseLoadLeveler(final boolean shouldUseLoadLeveler) {
+    final String ciType = PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final ParallelEnvironmentConf conf = (ParallelEnvironmentConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fUseLoadLeveler = shouldUseLoadLeveler;
+    updateDirtyFlag();
+  }
+  
+  public void setDebugLoopFlag(final boolean shouldDebugLoop) {
+    final String ciType = PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final LoadLevelerConf conf = (LoadLevelerConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fDebugLoop = shouldDebugLoop;
+    updateDirtyFlag();
+  }
+  
+  public void setProxyMessageOptions(final int options) {
+    final String ciType = PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final LoadLevelerConf conf = (LoadLevelerConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fProxyMsgOpts = options;
+    updateDirtyFlag();
+  }
+  
+  public void setTemplateFilePath(final String templateFilePath) {
+    final String ciType = PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final LoadLevelerConf conf = (LoadLevelerConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fTemplateFilePath = templateFilePath;
+    updateDirtyFlag();
+  }
+  
+  public void setTemplateOption(final ELLTemplateOpt templateOpt) {
+    final String ciType = PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final LoadLevelerConf conf = (LoadLevelerConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fTemplateOpt = templateOpt;
     updateDirtyFlag();
   }
   

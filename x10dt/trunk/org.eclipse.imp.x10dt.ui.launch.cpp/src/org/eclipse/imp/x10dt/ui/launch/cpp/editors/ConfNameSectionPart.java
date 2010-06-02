@@ -29,14 +29,14 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.TableWrapData;
+import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 
 final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements IFormPart, IServiceModelEventListener,
@@ -189,12 +189,14 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
                             final Collection<IServiceConfigurationListener> rmConfPageListeners) {    
     final Composite nameCompo = toolkit.createComposite(parent, SWT.NONE);
     nameCompo.setFont(parent.getFont());
-    nameCompo.setLayout(new GridLayout(2, false));
-    nameCompo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1));
+    final TableWrapLayout layout = new TableWrapLayout();
+    layout.numColumns = 2;
+    nameCompo.setLayout(layout);
+    nameCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 2));
     
     toolkit.createLabel(nameCompo, LaunchMessages.RMCP_ConfNameLabel);
     this.fRMServiceConfNameCombo = new Combo(nameCompo, SWT.NONE);
-    this.fRMServiceConfNameCombo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    this.fRMServiceConfNameCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
     final ServiceModelManager modelManager = ServiceModelManager.getInstance();
     for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
@@ -204,7 +206,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     
     toolkit.createLabel(nameCompo, LaunchMessages.RMCP_DescriptionLabel);
     this.fDescriptionText = toolkit.createText(nameCompo, null);
-    this.fDescriptionText.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    this.fDescriptionText.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
     initializeControls(managedForm);
     

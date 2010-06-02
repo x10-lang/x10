@@ -139,13 +139,18 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
   // --- Private code
   
   private void createPlatformConfFile(final IProgressMonitor monitor) throws CoreException {
-    final IFile platformConfFile = X10PlatformConfFactory.getFile(this.fThirdPage.getJavaProject().getProject());
-    final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
-    final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
-    platformConfWorkCopy.initializeToDefaultValues();
-    platformConfWorkCopy.applyChanges();
+    try {
+      final IFile platformConfFile = X10PlatformConfFactory.getFile(this.fThirdPage.getJavaProject().getProject());
+      
+      final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
+      final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
+      platformConfWorkCopy.initializeToDefaultValues();
+      platformConfWorkCopy.applyChanges();
 
-    X10PlatformConfFactory.save(platformConfFile, platformConfWorkCopy);
+      X10PlatformConfFactory.save(platformConfFile, platformConfWorkCopy);
+    } finally {
+      monitor.done();
+    }
   }
 
   private IWorkbenchPage getActivePage() {
