@@ -191,12 +191,16 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     protected boolean visitFinishEnter(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveFinishEnter(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
-        context.cfg().addInstruction(insts.Finish(true));
+        int line = context.getSourceMap().getPosition(n).getFirstLine();
+        int column = context.getSourceMap().getPosition(n).getFirstCol();
+        context.cfg().addInstruction(insts.Finish(true,line,column));
     }
     protected boolean visitFinishExit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveFinishExit(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
-        context.cfg().addInstruction(insts.Finish(false));
+        int line = context.getSourceMap().getPosition(n).getFirstLine();
+        int column = context.getSourceMap().getPosition(n).getFirstCol();
+        context.cfg().addInstruction(insts.Finish(false,line,column));
     }
     protected boolean visitForce(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveForce(CAstNode n, Context c, CAstVisitor visitor) {
@@ -260,12 +264,18 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     }
     
     protected boolean visitAtStmtEnter(final CAstNode node, final Context context, final CAstVisitor visitor) {
-      ((WalkContext) context).cfg().addInstruction(insts.AtStmt(true));
+    	WalkContext c = (WalkContext)context;
+        int line = c.getSourceMap().getPosition(node).getFirstLine();
+        int column = c.getSourceMap().getPosition(node).getFirstCol();
+      ((WalkContext) context).cfg().addInstruction(insts.AtStmt(true,line,column));
       return true;
     }
     
     protected boolean visitAtStmtExit(final CAstNode node, final Context context, final CAstVisitor visitor) {
-      ((WalkContext) context).cfg().addInstruction(insts.AtStmt(false));
+    	WalkContext c = (WalkContext)context;
+        int line = c.getSourceMap().getPosition(node).getFirstLine();
+        int column = c.getSourceMap().getPosition(node).getFirstCol();
+      ((WalkContext) context).cfg().addInstruction(insts.AtStmt(false,line,column));
       return true;
     }
     

@@ -12,14 +12,24 @@ import com.ibm.wala.ssa.SymbolTable;
 
 public class SSAFinishInstruction extends SSAInstruction {
     private final boolean isEnter;
-    public SSAFinishInstruction(boolean isEnter) {
+    private final int line;
+    private final int column;
+    public SSAFinishInstruction(boolean isEnter, int line, int column) {
       super();
       this.isEnter = isEnter;
+      this.line = line;
+      this.column = column;
     }
     public SSAInstruction copyForSSA(SSAInstructionFactory insts, int[] defs, int[] uses) {
-      return ((X10InstructionFactory)insts).Finish(isEnter);
+      return ((X10InstructionFactory)insts).Finish(isEnter,line,column);
     }
-
+    
+    public int getLine(){
+    	return line;
+    }
+    public int getColumn(){
+    	return column;
+    }
     public String toString(SymbolTable symbolTable) {
       return isEnter ? "finish enter" : "finish exit";
     }
