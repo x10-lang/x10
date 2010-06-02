@@ -1,0 +1,133 @@
+\documentclass[orivec,twoside,twocolumn]{algol60}
+\usepackage{changebar}
+%\documentclass[twoside]{algol60}
+\def\Hat{{\tt \char`\^}}
+\def\ccfont{\sf}
+\usepackage{url}
+\usepackage{times}
+\pagestyle{headings}
+\showboxdepth=0
+\makeindex
+\input{commands}
+
+\def\headertitle{The \XtenCurrVer{} Report }
+\def\integerversion{1.0}
+
+% Sizes and dimensions
+
+\topmargin -.375in       %    Nominal distance from top of page to top of
+                         %    box containing running head.
+\headsep 15pt            %    Space between running head and text.
+
+\textheight 663pt        % Height of text (including footnotes and figures, 
+                         % excluding running head and foot).
+
+\textwidth 523pt         % Width of text line.
+\columnsep 15pt          % Space between columns 
+\columnseprule 0pt       % Width of rule between columns.
+
+\parskip 5pt plus 2pt minus 2pt % Extra vertical space between paragraphs.
+\parindent 0pt                  % Width of paragraph indentation.
+\topsep 0pt plus 2pt            % Extra vertical space, in addition to 
+                                % \parskip, added above and below list and
+                                % paragraphing environments.
+
+\oddsidemargin  -.5in    % Left margin on odd-numbered pages.
+\evensidemargin -.5in    % Left margin on even-numbered pages.
+
+%% End of sizes and dimensions
+\makeatletter
+\newsavebox{\eStop}
+\savebox{\eStop}{\raisebox{0.6ex}{\framebox[0.5em]\relax}}
+
+\def\newtenv#1{\@ifnextchar[{\@otxm{#1}}{\@ntxm{#1}}}
+
+\def\@ntxm#1#2{\@ifnextchar[{\@xntxm{#1}{#2}}{\@yntxm{#1}{#2}}}
+
+\def\@xntxm#1#2[#3]{\expandafter\@ifdefinable\csname #1\endcsname
+{\@definecounter{#1}\@addtoreset{#1}{#3}%
+\expandafter\xdef\csname the#1\endcsname{\expandafter\noexpand
+  \csname the#3\endcsname \@thmcountersep \@thmcounter{#1}}%
+\global\@namedef{#1}{\@txm{#1}{#2}}\global\@namedef{end#1}{\@endtenv}}}
+
+\def\@yntxm#1#2{\expandafter\@ifdefinable\csname #1\endcsname
+{\@definecounter{#1}%
+\expandafter\xdef\csname the#1\endcsname{\@thmcounter{#1}}%
+\global\@namedef{#1}{\@txm{#1}{#2}}\global\@namedef{end#1}{\@endtenv}}}
+
+\def\@otxm#1[#2]#3{\expandafter\@ifdefinable\csname #1\endcsname
+  {\global\@namedef{the#1}{\@nameuse{the#2}}%
+\global\@namedef{#1}{\@txm{#2}{#3}}%
+\global\@namedef{end#1}{\@endtenv}}}
+
+\def\@txm#1#2{\refstepcounter
+    {#1}\@ifnextchar[{\@ytxm{#1}{#2}}{\@xtxm{#1}{#2}}}
+
+\def\@xtxm#1#2{\@begintenv{#2}{\csname the#1\endcsname}\ignorespaces}
+\def\@ytxm#1#2[#3]{\@opargbegintenv{#2}{\csname
+       the#1\endcsname}{#3}\ignorespaces}
+
+%DEFAULT VALUES
+\def\@begintenv#1#2{\trivlist \item[\hskip \labelsep{\bf #1\ #2}]}
+\def\@opargbegintenv#1#2#3{\trivlist
+      \item[\hskip \labelsep{\bf #1\ #2\ (#3)}]}
+\def\@endtenv{\hfill\usebox{\eStop}\endtrivlist}
+\makeatother
+
+\newtenv{example}{Example}[section]
+
+\begin{document}
+
+\parindent 0pt %!! 15pt                    % Width of paragraph indentation.
+
+%\hfil {\bf 7 Feb 2005}
+%\hfil \today{}
+
+\input{first}   \par  % vj: first page
+\input{XtenIntro}   \par  % 0.1
+\input{XtenOverview}  \par % Semantics section. What else?
+\vskip 2ex
+\clearchapterstar{Description of the language} %\unskip\vskip -2ex
+\input{XtenLex}	\par % 0.1
+\input{XtenTypes}	\par % empty
+\input{XtenDepTypes}	\par % empty
+\input{XtenPackages}	\par % \vfill\eject % empty
+\input{XtenPlaces}	\par %0.1
+\input{XtenActivities}	\par %0.1
+\input{XtenClocks}	\par  %\vfill\eject %0.1
+\input{XtenInterfaces}	\par  %\vfill\eject % empty
+\input{XtenClasses}	\par % 0.1
+\input{XtenArrays}	\par % 0.1
+\input{XtenStatements}	\par  % 0.05
+\input{XtenAnnotations}	\par  % 0.05
+\input{extern}
+%\input{PerformanceModel} \par \vfill\eject % empty
+\input{example}	\par  \vfill\eject % have an example
+\notinfouro{\input{x10-syntax}\par  \vfill\eject} % syntax
+\input{x10-changes}\par  \vfill\eject % changes
+%\newpage                   %  Put bib on it's own page (it's just one)
+%\twocolumn[\vspace{-.18in}]%  Last bib item was on a page by itself.
+\renewcommand{\bibname}{References}
+\newpage\bibliographystyle{plain}
+\bibliography{master}
+
+%\input{bib}	\par
+
+\vfill\eject
+
+% Adjustment to avoid having the last index entry on a page by itself.
+%\addtolength{\baselineskip}{-0.1pt}
+
+\bigskip
+
+\input{x10.ind}
+
+\vfill\eject
+{\em The \Xten{} language has been developed as part of the IBM PERCS
+Project, which is supported in part by the Defense Advanced Research
+Projects Agency (DARPA) under contract No. NBCH30390004.}
+
+{\em Java and all Java-based trademarks are trademarks of Sun Microsystems,
+Inc. in the United States, other countries, or both.}
+\end{document}
+
