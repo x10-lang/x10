@@ -1328,6 +1328,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             iterableType_ = load("x10.lang.Iterable"); // java file
         return iterableType_;
     }
+    
+    protected ClassType reducibleType_;
+
+    public Type Reducible() {
+        if (reducibleType_ == null)
+            reducibleType_ = load("x10.lang.Reducible"); // java file
+        return reducibleType_;
+    }
 
     protected ClassType nativeRepType_;
     public Type NativeRep() {
@@ -1704,6 +1712,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public boolean isIterator(Type me) {
         return isSubtype(me, Iterator(), emptyContext());
+    }
+    public boolean isReducible(Type me) {
+        return isSubtype(me, Reducible(), emptyContext());
     }
 
     public boolean isContains(Type me) {

@@ -49,7 +49,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_1<Long, Long> absOperator() {
         return new Fun_0_1<Long, Long>() {
-            public Long apply(Long x) {
+            public Long apply$G(Long x) {
                 return (x > 0 ? x : -x);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -59,7 +59,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_1<Long, Long> scaleOperator(final int k) {
         return new Fun_0_1<Long, Long>() {
-            public Long apply(Long x) {
+            public Long apply$G(Long x) {
                 return (x * k);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -70,7 +70,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_2<Long, Long, Long> addOperator() {
         return new Fun_0_2<Long, Long, Long>() {
-            public Long apply(Long x, Long y) {
+            public Long apply$G(Long x, Long y) {
                 return (x + y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -80,7 +80,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_2<Long, Long, Long> subOperator() {
         return new Fun_0_2<Long, Long, Long>() {
-            public Long apply(Long x, Long y) {
+            public Long apply$G(Long x, Long y) {
                 return (x - y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -90,7 +90,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_2<Long, Long, Long> mulOperator() {
         return new Fun_0_2<Long, Long, Long>() {
-            public Long apply(Long x, Long y) {
+            public Long apply$G(Long x, Long y) {
                 return (x * y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -100,7 +100,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_2<Long, Long, Long> divOperator() {
         return new Fun_0_2<Long, Long, Long>() {
-            public Long apply(Long x, Long y) {
+            public Long apply$G(Long x, Long y) {
                 return (x / y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -110,7 +110,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_2<Long, Long, Long> modOperator() {
         return new Fun_0_2<Long, Long, Long>() {
-            public Long apply(Long x, Long y) {
+            public Long apply$G(Long x, Long y) {
                 return (x % y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -120,7 +120,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_2<Long, Long, Long> maxOperator() {
         return new Fun_0_2<Long, Long, Long>() {
-            public Long apply(Long x, Long y) {
+            public Long apply$G(Long x, Long y) {
                 return (x > y ? x : y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -130,7 +130,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_2<Long, Long, Long> minOperator() {
         return new Fun_0_2<Long, Long, Long>() {
-            public Long apply(Long x, Long y) {
+            public Long apply$G(Long x, Long y) {
                 return (x < y ? x : y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -141,7 +141,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_2<Long, Long, Long> andOperator() {
         return new Fun_0_2<Long, Long, Long>() {
-            public Long apply(Long x, Long y) {
+            public Long apply$G(Long x, Long y) {
                 return (x & y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -152,7 +152,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_2<Long, Long, Long> orOperator() {
         return new Fun_0_2<Long, Long, Long>() {
-            public Long apply(Long x, Long y) {
+            public Long apply$G(Long x, Long y) {
                 return (x | y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -163,7 +163,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_2<Long, Long, Long> xorOperator() {
         return new Fun_0_2<Long, Long, Long>() {
-            public Long apply(Long x, Long y) {
+            public Long apply$G(Long x, Long y) {
                 return (x ^ y);
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -174,7 +174,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_1<Long, Long> negOperator() {
         return new Fun_0_1<Long, Long>() {
-            public Long apply(Long x) {
+            public Long apply$G(Long x) {
                 return -x;
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -185,7 +185,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_1<Long, Long> posOperator() {
         return new Fun_0_1<Long, Long>() {
-            public Long apply(Long x) {
+            public Long apply$G(Long x) {
                 return +x;
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -196,7 +196,7 @@ public class LongType extends RuntimeType<Long> {
     @Override
     public Fun_0_1<Long, Long> invOperator() {
         return new Fun_0_1<Long, Long>() {
-            public Long apply(Long x) {
+            public Long apply$G(Long x) {
                 return ~x;
             }
             public RuntimeType<?> getRTT() { return _RTT; }

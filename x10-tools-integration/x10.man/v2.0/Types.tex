@@ -76,7 +76,7 @@ Type \: FunctionType \\
     \| ConstrainedType  \\
 
 FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")"
-Constraint\opt Throws\opt \xcd"=>" Type \\
+Constraint\opt Throws\opt \xcd"=>" TypeOrVoid \\
 TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter )\star \xcd"]" \\
 TypeParameter \: Identifier \\
 Throws \: \xcd"throws" TypeName ( \xcd"," TypeName )\star \\
@@ -88,7 +88,8 @@ BaseType \: ClassBaseType \\
      \| InterfaceBaseType \\
      \| PathType \\
      \| \xcd"(" Type \xcd")" \\
-
+TypeOrVoid \: Type \\
+     \| \xcd`Void`\\
 ClassType \: Annotation\star ClassBaseType Constraint\opt
 PlaceConstraint\opt \\
 InterfaceType \: Annotation\star InterfaceBaseType Constraint\opt
@@ -320,7 +321,7 @@ on instantiation.  For example, a generic stack class may be defined as
 Generics {\em must} be instantiated when they are used: \xcd`Stack`, by
 itself, is not a valid type.
 Type parameters may be constrained by a guard on the declaration
-(\Sref{ClassGuard}, \Sref{TypeDefGuard},
+(\Sref{TypeDefGuard},
 \Sref{MethodGuard},\Sref{ClosureGuard}).
 
 \index{types!concrete types}
@@ -512,6 +513,22 @@ at that position in the declaration of \Xcd{C}.
 
 There are similar restrictions on use of covariant and contravariant values. 
 \bard{Get them!  What are they?}
+
+
+\section{Function Types}
+
+For every sequence of types \xcd"T1,..., Tn,T", and \xcd"n" distinct variables
+\xcd"x1,...,xn" and constraint \xcd"c", the expression
+\xcd"(x1:T1,...,xn:Tn){c}=>T" is a \emph{function type}. It stands for
+ the set of all functions \xcd"f" which can be applied to a
+ list of values \xcd"(v1,...,vn)" provided that the constraint
+ \xcd"c[v1,...,vn,p/x1,...,xn]" is true, and which returns a value of
+ type \xcd"T[v1,...vn/x1,...,xn]". When \xcd"c" is true, the clause \xcd"{c}" can be
+ omitted. When \xcd"x1,...,xn" do not occur in \xcd"c" or \xcd"T", they can be
+ omitted. Thus the type \xcd"(T1,...,Tn)=>T" is actually shorthand for
+ \xcd"(x1:T1,...,xn:Tn){true}=>T", for some variables \xcd"x1,...,xn".
+
+
 
 
 \section{Type definitions}
@@ -1185,17 +1202,22 @@ Let {$\vec{X}$} be a (possibly empty) vector of type variables, and
 {$\vec{Y}$}, {$\vec{Y_i}$} be vectors of type terms over {$\vec{X}$}.
 Let {$\vec{T}$} be an instantiation of {$\vec{X}$}, 
 and {$\vec{U}$}, {$\vec{U_i}$} the corresponding instantiation of 
-{$\vec{Y}$}, {$\vec{Y_i}$}.  Suppose that \xcd`C` is declared by one of the
+{$\vec{Y}$}, {$\vec{Y_i}$}.  Let \xcd`c` be a constraint, and \xcdmath"c$'$"
+be the corresponding instantiation.
+We elide properties, and interpret empty vectors as absence of the relevant
+clauses. 
+Suppose that \xcd`C` is declared by one of the
 forms: 
 \begin{enumerate}
-\item \xcdmath"class C[$\vec{X}$] extends D[$\vec{Y}$]{d} implements I$_1[\vec{Y_1}]$,...,I$_n[\vec{Y_n}]${"
-\item \xcdmath"interface C[$\vec{X}$] extends I$_1[\vec{Y_1}]$,...,I$_n[\vec{Y_n}]${"
-\item \xcdmath"struct C[$\vec{X}$] implements I$_1[\vec{Y_1}]$,...,I$_n[\vec{Y_n}]${"
+\item \xcdmath"class C[$\vec{X}$]{c} extends D[$\vec{Y}$]{d} implements I$_1[\vec{Y_1}]${i$_1$},...,I$_n[\vec{Y_n}]${i$_n$}{"
+\item \xcdmath"interface C[$\vec{X}$]{c} extends I$_1[\vec{Y_1}]${i$_1$},...,I$_n[\vec{Y_n}]${i$_n$}{"
+\item \xcdmath"struct C[$\vec{X}$]{c} implements I$_1[\vec{Y_1}]${i$_1$},...,I$_n[\vec{Y_n}]${i$_n$}{"
 \end{enumerate}
 Then: 
 \begin{enumerate}
-\item \xcdmath"C[$\vec{T}$] <: D[$\vec{Y}$]{d}" for a class
-\item \xcdmath"C[$\vec{T}$] <: I$_i$[$\vec{Y_i}$]" for all cases.
+\item \xcdmath"C[$\vec{T}$] <: D[$\vec{U}$]{d}" for a class
+\item \xcdmath"C[$\vec{T}$] <: I$_i$[$\vec{U_i}$]{i$_i$}" for all cases.
+\item \xcdmath"C[$\vec{T}$] <: C[$\vec{T}$]{c$'$}" for all cases.
 \end{enumerate}
 
 
@@ -1230,7 +1252,7 @@ Inside the scope of a constraint \xcd`c` which entails \xcd`A <: B`, we have
 If \xcd`C` is a generic type whose {$i$}th type parameter is covariant, 
 and {\xcdmath"T$'_i$ <: T$_i$"}
 and  {\xcdmath"T$'_j$ == T$_j$"} for all {$j \ne i$}, 
-then {\xcdmath"C[T$'_1$, \ldots, T$'_n$] <: C[T$'_1$, $\ldots$, T$'_n$]"}.
+then {\xcdmath"C[T$'_1$, $\ldots$, T$'_n$] <: C[T$'_1$, $\ldots$, T$'_n$]"}.
 \Eg, \xcd`class C[T1, +T2, T3]` with {$i=2$}, and \xcd"U2 <: T2", then
 \xcd`C[T1,U2,T3] <: C[T1,T2,T3]`.
 
@@ -1239,7 +1261,7 @@ then {\xcdmath"C[T$'_1$, \ldots, T$'_n$] <: C[T$'_1$, $\ldots$, T$'_n$]"}.
 If \xcd`C` is a generic type whose {$i$}th type parameter is contravariant, 
 and \xcdmath"T$'_i$ <: T$_i$"
 and  \xcdmath"T$'_j$ == T$_j$" for all {$j \ne i$}, 
-then \xcdmath"C[T$'_1$, \ldots, T$'_n$] :> C[T$'_1$, $\ldots$, T$'_n$]".
+then \xcdmath"C[T$'_1$, $\ldots$, T$'_n$] :> C[T$'_1$, $\ldots$, T$'_n$]".
 \Eg, \xcd`class C[T1, -T2, T3]` with {$i=2$}, and \xcdmath"U2 <: T2", then
 \xcd`C[T1,U2,T3] :> C[T1,T2,T3]`.
 
@@ -1252,23 +1274,111 @@ Two types are {\em equivalent}, \xcd`T == U`, if \xcd`T <: U` and \xcd`U <: T`.
 \section{Common ancestors of types}
 \label{LCA}
 
-\bard{This is a troublesome topic.  It is necessary to compute some common
-ancestor of types: the conditional expression \xcd`t ? a : b` 
-and a function with multiple return sites 
-\xcd`def f(x:Int) { ... return a; ... return b; ...}`
-will be given some type generalizing both 
-\xcd`typeof(a)` and \xcd`typeof(b)`.
-However, both the constraint system and covariant generic types allow the
-possibility of types without a {\bf least} common ancestor. 
-Current concept: X10 may compute any common ancestor, possibly all the way to
-\xcd`Any`. However, it will try to compute a good one. 
-guarantee that if the types of \xcd`a` and \xcd`b` are
-identical, the common ancestor chosen is that type too.  If the types are
-\xcd`T{e}` and \xcd`T{f}`, the common ancestor will be \xcd`T{g}` for some
-\xcd`g` (entailed by both \xcd`e` and \xcd`f` -- perhaps just \xcd`true`). 
+There are several situations where X10 must find a type \xcd`T` that describes
+values of two or more different types.  This arises when X10 is trying to find
+a good type to describe: 
+\begin{itemize}
+%~~exp~~`~~`~~test:Boolean ~~
+\item Conditional expressions, like \xcd`test ? 0 : "non-zero"` or even 
+%~~exp~~`~~`~~test:Boolean ~~
+      \xcd`test ? 0 : 1`;
+%~~exp~~`~~`~~ ~~
+\item ValRail construction, like \xcd`[0, "non-zero"]` and 
+%~~exp~~`~~`~~ ~~
+      \xcd`[0,1]`;
+\item Functions with multiple returns, like
+%~~gen
+% package Types.For.Gripes.About.Pipes;
+% class Examplerator {
+%~~vis
+\begin{xten}
+def f(a:Int) {
+  if (a == 0) return 0;
+  else return "non-zero";
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+\end{itemize}
+
+In some cases, there is a unique best type describing the expression.  For
+example, if \xcd`B` and \xcd`C` are direct subclasses of \xcd`A`, \xcd`pick`
+will have return type \xcd`A`: 
+%~~gen
+% package Types.For.Gripes.About.Pipes;
+%  class A {} class B extends A{} class C extends A{}
+% class D {
+%~~vis
+\begin{xten}
+static def pick(t:Boolean, b:B, c:C) = t ? b : c;  
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+However, in many common cases, there is no unique best type describing the
+expression.  For example, consider the expression {$E=$} \xcd`b ? 0 : 1`.  The
+best type of \xcd`0` 
+is \xcd`Int{self==0}`, and the best type of 1 is \xcd`Int{self==1}`.
+Certainly {$E$} could be given the type \xcd`Int`, or even \xcd`Any`, and that
+would describe all possible results.  However, we actually know more.
+\xcd`Int{self != 2}` is a better description of the type of {$E$}---certainly
+the result of {$E$} can never be \xcd`2`.   \xcd`Int{self != 2, self != 3}` is
+an even better description; {$E$} can't be \xcd`3` either.  We can continue
+this process forever, adding integers which {$E$} will definitely not return
+and getting better and better approximations. (If the constraint
+sublanguage had \xcd`||`, we could give it the type 
+\xcd`Int{self == 0 || self == 1`, which would be nearly perfect.  But 
+\xcd`||` makes typechecking far more expensive, so it is excluded.)
+No X10 type is the best description of {$E$}; there is always a better one.
+
+Similarly, consider two unrelated interfaces: 
+%~~gen
+% package Types.For.Gripes.About.Snipes;
+%~~vis
+\begin{xten}
+interface I1 {}
+interface I2 {}
+class A implements I1, I2 {}
+class B implements I1, I2 {}
+class C {
+  static def example(t:Boolean, a:A, b:B) = t ? a : b;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\xcd`I1` and \xcd`I2` are both perfectly good descriptions of \xcd`t ? a : b`, 
+but neither one is better than the other, and there is no single X10 type
+which is better than both. (Some languages have {\em conjunctive
+    types}, and could say that the return type of \xcd`example` was 
+\xcd`I1 && I2`.  This, too, complicates typechecking.)
 }
 
+So, when confronted with expressions like this, X10 computes {\em some}
+satisfactory type for the expression, but not necessarily the {\em best} type.  
+X10 provides certain guarantees about the common type \xcd`V{v}` computed for 
+\xcd`T{t}` and \xcd`U{u}`: 
+\begin{itemize}
+\item If \xcd`T{t} == U{u}`, then \xcd`V{v} == T{t} == U{u}`.  So, if X10's
+      algorithm produces an utterly untenable type for \xcd`a ? b : c`, and
+      you want the result to have type \xcd`T{t}`, you can 
+      (in the worst case) rewrite it to 
+      \xcd`a ? b as T{t} : c as T{t}`.
+\item If \xcd`T == U`, then \xcd`V == T == U`.  For example, 
+      X10 will compute the type of \xcd`b ? 0 : 1` as 
+      \xcd`Int{c}` for some constraint \xcd`c`---perhaps simply 
+      picking \xcd`Int{true}`, \viz, \xcd`Int`. 
+\item X10 preserves place information, because it is so important. If both
+      \xcd`t` and \xcd`u` entail \xcd`self.home==p`, then  
+      \xcd`v` will also entail \xcd`self.home==p`.  In particular, the common
+      type for \xcd`T!` and \xcd`U!` has the form \xcd`V!`. 
+\item X10 similarly preserves nullity information.  If \xcd`t` and \xcd`u`
+      both entail \xcd`x == null` or \xcd`x != null` for some variable
+      \xcd`x`, then \xcd`v` will also entail it as well.
 
+\end{itemize}
 
 %\subsection{Syntactic abbreviations}\label{DepType:SyntaxAbbrev}
 
@@ -1463,6 +1573,7 @@ explicit type arguments.  If the method has a type parameter
 \xcd"T", the type argument corresponding to \xcd"T" is inferred
 to be the least common ancestor of the types of any formal
 parameters of type \xcd"T".
+\bard{Not least!}
 
 %TODO--check this!
 Consider the following method:

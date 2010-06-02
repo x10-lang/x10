@@ -1,3 +1,5 @@
+
+
 \chapter{Functions}
 \label{Functions}
 \label{functions}
@@ -5,29 +7,51 @@
 \label{Closures}
 
 \section{Overview}
-The runtime entities in \Xten{} are of three kinds: \emph{structs},
-\emph{objects}, and \emph{functions}. This section is concerned with
-functions and their types -- how they are created, and what operations
-can be performed on them.
-
-Intuitively, a function is a piece of code which can be applied to a
-set of arguments to produce a value. The application may not
-terminate, or may terminate abruptly. Functions may throw checked and
-unchecked exceptions. The body of a function may be any \Xten{}
-expression: hence a function evaluation may spawn multiple activities,
-read and write mutable locations, wait until memory locations contain
-a desired value, and execute over multiple places. In particular,
-function evaluation may be non-deterministic. When applied to the same
-input twice, a function may yield two different results.
+Functions, the last of the three kinds of values in X10, encapsulate pieces of
+code which can be applied to a vector of arguments to produce a value.
+Functions, when applied, can do nearly anything that any other code could do:
+fail to terminate, throw an exception, modify variables, spawn activities,
+execute in several places, and so on. X10 functions are not mathematical
+functions: the \xcd`f(1)` may return \xcd`true` on one call and \xcd`false` on
+an immediately following call.
 
 It is a limitation of \XtenCurrVer{} that functions do not support
 type arguments. This limitation may be removed in future versions of
 the language.
 
 A \emph{function literal} \xcd"(x1:T1,..,xn:Tn){c}:T=>e" creates a function of
-type\\ \xcd"(x1:T1,...,xn:Tn){c}=>T" (\Sref{FunctionType}). The body \Xcd{e}
-of such an expression is type-checked in an environment in which \Xcd{c} is
-true. 
+type\\ \xcd"(x1:T1,...,xn:Tn){c}=>T" (\Sref{FunctionType}).  For example, 
+\xcd`(x:Int) => x*x` is a function literal describing the squaring function on
+integers.   
+\xcd`null` is also a function value.
+
+Function application is written \xcd`f(a,b,c)`, following common mathematical
+usage. 
+\index{Exception!unchecked}
+Function invocation may throw unchecked exceptions. 
+
+The function body may be a block.  To compute integer squares by repeated
+addition (inefficiently), one may write: 
+%~~gen
+% package Functions.Are.For.Spunctions;
+% class Examplllll {
+% static 
+%~~vis
+\begin{xten}
+val sq: (Int) => Int 
+      = (n:Int) => {
+           var s : Int = 0;
+           val abs_n = n < 0 ? -n : n;
+           for ((i) in 1..abs_n) s += abs_n;
+           s
+        };
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+
+
 
 A function literal evaluates to a function entity {$\phi$}. When {$\phi$} is
 applied to a suitable list of actual parameters \xcd`a1`-\xcd`an`, it
@@ -78,12 +102,12 @@ and
 %~~siv
 %}}
 %~~neg
+\noindent
+This doesn't quite work if the body is a statement rather than an expression.
+A few language features are forbidden (\xcd`break` or \xcd`continue` of a loop
+that surrounds the function literal) or mean something different (\xcd`return`
+inside a function returns from the function). 
 
-
-%FUNCY% At runtime,
-%FUNCY% function execution results in the evaluation of \Xcd{e} in an
-%FUNCY% environment in which each formal is bound to the given actual
-%FUNCY% parameter.
 
 
 
@@ -139,12 +163,15 @@ and optional set of exceptions throws by the body.  The body has the
 same syntax as a method body; it may be either an expression, a block
 of statements, or a block terminated by an expression to return. In
 particular, a value may be returned from the body of the function
-using a return statement (\Sref{ReturnStatement}). The type of a
+using a return statement (\Sref{ReturnStatement}). 
+
+The type of a
 function is a function type (\Sref{FunctionType}).  In some cases the
 return type \Xcd{T} is also optional and defaults to the type of the
 body. If a formal \Xcd{xi} does not occur in any
-\Xcd{Tj},\Xcd{c},\Xcd{T} or \Xcd{e}, the declaration \Xcd{xi:Ti} may
-be replaced by just \Xcd{Ti}.
+\Xcd{Tj}, \Xcd{c}, \Xcd{T} or \Xcd{e}, the declaration \Xcd{xi:Ti} may
+be replaced by just \Xcd{Ti}: \xcd`(Int)=>7` is the integer function returning
+7 for all inputs.
 
 \label{ClosureGuard}
 
@@ -161,7 +188,11 @@ As with methods, a function with return type \xcd"Void" cannot
 have a terminating expression. 
 If the return type is omitted, it is inferred, as described in
 \Sref{TypeInference}.
-It is a static error if the return type cannot be inferred. 
+It is a static error if the return type cannot be inferred.  \Eg,
+\xcd`(Int)=>null` is not well-defined; X10 does not know which type of
+\xcd`null` is intended.  
+%~~exp~~`~~`~~ ~~
+But \xcd`(Int):Rail[Double] => null` is legal.
 
 
 \begin{example}
@@ -172,16 +203,19 @@ element.  It returns \xcd`otherwise` if no element matches.
 %~~gen
 % package functions2.oh.no;
 % import x10.util.*;
+% class Finder {
+% static 
 %~~vis
 \begin{xten}
-class Finder {
-static def find[T](f: (T) => Boolean, xs: List[T], absent:T): T = {
+
+def find[T](f: (T) => Boolean, xs: List[T], absent:T): T = {
   for (x: T in xs)
     if (f(x)) return x;
   absent
-  }}
+  }
 \end{xten}
 %~~siv
+% }
 %~~neg
 
 The method may be invoked thus:
@@ -263,14 +297,13 @@ However, the closure may exist for long after the stack frame containing
 valid for those variables. \xcd`shared var`s are heap-allocated, which is less
 efficient but allows them to exist after \xcd`m` returns. 
 
-\begin{note}
+
 \xcd`shared` does not guarantee {\bf atomic} access to the shared variable. As
 with any code that might mutate shared data concurrently, be sure to protect
 references to mutable shared state with \xcd`atomic`. For example, the
 following code returns a pair of closures which operate on the same shared
 variable \xcd`a`, which are concurrency-safe---even if invoked many times
 simultaneously. Without \xcd`atomic`, it would no longer be concurrency-safe.
-\end{note}
 
 
 %~~gen
@@ -307,13 +340,44 @@ simultaneously. Without \xcd`atomic`, it would no longer be concurrency-safe.
 %or anonymous classes.
 %\end{note}
 
-\section{Methods selectors}
+\section{Method selectors}
 \label{MethodSelectors}
 \index{function!method selector}
 \index{method!underlying function}
 
 A method selector expression allows a method to be used as a
-first-class function.
+first-class function, without writing a function expression for it.
+For example, consider a class \xcd`Span` defining ranges of integers.  
+
+%~~gen
+% package Functions2.Span;
+%~~vis
+\begin{xten}
+class Span(low:Int, high:Int) {
+  def this(low:Int, high:Int) {property(low,high);}
+  def between(n:Int) = low <= n && n <= high;
+  def example() {
+    val digit = new Span(0,9);
+    val isDigit : (Int) => Boolean = digit.between.(Int);
+    if (isDigit(8)) x10.io.Console.OUT.println("8 is!");
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\noindent
+
+
+In \xcd`example()`, 
+%~~exp~~`~~`~~ digit:Span!~~class Span(low:Int, high:Int) {def this(low:Int, high:Int) {property(low,high);} def between(n:Int) = low <= n && n <= high;}
+\xcd`digit.between.(Int)` 
+is a unary function testing whether its argument is between zero
+and nine.  It could also be written 
+%~~exp~~`~~`~~ digit:Span!~~class Span(low:Int, high:Int) {def this(low:Int, high:Int) {property(low,high);} def between(n:Int) = low <= n && n <= high;}
+\xcd`(n:Int) => digit.between(n)`.
+
+This is formalized thus:
 
 \begin{grammar}
 MethodSelector \:
@@ -327,8 +391,8 @@ MethodSelector \:
 \end{grammar}
 
 The \emph{method selector expression} \Xcd{e.m.(T1,...,Tn)} is type
-correct only if it is the case that the static type of \Xcd{e} is a
-class or struct or interface with a method
+correct only if  the static type of \Xcd{e} is a
+class or struct or interface \xcd`V` with a method
 \Xcd{m(x1:T1,...xn:Tn)\{c\}:T} defined on it (for some
 \Xcd{x1,...,xn,c,T)}. At runtime the evaluation of this expression
 evaluates \Xcd{e} to a value \Xcd{v} and creates a function \Xcd{f}
@@ -342,12 +406,16 @@ e.m.[X$_1$, $\dots$, X$_m$](T$_1$, $\dots$, T$_n$)
 \end{xtenmath}
 \noindent behaves as if it were the function
 \begin{xtenmath}
-((v:T)=>
-  [X$_1$, $\dots$, X$_m$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => v.m[X$_1$, $\dots$, X$_m$](x$_1$, $\dots$, x$_n$))
+((v:V)=>
+  [X$_1$, $\dots$, X$_m$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} 
+  => v.m[X$_1$, $\dots$, X$_m$](x$_1$, $\dots$, x$_n$))
 (e)
 \end{xtenmath}
 
-\begin{note}
+
+\limitation{X10 functions, including method selectors, do not currently accept
+generic arguments.}
+
 Because of overloading, a method name is not sufficient to
 uniquely identify a function for a given class (in Java-like languages).
 One needs the argument type information as well.
@@ -355,7 +423,6 @@ The selector syntax (dot) is used to distinguish \xcd"e.m()" (a
 method invocation on \xcd"e" of method named \xcd"m" with no arguments)
 from \xcd"e.m.()"
 (the function bound to the method). 
-\end{note}
 
 A static method provides a binding from a name to a function that is
 independent of any instance of a class; rather it is associated with the
@@ -369,15 +436,6 @@ Users of a function type do not care whether a function was defined
 directly (using the function syntax), or obtained via (static or
 instance) function selectors.
 
-\begin{note}
-Design note: The function selector syntax is consistent with the
-reinterpretation of the usual method invocation syntax
-\xcdmath"e.m(e$_1$,..., e$_n$)"
-into a function specifier, \xcd"e.m", applied to a tuple of arguments
-\xcdmath"(e$_1$,..., e$_n$)". Note that the receiver is not
-treated as ``an extra argument'' to the
-function. That would break the above approach.
-\end{note}
 
 \section{Operator functions}
 \label{OperatorFunction}
@@ -397,10 +455,10 @@ OperatorFunction
         \| TypeName \xcd"." Operator \\
 \end{grammar}
 
-If an operator has more than one arity (e.g., unary and binary
-\xcd"-"), the appropriate version may be selected by giving the
+If an operator has more than one arity (\eg, unary and binary
+\xcd"-"), the unary version may be selected by giving the
 formal parameter types.  The binary version is selected by
-default.
+default, or the types may be specified for clarity.
 For example, the following equivalences hold:
 
 \begin{xtenmath}
@@ -503,69 +561,35 @@ xs.map(1.+);
 \label{FunctionAnyMethods}
 
 \label{FunctionEquality}
-\index{function!equality}
-\index{equality!function}
-Two functions \Xcd{f} and \Xcd{g} are equal (``\Xcd{==}'') if both are
-instances of classes and the same object, or if both were obtained by
-the same evaluation of a function literal.\footnote{A literal may
-  occur in program text within a loop, and hence may be evaluated
-  multiple times.} Further, it is guaranteed that if two functions are
-equal then they refer to the same locations in the environment and
-represent the ``same code'' (so their executions in an identical
-environment are comparable).
+\index{function!equality} \index{equality!function} Two functions \Xcd{f} and
+\Xcd{g} are equal (``\Xcd{==}'') if both are instances of classes and the same
+object, or if both were obtained by the same evaluation of a function
+literal.\footnote{A literal may occur in program text within a loop, and hence
+  may be evaluated multiple times.} Further, it is guaranteed that if two
+functions are equal then they refer to the same locations in the environment
+and represent the same code, so their executions in an identical situation are
+indistinguishable. (Specifically, if \xcd`f == g`, then \xcd`f(1)` can be
+substituted for \xcd`g(1)` and the result will be identical. However, there is
+no guarantee that \xcd`f(1)==g(1)` will evaluate to true. Indeed, there is no
+guarantee that \xcd`f(1)==f(1)` will evaluate to true either, as \xcd`f` might
+be a function which returns {$n$} on its {$n^{th}$} invocation. However,
+\xcd`f(1)==f(1)` and \xcd`f(1)==g(1)` are interchangeable.)
 \index{function!==}
 
 
 Every function type implements all the methods of \Xcd{Any}.
-For a value \Xcd{f} of a function type \Xcd{(x1:T1,...xn:Tn)=>T}, 
-the expression \Xcd{f.equals(g)} is of type \Xcd{Boolean}.
-It succeeds if and only if \Xcd{f==g} succeeds. Similarly, the 
-expression \Xcd{f.hashCode()} is of type \Xcd{Int} and returns
-an implementation defined hash code which is guaranteed to be the
-same for two values that are \Xcd{equal}. The expression
-\Xcd{f.toString()} returns an implementation-dependent string.
-Two strings returned on different evaluations are \Xcd{equal} to each other. 
-Similarly, \Xcd{f.typeName()}  returns an implementation-dependent string.
-Two strings returned on different evaluations are \Xcd{equal} to each other. 
+b\xcd`f.equals(g)` is equivalent to \xcd`f==g`.  \xcd`f.hashCode()`, 
+\xcd`f.toString()`, and \xcd`f.typeName()` are implementation-dependent, but
+respect \xcd`equals` and the basic contracts of \xcd`Any`. 
+\xcd`f.home()` returns \xcd`here` and \xcd`f.at(x)`
+always returns true, as for structs.
+
 \index{function!equals}
 \index{function!hashCode}
 \index{function!toString}
 \index{function!typeName}
-
-The method \Xcd{f.home()} always returns \Xcd{here}. The call
-\Xcd{f.at(p)} for \Xcd{p} a value of type \Xcd{Place} always returns
-\Xcd{true}. The call 
-\Xcd{f.at(o)} for \Xcd{o} a value of type \Xcd{Object} always returns
-\Xcd{true}
 \index{function!home}
 \index{function!at(Place)}
 \index{function!at(Object)}
 
-\section{MISPLACED}
-\bard{The following material comes from the Types section, but belongs in this
-chapter in the right place.}
 
-For every sequence of types \xcd"T1,..., Tn,T", and \xcd"n" distinct variables
-\xcd"x1,...,xn" and constraint \xcd"c", the expression
-\xcd"(x1:T1,...,xn:Tn){c}=>T" is a \emph{function type}. It stands for
- the set of all functions \xcd"f" which can be applied in a place \xcd"p" to a
- list of values \xcd"(v1,...,vn)" provided that the constraint
- \xcd"c[v1,...,vn,p/x1,...,xn,here]" is true, and which returns a value of
- type \xcd"T[v1,...vn/x1,...,xn]". When \xcd"c" is true, the clause \xcd"{c}" can be
- omitted. When \xcd"x1,...,xn" do not occur in \xcd"c" or \xcd"T", they can be
- omitted. Thus the type \xcd"(T1,...,Tn)=>T" is actually shorthand for
- \xcd"(x1:T1,...,xn:Tn){true}=>T", for some variables \xcd"x1,...,xn".
-
-
-A value \xcd"f" of a function type \xcd"(x1:T1,...,xn:Tn){c}=>T" also
-has all the methods of \Xcd{Any} associated with it (see \Sref{FunctionAnyMethods}).
-
-
-Juxtaposition is used to express function application: the expression
-\xcd"f(a1,..,an)" expresses the application of a function \xcd"f" to the argument
-list \xcd"a1,...,an".
-
-\index{Exception!unchecked}
-Note that function invocation may throw unchecked exceptions. 
-
-\xcd"null" is a legal value for a function type.

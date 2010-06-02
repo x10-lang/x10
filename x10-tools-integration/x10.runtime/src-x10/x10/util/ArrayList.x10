@@ -13,14 +13,12 @@ package x10.util;
 
 public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
-    private var a: GrowableRail[T]!;
+    private val a: GrowableRail[T]!;
 
     public static def make[T](c: Container[T]!) {
 	val a = new ArrayList[T]();
 	a.addAll(c);
 	return a;
-    }
-    private def this(c: Container[T]) {
     }
     
     public def contains(v: T): Boolean {
@@ -32,7 +30,11 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return false;
     }
     
-    public def clone() = new ArrayList[T](this);
+    public def clone() {
+        val a = new ArrayList[T]();
+        a.addAll(this);
+        return a;
+    }
     
     
     public def add(v: T): Boolean {

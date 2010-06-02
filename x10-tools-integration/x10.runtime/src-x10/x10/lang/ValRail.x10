@@ -64,7 +64,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply(#1)")
+    @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
     public global native safe def apply(i: Int): T;
@@ -102,7 +102,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      * @param dst_off the offset of the first element store in the destination.
      * @param len the number of elements to copy.
      */
-    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#0,#1,#2,#3,#4)")
+    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::ValRail__NativeRep::copyTo(#0,#1,#2,#3,#4)")
     public global native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
 
@@ -118,7 +118,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      *                   the first element to copy to in the destination.
      * @param len the number of elements to copy.
      */
-    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#0,#1,#2,#3,#4)")
+    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::ValRail__NativeRep::copyTo(#0,#1,#2,#3,#4)")
     public global native def copyTo (src_off:Int,
                                      dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],

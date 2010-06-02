@@ -72,6 +72,7 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
+import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -302,7 +303,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         // Add the method guard into the environment.
         if (guard != null) {
             Ref<CConstraint> vc = guard.valueConstraint();
-            Ref<TypeConstraint> tc = guard.typeConstraint();
+            Ref<TypeConstraint> tc = guard.typeConstraint(); // todo: tc is ignored
         
             if (vc != null || tc != null) {
                 c = c.pushBlock();
@@ -410,8 +411,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
         X10Flags xf = X10Flags.toX10Flags(mi.flags());
 
-        
-       
         // Check these flags here rather than in checkFlags since we need the body.
         if (xf.isIncomplete() && body != null) {
             throw new SemanticException("An incomplete method cannot have a body.", position());
@@ -766,7 +765,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         }
     }
 
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
         X10MethodDecl nn = this;
         X10MethodDecl old = nn;
 
@@ -780,9 +779,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         nn = (X10MethodDecl) nn.typeParameters(processedTypeParams);
         List<Formal> processedFormals = nn.visitList(nn.formals(), childtc);
         nn = (X10MethodDecl) nn.formals(processedFormals);
-
-        // FIXME: Don't do this!  hasErrors() returns true even if the error is in a different file.
-        if (tc.hasErrors()) throw new SemanticException();
 
         nn = (X10MethodDecl) X10Del_c.visitAnnotations(nn, childtc);
 
@@ -813,15 +809,14 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         if (nn.guard() != null) {
             DepParameterExpr processedWhere = (DepParameterExpr) nn.visitChild(nn.guard(), childtc);
             nn = (X10MethodDecl) nn.guard(processedWhere);
-            if (tc.hasErrors()) throw new SemanticException();
             
-          	VarChecker ac = new VarChecker(childtc.job(), Globals.TS(), Globals.NF());
-          	ac = (VarChecker) ac.context(childtc.context());
-          	processedWhere.visit(ac);
-          	
-          	if (ac.error != null) {
-          		throw ac.error;
-          	}
+            VarChecker ac = new VarChecker(childtc.job(), Globals.TS(), Globals.NF());
+            ac = (VarChecker) ac.context(childtc.context());
+            processedWhere.visit(ac);
+            
+            if (ac.error != null) {
+                Errors.issue(ac.job(), ac.error, this);
+            }
 
             // Now build the new formal arg list.
             // TODO: Add a marker to the TypeChecker which records
@@ -874,13 +869,16 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                 }
             }
             catch (XFailure e) {
-                throw new SemanticException(e.getMessage(), position());
+                tc.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, e.getMessage(), position());
+                c = null;
             }
 
             // Check if the guard is consistent.
             if (c != null && ! c.consistent()) {
-                throw new SemanticException("The method's dependent clause is inconsistent.",
-                                            guard != null ? guard.position() : position());
+                Errors.issue(tc.job(),
+                             new Errors.DependentClauseIsInconsistent("method", guard),
+                             this);
+                // FIXME: [IP] mark constraint clause as invalid
             }
         }
 
@@ -900,24 +898,20 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         nn.visitList(nn.formals(),childtc1);
         (( X10Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
         { 
-        	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
-        	if (childtc1.hasErrors()) throw new SemanticException();
-        	nn = (X10MethodDecl) nn.returnType(r);
-        	Type type = PlaceChecker.ReplaceHereByPlaceTerm(r.type(), ( X10Context ) childtc1.context());
-        	((Ref<Type>) nn.methodDef().returnType()).update(r.type());
-        	
-        	
-        	
-        	 if (hasType != null) {
-        		 final TypeNode h = (TypeNode) nn.visitChild(((X10MethodDecl_c) nn).hasType, childtc1);
-             	Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
-             	nn = (X10MethodDecl) ((X10MethodDecl_c) nn).hasType(h);
-             	if (! Globals.TS().isSubtype(type, hasType,tc.context())) {
-             		throw new SemanticException("Computed type is not a subtype of  type bound." 
-             				+ "\n\t Computed Type: " + type
-             				+ "\n\t Type Bound: " + hasType, position());
-             	}
-             }
+            final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
+            nn = (X10MethodDecl) nn.returnType(r);
+            Type type = PlaceChecker.ReplaceHereByPlaceTerm(r.type(), ( X10Context ) childtc1.context());
+            ((Ref<Type>) nn.methodDef().returnType()).update(r.type());
+
+            if (hasType != null) {
+                final TypeNode h = (TypeNode) nn.visitChild(((X10MethodDecl_c) nn).hasType, childtc1);
+                Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
+                nn = (X10MethodDecl) ((X10MethodDecl_c) nn).hasType(h);
+                if (! Globals.TS().isSubtype(type, hasType, tc.context())) {
+                    Errors.issue(tc.job(),
+                                 new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
+                }
+            }
         }
         // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
         // Step III. Check the body. 
@@ -931,7 +925,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         //Report.report(1, "X10MethodDecl_c: after visiting formals " + childtc2.context());
         // Now process the body.
         nn = (X10MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
-        if (childtc2.hasErrors()) throw new SemanticException();
         nn = (X10MethodDecl) childtc2.leave(parent, old, nn, childtc2);
 
         if (nn.returnType() instanceof UnknownTypeNode) {

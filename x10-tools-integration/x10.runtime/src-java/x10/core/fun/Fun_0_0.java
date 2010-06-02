@@ -17,7 +17,7 @@ import x10.rtt.RuntimeType.Variance;
 
 
 public interface Fun_0_0<U> extends Any {
-    U apply();
+    U apply$G();
     
     public static final RuntimeType _RTT = new RuntimeType(
         Fun_0_0.class,

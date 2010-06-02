@@ -574,7 +574,8 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @param pos the Position of the reference in the source code
      * @param decl the declaration of the local variable
      * @return the synthesized Local variable reference
-     * TODO: move into Synthesizer
+     * TODO: move into synthesizer, rewrite others
+     * @deprecated
      */
     public Local createLocal(Position pos, LocalDecl decl) {
         return createLocal(pos, decl.localDef().asInstance());
@@ -586,7 +587,8 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @param pos the Position of the reference in the source code
      * @param li a type system object representing this local variable
      * @return the synthesized Local variable reference
-     * TODO: move into Synthesizer
+     * TODO: moved into synthesizer, rewrite others
+     * @deprecated
      */
     public Local createLocal(Position pos, LocalInstance li) {
         return (Local) xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
@@ -641,15 +643,17 @@ public class ForLoopOptimizer extends ContextVisitor {
                                           expr, 
                                           Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION ).typeCheck(this);
         } catch (SemanticException e) {
-            // return null; // FIXME: the following code is a work around for XTENLANG-1335
+            // work around for XTENLANG-1335
             try {
                 return (X10Cast) xnf.X10Cast( pos, 
                                               xnf.CanonicalTypeNode(pos, toType), 
                                               expr, 
                                               Converter.ConversionType.UNCHECKED ).typeCheck(this);
             } catch (SemanticException x) {
-                return null;
+                // return null;
             }
+            // end work around for XTENLANG-1335
+            return null;
         }
     }
 

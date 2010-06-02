@@ -81,8 +81,29 @@ public class Ref implements Any {
             s = ((Any) obj).getRTT().typeName(obj);
         } else {
             s = obj.getClass().toString().substring(6);
+            // TODO: create mapping table of @NativeRep'ed type to X10 type and use it.
+            // TODO: unsigned types
+            if (s.startsWith("java.")) {
+                if (s.startsWith("java.io.")) {
+                    if (s.equals("java.io.FileInputStream")) {
+                        s = "x10.io.FileReader";
+                    } else if (s.equals("java.io.FileOutputStream")) {
+                        s = "x10.io.FileWriter";
+                    } else if (s.equals("java.io.InputStream")) {
+                        s = "x10.io.InputStreamReader";
+                    } else if (s.equals("java.io.OutputStream")) {
+                        s = "x10.io.OutputStreamWriter";
+                    } else {
+                        s = "x10." + s.substring("java.".length());
+                    }
+                } else if (s.startsWith("java.lang.Integer")) {
+                    s = "x10.lang.Int";
+                } else {
+                    s = "x10." + s.substring("java.".length());
+                }
+            }
         }
-        return s.equals("java.lang.Object") ? "x10.lang.Object" : s;
+        return s;
     }
     
     public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class);
