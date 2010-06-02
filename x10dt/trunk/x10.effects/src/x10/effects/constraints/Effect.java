@@ -168,7 +168,7 @@ public interface Effect extends Cloneable {
 	 */
 	void addAtomicInc(Locs t);
 	
-	Effect substitute(XTerm t, XRoot r);
+	Effect substitute(XTerm t, XVar r);
 	
 
 }

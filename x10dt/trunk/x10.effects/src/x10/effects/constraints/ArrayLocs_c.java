@@ -1,8 +1,8 @@
 package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
-import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.constraint.XVar;
 
 /**
  * Represents an array -- and hence the set of locations specified 
@@ -18,7 +18,7 @@ public class ArrayLocs_c extends RigidTerm_c implements ArrayLocs {
 	public ArrayLocs_c(XTerm d) {
 		super(d);
 	}
-	public Locs substitute(XTerm t, XRoot s) {
+	public Locs substitute(XTerm t, XVar s) {
 		XTerm old = designator();
 		XTerm result = old.subst(t, s);
 		return (result.equals(old)) ? this : Effects.makeArrayLocs(result);

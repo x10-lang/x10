@@ -1,7 +1,6 @@
 package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
-import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
@@ -22,7 +21,7 @@ public class ArrayElementLocs_c extends RigidTerm_c implements ArrayElementLocs 
 	public XTerm array() { return designator();}
 	public XTerm index() { return index;}
 	
-	public Locs substitute(XTerm t, XRoot s) {
+	public Locs substitute(XTerm t, XVar s) {
 		XTerm old = designator();
 		XTerm result = old.subst(t, s);
 		XTerm newIndex = index.subst(t, s);

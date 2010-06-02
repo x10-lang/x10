@@ -12,7 +12,6 @@ import java.util.Set;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
-import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -215,7 +214,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 
     }
 	
-	public Effect substitute(XTerm t, XRoot r) {
+	public Effect substitute(XTerm t, XVar r) {
 		if (this==Effects.BOTTOM_EFFECT)
 			return this;
 		Effect_c result = new Effect_c(isFun());
