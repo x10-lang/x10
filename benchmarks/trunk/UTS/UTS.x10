@@ -91,13 +91,13 @@ public class UTS {
 	// params that define the tree
 	val q:Long, m:Int, k:Int, nu:Int;
 
-  	var nodesCounter:UInt = 0;
-    var stealsAttempted:UInt = 0;
-    var stealsPerpetrated:UInt = 0;
-    var stealsReceived:UInt = 0;
-    var stealsSuffered:UInt = 0;
-    var nodesGiven:UInt = 0;
-    var nodesReceived:UInt = 0;
+  	var nodesCounter:Long = 0L;
+    var stealsAttempted:Long = 0L;
+    var stealsPerpetrated:Long = 0L;
+    var stealsReceived:Long = 0L;
+    var stealsSuffered:Long = 0L;
+    var nodesGiven:Long = 0L;
+    var nodesReceived:Long = 0L;
 	
 	val myRandom = new Random();
 	public def this (q:Long, m:Int, k:Int, nu:Int) {
@@ -240,8 +240,8 @@ public class UTS {
     static final class BinomialState2 extends BinomialState {
 		var thief:Int; 
 		val width:Int;
-        var lifelines:UInt=0;
-        var lifelineNodes:UInt=0;
+        var lifelines:Long=0L;
+        var lifelineNodes:Long=0L;
 		public def this (q:Long, m:Int, k:Int, nu:Int, w:Int) {
 			super(q,m,k,nu);
 			width=w;
@@ -262,7 +262,7 @@ public class UTS {
 		}
 		def distribute(st:PLH2) {
 			if (thief >= 0) {
-    			val loot = trySteal(thief, true);
+    			val loot = trySteal(thief);
     			if (loot != null) {
     				async (Place(thief)) 
     				st().processLoot(st, loot,true);
@@ -301,8 +301,8 @@ public class UTS {
         	distribute(st);
             processStack(st);
         }
-		def trySteal (p:Int)=trySteal(p, false);
-		def trySteal (p:Int, isLifeline:Boolean) : ValRail[SHA1Rand] {
+		//def trySteal (p:Int)=trySteal(p, false);
+		def trySteal (p:Int) : ValRail[SHA1Rand] {
 			stealsReceived++;
 			val length = stack.size();
 			if (length <= 2) {
@@ -310,7 +310,7 @@ public class UTS {
 					thief = p;
 				return null;
 			}
-			val numSteals = isLifeline? (4*length)/5 : length/2;
+			val numSteals = length/2; // isLifeline? (4*length)/5 : length/2;
 			stealsSuffered++;
 			nodesGiven += numSteals;
 			return pop(numSteals);
@@ -334,10 +334,10 @@ public class UTS {
     static def absMax(i:Float, j:Float) = abs(i) < abs(j) ? j : i;
     static def stats(st:PLH2, time:Long, verbose:Boolean) {
 	val P = Place.MAX_PLACES;
-	var nodeSum_:UInt=0;
-	var stolenSum_:UInt=0;
-	var steals_:UInt=0;
-	var ll_:UInt=0, llN_:UInt=0;
+	var nodeSum_:Long=0L;
+	var stolenSum_:Long=0;
+	var steals_:Long=0;
+	var ll_:Long=0, llN_:Long=0;
 	for ((i) in 0..P-1) {
 		val there = Place(i);
 	    nodeSum_ += at (there) st().nodesCounter;
@@ -366,8 +366,8 @@ public class UTS {
 	    val ss = st().stealsSuffered;
 	    val sr = st().stealsReceived;
 	    val sp = st().stealsPerpetrated;
-	    val pc = sa==0U ? "NaN" : "" + ((100U*sp)/sa);
-	    val pr = sr==0U ? "NaN" : "" + ((100U*ss)/sr);
+	    val pc = sa==0L ? "NaN" : "" + ((100*sp)/sa);
+	    val pr = sr==0L ? "NaN" : "" + ((100*ss)/sr);
 	    val nr = st().nodesReceived;
 	    val ns = st().nodesGiven;
 	    Console.OUT.println(there+": processed " + nodes + " nodes.");
