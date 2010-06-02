@@ -1,3 +1,5 @@
+
+
 \chapter{Functions}
 \label{Functions}
 \label{functions}
@@ -21,7 +23,12 @@ A \emph{function literal} \xcd"(x1:T1,..,xn:Tn){c}:T=>e" creates a function of
 type\\ \xcd"(x1:T1,...,xn:Tn){c}=>T" (\Sref{FunctionType}).  For example, 
 \xcd`(x:Int) => x*x` is a function literal describing the squaring function on
 integers.   
+\xcd`null` is also a function value.
 
+Function application is written \xcd`f(a,b,c)`, following common mathematical
+usage. 
+\index{Exception!unchecked}
+Function invocation may throw unchecked exceptions. 
 
 The function body may be a block.  To compute integer squares by repeated
 addition (inefficiently), one may write: 
@@ -429,7 +436,6 @@ Users of a function type do not care whether a function was defined
 directly (using the function syntax), or obtained via (static or
 instance) function selectors.
 
-%%BARD-HERE
 
 \section{Operator functions}
 \label{OperatorFunction}
@@ -449,10 +455,10 @@ OperatorFunction
         \| TypeName \xcd"." Operator \\
 \end{grammar}
 
-If an operator has more than one arity (e.g., unary and binary
-\xcd"-"), the appropriate version may be selected by giving the
+If an operator has more than one arity (\eg, unary and binary
+\xcd"-"), the unary version may be selected by giving the
 formal parameter types.  The binary version is selected by
-default.
+default, or the types may be specified for clarity.
 For example, the following equivalences hold:
 
 \begin{xtenmath}
@@ -555,69 +561,35 @@ xs.map(1.+);
 \label{FunctionAnyMethods}
 
 \label{FunctionEquality}
-\index{function!equality}
-\index{equality!function}
-Two functions \Xcd{f} and \Xcd{g} are equal (``\Xcd{==}'') if both are
-instances of classes and the same object, or if both were obtained by
-the same evaluation of a function literal.\footnote{A literal may
-  occur in program text within a loop, and hence may be evaluated
-  multiple times.} Further, it is guaranteed that if two functions are
-equal then they refer to the same locations in the environment and
-represent the ``same code'' (so their executions in an identical
-environment are comparable).
+\index{function!equality} \index{equality!function} Two functions \Xcd{f} and
+\Xcd{g} are equal (``\Xcd{==}'') if both are instances of classes and the same
+object, or if both were obtained by the same evaluation of a function
+literal.\footnote{A literal may occur in program text within a loop, and hence
+  may be evaluated multiple times.} Further, it is guaranteed that if two
+functions are equal then they refer to the same locations in the environment
+and represent the same code, so their executions in an identical situation are
+indistinguishable. (Specifically, if \xcd`f == g`, then \xcd`f(1)` can be
+substituted for \xcd`g(1)` and the result will be identical. However, there is
+no guarantee that \xcd`f(1)==g(1)` will evaluate to true. Indeed, there is no
+guarantee that \xcd`f(1)==f(1)` will evaluate to true either, as \xcd`f` might
+be a function which returns {$n$} on its {$n^{th}$} invocation. However,
+\xcd`f(1)==f(1)` and \xcd`f(1)==g(1)` are interchangeable.)
 \index{function!==}
 
 
 Every function type implements all the methods of \Xcd{Any}.
-For a value \Xcd{f} of a function type \Xcd{(x1:T1,...xn:Tn)=>T}, 
-the expression \Xcd{f.equals(g)} is of type \Xcd{Boolean}.
-It succeeds if and only if \Xcd{f==g} succeeds. Similarly, the 
-expression \Xcd{f.hashCode()} is of type \Xcd{Int} and returns
-an implementation defined hash code which is guaranteed to be the
-same for two values that are \Xcd{equal}. The expression
-\Xcd{f.toString()} returns an implementation-dependent string.
-Two strings returned on different evaluations are \Xcd{equal} to each other. 
-Similarly, \Xcd{f.typeName()}  returns an implementation-dependent string.
-Two strings returned on different evaluations are \Xcd{equal} to each other. 
+b\xcd`f.equals(g)` is equivalent to \xcd`f==g`.  \xcd`f.hashCode()`, 
+\xcd`f.toString()`, and \xcd`f.typeName()` are implementation-dependent, but
+respect \xcd`equals` and the basic contracts of \xcd`Any`. 
+\xcd`f.home()` returns \xcd`here` and \xcd`f.at(x)`
+always returns true, as for structs.
+
 \index{function!equals}
 \index{function!hashCode}
 \index{function!toString}
 \index{function!typeName}
-
-The method \Xcd{f.home()} always returns \Xcd{here}. The call
-\Xcd{f.at(p)} for \Xcd{p} a value of type \Xcd{Place} always returns
-\Xcd{true}. The call 
-\Xcd{f.at(o)} for \Xcd{o} a value of type \Xcd{Object} always returns
-\Xcd{true}
 \index{function!home}
 \index{function!at(Place)}
 \index{function!at(Object)}
 
-\section{MISPLACED}
-\bard{The following material comes from the Types section, but belongs in this
-chapter in the right place.}
 
-For every sequence of types \xcd"T1,..., Tn,T", and \xcd"n" distinct variables
-\xcd"x1,...,xn" and constraint \xcd"c", the expression
-\xcd"(x1:T1,...,xn:Tn){c}=>T" is a \emph{function type}. It stands for
- the set of all functions \xcd"f" which can be applied in a place \xcd"p" to a
- list of values \xcd"(v1,...,vn)" provided that the constraint
- \xcd"c[v1,...,vn,p/x1,...,xn,here]" is true, and which returns a value of
- type \xcd"T[v1,...vn/x1,...,xn]". When \xcd"c" is true, the clause \xcd"{c}" can be
- omitted. When \xcd"x1,...,xn" do not occur in \xcd"c" or \xcd"T", they can be
- omitted. Thus the type \xcd"(T1,...,Tn)=>T" is actually shorthand for
- \xcd"(x1:T1,...,xn:Tn){true}=>T", for some variables \xcd"x1,...,xn".
-
-
-A value \xcd"f" of a function type \xcd"(x1:T1,...,xn:Tn){c}=>T" also
-has all the methods of \Xcd{Any} associated with it (see \Sref{FunctionAnyMethods}).
-
-
-Juxtaposition is used to express function application: the expression
-\xcd"f(a1,..,an)" expresses the application of a function \xcd"f" to the argument
-list \xcd"a1,...,an".
-
-\index{Exception!unchecked}
-Note that function invocation may throw unchecked exceptions. 
-
-\xcd"null" is a legal value for a function type.
