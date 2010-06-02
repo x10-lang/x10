@@ -258,14 +258,14 @@ public class UTS {
 		    }
 		    val loot = attemptSteal(st);
 		    if (loot != null)
-		    	processLoot(st, loot);
+		    	processLoot(st, loot, false);
 		}
 		def distribute(st:PLH2) {
 			if (thief >= 0) {
     			val loot = trySteal(thief, true);
     			if (loot != null) {
     				async (Place(thief)) 
-    				st().processLoot2(st, loot);
+    				st().processLoot(st, loot,true);
     				thief = -1;
     			}
     		}
@@ -274,32 +274,30 @@ public class UTS {
 			val P = Place.MAX_PLACES;
 			if (P == 1) return null;
 			val p = here.id;
-			val lifeline = (p+1) % P;
 			for (var i:Int=0; i < width; i++) {
-				var q_:Int = myRandom.nextInt(P);
-					 while(q_ == p) {
-						 q_ = myRandom.nextInt(P);
-					 }
+				var q_:Int = 0;
+				while((q_ =  myRandom.nextInt(P)) == p) ;
 				val q = q_;
 				stealsAttempted++;
 				val loot = at (Place(q)) st().trySteal(p);
-				if (loot != null)
+				if (loot != null) {
 					return loot;
+				}
 			}
-			val loot = at(Place(lifeline)) st().trySteal(p); // this will call back even if there is no imm work
-			return loot;
+			// resigned to make a lifeline steal.
+			val lifeline = (p+1) % P;
+			return at(Place(lifeline)) st().trySteal(p); 
 		}
-		def processLoot2(st:PLH2, loot:ValRail[SHA1Rand]) {
-			lifelines ++;
-			lifelineNodes += loot.length();
-			processLoot(st, loot);
-		}
-		def processLoot(st:PLH2, loot:ValRail[SHA1Rand]) {
-            stealsPerpetrated++;
-            nodesReceived += loot.length();
-            for (r in loot) {
+		def processLoot(st:PLH2, loot:ValRail[SHA1Rand], lifeline:boolean) {
+			if (lifeline) {
+				lifelines ++;
+				lifelineNodes += loot.length();
+			} else {
+				stealsPerpetrated++;
+				nodesReceived += loot.length();
+			}
+            for (r in loot) 
 			   processSubtree(r);
-		    }
         	distribute(st);
             processStack(st);
         }
@@ -307,12 +305,12 @@ public class UTS {
 		def trySteal (p:Int, isLifeline:Boolean) : ValRail[SHA1Rand] {
 			stealsReceived++;
 			val length = stack.size();
-			val numSteals = isLifeline? (4*length)/5 : length/2;
-			if (length <= 2 || numSteals == 0) {
+			if (length <= 2) {
 				if (here.id == (p+1)% Place.MAX_PLACES) //lifeline
 					thief = p;
 				return null;
 			}
+			val numSteals = isLifeline? (4*length)/5 : length/2;
 			stealsSuffered++;
 			nodesGiven += numSteals;
 			return pop(numSteals);
@@ -320,10 +318,13 @@ public class UTS {
 		def main (st:PLH2, b0:Int, rng:SHA1Rand) {
 			val P=Place.MAX_PLACES;
 			finish {
-				for (var pi:Int=1 ; pi<P ; ++pi) 
-					async (Place(pi)) 
-					  st().processStack(st);
 				processSubtree(rng, b0);
+				val lootSize = stack.size()/P;
+				for (var pi:Int=1 ; pi<P ; ++pi) {
+					val loot = pop(lootSize);
+					async (Place(pi)) 
+					  st().processLoot(st, loot, true);
+				}
 				processStack(st);
 			} 
 		}
