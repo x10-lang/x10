@@ -64,7 +64,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		assert ts != null;
 		this.baseType = baseType;
 		if ((baseType.known() && baseType.getCached() instanceof UnknownType))
-			throw new InternalError("Base type must be known.");
+			throw new InternalCompilerError("Base type must be known.");
 			
 		
 		//assert  :
@@ -240,7 +240,11 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 
 	@Override
 	public String toString() {
-		return baseType.getCached() + constraintString(); // + constraint.getCached();
+        Type type = baseType.getCached();
+        String typeName = type.toString();
+        if (type instanceof ClosureType_c)
+            typeName = "("+typeName+")";
+        return typeName + constraintString();
 	}
 	
 	private String constraintString() {

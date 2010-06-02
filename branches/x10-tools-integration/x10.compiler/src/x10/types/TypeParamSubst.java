@@ -174,15 +174,16 @@ public class TypeParamSubst {
 		if (t instanceof CConstraint) return (T) reinstantiateConstraint((CConstraint) t);
 		if (t instanceof XTerm) return (T) reinstantiateTerm((XTerm) t);
 		if (t instanceof TypeConstraint) return (T) reinstantiateTypeConstraint((TypeConstraint) t);
-	//	if (t instanceof LocalInstance) return (T) reinstantiateLI((X10LocalInstance) t);
+		if (t instanceof LocalInstance) return (T) reinstantiateLI((X10LocalInstance) t);
 	//	if (t instanceof LocalInstance) return (T) reinstantiateLI((X10LocalDef) t);
 		return t;
 	}
 
-	/*public X10LocalInstance reinstantiateLI(X10LocalInstance t) {
+	public X10LocalInstance reinstantiateLI(X10LocalInstance t) {
 		final X10LocalInstance li = (X10LocalInstance) t.copy();
 		return new ReinstantiatedLocalInstance(this, li.typeSystem(), li.position(), Types.ref(li.x10Def()), li);
 	}
+    /*
 	public X10LocalInstance reinstantiateLI(X10LocalDef t) {
 		final X10LocalInstance li = (X10LocalInstance) t.copy();
 		return new ReinstantiatedLocalDef(this, li.typeSystem(), li.position(), Types.ref(li.x10Def()), li);

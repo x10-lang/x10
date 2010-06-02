@@ -268,7 +268,6 @@
     false
     final
     finally
-    finish
     for
     foreach
     global
@@ -288,6 +287,7 @@
     nonblocking
     now
     null
+    offer
     or
     package
     private
@@ -1633,6 +1633,13 @@ public static class MessageHandler implements IMessageHandler {
                 | NextStatement
                 | AwaitStatement
                 | AssignPropertyCall
+                | OfferStatement
+    
+   Statement ::= offer Expression ;
+         /.$BeginJava
+                    setResult(nf.Offer(pos(), Expression));
+          $EndJava
+        ./
     
     IfThenStatement ::= if ( Expression ) Statement
         /.$BeginJava
@@ -2177,6 +2184,13 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
+
+FinishExpression ::= finish ( Expression ) Block
+        /.$BeginJava
+                    setResult(nf.FinishExpr(pos(), Expression, Block));
+          $EndJava
+        ./
+        
     FutureExpression ::= future ClosureBody
         /.$BeginJava
                     setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody));
@@ -4301,6 +4315,7 @@ public static class MessageHandler implements IMessageHandler {
                             | FutureExpression
                             | AsyncExpression
                             | AtExpression
+                            | FinishExpression
                             | ConditionalOrExpression ? Expression : ConditionalExpression
         /.$BeginJava
                     setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));

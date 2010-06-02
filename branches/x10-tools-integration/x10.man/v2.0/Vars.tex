@@ -250,33 +250,62 @@ using the rules for definite assignment \cite[\S~16]{jls2}.
 
 \section{Destructuring syntax}
 \index{variable declarator!destructuring}
+\index{destructuring}
 \Xten{} permits a \emph{destructuring} syntax for local variable
-declarations and formal parameters.
-At present, \XtenCurrVer{} supports this feature only for
-variables of
-type \xcd"Point"; future versions of the language may support 
-general pattern matching.
-Intuitively, this syntax allows a
-point to be ``destructured'' into its corresponding \xcd"Int" 
-indices in a pattern-matching style.
-The $k$th declarator in a \xcd"Point"
-\grammarrule{VarDeclaratorList}
-is treated as a variable of type \xcd"Int"
-that is initialized with the value of the $k$th index of the point. 
-The second form of the syntax permits the specification of only
-the index variables.
+declarations and formal parameters of type \xcd`Point`, \Sref{point-syntax}.
+(Future versions of X10 may allow destructuring of other types as well.) 
+A point is a sequence of {$r \ge 0$} \xcd`Int`-valued coordinates.  
+It is often useful to get at the coordinates directly, in variables. 
 
-For example, the following code binds the \xcd"Int" variable \xcd"i" to
-\xcd"0" and \xcd"j" to \xcd"1", and the variable \xcd"p" to the
-point object.
+The following code makes an anonymous point with one coordinate \xcd`11`, and
+binds \xcd`i` to \xcd`11`.  Then it makes a point with coordinates \xcd`22`
+and \xcd`33`, binds \xcd`p` to that point, and \xcd`j` and \xcd`k` to \xcd`22`
+and \xcd`33` respectively.
+%~~gen
+% package Vars.For.Glares;
+% class DestructuringEx1 {
+% def whyJustForLocals() {
+%~~vis
 \begin{xten}
-p(i,j): Point = new Point(0,1);
+val (i) : Point = Point.make(11);
+val p(j,k) = Point.make(22,33);
 \end{xten}
+%~~siv
+%}}
+%~~neg
+
+A useful idiom for iterating over a range of numbers is: 
+%~~gen
+%package Vars.For.Bears;
+% class ForBear {
+% def forbear() {
+%~~vis
+\begin{xten}
+var sum : Int = 0;
+for ((i) in 1..100) sum += i;
+\end{xten}
+%~~siv
+% ; } } 
+%~~neg
+\noindent
+The parentheses in \xcd`(i)` introduce destructuring, making X10 treat \xcd`i`
+as an \xcd`Int`; without them, it would be a \xcd`Point`.  
+
+In general, a pattern of the form \xcdmath"(i$_1$,$\ldots$,i$_n$)" matches a
+point with {$n$} coordinates, binding \xcdmath"i$_j$" to coordinate {$j$}.  
+A pattern of the form \xcdmath"p(i$_1$,$\ldots$,i$_n$)" does the same, , but
+also binds \xcd`p` to the point.
 
 \section{Formal parameters}
-Formal parameters are always declared with a type.
+
+Formal parameters are the variables which hold values transmitted into a
+method or function.  
+They are always declared with a type.  (Type inference is not
+advisable, because there is no single expression to deduce a type from.)
 The variable name can be omitted if it is not to be used in the
-scope of the declaration.
+scope of the declaration, as in the type of the method 
+\xcd`static def main(Rail[String])` executed at the start of a program that
+does not use its command-line arguments.
 
 \begin{grammar}
 Formal
@@ -289,64 +318,123 @@ FormalModifier \: Annotation \\
 \end{grammar}
 
 \xcd`var`, \xcd`val`, and \xcd`shared` behave just as they do for local
-variables, \Sref{local-variables}.
+variables, \Sref{local-variables}.  In particular, the following \xcd`inc`
+method is allowed, but, unlike some languages, does {\em not} increment its
+actual parameter.  \xcd`inc(j)` creates a new local 
+variable \xcd`i` for the method call, initializes \xcd`i` with the value of
+\xcd`j`, increments \xcd`i`, and then returns.  \xcd`j` is never changed.
+%~~gen
+% package Vars.For.Squares.Of.Mares;
+% class Ink {
+%~~vis
+\begin{xten}
+static def inc(var i:Int) { i += 1; }
+\end{xten}
+%~~siv
+%}
+%~~neg
+
 
 \section{Local variables}\label{local-variables}
-Local variable declarations may have
+Local variables are declared in a limited scope, and, dynamically, keep their
+values only for so long as the scope is being executed.  They may be \xcd`var`
+or \xcd`val`.  
+They may have 
 initializer expressions: \xcd`var i:Int = 1;` introduces 
 a variable \xcd`i` and initializes it to 1.
-The initializer must be a subtype of
-the declared type of the variable.  If the variable is immutable
+If the variable is immutable
 (\xcd"val")
 the type may be omitted and
 inferred from the initializer type (\Sref{TypeInference}).
 Variables marked \xcd`shared` can be used by many activities at once; see
 \Sref{Shared}.
 
-\begin{grammar}
-LocalDeclaration
-        \: LocalModifier\star \xcd"var" LocalDeclaratorsWithType \\&& ( \xcd"," LocalDeclaratorsWithType )\star \\
-        \| LocalModifier\star \xcd"val" LocalDeclarators \\&& ( \xcd"," LocalDeclarators )\star \\
-        \| LocalModifier\star LocalDeclaratorsWithType \\&& ( \xcd"," LocalDeclaratorsWithType )\star \\
-LocalDeclarators
-        \: LocalDeclaratorsWithType \\
-        \: LocalDeclaratorWithInit \\
-LocalDeclaratorWithInit
-        \: VarDeclarator Init \\
-LocalDeclaratorsWithType
-        \: VarDeclaratorId
-                ( \xcd"," VarDeclaratorId )\star ResultType \\
-LocalModifier \: Annotation \\
-              \| \xcd"shared" \\
-Init \: \xcd"=" Expression \\
-\end{grammar}
+The variable declaration \xcd`val x:T=e;` confirms that \xcd`e`'s value is of
+type \xcd`T`, and then introduces the variable \xcd`x` with type \xcd`T`.  For
+example, 
+%~~gen
+% package Vars.Local;
+% class Tub{
+% def example() {
+%~~vis
+\begin{xten}
+   val t : Tub = new Tub();
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\noindent
+produces a variable \xcd`t` of type \xcd`Tub`, even though the expression
+\xcd`new Tub()` produces a value of type \xcd`Tub!` -- that is, a \xcd`Tub`
+located \xcd`here`.    This can be inconvenient if, \eg, it is desired to make
+method calls upon \xcd`t`.  
+
+Including type information in variable declarations is generally good
+programming practice: it explains to both the compiler and human readers
+something of the intent of the variable.  However, including types in 
+\xcd`val t:T=e` can obliterate helpful information.  So, X10 allows a {\em
+documentation type declaration}, written \xcd`val t <: T = e`.  This 
+has the same effect as \xcd`val t = e`, giving \xcd`t` the full type inferred
+from \xcd`e`; but it also confirms statically that that type is at least
+\xcd`T`.  For example, the following gives \xcd`t` the type \xcd`Tub!` as
+desired: 
+%~~gen
+% package Vars.Local;
+% class TubBounded{
+% def example() {
+%~~vis
+\begin{xten}
+   val t <: Tub = new Tub();
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\noindent
+However, replacing \xcd`Tub` by \xcd`Int` would result in a compilation error. 
+
+Variables do not need to be initialized at the time of definition -- not even
+\xcd`val`s. They must be initialized by the time of use, and \xcd`val`s may
+only be assigned to once. The X10 compiler performs static checks guaranteeing
+this restriction. The following is correct, albeit obtuse: 
+%~~gen
+%package Vars.Local;
+% class NotInitVal {
+%~~vis
+\begin{xten}
+static def main(r: Rail[String]) {
+  val a : Int;
+  a = r.length;
+  val b : String;
+  if (a == 5) b = "five?"; else b = "" + a + " args"; 
+  // ... 
+\end{xten}
+%~~siv
+%} }
+%~~neg
+
+
+\bard{Give grammar}
 
 \section{Fields}
-Fields are declared either \xcd"var" (mutable, non-static),
-\xcd"val" (immutable, non-static), or \xcd"const" (immutable, static);
-the default is \xcd"val".
-Field declarations may have optional
-initializer expressions.  The initializer must be a subtype of
-the declared type of the variable.
-For \xcd"var" fields,
-if the initializer is omitted, the constructor must initialize
-the field, or else the field is initialized with
-\xcd"null" if a reference type, \xcd"0" if an \xcd"Int", \xcd"0L"
-if a \xcd"Long",
-\xcd"0.0F" if a \xcd"Float", \xcd"0.0" if a \xcd"Double", or
-\xcd"false" if a \xcd"Boolean".  It is a static error if the
-default value is not a member of the type (e.g., it is a static
-error to elide the initializer for \xcd"Int{self==1}").
 
-If the variable is immutable,
-the type may be omitted and
-inferred from the initializer type (\Sref{TypeInference}).
-Mutable fields must be declared with a type.
+Like most other kinds of variables in X10, 
+the fields of an object can be either \xcd`val` or \xcd`var`. 
+Fields can be \xcd`static`,\xcd`global`, or \xcd`property`; see
+\Sref{FieldDefinitions} and \Sref{PropertiesInClasses}.
+Field declarations may have optional
+initializer expressions, as for local variables, \Sref{local-variables}.
+\xcd`var` fields without an initializer are initialized with the default value
+of their type. \xcd`val` fields without an initializer must be initialized by
+each constructor.
+
+
+For \xcd`val` fields, as for \xcd`val` local variables, the type may be
+omitted and inferred from the initializer type (\Sref{TypeInference}).
+\xcd`var` files, like \xcd`var` local variables, must be declared with a type.
 
 \begin{grammar}
 FieldDeclaration
         \: FieldModifier\star \xcd"var" FieldDeclaratorsWithType \\&& ( \xcd"," FieldDeclaratorsWithType )\star \\
-        \| FieldModifier\star \xcd"const" FieldDeclarators \\&& ( \xcd"," FieldDeclarators )\star \\
         \| FieldModifier\star \xcd"val" FieldDeclarators \\&& ( \xcd"," FieldDeclarators )\star \\
         \| FieldModifier\star FieldDeclaratorsWithType \\&& ( \xcd"," FieldDeclaratorsWithType )\star \\
 FieldDeclarators
@@ -360,18 +448,8 @@ FieldDeclaratorWithInit
 FieldDeclaratorsWithType
         \: FieldDeclaratorId ( \xcd"," FieldDeclaratorId )\star ResultType \\
 FieldModifier \: Annotation \\
-                \| \xcd"static" \\
+                \| \xcd"static" \\ \| \xcd`property` \\ \| \xcd`global` \\
 \end{grammar}
 
 
 
-\section{Properties}
-Property declarations are always declared with a type and are
-always immutable (either explicitly declared \xcd"val" or implicitly by default).
-
-\begin{grammar}
-Property
-        \: PropertyModifier\star \xcd"val" Identifier ResultType \\
-        \| PropertyModifier\star Identifier ResultType \\
-PropertyModifier \: Annotation \\
-\end{grammar}

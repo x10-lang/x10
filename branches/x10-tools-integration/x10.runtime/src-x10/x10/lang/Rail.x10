@@ -43,6 +43,19 @@ public final class Rail[T](length: Int)
     public native static safe def make[S](length: Int, init: (Int) => S): Rail[S]!{self.length==length};
 
     /**
+     * Create a Rail and initialize it by evaluating the given closure at each index;
+     * the backing storage for the Rail will be allocated in pinned memory.
+     *
+     * @param length The number of elements.
+     * @param init Evaluated once per element to initialize the Rail.
+     * @return The reference to the new Rail.
+     */
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
+    @Native("c++", "x10::lang::Rail<#1 >::makePinned(#4, #5)")
+    public native static safe def makePinned[S](length: Int, init: (Int) => S): Rail[S]!{self.length==length};
+
+
+    /**
      * Create an appropriately aligned Rail and initialize it by evaluating the given closure at each index.
      *
      * @param length The number of elements.
@@ -136,7 +149,7 @@ public final class Rail[T](length: Int)
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "(#0).apply(#1)")
+    @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
     public native safe def apply(i: Int): T;
@@ -148,7 +161,7 @@ public final class Rail[T](length: Int)
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    @Native("java", "(#0).set(#1, #2)")
+    @Native("java", "(#0).set$G(#1, #2)")
     @Native("c++", "(#0)->set(#1, #2)")
     @Native("cuda", "(#0)[#2] = #1") // FIXME: evaluation order
     public native safe def set(v: T, i: Int): T;

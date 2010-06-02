@@ -2073,7 +2073,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	                		if ( y.length > 0 && y[0] instanceof XEQV)
 	                		newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));
 	                	} catch (XFailure z) {
-	                		throw new InternalError("Unexpectedly inconsistent place constraint.");
+	                		throw new InternalCompilerError("Unexpectedly inconsistent place constraint.");
 	                	}
 	                }
 	                if ( y.length > 0 && y[0] instanceof XEQV) // this is a synthetic variable

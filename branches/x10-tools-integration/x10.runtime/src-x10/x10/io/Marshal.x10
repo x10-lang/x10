@@ -129,13 +129,13 @@ public interface Marshal[T] {
         public global def read(r: Reader): Short throws IOException {
             val b1 = r.read();
             val b2 = r.read();
-            return (((b1 & 0xff) << 8) | b2) as Short;
+            return (((b1 & 0xff) << 8) | (b2 & 0xff)) as Short;
         }
 
         public global def write(w: Writer, s: Short): Void throws IOException {
             val i = s as Int;
-            val b1 = ((i >> 8) & 0xff) as Byte;
-            val b2 = (i & 0xff) as Byte;
+            val b1 = (i >> 8) as Byte;
+            val b2 = i as Byte;
             w.write(b1);
             w.write(b2);
         }
@@ -151,10 +151,10 @@ public interface Marshal[T] {
         }
         
         public global def write(w: Writer, i: Int): Void throws IOException {
-            val b1 = ((i >> 24) & 0xff) as Byte;
-            val b2 = ((i >> 16) & 0xff) as Byte;
-            val b3 = ((i >> 8) & 0xff) as Byte;
-            val b4 = (i & 0xff) as Byte;
+            val b1 = (i >> 24) as Byte;
+            val b2 = (i >> 16) as Byte;
+            val b3 = (i >> 8) as Byte;
+            val b4 = i as Byte;
             w.write(b1);
             w.write(b2);
             w.write(b3);
@@ -176,7 +176,7 @@ public interface Marshal[T] {
             var shift: int = 64;
             while (shift > 0) {
                 shift -= 8;
-                val b = ((l >> shift) & 0xffL) as Byte;
+                val b = (l >> shift) as Byte;
                 w.write(b);
             }
         }

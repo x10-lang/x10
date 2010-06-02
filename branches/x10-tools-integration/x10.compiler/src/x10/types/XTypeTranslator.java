@@ -243,11 +243,11 @@ public class XTypeTranslator {
 		}
 		return result;
 	}
-	public XLocal trans(LocalInstance li) throws SemanticException {
+	public XLocal trans(LocalInstance li) {
 		return trans(li, li.type());
 	}
 	
-	public XLocal trans(LocalInstance li, Type t) throws SemanticException {
+	public XLocal trans(LocalInstance li, Type t) {
 		XLocal v = XTerms.makeLocal(XTerms.makeName(li.def(), li.name().toString()));
 		addTypeToEnv(v, t);
 		return v;

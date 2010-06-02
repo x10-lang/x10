@@ -54,6 +54,8 @@ namespace x10aux {
 
     void dealloc_internal (const void *obj_);
 
+    void *alloc_internal_pinned(size_t size);
+    
 #ifdef X10_USE_BDWGC
 	extern bool gc_init_done;
 #endif

@@ -176,4 +176,6 @@ public interface X10NodeFactory extends NodeFactory {
     
     Closure Closure(Closure c, Position pos);
     TypeNode HasType(TypeNode tn);
+    Offer Offer(Position pos, Expr e);
+    FinishExpr FinishExpr(Position p, Expr e, Stmt s);
 }

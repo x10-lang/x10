@@ -16,7 +16,7 @@ import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 
 public interface Fun_0_9<T1,T2,T3,T4,T5,T6,T7,T8,T9,U> extends Any {
-    U apply(T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9);
+    U apply$G(T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9);
     
     public static final RuntimeType<Fun_0_9<?,?,?,?,?,?,?,?,?,?>> _RTT = new RuntimeType<Fun_0_9<?,?,?,?,?,?,?,?,?,?>>(
         Fun_0_9.class,

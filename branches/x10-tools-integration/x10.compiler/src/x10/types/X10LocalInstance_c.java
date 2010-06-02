@@ -87,9 +87,6 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         	assert rightType != null;
         	return rightType;
         }
-        catch (SemanticException f) {
-        	throw new InternalCompilerError("Could not add self binding.", f);
-        }
         catch (XFailure f) {
         	throw new InternalCompilerError("Could not add self binding.", f);
         }

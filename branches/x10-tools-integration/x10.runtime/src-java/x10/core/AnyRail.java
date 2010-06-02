@@ -31,11 +31,11 @@ public interface AnyRail<T> extends Indexable<Integer,T>, Fun_0_1<Integer,T>, It
     
     public Object[] getBoxedArray();
 
-    public Integer length();
+    public int length();
     
-    public T get(Integer i);
+    public T get(int i);
 
-    public T apply(Integer i);
+    public T apply$G(int i);
     
     public boolean isZero();
 }

@@ -14,7 +14,6 @@ import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XLocal;
-import x10.constraint.XLocal_c;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
@@ -106,7 +105,7 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 //// //						XVar xv = ((XVar)sub).rootVar();
 //// //						System.err.print("; type(" + xv + ") = " + xv.getClass());
 //// //						if (xv instanceof XLocal) {
-//// //							System.err.print("(Local_c.name()=" + ((XLocal_c)xv).name() + ")");
+//// //							System.err.print("(Local_c.name()=" + ((XLocal)xv).name() + ")");
 //// //						}
 //// //					}
 //					if (sub instanceof XField) {
