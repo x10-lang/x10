@@ -139,7 +139,8 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         }
         return -1;
     }
-    
+    public  def moveSectionToValRail(i:Int, j:Int): ValRail[T] 
+            = a.moveSectionToValRail(i,j);
     //
     // iterator
     //
