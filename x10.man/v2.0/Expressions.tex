@@ -1,39 +1,24 @@
 \chapter{Expressions}\label{XtenExpressions}\index{expressions}
 
-\Xten{} supports a rich expression language similar to
-\Java{}'s.
-Evaluating an expression produces a value, which may be either
-an instance of a reference class, struct, or function. 
-Expressions may also be \xcd"void"; that is, they produce no
-value.
-Expression evaluation may have side effects: assignment to a
-variable, allocation, method calls, or exceptional control-flow.
-Evaluation is strict and is performed left to right.
+\Xten{} has a rich expression language.
+Evaluating an expression produces a value, or, in a few cases, no value. 
+Expression evaluation may have side effects, such as change of the value of a 
+\xcd`var` variable or a data structure, allocation of new values, or throwing
+an exception. 
+
+Evaluation is performed left to right, wherever possible.  For example, in 
+%~~exp~~`~~`~~f:() => ((Int,Int)=>Int), a:()=>Int, b:()=>Int ~~
+\xcd`f()(a(),b())`, \xcd`f()` is evaluated, then \xcd`a()`, then \xcd`b()`,
+andd then the application.  
 
 \section{Literals}
 
+Literals denote fixed values of built-in types. 
 The syntax for literals is given in \Sref{Literals}. 
 
-The type that \Xten{} gives a literal includes its value.  \Eg, \xcd`1` is of
-type \xcd`Int{self==1}`, and \xcd`true` is of type \xcd`Boolean{self==true}`.
-
-
-%LIT%  \Xten{} supports the following literal expressions: 
-%LIT%  \begin{itemize}
-%LIT%  \item An 32-bit integer literal is a value of type \xcd"x10.lang.Int".
-%LIT%  \item An 64-bit long literal is a value of type \xcd"x10.lang.Long".
-%LIT%  \item A 32-bit floating-point literal is a value of type \xcd"x10.lang.Float".
-%LIT%  \item A 64-bit floating-point literal is a value of type \xcd"x10.lang.Double".
-%LIT%  \item A character literal is a value of type \xcd"x10.lang.Char".
-%LIT%  \item A string literal is a value of type \xcd"x10.lang.String".
-%LIT%  \item The boolean literals \xcd"true" and \xcd"false" are of type
-%LIT%  \xcd"x10.lang.Boolean".
-%LIT%  \item The \xcd"null" literal is of the null type,
-%LIT%  a subtype of all reference types.
-%LIT%  \end{itemize}
-
-
-
+The type that \Xten{} gives a literal often includes its value. \Eg, \xcd`1`
+is of type \xcd`Int{self==1}`, and \xcd`true` is of type
+\xcd`Boolean{self==true}`.
 
 \section{\Xcd{this}}
 
@@ -45,11 +30,30 @@ ThisExpression \: \xcd"this" \\
 The expression \xcd"this" is a  local \xcd`val` containing a reference
 to an instance of the lexically enclosing class.
 It may be used only within the body of an instance method, a
-constructor, or in the initializer of a instance field.
+constructor, or in the initializer of a instance field -- that is, the places
+where there is an instance of the class under consideration.
 
 Within an inner class, \xcd"this" may be qualified with the
 name of a lexically enclosing class.  In this case, it
-represents an instance of that enclosing class.
+represents an instance of that enclosing class.  
+For example, \xcd`Outer` is a class containing \xcd`Inner`.  Each instance of
+\xcd`Inner` has a reference \xcd`outer` to the \xcd`Outer` involved in its
+creation, which is acquired by use of \xcd`Outer.this`.
+%~~gen
+% package exp.vexp.pexp.lexp.shexp;
+%~~vis
+\begin{xten}
+class Outer {
+  val inner : Inner! = new Inner();
+  class Inner {
+    val outer : Outer = Outer.this;
+  }
+  def alwaysTrue() = (this == inner.outer);
+}
+\end{xten}
+%~~siv
+%
+%~~neg
 
 The type of a \xcd"this" expression is the
 innermost enclosing class, or the qualifying class,
@@ -65,13 +69,27 @@ body or in supertypes, are accessible through \xcd"this".
 
 \section{Local variables}
 
-
 \begin{grammar}
 LocalExpression \: Identifier \\
 \end{grammar}
 
-A local variable expression consists simply of the name of the
-local variable.
+A local variable expression consists simply of the name of the local variable,
+field of the current object, formal parameter in scope, etc. It evaluates to
+the value of the local variable. \xcd`n` in the second line below is a local
+variable expression. 
+%~~gen 
+% package exp.loc.al.varia.ble; 
+% class Example {
+% def example() { 
+%~~vis
+\begin{xten}
+val n = 22;
+val m = n + 56;
+\end{xten}
+%~~siv
+%} }
+%~~neg
+
 
 
 \section{Field access}
@@ -104,7 +122,34 @@ the parent class shadowed by same-named fields of the current class.
 If the field target is \xcd`Cls.super`, then the target's type is \xcd`Cls`,
 which must be an ancestor class of the enclosing class.  This (admittedly
 obscure) form is used to access fields of an ancestor class which are shadowed
-by same-named fields of some more recent ancestor.
+by same-named fields of some more recent ancestor.  The following example
+illustrates all four cases:
+
+%~~gen
+% package exp.re.ssio.ns.fiel.dacc.ess;
+%~~vis
+\begin{xten}
+class Uncle {
+  public static global val f = 1;
+}
+class Parent {
+  public global val f = 2;
+}
+class Ego extends Parent {
+  public global val f = 3;
+  class Child extends Ego {
+     public global val f = 4;
+     def expDotId() = this.f; // 4
+     def superDotId() = super.f; // 3
+     def classNameDotId() = Uncle.f; // 1;
+     def cnDotSuperDotId() = Ego.super.f; // 2
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
 
 If the field target is \xcd"null", a \xcd"NullPointerException"
 is thrown.
@@ -117,7 +162,7 @@ It is illegal to access a non-static field
 through a static field access expression.
 
 \section{Function Literals}
-Please see \Sref{Functions} for a description of \Xcd{FunctionExpressions}.
+Function literals are described in \Sref{Functions}.
 
 \section{Calls}
 \label{Call}
@@ -132,26 +177,52 @@ Call \: Primary TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
 TypeArguments \: \xcd"[" Type ( \xcd"," Type )\star \xcd"]" \\
 \end{grammar}
 
-A \grammarrule{MethodCall} may be to either \xcd"static" or to
-instance methods.  A \grammarrule{Call} may to either a method
-or a closure.  The syntax is ambiguous; the target must be
-type-checked to determine if it is the name of a method or if it
-refers to a closure.
+A \grammarrule{MethodCall} may be to either a \xcd"static" or an 
+instance method.  A \grammarrule{Call} may invoke either a method
+or a closure.  
 
-It is a static error if a call may resolve to both a closure
-call or to a method call.  
+The syntax is ambiguous; the target must be type-checked to determine if it is
+the name of a method or if it refers to a field containing a closure. It is a
+static error if a call may resolve to both a closure call or to a method call.
+%~~gen
+% package expres.sio.nsca.lls;
+%~~vis
+\begin{xten}
+class Callsome {
+  static val closure = () => 1;
+  static def method () = 2;
+  static val closureEvaluated = Callsome.closure();
+  static val methodEvaluated = Callsome.method();
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+However, adding a static method called \xcd`closure` makes \xcd`Callsome.closure()`
+ambiguous: it could be a call to the closure, or to the static method: 
 
-A closure call \xcdmath"e($\dots$)" is shorthand for a method call \xcdmath"e.apply($\dots$)".
+%~~gen
+% package expres.sio.nsca.lls.twoooo;
+% class Callsome {static val closure = () => 1; static def method () = 2; static val methodEvaluated = Callsome.method();
+%~~vis
+\begin{xten}
+  static def closure () = 3;
+  // ERROR: static errory = Callsome.closure();
+\end{xten}
+%~~siv
+% }
+%~~neg
 
-Method selection rules are similar to that of \java{}.
+A closure call \xcdmath"e($\dots$)" is shorthand for a method call
+\xcdmath"e.apply($\dots$)". 
+
+Method selection rules are similar to that of \java{}.\bard{Explain}
 For a call with no explicit type arguments, a method with 
 no parameters is considered more specific than a method with one or more
 type parameters that would have to be inferred.
 
-Type arguments may be omitted and inferred, as described in
-\Sref{TypeInference}.
-
-It is a static error if a method's \grammarrule{Guard} is not satisfied by the caller.
+It is a static error if a method's \grammarrule{Guard} is not satisfied by the
+caller. 
 
 \section{Assignment}\index{assignment}\label{AssignmentStatement}
 
