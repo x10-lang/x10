@@ -361,8 +361,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ConstructorCallsChecked(job));
            goals.add(ForwardReferencesChecked(job));
            goals.add(PropertyAssignmentsChecked(job));
-           goals.add(TypeCheckBarrier());
            goals.add(EnsureNoErrors(job));
+           goals.add(TypeCheckBarrier());
 
            goals.add(X10Casted(job));
            goals.add(MoveFieldInitializers(job));
@@ -449,28 +449,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
 
        public Goal TypeCheckBarrier() {
-           String name = "TypeCheckBarrier";
-           if (Globals.Options().compile_command_line_only) {
-               return new BarrierGoal(name, commandLineJobs()) {
-                   @Override
-                   public Goal prereqForJob(Job job) {
-                       return ReassembleAST(job);
-                   }
-               }.intern(this);
-           }
-           else {
-               return new AllBarrierGoal(name, this) {
-                   @Override
-                   public Goal prereqForJob(Job job) {
-                       if (!scheduler.commandLineJobs().contains(job) &&
-                               ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
-                       {
-                           return null;
-                       }
-                       return ReassembleAST(job);
-                   }
-               }.intern(this);
-           }
+           return new AllBarrierGoal("TypeCheckBarrier", this) {
+               @Override
+               public Goal prereqForJob(Job job) {
+                   return EnsureNoErrors(job);
+               }
+           }.intern(this);
        }
 
        protected Goal codegenPrereq(Job job) {
