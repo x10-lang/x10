@@ -69,6 +69,7 @@ import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.visit.X10TypeChecker;
+import x10.visit.ChangePositionVisitor;
 import x10.types.checker.VarChecker;
 
 
@@ -432,7 +433,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
                             }
                         }
                     };
-                depExpr = (DepParameterExpr) depExpr.visit(subst);
+                depExpr = (DepParameterExpr) depExpr.visit(subst).visit(new ChangePositionVisitor(position())); // todo: we should desugar only after type-checking
                 result = ((X10CanonicalTypeNode)result).constraintExpr(depExpr);
             }
         }

@@ -197,9 +197,11 @@ public class X10Field_c extends Field_c {
 			X10Field_c result = this;
 			Type type = c.inDepType()? rightType(fi.rightType(), fi.x10Def(), target, c) :
 				fieldRightType(fi.rightType(), fi.x10Def(), target, c);
-			if (type instanceof UnknownType) {
-				throw new SemanticException();
-			}
+
+            // todo: Yoav commented out because we treat UnknownType like an invalid type
+//			if (type instanceof UnknownType) {
+//				throw new SemanticException();
+//			}
 
 			// substitute currentPlace back in.
 			type = placeTerm == null ? type : Subst.subst(type, placeTerm, currentPlace);
