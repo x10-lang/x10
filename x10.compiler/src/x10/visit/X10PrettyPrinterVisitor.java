@@ -1492,7 +1492,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			                er.printType(e.type(), 0);
 			                w.write(")");
 			                if (e instanceof X10Call) {
-			                    if (X10TypeMixin.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType) {
+                                            Type targetType = ((X10Call) e).target().type();
+                                            if (
+                                                !(
+                                                    ((X10TypeSystem) tr.typeSystem()).isRail(targetType)
+                                                    || ((X10TypeSystem) tr.typeSystem()).isValRail(targetType)
+                                                    && !(X10TypeMixin.baseType(e.type()) instanceof ParameterType)
+                                                )
+                                                && X10TypeMixin.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType
+                                            ) {
 			                        w.write("(");
 			                        er.printType(e.type(), BOX_PRIMITIVES);
 			                        w.write(")");
