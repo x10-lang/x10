@@ -18,7 +18,7 @@
  */
 import harness.x10Test;
 
-public class X10DepTypeSubClassOne(a:int) extends X10DepTypeClassOne {
+public class X10DepTypeSubClassOneB(a:int) extends X10DepTypeClassOneB {
 
 	public def this(a:int, q:int) = {
 	    super(a);

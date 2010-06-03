@@ -23,7 +23,7 @@ import harness.x10Test;
 public class TypedefOverloading01 extends TypedefTest {
 
     static class D(x: int, y: int) {
-        def this(a: int, b: int): D{x==a,y==b} {
+        def this(a: int, b: int): D{self.x==a,self.y==b} {
             property(a,b);
         }
     }

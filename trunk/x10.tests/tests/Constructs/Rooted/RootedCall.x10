@@ -18,13 +18,13 @@ public class RootedCall extends x10Test {
 
     class A {
 	var x:Int=1;
-	rooted def m() {
+	def m() {
 	    x=2;
 	}
     }
 
     public def run(): boolean = {
-	var a: rooted A = new A();
+	var a:A! = new A();
 	a.m(); // ok
 	return true;
     }

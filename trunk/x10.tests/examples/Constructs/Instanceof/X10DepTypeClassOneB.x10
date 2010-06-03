@@ -22,7 +22,7 @@ import harness.x10Test;
  * Purpose: Checks variable name shadowing works correctly.
  * @author vcave
  **/
-public class X10DepTypeClassOne(p:int) implements X10InterfaceOne {
+public class X10DepTypeClassOneB(p:int) implements X10InterfaceOneB {
 
 	public def this(p:int) = {
 	    property(p);

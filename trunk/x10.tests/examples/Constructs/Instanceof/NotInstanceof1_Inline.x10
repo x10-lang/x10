@@ -28,11 +28,11 @@ public class NotInstanceof1_Inline extends x10Test {
 	public def run():boolean = {
 		val diffType = this.getDifferentType();
 		
-		return !(diffType instanceof X10DepTypeClassOne{p==1});
+		return !(diffType instanceof X10DepTypeClassOneB{p==1});
 	}
 
 	private def getSameType():Object = {
-		return new X10DepTypeClassOne(1);
+		return new X10DepTypeClassOneB(1);
 	}
 	
 	private def getDifferentType():Object = {

@@ -20,14 +20,14 @@ import harness.x10Test;
 
 public class DefaultValueTypeDefTest extends x10Test {
 
-    static value Foo[T](n:int, s:T) {
+    static struct Foo[T](n:int, s:T) {
        def this(n:int, s:T):Foo[T]{self.n==n,self.s==s} {
          property(n,s);
        }
     }
     public def run() = {
-        x:Foo[String](2,"a") = new Foo[String](2,"a");
-        true
+        val x:Foo[String]{self.n==2 && self.s=="a"} = Foo[String](2,"a");
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {
