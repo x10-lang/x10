@@ -67,7 +67,7 @@ public class TypeConstraintsCaster extends ContextVisitor {
             for (Stmt stmt : stmts) {
                 if (stmt instanceof X10Return_c) {
                     X10Return_c r = (X10Return_c) stmt;
-                    if (r.expr().type() != md.returnType().type()) {
+                    if (r.expr() != null && r.expr().type() != md.returnType().type()) {
                         e = r.expr();
                     }
                 }
