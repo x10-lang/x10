@@ -1,3 +1,13 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
 package x10c.visit;
 
 import java.util.ArrayList;
@@ -30,17 +40,20 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.SubtypeConstraint;
 
-public class TypeConstrainedCaster extends ContextVisitor {
+public class TypeConstraintsCaster extends ContextVisitor {
     
     private final X10TypeSystem xts;
     private final X10NodeFactory xnf;
 
-    public TypeConstrainedCaster(Job job, TypeSystem ts, NodeFactory nf) {
+    public TypeConstraintsCaster(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
         xnf = (X10NodeFactory) nf;
     }
     
+    // add casts for type constraints to type parameters
+    // e.g) class C[T1,T2]{T1 <: T2} { def test(t1:T1):T2 {return t1;}}
+    //   -> class C[T1,T2]{T1 <: T2} { def test(t1:T1):T2 {return (T2) t1;}}
     @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
 
