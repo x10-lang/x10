@@ -263,7 +263,7 @@ public class Desugarer extends ContextVisitor {
     // Begin asyncs
     private Stmt visitAsync(Node old, Async a) throws SemanticException {
         Position pos = a.position();
-        if (hasAnnotation(a, UNCOUNTED)) {
+        if (Emitter.hasAnnotation(xts, a, UNCOUNTED)) {
             if (old instanceof Async && ((Async) old).place() instanceof Here)
                 return uncountedAsync(pos, a.body());
             return uncountedAsync(pos, a.body(), a.place());
@@ -274,20 +274,6 @@ public class Desugarer extends ContextVisitor {
         if (specializedAsync != null)
             return specializedAsync;
         return async(pos, a.body(), a.clocks(), a.place());
-    }
-
-    // FIXME: code copied from Emitter
-    public boolean hasAnnotation(Node n, QName name) {
-        try {
-            if (Emitter.annotationNamed(xts, n, name) != null)
-                return true;
-        } catch (NoClassException e) {
-            if (!e.getClassName().equals(name.toString()))
-                throw new InternalCompilerError("Something went terribly wrong", e);
-        } catch (SemanticException e) {
-            throw new InternalCompilerError("Something is terribly wrong", e);
-        }
-        return false;
     }
 
     // TODO: add more rules from SPMDcppCodeGenerator
@@ -319,7 +305,7 @@ public class Desugarer extends ContextVisitor {
      * TODO: move into a separate pass!
      */
     private Stmt specializeAsync(Node old, Async a) throws SemanticException {
-        if (!hasAnnotation(a, IMMEDIATE))
+        if (!Emitter.hasAnnotation(xts, a, IMMEDIATE))
             return null;
         if (a.clocks().size() != 0)
             return null;
@@ -544,7 +530,7 @@ public class Desugarer extends ContextVisitor {
      * TODO: move into a separate pass!
      */
     private Stmt specializeFinish(Finish f) throws SemanticException {
-        if (!hasAnnotation(f, IMMEDIATE))
+        if (!Emitter.hasAnnotation(xts, f, IMMEDIATE))
             return null;
         Position pos = f.position();
         ClassType target = (ClassType) xts.typeForName(REMOTE_OPERATION);
