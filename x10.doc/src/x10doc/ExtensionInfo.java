@@ -50,10 +50,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			goals.add(TypesInitialized(job));
 			goals.add(ImportTableInitialized(job));
 			
-			goals.add(CastRewritten(job));
-			
 			goals.add(PreTypeCheck(job));
-			goals.add(TypesInitializedForCommandLine());
+			goals.add(TypesInitializedForCommandLineBarrier());
 			goals.add(TypeChecked(job));
 			goals.add(ReassembleAST(job));
 			
@@ -61,7 +59,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			goals.add(End(job));
 			
 			// the barrier will handle prereqs on its own
-			X10DocGenerated(job).addPrereq(CodeGenBarrier());
+			X10DocGenerated(job).addPrereq(TypeCheckBarrier());
 			
 			return goals;
 		}
