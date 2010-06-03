@@ -104,12 +104,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         // force Topics to load
         Topics t = new Topics();
     }
-    
+
     protected Map<QName,CompilerPlugin> plugins;
 
 	public static final String XML_FILE_EXTENSION = "x10ml";
 	public static final String XML_FILE_DOT_EXTENSION = "." + XML_FILE_EXTENSION;
-  
+
     public static String clock = "clock";
 
     static {
@@ -133,13 +133,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     //
     // Replace the Flex/Cup parser with a JikesPG parser
     //
-    //    public Parser parser(Reader reader, FileSource source, ErrorQueue eq) { 
+    //    public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
     //        Lexer lexer = new Lexer_c(reader, source.name(), eq);
     //        Grm grm = new Grm(lexer, ts, nf, eq);
     //        return new CupParser(grm, source, eq);
     //    }
     //
-    
+
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
     // ###
 //        if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
@@ -158,7 +158,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             // we depend on Polyglot to provide us with a fully qualified
             // name for the file. In Version 1.3.0, source.name() yielded a
             // fully-qualied name. In 1.3.2, source.path() yields a fully-
-            // qualified name. If this assumption still holds then the 
+            // qualified name. If this assumption still holds then the
             // first constructor will work.
             // The advantage of using the Reader constructor is that it
             // will always work, though not as efficiently.
@@ -196,7 +196,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             return true;
         return false;
     }
-    
+
     static class WarningComparator implements Comparator<ErrorInfo> {
     	public int compare(ErrorInfo a, ErrorInfo b) {
     		Position pa  = a.getPosition();
@@ -217,11 +217,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	}
     }
     Set<ErrorInfo> warnings = new TreeSet<ErrorInfo>(new WarningComparator());
-    
+
     public Set<ErrorInfo> warningSet() {
     	return warnings;
     }
-    
+
     static class ExceptionComparator implements Comparator<SemanticException> {
     	public int compare(SemanticException a, SemanticException b) {
     		int r = (a.getClass().toString().compareToIgnoreCase(b.getClass().toString()));
@@ -245,19 +245,19 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	}
     }
     Set<SemanticException> errors = new TreeSet<SemanticException>(new ExceptionComparator());
-    
+
     public Set<SemanticException> errorSet() {
     	return errors;
     }
-    
+
     private static int weakCallsCount = 0;
-    public void incrWeakCallsCount() { 
+    public void incrWeakCallsCount() {
     	weakCallsCount++;
     }
     public int weakCallsCount() {
     	return weakCallsCount;
     }
-    
+
     protected void initTypeSystem() {
         try {
             TopLevelResolver r = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
@@ -323,7 +323,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     protected Scheduler createScheduler() {
         return new X10Scheduler(this);
     }
-    
+
     public static class X10Scheduler extends JLScheduler {
        public X10Scheduler(ExtensionInfo extInfo) {
 		   super(extInfo);
@@ -339,16 +339,17 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (job.source() != null && job.source().path().endsWith(XML_FILE_DOT_EXTENSION)) {
                goals.add(X10MLTypeChecked(job));
            }
-           
-           // Do not include LoadPlugins in list.  It would cause prereqs to be added 
+
+           // Do not include LoadPlugins in list.  It would cause prereqs to be added
 //           goals.add(LoadPlugins());
            goals.add(PropagateAnnotations(job));
            goals.add(LoadJobPlugins(job));
            goals.add(RegisterPlugins(job));
-           
+
            goals.add(PreTypeCheck(job));
            goals.add(TypesInitializedForCommandLineBarrier());
            goals.add(TypeChecked(job));
+           goals.add(EnsureNoErrors(job));
            goals.add(ReassembleAST(job));
 
            goals.add(ConformanceChecked(job));
@@ -361,8 +362,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ConstructorCallsChecked(job));
            goals.add(ForwardReferencesChecked(job));
            goals.add(PropertyAssignmentsChecked(job));
-           goals.add(EnsureNoErrors(job));
-           goals.add(TypeCheckBarrier());
+//           goals.add(TypeCheckBarrier());
 
            goals.add(X10Casted(job));
            goals.add(MoveFieldInitializers(job));
@@ -379,7 +379,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
                if (wsCodeGenGoal != null) {
                    goals.add(wsCodeGenGoal);
-                   wsCodeGenGoal.addPrereq(TypeCheckBarrier());
+//                   wsCodeGenGoal.addPrereq(TypeCheckBarrier());
                }
            }
            goals.add(InnerClassRemover(job));
@@ -388,18 +388,18 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            goals.add(CodeGenerated(job));
            goals.add(End(job));
-           
+
            InnerClassRemover(job).addPrereq(Serialized(job));
-           InnerClassRemover(job).addPrereq(TypeCheckBarrier());
-           
+//           InnerClassRemover(job).addPrereq(TypeCheckBarrier());
+
            // the barrier will handle prereqs on its own
            CodeGenerated(job).addPrereq(CodeGenBarrier());
 
-           Desugarer(job).addPrereq(TypeCheckBarrier());
+//           Desugarer(job).addPrereq(TypeCheckBarrier());
            CodeGenerated(job).addPrereq(Desugarer(job));
            List<Goal> optimizations = Optimizer.goals(this, job);
            for (Goal goal : optimizations) {
-               goal.addPrereq(TypeCheckBarrier());
+//               goal.addPrereq(TypeCheckBarrier());
                CodeGenerated(job).addPrereq(goal);
            }
 
@@ -526,7 +526,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            return g2;
        }
-       
+
        public Goal PropagateAnnotations(Job job) {
            // ###
            return new VisitorGoal("PropagateAnnotations", job, new PruningVisitor()).intern(this);
@@ -551,7 +551,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10MLTypeChecked", job, new X10MLVerifier(job, ts, nf)).intern(this);
        }
-      
+
        @Override
        public Goal TypeChecked(Job job) {
        	TypeSystem ts = job.extensionInfo().typeSystem();
@@ -581,7 +581,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10RewriteAtomicMethods", job, new RewriteAtomicMethodVisitor(job, ts, nf)).intern(this);
        }
-       
+
        public Goal X10ExprFlattened(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
@@ -593,31 +593,31 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("PropertyAssignmentsChecked", job, new AssignPropertyChecker(job, ts, nf)).intern(this);
        }
-       
+
        public Goal X10Expanded(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10Expanded", job, new X10ImplicitDeclarationExpander(job, ts, nf)).intern(this);
        }
-       
+
        public Goal CheckNativeAnnotations(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "java")).intern(this);
        }
-       
+
        public Goal NativeClassVisitor(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "java")).intern(this);
        }
-       
+
        public Goal WSCodeGenerator(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
 
-           Goal result = null;          
-                      
+           Goal result = null;
+
            try{
                //Use reflect to load the class from
                ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -637,13 +637,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            return result;
        }
-       
+
        public Goal Desugarer(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
     	   return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
        }
-       
+
        public Goal InnerClassRemover(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
@@ -655,30 +655,30 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
        }
     }
-    
+
     protected Options createOptions() {
     	return new X10CompilerOptions(this);
     }
-    
+
     public Map<QName,CompilerPlugin> plugins() {
     	if (plugins == null) {
     		return Collections.emptyMap();
     	}
     	return plugins;
     }
-    
+
 	public void addPlugin(QName pluginName, CompilerPlugin plugin) {
 		if (plugins == null) {
 			plugins = new HashMap<QName,CompilerPlugin>();
 		}
 		plugins.put(pluginName, plugin);
 	}
-	
+
 	public CompilerPlugin getPlugin(QName pluginName) {
 		if (plugins == null) {
 			return null;
 		}
-		
+
 		return plugins.get(pluginName);
 	}
 }
