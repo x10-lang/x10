@@ -14,7 +14,6 @@ import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.DepParameterExpr_c;
 import x10.ast.X10Formal_c;
 import x10.ast.ClosureCall_c;
-import x10.core.Rail;
 
 public class ChangePositionVisitor extends NodeVisitor
 {
