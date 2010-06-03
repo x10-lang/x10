@@ -379,7 +379,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
                if (wsCodeGenGoal != null) {
                    goals.add(wsCodeGenGoal);
-//                   wsCodeGenGoal.addPrereq(TypeCheckBarrier());
+                   wsCodeGenGoal.addPrereq(TypeCheckBarrier());
                }
            }
            goals.add(InnerClassRemover(job));
@@ -390,17 +390,17 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(End(job));
 
            InnerClassRemover(job).addPrereq(Serialized(job));
-//           InnerClassRemover(job).addPrereq(TypeCheckBarrier());
+           InnerClassRemover(job).addPrereq(TypeCheckBarrier());
 
            // the barrier will handle prereqs on its own
            CodeGenerated(job).addPrereq(CodeGenBarrier());
            
 
-//           Desugarer(job).addPrereq(TypeCheckBarrier());
+           Desugarer(job).addPrereq(TypeCheckBarrier());
            CodeGenerated(job).addPrereq(Desugarer(job));
            List<Goal> optimizations = Optimizer.goals(this, job);
            for (Goal goal : optimizations) {
-//               goal.addPrereq(TypeCheckBarrier());
+               goal.addPrereq(TypeCheckBarrier());
                CodeGenerated(job).addPrereq(goal);
            }
 
@@ -465,12 +465,28 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
 
        public Goal TypeCheckBarrier() {
-           return new AllBarrierGoal("TypeCheckBarrier", this) {
-               @Override
-               public Goal prereqForJob(Job job) {
-                   return EnsureNoErrors(job);
-               }
-           }.intern(this);
+           String name = "TypeCheckBarrier";
+           if (Globals.Options().compile_command_line_only) {
+               return new BarrierGoal(name, commandLineJobs()) {
+                   @Override
+                   public Goal prereqForJob(Job job) {
+                       return Serialized(job);
+                   }
+               }.intern(this);
+           }
+           else {
+               return new AllBarrierGoal(name, this) {
+                   @Override
+                   public Goal prereqForJob(Job job) {
+                       if (!scheduler.commandLineJobs().contains(job) &&
+                               ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
+                       {
+                           return null;
+                       }
+                       return Serialized(job);
+                   }
+               }.intern(this);
+           }
        }
 
        protected Goal codegenPrereq(Job job) {
