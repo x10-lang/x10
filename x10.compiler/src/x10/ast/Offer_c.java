@@ -95,10 +95,10 @@ public class Offer_c extends Stmt_c implements Offer {
 	 */
 	@Override
 	public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
-		if (expr != null) {
-            v.visitCFG(expr, this, EXIT);
-        }
-        return Collections.EMPTY_LIST;
+
+		v.visitCFG(expr, this, EXIT);
+
+		return succs;
 	}
 
 	/* (non-Javadoc)
