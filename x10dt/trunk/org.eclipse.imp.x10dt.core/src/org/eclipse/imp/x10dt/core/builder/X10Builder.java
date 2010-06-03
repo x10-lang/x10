@@ -446,13 +446,13 @@ public class X10Builder extends IncrementalProjectBuilder {
         	public void run(IProgressMonitor monitor) {
         		//Due to bug XTENLANG-1368, we can't hand all the source files at once to the compiler
         		//Once this is fixed, remove the for loop below.
-        		//compileAllSources(sources, fErrors);
+        		compileAllSources(sources, fErrors);
         	
-        		for(IFile f: sources){
-        			Collection<IFile> c = new ArrayList<IFile>();
-        			c.add(f);
-        			compileAllSources(c, fErrors);
-        		}
+//        		for(IFile f: sources){
+//        			Collection<IFile> c = new ArrayList<IFile>();
+//        			c.add(f);
+//        			compileAllSources(c, fErrors);
+//        		}
         	}
         };
         try {
