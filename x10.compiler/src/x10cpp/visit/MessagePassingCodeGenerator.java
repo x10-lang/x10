@@ -4591,7 +4591,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            actualTypes.add(a.type());
 		        }
 		        ami = xts.findMethod(t,
-		                xts.MethodMatcher(c.type(), Name.make("apply"), actualTypes, context));
+		                xts.MethodMatcher(c.type(), Name.make("apply"), actualTypes, context));  // todo: double check this code
 		    } catch (SemanticException e) {
 		        e.printStackTrace();
 		        assert (false);

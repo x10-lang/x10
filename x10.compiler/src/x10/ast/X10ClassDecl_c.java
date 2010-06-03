@@ -114,6 +114,8 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.util.Synthesizer;
+import x10.visit.ChangePositionVisitor;
+
 /**
  * The same as a Java class, except that it needs to handle properties.
  * Properties are converted into public final instance fields immediately.
@@ -1002,7 +1004,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     protected ConstructorDecl createDefaultConstructor(ClassDef thisType,
     		TypeSystem ts, NodeFactory nf) throws SemanticException
     {
-    	  Position pos = body().position().startOf();
+    	  Position pos = Position.COMPILER_GENERATED; //body().position().startOf();
     	  X10NodeFactory xnf = (X10NodeFactory) nf;
           Block block = null;
 
@@ -1030,10 +1032,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	  
         	  formals = new ArrayList<Formal>(properties.size());
         	  List<Expr> actuals = new ArrayList<Expr>(properties.size());
+              ChangePositionVisitor changePositionVisitor = new ChangePositionVisitor(pos);
         	  for (PropertyDecl pd: properties) {
-        		  Id name = pd.name();
-        		  formals.add(xnf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL), 
-        				  (TypeNode) pd.type().copy(), name));
+        		  Id name = (Id) pd.name().position(pos);
+                  TypeNode typeNode = (TypeNode) pd.type().copy();
+                  Node newNode = typeNode.visit(changePositionVisitor);
+                  formals.add(xnf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL),
+        				  (TypeNode) newNode, name));
         		  actuals.add(xnf.Local(pos, name));
         	  }
         	 

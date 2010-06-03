@@ -32,7 +32,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import polyglot.ast.NodeFactory;
-import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
@@ -52,7 +51,6 @@ import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.types.MemberClassResolver;
-import polyglot.types.MethodDef;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
@@ -62,9 +60,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import polyglot.visit.PostCompiled;
 import polyglot.visit.PruningVisitor;
-import polyglot.visit.TypeChecker;
 import x10.ast.X10NodeFactory_c;
 import x10.optimizations.Optimizer;
 import x10.parser.X10Lexer;
@@ -82,7 +78,6 @@ import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
 import x10.visit.FieldInitializerMover;
-import x10.visit.Inliner;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.RewriteExternVisitor;
@@ -94,6 +89,8 @@ import x10.visit.X10InnerClassRemover;
 import x10.visit.X10MLVerifier;
 import x10.visit.X10Translator;
 import x10.visit.X10TypeChecker;
+import x10.visit.PositionInvariantChecker;
+import x10.visit.InstanceInvariantChecker;
 
 /**
  * Extension information for x10 extension.
@@ -348,7 +345,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            goals.add(PreTypeCheck(job));
            goals.add(TypesInitializedForCommandLineBarrier());
-           goals.add(TypeChecked(job));
+
+           Goal typeCheckedGoal = TypeChecked(job);
+           goals.add(typeCheckedGoal);
+
            goals.add(EnsureNoErrors(job));
            goals.add(ReassembleAST(job));
 
@@ -394,6 +394,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            // the barrier will handle prereqs on its own
            CodeGenerated(job).addPrereq(CodeGenBarrier());
+           
 
 //           Desugarer(job).addPrereq(TypeCheckBarrier());
            CodeGenerated(job).addPrereq(Desugarer(job));
@@ -403,6 +404,21 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                CodeGenerated(job).addPrereq(goal);
            }
 
+           if (x10.Configuration.CHECK_INVARIANTS) {
+               ArrayList<Goal> newGoals = new ArrayList<Goal>(goals.size()*2);
+               boolean reachedTypeChecking = false;
+               for (Goal g : goals) {
+                   newGoals.add(g);
+                   if (!reachedTypeChecking)
+                       newGoals.add(new VisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job)));
+                   if (g==typeCheckedGoal) {
+                       newGoals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
+                       reachedTypeChecking = true;
+                   }
+               }
+               goals = newGoals;
+           }
+       
            return goals;
        }
 
