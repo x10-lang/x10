@@ -144,7 +144,7 @@ public class Random {
         // Knuth, vol 2, 2nd ed, p. 102
         mt(0) = (seed as Long) as Int;
         for (var i: int = 1; i < N; i++) {
-            mt(i) = (69069L * mt(i-1)) as Int;
+            mt(i) = (69069L * mt(i-1) + 1) as Int;
         }
 
         // make sure we twist once.
