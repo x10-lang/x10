@@ -12,8 +12,6 @@
 import harness.x10Test;
 
 /**
- * The test checks that final fields can be accessed in a depclause.
- *
  * @author vj
  */
 public class StaticReturn extends x10Test {

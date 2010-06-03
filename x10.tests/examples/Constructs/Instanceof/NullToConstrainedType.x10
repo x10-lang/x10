@@ -19,7 +19,7 @@ import harness.x10Test;
 public class NullToConstrainedType extends x10Test {
 	 
 	public def run(): boolean = {
-		return !(null instanceof X10DepTypeClassOne{p==1});
+		return !(null instanceof X10DepTypeClassOneB{p==1});
 	}
 	
 	public static def main(var args: Rail[String]): void = {
