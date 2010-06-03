@@ -63,7 +63,7 @@ public class Random {
         while (true) {
             var x: int = nextInt();
             for (var j: int = 0; j < 4; j++) {
-                if (i > buf.length)
+                if (i >= buf.length)
                     return;
                 buf(i) = (x & 0xff) as Byte;
                 i++;
