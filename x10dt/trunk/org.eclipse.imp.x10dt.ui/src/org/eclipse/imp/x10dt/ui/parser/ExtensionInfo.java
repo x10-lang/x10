@@ -93,7 +93,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 }
                 goals.add(TypesInitialized(job));
                 goals.add(ImportTableInitialized(job));
-                goals.add(CastRewritten(job));
+          //      goals.add(CastRewritten(job));
                 goals.add(PropagateAnnotations(job));
                 goals.add(PreTypeCheck(job));
                 goals.add(TypeChecked(job));
