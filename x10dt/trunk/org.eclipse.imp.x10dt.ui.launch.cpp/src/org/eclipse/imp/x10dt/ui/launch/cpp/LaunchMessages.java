@@ -411,7 +411,9 @@ public class LaunchMessages extends NLS {
 
   public static String XPCP_AddBt;
 
-  public static String XPCP_ArchitectureBt;
+  public static String XPCP_64BitsArchitectureBt;
+
+  public static String XPCP_Architecture;
 
   public static String XPCP_ArchiverLabel;
 

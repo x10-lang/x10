@@ -7,11 +7,13 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+
 
 final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  UnknownUnixDefaultCommands(final boolean is64Arch) {
-    super(is64Arch);
+  UnknownUnixDefaultCommands(final boolean is64Arch, final EArchitecture architecture) {
+    super(is64Arch, architecture);
   }
   
   // --- Interface methods implementation
@@ -31,7 +33,7 @@ final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implem
   public String getCompilerOptions() {
     final String cmpOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread"; //$NON-NLS-1$
     if (is64Arch()) {
-      return cmpOpts + " -m64"; //$NON-NLS-1$
+      return cmpOpts + M64BIT_OPTION;
     } else {
       return cmpOpts;
     }
@@ -48,7 +50,7 @@ final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implem
   public String getLinkingOptions() {
     final String linkOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter"; //$NON-NLS-1$
     if (is64Arch()) {
-      return linkOpts + " -m64"; //$NON-NLS-1$
+      return linkOpts + M64BIT_OPTION;
     } else {
       return linkOpts;
     }

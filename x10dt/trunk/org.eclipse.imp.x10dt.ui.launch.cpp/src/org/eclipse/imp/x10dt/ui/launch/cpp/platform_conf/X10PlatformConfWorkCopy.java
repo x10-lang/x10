@@ -11,6 +11,7 @@ import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.MPICH2_SER
 import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID;
 
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
@@ -94,7 +95,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   }
   
   // --- ICppCompilationConf's setter methods
-
+  
   public void setArchitecture(final EArchitecture architecture) {
     super.fCppCompilationConf.fArchitecture = architecture;
     updateDirtyFlag();
@@ -107,6 +108,11 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   
   public void setArchivingOpts(final String archivingOpts) {
     super.fCppCompilationConf.fArchivingOpts = archivingOpts;
+    updateDirtyFlag();
+  }
+  
+  public void setBitsArchitecture(final EBitsArchitecture bitsArch) {
+    super.fCppCompilationConf.fBitsArchitecture = bitsArch;
     updateDirtyFlag();
   }
   

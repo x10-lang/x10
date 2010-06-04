@@ -7,11 +7,13 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+
 
 final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  AixDefaultCommands(final boolean is64Arch) {
-    super(is64Arch);
+  AixDefaultCommands(final boolean is64Arch, final EArchitecture architecture) {
+    super(is64Arch, architecture);
   }
   
   // --- Interface methods implementation

@@ -10,6 +10,7 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 import java.util.Arrays;
 
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
 
@@ -29,6 +30,10 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
 
   public String getArchivingOpts(final boolean shouldBeInterpreted) {
     return shouldBeInterpreted ? interpretDistVariables(this.fArchivingOpts) : this.fArchivingOpts;
+  }
+  
+  public EBitsArchitecture getBitsArchitecture() {
+    return this.fBitsArchitecture;
   }
 
   public String getCompiler() {
@@ -90,7 +95,8 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
     if (! super.equals(rhs)) {
       return false;
     }
-    return ((this.fTargetOS == rhsObj.fTargetOS) && (this.fArchitecture == rhsObj.fArchitecture) &&
+    return ((this.fTargetOS == rhsObj.fTargetOS) && (this.fBitsArchitecture == rhsObj.fBitsArchitecture) &&
+            (this.fArchitecture == rhsObj.fArchitecture) &&
             Arrays.equals(new Object[] { this.fCompiler, this.fCompilingOpts, this.fArchiver, this.fArchivingOpts,
                                          this.fLinker, this.fLinkingOpts, this.fLinkingLibs, this.fPGASLoc,
                                          this.fX10DistLoc, this.fRemoteOutputFolder },
@@ -100,15 +106,16 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
   }
   
   public int hashCode() {
-    return super.hashCode() + CodingUtils.generateHashCode(134456, this.fTargetOS, this.fArchitecture, this.fCompiler, 
+    return super.hashCode() + CodingUtils.generateHashCode(134456, this.fTargetOS, this.fBitsArchitecture, this.fCompiler, 
                                                            this.fCompilingOpts, this.fArchiver, this.fArchivingOpts, 
                                                            this.fLinker,this.fLinkingOpts, this.fLinkingLibs, this.fPGASLoc,
-                                                           this.fX10DistLoc, this.fRemoteOutputFolder);
+                                                           this.fX10DistLoc, this.fRemoteOutputFolder, this.fArchitecture);
   }
   
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append(super.toString()).append("\nTarget OS: ").append(this.fTargetOS.name()) //$NON-NLS-1$
+      .append("\nBits Arch: ").append(this.fBitsArchitecture.name()) //$NON-NLS-1$
       .append("\nArchitecture: ").append(this.fArchitecture.name()) //$NON-NLS-1$
       .append("\nCompiler: ").append(this.fCompiler) //$NON-NLS-1$
       .append("\nCompiling Options: ").append(this.fCompilingOpts) //$NON-NLS-1$
@@ -131,6 +138,7 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
     this.fValidationStatus = original.fValidationStatus;
     this.fValidationErrorMsg = original.fValidationErrorMsg;
     this.fTargetOS = original.fTargetOS;
+    this.fBitsArchitecture = original.fBitsArchitecture;
     this.fArchitecture = original.fArchitecture;
     this.fCompiler = original.fCompiler;
     this.fCompilingOpts = original.fCompilingOpts;
@@ -148,6 +156,7 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
     this.fValidationStatus = source.getValidationStatus();
     this.fValidationErrorMsg = source.getValidationErrorMessage();
     this.fTargetOS = source.getTargetOS();
+    this.fBitsArchitecture = source.getBitsArchitecture();
     this.fArchitecture = source.getArchitecture();
     this.fCompiler = source.getCompiler();
     this.fCompilingOpts = source.getCompilingOpts(false);
@@ -172,8 +181,10 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
   // --- Fields
   
   ETargetOS fTargetOS;
-
+  
   EArchitecture fArchitecture;
+
+  EBitsArchitecture fBitsArchitecture;
   
   String fCompiler;
   

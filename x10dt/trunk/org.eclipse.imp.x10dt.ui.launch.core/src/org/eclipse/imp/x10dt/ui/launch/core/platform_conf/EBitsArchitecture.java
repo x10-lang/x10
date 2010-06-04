@@ -8,30 +8,20 @@
 package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
 
 /**
- * Defines the list of computer architectures supported.
+ * Defines the bit instructions set handled by the architectures supported.
  * 
  * @author egeay
  */
-public enum EArchitecture {
+public enum EBitsArchitecture {
   
   /**
-   * Architecture x86.
+   * 32-Bit Architecture.
    */
-  x86,
+  E32Arch,
   
   /**
-   * Architecture POWER5.
+   * 64-Bit Architecture.
    */
-  Power5,
-  
-  /**
-   * Architecture POWER6.
-   */
-  Power6,
-  
-  /**
-   * Architecture PowerPC.
-   */
-  PowerPC;
+  E64Arch;
 
 }

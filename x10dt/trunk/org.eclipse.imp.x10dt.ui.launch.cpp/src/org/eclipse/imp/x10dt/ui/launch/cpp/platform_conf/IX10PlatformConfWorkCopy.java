@@ -8,6 +8,7 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
@@ -62,12 +63,14 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   public void setName(final String name);
   
   // --- ICppCompilationConf's setter methods
-
+  
   public void setArchitecture(final EArchitecture architecture);
   
   public void setArchiver(final String archiver);
   
   public void setArchivingOpts(final String archivingOpts);
+  
+  public void setBitsArchitecture(final EBitsArchitecture bitsArch);
   
   public void setCompiler(final String compiler);
   

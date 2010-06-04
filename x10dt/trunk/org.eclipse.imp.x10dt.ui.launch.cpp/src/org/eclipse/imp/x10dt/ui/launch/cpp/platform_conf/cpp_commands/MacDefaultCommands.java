@@ -7,11 +7,13 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+
 
 final class MacDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  MacDefaultCommands(final boolean is64Arch) {
-    super(is64Arch);
+  MacDefaultCommands(final boolean is64Arch, final EArchitecture architecture) {
+    super(is64Arch, architecture);
   }
   
   // --- Interface methods implementation
@@ -29,12 +31,14 @@ final class MacDefaultCommands extends AbstractDefaultCPPCommands implements IDe
   }
 
   public String getCompilerOptions() {
-    final String cmpOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    String cmpOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -DX10_USE_BDWGC"; //$NON-NLS-1$
     if (is64Arch()) {
-      return cmpOpts + " -m64"; //$NON-NLS-1$
-    } else {
-      return cmpOpts;
+      cmpOpts += M64BIT_OPTION;
     }
+    if (supportsStreamingSIMDExtensions()) {
+      cmpOpts += STREAMING_SIMD_EXTENSIONS;
+    }
+    return cmpOpts;
   }
 
   public String getLinker() {
@@ -46,12 +50,14 @@ final class MacDefaultCommands extends AbstractDefaultCPPCommands implements IDe
   }
 
   public String getLinkingOptions() {
-    final String linkOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    String linkOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -DX10_USE_BDWGC"; //$NON-NLS-1$
     if (is64Arch()) {
-      return linkOpts + " -m64"; //$NON-NLS-1$ // We compile for 32-bit on Mac 64-bit for now.
-    } else {
-      return linkOpts;
+      linkOpts += M64BIT_OPTION;
     }
+    if (supportsStreamingSIMDExtensions()) {
+      linkOpts += STREAMING_SIMD_EXTENSIONS;
+    }
+    return linkOpts;
   }
 
 }

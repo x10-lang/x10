@@ -9,6 +9,7 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
@@ -25,6 +26,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -77,8 +79,8 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   
   private void addListeners(final IManagedForm managedForm, final Text compilerText, final Text compilingOptsText,
                             final Text archiverText, final Text archivingOptsText, final Text linkerText, 
-                            final Text linkingOptsText, final Text linkingLibsText, final Button archButton,
-                            final Combo osCombo) {
+                            final Text linkingOptsText, final Text linkingLibsText, final Button bitsArchBt,
+                            final Combo osCombo, final Combo archCombo) {
     compilerText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
@@ -156,10 +158,20 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
       }
       
     });
-    archButton.addSelectionListener(new SelectionListener() {
+    bitsArchBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        getPlatformConf().setArchitecture(archButton.getSelection() ? EArchitecture.E64Arch : EArchitecture.E32Arch);
+        getPlatformConf().setBitsArchitecture(bitsArchBt.getSelection() ? EBitsArchitecture.E64Arch : 
+                                                                          EBitsArchitecture.E32Arch);
+        
+        final String archName = archCombo.getItem(archCombo.getSelectionIndex());
+        final EArchitecture architecture = (EArchitecture) archCombo.getData(archName);
+        final String osName = osCombo.getItem(osCombo.getSelectionIndex());
+        final ETargetOS targetOs = (ETargetOS) osCombo.getData(osName);
+        
+        updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText,
+                                  linkingOptsText, linkingLibsText, bitsArchBt, architecture, targetOs);
+        
         updateDirtyState(managedForm);
       }
       
@@ -175,33 +187,32 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
         final ETargetOS targetOs = (ETargetOS) osCombo.getData(osName);
         getPlatformConf().setTargetOS(targetOs);
         
-        final boolean is64Arch = archButton.getSelection();
-        getPlatformConf().setArchitecture(is64Arch ? EArchitecture.E64Arch : EArchitecture.E32Arch);
+        final String archName = archCombo.getItem(archCombo.getSelectionIndex());
+        final EArchitecture architecture = (EArchitecture) archCombo.getData(archName);
         
-        final IDefaultCPPCommands defaultCPPCommands;
-        switch (targetOs) {
-        case AIX:
-          defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch);
-          break;
-        case LINUX:
-          defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch);
-          break;
-        case MAC:
-          defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch);
-          break;
-        case WINDOWS:
-          defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch);
-          break;
-        default:
-          defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch);
-        }
-        compilerText.setText(defaultCPPCommands.getCompiler());
-        compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());
-        archiverText.setText(defaultCPPCommands.getArchiver());
-        archivingOptsText.setText(defaultCPPCommands.getArchivingOpts());
-        linkerText.setText(defaultCPPCommands.getLinker());
-        linkingOptsText.setText(defaultCPPCommands.getLinkingOptions());
-        linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
+        updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText,
+                                  linkingOptsText, linkingLibsText, bitsArchBt, architecture, targetOs);
+        updateDirtyState(managedForm);
+      }
+      
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+      
+    });
+    archCombo.addSelectionListener(new SelectionListener() {
+      
+      public void widgetSelected(final SelectionEvent event) {
+        final String archName = archCombo.getItem(archCombo.getSelectionIndex());
+        final EArchitecture architecture = (EArchitecture) archCombo.getData(archName);
+        getPlatformConf().setArchitecture(architecture);
+        
+        final String osName = osCombo.getItem(osCombo.getSelectionIndex());
+        final ETargetOS targetOs = (ETargetOS) osCombo.getData(osName);
+        
+        updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText,
+                                  linkingOptsText, linkingLibsText, bitsArchBt, architecture, targetOs);
+        updateDirtyState(managedForm);
       }
       
       public void widgetDefaultSelected(final SelectionEvent event) {
@@ -224,9 +235,32 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     osComposite.setLayout(osLayout);
     osComposite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    toolkit.createLabel(osComposite, LaunchMessages.XPCP_OSLabel);
+    final Label osLabel = toolkit.createLabel(osComposite, LaunchMessages.XPCP_OSLabel);
+    osLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
     this.fOSCombo = new Combo(osComposite, SWT.READ_ONLY);
     this.fOSCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    for (final ETargetOS targetOs : ETargetOS.values()) {
+      this.fOSCombo.add(targetOs.name());
+      this.fOSCombo.setData(targetOs.name(), targetOs);
+    }
+    
+    final Composite archComposite = toolkit.createComposite(sectionClient);
+    archComposite.setFont(getSection().getFont());
+    final TableWrapLayout archLayout = new TableWrapLayout();
+    archLayout.numColumns = 3;
+    archComposite.setLayout(archLayout);
+    archComposite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    
+    final Label archLabel = toolkit.createLabel(archComposite, LaunchMessages.XPCP_Architecture);
+    archLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+    this.fArchCombo = new Combo(archComposite, SWT.READ_ONLY);
+    this.fArchCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    for (final EArchitecture arch : EArchitecture.values()) {
+      this.fArchCombo.add(arch.name());
+      this.fArchCombo.setData(arch.name(), arch);
+    }
+    
+    this.fBitsArchBt = toolkit.createButton(archComposite, LaunchMessages.XPCP_64BitsArchitectureBt, SWT.CHECK);
     
     final Group compilingGroup = new Group(sectionClient, SWT.NONE);
     compilingGroup.setFont(sectionClient.getFont());
@@ -235,7 +269,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     compilingGroup.setText(LaunchMessages.XPCP_CompilingGroup);
         
     final Pair<Text, Button> compPair = createLabelTextBrowseBt(compilingGroup, LaunchMessages.XPCP_CompilerLabel, 
-                                                      LaunchMessages.XPCP_BrowseBt, toolkit);
+                                                                LaunchMessages.XPCP_BrowseBt, toolkit);
     this.fCompilerText = compPair.first;
     this.fCompilerBrowseBt = compPair.second;
     
@@ -271,22 +305,11 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
 
     this.fLinkingLibsText = SWTFormUtils.createLabelAndText(linkingGroup, LaunchMessages.XPCP_LinkingLibsLabel, toolkit, 3);
     
-    final Composite archComposite = toolkit.createComposite(sectionClient);
-    archComposite.setFont(getSection().getFont());
-    archComposite.setLayout(new TableWrapLayout());
-    archComposite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
-    
-    this.fArchBt = toolkit.createButton(archComposite, LaunchMessages.XPCP_ArchitectureBt, SWT.CHECK);
-    
-    for (final ETargetOS targetOs : ETargetOS.values()) {
-      this.fOSCombo.add(targetOs.name());
-      this.fOSCombo.setData(targetOs.name(), targetOs);
-    }
-    
     initializeControls(managedForm);
     
     addListeners(managedForm, this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
-                 this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText, this.fArchBt, this.fOSCombo);
+                 this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText, this.fBitsArchBt, this.fOSCombo,
+                 this.fArchCombo);
 
     getSection().setClient(sectionClient);
   }
@@ -300,43 +323,83 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   
   private void initializeControls(final IManagedForm managedForm) {
     final ICppCompilationConf cppCompConf = getPlatformConf().getCppCompilationConf();
-    if (cppCompConf.getTargetOS() != null) {
-      int index = -1;
-      for (final ETargetOS targetOS : ETargetOS.values()) {
-        ++index;
-        if (targetOS == cppCompConf.getTargetOS()) {
-          this.fOSCombo.select(index);
-        }
+    int index = -1;
+    for (final ETargetOS targetOS : ETargetOS.values()) {
+      ++index;
+      if (targetOS == cppCompConf.getTargetOS()) {
+        this.fOSCombo.select(index);
       }
-      this.fCompilerText.setText(cppCompConf.getCompiler());
-      handleTextValidation(new EmptyTextInputChecker(this.fCompilerText, LaunchMessages.XPCP_CompilerLabel), managedForm,
-                           this.fCompilerText);
-      this.fCompilingOptsText.setText(cppCompConf.getCompilingOpts(false));
-      handleTextValidation(new EmptyTextInputChecker(this.fCompilingOptsText, LaunchMessages.XPCP_CompilingOptsLabel), 
-                           managedForm, this.fCompilingOptsText);
-      this.fArchiverText.setText(cppCompConf.getArchiver());
-      handleTextValidation(new EmptyTextInputChecker(this.fArchiverText, LaunchMessages.XPCP_ArchiverLabel), managedForm,
-                           this.fArchiverText);
-      this.fArchivingOptsText.setText(cppCompConf.getArchivingOpts(false));
-      handleTextValidation(new EmptyTextInputChecker(this.fArchivingOptsText, LaunchMessages.XPCP_ArchivingOptsLabel), 
-                           managedForm, this.fArchivingOptsText);
-      this.fLinkerText.setText(cppCompConf.getLinker());
-      handleTextValidation(new EmptyTextInputChecker(this.fLinkerText, LaunchMessages.XPCP_LinkerLabel), managedForm,
-                           this.fLinkerText);
-      this.fLinkingOptsText.setText(cppCompConf.getLinkingOpts(false));
-      handleTextValidation(new EmptyTextInputChecker(this.fLinkingOptsText, LaunchMessages.XPCP_LinkingOptsLabel), managedForm,
-                           this.fLinkingOptsText);
-      this.fLinkingLibsText.setText(cppCompConf.getLinkingLibs(false));
-      handleTextValidation(new EmptyTextInputChecker(this.fLinkingLibsText, LaunchMessages.XPCP_LinkingLibsLabel), managedForm,
-                           this.fLinkingLibsText);
     }
+    index = -1;
+    for (final EArchitecture arch : EArchitecture.values()) {
+      ++index;
+      if (arch == cppCompConf.getArchitecture()) {
+        this.fArchCombo.select(index);
+      }
+    }
+    
+    this.fCompilerText.setText(cppCompConf.getCompiler());
+    handleTextValidation(new EmptyTextInputChecker(this.fCompilerText, LaunchMessages.XPCP_CompilerLabel), managedForm,
+                         this.fCompilerText);
+    this.fCompilingOptsText.setText(cppCompConf.getCompilingOpts(false));
+    handleTextValidation(new EmptyTextInputChecker(this.fCompilingOptsText, LaunchMessages.XPCP_CompilingOptsLabel),
+                         managedForm, this.fCompilingOptsText);
+    this.fArchiverText.setText(cppCompConf.getArchiver());
+    handleTextValidation(new EmptyTextInputChecker(this.fArchiverText, LaunchMessages.XPCP_ArchiverLabel), managedForm,
+                         this.fArchiverText);
+    this.fArchivingOptsText.setText(cppCompConf.getArchivingOpts(false));
+    handleTextValidation(new EmptyTextInputChecker(this.fArchivingOptsText, LaunchMessages.XPCP_ArchivingOptsLabel),
+                         managedForm, this.fArchivingOptsText);
+    this.fLinkerText.setText(cppCompConf.getLinker());
+    handleTextValidation(new EmptyTextInputChecker(this.fLinkerText, LaunchMessages.XPCP_LinkerLabel), managedForm,
+                         this.fLinkerText);
+    this.fLinkingOptsText.setText(cppCompConf.getLinkingOpts(false));
+    handleTextValidation(new EmptyTextInputChecker(this.fLinkingOptsText, LaunchMessages.XPCP_LinkingOptsLabel), managedForm,
+                         this.fLinkingOptsText);
+    this.fLinkingLibsText.setText(cppCompConf.getLinkingLibs(false));
+    handleTextValidation(new EmptyTextInputChecker(this.fLinkingLibsText, LaunchMessages.XPCP_LinkingLibsLabel), managedForm,
+                         this.fLinkingLibsText);
 
-    this.fArchBt.setSelection(cppCompConf.getArchitecture() == EArchitecture.E64Arch);
+    this.fBitsArchBt.setSelection(cppCompConf.getBitsArchitecture() == EBitsArchitecture.E64Arch);
+  }
+  
+  private void updateCompilationCommands(final Text compilerText, final Text compilingOptsText, final Text archiverText,
+                                         final Text archivingOptsText, final Text linkerText, final Text linkingOptsText,
+                                         final Text linkingLibsText, final Button bitsArchBt, final EArchitecture architecture,
+                                         final ETargetOS targetOs) {
+    final boolean is64Arch = bitsArchBt.getSelection();
+    
+    final IDefaultCPPCommands defaultCPPCommands;
+    switch (targetOs) {
+    case AIX:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, architecture);
+      break;
+    case LINUX:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, architecture);
+      break;
+    case MAC:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, architecture);
+      break;
+    case WINDOWS:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, architecture);
+      break;
+    default:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, architecture);
+    }
+    compilerText.setText(defaultCPPCommands.getCompiler());
+    compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());
+    archiverText.setText(defaultCPPCommands.getArchiver());
+    archivingOptsText.setText(defaultCPPCommands.getArchivingOpts());
+    linkerText.setText(defaultCPPCommands.getLinker());
+    linkingOptsText.setText(defaultCPPCommands.getLinkingOptions());
+    linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
   }
   
   // --- Fields
   
   private Combo fOSCombo;
+  
+  private Combo fArchCombo;
   
   private Text fCompilerText;
   
@@ -352,7 +415,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   
   private Text fLinkingLibsText;
   
-  private Button fArchBt;
+  private Button fBitsArchBt;
   
   private Button fCompilerBrowseBt;
   

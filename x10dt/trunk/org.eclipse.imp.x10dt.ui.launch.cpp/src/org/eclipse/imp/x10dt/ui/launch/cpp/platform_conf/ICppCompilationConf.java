@@ -8,6 +8,7 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 
 /**
@@ -38,6 +39,13 @@ public interface ICppCompilationConf extends IStatusConfProvider {
    * @return A null value if the linking step is not required, otherwise a non-empty string.
    */
   public String getArchivingOpts(final boolean shouldBeInterpreted);
+  
+  /**
+   * Returns the computer bits architecture of the X10 platform installation.
+   * 
+   * @return A non-null value.
+   */
+  public EBitsArchitecture getBitsArchitecture();
   
   /**
    * Returns the compiler to use in order to compile X10 generated code.

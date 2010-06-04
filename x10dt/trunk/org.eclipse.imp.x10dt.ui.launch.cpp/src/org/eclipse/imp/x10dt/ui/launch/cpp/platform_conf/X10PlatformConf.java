@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
@@ -159,8 +160,11 @@ class X10PlatformConf implements IX10PlatformConf {
     if (this.fCppCompilationConf.fTargetOS != null) {
       cppCompilationTag.createChild(TARGET_OS_TAG).putTextData(this.fCppCompilationConf.fTargetOS.name());
     }
+    if (this.fCppCompilationConf.fBitsArchitecture != null) {
+      cppCompilationTag.createChild(BITS_ARCH_TAG).putTextData(this.fCppCompilationConf.fBitsArchitecture.name());
+    }
     if (this.fCppCompilationConf.fArchitecture != null) {
-      cppCompilationTag.createChild(ARCHITECTURE_TAG).putTextData(this.fCppCompilationConf.fArchitecture.name());
+      cppCompilationTag.createChild(ARCH_TAG).putTextData(this.fCppCompilationConf.fArchitecture.name());
     }
     if (hasData(this.fCppCompilationConf.fCompiler)) {
       cppCompilationTag.createChild(COMPILER_TAG).putTextData(this.fCppCompilationConf.fCompiler);
@@ -243,23 +247,25 @@ class X10PlatformConf implements IX10PlatformConf {
   protected final void initLocalCppCompilationCommands() {
     this.fCppCompilationConf.fTargetOS = EnumUtils.getLocalOS();
     final boolean is64Arch = is64Arch();
-    this.fCppCompilationConf.fArchitecture = is64Arch ? EArchitecture.E64Arch : EArchitecture.E32Arch;
+    this.fCppCompilationConf.fBitsArchitecture = is64Arch ? EBitsArchitecture.E64Arch : EBitsArchitecture.E32Arch;
+    this.fCppCompilationConf.fArchitecture = EArchitecture.x86;
     final IDefaultCPPCommands defaultCPPCommands;
     switch (this.fCppCompilationConf.fTargetOS) {
     case AIX:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch);
+      defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
       break;
     case LINUX:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch);
+      defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
       break;
     case MAC:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch);
+      defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
       break;
     case WINDOWS:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch);
+      defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
       break;
     default:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch);
+      defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, 
+                                                                              this.fCppCompilationConf.fArchitecture);
     }
     this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
     this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();
@@ -268,7 +274,7 @@ class X10PlatformConf implements IX10PlatformConf {
     this.fCppCompilationConf.fLinker = defaultCPPCommands.getLinker();
     this.fCppCompilationConf.fLinkingOpts = defaultCPPCommands.getLinkingOptions();
     this.fCppCompilationConf.fLinkingLibs = defaultCPPCommands.getLinkingLibraries();
-    this.fCppCompilationConf.fArchitecture = (is64Arch) ? EArchitecture.E64Arch : EArchitecture.E32Arch;
+    this.fCppCompilationConf.fBitsArchitecture = (is64Arch) ? EBitsArchitecture.E64Arch : EBitsArchitecture.E32Arch;
   }
 
   protected final void initLocalX10DistribLocation() {
@@ -284,7 +290,7 @@ class X10PlatformConf implements IX10PlatformConf {
     }
   }
   
-  private boolean is64Arch() {
+  protected final boolean is64Arch() {
     return false; //TODO
   }
   
@@ -406,8 +412,11 @@ class X10PlatformConf implements IX10PlatformConf {
     final IMemento cppCmdsMemento = platformMemento.getChild(CPP_COMPILATION_TAG);
     final IMemento targetOSMemento = cppCmdsMemento.getChild(TARGET_OS_TAG);
     this.fCppCompilationConf.fTargetOS = (targetOSMemento == null) ? null : ETargetOS.valueOf(targetOSMemento.getTextData());
-    final IMemento archMemento = cppCmdsMemento.getChild(ARCHITECTURE_TAG);
-    this.fCppCompilationConf.fArchitecture = (archMemento == null) ? EArchitecture.E32Arch : 
+    final IMemento bitsArchMmt = cppCmdsMemento.getChild(BITS_ARCH_TAG);
+    this.fCppCompilationConf.fBitsArchitecture = (bitsArchMmt == null) ? EBitsArchitecture.E32Arch : 
+                                                                         EBitsArchitecture.valueOf(bitsArchMmt.getTextData());
+    final IMemento archMemento = cppCmdsMemento.getChild(ARCH_TAG);
+    this.fCppCompilationConf.fArchitecture = (archMemento == null) ? EArchitecture.x86 : 
                                                                      EArchitecture.valueOf(archMemento.getTextData());
     this.fCppCompilationConf.fCompiler = getTextDataValue(cppCmdsMemento, COMPILER_TAG);
     this.fCppCompilationConf.fCompilingOpts = getTextDataValue(cppCmdsMemento, COMPILING_OPTS_TAG);
@@ -644,7 +653,9 @@ class X10PlatformConf implements IX10PlatformConf {
   
   private static final String TARGET_OS_TAG = "target-os"; //$NON-NLS-1$
   
-  private static final String ARCHITECTURE_TAG = "architecture"; //$NON-NLS-1$
+  private static final String ARCH_TAG = "arch"; //$NON-NLS-1$
+  
+  private static final String BITS_ARCH_TAG = "bits-arch"; //$NON-NLS-1$
     
   private static final String COMPILER_TAG = "compiler"; //$NON-NLS-1$
   

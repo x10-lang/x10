@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
-import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.util.QuotedStringTokenizer;
@@ -39,14 +39,14 @@ public final class X10BuilderUtils {
   }
   
   /**
-   * Returns the {@link EArchitecture} instance for a given architecture name.
+   * Returns the {@link EBitsArchitecture} instance for a given architecture name.
    * 
    * @param architecture The architecture name for which one wants the associated EArchitecture.
    * @return A non-null value.
-   * @throws AssertionError Occurs if the architecture name given is not in the {@link EArchitecture} enumeration.
+   * @throws AssertionError Occurs if the architecture name given is not in the {@link EBitsArchitecture} enumeration.
    */
-  public static EArchitecture getArchitecture(final String architecture) {
-    for (final EArchitecture arch : EArchitecture.values()) {
+  public static EBitsArchitecture getArchitecture(final String architecture) {
+    for (final EBitsArchitecture arch : EBitsArchitecture.values()) {
       if (arch.name().equals(architecture)) {
         return arch;
       }
