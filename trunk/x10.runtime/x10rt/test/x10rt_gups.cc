@@ -132,9 +132,6 @@ static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
     x10rt_place here = x10rt_here();
     x10rt_place nhosts = x10rt_nhosts();
 
-    const char *delay_ = getenv("DELAY");
-    int delay = delay_==NULL ? 0 : strtol(delay_, NULL, 10);
-
     // HOT LOOP STARTS
     for (uint64_t i=0 ; i<local_updates ; ++i) {
         ran = (ran << 1) ^ (((int64_t)ran)<0L ? POLY : 0L);
