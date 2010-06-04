@@ -20,6 +20,7 @@ import x10.util.HashMap;
 public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     global val data : PlaceLocalHandle[Rail[T]];
     global val firstPlace : Place;
+    // The HashMap should contain rails that are local to the hashmap itself but we cannot express this yet in X10
     global val localRails 
     = PlaceLocalHandle.make[HashMap[Activity, Rail[T]]](Dist.makeUnique(), 
     		()=>new HashMap[Activity, Rail[T]]());
@@ -46,9 +47,9 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     public static safe operator[S] (x:DistributedRail[S]) = x() as ValRail[S];
 
-    public global safe def apply () {
+    public global safe def apply () : Rail[T]! {
         val a = Runtime.activity();
-        val r:Rail[T] = localRails().getOrElse(a, null);
+        val r = localRails().getOrElse(a, null) as Rail[T]!;
         if (r==null) {
             val r_ = Rail.make[T](original_len, original);
             localRails().put(a, r_);

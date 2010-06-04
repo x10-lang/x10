@@ -96,8 +96,22 @@ const int x10aux::cuda_cfgs[] = {
   0 /* terminator */
 };
 
-void x10aux::blocks_threads (place p, msg_type t, int shm, int &bs, int &ts, const int *cfgs)
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_ubyte &bs, x10_ubyte &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_byte &bs, x10_byte &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_ushort &bs, x10_ushort &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_short &bs, x10_short &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_uint &bs, x10_uint &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_int &bs, x10_int &ts, const int *cfgs)
 { x10rt_blocks_threads(p,t,shm,&bs,&ts,cfgs); }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_ulong &bs, x10_ulong &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_long &bs, x10_long &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
 
 
 
