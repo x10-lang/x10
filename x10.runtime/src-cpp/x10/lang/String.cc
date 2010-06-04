@@ -56,22 +56,46 @@ x10_int String::hashCode() {
     return hc;
 }
 
+static const char *strnstrn(const char *haystack, size_t haystack_sz,
+                            const char *needle, size_t needle_sz)
+{
+    for (size_t i=0 ; i<haystack_sz ; ++i) {
+        for (size_t j=0 ; j<needle_sz ; ++j) {
+            if (haystack[i] != needle[j]) goto abandon;
+        }
+        return &haystack[i];
+        abandon: {}
+    }
+    return NULL;
+}
+
 x10_int String::indexOf(ref<String> str, x10_int i) {
     nullCheck(str);
     const char *needle = str->FMGL(content);
+    size_t needle_sz = str->FMGL(content_length);
     // TODO: bounds check
     const char *haystack = &FMGL(content)[i];
-    const char *pos = strstr(haystack, needle);
+    size_t haystack_sz = FMGL(content_length);
+    const char *pos = strnstrn(haystack, haystack_sz, needle, needle_sz);
     if (pos == NULL)
         return (x10_int) -1;
     return i + (x10_int) (pos - haystack);
+}
+
+static const char *strnchr(const char *haystack, size_t haystack_sz, char needle)
+{
+    for (size_t i=0 ; i<haystack_sz ; ++i) {
+        if (haystack[i] == needle) return &haystack[i];
+    }
+    return NULL;
 }
 
 x10_int String::indexOf(x10_char c, x10_int i) {
     int needle = (int)c.v;
     // TODO: bounds check
     const char *haystack = &FMGL(content)[i];
-    const char *pos = strchr(haystack, needle);
+    size_t haystack_sz = FMGL(content_length);
+    const char *pos = strnchr(haystack, haystack_sz, needle);
     if (pos == NULL)
         return (x10_int) -1;
     return i + (x10_int) (pos - haystack);
@@ -294,7 +318,7 @@ x10_boolean String::equals(ref<Any> p0) {
     if (!x10aux::instanceof<ref<x10::lang::String> >(p0)) return false;
     ref<String> that = (ref<String>) p0;
     if (this->FMGL(content_length) != that->FMGL(content_length)) return false; // short-circuit trivial dis-equality
-    if (strcmp(this->FMGL(content), that->FMGL(content)))
+    if (strncmp(this->FMGL(content), that->FMGL(content), this->length()))
         return false;
     return true;
 }
@@ -308,7 +332,7 @@ x10_boolean String::equalsIgnoreCase(ref<String> s) {
     if (s.isNull()) return false;
     if (ref<String>(s).operator->() == this) return true; // short-circuit trivial equality
     if (this->FMGL(content_length) != s->FMGL(content_length)) return false; // short-circuit trivial dis-equality
-    if (strcasecmp(this->FMGL(content), s->FMGL(content)))
+    if (strncasecmp(this->FMGL(content), s->FMGL(content), this->length()))
         return false;
     return true;
 }
@@ -357,7 +381,7 @@ x10_int String::compareTo(ref<String> s) {
     int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
     if (length_diff != 0)
         return length_diff;
-    return (x10_int) strcmp(this->FMGL(content), s->FMGL(content));
+    return (x10_int) strncmp(this->FMGL(content), s->FMGL(content), this->length());
 }
 
 /* FIXME: Unicode support */
@@ -367,7 +391,7 @@ x10_int String::compareToIgnoreCase(ref<String> s) {
     int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
     if (length_diff != 0)
         return length_diff;
-    return (x10_int) strcasecmp(this->FMGL(content), s->FMGL(content));
+    return (x10_int) strncasecmp(this->FMGL(content), s->FMGL(content), this->length());
 }
 
 const serialization_id_t String::_serialization_id =
