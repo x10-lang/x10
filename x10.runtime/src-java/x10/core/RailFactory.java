@@ -75,6 +75,14 @@ public class RailFactory {
         return array;
     }
 
+    public static <T> Rail<T> makeVarRail(Type type, int length, T init) {
+        Rail<T> array = new Rail<T>(type, length);
+        for (int i = 0; i < length; i++) {
+            type.setArray(array, i, init);
+        }
+        return array;
+    }
+
     public static <T> Rail<T> makeRailFromJavaArray(Object array) {
         if (array instanceof boolean[]) {
             return new Rail<T>((Type) Types.BOOLEAN, ((boolean[]) array).length, array);
