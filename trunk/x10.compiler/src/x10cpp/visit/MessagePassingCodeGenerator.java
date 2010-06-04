@@ -4105,7 +4105,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             freeTypeParams.addAll(hostClassDef.typeParameters());
         }
 
-        String hostClassName = translate_mangled_FQN(hostClassType.fullName().toString(), "_");
+        String hostClassName = translate_mangled_FQN(Emitter.fullName(hostClassType).toString(), "_");
 
         c.setInsideClosure(true);
 
