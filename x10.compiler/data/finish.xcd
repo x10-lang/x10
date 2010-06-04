@@ -1,9 +1,0 @@
-// SYNOPSIS: finish #0    #1=unique_id
-x10.runtime.Runtime.startFinish();
-try {
-	#0
-} catch (java.lang.Throwable tmp#1) {
-	x10.runtime.Runtime.pushException(tmp#1);
-} finally {
-	x10.runtime.Runtime.stopFinish();
-}
