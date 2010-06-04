@@ -1,2 +1,0 @@
-// SYNOPSIS: #0[#1] op= #2 #3=opString
-(#0).#3(#2,#1,false,true)
