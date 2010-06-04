@@ -1631,16 +1631,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 List<Stmt> statements = n.body().statements();
                 boolean throwException = throwException(statements);
                 
+                TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
+                if (runAsync) {
+                    tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", "ex", new Expander(er) {
+                        public void expand(Translator tr) {
+                            w.write("x10.lang.Runtime.pushException(ex.getCause());");
+                        }
+                    });
+                }
                 if (throwException) {
-                    TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
-                    if (runAsync) {
-                        tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", "ex", new Expander(er) {
-                            public void expand(Translator tr) {
-                                w.write("x10.lang.Runtime.pushException(ex.getCause());");
-                            }
-                        });
-                    }
-                    
                     tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
                         public void expand(Translator tr) {
                             w.write("throw ex;");
@@ -1660,6 +1659,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             }
                         });
                     }
+                    tryCatchExpander.expand(tr2);
+                } else if (runAsync) {
                     tryCatchExpander.expand(tr2);
                 } else {
                     er.prettyPrint(n.body(), tr2);
