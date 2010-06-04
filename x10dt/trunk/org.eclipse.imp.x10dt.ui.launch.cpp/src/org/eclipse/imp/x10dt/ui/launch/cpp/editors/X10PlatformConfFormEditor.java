@@ -212,6 +212,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   }
 
   public void doSave(final IProgressMonitor monitor) {
+    save();
   }
 
   public void doSaveAs() {
