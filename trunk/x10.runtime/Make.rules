@@ -47,15 +47,23 @@ endif
 ifdef JAVA_HOME
   ifeq ($(shell uname -s),AIX)
       JNI_INCLUDES = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/inclue/aix
-  else ifeq ($(shell uname -s),Linux)
+  else
+  ifeq ($(shell uname -s),Linux)
     JNI_INCLUDES = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
-  else ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
+  else
+  ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
     JAVA_CYGPATH = "$(shell cygpath $(JAVA_HOME))"
     JNI_INCLUDES = -I$(JAVA_CYGPATH)/include -I$(JAVA_CYGPATH)/include/win32
-  else ifeq ($(shell uname -s),Darwin)
+  else
+  ifeq ($(shell uname -s),Darwin)
     # TODO!!
-  else ifeq ($(shell uname -s),FreeBSD)
+  else
+  ifeq ($(shell uname -s),FreeBSD)
     JNI_INCLUDES = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/freebsd
+  endif
+  endif
+  endif
+  endif
   endif
 endif
 
@@ -128,12 +136,15 @@ else
       export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib
       ifeq ($(shell uname -m),x86_64)
         export X10RT_PLATFORM=linux_x86_64
-      else ifeq ($(shell uname -m),ppc64)
+      else
+      ifeq ($(shell uname -m),ppc64)
         export X10RT_PLATFORM=linux_ppc_64
       else
         export X10RT_PLATFORM=linux_x86_32
       endif
-    else ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
+      endif
+    else
+    ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
       ifndef X10_SHARED_LIB_DEFAULT_OVERRIDE
         export X10_STATIC_LIB=1
       endif
@@ -144,7 +155,8 @@ else
       ifndef DEFAULT_X10RT_LIB
         DEFAULT_X10RT_LIB = pgas_sockets
       endif
-    else ifeq ($(shell uname -s),Darwin)
+    else
+    ifeq ($(shell uname -s),Darwin)
       export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
       override CXXFLAGS_SHARED += -fPIC
       override LDFLAGS_SHARED += -dynamiclib -undefined dynamic_lookup -install_name '@rpath/$@'
@@ -158,18 +170,24 @@ else
       AR = libtool
       # Warning: Order matters!  The "-o" has to be at the end.
       ARFLAGS = -static -o
-    else ifeq ($(shell uname -s),SunOS)
+    else
+    ifeq ($(shell uname -s),SunOS)
       ifndef X10_SHARED_LIB_DEFAULT_OVERRIDE
         export X10_STATIC_LIB=1
       endif
       export X10RT_PLATFORM=sunos
-    else ifeq ($(shell uname -s),FreeBSD)
+    else
+    ifeq ($(shell uname -s),FreeBSD)
       override CXXFLAGS += -pthread
       override CXXFLAGS_SHARED += -shared -fPIC
       export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,$(X10_HOME)/x10.runtime/x10rt/lib
       ifeq ($(shell uname -m),amd64)
         export X10RT_PLATFORM=freebsd_amd64
       endif
+    endif
+    endif
+    endif
+    endif
     endif
   endif
 endif
