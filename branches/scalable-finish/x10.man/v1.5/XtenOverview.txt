@@ -1,0 +1,30 @@
+'''X10 overview'''
+
+* X10 computations run in many XtenPlaces (repositories of data and XtenAsyncs)
+
+* Computations may synchronously access memory in the same place and atomically update many locations. To read a location at a remote place, an activity must spawn an asynchronous activity, which returns a future. Similarly, remote location can be written only by asynchronously spawning an activity to run at that location.
+
+* Computations spawn activities dynamically in the same place or at remote places.
+
+* Activities may use XtenClocks to repeatedly detect quiescence of arbitrary programmer-specified, data-dependent set of activities.
+
+* X10 generic interfaces may be used to specify signatures of methods and properties that they satisfy.
+
+* X10 programs may specify two kinds of (generic) ''scalar classes'': reference classes and value classes. Generic classes can be instantiated (type parameters replaced with concrete classes or interfaces) to get new base clases. 
+
+** A class has fields, methods and inner types (interfaces, classes), subclasses another class, and implements one or more interfaces. X10 allows the programmer to define literals for classes, and overload infix/prefix/postfix operators.
+
+** A reference class (ReferenceClasses) typically has updatable fields. Objects of such a class may not be freely copied from place to place. Methods may be invoked on such an object only by an activity in the same place.
+
+** A value class (ValueClasses) has no updatable fields (defined directly or through inheritance), and allows no reference subclasses. (Fields may be typed at reference classes, so may contain references to objects with mutable state.) Objects of such a class may be freely copied from place to place, and may be implemented very efficiently. Built-in types (such as int, float etc) are defined as if they are value classes. Methods may be invoked on such an object from any place.
+
+* X10 programs may specify ''array classes'' (XtenArrays), which are defined over a base type  and a distribution (XtenDistributions).
+** A distribution is a map from a region (XtenRegions), which is a collection of indices, to the set of places.
+** Operations are provided to construct regions from other regions, and to iterate over regions.
+** A primitive set of distributions is provided, together with operations on distributions. A programmer may specify new primitive distributions, and new operations on distributions.
+** X10 allows array constructors to iterate over the underlying distribution and specify a value at each item in the underlying region. Such a constructor may spawn activities at multiple places.
+** X10 allows an array to be constructed by composing sections of other arrays together.
+* X10 has a NullTypeConstructor which can be applied uniformly to scalar (value or reference) and array types. This type constructor returns a new type which adds a special value null to the set of values of its argument type, unless the argument type already has this value.
+* X10 supports the standard set of control constructs (conditionals, looping, method invocation, exception raising/catching), and has a RelaxedExceptions model.
+
+

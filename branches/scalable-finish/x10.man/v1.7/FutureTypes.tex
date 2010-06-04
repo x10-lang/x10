@@ -1,0 +1,16 @@
+\subsection{Future types}
+
+The interface \xcd"x10.lang.Future[T]"
+is the type of all \xcd"future" expressions.
+The type represents a value which when forced will return a value of type
+\xcd"T". The interface makes available the following methods:
+
+\begin{xten}
+package x10.lang;
+public interface Future[T] implements () => T {
+  public def apply(): T;
+  public def force(): T;
+  public def forced(): Boolean;
+}
+\end{xten}
+  
