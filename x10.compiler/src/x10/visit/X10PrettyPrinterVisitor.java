@@ -47,6 +47,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
+import polyglot.ast.Throw;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -70,6 +71,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.InnerClassRemover;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import x10.Configuration;
 import x10.ast.Async_c;
@@ -1626,49 +1628,56 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		new Join(er, ", ", formals).expand(tr2);
 		w.write(") { ");
 		
-		TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
-		if (runAsync) {
-			tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", "ex", new Expander(er) {
-				public void expand(Translator tr) {
-					w.write("x10.lang.Runtime.pushException(ex.getCause());");
-				}
-			});
-		}
-		
-		tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
-			public void expand(Translator tr) {
-				w.write("throw ex;");
-			}
-		});
-		
-		if (runAsync) {
-			tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
-				public void expand(Translator tr) {
-					w.write("x10.lang.Runtime.pushException(ex);");
-				}
-			});
-		} else {
-			tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
-				public void expand(Translator tr) {
-					w.write("throw new x10.runtime.impl.java.WrappedRuntimeException(ex);");
-				}
-			});
-		}
-		tryCatchExpander.expand(tr2);
-		
-		w.write("}");
-		w.newline();
+                List<Stmt> statements = n.body().statements();
+                boolean throwException = throwException(statements);
+                
+                if (throwException) {
+                    TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
+                    if (runAsync) {
+                        tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", "ex", new Expander(er) {
+                            public void expand(Translator tr) {
+                                w.write("x10.lang.Runtime.pushException(ex.getCause());");
+                            }
+                        });
+                    }
+                    
+                    tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
+                        public void expand(Translator tr) {
+                            w.write("throw ex;");
+                        }
+                    });
+                    
+                    if (runAsync) {
+                        tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
+                            public void expand(Translator tr) {
+                                w.write("x10.lang.Runtime.pushException(ex);");
+                            }
+                        });
+                    } else {
+                        tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
+                            public void expand(Translator tr) {
+                                w.write("throw new x10.runtime.impl.java.WrappedRuntimeException(ex);");
+                            }
+                        });
+                    }
+                    tryCatchExpander.expand(tr2);
+                } else {
+                    er.prettyPrint(n.body(), tr2);
+                }
+                
+                w.write("}");
+                w.newline();
 
-		Type type = n.type();
-		type = X10TypeMixin.baseType(type);
-		if (type instanceof X10ClassType) {
-			X10ClassType ct = (X10ClassType) type;
-			X10ClassDef def = ct.x10Def();
-			
-			// XTENLANG-1102
-			Set<ClassDef> visited = new HashSet<ClassDef>();
-			
-		        visited = new HashSet<ClassDef>();
+                Type type = n.type();
+                type = X10TypeMixin.baseType(type);
+                if (type instanceof X10ClassType) {
+                        X10ClassType ct = (X10ClassType) type;
+                        X10ClassDef def = ct.x10Def();
+                        
+                        // XTENLANG-1102
+                        Set<ClassDef> visited = new HashSet<ClassDef>();
+                        
+                        visited = new HashSet<ClassDef>();
                         visited.add(def);
                         if (!def.flags().isInterface()) {
                                 List<Type> types = new ArrayList<Type>();
@@ -1713,10 +1722,41 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                     
                                 }
                         }
-		}
+                }
 
-		w.write("}");
-	}
+                w.write("}");
+        }
+
+        private boolean throwException(List<Stmt> statements) {
+            for (Stmt stmt : statements) {
+                final List<Type> exceptions = new ArrayList<Type>();
+                stmt.visitChildren(
+                    new NodeVisitor() {
+                        @Override
+                        public Node leave(Node old, Node n, NodeVisitor v) {
+                            if (n instanceof X10Call_c) {
+                                List<Type> throwTypes = ((X10Call_c) n).methodInstance().throwTypes();
+                                if (throwTypes != null) exceptions.addAll(throwTypes);
+                            }
+                            if (n instanceof Throw) {
+                                exceptions.add(((Throw) n).expr().type());
+                            }
+                            return n;
+                        }
+                });
+                if (exceptions == null) {
+                    continue;
+                }
+                for (Type type : exceptions) {
+                    if (type != null) {
+                        if (type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().RuntimeException(), tr.context())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
 
 	private boolean containsPrimitive(Closure_c n) {
 	    Type t = n.returnType().type();
