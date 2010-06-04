@@ -8,6 +8,8 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
+import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
+import org.eclipse.ptp.services.core.IServiceProvider;
 
 
 abstract class AbstractCommunicationInterfaceConfiguration implements ICommunicationInterfaceConf {
@@ -56,6 +58,11 @@ abstract class AbstractCommunicationInterfaceConfiguration implements ICommunica
   AbstractCommunicationInterfaceConfiguration(final AbstractCommunicationInterfaceConfiguration original) {
     this.fServiceTypeId = original.fServiceTypeId;
     this.fServiceModeId = original.fServiceModeId;
+  }
+  
+  AbstractCommunicationInterfaceConfiguration(final IResourceManagerConfiguration rmConf) {
+    this.fServiceTypeId = ((IServiceProvider) rmConf).getId();
+    this.fServiceModeId = ((IServiceProvider) rmConf).getServiceId();
   }
   
   void applyChanges(final ICommunicationInterfaceConf source) {

@@ -12,7 +12,6 @@ import java.util.Collection;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.events.IChangedResourceManagerEvent;
 import org.eclipse.ptp.core.events.INewResourceManagerEvent;
@@ -43,12 +42,10 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
                                                                                  IModelManagerChildListener {
 
   ConfNameSectionPart(final Composite parent, final ConnectionAndCommunicationConfPage formPage,
-                      final IX10PlatformConfWorkCopy x10PlatformConf,
                       final Collection<IServiceConfigurationListener> rmConfPageListeners) {
-    super(formPage, x10PlatformConf);
+    super(formPage);
 
-    createClient(parent, formPage.getManagedForm(), formPage.getManagedForm().getToolkit(), x10PlatformConf, 
-                 rmConfPageListeners);
+    createClient(parent, formPage.getManagedForm(), formPage.getManagedForm().getToolkit(), rmConfPageListeners);
     addCompletePartListener(formPage);
     ServiceModelManager.getInstance().addEventListener(this, IServiceModelEvent.SERVICE_CONFIGURATION_ADDED |
                                                        IServiceModelEvent.SERVICE_CONFIGURATION_REMOVED);
@@ -127,13 +124,12 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
  
   // --- Private code
   
-  private void addListeners(final IManagedForm managedForm, final IX10PlatformConfWorkCopy x10PlatformConf,
-                            final Combo rmServiceConfNameCombo, /* final Combo modeCombo, */ final Text descriptionText,
+  private void addListeners(final IManagedForm managedForm, final Combo rmServiceConfNameCombo, final Text descriptionText,
                             final Collection<IServiceConfigurationListener> rmConfPageListeners) {
     rmServiceConfNameCombo.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        x10PlatformConf.setName(rmServiceConfNameCombo.getText().trim());
+        getPlatformConf().setName(rmServiceConfNameCombo.getText().trim());
 
         for (final IServiceConfigurationListener listener : rmConfPageListeners) {
           listener.serviceConfigurationModified(rmServiceConfNameCombo.getText().trim());
@@ -149,22 +145,26 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     rmServiceConfNameCombo.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        x10PlatformConf.setName(rmServiceConfNameCombo.getText().trim());
+        getPlatformConf().applyChanges();
+        final String name = rmServiceConfNameCombo.getText().trim();
 
         final String confName = rmServiceConfNameCombo.getItem(rmServiceConfNameCombo.getSelectionIndex());
         final IServiceConfiguration serviceConf = (IServiceConfiguration) rmServiceConfNameCombo.getData(confName);
-        final String serviceModeId = getPlatformConf().getCommunicationInterfaceConf().getServiceModeId();
         for (final IService service : serviceConf.getServices()) {
-          if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId()) &&
-              service.getId().equals(serviceModeId)) {
+          if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {
             final IServiceProvider serviceProvider = serviceConf.getServiceProvider(service);
-            for (final IServiceConfigurationListener listener : rmConfPageListeners) {
-              listener.serviceConfigurationSelected(serviceProvider);
-            }
+            if (name.equals(serviceProvider.getName())) {
+              setNewPlatformConfState(name, serviceProvider);
+              getPlatformConf().setName(name);
+              
+              for (final IServiceConfigurationListener listener : rmConfPageListeners) {
+                listener.serviceConfigurationSelected(serviceProvider);
+              }
 
-            setPartCompleteFlag(hasCompleteInfo());
-            updateDirtyState(managedForm);
-            break;
+              setPartCompleteFlag(hasCompleteInfo());
+              updateDirtyState(managedForm);
+              break;
+            }
           }
         }
       }
@@ -177,7 +177,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     descriptionText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        x10PlatformConf.setDescription(descriptionText.getText().trim());
+        getPlatformConf().setDescription(descriptionText.getText().trim());
         updateDirtyState(managedForm);
       }
       
@@ -185,7 +185,6 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
   }
   
   private void createClient(final Composite parent, final IManagedForm managedForm, final FormToolkit toolkit, 
-                            final IX10PlatformConfWorkCopy x10PlatformConf,
                             final Collection<IServiceConfigurationListener> rmConfPageListeners) {    
     final Composite nameCompo = toolkit.createComposite(parent, SWT.NONE);
     nameCompo.setFont(parent.getFont());
@@ -210,7 +209,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     
     initializeControls(managedForm);
     
-    addListeners(managedForm, x10PlatformConf, this.fRMServiceConfNameCombo, this.fDescriptionText, rmConfPageListeners);
+    addListeners(managedForm, this.fRMServiceConfNameCombo, this.fDescriptionText, rmConfPageListeners);
   }
   
   private boolean hasCompleteInfo() {

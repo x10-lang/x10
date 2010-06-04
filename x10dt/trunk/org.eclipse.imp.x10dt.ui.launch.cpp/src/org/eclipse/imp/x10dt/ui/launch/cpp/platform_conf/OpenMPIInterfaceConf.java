@@ -96,6 +96,19 @@ final class OpenMPIInterfaceConf extends MessagePassingInterfaceConf implements 
     this.fOpenMPIVersion = original.fOpenMPIVersion;
   }
   
+  OpenMPIInterfaceConf(final IOpenMPIResourceManagerConfiguration rmConf) {
+    super(rmConf);
+    if (IOpenMPIResourceManagerConfiguration.VERSION_12.equals(rmConf.getVersionId())) {
+      this.fOpenMPIVersion = EOpenMPIVersion.EVersion_1_2;
+    } else if (IOpenMPIResourceManagerConfiguration.VERSION_13.equals(rmConf.getVersionId())) {
+      this.fOpenMPIVersion = EOpenMPIVersion.EVersion_1_3;
+    } else if (IOpenMPIResourceManagerConfiguration.VERSION_14.equals(rmConf.getVersionId())) {
+      this.fOpenMPIVersion = EOpenMPIVersion.EVersion_1_4;
+    } else {
+      this.fOpenMPIVersion = EOpenMPIVersion.EAutoDetect;
+    }
+  }
+  
   void applyChanges(final IOpenMPIInterfaceConf source) {
     super.applyChanges(source);
     this.fOpenMPIVersion = source.getOpenMPIVersion();

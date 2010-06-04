@@ -58,7 +58,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
   }
 
   public final void create(final IManagedForm managedForm, final FormToolkit toolkit, final Composite parent,
-                           final IX10PlatformConfWorkCopy x10PlatformConf, final AbstractCommonSectionFormPart formPart) {
+                           final AbstractCommonSectionFormPart formPart) {
     preCreationStep(toolkit, parent);
     
     final Group toolsCommandsGroup = new Group(parent, SWT.NONE);
@@ -117,9 +117,11 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     
     addControls(installControls);
     
+    final IX10PlatformConfWorkCopy x10PlatformConf = formPart.getPlatformConf();
     postCreationStep(toolkit, parent, managedForm, x10PlatformConf);
     
-    initializeControls(managedForm, formPart, (IMessagePassingInterfaceConf) x10PlatformConf.getCommunicationInterfaceConf(),
+    initializeControls(x10PlatformConf, managedForm, formPart, 
+                       (IMessagePassingInterfaceConf) x10PlatformConf.getCommunicationInterfaceConf(),
                        discoverCmdControls, dependentToolCmdsControls, installControls);
     
     final String ciType = (this instanceof OpenMPITypeConfigPart) ? PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID :
@@ -163,43 +165,6 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       return this.fInstallLocText.getText().trim().length() > 0;
     }
   }
-  
-//  public void updateTypeSelectionEvent() {
-//    final boolean isOpenMPI = (this.fToolRMConf instanceof IOpenMPIResourceManagerConfiguration);
-//    openMPIVersionLabel.setVisible(isOpenMPI);
-//    openMPIVersionCombo.setVisible(isOpenMPI);
-//    
-//    if (this.fToolRMConf.getUseToolDefaults()) {
-//      this.fDefaultToolsCmdsBt.setSelection(this.fToolRMConf.getUseToolDefaults());
-//      this.fDefaultToolsCmdsBt.notifyListeners(SWT.Selection, new Event());
-//      
-//      this.fLaunchCmdText.setText(this.fToolRMConf.getLaunchCmd());
-//      this.fDebugCmdText.setText(this.fToolRMConf.getDebugCmd());
-//      discoverCmdText.setText(this.fToolRMConf.getDiscoverCmd());
-//      monitorCmdText.setText(this.fToolRMConf.getPeriodicMonitorCmd());
-//      periodicTimeSpinner.setSelection(this.fToolRMConf.getPeriodicMonitorTime());
-//    } else {
-//      launchCmdText.setText(this.fToolRMConf.getLaunchCmd());
-//      debugCmdText.setText(this.fToolRMConf.getDebugCmd());
-//      discoverCmdText.setText(this.fToolRMConf.getDiscoverCmd());
-//      monitorCmdText.setText(this.fToolRMConf.getPeriodicMonitorCmd());
-//      periodicTimeSpinner.setSelection(this.fToolRMConf.getPeriodicMonitorTime());
-//      
-//      defaultToolsCmdsBt.setSelection(this.fToolRMConf.getUseToolDefaults());
-//      defaultToolsCmdsBt.notifyListeners(SWT.Selection, new Event());
-//    }
-//    if (rmConf.getUseInstallDefaults()) {
-//      defaultInstallLocBt.setSelection(this.fToolRMConf.getUseInstallDefaults());
-//      defaultInstallLocBt.notifyListeners(SWT.Selection, new Event());
-//      
-//      installLocText.setText(this.fToolRMConf.getRemoteInstallPath());
-//    } else {
-//      installLocText.setText(this.fToolRMConf.getRemoteInstallPath());
-//      
-//      defaultInstallLocBt.setSelection(this.fToolRMConf.getUseInstallDefaults());
-//      defaultInstallLocBt.notifyListeners(SWT.Selection, new Event());
-//    }
-//  }
   
   // --- Private code
   
@@ -321,34 +286,56 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     });
   }
   
-  private void initializeControls(final IManagedForm managedForm, final AbstractCommonSectionFormPart formPart,
-                                  final IMessagePassingInterfaceConf ciConf, final Collection<Control> discoverCmdControls, 
+  private void initConfiguration(final IX10PlatformConfWorkCopy platformConf, final IMessagePassingInterfaceConf mpiConf) {
+    if ((mpiConf.getLaunchCommand().length() == 0) &&  (mpiConf.getDebugCommand().length() == 0) &&
+        (mpiConf.getDiscoverCommand().length() == 0) && (mpiConf.getMonitorCommand().length() == 0) &&
+        (mpiConf.getMonitorPeriod() == 0)) {
+      platformConf.setDefaultToolCommands(getServiceProviderId(), this.fToolRMConf.getUseToolDefaults());
+    }
+    if (mpiConf.getLaunchCommand().length() == 0) {
+      platformConf.setLaunchCommand(getServiceProviderId(), this.fToolRMConf.getLaunchCmd());
+    }
+    if (mpiConf.getDebugCommand().length() == 0) {
+      platformConf.setDebugCommand(getServiceProviderId(), this.fToolRMConf.getDebugCmd());
+    }
+    if (mpiConf.getDiscoverCommand().length() == 0) {
+      platformConf.setDiscoverCommand(getServiceProviderId(), this.fToolRMConf.getDiscoverCmd());
+    }
+    if (mpiConf.getMonitorCommand().length() == 0) {
+      platformConf.setMonitorCommand(getServiceProviderId(), this.fToolRMConf.getPeriodicMonitorCmd());
+    }
+    if (mpiConf.getMonitorPeriod() == 0) {
+      platformConf.setMonitorPeriod(getServiceProviderId(), this.fToolRMConf.getPeriodicMonitorTime());
+    }
+    if (mpiConf.getInstallLocation().length() == 0) {
+      platformConf.setDefaultInstallLocationFlag(getServiceProviderId(), this.fToolRMConf.getUseInstallDefaults());
+      platformConf.setInstallLocation(getServiceProviderId(), this.fToolRMConf.getRemoteInstallPath());
+    }
+  }
+  
+  private void initializeControls(final IX10PlatformConfWorkCopy x10PlatformConf, final IManagedForm managedForm, 
+                                  final AbstractCommonSectionFormPart formPart, final IMessagePassingInterfaceConf ciConf, 
+                                  final Collection<Control> discoverCmdControls, 
                                   final Collection<Control> dependentToolCmdsControls, 
                                   final Collection<Control> installControls) {
+    initConfiguration(x10PlatformConf, ciConf);
+    
     this.fDefaultToolsCmdsBt.setSelection(ciConf.shouldTakeDefaultToolCommands());
-    if (ciConf.shouldTakeDefaultToolCommands()) {
-      this.fLaunchCmdText.setText(this.fToolRMConf.getLaunchCmd());
-      this.fDebugCmdText.setText(this.fToolRMConf.getDebugCmd());
-      this.fDiscoverCmdText.setText(this.fToolRMConf.getDiscoverCmd());
-      this.fMonitorCmdText.setText(this.fToolRMConf.getPeriodicMonitorCmd());
-      this.fPeriodicTimeSpinner.setSelection(this.fToolRMConf.getPeriodicMonitorTime());
-    } else {
-      if (! isOpenMPIVersionAutotDetectOn()) {
-        this.fLaunchCmdText.setText(ciConf.getLaunchCommand().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(this.fLaunchCmdText, LaunchMessages.RMCP_LaunchLabel), 
-                                      managedForm, this.fLaunchCmdText);
-        this.fDebugCmdText.setText(ciConf.getDebugCommand().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(this.fDebugCmdText, LaunchMessages.RMCP_DebugLabel), 
-                                      managedForm, this.fDebugCmdText);
-        this.fMonitorCmdText.setText(ciConf.getMonitorCommand().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(this.fMonitorCmdText, LaunchMessages.RMCP_MonitorLabel),
+    if (! isOpenMPIVersionAutotDetectOn()) {
+      this.fLaunchCmdText.setText(ciConf.getLaunchCommand().trim());
+      formPart.handleTextValidation(new EmptyTextInputChecker(this.fLaunchCmdText, LaunchMessages.RMCP_LaunchLabel), 
+                                    managedForm, this.fLaunchCmdText);
+      this.fDebugCmdText.setText(ciConf.getDebugCommand().trim());
+      formPart.handleTextValidation(new EmptyTextInputChecker(this.fDebugCmdText, LaunchMessages.RMCP_DebugLabel), 
+                                    managedForm, this.fDebugCmdText);
+      this.fMonitorCmdText.setText(ciConf.getMonitorCommand().trim());
+      formPart.handleTextValidation(new EmptyTextInputChecker(this.fMonitorCmdText, LaunchMessages.RMCP_MonitorLabel),
                                       managedForm, this.fMonitorCmdText);
-      }
-      this.fDiscoverCmdText.setText(ciConf.getDiscoverCommand().trim());
-      formPart.handleTextValidation(new EmptyTextInputChecker(this.fDiscoverCmdText, LaunchMessages.RMCP_DiscoverLabel),
-                                    managedForm, this.fDiscoverCmdText);
-      this.fPeriodicTimeSpinner.setSelection(ciConf.getMonitorPeriod());
     }
+    this.fDiscoverCmdText.setText(ciConf.getDiscoverCommand().trim());
+    formPart.handleTextValidation(new EmptyTextInputChecker(this.fDiscoverCmdText, LaunchMessages.RMCP_DiscoverLabel),
+                                  managedForm, this.fDiscoverCmdText);
+    this.fPeriodicTimeSpinner.setSelection(ciConf.getMonitorPeriod());
     
     // Take care of enabling/disabling the controls in this group
     
@@ -376,7 +363,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
   
   // --- Fields
   
-  private final IToolRMConfiguration fToolRMConf;
+  protected final IToolRMConfiguration fToolRMConf;
     
   protected Button fDefaultToolsCmdsBt;
   

@@ -10,7 +10,6 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
@@ -19,10 +18,8 @@ import org.eclipse.ui.forms.editor.IFormPage;
 
 class X10FormPage extends FormPage implements IFormPage, ICompletePartListener {
   
-  protected X10FormPage(final IX10PlatformConfWorkCopy x10PlatformConf, final FormEditor editor, final String id, 
-                        final String title) {
+  protected X10FormPage(final FormEditor editor, final String id, final String title) {
     super(editor, id, title);
-    this.fX10PlatformConf = x10PlatformConf;
   }
   
   // --- ICompletePartListener's interface methods implementation
@@ -60,12 +57,6 @@ class X10FormPage extends FormPage implements IFormPage, ICompletePartListener {
     this.fListeners.remove(listener);
   }
   
-  // --- Code for descendants
-  
-  protected final IX10PlatformConfWorkCopy getPlatformConf() {
-    return this.fX10PlatformConf;
-  }
-  
   // --- Private code
   
   private void updateCompletePageStatus(final boolean isComplete) {
@@ -80,8 +71,6 @@ class X10FormPage extends FormPage implements IFormPage, ICompletePartListener {
   // --- Fields
   
   private final Collection<ICompletePageChangedListener> fListeners = new ArrayList<ICompletePageChangedListener>();
-  
-  private final IX10PlatformConfWorkCopy fX10PlatformConf;
   
   private boolean fIsComplete;
 

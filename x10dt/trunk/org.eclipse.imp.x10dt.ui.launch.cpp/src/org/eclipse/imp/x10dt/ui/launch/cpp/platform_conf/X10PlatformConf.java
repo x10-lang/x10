@@ -10,10 +10,12 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 import static org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus.UNKNOWN;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -21,20 +23,29 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.EnumUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
+import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
+import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.XMLMemento;
+import org.osgi.framework.Bundle;
 
 
 class X10PlatformConf implements IX10PlatformConf {
@@ -54,6 +65,18 @@ class X10PlatformConf implements IX10PlatformConf {
 			// We could not load the file content. Let's just consider an empty configuration file then.
 			this.fId = UUID.randomUUID().toString();
 		}
+  }
+  
+  X10PlatformConf(final IServiceProvider serviceProvider) {
+    final IResourceManagerConfiguration rmConf = (IResourceManagerConfiguration) serviceProvider;
+    this.fConnectionConf = new ConnectionConfiguration(rmConf);
+    this.fCppCompilationConf = new CppCompilationConfiguration();
+    initLocalCppCompilationCommands();
+    initLocalX10DistribLocation();
+    this.fCommInterfaceFact = new CommInterfaceFactory(rmConf);
+    this.fDescription = rmConf.getDescription();
+    this.fName = rmConf.getName();
+    this.fId = UUID.randomUUID().toString();
   }
   
   // --- Interface methods implementation
@@ -211,18 +234,69 @@ class X10PlatformConf implements IX10PlatformConf {
     return sb.toString();
   }
   
+  // --- Code for descendants
+  
+  protected final boolean hasData(final String var) {
+    return (var != null) && (var.trim().length() > 0);
+  }
+  
+  protected final void initLocalCppCompilationCommands() {
+    this.fCppCompilationConf.fTargetOS = EnumUtils.getLocalOS();
+    final boolean is64Arch = is64Arch();
+    this.fCppCompilationConf.fArchitecture = is64Arch ? EArchitecture.E64Arch : EArchitecture.E32Arch;
+    final IDefaultCPPCommands defaultCPPCommands;
+    switch (this.fCppCompilationConf.fTargetOS) {
+    case AIX:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch);
+      break;
+    case LINUX:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch);
+      break;
+    case MAC:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch);
+      break;
+    case WINDOWS:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch);
+      break;
+    default:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch);
+    }
+    this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
+    this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();
+    this.fCppCompilationConf.fArchiver = defaultCPPCommands.getArchiver();
+    this.fCppCompilationConf.fArchivingOpts = defaultCPPCommands.getArchivingOpts();
+    this.fCppCompilationConf.fLinker = defaultCPPCommands.getLinker();
+    this.fCppCompilationConf.fLinkingOpts = defaultCPPCommands.getLinkingOptions();
+    this.fCppCompilationConf.fLinkingLibs = defaultCPPCommands.getLinkingLibraries();
+    this.fCppCompilationConf.fArchitecture = (is64Arch) ? EArchitecture.E64Arch : EArchitecture.E32Arch;
+  }
+
+  protected final void initLocalX10DistribLocation() {
+    final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
+    if (x10DistBundle != null) {
+      final URL url = x10DistBundle.getResource("include"); //$NON-NLS-1$
+      try {
+        this.fCppCompilationConf.fX10DistLoc = new File(FileLocator.resolve(url).getFile()).getParent();
+        this.fCppCompilationConf.fPGASLoc = this.fCppCompilationConf.fX10DistLoc;
+      } catch (IOException except) {
+        // Let's forget.
+      }
+    }
+  }
+  
+  private boolean is64Arch() {
+    return false; //TODO
+  }
+  
   // --- Private code
   
   protected X10PlatformConf(final X10PlatformConf source) {
     this.fName = source.fName;
     this.fDescription = source.fDescription;
+    this.fId = source.fId;
     this.fConnectionConf = new ConnectionConfiguration(source.fConnectionConf);
     this.fCommInterfaceFact = new CommInterfaceFactory(source.fCommInterfaceFact);
     this.fCppCompilationConf = new CppCompilationConfiguration(source.fCppCompilationConf);
-  }
-  
-  protected final boolean hasData(final String var) {
-    return (var != null) && (var.trim().length() > 0);
   }
   
   private String getTextDataValue(final IMemento memento, final String tag) {
@@ -434,26 +508,30 @@ class X10PlatformConf implements IX10PlatformConf {
     communicationInterfaceTag.createChild(OPEN_MPI_VERSION_TAG).putTextData(mpiVersion.name());
   }
   
-  private void save(final IMemento ciMemento, final IBMCommunicationInterfaceConf ciConf) {
-    if (hasData(ciConf.fAlternateLibPath)) {
-      ciMemento.createChild(ALTERNATE_LL_LIB_PATH).putTextData(ciConf.fAlternateLibPath);
-    }
-    if (ciConf.fClusterMode != null) {
-      ciMemento.createChild(LL_CLUSTER_MODE).putTextData(ciConf.fClusterMode.name());
-    }
-    ciMemento.putInteger(JOB_POLLING, ciConf.fJobPolling);
-    ciMemento.putInteger(NODE_POLLING_MIN, ciConf.fNodePollingMin);
-    ciMemento.putInteger(NODE_POLLING_MAX, ciConf.fNodePollingMax);
+  private void save(final IMemento ciMemento, final IBMCommunicationInterfaceConf ciConf, 
+                    final boolean shouldSaveAlternateInfo) {
     if (hasData(ciConf.fProxyServerPath)) {
       ciMemento.createChild(PROXY_SERVER_PATH).putTextData(ciConf.fProxyServerPath);
     }
     ciMemento.putBoolean(LAUNCH_PROXY_MANUALLY, ciConf.fLaunchProxyManually);
-    ciMemento.putBoolean(SUSPEND_PROXY_AT_STARTUP, ciConf.fSuspendProxyAtStartup);
     ciMemento.putBoolean(USE_PORT_FORWARDING, ciConf.fUsePortForwarding);
+    
+    if (shouldSaveAlternateInfo) {
+      if (hasData(ciConf.fAlternateLibPath)) {
+        ciMemento.createChild(ALTERNATE_LL_LIB_PATH).putTextData(ciConf.fAlternateLibPath);
+      }
+      if (ciConf.fClusterMode != null) {
+        ciMemento.createChild(LL_CLUSTER_MODE).putTextData(ciConf.fClusterMode.name());
+      }
+      ciMemento.putInteger(JOB_POLLING, ciConf.fJobPolling);
+      ciMemento.putInteger(NODE_POLLING_MIN, ciConf.fNodePollingMin);
+      ciMemento.putInteger(NODE_POLLING_MAX, ciConf.fNodePollingMax);
+      ciMemento.putBoolean(SUSPEND_PROXY_AT_STARTUP, ciConf.fSuspendProxyAtStartup);
+    }
   }
   
   private void save(final IMemento ciMemento, final ParallelEnvironmentConf ciConf) {
-    save(ciMemento, (IBMCommunicationInterfaceConf) ciConf);
+    save(ciMemento, ciConf, ciConf.fUseLoadLeveler);
    
     if (ciConf.fCIDebugLevel != null) {
       ciMemento.createChild(PE_DEBUG_LEVEL).putTextData(ciConf.fCIDebugLevel.name());
@@ -463,7 +541,7 @@ class X10PlatformConf implements IX10PlatformConf {
   }
 
   private void save(final IMemento ciMemento, final LoadLevelerConf ciConf) {
-    save(ciMemento, (IBMCommunicationInterfaceConf) ciConf);
+    save(ciMemento, ciConf, true);
     
     ciMemento.putInteger(LL_PROXY_MSG_OPTS, ciConf.fProxyMsgOpts);
     if (hasData(ciConf.fTemplateFilePath)) {

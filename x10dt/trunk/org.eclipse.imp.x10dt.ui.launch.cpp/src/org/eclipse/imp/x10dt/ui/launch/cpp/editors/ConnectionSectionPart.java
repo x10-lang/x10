@@ -25,7 +25,6 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchImages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformChecker;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformValidationListener;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.PlatformCheckerFactory;
@@ -45,11 +44,8 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
-import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -80,9 +76,8 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 final class ConnectionSectionPart extends AbstractCommonSectionFormPart implements IFormPart, IServiceConfigurationListener {
 
-  ConnectionSectionPart(final Composite parent, final ConnectionAndCommunicationConfPage formPage,
-                        final IX10PlatformConfWorkCopy x10PlatformConf) {
-    super(parent, formPage, x10PlatformConf);
+  ConnectionSectionPart(final Composite parent, final ConnectionAndCommunicationConfPage formPage) {
+    super(parent, formPage);
     
     getSection().setFont(parent.getFont());
     getSection().setText(LaunchMessages.RMCP_ConnectionSectionTitle);
@@ -92,7 +87,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     this.fConnectionTypeListeners = new ArrayList<IConnectionTypeListener>();
     this.fValidationListeners = new ArrayList<IX10PlatformValidationListener>();
     
-    createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit(), x10PlatformConf);
+    createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit());
     addCompletePartListener(formPage);
   }
   
@@ -102,28 +97,23 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   }
 
   public void serviceConfigurationSelected(final IServiceProvider serviceProvider) {
-    if (serviceProvider instanceof IResourceManagerConfiguration) {
-      final IResourceManagerConfiguration rmConf = (IResourceManagerConfiguration) serviceProvider;
-      final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmConf.getRemoteServicesId());
-      final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(rmServices);
-     
-      if (isLocal) {
-        this.fLocalConnBt.setSelection(true);
-        this.fRemoteConnBt.setSelection(false);
-        this.fLocalConnBt.notifyListeners(SWT.Selection, new Event());
-      } else {
-        this.fRemoteConnBt.setSelection(true);
-        this.fLocalConnBt.setSelection(false);
-        this.fRemoteConnBt.notifyListeners(SWT.Selection, new Event());
+    final IConnectionConf ciConf = getPlatformConf().getConnectionConf();
+    if (ciConf.isLocal()) {
+      this.fLocalConnBt.setSelection(true);
+      this.fRemoteConnBt.setSelection(false);
+      this.fLocalConnBt.notifyListeners(SWT.Selection, new Event());
+    } else {
+      this.fRemoteConnBt.setSelection(true);
+      this.fLocalConnBt.setSelection(false);
+      this.fRemoteConnBt.notifyListeners(SWT.Selection, new Event());
         
-        int index = -1;
-        for (final IConnectionInfo connectionInfo : getAllConnectionInfo()) {
-          ++index;
-          if (connectionInfo.getName().equals(rmConf.getConnectionName())) {
-            this.fCurrentConnection = connectionInfo;            
-            this.fTableViewer.getTable().select(index);
-            this.fTableViewer.getTable().notifyListeners(SWT.Selection, new Event());
-          }
+      int index = -1;
+      for (final IConnectionInfo connectionInfo : getAllConnectionInfo()) {
+        ++index;
+        if (connectionInfo.getName().equals(ciConf.getConnectionName())) {
+          this.fCurrentConnection = connectionInfo;
+          this.fTableViewer.getTable().select(index);
+          this.fTableViewer.getTable().notifyListeners(SWT.Selection, new Event());
         }
       }
     }
@@ -192,9 +182,8 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
  
   // --- Private code
   
-  private void addListeners(final IManagedForm managedForm, final IX10PlatformConfWorkCopy x10PlatformConf,
-                            final Button localConnBt, final Button remoteConnBt, final Button validateBt,
-                            final Text hostText, final Spinner portText, final Text userNameText, 
+  private void addListeners(final IManagedForm managedForm, final Button localConnBt, final Button remoteConnBt, 
+                            final Button validateBt, final Text hostText, final Spinner portText, final Text userNameText, 
                             final Button passwordAuthBt, final Label passwordLabel, final Text passwordText, 
                             final Button privateKeyFileAuthBt, final Text privateKeyText, final Button browseBt, 
                             final Text passphraseText, final Collection<Control> firstGroupControls, 
@@ -203,7 +192,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       
       public void widgetSelected(final SelectionEvent event) {
         if (localConnBt.getSelection()) {
-          x10PlatformConf.setIsLocalFlag(true);
+          getPlatformConf().setIsLocalFlag(true);
           for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
             listener.connectionChanged(true, null, null);
           }
@@ -241,7 +230,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       
       public void widgetSelected(final SelectionEvent event) {
         if (remoteConnBt.getSelection()) {
-          x10PlatformConf.setIsLocalFlag(false);
+          getPlatformConf().setIsLocalFlag(false);
           for (final Control control : firstGroupControls) {
             control.setEnabled(true);
           }
@@ -282,7 +271,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         handleTextValidation(new EmptyTextInputChecker(hostText, LaunchMessages.RMCP_HostLabel), managedForm, hostText);
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
-          updateConnectionConf(x10PlatformConf);
+          updateConnectionConf();
         }
       }
       
@@ -299,7 +288,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         }
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
-          updateConnectionConf(x10PlatformConf);
+          updateConnectionConf();
           updateDirtyState(managedForm);
         }
       }
@@ -319,7 +308,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
                              userNameText);
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
-          updateConnectionConf(x10PlatformConf);
+          updateConnectionConf();
           updateDirtyState(managedForm);
         }
       }
@@ -344,7 +333,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
                              privateKeyText);
         
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
-          updateConnectionConf(x10PlatformConf);
+          updateConnectionConf();
           updateDirtyState(managedForm);
           setPartCompleteFlag(hasCompleteInfo());
         }
@@ -366,7 +355,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           curConnInfo.setPassword(passwordText.getText().trim());
         }
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
-          updateConnectionConf(x10PlatformConf);
+          updateConnectionConf();
           updateDirtyState(managedForm);
         }
       }
@@ -401,7 +390,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
                              privateKeyText);
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
-          updateConnectionConf(x10PlatformConf);
+          updateConnectionConf();
           updateDirtyState(managedForm);
         }
       }
@@ -434,7 +423,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           curConnInfo.setPassphrase(passphraseText.getText().trim());
         }
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
-          updateConnectionConf(x10PlatformConf);
+          updateConnectionConf();
           updateDirtyState(managedForm);
         }
       }
@@ -442,8 +431,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     });
   }
   
-  private void createClient(final IManagedForm managedForm, final FormToolkit toolkit, 
-                            final IX10PlatformConfWorkCopy x10PlatformConf) {
+  private void createClient(final IManagedForm managedForm, final FormToolkit toolkit) {
     final Composite sectionClient = toolkit.createComposite(getSection());
     sectionClient.setLayout(new TableWrapLayout());
     sectionClient.setFont(getSection().getFont());
@@ -476,7 +464,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     connNameCompo.setLayout(connNameLayout);
     connNameCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    createConnectionsTable(firstGroupControls, secondGroupControls, connNameCompo, x10PlatformConf, toolkit);
+    createConnectionsTable(firstGroupControls, secondGroupControls, connNameCompo, toolkit);
     
     this.fErrorLabel = toolkit.createLabel(groupCompo, null, SWT.WRAP);
     final TableWrapData twData = new TableWrapData(TableWrapData.FILL_GRAB);
@@ -549,7 +537,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
 
     initializeControls(firstGroupControls, secondGroupControls, keyFileControls);
     
-    addListeners(managedForm, x10PlatformConf, this.fLocalConnBt, this.fRemoteConnBt, this.fValidateButton,
+    addListeners(managedForm, this.fLocalConnBt, this.fRemoteConnBt, this.fValidateButton,
                  this.fHostText, this.fPortText, this.fUserNameText, this.fPasswordAuthBt, this.fPasswordLabel, 
                  this.fPasswordText, this.fPrivateKeyFileAuthBt, this.fPrivateKeyFileText, browseBt, this.fPassphraseText,
                  firstGroupControls, secondGroupControls, keyFileControls);
@@ -558,8 +546,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   }
   
   private void createConnectionsTable(final Collection<Control> firstGroupControls, final Collection<Control> sndGroupControls,
-                                      final Composite parent, final IX10PlatformConfWorkCopy x10PlatformConf,
-                                      final FormToolkit toolkit) {
+                                      final Composite parent, final FormToolkit toolkit) {
     final TableViewer tableViewer = new TableViewer(parent, SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL |
                                                     SWT.FULL_SELECTION | SWT.HIDE_SELECTION);
     this.fTableViewer = tableViewer;
@@ -590,7 +577,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         final IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
         final IConnectionInfo currentConnection = (IConnectionInfo) selection.iterator().next();
         ConnectionSectionPart.this.fCurrentConnection = currentConnection;
-        updateConnectionConf(x10PlatformConf);
+        updateConnectionConf();
         for (final TableItem tableItem : tableViewer.getTable().getItems()) {
           tableViewer.update(tableItem.getData(), null);
         }
@@ -703,7 +690,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       protected void setValue(final Object element, final Object value) {
         final IConnectionInfo curConnInfo = (IConnectionInfo) element;
         ConnectionSectionPart.this.fCurrentConnection = curConnInfo;
-        updateConnectionConf(x10PlatformConf);
+        updateConnectionConf();
         for (final TableItem tableItem : tableViewer.getTable().getItems()) {
           tableViewer.update(tableItem.getData(), null);
         }
@@ -1234,17 +1221,17 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     this.fPassphraseText.setText(Constants.EMPTY_STR);
   }
   
-  private void updateConnectionConf(final IX10PlatformConfWorkCopy x10PlatformConf) {
-    x10PlatformConf.setConnectionName(this.fCurrentConnection.getName());
-    x10PlatformConf.setHostName(this.fCurrentConnection.getHostName());
-    x10PlatformConf.setPort(this.fCurrentConnection.getPort());
-    x10PlatformConf.setUserName(this.fCurrentConnection.getUserName());
-    x10PlatformConf.setIsPasswordBasedAuthenticationFlag(this.fCurrentConnection.isPasswordBasedAuth());
+  private void updateConnectionConf() {
+    getPlatformConf().setConnectionName(this.fCurrentConnection.getName());
+    getPlatformConf().setHostName(this.fCurrentConnection.getHostName());
+    getPlatformConf().setPort(this.fCurrentConnection.getPort());
+    getPlatformConf().setUserName(this.fCurrentConnection.getUserName());
+    getPlatformConf().setIsPasswordBasedAuthenticationFlag(this.fCurrentConnection.isPasswordBasedAuth());
     if (this.fCurrentConnection.isPasswordBasedAuth()) {
-      x10PlatformConf.setPassword(this.fCurrentConnection.getPassword());
+      getPlatformConf().setPassword(this.fCurrentConnection.getPassword());
     } else {
-      x10PlatformConf.setPrivateKeyFile(this.fCurrentConnection.getPrivateKeyFile());
-      x10PlatformConf.setPassphrase(this.fCurrentConnection.getPassphrase());
+      getPlatformConf().setPrivateKeyFile(this.fCurrentConnection.getPrivateKeyFile());
+      getPlatformConf().setPassphrase(this.fCurrentConnection.getPassphrase());
     }
   }
   

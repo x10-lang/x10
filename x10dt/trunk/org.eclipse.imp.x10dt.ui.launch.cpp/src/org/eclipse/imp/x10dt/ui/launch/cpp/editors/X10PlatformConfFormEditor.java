@@ -8,6 +8,8 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -37,6 +39,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
+import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
@@ -111,7 +114,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   public void platformCppCompilationValidationFailure(final String message) {
     this.fValidateAction.setImageDescriptor(this.fInvalidPlatformImg);
-    final String failureMessage = this.fX10PlatformConfWorkCopy.getCppCompilationConf().getValidationErrorMessage();
+    final String failureMessage = getCurrentPlatformConf().getCppCompilationConf().getValidationErrorMessage();
     IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
                                          LaunchMessages.XPCFE_ValidationFailureDlgMsg, IMarker.SEVERITY_ERROR, 
                                          IMarker.PRIORITY_HIGH);
@@ -201,8 +204,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     setActiveEditor(this);
     setPartName(getEditorInput().getName());
     try {
-      addPage(new ConnectionAndCommunicationConfPage(this, this.fX10PlatformConfWorkCopy));
-      addPage(new X10CompilationConfigurationPage(this, this.fX10PlatformConfWorkCopy));
+      addPage(new ConnectionAndCommunicationConfPage(this));
+      addPage(new X10CompilationConfigurationPage(this));
     } catch (PartInitException except) {
       CppLaunchCore.log(except.getStatus());
     }
@@ -250,14 +253,14 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     }
     for (final Object page : super.pages) {
       if (page != null) {
-        ((IFormPage) page).getManagedForm().setInput(this.fX10PlatformConfWorkCopy);
+        ((IFormPage) page).getManagedForm().setInput(getCurrentPlatformConf());
       }
     }
     
     if (getActivePage() == -1) {
       super.setActivePage(0);
     }
-    this.fValidateAction.setEnabled(this.fX10PlatformConfWorkCopy.isComplete(false));
+    this.fValidateAction.setEnabled(getCurrentPlatformConf().isComplete(false));
   }
   
   public void dispose() {
@@ -267,10 +270,35 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
     super.init(site, input);
+    
     final IProject project = ((IFileEditorInput) input).getFile().getProject();
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
-    this.fX10PlatformConfWorkCopy = platformConf.createWorkingCopy();
-    this.fX10PlatformConfWorkCopy.initializeToDefaultValues();
+    final IX10PlatformConfWorkCopy workCopy = platformConf.createWorkingCopy();
+    workCopy.initializeToDefaultValues();
+    
+    this.fX10PlatformConfs.put(workCopy.getName(), workCopy);
+    this.fCurConfiguration = workCopy;
+  }
+  
+  // --- Internal services
+  
+  IX10PlatformConfWorkCopy getCurrentPlatformConf() {
+    return this.fCurConfiguration;
+  }
+  
+  void setNewPlatformConfState(final String name, final IServiceProvider serviceProvider) {
+    final IX10PlatformConfWorkCopy configuration = this.fX10PlatformConfs.get(name);
+    if (configuration == null) {
+      final IX10PlatformConf platformConf = X10PlatformConfFactory.createFromProvider(serviceProvider);
+      final IX10PlatformConfWorkCopy workCopy = platformConf.createWorkingCopy();
+      
+      workCopy.setName(name);
+      
+      this.fX10PlatformConfs.put(name, workCopy);
+      this.fCurConfiguration = workCopy;
+    } else {
+      this.fCurConfiguration = configuration;
+    }
   }
   
   // --- Private code
@@ -280,10 +308,10 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     synchronized (file) {
       IResourceUtils.deletePlatformConfMarkers(file);
       try {
-        this.fX10PlatformConfWorkCopy.applyChanges();
-        X10PlatformConfFactory.save(file, this.fX10PlatformConfWorkCopy);
+        getCurrentPlatformConf().applyChanges();
+        X10PlatformConfFactory.save(file, getCurrentPlatformConf());
         commitPages(true);
-        if (! this.fX10PlatformConfWorkCopy.isComplete(false)) {
+        if (! getCurrentPlatformConf().isComplete(false)) {
           IResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPCFE_PlatformConfNotComplete, IMarker.SEVERITY_WARNING, 
                                                IMarker.PRIORITY_HIGH);
         }
@@ -304,11 +332,10 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
       
         public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
         	final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
-          checker.validateCppCompilationConf(X10PlatformConfFormEditor.this.fX10PlatformConfWorkCopy, subMonitor.newChild(5));
-          final ICppCompilationConf compConf = X10PlatformConfFormEditor.this.fX10PlatformConfWorkCopy.getCppCompilationConf();
+          checker.validateCppCompilationConf(getCurrentPlatformConf(), subMonitor.newChild(5));
+          final ICppCompilationConf compConf = getCurrentPlatformConf().getCppCompilationConf();
           if (compConf.getValidationStatus() == EValidationStatus.VALID) {
-          	checker.validateCommunicationInterface(X10PlatformConfFormEditor.this.fX10PlatformConfWorkCopy, 
-          	                                       subMonitor.newChild(5));
+          	checker.validateCommunicationInterface(getCurrentPlatformConf(), subMonitor.newChild(5));
           } else {
           	subMonitor.done();
           }
@@ -360,7 +387,9 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   // --- Fields
   
-  private IX10PlatformConfWorkCopy fX10PlatformConfWorkCopy;
+  private final Map<String, IX10PlatformConfWorkCopy> fX10PlatformConfs = new HashMap<String, IX10PlatformConfWorkCopy>();
+  
+  private IX10PlatformConfWorkCopy fCurConfiguration; 
   
   private IAction fSaveAction;
   

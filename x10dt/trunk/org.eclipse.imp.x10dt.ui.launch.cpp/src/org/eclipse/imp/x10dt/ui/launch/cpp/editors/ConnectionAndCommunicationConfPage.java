@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
@@ -19,8 +18,8 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 final class ConnectionAndCommunicationConfPage extends X10FormPage {
   
-  ConnectionAndCommunicationConfPage(final X10PlatformConfFormEditor editor, final IX10PlatformConfWorkCopy x10PlatformConf) {
-    super(x10PlatformConf, editor, CONN_AND_COMM_CONF_PAGE_ID, LaunchMessages.RMCP_FormPageTitle);
+  ConnectionAndCommunicationConfPage(final X10PlatformConfFormEditor editor) {
+    super(editor, CONN_AND_COMM_CONF_PAGE_ID, LaunchMessages.RMCP_FormPageTitle);
     
     addCompletePageChangedListener(editor);
   }
@@ -36,13 +35,13 @@ final class ConnectionAndCommunicationConfPage extends X10FormPage {
     
     final Collection<IServiceConfigurationListener> rmConfPageListeners = new ArrayList<IServiceConfigurationListener>();
     
-    managedForm.addPart(new ConfNameSectionPart(body, this, getPlatformConf(), rmConfPageListeners));
+    managedForm.addPart(new ConfNameSectionPart(body, this, rmConfPageListeners));
     
-    final ConnectionSectionPart connSection = new ConnectionSectionPart(body, this, getPlatformConf());
+    final ConnectionSectionPart connSection = new ConnectionSectionPart(body, this);
     rmConfPageListeners.add(connSection);
     managedForm.addPart(connSection);
     
-    final CommunicationInterfaceSectionPart ciSection = new CommunicationInterfaceSectionPart(body, this, getPlatformConf());
+    final CommunicationInterfaceSectionPart ciSection = new CommunicationInterfaceSectionPart(body, this);
     rmConfPageListeners.add(ciSection);
     managedForm.addPart(ciSection);
   }

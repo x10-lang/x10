@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,11 +14,11 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.ptp.rm.core.rmsystem.IRemoteResourceManagerConfiguration;
 import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
 import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
 import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
+import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IService;
 import org.eclipse.ptp.services.core.IServiceProvider;
@@ -43,18 +41,15 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormPart 
                                               implements IServiceConfigurationListener, IConnectionTypeListener, IFormPart {
 
-  CommunicationInterfaceSectionPart(final Composite parent, final ConnectionAndCommunicationConfPage formPage,
-                                    final IX10PlatformConfWorkCopy x10PlatformConf) {
-    super(parent, formPage, x10PlatformConf);
+  CommunicationInterfaceSectionPart(final Composite parent, final ConnectionAndCommunicationConfPage formPage) {
+    super(parent, formPage);
     
     getSection().setFont(parent.getFont());
     getSection().setText(LaunchMessages.RMCP_CommInterfaceSectionTitle);
     getSection().setDescription(LaunchMessages.RMCP_CommInterfaceSectionDescr);
     getSection().setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    this.fCITypeListeners = new ArrayList<ICommunicationInterfaceTypeListener>();
-    
-    createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit(), x10PlatformConf);
+    createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit());
     addCompletePartListener(formPage);
   }
   
@@ -64,47 +59,29 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   }
 
   public void serviceConfigurationSelected(final IServiceProvider serviceProvider) {
-//    int index  = -1;
-//    for (final String name : this.fCITypeCombo.getItems()) {
-//      ++index;
-//      final ICITypeConfigurationPart comboConfPart = (ICITypeConfigurationPart) this.fCITypeCombo.getData(name);
-//      if (serviceProvider.getId().equals(comboConfPart.getServiceProviderId())) {
-//        this.fCITypeCombo.setData(name, createCITypeConfigurationPart(serviceProvider));
-//        this.fCITypeCombo.select(index);
-//          
-//        if (PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceProvider.getId())) {
-//          final OpenMPIServiceProvider mpiServiceProvider = (OpenMPIServiceProvider) serviceProvider;
-//          final EOpenMPIVersion mpiVersion;
-//          if (IOpenMPIResourceManagerConfiguration.VERSION_12.equals(mpiServiceProvider.getVersionId())) {
-//            mpiVersion = EOpenMPIVersion.EVersion_1_2;
-//          } else if (IOpenMPIResourceManagerConfiguration.VERSION_13.equals(mpiServiceProvider.getVersionId())) {
-//            mpiVersion = EOpenMPIVersion.EVersion_1_3;
-//          } else if (IOpenMPIResourceManagerConfiguration.VERSION_14.equals(mpiServiceProvider.getVersionId())) {
-//            mpiVersion = EOpenMPIVersion.EVersion_1_4;
-//          } else {
-//            mpiVersion = EOpenMPIVersion.EAutoDetect;
-//          }
-//          int vIndex = -1;
-//          for (final String versionName : this.fOpenMPIVersionCombo.getItems()) {
-//            ++vIndex;
-//            final EOpenMPIVersion comboVersion = (EOpenMPIVersion) this.fOpenMPIVersionCombo.getData(versionName);
-//            if (comboVersion == mpiVersion) {
-//              this.fOpenMPIVersionCombo.select(vIndex);
-//            }
-//          }
-//          
-//          this.fCITypeCombo.notifyListeners(SWT.Selection, new Event());
-//        }
-//      }
-//    }
-//    
-//    if (this.fCITypeCombo.getSelectionIndex() == -1) {
-//      this.fCITypeCombo.select(0);
-//      this.fCITypeCombo.notifyListeners(SWT.Selection, new Event());
-//    }
-//    
-//    this.fDefaultToolsCmdsBt.notifyListeners(SWT.Selection, new Event());
-//    this.fDefaultInstallLocBt.notifyListeners(SWT.Selection, new Event());
+    int index = -1;
+    final ICommunicationInterfaceConf ciConf = getPlatformConf().getCommunicationInterfaceConf();
+    for (final String name : this.fCITypeCombo.getItems()) {
+      ++index;
+      final ICITypeConfigurationPart comboConfPart = (ICITypeConfigurationPart) this.fCITypeCombo.getData(name);
+      if (ciConf.getServiceTypeId().equals(comboConfPart.getServiceProviderId())) {
+        this.fCITypeCombo.select(index);
+        this.fCITypeCombo.setData(name, createCITypeConfigurationPart(serviceProvider));
+        
+        int modeIndex = -1;
+        for (final String modeName : this.fCIModeCombo.getItems()) {
+          ++modeIndex;
+          final String modeId = (String) this.fCIModeCombo.getData(modeName);
+          if (modeId.equals(ciConf.getServiceModeId())) {
+            this.fCIModeCombo.select(modeIndex);
+          }
+        }
+        
+        updateCommunicationTypeInfo(this.fCITypeCombo, getFormPage().getManagedForm(), 
+                                    getFormPage().getManagedForm().getToolkit(), (Composite) getSection().getClient());
+        break;
+      }
+    }
   }
   
   // --- IConnectionTypeListener's interface methods implementation
@@ -122,19 +99,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   public void dispose() {
     removeCompletePartListener(getFormPage());
   }
-  
-  // --- Overridden methods
-  
-  public boolean setFormInput(final Object input) {
-    for (final IFormPart formPart : getFormPage().getManagedForm().getParts()) {
-      if (formPart instanceof ICommunicationInterfaceTypeListener) {
-        this.fCITypeListeners.add((ICommunicationInterfaceTypeListener) formPart);
-      }
-    }
     
-    return false;
-  }
-  
   // --- Internal services
   
   Combo getCommunicationModeCombo() {
@@ -148,11 +113,11 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   // --- Private code
   
   private void addListeners(final IManagedForm managedForm, final FormToolkit toolkit, final Composite parent, 
-                            final IX10PlatformConfWorkCopy x10PlatformConf, final Combo ciTypeCombo, final Combo ciModeCombo) {
+                            final Combo ciTypeCombo, final Combo ciModeCombo) {
     ciTypeCombo.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        updateCommunicationTypeInfo(ciTypeCombo, managedForm, x10PlatformConf, toolkit, parent);
+        updateCommunicationTypeInfo(ciTypeCombo, managedForm, toolkit, parent);
         updateDirtyState(managedForm);
       }
       
@@ -167,7 +132,8 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
         final String serviceName = ciModeCombo.getItem(ciModeCombo.getSelectionIndex());
         final String serviceModeId = (String) ciModeCombo.getData(serviceName);
         final String serviceTypeName = ciTypeCombo.getItem(ciTypeCombo.getSelectionIndex());
-        x10PlatformConf.setServiceModeId(serviceTypeName, serviceModeId);
+        final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) ciTypeCombo.getData(serviceTypeName);
+        getPlatformConf().setServiceModeId(typeConfPart.getServiceProviderId(), serviceModeId);
         
         updateDirtyState(managedForm);
       }
@@ -179,8 +145,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     });
   }
   
-  private void createClient(final IManagedForm managedForm, final FormToolkit toolkit, 
-                            final IX10PlatformConfWorkCopy x10PlatformConf) {
+  private void createClient(final IManagedForm managedForm, final FormToolkit toolkit) {
     final Composite sectionClient = toolkit.createComposite(getSection());
     sectionClient.setLayout(new TableWrapLayout());
     sectionClient.setFont(getSection().getFont());
@@ -228,9 +193,9 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     
     initializeControls();
     
-    updateCommunicationTypeInfo(this.fCITypeCombo, managedForm, x10PlatformConf, toolkit, sectionClient);
+    updateCommunicationTypeInfo(this.fCITypeCombo, managedForm, toolkit, sectionClient);
     
-    addListeners(managedForm, toolkit, sectionClient, x10PlatformConf, this.fCITypeCombo, this.fCIModeCombo);
+    addListeners(managedForm, toolkit, sectionClient, this.fCITypeCombo, this.fCIModeCombo);
     
     getSection().setClient(sectionClient);
   }
@@ -238,7 +203,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   private ICITypeConfigurationPart createCITypeConfigurationPart(final IServiceProvider serviceProvider) {
     final String remoteServiceId = ((IResourceManagerConfiguration) serviceProvider).getResourceManagerId();
     if (PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
-      return new OpenMPITypeConfigPart((IToolRMConfiguration) serviceProvider);
+      return new OpenMPITypeConfigPart((IOpenMPIResourceManagerConfiguration) serviceProvider);
     } else if (PTPConstants.MPICH2_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
       return new MPICH2TypeConfigPart((IToolRMConfiguration) serviceProvider);
     } else if (PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
@@ -273,23 +238,19 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   }
   
   private void updateCommunicationTypeInfo(final Combo ciTypeCombo, final IManagedForm managedForm,
-                                           final IX10PlatformConfWorkCopy x10PlatformConf, final FormToolkit toolkit,
-                                           final Composite parent) {
+                                           final FormToolkit toolkit, final Composite parent) {
     final String itemName = ciTypeCombo.getItem(ciTypeCombo.getSelectionIndex());
     final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) ciTypeCombo.getData(itemName);
     
-    x10PlatformConf.setServiceTypeId(typeConfPart.getServiceProviderId());
+    getPlatformConf().setServiceTypeId(typeConfPart.getServiceProviderId());
     
-    for (final ICommunicationInterfaceTypeListener listener : this.fCITypeListeners) {
-      listener.communicationTypeChanged(itemName);
-    }
-    
-    if (CommunicationInterfaceSectionPart.this.fPreviousTypeConfPart != null) {
+    if (this.fPreviousTypeConfPart != null) {
       final IManagedForm headerForm = ((SharedHeaderFormEditor) getFormPage().getEditor()).getHeaderForm();
       this.fPreviousTypeConfPart.dispose(headerForm.getMessageManager(), managedForm.getMessageManager());
     }
 
-    typeConfPart.create(managedForm, toolkit, parent, x10PlatformConf, this);
+    typeConfPart.create(managedForm, toolkit, parent, this);
+    parent.getParent().layout(true);
     managedForm.reflow(true);
     
     this.fPreviousTypeConfPart = typeConfPart;
@@ -304,8 +265,5 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   private Combo fCIModeCombo;
   
   private ICITypeConfigurationPart fPreviousTypeConfPart;
-  
-  
-  private final Collection<ICommunicationInterfaceTypeListener> fCITypeListeners;
   
 }

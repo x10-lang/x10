@@ -14,7 +14,6 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
 import org.eclipse.swt.SWT;
@@ -37,9 +36,8 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPart 
                                              implements IConnectionTypeListener, IFormPart {
 
-  CompilationAndLinkingSectionPart(final Composite parent, final X10FormPage formPage, 
-                                   final IX10PlatformConfWorkCopy x10PlatformConf) {
-    super(parent, formPage, x10PlatformConf);
+  CompilationAndLinkingSectionPart(final Composite parent, final X10FormPage formPage) {
+    super(parent, formPage);
     
     getSection().setFont(parent.getFont());
     getSection().setText(LaunchMessages.XPCP_CompilationLinkingSection);

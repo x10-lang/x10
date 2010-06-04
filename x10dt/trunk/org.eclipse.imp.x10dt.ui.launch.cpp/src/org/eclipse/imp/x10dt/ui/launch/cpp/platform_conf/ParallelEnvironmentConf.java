@@ -12,6 +12,7 @@ import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
 import org.eclipse.ptp.rm.ibm.pe.core.PEPreferenceConstants;
 import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
+import org.eclipse.ptp.services.core.IServiceProvider;
 
 
 final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implements IParallelEnvironmentConf {
@@ -166,6 +167,37 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
   // --- Internal code
   
   ParallelEnvironmentConf() {}
+  
+  ParallelEnvironmentConf(final IPEResourceManagerConfiguration rmConf) {
+    super.fServiceModeId = ((IServiceProvider) rmConf).getServiceId();
+    super.fServiceTypeId = ((IServiceProvider) rmConf).getId();
+    
+    super.fAlternateLibPath = rmConf.getLibraryOverride();
+    if ("n".equals(rmConf.getLoadLevelerMode())) { //$NON-NLS-1$
+      super.fClusterMode = EClusterMode.LOCAL;
+    } else if ("y".equals(rmConf.getLoadLevelerMode())) { //$NON-NLS-1$
+      super.fClusterMode = EClusterMode.MULTI_CLUSTER;
+    } else {
+      super.fClusterMode = EClusterMode.DEFAULT;
+    }
+    super.fJobPolling = Integer.parseInt(rmConf.getJobPollInterval());
+    super.fNodePollingMin = Integer.parseInt(rmConf.getNodeMinPollInterval());
+    super.fNodePollingMax = Integer.parseInt(rmConf.getNodeMaxPollInterval());
+    super.fProxyServerPath = rmConf.getProxyServerPath();
+    super.fLaunchProxyManually = (rmConf.getOptions() & IRemoteProxyOptions.MANUAL_LAUNCH) != 0;
+    super.fUsePortForwarding = (rmConf.getOptions() & IRemoteProxyOptions.PORT_FORWARDING) != 0;
+    super.fSuspendProxyAtStartup = PEPreferenceConstants.OPTION_YES.equals(rmConf.getSuspendProxy());
+    
+    if (PEPreferenceConstants.TRACE_FUNCTION.equals(rmConf.getDebugLevel())) {
+      this.fCIDebugLevel = ECIDebugLevel.FUNCTION;
+    } else if (PEPreferenceConstants.TRACE_DETAIL.equals(rmConf.getDebugLevel())) {
+      this.fCIDebugLevel = ECIDebugLevel.DETAILED;
+    } else {
+      this.fCIDebugLevel = ECIDebugLevel.NONE;
+    }
+    this.fRunMiniProxy = PEPreferenceConstants.OPTION_YES.equals(rmConf.getRunMiniproxy());
+    this.fUseLoadLeveler = PEPreferenceConstants.OPTION_YES.equals(rmConf.getUseLoadLeveler());
+  }
   
   ParallelEnvironmentConf(final ParallelEnvironmentConf source) {
     super(source);

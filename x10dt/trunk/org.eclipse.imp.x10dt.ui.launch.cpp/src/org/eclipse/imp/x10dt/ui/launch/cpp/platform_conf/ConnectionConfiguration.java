@@ -17,13 +17,17 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
 import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
+import org.eclipse.ptp.remote.core.IRemoteServices;
+import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.remotetools.core.environment.ConfigFactory;
 import org.eclipse.ptp.remote.remotetools.core.environment.PTPTargetControl;
 import org.eclipse.ptp.remote.remotetools.core.environment.conf.DefaultValues;
 import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
+import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 
 
 final class ConnectionConfiguration implements IConnectionConf {
@@ -141,6 +145,21 @@ final class ConnectionConfiguration implements IConnectionConf {
   // --- Private code
   
   ConnectionConfiguration() {}
+  
+  ConnectionConfiguration(final IResourceManagerConfiguration rmConf) {
+    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmConf.getRemoteServicesId());
+    final IRemoteConnection rmConn = remoteServices.getConnectionManager().getConnection(rmConf.getConnectionName());
+    this.fIsLocal = PTPConstants.LOCAL_CONN_SERVICE_ID.equals(remoteServices.getId());
+    this.fConnectionName = rmConf.getConnectionName();
+    final Map<String, String> attributes = rmConn.getAttributes();
+    this.fHostName = attributes.get(ConfigFactory.ATTR_CONNECTION_ADDRESS);
+    this.fPort = Integer.parseInt(attributes.get(ConfigFactory.ATTR_CONNECTION_PORT));
+    this.fUserName = attributes.get(ConfigFactory.ATTR_LOGIN_USERNAME);
+    this.fIsPasswordBasedAuth = Boolean.parseBoolean(ConfigFactory.ATTR_IS_PASSWORD_AUTH);
+    this.fPassword = attributes.get(ConfigFactory.ATTR_LOGIN_PASSWORD);
+    this.fPrivateKeyFile = attributes.get(ConfigFactory.ATTR_KEY_PATH);
+    this.fPassphrase = attributes.get(ConfigFactory.ATTR_KEY_PASSPHRASE);
+  }
   
   ConnectionConfiguration(final ConnectionConfiguration original) {
     this.fIsLocal = original.fIsLocal;

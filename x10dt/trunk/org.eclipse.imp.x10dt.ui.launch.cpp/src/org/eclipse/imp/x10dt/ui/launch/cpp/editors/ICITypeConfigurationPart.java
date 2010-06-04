@@ -8,7 +8,6 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.IMessageManager;
@@ -21,7 +20,7 @@ interface ICITypeConfigurationPart {
                                 final EValidationStatus validationStatus);
   
   public void create(final IManagedForm managedForm, final FormToolkit toolkit, final Composite parent,
-                     final IX10PlatformConfWorkCopy x10PlatformConf, final AbstractCommonSectionFormPart formPart);
+                     final AbstractCommonSectionFormPart formPart);
   
   public void dispose(final IMessageManager ... messageManagers);
   

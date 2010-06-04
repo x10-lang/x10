@@ -12,6 +12,11 @@ import java.util.Map;
 
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
+import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
+import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
+import org.eclipse.ptp.rm.mpi.mpich2.core.rmsystem.IMPICH2ResourceManagerConfiguration;
+import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
+import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 
 
 final class CommInterfaceFactory {
@@ -20,9 +25,28 @@ final class CommInterfaceFactory {
     this.fCommInterfaceConfs = new HashMap<String, AbstractCommunicationInterfaceConfiguration>(5);
   }
   
+  CommInterfaceFactory(final IResourceManagerConfiguration rmConf) {
+    this();
+    final String ciType = rmConf.getResourceManagerId();
+    final AbstractCommunicationInterfaceConfiguration configuration;
+    if (PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(ciType)) {
+      configuration = new OpenMPIInterfaceConf((IOpenMPIResourceManagerConfiguration) rmConf);
+    } else if (PTPConstants.MPICH2_SERVICE_PROVIDER_ID.equals(ciType)) {
+      configuration = new MPICH2InterfaceConf((IMPICH2ResourceManagerConfiguration) rmConf);
+    } else if (PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(ciType)) {
+      configuration = new LoadLevelerConf((IIBMLLResourceManagerConfiguration) rmConf);
+    } else if (PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(ciType)) {
+      configuration = new ParallelEnvironmentConf((IPEResourceManagerConfiguration) rmConf);
+    } else {
+      configuration = null;
+    }
+    this.fCommInterfaceConfs.put(ciType, configuration);
+    this.fType = ciType;
+  }
+  
   CommInterfaceFactory(final CommInterfaceFactory source) {
+    this();
     this.fType = source.fType;
-    this.fCommInterfaceConfs = new HashMap<String, AbstractCommunicationInterfaceConfiguration>(5);
     for (final Map.Entry<String, AbstractCommunicationInterfaceConfiguration> entry : source.fCommInterfaceConfs.entrySet()) {
       this.fCommInterfaceConfs.put(entry.getKey(), entry.getValue().copy());
     }
@@ -89,7 +113,7 @@ final class CommInterfaceFactory {
   
   // --- Fields
   
-  private Map<String, AbstractCommunicationInterfaceConfiguration> fCommInterfaceConfs;
+  private final Map<String, AbstractCommunicationInterfaceConfiguration> fCommInterfaceConfs;
   
   private String fType;
 

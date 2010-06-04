@@ -10,26 +10,15 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.MPICH2_SERVICE_PROVIDER_ID;
 import static org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.EnumUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
 import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
-import org.osgi.framework.Bundle;
 
 
 final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10PlatformConfWorkCopy {
@@ -57,20 +46,14 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       initLocalCppCompilationCommands();
       initLocalX10DistribLocation();
     }
-    final boolean isWindows = this.fCppCompilationConf.getTargetOS() == ETargetOS.WINDOWS;
     AbstractCommunicationInterfaceConfiguration ciConf = super.fCommInterfaceFact.getCurrentCommunicationInterface();
-    if ((ciConf == null) || (ciConf.fServiceTypeId == null)) {
+    if (ciConf == null) {
+      final boolean isWindows = this.fCppCompilationConf.getTargetOS() == ETargetOS.WINDOWS;
       final String ciType = isWindows ? MPICH2_SERVICE_PROVIDER_ID : OPEN_MPI_SERVICE_PROVIDER_ID;
       ciConf = super.fCommInterfaceFact.getOrCreate(ciType);
       super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
       ciConf.fServiceTypeId = ciType;
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
-      final MessagePassingInterfaceConf mpiConf = (MessagePassingInterfaceConf) ciConf;
-      mpiConf.fDefaultToolCmds = true;
-      mpiConf.fDefaultIntallLocation = true;
-      if (! isWindows) {
-        ((OpenMPIInterfaceConf) mpiConf).fOpenMPIVersion = EOpenMPIVersion.EAutoDetect;
-      }
     }
     if (ciConf.fServiceModeId == null) {
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
@@ -432,54 +415,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   }
   
   // --- Private code
-  
-  private void initLocalCppCompilationCommands() {
-    this.fCppCompilationConf.fTargetOS = EnumUtils.getLocalOS();
-    final boolean is64Arch = is64Arch();
-    this.fCppCompilationConf.fArchitecture = is64Arch ? EArchitecture.E64Arch : EArchitecture.E32Arch;
-    final IDefaultCPPCommands defaultCPPCommands;
-    switch (this.fCppCompilationConf.fTargetOS) {
-    case AIX:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch);
-      break;
-    case LINUX:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch);
-      break;
-    case MAC:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch);
-      break;
-    case WINDOWS:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch);
-      break;
-    default:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch);
-    }
-    this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
-    this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();
-    this.fCppCompilationConf.fArchiver = defaultCPPCommands.getArchiver();
-    this.fCppCompilationConf.fArchivingOpts = defaultCPPCommands.getArchivingOpts();
-    this.fCppCompilationConf.fLinker = defaultCPPCommands.getLinker();
-    this.fCppCompilationConf.fLinkingOpts = defaultCPPCommands.getLinkingOptions();
-    this.fCppCompilationConf.fLinkingLibs = defaultCPPCommands.getLinkingLibraries();
-    this.fCppCompilationConf.fArchitecture = (is64Arch) ? EArchitecture.E64Arch : EArchitecture.E32Arch;
-  }
-
-  private void initLocalX10DistribLocation() {
-    final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
-    if (x10DistBundle != null) {
-      final URL url = x10DistBundle.getResource("include"); //$NON-NLS-1$
-      try {
-        this.fCppCompilationConf.fX10DistLoc = new File(FileLocator.resolve(url).getFile()).getParent();
-        this.fCppCompilationConf.fPGASLoc = this.fCppCompilationConf.fX10DistLoc;
-      } catch (IOException except) {
-        // Let's forget.
-      }
-    }
-  }
-  
-  private boolean is64Arch() {
-    return false; //TODO
-  }
   
   private void updateDirtyFlag() {
     this.fIsDirty = (this.fIsDirty) ? ! this.equals(this.fSource) : true;

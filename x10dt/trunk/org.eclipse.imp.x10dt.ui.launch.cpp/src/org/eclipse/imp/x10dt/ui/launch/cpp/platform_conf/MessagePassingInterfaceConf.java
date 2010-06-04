@@ -172,6 +172,18 @@ abstract class MessagePassingInterfaceConf extends AbstractCommunicationInterfac
     this.fInstallLocation = original.fInstallLocation;
   }
   
+  MessagePassingInterfaceConf(final IToolRMConfiguration rmConf) {
+    super(rmConf);
+    this.fDefaultToolCmds = rmConf.getUseToolDefaults();
+    this.fLaunchCmd = rmConf.getLaunchCmd();
+    this.fDebugCmd = rmConf.getDebugCmd();
+    this.fDiscoverCmd = rmConf.getDiscoverCmd();
+    this.fMonitorCmd = rmConf.getPeriodicMonitorCmd();
+    this.fMonitoringPeriod = rmConf.getPeriodicMonitorTime();
+    this.fDefaultIntallLocation = rmConf.getUseInstallDefaults();
+    this.fInstallLocation = rmConf.getRemoteInstallPath();
+  }
+  
   void applyChanges(final IMessagePassingInterfaceConf source) {
     super.applyChanges(source);
     this.fDefaultToolCmds = source.shouldTakeDefaultToolCommands();

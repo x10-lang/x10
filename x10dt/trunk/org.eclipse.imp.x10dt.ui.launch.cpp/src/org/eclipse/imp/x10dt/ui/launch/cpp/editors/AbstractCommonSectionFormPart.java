@@ -17,6 +17,7 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
+import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
@@ -35,8 +36,7 @@ import org.eclipse.ui.forms.widgets.Section;
 
 abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart implements IFormPart {
  
-  AbstractCommonSectionFormPart(final Composite parent, final X10FormPage formPage, 
-                                final IX10PlatformConfWorkCopy x10PlatformConf) {
+  AbstractCommonSectionFormPart(final Composite parent, final X10FormPage formPage) {
     final FormToolkit formToolkit = formPage.getManagedForm().getToolkit();
     if (parent == null) {
       this.fSection = null;
@@ -44,11 +44,10 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
       this.fSection = formToolkit.createSection(parent, Section.DESCRIPTION | ExpandableComposite.TITLE_BAR);
     }
     this.fFormPage = formPage;
-    this.fX10PlatformConf = x10PlatformConf;
   }
   
-  AbstractCommonSectionFormPart(final X10FormPage formPage, final IX10PlatformConfWorkCopy x10PlatformConf) {
-    this(null, formPage, x10PlatformConf);
+  AbstractCommonSectionFormPart(final X10FormPage formPage) {
+    this(null, formPage);
   }
   
   // --- Interface methods implementation
@@ -66,7 +65,7 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
   }
   
   public final void refresh() {
-    this.fX10PlatformConf.refresh();
+    getPlatformConf().refresh();
     setFormInput(getPlatformConf());
     
     this.fIsDirty = false;
@@ -124,7 +123,7 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
   }
   
   protected final IX10PlatformConfWorkCopy getPlatformConf() {
-    return this.fX10PlatformConf;
+    return ((X10PlatformConfFormEditor) this.fFormPage.getEditor()).getCurrentPlatformConf();
   }
   
   protected final Section getSection() {
@@ -137,19 +136,24 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     checker.check(pageForm.getMessageManager(), control, pageForm);
   }
   
+  protected final void setNewPlatformConfState(final String name, final IServiceProvider serviceProvider) {
+    ((X10PlatformConfFormEditor) this.fFormPage.getEditor()).setNewPlatformConfState(name, serviceProvider);
+  }
+  
   protected final void updateDirtyState(final IManagedForm managedForm) {
+    final IX10PlatformConfWorkCopy platformConf = getPlatformConf();
     if (isDirty()) {
-      if (! this.fX10PlatformConf.isDirty()) {
+      if (! platformConf.isDirty()) {
         this.fIsDirty = false;
         this.fIsStale = false;
         managedForm.dirtyStateChanged();
       }
     } else {
-      if (this.fX10PlatformConf.isDirty()) {
+      if (platformConf.isDirty()) {
         this.fIsDirty = true;
         managedForm.dirtyStateChanged();
       }
-      if (this.fX10PlatformConf.isStale()) {
+      if (platformConf.isStale()) {
         this.fIsStale = true;
         managedForm.staleStateChanged();
       }
@@ -233,8 +237,6 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
   private final Section fSection;
   
   private final X10FormPage fFormPage;
-  
-  private final IX10PlatformConfWorkCopy fX10PlatformConf;
   
   private IManagedForm fManagedForm;
   

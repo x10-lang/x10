@@ -120,11 +120,11 @@ abstract class IBMCommunicationInterfaceConf extends AbstractCommunicationInterf
   
   EClusterMode fClusterMode;
   
-  int fJobPolling = -1;
+  int fJobPolling;
   
-  int fNodePollingMin = -1;
+  int fNodePollingMin;
   
-  int fNodePollingMax = -1;
+  int fNodePollingMax;
   
   String fProxyServerPath;
   

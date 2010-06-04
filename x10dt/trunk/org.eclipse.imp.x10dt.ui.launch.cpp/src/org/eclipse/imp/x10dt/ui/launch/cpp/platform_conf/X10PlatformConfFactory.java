@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
+import org.eclipse.ptp.services.core.IServiceProvider;
 
 /**
  * Factory methods to create instance(s) of {@link IX10PlatformConf} and provide services for this same interface.
@@ -35,6 +36,16 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
  * @author egeay
  */
 public final class X10PlatformConfFactory {
+  
+  /**
+   * Creates a platform configuration from a given PTP service provider.
+   * 
+   * @param serviceProvider The service provider to consider.
+   * @return A non-null implementation of {@link IX10PlatformConf}.
+   */
+  public static IX10PlatformConf createFromProvider(final IServiceProvider serviceProvider) {
+    return new X10PlatformConf(serviceProvider);
+  }
   
   /**
    * Creates a platform configuration that is a reference to a given one.

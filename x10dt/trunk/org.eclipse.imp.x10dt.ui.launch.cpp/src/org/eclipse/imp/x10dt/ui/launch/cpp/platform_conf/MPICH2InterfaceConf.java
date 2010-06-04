@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 
+import org.eclipse.ptp.rm.mpi.mpich2.core.rmsystem.IMPICH2ResourceManagerConfiguration;
+
 
 final class MPICH2InterfaceConf extends MessagePassingInterfaceConf implements IMPICH2InterfaceConf {
 
@@ -35,6 +37,10 @@ final class MPICH2InterfaceConf extends MessagePassingInterfaceConf implements I
   // --- Internal code
   
   MPICH2InterfaceConf() {}
+  
+  MPICH2InterfaceConf(final IMPICH2ResourceManagerConfiguration rmConf) {
+    super(rmConf);
+  }
   
   MPICH2InterfaceConf(final MPICH2InterfaceConf source) {
     super(source);

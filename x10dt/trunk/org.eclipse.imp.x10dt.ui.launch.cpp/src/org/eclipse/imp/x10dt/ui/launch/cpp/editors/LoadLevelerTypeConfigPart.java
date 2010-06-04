@@ -61,7 +61,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
   }
 
   public void create(final IManagedForm managedForm, final FormToolkit toolkit, final Composite parent,
-                     final IX10PlatformConfWorkCopy x10PlatformConf, final AbstractCommonSectionFormPart formPart) {
+                     final AbstractCommonSectionFormPart formPart) {
     final Pair<Text, Button> pair = SWTFormUtils.createLabelTextButton(parent, LaunchMessages.PETCP_ProxyExecPath, 
                                                                        LaunchMessages.XPCP_BrowseBt, toolkit, 
                                                                        getCtrlsContainer(), 3);
@@ -169,6 +169,8 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     
     ec.setClient(ecCompo);
     
+    final IX10PlatformConfWorkCopy x10PlatformConf = formPart.getPlatformConf();
+    initConfiguration(x10PlatformConf, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf());
     initializeControls(formPart, managedForm, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf(), 
                        proxyExecPathText, usePortFwdBt, launchServerManuallyBt, multiClusterCombo, 
                        nodePollingMinSp, nodePollingMaxSp, jobPollingSp, alternateLibPathText, pair.second,
@@ -400,6 +402,21 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     });
   }
   
+  private void initConfiguration(final IX10PlatformConfWorkCopy platformConf, final ILoadLevelerConf ciConf) {
+    if (ciConf.getProxyServerPath().length() == 0) {
+      platformConf.setProxyServerPath(LOAD_LEVELER_SERVICE_PROVIDER_ID, this.fRMConf.getProxyServerPath());
+    }
+    if (ciConf.getNodePollingMin() == 0) {
+      platformConf.setNodeMinPolling(LOAD_LEVELER_SERVICE_PROVIDER_ID, this.fRMConf.getMinNodePolling());
+    }
+    if (ciConf.getNodePollingMax() == 0) {
+      platformConf.setNodeMaxPolling(LOAD_LEVELER_SERVICE_PROVIDER_ID, this.fRMConf.getMaxNodePolling());
+    }
+    if (ciConf.getJobPolling() == 0) {
+      platformConf.setJobPolling(LOAD_LEVELER_SERVICE_PROVIDER_ID, this.fRMConf.getJobPolling());
+    }
+  }
+  
   private void initializeControls(final AbstractCommonSectionFormPart formPart, final IManagedForm managedForm,
                                   final ILoadLevelerConf ciConf, final Text proxyExecPathText, 
                                   final Button usePortFwdBt, final Button launchServerManuallyBt, 
@@ -429,21 +446,9 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
         clusterIndex = 0;
     }
     multiClusterCombo.select(clusterIndex);
-    if (ciConf.getNodePollingMin() >= 0) {
-      nodePollingMinSp.setSelection(ciConf.getNodePollingMin());
-    } else {
-      nodePollingMinSp.setSelection(this.fRMConf.getMinNodePolling());
-    }
-    if (ciConf.getNodePollingMax() >= 0) {
-      nodePollingMaxSp.setSelection(ciConf.getNodePollingMax());
-    } else {
-      nodePollingMaxSp.setSelection(this.fRMConf.getMaxNodePolling());
-    }
-    if (ciConf.getJobPolling() >= 0) {
-      jobPollingSp.setSelection(ciConf.getJobPolling());
-    } else {
-      jobPollingSp.setSelection(this.fRMConf.getJobPolling());
-    }
+    nodePollingMinSp.setSelection(ciConf.getNodePollingMin());
+    nodePollingMaxSp.setSelection(ciConf.getNodePollingMax());
+    jobPollingSp.setSelection(ciConf.getJobPolling());
     alternateLibPathText.setText(ciConf.getAlternateLibraryPath());
     
     traceBt.setSelection((ciConf.getProxyMessageOptions() & CLoadLevelerProxyMsgs.TRACE) != 0);

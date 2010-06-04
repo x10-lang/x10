@@ -19,8 +19,8 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IOpenMPIInterfaceConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
-import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
 import org.eclipse.ptp.rm.mpi.openmpi.core.OpenMPIPreferenceManager;
+import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -37,7 +37,7 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 @SuppressWarnings("deprecation")
 final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart implements ICITypeConfigurationPart {
   
-  OpenMPITypeConfigPart(final IToolRMConfiguration toolRMConf) {
+  OpenMPITypeConfigPart(final IOpenMPIResourceManagerConfiguration toolRMConf) {
     super(toolRMConf);
   }
   
@@ -60,7 +60,7 @@ final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart impleme
   
   protected void postCreationStep(final FormToolkit toolkit, final Composite parent, final IManagedForm managedForm,
                                   final IX10PlatformConfWorkCopy x10PlatformConf) {
-    initializeControls((IOpenMPIInterfaceConf) x10PlatformConf.getCommunicationInterfaceConf());
+    initializeControls(x10PlatformConf, (IOpenMPIInterfaceConf) x10PlatformConf.getCommunicationInterfaceConf());
     addListeners(x10PlatformConf, this.fOpenMPIVersionCombo);
   }
 
@@ -126,7 +126,25 @@ final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart impleme
     });
   }
   
-  private void initializeControls(final IOpenMPIInterfaceConf ciConf) {
+  private void initConfiguration(final IX10PlatformConfWorkCopy platformConf, final IOpenMPIInterfaceConf mpiConf) {
+    if (mpiConf.getOpenMPIVersion() == null) {
+      final IOpenMPIResourceManagerConfiguration toolRMConf = (IOpenMPIResourceManagerConfiguration) super.fToolRMConf;
+      final EOpenMPIVersion mpiVersion;
+      if (IOpenMPIResourceManagerConfiguration.VERSION_12.equals(toolRMConf.getVersionId())) {
+        mpiVersion = EOpenMPIVersion.EVersion_1_2;
+      } else if (IOpenMPIResourceManagerConfiguration.VERSION_13.equals(toolRMConf.getVersionId())) {
+        mpiVersion = EOpenMPIVersion.EVersion_1_3;
+      } else if (IOpenMPIResourceManagerConfiguration.VERSION_14.equals(toolRMConf.getVersionId())) {
+        mpiVersion = EOpenMPIVersion.EVersion_1_4;
+      } else {
+        mpiVersion = EOpenMPIVersion.EAutoDetect;
+      }
+      platformConf.setOpenMPIVersion(mpiVersion);
+    }
+  }
+  
+  private void initializeControls(final IX10PlatformConfWorkCopy platformConf, final IOpenMPIInterfaceConf ciConf) {
+    initConfiguration(platformConf, ciConf);
     int index = -1;
     for (final String name : this.fOpenMPIVersionCombo.getItems()) {
       ++index;

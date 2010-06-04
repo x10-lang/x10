@@ -14,7 +14,6 @@ import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Button;
@@ -30,9 +29,8 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart implements IConnectionTypeListener, IFormPart {
 
-  RemoteOutputFolderSectionPart(final Composite parent, final X10FormPage formPage, 
-                                final IX10PlatformConfWorkCopy x10PlatformConf) {
-    super(parent, formPage, x10PlatformConf);
+  RemoteOutputFolderSectionPart(final Composite parent, final X10FormPage formPage) {
+    super(parent, formPage);
     
     getSection().setFont(parent.getFont());
     getSection().setText(LaunchMessages.XPCP_RemoteOutputFolderSection);

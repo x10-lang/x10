@@ -14,7 +14,6 @@ import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
-import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -33,9 +32,8 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 final class X10DistributionSectionPart extends AbstractCommonSectionFormPart implements IConnectionTypeListener, IFormPart {
 
-  X10DistributionSectionPart(final Composite parent, final X10FormPage formPage, 
-                             final IX10PlatformConfWorkCopy x10PlatformConf) {
-    super(parent, formPage, x10PlatformConf);
+  X10DistributionSectionPart(final Composite parent, final X10FormPage formPage) {
+    super(parent, formPage);
     
     getSection().setText(LaunchMessages.XPCP_X10DistribSection);
     getSection().setDescription(LaunchMessages.XPCP_X10DistribSectionDescr);

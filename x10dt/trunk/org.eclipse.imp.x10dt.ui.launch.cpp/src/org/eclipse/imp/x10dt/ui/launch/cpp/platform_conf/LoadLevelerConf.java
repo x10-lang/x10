@@ -17,6 +17,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
 import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
 import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
+import org.eclipse.ptp.services.core.IServiceProvider;
 
 
 final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILoadLevelerConf {
@@ -170,6 +171,54 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
   // --- Private code
   
   LoadLevelerConf() {}
+  
+  LoadLevelerConf(final IIBMLLResourceManagerConfiguration rmConf) {
+    super.fServiceModeId = ((IServiceProvider) rmConf).getServiceId();
+    super.fServiceTypeId = ((IServiceProvider) rmConf).getId();
+    
+    super.fAlternateLibPath = rmConf.getLibraryPath();
+    if (LL_YES.equals(rmConf.getForceProxyLocal())) {
+      super.fClusterMode = EClusterMode.LOCAL;
+    } else if (LL_YES.equals(rmConf.getForceProxyMulticluster())) {
+      super.fClusterMode = EClusterMode.MULTI_CLUSTER;
+    } else {
+      super.fClusterMode = EClusterMode.DEFAULT;
+    }
+    super.fJobPolling = rmConf.getJobPolling();
+    super.fNodePollingMin = rmConf.getMinNodePolling();
+    super.fNodePollingMax = rmConf.getMaxNodePolling();
+    super.fProxyServerPath = rmConf.getProxyServerPath();
+    super.fLaunchProxyManually = (rmConf.getOptions() & IRemoteProxyOptions.MANUAL_LAUNCH) != 0;
+    super.fUsePortForwarding = (rmConf.getOptions() & IRemoteProxyOptions.PORT_FORWARDING) != 0;
+    super.fSuspendProxyAtStartup = LL_YES.equals(rmConf.getDebugLoop());
+
+    this.fTemplateFilePath = rmConf.getTemplateFile();
+    if (LL_YES.equals(rmConf.getSuppressTemplateWrite())) {
+      this.fTemplateOpt = ELLTemplateOpt.ENeverWrite;
+    } else if (LL_YES.equals(rmConf.getTemplateWriteAlways())) {
+      this.fTemplateOpt = ELLTemplateOpt.EAlwaysWrite;
+    } else {
+      this.fTemplateOpt = null;
+    }
+    if (LL_YES.equals(rmConf.getTraceOption())) {
+      this.fProxyMsgOpts |= CLoadLevelerProxyMsgs.TRACE;
+    }
+    if (LL_YES.equals(rmConf.getInfoMessage())) {
+      this.fProxyMsgOpts |= CLoadLevelerProxyMsgs.INFO;
+    }
+    if (LL_YES.equals(rmConf.getWarningMessage())) {
+      this.fProxyMsgOpts |= CLoadLevelerProxyMsgs.WARNING;
+    }
+    if (LL_YES.equals(rmConf.getErrorMessage())) {
+      this.fProxyMsgOpts |= CLoadLevelerProxyMsgs.ERROR;
+    }
+    if (LL_YES.equals(rmConf.getFatalMessage())) {
+      this.fProxyMsgOpts |= CLoadLevelerProxyMsgs.FATAL;
+    }
+    if (LL_YES.equals(rmConf.getArgsMessage())) {
+      this.fProxyMsgOpts |= CLoadLevelerProxyMsgs.ARGS;
+    }
+  }
   
   LoadLevelerConf(final LoadLevelerConf source) {
     super(source);
