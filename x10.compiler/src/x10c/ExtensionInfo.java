@@ -22,6 +22,7 @@ import polyglot.types.TypeSystem;
 import x10.visit.SharedBoxer;
 import x10c.visit.CastRemover;
 import x10c.visit.Desugarer;
+import x10c.visit.TypeConstraintsCaster;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
     @Override
@@ -37,18 +38,27 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         @Override
         public List<Goal> goals(Job job) {
             List<Goal> goals = super.goals(job);
-            CastsRemoved(job).addPrereq(Desugarer(job));
+            TypeConstraintsCaster(job).addPrereq(Desugarer(job));
+            CastsRemoved(job).addPrereq(TypeConstraintsCaster(job));
             SharedBoxed(job).addPrereq(CastsRemoved(job));
             CodeGenerated(job).addPrereq(Desugarer(job));
+            CodeGenerated(job).addPrereq(TypeConstraintsCaster(job));
             CodeGenerated(job).addPrereq(CastsRemoved(job));
             CodeGenerated(job).addPrereq(SharedBoxed(job));
             return goals;
         }
-
-        private Goal SharedBoxed(Job job) {
+        
+        @Override
+        public Goal Desugarer(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("SharedBoxed", job, new SharedBoxer(job, ts, nf)).intern(this);
+            return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+        }
+
+        private Goal TypeConstraintsCaster(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new VisitorGoal("TypeConstraintsCasted", job, new TypeConstraintsCaster(job, ts, nf)).intern(this);
         }
         
         private Goal CastsRemoved(Job job) {
@@ -57,11 +67,10 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             return new VisitorGoal("CastsRemoved", job, new CastRemover(job, ts, nf)).intern(this);
         }
         
-        @Override
-        public Goal Desugarer(Job job) {
+        private Goal SharedBoxed(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+            return new VisitorGoal("SharedBoxed", job, new SharedBoxer(job, ts, nf)).intern(this);
         }
     }
 }

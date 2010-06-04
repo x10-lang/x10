@@ -31,12 +31,12 @@ public class CUDAUtilities {
      * </code>
      * @see autoThreads
      */
-    public static def autoBlocks() = 8;
+    public static def autoBlocks() : UInt = 8;
 
     /** Automatically choose enough threads to saturate the GPU.  
       * @see autoBlocks
       */
-    public static def autoThreads() = 1;
+    public static def autoThreads() : UInt = 1;
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab

@@ -31,12 +31,7 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import polyglot.ast.ClassMember;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.SourceFile;
-import polyglot.ast.TopLevelDecl;
-import polyglot.ast.TypeNode;
-import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
@@ -55,9 +50,7 @@ import polyglot.frontend.TargetFactory;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
-import polyglot.types.Flags;
 import polyglot.types.MemberClassResolver;
-import polyglot.types.MethodDef;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
@@ -67,9 +60,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import polyglot.visit.PostCompiled;
 import polyglot.visit.PruningVisitor;
-import polyglot.visit.TypeChecker;
 import x10.ast.X10NodeFactory_c;
 import x10.optimizations.Optimizer;
 import x10.parser.X10Lexer;
@@ -83,12 +74,10 @@ import x10.types.X10SourceClassResolver;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.visit.AssignPropertyChecker;
-import x10.visit.CastRewriter;
 import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
 import x10.visit.FieldInitializerMover;
-import x10.visit.Inliner;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.RewriteExternVisitor;
@@ -100,6 +89,8 @@ import x10.visit.X10InnerClassRemover;
 import x10.visit.X10MLVerifier;
 import x10.visit.X10Translator;
 import x10.visit.X10TypeChecker;
+import x10.visit.PositionInvariantChecker;
+import x10.visit.InstanceInvariantChecker;
 
 /**
  * Extension information for x10 extension.
@@ -110,12 +101,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         // force Topics to load
         Topics t = new Topics();
     }
-    
+
     protected Map<QName,CompilerPlugin> plugins;
 
 	public static final String XML_FILE_EXTENSION = "x10ml";
 	public static final String XML_FILE_DOT_EXTENSION = "." + XML_FILE_EXTENSION;
-  
+
     public static String clock = "clock";
 
     static {
@@ -139,13 +130,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     //
     // Replace the Flex/Cup parser with a JikesPG parser
     //
-    //    public Parser parser(Reader reader, FileSource source, ErrorQueue eq) { 
+    //    public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
     //        Lexer lexer = new Lexer_c(reader, source.name(), eq);
     //        Grm grm = new Grm(lexer, ts, nf, eq);
     //        return new CupParser(grm, source, eq);
     //    }
     //
-    
+
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
     // ###
 //        if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
@@ -164,7 +155,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             // we depend on Polyglot to provide us with a fully qualified
             // name for the file. In Version 1.3.0, source.name() yielded a
             // fully-qualied name. In 1.3.2, source.path() yields a fully-
-            // qualified name. If this assumption still holds then the 
+            // qualified name. If this assumption still holds then the
             // first constructor will work.
             // The advantage of using the Reader constructor is that it
             // will always work, though not as efficiently.
@@ -202,7 +193,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             return true;
         return false;
     }
-    
+
     static class WarningComparator implements Comparator<ErrorInfo> {
     	public int compare(ErrorInfo a, ErrorInfo b) {
     		Position pa  = a.getPosition();
@@ -223,11 +214,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	}
     }
     Set<ErrorInfo> warnings = new TreeSet<ErrorInfo>(new WarningComparator());
-    
+
     public Set<ErrorInfo> warningSet() {
     	return warnings;
     }
-    
+
     static class ExceptionComparator implements Comparator<SemanticException> {
     	public int compare(SemanticException a, SemanticException b) {
     		int r = (a.getClass().toString().compareToIgnoreCase(b.getClass().toString()));
@@ -251,19 +242,19 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	}
     }
     Set<SemanticException> errors = new TreeSet<SemanticException>(new ExceptionComparator());
-    
+
     public Set<SemanticException> errorSet() {
     	return errors;
     }
-    
+
     private static int weakCallsCount = 0;
-    public void incrWeakCallsCount() { 
+    public void incrWeakCallsCount() {
     	weakCallsCount++;
     }
     public int weakCallsCount() {
     	return weakCallsCount;
     }
-    
+
     protected void initTypeSystem() {
         try {
             TopLevelResolver r = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
@@ -329,7 +320,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     protected Scheduler createScheduler() {
         return new X10Scheduler(this);
     }
-    
+
     public static class X10Scheduler extends JLScheduler {
        public X10Scheduler(ExtensionInfo extInfo) {
 		   super(extInfo);
@@ -345,29 +336,24 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (job.source() != null && job.source().path().endsWith(XML_FILE_DOT_EXTENSION)) {
                goals.add(X10MLTypeChecked(job));
            }
-           
-           goals.add(CastRewritten(job));
 
-           // Do not include LoadPlugins in list.  It would cause prereqs to be added 
+           // Do not include LoadPlugins in list.  It would cause prereqs to be added
 //           goals.add(LoadPlugins());
            goals.add(PropagateAnnotations(job));
            goals.add(LoadJobPlugins(job));
            goals.add(RegisterPlugins(job));
-           
+
            goals.add(PreTypeCheck(job));
-           goals.add(TypesInitializedForCommandLine());
+           goals.add(TypesInitializedForCommandLineBarrier());
+
+           Goal typeCheckedGoal = TypeChecked(job);
+           goals.add(typeCheckedGoal);
+
            goals.add(EnsureNoErrors(job));
-           goals.add(TypeChecked(job));
            goals.add(ReassembleAST(job));
-           
-        //   goals.add(X10Boxed(job));
-           goals.add(X10Casted(job));
-           goals.add(MoveFieldInitializers(job));
+
            goals.add(ConformanceChecked(job));
 
-           goals.add(X10RewriteExtern(job));
-           goals.add(X10RewriteAtomicMethods(job));
-           
            // Data-flow analyses
            goals.add(ReachabilityChecked(job));
            goals.add(ExceptionsChecked(job));
@@ -376,73 +362,64 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ConstructorCallsChecked(job));
            goals.add(ForwardReferencesChecked(job));
            goals.add(PropertyAssignmentsChecked(job));
+//           goals.add(TypeCheckBarrier());
+
+           goals.add(X10Casted(job));
+           goals.add(MoveFieldInitializers(job));
            goals.add(X10Expanded(job));
+           goals.add(X10RewriteExtern(job));
+           goals.add(X10RewriteAtomicMethods(job));
 
            goals.add(NativeClassVisitor(job));
 
            goals.add(Serialized(job));
-//           goals.add(CodeGenBarrier());
            goals.add(CheckNativeAnnotations(job));
-           
+
            if (x10.Configuration.WORK_STEALING) {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
-               if(wsCodeGenGoal != null){
-                   goals.add(wsCodeGenGoal);                   
+               if (wsCodeGenGoal != null) {
+                   goals.add(wsCodeGenGoal);
+                   wsCodeGenGoal.addPrereq(TypeCheckBarrier());
                }
            }
            goals.add(InnerClassRemover(job));
            goals.addAll(Optimizer.goals(this, job));
            goals.add(Desugarer(job));
+
            goals.add(CodeGenerated(job));
            goals.add(End(job));
-           
+
+           InnerClassRemover(job).addPrereq(Serialized(job));
+           InnerClassRemover(job).addPrereq(TypeCheckBarrier());
+
            // the barrier will handle prereqs on its own
            CodeGenerated(job).addPrereq(CodeGenBarrier());
+           
+
+           Desugarer(job).addPrereq(TypeCheckBarrier());
+           CodeGenerated(job).addPrereq(Desugarer(job));
+           List<Goal> optimizations = Optimizer.goals(this, job);
+           for (Goal goal : optimizations) {
+               goal.addPrereq(TypeCheckBarrier());
+               CodeGenerated(job).addPrereq(goal);
+           }
+
+           if (x10.Configuration.CHECK_INVARIANTS) {
+               ArrayList<Goal> newGoals = new ArrayList<Goal>(goals.size()*2);
+               boolean reachedTypeChecking = false;
+               for (Goal g : goals) {
+                   newGoals.add(g);
+                   if (!reachedTypeChecking)
+                       newGoals.add(new VisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job)));
+                   if (g==typeCheckedGoal) {
+                       newGoals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
+                       reachedTypeChecking = true;
+                   }
+               }
+               goals = newGoals;
+           }
        
            return goals;
-       }
-
-       public Goal EnsureNoErrors(Job job) {
-           return new SourceGoal_c("EnsureNoErrors", job) {
-               public boolean runTask() {
-                   return !job.reportedErrors();
-               }
-           }.intern(this);
-       }    
-       
-       public Goal Parsed(Job job) {
-           return new X10ParserGoal(extInfo.compiler(), job).intern(this);
-       }    
-
-       /**
-        * This goal never fails.  Instead, if the parser does not create an AST, this
-        * creates a dummy AST with a single class with the expected name, and succeeds.
-        * The {@link #EnsureNoErrors(Job)} goal should be used to check before proceeding
-        * to typecheck the job.
-        * @author igor
-        */
-       static class X10ParserGoal extends ParserGoal {
-           public X10ParserGoal(Compiler compiler, Job job) {
-               super(compiler, job);
-           }
-           private SourceFile createDummyAST() {
-               NodeFactory nf = job().extensionInfo().nodeFactory();
-               String fName = job.source().name();
-               Position pos = new Position(job.source().name(), fName);
-               String name = fName.substring(fName.lastIndexOf(File.separatorChar)+1, fName.lastIndexOf('.'));
-               TopLevelDecl decl = nf.ClassDecl(pos, nf.FlagsNode(pos, Flags.PUBLIC),
-                                                nf.Id(pos, name), null, Collections.<TypeNode>emptyList(),
-                                                nf.ClassBody(pos, Collections.<ClassMember>emptyList()));
-               SourceFile ast = nf.SourceFile(pos, Collections.singletonList(decl)).source(job.source());
-               return ast;
-           }
-           public boolean runTask() {
-               boolean result = super.runTask();
-               if (job().ast() == null) {
-                   job().ast(createDummyAST());
-               }
-               return true;
-           }
        }
 
        Goal PrintWeakCallsCount;
@@ -486,32 +463,61 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   }
 
        }
-       
-	public Goal CodeGenBarrier() {
-    	   if (Globals.Options().compile_command_line_only) {
-    		   return new BarrierGoal("CodeGenBarrier", commandLineJobs()) {
-    			   @Override
-    			   public Goal prereqForJob(Job job) {
-    				   return Serialized(job);
-    			   }
-    		   };
-    	   }
-    	   else {
-    		    return new AllBarrierGoal("CodeGenBarrier", this) {
-    		    	@Override
-    		    	public Goal prereqForJob(Job job) {
-    		    	    if (!scheduler.commandLineJobs().contains(job) &&
-    		    	            ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
-    		    	    {
-    		    	        return null;
-    		    	    }
-    		    	    return Serialized(job);
-    		    	}
-    		    };
-    	    }
+
+       public Goal TypeCheckBarrier() {
+           String name = "TypeCheckBarrier";
+           if (Globals.Options().compile_command_line_only) {
+               return new BarrierGoal(name, commandLineJobs()) {
+                   @Override
+                   public Goal prereqForJob(Job job) {
+                       return Serialized(job);
+                   }
+               }.intern(this);
+           }
+           else {
+               return new AllBarrierGoal(name, this) {
+                   @Override
+                   public Goal prereqForJob(Job job) {
+                       if (!scheduler.commandLineJobs().contains(job) &&
+                               ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
+                       {
+                           return null;
+                       }
+                       return Serialized(job);
+                   }
+               }.intern(this);
+           }
        }
-     
-       
+
+       protected Goal codegenPrereq(Job job) {
+           return InnerClassRemover(job);
+       }
+
+       public Goal CodeGenBarrier() {
+           String name = "CodeGenBarrier";
+           if (Globals.Options().compile_command_line_only) {
+               return new BarrierGoal(name, commandLineJobs()) {
+                   @Override
+                   public Goal prereqForJob(Job job) {
+                       return codegenPrereq(job);
+                   }
+               }.intern(this);
+           }
+           else {
+               return new AllBarrierGoal(name, this) {
+                   @Override
+                   public Goal prereqForJob(Job job) {
+                       if (!scheduler.commandLineJobs().contains(job) &&
+                               ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
+                       {
+                           return null;
+                       }
+                       return codegenPrereq(job);
+                   }
+               }.intern(this);
+           }
+       }
+
        public Goal Serialized(Job job) {
            Compiler compiler = job.extensionInfo().compiler();
            X10TypeSystem ts = (X10TypeSystem) job.extensionInfo().typeSystem();
@@ -523,7 +529,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                 }
            }.intern(this);
        }
-
 
 //       @Override
 //       public Goal ImportTableInitialized(Job job) {
@@ -553,7 +558,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            return g2;
        }
-       
+
        public Goal PropagateAnnotations(Job job) {
            // ###
            return new VisitorGoal("PropagateAnnotations", job, new PruningVisitor()).intern(this);
@@ -578,7 +583,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10MLTypeChecked", job, new X10MLVerifier(job, ts, nf)).intern(this);
        }
-      
+
        @Override
        public Goal TypeChecked(Job job) {
        	TypeSystem ts = job.extensionInfo().typeSystem();
@@ -608,51 +613,43 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10RewriteAtomicMethods", job, new RewriteAtomicMethodVisitor(job, ts, nf)).intern(this);
        }
-       
+
        public Goal X10ExprFlattened(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10ExprFlattened", job, new ExprFlattener(job, ts, nf)).intern(this);
        }
 
-       // after disambiguation, before type elaboration
-       public Goal CastRewritten(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("CastRewritten", job, new CastRewriter(job, ts, nf)).intern(this);
-       }
-
-       
        public Goal PropertyAssignmentsChecked(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("PropertyAssignmentsChecked", job, new AssignPropertyChecker(job, ts, nf)).intern(this);
        }
-       
+
        public Goal X10Expanded(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10Expanded", job, new X10ImplicitDeclarationExpander(job, ts, nf)).intern(this);
        }
-       
+
        public Goal CheckNativeAnnotations(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "java")).intern(this);
        }
-       
+
        public Goal NativeClassVisitor(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "java")).intern(this);
        }
-       
+
        public Goal WSCodeGenerator(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
 
-           Goal result = null;          
-                      
+           Goal result = null;
+
            try{
                //Use reflect to load the class from
                ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -672,13 +669,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            return result;
        }
-       
+
        public Goal Desugarer(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
     	   return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
        }
-       
+
        public Goal InnerClassRemover(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
@@ -690,30 +687,30 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
        }
     }
-    
+
     protected Options createOptions() {
     	return new X10CompilerOptions(this);
     }
-    
+
     public Map<QName,CompilerPlugin> plugins() {
     	if (plugins == null) {
     		return Collections.emptyMap();
     	}
     	return plugins;
     }
-    
+
 	public void addPlugin(QName pluginName, CompilerPlugin plugin) {
 		if (plugins == null) {
 			plugins = new HashMap<QName,CompilerPlugin>();
 		}
 		plugins.put(pluginName, plugin);
 	}
-	
+
 	public CompilerPlugin getPlugin(QName pluginName) {
 		if (plugins == null) {
 			return null;
 		}
-		
+
 		return plugins.get(pluginName);
 	}
 }

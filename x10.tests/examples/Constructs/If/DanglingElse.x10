@@ -22,15 +22,18 @@ public class DanglingElse extends x10Test.BardTest {
      val p:x10Test! = new DanglingElse();
      p.run();
   }
-  public def test() : Boolean {
+  public def test() : Void {
+	  assert (!test2());
+  }
+  public def test2() : Boolean {
      var passed : Boolean = false;
-     if (true) if (true) passed = true else passed = false;
+     if (true) if (true) passed = true; else passed = false;
      if (!passed) return false;
      passed = false;
-     if (true) if (false) passed = false else passed = true;
+     if (true) if (false) passed = false; else passed = true;
      if (!passed) return false;
      passed = true;
-     if (false) if (false) passed = false else passed = false;
+     if (false) if (false) passed = false; else passed = false;
      if (!passed) return false;
      return true;
   }

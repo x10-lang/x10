@@ -24,45 +24,55 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     /** Return a rail of length 0, with Int elements allocated */
     public native def this(Int);
 
-    
     /** Add an element to the rail, incrementing length. */
-    @Native("java", "#0.add(#1)")
+    @Native("java", "(#0).add(#1)")
     @Native("c++", "(#0)->add(#1)")
     public native def add(T): Void;
 
-    /** Get the Int element of the rail, failing unless 0 <= Int < length. */
-    @Native("java", "#0.apply$G(#1)")
+    /** Get the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
+    @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
     public native def apply(Int): T;
 
-    /** Set the Int element of the rail, failing unless 0 <= Int < length. */
-    @Native("java", "#0.set$G(#1, #2)")
+    /** Set the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
+    @Native("java", "(#0).set$G(#1, #2)")
     @Native("c++", "(#0)->set(#1, #2)")
     public native def set(T, Int): T;
 
     /** Get the length of the rail (which may be less than the allocated storage for the rail. */
-    @Native("java", "#0.length()")
+    @Native("java", "(#0).length()")
     @Native("c++", "(#0)->length()")
     public native def length(): Int;
     
     /** Set the length of the rail */
-    @Native("java", "#0.setLength(#1)")
+    @Native("java", "(#0).setLength(#1)")
     @Native("c++", "(#0)->setLength(#1)")
     public native def setLength(Int): Void;
     
     /** Remove the last element of the rail, decrementing the length. */
-    @Native("java", "#0.removeLast()")
+    @Native("java", "(#0).removeLast()")
     @Native("c++", "(#0)->removeLast()")
     public native def removeLast(): Void;
 
+    /**
+     * Transfer elements between i and j (inclusive) into a new ValRail,
+     * in the order in which they appear in this rail.  The elements
+     * following element j are shifted over to position i.
+     * (j-i+1) must be no greater than s, the size of the rail.
+     * On return the rail has s-(j-i+1) elements.
+     */
+    @Native("java", "(#0).moveSectionToValRail(#1, #2)")
+    @Native("c++", "(#0)->moveSectionToValRail(#1, #2)")
+    public native def moveSectionToValRail(i:Int, j:Int): ValRail[T];
+
     /** Convert to a mutable rail.  This copies the content of the rail. */
-    @Native("java", "#0.toRail()")
+    @Native("java", "(#0).toRail()")
     @Native("c++", "(#0)->toRail()")
     public native def toRail(): Rail[T]!;
 
     /** Convert to an immutable rail.  This copies the content of the rail. */
-    @Native("java", "#0.toValRail()")
+    @Native("java", "(#0).toValRail()")
     @Native("c++", "(#0)->toValRail()")
-    public native def toValRail(): ValRail[T]!;
+    public native def toValRail(): ValRail[T];
 }
 

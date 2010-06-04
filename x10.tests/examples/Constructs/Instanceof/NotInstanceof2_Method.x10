@@ -20,9 +20,9 @@ import harness.x10Test;
 public class NotInstanceof2_Method extends x10Test {
 	 
 	public def run():boolean = 
-	 !(this.getDifferentType() instanceof X10DepTypeClassOne{p==1});
+	 !(this.getDifferentType() instanceof X10DepTypeClassOneB{p==1});
 	
-	private def getSameType():Object = new X10DepTypeClassOne(1);
+	private def getSameType():Object = new X10DepTypeClassOneB(1);
 	
 	private def getDifferentType():Object =  new OtherClass(1);
 	

@@ -25,27 +25,27 @@ public class InstanceofDownCast extends x10Test {
 	 private var counter3: int = 0;
 	 
 	public def run(): boolean = {
-		var upcast1: Object = new X10DepTypeClassOne(1);
-		var upcast2: Object = new X10DepTypeSubClassOne(1,2);
-		var upcast3: X10DepTypeClassOne = new X10DepTypeSubClassOne(2,3);
+		var upcast1: Object = new X10DepTypeClassOneB(1);
+		var upcast2: Object = new X10DepTypeSubClassOneB(1,2);
+		var upcast3: X10DepTypeClassOneB = new X10DepTypeSubClassOneB(2,3);
 
 		// instance of checked against an object
-		var res1: boolean = upcast1 instanceof X10DepTypeClassOne{p==1};
+		var res1: boolean = upcast1 instanceof X10DepTypeClassOneB{p==1};
 		
-		var res2: boolean = upcast2 instanceof X10DepTypeClassOne{p==1};
-		var res3: boolean = upcast2 instanceof X10DepTypeSubClassOne{p==1&&a==2};
+		var res2: boolean = upcast2 instanceof X10DepTypeClassOneB{p==1};
+		var res3: boolean = upcast2 instanceof X10DepTypeSubClassOneB{p==1&&a==2};
 
-		var res4: boolean = upcast3 instanceof X10DepTypeClassOne{p==2};
-		var res5: boolean = upcast3 instanceof X10DepTypeSubClassOne{p==2&&a==3};
+		var res4: boolean = upcast3 instanceof X10DepTypeClassOneB{p==2};
+		var res5: boolean = upcast3 instanceof X10DepTypeSubClassOneB{p==2&&a==3};
 
 		// instance of checked against a method return
-		var res6: boolean = this.getX10DepTypeClassOne(1) instanceof X10DepTypeClassOne{p==1};
+		var res6: boolean = this.getX10DepTypeClassOneB(1) instanceof X10DepTypeClassOneB{p==1};
 		
-		var res7: boolean = this.getX10DepTypeSubClassOne(1,2) instanceof X10DepTypeClassOne{p==1};
-		var res8: boolean = this.getX10DepTypeSubClassOne(1,2) instanceof X10DepTypeSubClassOne{p==1&&a==2};
+		var res7: boolean = this.getX10DepTypeSubClassOneB(1,2) instanceof X10DepTypeClassOneB{p==1};
+		var res8: boolean = this.getX10DepTypeSubClassOneB(1,2) instanceof X10DepTypeSubClassOneB{p==1&&a==2};
 
-		var res9: boolean = this.getX10DepTypeSubClassOne_2(2,3) instanceof X10DepTypeClassOne{p==2};
-		var res10: boolean = this.getX10DepTypeSubClassOne_2(2,3) instanceof X10DepTypeSubClassOne{p==2&&a==3};
+		var res9: boolean = this.getX10DepTypeSubClassOneB_2(2,3) instanceof X10DepTypeClassOneB{p==2};
+		var res10: boolean = this.getX10DepTypeSubClassOneB_2(2,3) instanceof X10DepTypeSubClassOneB{p==2&&a==3};
 
 		
 		return (res1 && res2 && res3 && res4 && res5 && 
@@ -55,19 +55,19 @@ public class InstanceofDownCast extends x10Test {
 				(counter1==1) && (counter2==2) && (counter3==2));
 	}
 	
-	private def getX10DepTypeClassOne(var c1: int): Object = {
+	private def getX10DepTypeClassOneB(var c1: int): Object = {
 		counter1++;
-		return new X10DepTypeClassOne(c1);
+		return new X10DepTypeClassOneB(c1);
 	}
 
-	private def getX10DepTypeSubClassOne(var c1: int, var c2: int): Object = {
+	private def getX10DepTypeSubClassOneB(var c1: int, var c2: int): Object = {
 		counter2++;
-		return new X10DepTypeSubClassOne(c1, c2);
+		return new X10DepTypeSubClassOneB(c1, c2);
 	}
 
-	private def getX10DepTypeSubClassOne_2(var c1: int, var c2: int): X10DepTypeClassOne = {
+	private def getX10DepTypeSubClassOneB_2(var c1: int, var c2: int): X10DepTypeClassOneB = {
 		counter3++;
-		return new X10DepTypeSubClassOne(c1, c2);
+		return new X10DepTypeSubClassOneB(c1, c2);
 	}
 
 	public static def main(var args: Rail[String]): void = {

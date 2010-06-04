@@ -26,7 +26,7 @@ namespace x10 {
     namespace util {
 
         void _initRTTHelper_GrowableRail(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt);
-        
+
         template<class T> class GrowableRail : public x10::lang::Object {
         public:
             RTT_H_DECLS_CLASS;
@@ -34,7 +34,7 @@ namespace x10 {
         private:
             x10aux::ref<x10::lang::Rail<T> > _array;
             x10_int _len;
-            
+
         public:
 
             T* raw() { return _array->raw(); }
@@ -69,6 +69,8 @@ namespace x10 {
             T apply(x10_int i);
 
             void removeLast();
+
+            x10aux::ref<x10::lang::ValRail<T> > moveSectionToValRail(x10_int i, x10_int j);
 
             x10_int length();
 
@@ -132,6 +134,23 @@ namespace x10 {
             memset(&(*_array)[_len-1], 0, sizeof(T));
             _len--;
             shrink(_len+1);
+        }
+
+        template<class T> x10aux::ref<x10::lang::ValRail<T> > GrowableRail<T>::moveSectionToValRail(int i, int j) {
+            int l = j - i + 1;
+            if (l < 0) l = 0;
+            x10aux::ref<x10::lang::ValRail<T> > ans = x10::lang::ValRail<T>::make(l);
+            if (l < 1) return ans;
+            for (int k=0; k<l; k++) {
+                (*ans)[k] = (*_array)[i+k];
+            }
+            for (int k=0; k<_len-j-1; k++) {
+                (*_array)[i+k] = (*_array)[j+k];
+            }
+            _len -= l;
+            memset(&(*_array)[_len], 0, l*sizeof(T));
+            shrink(_len+1);
+            return ans;
         }
 
         template<class T> x10aux::ref<x10::lang::Rail<T> > GrowableRail<T>::toRail() {
@@ -208,12 +227,12 @@ namespace x10 {
             x10aux::dealloc(_array.operator->());
             _array = tmp;
         }
-            
+
         template<class T> void GrowableRail<T>::_initRTT() {
             if (rtt.initStageOne(x10aux::getRTT<GrowableRail<void> >())) return;
             x10::util::_initRTTHelper_GrowableRail(&rtt, x10aux::getRTT<T>());
         }
-        
+
         template<class T> x10aux::RuntimeType GrowableRail<T>::rtt;
 
         template<class T> void GrowableRail<T>::_serialize_body(x10aux::serialization_buffer &buf) {
@@ -239,7 +258,7 @@ namespace x10 {
             static x10aux::RuntimeType rtt;
             static const x10aux::RuntimeType* getRTT() { return &rtt; }
         };
-        
+
     }
 }
 

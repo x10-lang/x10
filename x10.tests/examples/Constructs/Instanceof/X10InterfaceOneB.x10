@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 
-public interface X10InterfaceOne {
+public interface X10InterfaceOneB {
 
 	def interfaceMethod(): void;
 }

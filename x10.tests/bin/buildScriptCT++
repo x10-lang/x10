@@ -59,9 +59,8 @@ buildX10Module() {
 }
 
 main() {
-  # source all the relevant modules -- do fresh checkout each time
+    # source all the relevant modules -- do fresh checkout each time
 	declare -i status;
-
 	POLYGLOT_HOME=$X10_HOME/polyglot
 	if [[ -d $POLYGLOT_HOME ]]; then
 		rm -rf $POLYGLOT_HOME
@@ -121,7 +120,7 @@ main() {
 	if (( $status != 0 )); then
 		return $status
 	fi
-  # post-checkout patch -- required on some platforms during batch compilation
+    # post-checkout patch -- required on some platforms during batch compilation of xrx classes
 	(cd $X10_DIST/bin; \
 	mv x10c.in x10c.in.orig; \
 	sed -e 's/-Xmx512m/-Xmx1024m/g' x10c.in.orig > x10c.in; \
@@ -139,7 +138,7 @@ main() {
 		return $status
 	fi
 
-  # build X10 in the listed order -- some builds may be redundant
+    # build modules in the listed order -- some builds may be redundant
 	buildX10Module $POLYGLOT_HOME polyglot
 	status=$?
 	if (( $status != 0 )); then

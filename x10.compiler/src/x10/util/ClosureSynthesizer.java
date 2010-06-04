@@ -28,13 +28,17 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.MethodInstance;
 import polyglot.util.Position;
 import x10.ast.Closure;
 import x10.ast.X10NodeFactory;
+import x10.ast.X10Local_c;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerms;
+import x10.constraint.XLocal;
+import x10.constraint.XFailure;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.ClosureType_c;
@@ -136,13 +140,41 @@ public class ClosureSynthesizer {
         // Instantiate the super type on the new parameters.
         X10ClassType sup = (X10ClassType) closureBaseInterfaceDef(xts, numTypeParams, 
         		numValueParams, 
-        		ci.returnType().isVoid(), 
-        		def.formalNames(), 
+        		ci.returnType().isVoid(),
+        		def.formalNames(),
         		def.guard())
         		.asType();
 
         assert sup.x10Def().typeParameters().size() == typeArgs.size() : def + ", " + sup + ", " + typeArgs;
         sup = sup.typeArguments(typeArgs);
+
+        // todo: yoav added
+        // Adding the method guard
+        Ref<CConstraint> guard = def.guard();
+        if (guard!=null) {
+            CConstraint constraint = guard.get();
+            // need to rename the guard variables according to the method parameters
+            List<LocalDef> fromNames = def.formalNames();
+            MethodInstance instance = sup.methods().get(0);
+            List<LocalDef> toNames = ((X10MethodDef) instance.def()).formalNames();
+            for (int i=0; i<fromNames.size(); i++) {
+                LocalDef fromName = fromNames.get(i);
+                LocalDef toName = toNames.get(i);
+                try {
+                    XLocal fromLocal = new XLocal(new XNameWrapper<LocalDef>(fromName,fromName.name().toString()));
+                    XLocal toLocal = new XLocal(new XNameWrapper<LocalDef>(toName,toName.name().toString()));
+                    constraint = constraint.substitute(toLocal,fromLocal);
+                } catch (XFailure xFailure) {
+                    assert false;
+                }
+            }
+            try {
+                ((ClosureType_c)sup).getXClause().addIn(constraint);
+            } catch (XFailure xFailure) {
+                assert false;
+            }
+        }
+        
         cd.addInterface(Types.ref(sup));
 
         return cd;
@@ -177,7 +209,8 @@ public class ClosureSynthesizer {
     		final int numValueParams, 
     		final boolean isVoid, 
     		List<LocalDef> formalNames1,
-    		final Ref<CConstraint> guard) {
+            // todo: the guard should not be included in the def
+    		final Ref<CConstraint> guard1) {
         final Position pos = Position.COMPILER_GENERATED;
 
         String name = "Fun_" + numTypeParams + "_" + numValueParams;
@@ -268,7 +301,7 @@ public class ClosureSynthesizer {
         		argTypes, 
         		thisVar,
         		formalNames, 
-        		guard, 
+        		null,//todo: it was guard1
         		null, 
         		Collections.EMPTY_LIST, 
         		null);
@@ -276,5 +309,5 @@ public class ClosureSynthesizer {
 
         return cd;
     }
-    
+
 }

@@ -21,6 +21,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -32,6 +33,7 @@ import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
@@ -141,6 +143,69 @@ public class X10New_c extends New_c implements X10New {
         return n;
     }
 
+    /**
+     * @param ar
+     * @param ct
+     * @throws SemanticException
+     */
+    protected New findQualifier(TypeChecker ar, ClassType ct) throws SemanticException {
+        // If we're instantiating a non-static member class, add a "this"
+        // qualifier.
+        NodeFactory nf = ar.nodeFactory();
+        TypeSystem ts = ar.typeSystem();
+        Context c = ar.context();
+
+        // Search for the outer class of the member.  The outer class is
+        // not just ct.outer(); it may be a subclass of ct.outer().
+        Type outer = null;
+        
+        Name name = ct.name();
+        ClassType t = c.currentClass();
+        
+        // We're in one scope too many.
+        if (t == anonType) {
+            t = t.outer();
+        }
+        
+        // Search all enclosing classes for the type.
+        while (t != null) {
+            try {
+                Type mt = ts.findMemberType(t, name, c);
+
+                if (mt instanceof ClassType) {
+                    ClassType cmt = (ClassType) mt;
+                    if (cmt.def() == ct.def()) {
+                    outer = t;
+                    break;
+                    }
+                }
+            }
+            catch (SemanticException e) {
+            }
+            
+            t = t.outer();
+        }
+        
+        if (outer == null) {
+            throw new SemanticException("Could not find non-static member class \"" +
+                                        name + "\".", position());
+        }
+        
+        // Create the qualifier.
+        Expr q;
+
+        if (outer.typeEquals(c.currentClass(), ar.context())) {
+            q = nf.This(Position.COMPILER_GENERATED);
+        }
+        else {
+            q = nf.This(Position.COMPILER_GENERATED,
+                        nf.CanonicalTypeNode(Position.COMPILER_GENERATED, outer));
+        }
+        
+        q = q.type(outer);
+        return qualifier(q);
+    }
+    
     public New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException {
         X10NodeFactory nf = (X10NodeFactory) childtc.nodeFactory();
         X10TypeSystem ts = (X10TypeSystem) childtc.typeSystem();
@@ -270,7 +335,6 @@ public class X10New_c extends New_c implements X10New {
             throws SemanticException {
         final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         final Context context = tc.context();
-        ClassDef currentClassDef = context.currentClassDef();
 
         List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new DumbConstructorMatcher(targetType, typeArgs, argTypes, context));
         return Converter.tryImplicitConversions(n, tc, targetType, methods, new MatcherMaker<ConstructorInstance>() {
@@ -317,7 +381,7 @@ public class X10New_c extends New_c implements X10New {
         Type t = tn.type();
         X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
 
-        X10ConstructorInstance ci=null;
+        X10ConstructorInstance ci;
         List<Expr> args;
 
         try {
@@ -326,7 +390,6 @@ public class X10New_c extends New_c implements X10New {
                 if (anonType != null) {
                     c = c.pushClass(anonType, anonType.asType());
                 }
-                ClassDef currentClassDef = c.currentClassDef();
                 ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, 
                 		Collections.EMPTY_LIST, argTypes, c));
                 if (xts.isStructType(ci.returnType()) && ! isStructConstructorCall) {
@@ -367,11 +430,6 @@ public class X10New_c extends New_c implements X10New {
             throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", position());
         }
 
-        if (anonType != null) {
-            // The type of the new expression is the anonymous type, not the
-            // base type.
-            ct = (X10ClassType) anonType.asType();
-        }
 
         // Copy the method instance so we can modify it.
       //  tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
@@ -380,13 +438,12 @@ public class X10New_c extends New_c implements X10New {
         X10New_c result = (X10New_c) this.constructorInstance(ci);
         result = (X10New_c) result.arguments(args);
 
-        result.checkWhereClause(tc);
+        result.checkWhereClause();
         result = (X10New_c) result.type(ci.returnType());
         return result;
     }
 
-    private void checkWhereClause(ContextVisitor tc) throws SemanticException {
-        X10Context c = (X10Context) tc.context();
+    private void checkWhereClause() throws SemanticException {
         X10ConstructorInstance ci = (X10ConstructorInstance) constructorInstance();
         if (ci != null) {
             CConstraint guard = ci.guard();
@@ -396,17 +453,13 @@ public class X10New_c extends New_c implements X10New {
         }
     }
 
-    /**
+    /*
      * Compute the new resulting type for the method call by replacing this and
      * any argument variables that occur in the rettype depclause with new
      * variables whose types are determined by the static type of the receiver
      * and the actual arguments to the call.
      * 
      * Also add the self.home==here clause.
-     * 
-     * @param tc
-     * @return
-     * @throws SemanticException
      */
     private X10ConstructorInstance adjustCI(X10ConstructorInstance xci, ContextVisitor tc) throws SemanticException {
         if (xci == null)
