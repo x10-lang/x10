@@ -35,7 +35,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      */
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4, #5)")
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4, #5)")
-    public native static def make[T](length: Int, init: (Int) => T): ValRail[T](length);
+    public native static def make[T](length: Int, init: (Int) => T): ValRail[T](length)!;
     
     /**
      * Create an appropriately aligned ValRail and initialize it by evaluating the given closure at each index.
@@ -47,7 +47,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      */
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4, #5)")
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4, #5, #6)")
-    public native static def make[T](length: Int, init: (Int) => T, alignment: Int): ValRail[T](length);
+    public native static def make[T](length: Int, init: (Int) => T, alignment: Int): ValRail[T](length)!;
 
     /**
      * Cast operator that creates a new ValRail from a Rail.
