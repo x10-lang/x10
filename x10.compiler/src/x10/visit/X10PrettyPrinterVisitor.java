@@ -1742,6 +1742,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             if (n instanceof Throw) {
                                 exceptions.add(((Throw) n).expr().type());
                             }
+                            if (n instanceof New) {
+                                List<Type> throwTypes = n.throwTypes(tr.typeSystem());
+                                if (throwTypes != null) exceptions.addAll(throwTypes);
+                            }
                             return n;
                         }
                 });
