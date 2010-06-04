@@ -6,7 +6,7 @@ Bundle-Version: 2.0.4.qualifier
 Bundle-Localization: plugin
 Require-Bundle: x10.common,
  x10.constraints,
- polyglot3,
+ polyglot3;bundle-version="3.2.0",
  polyglot.bytecode;bundle-version="1.0.0",
  lpg.runtime.java;bundle-version="2.0.18"
 Export-Package: x10,
