@@ -92,6 +92,12 @@ namespace x10 {
 
             static x10aux::ref<ValRail<T> > make(x10aux::ref<Rail<T> > other, x10_int alignment=8);
 
+            // All ValRails are mortal
+            virtual x10_boolean _isMortal() { return true; }
+
+            // ValRail will take care of deserializing remote objects properly
+            virtual bool _custom_deserialization() { return true; }
+
             static const x10aux::serialization_id_t _serialization_id;
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
@@ -244,7 +250,7 @@ namespace x10 {
 
         template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
             x10_int length = buf.read<x10_int>();
-            x10aux::ref<ValRail<T> > this_ = x10aux::alloc_rail_remote<T,ValRail<T> >(length);
+            x10aux::ref<ValRail<T> > this_ = x10aux::alloc_rail<T,ValRail<T> >(length);
             buf.record_reference(this_); // TODO: avoid; no global refs; final class
             this_->_deserialize_body(buf);
             return this_;
