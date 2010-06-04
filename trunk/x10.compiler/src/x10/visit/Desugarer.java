@@ -27,6 +27,7 @@ import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
+import polyglot.ast.FloatLit;
 import polyglot.ast.Formal;
 import polyglot.ast.IntLit;
 import polyglot.ast.Local;
@@ -84,6 +85,7 @@ import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
+import x10.ast.X10IntLit_c;
 import x10.ast.X10New;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special_c;
@@ -664,11 +666,34 @@ public class Desugarer extends ContextVisitor {
         return a;
     }
 
+    private Expr getLiteral(Position pos, Type type, long val) throws SemanticException {
+        Expr lit = null;
+        if (xts.isIntOrLess(type)) {
+            lit = xnf.IntLit(pos, IntLit.INT, val);
+        } else if (xts.isLong(type)) {
+            lit = xnf.IntLit(pos, IntLit.LONG, val);
+        } else if (xts.isUInt(type)) {
+            lit = xnf.IntLit(pos, X10IntLit_c.UINT, val);
+        } else if (xts.isULong(type)) {
+            lit = xnf.IntLit(pos, X10IntLit_c.ULONG, val);
+        } else if (xts.isFloat(type)) {
+            lit = xnf.FloatLit(pos, FloatLit.FLOAT, val);
+        } else if (xts.isDouble(type)) {
+            lit = xnf.FloatLit(pos, FloatLit.DOUBLE, val);
+        } else
+            throw new InternalCompilerError(pos, "Unknown literal type: "+type);
+        lit = (Expr) lit.typeCheck(this);
+        if (!xts.isSubtype(lit.type(), type)) {
+            lit = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, type), lit,
+                    Converter.ConversionType.PRIMITIVE).type(type);
+        }
+        return lit;
+    }
+
     // ++x -> x+=1 or --x -> x-=1
     private Expr unaryPre(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
         Type ret = e.type();
-        Expr one = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, ret),
-                (Expr) xnf.IntLit(pos, IntLit.INT, 1).typeCheck(this), Converter.ConversionType.PRIMITIVE).type(ret);
+        Expr one = getLiteral(pos, ret, 1);
         Assign.Operator asgn = (op == X10Unary_c.PRE_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         Expr a = assign(pos, e, asgn, one);
         if (e instanceof X10Call)
@@ -680,8 +705,7 @@ public class Desugarer extends ContextVisitor {
     protected Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
         Type ret = e.type();
         CanonicalTypeNode retTN = xnf.CanonicalTypeNode(pos, ret);
-        Expr one = xnf.X10Cast(pos, retTN,
-                (Expr) xnf.IntLit(pos, IntLit.INT, 1).typeCheck(this), Converter.ConversionType.PRIMITIVE).type(ret);
+        Expr one = getLiteral(pos, ret, 1);
         Assign.Operator asgn = (op == X10Unary_c.POST_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         X10Binary_c.Operator bin = (op == X10Unary_c.POST_INC) ? X10Binary_c.SUB : X10Binary_c.ADD;
         Name t = Name.make("t");
