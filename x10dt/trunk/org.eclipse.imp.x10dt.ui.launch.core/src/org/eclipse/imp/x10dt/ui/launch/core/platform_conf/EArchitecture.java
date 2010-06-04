@@ -30,8 +30,8 @@ public enum EArchitecture {
   Power6,
   
   /**
-   * Architecture PowerPC.
+   * Architecture Power7.
    */
-  PowerPC;
+  Power7;
 
 }
