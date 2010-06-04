@@ -866,10 +866,9 @@ public class Desugarer extends ContextVisitor {
         if (n.expr() instanceof Assign) {
         	Assign f = (Assign) n.expr();
         	Expr right = f.right();
-        	Expr left = f.left(xnf);
-        	LocalDecl l = null;
         	if (right instanceof FinishExpr)
-        		return visitFinishExpr(f,l);        		
+        		return visitFinishExpr(f,l);  
+        	return n;
         }
         if (n.expr() instanceof X10Unary_c) {
             X10Unary_c e = (X10Unary_c) n.expr();
