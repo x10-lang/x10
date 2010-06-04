@@ -792,6 +792,9 @@ public class Desugarer extends ContextVisitor {
             lit = xnf.FloatLit(pos, FloatLit.FLOAT, val);
         } else if (xts.isDouble(type)) {
             lit = xnf.FloatLit(pos, FloatLit.DOUBLE, val);
+        } else if (xts.isChar(type)) {
+            // Don't want to cast
+            return (Expr) xnf.IntLit(pos, IntLit.INT, val).typeCheck(this);
         } else
             throw new InternalCompilerError(pos, "Unknown literal type: "+type);
         lit = (Expr) lit.typeCheck(this);
