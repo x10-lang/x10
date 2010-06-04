@@ -35,3 +35,4 @@ Export-Package: x10,
  x10cuda.types,
  x10cuda.visit
 Bundle-Vendor: rfuhrer@watson.ibm.com
+Import-Package: polyglot.ast
