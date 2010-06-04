@@ -1,5 +1,0 @@
-// SYNOPSIS: for (#0 #2: #1 in #3) #4    #5=unboxed type
-for (x10.core.Iterator #2__ = (#3).iterator(); #2__.hasNext(); ) {
-	#0 #1 #2 = (#5) #2__.next();
-	#4
-}
