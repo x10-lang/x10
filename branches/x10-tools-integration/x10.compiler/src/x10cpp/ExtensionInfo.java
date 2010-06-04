@@ -137,20 +137,10 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			NodeFactory nf = extInfo.nodeFactory();
 			return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "c++")).intern(this);
 		}
-       public Goal NativeClassVisitor(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "c++")).intern(this);
-       }
-		public Goal InnerClassesRemoved(Job job) {
-			TypeSystem ts = extInfo.typeSystem();
-			NodeFactory nf = extInfo.nodeFactory();
-			return new VisitorGoal("InnerClassRemover", job, new X10InnerClassRemover(job, ts, nf)).intern(this);
-		}
-		public Goal StaticNestedClassesRemoved(Job job) {
-			TypeSystem ts = extInfo.typeSystem();
-			NodeFactory nf = extInfo.nodeFactory();
-			return new VisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
+		public Goal NativeClassVisitor(Job job) {
+		    TypeSystem ts = extInfo.typeSystem();
+		    NodeFactory nf = extInfo.nodeFactory();
+		    return new VisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "c++")).intern(this);
 		}
 		@Override
 		public Goal CodeGenerated(Job job) {
@@ -168,42 +158,15 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		        }
 		    }.intern(this);
 		}
-		public Goal NewCodeGenBarrier() {
-		    if (Globals.Options().compile_command_line_only) {
-		        return new BarrierGoal("NewCodeGenBarrier", commandLineJobs()) {
-		            @Override
-		            public Goal prereqForJob(Job job) {
-		                return StaticNestedClassesRemoved(job);
-		            }
-		        };
-		    }
-		    else {
-		        return new AllBarrierGoal("NewCodeGenBarrier", this) {
-		            @Override
-		            public Goal prereqForJob(Job job) {
-		                if (!scheduler.commandLineJobs().contains(job) &&
-		                        ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
-		                {
-		                    return null;
-		                }
-		                return StaticNestedClassesRemoved(job);
-		            }
-		        };
-		    }
+		@Override
+		protected Goal codegenPrereq(Job job) {
+		    return StaticNestedClassRemover(job);
 		}
 		@Override
 		public List<Goal> goals(Job job) {
-		    List<Goal> res = super.goals(job);
-		    InnerClassesRemoved(job).addPrereq(Serialized(job));
-		    InnerClassesRemoved(job).addPrereq(CodeGenBarrier());
-		    StaticNestedClassesRemoved(job).addPrereq(InnerClassesRemoved(job));
-		    CodeGenerated(job).addPrereq(NewCodeGenBarrier());
-		    CodeGenerated(job).addPrereq(Desugarer(job));
-		    List<Goal> optimizations = Optimizer.goals(this, job);
-		    for (Goal goal : optimizations) {
-		        CodeGenerated(job).addPrereq(goal);
-		    }
-		    return res;
+		    List<Goal> goals = super.goals(job);
+		    StaticNestedClassRemover(job).addPrereq(InnerClassRemover(job));
+		    return goals;
 		}
 	}
 

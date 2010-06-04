@@ -17,13 +17,13 @@ import harness.x10Test;
 public class ReferenceToReference extends x10Test {
 
 	public def run(): boolean = {
-		var identity: X10DepTypeClassOne = new X10DepTypeClassOne(1);
-		var upcast: Object = new X10DepTypeClassOne(1);
-		var downcast: X10DepTypeClassOne = new X10DepTypeSubClassOne(1,2);
+		var identity: X10DepTypeClassOneB = new X10DepTypeClassOneB(1);
+		var upcast: Object = new X10DepTypeClassOneB(1);
+		var downcast: X10DepTypeClassOneB = new X10DepTypeSubClassOneB(1,2);
 		
-		var res1: boolean = identity instanceof X10DepTypeClassOne;
-		var res2: boolean = upcast instanceof X10DepTypeClassOne;
-		var res3: boolean = downcast instanceof X10DepTypeClassOne;
+		var res1: boolean = identity instanceof X10DepTypeClassOneB;
+		var res2: boolean = upcast instanceof X10DepTypeClassOneB;
+		var res3: boolean = downcast instanceof X10DepTypeClassOneB;
 		
 		return (res1 && res2 && res3);
 	}

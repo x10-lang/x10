@@ -10,7 +10,7 @@
  */
 
 //LIMITATION:
-// top-level typedefs not supported
+// top-level typedefs not supported - therefore I moved it into the class
 
 import harness.x10Test;
 
@@ -22,9 +22,9 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-type T = int;
 
 public class TypedefScope1 extends TypedefTest {
+	static type T = int;
 
     public def run(): boolean = {
         

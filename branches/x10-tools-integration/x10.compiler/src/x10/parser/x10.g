@@ -957,7 +957,7 @@ public static class MessageHandler implements IMessageHandler {
            if (Identifier.id().toString().equals("this")) {
                        ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                                  extractFlags(MethodModifiersopt),
-                                                 nf.Id(pos(3), "this"),
+                                                 nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
                                                  HasResultTypeopt,
                                                  TypeParametersopt,
                                                  FormalParameters,
@@ -1283,7 +1283,7 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
                     TypeNode tn = Type;
                     tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
-                    setResult(tn);
+                    setResult(tn.position(pos()));
           $EndJava
         ./
 
@@ -1493,7 +1493,7 @@ public static class MessageHandler implements IMessageHandler {
        /.$BeginJava
          ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                                  extractFlags(ConstructorModifiersopt),
-                                                 nf.Id(pos(3), "this"),
+                                                 nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
                                                  HasResultTypeopt,
                                                  TypeParametersopt,
                                                  FormalParameters,
@@ -1603,7 +1603,7 @@ public static class MessageHandler implements IMessageHandler {
                     if (NonExpressionStatement.ext() instanceof X10Ext && Annotationsopt instanceof List) {
                         NonExpressionStatement = (Stmt) ((X10Ext) NonExpressionStatement.ext()).annotations((List) Annotationsopt);
                     }
-                    setResult(NonExpressionStatement);
+                    setResult(NonExpressionStatement.position(pos()));
           $EndJava
         ./
 
@@ -2152,7 +2152,7 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
                     Block b = Block;
                     b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
-                    setResult(b);
+                    setResult(b.position(pos()));
           $EndJava
         ./
                   
@@ -2446,7 +2446,7 @@ FinishExpression ::= finish ( Expression ) Block
         /.$BeginJava
                     PackageNode pn = PackageName.toPackage();
                     pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
-                    setResult(pn);
+                    setResult(pn.position(pos()));
           $EndJava
         ./
     
@@ -3134,12 +3134,12 @@ FinishExpression ::= finish ( Expression ) Block
         ./
                   | = Annotationsopt Block
         /.$BeginJava
-                    setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt));
+                    setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos()));
           $EndJava
         ./
                   | Annotationsopt Block
         /.$BeginJava
-                    setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt));
+                    setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos()));
           $EndJava
         ./
                       | ;
@@ -3586,7 +3586,7 @@ FinishExpression ::= finish ( Expression ) Block
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
                             	TypeNode tni = nf.UnknownTypeNode(id.position());
-                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name),  Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(Position.COMPILER_GENERATED, nf.Local(Position.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(Position.COMPILER_GENERATED, IntLit.INT, index))) : null));
                             	index++;
                             }
                         }
@@ -3620,7 +3620,7 @@ FinishExpression ::= finish ( Expression ) Block
                             	Id id = (Id) j.next();
                             	// HACK: if the local is non-final, assume the type is point and the component is int
                             	TypeNode tni = nf.UnknownTypeNode(id.position());
-                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name),  Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(Position.COMPILER_GENERATED, nf.Local(Position.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(Position.COMPILER_GENERATED, IntLit.INT, index))) : null));
                             	index++;
                             }
                         }
@@ -3654,7 +3654,7 @@ FinishExpression ::= finish ( Expression ) Block
                             	Id id = (Id) j.next();
                             	// HACK: if the local is non-final, assume the type is point and the component is int
                             	TypeNode tni = nf.UnknownTypeNode(id.position());
-                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name),  Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(Position.COMPILER_GENERATED, nf.Local(Position.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(Position.COMPILER_GENERATED, IntLit.INT, index))) : null));
                             	index++;
                             }
                         }
@@ -4161,7 +4161,7 @@ FinishExpression ::= finish ( Expression ) Block
         /.$BeginJava
                     Expr e = UnaryExpression;
                     e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
-                    setResult(e);
+                    setResult(e.position(pos()));
           $EndJava
         ./
                                   | ! UnaryExpression

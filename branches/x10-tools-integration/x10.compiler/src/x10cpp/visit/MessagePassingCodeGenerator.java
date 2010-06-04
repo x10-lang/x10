@@ -2061,8 +2061,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            b.write(CONSTRUCTOR+"(this_");
 	            if (!dec.formals().isEmpty()) b.write(", ");
 	        } else {
+	            // XTENLANG-1407: Remove this memset call once we finish the default value specification/implementation.
+	            //                Expect it to be more efficient to explicitly initialize all of the object fields instead
+	            //                of first calling memset, then storing into most of the fields a second time.
 	            b.write(make_ref(typeName)+" this_ = "+
-	                    "new (x10aux::alloc"+chevrons(typeName)+"()) "+typeName+"();"); b.newline();
+	                    "new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"();"); b.newline();
 	                    b.write("this_->"+CONSTRUCTOR+"(");
 	        }
 	        for (Iterator<Formal> i = dec.formals().iterator(); i.hasNext(); ) {
@@ -4588,7 +4591,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            actualTypes.add(a.type());
 		        }
 		        ami = xts.findMethod(t,
-		                xts.MethodMatcher(c.type(), Name.make("apply"), actualTypes, context));
+		                xts.MethodMatcher(c.type(), Name.make("apply"), actualTypes, context));  // todo: double check this code
 		    } catch (SemanticException e) {
 		        e.printStackTrace();
 		        assert (false);

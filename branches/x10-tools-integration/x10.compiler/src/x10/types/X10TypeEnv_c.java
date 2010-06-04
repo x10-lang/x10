@@ -45,6 +45,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeEnv_c;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CollectionUtil;
@@ -681,6 +682,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     boolean isSubtype(XVar x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
+        if (t1 instanceof UnknownType || t2 instanceof UnknownType) return true;
+        
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);
     	if (ts.isAny(t2))
@@ -1433,8 +1436,25 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public Type leastCommonAncestor(Type type1, Type type2)
     throws SemanticException
     {
-    	Type t = leastCommonAncestorBase(X10TypeMixin.baseType(type1), 
+
+        Type t;
+        if (type1.isNull() || type2.isNull()) {
+            t = type1.isNull() ? type2 : type1;
+            if (X10TypeMixin.permitsNull(t)) return t;
+            if (true) // todo: remove this
+                throw new SemanticException("No least common ancestor found for types \"" + type1 +
+    								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
+            CConstraint ct = X10TypeMixin.realX(t);
+            t = X10TypeMixin.baseType(t);
+            if (!X10TypeMixin.permitsNull(t))
+                throw new SemanticException("No least common ancestor found for types \"" + type1 +
+    								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
+            // todo we need to keep all the constraints except the one that says the type is not null
+            return X10TypeMixin.addConstraint(t, ct); 
+        } else {
+            t = leastCommonAncestorBase(X10TypeMixin.baseType(type1),
     			X10TypeMixin.baseType(type2));
+        }
     	
     	CConstraint c1 = X10TypeMixin.realX(type1), c2 = X10TypeMixin.realX(type2);
     	CConstraint c = c1.leastUpperBound(c2);
@@ -1443,7 +1463,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	return t;
     	
     }
-    
+
     // Assumes type1 and type2 are base types, no constraint clauses.
     private Type leastCommonAncestorBase(Type type1, Type type2)
     throws SemanticException
@@ -1490,27 +1510,19 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		}
     	}
 
-    	if (type1.isNull()) {
-    		return X10TypeMixin.permitsNull(type2) ? type2 : ts.Any(); 
-    	}
-    	if (type2.isNull()) {
-    		return X10TypeMixin.permitsNull(type1) ? type1 : ts.Any(); 
-    	}
+
+    	if (isSubtype(type1, type2))
+    		return type2;
+    	if (isSubtype(type2, type1))
+    		return type1;
 
 
     	// Don't consider interfaces.
-    	if (type1.isClass() && type2.toClass().flags().isInterface()) {
+    	if ((type1.isClass() && ts.isInterfaceType(type2)) ||
+            (type2.isClass() && ts.isInterfaceType(type1))) {
     		return ts.Any(); // an interface may be implemented by a struct
     	}
 
-    	if (type2.isClass() && ts.isInterfaceType(type1)) {
-    		return ts.Any();
-    	}
-
-    	if (isSubtype(type1, type2)) 
-    		return type2;
-    	if (isSubtype(type2, type1)) 
-    		return type1;
 
     	// Since they are not equal, and one is not a subtype of another
     	// and one of them is a struct, the lub has to be Any.

@@ -44,6 +44,7 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -396,6 +397,9 @@ public class Converter {
 
 	public  static Expr checkCast(X10Cast_c cast, ContextVisitor tc) throws SemanticException {
 		Type toType = cast.castType().type();
+        // todo: Yoav added
+        if (toType instanceof UnknownType)
+				return cast;
 		Type fromType = cast.expr().type();
 		X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
@@ -484,7 +488,7 @@ public class Converter {
 				}
 				catch (SemanticException z2) {
 					try {
-						mi = ts.findMethod(fromType, ts.MethodMatcher(toType, Converter.implicit_operator_as, 
+						mi = ts.findMethod(fromType, ts.MethodMatcher(fromType, Converter.implicit_operator_as, 
 								Collections.singletonList(fromType), context));
 						Type baseMiType = X10TypeMixin.baseType(mi.returnType());
 						if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {

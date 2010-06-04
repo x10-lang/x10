@@ -375,7 +375,7 @@ public class X10TypeMixin {
     	
     }
     public static Type addBinding(Type t, XTerm t1, XTerm t2) {
-    	assert (! (t instanceof UnknownType));
+    	//assert (! (t instanceof UnknownType));
         try {
             CConstraint c = xclause(t);
             c = c == null ? new CConstraint() :c.copy();

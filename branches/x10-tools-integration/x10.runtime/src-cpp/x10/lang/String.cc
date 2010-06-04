@@ -289,7 +289,7 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
 }
 
 x10_boolean String::equals(ref<Any> p0) {
-    nullCheck(p0);
+    if (p0.isNull()) return false;
     if (ref<String>(p0).operator->() == this) return true; // short-circuit trivial equality
     if (!x10aux::instanceof<ref<x10::lang::String> >(p0)) return false;
     ref<String> that = (ref<String>) p0;
@@ -305,7 +305,7 @@ extern "C" int strcasecmp(const char *, const char *);
 
 /* FIXME: Unicode support */
 x10_boolean String::equalsIgnoreCase(ref<String> s) {
-    nullCheck(s);
+    if (s.isNull()) return false;
     if (ref<String>(s).operator->() == this) return true; // short-circuit trivial equality
     if (this->FMGL(content_length) != s->FMGL(content_length)) return false; // short-circuit trivial dis-equality
     if (strcasecmp(this->FMGL(content), s->FMGL(content)))

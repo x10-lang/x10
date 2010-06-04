@@ -1242,7 +1242,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
        if (Identifier.id().toString().equals("this")) {
                    ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(MethodModifiersopt),
-                                             nf.Id(pos(3), "this"),
+                                             nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
                                              HasResultTypeopt,
                                              TypeParametersopt,
                                              FormalParameters,
@@ -1934,7 +1934,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 1284 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeNode tn = Type;
                 tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
-                setResult(tn);
+                setResult(tn.position(pos()));
                       break;
             }
     
@@ -2351,7 +2351,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 1494 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
      ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(ConstructorModifiersopt),
-                                             nf.Id(pos(3), "this"),
+                                             nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
                                              HasResultTypeopt,
                                              TypeParametersopt,
                                              FormalParameters,
@@ -2512,7 +2512,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 if (NonExpressionStatement.ext() instanceof X10Ext && Annotationsopt instanceof List) {
                     NonExpressionStatement = (Stmt) ((X10Ext) NonExpressionStatement.ext()).annotations((List) Annotationsopt);
                 }
-                setResult(NonExpressionStatement);
+                setResult(NonExpressionStatement.position(pos()));
                       break;
             }
     
@@ -3510,7 +3510,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 2153 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
                 Block b = Block;
                 b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
-                setResult(b);
+                setResult(b.position(pos()));
                       break;
             }
     
@@ -4068,7 +4068,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 2447 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
                 PackageNode pn = PackageName.toPackage();
                 pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
-                setResult(pn);
+                setResult(pn.position(pos()));
                       break;
             }
     
@@ -5364,7 +5364,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 3135 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(3);
                 //#line 3137 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt));
+                setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos()));
                       break;
             }
     
@@ -5378,7 +5378,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 3140 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
                 //#line 3142 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt));
+                setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos()));
                       break;
             }
     
@@ -6253,7 +6253,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                         for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                         	Id id = (Id) j.next();
                         	TypeNode tni = nf.UnknownTypeNode(id.position());
-                        	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name),  Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                        	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(Position.COMPILER_GENERATED, nf.Local(Position.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(Position.COMPILER_GENERATED, IntLit.INT, index))) : null));
                         	index++;
                         }
                     }
@@ -6296,7 +6296,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                         	Id id = (Id) j.next();
                         	// HACK: if the local is non-final, assume the type is point and the component is int
                         	TypeNode tni = nf.UnknownTypeNode(id.position());
-                        	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name),  Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                        	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(Position.COMPILER_GENERATED, nf.Local(Position.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(Position.COMPILER_GENERATED, IntLit.INT, index))) : null));
                         	index++;
                         }
                     }
@@ -6341,7 +6341,8 @@ public void handleMessage(int errorCode, int[] msgLocation,
                         	Id id = (Id) j.next();
                         	// HACK: if the local is non-final, assume the type is point and the component is int
                         	TypeNode tni = nf.UnknownTypeNode(id.position());
-                        	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name),  Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            // todo: fixme: do this desugaring after type-checking, and remove this code duplication 
+                        	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(Position.COMPILER_GENERATED, nf.Local(Position.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(Position.COMPILER_GENERATED, IntLit.INT, index))) : null));
                         	index++;
                         }
                     }
@@ -7284,7 +7285,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4162 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr e = UnaryExpression;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
-                setResult(e);
+                setResult(e.position(pos()));
                       break;
             }
     
