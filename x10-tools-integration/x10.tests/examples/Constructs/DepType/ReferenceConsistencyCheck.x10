@@ -33,8 +33,8 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
 	public static def main(Rail[String]) = {
 //		set up a test problem
 		val size=10;
-		val R =[0..size-1,0..size-1];
-		val D = Dist.makeCyclic(R);
+		val R:Region{rank==2&&zeroBased&&rect} = [0..size-1,0..size-1] as Region{rank==2&&zeroBased&&rect};
+		val D:Dist{region==R} = Dist.makeBlock(R);
 		val A:DistArray[double]{dist==D} = 
 			   DistArray.make[double](D, ((i,j):Point) => 
 			      { var res: int=i%2;

@@ -21,11 +21,9 @@
 import harness.x10Test;
 
 /**
- * The test checks that final fields can be accessed in a depclause.
- *
  * @author vcave, vj
  */
-public class InnerClass extends x10Test {
+public class CovariantReturnFromAnonymousClass extends x10Test {
 	interface I  {
 		 def test(): void;
 		 def whatever():I;

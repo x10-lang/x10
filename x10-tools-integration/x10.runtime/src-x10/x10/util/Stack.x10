@@ -20,6 +20,13 @@ public class Stack[T] extends ArrayList[T] {
     /** Remove and return the top element of the stack. */
     public def pop(): T = removeLast();
     
+    public def pop(k:Int):ValRail[T] {
+    	val n = size();
+    	if (n < k) 
+    		return null;
+    	val start = n-k+1;
+    	return moveSectionToValRail(n-k, n-1);
+    }
     /** Return, but do not remove, the top element of the stack. */
     public def peek(): T = getLast();
     

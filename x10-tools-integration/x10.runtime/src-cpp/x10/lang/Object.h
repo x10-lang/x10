@@ -67,6 +67,8 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf) { }
 
+            virtual bool _custom_deserialization() { return false; }
+
             template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &);
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
@@ -153,6 +155,11 @@ namespace x10 {
         template<class R> x10aux::ref<R> Object::_finalize_reference(x10aux::ref<Object> obj, Object::_reference_state rr, x10aux::deserialization_buffer &buf) {
             if (rr.ref == 0) {
                 return x10aux::null;
+            }
+            if (obj->_custom_deserialization()) { // trust the deserializer to allocate the right object
+                _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
+                        " "<<obj->_type()->name());
+                return obj;
             }
             if (rr.loc == x10aux::here) { // a remote object coming home to roost
                 _S_("\ta local object come home");

@@ -35,6 +35,7 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10TypeMixin;
 import static polyglot.ast.Assign.*;
 
 /**
@@ -71,7 +72,7 @@ public class Checker {
 	
 	    if (op == ADD_ASSIGN) {
 	        // t += s
-	        if (ts.typeEquals(t, ts.String(), tc.context()) && ts.canCoerceToString(s, tc.context())) {
+	        if (ts.typeEquals(X10TypeMixin.baseType(t), ts.String(), tc.context()) && ts.canCoerceToString(s, tc.context())) {
 	            Expr newRight = X10Binary_c.coerceToString(tc, right);
 	            return n.right(newRight).type(ts.String());
 	        }                

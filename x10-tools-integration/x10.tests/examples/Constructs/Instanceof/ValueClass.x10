@@ -22,7 +22,7 @@ import harness.x10Test;
  * Purpose: Checks variable name shadowing works correctly.
  * @author vcave
  **/
-public struct ValueClass(p:int) implements X10InterfaceOne {
+public struct ValueClass(p:int) implements X10InterfaceOneB {
 	
 	public def this(p:int):ValueClass{self.p==p} = {
 	    property(p);
