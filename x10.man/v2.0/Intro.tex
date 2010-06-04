@@ -1,0 +1,109 @@
+\chapter{Introduction}
+
+\subsection*{Background}
+Larger computational problems require more powerful computers capable of
+performing a larger number of operations per second. The era of
+increasing performance by simply increasing clocking frequency now
+seems to be behind us. It is becoming increasingly difficult
+to mange chip power and heat.  Instead, computer
+designers are starting to look at {\em scale out} systems in which the
+system's computational capacity is increased by adding additional
+nodes of comparable power to existing nodes, and connecting nodes with
+a high-speed communication network.
+
+A central problem with scale out systems is a definition of the {\em
+memory model}, that is, a model of the interaction between shared
+memory and  simultaneous (read, write) operations on that
+memory by multiple processors. The traditional ``one operation at a
+time, to completion'' model that underlies Lamport's notion of {\em
+sequential consistency} (SC) proves too expensive to implement in
+hardware, at scale. Various models of {\em relaxed consistency} have
+proven too difficult for programmers to work with.  
+
+One response to this problem has been to move to a {\em fragmented
+memory model}. Multiple processors are made to interact via a
+relatively language-neutral message-passing format such as MPI
+\cite{mpi}. This model has enjoyed some success: several
+high-performance applications have been written in this
+style. Unfortunately, this model leads to a {\em loss of programmer
+productivity}: the message-passing format is integrated into the host
+language by means of an application-programming interface (API), the
+programmer must explicitly represent and manage the interaction
+between multiple processes and choreograph their data exchange; large
+data-structures (such as distributed arrays, graphs, hash-tables) that
+are conceptually unitary must be thought of as fragmented across
+different nodes; all processors must generally execute the same code
+(in an SPMD fashion) etc.
+
+One response to this problem has been the advent of the {\em
+partitioned global address space} (PGAS) model underlying languages
+such as UPC, Titanium and Co-Array Fortran \cite{pgas,titanium}. These
+languages permit the programmer to think of a single computation
+running across multiple processors, sharing a common address
+space. All data resides at some processors, which is said to have {\em
+affinity} to the data.  Each processor may operate directly on the
+data it contains but must use some indirect mechanism to access or
+update data at other processors. Some kind of global {\em barriers}
+are used to ensure that processors remain roughly in lock-step.
+
+\Xten{} is a modern object-oriented programming language
+in the PGAS family. The fundamental goal of \Xten{} is to enable
+scalable, high-performance, high-productivity transformational
+programming for high-end computers---for traditional numerical
+computation workloads (such as weather simulation, molecular dynamics,
+particle transport problems etc) as well as commercial server
+workloads.
+
+\Xten{} is based on state-of-the-art object-oriented
+programming ideas primarily to take advantage of their proven
+flexibility and ease-of-use for a wide spectrum of programming
+problems. \Xten{} takes advantage of several years of research (e.g.,
+in the context of the Java Grande forum,
+\cite{moreira00java,kava}) on how to adapt such languages to the context of
+high-performance numerical computing. Thus \Xten{} provides support
+for user-defined {\em struct types} (such as \xcd"Int", \xcd"Float",
+\xcd"Complex" etc), supports a very
+flexible form of multi-dimensional arrays (based on ideas in ZPL
+\cite{zpl}) and supports IEEE-standard floating point arithmetic.
+Some capabilities for supporting operator overloading are also provided.
+
+{}\Xten{} introduces a flexible treatment of concurrency, distribution
+and locality, within an integrated type system. \Xten{} extends the
+PGAS model with {\em asynchrony} (yielding the {\em APGAS} programming
+model). {}\Xten{} introduces {\em places} as an abstraction for a
+computational context with a locally synchronous view of shared
+memory. An \Xten{} computation runs over a large collection of places.
+Each place hosts some data and runs one or more {\em
+activities}. Activities are extremely lightweight threads of
+execution. An activity may synchronously (and {\em atomically}) use
+one or more memory locations in the place in which it resides,
+leveraging current symmetric multiprocessor (SMP) technology.  
+To access or update memory at other places, it must 
+spawn activities asynchronously (either explicitly or implicitly).
+\Xten{} provides weaker ordering guarantees for
+inter-place data access, enabling applications to scale.  {\em
+Immutable} data needs no consistency management and may be freely
+copied by the implementation between places.  One or more {\em clocks}
+may be used to order activities running in multiple
+places.  Arrays may be distributed across multiple
+places. Arrays support parallel collective operations. A novel
+exception flow model ensures that exceptions thrown by asynchronous
+activities can be caught at a suitable parent activity.  The type
+system tracks which memory accesses are local. The programmer may
+introduce place casts which verify the access is local at run time.
+Linking with native code is supported.
+
+\XtenCurrVer builds on v1.7 to support the following features: {\em
+  structs} (i.e., ``header-less'', inlinable objects), type rules for
+preventing escape of \xcd{this} from a constructor, 
+the introduction of a global object model, permitting user-specified
+(immutable) fields to be replicated with the object reference.
+\xcd{value} classes are no longer supported; their functionality is
+accomplished by using structs or global fields and methods.
+
+
+Several representative idioms for concurrency and communication have
+already found pleasant expression in \Xten. We intend to develop
+several full-scale applications to get better experience with the
+language, and revisit the design in the light of this experience.
+

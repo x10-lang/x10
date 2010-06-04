@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>x10.man</name>
+	<comment></comment>
+	<projects>
+		<project>x10.common</project>
+		<project>x10.compiler</project>
+		<project>x10.constraints</project>
+		<project>x10.dist</project>
+		<project>x10.doc</project>
+		<project>x10.runtime</project>
+		<project>x10.sncode</project>
+		<project>x10.tests</project>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+</projectDescription>
