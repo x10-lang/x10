@@ -1,4 +1,0 @@
-// SYNOPSIS: #0 (#1) #2  #0 = return Type, #1 = formals, #2 = body, #3 = number of formals, #4 = formal types
-new x10.core.fun.Fun_0_#3<#4>() {
-	final public #0 apply(#1) { #2 }
-}
