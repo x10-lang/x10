@@ -45,7 +45,6 @@ String::_make(x10aux::ref<String> s) {
 }
 
 x10_int String::hashCode() {
-    //return x10aux::hash(reinterpret_cast<const unsigned char*>(FMGL(content)), length());
     x10_int hc = 0;
     x10_int l = length();
     const unsigned char* k = reinterpret_cast<const unsigned char*>(FMGL(content));
@@ -71,9 +70,11 @@ static const char *strnstrn(const char *haystack, size_t haystack_sz,
 
 x10_int String::indexOf(ref<String> str, x10_int i) {
     nullCheck(str);
+    if (i<0) i = 0;
+    if (((size_t)i) >= FMGL(content_length)) return -1;
+
     const char *needle = str->FMGL(content);
     size_t needle_sz = str->FMGL(content_length);
-    // TODO: bounds check
     const char *haystack = &FMGL(content)[i];
     size_t haystack_sz = FMGL(content_length);
     const char *pos = strnstrn(haystack, haystack_sz, needle, needle_sz);
@@ -91,8 +92,10 @@ static const char *strnchr(const char *haystack, size_t haystack_sz, char needle
 }
 
 x10_int String::indexOf(x10_char c, x10_int i) {
+    if (i < 0) i = 0;
+    if (((size_t)i) >= FMGL(content_length)) return -1;
+
     int needle = (int)c.v;
-    // TODO: bounds check
     const char *haystack = &FMGL(content)[i];
     size_t haystack_sz = FMGL(content_length);
     const char *pos = strnchr(haystack, haystack_sz, needle);
@@ -132,9 +135,11 @@ static const char *my_strrstr(const char *haystack, const char *needle, int give
 
 x10_int String::lastIndexOf(ref<String> str, x10_int i) {
     nullCheck(str);
+    if (i < 0) i = 0;
+    if (((size_t)i) >= FMGL(content_length)) return -1;
+
     const char *needle = str->FMGL(content);
     const char *haystack = FMGL(content);
-    // TODO: bounds check
     const char *pos = my_strrstr(haystack, needle, i);
     if (pos == NULL)
         return (x10_int) -1;
@@ -151,9 +156,11 @@ static const char *my_strrchr(const char *haystack, int needle, int give_up) {
 }
 
 x10_int String::lastIndexOf(x10_char c, x10_int i) {
+    if (i < 0) i = 0;
+    if (((size_t)i) >= FMGL(content_length)) return -1;
+
     int needle = (int)c.v;
     const char *haystack = FMGL(content);
-    // TODO: bounds check
     const char *pos = my_strrchr(haystack, needle, i);
     if (pos == NULL)
         return (x10_int) -1;
@@ -161,7 +168,11 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
 }
 
 ref<String> String::substring(x10_int start, x10_int end) {
-    assert(end>=start); // TODO: proper bounds check
+#ifndef NO_BOUNDS_CHECKS
+    if (start < 0) x10aux::throwArrayIndexOutOfBoundsException(start, FMGL(content_length));
+    if (start > end) x10aux::throwArrayIndexOutOfBoundsException(start, end);
+    if (((size_t)end) > FMGL(content_length)) x10aux::throwArrayIndexOutOfBoundsException(end, FMGL(content_length));
+#endif
     std::size_t sz = end - start;
     char *str = x10aux::alloc<char>(sz+1);
     for (std::size_t i=0 ; i<sz ; ++i)
@@ -203,7 +214,7 @@ ref<ValRail<ref<String> > > String::split(ref<String> pat) {
 }
 
 x10_char String::charAt(x10_int i) {
-    // TODO: bounds check
+    x10aux::checkRailBounds(i, FMGL(content_length));
     return (x10_char) FMGL(content)[i];
 }
 
