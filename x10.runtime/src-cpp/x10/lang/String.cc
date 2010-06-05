@@ -25,14 +25,16 @@
 #include <cstdarg>
 #include <sstream>
 
+using namespace std;
 using namespace x10::lang;
 using namespace x10aux;
 
 x10aux::ref<String>
 String::_make(const char *content, bool steal) {
     x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+    size_t len = strlen(content);
     if (!steal) content = strdup(content);
-    this_->_constructor(content,strlen(content));
+    this_->_constructor(content,len);
     return this_;
 }
 
@@ -58,12 +60,9 @@ x10_int String::hashCode() {
 static const char *strnstrn(const char *haystack, size_t haystack_sz,
                             const char *needle, size_t needle_sz)
 {
-    for (size_t i=0 ; i<haystack_sz ; ++i) {
-        for (size_t j=0 ; j<needle_sz ; ++j) {
-            if (haystack[i] != needle[j]) goto abandon;
-        }
-        return &haystack[i];
-        abandon: {}
+    for (size_t i=0 ; i<haystack_sz-needle_sz ; ++i) {
+        if (!strncmp(&haystack[i], needle, needle_sz))
+            return &haystack[i];
     }
     return NULL;
 }
@@ -76,7 +75,7 @@ x10_int String::indexOf(ref<String> str, x10_int i) {
     const char *needle = str->FMGL(content);
     size_t needle_sz = str->FMGL(content_length);
     const char *haystack = &FMGL(content)[i];
-    size_t haystack_sz = FMGL(content_length);
+    size_t haystack_sz = FMGL(content_length) - i;
     const char *pos = strnstrn(haystack, haystack_sz, needle, needle_sz);
     if (pos == NULL)
         return (x10_int) -1;
@@ -97,7 +96,7 @@ x10_int String::indexOf(x10_char c, x10_int i) {
 
     int needle = (int)c.v;
     const char *haystack = &FMGL(content)[i];
-    size_t haystack_sz = FMGL(content_length);
+    size_t haystack_sz = FMGL(content_length) - i;
     const char *pos = strnchr(haystack, haystack_sz, needle);
     if (pos == NULL)
         return (x10_int) -1;
@@ -273,13 +272,17 @@ void String::_formatHelper(std::ostringstream &ss, char* fmt, ref<Any> p) {
         dealloc(buf);
 }
 
+// TODO: merge with format(String, Rail[Any])
 ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
-    char* fmt = const_cast<char*>(format->c_str());
+    nullCheck(parms);
+    size_t len = format->FMGL(content_length);
+    char* orig = const_cast<char*>(format->c_str());
+    char* fmt = orig;
     char* next = NULL;
     for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
-        next = strchr(fmt+1, '%');
+        next = strchr(fmt+1, '%'); // FIXME: this is only ok if we always null-terminate content
         if (next != NULL)
             *next = '\0';
         if (*fmt != '%') {
@@ -289,7 +292,6 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
             i--;
             continue;
         }
-        nullCheck(parms);
         const ref<Reference> p = parms->operator[](i);
         _formatHelper(ss, fmt, p);
         if (next != NULL)
@@ -298,13 +300,17 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
     return String::Lit(ss.str().c_str());
 }
 
+// TODO: merge with format(String, ValRail[Any])
 ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
-    char* fmt = const_cast<char*>(format->c_str());
+    placeCheck(nullCheck(parms));
+    size_t len = format->FMGL(content_length);
+    char* orig = const_cast<char*>(format->c_str());
+    char* fmt = orig;
     char* next = NULL;
     for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
-        next = strchr(fmt+1, '%');
+        next = strchr(fmt+1, '%'); // FIXME: this is only ok if we always null-terminate content
         if (next != NULL)
             *next = '\0';
         if (*fmt != '%') {
@@ -314,7 +320,6 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
             i--;
             continue;
         }
-        placeCheck(nullCheck(parms));
         const ref<Reference> p = parms->operator[](i);
         _formatHelper(ss, fmt, p);
         if (next != NULL)
@@ -335,7 +340,7 @@ x10_boolean String::equals(ref<Any> p0) {
 }
 
 #ifdef __CYGWIN__
-extern "C" int strcasecmp(const char *, const char *);
+extern "C" int strncasecmp(const char *, const char *, size_t);
 #endif
 
 /* FIXME: Unicode support */
