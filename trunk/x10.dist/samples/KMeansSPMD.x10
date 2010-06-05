@@ -89,7 +89,7 @@ public class KMeansSPMD {
 
                         // these are pretty big so allocate up front
                         val host_points = Rail.make(num_slice_points_stride*dim, init);
-                        val host_nearest = Rail.make(num_slice_points, (Int)=>0);
+                        val host_nearest = Rail.make(num_slice_points, 0);
 
                         val host_clusters : Rail[Float]! = clusters();
                         val host_cluster_counts : Rail[Int]! = cluster_counts();
