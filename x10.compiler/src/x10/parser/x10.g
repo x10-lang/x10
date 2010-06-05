@@ -368,7 +368,7 @@ public static class MessageHandler implements IMessageHandler {
         int o0 = msgLocation[0];
         int o1 = msgLocation[0] + msgLocation[1];
 
-        Position pos = new Position(file.getPath(),
+        Position pos = new JPGPosition(file.getPath(),
                     file.getPath(), l0, c0, l1, c1+1, o0, o1);
 
         String msg = "";
@@ -439,9 +439,8 @@ public static class MessageHandler implements IMessageHandler {
 
         public Position getErrorPosition(int lefttok, int righttok)
         {
-            return new Position(null, prsStream.getFileName(),
-                   prsStream.getLine(lefttok), prsStream.getColumn(lefttok),
-                   prsStream.getEndLine(righttok), prsStream.getEndColumn(righttok));
+            return new JPGPosition(null, prsStream.getFileName(),
+                   prsStream.getIToken(lefttok), prsStream.getIToken(righttok));
         }
 
         // RMF 11/7/2005 - N.B. This class has to be serializable, since it shows up inside Type objects,
@@ -461,6 +460,20 @@ public static class MessageHandler implements IMessageHandler {
                       leftToken.getStartOffset(), rightToken.getEndOffset());
                 this.leftIToken = null; // BRT -- was null, need to keep leftToken for later reference
                 this.rightIToken = null;  // BRT -- was null, need to keep rightToken for later reference
+            }
+
+            public JPGPosition(Position start, Position end)
+            {
+                super(start, end);
+                this.leftIToken = (start instanceof JPGPosition) ? ((JPGPosition)start).leftIToken : null;
+                this.rightIToken = (end instanceof JPGPosition) ? ((JPGPosition)end).rightIToken : null;
+            }
+
+            JPGPosition(String path, String filename, int line, int column, int endLine, int endColumn, int offset, int endOffset)
+            {
+                super(path, filename, line, column, endLine, endColumn, offset, endOffset);
+                this.leftIToken = null;
+                this.rightIToken = null;
             }
 
             private JPGPosition() {
@@ -496,7 +509,7 @@ public static class MessageHandler implements IMessageHandler {
                 {
                     if (! unrecoverableSyntaxError)
                         return sf.source(source);
-                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Unable to parse " + source.name() + ".", new Position(null, file(), 1, 1, 1, 1));
+                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, "Unable to parse " + source.name() + ".", new JPGPosition(null, file(), 1, 1, 1, 1, 0, 0).markCompilerGenerated());
                 }   
             }
             catch (RuntimeException e) {
@@ -505,7 +518,7 @@ public static class MessageHandler implements IMessageHandler {
             }
             catch (Exception e) {
                 // Used by cup to indicate a non-recoverable error.
-                eq.enqueue(ErrorInfo.SYNTAX_ERROR, e.getMessage(), new Position(null, file(), 1, 1, 1, 1));
+                eq.enqueue(ErrorInfo.SYNTAX_ERROR, e.getMessage(), new JPGPosition(null, file(), 1, 1, 1, 1, 0, 0).markCompilerGenerated());
             }
 
             return null;
@@ -639,7 +652,7 @@ public static class MessageHandler implements IMessageHandler {
                 Object o = i.next();
                 if (o instanceof FlagsNode) {
                     FlagsNode fn = (FlagsNode) o;
-                    pos = pos == null ? fn.position() : new Position(pos, fn.position());
+                    pos = pos == null ? fn.position() : new JPGPosition(pos, fn.position());
                     Flags f = fn.flags();
                     if (f instanceof X10Flags) {
                         xf = xf.setX((X10Flags) f);
