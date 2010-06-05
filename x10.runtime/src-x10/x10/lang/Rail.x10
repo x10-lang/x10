@@ -127,11 +127,9 @@ public final class Rail[T](length: Int)
      * @param init The value with which to initialize all values of the Rail.
      * @return The reference to the new Rail.
      */
-/* FIXME
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5)")
     public native static safe def make[S](length: Int, init:S): Rail[S]!{self.length==length};
-*/
 
     /**
      * Creates an appropriately aligned Rail whose contents are initialized to init.
@@ -141,11 +139,9 @@ public final class Rail[T](length: Int)
      * @param init The value with which to initialize all values of the Rail.
      * @return The reference to the new Rail.
      */
-/* FIXME
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
     @Native("c++", "x10::lang::Rail<#1 >::makeAligned(#4, #5, #6)")
     public native static safe def makeAligned[S](length: Int, init:S, alignment:Int): Rail[S]!{self.length==length};
-*/
 
     /**
      * Re-initializes a Rail.
