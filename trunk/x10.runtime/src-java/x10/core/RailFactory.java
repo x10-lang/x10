@@ -76,12 +76,17 @@ public class RailFactory {
     }
 
     public static <T> Rail<T> makeVarRail(Type type, int length, T init) {
-        Rail<T> array = new Rail<T>(type, length);
-        for (int i = 0; i < length; i++) {
-            type.setArray(array, i, init);
-        }
-        return array;
+        Object o = type.makeArray(length);
+        resetLocal(o, init);
+        return new Rail<T>(type, length, o);
     }
+
+    public static <T> Rail<T> makeVarRail(Type type, int length, int offset, Rail<T> init) {
+        Object newArray = type.makeArray(length);
+        System.arraycopy(init.getBackingArray(), offset, newArray, 0, length);
+        return new Rail<T>(type, length, newArray);
+    }
+
 
     public static <T> Rail<T> makeRailFromJavaArray(Object array) {
         if (array instanceof boolean[]) {
