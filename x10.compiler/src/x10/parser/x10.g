@@ -463,6 +463,13 @@ public static class MessageHandler implements IMessageHandler {
                 this.rightIToken = null;  // BRT -- was null, need to keep rightToken for later reference
             }
 
+            private JPGPosition() {
+                super(null, "Compiler Generated");
+                this.leftIToken = null;
+                this.rightIToken = null;
+            }
+            public static final JPGPosition COMPILER_GENERATED = (JPGPosition)(new JPGPosition().markCompilerGenerated());
+
             public IToken getLeftIToken() { return leftIToken; }
             public IToken getRightIToken() { return rightIToken; }
 
@@ -642,7 +649,7 @@ public static class MessageHandler implements IMessageHandler {
                     }
                 }
             }
-            return nf.FlagsNode(pos == null ? Position.COMPILER_GENERATED : pos, xf);
+            return nf.FlagsNode(pos == null ? JPGPosition.COMPILER_GENERATED : pos, xf);
         }
     
         /* Roll our own integer parser.  We can't use Long.parseLong because
@@ -2234,13 +2241,13 @@ FinishExpression ::= finish ( Expression ) Block
 
     ClassModifiersopt ::= %Empty
         /.$BeginJava
-             setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
+             setResult(Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
           $EndJava ./
           | ClassModifiers
           
     TypeDefModifiersopt ::= %Empty
         /.$BeginJava
-             setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
+             setResult(Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
           $EndJava ./
           | TypeDefModifiers
           
@@ -3586,7 +3593,7 @@ FinishExpression ::= finish ( Expression ) Block
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
                             	TypeNode tni = nf.UnknownTypeNode(id.position());
-                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(Position.COMPILER_GENERATED, nf.Local(Position.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(Position.COMPILER_GENERATED, IntLit.INT, index))) : null));
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(JPGPosition.COMPILER_GENERATED, nf.Local(JPGPosition.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(JPGPosition.COMPILER_GENERATED, IntLit.INT, index))) : null));
                             	index++;
                             }
                         }
@@ -3620,7 +3627,7 @@ FinishExpression ::= finish ( Expression ) Block
                             	Id id = (Id) j.next();
                             	// HACK: if the local is non-final, assume the type is point and the component is int
                             	TypeNode tni = nf.UnknownTypeNode(id.position());
-                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(Position.COMPILER_GENERATED, nf.Local(Position.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(Position.COMPILER_GENERATED, IntLit.INT, index))) : null));
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(JPGPosition.COMPILER_GENERATED, nf.Local(JPGPosition.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(JPGPosition.COMPILER_GENERATED, IntLit.INT, index))) : null));
                             	index++;
                             }
                         }
@@ -3654,7 +3661,8 @@ FinishExpression ::= finish ( Expression ) Block
                             	Id id = (Id) j.next();
                             	// HACK: if the local is non-final, assume the type is point and the component is int
                             	TypeNode tni = nf.UnknownTypeNode(id.position());
-                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(Position.COMPILER_GENERATED, nf.Local(Position.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(Position.COMPILER_GENERATED, IntLit.INT, index))) : null));
+                            // todo: fixme: do this desugaring after type-checking, and remove this code duplication 
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(JPGPosition.COMPILER_GENERATED, nf.Local(JPGPosition.COMPILER_GENERATED, name),  Collections.<Expr>singletonList(nf.IntLit(JPGPosition.COMPILER_GENERATED, IntLit.INT, index))) : null));
                             	index++;
                             }
                         }
