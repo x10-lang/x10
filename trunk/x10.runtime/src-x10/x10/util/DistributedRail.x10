@@ -31,7 +31,7 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     public def this (len:Int, init:ValRail[T]) {
         val vr = ValRail.make(len, init);
-        data = PlaceLocalHandle.make[Rail[T]](Dist.makeUnique(), ()=>Rail.make(len,vr));
+        data = PlaceLocalHandle.make[Rail[T]](Dist.makeUnique(), ()=>Rail.make[T](len,vr));
         firstPlace = here;
         original = vr;
         original_len = len;
@@ -39,7 +39,7 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     public def this (len:Int, init:(Int)=>T) {
         val vr = ValRail.make(len, init);
-        data = PlaceLocalHandle.make[Rail[T]](Dist.makeUnique(), ()=>Rail.make(len,vr));
+        data = PlaceLocalHandle.make[Rail[T]](Dist.makeUnique(), ()=>Rail.make[T](len,vr));
         firstPlace = here;
         original = vr;
         original_len = len;
