@@ -153,7 +153,7 @@ public struct ParameterReader {
    private def trim(s: String) {
       var start: Int = 0;
       val size = s.length();
-      while(s(start).ord()<=0x20 && start < size) start += 1;
+      while(start < size && s(start).ord()<=0x20) start += 1;
       var end: Int = size - 1;
       while(end >= start && s(end).ord()<=0x20) end -= 1;
       if (DEBUG) Console.ERR.println("trim: s(" + start + "," + end + ")='" + s.substring(start,end+1)+"'");
