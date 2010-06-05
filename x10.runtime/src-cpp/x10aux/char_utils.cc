@@ -69,9 +69,8 @@ x10_boolean x10aux::char_utils::isUnicodeIdentifierIgnorable(x10_char x) {
 }
 
 x10_boolean x10aux::char_utils::isSpaceChar(x10_char x) {
-    (void) x;
-    assert(false); /* FIXME: STUBBED NATIVE */
-    return false;
+    /* FIXME: Unicode support */
+    return isWhitespace(x);
 }
 
 x10_boolean x10aux::char_utils::isWhitespace(x10_char x) {
