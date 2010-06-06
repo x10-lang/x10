@@ -2227,8 +2227,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
 			Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
 			Name methodName = X10Binary_c.binaryMethodName(op);
-                        X10TypeSystem xts = (X10TypeSystem) ts;
-                        if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()))) {			    w.write("(");
+			X10TypeSystem xts = (X10TypeSystem) ts;
+			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()))) {
+			    w.write("(");
 			    w.write("(");
 			    new TypeExpander(er, t, 0).expand();
 			    w.write("[])");
