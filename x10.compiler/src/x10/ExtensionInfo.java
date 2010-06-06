@@ -349,6 +349,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            Goal typeCheckedGoal = TypeChecked(job);
            goals.add(typeCheckedGoal);
 
+           if (x10.Configuration.ONLY_TYPE_CHECKING) {
+               goals.add(End(job));
+           } else {
+
            goals.add(EnsureNoErrors(job));
            goals.add(ReassembleAST(job));
 
@@ -402,6 +406,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            for (Goal goal : optimizations) {
                goal.addPrereq(TypeCheckBarrier());
                CodeGenerated(job).addPrereq(goal);
+           }
+
            }
 
            if (x10.Configuration.CHECK_INVARIANTS) {
