@@ -60,7 +60,9 @@ x10_int String::hashCode() {
 static const char *strnstrn(const char *haystack, size_t haystack_sz,
                             const char *needle, size_t needle_sz)
 {
-    for (size_t i=0 ; i<haystack_sz-needle_sz ; ++i) {
+    if (haystack_sz < needle_sz)
+        return NULL;
+    for (size_t i = 0; i <= haystack_sz-needle_sz; ++i) {
         if (!strncmp(&haystack[i], needle, needle_sz))
             return &haystack[i];
     }
@@ -84,8 +86,9 @@ x10_int String::indexOf(ref<String> str, x10_int i) {
 
 static const char *strnchr(const char *haystack, size_t haystack_sz, char needle)
 {
-    for (size_t i=0 ; i<haystack_sz ; ++i) {
-        if (haystack[i] == needle) return &haystack[i];
+    for (size_t i = 0; i < haystack_sz; ++i) {
+        if (haystack[i] == needle)
+            return &haystack[i];
     }
     return NULL;
 }
@@ -119,17 +122,18 @@ x10aux::ref<String> String::trim() {
     return this_;
 }
 
-
-static const char *my_strrstr(const char *haystack, const char *needle, int give_up) {
-    const char *last_find = NULL;
-    for (int i=0 ; i<=give_up && haystack[i]!='\0' ; ++i) {
-        for (int j=0 ; needle[j]!='\0' ; ++j) {
-            if (haystack[i+j] != needle[j]) goto nonmatch;
-        }
-        last_find = &haystack[i];
-        nonmatch: {}
+static const char *strnrstrn(const char *haystack, size_t haystack_sz,
+                             const char *needle, size_t needle_sz)
+{
+    if (haystack_sz < needle_sz)
+        return NULL;
+    for (size_t i = haystack_sz-needle_sz; i > 0; --i) {
+        if (!strncmp(&haystack[i], needle, needle_sz))
+            return &haystack[i];
     }
-    return last_find;
+    if (!strncmp(haystack, needle, needle_sz))
+        return haystack;
+    return NULL;
 }
 
 x10_int String::lastIndexOf(ref<String> str, x10_int i) {
@@ -138,20 +142,25 @@ x10_int String::lastIndexOf(ref<String> str, x10_int i) {
     if (((size_t)i) >= FMGL(content_length)) return -1;
 
     const char *needle = str->FMGL(content);
+    size_t needle_sz = str->FMGL(content_length);
     const char *haystack = FMGL(content);
-    const char *pos = my_strrstr(haystack, needle, i);
+    size_t haystack_sz = (size_t)i+1;
+    const char *pos = strnrstrn(haystack, haystack_sz, needle, needle_sz);
     if (pos == NULL)
         return (x10_int) -1;
     return (x10_int) (pos - haystack);
 }
 
-
-static const char *my_strrchr(const char *haystack, int needle, int give_up) {
-    const char *last_find = NULL;
-    for (int i=0 ; i<=give_up && haystack[i]!='\0' ; ++i) {
-        if (haystack[i] == needle) last_find = &haystack[i];
+static const char *strnrchr(const char *haystack, size_t haystack_sz, int needle) {
+    if (haystack_sz == 0)
+        return NULL;
+    for (size_t i = haystack_sz-1; i > 0; --i) {
+        if (haystack[i] == needle)
+            return &haystack[i];
     }
-    return last_find;
+    if (*haystack == needle)
+        return haystack;
+    return NULL;
 }
 
 x10_int String::lastIndexOf(x10_char c, x10_int i) {
@@ -160,7 +169,8 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
 
     int needle = (int)c.v;
     const char *haystack = FMGL(content);
-    const char *pos = my_strrchr(haystack, needle, i);
+    size_t haystack_sz = (size_t)i+1;
+    const char *pos = strnrchr(haystack, haystack_sz, needle);
     if (pos == NULL)
         return (x10_int) -1;
     return (x10_int) (pos - haystack);
@@ -172,18 +182,18 @@ ref<String> String::substring(x10_int start, x10_int end) {
     if (start > end) x10aux::throwArrayIndexOutOfBoundsException(start, end);
     if (((size_t)end) > FMGL(content_length)) x10aux::throwArrayIndexOutOfBoundsException(end, FMGL(content_length));
 #endif
-    std::size_t sz = end - start;
+    size_t sz = end - start;
     char *str = x10aux::alloc<char>(sz+1);
-    for (std::size_t i=0 ; i<sz ; ++i)
+    for (size_t i = 0; i < sz; ++i)
         str[i] = FMGL(content)[start+i];
     str[sz] = '\0';
     return String::Steal(str);
 }
 
 static ref<ValRail<ref<String> > > split_all_chars(String* str) {
-    std::size_t sz = (std::size_t)str->length();
+    size_t sz = (size_t)str->length();
     ValRail<ref<String> > *rail = alloc_rail<ref<String>,ValRail<ref<String> > > (sz);
-    for (std::size_t i = 0; i < sz; ++i) {
+    for (size_t i = 0; i < sz; ++i) {
         rail->raw()[i] = str->substring(i, i+1);
     }
     return rail;
@@ -221,7 +231,7 @@ x10_char String::charAt(x10_int i) {
 ref<ValRail<x10_char> > String::chars() {
     x10_int sz = length();
     ValRail<x10_char> *rail = alloc_rail<x10_char,ValRail<x10_char> > (sz);
-    for (int i=0 ; i<sz ; i++)
+    for (int i = 0; i < sz; ++i)
         rail->raw()[i] = (x10_char) FMGL(content)[i]; // avoid bounds check
     return rail;
 }
@@ -229,7 +239,7 @@ ref<ValRail<x10_char> > String::chars() {
 ref<ValRail<x10_byte> > String::bytes() {
     x10_int sz = length();
     ValRail<x10_byte> *rail = alloc_rail<x10_byte,ValRail<x10_byte> > (sz);
-    for (int i=0 ; i<sz ; i++)
+    for (int i = 0; i < sz; ++i)
         rail->raw()[i] = FMGL(content)[i]; // avoid bounds check
     return rail;
 }
@@ -277,23 +287,21 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
     nullCheck(parms);
-    size_t len = format->FMGL(content_length);
+    //size_t len = format->FMGL(content_length);
     char* orig = const_cast<char*>(format->c_str());
     char* fmt = orig;
     char* next = NULL;
-    for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
+    for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
         next = strchr(fmt+1, '%'); // FIXME: this is only ok if we always null-terminate content
         if (next != NULL)
             *next = '\0';
         if (*fmt != '%') {
             ss << fmt;
-            if (next != NULL)
-                *next = '%';
-            i--;
-            continue;
+            --i;
+        } else {
+            const ref<Reference> p = parms->operator[](i);
+            _formatHelper(ss, fmt, p);
         }
-        const ref<Reference> p = parms->operator[](i);
-        _formatHelper(ss, fmt, p);
         if (next != NULL)
             *next = '%';
     }
@@ -305,23 +313,21 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
     placeCheck(nullCheck(parms));
-    size_t len = format->FMGL(content_length);
+    //size_t len = format->FMGL(content_length);
     char* orig = const_cast<char*>(format->c_str());
     char* fmt = orig;
     char* next = NULL;
-    for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
+    for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
         next = strchr(fmt+1, '%'); // FIXME: this is only ok if we always null-terminate content
         if (next != NULL)
             *next = '\0';
         if (*fmt != '%') {
             ss << fmt;
-            if (next != NULL)
-                *next = '%';
-            i--;
-            continue;
+            --i;
+        } else {
+            const ref<Reference> p = parms->operator[](i);
+            _formatHelper(ss, fmt, p);
         }
-        const ref<Reference> p = parms->operator[](i);
-        _formatHelper(ss, fmt, p);
         if (next != NULL)
             *next = '%';
     }
@@ -357,7 +363,7 @@ x10_boolean String::equalsIgnoreCase(ref<String> s) {
 ref<String> String::toLowerCase() {
     char *str = x10aux::alloc<char>(FMGL(content_length)+1);
     bool all_lower = true;
-    for (std::size_t i=0 ; i<FMGL(content_length) ; ++i) {
+    for (size_t i = 0; i < FMGL(content_length); ++i) {
         x10_char c = FMGL(content)[i];
         if (!x10aux::char_utils::isLowerCase(c))
             all_lower = false;
@@ -376,7 +382,7 @@ ref<String> String::toLowerCase() {
 ref<String> String::toUpperCase() {
     char *str = x10aux::alloc<char>(FMGL(content_length)+1);
     bool all_upper = true;
-    for (std::size_t i=0 ; i<FMGL(content_length) ; ++i) {
+    for (size_t i = 0; i < FMGL(content_length); ++i) {
         x10_char c = FMGL(content)[i];
         if (!x10aux::char_utils::isUpperCase(c))
             all_upper = false;
