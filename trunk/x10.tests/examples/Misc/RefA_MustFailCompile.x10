@@ -15,6 +15,8 @@ public class RefA(f0: RefB{self.f2.f1==this.f1}, f1:int) extends x10Test {
 	public def this(f0_: RefB{self.f2.f1==f1}, f1_: int): RefA { 
 		// should give an error the type of an arg to a constructor
 		// cannot reference this -- there is no this to refer to!!
+		// And indeed it gives that error:
+		// \x10.tests\examples\Misc\RefA.x10:15: Cannot access a non-static field or method, or refer to "this" or "super" from a static context.
                 property(f0_, f1_);
 	}
 	public def run(): boolean {
