@@ -77,7 +77,8 @@ public abstract class CallTableVal  implements Serializable {
 		int last = name.indexOf('>');
 		String line = name.substring(second_colon + 1, last);
 		int hashed_name = file_name.hashCode();
-		return "activity" + String.valueOf(hashed_name) + ":" + line;
+		return "activity"+file_name+":"+line;
+		//return "activity" + String.valueOf(hashed_name) + ":" + line;
 	    }
 	    return name;
 	}
