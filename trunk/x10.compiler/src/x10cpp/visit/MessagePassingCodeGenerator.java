@@ -842,8 +842,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             X10ClassDef cd = (X10ClassDef) ct.def();
             if (cd == def)
                 continue;
-            if (cd.isFunction())
-                continue;
             if (!allIncludes.contains(ct)) {
                 declareClass(cd, h);
                 if (xts.isStructType(ct)) {
