@@ -1,0 +1,120 @@
+This is e-TeX, Version 3.141592-2.2 (MiKTeX 2.4) (preloaded format=latex 2005.4.13)  13 APR 2005 04:02
+entering extended mode
+**driver
+(driver.tex
+LaTeX2e <2003/12/01>
+Babel <v3.8a> and hyphenation patterns for english, french, german, ngerman, du
+mylang, nohyphenation, loaded.
+(C:\texmf\tex\latex\base\article.cls
+Document Class: article 2004/02/16 v1.4f Standard LaTeX document class
+(C:\texmf\tex\latex\base\size10.clo
+File: size10.clo 2004/02/16 v1.4f Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+No file driver.aux.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+(changebar.ins (C:\texmf\tex\latex\base\docstrip.tex
+\blockLevel=\count87
+\emptyLines=\count88
+\processedLines=\count89
+\commentsRemoved=\count90
+\commentsPassed=\count91
+\codeLinesPassed=\count92
+\TotalprocessedLines=\count93
+\TotalcommentsRemoved=\count94
+\TotalcommentsPassed=\count95
+\TotalcodeLinesPassed=\count96
+\NumberOfFiles=\count97
+\inFile=\read1
+\inputcheck=\read2
+\off@0=\count98
+\off@1=\count99
+\off@2=\count100
+\off@3=\count101
+\off@4=\count102
+\off@5=\count103
+\off@6=\count104
+\off@7=\count105
+\off@8=\count106
+\off@9=\count107
+\off@10=\count108
+\off@11=\count109
+\off@12=\count110
+\off@13=\count111
+\off@14=\count112
+\off@15=\count113
+\@maxfiles=\count114
+\@maxoutfiles=\count115
+
+Utility: `docstrip' 2.5c <2003/09/18>
+English documentation    <1999/03/31>
+
+**********************************************************
+* This program converts documented macro-files into fast *
+* loadable files by stripping off (nearly) all comments! *
+**********************************************************
+
+********************************************************
+* No Configuration file found, using default settings. *
+********************************************************
+
+(changebar.ins
+File ./changebar.sty already exists on the system.
+Overwrite it? [y/n]
+\answer=y
+
+Generating file(s) ./changebar.sty 
+
+Processing file changebar.dtx (package) -> changebar.sty
+File changebar.dtx ended by \endinput.
+Lines  processed: 2277
+Comments removed: 1556
+Comments  passed: 1
+Codelines passed: 712
+
+***********************************************************
+*
+* To finish the installation you have to move the following
+* file into a directory searched by TeX:
+*
+*   changebar.sty
+*
+* To produce the documentation run the file changebar.dtx
+* through LaTeX, then run makeindex -s gind.ist changebar
+ produce the index in a second LaTeX run.
+*
+* Happy TeXing
+***********************************************************
+) ) ) ) 
+Here is how much of TeX's memory you used:
+ 533 strings out of 95898
+ 5035 string characters out of 1195288
+ 45849 words of memory out of 1049626
+ 3628 multiletter control sequences out of 60000
+ 3640 words of font info for 14 fonts, out of 500000 for 1000
+ 14 hyphenation exceptions out of 607
+ 23i,1n,18p,215b,128s stack positions out of 1500i,500n,5000p,200000b,32768s
+
+No pages of output.

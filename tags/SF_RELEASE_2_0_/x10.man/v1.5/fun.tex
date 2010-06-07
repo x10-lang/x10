@@ -1,0 +1,187 @@
+Tue Dec 21 06:47:22 2004
+// This file x10/doc/fun.txt in the Purdue CVS
+
+\section{The {\cf method} datatype}
+
+We introduce the datatype:
+
+\begin{x10}
+   fun<T1,...,Tk,T>  
+\end{x10}
+
+\noindent which is the type of functions that take k arguments of the
+corresponding type and yield a result of type T. Values of this type
+may be stored in fields and array elements, passed as arguments,
+returned from methods etc.
+
+There are two ways of creating values at this type.  One way is to use
+a {\cf fun} expression:
+\begin{x10}
+     fun T (ArgListopt) {Stm}  
+\end{x10}
+
+\noindent where {\cf ArgListopt} specifies the type and formal
+arguments to the function, and {\cf Stm} must satisfy the conditions
+for the body of a method of the given return type. The formal
+arguments are to be considered bound in {\cf Stm}. {\cf Stm} may
+reference variables bound in an outer scope only if those variables
+are declared {\tt final}.
+
+Second, we permit function literals. For any instance method or
+operator {\cf m} defined on a class {\cf C}, with arguments of type
+{\cf T1, \ldots ,Tk} and return type {\cf T}, the expression
+
+\begin{x10}
+     C#m  
+\end{x10}
+\noindent denotes a value of type {\cf fun<C, T1, \ldots , Tk, T>}. 
+
+The only operation available on a value of type {\tt fun<T1, \ldots ,Tk,T>} is apply:
+
+\begin{x10}
+    f(t1,\ldots,tk)  
+\end{x10}
+
+\noindent The arguments must be of type {\cf T1,\ldots ,Tk}
+respectively, and the type of the expression is {\cf
+T}. Operationally, if {\cf f} is the value
+\begin{x10}
+   fun T (T1 v1, ..., Tk vk) {S}  
+\end{x10}
+\noindent then {\cf f(t1, \ldots, tk)} evaluates to {\cf S}, with {\cf
+v1, \ldots ,vk} substituted by {\cf t1, \ldots, tk} respectively. If
+{\cf f} is the value {\cf C\#m}, then {\cf f(t1, \ldots, tk)}
+evaluates to {\cf t1.m(t2, \ldots ,tk)}.
+
+Note that the function datatype is a first-class datatype: type
+constructors such as nullable, future, array type constructors can be
+applied to them. Thus one may have nullable functions, futures of
+functions, arrays of functions etc.
+
+\subsection{Implementation}
+
+The {\cf fun(T1,...,Tk, T)} datatype may be implemented by the interface:
+\begin{x10}
+    public interface fun<T1,...,Tk, T> {
+        T apply(T1 t1,..., Tk tk);
+    }
+\end{x10}
+\noindent for every value of {\cf k}. The value
+\begin{x10}
+    fun T (T1 t1, ..., Tk tk) {S}
+\end{x10}
+may be translated to
+\begin{x10}
+    new fun<T1,...,Tk, T>() {
+       public T apply(T1 t1,..., Tk tk) {
+         S
+       }
+    }  
+\end{x10}
+
+The value {\cf C\#m} may be translated to
+
+\begin{x10}
+    new fun<C,T1,...,Tk, T>() {
+       public T apply(C o, T1 t1,..., Tk tk) {
+         return o.m(t1,...,tk);
+       }
+    }
+\end{x10}
+
+Application of a function {\cf f} to a tuple of arguments {\cf
+(t1,\ldots, tn)} ) is performed by invoking the {\cf apply} function:
+
+\begin{x10}
+  f.apply(t1,...,tn);
+\end{x10}
+
+\subsection{Related language decisions}
+
+\paragraph{Array constructors as functions.}
+
+The introduction of the function datatype allows a simplification of
+array constructors. They may now be specified as:
+
+\begin{x10}
+    new ArrayType Fun  
+\end{x10}
+
+\noindent where {\cf Fun} is a function which takes points as
+arguments (over the region defined by {\cf ArrayType}) and returns
+values of Base, the base type of the array. For instance
+
+\begin{x10}
+   new int[0:N] fun(region(0:N) i) { return i; }  
+\end{x10}
+
+Note that the function may be passed in as a parameter:
+\begin{x10}
+    public int[] makeArray( fun(region, int) init, int n) {
+         return new int[0:n] init;
+    }
+\end{x10}
+
+\paragraph{Scan and reduce operations.}
+
+The class {\cf x10.lang.system} provides certain static methods on arrays:
+
+\begin{x10}
+  public extern static <T> T reduce(T[] a, fun<T,T,T> f, T identity);
+  public extern static <T, distribution D> T[D] scan(T[D] a, fun<T,T,T> f, T identity);
+  public extern static <T, distribution D> T[D] lift(T[D] a, fun<T,T> f);
+\end{x10}
+
+The first evaluates to a value of type {\tt T} obtained by applying
+{\tt f} pairwise to all elements of the array {\tt a} in some
+unspecified order.  (Therefore, for repeatability, it is necessary
+that {\tt f} be associative and commutative, and {\tt identity}
+satisfy the property {\tt f(a,identity)=a=f(identity,a)}.) The second
+returns an array whose {\cf i}th element is obtained by reducing the
+{\cf i}th sub-array of {\cf a} (in canonical order). The third returns
+the array obtained by applying the operation {\cf f} on each element
+of {\cf a}.
+
+Thus a programmer may write:
+\begin{x10}
+    reduce(v, fun int (int x, int y) { return x+y;}, 0)  // reduce an int array
+    reduce(v, int#'+', 0)  // same as above.
+    lift(v, fun int (int x) {return x+x;}) // double the array.  
+\end{x10}
+
+\paragraph{Iterators as function}
+
+Suppose the datatype {\cf fun<D, R>} is such that {\cf D} is statically
+known to be finite. For instance {\cf D} may be a $k$-dimensional range.
+Let {\cf f} be a value of such a type. Then the statement
+
+\begin{x10}
+   foreach f;
+\end{x10}
+\noindent executes {\cf f} asynchronously for each element {\cf d} in
+the domain:
+\begin{x10}
+    async { f(d); }  
+\end{x10}
+Similarly the statement:
+\begin{x10}
+    for f;
+\end{x10}
+executes {\cf f} for each element {\cf d} in the domain in canonical order.
+The statement
+\begin{x10}
+    ateach f;
+\end{x10}
+Similarly for ateach. 
+
+This syntax has the advantage over the for/foreach/ateach syntax in
+0.32 that the iterator may be stored in a datstructure, read from a
+datastructure or passed in as an argument to a method invocation. For
+instance
+
+    public void iterate( fun(region, int) iterator) {
+           foreach iterator;
+    }
+       
+
+

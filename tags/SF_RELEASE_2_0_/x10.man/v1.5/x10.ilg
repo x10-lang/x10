@@ -1,0 +1,9 @@
+This is makeindex, version 2.14 [02-Oct-2002] (kpathsea + Thai support).
+Scanning input file x10.idx....
+!! Input index error (file = x10.idx, line = 93):
+   -- Illegal null field.
+done (94 entries accepted, 1 rejected).
+Sorting entries....done (756 comparisons).
+Generating output file x10.ind....done (163 lines written, 0 warnings).
+Output written in x10.ind.
+Transcript written in x10.ilg.
