@@ -1,0 +1,370 @@
+In the statement of the following lemmas and theorems, $\Gamma$ is assumed well formed.
+We first start with the two pivotal lemmas that isolate the main body of the proof form the details of the axiomatization of type parameters.
+
+\begin{lem}\label{uni}
+If $\Gamma,x:T\vdash x~{\tt has}~I,x~{\tt has}~J$ where $I$ and $J$ are both fields or both methods with the same name then $I=J$ modulo alpha-renaming of the type and value parameters.
+\end{lem}
+
+\begin{proof}
+By induction on the structure of $T$.
+\item If $T=U\{c\}$ then I and J must be both obtained by rule {\sc H-Dep}, hence I=J by induction hypothesis.
+\item If $T=\exists x:U.V$ then I and J must be both obtained by rule {\sc H-Exists}, hence I=J by induction hypothesis.
+\item If $T=X$ then T has no fields and no methods in FXG.
+\item If $T=C[\overline{A}]$ then I=J by definition of the overriding rules.
+\end{proof}
+
+
+\begin{lem}\label{sum}\label{suf}
+If $\Gamma,x:T\vdash x<:G$ and $\Gamma,x:G\vdash x~{\tt has}~I$ then there exists $J$ such that $\Gamma,x:T\vdash x~{\tt has}~J,J \ll I$.
+\end{lem}
+
+\begin{proof}
+By induction on the structure of the proof of $\Gamma,x:T\vdash x<:G$. If the last rule used is:
+\item {\sc S-Class}: by rule {\sc L-Fields-I} and {\sc L-Method-I}.
+\item {\sc S-Const-L}: because $\ll$ is reflexive.
+\item Other rules: by induction hypothesis.
+\end{proof}
+
+\begin{thm}[Principal Types]\label{pri}
+If $\Gamma\vdash e:T,e:S$ then $S=T$.
+\end{thm}
+
+\begin{proof}
+By induction on the structure of $e$. There is exactly one typing rule for each kind of expression. Moreover, by Lemma~\ref{uni}, each type ``{\tt has}'' at most one field with name $f$ and method with name $m$, hence there is only one way the {\sc T-Field} and {\sc T-Invk} rules can be used to respectively type a field access or a method invocation.
+\end{proof}
+
+The following lemmas permit replacing one type by a subtype in various contexts.
+
+\begin{lem}\label{sub}
+If $\Gamma,x:X\vdash e:T$ and $\Gamma\vdash f:Y$ and $\Gamma,x:Y\vdash x<:X$ then there exists $S$ such that $\Gamma\vdash e[f/x]:S$ and $\Gamma,x:S\vdash x<:\exists y:Y.T$.
+\end{lem}
+
+\begin{lem}\label{suc}
+If $\Gamma,x:T\vdash c$ and $\Gamma,x:S\vdash x<:T$ then $\Gamma,x:S\vdash c$.
+\end{lem}
+
+\begin{lem}\label{sue}
+If $\Gamma,x:S\vdash x<:T$ and $\Gamma,x:T\vdash_W U$ then $\Gamma, x:\exists y:S.U\vdash x<:\exists y:T.U$.
+\end{lem}
+
+\begin{lem}\label{sud}
+If $\Gamma,y:U,x:S\vdash x<:T$ and $\Gamma,x:T\vdash_W U$ then $\Gamma, x:\exists y:U.S\vdash x<:\exists y:U.T$.
+\end{lem}
+
+\begin{proof}
+Straightforward inductions.
+\end{proof}
+
+
+\begin{thm}[Subject Reduction]\label{sr}
+If $\Gamma$ is well formed and $\Gamma\vdash e:T$ and $e\rightarrow e'$ then there exists $S$ such that $\Gamma\vdash e':S$. Moreover $\Gamma,x:S\vdash x<:T$.
+\end{thm}
+
+\begin{proof}
+By induction on the proof of $e\rightarrow e'$. Assume $\Gamma\vdash e:T$.
+
+\begin{itemize}
+
+%%%%%%%%%%
+
+\item $e.f \rightarrow e'.f$ by rule {\sc RC-Field}
+\\
+\begin{tabular}{ll}
+{\sc T-Field} & $\Gamma\vdash e:R$
+\\
+& $\Gamma,r:R\vdash r~{\tt has}~f:F$
+\\
+& $\Gamma\vdash e.f:T$
+\\
+where & $T$ is $\exists r:R.F\{self==r.f\}$
+\\
+Ind. hyp. & $\Gamma\vdash e':R'$ and $\Gamma,x:R'\vdash x<:R$
+\\
+Lemma~\ref{suf} & $\Gamma,r:R'\vdash r~{\tt has}~f:F$
+\\
+{\sc T-Field} & $\Gamma\vdash e'.f:S$
+\\
+where & $S$ is $\exists r:R'.F\{self==r.f\}$
+\\
+Lemma~\ref{sue} & $\Gamma,x:S\vdash x<:T$
+\end{tabular}
+
+%%%%%%%%%%
+
+\item $e.m[\overline{B}](\overline{a}) \rightarrow e'.m[\overline{B}](\overline{a})$ by rule {\sc RC-Invk-Recv}
+\\
+\begin{tabular}{ll}
+{\sc T-Invk} & $\Gamma\vdash e:R,\overline{a}:\overline{A}$
+\\
+& $\Gamma,r:R\vdash r~{\tt has}~m[\overline{B}](\overline{f}:\overline{F})\{c\}:M$
+\\
+& $\Gamma,r:R,\overline{f}:\overline{A}\vdash c,\overline{f}<:\overline{F}$
+\\
+& $\Gamma\vdash e.m[\overline{B}](\overline{a}):T$
+\\
+where & $T$ is $\exists r:R.\exists \overline{f}:\overline{A}.M$
+\\
+Ind. hyp. & $\Gamma\vdash e':R'$ and $\Gamma,x:R'\vdash x<:R$
+\\
+Lemma~\ref{sum} & $\Gamma,r:R'\vdash r~{\tt has}~m[\overline{B}](\overline{f}:\overline{F})\{c'\}:M'$
+\\
+& $\Gamma,r:R',\overline{f}:\overline{F},c',y:M'\vdash y<:M$
+\\
+& $\Gamma,r:R',\overline{f}:\overline{F},c\vdash c'$
+\\
+Lemma~\ref{suc} & $\Gamma,r:R',\overline{f}:\overline{A}\vdash c$
+\\
+& $\Gamma,r:R',\overline{f}:\overline{A},y:M'\vdash y:M$
+\\
+{\sc T-Invk} & $\Gamma\vdash e'.m[\overline{B}](\overline{a}):S$
+\\
+where & $S$ is $\exists r:R'.\exists \overline{f}:\overline{A}.M'$
+\\
+Lemma~\ref{sud} & $\Gamma,y:S\vdash y<:\exists r:R'.\exists\overline{f}:\overline{A}.M$
+\\
+Lemma~\ref{sue} & $\Gamma,y:\exists r:R'.\exists\overline{f}:\overline{A}.M\vdash y<:T$
+\\
+{\sc S-Trans} & $\Gamma, y:S\vdash y:T$
+\end{tabular}
+
+%%%%%%%%%%
+
+\item ${\tt new}~C[\overline{A}](\overline{v}).f_i \rightarrow e'$ by rule {\sc R-Field}
+\\
+\begin{tabular}{ll}
+{\sc T-New} & $\Gamma\vdash\overline{v}:\overline{V}$
+\\
+& ${\sf fields}(C[\overline{A}])=\overline{f}:\overline{F}$
+\\
+& $\Gamma,\overline{x}:\overline{V}\vdash \overline{x}<:\overline{F}$
+\\
+& $\Gamma\vdash{\tt new}~C(\overline{v}):R$
+\\
+where & $R$ is $\exists\overline{x}:\overline{V}.C[\overline{A}]\{self=={\tt new}~C(\overline{x})\}$
+\\
+{\sc R-Field} & $e'$ is $v_i$
+\\
+{\sc T-Field} &
+$\Gamma\vdash{\tt new}~C[\overline{A}](\overline{v}).f_i:T$ \\
+where & $T$ is $\exists r:R.F_i\{self==r.f_i\}$
+\\
+{\sc T-Var} & $\Gamma,y:V_i\vdash y:V_i\{self==y\}$
+\\
+let $t$ be & ${\tt new}~C[\overline{A}](\overline{v}[y/v_i])$
+\\
+{\sc T-New} & $\Gamma,y:V_i\vdash t:R'$
+\\
+where & $R'$ is $\exists\overline{x}:\overline{V}[V_i\{self==y\}/V_i].$\\
+& $~~C[\overline{A}]\{self=={\tt new}~C(\overline{x})\}$
+\\
+ & $\sigma(\Gamma)\vdash_X y==t.f_i$
+\\
+{\sc X-Proj} & $\Gamma,y:V_i\vdash y==t.f_i$
+\\
+{\sc S-Const-R} & $\Gamma,y:V_i\vdash y<:F_i\{self==t.f_i\}$
+\\
+{\sc S-Exists-R} & $\Gamma,y:V_i\vdash y<:\exists r:R'.F_i\{self==r.f_i\}$
+\\
+Lemma~\ref{sue} & $\Gamma,y:V_i\vdash y<:T$
+\end{tabular}
+
+%%%%%%%%%%
+
+\item ${\tt new}~C[\overline{A}](\overline{v}).m[\overline{B}](\overline{w}) \rightarrow e'$ by rule {\sc R-Invk}
+\\
+\begin{tabular}{ll}
+{\sc R-Invk} & ${\sf methods}(C[\overline{A}]) \ni m[\overline{B}](\overline{f}:\overline{F})\{c\}:M=e$
+\\
+& $e'$ is $e[{\tt new}~C[\overline{A}](\overline{v})/this,\overline{w}/\overline{f}]$
+\\
+{\sc OK-Method} & $this:C[\overline{A}],\overline{f}:\overline{F},c\vdash e:E$
+\\
+& $this:C[\overline{A}],\overline{f}:\overline{F},c,x:E\vdash x<:M$
+\\
+{\sc T-New} & $\Gamma\vdash\overline{v}:\overline{V}$
+\\
+& $\Gamma\vdash{\tt new}~C[\overline{A}](\overline{v}):R$
+\\
+where & $R$ is $\exists\overline{x}:\overline{V}.C[\overline{A}]\{self=={\tt new}~C(\overline{x})\}$
+\\
+{\sc H-Method} & $\Gamma, r:C[\overline{A}]~{\tt has}~m[\overline{B}](\overline{f\theta}:\overline{F\theta})\{c\theta\}:M\theta$
+\\
+& where $\theta=r/this$
+\\
+{\sc T-Invk} & $\Gamma\vdash{\tt new}~C[\overline{A}](\overline{v}).m[\overline{B}](\overline{w}):T$
+\\
+& $\Gamma\vdash\overline{w}:\overline{W}$
+\\
+& $\Gamma,r:C[\overline{A}],\overline{f}:\overline{W}\vdash c\theta, \overline f<:\overline{F}\theta$
+\\
+where & $T$ is $\exists r:R.\exists \overline{f}:\overline{W}.M\theta$
+\\
+Lemma~\ref{sub} & $\Gamma\vdash e':S$
+\\
+& $\Gamma,x:S\vdash x<:\exists r:R.\exists \overline{f}:\overline{W}.E\theta$
+\\
+& $\Gamma,r:R,\overline{f}:\overline{W},x:E\theta\vdash x<:M\theta$
+\\
+Lemma~\ref{sud} & $\Gamma,x:\exists r:R.\exists \overline{f}:\overline{W}.E\theta\vdash x<:T$
+\\
+{\sc S-Trans} & $\Gamma,x:S\vdash x<:T$
+\end{tabular}
+
+%%%%%%%%%%
+
+\item $v.m[\overline{B}](\overline{a}) \rightarrow v.m[\overline{B}](\overline{a}')$ by rule {\sc RC-Invk-Arg}
+\\
+\begin{tabular}{ll}
+{\sc T-Invk} & $\Gamma\vdash v:R,\overline{a}:\overline{A}$
+\\
+& $\Gamma,r:R\vdash r~{\tt has}~m[\overline{B}](\overline{f}:\overline{F})\{c\}:M$
+\\
+& $\Gamma,r:R,\overline{f}:\overline{A}\vdash c,\overline{f}<:\overline{F}$
+\\
+& $\Gamma\vdash e.m[\overline{B}](\overline{a}):T$
+\\
+where & $T$ is $\exists r:R.\exists \overline{f}:\overline{A}.M$
+\\
+Ind. hyp. & $\Gamma\vdash \overline{a'}:\overline{A'}$ and $\Gamma,\overline{f}:\overline{A'}\vdash\overline{f}<:\overline{A}$
+\\
+{\sc S-Trans} & $\Gamma,\overline{f}:\overline{A'}\vdash\overline{f}<:\overline{F}$
+\\
+Lemma~\ref{suc} & $\Gamma,r:R,\overline{f}:\overline{A'}\vdash c$
+\\
+{\sc T-Invk} & $\Gamma\vdash v.m[\overline{B}](\overline{a}'):S$
+\\
+where & $S$ is $\exists r:R.\exists \overline{f}:\overline{A'}.M$
+\\
+Lemma~\ref{sue} & $\Gamma,x:S\vdash x<:T$
+\end{tabular}
+
+%%%%%%%%%%
+
+\item ${\tt new}~C[\overline{B}](\overline{a}) \rightarrow {\tt new}~C[\overline{B}](\overline{a}')$ by rule {\sc RC-New-Arg}
+\\
+\begin{tabular}{ll}
+{\sc T-New} & $\Gamma\vdash\overline{a}:\overline{A}$
+\\
+& ${\sf fields}(C[\overline{B}])=\overline{f}:\overline{F}$
+\\
+& $\Gamma,\overline{x}:\overline{A}\vdash \overline{x}<:\overline{F}$
+\\
+& $\Gamma\vdash{\tt new}~C[\overline{B}](\overline{a}):T$
+\\
+where & $T$ is $\exists\overline{x}:\overline{A}.C[\overline{B}]\{self=={\tt new}~C[\overline{B}](\overline{x})\}$
+\\
+Ind. hyp. & $\Gamma\vdash \overline{a'}:\overline{A'}$ and $\Gamma,\overline{f}:\overline{A'}\vdash\overline{f}<:\overline{A}$
+\\
+{\sc S-Trans} & $\Gamma,\overline{f}:\overline{A'}\vdash\overline{f}<:\overline{F}$
+\\
+{\sc T-New} & ${\tt new}~C[\overline{B}](\overline{a}'):S$
+\\
+where & $S$ is $\exists\overline{x}:\overline{A'}.C[\overline{B}]\{self=={\tt new}~C[\overline{B}](\overline{x})\}$
+\\
+Lemma~\ref{sue} & $\Gamma,x:S\vdash x<:T$
+\end{tabular}
+
+%%%%%%%%%%
+
+\item $e.f \rightarrow e~{\tt as}~G\rightarrow e'~{\tt as}~G$ by rule {\sc RC-Cast}
+\\
+\begin{tabular}{ll}
+{\sc T-Cast} & $\Gamma\vdash e~{\tt as}~G:G$
+\\
+& $\Gamma\vdash e:E$
+\\
+Ind. hyp. & $\Gamma\vdash e':E'$
+\\
+{\sc T-Cast} & $\Gamma\vdash e'~{\tt as}~G:G$
+\\
+{\sc S-Const-L} & $\Gamma,x:G\vdash x<:G$
+\end{tabular}
+
+%%%%%%%%%%
+
+\item ${\tt new}~C[\overline{B}](\overline{v})~{\tt as}~G\rightarrow {\tt new}~C[\overline{B}](\overline{v})$ by rule {\sc R-Cast}
+\\
+\begin{tabular}{ll}
+{\sc T-Cast} & $\vdash{\tt new}~C[\overline{B}](\overline{v}):S$
+\\
+{\sc T-New} &  $\vdash\overline{v}:\overline{V}$
+\\
+& $S$ is $\exists\overline{x}:\overline{V}.C[\overline{B}]\{self=={\tt new}~C[\overline{B}](\overline{x})\}$
+\\
+{\sc R-Cast} & $x:S\vdash x<:T$
+\end{tabular}
+\end{itemize}
+\end{proof}
+
+
+\begin{thm}[Progress]\label{pro}
+If $\vdash e:T$ then one of the following conditions holds:
+\begin{enumerate}
+\item $e$ is a value,
+\item $e$ has a stuck sub-expression of the form $v~{\tt as}~G$,
+\item there exists $e'$ such that $e\rightarrow e'$.
+\end{enumerate}
+\end{thm}
+
+\begin{proof}By induction on the structure of the expression. Assume $e$ contains no sub-expression that is of the form $v~{\tt as}~G$.
+\begin{itemize}
+\item If $e$ is $a.f$.\\
+If $a$ is a value then $e$ can make a step by rule {\sc R-Field}. Otherwise, by induction hypothesis, $a\rightarrow a'$ then $e$ can make a step by rule {\sc RC-Field}.
+
+\item If $e$ is $a.m[\overline{B}](\overline{b})$. \\
+If $a,\overline{b}$ are values then $e$ can make a step by rule {\sc R-Invk}. 
+Otherwise, if $a$ is not a value then by induction hypothesis $a\rightarrow a'$ and $e$ can make a step by rule {\sc RC-Invk-Recv}. Otherwise, if $b_i$ is not a value then by induction hypothesis $b_i\rightarrow b_i'$ and $e$ can make a step by rule {\sc RC-Invk-Arg}. 
+
+\item If $e$ is ${\tt new}~C[\overline{G}](\overline{a})$\\
+Since $a_i$ is not a value for some $i$ then $e$ can make a step by rule {\sc RC-New-Arg}.
+
+\item If $e$ is $a~{\tt as}~G$.\\
+If $a$ is not a value then $a$ is well typed by {\sc T-Cast}, hence can make a step by induction hypothesis, thus $e$ can make a step by rule {\sc RC-Cast}.
+Otherwise, if $a$ is a value then $e$ can make a step by rule {\sc R-Cast} since $e$ contains no sub-expression that is of the form $v~{\tt as}~G$.
+\end{itemize}
+\end{proof}
+
+
+\begin{thm}[Type Soundness]
+If $\vdash e:T$ and e reduces to a normal form $e'$ then either $e'$ contains a stuck cast sub-expression of the form $v~{\tt as}~G$ or $e'$ is a value $v$ and there exists $S$ such that $\vdash v:S$. Moreover, in that case, $x:S\vdash x<:T$.
+\end{thm}
+
+\begin{proof}
+Straightforward by Theorems~\ref{sr} and ~\ref{pro}.
+\end{proof}
+
+
+
+\begin{thm}[Method guards] If $P$ is well-typed and $\Gamma$ is a well-formed context and $\Gamma \vdash e.m[\overline{B}](\overline{a}):T$ and $e \rightarrow^*{\tt new}~C[\overline{A}](\overline{v})$ and $\overline{a} \rightarrow^* \overline{w}$ and ${\sf methods}(C[\overline{A}])\ni m[\overline{B}](\overline{f}:\overline{F})\{c\}:M=e$ then $\Gamma\vdash c[{\tt new}~C[\overline{A}](\overline{v}),\overline{w}/this,\overline{f}]$.
+\end{thm}
+
+\begin{proof}Using subject reduction and overriding rules.\\
+\begin{tabular}{ll}
+{\sc T-Invk} & $\Gamma\vdash e:E, \overline{a}:\overline{A}$
+\\
+& $\Gamma, x:E,\overline{f}:\overline{A}\vdash x~{\tt has}~m[\overline{B}](\overline{f}:\overline{G})\{d\}:N$
+\\
+& $\Gamma, x:E,\overline{f}:\overline{A}\vdash d, \overline{f}<:\overline{G}$
+\\
+Th.~\ref{sr} & $\Gamma \vdash{\tt new}~C[\overline{A}](\overline{v}):R, \overline{w}:\overline{W}$
+\\
+& $\Gamma, x:R\vdash x<:E$
+\\
+& $\Gamma, \overline{f}:\overline{W}\vdash \overline{f}<:\overline{A}$
+\\
+{\sc T-New} & $R$ is $\exty{\overline{y}}{\overline{W}}{C[\overline{A}]}\{k\}$
+\\
+{\sc H-*} & $\Gamma,x:R\vdash x~{\tt has}~m[\overline{B}](\overline{f}:\overline{F\theta})\{c\theta\}:M\theta$
+\\
+where & $\theta$ is $x/this$
+\\
+Lemma~\ref{sum} & $\Gamma,x:R\vdash m[\overline{B}](\overline{f}:\overline{F\theta})\{c\theta\}:M\theta\ll m[\overline{B}](\overline{f}:\overline{G})\{d\}:N$
+\\
+{\sc O*-Method} & $\Gamma,x:R, \overline{f}:\overline{G}, d\vdash c\theta$ since $P$ is well-typed
+\\
+Lemma~\ref{suc} & $\Gamma,x:R, \overline{f}:\overline{W} \vdash c\theta$
+\\
+& $\Gamma\vdash c[{\tt new}~C[\overline{A}](\overline{v}),\overline{w}/this,\overline{f}]$
+\end{tabular}
+
+\end{proof}

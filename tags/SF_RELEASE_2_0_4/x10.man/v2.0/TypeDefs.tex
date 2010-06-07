@@ -1,0 +1,155 @@
+With value arguments, type arguments, and constraints, the syntax for \Xten{}
+types can often be verbose. 
+For example, a non-null list of non-null strings is \\
+%~~type~~`~~`~~ ~~import x10.util.*;
+\xcd`List[String{self!=null}]{self!=null}`.
+\Xten{} provides {\em type definitions}
+to allow users to give short names to long types, and to commonly-used
+combinations of types. 
+We could name that type: 
+%~~gen
+% package TypeDefs.glip.first;
+% import x10.util.*;
+% class LnSn {
+% static
+%~~vis
+\begin{xten}
+type LnSn = List[String{self!=null}]{self!=null};
+\end{xten}
+%~~siv
+%}
+%~~neg
+Or, we could abstract it somewhat, defining a type constructor
+\xcd`Nonnull[T]` for the type of \xcd`T`'s which are not null:
+%~~gen
+% package TypeDefs.glip.second;
+% import x10.util.*;
+% class LnSn {
+% def example() {
+%~~vis
+\begin{xten}
+type Nonnull[T] = T{self!=null};
+type LnSn = Nonnull[List[Nonnull[String]]];
+var example : LnSn;
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+Type definitions can also refer to values, in particular, inside of
+constraints.  The type of \xcd`n`-element \xcd`Rails[Int]s` is 
+%~~type~~`~~`~~n:Int ~~
+\xcd`Rail[Int]{self.length == n}`
+but it is often convenient to give a shorter name: 
+%~~gen
+% package TypeDefs.glip.third;
+% class Xmpl {
+% def example() {
+%~~vis
+\begin{xten}
+type Rail(n:Int) = Rail[Int]{self.length == n};
+var example : Rail(78); 
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+Type definitions, like many other X10 abstractions, can have constraints on
+their use. 
+\bard{Have we seen this -- in Overview?}
+\begin{xten}
+
+\end{xten}
+
+
+Type definitions have the following syntax:
+
+\begin{grammar}
+TypeDefinition \: 
+                \xcd"type"~Identifier
+                           ( \xcd"[" TypeParameters \xcd"]" )\opt \\
+                        && ( \xcd"(" Formals \xcd")" )\opt
+                            Constraint\opt \xcd"=" Type \\
+\end{grammar}
+
+\noindent
+A type definition can be thought of as a type-valued function,
+mapping type parameters and value parameters to a concrete type.
+%
+The following examples are legal type definitions, given \xcd`import x10.util.*`:
+%~~gen
+% import x10.util.*;
+% class TypeDefBrow {
+% def someTypeDefs () {
+%~~vis
+\begin{xten}
+type StringSet = Set[String];
+type MapToList[K,V] = Map[K,List[V]];
+type Int(x: Int) = Int{self==x};
+type Dist(r: Int) = Dist{self.rank==r};
+type Dist(r: Region) = Dist{self.region==r};
+type Redund(n:Int, r:Region){r.rank==n} = Dist{rank==n && region==r};
+\end{xten}
+%~~siv
+% }}
+%~~neg
+\label{TypeDefGuard}
+As the two definitions of \xcd"Dist" demonstrate, type definitions may 
+be overloaded: two type definitions with different numbers of type
+parameters or with different types of value
+parameters, according to the method overloading rules
+(\Sref{MethodOverload}), define distinct type constructors.
+
+Type definitions may appear as (static) class or interface member or
+in a block statement.
+
+Type definitions are applicative, not generative; that is, they
+define aliases for types but do not introduce new types.
+Thus, the following code is legal:
+%~~gen
+% import x10.util.*;
+% class TypeDefNonGenerative {
+% def someTypeDefs () {
+%~~vis
+\begin{xten}
+type A = Int;
+type B = String;
+type C = String;
+a: A = 3;
+b: B = new C("Hi");
+c: C = b + ", Mom!";
+\end{xten}
+%~~siv
+% }}
+%~~neg
+% An instance of a defined type with no type parameters and no
+% value parameters may 
+If a type definition has no type parameters and no value
+parameters and is an alias for a class type, a \xcd"new"
+expression may be used to create an instance of the class using
+the type definition's name.
+Given the following type definition:
+\begin{xtenmath}
+type A = C[T$_1$, $\dots$, T$_k$]{c};
+\end{xtenmath}
+where 
+\xcdmath"C[T$_1$, $\dots$, T$_k$]" is a
+class type, a constructor of \xcdmath"C" may be invoked with
+\xcdmath"new A(e$_1$, $\dots$, e$_n$)", if the
+invocation
+\xcdmath"new C[T$_1$, $\dots$, T$_k$](e$_1$, $\dots$, e$_n$)" is
+legal and if the constructor return type is a subtype of
+\xcd"A".
+
+The collection of type definitions in
+\xcdmath"x10.lang.\_" is automatically imported in every compilation unit.
+\index{import,type definitions}\label{X10LangUnderscore}
+
+\if 0
+All type definitions are members of their enclosing package or
+class.  A compilation unit may have one or more type definitions
+or class or interface declarations with the same name, as long
+as the definitions have distinct parameters according to the
+method overloading rules (\Sref{MethodOverload}).
+\fi
+
