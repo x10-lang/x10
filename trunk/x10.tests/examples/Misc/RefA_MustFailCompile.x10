@@ -11,8 +11,8 @@
 
 import harness.x10Test;
 	
-public class RefA(f0: RefB{self.f2.f1==this.f1}, f1:int) extends x10Test {
-	public def this(f0_: RefB{self.f2.f1==f1}, f1_: int): RefA { 
+public class RefA_MustFailCompile(f0: RefB{self.f2.f1==this.f1}, f1:int) extends x10Test {
+	public def this(f0_: RefB{self.f2.f1==f1}, f1_: int) { 
 		// should give an error the type of an arg to a constructor
 		// cannot reference this -- there is no this to refer to!!
 		// And indeed it gives that error:
@@ -23,6 +23,13 @@ public class RefA(f0: RefB{self.f2.f1==this.f1}, f1:int) extends x10Test {
 		return true;
 	}
 	public static def main(var args: Rail[String]): void {
-		new RefA(null, 1).execute();
+		new RefA_MustFailCompile(null, 1).execute();
 	}
+}
+class RefB(f2: RefA_MustFailCompile) extends x10Test {
+	public def this(f2: RefA_MustFailCompile) { 
+		property(f2);
+	}
+	
+	public def run(): boolean { return true;}
 }
