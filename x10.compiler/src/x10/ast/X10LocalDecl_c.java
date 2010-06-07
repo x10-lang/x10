@@ -77,8 +77,8 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	 */
 	@Override
 	public void addDecls(Context c) {
-		super.addDecls(c);
-
+        if (li!=null) // if we had errors in type checking, li might be null (e.g., "var x = ...")
+		    super.addDecls(c);
 	}
 		
 

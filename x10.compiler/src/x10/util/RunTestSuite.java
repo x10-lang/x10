@@ -41,14 +41,19 @@ public class RunTestSuite {
      */
     public static boolean ONE_FILE_AT_A_TIME = false;
     public static void main(String[] args) throws Throwable {
-        assert args.length>0 : "The first command line argument must be an x10 filename or the directory of x10.tests";
-        File dir = new File(args[0]);
+        assert args.length>0 : "The first command line argument must be an x10 filename or a comma separated list of the directories.\n"+
+                    "E.g.,\n"+
+                    "C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10";
         String[] newArgs = args;
-        if (!dir.getName().endsWith(".x10")) {
-            assert dir.isDirectory() : "The first command line argument must be the directory of x10.tests, and you passed: "+dir;
+        if (!args[0].endsWith(".x10")) {
             ArrayList<String> files = new ArrayList<String>(10);
-            recurse(dir,files);
-            assert files.size()>0 : "Didn't find any .x10 files to compile in any subdirectory of "+dir;
+            for (String dirStr : args[0].split(",")) {
+                File dir = new File(dirStr);
+                assert dir.isDirectory() : "The first command line argument must be the directory of x10.tests, and you passed: "+dir;
+                int before = files.size();
+                recurse(dir,files);
+                assert before<files.size() : "Didn't find any .x10 files to compile in any subdirectory of "+dir;
+            }
             if (ONE_FILE_AT_A_TIME) {
                 for (String f : files) {
                     newArgs[0] = f;

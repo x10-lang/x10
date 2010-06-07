@@ -2281,7 +2281,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
  
  
 	
-   
+   private boolean isIn(Collection<FieldInstance> newFields, FieldInstance fi) {
+        for (FieldInstance fi2 : newFields)
+            if (fi.def()==fi2.def()) return true;
+        return false;
+   }
    public FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
 	throws SemanticException {
 	   
@@ -2291,10 +2295,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		Collection<FieldInstance> fields = findFields(container, matcher);
 		
 		if (fields.size() >= 2) {
+            // if the field is defined in a class, then it will appear only once in "fields".
+            // if it is defined in an interface (then it is either a "static val" or a property such as home), then it may appear multiple times in "fields", so we need to filter duplicates.
+            // e.g.,
+//            interface I1 { static val a = 1;}
+//            interface I2 extends I1 {}
+//            interface I3 extends I1 {}
+//            interface I4 extends I2,I3 {}
+//            class Example implements I4 {
+//              def example() = a;
+//              def m(a:Example{self.home.home.home==here}) = 1;            
+//            }
 			Collection<FieldInstance> newFields = new HashSet<FieldInstance>();
 			for (FieldInstance fi : fields) {
 				if ((fi.flags().isStatic())){
-					newFields.add(fi);
+                    if (!isIn(newFields,fi))
+                            newFields.add(fi);
 					continue;
 				}
 				
