@@ -15,7 +15,7 @@
 #include <x10aux/basic_functions.h>
 
 #include <x10/lang/String.h>
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__) || defined(__FreeBSD__)
 extern "C" long long atoll(const char *);
 #endif
 

@@ -212,6 +212,26 @@ public class Emitter {
 		return translateType(type, false);
 	}
 
+	/**
+	 * Return the full name of the type, taking into account nested class mangling.
+	 * @param ct the type
+	 * @return the full name of the type
+	 */
+	public static QName fullName(X10ClassType ct) {
+	    QName full;
+	    if (ct.def().isNested()) {
+	        // This is a legitimate case.  We do not invoke StaticNestedClassRemover on
+	        // classes for which we don't generate code.  Thus, while we cannot see a
+	        // definition of a nested class, we may well see references to such classes.
+	        // At the moment, we cannot make sure that StaticNestedClassRemover runs on
+	        // all classes - when we can, we should re-enable this assert.
+	        Name mangled = StaticNestedClassRemover.mangleName(ct.def());
+	        QName pkg = ct.package_() != null ? ct.package_().fullName() : null;
+	        full = QName.make(pkg, mangled);
+	    } else
+	        full = ct.fullName();
+	    return full;
+	}
 
 	/**
 	 * Translate a type.
@@ -283,19 +303,7 @@ public class Emitter {
 					return dumpRegex("NativeRep", o, pat);
 				}
 				else {
-					if (ct.def().isNested()) {
-						// This is a legitimate case.  We do not invoke StaticNestedClassRemover on
-						// classes for which we don't generate code.  Thus, while we cannot see a
-						// definition of a nested class, we may well see references to such classes.
-						// At the moment, we cannot make sure that StaticNestedClassRemover runs on
-						// all classes - when we can, we should re-enable this assert.
-						//assert false : "Nested class: "+ct;
-						Name mangled = StaticNestedClassRemover.mangleName(ct.def());
-						QName pkg = ct.package_() != null ? ct.package_().fullName() : null;
-						QName full = QName.make(pkg, mangled);
-						name = full.toString();
-					} else
-						name = ct.fullName().toString();
+					name = fullName(ct).toString();
 				}
 			}
 			if (ct.typeArguments().size() != 0) {
@@ -324,19 +332,19 @@ public class Emitter {
 	
 	public static String structMethodClass(ClassType ct, boolean fqn, boolean chevrons) {
 	    X10ClassType classType = (X10ClassType)ct;
-	    QName qname = classType.fullName();
-	    String name = fqn ? qname.toString() : qname.name().toString();
+	    QName full = fullName(classType);
+	    String name = fqn ? full.toString() : full.name().toString();
 	    name += "_methods";
-        if (chevrons && classType.typeArguments().size() != 0) {
-            String args = "";
-            int s = classType.typeArguments().size();
-            for (Type t: classType.typeArguments()) {
-                args += translateType(t, true); // type arguments are always translated as refs
-                if (--s > 0)
-                    args +=", ";
-            }
-            name += chevrons(args);
-        }
+	    if (chevrons && classType.typeArguments().size() != 0) {
+	        String args = "";
+	        int s = classType.typeArguments().size();
+	        for (Type t: classType.typeArguments()) {
+	            args += translateType(t, true); // type arguments are always translated as refs
+	            if (--s > 0)
+	                args +=", ";
+	        }
+	        name += chevrons(args);
+	    }
 	    name = translate_mangled_FQN(name);
 	    return name;
 	}
@@ -629,7 +637,7 @@ public class Emitter {
 
 	void printRTTDefn(X10ClassType ct, CodeWriter h) {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
-	    String x10name = ct.fullName().toString();
+	    String x10name = fullName(ct).toString();
 	    int numParents = 0;
 	    if (ct.superClass() != null) {
 	        numParents++;
@@ -656,7 +664,7 @@ public class Emitter {
 	        } else {
 	            h.write("const x10aux::RuntimeType** parents = NULL; "); h.newline();
 	        }
-	        h.write("rtt.initStageTwo(\""+ct.fullName()+"\", "+numParents+ ", parents, 0, NULL, NULL);");
+	        h.write("rtt.initStageTwo(\""+fullName(ct)+"\", "+numParents+ ", parents, 0, NULL, NULL);");
 	        if (ct.isX10Struct() && isPointerless(ct)) {
 	            h.newline(); h.write("rtt.containsPtrs = false;");
 	        }

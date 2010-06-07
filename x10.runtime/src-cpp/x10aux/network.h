@@ -49,7 +49,14 @@ namespace x10aux {
     inline void event_probe (void)            { x10rt_probe(); }
 
     extern const int cuda_cfgs[];
-    void blocks_threads (place p, msg_type t, int shm, int &bs, int &ts, const int *cfgs=cuda_cfgs);
+    void blocks_threads (place p, msg_type t, int shm, x10_ubyte &bs, x10_ubyte &ts, const int *cfgs=cuda_cfgs);
+    void blocks_threads (place p, msg_type t, int shm, x10_byte &bs, x10_byte &ts, const int *cfgs=cuda_cfgs);
+    void blocks_threads (place p, msg_type t, int shm, x10_ushort &bs, x10_ushort &ts, const int *cfgs=cuda_cfgs);
+    void blocks_threads (place p, msg_type t, int shm, x10_short &bs, x10_short &ts, const int *cfgs=cuda_cfgs);
+    void blocks_threads (place p, msg_type t, int shm, x10_uint &bs, x10_uint &ts, const int *cfgs=cuda_cfgs);
+    void blocks_threads (place p, msg_type t, int shm, x10_int &bs, x10_int &ts, const int *cfgs=cuda_cfgs);
+    void blocks_threads (place p, msg_type t, int shm, x10_ulong &bs, x10_ulong &ts, const int *cfgs=cuda_cfgs);
+    void blocks_threads (place p, msg_type t, int shm, x10_long &bs, x10_long &ts, const int *cfgs=cuda_cfgs);
 
 
     inline x10_ulong remote_alloc (place p, size_t sz) {

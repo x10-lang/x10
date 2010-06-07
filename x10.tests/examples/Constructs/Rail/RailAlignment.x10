@@ -18,25 +18,25 @@ public class RailAlignment extends x10Test {
         var failures:Int = 0;
         for ((i) in 0..999) {
             {
-                val r = Rail.make(555, (i:Int)=>0 as Float,16);
+                val r = Rail.makeAligned[float](555, (i:Int)=>0 as Float,16);
                 if (!alignedTo(r, 16)) {
                     failures++;
                 }
             }
             {
-                val r = Rail.make(555, (i:Int)=>0 as Float,512);
+                val r = Rail.makeAligned[float](555, (i:Int)=>0 as Float,512);
                 if (!alignedTo(r, 512)) {
                     failures++;
                 }
             }
             {
-                val r = ValRail.make(555, (i:Int)=>0 as Float,16);
+                val r = ValRail.makeAligned[float](555, (i:Int)=>0 as Float,16);
                 if (!alignedTo(r, 16)) {
                     failures++;
                 }
             }
             {
-                val r = ValRail.make(555, (i:Int)=>0 as Float,512);
+                val r = ValRail.makeAligned[float](555, (i:Int)=>0 as Float,512);
                 if (!alignedTo(r, 512)) {
                     failures++;
                 }
