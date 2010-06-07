@@ -15,11 +15,11 @@ public class CallTableAsyncVal extends CallTableVal {
     public String sig;
     public final boolean is_async;
     public final int line,column;
-    public LinkedList<Integer> pc;
+    public int pc;
     public CallTableAsyncVal(String str, int pc, int b,boolean is_async) {
 	super(str,b);
-	this.pc = new LinkedList<Integer>();
-	this.pc.add(new Integer(pc));
+	this.pc = pc;
+	 
 	sig = genSignature();
 	this.is_async = is_async;
 	if(!is_async){
@@ -40,8 +40,8 @@ public class CallTableAsyncVal extends CallTableVal {
     }
     public CallTableAsyncVal(String str, Arity a, int pc,int b, boolean is_async) {
 	super(str,b,a);
-	this.pc = new LinkedList<Integer>();
-	this.pc.add(new Integer(pc));
+	this.pc = pc;
+	 
 	sig = genSignature();
 	this.is_async = is_async;
 	if(!is_async){
@@ -60,27 +60,9 @@ public class CallTableAsyncVal extends CallTableVal {
 	}
     }
     
-    public String getPC(){
-	String s="";
-	for(int i=0;i<pc.size();i++){
-	    s = s + "@"+pc.get(i);
-	}
-	return s;
-    }
-    public void addPC(int p){
-	pc.add(new Integer(p));
-	sig = genSignature();
-    }
-    public void addPC(LinkedList<Integer> p){
-	pc.addAll(0,p);
-	sig = genSignature();
-    }
+    
     public String genSignature(){
-	String s="";
-	for(int i=0;i<pc.size();i++){
-	    s = s + "@"+pc.get(i);
-	}
-	return scope+"@"+s;
+	return scope+"@"+pc;
     }
     public boolean equals(Object o) {
 	boolean result = false;
