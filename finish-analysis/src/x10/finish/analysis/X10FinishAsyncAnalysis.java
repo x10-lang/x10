@@ -86,7 +86,16 @@ import com.ibm.wala.viz.NodeDecorator;
  * @author baolin
  */
 public class X10FinishAsyncAnalysis {
-
+    
+    public static String os;
+    static{
+	if(System.getProperty("os.name").contains("Linux")){
+	    os = "home";	
+	}
+	else{
+	    os = "Users";
+	}
+    }
     // per program
     /*
      * data structure we use to capture caller-callee relationship in a x10
@@ -426,7 +435,7 @@ public class X10FinishAsyncAnalysis {
      */
     private void parseIR(int nodenum) {
 	CGNode md = cg.getNode(nodenum);
-	IR ir = md.getIR();
+ 	IR ir = md.getIR();
 	if (ir != null) {
 	    // original control flow graph
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> cfg = ir
@@ -462,7 +471,7 @@ public class X10FinishAsyncAnalysis {
 		NatLoopSolver.findAllLoops(epcfg, dom, loops, loopvisited, root);
 		//printGraph(epcfg);
 		if (md.getMethod().getName().toString().contains("foo")){
-		    GraphUtil.printCFG(epcfg, md.getMethod().getName().toString());
+		    //GraphUtil.printCFG(epcfg, md.getMethod().getName().toString());
 		}
 		parseBlock(epcfg, env);
 		if(last_inst!=null){
@@ -560,7 +569,7 @@ public class X10FinishAsyncAnalysis {
 	//CallTableUtil.getStat();
 	CallTableUtil.dumpCallTable(calltable);
 	System.out.println("saving ... ...");
-	OutputUtil.saveCallTable("/home/blshao/calltable.dat", calltable);
+	OutputUtil.saveCallTable("/"+os+"/blshao/calltable.dat", calltable);
 	System.out.println("finished ... ");
 	//HashMap<CallTableKey, LinkedList<CallTableVal>> newtable;
 	//System.out.println("loading ... ...");
