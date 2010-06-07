@@ -187,6 +187,9 @@ public class X10DTCorePlugin extends PluginBase {
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {
 				IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+				if (win == null) {
+				    return; // Workbench is presumably shutting down... do nothing - there's no window to put the console in anyway
+				}
 				IWorkbenchPage page = win.getActivePage();
 				IConsoleView view = null;
 
