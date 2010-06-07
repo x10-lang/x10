@@ -1731,7 +1731,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         private boolean throwException(List<Stmt> statements) {
             for (Stmt stmt : statements) {
                 final List<Type> exceptions = new ArrayList<Type>();
-                stmt.visitChildren(
+                stmt.visit(
                     new NodeVisitor() {
                         @Override
                         public Node leave(Node old, Node n, NodeVisitor v) {
@@ -1742,8 +1742,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             if (n instanceof Throw) {
                                 exceptions.add(((Throw) n).expr().type());
                             }
-                            if (n instanceof New) {
-                                List<Type> throwTypes = n.throwTypes(tr.typeSystem());
+                            if (n instanceof X10New_c) {
+                                List<Type> throwTypes = ((X10New_c) n).procedureInstance().throwTypes();
                                 if (throwTypes != null) exceptions.addAll(throwTypes);
                             }
                             return n;
@@ -2227,8 +2227,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
 			Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
 			Name methodName = X10Binary_c.binaryMethodName(op);
-                        X10TypeSystem xts = (X10TypeSystem) ts;
-                        if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()))) {			    w.write("(");
+			X10TypeSystem xts = (X10TypeSystem) ts;
+			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()))) {
+			    w.write("(");
 			    w.write("(");
 			    new TypeExpander(er, t, 0).expand();
 			    w.write("[])");

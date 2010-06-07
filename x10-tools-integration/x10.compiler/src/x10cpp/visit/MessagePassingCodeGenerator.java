@@ -842,6 +842,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             X10ClassDef cd = (X10ClassDef) ct.def();
             if (cd == def)
                 continue;
+            if (cd.isAnonymous())
+                continue;
             if (!allIncludes.contains(ct)) {
                 declareClass(cd, h);
                 if (xts.isStructType(ct)) {
@@ -2262,7 +2264,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        h.newline();
 	    }
 	    // declare (and define) the accessor method
-	    h.write("static ");
+	    h.write("static inline ");
 	    emitter.printType(dec.type().type(), h);
 	    h.allowBreak(2, 2, " ", 1);
 	    h.write(accessor);
@@ -4105,7 +4107,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             freeTypeParams.addAll(hostClassDef.typeParameters());
         }
 
-        String hostClassName = translate_mangled_FQN(hostClassType.fullName().toString(), "_");
+        String hostClassName = translate_mangled_FQN(Emitter.fullName(hostClassType).toString(), "_");
 
         c.setInsideClosure(true);
 

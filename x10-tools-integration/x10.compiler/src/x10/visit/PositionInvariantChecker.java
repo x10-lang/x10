@@ -45,9 +45,9 @@ public class PositionInvariantChecker extends NodeVisitor
         Position pPos = parent.position();
         Position nPos = n.position();
 
-        if (nPos == Position.COMPILER_GENERATED) return;
-        if (pPos == Position.COMPILER_GENERATED) {
-            //assert (nPos == Position.COMPILER_GENERATED) : "If your parent is COMPILER_GENERATED, then you must be COMPILER_GENERATED";
+        if (nPos.isCompilerGenerated()) return;
+        if (pPos.isCompilerGenerated()) {
+            //assert (nPos.isCompilerGenerated()) : "If your parent is COMPILER_GENERATED, then you must be COMPILER_GENERATED";
             // todo: take from some ancestor
             return;
         }

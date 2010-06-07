@@ -184,8 +184,8 @@ public class HashMap[-K,V] implements Map[K,V] {
                 shouldRehash = false;
             }
         }
-        
         assert size == oldSize;
+        size = oldSize;
     }
     
     public safe def containsKey(k: K): boolean {

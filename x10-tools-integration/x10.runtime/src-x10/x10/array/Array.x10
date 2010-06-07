@@ -75,7 +75,7 @@ public final class Array[T](
     public property zeroBased: boolean = region.zeroBased;
 
     /**
-     * Is this array's region a "rail" (one-dimensional contiguous zero-based)?
+     * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
      */
     public property rail: boolean = region.rail;
 
@@ -88,7 +88,7 @@ public final class Array[T](
     private native def checkBounds():boolean;
 
     // TODO: made public for use in Rail.copyTo/copyFrom from user code until proper copyTo/copyFrom 
-    //       is implemented for arrays.  This method will not be public in X10 2.0.4.
+    //       is implemented for arrays.  This method may not be public in X10 2.1.0 and later.
     public @Inline def raw():Rail[T]! = raw;
    
 
@@ -102,7 +102,9 @@ public final class Array[T](
 
 
     /**
-     * Construct an uninitialized Array over the region reg.
+     * Construct an Array over the region reg whose elements are zero-initialized; 
+     * in future releases of X10, this method will only be callable if sizeof(T) bytes 
+     * of zeros is a valid value of type T. 
      *
      * @param reg The region over which to construct the array.
      */
@@ -136,6 +138,25 @@ public final class Array[T](
         baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
+
+    /**
+     * Construct an Array over the region reg whose
+     * values are initialized to be init.
+     *
+     * @param reg The region over which to construct the array.
+     * @param init The function to use to initialize the array.
+     */    
+    public def this(reg:Region, init:T):Array[T]{self.region==reg} {
+        property(reg);
+
+        layout = new RectLayout(reg.min(), reg.max());
+        val n = layout.size();
+        val r  = Rail.make[T](n, init);
+        raw = r;
+        baseRegion = reg as BaseRegion{self.rank==this.rank};
+    }
+
+
     /**
      * Construct Array over the region 0..rail.length-1 whose
      * values are initialized to the corresponding values in the 
@@ -165,8 +186,9 @@ public final class Array[T](
 
 
     /**
-     * Construct Array over the region 0..size-1 whose
-     * values are uninitialized
+     * Construct Array over the region 0..size-1 whose elements are zero-initialized; 
+     * in future releases of X10, this method will only be callable if sizeof(T) bytes 
+     * of zeros is a valid value of type T. 
      */    
     public def this(size:int):Array[T]{self.rank==1,rect,zeroBased} {
 	this(Region.makeRectangular(0, size-1));
@@ -181,6 +203,18 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(size:int, init:(Point(1))=>T):Array[T]{self.rank==1,rect,zeroBased} {
+	this(Region.makeRectangular(0, size-1), init);
+    }
+
+
+    /**
+     * Construct Array over the region 0..size-1 whose
+     * values are initialized to be init
+     *
+     * @param reg The region over which to construct the array.
+     * @param init The function to use to initialize the array.
+     */    
+    public def this(size:int, init:T):Array[T]{self.rank==1,rect,zeroBased} {
 	this(Region.makeRectangular(0, size-1), init);
     }
 

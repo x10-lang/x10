@@ -380,13 +380,35 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         return r;
     }
 
-    protected MultipleValues processLoop(For loop) {
+    protected MultipleValues processLoop(Block for_block) {
+		/* example of the loop we're trying to absorb
+		    {
+		        final x10.lang.Int{self==0} block321min322 = 0;
+		        final x10.lang.Int block321max323 = x10.lang.Int{self==8, blocks==8}.operator-(blocks, 1);
+		        for (x10.lang.Int{self==0} block321 = block321min322;; x10.lang.Int{self==0}.operator<=(block321, block321max323)eval(block321 += 1);) {
+		            final x10.lang.Int block = block321;
+		            {
+		                ...
+		            }
+		        }
+		    }
+	 	*/
+    	
+    	assert for_block.statements().size() == 3 : for_block.statements().size();
+        // test that it is of the form for (blah in region)
+        Stmt i_ = for_block.statements().get(0);
+        Stmt j_ = for_block.statements().get(1);
+        Stmt for_block2 = for_block.statements().get(2);
+        assert for_block2 instanceof For : for_block2.getClass(); // FIXME: proper
+                                                        // error
+        For loop = (For) for_block2;
         MultipleValues r = new MultipleValues();
-        assert loop.inits().size() == 2 : loop.inits();
-        ForInit i_ = loop.inits().get(0);
+        assert loop.inits().size() == 1 : loop.inits();
+        // loop inits are not actually used
+        //ForInit i_ = loop.inits().get(0);
         assert i_ instanceof LocalDecl : i_.getClass();
         LocalDecl i = (LocalDecl) i_;
-        ForInit j_ = loop.inits().get(1);
+        //ForInit j_ = loop.inits().get(1);
         assert j_ instanceof LocalDecl : j_.getClass();
         LocalDecl j = (LocalDecl) j_;
         assert loop.cond() instanceof X10Call : loop.cond().getClass();
@@ -459,6 +481,33 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         super.visit(b);
         if (blockIsKernel(b)) {
         	Block_c closure_body = b;
+        	//System.out.println(b);
+        	/* example of KMeansCUDA kernel
+				{
+				    [OPTIONAL] final x10.lang.Int{self==8} blocks = x10.compiler.CUDAUtilities.autoBlocks();
+				    [OPTIONAL] final x10.lang.Int{self==1} threads = x10.compiler.CUDAUtilities.autoThreads();
+				    {
+				        final x10.lang.Int{self==0} block321min322 = 0;
+				        final x10.lang.Int block321max323 = x10.lang.Int{self==8, blocks==8}.operator-(blocks, 1);
+				        for (x10.lang.Int{self==0} block321 = block321min322;; x10.lang.Int{self==0}.operator<=(block321, block321max323)eval(block321 += 1);) {
+				            final x10.lang.Int block = block321;
+				            {
+				                final x10.lang.Rail[x10.lang.Float]{self.home==gpu} clustercache = x10.lang.Rail.make[x10.lang.Float](x10.lang.Int{self==num_clusters}.operator*(num_clusters, 4), clusters_copy);
+				                {
+				                    final x10.lang.Int{self==0} thread318min319 = 0;
+				                    final x10.lang.Int thread318max320 = x10.lang.Int{self==1, threads==1}.operator-(threads, 1);
+				                    for (x10.lang.Int{self==0} thread318 = thread318min319;; x10.lang.Int{self==0}.operator<=(thread318, thread318max320)eval(thread318 += 1);) {
+				                        final x10.lang.Int thread = thread318;
+				                        {
+				                            eval(x10.lang.Runtime.runAsync( (){}: x10.lang.Void => { ... }));
+				                        }
+				                    }   
+				                }   
+				            }   
+				        }   
+				    }
+				}   
+        	*/
             assert !generatingKernel() : "Nesting of cuda annotation makes no sense.";
             // TODO: assert the block is the body of an async
 
@@ -467,21 +516,20 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 checkAutoVar(b.statements().get(0));
                 checkAutoVar(b.statements().get(1));
             }
-            Stmt loop_ = b.statements().get(b.statements().size()-1);
-            // test that it is of the form for (blah in region)
-            assert loop_ instanceof For : loop_.getClass(); // FIXME: proper
-                                                            // error
-            For loop = (For) loop_;
+            Stmt for_block_ = b.statements().get(b.statements().size()-1);
+            assert for_block_ instanceof Block : for_block_.getClass(); // FIXME: proper
+            // error
+            Block for_block = (Block) for_block_;
 
-            MultipleValues outer = processLoop(loop);
+            MultipleValues outer = processLoop(for_block);
             // System.out.println("outer loop: "+outer.var+"
             // "+outer.iterations);
             b = (Block_c) outer.body;
 
             Stmt last = b.statements().get(b.statements().size() - 1);
             //System.out.println(last);
-            assert last instanceof For; // FIXME: proper error
-            loop = (For) last;
+            assert last instanceof Block; // FIXME: proper error
+            Block for_block2 = (Block) last;
 
             SharedMem shm = new SharedMem();
             // look at all but the last statement to find shm decls
@@ -511,7 +559,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 shm.addRail(ld, num_elements, rail_init_closure);
             }
 
-            MultipleValues inner = processLoop(loop);
+            MultipleValues inner = processLoop(for_block2);
             // System.out.println("outer loop: "+outer.var+"
             // "+outer.iterations);
             b = (Block_c) inner.body;

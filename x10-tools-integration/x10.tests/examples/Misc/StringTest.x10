@@ -25,6 +25,13 @@ public class StringTest extends x10Test {
 		var foo: String = "the number is "+v;
 		if (!(v == 10 && foo.equals("the number is "+"10"))) return false;
 		if (foo.charAt(2) != 'e') return false;
+
+        val start = "Start Twelve  ";
+        chk(start.trim().equals("Start Twelve"));
+        val end = " Total Ten.";
+        chk(end.trim().equals("Total Ten."));
+        val bothEnds = "  Four  ";
+        chk(bothEnds.trim().equals("Four"));
 		return true;
 	}
 

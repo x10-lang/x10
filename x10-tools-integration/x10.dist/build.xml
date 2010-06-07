@@ -390,6 +390,7 @@ case "$UNAME" in
   Darwin,*,i*86) export X10_PLATFORM='macosx_x86';;
   Darwin,*,powerpc) export X10_PLATFORM='macosx_ppc';;
   SunOS,*,sparc) export X10_PLATFORM='sunos_sparc';;
+  FreeBSD,*64*,*) export X10_PLATFORM='freebsd_amd64';;
   *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
 esac
 # NOTE: the above assumes that Cygwin==win32 (probably valid)
