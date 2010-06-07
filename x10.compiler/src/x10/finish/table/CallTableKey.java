@@ -9,8 +9,10 @@ public abstract class CallTableKey implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	public final String scope;
+	public CallTableVal lastStmt;
 	public CallTableKey(String s){
 	    scope = renameMethod(s);
+	    lastStmt = null;
 	}
 	public abstract String genSignature();
 	
