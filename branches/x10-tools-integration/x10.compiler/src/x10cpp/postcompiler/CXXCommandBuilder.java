@@ -307,6 +307,8 @@ public class CXXCommandBuilder {
             return new SunOS_CXXCommandBuilder(options, eq);
         if (PLATFORM.startsWith("macosx_"))
             return new MacOSX_CXXCommandBuilder(options, eq);
+        if (PLATFORM.startsWith("freebsd_"))
+            return new FreeBSD_CXXCommandBuilder(options, eq);
         eq.enqueue(ErrorInfo.WARNING,
                 "Unknown platform '"+PLATFORM+"'; using the default post-compiler (g++)");
         return new CXXCommandBuilder(options, eq);

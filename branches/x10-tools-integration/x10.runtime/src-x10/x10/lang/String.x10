@@ -160,6 +160,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * If no such Char occurs in this String, then -1 is returned.
      * @param ch the given Char
      * @return the index of the first occurrence of the Char in this String, or -1 if the Char does not occur.
+     * @see #indexOf(Char,Int)
      * @see #indexOf(String)
      * @see #lastIndexOf(Char)
      */
@@ -168,22 +169,66 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     public native global def indexOf(ch: Char): Int;
 
     /**
+     * Returns the index within this String of the first occurrence of the specified Char ch after
+     * the given index i.  If the Char ch occurs in this String after the index i, then the index
+     * of the first such occurrence is returned.
+     * This index is the smallest value k&gt;=i such that:
+     * <pre>
+     * this(k) == ch
+     * </pre>
+     * is true.
+     * If no such Char occurs in this String, then -1 is returned.
+     * @param ch the given Char
+     * @param i the given index
+     * @return the index of the first occurrence of the Char in this String after the given index,
+     *         or -1 if the Char does not occur.
+     * @see #indexOf(Char)
+     * @see #indexOf(String,Int)
+     * @see #lastIndexOf(Char,Int)
+     */
+    @Native("java", "(#0).indexOf(#1, #2)")
+    @Native("c++", "(#0)->indexOf(#1, #2)")
+    public native global def indexOf(ch: Char, i: Int): Int;
+
+    /**
      * Returns the index within this String of the first occurrence of the specified substring.
-     * The Int returned is the smallest value k such that
+     * The Int returned is the smallest value k such that:
      * <pre>
      * this.substring(k, k+str.length()).equals(str)
      * </pre>
      * is true.
      * @param str the substring to search for
-     * @return if the String argument occurs as a substring within this object,
+     * @return if the String argument occurs as a substring within this String,
      *         then the index of the first character of the first such substring
      *         is returned. If it does not occur as a substring, -1 is returned.
+     * @see #indexOf(String,Int)
      * @see #indexOf(Char)
      * @see #lastIndexOf(String)
      */
     @Native("java", "(#0).indexOf(#1)")
     @Native("c++", "(#0)->indexOf(#1)")
     public native global def indexOf(str: String): Int;
+
+    /**
+     * Returns the index within this String of the first occurrence of the specified substring after
+     * the given index i.
+     * The Int returned is the smallest value k&gt;=i such that:
+     * <pre>
+     * this.substring(k, k+str.length()).equals(str)
+     * </pre>
+     * is true.
+     * @param str the substring to search for
+     * @param i the given index
+     * @return if the String argument occurs as a substring within this String after the given index,
+     *         then the index of the first character of the first such substring
+     *         is returned. If it does not occur as a substring, -1 is returned.
+     * @see #indexOf(String)
+     * @see #indexOf(Char,Int)
+     * @see #lastIndexOf(String,Int)
+     */
+    @Native("java", "(#0).indexOf(#1, #2)")
+    @Native("c++", "(#0)->indexOf(#1, #2)")
+    public native global def indexOf(str: String, i: Int): Int;
 
     /**
      * Returns the index within this String of the last occurrence of the specified Char ch.
@@ -197,6 +242,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * The String is searched backwards starting at the last Char.
      * @param ch the given Char
      * @return the index of the last occurrence of the Char in this String, or -1 if the Char does not occur.
+     * @see #lastIndexOf(Char,Int)
      * @see #lastIndexOf(String)
      * @see #indexOf(Char)
      */
@@ -205,24 +251,71 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     public native global def lastIndexOf(ch: Char): Int;
 
     /**
+     * Returns the index within this String of the last occurrence of the specified Char ch before
+     * the given index i.  If the Char ch occurs in this String before the index i, then the index
+     * of the last such occurrence is returned.
+     * This index is the largest value k&lt;=i such that:
+     * <pre>
+     * this(k) == ch
+     * </pre>
+     * is true.
+     * If no such Char occurs in this String, then -1 is returned.
+     * The String is searched backwards starting at index i.
+     * @param ch the given Char
+     * @param i the given index
+     * @return the index of the last occurrence of the Char in this String before the given index,
+     *         or -1 if the Char does not occur.
+     * @see #lastIndexOf(Char)
+     * @see #lastIndexOf(String,Int)
+     * @see #indexOf(Char,Int)
+     */
+    @Native("java", "(#0).lastIndexOf(#1, #2)")
+    @Native("c++", "(#0)->lastIndexOf(#1, #2)")
+    public native global def lastIndexOf(ch: Char, i: Int): Int;
+
+    /**
      * Returns the index within this String of the rightmost occurrence of the specified substring.
      * The rightmost empty string "" is considered to occur at the index value this.length().
-     * The returned index is the largest value k such that
+     * The returned index is the largest value k such that:
      * <pre>
      * this.substring(k, k+str.length()).equals(str)
      * </pre>
      * is true.
      * @param str the substring to search for
      * @return if the String argument occurs one or more times as a substring
-     *         within this object, then the index of the first character of the
+     *         within this String, then the index of the first character of the
      *         last such substring is returned. If it does not occur as a
      *         substring, -1 is returned.
+     * @see #lastIndexOf(String,Int)
      * @see #lastIndexOf(Char)
      * @see #indexOf(String)
      */
     @Native("java", "(#0).lastIndexOf(#1)")
     @Native("c++", "(#0)->lastIndexOf(#1)")
     public native global def lastIndexOf(str: String): Int;
+
+    /**
+     * Returns the index within this String of the rightmost occurrence of the specified substring
+     * before the given index i.
+     * The rightmost empty string "" is considered to occur at the index value this.length().
+     * The returned index is the largest value k&lt;=i such that:
+     * <pre>
+     * this.substring(k, k+str.length()).equals(str)
+     * </pre>
+     * is true.
+     * @param str the substring to search for
+     * @param i the given index
+     * @return if the String argument occurs one or more times as a substring
+     *         within this String before the given index, then the index of the first character of the
+     *         last such substring is returned. If it does not occur as a
+     *         substring, -1 is returned.
+     * @see #lastIndexOf(String)
+     * @see #lastIndexOf(Char,Int)
+     * @see #indexOf(String,Int)
+     */
+    @Native("java", "(#0).lastIndexOf(#1, #2)")
+    @Native("c++", "(#0)->lastIndexOf(#1, #2)")
+    public native global def lastIndexOf(str: String, i: Int): Int;
 
 
     /**

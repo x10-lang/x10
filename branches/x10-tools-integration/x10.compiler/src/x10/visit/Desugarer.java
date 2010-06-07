@@ -41,6 +41,7 @@ import polyglot.ast.Unary;
 import polyglot.frontend.Job;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -622,7 +623,8 @@ public class Desugarer extends ContextVisitor {
         Name tmp1 = Name.make("finishR");
         LocalDef lDef1 = xts.localDef(pos, xts.NoFlags(), Types.ref(coFinishT), tmp1);
         Expr local1 = xnf.Local(pos, xnf.Id(pos, tmp1)).localInstance(lDef1.asInstance()).type(coFinishT);
-        LocalDecl localDecl = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.NoFlags()), xnf.CanonicalTypeNode(pos, coFinishT), xnf.Id(pos, tmp1)).localDef(lDef1);
+        final Flags flags = Flags.FINAL;   
+        LocalDecl localDecl = xnf.LocalDecl(pos, xnf.FlagsNode(pos, flags), xnf.CanonicalTypeNode(pos, coFinishT), xnf.Id(pos, tmp1)).localDef(lDef1);
         
         Expr a = xnf.Assign(pos, local1, Assign.ASSIGN, newCF).type(coFinishT);
         Stmt s1 = xnf.Eval(pos, a);
@@ -868,7 +870,7 @@ public class Desugarer extends ContextVisitor {
             Expr right = f.right();
             if (right instanceof FinishExpr)
                 return visitFinishExpr(f, null);
-            return n;
+             
         }
         if (n.expr() instanceof X10Unary_c) {
             X10Unary_c e = (X10Unary_c) n.expr();

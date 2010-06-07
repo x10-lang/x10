@@ -25,14 +25,16 @@
 #include <cstdarg>
 #include <sstream>
 
+using namespace std;
 using namespace x10::lang;
 using namespace x10aux;
 
 x10aux::ref<String>
 String::_make(const char *content, bool steal) {
     x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+    size_t len = strlen(content);
     if (!steal) content = strdup(content);
-    this_->_constructor(content,strlen(content));
+    this_->_constructor(content,len);
     return this_;
 }
 
@@ -45,7 +47,6 @@ String::_make(x10aux::ref<String> s) {
 }
 
 x10_int String::hashCode() {
-    //return x10aux::hash(reinterpret_cast<const unsigned char*>(FMGL(content)), length());
     x10_int hc = 0;
     x10_int l = length();
     const unsigned char* k = reinterpret_cast<const unsigned char*>(FMGL(content));
@@ -56,22 +57,50 @@ x10_int String::hashCode() {
     return hc;
 }
 
+static const char *strnstrn(const char *haystack, size_t haystack_sz,
+                            const char *needle, size_t needle_sz)
+{
+    if (haystack_sz < needle_sz)
+        return NULL;
+    for (size_t i = 0; i <= haystack_sz-needle_sz; ++i) {
+        if (!strncmp(&haystack[i], needle, needle_sz))
+            return &haystack[i];
+    }
+    return NULL;
+}
+
 x10_int String::indexOf(ref<String> str, x10_int i) {
     nullCheck(str);
+    if (i<0) i = 0;
+    if (((size_t)i) >= FMGL(content_length)) return -1;
+
     const char *needle = str->FMGL(content);
-    // TODO: bounds check
+    size_t needle_sz = str->FMGL(content_length);
     const char *haystack = &FMGL(content)[i];
-    const char *pos = strstr(haystack, needle);
+    size_t haystack_sz = FMGL(content_length) - i;
+    const char *pos = strnstrn(haystack, haystack_sz, needle, needle_sz);
     if (pos == NULL)
         return (x10_int) -1;
     return i + (x10_int) (pos - haystack);
 }
 
+static const char *strnchr(const char *haystack, size_t haystack_sz, char needle)
+{
+    for (size_t i = 0; i < haystack_sz; ++i) {
+        if (haystack[i] == needle)
+            return &haystack[i];
+    }
+    return NULL;
+}
+
 x10_int String::indexOf(x10_char c, x10_int i) {
+    if (i < 0) i = 0;
+    if (((size_t)i) >= FMGL(content_length)) return -1;
+
     int needle = (int)c.v;
-    // TODO: bounds check
     const char *haystack = &FMGL(content)[i];
-    const char *pos = strchr(haystack, needle);
+    size_t haystack_sz = FMGL(content_length) - i;
+    const char *pos = strnchr(haystack, haystack_sz, needle);
     if (pos == NULL)
         return (x10_int) -1;
     return i + (x10_int) (pos - haystack);
@@ -93,63 +122,78 @@ x10aux::ref<String> String::trim() {
     return this_;
 }
 
-
-static const char *my_strrstr(const char *haystack, const char *needle, int give_up) {
-    const char *last_find = NULL;
-    for (int i=0 ; i<=give_up && haystack[i]!='\0' ; ++i) {
-        for (int j=0 ; needle[j]!='\0' ; ++j) {
-            if (haystack[i+j] != needle[j]) goto nonmatch;
-        }
-        last_find = &haystack[i];
-        nonmatch: {}
+static const char *strnrstrn(const char *haystack, size_t haystack_sz,
+                             const char *needle, size_t needle_sz)
+{
+    if (haystack_sz < needle_sz)
+        return NULL;
+    for (size_t i = haystack_sz-needle_sz; i > 0; --i) {
+        if (!strncmp(&haystack[i], needle, needle_sz))
+            return &haystack[i];
     }
-    return last_find;
+    if (!strncmp(haystack, needle, needle_sz))
+        return haystack;
+    return NULL;
 }
 
 x10_int String::lastIndexOf(ref<String> str, x10_int i) {
     nullCheck(str);
+    if (i < 0) i = 0;
+    if (((size_t)i) >= FMGL(content_length)) return -1;
+
     const char *needle = str->FMGL(content);
+    size_t needle_sz = str->FMGL(content_length);
     const char *haystack = FMGL(content);
-    // TODO: bounds check
-    const char *pos = my_strrstr(haystack, needle, i);
+    size_t haystack_sz = (size_t)i+1;
+    const char *pos = strnrstrn(haystack, haystack_sz, needle, needle_sz);
     if (pos == NULL)
         return (x10_int) -1;
     return (x10_int) (pos - haystack);
 }
 
-
-static const char *my_strrchr(const char *haystack, int needle, int give_up) {
-    const char *last_find = NULL;
-    for (int i=0 ; i<=give_up && haystack[i]!='\0' ; ++i) {
-        if (haystack[i] == needle) last_find = &haystack[i];
+static const char *strnrchr(const char *haystack, size_t haystack_sz, int needle) {
+    if (haystack_sz == 0)
+        return NULL;
+    for (size_t i = haystack_sz-1; i > 0; --i) {
+        if (haystack[i] == needle)
+            return &haystack[i];
     }
-    return last_find;
+    if (*haystack == needle)
+        return haystack;
+    return NULL;
 }
 
 x10_int String::lastIndexOf(x10_char c, x10_int i) {
+    if (i < 0) i = 0;
+    if (((size_t)i) >= FMGL(content_length)) return -1;
+
     int needle = (int)c.v;
     const char *haystack = FMGL(content);
-    // TODO: bounds check
-    const char *pos = my_strrchr(haystack, needle, i);
+    size_t haystack_sz = (size_t)i+1;
+    const char *pos = strnrchr(haystack, haystack_sz, needle);
     if (pos == NULL)
         return (x10_int) -1;
     return (x10_int) (pos - haystack);
 }
 
 ref<String> String::substring(x10_int start, x10_int end) {
-    assert(end>=start); // TODO: proper bounds check
-    std::size_t sz = end - start;
+#ifndef NO_BOUNDS_CHECKS
+    if (start < 0) x10aux::throwArrayIndexOutOfBoundsException(start, FMGL(content_length));
+    if (start > end) x10aux::throwArrayIndexOutOfBoundsException(start, end);
+    if (((size_t)end) > FMGL(content_length)) x10aux::throwArrayIndexOutOfBoundsException(end, FMGL(content_length));
+#endif
+    size_t sz = end - start;
     char *str = x10aux::alloc<char>(sz+1);
-    for (std::size_t i=0 ; i<sz ; ++i)
+    for (size_t i = 0; i < sz; ++i)
         str[i] = FMGL(content)[start+i];
     str[sz] = '\0';
     return String::Steal(str);
 }
 
 static ref<ValRail<ref<String> > > split_all_chars(String* str) {
-    std::size_t sz = (std::size_t)str->length();
+    size_t sz = (size_t)str->length();
     ValRail<ref<String> > *rail = alloc_rail<ref<String>,ValRail<ref<String> > > (sz);
-    for (std::size_t i = 0; i < sz; ++i) {
+    for (size_t i = 0; i < sz; ++i) {
         rail->raw()[i] = str->substring(i, i+1);
     }
     return rail;
@@ -179,7 +223,7 @@ ref<ValRail<ref<String> > > String::split(ref<String> pat) {
 }
 
 x10_char String::charAt(x10_int i) {
-    // TODO: bounds check
+    x10aux::checkRailBounds(i, FMGL(content_length));
     return (x10_char) FMGL(content)[i];
 }
 
@@ -187,7 +231,7 @@ x10_char String::charAt(x10_int i) {
 ref<ValRail<x10_char> > String::chars() {
     x10_int sz = length();
     ValRail<x10_char> *rail = alloc_rail<x10_char,ValRail<x10_char> > (sz);
-    for (int i=0 ; i<sz ; i++)
+    for (int i = 0; i < sz; ++i)
         rail->raw()[i] = (x10_char) FMGL(content)[i]; // avoid bounds check
     return rail;
 }
@@ -195,7 +239,7 @@ ref<ValRail<x10_char> > String::chars() {
 ref<ValRail<x10_byte> > String::bytes() {
     x10_int sz = length();
     ValRail<x10_byte> *rail = alloc_rail<x10_byte,ValRail<x10_byte> > (sz);
-    for (int i=0 ; i<sz ; i++)
+    for (int i = 0; i < sz; ++i)
         rail->raw()[i] = FMGL(content)[i]; // avoid bounds check
     return rail;
 }
@@ -238,50 +282,52 @@ void String::_formatHelper(std::ostringstream &ss, char* fmt, ref<Any> p) {
         dealloc(buf);
 }
 
+// TODO: merge with format(String, Rail[Any])
 ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
-    char* fmt = const_cast<char*>(format->c_str());
+    nullCheck(parms);
+    //size_t len = format->FMGL(content_length);
+    char* orig = const_cast<char*>(format->c_str());
+    char* fmt = orig;
     char* next = NULL;
-    for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
-        next = strchr(fmt+1, '%');
+    for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
+        next = strchr(fmt+1, '%'); // FIXME: this is only ok if we always null-terminate content
         if (next != NULL)
             *next = '\0';
         if (*fmt != '%') {
             ss << fmt;
-            if (next != NULL)
-                *next = '%';
-            i--;
-            continue;
+            --i;
+        } else {
+            const ref<Reference> p = parms->operator[](i);
+            _formatHelper(ss, fmt, p);
         }
-        nullCheck(parms);
-        const ref<Reference> p = parms->operator[](i);
-        _formatHelper(ss, fmt, p);
         if (next != NULL)
             *next = '%';
     }
     return String::Lit(ss.str().c_str());
 }
 
+// TODO: merge with format(String, ValRail[Any])
 ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
-    char* fmt = const_cast<char*>(format->c_str());
+    placeCheck(nullCheck(parms));
+    //size_t len = format->FMGL(content_length);
+    char* orig = const_cast<char*>(format->c_str());
+    char* fmt = orig;
     char* next = NULL;
-    for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
-        next = strchr(fmt+1, '%');
+    for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
+        next = strchr(fmt+1, '%'); // FIXME: this is only ok if we always null-terminate content
         if (next != NULL)
             *next = '\0';
         if (*fmt != '%') {
             ss << fmt;
-            if (next != NULL)
-                *next = '%';
-            i--;
-            continue;
+            --i;
+        } else {
+            const ref<Reference> p = parms->operator[](i);
+            _formatHelper(ss, fmt, p);
         }
-        placeCheck(nullCheck(parms));
-        const ref<Reference> p = parms->operator[](i);
-        _formatHelper(ss, fmt, p);
         if (next != NULL)
             *next = '%';
     }
@@ -294,13 +340,13 @@ x10_boolean String::equals(ref<Any> p0) {
     if (!x10aux::instanceof<ref<x10::lang::String> >(p0)) return false;
     ref<String> that = (ref<String>) p0;
     if (this->FMGL(content_length) != that->FMGL(content_length)) return false; // short-circuit trivial dis-equality
-    if (strcmp(this->FMGL(content), that->FMGL(content)))
+    if (strncmp(this->FMGL(content), that->FMGL(content), this->length()))
         return false;
     return true;
 }
 
 #ifdef __CYGWIN__
-extern "C" int strcasecmp(const char *, const char *);
+extern "C" int strncasecmp(const char *, const char *, size_t);
 #endif
 
 /* FIXME: Unicode support */
@@ -308,7 +354,7 @@ x10_boolean String::equalsIgnoreCase(ref<String> s) {
     if (s.isNull()) return false;
     if (ref<String>(s).operator->() == this) return true; // short-circuit trivial equality
     if (this->FMGL(content_length) != s->FMGL(content_length)) return false; // short-circuit trivial dis-equality
-    if (strcasecmp(this->FMGL(content), s->FMGL(content)))
+    if (strncasecmp(this->FMGL(content), s->FMGL(content), this->length()))
         return false;
     return true;
 }
@@ -317,7 +363,7 @@ x10_boolean String::equalsIgnoreCase(ref<String> s) {
 ref<String> String::toLowerCase() {
     char *str = x10aux::alloc<char>(FMGL(content_length)+1);
     bool all_lower = true;
-    for (std::size_t i=0 ; i<FMGL(content_length) ; ++i) {
+    for (size_t i = 0; i < FMGL(content_length); ++i) {
         x10_char c = FMGL(content)[i];
         if (!x10aux::char_utils::isLowerCase(c))
             all_lower = false;
@@ -336,7 +382,7 @@ ref<String> String::toLowerCase() {
 ref<String> String::toUpperCase() {
     char *str = x10aux::alloc<char>(FMGL(content_length)+1);
     bool all_upper = true;
-    for (std::size_t i=0 ; i<FMGL(content_length) ; ++i) {
+    for (size_t i = 0; i < FMGL(content_length); ++i) {
         x10_char c = FMGL(content)[i];
         if (!x10aux::char_utils::isUpperCase(c))
             all_upper = false;
@@ -357,7 +403,7 @@ x10_int String::compareTo(ref<String> s) {
     int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
     if (length_diff != 0)
         return length_diff;
-    return (x10_int) strcmp(this->FMGL(content), s->FMGL(content));
+    return (x10_int) strncmp(this->FMGL(content), s->FMGL(content), this->length());
 }
 
 /* FIXME: Unicode support */
@@ -367,7 +413,7 @@ x10_int String::compareToIgnoreCase(ref<String> s) {
     int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
     if (length_diff != 0)
         return length_diff;
-    return (x10_int) strcasecmp(this->FMGL(content), s->FMGL(content));
+    return (x10_int) strncasecmp(this->FMGL(content), s->FMGL(content), this->length());
 }
 
 const serialization_id_t String::_serialization_id =
