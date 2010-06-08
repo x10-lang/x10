@@ -558,6 +558,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       public void widgetSelected(final SelectionEvent event) {
         final IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
         final IConnectionInfo currentConnection = (IConnectionInfo) selection.iterator().next();
+        currentConnection.setValidationStatus(EValidationStatus.UNKNOWN);
+        tableViewer.update(currentConnection, null);
+        
         ConnectionSectionPart.this.fCurrentConnection = currentConnection;
         updateConnectionConf();
         for (final TableItem tableItem : tableViewer.getTable().getItems()) {
