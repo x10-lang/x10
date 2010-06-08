@@ -138,8 +138,7 @@
         </exec>
     </target>
     <target name="prepare-clean-bdwgc" if="bdwgc.enabled">
-        <delete dir="${bdwgc.dir}/install" quiet="true"/>
-        <available file="${bdwgc.dir}/src/Makefile" property="bdwgc.makefile.present"/>
+        <delete dir="${bdwgc.dir}" quiet="true"/>
     </target>
     <target name="clean-bdwgc" depends="prepare-clean-bdwgc" if="bdwgc.makefile.present">
         <exec executable="${make.exe}" failonerror="true" dir="${bdwgc.dir}/src">
