@@ -330,7 +330,13 @@
               <conditions>
                 <and>
                   <os family="unix" name="linux" />
-                  <not> <os arch="powerpc" /> </not>
+                  <not>
+		    <or>
+                      <os family="unix" name="linux" arch="ppc"/>
+                      <os family="unix" name="linux" arch="ppc32"/>
+                      <os family="unix" name="linux" arch="ppc64"/>
+		    </or>
+		  </not>
                 </and>
               </conditions>
               <sequential>
