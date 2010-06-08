@@ -42,7 +42,7 @@ public class CollectBookmarksGoal extends SourceGoal_c {
         if(path.contains("*.zip")||path.contains("*.jar")) {
         	return true;
         }
-        X10Parser.JPGPosition pos= (X10Parser.JPGPosition) ast.position();
+      //  X10Parser.JPGPosition pos= (X10Parser.JPGPosition) ast.position();
         
         List<IToken> adjuncts=null;
         try {

@@ -195,6 +195,46 @@ public class X10Builder extends IncrementalProjectBuilder {
         // of a source classpath entry, analogous to above check in isSourceFile().
         return resource.getFullPath().lastSegment().equals("bin"); //TODO: Fix 
     }
+    
+    
+    /*
+     * Visitor to find files that have a compilation error
+     */
+    private class HasErrorVisitor implements IResourceVisitor {
+        boolean hasErrors = false;
+        public boolean visit(IResource res) throws CoreException {
+            return processResource(res);
+        }
+        protected boolean processResource(IResource resource) throws CoreException {
+            if (resource instanceof IFile) {
+                IFile file= (IFile) resource;
+                if (isSourceFile(file) && hasErrors(file)){
+                	hasErrors = true;
+                	return false;
+                }
+            } else if (isBinaryFolder(resource)) {
+                return false;
+            }
+            return true;
+        }
+    }
+    
+    private boolean hasErrors(IFile file) throws CoreException{
+    	return file.findMaxProblemSeverity(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE) == IMarker.SEVERITY_ERROR;
+    }
+
+    private HasErrorVisitor fHasErrorVisitor= new HasErrorVisitor();
+
+    public boolean hasErrors() {
+        try { 
+            fProject.accept(fHasErrorVisitor);
+            return fHasErrorVisitor.hasErrors;
+        } catch (CoreException e) {
+            X10DTCorePlugin.getInstance().logException("Error while looking to see if project has errors", e);
+        }
+        return false;
+    }
+    
 
     /******************
      * END - Visitors
@@ -348,7 +388,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
         collectChangeDependents();
         //collectFilesWithErrors();
-        //collectFilesWithNoJavaFile();
+        collectFilesWithNoJavaFile();
         if (fBuildAll) fBuildAll = false;
     }
 
@@ -647,7 +687,10 @@ public class X10Builder extends IncrementalProjectBuilder {
         fMonitor.beginTask("Scanning and compiling X10 source files...", 0);
 
         collectSourcesToCompile();
-        cleanGeneratedFiles();
+        Collection<IFile> c = new ArrayList<IFile>();
+        c.addAll(fSourcesToCompile);
+        c.addAll(fSourcesToDelete);
+        cleanGeneratedFiles(c);
         Collection<IProject> dependents= doCompile();
         fMonitor.done();
         return (IProject[]) dependents.toArray(new IProject[dependents.size()]);
@@ -661,22 +704,27 @@ public class X10Builder extends IncrementalProjectBuilder {
     	}
     }
 
-    private boolean cleanGeneratedFiles() {
+    private boolean cleanGeneratedFiles(Collection<IFile> sources) {
     	IWorkspace ws= ResourcesPlugin.getWorkspace();
         final IWorkspaceRoot wsRoot= ws.getRoot();
         final List<IFile> genFiles= new ArrayList<IFile>();
        
-		final boolean traceOn=false;
-        for(IFile srcFile: fSourcesToCompile) {
-        	if(traceOn)System.out.println("srcFile: "+srcFile);
-            IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
-            if(traceOn)System.out.println("genJavaFile: "+genJavaFile);
-            IPath genFileFolder= srcFile.getFullPath().removeLastSegments(1);
-            if(traceOn)System.out.println("genFileFolder: "+genFileFolder);
-            genFiles.add(wsRoot.getFile(genJavaFile));
-        }
+//		final boolean traceOn=false;
+//        for(IFile srcFile: fSourcesToCompile) {
+//        	if(traceOn)System.out.println("srcFile: "+srcFile);
+//            IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
+//            if(traceOn)System.out.println("genJavaFile: "+genJavaFile);
+//            IPath genFileFolder= srcFile.getFullPath().removeLastSegments(1);
+//            if(traceOn)System.out.println("genFileFolder: "+genFileFolder);
+//            genFiles.add(wsRoot.getFile(genJavaFile));
+//        }
+//        
+//        for(IFile srcFile: fSourcesToDelete){
+//        	IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
+//        	genFiles.add(wsRoot.getFile(genJavaFile));
+//        }
         
-        for(IFile srcFile: fSourcesToDelete){
+        for(IFile srcFile: sources){
         	IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
         	genFiles.add(wsRoot.getFile(genJavaFile));
         }
@@ -1027,9 +1075,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
     
-    private boolean hasErrors(IFile file) throws CoreException{
-    	return file.findMaxProblemSeverity(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE) == IMarker.SEVERITY_ERROR;
-    }
+  
 
     private X10ErrorVisitor fErrorVisitor= new X10ErrorVisitor();
 
