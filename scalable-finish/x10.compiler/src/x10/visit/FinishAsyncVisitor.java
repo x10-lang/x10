@@ -8,7 +8,6 @@ import java.util.Iterator;
 
 import java.util.LinkedList;
 
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
