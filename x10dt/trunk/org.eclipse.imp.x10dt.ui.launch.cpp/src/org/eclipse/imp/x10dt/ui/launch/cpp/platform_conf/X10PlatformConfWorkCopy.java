@@ -55,6 +55,9 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
       ciConf.fServiceTypeId = ciType;
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
+      final MessagePassingInterfaceConf mpiConf = (MessagePassingInterfaceConf) ciConf;
+      mpiConf.fDefaultIntallLocation = true;
+      mpiConf.fDefaultToolCmds = true;
     }
     if (ciConf.fServiceModeId == null) {
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
