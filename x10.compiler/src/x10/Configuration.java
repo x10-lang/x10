@@ -85,7 +85,7 @@ public final class Configuration extends x10.config.Configuration {
     
     public static boolean STATIC_CALLS = false;
     private static final String STATIC_CALLS_desc = "Treat dynamically-checked calls as errors.";
-    public static boolean FINISH_ASYNCS = true;
+    public static boolean FINISH_ASYNCS = false;
     private static final String FINISH_ASYNCS_desc = "finish-async analysis.";
 	/**
 	 * Parses one argument from the command line.  This allows the user
