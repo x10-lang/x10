@@ -36,6 +36,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -474,7 +475,6 @@ public class X10New_c extends New_c implements X10New {
         	// Add self != null
         	type = X10TypeMixin.addDisBinding(type, X10TypeMixin.selfVar(type), XTerms.NULL);
         }
-       
         
         if (body != null) {
             // If creating an anonymous class, we need to adjust the return type
@@ -488,7 +488,22 @@ public class X10New_c extends New_c implements X10New {
         return xci;
        // return (X10New_c) this.constructorInstance(xci).type(type);
     }
-    
-   
-   
+
+    // TODO: Move down into New_c
+    public void dump(CodeWriter w) {
+        super.dump(w);
+
+        if (ci != null) {
+            w.allowBreak(4, " ");
+            w.begin(0);
+            w.write("(instance " + ci + ")");
+            w.end();
+        }
+
+        w.allowBreak(4, " ");
+        w.begin(0);
+        w.write("(arguments " + arguments + ")");
+        w.end();
+    }
+
 }
