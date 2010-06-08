@@ -48,7 +48,7 @@ final class ExtendedX10Scheduler extends X10CPPScheduler {
       // --- Overridden methods
 
       protected boolean invokePostCompiler(final Options options, final Compiler compiler, final ErrorQueue eq) {
-        ExtendedX10Scheduler.this.fMonitor.subTask(LaunchMessages.ES_LinkingTaskName);
+        ExtendedX10Scheduler.this.fMonitor.subTask(LaunchMessages.ES_GeneratingCppCilesTaskName);
         return X10CPPTranslator.postCompile((X10CPPCompilerOptions) options, compiler, eq);
       }
 

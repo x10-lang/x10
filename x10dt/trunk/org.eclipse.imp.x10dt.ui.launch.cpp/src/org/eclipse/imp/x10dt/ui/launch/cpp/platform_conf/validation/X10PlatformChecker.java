@@ -178,6 +178,8 @@ final class X10PlatformChecker implements IX10PlatformChecker {
             listener.platformCppCompilationValidationFailure(cppCompConf.getValidationErrorMessage());
           }
         }
+      } catch (InterruptedException except) {
+        // Nothing to do here.
       } catch (Exception except) {
         platformConf.setCppConfValidationStatus(EValidationStatus.ERROR);
         platformConf.setCppConfValidationErrorMessage(StringUtils.getStackTrace(except));

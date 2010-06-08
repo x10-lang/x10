@@ -120,7 +120,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     final IX10PlatformConfWorkCopy x10PlatformConf = formPart.getPlatformConf();
     postCreationStep(toolkit, parent, managedForm, x10PlatformConf);
     
-    initializeControls(x10PlatformConf, managedForm, formPart, 
+    initializeControls(x10PlatformConf, formPart, 
                        (IMessagePassingInterfaceConf) x10PlatformConf.getCommunicationInterfaceConf(),
                        discoverCmdControls, dependentToolCmdsControls, installControls);
     
@@ -179,8 +179,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setLaunchCommand(ciType, launchCmdText.getText().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(launchCmdText, LaunchMessages.RMCP_LaunchLabel), managedForm, 
-                                      launchCmdText);
+        formPart.handleEmptyTextValidation(launchCmdText, LaunchMessages.RMCP_LaunchLabel);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -190,8 +189,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setDebugCommand(ciType, debugCmdText.getText().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(debugCmdText, LaunchMessages.RMCP_DebugLabel), managedForm, 
-                                      debugCmdText);
+        formPart.handleEmptyTextValidation(debugCmdText, LaunchMessages.RMCP_DebugLabel);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -201,8 +199,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setDiscoverCommand(ciType, discoverCmdText.getText().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(discoverCmdText, LaunchMessages.RMCP_DiscoverLabel), 
-                                      managedForm, discoverCmdText);
+        formPart.handleEmptyTextValidation(discoverCmdText, LaunchMessages.RMCP_DiscoverLabel);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -212,8 +209,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setMonitorCommand(ciType, monitorCmdText.getText().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(monitorCmdText, LaunchMessages.RMCP_MonitorLabel), managedForm, 
-                                      monitorCmdText);
+        formPart.handleEmptyTextValidation(monitorCmdText, LaunchMessages.RMCP_MonitorLabel);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -261,8 +257,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setInstallLocation(ciType, installLocText.getText().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(installLocText, LaunchMessages.RMCP_LocationLabel), 
-                                      managedForm, installLocText);
+        formPart.handleEmptyTextValidation(installLocText, LaunchMessages.RMCP_LocationLabel);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -313,9 +308,8 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     }
   }
   
-  private void initializeControls(final IX10PlatformConfWorkCopy x10PlatformConf, final IManagedForm managedForm, 
-                                  final AbstractCommonSectionFormPart formPart, final IMessagePassingInterfaceConf ciConf, 
-                                  final Collection<Control> discoverCmdControls, 
+  private void initializeControls(final IX10PlatformConfWorkCopy x10PlatformConf, final AbstractCommonSectionFormPart formPart,
+                                  final IMessagePassingInterfaceConf ciConf, final Collection<Control> discoverCmdControls, 
                                   final Collection<Control> dependentToolCmdsControls, 
                                   final Collection<Control> installControls) {
     initConfiguration(x10PlatformConf, ciConf);
@@ -323,18 +317,14 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     this.fDefaultToolsCmdsBt.setSelection(ciConf.shouldTakeDefaultToolCommands());
     if (! isOpenMPIVersionAutotDetectOn()) {
       this.fLaunchCmdText.setText(ciConf.getLaunchCommand().trim());
-      formPart.handleTextValidation(new EmptyTextInputChecker(this.fLaunchCmdText, LaunchMessages.RMCP_LaunchLabel), 
-                                    managedForm, this.fLaunchCmdText);
+      formPart.handleEmptyTextValidation(this.fLaunchCmdText, LaunchMessages.RMCP_LaunchLabel);
       this.fDebugCmdText.setText(ciConf.getDebugCommand().trim());
-      formPart.handleTextValidation(new EmptyTextInputChecker(this.fDebugCmdText, LaunchMessages.RMCP_DebugLabel), 
-                                    managedForm, this.fDebugCmdText);
+      formPart.handleEmptyTextValidation(this.fDebugCmdText, LaunchMessages.RMCP_DebugLabel);
       this.fMonitorCmdText.setText(ciConf.getMonitorCommand().trim());
-      formPart.handleTextValidation(new EmptyTextInputChecker(this.fMonitorCmdText, LaunchMessages.RMCP_MonitorLabel),
-                                      managedForm, this.fMonitorCmdText);
+      formPart.handleEmptyTextValidation(this.fMonitorCmdText, LaunchMessages.RMCP_MonitorLabel);
     }
     this.fDiscoverCmdText.setText(ciConf.getDiscoverCommand().trim());
-    formPart.handleTextValidation(new EmptyTextInputChecker(this.fDiscoverCmdText, LaunchMessages.RMCP_DiscoverLabel),
-                                  managedForm, this.fDiscoverCmdText);
+    formPart.handleEmptyTextValidation(this.fDiscoverCmdText, LaunchMessages.RMCP_DiscoverLabel);
     this.fPeriodicTimeSpinner.setSelection(ciConf.getMonitorPeriod());
     
     // Take care of enabling/disabling the controls in this group
@@ -352,8 +342,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       this.fInstallLocText.setText(this.fToolRMConf.getRemoteInstallPath());
     } else {
       this.fInstallLocText.setText(ciConf.getInstallLocation().trim());
-      formPart.handleTextValidation(new EmptyTextInputChecker(this.fInstallLocText, LaunchMessages.RMCP_LocationLabel), 
-                                    managedForm, this.fInstallLocText);
+      formPart.handleEmptyTextValidation(this.fInstallLocText, LaunchMessages.RMCP_LocationLabel);
     }
     
     for (final Control control : installControls) {

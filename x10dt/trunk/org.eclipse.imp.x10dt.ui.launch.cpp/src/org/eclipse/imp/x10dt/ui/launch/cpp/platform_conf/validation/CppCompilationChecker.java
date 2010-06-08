@@ -141,6 +141,9 @@ final class CppCompilationChecker implements ICppCompilationChecker {
                                               final IRemoteFileManager fileManager, 
                                               final SubMonitor monitor) throws Exception {
     monitor.beginTask(LaunchMessages.APCC_GeneratingFilesMsg, 10);
+    if (monitor.isCanceled()) {
+      throw new InterruptedException();
+    }
     
     final Bundle x10RuntimeBundle = Platform.getBundle(X10_RUNTIME_BUNDLE);
     final File x10RuntimeDir = getDirectory(x10RuntimeBundle);
@@ -172,11 +175,15 @@ final class CppCompilationChecker implements ICppCompilationChecker {
     
     final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(this.fRemoteServices);
     if (! isLocal) {
+      monitor.subTask(LaunchMessages.APCC_TransferringFiles);
       final IFileSystem fileSystem = EFS.getLocalFileSystem();
       final IFileStore destDir = fileManager.getResource(workspaceDir);
       try {
         for (final Object fileName : compiler.outputFiles()) {
           for (final File generatedFile : localTestDir.listFiles(new CppFileNameFilter((String) fileName))) {
+            if (monitor.isCanceled()) {
+              throw new InterruptedException();
+            }
             final IFileStore curFileStore = fileSystem.getStore(new Path(generatedFile.getAbsolutePath()));
             curFileStore.copy(destDir.getChild(curFileStore.getName()), EFS.OVERWRITE, null);            
           }

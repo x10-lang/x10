@@ -14,6 +14,8 @@ import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
+import org.eclipse.imp.x10dt.ui.launch.cpp.editors.form_validation.FormCheckerFactory;
+import org.eclipse.imp.x10dt.ui.launch.cpp.editors.form_validation.IFormControlChecker;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
@@ -21,6 +23,7 @@ import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -28,7 +31,6 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
-import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
@@ -130,10 +132,14 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     return this.fSection;
   }
   
-  protected final void handleTextValidation(final IFormChecker checker, final IManagedForm pageForm, final Control control) {
-    final IManagedForm headerForm = ((SharedHeaderFormEditor) this.fFormPage.getEditor()).getHeaderForm();
-    checker.check(headerForm.getMessageManager());
-    checker.check(pageForm.getMessageManager(), control, pageForm);
+  protected final void handleEmptyTextValidation(final Combo combo, final String controlInfo) {
+    final IFormControlChecker checker = FormCheckerFactory.createEmptyControlChecker(this.fFormPage, combo, controlInfo);
+    checker.validate(combo.getText().trim());
+  }
+  
+  protected final void handleEmptyTextValidation(final Text text, final String controlInfo) {
+    final IFormControlChecker checker = FormCheckerFactory.createEmptyControlChecker(this.fFormPage, text, controlInfo);
+    checker.validate(text.getText().trim());
   }
   
   protected final void setNewPlatformConfState(final String name, final IServiceProvider serviceProvider) {

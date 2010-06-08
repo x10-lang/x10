@@ -171,11 +171,10 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     
     final IX10PlatformConfWorkCopy x10PlatformConf = formPart.getPlatformConf();
     initConfiguration(x10PlatformConf, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf());
-    initializeControls(formPart, managedForm, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf(), 
-                       proxyExecPathText, usePortFwdBt, launchServerManuallyBt, multiClusterCombo, 
-                       nodePollingMinSp, nodePollingMaxSp, jobPollingSp, alternateLibPathText, pair.second,
-                       traceBt, infoBt, warningBt, errorBt, fatalBt, argsBt, pair3.first, templateOptCombo, 
-                       suspendProxyAtStartupBt);
+    initializeControls(formPart, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf(), proxyExecPathText, 
+                       usePortFwdBt, launchServerManuallyBt, multiClusterCombo, nodePollingMinSp, nodePollingMaxSp, 
+                       jobPollingSp, alternateLibPathText, pair.second, traceBt, infoBt, warningBt, errorBt, fatalBt, argsBt,
+                       pair3.first, templateOptCombo, suspendProxyAtStartupBt);
     
     addListeners(x10PlatformConf, managedForm, formPart, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf(),
                  proxyExecPathText, usePortFwdBt, launchServerManuallyBt, multiClusterCombo, nodePollingMinSp, 
@@ -212,8 +211,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setProxyServerPath(LOAD_LEVELER_SERVICE_PROVIDER_ID, proxyExecPathText.getText().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath), 
-                                      managedForm, proxyExecPathText);
+        formPart.handleEmptyTextValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -287,8 +285,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setAlternateLibraryPath(LOAD_LEVELER_SERVICE_PROVIDER_ID, 
                                                 alternateLibPathText.getText().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(alternateLibPathText, LaunchMessages.PETCP_AltLibraryPath), 
-                                      managedForm, alternateLibPathText);
+        formPart.handleEmptyTextValidation(alternateLibPathText, LaunchMessages.PETCP_AltLibraryPath);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -417,9 +414,8 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     }
   }
   
-  private void initializeControls(final AbstractCommonSectionFormPart formPart, final IManagedForm managedForm,
-                                  final ILoadLevelerConf ciConf, final Text proxyExecPathText, 
-                                  final Button usePortFwdBt, final Button launchServerManuallyBt, 
+  private void initializeControls(final AbstractCommonSectionFormPart formPart, final ILoadLevelerConf ciConf, 
+                                  final Text proxyExecPathText, final Button usePortFwdBt, final Button launchServerManuallyBt, 
                                   final Combo multiClusterCombo, final Spinner nodePollingMinSp, 
                                   final Spinner nodePollingMaxSp, final Spinner jobPollingSp, final Text alternateLibPathText,
                                   final Button proxyServerBrowseBt, final Button traceBt, final Button infoBt, 
@@ -427,8 +423,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
                                   final Text templateFilePathText, final Combo templateOptCombo, 
                                   final Button suspendProxyAtStartupBt) {
     proxyExecPathText.setText(ciConf.getProxyServerPath());
-    formPart.handleTextValidation(new EmptyTextInputChecker(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath), 
-                                  managedForm, proxyExecPathText);
+    formPart.handleEmptyTextValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);
     proxyServerBrowseBt.setEnabled(this.fBrowseBtEnabled);
     usePortFwdBt.setSelection(ciConf.shouldUsePortForwarding());
     launchServerManuallyBt.setSelection(ciConf.shouldLaunchProxyManually());

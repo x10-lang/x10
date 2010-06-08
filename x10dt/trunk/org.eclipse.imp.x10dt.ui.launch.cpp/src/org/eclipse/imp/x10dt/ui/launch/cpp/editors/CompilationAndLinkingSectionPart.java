@@ -8,13 +8,20 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 
 import org.eclipse.imp.utils.Pair;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.KeyboardUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
+import org.eclipse.imp.x10dt.ui.launch.cpp.editors.form_validation.FormCheckerFactory;
+import org.eclipse.imp.x10dt.ui.launch.cpp.editors.form_validation.IFormControlChecker;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
 import org.eclipse.swt.SWT;
@@ -57,9 +64,13 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName, 
                                 final EValidationStatus validationStatus) {
-    this.fCompilerBrowseBt.setEnabled(isLocal || validationStatus == EValidationStatus.VALID);
-    this.fArchiverBrowseBt.setEnabled(isLocal || validationStatus == EValidationStatus.VALID);
-    this.fLinkerBrowseBt.setEnabled(isLocal || validationStatus == EValidationStatus.VALID);
+    final boolean shouldEnable = isLocal || validationStatus == EValidationStatus.VALID;
+    this.fCompilerBrowseBt.setEnabled(shouldEnable);
+    this.fArchiverBrowseBt.setEnabled(shouldEnable);
+    this.fLinkerBrowseBt.setEnabled(shouldEnable);
+    if (shouldEnable) {
+      checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
+    }
   }
   
   // --- IFormPart's interface methods implementation
@@ -84,8 +95,8 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     compilerText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleTextValidation(new EmptyTextInputChecker(compilerText, LaunchMessages.XPCP_CompilerLabel), managedForm,
-                             compilerText);
+        handleEmptyTextValidation(compilerText, LaunchMessages.XPCP_CompilerLabel);
+        
         getPlatformConf().setCompiler(compilerText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -95,8 +106,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     compilingOptsText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleTextValidation(new EmptyTextInputChecker(compilingOptsText, LaunchMessages.XPCP_CompilingOptsLabel), managedForm,
-                             compilingOptsText);
+        handleEmptyTextValidation(compilingOptsText, LaunchMessages.XPCP_CompilingOptsLabel);
         getPlatformConf().setCompilingOpts(compilingOptsText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -106,8 +116,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     archiverText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleTextValidation(new EmptyTextInputChecker(archiverText, LaunchMessages.XPCP_ArchiverLabel), managedForm,
-                             archiverText);
+        handleEmptyTextValidation(archiverText, LaunchMessages.XPCP_ArchiverLabel);
         getPlatformConf().setArchiver(archiverText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -117,8 +126,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     archivingOptsText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleTextValidation(new EmptyTextInputChecker(archivingOptsText, LaunchMessages.XPCP_ArchivingOptsLabel), managedForm,
-                             archivingOptsText);
+        handleEmptyTextValidation(archivingOptsText, LaunchMessages.XPCP_ArchivingOptsLabel);
         getPlatformConf().setArchivingOpts(archivingOptsText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -128,8 +136,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     linkerText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleTextValidation(new EmptyTextInputChecker(linkerText, LaunchMessages.XPCP_LinkerLabel), managedForm,
-                             linkerText);
+        handleEmptyTextValidation(linkerText, LaunchMessages.XPCP_LinkerLabel);
         getPlatformConf().setLinker(linkerText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -139,8 +146,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     linkingOptsText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleTextValidation(new EmptyTextInputChecker(linkingOptsText, LaunchMessages.XPCP_LinkingOptsLabel), managedForm,
-                             linkingOptsText);
+        handleEmptyTextValidation(linkingOptsText, LaunchMessages.XPCP_LinkingOptsLabel);
         getPlatformConf().setLinkingOpts(linkingOptsText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -150,8 +156,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     linkingLibsText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleTextValidation(new EmptyTextInputChecker(linkingLibsText, LaunchMessages.XPCP_LinkingLibsLabel), managedForm,
-                             linkingLibsText);
+        handleEmptyTextValidation(linkingLibsText, LaunchMessages.XPCP_LinkingLibsLabel);
         getPlatformConf().setLinkingLibs(linkingLibsText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -221,6 +226,25 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
       
     });
   }
+  
+  private void checkCompilerVersion(final Text compilerText, final Combo osCombo, final Combo archCombo) {
+    final IX10PlatformConf platformConf = getPlatformConf();
+    final ICppCompilationConf cppCompConf = platformConf.getCppCompilationConf();
+    final IConnectionConf connConf = platformConf.getConnectionConf();
+    final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), 
+                                                                        cppCompConf.getTargetOS() ==  ETargetOS.WINDOWS, 
+                                                                        connConf.getConnectionName());
+    final String osName = osCombo.getItem(osCombo.getSelectionIndex());
+    final ETargetOS targetOs = (ETargetOS) osCombo.getData(osName);
+    final String archName = archCombo.getItem(archCombo.getSelectionIndex());
+    final EArchitecture architecture = (EArchitecture) archCombo.getData(archName);
+    
+    final IFormControlChecker versionChecker = FormCheckerFactory.createCPPCompilerVersionChecker(targetOpHelper, targetOs, 
+                                                                                                  architecture, getFormPage(),
+                                                                                                  compilerText);
+    setPartCompleteFlag(hasCompleteInfo() && versionChecker.validate(compilerText.getText().trim()));
+  }
+
   
   private void createClient(final IManagedForm managedForm, final FormToolkit toolkit) {
     final Composite sectionClient = toolkit.createComposite(getSection());
@@ -305,7 +329,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
 
     this.fLinkingLibsText = SWTFormUtils.createLabelAndText(linkingGroup, LaunchMessages.XPCP_LinkingLibsLabel, toolkit, 3);
     
-    initializeControls(managedForm);
+    initializeControls();
     
     addListeners(managedForm, this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
                  this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText, this.fBitsArchBt, this.fOSCombo,
@@ -321,7 +345,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
            (this.fLinkingOptsText.getText().trim().length() > 0) && (this.fLinkingLibsText.getText().trim().length() > 0);
   }
   
-  private void initializeControls(final IManagedForm managedForm) {
+  private void initializeControls() {
     final ICppCompilationConf cppCompConf = getPlatformConf().getCppCompilationConf();
     int index = -1;
     for (final ETargetOS targetOS : ETargetOS.values()) {
@@ -339,26 +363,34 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     }
     
     this.fCompilerText.setText(cppCompConf.getCompiler());
-    handleTextValidation(new EmptyTextInputChecker(this.fCompilerText, LaunchMessages.XPCP_CompilerLabel), managedForm,
-                         this.fCompilerText);
+    handleEmptyTextValidation(this.fCompilerText, LaunchMessages.XPCP_CompilerLabel);
+    KeyboardUtils.addDelayedActionOnControl(this.fCompilerText, new Runnable() {
+      
+      public void run() {
+        getFormPage().getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
+          
+          public void run() {
+            checkCompilerVersion(CompilationAndLinkingSectionPart.this.fCompilerText, 
+                                 CompilationAndLinkingSectionPart.this.fOSCombo,
+                                 CompilationAndLinkingSectionPart.this.fArchCombo);
+          }
+          
+        });
+      }
+      
+    });
     this.fCompilingOptsText.setText(cppCompConf.getCompilingOpts(false));
-    handleTextValidation(new EmptyTextInputChecker(this.fCompilingOptsText, LaunchMessages.XPCP_CompilingOptsLabel),
-                         managedForm, this.fCompilingOptsText);
+    handleEmptyTextValidation(this.fCompilingOptsText, LaunchMessages.XPCP_CompilingOptsLabel);
     this.fArchiverText.setText(cppCompConf.getArchiver());
-    handleTextValidation(new EmptyTextInputChecker(this.fArchiverText, LaunchMessages.XPCP_ArchiverLabel), managedForm,
-                         this.fArchiverText);
+    handleEmptyTextValidation(this.fArchiverText, LaunchMessages.XPCP_ArchiverLabel);
     this.fArchivingOptsText.setText(cppCompConf.getArchivingOpts(false));
-    handleTextValidation(new EmptyTextInputChecker(this.fArchivingOptsText, LaunchMessages.XPCP_ArchivingOptsLabel),
-                         managedForm, this.fArchivingOptsText);
+    handleEmptyTextValidation(this.fArchivingOptsText, LaunchMessages.XPCP_ArchivingOptsLabel);
     this.fLinkerText.setText(cppCompConf.getLinker());
-    handleTextValidation(new EmptyTextInputChecker(this.fLinkerText, LaunchMessages.XPCP_LinkerLabel), managedForm,
-                         this.fLinkerText);
+    handleEmptyTextValidation(this.fLinkerText, LaunchMessages.XPCP_LinkerLabel);
     this.fLinkingOptsText.setText(cppCompConf.getLinkingOpts(false));
-    handleTextValidation(new EmptyTextInputChecker(this.fLinkingOptsText, LaunchMessages.XPCP_LinkingOptsLabel), managedForm,
-                         this.fLinkingOptsText);
+    handleEmptyTextValidation(this.fLinkingOptsText, LaunchMessages.XPCP_LinkingOptsLabel);
     this.fLinkingLibsText.setText(cppCompConf.getLinkingLibs(false));
-    handleTextValidation(new EmptyTextInputChecker(this.fLinkingLibsText, LaunchMessages.XPCP_LinkingLibsLabel), managedForm,
-                         this.fLinkingLibsText);
+    handleEmptyTextValidation(this.fLinkingLibsText, LaunchMessages.XPCP_LinkingLibsLabel);
 
     this.fBitsArchBt.setSelection(cppCompConf.getBitsArchitecture() == EBitsArchitecture.E64Arch);
   }

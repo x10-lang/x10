@@ -146,7 +146,7 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
     
     final IX10PlatformConfWorkCopy x10PlatformConf = formPart.getPlatformConf();
     initConfiguration(x10PlatformConf, (IParallelEnvironmentConf) x10PlatformConf.getCommunicationInterfaceConf());
-    initializeControls(formPart, managedForm, (IParallelEnvironmentConf) x10PlatformConf.getCommunicationInterfaceConf(), 
+    initializeControls(formPart, (IParallelEnvironmentConf) x10PlatformConf.getCommunicationInterfaceConf(), 
                        proxyExecPathText, usePortFwdBt, launchServerManuallyBt, useLoadLevelerBt, multiClusterCombo, 
                        nodePollingMinSp, nodePollingMaxSp, jobPollingSp, alternateLibPathText, runAfterProxyBt, traceOptCombo,
                        suspendProxyBt, pair.second, pair2.second, llGroupControls);
@@ -184,8 +184,7 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setProxyServerPath(PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID, proxyExecPathText.getText().trim());
-        formPart.handleTextValidation(new EmptyTextInputChecker(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath), 
-                                      managedForm, proxyExecPathText);
+        formPart.handleEmptyTextValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -338,17 +337,15 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
     }
   }
   
-  private void initializeControls(final AbstractCommonSectionFormPart formPart, final IManagedForm managedForm,
-                                  final IParallelEnvironmentConf ciConf, final Text proxyExecPathText, 
-                                  final Button usePortFwdBt, final Button launchServerManuallyBt, 
+  private void initializeControls(final AbstractCommonSectionFormPart formPart, final IParallelEnvironmentConf ciConf, 
+                                  final Text proxyExecPathText, final Button usePortFwdBt, final Button launchServerManuallyBt, 
                                   final Button useLoadLevelerBt, final Combo multiClusterCombo, final Spinner nodePollingMinSp, 
                                   final Spinner nodePollingMaxSp, final Spinner jobPollingSp, final Text alternateLibPathText,
                                   final Button runAfterProxyBt, final Combo traceOptCombo, final Button suspendProxyBt,
                                   final Button proxyServerBrowseBt, final Button libPathBrowseBt,
                                   final Collection<Control> llGroupControls) {
     proxyExecPathText.setText(ciConf.getProxyServerPath());
-    formPart.handleTextValidation(new EmptyTextInputChecker(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath), 
-                                  managedForm, proxyExecPathText);
+    formPart.handleEmptyTextValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);
     proxyServerBrowseBt.setEnabled(this.fBrowseBtEnabled);
     usePortFwdBt.setSelection(ciConf.shouldUsePortForwarding());
     launchServerManuallyBt.setSelection(ciConf.shouldLaunchProxyManually());

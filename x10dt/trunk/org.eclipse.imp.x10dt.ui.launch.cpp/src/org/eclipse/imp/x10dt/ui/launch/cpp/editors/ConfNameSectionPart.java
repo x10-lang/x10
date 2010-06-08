@@ -135,8 +135,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
           listener.serviceConfigurationModified(rmServiceConfNameCombo.getText().trim());
         }
         
-        handleTextValidation(new EmptyComboInputChecker(rmServiceConfNameCombo, LaunchMessages.RMCP_ConfNameLabel), 
-                             managedForm, rmServiceConfNameCombo);
+        handleEmptyTextValidation(rmServiceConfNameCombo, LaunchMessages.RMCP_ConfNameLabel);
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
       }
@@ -207,7 +206,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     this.fDescriptionText = toolkit.createText(nameCompo, null);
     this.fDescriptionText.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    initializeControls(managedForm);
+    initializeControls();
     
     addListeners(managedForm, this.fRMServiceConfNameCombo, this.fDescriptionText, rmConfPageListeners);
   }
@@ -216,7 +215,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     return this.fRMServiceConfNameCombo.getText().length() > 0;
   }
   
-  private void initializeControls(final IManagedForm managedForm) {
+  private void initializeControls() {
     final IX10PlatformConf platformConf = getPlatformConf();
     
     int index = -1;
@@ -231,8 +230,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     if (this.fRMServiceConfNameCombo.getSelectionIndex() == -1) {
       this.fRMServiceConfNameCombo.setText(platformConf.getName());
     }
-    handleTextValidation(new EmptyComboInputChecker(this.fRMServiceConfNameCombo, LaunchMessages.RMCP_ConfNameLabel), 
-                         managedForm, this.fRMServiceConfNameCombo);
+    handleEmptyTextValidation(this.fRMServiceConfNameCombo, LaunchMessages.RMCP_ConfNameLabel);
     
     if ((platformConf.getDescription() != null) && (platformConf.getDescription().trim().length() > 0)) {
       this.fDescriptionText.setText(platformConf.getDescription());

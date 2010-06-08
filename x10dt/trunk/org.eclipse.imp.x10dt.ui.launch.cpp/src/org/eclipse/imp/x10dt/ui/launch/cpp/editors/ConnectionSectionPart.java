@@ -148,32 +148,14 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       }
     }
     
-    final Collection<IConnectionInfo> tableInput = new ArrayList<IConnectionInfo>();
-    for (final ITargetElement targetElement : PTPConfUtils.getTargetElements()) {
-      tableInput.add(new TargetBasedConnectionInfo(targetElement));
-    }
-    this.fTableViewer.setInput(tableInput);
-    
     final IConnectionConf connectionConf = getPlatformConf().getConnectionConf();
     if (connectionConf.isLocal()) {
-      for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
+      for (final IConnectionTypeListener listener : this.fConnectionTypeListeners) {
         listener.connectionChanged(true, null, null);
       }
-    } else if (! tableInput.isEmpty()) {
-      int index = -1;
-      for (final IConnectionInfo connectionInfo : tableInput) {
-        ++index;
-        validateRemoteHostConnection(connectionInfo);
-        if (connectionConf.hasSameConnectionInfo(connectionInfo.getTargetElement())) {
-          this.fCurrentConnection = connectionInfo;
-          
-          for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
-            listener.connectionChanged(false, connectionInfo.getName(), connectionInfo.getValidationStatus());
-          }
-          
-          this.fTableViewer.getTable().select(index);
-          this.fTableViewer.getTable().notifyListeners(SWT.Selection, new Event());
-        }
+    } else if (this.fCurrentConnection != null) {
+      for (final IConnectionTypeListener listener : this.fConnectionTypeListeners) {
+        listener.connectionChanged(false, this.fCurrentConnection.getName(), this.fCurrentConnection.getValidationStatus());
       }
     }
     
@@ -206,11 +188,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
             keyFileControl.setEnabled(false);
           }
           validateBt.setEnabled(false);
-          handleTextValidation(new EmptyTextInputChecker(hostText, LaunchMessages.RMCP_HostLabel), managedForm, hostText);
-          handleTextValidation(new EmptyTextInputChecker(userNameText, LaunchMessages.RMCP_UserLabel), managedForm, 
-                               userNameText);
-          handleTextValidation(new EmptyTextInputChecker(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel), managedForm, 
-                               privateKeyText);
+          handleEmptyTextValidation(hostText, LaunchMessages.RMCP_HostLabel);
+          handleEmptyTextValidation(userNameText, LaunchMessages.RMCP_UserLabel);
+          handleEmptyTextValidation(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel);
           
           for (final IConnectionInfo connectionInfo : getAllConnectionInfo()) {
             notifyConnectionUnknownStatus(connectionInfo);
@@ -268,7 +248,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           }
           curConnInfo.setHostName(hostText.getText().trim());
         }
-        handleTextValidation(new EmptyTextInputChecker(hostText, LaunchMessages.RMCP_HostLabel), managedForm, hostText);
+        handleEmptyTextValidation(hostText, LaunchMessages.RMCP_HostLabel);
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
           updateConnectionConf();
@@ -304,8 +284,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           }
           curConnInfo.setUserName(userNameText.getText().trim());
         }
-        handleTextValidation(new EmptyTextInputChecker(userNameText, LaunchMessages.RMCP_UserLabel), managedForm, 
-                             userNameText);
+        handleEmptyTextValidation(userNameText, LaunchMessages.RMCP_UserLabel);
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
           updateConnectionConf();
@@ -329,8 +308,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         for (final Control control : keyFileControls) {
           control.setEnabled(privateKeyFileAuthBt.getSelection());
         }
-        handleTextValidation(new EmptyTextInputChecker(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel), managedForm, 
-                             privateKeyText);
+        handleEmptyTextValidation(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel);
         
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           updateConnectionConf();
@@ -367,8 +345,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         for (final Control control : keyFileControls) {
           control.setEnabled(privateKeyFileAuthBt.getSelection());
         }
-        handleTextValidation(new EmptyTextInputChecker(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel), managedForm, 
-                             privateKeyText);
+        handleEmptyTextValidation(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel);
       }
       
       public void widgetDefaultSelected(final SelectionEvent event) {
@@ -386,8 +363,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           }
           curConnInfo.setPrivateKeyFile(privateKeyText.getText().trim());
         }
-        handleTextValidation(new EmptyTextInputChecker(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel), managedForm, 
-                             privateKeyText);
+        handleEmptyTextValidation(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel);
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
           updateConnectionConf();
@@ -534,8 +510,14 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     infoLabel.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     infoLabel.setText(LaunchMessages.RMCP_RemoteConnDataInfo);
     infoLabel.setForeground(getFormPage().getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+    
+    final Collection<IConnectionInfo> tableInput = new ArrayList<IConnectionInfo>();
+    for (final ITargetElement targetElement : PTPConfUtils.getTargetElements()) {
+      tableInput.add(new TargetBasedConnectionInfo(targetElement));
+    }
+    this.fTableViewer.setInput(tableInput);
 
-    initializeControls(firstGroupControls, secondGroupControls, keyFileControls);
+    initializeControls(firstGroupControls, secondGroupControls, keyFileControls, tableInput);
     
     addListeners(managedForm, this.fLocalConnBt, this.fRemoteConnBt, this.fValidateButton,
                  this.fHostText, this.fPortText, this.fUserNameText, this.fPasswordAuthBt, this.fPasswordLabel, 
@@ -827,297 +809,6 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     
     firstGroupControls.add(tableViewer.getTable());
   }
-
-//  private void createConnectionsTable(final Collection<Control> firstGroupControls, final Collection<Control> sndGroupControls,
-//                                      final Composite parent, final IX10PlatformConfWorkCopy x10PlatformConf,
-//                                      final FormToolkit toolkit) {
-//    final Composite tableWrapper = toolkit.createComposite(parent, SWT.NONE);
-//    tableWrapper.setFont(parent.getFont());
-//    final TableWrapData tableViewerWrapData = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB);
-//    tableViewerWrapData.rowspan = 6;
-//    tableWrapper.setLayoutData(tableViewerWrapData);
-//    
-//    final TableViewer tableViewer = new TableViewer(tableWrapper, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | 
-//                                                    SWT.FULL_SELECTION | SWT.HIDE_SELECTION);
-//    tableViewer.getTable().setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
-//    this.fTableViewer = tableViewer;
-//    
-//    toolkit.adapt(tableViewer.getTable(), false, false);
-//    
-//    tableViewer.setContentProvider(new IStructuredContentProvider() {
-//      
-//      public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
-//      }
-//      
-//      public void dispose() {
-//      }
-//      
-//      @SuppressWarnings("unchecked")
-//      public Object[] getElements(final Object inputElement) {
-//        return ((Collection<IConnectionInfo>) inputElement).toArray();
-//      }
-//      
-//    });
-//
-//    final Button validateButton = new Button(parent, SWT.PUSH);
-//    this.fValidateButton = validateButton;
-//    validateButton.setFont(parent.getFont());
-//    validateButton.setLayoutData(new TableWrapData(TableWrapData.FILL));
-//    validateButton.setText(LaunchMessages.RMCP_ValidateBt);
-//    validateButton.addSelectionListener(new SelectionListener() {
-//      
-//      public void widgetSelected(final SelectionEvent event) {
-//        final IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
-//        final IConnectionInfo currentConnection = (IConnectionInfo) selection.iterator().next();
-//        ConnectionSectionPart.this.fCurrentConnection = currentConnection;
-//        updateConnectionConf(x10PlatformConf);
-//        for (final TableItem tableItem : tableViewer.getTable().getItems()) {
-//          tableViewer.update(tableItem.getData(), null);
-//        }
-//        validateRemoteHostConnection(currentConnection);
-//        setPartCompleteFlag(hasCompleteInfo());
-//      }
-//      
-//      public void widgetDefaultSelected(final SelectionEvent event) {
-//        widgetSelected(event);
-//      }
-//      
-//    });
-//    validateButton.setEnabled(false);
-//    
-//    new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL).setLayoutData(new TableWrapData(TableWrapData.FILL));
-//        
-//    final Button addButton = new Button(parent, SWT.PUSH);
-//    addButton.setFont(parent.getFont());
-//    addButton.setLayoutData(new TableWrapData(TableWrapData.FILL));
-//    addButton.setText(LaunchMessages.RMCP_AddBt);
-//    addButton.addSelectionListener(new SelectionListener() {
-//      
-//      public void widgetSelected(final SelectionEvent event) {
-//        final IConnectionInfo connectionInfo = new DefaultConnectionInfo();
-//        tableViewer.add(connectionInfo);
-//        tableViewer.getTable().setTopIndex(tableViewer.getTable().getItemCount());
-//        tableViewer.getTable().select(tableViewer.getTable().getItemCount() - 1);
-//        tableViewer.editElement(connectionInfo, 1);
-//      }
-//      
-//      public void widgetDefaultSelected(final SelectionEvent event) {
-//        widgetSelected(event);
-//      }
-//      
-//    });
-//    firstGroupControls.add(addButton);
-//    
-//    final Button removeButton = new Button(parent, SWT.PUSH);
-//    removeButton.setFont(parent.getFont());
-//    removeButton.setLayoutData(new TableWrapData(TableWrapData.FILL));
-//    removeButton.setText(LaunchMessages.RMCP_RemoteBt);
-//    removeButton.addSelectionListener(new SelectionListener() {
-//      
-//      public void widgetSelected(final SelectionEvent event) {
-//        final IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
-//        final IConnectionInfo elementToRemove = (IConnectionInfo) selection.iterator().next();
-//        PTPConfUtils.removeTargetElement(elementToRemove.getName());
-//        tableViewer.remove(elementToRemove);
-//        if (tableViewer.getTable().getItemCount() > 0) {
-//          if (elementToRemove == ConnectionSectionPart.this.fCurrentConnection) {
-//            final Object lastElement = tableViewer.getElementAt(tableViewer.getTable().getItemCount() - 1);
-//            ConnectionSectionPart.this.fCurrentConnection = (IConnectionInfo) lastElement;
-//            for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
-//              listener.connectionChanged(false, ConnectionSectionPart.this.fCurrentConnection.getName(), 
-//                                         ConnectionSectionPart.this.fCurrentConnection.getValidationStatus());
-//            }
-//          }
-//          tableViewer.getTable().select(tableViewer.getTable().getItemCount() - 1);
-//          tableViewer.getTable().notifyListeners(SWT.Selection, new Event());
-//        }
-//      }
-//      
-//      public void widgetDefaultSelected(final SelectionEvent event) {
-//        widgetSelected(event);
-//      }
-//      
-//    });
-//    firstGroupControls.add(removeButton);
-//    
-//    new Label(parent, SWT.NONE).setText(Constants.EMPTY_STR);
-//
-//    final TableColumnLayout columnLayout = new TableColumnLayout();
-//    tableWrapper.setLayout(columnLayout);
-//    
-//    final Image rcDisabledImg = LaunchImages.createUnmanaged(LaunchImages.RM_STOPPED).createImage();
-//    final Image rcInvalidImg = LaunchImages.createUnmanaged(LaunchImages.RM_ERROR).createImage();
-//    final Image rcValidImg = LaunchImages.createUnmanaged(LaunchImages.RM_STARTED).createImage();
-//    final Image curConnImg = CppLaunchImages.createUnmanaged(CppLaunchImages.CUR_CONNECTION).createImage();
-//    
-//    tableViewer.getTable().addListener(SWT.MeasureItem, new Listener() {
-//      
-//      public void handleEvent(final Event event) {
-//        event.height = rcDisabledImg.getBounds().height + 5;
-//      }
-//      
-//    });
-//    
-//    final TableViewerColumn currentConfColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-//    currentConfColumn.getColumn().setText(LaunchMessages.RMCP_CurrentColumn);
-//    columnLayout.setColumnData(currentConfColumn.getColumn(), new ColumnWeightData(10, 50));
-//    currentConfColumn.setLabelProvider(new CenterImageLabelProvider() {
-//
-//      protected Image getImage(final Object element) {
-//        if (ConnectionSectionPart.this.fCurrentConnection == element) {
-//          return curConnImg;
-//        } else {
-//          return null;
-//        }
-//      }
-//      
-//    });
-//    
-//    final CheckboxCellEditor currentFlagEditor = new CheckboxCellEditor(tableViewer.getTable(), SWT.CHECK | SWT.READ_ONLY);
-//    currentConfColumn.setEditingSupport(new EditingSupport(tableViewer) {
-//      
-//      protected void setValue(final Object element, final Object value) {
-//        final IConnectionInfo curConnInfo = (IConnectionInfo) element;
-//        ConnectionSectionPart.this.fCurrentConnection = curConnInfo;
-//        updateConnectionConf(x10PlatformConf);
-//        for (final TableItem tableItem : tableViewer.getTable().getItems()) {
-//          tableViewer.update(tableItem.getData(), null);
-//        }
-//        for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
-//          listener.connectionChanged(false, curConnInfo.getName(), curConnInfo.getValidationStatus());
-//        }
-//        setPartCompleteFlag(hasCompleteInfo());
-//      }
-//      
-//      protected Object getValue(final Object element) {
-//        return (element == ConnectionSectionPart.this.fCurrentConnection) ? Boolean.TRUE : Boolean.FALSE;
-//      }
-//      
-//      protected CellEditor getCellEditor(final Object element) {
-//        return currentFlagEditor;
-//      }
-//      
-//      protected boolean canEdit(final Object element) {
-//        return true;
-//      }
-//      
-//    });
-//    
-//    final TableViewerColumn confNameColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-//    confNameColumn.getColumn().setText(LaunchMessages.RMCP_NameColumn);
-//    columnLayout.setColumnData(confNameColumn.getColumn(), new ColumnWeightData(80));
-//    confNameColumn.setLabelProvider(new ColumnLabelProvider() {
-//      
-//      public String getText(final Object element) {
-//        return ((IConnectionInfo) element).getName();
-//      }
-//      
-//    });
-//    final TextCellEditor confNameEditor = new TextCellEditor(tableViewer.getTable());
-//    confNameColumn.setEditingSupport(new EditingSupport(tableViewer) {
-//      
-//      protected void setValue(final Object element, final Object value) {
-//        String connectionName = (String) value;
-//        final IConnectionInfo curConnInfo = (IConnectionInfo) element;
-//        
-//        for (final TableItem tableItem : tableViewer.getTable().getItems()) {
-//          final IConnectionInfo connInfo = (IConnectionInfo) tableItem.getData();
-//          if (connInfo != curConnInfo) {
-//            if (connInfo.getName().equals(connectionName)) {
-//              connectionName = Constants.EMPTY_STR;
-//              break;
-//            }
-//          }
-//        }
-//        
-//        curConnInfo.setName(connectionName);
-//        tableViewer.update(element, null);
-//        
-//        final boolean shouldEnableControls = connectionName.length() > 0;
-//        for (final Control control : sndGroupControls) {
-//          control.setEnabled(shouldEnableControls);
-//        }
-//        
-//        if (connectionName.length() == 0) {
-//          resetConnectionControlsInfo();
-//        }
-//      }
-//      
-//      protected Object getValue(final Object element) {
-//        return ((IConnectionInfo) element).getName();
-//      }
-//      
-//      protected CellEditor getCellEditor(final Object element) {
-//        return confNameEditor;
-//      }
-//      
-//      protected boolean canEdit(final Object element) {
-//        return true;
-//      }
-//      
-//    });
-//    
-//    final TableViewerColumn statusColumn = new TableViewerColumn(tableViewer, SWT.NONE);
-//    statusColumn.getColumn().setText(LaunchMessages.RMCP_StatusColumn);
-//    columnLayout.setColumnData(statusColumn.getColumn(), new ColumnWeightData(10, 45));
-//    statusColumn.setLabelProvider(new CenterImageLabelProvider() {
-//
-//      protected Image getImage(final Object element) {
-//        switch (((IConnectionInfo) element).getValidationStatus()) {
-//          case ERROR:
-//          case FAILURE:
-//            return rcInvalidImg;
-//          case VALID:
-//            return rcValidImg;
-//          default:
-//            return rcDisabledImg;
-//        }
-//      }
-//      
-//    });
-//    
-//    tableViewer.getTable().setLinesVisible(true);
-//    tableViewer.getTable().setHeaderVisible(true);
-//    
-//    tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-//      
-//      public void selectionChanged(final SelectionChangedEvent event) {
-//        if (event.getSelection().isEmpty()) {
-//          for (final Control control : sndGroupControls) {
-//            control.setEnabled(false);
-//          }
-//          resetConnectionControlsInfo();
-//          validateButton.setEnabled(false);
-//        } else {
-//          if (! validateButton.isEnabled()) {
-//            validateButton.setEnabled(true);
-//          }
-//          final Object curSelection = ((IStructuredSelection) event.getSelection()).iterator().next();
-//          final IConnectionInfo connectionInfo = (IConnectionInfo) curSelection;
-//          
-//          if ((connectionInfo.getValidationStatus() == EValidationStatus.FAILURE) ||
-//              (connectionInfo.getValidationStatus() == EValidationStatus.ERROR)) {
-//            ConnectionSectionPart.this.fErrorLabel.setText(connectionInfo.getErrorMessage());
-//          } else {
-//            ConnectionSectionPart.this.fErrorLabel.setText(Constants.EMPTY_STR);
-//          }
-//          
-//          for (final Control control : sndGroupControls) {
-//            control.setEnabled(true);
-//          }
-//          
-//          if (connectionInfo.getName().length() == 0) {
-//            resetConnectionControlsInfo();
-//          } else {
-//            fillConnectionControlsInfo(connectionInfo);
-//          }
-//        }
-//      }
-//      
-//    });
-//    
-//    firstGroupControls.add(tableViewer.getTable());
-//  }
   
   private void fillConnectionControlsInfo(final IConnectionInfo connectionInfo) {
     this.fHostText.setText(connectionInfo.getHostName());
@@ -1177,7 +868,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   }
   
   private void initializeControls(final Collection<Control> firstGroupControls, final Collection<Control> secondGroupControls,
-                                  final Collection<Control> keyFileControls) {
+                                  final Collection<Control> keyFileControls, final Collection<IConnectionInfo> tableInput) {
     final IConnectionConf connectionConf = getPlatformConf().getConnectionConf();
     if (connectionConf.isLocal()) {
       this.fLocalConnBt.setSelection(true);
@@ -1196,8 +887,14 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       this.fLocalConnBt.setSelection(false);
     }
     
-    if (isPartComplete() && this.fRemoteConnBt.getSelection()) {
-      validateRemoteHostConnection(this.fCurrentConnection);
+    int index = -1;
+    for (final IConnectionInfo connectionInfo : tableInput) {
+      ++index;
+      validateRemoteHostConnection(connectionInfo);
+      if (connectionConf.hasSameConnectionInfo(connectionInfo.getTargetElement())) {
+        this.fCurrentConnection = connectionInfo;
+        fillConnectionControlsInfo(connectionInfo);
+      }
     }
   }
   
@@ -1216,6 +913,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     this.fUserNameText.setText(Constants.EMPTY_STR);
     this.fPasswordAuthBt.setSelection(true);
     this.fPrivateKeyFileAuthBt.setSelection(false);
+    this.fPrivateKeyFileAuthBt.notifyListeners(SWT.Selection, new Event());
     this.fPasswordText.setText(Constants.EMPTY_STR);
     this.fPrivateKeyFileText.setText(Constants.EMPTY_STR);
     this.fPassphraseText.setText(Constants.EMPTY_STR);

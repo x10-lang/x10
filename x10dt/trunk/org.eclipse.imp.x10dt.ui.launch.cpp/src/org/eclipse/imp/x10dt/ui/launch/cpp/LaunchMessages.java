@@ -38,6 +38,8 @@ public class LaunchMessages extends NLS {
   public static String APCC_GeneratingFilesMsg;
   
   public static String APCC_NoGeneratedFilesError;
+
+  public static String APCC_TransferringFiles;
   
   public static String AT_ConfigReadingError;
 
@@ -158,10 +160,24 @@ public class LaunchMessages extends NLS {
   public static String CLCD_NoMainFileAccessOpError;
 
   public static String CLCD_NoResManagerError;
+
+  public static String CCVC_IBMCompilerVersionNotTested;
+
+  public static String CCVC_NoFoundVersionWarning;
+
+  public static String CCVC_VersionCheckingCmdError;
+
+  public static String CCVC_WrongAIXVersionRequirement;
+
+  public static String CCVC_WrongGnuVersionRequirement;
+
+  public static String CCVC_WrongIBMVersionRequirement;
+
+  public static String CCVC_WrongLinuxPPCVersionRequirement;
   
   public static String ES_CompileTaskName;
   
-  public static String ES_LinkingTaskName;
+  public static String ES_GeneratingCppCilesTaskName;
 
   public static String ETIC_NoEmptyContent;
   

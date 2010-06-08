@@ -49,8 +49,7 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
       control.setEnabled(! isLocal);
     }
     this.fBrowseBt.setEnabled(! isLocal && validationStatus == EValidationStatus.VALID);
-    handleTextValidation(new EmptyTextInputChecker(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel), 
-                         getFormPage().getManagedForm(), this.fRemoteOutputFolderText);
+    handleEmptyTextValidation(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
     setPartCompleteFlag(hasCompleteInfo());
   }
   
@@ -73,8 +72,7 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
     remoteOutputFolderText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleTextValidation(new EmptyTextInputChecker(remoteOutputFolderText, LaunchMessages.XPCP_FolderLabel), managedForm,
-                             remoteOutputFolderText);
+        handleEmptyTextValidation(remoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
         getPlatformConf().setRemoteOutputFolder(remoteOutputFolderText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -100,7 +98,7 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
     this.fRemoteOutputFolderText = pair.first;
     this.fBrowseBt = pair.second;
     
-    initializeControls(managedForm);
+    initializeControls();
     
     addListeners(managedForm, this.fRemoteOutputFolderText);
      
@@ -112,7 +110,7 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
     return isLocal || this.fRemoteOutputFolderText.getText().trim().length() > 0;
   }
   
-  private void initializeControls(final IManagedForm managedForm) {
+  private void initializeControls() {
     final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
     for (final Control control : this.fControlsAffectedByLocalRM) {
       control.setEnabled(! isLocal);
@@ -123,8 +121,7 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
       if (cppCompConf.getRemoteOutputFolder() != null) {
         this.fRemoteOutputFolderText.setText(cppCompConf.getRemoteOutputFolder());
       }
-      handleTextValidation(new EmptyTextInputChecker(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel), 
-                           managedForm, this.fRemoteOutputFolderText);
+      handleEmptyTextValidation(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
     }
   }
   

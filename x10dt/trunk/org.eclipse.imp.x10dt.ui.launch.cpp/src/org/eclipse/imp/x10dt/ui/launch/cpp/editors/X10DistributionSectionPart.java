@@ -61,10 +61,8 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     this.fX10DistBrowseBt.setEnabled(! isLocal && validationStatus == EValidationStatus.VALID);
     this.fPGASDistBrowseBt.setEnabled(! isLocal && ((validationStatus == EValidationStatus.VALID) && ! useSameLoc));
     
-    handleTextValidation(new EmptyTextInputChecker(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel), 
-                         getFormPage().getManagedForm(), this.fX10DistLocText);
-    handleTextValidation(new EmptyTextInputChecker(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel), 
-                         getFormPage().getManagedForm(), this.fX10DistLocText);
+    handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
+    handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
     setPartCompleteFlag(hasCompleteInfo());
   }
   
@@ -89,8 +87,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     x10DistLocText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleTextValidation(new EmptyTextInputChecker(x10DistLocText, LaunchMessages.XPCP_X10DistLabel), managedForm, 
-                             x10DistLocText);
+        handleEmptyTextValidation(x10DistLocText, LaunchMessages.XPCP_X10DistLabel);
         getPlatformConf().setX10DistribLocation(x10DistLocText.getText());
         if (useSameLocBt.getSelection()) {
           pgasLocText.setText(x10DistLocText.getText());
@@ -110,8 +107,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
         if (useSameLocBt.getSelection()) {
           pgasLocText.setText(x10DistLocText.getText());
         } else {
-          handleTextValidation(new EmptyTextInputChecker(pgasLocText, LaunchMessages.XPCP_PGASDistLabel), managedForm, 
-                               pgasLocText);
+          handleEmptyTextValidation(pgasLocText, LaunchMessages.XPCP_PGASDistLabel);
         }
       }
       
@@ -123,8 +119,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     pgasLocText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleTextValidation(new EmptyTextInputChecker(pgasLocText, LaunchMessages.XPCP_PGASDistLabel), managedForm, 
-                             pgasLocText);
+        handleEmptyTextValidation(pgasLocText, LaunchMessages.XPCP_PGASDistLabel);
         getPlatformConf().setPGASLocation(pgasLocText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -159,7 +154,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     this.fPGASLocText = pair2.first;
     this.fPGASDistBrowseBt = pair2.second;
 
-    initializeControls(managedForm);
+    initializeControls();
     
     addListeners(managedForm, this.fX10DistLocText, this.fX10DistBrowseBt, useSameLocBt, this.fPGASLocText, 
                  this.fPGASDistBrowseBt, this.fPGASControls);
@@ -173,7 +168,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
                        (this.fPGASLocText.getText().trim().length() > 0));
   }
   
-  private void initializeControls(final IManagedForm managedForm) {
+  private void initializeControls() {
     final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
     for (final Control control : this.fControlsAffectedByLocalRM) {
       control.setEnabled(! isLocal);
@@ -184,13 +179,11 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
       if (cppCompConf.getX10DistribLocation() != null) {
         this.fX10DistLocText.setText(cppCompConf.getX10DistribLocation());
       }
-      handleTextValidation(new EmptyTextInputChecker(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel), managedForm, 
-                           this.fX10DistLocText);
+      handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
       if (cppCompConf.getPGASLocation() != null) {
         this.fPGASLocText.setText(cppCompConf.getPGASLocation());
       }
-      handleTextValidation(new EmptyTextInputChecker(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel), managedForm, 
-                           this.fX10DistLocText);
+      handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
       final boolean useSameLoc = (cppCompConf.getPGASLocation() == null) || 
                                   cppCompConf.getPGASLocation().equals(cppCompConf.getX10DistribLocation());
       if (useSameLoc) {
