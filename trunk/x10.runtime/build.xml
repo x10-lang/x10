@@ -310,7 +310,11 @@
             <echo message="Installing BDWGC to ${bdwgc.platform.dir}"/>
             <if>
               <conditions>
-                <os family="unix" name="linux" arch="powerpc"/>
+		<or>
+                  <os family="unix" name="linux" arch="ppc"/>
+                  <os family="unix" name="linux" arch="ppc32"/>
+                  <os family="unix" name="linux" arch="ppc64"/>
+		</or>
               </conditions>
               <sequential>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
