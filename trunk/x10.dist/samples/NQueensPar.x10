@@ -64,28 +64,22 @@ public class NQueensPar {
         /** Search for all solutions in parallel, on finding
          * a solution update nSolutions.
          */
-        def search2(R: Region(1)){
+        def search(R: Region(1)){at(NQueensPar.this)}{
             for ((k) in R)
                 if (safe(k))
                     new Board(q, k).search();
         }
 
-        def search() {
+        def search(){at(NQueensPar.this)} {
             if (q.length == N) {
                 atomic nSolutions++;
                 return;
             }
-
             if (q.length == 0) {
                 val R = block(0..N-1, P);
-                foreach ((q) in 0..P-1) {
-                //  search(R(q));
-				
-val R3 = block(0..N-1, P);
-search2(R3(0));
-				}
-
-            } else search2(0..N-1);
+                foreach ((q) in 0..P-1)
+                  search(R(q));
+            } else search(0..N-1);
         }
     }
 

@@ -12,7 +12,7 @@ public class RunTestSuite {
     private static final String[] EXCLUDE_FILES = {
     };
     private static final String[] EXCLUDE_FILES_WITH = {
-            "TypedefOverloading"
+            "TypedefOverloading","NQueens"
     };
 
     static {
