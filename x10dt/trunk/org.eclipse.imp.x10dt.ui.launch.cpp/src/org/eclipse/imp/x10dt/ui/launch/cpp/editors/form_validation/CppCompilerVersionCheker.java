@@ -192,7 +192,7 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
         if (matcher.find()) {
           final int major = Integer.parseInt(matcher.group(1));
           final int minor = Integer.parseInt(matcher.group(2));
-          if ((major >= 4) && (minor >= 3)) {
+          if ((major >= 4) && (minor >= 2)) {
             removeMessages();
           } else {
             addMessages(LaunchMessages.CCVC_WrongGnuVersionRequirement, IMessageProvider.ERROR);
