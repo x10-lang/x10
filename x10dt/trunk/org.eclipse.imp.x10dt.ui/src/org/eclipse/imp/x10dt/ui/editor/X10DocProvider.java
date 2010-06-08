@@ -51,6 +51,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -110,6 +111,10 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			Field field = (Field) target;
 			FieldInstance fi = field.fieldInstance();
 			target = fi;
+		}
+		else if (target instanceof FieldDef) {
+		    FieldInstance fi = ((FieldDef) target).asInstance();
+		    target = fi;
 		}
 		else if (target instanceof FieldDecl) {
 			FieldDecl fieldDecl = (FieldDecl) target;
