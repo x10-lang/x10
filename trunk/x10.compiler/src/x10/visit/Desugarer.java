@@ -602,9 +602,9 @@ public class Desugarer extends ContextVisitor {
     		reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
         }
         
-        CanonicalTypeNode CCE = xnf.CanonicalTypeNode(pos, reducerType);
-        X10ConstructorInstance ni = xts.findConstructor(reducerType, xts.ConstructorMatcher(reducerType, Collections.EMPTY_LIST, context));
-        Expr newReducer = xnf.New(pos, CCE, Collections.EMPTY_LIST).constructorInstance(ni).type(reducerType);
+//        CanonicalTypeNode CCE = xnf.CanonicalTypeNode(pos, reducerType);
+//        X10ConstructorInstance ni = xts.findConstructor(reducerType, xts.ConstructorMatcher(reducerType, Collections.EMPTY_LIST, context));
+//        Expr newReducer = xnf.New(pos, CCE, Collections.EMPTY_LIST).constructorInstance(ni).type(reducerType);
 
         // Parse out T
         Type reducerTarget = null;
@@ -618,7 +618,7 @@ public class Desugarer extends ContextVisitor {
         Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(reducerTarget)));
         CanonicalTypeNode TTE = xnf.CanonicalTypeNode(pos, coFinishT);
         X10ConstructorInstance ti = xts.findConstructor(coFinishT, xts.ConstructorMatcher(coFinishT, Collections.singletonList(reducerType), context));
-        Expr newCF = xnf.New(pos, TTE, Collections.singletonList(newReducer)).constructorInstance(ti).type(coFinishT);
+        Expr newCF = xnf.New(pos, TTE, Collections.singletonList(reducer)).constructorInstance(ti).type(coFinishT);
 
         Name tmp1 = Name.make("finishR");
         LocalDef lDef1 = xts.localDef(pos, xts.NoFlags(), Types.ref(coFinishT), tmp1);
