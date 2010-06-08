@@ -41,7 +41,8 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
         this.fTargetOpHelper.run(Arrays.asList(text, listener.getOption()), listener);
         return listener.validateVersion();
       } catch (Exception except) {
-        addMessages(NLS.bind(LaunchMessages.CCVC_VersionCheckingCmdError, except.getMessage()), IMessageProvider.WARNING);
+        addMessages(NLS.bind(LaunchMessages.CCVC_VersionCheckingCmdError, except.getMessage()), IMessageProvider.ERROR);
+        return false;
       }
     } else {
       removeMessages();
