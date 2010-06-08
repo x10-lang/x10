@@ -88,14 +88,9 @@ final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPa
   }
 
   void performCancel() throws CoreException {
-    if (this.fCurrProject == null) {
-      final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-      if (this.fFirstPage.getProjectName().length() == 0) {
-        return;
-      }
-      this.fCurrProject = root.getProject(this.fFirstPage.getProjectName());
+    if (this.fCurrProject != null) {
+      removeProvisionalProject();
     }
-    removeProvisionalProject();
   }
 
   @SuppressWarnings("unchecked")
