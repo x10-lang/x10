@@ -11,6 +11,7 @@ import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 
 import polyglot.ast.Call;
 import polyglot.ast.ConstructorCall;
+import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Id;
 import polyglot.ast.NamedVariable;
@@ -20,15 +21,17 @@ import polyglot.ast.ProcedureDecl;
 import polyglot.ast.TypeNode;
 import polyglot.ast.VarDecl;
 import polyglot.types.CodeInstance;
+import polyglot.types.ConstructorDef;
+import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.LocalDef;
+import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.VarInstance;
 import polyglot.visit.NodeVisitor;
 
 public class X10OccurrenceIdentifier implements ILanguageService, IOccurrenceMarker {
-    //public class OccurrenceMarker implements ILanguageService, IOccurrenceMarker {
-
-    private List fOccurrences= Collections.EMPTY_LIST;
+    private List<Object> fOccurrences= Collections.emptyList();
 
     public String getKindName() {
         return "X10 Occurrence Marker";
@@ -36,29 +39,28 @@ public class X10OccurrenceIdentifier implements ILanguageService, IOccurrenceMar
 
     public List<Object> getOccurrencesOf(IParseController parseController, Object node) {
         if (node == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         // Check whether we even have an AST in which to find occurrences
         Node root= (Node) parseController.getCurrentAst();
 
         if (root == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         Node astNode= (Node) node;
         PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getSourcePositionLocator();
 
-        fOccurrences= new ArrayList();
+        fOccurrences= new ArrayList<Object>();
 
-        if (node instanceof Id) {
-            node= locator.getParentNodeOf(node, root);
-            astNode= (Node) node;
-        } else if (node instanceof TypeNode) {
-            Node parent= (Node) locator.getParentNodeOf(node, root);
-            if (parent instanceof New) {
-                node= parent;
-                astNode= (Node) node;
+        if (astNode instanceof Id) {
+            Node parent= (Node) locator.getParentNodeOf(astNode, root);
+            astNode= parent;
+        } else if (astNode instanceof TypeNode) {
+            Node parent= (Node) locator.getParentNodeOf(astNode, root);
+            if (parent instanceof New || parent instanceof ProcedureDecl) {
+                astNode= parent;
             }
         }
 
@@ -75,14 +77,15 @@ public class X10OccurrenceIdentifier implements ILanguageService, IOccurrenceMar
         root.visit(new NodeVisitor() {
             @Override
             public NodeVisitor enter(Node n) {
-                VarInstance vi= getVarInstance(n);
+                if (theVarInstance[0] != null) {
+                    VarInstance vi= getVarInstance(n);
 
-                if (theVarInstance[0] != null && vi != null) {
-                    if (theVarInstance[0].equals(vi)) {
+                    if (vi != null && theVarInstance[0].equals(vi)) {
                         fOccurrences.add(n);
                     }
                 } else if (theProcInstance[0] != null) {
                     ProcedureInstance pi= getProcInstance(n);
+
                     if (pi != null && theProcInstance[0].equals(pi)) {
                         fOccurrences.add(n);
                     }
@@ -94,32 +97,48 @@ public class X10OccurrenceIdentifier implements ILanguageService, IOccurrenceMar
     }
 
     private VarInstance getVarInstance(Node n) {
-        if (n instanceof NamedVariable) {
+        if (n instanceof Field) {
+            return ((Field) n).fieldInstance().def().asInstance();
+        } else if (n instanceof NamedVariable) {
             return ((NamedVariable) n).varInstance();
         } else if (n instanceof FieldDecl) {     	
             FieldDecl fieldDecl = (FieldDecl) n;
-            FieldInstance fi = fieldDecl.fieldDef().asInstance();//PORT1.7 was fieldDecl.varInstance()
+            FieldDef fieldDef= fieldDecl.fieldDef();
+            // TODO Remove the following null check once the compiler produces "bogus"/synthetic FieldDefs for dangling refs
+            if (fieldDef == null) {
+                return null;
+            }
+            FieldInstance fi = fieldDef.asInstance();
 			return fi;
         } else if (n instanceof VarDecl) {
             VarDecl varDecl = (VarDecl) n;
-            VarInstance vi = varDecl.localDef().asInstance();//PORT1.7 was varDecl.varInstance()
+            LocalDef varDef= varDecl.localDef();
+            // TODO Remove the following null check once the compiler produces "bogus"/synthetic LocalDefs for dangling refs
+            if (varDef == null) {
+                return null;
+            }
+            VarInstance vi = varDef.asInstance();
 			return vi;
         }
         return null;
     }
 
     private ProcedureInstance getProcInstance(Node n) {
-        if (n instanceof ProcedureDecl) {  	
-            ProcedureDecl pDecl = (ProcedureDecl) n;           
-            CodeInstance ci = pDecl.procedureInstance().asInstance();//PORT1.7 was procedureDecl.procedureInstance()
-            ProcedureInstance pi = (ProcedureInstance)ci; //PORT1.7  cast should succeed b/c ProcedureDef.asInstance() always returns a ProcedureInstance?
-			return pi;//PORT1.7 was procedureDecl.procedureInstance();
+        // In what follows, take care not to use the ProcedureInstance that one gets from various
+        // sources as is. E.g., the ProcedureInstance associated with a method call site may have
+        // additional type constraints beyond that of the decl. Instead, get the underlying
+        // ProcedureDef first, and ask *that* for its ProcedureInstance.
+        if (n instanceof ProcedureDecl) {
+            ProcedureDecl pDecl = (ProcedureDecl) n;
+            ProcedureInstance pi = (ProcedureInstance) ((CodeInstance) pDecl.procedureInstance().asInstance());
+
+            return pi;
         } else if (n instanceof Call) {
-            return ((Call) n).procedureInstance();
+            return (ProcedureInstance) ((ProcedureDef) ((Call) n).procedureInstance().def()).asInstance();
         } else if (n instanceof ConstructorCall) {
-            return ((ConstructorCall) n).procedureInstance();
+            return ((ConstructorDef) ((ConstructorCall) n).procedureInstance().def()).asInstance();
         } else if (n instanceof New) {
-            return ((New) n).procedureInstance();
+            return ((ConstructorDef) ((New) n).procedureInstance().def()).asInstance();
         }
         return null;
     }
