@@ -50,6 +50,12 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     for (final Control control : this.fControlsAffectedByLocalRM) {
       control.setEnabled(! isLocal);
     }
+    if (! isLocal) {
+      final String x10DistLoc = this.fX10DistLocText.getText().trim();
+      getPlatformConf().setX10DistribLocation(x10DistLoc.length() == 0 ? null : x10DistLoc);
+      final String pgasLoc = this.fPGASLocText.getText().trim();
+      getPlatformConf().setPGASLocation(pgasLoc.length() == 0 ? null : pgasLoc);
+    }
     final ICppCompilationConf cppCompConf = getPlatformConf().getCppCompilationConf();
     final boolean useSameLoc = (cppCompConf.getPGASLocation() == null) || 
                                 cppCompConf.getPGASLocation().equals(cppCompConf.getX10DistribLocation());

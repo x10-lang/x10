@@ -187,13 +187,13 @@ class X10PlatformConf implements IX10PlatformConf {
     if (hasData(this.fCppCompilationConf.fLinkingLibs)) {
       cppCompilationTag.createChild(LINKING_LIBS_TAG).putTextData(this.fCppCompilationConf.fLinkingLibs);
     }
-    if (hasData(this.fCppCompilationConf.fX10DistLoc)) {
-      cppCompilationTag.createChild(X10_DIST_LOC_TAG).putTextData(this.fCppCompilationConf.fX10DistLoc);
-    }
-    if (hasData(this.fCppCompilationConf.fPGASLoc)) {
-      cppCompilationTag.createChild(PGAS_LOC_TAG).putTextData(this.fCppCompilationConf.fPGASLoc);
-    }
     if (! this.fConnectionConf.fIsLocal) {
+      if (hasData(this.fCppCompilationConf.fX10DistLoc)) {
+        cppCompilationTag.createChild(X10_DIST_LOC_TAG).putTextData(this.fCppCompilationConf.fX10DistLoc);
+      }
+      if (hasData(this.fCppCompilationConf.fPGASLoc)) {
+        cppCompilationTag.createChild(PGAS_LOC_TAG).putTextData(this.fCppCompilationConf.fPGASLoc);
+      }
       if (hasData(this.fCppCompilationConf.fRemoteOutputFolder)) {
         cppCompilationTag.createChild(REMOTE_OUTPUT_FOLDER_TAG).putTextData(this.fCppCompilationConf.fRemoteOutputFolder);
       }
@@ -279,14 +279,12 @@ class X10PlatformConf implements IX10PlatformConf {
 
   protected final void initLocalX10DistribLocation() {
     final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
-    if (x10DistBundle != null) {
-      final URL url = x10DistBundle.getResource("include"); //$NON-NLS-1$
-      try {
-        this.fCppCompilationConf.fX10DistLoc = new File(FileLocator.resolve(url).getFile()).getParent();
-        this.fCppCompilationConf.fPGASLoc = this.fCppCompilationConf.fX10DistLoc;
-      } catch (IOException except) {
-        // Let's forget.
-      }
+    final URL url = x10DistBundle.getResource("include"); //$NON-NLS-1$
+    try {
+      this.fCppCompilationConf.fX10DistLoc = new File(FileLocator.resolve(url).getFile()).getParent();
+      this.fCppCompilationConf.fPGASLoc = this.fCppCompilationConf.fX10DistLoc;
+    } catch (IOException except) {
+      // Let's forget.
     }
   }
   

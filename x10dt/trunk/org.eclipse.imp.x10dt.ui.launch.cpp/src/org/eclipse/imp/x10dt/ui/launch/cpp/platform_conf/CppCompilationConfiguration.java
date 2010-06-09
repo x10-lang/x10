@@ -7,12 +7,19 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
+import org.osgi.framework.Bundle;
 
 
 
@@ -57,7 +64,7 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
   }
 
   public String getPGASLocation() {
-    return this.fPGASLoc;
+    return (this.fPGASLoc == null) ? getX10DistribLocation() : this.fPGASLoc;
   }
 
   public String getRemoteOutputFolder() {
@@ -69,22 +76,36 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
   }
 
   public String getX10DistribLocation() {
-    return this.fX10DistLoc;
+    if (this.fX10DistLoc == null) {
+      final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
+      final URL url = x10DistBundle.getResource("include"); //$NON-NLS-1$
+      try {
+        return new File(FileLocator.resolve(url).getFile()).getParent();
+      } catch (IOException except) {
+        return null;
+      }
+    } else {
+      return this.fX10DistLoc;
+    }
   }
 
   public String[] getX10HeadersLocations() {
-    if (this.fX10DistLoc.equals(this.fPGASLoc)) {
-      return new String[] { String.format(INCLUDE_FORMAT, this.fX10DistLoc) };
+    final String x10DistLoc = getX10DistribLocation();
+    final String pgasLoc = getPGASLocation();
+    if (x10DistLoc.equals(pgasLoc)) {
+      return new String[] { String.format(INCLUDE_FORMAT, x10DistLoc) };
     } else {
-      return new String[] { String.format(INCLUDE_FORMAT, this.fX10DistLoc), String.format(INCLUDE_FORMAT, this.fPGASLoc) };
+      return new String[] { String.format(INCLUDE_FORMAT, x10DistLoc), String.format(INCLUDE_FORMAT, pgasLoc) };
     }
   }
 
   public String[] getX10LibsLocations() {
-    if (this.fX10DistLoc.equals(this.fPGASLoc)) {
-      return new String[] { String.format(LIB_FORMAT, this.fX10DistLoc) };
+    final String x10DistLoc = getX10DistribLocation();
+    final String pgasLoc = getPGASLocation();
+    if (x10DistLoc.equals(pgasLoc)) {
+      return new String[] { String.format(LIB_FORMAT, x10DistLoc) };
     } else {
-      return new String[] { String.format(LIB_FORMAT, this.fX10DistLoc), String.format(LIB_FORMAT, this.fPGASLoc) };
+      return new String[] { String.format(LIB_FORMAT, x10DistLoc), String.format(LIB_FORMAT, pgasLoc) };
     }
   }
   

@@ -48,6 +48,10 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
     for (final Control control : this.fControlsAffectedByLocalRM) {
       control.setEnabled(! isLocal);
     }
+    if (! isLocal) {
+      final String outputFolder = this.fRemoteOutputFolderText.getText().trim();
+      getPlatformConf().setRemoteOutputFolder(outputFolder.length() == 0 ? null : outputFolder);
+    }
     this.fBrowseBt.setEnabled(! isLocal && validationStatus == EValidationStatus.VALID);
     handleEmptyTextValidation(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
     setPartCompleteFlag(hasCompleteInfo());
