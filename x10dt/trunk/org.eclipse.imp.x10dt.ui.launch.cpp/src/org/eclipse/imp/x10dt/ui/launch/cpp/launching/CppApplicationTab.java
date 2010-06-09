@@ -9,7 +9,6 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.launching;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE;
-import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
 
@@ -24,9 +23,6 @@ import java.util.Set;
 
 import lpg.runtime.IMessageHandler;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileInfo;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -37,7 +33,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -154,22 +149,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
       final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
       if (project.exists()) {
-        if ((this.fX10PlatformConf != null) && (this.fCppMainFileStore != null)) {
-          final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
-          final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
-          final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
-          final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, 
-                                                                              connConf.getConnectionName());
-          if (targetOpHelper != null) {
-          	final String mainCppFilePath = targetOpHelper.toPath(this.fCppMainFileStore.toURI());
-          	configuration.setAttribute(Constants.ATTR_MAIN_CPP_FILE_PATH, mainCppFilePath);
-          	try {
-          		final String workspaceDir = PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project);
-          		configuration.setAttribute(ATTR_WORK_DIRECTORY, workspaceDir);
-          		configuration.setAttribute(ATTR_EXECUTABLE_PATH, getExecutablePath(mainCppFilePath, workspaceDir));
-          	} catch (CoreException except) {
-          		// Let's forget it will be handled by the validation step.
-          	}
+        if (this.fX10PlatformConf != null) {
+          try {
+            configuration.setAttribute(ATTR_WORK_DIRECTORY, PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project));
+          } catch (CoreException except) {
+            // Let's forget it will be handled by the validation step.
           }
         }
       }
@@ -186,12 +170,10 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
 
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
     configuration.setAttribute(ATTR_PROJECT_NAME, (String) null);
-    configuration.setAttribute(ATTR_EXECUTABLE_PATH, (String) null);
     configuration.setAttribute(ATTR_WORK_DIRECTORY, (String) null);
     configuration.setAttribute(ATTR_ARGUMENTS, (String) null);
     configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, (String) null);
     configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
-    configuration.setAttribute(Constants.ATTR_MAIN_CPP_FILE_PATH, (String) null);
     configuration.setAttribute(ATTR_CONSOLE, true);
   }
   
@@ -217,23 +199,12 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           if (project.exists()) {
             this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
             if (this.fX10PlatformConf != null) {
-            	final int errorCount = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
-            	if (errorCount == 0) {
+            	final int errors = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+            	if (errors == 0) {
             		for (final ICppApplicationTabListener listener : this.fTabListeners) {
             			listener.platformConfSelected(this.fX10PlatformConf);
             		}
             	}
-              final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
-              final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
-              final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
-              final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, 
-                                                                                  connConf.getConnectionName());
-              if (targetOpHelper != null) {
-              	final String mainCppFilePath = configuration.getAttribute(Constants.ATTR_MAIN_CPP_FILE_PATH, EMPTY_STR);
-              	this.fCppMainFileStore = getMainCppFileStore(targetOpHelper, mainCppFilePath, project,
-              	                                             configuration.getAttribute(Constants.ATTR_X10_MAIN_CLASS, 
-              	                                                                        EMPTY_STR));
-              }
             }
           }
         }
@@ -284,10 +255,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         		setErrorMessage(Messages.CPPB_NoPTPConnectionForName);
         		return false;
         	}
-          if ((this.fCppMainFileStore == null) || ! this.fCppMainFileStore.fetchInfo().exists()) {
-            setErrorMessage(LaunchMessages.CAT_NoAssociatedCppFile);
-            return false;
-          }
           try {
             PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project);
           } catch (CoreException except) {
@@ -455,103 +422,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     this.fProjectBt.addSelectionListener(new ProjectBtSelectionListener());
   }
   
-  private String getExecutablePath(final String mainCppFilePath, final String workspaceDir) {
-    final StringBuilder execPathBuilder = new StringBuilder();
-    execPathBuilder.append(workspaceDir).append('/');
-    
-    final String fileName = mainCppFilePath.substring(mainCppFilePath.lastIndexOf('/') + 1);
-    
-    final int dotIndex = fileName.lastIndexOf('.');
-    final int lastIndex = (dotIndex == -1) ? fileName.length() : dotIndex;
-    final String className = fileName.substring(0, lastIndex);
-    
-    execPathBuilder.append(className);
-    
-    if ((this.fX10PlatformConf != null) && 
-        (this.fX10PlatformConf.getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS)) {
-      execPathBuilder.append(EXE_EXT);
-    }
-    return execPathBuilder.toString();
-  }
-  
-  private IFileStore getMainCppFileStore(final ITargetOpHelper targetOpHelper, final String mainCppFilePath,
-                                         final IProject project, final String x10MainType) {
-    final IFileStore fileStore = targetOpHelper.getStore(mainCppFilePath);
-    if (fileStore.fetchInfo().exists()) {
-      return fileStore;
-    } else {
-      try {
-        final Collection<IFileStore> matches = new ArrayList<IFileStore>();
-        final IFileStore dirStore = targetOpHelper.getStore(PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project));
-        final int dotIndex = x10MainType.lastIndexOf('.');
-        final String pkgName = (dotIndex == -1) ? EMPTY_STR : x10MainType.substring(0, dotIndex);
-        searchForMatchingGeneratedFile(matches, dirStore, EMPTY_STR, pkgName, x10MainType, new NullProgressMonitor());
-        if (! matches.isEmpty()) {
-          return matches.iterator().next();
-        }
-      } catch (CoreException except) {
-        CppLaunchCore.log(except.getStatus());
-      }
-    }
-    return null;
-  }
-  
   private ITargetOpHelper getTargetOpHelper() {
   	final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
     final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
     final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
     return TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
-  }
-  
-  private void searchForMatchingGeneratedFile(final Collection<IFileStore> matches, final IFileStore dirStore,
-                                              final String curDir, final String pkgName, 
-                                              final String typeName, final IProgressMonitor monitor) throws CoreException {
-    for (final IFileStore fileStore : dirStore.childStores(EFS.NONE, monitor)) {
-      final IFileInfo fileInfo = fileStore.fetchInfo();
-      if (fileInfo.isDirectory()) {
-        final StringBuilder newDir = new StringBuilder();
-        if (! curDir.equals(EMPTY_STR)) {
-          newDir.append(curDir).append('.');
-        }
-        newDir.append(fileInfo.getName());
-        searchForMatchingGeneratedFile(matches, fileStore, newDir.toString(), pkgName, typeName, monitor);
-      } else {
-        final String name = fileInfo.getName();
-        final int dotIndex = name.lastIndexOf('.');
-        final String ext = name.substring(dotIndex + 1);
-        if (CC_EXT.equals(ext)) {
-          final String nameWithoutExt = name.substring(0, (dotIndex == -1) ? name.length() : dotIndex);
-          final StringBuilder typeNameBuilder = new StringBuilder();
-          if (! curDir.equals(EMPTY_STR)) {
-            typeNameBuilder.append(curDir).append('.');
-          }
-          typeNameBuilder.append(nameWithoutExt);
-          if (typeName.equals(typeNameBuilder.toString())) {
-            matches.add(fileStore);
-          }
-        }
-      }
-    }
-  }
-  
-  private void setMainType(final IProject project, final ClassType mainType) throws CoreException {
-    if (this.fX10PlatformConf != null) {
-      final ITargetOpHelper targetOpHelper = getTargetOpHelper();
-      if (targetOpHelper == null) {
-      	throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.CPPB_NoPTPConnectionForName));
-      }
-      final IFileStore wDirStore = targetOpHelper.getStore(PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project));
-    
-      final Collection<IFileStore> matches = new ArrayList<IFileStore>();
-      final String pkgName = (mainType.package_() == null) ? EMPTY_STR : mainType.package_().fullName().toString();
-      searchForMatchingGeneratedFile(matches, wDirStore, EMPTY_STR, pkgName, mainType.fullName().toString(),
-                                     new NullProgressMonitor());
-
-      this.fMainTypeText.setText(mainType.fullName().toString());
-      if (! matches.isEmpty()) {
-        this.fCppMainFileStore = matches.iterator().next();
-      }
-    }
   }
   
   private void setTextWithoutNotification(final Text text, final ILaunchConfiguration configuration, 
@@ -681,13 +556,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
             final SelectionDialog dialog = new X10ClassTypeSelectionDialog(getShell(), x10Types);
             if (dialog.open() == Window.OK) {
               final ClassType resultType = (ClassType) dialog.getResult()[0];
-              try {
-                setMainType(project, resultType);
-              } catch (CoreException except) {
-                DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
-                              .createAndOpen(getShell(), LaunchMessages.CAT_SetMainTypeError, 
-                                             LaunchMessages.CAT_ResourcesAccessError);
-              }
+              CppApplicationTab.this.fMainTypeText.setText(resultType.fullName().toString());
             }
           }
         }
@@ -845,14 +714,8 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   
   private IX10PlatformConf fX10PlatformConf;
   
-  private IFileStore fCppMainFileStore;
-  
-  
-  private static final String EXE_EXT = ".exe"; //$NON-NLS-1$
   
   private static final String X10_EXT = "x10"; //$NON-NLS-1$
-  
-  private static final String CC_EXT = "cc"; //$NON-NLS-1$
   
   private static final String MAIN_METHOD_NAME = "main"; //$NON-NLS-1$
   

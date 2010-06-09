@@ -77,8 +77,6 @@ public class LaunchMessages extends NLS {
   
   public static String CAT_LinkAppToolTip;
 
-  public static String CAT_NoAssociatedCppFile;
-
   public static String CAT_NoExistingProject;
 
 	public static String CAT_NoMainX10FileFound;
@@ -99,15 +97,11 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_RequiredPrjName;
 
-  public static String CAT_ResourcesAccessError;
-
   public static String CAT_SearchButton;
 
 	public static String CAT_SearchInfoResult;
 
   public static String CAT_SearchingMainMethodsMsg;
-
-  public static String CAT_SetMainTypeError;
 
   public static String CAT_TabName;
 
@@ -154,10 +148,18 @@ public class LaunchMessages extends NLS {
 	public static String CLCD_LinkingInterrupted;
 
   public static String CLCD_LinkIOError;
+
+  public static String CLCD_MultipleRMWithSameName;
   
+  public static String CLCD_NoCppExecutable;
+
+  public static String CLCD_NoMainCppFileFound;
+
   public static String CLCD_NoMainFileAccessIOError;
 
   public static String CLCD_NoMainFileAccessOpError;
+
+  public static String CLCD_NoOutputDir;
 
   public static String CLCD_NoResManagerError;
 

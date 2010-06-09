@@ -213,7 +213,9 @@ public final class PTPConfUtils {
 					((IServiceProvider) rmConf).getServiceId().equals(communicationInterfaceConf.getServiceModeId())) {
 				if (communicationInterfaceConf.hasSameCommunicationInterfaceInfo(rmConf)) {
 					if (platformConf.getConnectionConf().isLocal()) {
-						return PTPConstants.LOCAL_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId()) ? resourceManager : null;
+						if (PTPConstants.LOCAL_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId())) {
+						  return resourceManager;
+						}
 					} else if (PTPConstants.REMOTE_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId())) {
 						final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
 						final IRemoteServices remoteServices = plugin.getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
