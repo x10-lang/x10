@@ -7,8 +7,16 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
+import org.eclipse.ptp.remote.core.IRemoteProcess;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
@@ -85,6 +93,63 @@ public final class PTPUtils {
       }
     }
     return null;
+  }
+  
+  /**
+   * Runs the process provided capturing the standard and error output and redirecting them to the output listener transmitted.
+   * 
+   * @param process The process to run.
+   * @param listener The process output listener.
+   * @throws InterruptedException If the current thread is {@linkplain Thread#interrupt() interrupted} by another
+   * thread while it is waiting, then the wait is ended and an {@link InterruptedException} is thrown.
+   * @return The exit value for the process. 
+   */
+  public static int run(final IRemoteProcess process, final IProcessOuputListener listener) throws InterruptedException {
+    final BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+    final Thread outThread = new Thread(new Runnable() {
+      
+      public void run() {
+        try {
+          String line;
+          while ((line = outReader.readLine()) != null) {
+            listener.read(line);
+          }
+        } catch (IOException except) {
+          LaunchCore.log(IStatus.ERROR, Messages.CPPB_OutputStreamReadingError, except);
+        }
+      }
+      
+    });
+  
+    final BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+    final Thread errThread = new Thread(new Runnable() {
+      
+      public void run() {
+        try {
+          String line;
+          while ((line = errReader.readLine()) != null) {
+            listener.readError(line);
+          }
+        } catch (IOException except) {
+          LaunchCore.log(IStatus.ERROR, Messages.CPPB_ErrorStreamReadingError, except);
+        }
+      }
+      
+    });
+    
+    try {
+      outThread.start();
+      errThread.start();
+    
+      process.waitFor();
+    
+      outThread.join();
+      errThread.join();
+    
+      return process.exitValue();
+    } finally {
+      process.destroy();
+    }
   }
   
   // --- Fields

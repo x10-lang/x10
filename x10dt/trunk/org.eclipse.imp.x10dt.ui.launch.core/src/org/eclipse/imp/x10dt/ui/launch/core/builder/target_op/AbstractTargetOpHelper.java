@@ -14,10 +14,9 @@ import java.util.Map;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
-import org.eclipse.ptp.remote.core.IRemoteProcess;
 import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 
@@ -49,16 +48,7 @@ abstract class AbstractTargetOpHelper implements ITargetOpHelper {
     if (envVariables != null) {
       processBuilder.environment().putAll(envVariables);
     }
-    final IRemoteProcess process = processBuilder.start();
-    
-    UIUtils.printStream(process.getInputStream(), process.getErrorStream(), outputListener);
-    
-    process.waitFor();
-    
-    final int returnCode = process.exitValue();
-    process.destroy();
-    
-    return returnCode;
+    return PTPUtils.run(processBuilder.start(), outputListener);
   }
   
   public final int run(final List<String> command, final String directory,

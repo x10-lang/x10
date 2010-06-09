@@ -37,7 +37,6 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.FileUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.WizardUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
@@ -238,12 +237,11 @@ final class CppCompilationChecker implements ICppCompilationChecker {
   private String execute(final List<String> command, final IRemoteFileManager fileManager, 
                          final SubMonitor monitor) throws Exception {
     monitor.beginTask(null, 1);
-    IRemoteProcess process = null;
     try {
-      process = getProcessBuilder(command).directory(fileManager.getResource(this.fWorkDir)).start();
+      final IRemoteProcess process = getProcessBuilder(command).directory(fileManager.getResource(this.fWorkDir)).start();
 
       final StringBuilder errMsgBuilder = new StringBuilder();
-      UIUtils.printStream(process.getInputStream(), process.getErrorStream(), new IProcessOuputListener() {
+      final int exitValue = PTPUtils.run(process, new IProcessOuputListener() {
 
         public void read(final String line) {
         }
@@ -262,14 +260,9 @@ final class CppCompilationChecker implements ICppCompilationChecker {
         
       });
       
-      process.waitFor();
-      final int exitValue = process.exitValue();
       monitor.worked(1);
       return (exitValue == 0) ? null : errMsgBuilder.toString();
     } finally {
-      if (process != null) {
-        process.destroy();
-      }
       monitor.done();
     }
   }
