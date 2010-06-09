@@ -24,6 +24,7 @@ import polyglot.visit.PrettyPrinter;
 import x10.errors.Errors;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
+import x10.visit.X10TypeChecker;
 
 /**
  * An implementation of the offer e; construct in X10.
@@ -72,15 +73,21 @@ public class Offer_c extends Stmt_c implements Offer {
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
     	// Find a T such that t is an instance of Reducer[T].
     	// check that the type of the expression e is a subtype of T.
+    	if ((tc instanceof X10TypeChecker) && ((X10TypeChecker) tc).isFragmentChecker()) {
+    		return this;
+    	}
     	Type rType = ((X10Context) tc.context()).collectingFinishType();
     	if (rType != null) {
     		Type eType = expr().type();
     		rType = X10TypeMixin.reducerType(rType);
     		if (rType != null && ! tc.typeSystem().isSubtype(eType, rType, tc.context()))
-    			throw new Errors.OfferDoesNotMatchCollectingFinishType(eType, rType, position());
+    			throw 
+    					new Errors.OfferDoesNotMatchCollectingFinishType(eType, rType, position());
+    			
     		return this;
     	}
-    	throw new Errors.NoCollectingFinishFound(this.toString(), position());
+    	throw 
+    	 new Errors.NoCollectingFinishFound(this.toString(), position());
 
     }
     

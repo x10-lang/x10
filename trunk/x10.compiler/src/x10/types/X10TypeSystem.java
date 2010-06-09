@@ -23,10 +23,12 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
+import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -174,13 +176,17 @@ public interface X10TypeSystem extends TypeSystem {
     				XVar thisVar, 
     				List<LocalDef> formalNames,
     				Ref<CConstraint> guard, 
-    				List<Ref<? extends Type>> throwTypes);
+    				List<Ref<? extends Type>> throwTypes,
+    				Ref<? extends Type> offerType);
 
   
+    MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+            Flags flags, Ref<? extends Type> returnType, Name name,
+            List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>>  excTypes, Ref<? extends Type> offerType);
     
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
-	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
+	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType, Ref<XTerm> body);
 
     /**
      * Return the ClassType object for the x10.array.Array class.
@@ -321,9 +327,13 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean equalTypeParameters(List<Type> a, List<Type> b, Context context);
 
+    ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
+            Flags flags, List<Ref<? extends Type>> argTypes,
+            List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType);
+    
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
-	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes);
+	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType);
 
     Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
 

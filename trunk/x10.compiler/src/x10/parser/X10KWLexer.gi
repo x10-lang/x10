@@ -121,6 +121,7 @@
     now
     null
     offer
+    offers
     or
     operator
     package
@@ -608,6 +609,11 @@
                    | o f f e r
         /.$BeginAction
                 $setResult($_offer);
+          $EndAction
+        ./
+                   | o f f e r s
+        /.$BeginAction
+                $setResult($_offers);
           $EndAction
         ./
 %End

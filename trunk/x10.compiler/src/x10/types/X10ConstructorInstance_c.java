@@ -77,6 +77,10 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         return (X10ConstructorDef) def();
     }
     
+    public Ref<? extends Type> offerType() {
+    	return x10Def().offerType();
+    }
+    
     public List<Type> annotations() {
         return X10TypeObjectMixin.annotations(this);
     }

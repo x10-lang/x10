@@ -84,11 +84,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     protected TypeNode returnType;
     protected List<TypeParamNode> typeParameters;
     protected TypeNode hasType;
+    protected TypeNode offerType; 
     
     public X10ConstructorDecl_c(Position pos, FlagsNode flags, 
             Id name, TypeNode returnType, 
             List<TypeParamNode> typeParams, List<Formal> formals, 
-            DepParameterExpr guard, List<TypeNode> throwTypes, Block body) {
+            DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body) {
         super(pos, flags,  name, formals, throwTypes, body);
         // null, not unknown. 
         this.returnType = returnType instanceof HasTypeNode_c ? null : returnType; 
@@ -96,6 +97,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 			hasType = ((HasTypeNode_c) returnType).typeNode();
         this.guard = guard;
         this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
+        this.offerType = offerType;
     }
     
     public TypeNode returnType() {
@@ -141,7 +143,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     }
 
     protected ConstructorDef createConstructorDef(TypeSystem ts, ClassDef ct, Flags flags) {
-        X10ConstructorDef ci = (X10ConstructorDef) super.createConstructorDef(ts, ct, flags);
+    	X10ConstructorDef ci = (X10ConstructorDef) ((X10TypeSystem) ts).constructorDef(position(), Types.ref(ct.asType()), flags,
+                Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList(), 
+                offerType == null ? null : offerType.typeRef());
+        
         ci.setThisVar(((X10ClassDef) ct).thisVar());
         return ci;
     }

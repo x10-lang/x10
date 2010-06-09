@@ -288,6 +288,7 @@
     now
     null
     offer
+    offers
     or
     package
     private
@@ -972,7 +973,7 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+    MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            if (Identifier.id().toString().equals("this")) {
                        ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
@@ -983,6 +984,7 @@ public static class MessageHandler implements IMessageHandler {
                                                  FormalParameters,
                                                  WhereClauseopt,
                                                  Throwsopt,
+                                                 Offersopt,
                                                  MethodBody);
          cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(MethodModifiersopt));
          setResult(cd);
@@ -996,13 +998,14 @@ public static class MessageHandler implements IMessageHandler {
               FormalParameters,
               WhereClauseopt,
               Throwsopt,
+              Offersopt,
               MethodBody);
           md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
           setResult(md);
           }
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
@@ -1012,6 +1015,7 @@ public static class MessageHandler implements IMessageHandler {
               Arrays.<Formal>asList(fp1, fp2),
               WhereClauseopt,
               Throwsopt,
+              Offersopt,
               MethodBody);
           if (! md.flags().flags().isStatic())
               syntaxError("Binary operator with two parameters must be static.", md.position());
@@ -1019,7 +1023,7 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
@@ -1029,6 +1033,7 @@ public static class MessageHandler implements IMessageHandler {
               Collections.<Formal>singletonList(fp2),
               WhereClauseopt,
               Throwsopt,
+              Offersopt,
               MethodBody);
           if (! md.flags().flags().isStatic())
               syntaxError("Unary operator with two parameters must be static.", md.position());
@@ -1036,7 +1041,7 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
@@ -1046,6 +1051,7 @@ public static class MessageHandler implements IMessageHandler {
               Collections.<Formal>singletonList(fp2),
               WhereClauseopt,
               Throwsopt,
+              Offersopt,
               MethodBody);
           if (md.flags().flags().isStatic())
               syntaxError("Binary operator with this parameter cannot be static.", md.position());
@@ -1054,7 +1060,7 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt  Throwsopt Offersopt MethodBody
         /.$BeginJava
            Name op = X10Binary_c.invBinaryMethodName(BinOp);
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
@@ -1065,6 +1071,7 @@ public static class MessageHandler implements IMessageHandler {
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
               Throwsopt,
+              Offersopt,
               MethodBody);
           if (md.flags().flags().isStatic())
               syntaxError("Binary operator with this parameter cannot be static.", md.position());
@@ -1073,7 +1080,7 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
@@ -1083,6 +1090,7 @@ public static class MessageHandler implements IMessageHandler {
               Collections.EMPTY_LIST,
               WhereClauseopt,
               Throwsopt,
+              Offersopt,
               MethodBody);
           if (md.flags().flags().isStatic())
               syntaxError("Unary operator with this parameter cannot be static.", md.position());
@@ -1090,7 +1098,7 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+      | MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
@@ -1100,6 +1108,7 @@ public static class MessageHandler implements IMessageHandler {
               FormalParameters,
               WhereClauseopt,
               Throwsopt,
+              Offersopt,
               MethodBody);
           if (md.flags().flags().isStatic())
               syntaxError("Apply operator cannot be static.", md.position());
@@ -1107,7 +1116,7 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+      | MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
@@ -1117,6 +1126,7 @@ public static class MessageHandler implements IMessageHandler {
               CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
               WhereClauseopt,
               Throwsopt,
+              Offersopt,
               MethodBody);
           if (md.flags().flags().isStatic())
               syntaxError("Set operator cannot be static.", md.position());
@@ -1124,7 +1134,7 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Throwsopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
@@ -1134,6 +1144,7 @@ public static class MessageHandler implements IMessageHandler {
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
               Throwsopt,
+              Offersopt, 
               MethodBody);
           if (! md.flags().flags().isStatic())
               syntaxError("Conversion operator must be static.", md.position());
@@ -1141,7 +1152,7 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
@@ -1151,6 +1162,7 @@ public static class MessageHandler implements IMessageHandler {
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
               Throwsopt,
+              Offersopt, 
               MethodBody);
           if (! md.flags().flags().isStatic())
               syntaxError("Conversion operator must be static.", md.position());
@@ -1158,7 +1170,7 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
@@ -1168,6 +1180,7 @@ public static class MessageHandler implements IMessageHandler {
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
               Throwsopt,
+              Offersopt,
               MethodBody);
           if (! md.flags().flags().isStatic())
               syntaxError("Conversion operator must be static.", md.position());
@@ -1186,6 +1199,7 @@ public static class MessageHandler implements IMessageHandler {
               FormalParameters,
               WhereClauseopt,
               Throwsopt,
+              null, // offersOpt
               MethodBody);
           md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
           setResult(md);
@@ -1201,6 +1215,7 @@ public static class MessageHandler implements IMessageHandler {
               Collections.EMPTY_LIST,
               WhereClauseopt,
               Collections.EMPTY_LIST,
+              null, // offersOpt
               MethodBody);
           md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
           setResult(md);
@@ -1290,9 +1305,9 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    FunctionType ::= TypeArgumentsopt ( FormalParameterListopt ) WhereClauseopt Throwsopt => Type
+    FunctionType ::= TypeArgumentsopt ( FormalParameterListopt ) WhereClauseopt Throwsopt Offersopt => Type
         /.$BeginJava
-                    setResult(nf.FunctionTypeNode(pos(), TypeArgumentsopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt));
+                    setResult(nf.FunctionTypeNode(pos(), TypeArgumentsopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt, Offersopt));
           $EndJava
         ./
 
@@ -1509,7 +1524,7 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt ConstructorBody
+    ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt ConstructorBody
        /.$BeginJava
          ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                                  extractFlags(ConstructorModifiersopt),
@@ -1519,6 +1534,7 @@ public static class MessageHandler implements IMessageHandler {
                                                  FormalParameters,
                                                  WhereClauseopt,
                                                  Throwsopt,
+                                                 Offersopt,
                                                  ConstructorBody);
          cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ConstructorModifiersopt));
          setResult(cd);
@@ -2140,7 +2156,7 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(call);
           $EndJava
         ./
-    ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Throwsopt => ClosureBody
+    ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt => ClosureBody
         /.$BeginJava
                     setResult(nf.Closure(pos(), FormalParameters, WhereClauseopt, 
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt, Throwsopt, ClosureBody));
@@ -3121,6 +3137,11 @@ FinishExpression ::= finish ( Expression ) Block
     Throws ::= throws ExceptionTypeList
         /.$BeginJava
                     setResult(ExceptionTypeList);
+          $EndJava
+        ./
+     Offers ::= offers Type
+        /.$BeginJava
+                    setResult(Type);
           $EndJava
         ./
     
@@ -4686,6 +4707,12 @@ FinishExpression ::= finish ( Expression ) Block
           $EndJava
         ./
                 | Throws
+     Offersopt ::= %Empty
+        /.$BeginJava
+                    setResult(null);
+          $EndJava
+        ./
+                | Offers
 
     MethodModifiersopt ::= %Empty
         /.$BeginJava
@@ -4859,6 +4886,7 @@ FinishExpression ::= finish ( Expression ) Block
     X10Formal ::= LoopIndex
     Stmt ::= LoopStatement
     List ::= Throwsopt | Throws
+    TypeNode ::= Offersopt | Offers
     Block ::= MethodBody
 --    Initializer ::= StaticInitializer
     ConstructorDecl ::= ConstructorDeclaration

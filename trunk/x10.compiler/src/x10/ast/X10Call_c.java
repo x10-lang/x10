@@ -70,6 +70,7 @@ import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.parser.X10ParsedName;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MemberDef;
@@ -79,6 +80,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
@@ -438,15 +440,18 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		}
 		
 		// We have a cc and a valid call with no target. The one with 
-		if (cc instanceof ClosureCall)
-			if (((ClosureCall) cc).target() instanceof Local) {
+		if (cc instanceof ClosureCall) {
+			ClosureCall call = (ClosureCall) cc;
+			if (call.target() instanceof Local) {
 				// cc is of the form r() where r is a local variable.
 				// This overrides any other possibility for this call, e.g. a static or an instance method call.
 				X10TypeMixin.checkMissingParameters(cc.type());
+				Checker.checkOfferType(position(), call.closureInstance(), tc);
 				return cc;
 
 
 			}
+		}
 		/////////////////////////////////////////////////////////////////////
 		// Inline the super call here and handle type arguments.
 		/////////////////////////////////////////////////////////////////////
@@ -487,6 +492,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 						 if (result instanceof Expr) {
 							 X10TypeMixin.checkMissingParameters(((Expr) result).type());
 						 }
+						// Checker.checkOfferType(position(), call.closureInstance(), tc);
 						 return result;
 					 }
 					 // otherwise error.
@@ -505,6 +511,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			
 			if (n instanceof X10Call_c) {
 				n = PlaceChecker.makeReceiverLocalIfNecessary((X10Call) n, tc);
+				Checker.checkOfferType(position(), (X10MethodInstance) ((X10Call_c) n).methodInstance(), tc);
 			}
 			
 			
@@ -529,8 +536,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
 			}
 			structCall = tryStructConstructor(tc, target, typeArgs, argTypes, arguments);
-			if (structCall != null)
+			if (structCall != null) {
+				Checker.checkOfferType(position(), (X10ConstructorInstance) ((X10New_c) structCall).constructorInstance(), tc);
 				return structCall;
+			}
 		}
 
 		X10Call_c n = this;
@@ -610,6 +619,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		//	        	result.checkWhereClause(tc);
 		result.checkAnnotations(tc);
 		X10TypeMixin.checkMissingParameters(result.type());
+		Checker.checkOfferType(position(), (X10MethodInstance) result.methodInstance(), tc);
 
 		return result;
 	}

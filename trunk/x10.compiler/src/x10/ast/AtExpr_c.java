@@ -54,8 +54,8 @@ import x10.visit.ExprFlattener.Flattener;
 public class AtExpr_c extends PlacedClosure_c
     implements AtExpr {
     
-    public AtExpr_c(Position p, Expr place, TypeNode returnType, Block body) {
-	    super(p, place, returnType, body);
+    public AtExpr_c(Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
+	    super(p, place, returnType, offerType, body);
     }
 
     public Node typeCheck( ContextVisitor tc ) throws SemanticException {

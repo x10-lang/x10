@@ -23,19 +23,26 @@ import x10.errors.Errors;
  */
 public class X10TypeChecker extends TypeChecker {
 
-	Map<Node,Node> memo;
-
+	  Map<Node,Node> memo;
 	/**
 	 * @param job
 	 * @param ts
 	 * @param nf
 	 * @param memo
 	 */
-	public X10TypeChecker(Job job, TypeSystem ts, NodeFactory nf, Map<Node, Node> memo) {
-	    super(job, ts, nf, memo);
-	    this.extensionInfo = (x10.ExtensionInfo) job.extensionInfo();
-	    this.memo = memo;
+	  public X10TypeChecker(Job job, TypeSystem ts, NodeFactory nf,
+				Map<Node, Node> memo) {
+		  this(job, ts, nf, memo, false);
+	  }
+	public X10TypeChecker(Job job, TypeSystem ts, NodeFactory nf,
+			Map<Node, Node> memo, boolean isFragmentChecker) {
+		super(job, ts, nf, memo);
+		this.extensionInfo = (x10.ExtensionInfo) job.extensionInfo();
+		this.memo = memo;
+		this.isFragmentChecker = isFragmentChecker;
 	}
+	boolean isFragmentChecker = false;
+	public boolean isFragmentChecker() { return isFragmentChecker;}
 	
 	private x10.ExtensionInfo extensionInfo;
 	

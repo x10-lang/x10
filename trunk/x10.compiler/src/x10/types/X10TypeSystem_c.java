@@ -970,19 +970,24 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, 
     		Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> excTypes) {
-
-        
-        	String fullNameWithThis = name + "#this";
-        	XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-        	XVar thisVar = XTerms.makeLocal(thisName);
-        
-
-        // set up null thisVar for method def's, so the outer contexts are searched for thisVar.
-        return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, 
-        		name.toString().contains(DUMMY_ASYNC) ? null : thisVar, dummyLocalDefs(argTypes), null, null, excTypes,
-                         null);
+    	return	methodDef(pos, container, flags, returnType, name, argTypes, excTypes, null);
     }
 
+    public MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+            Flags flags, Ref<? extends Type> returnType, Name name,
+            List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType) {
+    	String fullNameWithThis = name + "#this";
+    	XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+    	XVar thisVar = XTerms.makeLocal(thisName);
+    
+
+    // set up null thisVar for method def's, so the outer contexts are searched for thisVar.
+    return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, 
+    		name.toString().contains(DUMMY_ASYNC) ? null : thisVar, dummyLocalDefs(argTypes), null, null, excTypes, offerType,
+                     null);
+    	
+    }
+    
     public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, 
     		Flags flags, Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, 
@@ -990,13 +995,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, 
             List<Ref<? extends Type>> excTypes, 
+            Ref<? extends Type> offerType,
             Ref<XTerm> body) {
         assert_(container);
         assert_(returnType);
         assert_(typeParams);
         assert_(argTypes);
         assert_(excTypes);
-        return new X10MethodDef_c(this, pos, container, flags, returnType, name, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes, body);
+        return new X10MethodDef_c(this, pos, container, flags, returnType, name, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes, offerType, body);
     }
 
     /**
@@ -1033,9 +1039,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
             Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes, XVar thisVar,
             List<LocalDef> formalNames, Ref<CConstraint> guard,
-            List<Ref<? extends Type>> throwTypes) {
+            List<Ref<? extends Type>> throwTypes, Ref<? extends Type> offerType) {
         return new ClosureDef_c(this, p, typeContainer, methodContainer, returnType, 
-        		argTypes, thisVar, formalNames, guard, throwTypes);
+        		argTypes, thisVar, formalNames, guard, throwTypes, offerType);
     }
 
     public FunctionType closureType(Position p, Ref<? extends Type> returnType, 
@@ -2077,6 +2083,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     @Override
     public ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, List<Ref<? extends Type>> argTypes,
             List<Ref<? extends Type>> throwTypes) {
+    	return constructorDef(pos, container, flags, argTypes, throwTypes, null);
+    }
+    public ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, List<Ref<? extends Type>> argTypes,
+            List<Ref<? extends Type>> throwTypes, Ref<? extends Type>  offerType) {
         assert_(container);
         assert_(argTypes);
         assert_(throwTypes);
@@ -2085,12 +2095,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XVar thisVar = XTerms.makeLocal(thisName);
 		
-        return constructorDef(pos, container, flags, Types.ref(Types.get(container)), Collections.EMPTY_LIST, argTypes, thisVar, dummyLocalDefs(argTypes), null, null, throwTypes);
+        return constructorDef(pos, container, flags, Types.ref(Types.get(container)), Collections.EMPTY_LIST, argTypes, thisVar, 
+        		dummyLocalDefs(argTypes), null, null, throwTypes, offerType);
     }
 
     public X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
             List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
-            Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes) {
+            Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType) {
         assert_(container);
         assert_(argTypes);
         assert_(excTypes);
@@ -2102,7 +2113,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		//t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
 		((Ref<X10ClassType>)returnType).update(t);
 		//returnType = new Ref_c<X10ClassType>(t);
-        return new X10ConstructorDef_c(this, pos, container, flags, returnType, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes);
+        return new X10ConstructorDef_c(this, pos, container, flags, returnType, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes, offerType);
     }
 
     public void addAnnotation(X10Def o, Type annoType, boolean replace) {
