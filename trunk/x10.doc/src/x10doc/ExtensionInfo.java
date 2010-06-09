@@ -54,6 +54,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			goals.add(TypesInitializedForCommandLineBarrier());
 			goals.add(TypeChecked(job));
 			goals.add(ReassembleAST(job));
+			goals.add(EnsureNoErrors(job));
 			
 			goals.add(X10DocGenerated(job));
 			goals.add(End(job));

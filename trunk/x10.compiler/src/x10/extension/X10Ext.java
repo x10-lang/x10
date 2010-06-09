@@ -60,4 +60,17 @@ public interface X10Ext extends Ext {
      * @return
      */
     public Node annotations(List<AnnotationNode> annotations);
+    
+    /**
+     * Are this node and all of its children valid?
+     * @return
+     */
+    public boolean subtreeValid();
+    
+    /**
+     * Set the validity status for this node and all of its children.
+     * @param val
+     * @return
+     */
+    public Node setSubtreeValid(boolean val);
 }
