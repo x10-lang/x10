@@ -88,6 +88,20 @@ public class X10Del_c extends JL_c implements X10Del {
 		return ((X10Ext) node().ext()).annotations(annotations);
 	}
 	
+	/* (non-Javadoc)
+	 * @see x10.extension.X10Ext#subtreeValid(boolean)
+	 */
+	public boolean subtreeValid() {
+		return ((X10Ext) node().ext()).subtreeValid();
+	}
+
+	/* (non-Javadoc)
+	 * @see x10.extension.X10Ext#setSubtreeValid(boolean)
+	 */
+	public Node setSubtreeValid(boolean val) {
+		return ((X10Ext) node().ext()).setSubtreeValid(val);
+	}
+
 	public static Node visitAnnotations(Node n, NodeVisitor v) {
 	    if (n.del() instanceof X10Del_c) {
 		return ((X10Del_c) n.del()).visitAnnotations(v);
