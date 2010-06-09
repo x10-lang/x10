@@ -356,12 +356,20 @@ public class X10Context_c extends Context_c implements X10Context {
     	if (currentCollectingFinishType != null)
     	return currentCollectingFinishType;
     	// check if you are in code.
-    	CodeDef cc = currentCode();
+    	Context cxt = this;
+    	CodeDef cc = cxt.currentCode();
     	if (cc != null) {
-    		CodeInstance ci = currentCode().asInstance();
-    		if (ci instanceof X10ProcedureInstance) {
-    			return Types.get(((X10ProcedureInstance<? extends polyglot.types.ProcedureDef>) ci).offerType());
-    		} 
+    		if (cc instanceof X10MethodDef) {
+    			X10MethodDef md = (X10MethodDef) cc;
+    			while (md.name().toString().contains("$dummyAsync")) {
+    				cxt = cxt.pop();
+    				cc = cxt.currentCode();
+    				if (cc instanceof X10MethodDef)
+    					md = (X10MethodDef) cc;
+    			}
+    			if (md != null)
+    				return Types.get(md.offerType());
+    		}
     	}
     	return null;
     }
