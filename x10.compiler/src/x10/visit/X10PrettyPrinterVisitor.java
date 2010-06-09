@@ -813,11 +813,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 ex.expand(tr);
                                 w.write(")");
                                 w.allowBreak(2, " ");
-                                if (expr instanceof Unary || expr instanceof Lit)
-                                        w.write("(");
+                                X10TypeSystem xts = ((X10TypeSystem)tr.typeSystem());
+                                if (expr instanceof Unary || expr instanceof Lit || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type())))
+                                    w.write("(");
                                 c.printSubExpr(expr, w, tr);
-                                if (expr instanceof Unary || expr instanceof Lit)
-                                        w.write(")");
+                                if (expr instanceof Unary || expr instanceof Lit || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type())))
+                                    w.write(")");
                                 w.write(")");
                                 w.end();
                             }
