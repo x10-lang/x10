@@ -25,7 +25,7 @@ import x10.finish.table.*;
 
 public class FinishAsyncVisitor extends ContextVisitor {
 	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable =
-		OutputUtil.loadCallTable("/Users/blshao/calltable.dat");
+		OutputUtil.loadCallTable("/home/blshao/calltable.dat");
 	private String src_package = null;
 	private String method_key = "";
 	private Stack<String> nestedAsyncs = new Stack<String>();
@@ -124,6 +124,8 @@ public class FinishAsyncVisitor extends ContextVisitor {
 	private Node visitExitAsync(Async n){
 		
 		nestedAsyncs.pop();
+                List<>
+                StmtSeq_c s = new StmtSeq_c(n.position(),
 		return n;
 	}
 	private void visitEnterFinish(Finish n){
