@@ -265,12 +265,6 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       
       this.fExecPath = getExecutablePath(mainCppFilePath, this.fWorkspaceDir);
       project.setPersistentProperty(Constants.EXEC_PATH, this.fExecPath);
-      final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
-      
-      final IFileStore mainClassFileStore = this.fTargetOpHelper.getStore(this.fExecPath);
-      if (mainClassFileStore.fetchInfo().exists() && ! shouldLinkApp) {
-        return 0;
-      }
       
       final List<String> command = new ArrayList<String>();
       command.add(this.fTargetOpHelper.getTargetSystemPath(cppCompConf.getLinker()));

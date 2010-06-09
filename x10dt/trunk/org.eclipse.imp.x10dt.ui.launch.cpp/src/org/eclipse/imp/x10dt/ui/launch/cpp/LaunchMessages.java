@@ -73,10 +73,6 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_MainTypeSearchInternalError;
 
-  public static String CAT_LinkApp;
-  
-  public static String CAT_LinkAppToolTip;
-
   public static String CAT_NoExistingProject;
 
 	public static String CAT_NoMainX10FileFound;

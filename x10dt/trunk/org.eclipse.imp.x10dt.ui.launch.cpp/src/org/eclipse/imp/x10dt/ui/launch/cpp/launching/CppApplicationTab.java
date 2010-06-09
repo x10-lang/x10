@@ -163,7 +163,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       final String content = this.fPgrmArgsText.getText().trim();    
       configuration.setAttribute(ATTR_ARGUMENTS, (content.length() > 0) ? content : null);
     
-      configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, this.fShouldLink.getSelection());
       configuration.setAttribute(ATTR_CONSOLE, this.fToConsoleBt.getSelection());
     }
   }
@@ -173,7 +172,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     configuration.setAttribute(ATTR_WORK_DIRECTORY, (String) null);
     configuration.setAttribute(ATTR_ARGUMENTS, (String) null);
     configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, (String) null);
-    configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
     configuration.setAttribute(ATTR_CONSOLE, true);
   }
   
@@ -191,7 +189,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         setTextWithoutNotification(this.fProjectText, configuration, ATTR_PROJECT_NAME);
         setTextWithoutNotification(this.fMainTypeText, configuration, Constants.ATTR_X10_MAIN_CLASS);
         setTextWithoutNotification(this.fPgrmArgsText, configuration, ATTR_ARGUMENTS);
-        this.fShouldLink.setSelection(configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true));
         this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, true));
       
         if (this.fProjectText.getText().length() > 0) {
@@ -343,12 +340,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     this.fSearchMainTypeBt = createPushButton(group, LaunchMessages.CAT_SearchButton, null /* image */);
     this.fSearchMainTypeBt.addSelectionListener(new SearchMainTypeBtSelectionListener());
     this.fSearchMainTypeBt.setEnabled(false);
-    
-    this.fShouldLink = createCheckButton(group, LaunchMessages.CAT_LinkApp);
-    this.fShouldLink.setData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    this.fShouldLink.setSelection(false);
-    this.fShouldLink.setToolTipText(LaunchMessages.CAT_LinkAppToolTip);
-    this.fShouldLink.addSelectionListener(new ButtonSelectionListener());
   }
   
   private void createProgramArgs(final Composite parent) {
@@ -707,8 +698,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   private Button fProjectBt;
   
   private Button fSearchMainTypeBt;
-  
-  private Button fShouldLink;
   
   private Button fToConsoleBt;
   
