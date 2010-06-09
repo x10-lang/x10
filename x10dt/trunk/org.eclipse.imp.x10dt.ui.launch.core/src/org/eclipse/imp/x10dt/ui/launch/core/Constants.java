@@ -21,8 +21,6 @@ public final class Constants {
 
   // --- Constants for Launch Configuration
   
-  public static final String ATTR_SHOULD_LINK_APP = LaunchCore.PLUGIN_ID + ".ShouldLinkApp"; //$NON-NLS-1$
-  
   public static final String ATTR_X10_MAIN_CLASS = LaunchCore.PLUGIN_ID + ".X10MainClass"; //$NON-NLS-1$
   
   // --- Constant for X10 builder
