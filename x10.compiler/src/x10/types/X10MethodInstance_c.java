@@ -118,6 +118,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return n;
     }
 
+    public Ref <? extends Type> offerType() {
+    	return x10Def().offerType();
+    }
+  
     /** Constraint on formal parameters. */
     protected CConstraint guard;
     public CConstraint guard() {

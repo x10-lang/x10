@@ -34,4 +34,6 @@ public interface X10ProcedureDef extends X10Def, ProcedureDef, X10MemberDef {
 
     List<LocalDef> formalNames();
     void setFormalNames(List<LocalDef> formalNames);
+    
+    Ref<? extends Type> offerType();
 }

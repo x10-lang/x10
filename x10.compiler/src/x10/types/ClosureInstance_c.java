@@ -46,6 +46,9 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
 	    return def();
     }
     
+    public Ref <? extends Type> offerType() {
+    	return x10Def().offerType();
+    }
     FunctionType type;
 
     public FunctionType type() {

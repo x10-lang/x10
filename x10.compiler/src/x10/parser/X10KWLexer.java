@@ -17,7 +17,7 @@ import java.util.*;
 public class X10KWLexer extends X10KWLexerprs
 {
     private char[] inputChars;
-    private final int keywordKind[] = new int[80 + 1];
+    private final int keywordKind[] = new int[81 + 1];
 
     public int[] getKeywordKinds() { return keywordKind; }
 
@@ -648,6 +648,13 @@ public class X10KWLexer extends X10KWLexerprs
         //
         
             keywordKind[80] = (X10Parsersym.TK_offer);
+      
+    
+        //
+        // Rule 81:  KeyWord ::= o f f e r s
+        //
+        
+            keywordKind[81] = (X10Parsersym.TK_offers);
       
     
         for (int i = 0; i < keywordKind.length; i++)
