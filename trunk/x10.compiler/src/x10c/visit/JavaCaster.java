@@ -16,6 +16,7 @@ import java.util.List;
 import polyglot.ast.Assign;
 import polyglot.ast.Call;
 import polyglot.ast.ConstructorCall;
+import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.LocalDecl;
@@ -32,6 +33,7 @@ import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
+import x10.ast.X10Call;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Return_c;
 import x10.types.ParameterType;
@@ -40,23 +42,48 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.SubtypeConstraint;
 
-public class TypeConstraintsCaster extends ContextVisitor {
+// add cast node for java code generator
+public class JavaCaster extends ContextVisitor {
     
     private final X10TypeSystem xts;
     private final X10NodeFactory xnf;
 
-    public TypeConstraintsCaster(Job job, TypeSystem ts, NodeFactory nf) {
+    public JavaCaster(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
         xnf = (X10NodeFactory) nf;
     }
     
+    @Override
+    protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+        n = typeConstraintsCast(parent, old, n);
+        n = railAccessCast(parent, n);
+        return n;
+    }
+
+    private Node railAccessCast(Node parent, Node n) throws SemanticException {
+        if (n instanceof X10Call) {
+            X10Call call = (X10Call) n;
+            if (!(X10TypeMixin.baseType(call.type()) instanceof ParameterType)) {
+                if (xts.isRail(call.target().type())) {
+                    // e.g) val str = rail(0) = "str";
+                    //   -> val str = (String)(rail(0) = "str");
+                    if (!(parent instanceof Eval)) {
+                        if (call.methodInstance().name().toString().equals("set") && !(call.type().isBoolean() || call.type().isNumeric() || call.type().isChar())
+                        ) {
+                            return cast(call, call.type());
+                        }
+                    }
+                }
+            }
+        }
+        return n;
+    }
+
     // add casts for type constraints to type parameters
     // e.g) class C[T1,T2]{T1 <: T2} { def test(t1:T1):T2 {return t1;}}
     //   -> class C[T1,T2]{T1 <: T2} { def test(t1:T1):T2 {return (T2) t1;}}
-    @Override
-    protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-
+    private Node typeConstraintsCast(Node parent, Node old, Node n) throws SemanticException {
         Expr e = null;
         if (n instanceof MethodDecl) {
             MethodDecl md = (MethodDecl) n;
