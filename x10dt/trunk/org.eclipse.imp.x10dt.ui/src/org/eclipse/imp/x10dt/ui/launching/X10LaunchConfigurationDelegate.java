@@ -24,12 +24,14 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.X10Util;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
 import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
+import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstall2;
 import org.eclipse.jdt.launching.IVMRunner;
@@ -87,15 +89,26 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	 */
     public String getRuntimeArguments(ILaunchConfiguration configuration) throws CoreException {
 		String arguments = configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, ""); //$NON-NLS-1$
-		IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
-		if (prefStore.contains(X10Constants.P_NUMBEROFPLACES)) {
-			String numPlacesArg = " -NUMBER_OF_LOCAL_PLACES=" + prefStore.getInt(X10Constants.P_NUMBEROFPLACES);
-			arguments += numPlacesArg;
-		}
+//		IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
+//		if (prefStore.contains(X10Constants.P_NUMBEROFPLACES)) {
+//			String numPlacesArg = " -NUMBER_OF_LOCAL_PLACES=" + prefStore.getInt(X10Constants.P_NUMBEROFPLACES);
+//			arguments += numPlacesArg;
+//		}
 		
 
 	return VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(arguments);
     }
+    
+    @Override
+    public String getVMArguments(ILaunchConfiguration configuration) throws CoreException {
+    	String arguments = super.getVMArguments(configuration);
+    	IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
+    	if (prefService.isDefined(X10Constants.P_NUMBEROFPLACES)){
+    		String numPlacesArg = "-Dx10.NUMBER_OF_LOCAL_PLACES="+ prefService.getIntPreference(X10Constants.P_NUMBEROFPLACES);
+			arguments += numPlacesArg;
+    	}
+    	return arguments;
+	}
 
     public void launch(final ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
