@@ -67,7 +67,8 @@ final static class FFTPlans {
             val py = 1;
             val px = Place.MAX_PLACES;
             A = new HPL_Dist[Complex](sqrtn, sqrtn, nb, sqrtn, px, py, unique);
-            D = verify ? new HPL_Dist[Complex](sqrtn, sqrtn, nb, sqrtn, px, py, unique) : null;
+	    // The cast of null is to workaround XTENLANG-1204 (and related type inference problems with ternary operator)
+            D = verify ? new HPL_Dist[Complex](sqrtn, sqrtn, nb, sqrtn, px, py, unique) : (null as HPL_Dist[Complex]!);
 
             /* intermediate arrays => transposed layout of A */
             B = new HPL_Dist[Complex](sqrtn, sqrtn, sqrtn, nb, py, px, unique);
