@@ -25,7 +25,7 @@ public final class KeyboardUtils {
    * @param runnable The runnable that contains the action to execute.
    */
   public static void addDelayedActionOnControl(final Control control, final Runnable runnable) {
-    addDelayedActionOnControl(control, runnable, 2000);
+    addDelayedActionOnControl(control, runnable, 1000);
   }
   
   /**
