@@ -147,7 +147,13 @@ public class LaunchMessages extends NLS {
 
   public static String CLCD_MultipleRMWithSameName;
   
+  public static String CLCD_NoConnection;
+
+  public static String CLCD_NoConnectionMgr;
+
   public static String CLCD_NoCppExecutable;
+
+  public static String CLCD_NoFileManager;
 
   public static String CLCD_NoMainCppFileFound;
 
@@ -157,7 +163,11 @@ public class LaunchMessages extends NLS {
 
   public static String CLCD_NoOutputDir;
 
+  public static String CLCD_NoRemoteServices;
+
   public static String CLCD_NoResManagerError;
+
+  public static String CLCD_PathNotFound;
 
   public static String CCVC_IBMCompilerVersionNotTested;
 

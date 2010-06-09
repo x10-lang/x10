@@ -193,27 +193,23 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     final IResourceManagerConfiguration conf = this.fResourceManager.getConfiguration();
     final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(conf.getRemoteServicesId());
     if (remoteServices == null) {
-      throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.PLUGIN_ID,
-                                         org.eclipse.ptp.launch.messages.Messages.PTPLaunchPlugin_0));
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRemoteServices));
     }
     final IRemoteConnectionManager connMgr = remoteServices.getConnectionManager();
     if (connMgr == null) {
-      throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.PLUGIN_ID,
-                                         org.eclipse.ptp.launch.messages.Messages.PTPLaunchPlugin_1));
+      throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.PLUGIN_ID, LaunchMessages.CLCD_NoConnectionMgr));
     }
     final IRemoteConnection conn = connMgr.getConnection(conf.getConnectionName());
     if (conn == null) {
-      throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.PLUGIN_ID,
-                                         org.eclipse.ptp.launch.messages.Messages.PTPLaunchPlugin_2));
+      throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.PLUGIN_ID, LaunchMessages.CLCD_NoConnection));
     }
     final IRemoteFileManager fileManager = remoteServices.getFileManager(conn);
     if (fileManager == null) {
-      throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.PLUGIN_ID,
-                                         org.eclipse.ptp.launch.messages.Messages.PTPLaunchPlugin_3));
+      throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.PLUGIN_ID, LaunchMessages.CLCD_NoFileManager));
     }
     if (! fileManager.getResource(path).fetchInfo().exists()) {
       throw new CoreException(new Status(IStatus.INFO, PTPLaunchPlugin.PLUGIN_ID,
-                                         NLS.bind(org.eclipse.ptp.launch.messages.Messages.PTPLaunchPlugin_5, path)));
+                                         NLS.bind(LaunchMessages.CLCD_PathNotFound, path)));
     }
     return new Path(path);
   }
