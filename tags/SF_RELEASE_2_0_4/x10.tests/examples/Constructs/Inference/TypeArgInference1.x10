@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.util.*;
 
 /**
  * Inference for return types.
@@ -21,15 +20,15 @@ public class TypeArgInference1 extends x10Test {
         def choose[T] (a:T, b:T):T = a;
 
 	public def run(): boolean = {
-           chk( Set[Int] <: Collection[Int], "pre-1");
-           chk( List[Int] <: Collection[Int], "pre-2");
+           chk( HashSet[Int] <: Collection[Int], "pre-1");
+           chk( ArrayList[Int] <: Collection[Int], "pre-2");
            chk( Sub <: Super, "pre-3");
            val intSet = new HashSet[Int]();
            val stringList = new ArrayList[String]();
-           val x = choose(intSet, stringList);
+           val x = choose[Collection[Any]](intSet, stringList);
            val xx : Collection[Any] = x;
            val intList = new ArrayList[Int]();
-           val y = choose(intSet, intList);
+           val y = choose[Collection[Int]](intSet, intList);
            val yy : Collection[Int] = y;
            return true;
 	}
@@ -37,6 +36,11 @@ public class TypeArgInference1 extends x10Test {
 	public static def main(var args: Rail[String]): void = {
 		new TypeArgInference1().execute();
 	}
+    
+   private static interface Collection[+T] {}
+   private static class HashSet[+T] implements Collection[T] {}
+   private static class ArrayList[+T] implements Collection[T] {}
+
    private static class Super {}
    private static class Sub extends Super{}
 

@@ -297,7 +297,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 			//		throw new SemanticException("Invalid closure call; target does not implement " + ct + ".", position());
 			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 			X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), 
-					nf.Id(position(), mi.name().toString()), Collections.EMPTY_LIST, args);
+					nf.Id(Position.COMPILER_GENERATED, mi.name().toString()), Collections.EMPTY_LIST, args);
 			n = (X10Call_c) n.methodInstance(mi).type(mi.returnType());
 			return n;
 		}
