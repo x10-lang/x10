@@ -1,0 +1,92 @@
+   0:M=16 SQRTN=65536 N=4294967296 nRows=2048 localSize=268435456 MAX_PLACES=32 Mem=131072.0 mem/MAX_PLACES=4096.0
+   0:Start FFT
+   0:execution time=46.123828000000003 secs Gigaflops=14.898910111276972
+   0:Step transpose1 took 6.516516 s
+   0:Step row_ffts1 took 9.530844 s
+   0:Step transpose2 took 6.506211 s
+   0:Step twiddle took 7.653315 s
+   0:Step row_ffts2 took 9.532545000000001 s
+   0:Step transpose3 took 6.384397000000001 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=43.646084999999999 secs Gigaflops=15.744705793429125
+   0:Step transpose1 took 6.533579 s
+   0:Step row_ffts1 took 8.156410000000001 s
+   0:Step transpose2 took 6.737847 s
+   0:Step twiddle took 7.648766 s
+   0:Step row_ffts2 took 8.165204000000001 s
+   0:Step transpose3 took 6.404279000000001 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=89.769913000000003 secs Gigaflops=15.310135531934847
+   0:Start verification
+   0:Verification complete
+   0:M=16 SQRTN=65536 N=4294967296 nRows=2048 localSize=268435456 MAX_PLACES=32 Mem=131072.0 mem/MAX_PLACES=4096.0
+   0:Start FFT
+   0:execution time=46.726971000000006 secs Gigaflops=14.706597766844334
+   0:Step transpose1 took 6.655884 s
+   0:Step row_ffts1 took 9.476808 s
+   0:Step transpose2 took 6.73908 s
+   0:Step twiddle took 7.693693000000001 s
+   0:Step row_ffts2 took 9.483642000000001 s
+   0:Step transpose3 took 6.677864 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=44.128014 secs Gigaflops=15.572755378476812
+   0:Step transpose1 took 6.756532 s
+   0:Step row_ffts1 took 8.146806 s
+   0:Step transpose2 took 6.674498000000001 s
+   0:Step twiddle took 7.69432 s
+   0:Step row_ffts2 took 8.156408000000001 s
+   0:Step transpose3 took 6.699450000000001 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=90.854984999999999 secs Gigaflops=15.127288114350577
+   0:Start verification
+   0:Verification complete
+   0:M=16 SQRTN=65536 N=4294967296 nRows=2048 localSize=268435456 MAX_PLACES=32 Mem=131072.0 mem/MAX_PLACES=4096.0
+   0:Start FFT
+   0:execution time=46.593236000000005 secs Gigaflops=14.748809620349185
+   0:Step transpose1 took 6.692594000000001 s
+   0:Step row_ffts1 took 9.515292000000001 s
+   0:Step transpose2 took 6.645948000000001 s
+   0:Step twiddle took 7.696443 s
+   0:Step row_ffts2 took 9.492614000000001 s
+   0:Step transpose3 took 6.550345 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=43.843277 secs Gigaflops=15.673891514997841
+   0:Step transpose1 took 6.676702000000001 s
+   0:Step row_ffts1 took 8.131274000000001 s
+   0:Step transpose2 took 6.668581000000001 s
+   0:Step twiddle took 7.691764 s
+   0:Step row_ffts2 took 8.140123000000001 s
+   0:Step transpose3 took 6.534833000000001 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=90.436513000000005 secs Gigaflops=15.197285798933889
+   0:Start verification
+   0:Verification complete
+   0:M=16 SQRTN=65536 N=4294967296 nRows=2048 localSize=268435456 MAX_PLACES=32 Mem=131072.0 mem/MAX_PLACES=4096.0
+   0:Start FFT
+   0:execution time=46.939598000000004 secs Gigaflops=14.639979817466694
+   0:Step transpose1 took 6.757213 s
+   0:Step row_ffts1 took 9.513068000000001 s
+   0:Step transpose2 took 6.738168000000001 s
+   0:Step twiddle took 7.683299000000001 s
+   0:Step row_ffts2 took 9.439803000000001 s
+   0:Step transpose3 took 6.808047 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=44.102847000000004 secs Gigaflops=15.581641869061196
+   0:Step transpose1 took 6.715240000000001 s
+   0:Step row_ffts1 took 8.134432 s
+   0:Step transpose2 took 6.714787 s
+   0:Step twiddle took 7.682742 s
+   0:Step row_ffts2 took 8.143042000000001 s
+   0:Step transpose3 took 6.712604000000001 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=91.042445000000015 secs Gigaflops=15.096140429005391
+   0:Start verification
+   0:Verification complete

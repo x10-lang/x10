@@ -1,0 +1,46 @@
+   0:M=16 SQRTN=65536 N=4294967296 nRows=2048 localSize=268435456 MAX_PLACES=32 Mem=131072.0 mem/MAX_PLACES=4096.0
+   0:Start FFT
+   0:execution time=47.041932000000003 secs Gigaflops=14.608132322456481
+   0:Step transpose1 took 6.833986 s
+   0:Step row_ffts1 took 9.364504 s
+   0:Step transpose2 took 6.970122000000001 s
+   0:Step twiddle took 7.629930000000001 s
+   0:Step row_ffts2 took 9.367247000000001 s
+   0:Step transpose3 took 6.876143000000001 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=44.933679000000005 secs Gigaflops=15.29353444128178
+   0:Step transpose1 took 7.178755000000001 s
+   0:Step row_ffts1 took 8.077865000000001 s
+   0:Step transpose2 took 6.889848000000001 s
+   0:Step twiddle took 7.636539000000001 s
+   0:Step row_ffts2 took 8.114504 s
+   0:Step transpose3 took 7.036168000000001 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=91.975611000000015 secs Gigaflops=14.942978032730869
+   0:Start verification
+   0:Verification complete
+   0:M=16 SQRTN=65536 N=4294967296 nRows=2048 localSize=268435456 MAX_PLACES=32 Mem=131072.0 mem/MAX_PLACES=4096.0
+   0:Start FFT
+   0:execution time=46.842052000000002 secs Gigaflops=14.670466771182438
+   0:Step transpose1 took 6.824743000000001 s
+   0:Step row_ffts1 took 9.314358 s
+   0:Step transpose2 took 6.731884 s
+   0:Step twiddle took 7.648470000000001 s
+   0:Step row_ffts2 took 9.453823 s
+   0:Step transpose3 took 6.868774 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=44.338961000000005 secs Gigaflops=15.49866645183679
+   0:Step transpose1 took 6.762787 s
+   0:Step row_ffts1 took 8.095553000000001 s
+   0:Step transpose2 took 6.885098 s
+   0:Step twiddle took 7.687953 s
+   0:Step row_ffts2 took 8.106579 s
+   0:Step transpose3 took 6.800991000000001 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=91.181013000000007 secs Gigaflops=15.073198788875045
+   0:Start verification
+   0:Verification complete

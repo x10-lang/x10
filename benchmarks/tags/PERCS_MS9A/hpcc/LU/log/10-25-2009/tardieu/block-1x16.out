@@ -1,0 +1,249 @@
+   0:Binding ID=0 to local CPU=0 on node=0
+   1:Binding ID=1 to local CPU=2 on node=1
+   2:Binding ID=2 to local CPU=4 on node=2
+   3:Binding ID=3 to local CPU=6 on node=3
+   4:Binding ID=4 to local CPU=8 on node=4
+   5:Binding ID=5 to local CPU=10 on node=5
+   6:Binding ID=6 to local CPU=12 on node=6
+   7:Binding ID=7 to local CPU=14 on node=7
+   8:Binding ID=8 to local CPU=16 on node=8
+   9:Binding ID=9 to local CPU=18 on node=9
+  10:Binding ID=10 to local CPU=20 on node=10
+  11:Binding ID=11 to local CPU=22 on node=11
+  12:Binding ID=12 to local CPU=24 on node=12
+  13:Binding ID=13 to local CPU=26 on node=13
+  14:Binding ID=14 to local CPU=28 on node=14
+  15:Binding ID=15 to local CPU=30 on node=15
+  12:Binding ID=12 to local CPU=24 on node=12
+   2:Binding ID=2 to local CPU=4 on node=2
+   7:Binding ID=7 to local CPU=14 on node=7
+  13:Binding ID=13 to local CPU=26 on node=13
+  14:Binding ID=14 to local CPU=28 on node=14
+   0:Binding ID=0 to local CPU=0 on node=0
+   4:Binding ID=4 to local CPU=8 on node=4
+   1:Binding ID=1 to local CPU=2 on node=1
+   3:Binding ID=3 to local CPU=6 on node=3
+   5:Binding ID=5 to local CPU=10 on node=5
+   6:Binding ID=6 to local CPU=12 on node=6
+   8:Binding ID=8 to local CPU=16 on node=8
+   9:Binding ID=9 to local CPU=18 on node=9
+  10:Binding ID=10 to local CPU=20 on node=10
+  11:Binding ID=11 to local CPU=22 on node=11
+  15:Binding ID=15 to local CPU=30 on node=15
+   0:LU Starting: M 45600 B 200 px 4 py 4
+   0:Main loop starting ...
+   0:3 of 228 complete last 2 iterations took 36.746037000000001 seconds
+   0:5 of 228 complete last 2 iterations took 16.581112000000001 seconds
+   0:7 of 228 complete last 2 iterations took 16.280071 seconds
+   0:9 of 228 complete last 2 iterations took 15.570124000000002 seconds
+   0:11 of 228 complete last 2 iterations took 15.445036000000002 seconds
+   0:Binding ID=0 to local CPU=0 on node=0
+  12:Binding ID=12 to local CPU=24 on node=12
+   3:Binding ID=3 to local CPU=6 on node=3
+   5:Binding ID=5 to local CPU=10 on node=5
+  11:Binding ID=11 to local CPU=22 on node=11
+  14:Binding ID=14 to local CPU=28 on node=14
+   4:Binding ID=4 to local CPU=8 on node=4
+   6:Binding ID=6 to local CPU=12 on node=6
+   8:Binding ID=8 to local CPU=16 on node=8
+  10:Binding ID=10 to local CPU=20 on node=10
+  13:Binding ID=13 to local CPU=26 on node=13
+   1:Binding ID=1 to local CPU=2 on node=1
+   7:Binding ID=7 to local CPU=14 on node=7
+   9:Binding ID=9 to local CPU=18 on node=9
+  15:Binding ID=15 to local CPU=30 on node=15
+   2:Binding ID=2 to local CPU=4 on node=2
+   6:Binding ID=6 to local CPU=12 on node=6
+  10:Binding ID=10 to local CPU=20 on node=10
+  12:Binding ID=12 to local CPU=24 on node=12
+   4:Binding ID=4 to local CPU=8 on node=4
+   5:Binding ID=5 to local CPU=10 on node=5
+   8:Binding ID=8 to local CPU=16 on node=8
+  11:Binding ID=11 to local CPU=22 on node=11
+  14:Binding ID=14 to local CPU=28 on node=14
+  15:Binding ID=15 to local CPU=30 on node=15
+   0:Binding ID=0 to local CPU=0 on node=0
+   1:Binding ID=1 to local CPU=2 on node=1
+   2:Binding ID=2 to local CPU=4 on node=2
+   3:Binding ID=3 to local CPU=6 on node=3
+   9:Binding ID=9 to local CPU=18 on node=9
+  13:Binding ID=13 to local CPU=26 on node=13
+   7:Binding ID=7 to local CPU=14 on node=7
+   0:LU Starting: M 45600 B 200 px 4 py 4
+   0:Main loop starting ...
+  12:Binding ID=12 to local CPU=24 on node=12
+   0:Binding ID=0 to local CPU=0 on node=0
+   1:Binding ID=1 to local CPU=2 on node=1
+   4:Binding ID=4 to local CPU=8 on node=4
+   7:Binding ID=7 to local CPU=14 on node=7
+   8:Binding ID=8 to local CPU=16 on node=8
+   9:Binding ID=9 to local CPU=18 on node=9
+  14:Binding ID=14 to local CPU=28 on node=14
+  15:Binding ID=15 to local CPU=30 on node=15
+   3:Binding ID=3 to local CPU=6 on node=3
+   5:Binding ID=5 to local CPU=10 on node=5
+   6:Binding ID=6 to local CPU=12 on node=6
+  10:Binding ID=10 to local CPU=20 on node=10
+  11:Binding ID=11 to local CPU=22 on node=11
+  13:Binding ID=13 to local CPU=26 on node=13
+   2:Binding ID=2 to local CPU=4 on node=2
+   0:Binding ID=0 to local CPU=0 on node=0
+  12:Binding ID=12 to local CPU=24 on node=12
+   1:Binding ID=1 to local CPU=2 on node=1
+   2:Binding ID=2 to local CPU=4 on node=2
+   3:Binding ID=3 to local CPU=6 on node=3
+   4:Binding ID=4 to local CPU=8 on node=4
+   5:Binding ID=5 to local CPU=10 on node=5
+   7:Binding ID=7 to local CPU=14 on node=7
+   8:Binding ID=8 to local CPU=16 on node=8
+   9:Binding ID=9 to local CPU=18 on node=9
+  10:Binding ID=10 to local CPU=20 on node=10
+  11:Binding ID=11 to local CPU=22 on node=11
+  14:Binding ID=14 to local CPU=28 on node=14
+   6:Binding ID=6 to local CPU=12 on node=6
+  13:Binding ID=13 to local CPU=26 on node=13
+  15:Binding ID=15 to local CPU=30 on node=15
+   0:LU Starting: M 45600 B 200 px 4 py 4
+   0:Main loop starting ...
+   0:3 of 228 complete last 2 iterations took 33.59366 seconds
+   0:5 of 228 complete last 2 iterations took 16.101467 seconds
+   0:7 of 228 complete last 2 iterations took 15.969303000000002 seconds
+   0:9 of 228 complete last 2 iterations took 15.566182000000001 seconds
+   0:11 of 228 complete last 2 iterations took 15.414137 seconds
+   0:13 of 228 complete last 2 iterations took 15.050861000000001 seconds
+   0:15 of 228 complete last 2 iterations took 14.908918000000002 seconds
+   0:17 of 228 complete last 2 iterations took 14.521831000000001 seconds
+   0:19 of 228 complete last 2 iterations took 14.379963 seconds
+   0:21 of 228 complete last 2 iterations took 14.027376 seconds
+   0:23 of 228 complete last 2 iterations took 13.846929000000001 seconds
+   0:25 of 228 complete last 2 iterations took 13.475098000000001 seconds
+   0:27 of 228 complete last 2 iterations took 13.346687000000001 seconds
+   0:29 of 228 complete last 2 iterations took 13.025116000000001 seconds
+   0:31 of 228 complete last 2 iterations took 12.855681000000001 seconds
+   0:33 of 228 complete last 2 iterations took 12.531777 seconds
+   0:35 of 228 complete last 2 iterations took 12.367676000000001 seconds
+   0:37 of 228 complete last 2 iterations took 12.036422 seconds
+   0:39 of 228 complete last 2 iterations took 11.897514000000001 seconds
+   0:41 of 228 complete last 2 iterations took 11.554803000000001 seconds
+   0:43 of 228 complete last 2 iterations took 11.440982 seconds
+   0:45 of 228 complete last 2 iterations took 11.109626 seconds
+   0:47 of 228 complete last 2 iterations took 10.973749000000002 seconds
+   0:49 of 228 complete last 2 iterations took 10.659636000000001 seconds
+   0:51 of 228 complete last 2 iterations took 10.557509000000001 seconds
+   0:53 of 228 complete last 2 iterations took 10.227738 seconds
+   0:55 of 228 complete last 2 iterations took 10.097655000000001 seconds
+   0:57 of 228 complete last 2 iterations took 9.784503000000001 seconds
+   0:59 of 228 complete last 2 iterations took 9.669087000000001 seconds
+   0:61 of 228 complete last 2 iterations took 9.392725 seconds
+   0:63 of 228 complete last 2 iterations took 9.263662 seconds
+   0:65 of 228 complete last 2 iterations took 9.081319000000001 seconds
+   0:67 of 228 complete last 2 iterations took 8.932368 seconds
+   0:69 of 228 complete last 2 iterations took 8.639016 seconds
+   0:71 of 228 complete last 2 iterations took 8.459398 seconds
+   0:73 of 228 complete last 2 iterations took 8.166666000000001 seconds
+   0:75 of 228 complete last 2 iterations took 8.04954 seconds
+   0:77 of 228 complete last 2 iterations took 7.799184 seconds
+   0:79 of 228 complete last 2 iterations took 7.668859 seconds
+   0:81 of 228 complete last 2 iterations took 7.395932 seconds
+   0:83 of 228 complete last 2 iterations took 7.293982000000001 seconds
+   0:85 of 228 complete last 2 iterations took 7.034592000000001 seconds
+   0:87 of 228 complete last 2 iterations took 6.936862000000001 seconds
+   0:89 of 228 complete last 2 iterations took 6.670825000000001 seconds
+   0:91 of 228 complete last 2 iterations took 6.58216 seconds
+   0:93 of 228 complete last 2 iterations took 6.324738 seconds
+   0:95 of 228 complete last 2 iterations took 6.247919 seconds
+   0:97 of 228 complete last 2 iterations took 6.011461000000001 seconds
+   0:99 of 228 complete last 2 iterations took 5.917581 seconds
+   0:101 of 228 complete last 2 iterations took 5.683721 seconds
+   0:103 of 228 complete last 2 iterations took 5.575524000000001 seconds
+   0:105 of 228 complete last 2 iterations took 5.337193 seconds
+   0:107 of 228 complete last 2 iterations took 5.263851000000001 seconds
+   0:109 of 228 complete last 2 iterations took 5.035302000000001 seconds
+   0:111 of 228 complete last 2 iterations took 4.946577 seconds
+   0:113 of 228 complete last 2 iterations took 4.731562 seconds
+   0:115 of 228 complete last 2 iterations took 4.674761 seconds
+   0:117 of 228 complete last 2 iterations took 4.444565 seconds
+   0:119 of 228 complete last 2 iterations took 4.363925 seconds
+   0:121 of 228 complete last 2 iterations took 4.165791 seconds
+   0:123 of 228 complete last 2 iterations took 4.15258 seconds
+   0:125 of 228 complete last 2 iterations took 3.90206 seconds
+   0:127 of 228 complete last 2 iterations took 3.810419 seconds
+   0:129 of 228 complete last 2 iterations took 3.62514 seconds
+   0:131 of 228 complete last 2 iterations took 3.550114 seconds
+   0:133 of 228 complete last 2 iterations took 3.369334 seconds
+   0:135 of 228 complete last 2 iterations took 3.299778 seconds
+   0:137 of 228 complete last 2 iterations took 3.12556 seconds
+   0:139 of 228 complete last 2 iterations took 3.067085 seconds
+   0:141 of 228 complete last 2 iterations took 2.897253 seconds
+   0:143 of 228 complete last 2 iterations took 2.826704 seconds
+   0:145 of 228 complete last 2 iterations took 2.658433 seconds
+   0:147 of 228 complete last 2 iterations took 2.607245 seconds
+   0:149 of 228 complete last 2 iterations took 2.438977 seconds
+   0:151 of 228 complete last 2 iterations took 2.384284 seconds
+   0:153 of 228 complete last 2 iterations took 2.233198 seconds
+   0:155 of 228 complete last 2 iterations took 2.192553 seconds
+   0:157 of 228 complete last 2 iterations took 2.03609 seconds
+   0:159 of 228 complete last 2 iterations took 1.984817 seconds
+   0:161 of 228 complete last 2 iterations took 1.852952 seconds
+   0:163 of 228 complete last 2 iterations took 1.802293 seconds
+   0:165 of 228 complete last 2 iterations took 1.664646 seconds
+   0:167 of 228 complete last 2 iterations took 1.651479 seconds
+   0:169 of 228 complete last 2 iterations took 1.504567 seconds
+   0:171 of 228 complete last 2 iterations took 1.453396 seconds
+   0:173 of 228 complete last 2 iterations took 1.334235 seconds
+   0:175 of 228 complete last 2 iterations took 1.289959 seconds
+   0:177 of 228 complete last 2 iterations took 1.18069 seconds
+   0:179 of 228 complete last 2 iterations took 1.140681 seconds
+   0:181 of 228 complete last 2 iterations took 1.039379 seconds
+   0:183 of 228 complete last 2 iterations took 0.997636 seconds
+   0:185 of 228 complete last 2 iterations took 0.90057 seconds
+   0:187 of 228 complete last 2 iterations took 0.866041 seconds
+   0:189 of 228 complete last 2 iterations took 0.784283 seconds
+   0:191 of 228 complete last 2 iterations took 0.745084 seconds
+   0:193 of 228 complete last 2 iterations took 0.656697 seconds
+   0:195 of 228 complete last 2 iterations took 0.629531 seconds
+   0:197 of 228 complete last 2 iterations took 0.551886 seconds
+   0:199 of 228 complete last 2 iterations took 0.525159 seconds
+   0:201 of 228 complete last 2 iterations took 0.455436 seconds
+   0:203 of 228 complete last 2 iterations took 0.429455 seconds
+   0:205 of 228 complete last 2 iterations took 0.36765 seconds
+   0:207 of 228 complete last 2 iterations took 0.344319 seconds
+   0:209 of 228 complete last 2 iterations took 0.289999 seconds
+   0:211 of 228 complete last 2 iterations took 0.262697 seconds
+   0:213 of 228 complete last 2 iterations took 0.218783 seconds
+   0:215 of 228 complete last 2 iterations took 0.198285 seconds
+   0:217 of 228 complete last 2 iterations took 0.171358 seconds
+   0:219 of 228 complete last 2 iterations took 0.142128 seconds
+   0:221 of 228 complete last 2 iterations took 0.114813 seconds
+   0:223 of 228 complete last 2 iterations took 0.097918 seconds
+   0:225 of 228 complete last 2 iterations took 0.081425 seconds
+   0:227 of 228 complete last 2 iterations took 0.046732 seconds
+   1:diff 0.0 1
+   2:diff 0.0 2
+   3:diff 0.0 3
+   5:diff 0.0 5
+   6:diff 0.0 6
+   7:diff 0.0 7
+   9:diff 0.0 9
+  10:diff 0.0 10
+  11:diff 0.0 11
+  13:diff 0.0 13
+  14:diff 0.0 14
+  15:diff 0.0 15
+   0:diff 1.3E-18 0
+   4:diff 1.7E-18 4
+   8:diff 1.3E-18 8
+   0:difference 1.7E-18
+   0: ok) diff=1.7E-18
+   0:Timer(0) TOTAL #invocations=1 Time=695.581639999999993 seconds
+   0:Timer(1) PANEL #invocations=228 Time=73.95457900000001 seconds
+   0:Timer(2) SWAPROWS #invocations=228 Time=11.803377000000001 seconds
+   0:Timer(3) TRISOLVE #invocations=228 Time=9.213239 seconds
+  12:diff 1.7E-18 12
+   0:Timer(4) UPDATE #invocations=228 Time=584.06570499999998 seconds
+   0:Timer(5) PANEL-PIVOT #invocations=11400 Time=3.269792 seconds
+   0:Timer(6) PANEL-SWAP #invocations=11400 Time=1.014155 seconds
+   0:Timer(7) PANEL-BCAST #invocations=11400 Time=0.114959 seconds
+   0:Timer(8) PANEL-UPDATE #invocations=11400 Time=14.418607000000002 seconds
+   0:
+   0: Time= 695.582356000000004 seconds Rate= 92.076649088695405 GFlops

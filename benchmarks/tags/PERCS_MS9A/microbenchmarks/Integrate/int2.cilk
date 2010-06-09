@@ -1,0 +1,120 @@
+#include <cilk.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/time.h>
+
+#define errorTolerance  1.0e-12
+
+int FORK = 1;
+
+static timeval* start;
+struct timezone tzp = { 0, 0 };
+
+void start_time() {
+  start = (timeval *) malloc(sizeof(timeval));
+  gettimeofday(start, &tzp);
+}
+
+long get_time() {
+  timeval now;
+  gettimeofday(&now, &tzp);
+  long ms = (now.tv_sec - start->tv_sec) * 1000;
+  ms += ((int) now.tv_usec - (int) start->tv_usec) / 1000;
+  return ms;
+}
+
+
+static double computeFunction(double x)  {
+  return (x * x + 1.0) * x;
+}
+
+// parallel version
+static double frecEval(double l, double r, double fl, double fr, double a) {
+  double h = (r - l) * 0.5;
+  double c = l + h;
+  double fc = (c * c + 1.0) * c; 
+  double hh = h * 0.5;
+  double al = (fl + fc) * hh; 
+  double ar = (fr + fc) * hh;
+  double alr = al + ar;
+  double diff = alr - a;
+  if (diff < 0) diff = -diff;
+  if (diff <= errorTolerance)
+    return alr;
+  al = cilk_spawn frecEval(l, c, fl, fc, al);
+  ar = frecEval(c, r, fc, fr, ar);
+  cilk_sync;
+  return al + ar;
+}
+
+// serial version
+static double srecEval(double l, double r, double fl, double fr, double a) {
+  double h = (r - l) * 0.5;
+  double c = l + h;
+  double fc = (c * c + 1.0) * c; 
+  double hh = h * 0.5;
+  double al = (fl + fc) * hh; 
+  double ar = (fr + fc) * hh;
+  double alr = al + ar;
+  double diff = alr - a;
+  if (diff < 0) diff = -diff;
+  if (diff <= errorTolerance)
+    return alr;
+  return srecEval(l, c, fl, fc, al) + srecEval(c, r, fc, fr, ar);
+}
+
+// mixed version
+double mrecEval(double l, double r, double fl,
+               double fr, double a) {
+  double h = (r - l) * 0.5;
+  double c = l + h;
+  double fc = (c * c + 1.0) * c; 
+  double hh = h * 0.5;
+  double al = (fl + fc) * hh; 
+  double ar = (fr + fc) * hh;
+  double alr = al + ar;
+  double diff = alr - a;
+  if (diff < 0) diff = -diff;
+  if (diff <= errorTolerance)
+    return alr;
+  double ls;
+  if (FORK) 
+    ls = cilk_spawn mrecEval(l, c, fl, fc, al);
+  else
+    ls = mrecEval(l, c, fl, fc, al);
+  ar = mrecEval(c, r, fc, fr, ar);
+  if (FORK)
+    cilk_sync;
+  return ls + ar;
+}
+
+int cilk_main(int argc, char *argv[]) {
+  int mixed = 0;
+  if (argc > 1)
+    mixed = (*argv[1] == 'm');
+  if (argc > 2)
+    FORK = (*argv[2] == 'f');
+  printf("MIXED: %d FORK: %d\n", mixed, FORK);
+  start_time();
+
+  double start = 0.0;
+  double end =  1536.0;
+  double fLower = computeFunction(start);
+  double fUpper = computeFunction(end);
+  double area =  0.5 * (end-start) * (fUpper+fLower);
+  for (int i = 0; i < 10; ++i) {
+    int startTime = get_time();
+    double result;
+    if (mixed)
+      result = mrecEval(start, end, fLower, fUpper, area);
+    else if (FORK)
+      result = frecEval(start, end, fLower, fUpper, area);
+    else
+      result = srecEval(start, end, fLower, fUpper, area);
+    int endTime = get_time();
+    double secs = (endTime - startTime) / 1000.0;
+    printf("Time:  %7.3F  Result: %F\n", secs, result);
+  }
+  return 0;
+}
+

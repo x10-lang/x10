@@ -1,0 +1,143 @@
+### All runs have X10_NTHREADS=1
+
+BLOCK runs
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=block_map poe ./stream-opt 50331648 -procs 1 -hostfile 1-node 
+   0:Binding ID=0 to local CPU=0 on node=0
+   0:Binding ID=0 to local CPU=0 on node=0
+   0:localSize=50331648
+   0:Number of places=1
+   0:Size of arrays: 1152 MB (total)1152 MB (per place)
+   0:Min time: 0.124624171024755 rate=9.692819154320024 GB/s
+   0:Result is verified.
+
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=block_map poe ./stream-opt 50331648 -procs 2 -hostfile 1-node 
+   0:localSize=50331648
+   0:Number of places=2
+   0:Size of arrays: 2304 MB (total)1152 MB (per place)
+   0:Min time: 0.194083119702737 rate=12.447857947153215 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=block_map poe ./stream-opt 50331648 -procs 4 -hostfile 1-node 
+   0:localSize=50331648
+   0:Number of places=4
+   0:Size of arrays: 4608 MB (total)1152 MB (per place)
+   0:Min time: 0.205532225322005 rate=23.508908155059469 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=block_map poe ./stream-opt 50331648 -procs 8 -hostfile 1-node 
+   0:localSize=50331648
+   0:Number of places=8
+   0:Size of arrays: 9216 MB (total)1152 MB (per place)
+   0:Min time: 0.216537867154037 rate=44.628113054820105 GB/s
+   0:Result is verified.
+
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=block_map poe ./stream-opt 50331648 -procs 16 -hostfile block_mf
+   0:localSize=50331648
+   2:Binding ID=2 to local CPU=2 on node=2
+   9:Binding ID=9 to local CPU=9 on node=9
+   0:Number of places=16
+   0:Size of arrays: 18432 MB (total)1152 MB (per place)
+   0:Min time: 0.239061988952649 rate=80.846616045799564 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=block_map poe ./stream-opt 50331648 -procs 32 -hostfile block_mf
+   0:localSize=50331648
+   0:Number of places=32
+   0:Size of arrays: 36864 MB (total)1152 MB (per place)
+   0:Min time: 0.237594141370621 rate=162.692166738668817 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=block_map poe ./stream-opt 50331648 -procs 64 -hostfile block_mf
+   0:localSize=50331648
+   5:Binding ID=5 to local CPU=5 on node=5
+  17:Binding ID=17 to local CPU=1 on node=17
+   0:Number of places=64
+   0:Size of arrays: 73728 MB (total)1152 MB (per place)
+   0:Min time: 0.238670167120748 rate=323.917363701713271 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=block_map poe ./stream-opt 50331648 -procs 128 -hostfile block_mf
+   0:localSize=50331648
+   0:Number of places=128
+   0:Size of arrays: 147456 MB (total)1152 MB (per place)
+   0:Min time: 0.238062835446707 rate=649.487444631454309 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=block_map poe ./stream-opt 50331648 -procs 256 -hostfile block_mf
+   0:localSize=50331648
+   0:Number of places=256
+   0:Size of arrays: 294912 MB (total)1152 MB (per place)
+   0:Min time: 0.235470104135308 rate=1313.277736244185689 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=block_map poe ./stream-opt 50331648 -procs 512 -hostfile block_mf
+   0:localSize=50331648
+   0:Number of places=512
+   0:Size of arrays: 589824 MB (total)1152 MB (per place)
+   0:Min time: 0.400583953235001 rate=1543.934263041169743 GB/s
+   0:Result is verified.
+
+##### We are using the Block runs for reporting numbers
+
+CYCLIC runs
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=cyclic_map poe ./stream-opt 50331648 -procs 1 -hostfile cyclic_mf
+   0:Binding ID=0 to local CPU=0 on node=0
+   0:Binding ID=0 to local CPU=0 on node=0
+   0:localSize=50331648
+   0:Number of places=1
+   0:Size of arrays: 1152 MB (total)1152 MB (per place)
+   0:Min time: 0.127337877134571 rate=9.486254829923238 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=cyclic_map poe ./stream-opt 50331648 -procs 16 -hostfile cyclic_mf
+   0:localSize=50331648
+   0:Number of places=16
+   0:Size of arrays: 18432 MB (total)1152 MB (per place)
+   0:Min time: 0.12737894839702 rate=151.731138270664417 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=cyclic_map poe ./stream-opt 50331648 -procs 32 -hostfile cyclic_mf
+   0:localSize=50331648
+   0:Number of places=32
+   0:Size of arrays: 36864 MB (total)1152 MB (per place)
+   0:Min time: 0.127095994289227 rate=304.137875313639995 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=cyclic_map poe ./stream-opt 50331648 -procs 64 -hostfile cyclic_mf
+   0:localSize=50331648
+   0:Number of places=64
+   0:Size of arrays: 73728 MB (total)1152 MB (per place)
+   0:Min time: 0.20339613311625 rate=380.092827447285345 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=cyclic_map poe ./stream-opt 50331648 -procs 128 -hostfile cyclic_mf
+   0:localSize=50331648
+   0:Number of places=128
+   0:Size of arrays: 147456 MB (total)1152 MB (per place)
+   0:Min time: 0.203961131747351 rate=758.079842621820262 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=cyclic_map poe ./stream-opt 50331648 -procs 256 -hostfile cyclic_mf
+   0:localSize=50331648
+   0:Number of places=256
+   0:Size of arrays: 294912 MB (total)1152 MB (per place)
+   0:Min time: 0.204996777008455 rate=1508.500035096871216 GB/s
+   0:Result is verified.
+
+[surs@v20n20 10-20-2009]$ X10_STATIC_THREADS=true PGASRT_CPUMAP=cyclic_map poe ./stream-opt 50331648 -procs 512 -hostfile cyclic_mf
+
+   0:localSize=50331648
+   0:Number of places=512
+   0:Size of arrays: 589824 MB (total)1152 MB (per place)
+   0:Min time: 0.201328104678241 rate=3071.976918535217465 GB/s
+   0:Result is verified.
+   0:localSize=50331648
+
+   0:Number of places=512
+   0:Size of arrays: 589824 MB (total)1152 MB (per place)
+   0:Min time: 0.199115992840112 rate=3106.105550851596035 GB/s
+   0:Result is verified.

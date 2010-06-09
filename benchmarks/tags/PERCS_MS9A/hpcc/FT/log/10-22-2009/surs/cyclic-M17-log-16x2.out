@@ -1,0 +1,42 @@
+   0:M=17 SQRTN=131072 N=17179869184 nRows=4096 localSize=1073741824 MAX_PLACES=32 Mem=524288.0 mem/MAX_PLACES=16384.0
+   0:Start FFT
+   0:execution time=208.329581000000019 secs Gigaflops=14.019025753620651
+   0:Step transpose1 took 25.905949000000003 s
+   0:Step row_ffts1 took 49.771087000000001 s
+   0:Step transpose2 took 26.052874000000003 s
+   0:Step twiddle took 30.780360000000002 s
+   0:Step row_ffts2 took 49.714644 s
+   0:Step transpose3 took 26.104667000000003 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=190.731961000000013 secs Gigaflops=15.312471732411955
+   0:Step transpose1 took 26.013762000000003 s
+   0:Step row_ffts1 took 40.784434000000005 s
+   0:Step transpose2 took 26.033530000000003 s
+   0:Step twiddle took 30.782436000000001 s
+   0:Step row_ffts2 took 40.927570000000003 s
+   0:Step transpose3 took 26.190229000000002 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=399.061542000000031 secs Gigaflops=14.637229870073522
+   0:M=17 SQRTN=131072 N=17179869184 nRows=4096 localSize=1073741824 MAX_PLACES=32 Mem=524288.0 mem/MAX_PLACES=16384.0
+   0:Start FFT
+   0:execution time=207.503319000000005 secs Gigaflops=14.074848418593245
+   0:Step transpose1 took 25.752940000000002 s
+   0:Step row_ffts1 took 49.586996000000006 s
+   0:Step transpose2 took 25.824080000000002 s
+   0:Step twiddle took 30.659785000000003 s
+   0:Step row_ffts2 took 49.625084000000001 s
+   0:Step transpose3 took 26.054434000000001 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=190.730738000000002 secs Gigaflops=15.312569918751112
+   0:Step transpose1 took 26.00346 s
+   0:Step row_ffts1 took 40.537845000000004 s
+   0:Step transpose2 took 25.895610000000001 s
+   0:Step twiddle took 30.664137 s
+   0:Step row_ffts2 took 40.789560000000002 s
+   0:Step transpose3 took 26.840126000000001 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=398.234057000000007 secs Gigaflops=14.667644366137171

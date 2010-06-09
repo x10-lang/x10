@@ -1,0 +1,88 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/***************************************************************************************
+An example of implementing all reduction using X10's clock 
+
+In this implementation, a barrier is needed after each phase which is implemented using 
+X10's clock. The length of the array on which the all reduction is performed is equal to
+the number of places used to run this code. For simplicity, it is assumed that the number
+of places is a power of 2.
+
+Also, the explicit and implicit syntax for accessing a remote array element are presented.
+
+
+Date:   11/09/06
+
+Author: Tong Wen @IBM Research
+*****************************************************************************************/
+
+public class AllReductionBarrier extends x10Test {
+	public def powerOf2(var a_int: int): boolean = {
+		assert a_int>0;
+		var i: int = (int)Math.abs(a_int);
+		if (i==0) return false;
+		else{
+			if (i!=(pow2(log2(i)))) return false;
+		}
+		return true;
+	}
+	public def log2(var a_int: int): int = {
+		return (int)(Math.log(a_int)/Math.log(2));
+	}
+	public def pow2(var a_int: int): int = {
+		return (int)Math.pow(2,a_int);
+	}
+	public def run(): boolean = {
+		final val ALLPLACES: dist = distmakeUnique();//the size must be a power of 2
+	    	final val numPlaces: int = place.MAX_PLACES;
+	    	assert powerOf2(numPlaces);
+	    	final val A: Array[double] = new Array[double](ALLPLACES, (var point[i]: point): double => {return 1;});
+	    	
+	    	/*using the buffer approach to avoid dependence between each pair*/
+	    	final val B: Array[double] = new Array[double](ALLPLACES);
+	    	final val factor: int = numPlaces;
+	    	final val phases: int = log2(factor);
+	    	
+		finish async{
+			  final val clk: clock = clock.factory.clock();
+			  ateach (val (i): point in ALLPLACES) {
+				var red: boolean = true;
+				var Factor: int = factor;
+				var shift: int;
+				
+				for (var j: int = 0;j<phases;j++){
+					shift=Factor/2;
+					final val destProcID: int = (i+shift)%Factor+i/Factor*Factor;
+					var result: Array[double]var buffDest: Array[double]var buffSrc: Array[double];
+					if (red){
+						//B[i]=future(A.dist[destProcID]){A[destProcID]}.force();
+						//B[i]+=A[i];
+						B(i)=A(i)+A(destProcID);
+					}
+					else{
+						//A[i]=future(ALLPLACES[destProcID]){B[destProcID]}.force();
+						//A[i]+=B[i];
+						A(i)=B(i)+B(destProcID);
+					}
+					next;
+					Factor/=2;
+					red=!red;
+				}
+				if (!red) A(i)=B(i);
+			  }
+		}
+		return (A(0)==numPlaces);
+	}
+
+	
+	public static def main(var args: Rail[String]): void = {
+		new AllReductionBarrier().execute();
+	}
+}

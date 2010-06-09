@@ -1,0 +1,62 @@
+0: Aborting: lapi_setup.c line 116: (LAPI_Init(&__pgasrt_lapi_handle, lapi_info)) returns error: 407 (2660-407 No Network statement is set.)
+0: Aborting: lapi_setup.c line 116: (LAPI_Init(&__pgasrt_lapi_handle, lapi_info)) returns error: 407 (2660-407 No Network statement is set.)
+ERROR: 0031-250  task 5: IOT/Abort trap
+ERROR: 0031-250  task 2: Terminated
+0: Aborting: lapi_setup.c line 116: (LAPI_Init(&__pgasrt_lapi_handle, lapi_info)) returns error: 407 (2660-407 No Network statement is set.)
+ERROR: 0031-250  task 8: Terminated
+ERROR: 0031-250  task 11: Terminated
+ERROR: 0031-250  task 6: Terminated
+ERROR: 0031-250  task 3: Terminated
+ERROR: 0031-250  task 13: Terminated
+ERROR: 0031-250  task 9: Terminated
+ERROR: 0031-250  task 12: IOT/Abort trap
+ERROR: 0031-250  task 0: Terminated
+ERROR: 0031-250  task 7: Terminated
+ERROR: 0031-250  task 15: IOT/Abort trap
+ERROR: 0031-250  task 10: Terminated
+   0:M=16 SQRTN=65536 N=4294967296 nRows=4096 localSize=536870912 MAX_PLACES=16 Mem=131072.0 mem/MAX_PLACES=8192.0
+   0:Start FFT
+   0:execution time=93.46866 secs Gigaflops=7.352140999560707
+   0:Step transpose1 took 13.592854000000001 s
+   0:Step row_ffts1 took 18.771085000000003 s
+   0:Step transpose2 took 13.522057 s
+   0:Step twiddle took 15.282440000000001 s
+   0:Step row_ffts2 took 18.768540000000002 s
+   0:Step transpose3 took 13.531684 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=88.29019000000001 secs Gigaflops=7.783364916985679
+   0:Step transpose1 took 13.620765 s
+   0:Step row_ffts1 took 16.106322000000002 s
+   0:Step transpose2 took 13.582889000000002 s
+   0:Step twiddle took 15.284558000000001 s
+   0:Step row_ffts2 took 16.109791000000001 s
+   0:Step transpose3 took 13.585865 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=181.758849999999995 secs Gigaflops=7.561609983337812
+   0:Start verification
+   0:Verification complete
+   0:M=16 SQRTN=65536 N=4294967296 nRows=4096 localSize=536870912 MAX_PLACES=16 Mem=131072.0 mem/MAX_PLACES=8192.0
+   0:Start FFT
+   0:execution time=93.684043000000003 secs Gigaflops=7.335238161743296
+   0:Step transpose1 took 13.573221 s
+   0:Step row_ffts1 took 18.791808 s
+   0:Step transpose2 took 13.627940000000001 s
+   0:Step twiddle took 15.278467000000001 s
+   0:Step row_ffts2 took 18.769238000000001 s
+   0:Step transpose3 took 13.643369000000002 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=88.24120400000001 secs Gigaflops=7.787685754605069
+   0:Step transpose1 took 13.627447 s
+   0:Step row_ffts1 took 15.967224000000002 s
+   0:Step transpose2 took 13.683277 s
+   0:Step twiddle took 15.277246000000002 s
+   0:Step row_ffts2 took 15.985123000000002 s
+   0:Step transpose3 took 13.700887000000002 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=181.925247000000013 secs Gigaflops=7.554693795303736
+   0:Start verification
+   0:Verification complete

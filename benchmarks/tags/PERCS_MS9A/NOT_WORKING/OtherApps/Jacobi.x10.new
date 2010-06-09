@@ -1,0 +1,55 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Jacobi iteration
+ *
+ * At each step of the iteration, replace the value of a cell with
+ * the average of its adjacent cells in the (i,j) dimensions.
+ * Compute the error at each iteration as the sum of the changes
+ * in value across the whole array. Continue the iteration until
+ * the error falls below a given bound.
+ *
+ * @author vj
+ * @author cvp
+ * @author kemal
+ */
+public class Jacobi extends x10Test {
+
+	public const N: int = 6;
+	public const epsilon: double = 0.002;
+	public const epsilon2: double = 0.000000001;
+	public const R: region{rank==2} = [0..N+1, 0..N+1];
+	public const RInner: region{rank==2} = [1..N, 1..N];
+	public const D: dist{rank==2} = (dist{rank==2})) distmakeBlock(R);
+	public const DInner: dist{rank==2} = D | RInner;
+	public const DBoundary: dist{rank==2} = D - RInner;
+	public const EXPECTED_ITERS: int = 97;
+	public const EXPECTED_ERR: double = 0.0018673382039402497;
+
+	val B: Array[double] = new Array[double](D, (var p: point[i,j]): double => { return DBoundary.contains(p) ? (N-1)/2 : N*(i-1)+(j-1); });
+
+	public def run(): boolean = {
+		var iters: int = 0;
+		var err: double;
+		while (true) {
+			final val Temp: Array[double]{distribution==this.DInner} = new Array[double](DInner, (var point [i,j]: point): double => { return (B(i+1, j)+B(i-1, j)+B(i, j+1)+B(i, j-1))/4.0; });
+			if ((err = ((B | this.DInner)-Temp).abs().sum()) < epsilon)break;
+			B.update(Temp);
+			iters++;
+		}
+		System.out.println("Error = "+err);
+		System.out.println("Iterations = "+iters);
+		return Math.abs(err-EXPECTED_ERR) < epsilon2 && iters == EXPECTED_ITERS;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new Jacobi().execute();
+	}
+}
