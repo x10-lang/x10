@@ -578,7 +578,7 @@ public class Desugarer extends ContextVisitor {
     
     // x = finish (R) S; ->
     //    {
-    //    val f = new Runtime.CollectingFinish(new typeof(R)());
+    //    val f = new Runtime.CollectingFinish(R);
     //    try { S; }
     //    catch (t:Throwable) { Runtime.pushException(t); }
     //    finally { x = f.stopFinishExpr(); }
@@ -602,10 +602,6 @@ public class Desugarer extends ContextVisitor {
     		reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
         }
         
-//        CanonicalTypeNode CCE = xnf.CanonicalTypeNode(pos, reducerType);
-//        X10ConstructorInstance ni = xts.findConstructor(reducerType, xts.ConstructorMatcher(reducerType, Collections.EMPTY_LIST, context));
-//        Expr newReducer = xnf.New(pos, CCE, Collections.EMPTY_LIST).constructorInstance(ni).type(reducerType);
-
         // Parse out T
         Type reducerTarget = null;
         for (Type t : xts.interfaces(reducerType)) {
@@ -658,7 +654,7 @@ public class Desugarer extends ContextVisitor {
             returnS = xnf.Eval(pos, b);
       	}
         if ((n==null) && (l!=null)) {
-            Expr local2 = xnf.Local(pos, l.name()).localInstance(l.localDef().asInstance()).type(coFinishT);
+            Expr local2 = xnf.Local(pos, l.name()).localInstance(l.localDef().asInstance()).type(reducerTarget);
         	Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
          	Expr b = xnf.Assign(pos, local2, Assign.ASSIGN, instanceCall).type(reducerTarget);
             returnS = xnf.Eval(pos, b);
@@ -667,13 +663,13 @@ public class Desugarer extends ContextVisitor {
         Block finalBlock = xnf.Block(pos, returnS);
         return xnf.Block(pos, localDecl, s1, xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finalBlock));
     }
+
     
     private Stmt visitLocalDecl(LocalDecl n) throws SemanticException {
         if (n.init() instanceof FinishExpr) {
             Position pos = n.position();
             ArrayList<Stmt> sList = new ArrayList<Stmt>();
-            sList.add(n.init(null));
-            // FIXME: this will not work if n declares a val variable
+            sList.add(n.init(null));                      
             Stmt s = visitFinishExpr(null, n);
             sList.add(s);
             return xnf.StmtSeq(pos, sList);
