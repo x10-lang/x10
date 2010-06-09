@@ -117,24 +117,21 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         }
         final String rootName = sourceFile.getFullPath().removeFileExtension().lastSegment();
         
-        this.fTargetOpHelper.getStore(wDirPath.append(rootName + CC_EXT).toString()).delete(EFS.NONE, nullMonitor);
-        this.fTargetOpHelper.getStore(wDirPath.append(rootName + ".h").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-        this.fTargetOpHelper.getStore(wDirPath.append(rootName + ".inc").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-        this.fTargetOpHelper.getStore(wDirPath.append(rootName + ".o").toString()).delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
+        deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + CC_EXT).toString()), nullMonitor);
+        deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + ".h").toString()), nullMonitor); //$NON-NLS-1$
+        deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + ".inc").toString()), nullMonitor); //$NON-NLS-1$
+        deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + ".o").toString()), nullMonitor); //$NON-NLS-1$
       
         monitor.worked(1);
       }
       
       final IFileStore parentStore = this.fTargetOpHelper.getStore(this.fWorkspaceDir);
-      parentStore.getChild("xxx_main_xxx.cc").delete(EFS.NONE, nullMonitor); //$NON-NLS-1$
-      parentStore.getChild("lib" + getProject().getName() + ".a").delete(EFS.NONE, nullMonitor); //$NON-NLS-1$ //$NON-NLS-2$
+      deleteFile(parentStore.getChild("xxx_main_xxx.cc"), nullMonitor); //$NON-NLS-1$
+      deleteFile(parentStore.getChild("lib" + getProject().getName() + ".a"), nullMonitor); //$NON-NLS-1$ //$NON-NLS-2$
       
       final String execPath = getProject().getPersistentProperty(Constants.EXEC_PATH);
       if (execPath != null) {
-        final IFileStore fileStore = this.fTargetOpHelper.getStore(execPath);
-        if (fileStore.fetchInfo().exists()) {
-          fileStore.delete(EFS.NONE, nullMonitor);
-        }
+        deleteFile(this.fTargetOpHelper.getStore(execPath), nullMonitor);
       }
       monitor.worked(1);
     } finally {
@@ -227,6 +224,14 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
   protected final String getWorkspaceDir() {
     return this.fWorkspaceDir;
+  }
+  
+  // --- Private code
+  
+  private void deleteFile(final IFileStore fileStore, final IProgressMonitor monitor) throws CoreException {
+    if (fileStore.fetchInfo().exists()) {
+      fileStore.delete(EFS.NONE, monitor);
+    }
   }
   
   // --- Fields
