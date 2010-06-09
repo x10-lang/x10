@@ -144,27 +144,31 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     rmServiceConfNameCombo.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        getPlatformConf().applyChanges();
-        final String name = rmServiceConfNameCombo.getText().trim();
+        if (rmServiceConfNameCombo.getSelectionIndex() != -1) {
+          getPlatformConf().applyChanges();
+          final String name = rmServiceConfNameCombo.getText().trim();
 
-        final String confName = rmServiceConfNameCombo.getItem(rmServiceConfNameCombo.getSelectionIndex());
-        final IServiceConfiguration serviceConf = (IServiceConfiguration) rmServiceConfNameCombo.getData(confName);
-        for (final IService service : serviceConf.getServices()) {
-          if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {
-            final IServiceProvider serviceProvider = serviceConf.getServiceProvider(service);
-            if (name.equals(serviceProvider.getName())) {
-              setNewPlatformConfState(name, serviceProvider);
-              getPlatformConf().setName(name);
-              
-              for (final IServiceConfigurationListener listener : rmConfPageListeners) {
-                listener.serviceConfigurationSelected(serviceProvider);
+          final String confName = rmServiceConfNameCombo.getItem(rmServiceConfNameCombo.getSelectionIndex());
+          final IServiceConfiguration serviceConf = (IServiceConfiguration) rmServiceConfNameCombo.getData(confName);
+          for (final IService service : serviceConf.getServices()) {
+            if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {
+              final IServiceProvider serviceProvider = serviceConf.getServiceProvider(service);
+              if (name.equals(serviceProvider.getName())) {
+                setNewPlatformConfState(name, serviceProvider);
+                getPlatformConf().setName(name);
+
+                for (final IServiceConfigurationListener listener : rmConfPageListeners) {
+                  listener.serviceConfigurationSelected(serviceProvider);
+                }
+
+                setPartCompleteFlag(hasCompleteInfo());
+                updateDirtyState(managedForm);
+                break;
               }
-
-              setPartCompleteFlag(hasCompleteInfo());
-              updateDirtyState(managedForm);
-              break;
             }
           }
+        } else {
+          setPartCompleteFlag(hasCompleteInfo());
         }
       }
       
