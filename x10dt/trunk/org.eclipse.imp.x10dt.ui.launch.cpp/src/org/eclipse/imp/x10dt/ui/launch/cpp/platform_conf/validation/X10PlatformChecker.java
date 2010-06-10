@@ -17,9 +17,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.StringUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.TimerThread;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
@@ -113,8 +115,38 @@ final class X10PlatformChecker implements IX10PlatformChecker {
 				return;
 			}
   	}
-  	for (final IX10PlatformValidationListener listener : this.fListeners) {
-  		listener.platformCommunicationInterfaceValidated();
+  	
+  	// The following code is hack to handle the fact that PE resource manager does not follow the same contract that
+  	// OpenMPI for startup. To fix!
+  	if (resourceManager.getState() == State.STARTING) {
+  	  final IResourceManager curRM = resourceManager;
+  	  final TimerThread timerThread = new TimerThread(new Runnable() {
+        
+        public void run() {
+          if (curRM.getState() == State.STARTING) {
+            for (final IX10PlatformValidationListener listener : X10PlatformChecker.this.fListeners) {
+              listener.platformCommunicationInterfaceValidationFailure(Constants.EMPTY_STR);
+            }
+          } else {
+            for (final IX10PlatformValidationListener listener : X10PlatformChecker.this.fListeners) {
+              listener.platformCommunicationInterfaceValidated();
+            }
+          }
+        }
+        
+      }, 2000);
+  	  timerThread.start();
+  	  try {
+        timerThread.join();
+      } catch (InterruptedException except) {
+        for (final IX10PlatformValidationListener listener : X10PlatformChecker.this.fListeners) {
+          listener.platformCommunicationInterfaceValidationFailure(Constants.EMPTY_STR);
+        }
+      }
+  	} else {
+  	  for (final IX10PlatformValidationListener listener : this.fListeners) {
+  	    listener.platformCommunicationInterfaceValidated();
+  	  }
   	}
   }
 
