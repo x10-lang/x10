@@ -61,48 +61,6 @@ public final class KeyboardUtils {
 
   }
   
-  // --- Private classes
-  
-  private static final class TimerThread extends Thread {
-    
-    TimerThread(final Runnable runnableAction, final int time) {
-      super("Keyboard Timer Thread"); //$NON-NLS-1$
-      this.fRunnableAction = runnableAction;
-      this.fTime = time;
-    }
-    
-    // --- Overridden methods
-    
-    public void run() {
-      for (;;) {
-        try {
-          Thread.sleep(this.fTime);
-        } catch (InterruptedException except) {
-          continue;
-        }
-        if (! this.fIsReseted) {
-          this.fRunnableAction.run();
-          break;
-        }
-      }
-    }
-    
-    // --- Internal services
-    
-    void setShouldBeReseted(final boolean resetFlag) {
-      this.fIsReseted = resetFlag;
-    }
-    
-    // --- Fields
-    
-    private final Runnable fRunnableAction;
-    
-    private final int fTime;
-    
-    private boolean fIsReseted;
-    
-  }
-  
   // --- Private code
   
   private KeyboardUtils() {}
