@@ -241,15 +241,12 @@
         <!-- ptp.update.cache.dir is the local cache of the (unzipped) ptp update site   
             which is the unzipped contents of ptp-master-*.zip   -->
         <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
-            <!--
-            <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp*.jar"/>
-            -->
+        <!-- don't get ptp end-user runtime because it includes pldt
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp_*.jar"/>
+            -->
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.core*.jar"/>
-    <!--        <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.debug*.jar"/>   -->
-    <!--        <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.master*.jar"/>  -->
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.external*.jar"/>
-            
+          
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.remotetools*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.remote.remotetools*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.remote_*.jar"/>
