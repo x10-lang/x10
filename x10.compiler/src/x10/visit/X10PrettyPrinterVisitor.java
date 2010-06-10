@@ -1363,12 +1363,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             public void expand(Translator tr2) {
                                                 for (Stmt stmt : statements) {
                                                     if (stmt instanceof X10Return_c) {
-                                                        w.write("(");
-                                                        w.write("(");
-                                                        ex.expand();
-                                                        w.write("[])");
-                                                        w.write("array.value");
-                                                        w.write(")");
+                                                        w.write("array");
                                                         w.write("[");
                                                         w.write(id.toString());
                                                         w.write("] = ");
@@ -1381,6 +1376,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                                 }
                                             }
                                         };
+
+                                        Expander ex2 = new Expander(er) {
+                                            @Override
+                                            public void expand(Translator tr2) {
+                                                ex.expand();
+                                                w.write("[] ");
+                                                w.write("array = new ");
+                                                ex.expand();
+                                                w.write("[length];");
+                                            }
+                                        };
                                         
 	                                Object[] components = {
                                             new TypeExpander(er, c.target().type(), false, true, false),
@@ -1388,17 +1394,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             new RuntimeTypeExpander(er, pt),
                                             c.arguments().get(0),
                                             ex1,
-                                            id
+                                            id,
+                                            ex2
 	                                };
 	                                er.dumpRegex("rail-make", components, tr2, 
 	                                        "(new java.lang.Object() {" +
 	                                    	    "final #0<#1> apply(int length) {" +
-	                                    	        "#0<#1> array = new #0<#1>(#2, #3);" +
-	                                    	            "for (int #5$ = 0; #5$ < length; #5$++) {" +
-	                                    		        "final int #5 = #5$;" +
-	                                    		        "#4" +
-	                                    		    "}" +
-	                                    		"return array;" +
+	                                    	        "#6" + 
+	                                    	        "for (int #5$ = 0; #5$ < length; #5$++) {" +
+	                                    		    "final int #5 = #5$;" +
+	                                    		    "#4" +
+	                                    		"}" +
+	                                    		"return new #0<#1>(#2, #3, array);" +
 	                                             "}" +
 	                                         "}.apply(#3))");
 	                                
