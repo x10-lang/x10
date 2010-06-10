@@ -247,114 +247,135 @@ LeftHandSide \: Identifier \\
              \| Primary \xcd"(" Expression \xcd")" \\
 \end{grammar}
 
-%It is often the case that an \Xten{} variable is assigned to only
-%once. The user may declare such variables as \xcd"final". However,
-%this is sometimes syntactically cumbersome.
-%
-%{}\Xten{} supports the syntax \xcd"l := r" for assignment to mutable
-%variables.  The user is strongly enouraged to use this syntax to
-%assign variables that are intended to be assigned to more than
-%once. The \Xten{} compiler may issue a warning if it detects code 
-%that uses \xcd"=" assignment statements on \xcd"mutable" variables.
+
 
 The assignment expression \xcd"x = e" assigns a value given by
 expression \xcd"e"
-to a mutable variable \xcd"x".  There are three forms of
-assignment: \xcd"x" may be a local variable, it may be a field
-\xcd"y.f", or it may be the variable obtained by evaluating the expression \xcd"a(i)".
-In the last case, \xcd"a" must be an instance of a class implementing the interface
- \xcd"x10.lang.Settable[S,T]", where 
-\xcd"S" and \xcd"T" are the types of \xcd"i" and \xcd"e", respectively.
-
-This interface is defined thus:
+to a variable \xcd"x".  
+Most often, \xcd`x` is a mutable (\xcd`var` variable).  The same syntax is
+used for delayed initialization of a \xcd`val`, but \xcd`val`s can only be
+initialized once.
+%~~gen
+% package express.ions.ass.ignment;
+% class Example {
+% static def exasmple() {
+%~~vis
 \begin{xten}
-package x10.lang;
-public interface Settable[S,T] {
-    def set[S,T](i: S, v: T): T;
+  var x : Int;
+  val y : Int;
+  x = 1;
+  y = 2; // Correct; initializes y
+  x = 3; 
+  // Incorrect: y = 4;
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
+
+There are three syntactic forms of
+assignment: 
+\begin{enumerate}
+\item \xcd`x = e;`, assigning to a local variable, formal parameter, field of
+      \xcd`this`, etc. 
+\item \xcd`x.f = e;`, assigning to a field of an object.
+\item \xcdmath`a(i$_1$,$\ldots$,i$_n$) = v;`, where {$n \ge 0$}, assigning to
+      an element of an array or some other such structure. This is syntactic
+      sugar for a method call: \xcdmath`a.set(v,i$_1$,$\ldots$,i$_n$)`.
+      Naturally, it is a static error if no suitable \xcd`set` method exists
+      for \xcd`a`.
+\end{enumerate}
+
+For a binary operator $\diamond$, the $\diamond$-assignment expression
+\xcdmath"x $\diamond$= e" combines the current value of \xcd`x` with the value
+of \xcd`e` by {$\diamond$}, and stores the result back into \xcd`x`.  
+\xcd`i += 2`, for example, adds 2 to \xcd`i`. For variables and fields, 
+\xcdmath"x $\diamond$= e" behaves just like \xcdmath"x = x $\diamond$ e". 
+
+The subscripting forms of \xcdmath"a(i) $\diamond$= b" are slightly subtle.
+Subexpressions of \xcd`a` and \xcd`i` are only evaluated once.  However,
+\xcd`a(i)` and \xcd`a(i)=c` are each executed once---in particular, there is
+one call to \xcd`a.apply(i)` and one to \xcd`a.set(i,c)`, the desugared forms
+of \xcd`a(i)` and \xcd`a(i)=c`.  If subscripting is implemented strangely for
+the class of \xcd`a`, the behavior is {\em not} necessarily updating a single
+storage location. Specifically, \xcd`A()(I()) += B()` is tantamount to: 
+%~~gen
+% package expressions.stupid.addab;
+% class Example {
+% def example(A:()=>Rail[Int]!, I: () => Int, B: () => Int ) {
+%~~vis
+\begin{xten}
+{
+  val aa = A();  // Evaluate A() once
+  val ii = I();  // Evaluate I() once
+  val bb = B();  // Evaluate B() once
+  val tmp = aa(ii) + bb; // read aa(ii)
+  aa(ii) = tmp;  // write sum back to aa(ii)
 }
 \end{xten}
-The assignment \xcd"a(i) = e" is equivalent to the call
-\xcd"a.set(i, e)".
+%~~siv
+%}}
+%~~neg
 
-\eat{
-For array variables, the right-hand-side
-expression \xcd"e" 
-must have the same distribution \xcd"a(i)". This
-statement involves control communication between the sites hosting
-\xcd"D". Each site performs the assignment(s) of array components
-locally. The assignment terminates when assignment has terminated at
-all sites hosting \xcd"D".
-}
+\limitation{+= does not currently meet this specification.}
 
-%% vj: fix. Use some other word for a mutable memory location, not ``location''. 
-%% dg: obsolete now that we renamed loc to home?
 
-For a binary operator
-$\mathit{op}$,
-the
-$\mathit{op}$-assignment expression \xcdmath"x $\mathit{op}$= e"
-evaluates \xcd"x" to a memory location, then evaluates \xcd"e",
-applies the operation \xcdmath"x $\mathit{op}$ e", and assigns the
-result into the location computed for \xcd"x".
-The expression is equivalent to \xcdmath"x = x $\mathit{op}$ e"
-except that any subexpressions of \xcd"x" are evaluated only
-once.
-
-%% TODO: Sectional assignment??
-
-%\input{rmi.tex}
 
 
 \section{Increment and decrement}
 
+
 The operators \xcd"++" and \xcd"--" increment and decrement
-a variable, respectively.  The variable must be \xcd`var`
-and of numeric type.
+a variable, respectively.  
+\xcd`x++` and \xcd`++x` both increment \xcd`x`, just as the statement 
+\xcd`x += 1` would, and similarly for \xcd`--`.  
 
-When the operator is prefix, the variable is
-incremented or decremented by \xcd"1" and the result of the expression is
-the new value of the variable.
-When the operator is postfix, the variable is incremented or
-decremented by \xcd"1" and the result of the expression is the old value of
-the variable.
+The difference between the two is the return value.  
+\xcd`++x` returns the {\em new} value of \xcd`x`, after incrementing.
+\xcd`x++` returns the {\em old} value of \xcd`, before incrementing.`
 
-The new value of the variable $v$ is identical to the result of
-the expressions
-\xcdmath"$v$+1" or \xcdmath"$v$-1", as appropriate.
+\limitation{This currently only works for numeric types.}
 
-\section{Numeric promotion}
+\section{Numeric Operations}
 \label{XtenPromotions}
 \index{promotion}
 \index{numeric promotion}
 
-The unary and binary operators promote their operands as
-follows.
-Values are sign extended and converted to instances of the
-promoted type.
+Numeric types (\xcd`Byte`, \xcd`Short`, \xcd`Int`, \xcd`Long`, \xcd`Float`,
+\xcd`Double`, and unsigned variants of fixed-point types) are normal X10
+structs, though most of their methods are implemented via native code. They
+obey the same general rules as other X10 structs. For example, numeric
+operations are defined by \xcd`operator` definitions, the same way you could
+for any struct.
 
-\begin{itemize}
-\item  The unary promotion of \xcd"Byte", \xcd"Short",
-\xcd"Int" is \xcd"Int".
-\item  The unary promotion of \xcd"Long" is \xcd"Long".
-\item  The unary promotion of \xcd"Float" is \xcd"Float".
-\item  The unary promotion of \xcd"Double" is \xcd"Double".
-\item The binary promotion of two types is the  
-greater of the unary promotion of each type
-according to the following order:
-\xcd"Int", \xcd"Long", \xcd"Float", \xcd"Double".
-\end{itemize}
+\subsection{Conversions and coercions}
 
-\section{Unary plus and unary minus}
+Specifically, each numeric type can be converted or coerced into each other
+numeric type, perhaps with loss of accuracy.
+%~~gen
+% package exp.ress.io.ns.numeric.conversions;
+% class ExampleOfConversionAndStuff {
+% def example() {
+%~~vis
+\begin{xten}
+val f : (Int)=>Boolean = (Int) => true; 
+val n : Byte = 123 as Byte; // explicit 
+val ok = f(n); // implicit
+\end{xten}
+%~~siv
+% } }
+%~~neg
 
-The unary \xcd"+" operator applies unary numeric promotion to
-its operand.   The operand must be of numeric type.
 
-The unary \xcd"-" operator
-applies unary numeric promotion to its operand
-and then
-subtracts the promoted operand from \xcd"0".
-The operand must be of numeric type.
-The type of the result is promoted type.
+
+\subsection{Unary plus and unary minus}
+
+The unary \xcd`+` operation on numbers is an identity function.
+The unary \xcd`-` operation on numbers is a negation function.
+\bard{UInts and such are closed under negation -- the negative of a UInt is
+done binarily.  }
+
+
 
 \section{Bitwise complement}
 

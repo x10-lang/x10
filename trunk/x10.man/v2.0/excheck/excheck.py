@@ -2,6 +2,7 @@ from __future__ import with_statement
 import os;
 clue = "%~~"
 sep="~~"
+files = []
 
 texsource = "/Users/bard/x10/src/x10/x10.man/v2.0"
 gennedFileDir = texsource + "/testcases"
@@ -231,12 +232,16 @@ def readLines(f, endMarker, stripLeadingPercents, stripBeginAndEnd, basename):
 def doom(msg):
     raise msg
 
+
+
 def writeX10File(classname, code):
+    global files
     fn = gennedFileDir + "/" + classname + ".x10"
     f = open(fn, 'w')
     f.write(code)
     f.flush()
     f.close()
+    files.append(fn)
     # print '***' + classname + " to " + fn  + "***\n" + code + "\n\n"
 
 # Return Foo1, Foo2, etc -- distinct class names for files from chapter Foo.
@@ -280,4 +285,11 @@ def extractExamplesFromAllFiles():
 os.chdir(gennedFileDir);
 os.system("rm -r " + gennedFileDir + "/*");
 extractExamplesFromAllFiles()
+# print ("\n".join(files))
 os.system("x10c -STATIC_CALLS *.x10")
+#for f in files:
+#    print "... " + f + " ... "
+#    s = ("/Users/bard/x10/x10-trunk/x10.dist/bin/x10c -STATIC_CALLS " + f + "")
+#   # print "  s=" + s
+#    os.system(s)
+    
