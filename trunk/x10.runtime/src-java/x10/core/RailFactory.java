@@ -29,10 +29,11 @@ public class RailFactory {
     }
     
     public static <T> Rail<T> makeVarRail(Type type, int length, Fun_0_1<Integer,T> init) {
-        Rail<T> array = new Rail<T>(type, length);
+        Object o = type.makeArray(length);
         for (int i = 0; i < length; i++) {
-            array.set$G(init.apply$G(i), i);
+            type.setArray(o, i, init.apply$G(i));
         }
+        Rail<T> array = new Rail<T>(type, length, o);
         return array;
     }
     
