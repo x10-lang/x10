@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchImages;
+import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
@@ -615,6 +616,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           if (elementToRemove == ConnectionSectionPart.this.fCurrentConnection) {
             final Object lastElement = tableViewer.getElementAt(tableViewer.getTable().getItemCount() - 1);
             ConnectionSectionPart.this.fCurrentConnection = (IConnectionInfo) lastElement;
+            updateConnectionConf();
             for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
               listener.connectionChanged(false, ConnectionSectionPart.this.fCurrentConnection.getName(), 
                                          ConnectionSectionPart.this.fCurrentConnection.getValidationStatus());
@@ -942,45 +944,49 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   	}
   	
     final IX10PlatformValidationListener validationListener = new ConnectionInfoValidationListener(connectionInfo);
-      final IX10PlatformChecker checker = PlatformCheckerFactory.create();
-      checker.addValidationListener(validationListener);
-      if (this.fCurrentConnection == connectionInfo) {
-        for (final IX10PlatformValidationListener listener : this.fValidationListeners) {
-          checker.addValidationListener(listener);
-        }
+    final IX10PlatformChecker checker = PlatformCheckerFactory.create();
+    checker.addValidationListener(validationListener);
+    if (this.fCurrentConnection == connectionInfo) {
+      for (final IX10PlatformValidationListener listener : this.fValidationListeners) {
+        checker.addValidationListener(listener);
       }
-      try {
-        final ITargetElement targetElement;
-        if (connectionInfo.getTargetElement() == null) {
-          targetElement = PTPConfUtils.createRemoteConnection(connectionInfo.getName(), connectionInfo.getPTPAttributes());
-        } else {
-          connectionInfo.applyChangesToTargetElement();
-          targetElement = connectionInfo.getTargetElement();
-        }
+    }
+    try {
+      final ITargetElement targetElement;
+      if (connectionInfo.getTargetElement() == null) {
+        targetElement = PTPConfUtils.createRemoteConnection(connectionInfo.getName(), connectionInfo.getPTPAttributes());
+      } else {
+        connectionInfo.applyChangesToTargetElement();
+        targetElement = connectionInfo.getTargetElement();
+      }
 
-        final Job job = new Job(LaunchMessages.RMCP_ValidateRemoteConn) {
+      final Job job = new Job(LaunchMessages.RMCP_ValidateRemoteConn) {
 
-          protected IStatus run(final IProgressMonitor monitor) {
-            checker.validateRemoteConnectionConf(targetElement, monitor);
+        protected IStatus run(final IProgressMonitor monitor) {
+          checker.validateRemoteConnectionConf(targetElement, monitor);
 
-            checker.removeValidationListener(validationListener);
-            if (ConnectionSectionPart.this.fCurrentConnection == connectionInfo) {
-              for (final IX10PlatformValidationListener listener : ConnectionSectionPart.this.fValidationListeners) {
-                checker.removeValidationListener(listener);
-              }
+          checker.removeValidationListener(validationListener);
+          if (ConnectionSectionPart.this.fCurrentConnection == connectionInfo) {
+            for (final IX10PlatformValidationListener listener : ConnectionSectionPart.this.fValidationListeners) {
+              checker.removeValidationListener(listener);
             }
-
-            return Status.OK_STATUS;
           }
 
-        };
-        job.setPriority(Job.INTERACTIVE);
-        job.schedule();
-      } catch (RemoteConnectionException except) {
-        except.printStackTrace();
-      } catch (CoreException except) {
-        except.printStackTrace();
-      }
+          return Status.OK_STATUS;
+        }
+
+      };
+      job.setPriority(Job.INTERACTIVE);
+      job.schedule();
+    } catch (RemoteConnectionException except) {
+      DialogsFactory.createErrorBuilder().setDetailedMessage(except)
+                    .createAndOpen(getFormPage().getEditorSite(), LaunchMessages.RMCP_RemoteConnErrorTitle, 
+                                   LaunchMessages.RMCP_RemoteConnErrorMsg);
+    } catch (CoreException except) {
+      DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
+                    .createAndOpen(getFormPage().getEditorSite(), LaunchMessages.RMCP_RemoteConnErrorTitle,
+                                   LaunchMessages.RMCP_RemoteConnErrorMsg);
+    }
   }
   
   // --- Private classes
