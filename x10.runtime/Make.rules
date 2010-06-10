@@ -76,6 +76,8 @@ ifdef ENABLE_CROSS_COMPILE_BGP
   override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
   override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
   export X10RT_PLATFORM=bgp
+  # needed for gcc 4.1
+  X10CPPFLAGS += -CLOSURE_INLINING=false
 else
 
   ifeq ($(shell uname -s),AIX)
