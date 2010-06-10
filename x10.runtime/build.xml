@@ -45,6 +45,7 @@
 
     <target name="init">
         <mkdir dir="${build}"/>
+        <mkdir dir="${build}/gen"/>
         <javac destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${x10.common.location}/contrib/ant"/>
             <include name="Ejc.java"/>
