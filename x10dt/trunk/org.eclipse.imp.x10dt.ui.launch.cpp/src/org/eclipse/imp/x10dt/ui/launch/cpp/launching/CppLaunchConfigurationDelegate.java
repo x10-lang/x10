@@ -48,6 +48,7 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
+import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.PTPCorePlugin;
@@ -307,8 +308,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       });
       
       if (returnCode != 0) {
-        IResourceUtils.addBuildMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR, 
-                                        project.getFullPath().toString(), IMarker.PRIORITY_HIGH);
+        IResourceUtils.addPlatformConfMarker(X10PlatformConfFactory.getFile(project), LaunchMessages.CLCD_LinkCmdError, 
+                                             IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
       }
       
       return returnCode;
