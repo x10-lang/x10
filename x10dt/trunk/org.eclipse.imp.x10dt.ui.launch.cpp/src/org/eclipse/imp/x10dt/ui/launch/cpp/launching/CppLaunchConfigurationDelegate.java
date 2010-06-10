@@ -115,6 +115,9 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     // Makes sure there is a queue, even if the resources tab doesn't require one to be specified.
     if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
       final IPQueue queue = getQueueDefault(this.fResourceManager);
+      if (queue == null) {
+        throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRMQueueError));
+      }
       attrMgr.addAttribute(JobAttributes.getQueueIdAttributeDefinition().create(queue.getID()));
     }
 
@@ -453,9 +456,14 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   }
   
   private boolean shouldProcessToLinkStep(final IProject project) {
-  	final int errorCount = IResourceUtils.getNumberOfBuildErrorMarkers(project);
-  	final String message = (errorCount == 0) ? null : NLS.bind(LaunchMessages.CLCD_FoundErrorMarkers, errorCount,
-  	                                                           project.getName());
+  	int errorCount = IResourceUtils.getNumberOfBuildErrorMarkers(project);
+  	String message = (errorCount == 0) ? null : NLS.bind(LaunchMessages.CLCD_FoundErrorMarkers, errorCount,
+  	                                                     project.getName());
+  	if (message == null) {
+  	  errorCount = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+  	  message = (errorCount == 0) ? null : NLS.bind(LaunchMessages.CLCD_FoundPlatformConfErrors, errorCount, 
+  	                                                project.getName());
+  	}
 		if (message == null) {
 			return true;
 		} else {
