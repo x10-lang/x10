@@ -48,6 +48,10 @@ import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IResourceManager;
+import org.eclipse.ptp.core.events.IChangedResourceManagerEvent;
+import org.eclipse.ptp.core.events.INewResourceManagerEvent;
+import org.eclipse.ptp.core.events.IRemoveResourceManagerEvent;
+import org.eclipse.ptp.core.listeners.IModelManagerChildListener;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
@@ -66,6 +70,7 @@ import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
 import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IService;
+import org.eclipse.ptp.services.core.IServiceConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ptp.services.core.IServiceProviderDescriptor;
 import org.eclipse.ptp.services.core.ServiceModelManager;
@@ -126,9 +131,18 @@ public final class PTPConfUtils {
     rmConf.setName(platformConf.getName());
     rmConf.setRemoteServicesId(connConf.isLocal() ? PTPConstants.LOCAL_CONN_SERVICE_ID : PTPConstants.REMOTE_CONN_SERVICE_ID);
     
-    final IResourceManagerControl rmControl = rmConf.createResourceManager();
-    PTPCorePlugin.getDefault().getModelManager().addResourceManager(rmControl);
-    return rmControl;
+    final ResourceManagerListener listener = new ResourceManagerListener();
+    PTPCorePlugin.getDefault().getModelManager().addListener(listener);
+    
+    final IServiceConfiguration serviceConf = serviceModelManager.newServiceConfiguration(platformConf.getName());
+    serviceConf.setServiceProvider(pair.first, pair.second);
+    serviceModelManager.addConfiguration(serviceConf);
+    
+    while (! listener.hasResourceManager()) ;
+  
+    PTPCorePlugin.getDefault().getModelManager().removeListener(listener);
+    
+    return listener.getResourceManager();
   }
   
   /**
@@ -221,7 +235,22 @@ public final class PTPConfUtils {
       final IResourceManager sameRMName = findResourceManager(platformConf.getName());
       if (sameRMName != null) {
         sameRMName.shutdown();
-        PTPCorePlugin.getDefault().getModelManager().removeResourceManager((IResourceManagerControl) sameRMName);
+//        PTPCorePlugin.getDefault().getModelManager().removeResourceManager((IResourceManagerControl) sameRMName);
+        final IResourceManagerConfiguration rmConf = ((IResourceManagerControl) sameRMName).getConfiguration();
+        final ServiceModelManager modelManager = ServiceModelManager.getInstance();
+        loop:
+        for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
+          for (final IService service : serviceConf.getServices()) {
+            if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId()) &&
+                service.getId().equals(platformConf.getCommunicationInterfaceConf().getServiceModeId())) {
+              final IServiceProvider provider = serviceConf.getServiceProvider(service);
+              if (rmConf.getUniqueName().equals(provider.getProperties().get("uniqName"))) { //$NON-NLS-1$
+                modelManager.remove(serviceConf);
+                break loop;
+              }
+            }
+          }
+        }
       }
       return createResourceManager(platformConf);
     } else {
@@ -333,6 +362,36 @@ public final class PTPConfUtils {
   }
   
   // --- Private classes
+  
+  private static final class ResourceManagerListener implements IModelManagerChildListener {
+    
+    // --- Interface methods implementation
+
+    public void handleEvent(final IChangedResourceManagerEvent event) {
+    }
+
+    public void handleEvent(final INewResourceManagerEvent event) {
+      this.fResourceManager = event.getResourceManager();
+    }
+
+    public void handleEvent(final IRemoveResourceManagerEvent event) {
+    }
+    
+    // --- Internal services
+    
+    IResourceManager getResourceManager() {
+      return this.fResourceManager;
+    }
+    
+    boolean hasResourceManager() {
+      return this.fResourceManager != null;
+    }
+    
+    // --- Fields
+    
+    private IResourceManager fResourceManager;
+    
+  }
   
   private static final class CommunicationInterfaceInitializer implements ICIConfOptionsVisitor {
     
