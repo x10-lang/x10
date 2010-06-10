@@ -145,8 +145,8 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
       .append("\nLinker: ").append(this.fLinker) //$NON-NLS-1$
       .append("\nLinking Options: ").append(this.fLinkingOpts) //$NON-NLS-1$
       .append("\nLinking Libs: ").append(this.fLinkingLibs) //$NON-NLS-1$
-      .append("\nPGAS Location: ").append(this.fPGASLoc) //$NON-NLS-1$
-      .append("\nX10 Dist Location: ").append(this.fX10DistLoc) //$NON-NLS-1$
+      .append("\nPGAS Location: ").append(getPGASLocation()) //$NON-NLS-1$
+      .append("\nX10 Dist Location: ").append(getX10DistribLocation()) //$NON-NLS-1$
       .append("\nRemote Output Folder: ").append(this.fRemoteOutputFolder); //$NON-NLS-1$
     return sb.toString();
   }
@@ -194,8 +194,8 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
   // --- Private code
   
   private String interpretDistVariables(final String option) {
-    final String x10DistLoc = String.format("\"%s\"", this.fX10DistLoc); //$NON-NLS-1$
-    final String pgasDistLoc = String.format("\"%s\"", this.fPGASLoc); //$NON-NLS-1$
+    final String x10DistLoc = String.format("\"%s\"", getX10DistribLocation()); //$NON-NLS-1$
+    final String pgasDistLoc = String.format("\"%s\"", getPGASLocation()); //$NON-NLS-1$
     return option.replace(X10_DIST_VAR, x10DistLoc).replace(PGAS_DIST_VAR, pgasDistLoc);
   }
   
