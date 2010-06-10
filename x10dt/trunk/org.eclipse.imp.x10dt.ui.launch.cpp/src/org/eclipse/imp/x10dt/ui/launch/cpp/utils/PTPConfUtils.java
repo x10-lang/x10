@@ -90,17 +90,30 @@ public final class PTPConfUtils {
    * @param attributes The connection attributes as expected by PTP.
    * @return A non-null target element associated to the connection configuration transmitted.
    * @throws RemoteConnectionException Occurs if we failed in creating the remote connection.
+   * @throws CoreException Occurs during configuration update of a PTP target element.
    */
   public static ITargetElement createRemoteConnection(final String connectionName, 
-                                                      final Map<String, String> attributes) throws RemoteConnectionException {
+                                                      final Map<String, String> attributes) throws RemoteConnectionException, 
+                                                                                                   CoreException {
     final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
     final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
     final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
     final String id = EnvironmentPlugin.getDefault().getEnvironmentUniqueID();
-    final TargetElement targetElement = new TargetElement(targetTypeElement, connectionName, attributes, id);
-    targetTypeElement.addElement(targetElement);
-    rmConnManager.getConnections();
-    return targetElement;
+    ITargetElement finalTargetElement = null;
+    for (final ITargetElement targetElement : targetTypeElement.getElements()) {
+      if (targetElement.getName().equals(connectionName)) {
+        targetElement.setAttributes(attributes);
+        targetElement.getControl().updateConfiguration();
+        finalTargetElement = targetElement;
+        break;
+      }
+    }
+    if (finalTargetElement == null) {
+      finalTargetElement = new TargetElement(targetTypeElement, connectionName, attributes, id);
+      targetTypeElement.addElement((TargetElement) finalTargetElement);
+      rmConnManager.getConnections();
+    }
+    return finalTargetElement;
   }
   
   /**
@@ -109,7 +122,8 @@ public final class PTPConfUtils {
    * @param platformConf The X10 platform configuration to use.
    * @return A non-null resource manager if the creation went smoothly.
    * @throws RemoteConnectionException Occurs if we could not create a new valid remote connection for the resource manager.
-   * @throws CoreException Occurs if we could not create the service provider from the plugin extension mechanism.
+   * @throws CoreException Occurs if we could not create the service provider from the plugin extension mechanism, or
+   * if the update of a PTP target element failed.
    */
   public static IResourceManager createResourceManager(final IX10PlatformConf platformConf) throws RemoteConnectionException,
   																																																 CoreException {
@@ -235,7 +249,6 @@ public final class PTPConfUtils {
       final IResourceManager sameRMName = findResourceManager(platformConf.getName());
       if (sameRMName != null) {
         sameRMName.shutdown();
-//        PTPCorePlugin.getDefault().getModelManager().removeResourceManager((IResourceManagerControl) sameRMName);
         final IResourceManagerConfiguration rmConf = ((IResourceManagerControl) sameRMName).getConfiguration();
         final ServiceModelManager modelManager = ServiceModelManager.getInstance();
         loop:
