@@ -190,11 +190,9 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
                                 final EValidationStatus validationStatus) {
-    if (isLocal) {
-      getHeaderForm().getMessageManager().removeMessage(this.fConnKey);
-      if (this.fValidateAction.isEnabled()) {
-        this.fValidateAction.setImageDescriptor(X10PlatformConfFormEditor.this.fUncheckedPlatformImg);
-      }
+    getHeaderForm().getMessageManager().removeMessage(this.fConnKey);
+    if (this.fValidateAction.isEnabled()) {
+      this.fValidateAction.setImageDescriptor(this.fUncheckedPlatformImg);
     }
   }
   
