@@ -135,6 +135,8 @@ public class LaunchMessages extends NLS {
 
 	public static String CLCD_FoundErrorMarkers;
 
+  public static String CLCD_FoundPlatformConfErrors;
+
   public static String CLCD_LaunchCreationTaskName;
 
   public static String CLCD_LinkCmdError;
@@ -166,6 +168,8 @@ public class LaunchMessages extends NLS {
   public static String CLCD_NoRemoteServices;
 
   public static String CLCD_NoResManagerError;
+
+  public static String CLCD_NoRMQueueError;
 
   public static String CLCD_PathNotFound;
 
@@ -362,6 +366,10 @@ public class LaunchMessages extends NLS {
   public static String RMCP_RemoteConnBt;
 
   public static String RMCP_RemoteConnDataInfo;
+
+  public static String RMCP_RemoteConnErrorMsg;
+
+  public static String RMCP_RemoteConnErrorTitle;
 
   public static String RMCP_RemoteConnGroupName;
 
