@@ -34,6 +34,7 @@ import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
+import polyglot.ast.Id;
 import polyglot.ast.Id_c;
 import polyglot.ast.Import_c;
 import polyglot.ast.IntLit_c;
@@ -117,6 +118,7 @@ import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
+import x10.ast.X10Return_c;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
 import x10.emitter.CastExpander;
@@ -1326,7 +1328,88 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        }
 	    }
 	    
-		X10Context context = (X10Context) tr.context();
+	    X10Context context = (X10Context) tr.context();
+	    
+	    if (xts.isRail(c.target().type()) || xts.isValRail(c.target().type())) {
+	        String methodName = c.methodInstance().name().toString();
+	        if (methodName.equals("make")) {
+	            Type rt = X10TypeMixin.baseType(c.type());
+	            if (rt instanceof X10ClassType) {
+	                Type pt = ((X10ClassType) rt).typeArguments().get(0);
+	                if (!(X10TypeMixin.baseType(pt) instanceof ParameterType)) {
+	                    // for makeVaxRail(type,length,init);
+	                    if (c.arguments().size() == 2 && c.arguments().get(0).type().isNumeric()) {
+	                        Expr expr = c.arguments().get(1);
+	                        if (expr instanceof Closure_c) {
+	                            Closure_c closure = (Closure_c) expr;
+	                            final List<Stmt> statements = closure.body().statements();
+	                            if (!throwException(statements)) {
+	                                
+	                                Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+	                                tr2 = tr2.context(expr.enterScope(tr2.context()));
+	                                
+	                                final Expander ex;
+	                                if (pt.isBoolean() || pt.isNumeric() || pt.isChar()) {
+	                                    ex = new TypeExpander(er, pt, false, false, false);
+	                                } else {
+	                                    ex = new Expander(er) {
+	                                        public void expand(Translator tr2) {w.write("Object");}
+	                                    };
+	                                }
+	                                final Node n = c;
+	                                final Id id = closure.formals().get(0).name();
+	                                Expander ex1 = new Expander(er) {
+                                            @Override
+                                            public void expand(Translator tr2) {
+                                                for (Stmt stmt : statements) {
+                                                    if (stmt instanceof X10Return_c) {
+                                                        w.write("(");
+                                                        w.write("(");
+                                                        ex.expand();
+                                                        w.write("[])");
+                                                        w.write("array.value");
+                                                        w.write(")");
+                                                        w.write("[");
+                                                        w.write(id.toString());
+                                                        w.write("] = ");
+                                                        er.prettyPrint(((X10Return_c) stmt).expr(), tr2);
+                                                        w.write(";");
+                                                    }
+                                                    else {
+                                                        er.prettyPrint(stmt, tr2);
+                                                    }
+                                                }
+                                            }
+                                        };
+                                        
+	                                Object[] components = {
+                                            new TypeExpander(er, c.target().type(), false, true, false),
+                                            new TypeExpander(er, pt, true, true, false),
+                                            new RuntimeTypeExpander(er, pt),
+                                            c.arguments().get(0),
+                                            ex1,
+                                            id
+	                                };
+	                                er.dumpRegex("rail-make", components, tr2, 
+	                                        "(new java.lang.Object() {" +
+	                                    	    "final #0<#1> apply(int length) {" +
+	                                    	        "#0<#1> array = new #0<#1>(#2, #3);" +
+	                                    	            "for (int #5$ = 0; #5$ < length; #5$++) {" +
+	                                    		        "final int #5 = #5$;" +
+	                                    		        "#4" +
+	                                    		    "}" +
+	                                    		"return array;" +
+	                                             "}" +
+	                                         "}.apply(#3))");
+	                                
+	                                return;
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
 
 		Receiver target = c.target();
 		Type t = target.type();
