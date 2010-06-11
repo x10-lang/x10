@@ -65,7 +65,7 @@ public class JavaCaster extends ContextVisitor {
         if (n instanceof X10Call) {
             X10Call call = (X10Call) n;
             if (!(X10TypeMixin.baseType(call.type()) instanceof ParameterType)) {
-                if (xts.isRail(call.target().type())) {
+                if (call.target() != null && xts.isRail(call.target().type())) {
                     // e.g) val str = rail(0) = "str";
                     //   -> val str = (String)(rail(0) = "str");
                     if (!(parent instanceof Eval)) {
