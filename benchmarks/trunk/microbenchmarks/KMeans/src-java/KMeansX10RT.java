@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import java.util.Arrays;
+
 import x10.x10rt.ActiveMessage;
 import x10.x10rt.MessageRegistry;
 import x10.x10rt.Place;
@@ -18,99 +20,113 @@ import x10.x10rt.X10RT;
  * A KMeans object o can compute K means of a given set of 
  * points of dimension o.myDim.
  * <p> 
- * This class implements a sequential program, that is readily parallelizable.
  * 
- * A translation of the x10.dist/samples/KMeans.x10 program to Java
+ * A translation of the x10.dist/samples/KMeansSPMD.x10 program to Java+X10RT
  */
 public class KMeansX10RT {
     
-    static SumVector[] redCluster;
-    static SumVector[] blackCluster;
+    private static float[] redClusterPoints;
+    private static int[] redClusterCounts;
+    private static float[] blackClusterPoints;
     
-    static ActiveMessage computeMeansAM;
-    static ActiveMessage accumulateResultAM;
+    private static ActiveMessage computeMeansAM;
+    private static ActiveMessage accumulatePointsAM;
+    private static ActiveMessage accumulateCountsAM;
     
     /**
      * Compute myK means for the given set of points of dimension myDim.
      */
-    public static void computeMeans(int myK, int numIterations, float EPS, int numPoints, int numDimensions, float[] initialCluster, float[] points) {
+    public static void computeMeans(int myK, int numIterations, int numPoints, int numDimensions, float[] initialCluster, float[] points) {
         assert numDimensions * myK == initialCluster.length;
-        redCluster = new SumVector[myK];
-        for (int i=0; i<myK; i++) {
-            redCluster[i] = new SumVector(numDimensions, initialCluster, i);
-        }
-        blackCluster = new SumVector[myK];
-        for (int i=0; i<myK; i++) {
-            blackCluster[i] = new SumVector(numDimensions);
-        }
+        
+        redClusterPoints = new float[myK*numDimensions];
+        System.arraycopy(initialCluster, 0, redClusterPoints, 0, redClusterPoints.length);
+        blackClusterPoints = new float[myK*numDimensions];
+        redClusterCounts = new int[myK];
 
         X10RT.barrier();
         
-        for (int i = 1; i <= numIterations; i++) {
-            SumVector[] tmp = redCluster;
-            redCluster = blackCluster;
-            blackCluster = tmp;
-            for (int p= 0; p<numPoints; p++) {
+        for (int iteration = 1; iteration <= numIterations; iteration++) {
+            float[] swapTmp = redClusterPoints;
+            redClusterPoints = blackClusterPoints;
+            blackClusterPoints = swapTmp;
+ 
+            // For all points assigned to me, compute the closest current cluster
+            // and add the point into that cluster for the next iteration.
+            for (int pointNumber = 0; pointNumber<numPoints; pointNumber++) {
                 int closest = -1;
                 float closestDist = Float.MAX_VALUE;
-                for (int k=0; k<myK; k++) { // compute closest mean in cluster.
-                    float dist = blackCluster[k].distance(numDimensions, points, p);
+                for (int k=0; k<myK; k++) {
+                    float dist = 0;
+                    for (int dim=0; dim<numDimensions; dim++) {
+                        float tmp = blackClusterPoints[k*numDimensions + dim] - points[pointNumber*numDimensions + dim];
+                        dist += tmp*tmp;
+                    }
                     if (dist < closestDist) {
                         closestDist = dist;
                         closest = k;
                     }
                 }
-                redCluster[closest].addIn(numDimensions, points, p);
-            }
+                for (int dim=0; dim<numDimensions; dim++) {
+                    redClusterPoints[closest*numDimensions +dim] += points[pointNumber*numDimensions + dim];
+                }
+                redClusterCounts[closest]++;
+           }
  
+            // Collective accumulation operations.
+            // Accumulate the redClusterPoints and redClusterCounts into every place.
             X10RT.barrier();
             for (int recv = 0; recv<X10RT.numPlaces(); recv++) {
                 Place p = X10RT.getPlace(recv);
                 if (p != X10RT.here()) {
-                    accumulateResultAM.send(p, (Object)redCluster);
+                    accumulatePointsAM.send(p, redClusterPoints);
+                    accumulateCountsAM.send(p, redClusterCounts);
                 }
             }
             X10RT.barrier();
             
+            // Local reduction: adjust cluster coordinates by dividing each point value
+            // by the number of points in the cluster
             for (int k=0; k<myK; k++) {
-                redCluster[k].normalize();
-            }
-            
-            boolean converged = true;
-            for (int k=0; k<myK; k++) {
-                if (redCluster[k].distance(blackCluster[k]) > EPS) {
-                    converged=false;
-                    break;
+                float tmp = (float)redClusterCounts[k];
+                for (int dim=0; dim<numDimensions; dim++) {
+                    redClusterPoints[k*numDimensions+dim] /= tmp;
                 }
             }
-            if (converged) 
-                break;
-            for (int k=0; k<myK; k++) {
-                blackCluster[k].makeZero();
-            }
+            
+            // Reset for the next iteration
+            Arrays.fill(redClusterCounts, 0);
+            Arrays.fill(blackClusterPoints, 0.0f);
         } 
     }
     
-    public static synchronized void accumulateResult(SumVector[] otherCluster) {
-        for (int i=0; i<redCluster.length; i++) {
-            redCluster[i].addIn(otherCluster[i]);
+    public static synchronized void accumulatePoints(float[] other) {
+        for (int i=0; i<redClusterPoints.length; i++) {
+            redClusterPoints[i] += other[i];
         }
     }
     
+    public static synchronized void accumulateCounts(int[] other) {
+        for (int i=0; i<redClusterCounts.length; i++) {
+            redClusterCounts[i] += other[i];
+        }
+    }
+
     public static void main (String[] args) {
         Class<?> floatArray = new float[0].getClass();
+        Class<?> intArray = new int[0].getClass();
         computeMeansAM = MessageRegistry.register(KMeansX10RT.class, "computeMeans", 
-                                                Integer.TYPE, Integer.TYPE, Float.TYPE,
+                                                Integer.TYPE, Integer.TYPE,
                                                 Integer.TYPE, Integer.TYPE, floatArray, floatArray);
-        accumulateResultAM = MessageRegistry.register(KMeansX10RT.class, "accumulateResult", new SumVector[0].getClass());
-                                                
+        accumulatePointsAM = MessageRegistry.register(KMeansX10RT.class, "accumulatePoints", floatArray);
+        accumulateCountsAM = MessageRegistry.register(KMeansX10RT.class, "accumulateCounts", intArray);
+                                               
         X10RT.barrier();
         
         if (X10RT.here() == X10RT.getPlace(0)) {
             String fileName = "points.dat";
             int K = 4;
             int iterations = 50;
-            float EPS = 0.1f;
             int argIndex = 0;
 
             while (argIndex < args.length) {
@@ -119,8 +135,6 @@ public class KMeansX10RT {
                     K = Integer.parseInt(args[argIndex++]);   
                 } else if (arg.equals("-i")) {
                     iterations = Integer.parseInt(args[argIndex++]);
-                } else if (arg.equals("-e")) {
-                    EPS = Float.parseFloat(args[argIndex++]);
                 } else {
                     fileName = arg;
                 }
@@ -139,16 +153,22 @@ public class KMeansX10RT {
                 float[] points = new float[numPoints*data.numDimensions];
                 System.arraycopy(data.points, start, points, 0, points.length);
                 System.out.println("Sending points "+start+"..."+stop+" to place "+i);
-                computeMeansAM.send(X10RT.getPlace(i), K, iterations, EPS, numPoints, data.numDimensions, initialCluster, points);
+                computeMeansAM.send(X10RT.getPlace(i), K, iterations, numPoints, data.numDimensions, initialCluster, points);
             }
+            
+            // Now, initiate the computation in my place.
             float[] points = new float[pointsPerPlace*data.numDimensions];
             System.arraycopy(data.points, 0, points, 0, points.length);
             System.out.println("Computing points "+0+"..."+(pointsPerPlace-1)+" at place 0");
-            computeMeans(K, iterations, EPS, pointsPerPlace, data.numDimensions, initialCluster, points);
+            computeMeans(K, iterations, pointsPerPlace, data.numDimensions, initialCluster, points);
         
-            SumVector[] result =  redCluster;
+            // All done. Print the results
             for (int k=0; k<K; k++) {
-                result[k].print();
+                for (int j=0; j<data.numDimensions; j++) {
+                    if (j>0) System.out.print(" ");
+                    System.out.print(redClusterPoints[k*data.numDimensions+j]);
+                }
+                System.out.println();
             }
             System.out.println();
         }
