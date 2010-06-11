@@ -20,6 +20,9 @@ public abstract class CallTableVal  implements Serializable {
 	 */
 	public enum Arity {One, ZerOrOne, Unbounded}
 	public final String scope;
+	public final String name;
+	public final int line;
+	public final int column;
 	public Arity a;
 	public int blk;
 	public CallTableKey aslast;
@@ -27,14 +30,20 @@ public abstract class CallTableVal  implements Serializable {
 	    return a;
 	}
 	
-	public CallTableVal(String s, int b){
-	    scope = renameMethod(s);
+	public CallTableVal(String s, String n, int l, int c, int b){
+	    scope = s;
+	    name = n;
+	    line = l;
+	    column = c;
 	    blk = b;
 	    aslast = null;
 	    a = Arity.One;
 	}
-	public CallTableVal(String s, int b, Arity a){
-	    scope = renameMethod(s);
+	public CallTableVal(String s,String n, int l, int c, int b, Arity a){
+	    scope = s;
+	    name = n;
+	    line = l;
+	    column = c;
 	    blk = b;
 	    aslast = null;
 	    this.a = a;
@@ -67,20 +76,6 @@ public abstract class CallTableVal  implements Serializable {
 	    case Unbounded:
 		break;
 	    }
-	}
-	
-	public String renameMethod(String name) {
-	    if (name.contains("activity") && (name.contains(">"))) {
-		int first_colon = name.indexOf(':');
-		int second_colon = name.indexOf(':', first_colon + 1);
-		String file_name = name.substring(first_colon + 1, second_colon);
-		int last = name.indexOf('>');
-		String line = name.substring(second_colon + 1, last);
-		int hashed_name = file_name.hashCode();
-		return "activity"+file_name+":"+line;
-		//return "activity" + String.valueOf(hashed_name) + ":" + line;
-	    }
-	    return name;
 	}
 	public abstract int hashCode();
 	public abstract String toString();
