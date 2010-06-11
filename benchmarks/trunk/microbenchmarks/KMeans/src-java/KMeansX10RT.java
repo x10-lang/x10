@@ -28,6 +28,7 @@ public class KMeansX10RT {
     private static float[] redClusterPoints;
     private static int[] redClusterCounts;
     private static float[] blackClusterPoints;
+    private static volatile int reductionCount;
     
     private static ActiveMessage computeMeansAM;
     private static ActiveMessage accumulatePointsAM;
@@ -50,6 +51,7 @@ public class KMeansX10RT {
             float[] swapTmp = redClusterPoints;
             redClusterPoints = blackClusterPoints;
             blackClusterPoints = swapTmp;
+            reductionCount = 2*(X10RT.numPlaces()-1);
  
             // For all points assigned to me, compute the closest current cluster
             // and add the point into that cluster for the next iteration.
@@ -73,7 +75,7 @@ public class KMeansX10RT {
                 redClusterCounts[closest]++;
            }
  
-            // Collective accumulation operations.
+            // All-to-All collective accumulation operations.
             // Accumulate the redClusterPoints and redClusterCounts into every place.
             X10RT.barrier();
             for (int recv = 0; recv<X10RT.numPlaces(); recv++) {
@@ -81,9 +83,9 @@ public class KMeansX10RT {
                 if (p != X10RT.here()) {
                     accumulatePointsAM.send(p, redClusterPoints);
                     accumulateCountsAM.send(p, redClusterCounts);
-                }
+               }
             }
-            X10RT.barrier();
+            while (reductionCount > 0) X10RT.probe(); // Can't use a barrier, because we have to await the completion of the reduction.
             
             // Local reduction: adjust cluster coordinates by dividing each point value
             // by the number of points in the cluster
@@ -104,12 +106,14 @@ public class KMeansX10RT {
         for (int i=0; i<redClusterPoints.length; i++) {
             redClusterPoints[i] += other[i];
         }
+        reductionCount--;
     }
     
     public static synchronized void accumulateCounts(int[] other) {
         for (int i=0; i<redClusterCounts.length; i++) {
             redClusterCounts[i] += other[i];
         }
+        reductionCount--;
     }
 
     public static void main (String[] args) {
@@ -156,6 +160,8 @@ public class KMeansX10RT {
                 computeMeansAM.send(X10RT.getPlace(i), K, iterations, numPoints, data.numDimensions, initialCluster, points);
             }
             
+            X10RT.barrier(); // matched in else clause
+            
             // Now, initiate the computation in my place.
             float[] points = new float[pointsPerPlace*data.numDimensions];
             System.arraycopy(data.points, 0, points, 0, points.length);
@@ -171,9 +177,11 @@ public class KMeansX10RT {
                 System.out.println();
             }
             System.out.println();
+        } else {
+            X10RT.barrier();  // matched the barrier in place 0 in "then clause" above
         }
         
-        X10RT.barrier();
+        X10RT.barrier(); // make sure no one exits until we are all done.
     }
 }
 
