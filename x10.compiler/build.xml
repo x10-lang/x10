@@ -17,14 +17,12 @@
     <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="polyglot.bytecode.jar" value="polyglot-bytecode.jar"/>
     <property name="asm.jar" value="asm.jar"/>
-    <property name="runtime.jar" value="x10.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
         <path refid="polyglot.classpath"/>
         <path refid="polyglot.bytecode.classpath"/>
         <path refid="asm.classpath"/>
-        <path refid="x10.runtime.classpath"/>
         <path refid="x10.constraints.classpath"/>
         <path refid="x10.common.classpath"/>
     </path>
@@ -42,9 +40,6 @@
     </path>
     <path id="asm.classpath">
         <pathelement location="${lib}/${asm.jar}"/>
-    </path>
-    <path id="x10.runtime.classpath">
-        <pathelement location="${lib}/${runtime.jar}"/>
     </path>
     <path id="x10.constraints.classpath">
         <pathelement location="${x10.constraints.location}/classes"/>
@@ -172,6 +167,8 @@
         <arg value="polyglot"/>
         <arg value="x10.compiler"/>
         <arg value="x10.runtime"/>
+        <arg value="x10.common"/>
+        <arg value="x10.constraints"/>
       </exec>
     </target>
 </project>
