@@ -145,6 +145,15 @@
          install-size="0"
          version="2.0.4.qualifier"
          fragment="true"/>
+         
+   <plugin
+         id="x10.dist.macosx.x86_64.fragment"
+         os="macosx"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="2.0.4.qualifier"
+         fragment="true"/>
 
    <plugin
          id="x10.dist.win32.x86.fragment"
@@ -161,14 +170,5 @@
          install-size="0"
          version="1.0.0"
          unpack="false"/>
-
-   <plugin
-         id="x10.dist.macosx.x86.fragment"
-         os="macosx"
-         arch="x86_64"
-         download-size="0"
-         install-size="0"
-         version="2.0.4.qualifier"
-         fragment="true"/>
 
 </feature>
