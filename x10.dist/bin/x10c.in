@@ -73,12 +73,6 @@ fi
 extargs=""
 # [DC] assert should be off by default
 # extargs="$extargs -assert"
-# FIXME: HACK (at Vijay's request)
-# FIXME: [DC] this is now a no-op?
-# To be removed once serialization of types is fixed in x10c
-# HACK!!! HACK!!! HACK!!! vvv
-extargs="$extargs -noserial"
-# HACK!!! HACK!!! HACK!!! ^^^
 
 classpath="${CP_OVERRIDE}"
 [ -n "$dev" ] && classpath="${classpath}${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot3-dev${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"

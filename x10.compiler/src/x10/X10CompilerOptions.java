@@ -23,6 +23,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
 
 	public X10CompilerOptions(ExtensionInfo extension) {
 		super(extension);
+		serialize_type_info = false; // turn off type info serialization for X10
 	}
 
 	protected int parseCommand(String args[], int index, Set source) 
