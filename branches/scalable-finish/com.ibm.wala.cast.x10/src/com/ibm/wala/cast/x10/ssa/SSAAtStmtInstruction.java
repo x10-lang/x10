@@ -11,18 +11,14 @@ import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
 
 public class SSAAtStmtInstruction extends SSAInstruction {
-  public int line;
-  public int column;
-  public SSAAtStmtInstruction(final boolean isEnter, int l, int c) {
-	this.line = l;
-	this.column = c;
+  public SSAAtStmtInstruction(final boolean isEnter) {
     this.fIsEnter = isEnter;
   }
   
   // --- SSAInstruction's abstract methods implementation
 
   public SSAInstruction copyForSSA(final SSAInstructionFactory instrFactory, final int[] defs, final int[] uses) {
-    return ((X10InstructionFactory) instrFactory).AtStmt(this.fIsEnter,this.line,this.column);
+    return ((X10InstructionFactory) instrFactory).AtStmt(this.fIsEnter);
   }
   
   public int hashCode() {

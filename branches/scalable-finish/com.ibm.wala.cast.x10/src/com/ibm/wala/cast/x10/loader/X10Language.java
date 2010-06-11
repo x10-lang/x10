@@ -184,8 +184,8 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
       return new SSAAtomicInstruction(isEnter);
     }
 
-    public SSAFinishInstruction Finish(boolean isEnter, int line, int column) {
-      return new SSAFinishInstruction(isEnter, line, column);
+    public SSAFinishInstruction Finish(boolean isEnter) {
+      return new SSAFinishInstruction(isEnter);
     }
 
     public SSAForceInstruction Force(int retValue, int targetValue, TypeReference valueType) {
@@ -216,8 +216,8 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
       return new NewTupleInstruction(retValue, slotValues);
     }
     
-    public SSAAtStmtInstruction AtStmt(final boolean isEnter, int line, int column) {
-      return new SSAAtStmtInstruction(isEnter, line, column);
+    public SSAAtStmtInstruction AtStmt(final boolean isEnter) {
+      return new SSAAtStmtInstruction(isEnter);
     }
     
   }
