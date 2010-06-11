@@ -6,14 +6,6 @@ package x10.finish.table;
 public class CallTableFinishKey extends CallTableKey {
 	
 	private static final long serialVersionUID = 1L;
-	public final String sig;
-	/**
-	 *  the start line of the finish instruction in the source code */
-	public int line;
-	/**
-	 *  the start column of the finish instruction in the source  */
-	public int column;
-	
 	/**
 	 * true if this object represents a "finish" contruct in the program
 	 * otherwise it represents an "at"
@@ -27,12 +19,9 @@ public class CallTableFinishKey extends CallTableKey {
 	public CallTableFinishKey(String s, int line, int column, 
 		int b, boolean f) {
 		// finish = f;
-		super(s);
-		this.line = line;
-		this.column = column;
+		super(s,"",line,column);
 		blk = b;
 		is_finish = f;
-		sig = genSignature();
 	}
 	
 	public String genSignature(){
@@ -47,7 +36,7 @@ public class CallTableFinishKey extends CallTableKey {
 	}
 	
 	public String toString() {
-	    return sig;
+	    return genSignature();
 	}
 
 	public boolean equals(Object o) {
