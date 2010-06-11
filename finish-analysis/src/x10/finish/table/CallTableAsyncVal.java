@@ -1,5 +1,6 @@
 package x10.finish.table;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 
@@ -12,75 +13,58 @@ import java.util.LinkedList;
 public class CallTableAsyncVal extends CallTableVal {
 
     private static final long serialVersionUID = 1L;
-    public String sig;
     public final boolean is_async;
-    public final int line,column;
-    public int pc;
-    public CallTableAsyncVal(String str, int pc, int b,boolean is_async) {
-	super(str,b);
-	this.pc = pc;
-	 
-	sig = genSignature();
+    public final CallSite cs;
+    public CallTableAsyncVal(String method_pack, String method_name, int method_line, int method_column, 
+	    String callsite_pack, String callsite_name, int callsite_line, int callsite_column, int b, boolean is_async) {
+	super(method_pack,method_name,method_line,method_column,b);
+	cs = new CallSite(callsite_pack, callsite_name, callsite_line,callsite_column);
 	this.is_async = is_async;
-	if(!is_async){
-	    line = -1;
-	    column = -1;
-	   
-	}
-	else{
-	    int i1 = sig.indexOf(':');
-	    int i2 = sig.indexOf(':', i1+1);
-	    int i3 = sig.indexOf('@',i2+1);
-	    String l = sig.substring(i1+1,i2);
-	    String c = sig.substring(i2+1,i3);
-	    line = Integer.valueOf(l).intValue();
-	    column = Integer.valueOf(c).intValue();
-	}
-    	
     }
-    public CallTableAsyncVal(String str, Arity a, int pc,int b, boolean is_async) {
-	super(str,b,a);
-	this.pc = pc;
-	 
-	sig = genSignature();
+    public CallTableAsyncVal(String method_pack, String method_name, int method_line, int method_column, 
+	    Arity a, String callsite_pack, String callsite_name, int callsite_line, int callsite_column, int b, boolean is_async) {
+	super(method_pack,method_name,method_line,method_column,b,a);
+	cs = new CallSite(callsite_pack,callsite_name, callsite_line,callsite_column);
 	this.is_async = is_async;
-	if(!is_async){
-	    line = -1;
-	    column = -1;
-	   
-	}
-	else{
-	    int i1 = sig.indexOf(':');
-	    int i2 = sig.indexOf(':', i1+1);
-	    int i3 = sig.indexOf('@',i2+1);
-	    String l = sig.substring(i1+1,i2);
-	    String c = sig.substring(i2+1,i3);
-	    line = Integer.valueOf(l).intValue();
-	    column = Integer.valueOf(c).intValue();
-	}
     }
-    
-    
     public String genSignature(){
-	return scope+"@"+pc;
+	return scope+"."+line+"."+column+"@"+cs.toString();
     }
     public boolean equals(Object o) {
 	boolean result = false;
 	if (o instanceof CallTableAsyncVal){
-	    result = sig.equals(((CallTableAsyncVal) o).sig);
+	    result = genSignature().equals(((CallTableAsyncVal) o).genSignature());
 	}
 	return result;
     }
     public int hashCode(){
-	return sig.hashCode();
+	return genSignature().hashCode();
     }
     public String toString(){
 	String tmp="";
 	if(aslast!=null){
 	    tmp = "-last";
 	}
-	return a.toString()+"-"+sig+tmp;
+	return a.toString()+"-"+scope+"."+name+"."+line+"."+column+"-"+cs.toString()+tmp;
     }
+}
 
-    
+class CallSite implements Serializable{
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    public final int line;
+    public final int column;
+    public final String srcpack;
+    public final String srcname;
+    public CallSite(String s, String n, int l, int c){
+	srcpack = s;
+	srcname = n;
+	line = l;
+	column = c;
+    }
+    public String toString(){
+	return srcpack+"."+srcname+"."+line+"."+column;
+    }
 }

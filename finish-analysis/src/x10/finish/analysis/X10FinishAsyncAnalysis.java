@@ -28,11 +28,13 @@ import x10.finish.table.CallTableVal;
 import x10.finish.util.CallTableUtil;
 import x10.finish.util.FinishAsyncNode;
 import x10.finish.util.GraphUtil;
+import x10.finish.util.MyExceptionPrunedCFG;
 import x10.finish.util.NatLoop;
 import x10.finish.util.NatLoopSolver;
 import x10.finish.util.OutputUtil;
 
 import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
+import com.ibm.wala.cast.loader.AstMethod;
 import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;
 import com.ibm.wala.cast.x10.ssa.*;
 import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
@@ -40,7 +42,9 @@ import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.cfg.ControlFlowGraph;
 import com.ibm.wala.cfg.IBasicBlock;
 import com.ibm.wala.cfg.ShrikeCFG;
+import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.classLoader.IBytecodeMethod;
+import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.classLoader.SourceDirectoryTreeModule;
 import com.ibm.wala.classLoader.SourceFileModule;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
@@ -86,7 +90,7 @@ import com.ibm.wala.viz.NodeDecorator;
  * @author baolin
  */
 public class X10FinishAsyncAnalysis {
-    
+    HashMap<SSAInstruction,Integer> instmap;
     public static String os;
     static{
 	if(System.getProperty("os.name").contains("Linux")){
@@ -172,7 +176,7 @@ public class X10FinishAsyncAnalysis {
     private CallTableVal.Arity checkAsync(ISSABasicBlock finish,
 	    ISSABasicBlock async) {
 	if (invert_dom.isDominatedBy(finish, async)) {
-	    /* finish{ async } */
+	     //finish{ async } 
 	    return CallTableVal.Arity.One;
 	}
 	if (NatLoopSolver.containsNode(loops, async)) {
@@ -180,18 +184,18 @@ public class X10FinishAsyncAnalysis {
 		HashSet<NatLoop> fl = NatLoopSolver.getLoops(loops, finish);
 		HashSet<NatLoop> al = NatLoopSolver.getLoops(loops, async);
 		if (fl.equals(al)) {
-		    /* for(){ finish{ async } } */
+		     //for(){ finish{ async } } 
 		    return CallTableVal.Arity.One;
 		}
-		/* for(){ finish{ for(){ async } } } */
+		 //for(){ finish{ for(){ async } } } 
 		return CallTableVal.Arity.Unbounded;
 	    }
 
-	    /* finish{ for(){ async } } */
+	     //finish{ for(){ async } } 
 	    return CallTableVal.Arity.Unbounded;
 
 	}
-	/* finish{ if(){ async } } */
+	 //finish{ if(){ async } } 
 	return CallTableVal.Arity.ZerOrOne;
 
     }
@@ -199,20 +203,16 @@ public class X10FinishAsyncAnalysis {
     private void visitFinishInstruction(
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
 	    AnalysisEnvironment env, SSAFinishInstruction finst) {
-
+	int index = instmap.get(finst).intValue();
+	int line = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
+	int column = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
 	if (finst.isFinishEnter()) {
-
-	    int line = finst.getLine();
-	    int column = finst.getColumn();
-	    /* use stack to handle nested finish */
+	     //use stack to handle nested finish 
 	    assert(env.cur_scope!=null);
 	    env.uncompleted_scope.push(env.cur_scope);
-	    //FIXME: scope = file is enough, because we have line and column
-	    String scope = cg.getNode(env.cur_method_node).getMethod()
-		    .getSignature();
-	    System.err.println("scope:"+scope);
-	    env.cur_scope = new CallTableFinishKey(scope, line, column,
-		    env.cur_block,true);
+	    CGNode caller = cg.getNode(env.cur_method_node);
+	    String scope = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
+ 	    env.cur_scope = new CallTableFinishKey(scope, line, column,env.cur_block,true);
 	    // System.out.println(env.cur_finish.toString());
 	    calltable.put(env.cur_scope, new LinkedList<CallTableVal>());
 	} else {
@@ -228,12 +228,13 @@ public class X10FinishAsyncAnalysis {
 
     private void visitAtInstruction(
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
-	    AnalysisEnvironment env, SSAAtStmtInstruction atinst, int inst_cnt) {
+	    AnalysisEnvironment env, SSAAtStmtInstruction atinst) {
 
 	ISSABasicBlock curblk = (epcfg.getNode(env.cur_block));
+	int instindex = instmap.get(atinst).intValue();
+	int line = ((AstMethod) epcfg.getMethod()).getSourcePosition(instindex).getFirstLine();
+	int column = ((AstMethod) epcfg.getMethod()).getSourcePosition(instindex).getLastCol();
 	if (atinst.toString().contains("enter")) {
-	    // at enter
-	    
 	    assert(env.cur_scope!=null);
 	    CallTableKey tmpkey = env.cur_scope;
 	    if (tmpkey instanceof CallTableFinishKey) {
@@ -241,26 +242,25 @@ public class X10FinishAsyncAnalysis {
 		ISSABasicBlock fb = epcfg.getNode(cf.blk);
 		CallTableVal.Arity arity = checkAsync(fb, curblk);
 		CallTableAtVal atval = 
-		    new CallTableAtVal(env.cur_scope.scope,arity,atinst.line,
-			    atinst.column,env.cur_block);
+		    new CallTableAtVal(env.cur_scope.scope,"",arity,line,
+			    column,env.cur_block);
 		last_inst = atval;
 		replaceTable(tmpkey, atval);
 	    } else {
 		ISSABasicBlock root = epcfg.entry();
 		CallTableVal.Arity arity = checkAsync(root, curblk);
 		CallTableAtVal atval = new CallTableAtVal(env.cur_scope.scope,
-			arity,atinst.line,atinst.column,env.cur_block);
+			"",arity,line,column,env.cur_block);
 		//System.err.println(atval.toString());
 		last_inst = atval;
 		replaceTable(tmpkey, atval);
 		
 	    }
 	    env.uncompleted_scope.push(env.cur_scope);
-	    String sig = cg.getNode(env.cur_method_node).getMethod()
-		    .getSignature();
+	    CGNode caller = cg.getNode(env.cur_method_node);
+	    String scope = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
 	    //-1 is the dummy blk
-	  //FIXME: sig = file is enough, because we have line and column
-	    env.cur_scope = new CallTableFinishKey(sig,atinst.line,atinst.column,env.cur_block,false);
+	    env.cur_scope = new CallTableFinishKey(scope,line,column,env.cur_block,false);
 	    calltable.put(env.cur_scope, new LinkedList<CallTableVal>());
 	} else {
 	    // at exit
@@ -274,7 +274,7 @@ public class X10FinishAsyncAnalysis {
 	    CallTableFinishKey curkey = (CallTableFinishKey)env.cur_scope;
 	    //mark the current "at" as the last instruction for its scope
 	    // create a dummy CallTableAtVal with the same signature as the target one in the talbe 
-	    CallTableAtVal tmpatval = new CallTableAtVal(curkey.scope,curkey.line,
+	    CallTableAtVal tmpatval = new CallTableAtVal(curkey.scope,"",curkey.line,
 		    curkey.column,env.cur_block);
 	    //System.err.println(tmpatval.toString());
 	    assert(env.uncompleted_scope.isEmpty()==false);
@@ -290,12 +290,13 @@ public class X10FinishAsyncAnalysis {
     }
     
     private void updateTable(ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
-	    AnalysisEnvironment env, String val, int pc, boolean is_async){
+	    AnalysisEnvironment env, String defpack, String defname, int defline, int defcol, 
+	    String callpack, String callname, int calline, int callcol, boolean is_async){
 
 	ISSABasicBlock curblk = (epcfg.getNode(env.cur_block));
 	CallTableKey tmpkey = env.cur_scope;
 	//System.err.println(tmpkey.toString());
-	CallTableVal.Arity arity;
+	CallTableVal.Arity arity;	
 	if (tmpkey instanceof CallTableFinishKey) {
 	    CallTableFinishKey cf =(CallTableFinishKey)tmpkey;
 	    ISSABasicBlock fb = epcfg.getNode(cf.blk);
@@ -304,42 +305,63 @@ public class X10FinishAsyncAnalysis {
 	    ISSABasicBlock root = epcfg.entry();
 	    arity = checkAsync(root, curblk);
 	}
-	CallTableAsyncVal atval = new CallTableAsyncVal(val,arity,pc,env.cur_block, is_async);
-	last_inst = atval;
-	replaceTable(tmpkey, atval);
+	CallTableAsyncVal aval = new CallTableAsyncVal(defpack, defname, defline, defcol,arity,
+		callpack, callname, calline, callcol, env.cur_block, is_async);
+	System.err.println("async - " + aval.toString());
+	last_inst = aval;
+	replaceTable(tmpkey, aval);
     }
     private void visitAsyncInstruction(
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
 	    AnalysisEnvironment env, AsyncInvokeInstruction inst) {
 	MethodReference mr = inst
 		.getDeclaredTarget();
-	// each async is different and cannot be invoked twice, 
-	// so use a dummy pc 
-	//FIXME: sig = file is enough, because we have line and column
-	String val = (mr.getSignature().toString());
-	//System.err.println(val);
-	updateTable(epcfg,env,val,-1,true);
+	// each async is different and cannot be invoked twice, so use a dummy pc 
+	String pack = mr.getDeclaringClass().getName().toString();
+	String callsite_pack = env.cur_scope.scope;
+	String callsite_name = env.cur_scope.name;
+	pack = getPackage(pack);
+	int index = instmap.get(inst).intValue();
+	int line = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
+	int column = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
+	updateTable(epcfg,env,pack,"activity",line,column,callsite_pack,callsite_name,line,column,true);
 
     }
     
     private void visitMethodInvocation(
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
 	    AnalysisEnvironment env, AstJavaInvokeInstruction inst) {
-	Set<CGNode> s = cg.getPossibleTargets(cg.getNode(env.cur_method_node),
-		inst.getCallSite());
-	int pc = inst.getCallSite().getProgramCounter();
-	if (s.size() > 0) {
-	    Iterator<CGNode> it = s.iterator();
+	CGNode caller = cg.getNode(env.cur_method_node);
+	String callerpack = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
+	String callername = getName(caller.getMethod().getName().toString());
+	int callerline = ((AstMethod)caller.getMethod()).getSourcePosition().getFirstLine();
+	int callercolumn = ((AstMethod)caller.getMethod()).getSourcePosition().getLastCol();
+	
+	CallSiteReference callsite =inst.getCallSite();
+	Set<CGNode> allcallees = cg.getPossibleTargets(caller,callsite);
+	//System.err.println("caller:"+caller.getMethod().getName().toString());
+	if (allcallees.size() > 0) {
+	    Iterator<CGNode> it = allcallees.iterator();
 	    while (it.hasNext()) {
-		CGNode tmp = it.next();
-		String val = (tmp.getMethod().getSignature().toString());
-		updateTable(epcfg,env,val,pc,false);
+		CGNode callee = it.next();
+		String calleepack = getPackage(callee.getMethod().getDeclaringClass().getName().toString());
+		String calleename = getName(callee.getMethod().getName().toString());
+		//System.err.println("\tcallee:"+calleename);
+		int index = instmap.get(inst).intValue();
+		int calleeline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
+		int calleecolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
+		updateTable(epcfg,env,calleepack,calleename,calleeline,calleecolumn,
+			callerpack,callername,callerline,callercolumn,false);
 	    }
 	} else {
-	  //FIXME: here "file name" is not enough
-	    String val = (inst.getDeclaredTarget().getSignature().toString());
-	    
-	    updateTable(epcfg,env,val,pc,false);
+	    String calleepack = getPackage(inst.getDeclaredTarget().getDeclaringClass().getName().toString());
+	    String calleename = getName(inst.getDeclaredTarget().getName().toString());
+	    //System.err.println("\tcallee:"+name);
+	    int index = instmap.get(inst).intValue();
+	    int calleeline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
+	    int calleecolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
+	    updateTable(epcfg,env,calleepack,calleename,calleeline,calleecolumn,
+			callerpack,callername,callerline,callercolumn,false);
 	}
     }
 
@@ -356,29 +378,30 @@ public class X10FinishAsyncAnalysis {
     private void visitAllInstructions(
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
 	    AnalysisEnvironment env) {
+	
 	//System.out.println("Block "+env.cur_block);
 	ISSABasicBlock curblk = (epcfg.getNode(env.cur_block));
 	assert (curblk != null);
 	visited.add(Integer.valueOf(env.cur_block));
 	int inst_cnt = 0;
 	Iterator<SSAInstruction> itt = curblk.iterator();
-	/* to distiguish finish in each block */
+	 //to distiguish finish in each block 
 	while (itt.hasNext()) {
-	    inst_cnt++;
+	    
 	    SSAInstruction inst = itt.next();
 	    if (inst != null) {
-		/*
-		 * finish instruction: a finish instruction is disassembled into
+		
+		/* finish instruction: a finish instruction is disassembled into
 		 * finish_enter and finish_exit in IR
 		 */
-		//System.out.println("\tinst:"+inst.toString());
+		System.out.println("\tinst:"+inst.toString());
 		if (inst instanceof SSAFinishInstruction) {
 		    SSAFinishInstruction finst = (SSAFinishInstruction) inst;
 		    visitFinishInstruction(epcfg, env, finst);
 		    
 		} else if (inst instanceof SSAAtStmtInstruction) {
 		    SSAAtStmtInstruction atinst = (SSAAtStmtInstruction) inst;
-		    visitAtInstruction(epcfg, env, atinst, inst_cnt);
+		    visitAtInstruction(epcfg, env, atinst);
 		} else if (inst instanceof AsyncInvokeInstruction) {
 		    visitAsyncInstruction(epcfg, env,
 			    (AsyncInvokeInstruction) inst);
@@ -393,6 +416,7 @@ public class X10FinishAsyncAnalysis {
 		    last_inst = null;
 		}
 	    }
+	    inst_cnt++;
 	}
     }
     
@@ -440,15 +464,25 @@ public class X10FinishAsyncAnalysis {
 	    // original control flow graph
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> cfg = ir
 		    .getControlFlowGraph();
+	    
 	    // control flow graph without exception
 	    PrunedCFG<SSAInstruction, ISSABasicBlock> epcfg = ExceptionPrunedCFG.make(cfg);
 	    //ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg = cfg;
 	    if (epcfg != null) {
-		//FIXME: sig = file is enough, because we have line and column
-		CallTableKey ctk = new CallTableMethodKey(md.getMethod()
-			.getSignature());
-		//System.err.println(md.getMethod().getSignature());
-		AnalysisEnvironment env = new AnalysisEnvironment(ctk, nodenum);
+		String _package = 
+		    ((AstMethod) epcfg.getMethod()).getReference().getDeclaringClass().getName().toString();
+		String _name = epcfg.getMethod().getName().toString();
+		_name = getName(_name);
+		_package = getPackage(_package);
+		int line = ((AstMethod) epcfg.getMethod()).debugInfo().getCodeBodyPosition().getFirstLine();
+		int column = ((AstMethod) epcfg.getMethod()).debugInfo().getCodeBodyPosition().getLastCol();
+		CallTableKey ctk = new CallTableMethodKey(_package,_name,line,column);
+		SSAInstruction[] insts = epcfg.getInstructions();
+		instmap = new HashMap<SSAInstruction,Integer>();
+		for(int i=0;i<insts.length;i++){
+		    instmap.put(insts[i], new Integer(i));
+		}	
+		AnalysisEnvironment env = new AnalysisEnvironment(ctk,nodenum,epcfg);
 		visited = new HashSet<Integer>();
 		calltable.put(ctk, new LinkedList<CallTableVal>());
 		ISSABasicBlock root = epcfg.entry();
@@ -494,7 +528,6 @@ public class X10FinishAsyncAnalysis {
 	while (all_methods.hasNext()) {
 	    CGNode one_method = all_methods.next();
 	    String method_name = one_method.getMethod().getName().toString();
-	    System.err.println("method name:"+ one_method.toString());
 	    assert (method_name != null);
 	    if (method_name.contains("fake") || method_name.contains("init")) {
 		continue;
@@ -525,17 +558,12 @@ public class X10FinishAsyncAnalysis {
 	    final String entrymethod, final String methodtype) throws Exception {
 	final String mainClass = testedFile.getName().substring(0,
 		testedFile.getName().lastIndexOf('.'));
-
-	// System.out.println("mainClass:"+mainClass.toString());
 	final X10SourceAnalysisEngine engine = new X10SourceAnalysisEngine() {
 	    protected Iterable<Entrypoint> makeDefaultEntrypoints(
 		    final AnalysisScope scope, final IClassHierarchy cha) {
 		final ClassLoaderReference loaderRef = X10SourceLoaderImpl.X10SourceLoader;
-		System.out.println("ClassLoaderReference:"
-			+ loaderRef.toString());
 		final TypeReference typeRef = TypeReference.findOrCreate(
 			loaderRef, 'L' + pack + mainClass);
-		System.out.println("TypeRefereence:" + typeRef.toString());
 		final MethodReference mainRef = MethodReference.findOrCreate(
 			typeRef, Atom.findOrCreateAsciiAtom(entrymethod),
 			Descriptor.findOrCreateUTF8(methodtype));
@@ -560,7 +588,7 @@ public class X10FinishAsyncAnalysis {
 	// SourceDirectoryTreeModule(testedFile.getParentFile()));
 	engine.addX10SourceModule(new SourceFileModule(testedFile, testedFile
 		.getName()));
-
+	
 	// build the call graph: ExplicitCallGraph
 	cg = engine.buildDefaultCallGraph();
 	// System.out.println("cha:  "+cg.getClassHierarchy().toString());
@@ -587,6 +615,25 @@ public class X10FinishAsyncAnalysis {
 	//System.out.println("new table\n");
 	//CallTableUtil.dumpCallTable();
     } // end of compile
+    private String getPackage(String s){
+	if(s.contains("activity")){
+	    int start = s.indexOf(':');
+	    int end = s.indexOf(".x10:");
+	    s = s.substring(start+2,end);
+	    s = s.replace('/', '.');
+	    //System.err.println(s);
+	    return s;
+	}
+	s = s.substring(1);
+	s = s.replace('/','.');
+	return s;
+    }
+    private String getName(String s){
+	if(s.contains("activity")){
+	    return "activity";
+	}
+	return s;
+    }
 } // end of class
 
 
@@ -599,7 +646,7 @@ class AnalysisEnvironment implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	
 	// hold nested finish
 	Stack<CallTableKey> uncompleted_scope;
 	// current finish
@@ -608,12 +655,11 @@ class AnalysisEnvironment implements Serializable {
 	int cur_block;
 	// the method calltalbe's active entry represents
 	int cur_method_node;
-
-	public AnalysisEnvironment(CallTableKey n, int nd) {
+	public AnalysisEnvironment(CallTableKey n, int nd,
+		PrunedCFG<SSAInstruction, ISSABasicBlock> epcfg) {
 		uncompleted_scope = new Stack<CallTableKey>();
 		cur_scope = n;
 		cur_block = 0;;
 		cur_method_node = nd;
-
 	}
 }
