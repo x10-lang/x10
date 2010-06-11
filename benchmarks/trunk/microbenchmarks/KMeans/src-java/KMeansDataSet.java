@@ -137,7 +137,7 @@ public final class KMeansDataSet {
             numPoints = data.readInt();
             numDimensions = data.readInt();
             points = new float[numPoints*numDimensions];
-            System.out.printf("Reading %d %d-dimensional points from %s", numPoints, numDimensions, fileName);
+            System.out.printf("Reading %d %d-dimensional points from %s\n", numPoints, numDimensions, fileName);
             for (i=0; i<numPoints; i++) {
                 for (j=0; j<numDimensions; j++) {
                     points[i*numDimensions+ j] = data.readFloat();

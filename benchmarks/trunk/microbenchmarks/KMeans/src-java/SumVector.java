@@ -1,9 +1,13 @@
+import java.io.Serializable;
+
 
 
 /**
  * A class that represents the sum of 'count' number of vectors.
  */
-class SumVector {
+class SumVector implements Serializable {
+    private static final long serialVersionUID = -6202104451669002837L;
+    
     private float[] summedVector;
     private int count;
     
@@ -38,6 +42,12 @@ class SumVector {
         count++;
     }
 
+    public void addIn(SumVector other) {
+        for (int i=0; i<summedVector.length; i++) {
+            summedVector[i] += other.summedVector[i];
+        }
+        count += other.count;
+    }
     
     public void divide(int f) {
         for (int i=0; i<summedVector.length; i++) {
