@@ -1,5 +1,4 @@
 package x10.lang;
-import x10.util.*;
 public class TrivialTest2 {
   
  
@@ -15,15 +14,20 @@ public class TrivialTest2 {
   public def f4():int{
 	  return 2;
   }
-  public def f6():int{
-	  return 2;
+  public def f6():void{
   }
   public def f3(x:Rail[int],y:Rail[int]):Rail[int]{
 	  return x;
   }
   public def foo():void {
-	  
-	  f3([1,2,3],[1,2]);
+	  var i:int = 1;
+  // finish{
+	  // f4();
+	  // async{}
+	  // at(here){async{}}
+  // }
+	 // f5();
+  f3([1,2,3],[1,2]);
 	  finish{at(here){}}
 	  async{
 		  at(here){f1();}
