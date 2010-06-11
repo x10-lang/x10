@@ -25,13 +25,11 @@ public class KMeansSequential {
     /**
      * Compute myK means for the given set of points of dimension myDim.
      */
-    static void computeMeans(KMeansDataSet data, int myK, int numIterations, float EPS) {
-        float[] points = data.points;
-        int numDimensions = data.numDimensions;
-        int numPoints = data.numPoints;
+    static void computeMeans(int myK, int numIterations, float EPS, int numPoints, int numDimensions, float[] initialCluster, float[] points) {
+        assert numDimensions * myK == initialCluster.length;
         redCluster = new SumVector[myK];
         for (int i=0; i<myK; i++) {
-            redCluster[i] = new SumVector(numDimensions, points, i);
+            redCluster[i] = new SumVector(numDimensions, initialCluster, i);
         }
         blackCluster = new SumVector[myK];
         for (int i=0; i<myK; i++) {
@@ -95,7 +93,9 @@ public class KMeansSequential {
         }
     
         KMeansDataSet data = KMeansDataSet.readPointsFromFile(fileName);
-        computeMeans(data, K, iterations, EPS);
+        float[] initialCluster = new float[K*data.numDimensions];
+        System.arraycopy(data.points, 0, initialCluster, 0, initialCluster.length);
+        computeMeans(K, iterations, EPS, data.numPoints, data.numDimensions, initialCluster, data.points);
         
         SumVector[] result =  redCluster;
         for (int k=0; k<K; k++) {
