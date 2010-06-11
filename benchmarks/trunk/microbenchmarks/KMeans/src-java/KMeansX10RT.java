@@ -30,6 +30,10 @@ public class KMeansX10RT {
     private static float[] blackClusterPoints;
     private static volatile int reductionCount;
     
+    private static long[] kernelNanos;
+    private static long[] allToAllNanos;
+    private static long[] localReduceNanos;
+    
     private static ActiveMessage computeMeansAM;
     private static ActiveMessage accumulatePointsAM;
     private static ActiveMessage accumulateCountsAM;
@@ -44,64 +48,82 @@ public class KMeansX10RT {
         System.arraycopy(initialCluster, 0, redClusterPoints, 0, redClusterPoints.length);
         blackClusterPoints = new float[myK*numDimensions];
         redClusterCounts = new int[myK];
-
-        X10RT.barrier();
         
-        for (int iteration = 1; iteration <= numIterations; iteration++) {
-            float[] swapTmp = redClusterPoints;
-            redClusterPoints = blackClusterPoints;
-            blackClusterPoints = swapTmp;
-            reductionCount = 2*(X10RT.numPlaces()-1);
- 
-            // For all points assigned to me, compute the closest current cluster
-            // and add the point into that cluster for the next iteration.
-            for (int pointNumber = 0; pointNumber<numPoints; pointNumber++) {
-                int closest = -1;
-                float closestDist = Float.MAX_VALUE;
-                for (int k=0; k<myK; k++) {
-                    float dist = 0;
-                    for (int dim=0; dim<numDimensions; dim++) {
-                        float tmp = blackClusterPoints[k*numDimensions + dim] - points[pointNumber*numDimensions + dim];
-                        dist += tmp*tmp;
-                    }
-                    if (dist < closestDist) {
-                        closestDist = dist;
-                        closest = k;
-                    }
-                }
-                for (int dim=0; dim<numDimensions; dim++) {
-                    redClusterPoints[closest*numDimensions +dim] += points[pointNumber*numDimensions + dim];
-                }
-                redClusterCounts[closest]++;
-           }
- 
-            // All-to-All collective accumulation operations.
-            // Accumulate the redClusterPoints and redClusterCounts into every place.
-            X10RT.barrier();
-            for (int recv = 0; recv<X10RT.numPlaces(); recv++) {
-                Place p = X10RT.getPlace(recv);
-                if (p != X10RT.here()) {
-                    accumulatePointsAM.send(p, redClusterPoints);
-                    accumulateCountsAM.send(p, redClusterCounts);
-               }
-            }
-            while (reductionCount > 0) X10RT.probe(); // Can't use a barrier, because we have to await the completion of the reduction.
-            
-            // Local reduction: adjust cluster coordinates by dividing each point value
-            // by the number of points in the cluster
-            for (int k=0; k<myK; k++) {
-                float tmp = (float)redClusterCounts[k];
-                for (int dim=0; dim<numDimensions; dim++) {
-                    redClusterPoints[k*numDimensions+dim] /= tmp;
-                }
-            }
-            
-            // Reset for the next iteration
-            Arrays.fill(redClusterCounts, 0);
-            Arrays.fill(blackClusterPoints, 0.0f);
+        kernelNanos = new long[numIterations];
+        allToAllNanos = new long[numIterations];
+        localReduceNanos = new long[numIterations];
+        
+        for (int iteration = 0; iteration < numIterations; iteration++) {
+            doAnIteration(iteration, myK, numPoints, numDimensions, points);
         } 
     }
-    
+
+    // Pulled out into a separate method so that the JIT has a chance to optimize it.
+    // Compensating for weaknesses in hot-loop-transfer in some JVMs. 
+    private static void doAnIteration(int iteration, int myK, int numPoints, int numDimensions, float[] points) {
+        kernelNanos[iteration] = - System.nanoTime();
+        float[] swapTmp = redClusterPoints;
+        redClusterPoints = blackClusterPoints;
+        blackClusterPoints = swapTmp;
+        reductionCount = 2*(X10RT.numPlaces()-1);
+
+        // For all points assigned to me, compute the closest current cluster
+        // and add the point into that cluster for the next iteration.
+        for (int pointNumber = 0; pointNumber<numPoints; pointNumber++) {
+            int closest = -1;
+            float closestDist = Float.MAX_VALUE;
+            for (int k=0; k<myK; k++) {
+                float dist = 0;
+                for (int dim=0; dim<numDimensions; dim++) {
+                    float tmp = blackClusterPoints[k*numDimensions + dim] - points[pointNumber*numDimensions + dim];
+                    dist += tmp*tmp;
+                }
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closest = k;
+                }
+            }
+            for (int dim=0; dim<numDimensions; dim++) {
+                redClusterPoints[closest*numDimensions +dim] += points[pointNumber*numDimensions + dim];
+            }
+            redClusterCounts[closest]++;
+        }
+        long now = System.nanoTime();
+        kernelNanos[iteration] += now;
+        allToAllNanos[iteration] = -now;
+
+        // All-to-All collective accumulation operations.
+        // Accumulate the redClusterPoints and redClusterCounts into every place.
+        X10RT.barrier();
+        for (int recv = 0; recv<X10RT.numPlaces(); recv++) {
+            Place p = X10RT.getPlace(recv);
+            if (p != X10RT.here()) {
+                accumulatePointsAM.send(p, redClusterPoints);
+                accumulateCountsAM.send(p, redClusterCounts);
+            }
+        }
+        while (reductionCount > 0) X10RT.probe(); // Can't use a barrier, because we have to await the completion of the reduction.
+        
+        now = System.nanoTime();
+        allToAllNanos[iteration] += now;
+        localReduceNanos[iteration] = -now;
+        
+        // Local reduction: adjust cluster coordinates by dividing each point value
+        // by the number of points in the cluster
+        for (int k=0; k<myK; k++) {
+            float tmp = (float)redClusterCounts[k];
+            for (int dim=0; dim<numDimensions; dim++) {
+                redClusterPoints[k*numDimensions+dim] /= tmp;
+            }
+        }
+
+        // Reset for the next iteration
+        Arrays.fill(redClusterCounts, 0);
+        Arrays.fill(blackClusterPoints, 0.0f);
+        
+        localReduceNanos[iteration] += System.nanoTime();
+    }
+
     public static synchronized void accumulatePoints(float[] other) {
         for (int i=0; i<redClusterPoints.length; i++) {
             redClusterPoints[i] += other[i];
@@ -116,6 +138,10 @@ public class KMeansX10RT {
         reductionCount--;
     }
 
+    private static double toMillis(long nanoTime) {
+        return ((double)nanoTime)/1e6;
+    }
+    
     public static void main (String[] args) {
         Class<?> floatArray = new float[0].getClass();
         Class<?> intArray = new int[0].getClass();
@@ -177,6 +203,19 @@ public class KMeansX10RT {
                 System.out.println();
             }
             System.out.println();
+            
+            long totalKernelNanos = 0;
+            long totalAllToAllNanos = 0;
+            long totalLocalReduceNanos = 0;
+            System.out.println("Per iteration phase timings (kernel, allToAll, localReuce)");
+            for (int i=0; i<iterations; i++) {
+                System.out.printf("%3.5f %3.5f %3.5f\n",toMillis(kernelNanos[i]), toMillis(allToAllNanos[i]), toMillis(localReduceNanos[i]));
+                totalKernelNanos += kernelNanos[i];
+                totalAllToAllNanos += allToAllNanos[i];
+                totalLocalReduceNanos += localReduceNanos[i];
+            }
+            System.out.println("-------------------------------------------------------");
+            System.out.printf("%3.5f %3.5f %3.5f\n", toMillis(totalKernelNanos), toMillis(totalAllToAllNanos), toMillis(totalLocalReduceNanos));
         } else {
             X10RT.barrier();  // matched the barrier in place 0 in "then clause" above
         }
