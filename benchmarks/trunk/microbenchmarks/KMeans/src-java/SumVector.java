@@ -7,9 +7,9 @@ class SumVector {
     private float[] summedVector;
     private int count;
     
-    SumVector(float[] initialValue) {
-        summedVector = new float[initialValue.length];
-        System.arraycopy(initialValue, 0, summedVector, 0, initialValue.length);
+    SumVector(int dim, float[] points, int pt) {
+        summedVector = new float[dim];
+        System.arraycopy(points, pt*dim, summedVector, 0, dim);
         count = 0;
     }
 
@@ -29,6 +29,15 @@ class SumVector {
         }
         count++;
     }
+ 
+    public void addIn(int nd, float[] points, int point) {
+        int offset = nd * point;
+        for (int i=0; i<nd; i++) {
+            summedVector[i] += points[offset + i];
+        }
+        count++;
+    }
+
     
     public void divide(int f) {
         for (int i=0; i<summedVector.length; i++) {
@@ -45,6 +54,16 @@ class SumVector {
         return dist;
     }
     
+    public float distance(int nd, float[] points, int point) {
+        float dist =0.0F;
+        int offset = nd * point;
+        for (int i=0; i<summedVector.length; i++) {
+            float tmp = summedVector[i] - points[offset+i];
+            dist += tmp*tmp;
+        }
+        return dist;
+    }
+
     public float distance(SumVector vec) {
         return distance(vec.summedVector);
     }

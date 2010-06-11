@@ -8,27 +8,43 @@ import java.io.IOException;
 import java.util.Random;
 
 /**
- * A class to encapsulate the creation of an input set of 
+ * A class to encapsulate an input set of 
  * Points for use in the KMeans program and the 
  * reading/writing of a set of points to data files.
  */
-public class PointsFactory {
+public final class KMeansDataSet {
     private static final int cookie = 0x2badfdc0;
     private static final int version = 1;
     
+    public final int numPoints;
+    public final int numDimensions;
+    public final float[] points;
+    
+    public KMeansDataSet(int np, int nd, float[] pts) {
+        assert np * nd == pts.length;
+        numPoints = np;
+        numDimensions = nd;
+        points = pts;
+    }
+    
+    public final float getFloat(int point, int dim) {
+        return points[point*numDimensions + dim];
+    }
+    
+    public final int getPointOffset(int point) {
+        return point*numDimensions;
+    }
     
     /**
      * Create numPoints random points each of dimension numDimensions.
      */
-    public static float[][] generateRandomPoints(int numPoints, int numDimensions) {
+    public static KMeansDataSet generateRandomPoints(int numPoints, int numDimensions) {
         Random rnd = new Random(0);
-        float[][] points = new float[numPoints][numDimensions];
-        for (int i=0; i<numPoints; i++) {
-            for (int j=0; j<numDimensions; j++) {
-                points[i][j] = rnd.nextFloat();
-            }
+        float[] points = new float[numPoints*numDimensions];
+        for (int i=0; i<numPoints*numDimensions; i++) {
+                points[i] = rnd.nextFloat();
         }
-        return points;
+        return new KMeansDataSet(numPoints, numDimensions, points);
     }
     
     
@@ -72,12 +88,10 @@ public class PointsFactory {
      * @param points the points to write
      * @return <code>true</code> on success, <code>false</code> on failure
      */
-    public static boolean writePointsToFile(String fileName, float[][]points) {
-        int numPoints = points.length;
-        int i = -1;
-        int j = -1;
+    public static boolean writePointsToFile(String fileName, KMeansDataSet data) {
+        int numPoints = data.numPoints;
         if (numPoints == 0) return false;
-        int numDimensions = points[0].length;
+        int numDimensions = data.numPoints;
         try {
             File outputFile = new File(fileName);
             DataOutputStream out = new DataOutputStream(new FileOutputStream(outputFile));
@@ -85,23 +99,14 @@ public class PointsFactory {
             out.writeInt(version);
             out.writeInt(numPoints);
             out.writeInt(numDimensions);
-            for (i=0; i<numPoints; i++) {
-                float[] point = points[i];
-                if (point == null || point.length != numDimensions) {
-                    outputFile.delete();
-                    System.err.printf("Point %d is invalid; expected %d dimension points, found %d\n", i, numDimensions, point == null ? 0 : point.length);
-                    return false;
-                }
-                for (j=0; j<numDimensions; j++) {
-                    out.writeFloat(point[j]);
-                }
+            for (int i=0; i<numPoints*numDimensions; i++) {
+                out.writeFloat(data.points[i]);
             }
         
         } catch (FileNotFoundException e) {
             System.out.println("Unable to open file for writing "+fileName);
             return false;
         } catch (IOException e) {
-            System.out.println("Error writing data to "+fileName+" ("+i+", "+j+")");
             e.printStackTrace();
             return false;
         }
@@ -112,12 +117,12 @@ public class PointsFactory {
     /**
      * Create numPoints random points each of dimension numDimensions.
      */
-    public static float[][] readPointsFromFile(String fileName) {
+    public static KMeansDataSet readPointsFromFile(String fileName) {
         int i = 0;
         int j = 0;
         int numDimensions = 0;
         int numPoints = 0;
-        float[][] points = null;
+        float[] points = null;
         
         try {
             DataInputStream data = new DataInputStream(new FileInputStream(new File(fileName)));
@@ -131,11 +136,11 @@ public class PointsFactory {
             }            
             numPoints = data.readInt();
             numDimensions = data.readInt();
-            points = new float[numPoints][numDimensions];
+            points = new float[numPoints*numDimensions];
             System.out.printf("Reading %d %d-dimensional points from %s", numPoints, numDimensions, fileName);
             for (i=0; i<numPoints; i++) {
                 for (j=0; j<numDimensions; j++) {
-                    points[i][j] = data.readFloat();
+                    points[i*numDimensions+ j] = data.readFloat();
                 }
             }
         } catch (FileNotFoundException e) {
@@ -148,6 +153,6 @@ public class PointsFactory {
             System.exit(-1);
         }
         
-        return points;
+        return new KMeansDataSet(numPoints, numDimensions, points);
     }
 }

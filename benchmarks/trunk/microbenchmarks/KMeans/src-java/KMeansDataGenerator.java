@@ -23,7 +23,7 @@ public class KMeansDataGenerator {
         }
         
         System.out.printf("Generating %d points of %d dimensions with seed %d into %s\n", numPoints, numDimensions, seed, fileName);
-        PointsFactory.generateRandomPointsToFile(fileName, numPoints, numDimensions, seed);
+        KMeansDataSet.generateRandomPointsToFile(fileName, numPoints, numDimensions, seed);
     }
 
 }

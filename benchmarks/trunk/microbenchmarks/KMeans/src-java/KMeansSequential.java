@@ -18,27 +18,22 @@
  * A translation of the x10.dist/samples/KMeans.x10 program to Java
  */
 public class KMeansSequential {
-    final int myK;
-    final int numIterations;
-    final float EPS;
     
-    KMeansSequential(int myK, int numIterations, float EPS) {
-        this.myK = myK;
-        this.numIterations = numIterations;
-        this.EPS = EPS;
-    }
+    static SumVector[] redCluster;
+    static SumVector[] blackCluster;
     
     /**
      * Compute myK means for the given set of points of dimension myDim.
      */
-    SumVector[] computeMeans(int myK, final float[][] points) {
-        int numPoints = points.length;
-        int numDimensions = points[0].length;
-        SumVector[] redCluster = new SumVector[myK];
+    static void computeMeans(KMeansDataSet data, int myK, int numIterations, float EPS) {
+        float[] points = data.points;
+        int numDimensions = data.numDimensions;
+        int numPoints = data.numPoints;
+        redCluster = new SumVector[myK];
         for (int i=0; i<myK; i++) {
-            redCluster[i] = new SumVector(points[i]);
+            redCluster[i] = new SumVector(numDimensions, points, i);
         }
-        SumVector[] blackCluster = new SumVector[myK];
+        blackCluster = new SumVector[myK];
         for (int i=0; i<myK; i++) {
             blackCluster[i] = new SumVector(numDimensions);
         }
@@ -50,16 +45,16 @@ public class KMeansSequential {
             for (int p= 0; p<numPoints; p++) {
                 int closest = -1;
                 float closestDist = Float.MAX_VALUE;
-                float[] point = points[p];
                 for (int k=0; k<myK; k++) { // compute closest mean in cluster.
-                    float dist = blackCluster[k].distance(point);
+                    float dist = blackCluster[k].distance(numDimensions, points, p);
                     if (dist < closestDist) {
                         closestDist = dist;
                         closest = k;
                     }
                 }
-                redCluster[closest].addIn(point);
+                redCluster[closest].addIn(numDimensions, points, p);
             }
+            
             for (int k=0; k<myK; k++) {
                 redCluster[k].normalize();
             }
@@ -76,8 +71,7 @@ public class KMeansSequential {
             for (int k=0; k<myK; k++) {
                 blackCluster[k].makeZero();
             }
-        }
-        return redCluster;  
+        } 
     }
     
     public static void main (String[] args) {
@@ -100,12 +94,14 @@ public class KMeansSequential {
             }
         }
     
+        KMeansDataSet data = KMeansDataSet.readPointsFromFile(fileName);
+        computeMeans(data, K, iterations, EPS);
         
-        float[][] points = PointsFactory.readPointsFromFile(fileName);
-        SumVector[] result =  new KMeansSequential(K, iterations, EPS).computeMeans(K, points);
+        SumVector[] result =  redCluster;
         for (int k=0; k<K; k++) {
             result[k].print();
         }
+        System.out.println();
     }
 }
 
