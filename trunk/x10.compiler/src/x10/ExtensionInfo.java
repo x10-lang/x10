@@ -237,9 +237,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		if (r != 0)
     			return r;
     		Position pa  = a.position();
+    		Position pb = b.position();
+    		if (pa == null && pb == null && a.getMessage().equals(b.getMessage()))
+    		    return 0;
     		if (pa == null)
     			return -1;
-    		Position pb = b.position();
     		if (pb==null)
     			return 1;
     		if (pa.line() < pb.line())
