@@ -19,6 +19,7 @@ import polyglot.ast.Expr;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Matcher;
@@ -432,6 +433,10 @@ implements X10ParsedClassType
 			}
 		}
 		return xClause;
+	}
+
+	public boolean isValid() {
+		return !(def instanceof ErrorRef_c<?>);
 	}
 }
 
