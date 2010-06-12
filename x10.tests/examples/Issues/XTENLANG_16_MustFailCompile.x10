@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_16_MustFailCompile extends x10Test {
 
     public interface I[T] {
-        property rect: boolean = true;
+        property rect: boolean = true; // ERR
     }
 
     public def run(): boolean {

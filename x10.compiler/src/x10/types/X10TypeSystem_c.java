@@ -305,7 +305,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             }
             TypeConstraint c = Types.get(ct.x10Def().typeBounds());
             if (c != null) {
-                TypeParamSubst subst = ((X10ParsedClassType_c) ct).subst();
                 TypeConstraint equals = new TypeConstraint();
                 for (int i = 0; i < ct.typeArguments().size(); i++) {
                     Type Y = ct.typeArguments().get(i);
