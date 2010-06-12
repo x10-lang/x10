@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.AmbAssign;
+import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbQualifierNode;
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Assign;
@@ -130,7 +131,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    }
 	
 	@Override
-	public polyglot.ast.Initializer Initializer(Position pos, FlagsNode flags, Block body) {
+	public Initializer Initializer(Position pos, FlagsNode flags, Block body) {
 	    Initializer n = new X10Initializer_c(pos, flags, body);
 	    n = (Initializer)n.ext(extFactory().extInitializer());
 	    n = (Initializer)n.del(delFactory().delInitializer());
@@ -158,12 +159,20 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 
-	    public AmbTypeNode AmbTypeNode(Position pos, Prefix qualifier, Id name) {
-		X10AmbTypeNode_c n = new X10AmbTypeNode_c(pos, qualifier, name);
-	        n = (X10AmbTypeNode_c)n.ext(extFactory().extAmbTypeNode());
-	        n = (X10AmbTypeNode_c)n.del(delFactory().delAmbTypeNode());
-	        return n;
-	    }
+	@Override
+	public AmbExpr AmbExpr(Position pos, Id name) {
+	    AmbExpr n = new X10AmbExpr_c(pos, name);
+	    n = (AmbExpr)n.ext(extFactory().extAmbExpr());
+	    n = (AmbExpr)n.del(delFactory().delAmbExpr());
+	    return n;
+	}
+
+	public AmbTypeNode AmbTypeNode(Position pos, Prefix qualifier, Id name) {
+	    X10AmbTypeNode_c n = new X10AmbTypeNode_c(pos, qualifier, name);
+	    n = (X10AmbTypeNode_c)n.ext(extFactory().extAmbTypeNode());
+	    n = (X10AmbTypeNode_c)n.del(delFactory().delAmbTypeNode());
+	    return n;
+	}
 
 	public X10AmbTypeNode X10AmbTypeNode(Position pos, Prefix prefix, Id name) {
 		X10AmbTypeNode_c n = new X10AmbTypeNode_c(pos, prefix, name);

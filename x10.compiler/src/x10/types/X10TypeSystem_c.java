@@ -653,7 +653,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
     }
 
-    private ClassType createFakeClass(QName fullName) {
+    public X10ClassType createFakeClass(QName fullName) {
         X10ClassDef cd = (X10ClassDef) createClassDef();
         cd.name(fullName.name());
         cd.position(Position.COMPILER_GENERATED);
@@ -670,7 +670,98 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         systemResolver().install(fullName, cd.asType());
 
         return (X10ParsedClassType) cd.asType();
+    }
 
+    protected X10ClassType typeForNameSilent(QName fullName) {
+        try {
+            if (fullName == null) {
+                return (X10ClassType) unknownClassDef().asType();
+            }
+            return (X10ClassType) typeForName(fullName);
+        }
+        catch (SemanticException e) {
+            return createFakeClass(fullName);
+        }
+    }
+
+    public X10FieldInstance createFakeField(QName containerName, Name name) {
+        return createFakeField(typeForNameSilent(containerName), name);
+    }
+    public X10FieldInstance createFakeField(Name name) {
+        return createFakeField(unknownClassDef().asType(), name);
+    }
+    public X10FieldInstance createFakeField(ClassType container, Name name) {
+        Position pos = Position.COMPILER_GENERATED;
+        Type type = unknownType(pos);
+        XVar thisVar = XTerms.makeEQV();
+        List<Ref<? extends Type>> excTypes = Collections.emptyList();
+        X10FieldDef fd = (X10FieldDef) fieldDef(pos, Types.ref(container), Flags.PUBLIC.Static(),
+                                                Types.ref(type), name, thisVar);
+        return (X10FieldInstance) fd.asInstance();
+    }
+
+    public X10MethodInstance createFakeMethod(QName containerName, Name name, List<Type> typeArgs, List<Type> argTypes) {
+        return createFakeMethod(typeForNameSilent(containerName), name, typeArgs, argTypes);
+    }
+    public X10MethodInstance createFakeMethod(Name name, List<Type> typeArgs, List<Type> argTypes) {
+        return createFakeMethod(unknownClassDef().asType(), name, typeArgs, argTypes);
+    }
+    public X10MethodInstance createFakeMethod(ClassType container, Name name, List<Type> typeArgs, List<Type> argTypes) {
+        Position pos = Position.COMPILER_GENERATED;
+        Type returnType = unknownType(pos);
+        List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
+        List<LocalDef> formalNames = new ArrayList<LocalDef>();
+        int i = 0;
+        for (Type t : argTypes) {
+            args.add(Types.ref(t));
+            formalNames.add(localDef(pos, Flags.FINAL, Types.ref(t), Name.make("p"+(++i))));
+        }
+        XVar thisVar = XTerms.makeEQV();
+        List<Ref<? extends Type>> excTypes = Collections.emptyList();
+        X10MethodDef md = (X10MethodDef) methodDef(pos, Types.ref(container), Flags.PUBLIC.Static(),
+                                                   Types.ref(returnType), name, Collections.EMPTY_LIST,
+                                                   args, thisVar, formalNames, null, null, excTypes, null, null);
+        List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
+        i = 0;
+        for (Ref<? extends Type> r : typeParams) {
+            typeParams.add(Types.ref(new ParameterType_c(this, pos, Name.make("T"+(++i)), Types.ref(md))));
+        }
+        md.setTypeParameters(typeParams);
+        return (X10MethodInstance) md.asInstance();
+    }
+
+    public X10ConstructorInstance createFakeConstructor(QName containerName, List<Type> typeArgs, List<Type> argTypes) {
+        return createFakeConstructor(typeForNameSilent(containerName).typeArguments(typeArgs), argTypes);
+    }
+    public X10ConstructorInstance createFakeConstructor(ClassType container, List<Type> argTypes) {
+        Position pos = Position.COMPILER_GENERATED;
+        List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
+        List<LocalDef> formalNames = new ArrayList<LocalDef>();
+        int i = 0;
+        for (Type t : argTypes) {
+            args.add(Types.ref(t));
+            formalNames.add(localDef(pos, Flags.FINAL, Types.ref(t), Name.make("p"+(++i))));
+        }
+        XVar thisVar = XTerms.makeEQV();
+        List<Ref<? extends Type>> excTypes = Collections.emptyList();
+        X10ConstructorDef cd = (X10ConstructorDef) constructorDef(pos, Types.ref(container), Flags.PUBLIC,
+                Types.ref(container), Collections.EMPTY_LIST,
+                args, thisVar, formalNames, null, null, excTypes, null);
+//        List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
+//        i = 0;
+//        for (Ref<? extends Type> r : typeParams) {
+//            typeParams.add(Types.ref(new ParameterType_c(this, pos, Name.make("T"+(++i)), Types.ref(cd))));
+//        }
+//        cd.setTypeParameters(typeParams);
+        return (X10ConstructorInstance) cd.asInstance();
+    }
+    
+    public X10LocalInstance createFakeLocal(Name name) {
+        Position pos = Position.COMPILER_GENERATED;
+        Type type = unknownType(pos);
+        List<Ref<? extends Type>> excTypes = Collections.emptyList();
+        X10LocalDef ld = (X10LocalDef) localDef(pos, Flags.FINAL, Types.ref(type), name);
+        return (X10LocalInstance) ld.asInstance();
     }
 
     @Override

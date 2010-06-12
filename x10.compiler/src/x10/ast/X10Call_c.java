@@ -76,6 +76,7 @@ import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10TypeSystem_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -85,6 +86,7 @@ import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbMethodMatcher;
+import x10.visit.X10TypeChecker;
 import x10cpp.postcompiler.CXXCommandBuilder;
 
 
@@ -377,9 +379,35 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	}
 
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	    Node n;
+	    try {
+	        n = typeCheck1(tc);
+	    } catch (SemanticException e) {
+	        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
+	        if (xtc.throwExceptions())
+	            throw e;
+	        Errors.issue(tc.job(), e, this);
+	        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+	        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
+	        for (TypeNode tn : this.typeArguments) {
+	            typeArgs.add(tn.type());
+	        }
+	        List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
+	        for (Expr a : this.arguments) {
+	            argTypes.add(a.type());
+	        }
+	        X10MethodInstance mi = ts.createFakeMethod(name.id(), typeArgs, argTypes);
+	        Type rt = mi.rightType(); // X10Field_c.rightType(mi.rightType(), mi.x10Def(), n.target, c);
+	        n = (X10Call_c) methodInstance(mi).type(rt);
+	    }
+	    return n;
+	}
+	public Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		X10Context c = (X10Context) tc.context();
+
+		X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
 
 		Expr cc = null;
 		
@@ -399,9 +427,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 			try {
 				Node n = f;
-				n = n.del().disambiguate(tc);
-				n = n.del().typeCheck(tc);
-				n = n.del().checkConstants(tc);
+				n = n.del().disambiguate(xtc);
+				n = n.del().typeCheck(xtc);
+				n = n.del().checkConstants(xtc);
 				if (n instanceof Expr && n instanceof Variable) {
 					e = (Expr) n;
 //					if (! ts.isFunction(e.type())) {
@@ -422,8 +450,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				ccx = ccx.closureInstance(ci);
 				Node n = ccx;
 				try {
-				    n = n.del().disambiguate(tc);
-				    n = n.del().typeCheck(tc);
+				    n = n.del().disambiguate(xtc);
+				    n = n.del().typeCheck(xtc);
 				    cc = (Expr) n;
 				}
 				catch (SemanticException ex) {
@@ -473,7 +501,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			Node n =  null;
 			// First try to find the method without implicit conversions.
 			try {
-				n=this.typeCheckNullTarget(tc, typeArgs, argTypes, arguments);
+				n=this.typeCheckNullTarget(xtc, typeArgs, argTypes, arguments);
 				// Success! n has the answer.
 			}
 			catch (SemanticException e) {
@@ -497,7 +525,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 					 }
 					 // otherwise error.
 					 MethodMatcher matcher = ((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c);
-						throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
+					 throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
 				 }
 				 
 				 // OK so now we have mi and args that correspond to a success.    

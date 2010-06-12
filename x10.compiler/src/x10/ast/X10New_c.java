@@ -55,11 +55,13 @@ import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbConstructorMatcher;
+import x10.visit.X10TypeChecker;
 
 
 /**
@@ -354,6 +356,25 @@ public class X10New_c extends New_c implements X10New {
     	  
     }
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
+        try {
+            return typeCheck1(tc);
+        } catch (SemanticException e) {
+            X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
+            if (xtc.throwExceptions())
+                throw e;
+            Errors.issue(tc.job(), e, this);
+            X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+	        List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
+	        for (Expr a : this.arguments) {
+	            argTypes.add(a.type());
+	        }
+	        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(tn.type());
+            X10ConstructorInstance ci = ts.createFakeConstructor(ct, argTypes);
+	        Type rt = ci.returnType();
+            return (X10New_c) constructorInstance(ci).type(rt);
+        }
+    }
+    public Node typeCheck1(ContextVisitor tc) throws SemanticException {
         final X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
         // ///////////////////////////////////////////////////////////////////
