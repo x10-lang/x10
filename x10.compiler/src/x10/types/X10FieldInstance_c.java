@@ -13,6 +13,7 @@ package x10.types;
 
 import java.util.List;
 
+import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.FieldInstance_c;
 import polyglot.types.Flags;
@@ -179,5 +180,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 	return s;
     }
 
-    
+    public boolean isValid() {
+        return !(def instanceof ErrorRef_c<?>);
+    }
 }

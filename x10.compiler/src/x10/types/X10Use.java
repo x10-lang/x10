@@ -19,4 +19,5 @@ public interface X10Use<T extends X10Def> {
     public T x10Def();
     public List<Type> annotations();
     public List<Type> annotationsMatching(Type t);
+    public boolean isValid();
 }

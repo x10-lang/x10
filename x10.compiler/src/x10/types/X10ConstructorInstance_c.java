@@ -23,6 +23,7 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.ConstructorInstance_c;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
+import polyglot.types.ErrorRef_c;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
@@ -253,5 +254,9 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
 	    sb.append(returnType);
 	}
 	return sb.toString();
+    }
+    
+    public boolean isValid() {
+        return !(def instanceof ErrorRef_c<?>);
     }
 }
