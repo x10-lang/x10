@@ -363,14 +363,15 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	     
 	    @Override
 	    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	    	Type type =  this.type().type();
+            final TypeNode typeNode = this.type();
+            Type type =  typeNode.type();
 	    	Type oldType = (Type)type.copy();
 	    	X10Context xc = (X10Context) enterChildScope(type(), tc.context());
 	    	X10Flags f = X10Flags.toX10Flags(flags.flags());
 	    	if (f.isGlobal() && ! f.isFinal()) {
 	    		throw new Errors.GlobalFieldIsVar(this);
 	    	}
-	    	X10TypeMixin.checkMissingParameters(type);
+	    	X10TypeMixin.checkMissingParameters(typeNode);
 	    	
 	    	// Need to replace here by current placeTerm in type, 
 	    	// since the field of this type can be referenced across
@@ -379,7 +380,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	type = PlaceChecker.ReplaceHereByPlaceTerm(type, xc);
 
 	    	if (type.isVoid())
-	    		throw new SemanticException("Field cannot have type " + this.type().type() + ".", position());
+	    		throw new SemanticException("Field cannot have type " + typeNode.type() + ".", position());
 
 	    	if (X10TypeMixin.isProto(type)) {
 	    		throw new SemanticException("Field cannot have type " 

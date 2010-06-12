@@ -43,6 +43,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
@@ -1001,9 +1002,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         return succs;
     }
 
-    protected ConstructorDecl createDefaultConstructor(ClassDef thisType,
+    protected ConstructorDecl createDefaultConstructor(ClassDef _thisType,
     		TypeSystem ts, NodeFactory nf) throws SemanticException
     {
+          X10ClassDef thisType = (X10ClassDef) _thisType;
     	  Position pos = Position.COMPILER_GENERATED; //body().position().startOf();
     	  X10NodeFactory xnf = (X10NodeFactory) nf;
           Block block = null;
@@ -1018,9 +1020,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
           List<TypeParamNode> typeFormals = Collections.EMPTY_LIST;
           List<Formal> formals = Collections.EMPTY_LIST;
           DepParameterExpr guard = null;
-          TypeNode returnType = null;
-          
-         
+
           if (! properties.isEmpty()) {
         	  // build type parameters.
         	/*  typeFormals = new ArrayList<TypeParamNode>(typeParameters.size());
@@ -1044,11 +1044,16 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	 
         	  guard = classInvariant();
         	  s2 =  xnf.AssignPropertyCall(pos, Collections.EMPTY_LIST, actuals);
-        	  // TODO: Check that this works.
-        	  returnType = xnf.CanonicalTypeNode(pos, thisType.asType());
+        	  // TODO: add constraint on the return type
           }
           block = s2 == null ? (s1 == null ? nf.Block(pos) : nf.Block(pos, s1))
         		  : (s1 == null ? nf.Block(pos, s2) : nf.Block(pos, s1, s2));
+
+          X10ClassType resultType = (X10ClassType) thisType.asType();
+          // for Generic classes
+          final List<ParameterType> typeParams = thisType.typeParameters();
+          resultType = (X10ClassType)resultType.typeArguments((List)typeParams);
+          X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
 
           ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
                   nf.FlagsNode(pos, Flags.PUBLIC),

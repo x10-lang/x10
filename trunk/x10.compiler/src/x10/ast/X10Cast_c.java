@@ -87,7 +87,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
     	if (castType()!= null)
-    		X10TypeMixin.checkMissingParameters(castType().type());
+    		X10TypeMixin.checkMissingParameters(castType());
         Expr e = Converter.converterChain(this, tc);
         assert e.type() != null;
         assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).convert != Converter.ConversionType.UNKNOWN_CONVERSION;

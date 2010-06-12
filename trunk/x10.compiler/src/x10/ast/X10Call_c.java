@@ -467,13 +467,13 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 		}
 		
-		// We have a cc and a valid call with no target. The one with 
+		// We have a cc and a valid call with no target. The one with //todo: fill in this comment
 		if (cc instanceof ClosureCall) {
 			ClosureCall call = (ClosureCall) cc;
 			if (call.target() instanceof Local) {
 				// cc is of the form r() where r is a local variable.
 				// This overrides any other possibility for this call, e.g. a static or an instance method call.
-				X10TypeMixin.checkMissingParameters(cc.type());
+				X10TypeMixin.checkMissingParameters(cc);
 				Checker.checkOfferType(position(), call.closureInstance(), tc);
 				return cc;
 
@@ -518,7 +518,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 					 if (cc != null) {
 						 Node result = cc.typeCheck(tc);
 						 if (result instanceof Expr) {
-							 X10TypeMixin.checkMissingParameters(((Expr) result).type());
+							 X10TypeMixin.checkMissingParameters((Expr) result);
 						 }
 						// Checker.checkOfferType(position(), call.closureInstance(), tc);
 						 return result;
@@ -551,7 +551,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 				
 			if (n instanceof Expr) {
-				X10TypeMixin.checkMissingParameters(((Expr) n).type());
+				X10TypeMixin.checkMissingParameters((Expr) n);
 			}
 			return n;
 		}
@@ -596,7 +596,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		            if (cc != null) {
 		            	Node result = cc.typeCheck(tc);
 		            	if (result instanceof Expr) {
-		            		X10TypeMixin.checkMissingParameters(((Expr) result).type());
+		            		X10TypeMixin.checkMissingParameters((Expr) result);
 		            	}
 		                return result;
 		            }
@@ -646,7 +646,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		//	        	result = result.adjustMI(tc);
 		//	        	result.checkWhereClause(tc);
 		result.checkAnnotations(tc);
-		X10TypeMixin.checkMissingParameters(result.type());
+		X10TypeMixin.checkMissingParameters(result);
 		Checker.checkOfferType(position(), (X10MethodInstance) result.methodInstance(), tc);
 
 		return result;
@@ -725,4 +725,3 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		return sb.toString();
 	}
 }
-

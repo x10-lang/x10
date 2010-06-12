@@ -89,7 +89,7 @@ public class X10Field_c extends Field_c {
 		    n = typeCheck1(tc);
 		    // Keep this at the very end. This is caught by 
 		    // handle proto.
-		    X10TypeMixin.checkMissingParameters(type());
+		    X10TypeMixin.checkMissingParameters(this);
 		    if (! ((X10Context) tc.context()).inAssignment()) {
 		        if (n instanceof X10Field_c) {
 		            Field nf = (Field) n;
