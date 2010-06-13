@@ -236,7 +236,9 @@ AddFlags {
         // But that is not true for a static method, e.g., Array.make(...)
         // so instead we do this check in all other places (e.g., field access, method definitions, new calls, etc)
         // But I can check it if there are typeArguments.
-        if (typeArgNum>0) X10TypeMixin.checkMissingParameters(t,position());
+
+        // but this is wrong, cause by default we get typeArgs from our def:
+        // if (typeArgNum>0) X10TypeMixin.checkMissingParameters(t,position());
         
 	    for (int j = 0; j < typeArgNum; j++) {
 	        Type actualType = typeArgs.get(j);

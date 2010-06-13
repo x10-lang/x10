@@ -20,12 +20,14 @@ import java.util.HashSet;
 public class RunTestSuite {
 
     // todo: some _MustFailCompile in the test suite cause compiler crashes
+    // todo: add support for various options, like testing with STATIC_CALLS/DYNAMIC_CALLS
 
     //_MustFailCompile means the compilation should fail.
     // Inside those files we should have "ERR" markers that we use to test the position of the errors is correct.
     //_MustFailTimeout means that when running the file it will have an infinite loop
     private static final String[] EXCLUDE_FILES_WITH_SUFFIX = {
             "_DYNAMIC_CALLS.x10",
+            "_MustFailCompile.x10",
 
     };
     private static final String[] EXCLUDE_FILES = {
