@@ -37,9 +37,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-unknown-linux-gnu
-host_triplet = x86_64-unknown-linux-gnu
-target_triplet = x86_64-unknown-linux-gnu
+build_triplet = i386-apple-darwin10.3.0
+host_triplet = i386-apple-darwin10.3.0
+target_triplet = i386-apple-darwin10.3.0
 subdir = src
 DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in
@@ -96,26 +96,26 @@ ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run aclocal-1.9
-AMDEP_FALSE = #
-AMDEP_TRUE = 
-AMTAR = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run tar
-AUTOCONF = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run automake-1.9
-AWK = gawk
+ACLOCAL = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run aclocal-1.9
+AMDEP_FALSE = 
+AMDEP_TRUE = #
+AMTAR = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run tar
+AUTOCONF = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run autoconf
+AUTOHEADER = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run autoheader
+AUTOMAKE = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run automake-1.9
+AWK = awk
 CC = gcc
 CCAS = gcc
-CCASFLAGS = -g -O2
-CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2 -DNDEBUG
+CCASFLAGS = -D_XOPEN_SOURCE
+CCDEPMODE = depmode=none
+CFLAGS = -D_XOPEN_SOURCE -DNDEBUG
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
-ECHO_C = 
-ECHO_N = -n
+ECHO_C = \c
+ECHO_N = 
 ECHO_T = 
 EGREP = grep -E
 EXEEXT = 
@@ -127,7 +127,7 @@ LDFLAGS =
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run makeinfo
+MAKEINFO = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/missing --run makeinfo
 NEED_ASM_FALSE = 
 NEED_ASM_TRUE = #
 OBJEXT = o
@@ -141,51 +141,51 @@ PATH_SEPARATOR = :
 PICFLAG = -fPIC
 RANLIB = ranlib
 SET_MAKE = 
-SHELL = /bin/bash
+SHELL = /bin/sh
 STRIP = 
 VERSION = 1.2
 ac_ct_CC = gcc
 ac_ct_RANLIB = ranlib
 ac_ct_STRIP = 
-am__fastdepCC_FALSE = #
-am__fastdepCC_TRUE = 
+am__fastdepCC_FALSE = 
+am__fastdepCC_TRUE = #
 am__include = include
 am__leading_dot = .
 am__quote = 
 am__tar = ${AMTAR} chof - "$$tardir"
 am__untar = ${AMTAR} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-unknown-linux-gnu
+build = i386-apple-darwin10.3.0
 build_alias = 
-build_cpu = x86_64
-build_os = linux-gnu
-build_vendor = unknown
+build_cpu = i386
+build_os = darwin10.3.0
+build_vendor = apple
 datadir = ${prefix}/share
 exec_prefix = ${prefix}
-host = x86_64-unknown-linux-gnu
+host = i386-apple-darwin10.3.0
 host_alias = 
-host_cpu = x86_64
-host_os = linux-gnu
-host_vendor = unknown
+host_cpu = i386
+host_os = darwin10.3.0
+host_vendor = apple
 includedir = ${prefix}/include
 infodir = ${prefix}/info
-install_sh = /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/install-sh
+install_sh = /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/libatomic_ops/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localstatedir = ${prefix}/var
 mandir = ${prefix}/man
-mkdir_p = mkdir -p --
+mkdir_p = $(mkinstalldirs)
 oldincludedir = /usr/include
-prefix = /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/install
+prefix = /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/install
 program_transform_name = s,x,x,
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 sysconfdir = ${prefix}/etc
-target = x86_64-unknown-linux-gnu
+target = i386-apple-darwin10.3.0
 target_alias = 
-target_cpu = x86_64
-target_os = linux-gnu
-target_vendor = unknown
+target_cpu = i386
+target_os = darwin10.3.0
+target_vendor = apple
 SUBDIRS = atomic_ops
 AM_CFLAGS = -fPIC
 include_HEADERS = atomic_ops.h atomic_ops_stack.h atomic_ops_malloc.h
@@ -289,9 +289,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/atomic_ops.Po
-include ./$(DEPDIR)/atomic_ops_malloc.Po
-include ./$(DEPDIR)/atomic_ops_stack.Po
+#include ./$(DEPDIR)/atomic_ops.Po
+#include ./$(DEPDIR)/atomic_ops_malloc.Po
+#include ./$(DEPDIR)/atomic_ops_stack.Po
 
 .S.o:
 	$(CCASCOMPILE) -c $<
@@ -300,18 +300,18 @@ include ./$(DEPDIR)/atomic_ops_stack.Po
 	$(CCASCOMPILE) -c `$(CYGPATH_W) '$<'`
 
 .c.o:
-	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
-	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
-#	source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(COMPILE) -c $<
+#	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
+#	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+#	source='$<' object='$@' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(COMPILE) -c $<
 
 .c.obj:
-	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
-	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
-#	source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+#	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
+#	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+#	source='$<' object='$@' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 uninstall-info-am:
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)

@@ -92,9 +92,9 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-unknown-linux-gnu
-host_triplet = x86_64-unknown-linux-gnu
-target_triplet = x86_64-unknown-linux-gnu
+build_triplet = i386-apple-darwin10.3.0
+host_triplet = i386-apple-darwin10.3.0
+target_triplet = i386-apple-darwin10.3.0
 check_PROGRAMS = gctest$(EXEEXT) leaktest$(EXEEXT) middletest$(EXEEXT) \
 	smashtest$(EXEEXT) hugetest$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2)
@@ -102,7 +102,7 @@ check_PROGRAMS = gctest$(EXEEXT) leaktest$(EXEEXT) middletest$(EXEEXT) \
 # C Library: Architecture Dependent
 # ---------------------------------
 am__append_1 = pthread_support.c pthread_stop_world.c
-#am__append_2 = darwin_stop_world.c
+am__append_2 = darwin_stop_world.c
 #am__append_3 = win32_threads.c
 
 # C++ Interface
@@ -163,7 +163,7 @@ am__libgc_la_SOURCES_DIST = allchblk.c alloc.c blacklst.c checksums.c \
 	pthread_stop_world.c darwin_stop_world.c win32_threads.c
 am__objects_1 = pthread_support.lo \
 	pthread_stop_world.lo
-#am__objects_2 = darwin_stop_world.lo
+am__objects_2 = darwin_stop_world.lo
 #am__objects_3 = win32_threads.lo
 am_libgc_la_OBJECTS = allchblk.lo alloc.lo blacklst.lo checksums.lo \
 	dbg_mlc.lo dyn_load.lo finalize.lo gc_dlopen.lo gcj_mlc.lo \
@@ -279,22 +279,22 @@ DIST_ARCHIVES = $(distdir).tar.gz $(distdir).tar.bz2
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run aclocal-1.9
-AMDEP_FALSE = #
-AMDEP_TRUE = 
-AMTAR = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run tar
+ACLOCAL = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run aclocal-1.9
+AMDEP_FALSE = 
+AMDEP_TRUE = #
+AMTAR = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run automake-1.9
+AUTOCONF = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run autoconf
+AUTOHEADER = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run autoheader
+AUTOMAKE = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run automake-1.9
 AVOID_CPP_LIB_FALSE = 
 AVOID_CPP_LIB_TRUE = #
-AWK = gawk
+AWK = awk
 CC = gcc
 CCAS = gcc
-CCASFLAGS = -g -O2 $(DEFS)
-CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2
+CCASFLAGS = -D_XOPEN_SOURCE $(DEFS)
+CCDEPMODE = depmode=none
+CFLAGS = -D_XOPEN_SOURCE
 COMPILER_XLC_FALSE = 
 COMPILER_XLC_TRUE = #
 CPLUSPLUS_FALSE = 
@@ -303,19 +303,19 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXCPP = g++ -E
-CXXDEPMODE = depmode=gcc3
+CXXDEPMODE = depmode=none
 CXXFLAGS = -g -O2
 CXXINCLUDES = 
 CYGPATH_W = echo
-DARWIN_THREADS_FALSE = 
-DARWIN_THREADS_TRUE = #
-DEFS = -DPACKAGE_NAME=\"gc\" -DPACKAGE_TARNAME=\"gc\" -DPACKAGE_VERSION=\"7.1\" -DPACKAGE_STRING=\"gc\ 7.1\" -DPACKAGE_BUGREPORT=\"Hans.Boehm@hp.com\" -DGC_VERSION_MAJOR=7 -DGC_VERSION_MINOR=1 -DPACKAGE=\"gc\" -DVERSION=\"7.1\" -DGC_LINUX_THREADS=1 -D_REENTRANT=1 -DTHREAD_LOCAL_ALLOC=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DNO_EXECUTE_PERMISSION=1 -DALL_INTERIOR_POINTERS=1 -DGC_GCJ_SUPPORT=1 -DJAVA_FINALIZATION=1 -DATOMIC_UNCOLLECTABLE=1
+DARWIN_THREADS_FALSE = #
+DARWIN_THREADS_TRUE = 
+DEFS = -DPACKAGE_NAME=\"gc\" -DPACKAGE_TARNAME=\"gc\" -DPACKAGE_VERSION=\"7.1\" -DPACKAGE_STRING=\"gc\ 7.1\" -DPACKAGE_BUGREPORT=\"Hans.Boehm@hp.com\" -DGC_VERSION_MAJOR=7 -DGC_VERSION_MINOR=1 -DPACKAGE=\"gc\" -DVERSION=\"7.1\" -DGC_DARWIN_THREADS=1 -DTHREAD_LOCAL_ALLOC=1 -DHAS_X86_THREAD_STATE32___EAX=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DNO_EXECUTE_PERMISSION=1 -DALL_INTERIOR_POINTERS=1 -DGC_GCJ_SUPPORT=1 -DJAVA_FINALIZATION=1 -DATOMIC_UNCOLLECTABLE=1
 DEPDIR = .deps
 ECHO = echo
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
-EGREP = /bin/grep -E
+EGREP = /usr/bin/grep -E
 ENABLE_GCJ_SUPPORT_FALSE = #
 ENABLE_GCJ_SUPPORT_TRUE = 
 EXEEXT = 
@@ -324,7 +324,7 @@ F77 =
 FFLAGS = 
 GC_CFLAGS =  -fexceptions -I libatomic_ops/src
 GC_VERSION = 
-GREP = /bin/grep
+GREP = /usr/bin/grep
 INCLUDES = -I./include
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
@@ -339,7 +339,7 @@ LTLIBOBJS =
 MAINT = #
 MAINTAINER_MODE_FALSE = 
 MAINTAINER_MODE_TRUE = #
-MAKEINFO = ${SHELL} /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run makeinfo
+MAKEINFO = ${SHELL} /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/missing --run makeinfo
 NEED_ATOMIC_OPS_ASM_FALSE = 
 NEED_ATOMIC_OPS_ASM_TRUE = #
 OBJEXT = o
@@ -356,7 +356,7 @@ RANLIB = ranlib
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
-THREADDLLIBS = -lpthread -ldl
+THREADDLLIBS = -lpthread
 THREADS_FALSE = #
 THREADS_TRUE = 
 UNWINDLIBS = 
@@ -372,10 +372,10 @@ ac_ct_CXX = g++
 ac_ct_F77 = 
 addlibs = 
 addobjs =  mach_dep.lo
-am__fastdepCC_FALSE = #
-am__fastdepCC_TRUE = 
-am__fastdepCXX_FALSE = #
-am__fastdepCXX_TRUE = 
+am__fastdepCC_FALSE = 
+am__fastdepCC_TRUE = #
+am__fastdepCXX_FALSE = 
+am__fastdepCXX_TRUE = #
 am__include = include
 am__leading_dot = .
 am__quote = 
@@ -383,47 +383,47 @@ am__tar = ${AMTAR} chof - "$$tardir"
 am__untar = ${AMTAR} xf -
 atomic_ops_libs = -latomic_ops
 bindir = ${exec_prefix}/bin
-build = x86_64-unknown-linux-gnu
+build = i386-apple-darwin10.3.0
 build_alias = 
-build_cpu = x86_64
-build_os = linux-gnu
-build_vendor = unknown
+build_cpu = i386
+build_os = darwin10.3.0
+build_vendor = apple
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-extra_ldflags_libgc = 
-host = x86_64-unknown-linux-gnu
+extra_ldflags_libgc = -Wl,-single_module
+host = i386-apple-darwin10.3.0
 host_alias = 
-host_cpu = x86_64
-host_os = linux-gnu
-host_vendor = unknown
+host_cpu = i386
+host_os = darwin10.3.0
+host_vendor = apple
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/install-sh
+install_sh = /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/src/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
 localstatedir = ${prefix}/var
 mandir = ${datarootdir}/man
-mkdir_p = mkdir -p --
+mkdir_p = $(mkinstalldirs)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/install
+prefix = /Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/install
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 subdirs =  libatomic_ops
 sysconfdir = ${prefix}/etc
-target = x86_64-unknown-linux-gnu
+target = i386-apple-darwin10.3.0
 target_alias = 
 target_all = libgc.la
-target_cpu = x86_64
-target_os = linux-gnu
-target_vendor = unknown
+target_cpu = i386
+target_os = darwin10.3.0
+target_vendor = apple
 
 # We currently use the source files directly from libatomic_ops, if we
 # use the internal version.  This is done since libatomic_ops doesn't
@@ -785,50 +785,50 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/allchblk.Plo
-include ./$(DEPDIR)/alloc.Plo
-include ./$(DEPDIR)/atomic_ops.Plo
-include ./$(DEPDIR)/backgraph.Plo
-include ./$(DEPDIR)/blacklst.Plo
-include ./$(DEPDIR)/checksums.Plo
-include ./$(DEPDIR)/darwin_stop_world.Plo
-include ./$(DEPDIR)/dbg_mlc.Plo
-include ./$(DEPDIR)/dyn_load.Plo
-include ./$(DEPDIR)/finalize.Plo
-include ./$(DEPDIR)/gc_cpp.Plo
-include ./$(DEPDIR)/gc_dlopen.Plo
-include ./$(DEPDIR)/gcj_mlc.Plo
-include ./$(DEPDIR)/headers.Plo
-include ./$(DEPDIR)/malloc.Plo
-include ./$(DEPDIR)/mallocx.Plo
-include ./$(DEPDIR)/mark.Plo
-include ./$(DEPDIR)/mark_rts.Plo
-include ./$(DEPDIR)/misc.Plo
-include ./$(DEPDIR)/new_hblk.Plo
-include ./$(DEPDIR)/obj_map.Plo
-include ./$(DEPDIR)/os_dep.Plo
-include ./$(DEPDIR)/pcr_interface.Plo
-include ./$(DEPDIR)/pthread_stop_world.Plo
-include ./$(DEPDIR)/pthread_support.Plo
-include ./$(DEPDIR)/ptr_chck.Plo
-include ./$(DEPDIR)/real_malloc.Plo
-include ./$(DEPDIR)/reclaim.Plo
-include ./$(DEPDIR)/specific.Plo
-include ./$(DEPDIR)/stubborn.Plo
-include ./$(DEPDIR)/thread_local_alloc.Plo
-include ./$(DEPDIR)/typd_mlc.Plo
-include ./$(DEPDIR)/win32_threads.Plo
-include cord/$(DEPDIR)/cordbscs.Plo
-include cord/$(DEPDIR)/cordprnt.Plo
-include cord/$(DEPDIR)/cordtest.Plo
-include cord/$(DEPDIR)/cordxtra.Plo
-include tests/$(DEPDIR)/huge_test.Po
-include tests/$(DEPDIR)/leak_test.Po
-include tests/$(DEPDIR)/middle.Po
-include tests/$(DEPDIR)/smash_test.Po
-include tests/$(DEPDIR)/test.Po
-include tests/$(DEPDIR)/test_cpp.Po
-include tests/$(DEPDIR)/thread_leak_test.Po
+#include ./$(DEPDIR)/allchblk.Plo
+#include ./$(DEPDIR)/alloc.Plo
+#include ./$(DEPDIR)/atomic_ops.Plo
+#include ./$(DEPDIR)/backgraph.Plo
+#include ./$(DEPDIR)/blacklst.Plo
+#include ./$(DEPDIR)/checksums.Plo
+#include ./$(DEPDIR)/darwin_stop_world.Plo
+#include ./$(DEPDIR)/dbg_mlc.Plo
+#include ./$(DEPDIR)/dyn_load.Plo
+#include ./$(DEPDIR)/finalize.Plo
+#include ./$(DEPDIR)/gc_cpp.Plo
+#include ./$(DEPDIR)/gc_dlopen.Plo
+#include ./$(DEPDIR)/gcj_mlc.Plo
+#include ./$(DEPDIR)/headers.Plo
+#include ./$(DEPDIR)/malloc.Plo
+#include ./$(DEPDIR)/mallocx.Plo
+#include ./$(DEPDIR)/mark.Plo
+#include ./$(DEPDIR)/mark_rts.Plo
+#include ./$(DEPDIR)/misc.Plo
+#include ./$(DEPDIR)/new_hblk.Plo
+#include ./$(DEPDIR)/obj_map.Plo
+#include ./$(DEPDIR)/os_dep.Plo
+#include ./$(DEPDIR)/pcr_interface.Plo
+#include ./$(DEPDIR)/pthread_stop_world.Plo
+#include ./$(DEPDIR)/pthread_support.Plo
+#include ./$(DEPDIR)/ptr_chck.Plo
+#include ./$(DEPDIR)/real_malloc.Plo
+#include ./$(DEPDIR)/reclaim.Plo
+#include ./$(DEPDIR)/specific.Plo
+#include ./$(DEPDIR)/stubborn.Plo
+#include ./$(DEPDIR)/thread_local_alloc.Plo
+#include ./$(DEPDIR)/typd_mlc.Plo
+#include ./$(DEPDIR)/win32_threads.Plo
+#include cord/$(DEPDIR)/cordbscs.Plo
+#include cord/$(DEPDIR)/cordprnt.Plo
+#include cord/$(DEPDIR)/cordtest.Plo
+#include cord/$(DEPDIR)/cordxtra.Plo
+#include tests/$(DEPDIR)/huge_test.Po
+#include tests/$(DEPDIR)/leak_test.Po
+#include tests/$(DEPDIR)/middle.Po
+#include tests/$(DEPDIR)/smash_test.Po
+#include tests/$(DEPDIR)/test.Po
+#include tests/$(DEPDIR)/test_cpp.Po
+#include tests/$(DEPDIR)/thread_leak_test.Po
 
 .S.o:
 	$(CCASCOMPILE) -c $<
@@ -837,52 +837,52 @@ include tests/$(DEPDIR)/thread_leak_test.Po
 	$(CCASCOMPILE) -c `$(CYGPATH_W) '$<'`
 
 .c.o:
-	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`; \
-	if $(COMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ $<; \
-	then mv -f "$$depbase.Tpo" "$$depbase.Po"; else rm -f "$$depbase.Tpo"; exit 1; fi
-#	source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(COMPILE) -c -o $@ $<
+#	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`; \
+#	if $(COMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ $<; \
+#	then mv -f "$$depbase.Tpo" "$$depbase.Po"; else rm -f "$$depbase.Tpo"; exit 1; fi
+#	source='$<' object='$@' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(COMPILE) -c -o $@ $<
 
 .c.obj:
-	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`; \
-	if $(COMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
-	then mv -f "$$depbase.Tpo" "$$depbase.Po"; else rm -f "$$depbase.Tpo"; exit 1; fi
-#	source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+#	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`; \
+#	if $(COMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
+#	then mv -f "$$depbase.Tpo" "$$depbase.Po"; else rm -f "$$depbase.Tpo"; exit 1; fi
+#	source='$<' object='$@' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .c.lo:
-	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`; \
-	if $(LTCOMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ $<; \
-	then mv -f "$$depbase.Tpo" "$$depbase.Plo"; else rm -f "$$depbase.Tpo"; exit 1; fi
-#	source='$<' object='$@' libtool=yes \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(LTCOMPILE) -c -o $@ $<
+#	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`; \
+#	if $(LTCOMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ $<; \
+#	then mv -f "$$depbase.Tpo" "$$depbase.Plo"; else rm -f "$$depbase.Tpo"; exit 1; fi
+#	source='$<' object='$@' libtool=yes 
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) 
+	$(LTCOMPILE) -c -o $@ $<
 
 .cc.o:
-	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`; \
-	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ $<; \
-	then mv -f "$$depbase.Tpo" "$$depbase.Po"; else rm -f "$$depbase.Tpo"; exit 1; fi
-#	source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXXCOMPILE) -c -o $@ $<
+#	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`; \
+#	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ $<; \
+#	then mv -f "$$depbase.Tpo" "$$depbase.Po"; else rm -f "$$depbase.Tpo"; exit 1; fi
+#	source='$<' object='$@' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) 
+	$(CXXCOMPILE) -c -o $@ $<
 
 .cc.obj:
-	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`; \
-	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
-	then mv -f "$$depbase.Tpo" "$$depbase.Po"; else rm -f "$$depbase.Tpo"; exit 1; fi
-#	source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+#	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`; \
+#	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
+#	then mv -f "$$depbase.Tpo" "$$depbase.Po"; else rm -f "$$depbase.Tpo"; exit 1; fi
+#	source='$<' object='$@' libtool=no 
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) 
+	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cc.lo:
-	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`; \
-	if $(LTCXXCOMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ $<; \
-	then mv -f "$$depbase.Tpo" "$$depbase.Plo"; else rm -f "$$depbase.Tpo"; exit 1; fi
-#	source='$<' object='$@' libtool=yes \
-#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LTCXXCOMPILE) -c -o $@ $<
+#	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`; \
+#	if $(LTCXXCOMPILE) -MT $@ -MD -MP -MF "$$depbase.Tpo" -c -o $@ $<; \
+#	then mv -f "$$depbase.Tpo" "$$depbase.Plo"; else rm -f "$$depbase.Tpo"; exit 1; fi
+#	source='$<' object='$@' libtool=yes 
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) 
+	$(LTCXXCOMPILE) -c -o $@ $<
 
 .s.o:
 	$(CCASCOMPILE) -c $<
