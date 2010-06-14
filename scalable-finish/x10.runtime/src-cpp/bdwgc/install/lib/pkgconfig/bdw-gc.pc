@@ -1,4 +1,4 @@
-prefix=/home/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/install
+prefix=/Users/blshao/workspace/x10-compiler/x10.runtime/src-cpp/bdwgc/install
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
