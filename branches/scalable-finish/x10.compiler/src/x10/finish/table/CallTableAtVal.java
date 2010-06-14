@@ -6,33 +6,23 @@ import java.util.LinkedList;
 public class CallTableAtVal extends CallTableVal {
     
     private static final long serialVersionUID = 1L;
-    public final int line;
-    public final int column;
-    public final String sig;
-    public CallTableAtVal(String str, int l,int c,int b) {
-	super(str,b);
-	this.line = l;
-	this.column = c;
-	sig = genSignature();
-	
+    public CallTableAtVal(String s, String n, int l,int c,int b) {
+	super(s,n,l,c,b);
     }
-    public CallTableAtVal(String str, Arity a, int l,int c,int b) {
-	super(str,b,a);
-	this.line = l;
-	this.column = c;
-	sig = genSignature();
+    public CallTableAtVal(String s, String n, Arity a, int l,int c,int b) {
+	super(s,n,l,c,b,a);
     }
     public String genSignature(){
-	return scope+"-"+line+"-"+column;
+	return scope+"."+line+"."+column;
     }
     public int hashCode(){
-	return sig.hashCode();
+	return genSignature().hashCode();
     }
     
     public boolean equals(Object o) {
 	boolean result = false;
 	if (o instanceof CallTableAtVal){
-	    result = sig.equals(((CallTableAtVal) o).sig);
+	    result = genSignature().equals(((CallTableAtVal) o).genSignature());
 	}
 	return result;
     }
@@ -42,7 +32,7 @@ public class CallTableAtVal extends CallTableVal {
 	if(aslast!=null){
 	    tmp = "-last";
 	}
-	return (a.toString()+"-"+scope+"-At-"+line+"-"+column+tmp);
+	return (a.toString()+"-"+scope+".at."+line+"."+column+tmp);
     }
     
 }
