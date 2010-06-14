@@ -160,7 +160,7 @@ public class CallTableUtil {
 
 		    } else {
 			CallTableMethodKey tmpkey = new CallTableMethodKey(
-				callee.scope);
+				callee.scope, callee.name, callee.line, callee.column);
 			LinkedList<CallTableVal> tmplist = calltable
 				.get(tmpkey);
 			if (tmplist != null) {
