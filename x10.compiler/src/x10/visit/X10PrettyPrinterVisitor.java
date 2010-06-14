@@ -38,9 +38,11 @@ import polyglot.ast.Id;
 import polyglot.ast.Id_c;
 import polyglot.ast.Import_c;
 import polyglot.ast.IntLit_c;
+import polyglot.ast.Labeled_c;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign_c;
+import polyglot.ast.Loop_c;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -2095,6 +2097,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		new Template(er, "Now", n.clock(), n.body()).expand(tr2);
 	}
 
+	public void visit(Labeled_c n) {
+	    Stmt statement = n.statement();
+	    if (statement instanceof Block_c) {
+	        w.write("{");
+	        Block_c block = (Block_c) statement;
+	        for (Stmt s : block.statements()) {
+	            if (s instanceof Loop_c) {
+	                w.write(n.labelNode() + ": ");
+	            }
+	            tr.print(n, s, w);
+	        }
+            w.write("}");
+	    } else {
+	        w.write(n.labelNode() + ": ");
+	        tr.print(n, statement, w);
+	    }
+	}
 
 
 	/*
