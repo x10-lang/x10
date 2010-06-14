@@ -130,7 +130,15 @@ public class PlaceChecker {
 	}
 	
 	public static Type AddIsHereClause(Type type, Context cxt) {
-		XTerm selfVar = X10TypeMixin.selfVar(type);
+		XVar selfVar = X10TypeMixin.selfVar(type);
+		if (selfVar == null) {
+		    selfVar = XTerms.makeEQV("self");
+		    try {
+		        type = X10TypeMixin.setSelfVar(type, selfVar);
+		    } catch (SemanticException e) {
+		        throw new InternalCompilerError("Cannot set self var for type "+type, e);
+		    }
+		}
     	XTerm locVar = homeVar(selfVar, (X10TypeSystem) cxt.typeSystem());
     	//XConstrainedTerm pt = ((X10Context) cxt).currentPlaceTerm();
     	// if (pt != null)
