@@ -25,6 +25,7 @@ import x10.x10rt.X10RT;
  */
 public class KMeansX10RT {
     
+    private static int[] closestCluster;
     private static float[] redClusterPoints;
     private static int[] redClusterCounts;
     private static float[] blackClusterPoints;
@@ -48,6 +49,7 @@ public class KMeansX10RT {
         System.arraycopy(initialCluster, 0, redClusterPoints, 0, redClusterPoints.length);
         blackClusterPoints = new float[myK*numDimensions];
         redClusterCounts = new int[myK];
+        closestCluster = new int[numPoints];
         
         kernelNanos = new long[numIterations];
         allToAllNanos = new long[numIterations];
@@ -68,7 +70,6 @@ public class KMeansX10RT {
         reductionCount = 2*(X10RT.numPlaces()-1);
 
         // For all points assigned to me, compute the closest current cluster
-        // and add the point into that cluster for the next iteration.
         for (int pointNumber = 0; pointNumber<numPoints; pointNumber++) {
             int closest = -1;
             float closestDist = Float.MAX_VALUE;
@@ -83,11 +84,18 @@ public class KMeansX10RT {
                     closest = k;
                 }
             }
+            closestCluster[pointNumber] = closest;
+        }
+        
+        // Now that we know the closest cluster for each point, compute the new cluster centers
+        for (int pointNumber=0; pointNumber<numPoints; pointNumber++) {
+            int closest = closestCluster[pointNumber];
             for (int dim=0; dim<numDimensions; dim++) {
-                redClusterPoints[closest*numDimensions +dim] += points[pointNumber*numDimensions + dim];
+                redClusterPoints[closest*numDimensions + dim] += points[pointNumber*numDimensions + dim];
             }
             redClusterCounts[closest]++;
         }
+        
         long now = System.nanoTime();
         kernelNanos[iteration] += now;
         allToAllNanos[iteration] = -now;
@@ -146,11 +154,11 @@ public class KMeansX10RT {
         Class<?> floatArray = new float[0].getClass();
         Class<?> intArray = new int[0].getClass();
         computeMeansAM = MessageRegistry.register(KMeansX10RT.class, "computeMeans", 
-                                                Integer.TYPE, Integer.TYPE,
-                                                Integer.TYPE, Integer.TYPE, floatArray, floatArray);
+                                                  Integer.TYPE, Integer.TYPE,
+                                                  Integer.TYPE, Integer.TYPE, floatArray, floatArray);
         accumulatePointsAM = MessageRegistry.register(KMeansX10RT.class, "accumulatePoints", floatArray);
         accumulateCountsAM = MessageRegistry.register(KMeansX10RT.class, "accumulateCounts", intArray);
-                                               
+
         X10RT.barrier();
         
         if (X10RT.here() == X10RT.getPlace(0)) {
