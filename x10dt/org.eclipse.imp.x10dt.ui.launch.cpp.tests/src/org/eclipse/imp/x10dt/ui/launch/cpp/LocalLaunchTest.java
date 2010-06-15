@@ -8,6 +8,8 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp;
 
 import org.eclipse.imp.x10dt.tests.services.swbot.conditions.X10DTConditions;
+import org.eclipse.imp.x10dt.tests.services.swbot.constants.LaunchConstants;
+import org.eclipse.imp.x10dt.tests.services.swbot.constants.ViewConstants;
 import org.eclipse.imp.x10dt.tests.services.swbot.utils.ProjectUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
@@ -24,7 +26,6 @@ import org.junit.runner.RunWith;
  * @author egeay
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
-@SuppressWarnings("nls")
 public final class LocalLaunchTest {
   
   // --- Before and After
@@ -41,26 +42,26 @@ public final class LocalLaunchTest {
   // --- Test cases
   
   /**
-   * Tests compilation and run of an X10 program with C++ back-end.
+   * Tests compilation and run of an X10 program without any intermediate actions.
    */
-  @Test public void canRunX10World() {
-    final String projectName = "demo";
+  @Test public void compileAndRunHelloWorld() {
+    final String projectName = "demo"; //$NON-NLS-1$
     ProjectUtils.createX10ProjectWithCppBackEnd(bot, projectName);
     
-    bot.menu("Run").menu("Run Configurations...").click();
-    final SWTBotShell runShell = bot.shell("Run Configurations");
+    bot.menu(LaunchConstants.RUN_MENU).menu(LaunchConstants.RUN_CONFS_MENU_ITEM).click();
+    final SWTBotShell runShell = bot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
     runShell.activate();
-    bot.tree().select("X10 Application (C++ back-end)").contextMenu("New").click();
+    bot.tree().select(LaunchConstants.NEW_CPP_LAUNCH_CONFIG).contextMenu(LaunchConstants.NEW_CONF_CONTEXT_MENU).click();
     
-    bot.cTabItem("Application").activate();
-    bot.textInGroup("X10 Project", 0).setText(projectName);
-    bot.textInGroup("Main class", 0).setText("Hello");
+    bot.cTabItem(LaunchConstants.CPP_LAUNCH_CONFIG_APPLICATION_TAB).activate();
+    bot.textInGroup(LaunchConstants.CPP_LAUNCH_CONFIG_X10_PROJECT, 0).setText(projectName);
+    bot.textInGroup(LaunchConstants.CPP_LAUNCH_CONFIG_MAIN_CLASS, 0).setText("Hello"); //$NON-NLS-1$
     
-    runShell.bot().button("Run").click();
+    runShell.bot().button(LaunchConstants.RUN_BUTTON).click();
     
-    final SWTBotView consoleView = bot.viewByTitle("Console");
+    final SWTBotView consoleView = bot.viewByTitle(ViewConstants.CONSOLE_VIEW_NAME);
     bot.waitUntil(X10DTConditions.workbenchPartIsActive(consoleView), 20000);
-    consoleView.bot().styledText().getText().contains("Hello X10 world");
+    consoleView.bot().styledText().getText().contains("Hello X10 world"); //$NON-NLS-1$
   }
   
   // --- Fields
