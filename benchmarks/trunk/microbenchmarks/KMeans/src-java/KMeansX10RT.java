@@ -25,18 +25,21 @@ import x10.x10rt.X10RT;
  */
 public class KMeansX10RT {
     
-    private static volatile int reductionCount;
+    private static boolean USE_NATIVE = false;
     
     // Statics used to hold place-local data needed by AMs
     private static float[] result;
     private static float[] cachedClusters;
     private static int[] cachedClusterCounts;
+    private static volatile int reductionCount;  // used to implement "await" in collective
     
+    // per iteration timing data
     private static long[] kernelNanos;
     private static long[] kernel2Nanos;
     private static long[] allToAllNanos;
     private static long[] localReduceNanos;
     
+    // AM handles
     private static ActiveMessage computeMeansAM;
     private static ActiveMessage accumulatePointsAM;
     private static ActiveMessage accumulateCountsAM;
@@ -60,6 +63,11 @@ public class KMeansX10RT {
         allToAllNanos = new long[numIterations];
         localReduceNanos = new long[numIterations];
         
+        if (USE_NATIVE) {
+            System.loadLibrary("KMeansX10RT");
+            nativeInit(myK, numPoints, numDimensions, points);
+        }
+        
         for (int iteration = 0; iteration < numIterations; iteration++) {
             doAnIteration(iteration, myK, numPoints, numDimensions, points, clusters, clusterCounts, closestCluster);
         }
@@ -69,6 +77,8 @@ public class KMeansX10RT {
         result = clusters;
     }
 
+    private static native void nativeInit(int myK, int numPoints, int numDimensions, float[] points);
+    
     // A singled iteration of the algorithm.
     // Pulled out into a separate method so that the JIT has a chance to optimize it.
     // Compensating for weaknesses in hot-loop-transfer in some JVMs. 
@@ -77,7 +87,11 @@ public class KMeansX10RT {
         kernelNanos[iteration] = - System.nanoTime();
         reductionCount = 2*(X10RT.numPlaces()-1);
 
-        computeClosestCluster(myK, numPoints, numDimensions, points, clusterPoints, closestCluster);
+        if (USE_NATIVE) {
+            computeClosestClusterNative(myK, numPoints, numDimensions, points, clusterPoints, closestCluster);           
+        } else {
+            computeClosestCluster(myK, numPoints, numDimensions, points, clusterPoints, closestCluster);
+        }
         
         long now = System.nanoTime();
         kernelNanos[iteration] += now;
@@ -146,6 +160,11 @@ public class KMeansX10RT {
             closestCluster[pointNumber] = closest;
         }
     }
+    
+    // For all points assigned to me, compute the closest current cluster
+    private static native void computeClosestClusterNative(int myK, int numPoints, int numDimensions, float[] points,
+                                                           float[] clusterPoints, int[] closestCluster);
+ 
 
     public static synchronized void accumulatePoints(float[] other) {
         float[] clusters = cachedClusters;
@@ -190,6 +209,8 @@ public class KMeansX10RT {
                     K = Integer.parseInt(args[argIndex++]);   
                 } else if (arg.equals("-i")) {
                     iterations = Integer.parseInt(args[argIndex++]);
+                } else if (arg.equals("-n")) {
+                    USE_NATIVE = true;
                 } else {
                     fileName = arg;
                 }
