@@ -230,6 +230,7 @@ AddFlags {
         final List<Type> typeArgs = ct.typeArguments();
         final int typeArgNum = typeArgs.size();
         final List<ParameterType> typeParam = def.typeParameters();
+        final int typeParamNum = typeParam.size();
 
         // I want to check that all generic classes have all the required type arguments, i.e.,  X10TypeMixin.checkMissingParameters(t, position())
         // E.g., that you always write: Array[...] and never Array.
@@ -237,8 +238,9 @@ AddFlags {
         // so instead we do this check in all other places (e.g., field access, method definitions, new calls, etc)
         // But I can check it if there are typeArguments.
 
-        // but this is wrong, cause by default we get typeArgs from our def:
-        // if (typeArgNum>0) X10TypeMixin.checkMissingParameters(t,position());
+        // typeArgNum>0 is wrong, cause by default we get typeArgs from our def, so that condition is always true
+        // Instead I use: typeParamNum!=typeArgNum
+        if (typeParamNum!=typeArgNum) X10TypeMixin.checkMissingParameters(t,position());
         
 	    for (int j = 0; j < typeArgNum; j++) {
 	        Type actualType = typeArgs.get(j);
