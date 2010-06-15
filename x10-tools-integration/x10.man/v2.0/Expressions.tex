@@ -247,140 +247,153 @@ LeftHandSide \: Identifier \\
              \| Primary \xcd"(" Expression \xcd")" \\
 \end{grammar}
 
-%It is often the case that an \Xten{} variable is assigned to only
-%once. The user may declare such variables as \xcd"final". However,
-%this is sometimes syntactically cumbersome.
-%
-%{}\Xten{} supports the syntax \xcd"l := r" for assignment to mutable
-%variables.  The user is strongly enouraged to use this syntax to
-%assign variables that are intended to be assigned to more than
-%once. The \Xten{} compiler may issue a warning if it detects code 
-%that uses \xcd"=" assignment statements on \xcd"mutable" variables.
+
 
 The assignment expression \xcd"x = e" assigns a value given by
 expression \xcd"e"
-to a mutable variable \xcd"x".  There are three forms of
-assignment: \xcd"x" may be a local variable, it may be a field
-\xcd"y.f", or it may be the variable obtained by evaluating the expression \xcd"a(i)".
-In the last case, \xcd"a" must be an instance of a class implementing the interface
- \xcd"x10.lang.Settable[S,T]", where 
-\xcd"S" and \xcd"T" are the types of \xcd"i" and \xcd"e", respectively.
-
-This interface is defined thus:
+to a variable \xcd"x".  
+Most often, \xcd`x` is a mutable (\xcd`var` variable).  The same syntax is
+used for delayed initialization of a \xcd`val`, but \xcd`val`s can only be
+initialized once.
+%~~gen
+% package express.ions.ass.ignment;
+% class Example {
+% static def exasmple() {
+%~~vis
 \begin{xten}
-package x10.lang;
-public interface Settable[S,T] {
-    def set[S,T](i: S, v: T): T;
+  var x : Int;
+  val y : Int;
+  x = 1;
+  y = 2; // Correct; initializes y
+  x = 3; 
+  // Incorrect: y = 4;
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
+
+There are three syntactic forms of
+assignment: 
+\begin{enumerate}
+\item \xcd`x = e;`, assigning to a local variable, formal parameter, field of
+      \xcd`this`, etc. 
+\item \xcd`x.f = e;`, assigning to a field of an object.
+\item \xcdmath`a(i$_1$,$\ldots$,i$_n$) = v;`, where {$n \ge 0$}, assigning to
+      an element of an array or some other such structure. This is syntactic
+      sugar for a method call: \xcdmath`a.set(v,i$_1$,$\ldots$,i$_n$)`.
+      Naturally, it is a static error if no suitable \xcd`set` method exists
+      for \xcd`a`.
+\end{enumerate}
+
+For a binary operator $\diamond$, the $\diamond$-assignment expression
+\xcdmath"x $\diamond$= e" combines the current value of \xcd`x` with the value
+of \xcd`e` by {$\diamond$}, and stores the result back into \xcd`x`.  
+\xcd`i += 2`, for example, adds 2 to \xcd`i`. For variables and fields, 
+\xcdmath"x $\diamond$= e" behaves just like \xcdmath"x = x $\diamond$ e". 
+
+The subscripting forms of \xcdmath"a(i) $\diamond$= b" are slightly subtle.
+Subexpressions of \xcd`a` and \xcd`i` are only evaluated once.  However,
+\xcd`a(i)` and \xcd`a(i)=c` are each executed once---in particular, there is
+one call to \xcd`a.apply(i)` and one to \xcd`a.set(i,c)`, the desugared forms
+of \xcd`a(i)` and \xcd`a(i)=c`.  If subscripting is implemented strangely for
+the class of \xcd`a`, the behavior is {\em not} necessarily updating a single
+storage location. Specifically, \xcd`A()(I()) += B()` is tantamount to: 
+%~~gen
+% package expressions.stupid.addab;
+% class Example {
+% def example(A:()=>Rail[Int]!, I: () => Int, B: () => Int ) {
+%~~vis
+\begin{xten}
+{
+  val aa = A();  // Evaluate A() once
+  val ii = I();  // Evaluate I() once
+  val bb = B();  // Evaluate B() once
+  val tmp = aa(ii) + bb; // read aa(ii)
+  aa(ii) = tmp;  // write sum back to aa(ii)
 }
 \end{xten}
-The assignment \xcd"a(i) = e" is equivalent to the call
-\xcd"a.set(i, e)".
+%~~siv
+%}}
+%~~neg
 
-\eat{
-For array variables, the right-hand-side
-expression \xcd"e" 
-must have the same distribution \xcd"a(i)". This
-statement involves control communication between the sites hosting
-\xcd"D". Each site performs the assignment(s) of array components
-locally. The assignment terminates when assignment has terminated at
-all sites hosting \xcd"D".
-}
+\limitation{+= does not currently meet this specification.}
 
-%% vj: fix. Use some other word for a mutable memory location, not ``location''. 
-%% dg: obsolete now that we renamed loc to home?
 
-For a binary operator
-$\mathit{op}$,
-the
-$\mathit{op}$-assignment expression \xcdmath"x $\mathit{op}$= e"
-evaluates \xcd"x" to a memory location, then evaluates \xcd"e",
-applies the operation \xcdmath"x $\mathit{op}$ e", and assigns the
-result into the location computed for \xcd"x".
-The expression is equivalent to \xcdmath"x = x $\mathit{op}$ e"
-except that any subexpressions of \xcd"x" are evaluated only
-once.
-
-%% TODO: Sectional assignment??
-
-%\input{rmi.tex}
 
 
 \section{Increment and decrement}
 
+
 The operators \xcd"++" and \xcd"--" increment and decrement
-a variable, respectively.  The variable must be \xcd`var`
-and of numeric type.
+a variable, respectively.  
+\xcd`x++` and \xcd`++x` both increment \xcd`x`, just as the statement 
+\xcd`x += 1` would, and similarly for \xcd`--`.  
 
-When the operator is prefix, the variable is
-incremented or decremented by \xcd"1" and the result of the expression is
-the new value of the variable.
-When the operator is postfix, the variable is incremented or
-decremented by \xcd"1" and the result of the expression is the old value of
-the variable.
+The difference between the two is the return value.  
+\xcd`++x` returns the {\em new} value of \xcd`x`, after incrementing.
+\xcd`x++` returns the {\em old} value of \xcd`, before incrementing.`
 
-The new value of the variable $v$ is identical to the result of
-the expressions
-\xcdmath"$v$+1" or \xcdmath"$v$-1", as appropriate.
+\limitation{This currently only works for numeric types.}
 
-\section{Numeric promotion}
+\section{Numeric Operations}
 \label{XtenPromotions}
 \index{promotion}
 \index{numeric promotion}
 
-The unary and binary operators promote their operands as
-follows.
-Values are sign extended and converted to instances of the
-promoted type.
+Numeric types (\xcd`Byte`, \xcd`Short`, \xcd`Int`, \xcd`Long`, \xcd`Float`,
+\xcd`Double`, and unsigned variants of fixed-point types) are normal X10
+structs, though most of their methods are implemented via native code. They
+obey the same general rules as other X10 structs. For example, numeric
+operations are defined by \xcd`operator` definitions, the same way you could
+for any struct.
 
-\begin{itemize}
-\item  The unary promotion of \xcd"Byte", \xcd"Short",
-\xcd"Int" is \xcd"Int".
-\item  The unary promotion of \xcd"Long" is \xcd"Long".
-\item  The unary promotion of \xcd"Float" is \xcd"Float".
-\item  The unary promotion of \xcd"Double" is \xcd"Double".
-\item The binary promotion of two types is the  
-greater of the unary promotion of each type
-according to the following order:
-\xcd"Int", \xcd"Long", \xcd"Float", \xcd"Double".
-\end{itemize}
+\subsection{Conversions and coercions}
 
-\section{Unary plus and unary minus}
+Specifically, each numeric type can be converted or coerced into each other
+numeric type, perhaps with loss of accuracy.
+%~~gen
+% package exp.ress.io.ns.numeric.conversions;
+% class ExampleOfConversionAndStuff {
+% def example() {
+%~~vis
+\begin{xten}
+val f : (Int)=>Boolean = (Int) => true; 
+val n : Byte = 123 as Byte; // explicit 
+val ok = f(n); // implicit
+\end{xten}
+%~~siv
+% } }
+%~~neg
 
-The unary \xcd"+" operator applies unary numeric promotion to
-its operand.   The operand must be of numeric type.
 
-The unary \xcd"-" operator
-applies unary numeric promotion to its operand
-and then
-subtracts the promoted operand from \xcd"0".
-The operand must be of numeric type.
-The type of the result is promoted type.
+
+\subsection{Unary plus and unary minus}
+
+The unary \xcd`+` operation on numbers is an identity function.
+The unary \xcd`-` operation on numbers is a negation function.
+On unsigned numbers, these are two's-complement.  For example, 
+\xcd`-(0x0F as UByte)` is 
+\xcd`(0xF1 as UByte)`.
+\bard{UInts and such are closed under negation -- the negative of a UInt is
+done binarily.  }
+
+
 
 \section{Bitwise complement}
 
- The unary \xcd"~" operator
-applies unary numeric promotion to its operand
-and then
- evaluates to the bitwise complement of
- the promoted operand.
-  The operand must be of integral type.
-The type of the result is promoted type.
+The unary \xcd"~" operator, only defined on integral types, complements each
+bit in its operand.  
 
 \section{Binary arithmetic operations} 
 
-The binary arithmetic operations apply binary numeric promotion
-to their operands. The operands must be of numeric type.
-The type of the result is the promoted type.
-The
-\xcd"+" operator adds the promoted operands. The \xcd"-" operator
-subtracts the second operand from the first. The \xcd"*" operator
-multiplies the  promoted  operands. The \xcd"/" operator
-divides the
-first  operand  by the second.
-The \xcd"%" operator evaluates to
-the remainder of the division of the first operand by the
-second.
+The binary arithmetic operators perform the familiar binary arithmetic
+operations: \xcd`+` adds, \xcd`-` subtracts, \xcd`*` multiplies, 
+\xcd`/` divides, and \xcd`%`
+computes remainder.
 
+On integers, the operands are coerced to the longer of their two types, and
+then operated upon.  
 Floating point operations are determined by the IEEE 754
 standard. 
 The integer \xcd"/" and \xcd"%" throw a \xcd"DivideByZeroException"
@@ -388,20 +401,20 @@ if the right operand is zero.
 
 \section{Binary shift operations}
 
-Unary promotion is performed on each operand separately. 
-The operands must be of integral type.
-The type of the result is the promoted type of the left operand.
+The operands of the binary shift operations must be of integral type.
+The type of the result is the type of the left operand.
 
 If the promoted type of the left operand is \xcd"Int",
 the right operand is masked with \xcd"0x1f" using the bitwise
-AND (\xcd"&") operator.
+AND (\xcd"&") operator, giving a number {$\le$} the number of bits in an
+\xcd`Int`. 
 If the promoted type of the left operand is \xcd"Long",
 the right operand is masked with \xcd"0x3f" using the bitwise
-AND (\xcd"&") operator.
+AND (\xcd"&") operator, giving a number {$\le$} the number of bits in a
+\xcd`Long`. 
 
 The \xcd"<<" operator left-shifts the left operand by the number of
 bits given by the right operand.
-
 The \xcd">>" operator right-shifts the left operand by the number of
 bits given by the right operand.  The result is sign extended;
 that is, if the right operand is $k$,
@@ -417,9 +430,8 @@ language.
 
 \section{Binary bitwise operations}
 
-The binary bitwise operations apply binary numeric promotion
-to their operands. The operands must be of integral type.
-The type of the result is the promoted type.
+The binary bitwise operations operate on integral types, which are promoted to
+the longer of the two types.
 The \xcd"&" operator  performs the bitwise AND of the promoted operands.
 The \xcd"|" operator  performs the bitwise inclusive OR of the promoted operands.
 The \xcd"^" operator  performs the bitwise exclusive OR of the promoted operands.
@@ -429,9 +441,8 @@ The \xcd"^" operator  performs the bitwise exclusive OR of the promoted operands
 The \xcd"+"  operator is used for string concatenation 
  as well as addition.
 If either operand is of static type \xcd"x10.lang.String",
- the other operand is converted to a \xcd"String", if needed,
+ the other operand is converted to a \xcd"String" , if needed,
   and  the two strings  are concatenated.
-
  String conversion of a non-\xcd"null" value is  performed by invoking the
  \xcd"toString()" method of the value.
   If the value is \xcd"null", the value is converted to 
@@ -467,7 +478,8 @@ evaluates to \xcd"true".
 
 \section{Boolean conditional operations}
 
-Operands of the binary boolean conditional operators must be of type \xcd"Boolean".
+Operands of the binary boolean conditional operators must be of type
+\xcd"Boolean". 
 The type of the result is \xcd"Boolean"
 
 The \xcd"&&" operator  evaluates to \xcd"true" if both of its
@@ -486,9 +498,7 @@ the second operand is not evaluated.
 
 \section{Relational operations} 
 
-The relational operations apply binary numeric promotion
-to their operands. The operands must be of numeric type.
-The type of the result is \xcd"Boolean".
+The relational operations compare numbers, producing \xcd`Boolean` results.  
 
 The \xcd"<" operator evaluates to \xcd"true" if the left operand is
 less than the right.
@@ -521,8 +531,20 @@ the second subexpression (the consequent) is evaluated; otherwise,
 the third subexpression (the alternative) is evaluated.
 
 The type of the condition must be \xcd"Boolean".
-The type of the conditional expression is the least common
-ancestor (\Sref{LCA}) of the types of the consequent and the alternative.
+The type of the conditional expression is some common 
+ancestor (as constrained by \Sref{LCA}) of the types of the consequent and the
+alternative. 
+
+For example, 
+%~~exp~~`~~`~~a:Int,b:Int ~~
+\xcd`a == b ? 1 : 2`
+evaluates to \xcd`1` if \xcd`a` and \xcd`b` are the same, and \xcd`2` if they
+are different.   As the type of \xcd`1` is \xcd`Int{self==1}` and of \xcd`2`
+is \xcd`Int{self==2}`, the type of the conditional expression has the form
+\xcd`Int{c}`, where \xcd`self==1` and \xcd`self==2` both imply \xcd`c`.  For
+example, it might be \xcd`Int{true}` -- or perhaps it might be 
+\xcd`Int{self != 8}`. Note that this term has no most accurate type in the X10
+type system.
 
 \section{Stable equality}
 \label{StableEquality}
@@ -533,39 +555,30 @@ EqualityExpression \: Expression \xcd"==" Expression \\
 \| Expression \xcd"!=" Expression \\
 \end{grammar}
 
-The \xcd"==" and \xcd"!=" operators provide \emph{stable
-equality}; that is, the result of the equality operation is not affected
-by the mutable state of the program.
+The \xcd"==" and \xcd"!=" operators provide a fundamental, though
+non-abstract, notion of equality.  \xcd`a==b` is true if the values of \xcd`a`
+and \xcd`b` are extremely identical, in a sense defined shortly.  \xcd`a != b`
+is true iff \xcd`a==b` is false.
 
-Two operands may be compared with the infix predicate \xcd"==".
-The operation
-evaluates to \xcd"true" if and only if no action taken by any
-user program can distinguish between the two operands.  In more detail,
-the rules are as follows.
-
-If the operands both have reference type, then the operation evaluates
-to \xcd"true" if both are references to the same object.
-
-If one operand evaluates to \xcd"null" then the predicate
-evaluates to \xcd"true" if and only if the
-other operand is also \xcd"null".
-
-If the operands both have struct type, then they must be structurally equal;
+\begin{itemize}
+\item If \xcd`a` and \xcd`b` are values of object type, then \xcd`a==b` holds
+      if \xcd`a` and \xcd`b` are the same object.
+\item If one operand is \xcd`null`, then \xcd`a==b` holds iff the other is
+      also \xcd`null`.
+\item If the operands both have struct type, then they must be structurally equal;
 that is, they must be instances of the same struct
 and all their fields or components must be \xcd"==". 
+\item The definition of equality for function types is specified in
+      \Sref{FunctionEquality}.
+\item If the operands have numeric types, they are coerced into the larger of
+      the two types and then compared for numeric equality.
+\end{itemize}
 
-The definition of equality for function types is specified in \Sref{FunctionEquality}.
+The predicates \xcd"==" and \xcd"!=" may not be overridden by the programmer.
+Note that \xcd`a==b` is a form of \emph{stable equality}; that is, the result of
+the equality operation is not affected by the mutable state of the program,
+after evaluation of \xcd`a` and \xcd`b`. 
 
-If the operands both have numeric type, binary promotion
-(\Sref{XtenPromotions}) is performed on the operands before the
-comparison.
-
-The predicate \xcd"!=" returns \xcd"true" (\xcd"false") on two
-arguments if and only if the operand \xcd"==" returns \xcd"false"
-(\xcd"true") on the same operands.
-
-The predicates \xcd"==" and \xcd"!=" may not be overridden by the
-programmer.
 
 \section{Allocation}
 \label{ClassCreation}
@@ -602,6 +615,10 @@ It is illegal to allocate an instance of an \xcd"abstract" class.
 It is illegal to allocate an instance of a class or to invoke a
 constructor that is not visible at
 the allocation expression.
+
+Note that instantiating a struct type uses function application syntax, not
+\xcd`new`.  As structs do not have subclassing, there is no need or
+possibility of a {\em ClassBody}.
 
 
 \section{Casts}\label{ClassCast}\index{classcast}
@@ -698,16 +715,17 @@ to determine whether an object is an instance of the given type:
 RelationalExpression \: RelationalExpression \xcd"instanceof" Type
 \end{grammar}
 
-In the above expression, \grammarrule{Type} is any type.
-At run time, the result of this operator is
-\xcd"true" if the \grammarrule{RelationalExpression} can be
-coerced
-to \grammarrule{Type} without a \xcd"ClassCastException" being
-thrown.  Otherwise the result is \xcd"false".
-This determination may involve checking
-that the
-constraint, if any, associated with the type is true for the
-given expression.
+In the above expression, \grammarrule{Type} is any type. At run time, the
+result of this operator is \xcd"true" if the
+\grammarrule{RelationalExpression} can be coerced to \grammarrule{Type}
+without a \xcd"TypeCastException" being thrown or static error occurring.
+Otherwise the result is \xcd"false". This determination may involve checking
+that the constraint, if any, associated with the type is true for the given
+expression.
+
+%~~exp~~`~~`~~x:Int~~
+For example, \xcd`3 instanceof Int{self==x}` is an overly-complicated way of
+saying \xcd`3==x`.
 
 \section{Subtyping expressions}
 
@@ -717,31 +735,38 @@ SubtypingExpression \: Expression \xcd"<:" Expression \\
                     \| Expression \xcd"==" Expression \\
 \end{grammar}
 
-The subtyping expression \xcdmath"T$_1$ <: T$_2$"
-evaluates to  \xcd"true"  
-                         \xcdmath"T$_1$"
-                         is a subtype of
-                         \xcdmath"T$_2$".
+The subtyping expression \xcdmath"T$_1$ <: T$_2$" evaluates to \xcd"true"
+\xcdmath"T$_1$" is a subtype of \xcdmath"T$_2$".
 
-The expression \xcdmath"T$_1$ :> T$_2$"
-evaluates to  \xcd"true"  
-                         \xcdmath"T$_2$"
-                         is a subtype of
-                         \xcdmath"T$_1$".
+The expression \xcdmath"T$_1$ :> T$_2$" evaluates to \xcd"true"
+\xcdmath"T$_2$" is a subtype of \xcdmath"T$_1$".
 
 The expression \xcdmath"T$_1$ == T$_2$"
-evaluates to  \xcd"true"  
-                         \xcdmath"T$_1$"
-                         is a subtype of
-                         \xcdmath"T$_2$"
-                         and if
-                         \xcdmath"T$_2$"
-                         is a subtype of
-                         \xcdmath"T$_1$".
+evaluates to  \xcd"true" \xcdmath"T$_1$" is a subtype of \xcdmath"T$_2$" and
+if \xcdmath"T$_2$" is a subtype of \xcdmath"T$_1$".
 
-                         Subtyping expressions are used in
-                         subtyping constraints for generic
-                         types.
+Subtyping expressions are particularly useful in giving constraints on generic
+types.  \xcd`x10.util.Ordered[T]` is an interface whose values can be compared
+with values of type \xcd`T`. 
+In particular, \xcd`T <: x10.util.Ordered[T]` is
+true if values of type \xcd`T` can be compared to other values of type
+\xcd`T`.  So, if we wish to define a generic class \xcd`OrderedList[T]`, of
+lists whose elements are kept in the right order, we need the elements to be
+ordered.  This is phrased as a constraint on \xcd`T`: 
+%~~gen
+% package expre.ssi.onsfgua.rde.dq.uantification;
+%~~vis
+\begin{xten}
+class OrderedList[T]{T <: x10.util.Ordered[T]} {
+  // ...
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+
 
 \section{Contains expressions}
 
@@ -764,11 +789,22 @@ Expressions \: Expression ( \xcd"," Expression )\star \\
 \end{grammar}
 
 The rail constructor \xcdmath"[a$_0$, $\dots$, a$_{k-1}$]"
-creates an instance of \xcd"ValRail" with length $k$
-where the $i$th element is
-\xcdmath"a$_i$".  The element type of the array (\xcd"T") is
-bound to the least common ancestor of the types of the
-\xcdmath"a$_i$" (\Sref{LCA}).
+creates an instance of \xcd"ValRail" with length $k$, 
+whose $i$th element is
+\xcdmath"a$_i$".  The element type of the rail is a common ancestor of the
+types of the \xcdmath"a$_i$"'s, as per \Sref{LCA}.
+%~~gen
+% package ex.pre.ssio.nsandrailconstructors;
+% class Example {
+% def example() {
+%~~vis
+\begin{xten}
+val a : ValRail[Int] = [1,3,5];
+val b : ValRail[Any] = [1, a, "please"];
+\end{xten}
+%~~siv
+% } } 
+%~~neg
 
 Since arrays are subtypes of \xcd"(Point) => T",
 rail constructors can be passed into the \xcd"Array" and
@@ -778,6 +814,20 @@ Rail constructors of type \xcd"ValRail[Int]" and length \xcd"n"
 may be implicitly converted to type \xcd"Point{rank==n}".
 Rail constructors of type \xcd"ValRail[Region]" and length \xcd"n" 
 may be implicitly converted to type \xcd"Region{rank==n}".
+
+%~~gen
+% package ex.pre.ssio.nsandrailconstructors;
+% class Exympyl {
+% def example() {
+%~~vis
+\begin{xten}
+val a : Point{rank==4} = [1,2,3,4];
+val b : Region{rank==2} = [ -1 .. 1, -2 .. 2];
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
 
 \section{Coercions and conversions}
 \label{XtenConversions}

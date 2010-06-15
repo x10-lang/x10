@@ -14,6 +14,7 @@ package x10.types;
 import java.util.List;
 
 import polyglot.types.ClassType;
+import polyglot.types.ErrorRef_c;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance_c;
 import polyglot.types.Ref;
@@ -92,11 +93,12 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         }
     }
 
-
-
     public String toString() {
 	String s = "local " + X10Flags.toX10Flags(flags()).prettyPrint() + name() + ": " + type();
 	return s;
     }
 
+    public boolean isValid() {
+        return !(def instanceof ErrorRef_c<?>);
+    }
 }

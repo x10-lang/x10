@@ -46,6 +46,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     protected Ref<CConstraint> guard;
     protected Ref<TypeConstraint> typeGuard;
     List<LocalDef> formalNames;
+    Ref<? extends Type> offerType;
 
     public X10ConstructorDef_c(TypeSystem ts, Position pos,
             Ref<? extends ClassType> container,
@@ -55,7 +56,8 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             List<Ref<? extends Type>> formalTypes, 
             XVar thisVar, List<LocalDef> formalNames,
             Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, 
-            List<Ref<? extends Type>> throwTypes) {
+            List<Ref<? extends Type>> throwTypes,
+            Ref<? extends Type> offerType) {
         super(ts, pos, container, flags, formalTypes, throwTypes);
         this.returnType = returnType;
         this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
@@ -63,8 +65,12 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
         this.typeGuard = typeGuard;
+        this.offerType = offerType;
     }
 
+   public Ref<? extends Type> offerType() {
+	   return offerType;
+   }
     // BEGIN ANNOTATION MIXIN
     List<Ref<? extends Type>> annotations;
 

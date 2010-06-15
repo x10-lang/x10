@@ -18,6 +18,7 @@ import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Offer;
+import x10.ast.SemanticError;
 import x10.ast.X10NodeFactory;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
@@ -46,14 +47,15 @@ public class LocalOfferVisitor extends NodeVisitor {
     
     public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
  
- //offer e ->
- //    finishR.offer(e);   	
+ //  offer e ->
+ //    finishR.offer(e);  
+ //    Note: finishR is the instance of CollectingFinish   	
     	if (n instanceof Offer)
 			try {
 				return visitOffer((Offer) n);
 			} catch (SemanticException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e.printStackTrace();				
 			}          
         return n;
     }

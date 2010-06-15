@@ -306,10 +306,10 @@ variable \xcd`a`, which are concurrency-safe---even if invoked many times
 simultaneously. Without \xcd`atomic`, it would no longer be concurrency-safe.
 
 
-%~~gen
+%~fails~gen
 % package Functions2.Are.All.Too.Much;
 % class Fun2Frivols {
-%~~vis
+%~fails~vis
 \begin{xten}
   def counters() {
       shared var a : Int = 0;
@@ -319,10 +319,10 @@ simultaneously. Without \xcd`atomic`, it would no longer be concurrency-safe.
           ];
    }
 \end{xten}
-%~~siv
+%~fails~siv
 %}
 %
-%~~neg
+%~fails~neg
 
 
 %SHARED% \begin{note}

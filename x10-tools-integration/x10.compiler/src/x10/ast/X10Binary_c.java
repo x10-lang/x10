@@ -54,6 +54,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
 import x10.visit.ExprFlattener;
+import x10.visit.X10TypeChecker;
 import x10.visit.ExprFlattener.Flattener;
 
 /**
@@ -432,6 +433,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type l = left.type();
         Type r = right.type();
         
+        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         Name methodName = X10Binary_c.binaryMethodName(op);
         Name invMethodName = X10Binary_c.invBinaryMethodName(op);
@@ -451,7 +453,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 n2 = n2.constantValue(n.constantValue());
         
             try {
-                n2 = Converter.check(n2, tc);
+                n2 = Converter.check(n2, xtc);
                 if (! n2.methodInstance().def().flags().isStatic())
                     virtual_left = n2;
             }
@@ -467,7 +469,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 n4 = n4.constantValue(n.constantValue());
         
             try {
-                n4 = Converter.check(n4, tc);
+                n4 = Converter.check(n4, xtc);
                 if (n4.methodInstance().def().flags().isStatic())
                     static_left = n4;
             }
@@ -483,7 +485,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 n3 = n3.constantValue(n.constantValue());
         
             try {
-                n3 = Converter.check(n3, tc);
+                n3 = Converter.check(n3, xtc);
                 if (n3.methodInstance().def().flags().isStatic())
                     static_right = n3;
             }
@@ -499,7 +501,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 n5 = n5.constantValue(n.constantValue());
         
             try {
-                n5 = Converter.check(n5, tc);
+                n5 = Converter.check(n5, xtc);
                 if (! n5.methodInstance().def().flags().isStatic())
                     virtual_right = n5;
             }

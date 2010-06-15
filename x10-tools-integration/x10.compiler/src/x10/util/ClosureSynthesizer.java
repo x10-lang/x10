@@ -89,7 +89,8 @@ public class ClosureSynthesizer {
 	                fNames, 
 	                null, 
 	             //   null, 
-	                Collections.EMPTY_LIST);
+	                Collections.EMPTY_LIST, 
+	                null);
 	        Closure closure = (Closure) xnf.Closure(pos, //Collections.EMPTY_LIST,
 	                parms, 
 	                null, 
@@ -305,6 +306,7 @@ public class ClosureSynthesizer {
         		null,//todo: it was guard1
         		null, 
         		Collections.EMPTY_LIST, 
+        		null, // offerType
         		null);
         cd.addMethod(mi);
 

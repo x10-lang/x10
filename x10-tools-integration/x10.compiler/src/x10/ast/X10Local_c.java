@@ -56,7 +56,8 @@ public class X10Local_c extends Local_c {
 		
 		try {
 			X10Context context = (X10Context) tc.context();
-			LocalInstance li = context.findLocal(name.id());
+			LocalInstance li = localInstance();
+			if (!((X10LocalInstance) li).isValid()) li = context.findLocal(name.id());
 
 			// if the local is defined in an outer class, then it must be final
 			if (!context.isLocal(li.name())) {

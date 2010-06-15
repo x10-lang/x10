@@ -44,14 +44,13 @@ public class PositionInvariantChecker extends NodeVisitor
         assert (n != null) : "Cannot visit null";
         Position pPos = parent.position();
         Position nPos = n.position();
-
+        assert ((pPos != null) && (nPos != null)) : "Positions must never be null";
         if (nPos.isCompilerGenerated()) return;
         if (pPos.isCompilerGenerated()) {
             //assert (nPos.isCompilerGenerated()) : "If your parent is COMPILER_GENERATED, then you must be COMPILER_GENERATED";
             // todo: take from some ancestor
             return;
         }
-        assert ((pPos != null) && (nPos != null)) : "Positions must never be null";
         assert (equals(pPos.file(), nPos.file())) : "Positions must have the same file";
         assert (equals(pPos.path(), nPos.path())) : "Positions must have the same path";
 

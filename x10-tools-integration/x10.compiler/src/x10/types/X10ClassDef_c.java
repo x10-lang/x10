@@ -31,6 +31,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.ClassType;
 import polyglot.util.FilteringList;
 import polyglot.util.Predicate;
 import polyglot.util.Transformation;

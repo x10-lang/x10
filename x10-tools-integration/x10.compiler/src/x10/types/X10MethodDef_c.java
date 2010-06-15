@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.TypeNode;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef_c;
@@ -54,6 +55,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     List<Ref<? extends Type>> typeParameters;
     List<LocalDef> formalNames;
     Ref<XTerm> body;
+    Ref<? extends Type> offerType;
 
     public X10MethodDef_c(TypeSystem ts, Position pos,
             Ref<? extends StructType> container,
@@ -66,7 +68,9 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             List<LocalDef> formalNames,
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard,
-            List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
+            List<Ref<? extends Type>> excTypes, 
+            Ref< ? extends Type> offerType,
+            Ref<XTerm> body) {
         super(ts, pos, container, flags, returnType, name, formalTypes, excTypes);
         this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
         this.thisVar = thisVar;
@@ -74,6 +78,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         this.guard = guard;
         this.typeGuard = typeGuard;
         this.body = body;
+        this.offerType = offerType;
     }
 
     XVar thisVar;
@@ -81,6 +86,10 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         return this.thisVar;
     }
     
+
+    public Ref<? extends Type> offerType() {
+    	return this.offerType;
+    }
     public void setThisVar(XVar thisVar) {
         this.thisVar = thisVar;
     }
@@ -146,6 +155,10 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     
     public void setTypeGuard(Ref<TypeConstraint> s) {
         this.typeGuard = s;
+    }
+    
+    public void setOfferType(Ref<? extends Type> s) {
+        this.offerType = s;
     }
     
     public List<Ref<? extends Type>> typeParameters() {

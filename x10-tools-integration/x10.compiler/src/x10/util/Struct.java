@@ -137,6 +137,7 @@ public class Struct {
                null, 
                null, 
                Collections.EMPTY_LIST, 
+               null, //offerTye
                null);
        final LazyRef<X10ParsedClassType> NATIVE_LOC = Types.lazyRef(null);
        NATIVE_LOC.setResolver(new Runnable() {
@@ -165,6 +166,7 @@ public class Struct {
                null, 
                null, 
                Collections.EMPTY_LIST, 
+               null, //offerType
                null);
        final LazyRef<X10ParsedClassType> NATIVE_AT_1 = Types.lazyRef(null);
        NATIVE_AT_1.setResolver(new Runnable() {
@@ -194,6 +196,7 @@ public class Struct {
                null,
                null,
                Collections.EMPTY_LIST,
+               null, // offerType
                null
        );
        final LazyRef<X10ParsedClassType> NATIVE_TYPE_NAME = Types.lazyRef(null);
@@ -238,6 +241,7 @@ public class Struct {
                null,
                null,
                Collections.EMPTY_LIST,
+               null, // offerType
                null
        );
        final LazyRef<X10ParsedClassType> NATIVE_TYPE_NAME2 = Types.lazyRef(null);
@@ -268,6 +272,7 @@ public class Struct {
                null, 
                null, 
                Collections.EMPTY_LIST, 
+               null, // offerType
                null);
        final LazyRef<X10ParsedClassType> NATIVE_AT_2 = Types.lazyRef(null);
        NATIVE_AT_2.setResolver(new Runnable() {
