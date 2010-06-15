@@ -1065,7 +1065,11 @@ public class X10TypeMixin {
 	    return true;
 	}
 	
-	public static void checkMissingParameters(Type xt) throws SemanticException {
+	public static void checkMissingParameters(Receiver receiver) throws SemanticException {
+        Type xt = receiver.type();
+        checkMissingParameters(xt,receiver.position());
+    }
+	public static void checkMissingParameters(Type xt, Position pos) throws SemanticException {
 		if (xt == null) return;
 		xt = baseType(xt);
 		
@@ -1074,7 +1078,7 @@ public class X10TypeMixin {
 			
 			if (xt1.subst() == null || xt1.subst().isMissingParameters()){
 			List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
-				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, xt.position());
+				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, pos);
 			}
 		}
 	}

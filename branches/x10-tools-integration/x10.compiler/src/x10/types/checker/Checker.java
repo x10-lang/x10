@@ -19,6 +19,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Assign.Operator;
 import polyglot.types.Name;
+import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -35,6 +36,8 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10Context;
+import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
 import static polyglot.ast.Assign.*;
 
@@ -44,6 +47,20 @@ import static polyglot.ast.Assign.*;
  *
  */
 public class Checker {
+	
+	public static void checkOfferType(Position pos, 
+			X10ProcedureInstance<? extends ProcedureDef> pi,ContextVisitor tc) throws SemanticException {
+		X10Context cxt = (X10Context) tc.context();
+		Type offerType = (Type) Types.get(pi.offerType());
+		Type type = cxt.collectingFinishType();
+		if (offerType != null) {
+			if (type == null) 
+				throw new Errors.CannotCallCodeThatOffers(pi, pos);
+			if (! tc.typeSystem().isSubtype(offerType, type, cxt)) 
+				throw new Errors.OfferTypeMismatch(offerType, type, pos);
+		}
+		
+	}
 
 	public static Node typeCheckAssign(Assign_c a, ContextVisitor tc) throws SemanticException {
 	    Assign_c n = (Assign_c) a.typeCheckLeft(tc);

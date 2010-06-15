@@ -57,6 +57,7 @@ import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
+import polyglot.types.CodeInstance;
 import polyglot.types.Context;
 import polyglot.types.Context_c;
 import polyglot.types.FieldInstance;
@@ -352,7 +353,25 @@ public class X10Context_c extends Context_c implements X10Context {
     	return cxt;
     }
     public Type collectingFinishType() {
+    	if (currentCollectingFinishType != null)
     	return currentCollectingFinishType;
+    	// check if you are in code.
+    	Context cxt = this;
+    	CodeDef cc = cxt.currentCode();
+    	if (cc != null) {
+    		if (cc instanceof X10MethodDef) {
+    			X10MethodDef md = (X10MethodDef) cc;
+    			while (md.name().toString().contains("$dummyAsync")) {
+    				cxt = cxt.pop();
+    				cc = cxt.currentCode();
+    				if (cc instanceof X10MethodDef)
+    					md = (X10MethodDef) cc;
+    			}
+    			if (md != null)
+    				return Types.get(md.offerType());
+    		}
+    	}
+    	return null;
     }
     protected XConstrainedTerm thisPlace = null;
     public XConstrainedTerm currentThisPlace() {

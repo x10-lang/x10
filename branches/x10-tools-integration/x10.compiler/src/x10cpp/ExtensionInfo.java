@@ -146,7 +146,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		public Goal CodeGenerated(Job job) {
 			TypeSystem ts = extInfo.typeSystem();
 			NodeFactory nf = extInfo.nodeFactory();
-			return new OutputGoal(job, new X10CPPTranslator(job, ts, nf, extInfo.targetFactory())).intern(this);
+			return new ValidatingOutputGoal(job, new X10CPPTranslator(job, ts, nf, extInfo.targetFactory())).intern(this);
 		}
 		@Override
 		protected Goal PostCompiled() {

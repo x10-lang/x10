@@ -77,8 +77,8 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	 */
 	@Override
 	public void addDecls(Context c) {
-		super.addDecls(c);
-
+        if (li!=null) // if we had errors in type checking, li might be null (e.g., "var x = ...")
+		    super.addDecls(c);
 	}
 		
 
@@ -196,11 +196,12 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
      */
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		Type type = type().type();
+        final TypeNode typeNode = type();
+        Type type = typeNode.type();
 
-		X10TypeMixin.checkMissingParameters(type);
+		X10TypeMixin.checkMissingParameters(typeNode);
 		type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
-	    Ref<Type> r = (Ref<Type>) type().typeRef();
+	    Ref<Type> r = (Ref<Type>) typeNode.typeRef();
         r.update(type);
         
 	    if (type.isVoid())
@@ -215,7 +216,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	        throw new SemanticException(e.getMessage(), position());
 	    }
 
-	     X10LocalDecl_c n = (X10LocalDecl_c) this.type(tc.nodeFactory().CanonicalTypeNode(type().position(), type));
+	     X10LocalDecl_c n = (X10LocalDecl_c) this.type(tc.nodeFactory().CanonicalTypeNode(typeNode.position(), type));
 
 	    // Need to check that the initializer is a subtype of the (declared or inferred) type of the variable,
 	    // or can be implicitly coerced to the type.

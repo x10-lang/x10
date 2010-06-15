@@ -15,17 +15,19 @@ import harness.x10Test;
  * @author bdlucas 10/2008
  */
 
-class XTENLANG_16_MustFailCompile extends x10Test {
-
-    public interface I[T] {
-        property rect: boolean = true; // ERR
-    }
-
+public class XTENLANG_1367 extends x10Test {
     public def run(): boolean {
         return true;
     }
-
     public static def main(Rail[String]) {
-        new XTENLANG_16_MustFailCompile().execute();
+        new XTENLANG_1367().execute();
     }
+}
+interface I1 { static val a = 1;}
+interface I2 extends I1 {}
+interface I3 extends I1 {}
+interface I4 extends I2,I3 {}
+class Example implements I4 {
+	def example() = a;
+	def m(arg:Example{self.home.home.home==here}) = 1;
 }

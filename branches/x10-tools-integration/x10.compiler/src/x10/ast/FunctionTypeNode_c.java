@@ -59,15 +59,17 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	DepParameterExpr guard;
 	List<TypeNode> throwTypes;
 	TypeNode returnType;
+	TypeNode offersType;
 
-	public FunctionTypeNode_c(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, DepParameterExpr guard,
-			List<TypeNode> throwTypes) {
+	public FunctionTypeNode_c(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, DepParameterExpr guard, 
+			List<TypeNode> throwTypes, TypeNode offersType) {
 		super(pos);
 		this.typeParams = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 		this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 		this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 		this.returnType = returnType;
 		this.guard = guard;
+		this.offersType = offersType;
 	}
 
 	@Override
@@ -133,6 +135,10 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	 */
 	public TypeNode returnType() {
 		return this.returnType;
+	}
+	
+	public TypeNode offersType() {
+		return this.offersType;
 	}
 
 	/** Set the return type of the method. */

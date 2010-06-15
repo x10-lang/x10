@@ -60,7 +60,6 @@ public class XSubst extends XRef<XConstraint> {
 //			System.out.print("");
 	}
 	
-	private static int count = 0;
 
 	@Override
 	public XConstraint compute() {

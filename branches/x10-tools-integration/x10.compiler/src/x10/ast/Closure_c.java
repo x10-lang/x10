@@ -99,8 +99,9 @@ public class Closure_c extends Expr_c implements Closure {
     }
 
     TypeNode hasType;
+    TypeNode offerType;
     public Closure_c(Position pos,  List<Formal> formals, 
-    		TypeNode returnType, DepParameterExpr guard, List<TypeNode> throwTypes, Block body) {
+    		TypeNode returnType, DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body) {
 	super(pos);
 //	this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 	this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
@@ -110,6 +111,7 @@ public class Closure_c extends Expr_c implements Closure {
 	this.body = body;
 	 if (returnType instanceof HasTypeNode_c) 
 			hasType = ((HasTypeNode_c) returnType).typeNode();
+	 this.offerType = offerType;
     }
     
    /* public List<TypeParamNode> typeParameters() {
@@ -287,7 +289,8 @@ public class Closure_c extends Expr_c implements Closure {
         		Collections.<LocalDef>emptyList(), 
         		null, 
         		//null, 
-        		Collections.<Ref<? extends Type>>emptyList());
+        		Collections.<Ref<? extends Type>>emptyList(),
+        		offerType == null ? null : offerType.typeRef());
         if (returnType() instanceof UnknownTypeNode) {
             mi.inferReturnType(true);
         }

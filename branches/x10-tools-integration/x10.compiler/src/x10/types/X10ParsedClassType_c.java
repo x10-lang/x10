@@ -19,6 +19,7 @@ import polyglot.ast.Expr;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Matcher;
@@ -31,16 +32,12 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
-import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
-import x10.ast.SemanticError;
-import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
-import x10.constraint.XVar;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.matcher.Subst;
@@ -60,8 +57,8 @@ import x10.types.matcher.Subst;
 public class X10ParsedClassType_c extends ParsedClassType_c
 implements X10ParsedClassType
 {
-    TypeParamSubst subst;
-    
+    TypeParamSubst cacheSubst; // "subst" is just an auxiliary structure (cached to improve performance). It represents the typeArguments (thus it is nullified when assigning to typeArguments).
+
     public int hashCode() {
         return def.hashCode();
     }
@@ -100,19 +97,19 @@ implements X10ParsedClassType
     
     public
     TypeParamSubst subst() {
-        if (subst == null)
-            subst = new TypeParamSubst((X10TypeSystem) ts, typeArguments, x10Def().typeParameters());
-        return subst;
+        if (cacheSubst == null)
+            cacheSubst = new TypeParamSubst((X10TypeSystem) ts, typeArguments, x10Def().typeParameters());
+        return cacheSubst;
     }
     
     public X10ParsedClassType_c(ClassDef def) {
         super(def);
-        subst = null;
+        cacheSubst = null;
     }
 
     public X10ParsedClassType_c(TypeSystem ts, Position pos, Ref<? extends ClassDef> def) {
         super(ts, pos, def);
-        subst = null;
+        cacheSubst = null;
     }
  
 	public Type setFlags(Flags f) {
@@ -321,7 +318,7 @@ implements X10ParsedClassType
 	    } catch (XFailure z) {
 	    	throw new InternalCompilerError(z.toString() + " for type " + this);
 	    }
-	    n.subst = null;
+	    n.cacheSubst = null;
 	    return n;
 	}
 	
@@ -420,7 +417,7 @@ implements X10ParsedClassType
 		return thisVar;
 	}
 	
-	CConstraint xClause;
+	CConstraint xClause; //todo: is it mutated? it it used?
 	
 	public CConstraint getXClause() {
 		if (xClause == null) {
@@ -432,6 +429,10 @@ implements X10ParsedClassType
 			}
 		}
 		return xClause;
+	}
+
+	public boolean isValid() {
+		return !(def instanceof ErrorRef_c<?>);
 	}
 }
 

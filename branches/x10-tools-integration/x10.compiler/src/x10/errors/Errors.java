@@ -29,10 +29,12 @@ import polyglot.types.ClassDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.ErrorInfo;
@@ -769,6 +771,34 @@ public class Errors {
 			if (o==null || ! (o instanceof OfferDoesNotMatchCollectingFinishType) )
 				return false;
 			return((OfferDoesNotMatchCollectingFinishType)o).position().equals(position());
+		}
+	}
+	public static class CannotCallCodeThatOffers extends SemanticException {
+		private static final long serialVersionUID = 1561991534265566375L;
+		public CannotCallCodeThatOffers(X10ProcedureInstance pi,  Position position) {
+			super("Code that can offer values of given type is invoked in a context which does not expect offers."
+					+ "\n\t Offer type: " + Types.get(pi.offerType()),
+					position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof CannotCallCodeThatOffers) )
+				return false;
+			return((CannotCallCodeThatOffers)o).position().equals(position());
+		}
+	}
+	public static class OfferTypeMismatch extends SemanticException {
+		
+		public OfferTypeMismatch(Type actualType, Type expectedType,   Position position) {
+			super("Offer type mismatch."
+					+ "\n\t Found offer type: " + actualType
+					+ "\n\t Expected offer type: " + expectedType
+					, 
+					position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof OfferTypeMismatch) )
+				return false;
+			return((OfferTypeMismatch)o).position().equals(position());
 		}
 	}
 }

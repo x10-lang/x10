@@ -19,6 +19,7 @@ import java.util.List;
 import polyglot.types.ArrayType;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
+import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
@@ -118,6 +119,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return n;
     }
 
+    public Ref <? extends Type> offerType() {
+    	return x10Def().offerType();
+    }
+  
     /** Constraint on formal parameters. */
     protected CConstraint guard;
     public CConstraint guard() {
@@ -425,4 +430,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     		return s;
     }
 
+    public boolean isValid() {
+        return !(def instanceof ErrorRef_c<?>);
+    }
 }
