@@ -8,25 +8,17 @@
 package org.eclipse.imp.x10dt.tests.services.swbot.constants;
 
 /**
- * Contains string constants of the views that typically appear in the X10DT environment.
+ * Contains constant strings related to the X10 Platform Configuration.
  * 
  * @author egeay
  */
 @SuppressWarnings("all")
-public final class ViewConstants {
+public final class PlatformConfConstants {
   
-  // --- View names
-  
-  public static final String CONSOLE_VIEW_NAME = "Console"; //$NON-NLS-1$
-  
-  public static final String PACKAGE_EXPLORER_VIEW_NAME = "Package Explorer"; //$NON-NLS-1$
-  
-  // --- View context menu constants
-  
-  public static final String NEW_MENU = "New"; //$NON-NLS-1$
+  public static final String PLATFORM_CONF_FILE_PATH = "/{0}/x10_platform.conf"; //$NON-NLS-1$
   
   // --- Private code
   
-  private ViewConstants() {}
+  private PlatformConfConstants() {}
 
 }

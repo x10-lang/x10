@@ -7,10 +7,17 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp;
 
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEW_CPP_PROJECT_NAME;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.X10_PROJECT_CPP_BACKEND;
+import junit.framework.Assert;
+
 import org.eclipse.imp.x10dt.tests.services.swbot.conditions.X10DTConditions;
 import org.eclipse.imp.x10dt.tests.services.swbot.constants.LaunchConstants;
 import org.eclipse.imp.x10dt.tests.services.swbot.constants.ViewConstants;
+import org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants;
+import org.eclipse.imp.x10dt.tests.services.swbot.utils.PerspectiveUtils;
 import org.eclipse.imp.x10dt.tests.services.swbot.utils.ProjectUtils;
+import org.eclipse.imp.x10dt.tests.services.swbot.utils.SWTBotUtils;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
@@ -44,9 +51,9 @@ public final class LocalLaunchTest {
   /**
    * Tests compilation and run of an X10 program without any intermediate actions.
    */
-  @Test public void compileAndRunHelloWorld() {
+  @Test public void shouldCompileAndRunHelloWorld() {
     final String projectName = "demo"; //$NON-NLS-1$
-    ProjectUtils.createX10ProjectWithCppBackEnd(bot, projectName);
+    ProjectUtils.createX10ProjectWithCppBackEndFromTopMenu(bot, projectName);
     
     bot.menu(LaunchConstants.RUN_MENU).menu(LaunchConstants.RUN_CONFS_MENU_ITEM).click();
     final SWTBotShell runShell = bot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
@@ -62,6 +69,26 @@ public final class LocalLaunchTest {
     final SWTBotView consoleView = bot.viewByTitle(ViewConstants.CONSOLE_VIEW_NAME);
     bot.waitUntil(X10DTConditions.workbenchPartIsActive(consoleView), 20000);
     consoleView.bot().styledText().getText().contains("Hello X10 world"); //$NON-NLS-1$
+  }
+  
+  /**
+   * Tests creation of new project with the same name than the previous one. This should disable the next button.
+   * Then, we cancel it and test that the project is still here in the Package Explorer.
+   */
+  @Test public void shouldNotCreateProjectWithExistingName() {
+    final String projectName = "demo"; //$NON-NLS-1$    
+    PerspectiveUtils.switchToX10Perspective(bot);
+    bot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME).setFocus();
+    bot.sleep(1000);
+    SWTBotUtils.findSubMenu(bot.tree().contextMenu(ViewConstants.NEW_MENU), X10_PROJECT_CPP_BACKEND).click();
+    
+    bot.textWithLabel(NEW_CPP_PROJECT_NAME).setText(projectName);
+    
+    Assert.assertFalse(bot.button(WizardConstants.NEXT_BUTTON).isEnabled());
+    bot.button(WizardConstants.CANCEL_BUTTON).click();
+    
+    bot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME).setFocus();
+    Assert.assertTrue(bot.tree().hasItems());
   }
   
   // --- Fields

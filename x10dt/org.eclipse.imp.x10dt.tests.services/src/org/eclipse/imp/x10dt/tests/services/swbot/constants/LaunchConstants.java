@@ -15,7 +15,7 @@ package org.eclipse.imp.x10dt.tests.services.swbot.constants;
 @SuppressWarnings("all")
 public final class LaunchConstants {
   
-  public static final String RUN_MENU = "run"; //$NON-NLS-1$
+  public static final String RUN_MENU = "Run"; //$NON-NLS-1$
   
   public static final String RUN_CONFS_MENU_ITEM = "Run Configurations..."; //$NON-NLS-1$
   
