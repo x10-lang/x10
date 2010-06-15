@@ -26,7 +26,9 @@ public class ArrayAccessWithMismatchingPointRank_MustFailCompile extends x10Test
         val ia = new Array[int](e, (Point)=>0); // will infer ia:Array[int](1)
         val p = [1,1] as Point; // will infer p:Point(2)
 
-        a(ia(p)); // should fail at compile time because of mismatching rank.
+		val p1 = [1] as Point;
+		a(ia(p1)); // ok
+        a(ia(p)); // ERR should fail at compile time because of mismatching rank.
 
         return true;
     }
