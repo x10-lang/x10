@@ -36,6 +36,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -54,11 +55,13 @@ import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbConstructorMatcher;
+import x10.visit.X10TypeChecker;
 
 
 /**
@@ -353,6 +356,25 @@ public class X10New_c extends New_c implements X10New {
     	  
     }
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
+        try {
+            return typeCheck1(tc);
+        } catch (SemanticException e) {
+            X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
+            if (xtc.throwExceptions())
+                throw e;
+            Errors.issue(tc.job(), e, this);
+            X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+	        List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
+	        for (Expr a : this.arguments) {
+	            argTypes.add(a.type());
+	        }
+	        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(tn.type());
+            X10ConstructorInstance ci = ts.createFakeConstructor(ct, argTypes);
+	        Type rt = ci.returnType();
+            return (X10New_c) constructorInstance(ci).type(rt);
+        }
+    }
+    public Node typeCheck1(ContextVisitor tc) throws SemanticException {
         final X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
         // ///////////////////////////////////////////////////////////////////
@@ -474,7 +496,6 @@ public class X10New_c extends New_c implements X10New {
         	// Add self != null
         	type = X10TypeMixin.addDisBinding(type, X10TypeMixin.selfVar(type), XTerms.NULL);
         }
-       
         
         if (body != null) {
             // If creating an anonymous class, we need to adjust the return type
@@ -488,7 +509,22 @@ public class X10New_c extends New_c implements X10New {
         return xci;
        // return (X10New_c) this.constructorInstance(xci).type(type);
     }
-    
-   
-   
+
+    // TODO: Move down into New_c
+    public void dump(CodeWriter w) {
+        super.dump(w);
+
+        if (ci != null) {
+            w.allowBreak(4, " ");
+            w.begin(0);
+            w.write("(instance " + ci + ")");
+            w.end();
+        }
+
+        w.allowBreak(4, " ");
+        w.begin(0);
+        w.write("(arguments " + arguments + ")");
+        w.end();
+    }
+
 }

@@ -31,12 +31,14 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.FileResource;
 import polyglot.frontend.FileSource;
+import polyglot.frontend.ForgivingVisitorGoal;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.JLScheduler;
@@ -59,9 +61,19 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.ConformanceChecker;
+import polyglot.visit.ConstructorCallChecker;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.ExceptionChecker;
+import polyglot.visit.ExitChecker;
+import polyglot.visit.FwdReferenceChecker;
+import polyglot.visit.InitChecker;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
+import polyglot.visit.ReachChecker;
+import polyglot.visit.Translator;
 import x10.ast.X10NodeFactory_c;
+import x10.extension.X10Ext;
 import x10.optimizations.Optimizer;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -225,9 +237,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		if (r != 0)
     			return r;
     		Position pa  = a.position();
+    		Position pb = b.position();
+    		if (pa == null && pb == null && a.getMessage().equals(b.getMessage()))
+    		    return 0;
     		if (pa == null)
     			return -1;
-    		Position pb = b.position();
     		if (pb==null)
     			return 1;
     		if (pa.line() < pb.line())
@@ -353,7 +367,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                goals.add(End(job));
            } else {
 
-           goals.add(EnsureNoErrors(job));
            goals.add(ReassembleAST(job));
 
            goals.add(ConformanceChecked(job));
@@ -366,6 +379,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ConstructorCallsChecked(job));
            goals.add(ForwardReferencesChecked(job));
            goals.add(PropertyAssignmentsChecked(job));
+//           goals.add(CheckNativeAnnotations(job));
+           goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
 
            goals.add(X10Casted(job));
@@ -377,7 +392,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(NativeClassVisitor(job));
 
            goals.add(Serialized(job));
-           goals.add(CheckNativeAnnotations(job));
 
            if (x10.Configuration.WORK_STEALING) {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
@@ -476,7 +490,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                return new BarrierGoal(name, commandLineJobs()) {
                    @Override
                    public Goal prereqForJob(Job job) {
-                       return Serialized(job);
+                       return CheckASTForErrors(job);
                    }
                }.intern(this);
            }
@@ -489,7 +503,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                        {
                            return null;
                        }
-                       return Serialized(job);
+                       return CheckASTForErrors(job);
                    }
                }.intern(this);
            }
@@ -522,6 +536,18 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    }
                }.intern(this);
            }
+       }
+
+       public Goal CheckASTForErrors(Job job) {
+           return new SourceGoal_c("CheckASTForErrors", job) {
+               public boolean runTask() {
+                   if (job.reportedErrors()) {
+                       Node ast = job.ast();
+                       job.ast(((X10Ext)ast.ext()).setSubtreeValid(false));
+                   }
+                   return true;
+               }
+           }.intern(this);
        }
 
        public Goal Serialized(Job job) {
@@ -572,16 +598,29 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        @Override
        public Goal InitializationsChecked(Job job) {
-	   TypeSystem ts = job.extensionInfo().typeSystem();
-	   NodeFactory nf = job.extensionInfo().nodeFactory();
-	   return new VisitorGoal("InitializationsChecked", job, new X10InitChecker(job, ts, nf)).intern(this);
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("InitializationsChecked", job, new X10InitChecker(job, ts, nf)).intern(this);
+       }
+
+       public static class ValidatingOutputGoal extends OutputGoal {
+           public ValidatingOutputGoal(Job job, Translator translator) {
+               super(job, translator);
+           }
+           public boolean runTask() {
+               Node ast = job().ast();
+               if (ast != null && !((X10Ext)ast.ext()).subtreeValid()) {
+                   return false;
+               }
+               return super.runTask();
+           }
        }
 
        @Override
        public Goal CodeGenerated(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
-    	   return new OutputGoal(job, new X10Translator(job, ts, nf, extInfo.targetFactory())).intern(this);
+    	   return new ValidatingOutputGoal(job, new X10Translator(job, ts, nf, extInfo.targetFactory())).intern(this);
        }
 
        public Goal X10MLTypeChecked(Job job) {
@@ -592,50 +631,51 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        @Override
        public Goal TypeChecked(Job job) {
-       	TypeSystem ts = job.extensionInfo().typeSystem();
-       	NodeFactory nf = job.extensionInfo().nodeFactory();
-       	return new VisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())).intern(this);
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())).intern(this);
        }
 
-       public Goal X10Casted(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("X10Casted", job, new X10Caster(job, ts, nf)).intern(this);
+       public Goal ConformanceChecked(Job job) {
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("ConformanceChecked", job, new ConformanceChecker(job, ts, nf)).intern(this);
        }
 
-       public Goal MoveFieldInitializers(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("MoveFieldInitializers", job, new FieldInitializerMover(job, ts, nf)).intern(this);
+       public Goal ReachabilityChecked(Job job) {
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("ReachChecked", job, new ReachChecker(job, ts, nf)).intern(this);
        }
 
-       public Goal X10RewriteExtern(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("X10RewriteExtern", job, new RewriteExternVisitor(job, ts, nf)).intern(this);
-       }
-       public Goal X10RewriteAtomicMethods(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("X10RewriteAtomicMethods", job, new RewriteAtomicMethodVisitor(job, ts, nf)).intern(this);
+       public Goal ExceptionsChecked(Job job) {
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("ExceptionsChecked", job, new ExceptionChecker(job, ts, nf)).intern(this);
        }
 
-       public Goal X10ExprFlattened(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("X10ExprFlattened", job, new ExprFlattener(job, ts, nf)).intern(this);
+       public Goal ExitPathsChecked(Job job) {
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("ExitChecked", job, new ExitChecker(job, ts, nf)).intern(this);
+       }
+
+       public Goal ConstructorCallsChecked(Job job) {
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("ContructorCallsChecked", job, new ConstructorCallChecker(job, ts, nf)).intern(this);
+       }
+
+       public Goal ForwardReferencesChecked(Job job) {
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("ForwardRefsChecked", job, new FwdReferenceChecker(job, ts, nf)).intern(this);
        }
 
        public Goal PropertyAssignmentsChecked(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("PropertyAssignmentsChecked", job, new AssignPropertyChecker(job, ts, nf)).intern(this);
-       }
-
-       public Goal X10Expanded(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("X10Expanded", job, new X10ImplicitDeclarationExpander(job, ts, nf)).intern(this);
+           return new ForgivingVisitorGoal("PropertyAssignmentsChecked", job, new AssignPropertyChecker(job, ts, nf)).intern(this);
        }
 
        public Goal CheckNativeAnnotations(Job job) {
@@ -644,10 +684,59 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "java")).intern(this);
        }
 
+       public static class ValidatingVisitorGoal extends VisitorGoal {
+           public ValidatingVisitorGoal(String name, Job job, NodeVisitor v) {
+               super(name, job, v);
+           }
+           public boolean runTask() {
+               Node ast = job().ast();
+               if (ast != null && !((X10Ext)ast.ext()).subtreeValid()) {
+                   return true;
+               }
+               return super.runTask();
+           }
+       }
+
+       public Goal X10Casted(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("X10Casted", job, new X10Caster(job, ts, nf)).intern(this);
+       }
+
+       public Goal MoveFieldInitializers(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("MoveFieldInitializers", job, new FieldInitializerMover(job, ts, nf)).intern(this);
+       }
+
+       public Goal X10RewriteExtern(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("X10RewriteExtern", job, new RewriteExternVisitor(job, ts, nf)).intern(this);
+       }
+
+       public Goal X10RewriteAtomicMethods(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("X10RewriteAtomicMethods", job, new RewriteAtomicMethodVisitor(job, ts, nf)).intern(this);
+       }
+
+       public Goal X10ExprFlattened(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("X10ExprFlattened", job, new ExprFlattener(job, ts, nf)).intern(this);
+       }
+
+       public Goal X10Expanded(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("X10Expanded", job, new X10ImplicitDeclarationExpander(job, ts, nf)).intern(this);
+       }
+
        public Goal NativeClassVisitor(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "java")).intern(this);
+           return new ValidatingVisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "java")).intern(this);
        }
 
        public Goal WSCodeGenerator(Job job) {
@@ -665,7 +754,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                                                      TypeSystem.class,
                                                      NodeFactory.class);
                ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf);
-               result = new VisitorGoal("WSCodeGenerator", job, wsvisitor).intern(this);
+               result = new ValidatingVisitorGoal("WSCodeGenerator", job, wsvisitor).intern(this);
            }
            catch (ClassNotFoundException e) {
                System.err.println("[X10_WS_ERR]Cannot load Work-Stealing code gen class. Ignore Work-Stealing transform.");
@@ -679,18 +768,19 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal Desugarer(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
-    	   return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+    	   return new ValidatingVisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
        }
 
        public Goal InnerClassRemover(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("InnerClassRemover", job, new X10InnerClassRemover(job, ts, nf)).intern(this);
+           return new ValidatingVisitorGoal("InnerClassRemover", job, new X10InnerClassRemover(job, ts, nf)).intern(this);
        }
+
        public Goal StaticNestedClassRemover(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
+           return new ValidatingVisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
        }
     }
 

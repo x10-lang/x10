@@ -74,6 +74,9 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return Types.get(def);
 	}
 	
+	public Ref<? extends Type> offerType() {
+		return null;
+	}
 	public boolean isGloballyAccessible() {
 	    return false;
 	}

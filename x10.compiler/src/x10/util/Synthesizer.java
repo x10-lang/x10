@@ -1176,11 +1176,21 @@ public class Synthesizer {
      * @return
      */
     public X10MethodDef createMethodDef(Position p, X10ClassDef classDef,
+            Flags flag,
+            Type returnType,
+            Name name,
+            List<Formal> formals,
+            List<Type> throwTypes
+            ){
+    	return createMethodDef(p, classDef, flag, returnType, name, formals, throwTypes, null);
+    }
+    public X10MethodDef createMethodDef(Position p, X10ClassDef classDef,
                                        Flags flag,
                                        Type returnType,
                                        Name name,
                                        List<Formal> formals,
-                                       List<Type> throwTypes
+                                       List<Type> throwTypes,
+                                       Type offerType
                                        ){
        // Method def
         List<Ref<? extends Type>> formalTypeRefs = new ArrayList<Ref<? extends Type>>();
@@ -1197,7 +1207,8 @@ public class Synthesizer {
                 Types.ref(returnType), 
                 name, 
                 formalTypeRefs, 
-                throwTypeRefs);
+                throwTypeRefs,
+                Types.ref(offerType));
         classDef.addMethod(mDef);
         return mDef;
     }

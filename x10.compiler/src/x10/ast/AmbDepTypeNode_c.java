@@ -122,26 +122,24 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	
-	AmbDepTypeNode_c n = this;
-	
-	LazyRef<Type> sym = (LazyRef<Type>) n.type;
+
+	LazyRef<Type> sym = (LazyRef<Type>) this.type;
 	assert sym != null;
 	
-        TypeChecker childtc = (TypeChecker) tc.enter(parent, n);
+        TypeChecker childtc = (TypeChecker) tc.enter(parent, this);
         
-        TypeNode tn = (TypeNode) visitChild(n.base, childtc);
+        TypeNode tn = (TypeNode) visitChild(base, childtc);
         Type t = tn.type();
 
         if (t instanceof UnknownType) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
             sym.update(ts.unknownType(position()));
-            return postprocess(nf.CanonicalTypeNode(position(), sym), n, childtc);
+            return postprocess(nf.CanonicalTypeNode(position(), sym), this, childtc);
         }
         
-        DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);
+        DepParameterExpr constr = (DepParameterExpr) visitChild(dep, childtc);
         
-        CConstraint c = Types.get(dep.valueConstraint());
+        CConstraint c = Types.get(constr.valueConstraint());
         t = X10TypeMixin.xclause(t, c);
         if (flags != null) {
         	t = X10TypeMixin.processFlags(flags, t);
@@ -150,8 +148,8 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
 
         sym.update(t);
 
-        CanonicalTypeNode result = nf.X10CanonicalTypeNode(position(), sym, dep);
-        return postprocess(result, n, childtc);   
+        CanonicalTypeNode result = nf.X10CanonicalTypeNode(position(), sym, constr);
+        return postprocess(result, this, childtc);
     }
     
     static TypeNode postprocess(CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) throws SemanticException {

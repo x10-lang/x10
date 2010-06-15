@@ -13,6 +13,7 @@ package x10.types;
 
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.constraint.XTerm;
 
@@ -35,5 +36,7 @@ public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance<
 	
 	XTerm body();
 	X10MethodInstance body(XTerm body);
+	
+	
 
 }

@@ -67,6 +67,9 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		this.type = type;
 	}
 	
+	public Ref<? extends Type> offerType() {
+		return null;
+	}
 	// BEGIN ANNOTATION MIXIN
 	List<Ref<? extends Type>> annotations;
 

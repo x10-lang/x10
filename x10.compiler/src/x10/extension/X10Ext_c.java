@@ -29,6 +29,7 @@ import x10.types.X10TypeSystem;
 public class X10Ext_c extends Ext_c implements X10Ext {
     String comment;
     List<AnnotationNode> annotations;
+    boolean subtreeValid = true;
     
     public String comment() {
         return this.comment;
@@ -85,5 +86,20 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     public Node annotations(List<AnnotationNode> annotations) {
     	Node n = this.node();
     	return n.ext(this.extAnnotations(annotations));
+    }
+
+    public boolean subtreeValid() {
+        return subtreeValid;
+    }
+
+    public X10Ext subtreeValid(boolean val) {
+        X10Ext_c n = (X10Ext_c) copy();
+        n.subtreeValid = val;
+        return n;
+    }
+    
+    public Node setSubtreeValid(boolean val) {
+        Node n = this.node();
+        return n.ext(this.subtreeValid(val));
     }
 }

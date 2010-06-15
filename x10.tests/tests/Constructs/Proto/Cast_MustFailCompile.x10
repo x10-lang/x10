@@ -23,7 +23,8 @@ public class Cast_MustFailCompile extends x10Test {
     /**
      * Casts to proto types are not permitted.
      */
-    def m(a: A): proto A = a as proto A;
+    def m(a: A): proto A = 
+		a as proto A; // ERR
     
     
     public def run()=true;

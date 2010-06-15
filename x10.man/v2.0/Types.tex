@@ -69,7 +69,7 @@ of subtyping in X10.
 
 \subsection*{The Grammar of Types}
 
-Types are described by the following grammar: 
+Types are described by the following grammar: \\
 \bard{Is this still correct?}
 \begin{grammar}
 Type \: FunctionType \\
@@ -1489,7 +1489,8 @@ class Triangle extends Shape {
 the X10 compiler would reject this program for attempting to override
 \xcd`isTriangle()` by a method with the wrong type, \viz,
 \xcd`Boolean{self==true}`.  In this case, supply the type that is actually
-intended for \xcd`isTriangle`, such as \xcd`def isTriangle():Boolean=false;`. 
+intended for \xcd`isTriangle`, such as 
+\xcd`def isTriangle() :Boolean =false;`. 
 
 The return type of a closure can be omitted.
 The inferred return type is the computed type of the body.

@@ -46,6 +46,8 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected CodeInstance<?> asInstance;
     
     protected XConstrainedTerm placeTerm;
+    protected Ref<? extends Type> offerType;
+    
   
 
     public ClosureDef_c(TypeSystem ts, Position pos, 
@@ -58,7 +60,8 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             List<LocalDef> formalNames, 
             Ref<CConstraint> guard,
        //     Ref<TypeConstraint> typeGuard,
-            List<Ref<? extends Type>> throwTypes) {
+            List<Ref<? extends Type>> throwTypes,
+            Ref<? extends Type> offerType) {
 
         super(ts, pos);
         this.typeContainer = typeContainer;
@@ -71,8 +74,12 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.guard = guard;
      //   this.typeGuard = typeGuard;
         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
+        this.offerType = offerType;
     }
     
+    public Ref<? extends Type> offerType() {
+    	return offerType;
+    }
     public ClosureDef position(Position pos) {
     	ClosureDef_c n = (ClosureDef_c) copy();
     	n.position = pos;

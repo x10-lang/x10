@@ -52,6 +52,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10TypeSystem_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -59,6 +60,7 @@ import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.matcher.Subst;
+import x10.visit.X10TypeChecker;
 import x10.errors.Errors;
 
 
@@ -78,25 +80,33 @@ public class X10Field_c extends Field_c {
 		super(pos, target, name);
 	}
 
-	  public X10Field_c reconstruct(Receiver target, Id name) {
-	      return (X10Field_c) super.reconstruct(target, name);
-	    }
+	public X10Field_c reconstruct(Receiver target, Id name) {
+	    return (X10Field_c) super.reconstruct(target, name);
+	}
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		
-		Node n = typeCheck1(tc);
-		// Keep this at the very end. This is caught by 
-		// handle proto.
-		X10TypeMixin.checkMissingParameters(type());
-		if (! ((X10Context) tc.context()).inAssignment()) {
-			if (n instanceof X10Field_c) {
-				Field nf = (Field) n;
-				Type xtType = nf.target().type();
-				if (X10TypeMixin.isProto(xtType)) {
-					throw new Errors.CannotReadFieldOfProtoValue(nf,
-							nf.position());
-
-				}
-			}
+		Node n;
+		try {
+		    n = typeCheck1(tc);
+		    // Keep this at the very end. This is caught by 
+		    // handle proto.
+		    X10TypeMixin.checkMissingParameters(this);
+		    if (! ((X10Context) tc.context()).inAssignment()) {
+		        if (n instanceof X10Field_c) {
+		            Field nf = (Field) n;
+		            Type xtType = nf.target().type();
+		            if (X10TypeMixin.isProto(xtType)) {
+		                throw new Errors.CannotReadFieldOfProtoValue(nf, nf.position());
+		            }
+		        }
+		    }
+		} catch (SemanticException e) {
+		    X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
+		    if (xtc.throwExceptions())
+		        throw e;
+		    Errors.issue(tc.job(), e, this);
+		    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+		    X10FieldInstance fi = xts.createFakeField(X10TypeMixin.baseType(target.type()).toClass(), name.id());
+		    n = (X10Field_c)fieldInstance(fi).type(fi.type());
 		}
 		return n;
 	}

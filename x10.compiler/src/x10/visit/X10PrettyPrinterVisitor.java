@@ -34,12 +34,15 @@ import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
+import polyglot.ast.Id;
 import polyglot.ast.Id_c;
 import polyglot.ast.Import_c;
 import polyglot.ast.IntLit_c;
+import polyglot.ast.Labeled_c;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign_c;
+import polyglot.ast.Loop_c;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -117,6 +120,7 @@ import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
+import x10.ast.X10Return_c;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
 import x10.emitter.CastExpander;
@@ -579,11 +583,37 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			for (TypeParamNode tp : n.typeParameters()) {
 				w.write(sep);
 				n.print(tp, w, tr);
-				List<Type> sups = tp.upperBounds();
-				if (sups.size() > 0 && !reduce_generic_cast) {
-					//TODO: Decide what to do with multiple upper bounds. Not sure how Java will handle this.
-					w.write(" extends ");
-					er.printType(sups.get(0), PRINT_TYPE_PARAMS | NO_VARIANCE);
+				List<Type> sups = new LinkedList<Type>(tp.upperBounds());
+								
+				Type supClassType = null;
+				for (Iterator it = sups.iterator(); it.hasNext();) {
+                                    Type type = X10TypeMixin.baseType((Type) it.next());
+                                    if (type instanceof ParameterType) {
+                                        it.remove();
+                                    }
+                                    if (type instanceof X10ClassType) {
+                                        if (!((X10ClassType) type).flags().isInterface()) {
+                                            if (supClassType != null ) {
+                                                if (type.isSubtype(supClassType, context)) {
+                                                    supClassType = type;
+                                                }
+                                            } else {
+                                                supClassType = type;
+                                            }
+                                            it.remove();
+                                        }
+                                    }
+                                }
+				if (supClassType != null) {
+				    sups.add(0, supClassType);
+				}
+				
+				if (sups.size() > 0) {
+				    w.write(" extends ");
+				    for (int i = 0; i < sups.size(); ++i) {
+				        if (i != 0) w.write(" & ");
+				        er.printType(sups.get(i), PRINT_TYPE_PARAMS | NO_VARIANCE);
+				    }
 				}
 				sep = ", ";
 			}
@@ -813,11 +843,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 ex.expand(tr);
                                 w.write(")");
                                 w.allowBreak(2, " ");
-                                if (expr instanceof Unary || expr instanceof Lit)
-                                        w.write("(");
+                                X10TypeSystem xts = ((X10TypeSystem)tr.typeSystem());
+                                if (expr instanceof Unary || expr instanceof Lit || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type())))
+                                    w.write("(");
                                 c.printSubExpr(expr, w, tr);
-                                if (expr instanceof Unary || expr instanceof Lit)
-                                        w.write(")");
+                                if (expr instanceof Unary || expr instanceof Lit || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type())))
+                                    w.write(")");
                                 w.write(")");
                                 w.end();
                             }
@@ -1325,7 +1356,95 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        }
 	    }
 	    
-		X10Context context = (X10Context) tr.context();
+	    X10Context context = (X10Context) tr.context();
+	    
+	    if (xts.isRail(c.target().type()) || xts.isValRail(c.target().type())) {
+	        String methodName = c.methodInstance().name().toString();
+	        if (methodName.equals("make")) {
+	            Type rt = X10TypeMixin.baseType(c.type());
+	            if (rt instanceof X10ClassType) {
+	                Type pt = ((X10ClassType) rt).typeArguments().get(0);
+	                if (!(X10TypeMixin.baseType(pt) instanceof ParameterType)) {
+	                    // for makeVaxRail(type,length,init);
+	                    if (c.arguments().size() == 2 && c.arguments().get(0).type().isNumeric()) {
+	                        Expr expr = c.arguments().get(1);
+	                        if (expr instanceof Closure_c) {
+	                            Closure_c closure = (Closure_c) expr;
+	                            final List<Stmt> statements = closure.body().statements();
+	                            if (!throwException(statements)) {
+	                                
+	                                Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+	                                tr2 = tr2.context(expr.enterScope(tr2.context()));
+	                                
+	                                final Expander ex;
+	                                if (pt.isBoolean() || pt.isNumeric() || pt.isChar()) {
+	                                    ex = new TypeExpander(er, pt, false, false, false);
+	                                } else {
+	                                    ex = new Expander(er) {
+	                                        public void expand(Translator tr2) {w.write("Object");}
+	                                    };
+	                                }
+	                                final Node n = c;
+	                                final Id id = closure.formals().get(0).name();
+	                                Expander ex1 = new Expander(er) {
+                                            @Override
+                                            public void expand(Translator tr2) {
+                                                for (Stmt stmt : statements) {
+                                                    if (stmt instanceof X10Return_c) {
+                                                        w.write("array");
+                                                        w.write("[");
+                                                        w.write(id.toString());
+                                                        w.write("] = ");
+                                                        er.prettyPrint(((X10Return_c) stmt).expr(), tr2);
+                                                        w.write(";");
+                                                    }
+                                                    else {
+                                                        er.prettyPrint(stmt, tr2);
+                                                    }
+                                                }
+                                            }
+                                        };
+
+                                        Expander ex2 = new Expander(er) {
+                                            @Override
+                                            public void expand(Translator tr2) {
+                                                ex.expand();
+                                                w.write("[] ");
+                                                w.write("array = new ");
+                                                ex.expand();
+                                                w.write("[length];");
+                                            }
+                                        };
+                                        
+	                                Object[] components = {
+                                            new TypeExpander(er, c.target().type(), false, true, false),
+                                            new TypeExpander(er, pt, true, true, false),
+                                            new RuntimeTypeExpander(er, pt),
+                                            c.arguments().get(0),
+                                            ex1,
+                                            id,
+                                            ex2
+	                                };
+	                                er.dumpRegex("rail-make", components, tr2, 
+	                                        "(new java.lang.Object() {" +
+	                                    	    "final #0<#1> apply(int length) {" +
+	                                    	        "#6" + 
+	                                    	        "for (int #5$ = 0; #5$ < length; #5$++) {" +
+	                                    		    "final int #5 = #5$;" +
+	                                    		    "#4" +
+	                                    		"}" +
+	                                    		"return new #0<#1>(#2, #3, array);" +
+	                                             "}" +
+	                                         "}.apply(#3))");
+	                                
+	                                return;
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
 
 		Receiver target = c.target();
 		Type t = target.type();
@@ -2004,6 +2123,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		new Template(er, "Now", n.clock(), n.body()).expand(tr2);
 	}
 
+	public void visit(Labeled_c n) {
+	    Stmt statement = n.statement();
+	    if (statement instanceof Block_c) {
+	        w.write("{");
+	        Block_c block = (Block_c) statement;
+	        for (Stmt s : block.statements()) {
+	            if (s instanceof Loop_c) {
+	                w.write(n.labelNode() + ": ");
+	            }
+	            tr.print(n, s, w);
+	        }
+            w.write("}");
+	    } else {
+	        w.write(n.labelNode() + ": ");
+	        tr.print(n, statement, w);
+	    }
+	}
 
 
 	/*
