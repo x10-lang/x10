@@ -407,6 +407,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		X10Context c = (X10Context) tc.context();
 
+		if (mi != null && ((X10MethodInstance)mi).isValid()) // already typechecked
+		    return this;
+
 		X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
 
 		Expr cc = null;
@@ -563,7 +566,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			if (t instanceof ParameterType) {
 				throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
 			}
-			structCall = tryStructConstructor(tc, target, typeArgs, argTypes, arguments);
+			structCall = tryStructConstructor(xtc, target, typeArgs, argTypes, arguments);
 			if (structCall != null) {
 				Checker.checkOfferType(position(), (X10ConstructorInstance) ((X10New_c) structCall).constructorInstance(), tc);
 				return structCall;
