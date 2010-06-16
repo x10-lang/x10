@@ -12,6 +12,7 @@
 package x10.ast;
 
 import java.util.Collections;
+import java.util.Set;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
@@ -104,11 +105,55 @@ public class X10Field_c extends Field_c {
 		    if (xtc.throwExceptions())
 		        throw e;
 		    Errors.issue(tc.job(), e, this);
-		    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
-		    X10FieldInstance fi = xts.createFakeField(X10TypeMixin.baseType(target.type()).toClass(), name.id());
+		    X10FieldInstance fi = findAppropriateField(tc, target.type(), name.id(), target instanceof TypeNode);
 		    n = (X10Field_c)fieldInstance(fi).type(fi.type());
 		}
 		return n;
+	}
+
+	public static X10FieldInstance findAppropriateField(ContextVisitor tc, Type targetType,
+	        Name name, boolean isStatic) throws SemanticException
+	{
+	    X10FieldInstance fi;
+	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    Context context = tc.context();
+	    Set<FieldInstance> fis = ts.findFields(targetType, ts.FieldMatcher(targetType, name, context));
+	    // If exception was not thrown, there is at least one match.  Fake it.
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	    // See if all matches have the same type, and save that to avoid losing information.
+	    Type rt = null;
+	    for (FieldInstance xfi : fis) {
+	        if (rt == null) {
+	            rt = xfi.type();
+	        } else if (!xts.typeEquals(rt, xfi.type(), context)) {
+	            if (xts.typeBaseEquals(rt, xfi.type(), context)) {
+	                rt = X10TypeMixin.baseType(rt);
+	            } else {
+	                rt = null;
+	                break;
+	            }
+	        }
+	    }
+	    // See if all matches have the same container, and save that to avoid losing information.
+	    Type ct = null;
+	    for (FieldInstance xfi : fis) {
+	        if (ct == null) {
+	            ct = xfi.container();
+	        } else if (!xts.typeEquals(ct, xfi.container(), context)) {
+	            if (xts.typeBaseEquals(ct, xfi.container(), context)) {
+	                ct = X10TypeMixin.baseType(ct);
+	            } else {
+	                ct = null;
+	                break;
+	            }
+	        }
+	    }
+	    if (ct != null) targetType = ct;
+	    Flags flags = Flags.PUBLIC;
+	    if (isStatic) flags = flags.Static();
+	    fi = xts.createFakeField(targetType.toClass(), flags, name);
+	    if (rt != null) fi = fi.type(rt);
+	    return fi;
 	}
 	
     // Fix XTENLANG-945

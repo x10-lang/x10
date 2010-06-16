@@ -266,7 +266,6 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	        Collection<X10MethodInstance> mis = ts.findMethods(targetType, ts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
 	        // If exception was not thrown, there is at least one match.  Fake it.
 	        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
-	        mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes);
 	        // See if all matches have the same return type, and save that to avoid losing information.
 	        Type rt = null;
 	        for (X10MethodInstance xmi : mis) {
@@ -281,6 +280,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	                }
 	            }
 	        }
+	        mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes);
 	        if (rt != null) mi = mi.returnType(rt);
 	    }
 	    return mi;
