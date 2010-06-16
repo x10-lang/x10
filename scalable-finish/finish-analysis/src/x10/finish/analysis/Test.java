@@ -20,7 +20,7 @@ public class Test {
 		
 	    }
 
-	    File f = new File("/"+user+"/blshao/workspace/wala-bridge-1.0/test.x10/TrivialTest2.x10");
+	    File f = new File("/"+user+"/blshao/workspace/wala-bridge-1.0/test.x10/TrivialTest.x10");
 	    X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 	 
 			/* *********************************

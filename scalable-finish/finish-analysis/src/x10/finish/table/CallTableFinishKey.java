@@ -16,10 +16,10 @@ public class CallTableFinishKey extends CallTableKey {
 	 */
 	public int blk;
 	
-	public CallTableFinishKey(String s, int line, int column, 
+	public CallTableFinishKey(String s,String n, int line, int column, 
 		int b, boolean f) {
 		// finish = f;
-		super(s,"",line,column);
+		super(s,n,line,column);
 		blk = b;
 		is_finish = f;
 	}

@@ -209,10 +209,11 @@ public class X10FinishAsyncAnalysis {
 	if (finst.isFinishEnter()) {
 	     //use stack to handle nested finish 
 	    assert(env.cur_scope!=null);
+	    String name = env.cur_scope.name;
 	    env.uncompleted_scope.push(env.cur_scope);
 	    CGNode caller = cg.getNode(env.cur_method_node);
 	    String scope = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
- 	    env.cur_scope = new CallTableFinishKey(scope, line, column,env.cur_block,true);
+ 	    env.cur_scope = new CallTableFinishKey(scope, name, line, column,env.cur_block,true);
 	    // System.out.println(env.cur_finish.toString());
 	    calltable.put(env.cur_scope, new LinkedList<CallTableVal>());
 	} else {
@@ -220,6 +221,7 @@ public class X10FinishAsyncAnalysis {
 	    if(last_inst!=null){
 		last_inst.aslast = env.cur_scope;
 		env.cur_scope.lastStmt = last_inst;
+		last_inst = null;
 	    }
 	    assert(env.uncompleted_scope.isEmpty()==false);
 	    env.cur_scope = env.uncompleted_scope.pop();
@@ -244,7 +246,7 @@ public class X10FinishAsyncAnalysis {
 		CallTableAtVal atval = 
 		    new CallTableAtVal(env.cur_scope.scope,"",arity,line,
 			    column,env.cur_block);
-		last_inst = atval;
+		updateLastInst(env.cur_scope,atval);
 		replaceTable(tmpkey, atval);
 	    } else {
 		ISSABasicBlock root = epcfg.entry();
@@ -252,25 +254,28 @@ public class X10FinishAsyncAnalysis {
 		CallTableAtVal atval = new CallTableAtVal(env.cur_scope.scope,
 			"",arity,line,column,env.cur_block);
 		//System.err.println(atval.toString());
-		last_inst = atval;
+		updateLastInst(env.cur_scope,atval);
 		replaceTable(tmpkey, atval);
 		
 	    }
 	    env.uncompleted_scope.push(env.cur_scope);
+	    String name = env.cur_scope.name;
 	    CGNode caller = cg.getNode(env.cur_method_node);
 	    String scope = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
 	    //-1 is the dummy blk
-	    env.cur_scope = new CallTableFinishKey(scope,line,column,env.cur_block,false);
+	    env.cur_scope = new CallTableFinishKey(scope,name, line,column,env.cur_block,false);
 	    calltable.put(env.cur_scope, new LinkedList<CallTableVal>());
 	} else {
 	    // at exit
 	    // add this "at" statement to its "finish" or "method"
+	    assert(env.cur_scope instanceof CallTableFinishKey);
 	    CallTableKey prekey;
 	    if(last_inst!=null){
 		last_inst.aslast = env.cur_scope;
 		env.cur_scope.lastStmt = last_inst;
+		last_inst = null;
 	    }
-	    assert(env.cur_scope instanceof CallTableFinishKey);
+	    
 	    CallTableFinishKey curkey = (CallTableFinishKey)env.cur_scope;
 	    //mark the current "at" as the last instruction for its scope
 	    // create a dummy CallTableAtVal with the same signature as the target one in the talbe 
@@ -284,14 +289,14 @@ public class X10FinishAsyncAnalysis {
 	    int index = calltable.get(prekey).indexOf(tmpatval);
 	    // get the target and save it as the last instruction of this scope
 	    last_inst = calltable.get(prekey).get(index);
-	    
-	    
 	}
     }
     
     private void updateTable(ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
 	    AnalysisEnvironment env, String defpack, String defname, int defline, int defcol, 
 	    String callpack, String callname, int calline, int callcol, boolean is_async){
+	
+	
 
 	ISSABasicBlock curblk = (epcfg.getNode(env.cur_block));
 	CallTableKey tmpkey = env.cur_scope;
@@ -307,8 +312,7 @@ public class X10FinishAsyncAnalysis {
 	}
 	CallTableAsyncVal aval = new CallTableAsyncVal(defpack, defname, defline, defcol,arity,
 		callpack, callname, calline, callcol, env.cur_block, is_async);
-	System.err.println("async - " + aval.toString());
-	last_inst = aval;
+	updateLastInst(env.cur_scope,aval);
 	replaceTable(tmpkey, aval);
     }
     private void visitAsyncInstruction(
@@ -324,6 +328,8 @@ public class X10FinishAsyncAnalysis {
 	int index = instmap.get(inst).intValue();
 	int line = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
 	int column = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
+	//System.err.println("async position:"+ ((AstMethod) epcfg.getMethod()).getSourcePosition(index).toString());
+	//System.err.println("async last column:"+ ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol());
 	updateTable(epcfg,env,pack,"activity",line,column,callsite_pack,callsite_name,line,column,true);
 
     }
@@ -334,8 +340,9 @@ public class X10FinishAsyncAnalysis {
 	CGNode caller = cg.getNode(env.cur_method_node);
 	String callerpack = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
 	String callername = getName(caller.getMethod().getName().toString());
-	int callerline = ((AstMethod)caller.getMethod()).getSourcePosition().getFirstLine();
-	int callercolumn = ((AstMethod)caller.getMethod()).getSourcePosition().getLastCol();
+	//FIXME: don't understand why caller and callee are interchanged
+	int calleeline = ((AstMethod)caller.getMethod()).getSourcePosition().getFirstLine();
+	int calleecolumn = ((AstMethod)caller.getMethod()).getSourcePosition().getLastCol();
 	
 	CallSiteReference callsite =inst.getCallSite();
 	Set<CGNode> allcallees = cg.getPossibleTargets(caller,callsite);
@@ -348,8 +355,8 @@ public class X10FinishAsyncAnalysis {
 		String calleename = getName(callee.getMethod().getName().toString());
 		//System.err.println("\tcallee:"+calleename);
 		int index = instmap.get(inst).intValue();
-		int calleeline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
-		int calleecolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
+		int callerline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
+		int callercolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
 		updateTable(epcfg,env,calleepack,calleename,calleeline,calleecolumn,
 			callerpack,callername,callerline,callercolumn,false);
 	    }
@@ -358,8 +365,8 @@ public class X10FinishAsyncAnalysis {
 	    String calleename = getName(inst.getDeclaredTarget().getName().toString());
 	    //System.err.println("\tcallee:"+name);
 	    int index = instmap.get(inst).intValue();
-	    int calleeline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
-	    int calleecolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
+	    int callerline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
+	    int callercolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
 	    updateTable(epcfg,env,calleepack,calleename,calleeline,calleecolumn,
 			callerpack,callername,callerline,callercolumn,false);
 	}
@@ -394,26 +401,22 @@ public class X10FinishAsyncAnalysis {
 		/* finish instruction: a finish instruction is disassembled into
 		 * finish_enter and finish_exit in IR
 		 */
-		System.out.println("\tinst:"+inst.toString());
+		//System.out.println("\tinst:"+inst.toString());
 		if (inst instanceof SSAFinishInstruction) {
 		    SSAFinishInstruction finst = (SSAFinishInstruction) inst;
 		    visitFinishInstruction(epcfg, env, finst);
-		    
 		} else if (inst instanceof SSAAtStmtInstruction) {
 		    SSAAtStmtInstruction atinst = (SSAAtStmtInstruction) inst;
 		    visitAtInstruction(epcfg, env, atinst);
 		} else if (inst instanceof AsyncInvokeInstruction) {
 		    visitAsyncInstruction(epcfg, env,
 			    (AsyncInvokeInstruction) inst);
-		} else if (inst instanceof SSAInvokeInstruction) {
-		    System.err
-			    .println("SSAInvokeInstructino is not handled yet");
 		} else if (inst instanceof AstJavaInvokeInstruction) {
 		    visitMethodInvocation(epcfg, env,
 			    (AstJavaInvokeInstruction) inst);
 		}
 		else{
-		    last_inst = null;
+		    updateLastInst(null,null);   
 		}
 	    }
 	    inst_cnt++;
@@ -527,6 +530,7 @@ public class X10FinishAsyncAnalysis {
 	Iterator<CGNode> all_methods = cg.iterator();
 	while (all_methods.hasNext()) {
 	    CGNode one_method = all_methods.next();
+	    //System.err.println(one_method.toString());
 	    String method_name = one_method.getMethod().getName().toString();
 	    assert (method_name != null);
 	    if (method_name.contains("fake") || method_name.contains("init")) {
@@ -633,6 +637,13 @@ public class X10FinishAsyncAnalysis {
 	    return "activity";
 	}
 	return s;
+    }
+    private void updateLastInst(CallTableKey k, CallTableVal v){
+	if(last_inst!=null)
+	    last_inst.aslast = null;
+	last_inst = v;
+	if(last_inst!=null)
+	    last_inst.aslast = k;
     }
 } // end of class
 
