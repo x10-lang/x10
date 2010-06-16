@@ -26,6 +26,7 @@ import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
@@ -81,6 +82,13 @@ public interface X10TypeSystem extends TypeSystem {
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs,  List<Type> argTypes, Context context);
 
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context);
+
+    /**
+     * Find matching fields.
+     *
+     * @exception SemanticException if no matching field can be found.
+     */
+    Set<FieldInstance> findFields(Type container, FieldMatcher matcher) throws SemanticException;
 
     /**
      * Find a method. We need to pass the class from which the method is being

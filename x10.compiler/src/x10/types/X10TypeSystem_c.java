@@ -328,7 +328,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     @Override
-    protected Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
+    public Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
         assert_(container);
 
         Set<FieldInstance> candidates = new HashSet<FieldInstance>();
@@ -683,18 +683,18 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
     }
 
-    public X10FieldInstance createFakeField(QName containerName, Name name) {
-        return createFakeField(typeForNameSilent(containerName), name);
+    public X10FieldInstance createFakeField(QName containerName, Flags flags, Name name) {
+        return createFakeField(typeForNameSilent(containerName), flags, name);
     }
     public X10FieldInstance createFakeField(Name name) {
-        return createFakeField(unknownClassDef().asType(), name);
+        return createFakeField(unknownClassDef().asType(), Flags.PUBLIC.Static(), name);
     }
-    public X10FieldInstance createFakeField(ClassType container, Name name) {
+    public X10FieldInstance createFakeField(ClassType container, Flags flags, Name name) {
         Position pos = Position.COMPILER_GENERATED;
         Type type = unknownType(pos);
         XVar thisVar = XTerms.makeEQV();
         List<Ref<? extends Type>> excTypes = Collections.emptyList();
-        X10FieldDef fd = (X10FieldDef) fieldDef(pos, Types.ref(container), Flags.PUBLIC.Static(),
+        X10FieldDef fd = (X10FieldDef) fieldDef(pos, Types.ref(container), flags,
                                                 Types.ref(type), name, thisVar);
         return (X10FieldInstance) fd.asInstance();
     }
