@@ -48,9 +48,9 @@ class RandomAccessOrig {
                    
                     val dest = task_id;
                     val rail = rails(task_id) as Rail[Long]!;
-                    @Immediate async {
+                   // @Immediate async {
                         atomic rail(index) ^= update;
-                    } 
+                    //} 
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
             }

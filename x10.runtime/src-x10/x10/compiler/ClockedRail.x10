@@ -47,6 +47,7 @@ public class ClockedRail[T] implements ClockableVar{
 
 
     public def this (c: Clock!, oper: (T,T)=>T!, opInitial:T, length:int) {
+     
     	//c.addClockedVar[T](this); 
     	xRead = Rail.make[T] (length);
     	xWrite = Rail.make[T] (length);
@@ -76,6 +77,7 @@ public class ClockedRail[T] implements ClockableVar{
 
 
     public def set(index:int, x:T) {
+  
     	changed = true;
         lock.lock();
         this.xWrite(index) = op(this.xWrite(index), x);

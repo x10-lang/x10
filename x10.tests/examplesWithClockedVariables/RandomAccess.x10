@@ -40,7 +40,7 @@ class RandomAccess {
         logLocalTableSize: Int, numUpdates: Long) @ ClockedM (c){
         val mask = (1<<logLocalTableSize)-1;
         val local_updates = numUpdates / NTASKS;
-         finish for ((p) in 0..NTASKS-1) {
+         for ((p) in 0..NTASKS-1) {
             async  clocked (c) {
                 var ran:Long = HPCC_starts(p*(numUpdates/NTASKS));
 
@@ -51,15 +51,16 @@ class RandomAccess {
                     
                    
                     val dest = task_id;
-                    val rail = rails(task_id) as Rail[Long @ Clocked[Long](c, op, 0L)]!;
-                    @Immediate async clocked(c) {
+                    val rail: Rail[Long @ Clocked[Long](c, op, 0L)]! = rails(task_id) as Rail[Long @ Clocked[Long](c, op, 0L)]!;
+                   //@Immediate async clocked(c) {
                         rail(index) = update;
-                    } 
-                    
+                   //} 
+                    ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
             }
         }
         next;
+     
     }
 
     private static def help (err:Boolean) {
@@ -141,9 +142,11 @@ class RandomAccess {
 
         // repeat for testing.
         runBenchmark(c, rails, logLocalTableSize, numUpdates);
+
+     
         finish for ((i) in 0..NTASKS-1) {
             async {
-                val rail = rails(i) as Rail[Long]!;
+                val rail: Rail[Long @ Clocked[Long] (c, op, 0L)]! = rails(i) as Rail[Long]!;
                 var err:Int = 0;
                 var j: Int;
                 for (j=0; j<rail.length; j++)

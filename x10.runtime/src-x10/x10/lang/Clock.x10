@@ -68,6 +68,12 @@ public class Clock(name:String) {
     	clockedVariables.add(cv);
     }
     
+     public def addClockedVar(cv: ClockableVar) {
+        val clockedVariables = clockedVars as HashSet[ClockableVar]!;
+    	clockedVariables.add(cv);
+    }
+    
+    
     def updateClockedVars() {
     
     	for (cv: ClockableVar in clockedVars) {
