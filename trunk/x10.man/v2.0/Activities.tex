@@ -105,7 +105,126 @@ activity. Future versions of the language may introduce more such
 statements.}  In Java, exceptions may be overlooked because there is no good
 place to put a \xcd`try`-\xcd`catch` block; this is never the case in X10.
 
-\section{Spawning an activity}\label{AsynchronousActivity}\label{AsyncActivity}
+\section{\xcd`at`: Place changing}\label{AtStatement}
+
+An activity may change place using the \xcd"at" statement or
+\xcd"at" expression:
+
+\begin{grammar}
+Statement \: AtStatement \\
+AtStatement \: \xcd"at" PlaceExpressionSingleList Statement \\
+Expression \: AtExpression \\
+AtExpression \: \xcd"at" PlaceExpressionSingleList ClosureBody 
+\end{grammar}
+
+The statement \xcd"at (p) S" executes the statement \xcd"S"
+synchronously at a place described by \xcd"p".
+The expression \xcd"at (p) E" executes the statement \xcd"E"
+synchronously at place \xcd"p", returning the result to the
+originating place.  
+
+
+
+\Eg, if \xcd`obj` is an object with a non-\xcd`global`
+method \xcd`meth()`, the general way to call the method from anywhere is 
+%~~gen
+% package Activities.Are.Wonderful.And.Delicious;
+% class Methbearer {
+%   def meth() {}
+%   def useIt(x:Methbearer) {
+%~~vis
+\begin{xten}
+at(x.home) x.meth();
+\end{xten}
+%~~siv
+%}}
+%~~neg
+\noindent 
+Or, if you want to capture the result of the method call, use the
+\xcd`at`-expression:  
+%~~gen
+% package Activities.Are.Cute.And.Bubbly;
+% class Methbearer {
+%   def meth():String = "Hi there!";
+%   def useIt(x:Methbearer) {
+%~~vis
+\begin{xten}
+val res = at(x.home)x.meth();
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+\xcd`p` may be an expression of type \xcd`Place`, in which case its value is
+used as the place to execute the body: 
+%~~gen
+% package Activities.At.A.Standstill;
+% class Example {
+% def example(ob: Object, S: ()=>Void) {
+%~~vis
+\begin{xten}
+   at (here.next()) S();
+   at (ob.home) S();
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+\noindent
+Or, \xcd`p` may be an object, in which case the body is executed at
+\xcd`p.home`: 
+%~~gen
+% package Activities.At.A.Run;
+% class Example {
+% def example(ob: Object, S: ()=>Void) {
+%~~vis
+\begin{xten}
+   at (ob) S();
+   // Same as at(ob.home) S();
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+Structs and functions are global values, without home places, so they cannot
+be used as the place expression for \xcd`at`.  
+
+
+
+\xcd`at(p)S` does {\em not} start a new activity.  It should be thought of as
+transporting the current activity to \xcd`p`, running \xcd`S` there, and then
+transporting it back.    If you want to start a new activity, use \xcd`async`;
+if you want to start a new activity at \xcd`p`, use 
+\xcd`at(p) async S`.  
+
+
+
+
+As a consequence of this, \xcd`S` may contain constructs which only make sense
+within a single activity.  For example, 
+%~~gen
+% package Activities.For.Fun.And.Profit;
+% import x10.util.*;
+% class Thing {
+% def nice():Boolean = true;
+% def poke(){}
+% static def example(things:List[Thing]!) {
+%~~vis
+\begin{xten}
+  for(x in things) 
+    if (at(x.home) x.nice()) 
+        return x;
+\end{xten}
+%~~siv
+% return null;
+%}}
+%~~neg
+returns the first nice thing in a collection.   If we had used 
+\xcd`async at(x.home)`, this would not be allowed; 
+you can't \xcd`return` from an
+\xcd`async`. 
+
+
+
+\section{\xcd`async`: Spawning an activity}\label{AsynchronousActivity}\label{AsyncActivity}
 
 Asynchronous activities serve as a single abstraction for supporting a
 wide range of concurrency constructs such as message passing, threads,
@@ -122,14 +241,10 @@ PlaceExpressionSingleList \: \xcd"(" PlaceExpression \xcd")" \\
 PlaceExpression \: Expression 
 \end{grammar} 
 
-The optional place expression \xcd"e" will often be of  type \xcd"Place"; \eg,
-\xcd"here" or \xcd"d(p)" for some 
-distribution \xcd"d" and point \xcd"p" (\Sref{XtenPlaces}).  
-It may also be an object type; 
-\xcd"e" is treated as \xcd"e.home" if
-\xcd"e" is of type \xcd"x10.lang.Object". 
-As other kinds of values have no usefully-defined place, it is a static error
-to use them for \xcd`e`.
+The basic form of \xcd`async` is \xcd`async S`, which starts a new activity
+located \xcd`here` executing \xcd`S`.    The form 
+\xcd`async (p) S` is simply shorthand for \xcd`async at(p) S`, covering the
+common case where the activity is to be executed at some other place. 
 
 Note that the array subscript expression \xcd"a(i)", when used as a place
 expression evaluates to \xcd"a(i).home", \viz. the home of the contents of
@@ -193,89 +308,6 @@ variables, \Sref{XtenClocks}) provided that such variables are
 (implicitly or explicitly) \xcd"val".
 \end{staticrule*}
 
-\section{Place changes}\label{AtStatement}
-
-An activity may change place using the \xcd"at" statement or
-\xcd"at" expression:
-
-\begin{grammar}
-Statement \: AtStatement \\
-AtStatement \: \xcd"at" PlaceExpressionSingleList Statement \\
-Expression \: AtExpression \\
-AtExpression \: \xcd"at" PlaceExpressionSingleList ClosureBody 
-\end{grammar}
-
-The statement \xcd"at (p) S" executes the statement \xcd"S"
-synchronously at place \xcd"p".
-The expression \xcd"at (p) E" executes the statement \xcd"E"
-synchronously at place \xcd"p", returning the result to the
-originating place.  \Eg, if \xcd`obj` is an object with a non-\xcd`global`
-method \xcd`meth()`, the general way to call the method from anywhere is 
-%~~gen
-% package Activities.Are.Wonderful.And.Delicious;
-% class Methbearer {
-%   def meth() {}
-%   def useIt(x:Methbearer) {
-%~~vis
-\begin{xten}
-at(x.home) x.meth();
-\end{xten}
-%~~siv
-%}}
-%~~neg
-\noindent 
-Or, if you want to capture the result of the method call, use the
-\xcd`at`-expression:  
-%~~gen
-% package Activities.Are.Cute.And.Bubbly;
-% class Methbearer {
-%   def meth():String = "Hi there!";
-%   def useIt(x:Methbearer) {
-%~~vis
-\begin{xten}
-val res = at(x.home)x.meth();
-\end{xten}
-%~~siv
-%}}
-%~~neg
-
-
-
-\xcd`at(p)S` does {\em not} start a new activity.  It should be thought of as
-transporting the current activity to \xcd`p`, running \xcd`S` there, and then
-transporting it back.    If you want to start a new activity, use \xcd`async`;
-if you want to start a new activity at \xcd`p`, use 
-\xcd`at(p) async S`.  
-
-
-
-
-As a consequence of this, \xcd`S` may contain constructs which only make sense
-within a single activity.  For example, 
-
-
-%~~gen
-% package Activities.For.Fun.And.Profit;
-% import x10.util.*;
-% class Thing {
-% def nice():Boolean = true;
-% def poke(){}
-% static def example(things:List[Thing]!) {
-%~~vis
-\begin{xten}
-  for(x in things) 
-    if (at(x.home) x.nice()) 
-        return x;
-\end{xten}
-%~~siv
-% return null;
-%}}
-%~~neg
-returns the first nice thing in a collection.   If we had used 
-\xcd`async at(x.home)`, this would not be allowed; 
-you can't \xcd`return` from an
-\xcd`async`. 
-
 \section{Finish}\index{finish}\label{finish}
 The statement \xcd"finish S" converts global termination to local
 termination and introduces a root activity.   It executes \xcd`S`, and then
@@ -316,7 +348,34 @@ asyncs. (Asyncs spawned during the execution of \xcd"S" may spawn
 clocked asyncs.) A
 \xcd"ClockUseException"\index{clock!ClockUseException} is thrown
 if (and when) this condition is violated.
-\bard{This needs an example.}
+
+This is necessary to prevent deadlocks.  In the following invalid code 
+%~~gen
+% package Activities.Finish.Hates.Clocks;
+% class Example{
+% def example() {
+%~~vis
+\begin{xten}
+val c:Clock = Clock.make();
+async clocked(c) {                // (A) 
+      finish async clocked(c) {   // (B) INVALID
+            next;                 // (Bnext)
+      }
+      next;                       // (Anext)
+}
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+\xcd`(A)`, first of all, waits for the \xcd`finish` containing \xcd`(B)` to
+finish.  
+\xcd`(B)` will execute its \xcd`next` at \xcd`(Bnext)`, and then wait for all
+other activities registered on \xcd`c` to execute their \xcd`next`s.
+However, \xcd`(A)` is registered on \xcd`c`.  So, \xcd`(B)` cannot finish
+until \xcd`(A)` has proceeded to \xcd`(Anext)`, and \xcd`(A)` cannot proceed
+until \xcd`(B)` finishes. Thus, this causes deadlock.
+
+
 
 In \XtenCurrVer{} this condition is checked dynamically; future
 versions of the language will introduce type qualifiers which permit
@@ -583,7 +642,71 @@ construct, the {\em atomic block}.
 
 A programmer may use atomic blocks to guarantee that invariants of
 shared data-structures are maintained even as they are being accessed
-simultaneously by multiple activities running in the same place.
+simultaneously by multiple activities running in the same place.  
+
+For example, consider a class \xcd`Redund[T]`, which encapsulates a list
+\xcd`list` and, (redundantly) keeps the size of the list in a second field
+\xcd`size`.  Then \xcd`r:Redund[T]` has the invariant 
+\xcd`r.list.size() == r.size`, which must be true at any point that there are
+no method calls on \xcd`r` active.
+
+If the \xcd`add` method on \xcd`Redund` (which adds an element to the list) 
+were defined as: 
+%~~gen
+% package Activities.Atomic.Redund.One;
+% import x10.util.*;
+% class Redund[T] {
+%   val list = new ArrayList[T]();
+%   var size : Int = 0;
+%~~vis
+\begin{xten}
+def add(x:T) { // Incorrect
+  this.list.add(x);
+  this.size = this.size + 1;
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+Then two activities simultaneously adding elements to the same \xcd`r` could break the
+invariant.  Suppose that \xcd`r` starts out empty.  Let the first activity
+perform the \xcd`list.add`, and compute \xcd`this.size+1`, which is 1, but not store it
+back into \xcd`this.size` yet.  
+(At this point, \xcd`r.list.size()==1` and \xcd`r.size==0`; the invariant
+expression is false, but, as the first call to \xcd`r.add()` is active, the
+invariant does not need to be true -- it only needs to be true when the
+call finishes.)
+Now, let the second activity do its call to
+\xcd`add` to completion, which finishes with \xcd`r.size==1`.  
+(As before, the invariant expression is false, but a call to \xcd`r.add()` is
+still active, so the invariant need not be true.)
+Finally, let
+the first activity finish, which assigns the \xcd`1` computed before back into
+\xcd`this.size`.  At the end, there are two elements in \xcd`r.list`, but
+\xcd`r.size==1`. Since there are no calls to \xcd`r.add()` active, the
+invariant must be true, but it is not.
+
+In this case, the invariant can be maintained by making the increment atomic.
+Doing so forbids that sequence of events; the \xcd`atomic` block cannot be
+stopped partway.  
+%~~gen
+% package Activities.Atomic.Redund.Two;
+% import x10.util.*;
+% class Redund[T] {
+%   val list = new ArrayList[T]();
+%   var size : Int = 0;
+%~~vis
+\begin{xten}
+def add(x:T) { 
+  this.list.add(x);
+  atomic { this.size = this.size + 1; }
+}
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+
 
 \subsection{Unconditional atomic blocks}
 The simplest form of an atomic block is the {\em unconditional
@@ -614,14 +737,7 @@ the programmer's responsibility to wrap the atomic block within a
 clause. Thus the \xcd"atomic" statement only guarantees atomicity on
 successful execution, not on a faulty execution.
 
-%% A compiler is allowed to reorder two atomic blocks that have no
-%%data-dependency between them, just as it may reorder any two
-%%statements which have no data-dependencies between them. For the
-%%purposes of data dependency analysis, an atomic block is deemed to
-%%have read and written all data at a single program point, the
-%%beginning of the atomic block.
-%%%% I dont believe we need to say at some point in the atomic block.
-%%
+
 We allow methods of an object to be annotated with \xcd"atomic". Such
 a method is taken to stand for a method whose body is wrapped within an
 \xcd"atomic" statement.
@@ -631,14 +747,14 @@ constructs \cite{herlihy91waitfree}, and can be used to implement
 non-blocking concurrent algorithms.
 
 \begin{staticrule*}
-In \xcd"atomic S", \xcd"S" may include method calls,
-conditionals, etc.
+In \xcd"atomic S", \xcd"S" may include calls to \xcd`safe` methods, and use of
+sequential control structures.
 
 It may {\em not} include an \xcd"async" activity (such as creation
 of a \Xcd{future}).
 
 It may {\em not} include any statement that may potentially block at
-runtime (e.g., \xcd"when", \xcd"force" operations, \xcd"next"
+runtime (\eg, \xcd"when", \xcd"force" operations, \xcd"next"
 operations on clocks, \xcd"finish"). 
 
 All locations accessed in an atomic block must statically satisfy the
@@ -659,6 +775,7 @@ Note an important property of an (unconditional) atomic block:
  \mbox{\xcd"atomic \{s1; atomic s2\}"} &=& \mbox{\xcd"atomic \{s1; s2\}"}
 \end{eqnarray}
 
+\bard{The following is false -- atomic while(false) -- but no deadlocks.}
 Further, an atomic block will eventually terminate successfully or
 thrown an exception; it may not introduce a deadlock.
 
@@ -670,7 +787,6 @@ The following class method implements a (generic) compare and swap (CAS) operati
 %~~gen
 % package Activities.And.Protein;
 % class CASSizer{
-
 %~~vis
 \begin{xten}
 var target:Object = null;
@@ -688,6 +804,50 @@ public atomic def CAS(old: Object, new: Object): Boolean {
 
 \subsection{Conditional atomic blocks}
 
+Conditional atomic blocks allow the activity to wait for some condition to be
+satisfied before executing an atomic block. For example, consider a
+\xcd`Redund` class holding a list \xcd`r.list` and, redundantly, its length
+\xcd`r.size`.  A \xcd`pop` operation will delay until the \xcd`Redund` is
+nonempty, and then remove an element and update the length.  
+%~~gen
+% package Activities.Condato.Example.Not.A.Tree;
+% import x10.util.*;
+% class Redund[T] {
+% val list = new ArrayList[T]();
+% var size : Int = 0;
+%~~vis
+\begin{xten}
+def pop():T {
+  var ret : T;
+  when(size>0) {
+    ret = list.removeAt(0);
+    size --;
+    }
+  return ret;
+}
+\end{xten}
+%~~siv
+% }
+%~~neg
+
+
+The execution of the test is atomic with the execution of the block.  This is
+important; it means that no other activity can sneak in and make the condition
+be false before the block is executed.  In this example, two \xcd`pop`s
+executing on a list with one element would work properly. Without the
+conditional atomic block -- even doing the decrement atomically -- one call to
+\xcd`pop` could pass the \xcd`size>0` guard; then the other call could run to
+completion (removing the only element of the list); then, when the first call
+proceeds, its \xcd`removeAt` will fail.  
+
+Note that \xcd`if` would not work here.  
+\xcd`if(size>0) atomic{size--; return list.removeAt(0);}` allows another
+activity to act between the test and the atomic block.  
+And 
+\xcd`atomic{ if(size>0) {size--; ret = list.removeAt(0);}}` 
+does not wait for \xcd`size>0` to become true.
+
+
 Conditional atomic blocks are of the form:
 
 \begin{grammar}
@@ -698,10 +858,7 @@ WhenStatement \:  \xcd"when" \xcd"(" Expression \xcd")" Statement \\
 
 In such a statement the one or more expressions are called {\em
 guards} and must be \xcd"Boolean" expressions. The statements are the
-corresponding {\em guarded statements}. The first pair of expression
-and statement is called the {\em main clause} and the additional pairs
-are called {\em auxiliary clauses}. A statement must have a main
-clause and may have no auxiliary clauses.
+corresponding {\em guarded statements}.  
 
 An activity executing such a statement suspends until such time as any
 one of the guards is true in the current state. In that state, the
@@ -709,13 +866,12 @@ statement corresponding to the first guard that is true is executed.
 The checking of the guards and the execution of the corresponding
 guarded statement is done atomically. 
 
-
 \Xten{} does not guarantee that a conditional atomic block
-will execute if its condition holds only intermmittently. For, based on
+will execute if its condition holds only intermittently. For, based on
 the vagaries of the scheduler, the precise instant at which a
 condition holds may be missed. Therefore the programmer is advised to
 ensure that conditions being tested by conditional atomic blocks are
-eventually stable, i.e., they will continue to hold until the block
+eventually stable, \ie, they will continue to hold until the block
 executes (the action in the body of the block may cause the condition
 to not hold any more).
 
@@ -752,56 +908,44 @@ placed on the guards and statements in a conditional atomic
 block. 
 \end{staticrule*}
 
-Guards are required not to have side-effects, not to spawn asynchronous
-activities (as for the \xcd`sequential` qualifier on methods) and to have a
-statically determinable upper bound on their execution (as for the
-\xcd`nonblocking` qualifier on methods). These conditions are expected to be
-checked statically by the compiler.
+Guards are statically required not to have side-effects, not to spawn
+asynchronous activities (as for the \xcd`sequential` qualifier on methods) and
+to have a statically determinable upper bound on their execution (as for the
+\xcd`nonblocking` qualifier on methods).
 
 The body of a \xcd"when" statement must satisfy the conditions
 for the body of an \xcd"atomic" block.
-%Second, as for unconditional atomic blocks, the set of memory
-%locations accessed by a guarded statements are required to be bounded
-%and statically analyzable.
 
 Note that this implies that guarded statements are required to be {\em
 flat}, that is, they may not contain conditional atomic blocks. (The
 implementation of nested conditional atomic blocks may require
 sophisticated operational techniques such as rollbacks.)
 
-\paragraph{Sample usage.} 
-There are many ways to ensure that a guard is eventually
-stable. Typically the set of activities are divided into those that
-may enable a condition and those that are blocked on the
-condition. Then it is sufficient to require that the threads that may
-enable a condition do not disable it once it is enabled. Instead the
-condition may be disabled in a guarded statement guarded by the
-condition. This will ensure forward progress, given the weak-fairness
-guarantee.
 
 \begin{example}
 The following class shows how to implement a bounded buffer of size
 $1$ in \Xten{} for repeated communication between a sender and a
-receiver.
+receiver.  The call \xcd`buf.send(ob)` waits until the buffer has space, and
+then puts \xcd`ob` into it.  Dually, \xcd`buf.receive()` waits until the
+buffer has something in it, and then returns that thing.
 
 
 %~~gen
 % package Activities;
 %~~vis
 \begin{xten}
-class OneBuffer {
-  var datum: Object = null;
+class OneBuffer[T] {
+  var datum: T;
   var filled: Boolean = false;
-  public def send(v: Object) {
+  public def send(v: T) {
     when (!filled) {
       this.datum = v;
       this.filled = true;
     }
   }
-  public def receive(): Object {
+  public def receive(): T {
     when (filled) {
-      v: Object = datum;
-      datum = null;
+      v: T = datum;
       filled = false;
       return v;
     }
@@ -813,133 +957,3 @@ class OneBuffer {
 %~~neg
 \end{example}
 
-\eat{
-\paragraph{Implementing a future with a latch.}\label{future-imp}
-The following class shows how to implement a {\em latch}. A latch is
-an object that is initially created in a state called the {\em
-unlatched} state. During its lifetime it may transition once to a {\em
-forced} state. Once forced, it stays forced for its lifetime. The
-latch may be queried to determine if it is forced, and if so, an
-associated value may be retrieved. Below, we will consider a latch set
-when some activity invokes a \xcd"setValue" method on it. This method
-provides two values, a normal value and an exceptional value. The
-method \xcd"force" blocks until the latch is set. If an exceptional
-value was specified when the latch was set, that value is thrown on
-any attempt to read the latch. Otherwise the normal value is returned.
-
-\begin{xten}
-public interface Future[T] {
-   def forced(): Boolean;
-   def apply(): T;
-}
-public class Latch implements Future {
-  protected var forced: Boolean = false;
-  protected var result: Box[T] = null;
-  protected var z: Box[Exception] = null;
-
-  public atomic def setValue(val: T): Boolean {
-    return setValue(val, null);
-  }
-  public atomic def setValue(z: Exception): Boolean {
-    return setValue(null, z);
-  }
-  public atomic def setValue(val: T,
-                             z: Exception): Boolean {
-    if (forced) return false;
-    // these assignment happens only once.
-    this.result = val;
-    this.z = z;
-    this.forced = true;
-    return true;
-  }
-  public atomic def forced(): Boolean {
-    return forced;
-  }
-  public def apply(): T {
-    when (forced) {
-      if (z != null) throw z;
-      return result to T;
-    }
-  }
-}
-\end{xten}
-
-Latches, \xcd"aync" operations and \xcd"finish" operations may be used
-to implement futures as follows. The expression \xcd"future(P) e"
-can be translated to:
-\begin{xten}
-(() => {
-    L: Latch = new Latch();
-    async (P) {
-      X: Object;
-      try {
-        finish X = e;
-        async (L) {
-          L.setValue(X); 
-        }
-      }
-      catch (Z: Exception) {
-        async (L) {
-          L.setValue(Z);
-        }
-      }
-    }
-    return L;
-  })()
-\end{xten}
-
-Here we assume that \xcd"RunnableLatch" is an interface defined by:
-\begin{xten} 
-public interface RunnableLatch {
-  def run(): Latch;
-}
-\end{xten}
-
-We use the standard \java{} idiom of wrapping the core translation
-inside an inner class definition/method invocation pair (i.e.,
-\xcd"new RunnableLatch() {....}.run()") so as to keep the resulting
-expression completely self-contained, while executing statements
-inside the evaluation of an expression.
-
-Execution of a \xcd"future(P) e" causes a new latch to be created,
-and an \xcd"async" activity spawned at \xcd"P". The activity attempts
-to \xcd"finish" the assigned \xcd"x = e", where \xcd"x" is a local
-variable.  This may cause new activities to be spawned, based on
-\xcd"e". If the assignment terminates successfully, another activity is
-spawned to invoke the \xcd"setValue" method on the latch.  Exceptions
-thrown by these activities (if any) are accumulated at the \xcd"finish"
-statement and thrown after global termination of all
-activities spawned by \xcd"x=e". The exception will be caught by the 
-\xcd"catch" clause and stored with the latch. 
-
-
-\oldtodo{Conditional atomic blocks should be powerful enough to implement clocks as well.}
-
-\paragraph{A future to execute a statement.}
-Consider an expression \xcd"onFinish {S}". This should return
-a \xcd"Boolean" latch which should be forced when \xcd"S" has terminated
-globally. Unlike \xcd"finish S", the evaluation of \xcd"onFinish {S}"
-should locally terminate immediately, returning a latch. The
-latch may be passed around in method invocations and stored in
-objects. An activity may perform \xcd"force"/\xcd"forced" method
-invocations on the latch whenever it desires to determine whether \xcd"S"
-has terminated.
-
-Such an expression can be written as:
-\begin{xten}
-(=> {
-    L: Latch = new Latch();
-    async (here) {
-      try {
-        finish S;
-        L.setValue(true);
-      }
-      catch (Z: Exception) {
-        L.setValue(Z);
-      }
-    }
-    return L;
-  }
-)()
-\end{xten}
-}
