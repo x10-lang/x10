@@ -82,6 +82,7 @@ import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
 import x10.visit.FieldInitializerMover;
+import x10.visit.FinishAnnotationVisitor;
 import x10.visit.Inliner;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
@@ -374,11 +375,15 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            // finish-async analysis
            if(x10.Configuration.FINISH_ASYNCS){
-                   FinishAsyncVisitor fav = 
-                           new FinishAsyncVisitor(job);
-                   // calltable.dat is the analysis result
-                   goals.add(new VisitorGoal("FinishAsyncs",job, 
-                                           fav).intern(this));
+        	   TypeSystem ts = extInfo.typeSystem();
+               NodeFactory nf = extInfo.nodeFactory();
+               FinishAsyncVisitor fav = new FinishAsyncVisitor(job,ts,nf,"java");
+               FinishAnnotationVisitor av = new FinishAnnotationVisitor(job,ts,nf,"java");    
+               // calltable.dat is the analysis result
+               VisitorGoal vg = (VisitorGoal) new VisitorGoal("FinishAnnot",job,av).intern(this);	   
+               //goals.add(vg);
+               goals.add(new VisitorGoal("FinishAsyncs",job,fav).intern(this));
+               goals.add(vg);
 
            }
 
