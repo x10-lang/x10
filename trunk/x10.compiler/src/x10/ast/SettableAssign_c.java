@@ -12,6 +12,7 @@
 package x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,13 +34,17 @@ import polyglot.ast.Assign.Operator;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
+import polyglot.types.ErrorRef_c;
 import polyglot.types.Flags;
+import polyglot.types.Matcher;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
@@ -59,6 +64,10 @@ import x10.types.X10ClassDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
+import x10.types.checker.Converter;
+import x10.types.matcher.DumbMethodMatcher;
+import x10.visit.X10TypeChecker;
 
 /** An immutable representation of an X10 array access update: a[point] op= expr;
  * TODO
@@ -74,8 +83,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    	protected Expr array;
    	protected List<Expr> index;
    
-   	protected ClassDef invokingClass; // The class in which this assignment occurs.
-
 	/**
 	 * @param pos
 	 * @param left
@@ -87,59 +94,36 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		if (index.size() < 1)
 		assert index.size() >= 1;
 		this.array = array;
-		this.index = index;	
+		this.index = index;
 	}
 	
 	public Type leftType() {
-	    return right.type();
+	    if (mi == null) return null;
+	    return mi.formalTypes().get(0);
 	}
 
 	public Expr left(NodeFactory nf) {
 		return left(nf, null);
 	}
 	//@Override
-	public Expr left(NodeFactory nf, ContextVisitor cv)  {
+	public Expr left(NodeFactory nf, ContextVisitor cv) {
 	    Name apply = Name.make("apply");
 	    Call c = nf.Call(position(), array, nf.Id(position(), apply), index);
-	    if (mi != null) {
-	        X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
-	        if (true) {
-	        ContextVisitor tc = new ContextVisitor(Globals.currentJob(), xts, nf);
-	       tc = tc.context(cv == null? xts.emptyContext() : cv.context());
-	        try {
-	            return (Expr) c.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
-	        }
-	        catch (SemanticException e) {
-	         assert false;
-	        }
-	        }
-	        List<Type> argTypes = new ArrayList<Type>(mi.formalTypes());
-	        argTypes.remove(0);
-	        MethodInstance ami = null;
-	        try {
-	            Context context = cv==null ? xts.emptyContext() : cv.context(); // ### not right -- should do context(this)
-	            ami = xts.findMethod(mi.container(),
-	                                 xts.MethodMatcher(mi.container(), apply, argTypes, context));
-	        } catch (SemanticException e) {
-	            assert (false);
-	        }
+	    if (ami != null) {
 	        c = c.methodInstance(ami);
 	    }
-	    if (type != null && mi != null) c = (Call) c.type(mi.returnType());
+	    if (type != null && ami != null) c = (Call) c.type(ami.returnType());
 	    return c;
 	}
 	
    	/** Get the precedence of the expression. */
-   	public Precedence precedence() { 
+   	public Precedence precedence() {
    		return Precedence.LITERAL;
    	}
    	
    	/** Get the array of the expression. */
    	public Expr array() {
    		return this.array;
-   	}
-   	public ClassDef invokingClass() {
-   		return invokingClass;
    	}
    	
    	/** Set the array of the expression. */
@@ -195,6 +179,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    	}
 	
 	MethodInstance mi;
+	MethodInstance ami;
 	
 	public MethodInstance methodInstance() {
 	    return mi;
@@ -204,60 +189,129 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    n.mi = mi;
 	    return n;
 	}
+	public MethodInstance applyMethodInstance() {
+	    return mi;
+	}
+	public SettableAssign applyMethodInstance(MethodInstance ami) {
+	    SettableAssign_c n = (SettableAssign_c) copy();
+	    n.ami = ami;
+	    return n;
+	}
 	
+	@Override
+	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+	    SettableAssign_c n = (SettableAssign_c) super.buildTypes(tb);
+
+	    TypeSystem ts = tb.typeSystem();
+
+	    MethodInstance mi = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
+	    MethodInstance ami = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
+	    return n.methodInstance(mi).applyMethodInstance(ami);
+	}
+
+	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(X10Call_c n, ContextVisitor tc,
+	        Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
+	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    final Context context = tc.context();
+
+	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
+	            new DumbMethodMatcher(targetType, Name.make("set"), typeArgs, argTypes, context));
+
+	    Pair<MethodInstance,List<Expr>> p = Converter.<MethodDef,MethodInstance>tryImplicitConversions(n, tc,
+	            targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
+	        public Matcher<MethodInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
+	            return ts.MethodMatcher(ct, Name.make("set"), typeArgs, argTypes, context);
+	        }
+	    });
+
+	    return p;
+	}
+
 	@Override
 	public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		X10TypeSystem xts = ts;
 
-		if (op != Assign.ASSIGN) {
-			Name methodName = Name.make("apply");
+		X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
 
-			List<Expr> args = new ArrayList<Expr>();
-			args.addAll(index);
-			X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), methodName), Collections.EMPTY_LIST, args);
+		X10MethodInstance mi = null;
 
-			try {
-				n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
-			}
-			catch (SemanticException e) {
-				Type bt = X10TypeMixin.baseType(array.type());
-				boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-				throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
-			}
+		List<Type> typeArgs = Collections.EMPTY_LIST;
+		List<Type> actualTypes = new ArrayList<Type>(index.size()+1);
+		actualTypes.add(right.type());
+		for (Expr ei : index) {
+		    actualTypes.add(ei.type());
 		}
-
-		Name methodName = Name.make("set");
 
 		List<Expr> args = new ArrayList<Expr>();
 		args.add(right);
 		args.addAll(index);
-		X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), methodName), Collections.EMPTY_LIST, args);
 
 		try {
-			n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+		    // First try to find the method without implicit conversions.
+		    mi = ClosureCall_c.findAppropriateMethod(xtc, array.type(), Name.make("set"), typeArgs, actualTypes);
 		}
 		catch (SemanticException e) {
-			if (e instanceof Errors.CannotGenerateCast) 
-				throw e;
-			Type bt = X10TypeMixin.baseType(array.type());
-			boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-			throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()); 
+		    // Now, try to find the method with implicit conversions, making them explicit.
+		    try {
+		        X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), Name.make("set")), Collections.EMPTY_LIST, args);
+		        Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, xtc, array.type(), typeArgs, actualTypes);
+		        mi = (X10MethodInstance) p.fst();
+		        args = p.snd();
+		    }
+		    catch (SemanticException e2) {
+		        if (e instanceof Errors.CannotGenerateCast)
+		            throw e;
+		        Type bt = X10TypeMixin.baseType(array.type());
+		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		        throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position());
+		    }
 		}
 
-		X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
+		X10MethodInstance ami = null;
 
-		if (! mi.flags().isStatic() ) {
-			SettableAssign_c a = this;
-			a = (SettableAssign_c) a.methodInstance(mi);
-			a = (SettableAssign_c) a.right(n.arguments().get(0));
-			a = (SettableAssign_c) a.index(n.arguments().subList(1, n.arguments().size()));
-			return a;
+		actualTypes = new ArrayList<Type>(mi.formalTypes());
+		actualTypes.remove(0);
+
+		try {
+		    // First try to find the method without implicit conversions.
+		    ami = ClosureCall_c.findAppropriateMethod(xtc, array.type(), Name.make("apply"), typeArgs, actualTypes);
+		}
+		catch (SemanticException e) {
+		}
+		if (ami == null) {
+		    Type bt = X10TypeMixin.baseType(array.type());
+		    boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		    throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position());
 		}
 
-		throw new Errors.AssignSetMethodCantBeStatic(mi, array, position()); 
-	}	
+		if (op != Assign.ASSIGN) {
+		    X10Call_c left = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(),
+		            Name.make("apply")), Collections.EMPTY_LIST,
+		            index).methodInstance(ami).type(ami.returnType());
+		    X10Binary_c n = (X10Binary_c) nf.Binary(position(), left, binaryOp(op), right);
+		    try {
+		        n.del().disambiguate(xtc).del().typeCheck(xtc).del().checkConstants(xtc);
+		    }
+		    catch (SemanticException e) {
+		        Type bt = X10TypeMixin.baseType(array.type());
+		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
+		        throw new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, X10TypeMixin.arrayElementType(array.type()), position());
+		    }
+		}
+
+		if (mi.flags().isStatic() ) {
+		    throw new Errors.AssignSetMethodCantBeStatic(mi, array, position());
+		}
+
+		SettableAssign_c a = this;
+		a = (SettableAssign_c) a.methodInstance(mi);
+		a = (SettableAssign_c) a.applyMethodInstance(ami);
+		a = (SettableAssign_c) a.right(args.get(0));
+		a = (SettableAssign_c) a.index(args.subList(1, args.size()));
+		return a;
+	}
 	
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {

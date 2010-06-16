@@ -723,6 +723,7 @@ public class Inliner extends ContextVisitor {
             MethodInstance smi = xts.findMethod(ami.container(),
                                                 xts.MethodMatcher(ami.container(), Name.make("set"), aTypes, context));
             a = ((SettableAssign) a).methodInstance(smi);
+            a = ((SettableAssign) a).applyMethodInstance(ami);
         }
         return a;
     }
