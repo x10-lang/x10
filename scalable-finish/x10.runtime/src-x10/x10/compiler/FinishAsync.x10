@@ -13,4 +13,4 @@ package x10.compiler;
 
 import x10.lang.annotations.StatementAnnotation;
 
-public interface FinishAsync(arity:int,place:int,line:int,column:int,isLast:boolean) extends StatementAnnotation { }
+public interface FinishAsync(arity:int,place:int,isLast:boolean,notes:String) extends StatementAnnotation { }
