@@ -869,6 +869,9 @@ public final class Runtime {
      */
     private static def worker():Worker! =
         pretendLocal(Thread.currentThread().worker() as Worker);
+        
+     public static def workerTid():Long =
+        pretendLocal(Thread.currentThread().worker() as Worker).tid;
 
     /**
      * Return the current activity

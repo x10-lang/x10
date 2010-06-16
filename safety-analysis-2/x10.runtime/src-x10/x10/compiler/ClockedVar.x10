@@ -11,17 +11,22 @@
  
 package x10.compiler;
 import x10.lang.Clock;
+import x10.util.concurrent.atomic.AtomicInteger;
+import x10.lang.Runtime;
+
 
 
 
 public class ClockedVar[T] implements ClockableVar{
 
-  
+
     var xRead:T;
-    var xWrite: T;
+    val WORKERS = 128;
+    val xWrite: Rail[T]! = Rail.make[T](WORKERS);
     val op:(T,T)=>T;
     val opInit:T;
     var changed:Boolean;
+
     
    @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
    @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
@@ -39,16 +44,18 @@ public class ClockedVar[T] implements ClockableVar{
     
     
     
-    val lock = new Lock();
-
-    
+    //val lock = new Lock();
+  
 
     public def this (c: Clock!, oper: (T,T)=>T!, opInitial:T) {
+		  
     	c.addClockedVar(this); 
      	op = oper;
      	opInit = opInitial;
-     	changed = false;	
-     	xWrite = opInitial;
+     	changed = false;
+     	var i: int;
+     	for ( i = 0; i < WORKERS; i++)	
+     		xWrite(i) = opInitial;
      }
      
     public def this(c:Clock, oper: (T,T)=>T, opInitial:T, x:T)
@@ -58,8 +65,10 @@ public class ClockedVar[T] implements ClockableVar{
         clk.addClockedVar(this); 
         op = oper; 
         opInit = opInitial;
-        changed = false;
-        xWrite = opInitial; 
+        changed = false; 
+        var i: int;
+     	for ( i = 0; i < WORKERS; i++)	
+     		xWrite(i) = opInitial;
       }
       
     public def get():T {
@@ -68,23 +77,33 @@ public class ClockedVar[T] implements ClockableVar{
 
 
 
+
+
     public def set(x:T) {
+        //Console.OUT.println("Worker id" + Runtime.workerTid());
+        val workerId = (Runtime.workerTid() - 8) as Int;
     	changed = true;
-        lock.lock();
-        this.xWrite = op(this.xWrite, x);
-        lock.unlock();
+        this.xWrite(workerId) = op(this.xWrite(workerId), x);
+ 
     } 
     
     public def setR(x:T){this.xRead=x;}
     
-    public def getW(){return xWrite;}
+
     
 
     public def move(): Void {
-        if (changed)
-        	this.xRead = this.xWrite; 
-     	this.xWrite = opInit;
-    	this.changed = false;
+        if (changed) {
+        	this.xRead = this.xWrite(0);
+        	this.xWrite(0) = opInit;
+			var i: int;
+        	for (i = 1; i < WORKERS; i++) {
+        		this.xRead =  op (this.xRead, this.xWrite(i));
+        		this.xWrite(i) = opInit;
+        	}
+        	this.changed = false;
+        } 
+    	
     }
 
     
