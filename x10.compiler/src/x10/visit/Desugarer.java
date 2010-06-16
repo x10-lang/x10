@@ -76,6 +76,7 @@ import x10.ast.Future;
 import x10.ast.Here;
 import x10.ast.Next;
 import x10.ast.ParExpr;
+import x10.ast.SettableAssign;
 import x10.ast.SettableAssign_c;
 import x10.ast.Tuple;
 import x10.ast.When;
@@ -763,12 +764,13 @@ public class Desugarer extends ContextVisitor {
             X10Call_c n = (X10Call_c) xnf.X10Call(pos, call.target(), nf.Id(pos, SET), call.typeArguments(), CollectionUtil.append(Collections.singletonList(val), call.arguments()));
             n = (X10Call_c) n.del().disambiguate(this).typeCheck(this).checkConstants(this);
             MethodInstance smi = n.methodInstance();
-//            MethodInstance ami = call.methodInstance();
+            MethodInstance ami = call.methodInstance();
 //            List<Type> aTypes = new ArrayList<Type>(ami.formalTypes());
 //            aTypes.add(0, ami.returnType()); // rhs goes before index
 //            MethodInstance smi = xts.findMethod(ami.container(),
 //                    xts.MethodMatcher(ami.container(), SET, aTypes, context));
             a = ((SettableAssign_c) a).methodInstance(smi);
+            a = ((SettableAssign_c) a).applyMethodInstance(ami);
         }
         return a;
     }

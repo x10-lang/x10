@@ -12,6 +12,7 @@
 package x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.Flags;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
@@ -35,8 +37,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -56,8 +58,9 @@ import x10.types.ClosureInstance;
 import x10.types.FunctionType;
 import x10.types.X10Context;
 import x10.types.X10MethodInstance;
-import x10.types.X10MethodInstance_c;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.matcher.DumbMethodMatcher;
 
@@ -229,11 +232,10 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 		return n.closureInstance(mi);
 	}
 
-	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(final ClosureCall_c n, ContextVisitor tc, 
+	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(ClosureCall_c n, ContextVisitor tc, 
 			Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
 		final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		final Context context = tc.context();
-		ClassDef currentClassDef = context.currentClassDef();
 
 		List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
 				new DumbMethodMatcher(targetType, Name.make("apply"), typeArgs, argTypes, context));
@@ -248,11 +250,45 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 		return p;
 	}
 
+	public static X10MethodInstance findAppropriateMethod(ContextVisitor tc, Type targetType,
+	        Name name, List<Type> typeArgs, List<Type> actualTypes) throws SemanticException
+	{
+	    X10MethodInstance mi;
+	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    Context context = tc.context();
+	    boolean haveUnknown = false;
+	    for (Type t : actualTypes) {
+	        if (t instanceof UnknownType) haveUnknown = true;
+	    }
+	    if (!haveUnknown) {
+	        mi = ts.findMethod(targetType, ts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
+	    } else {
+	        Collection<X10MethodInstance> mis = ts.findMethods(targetType, ts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
+	        // If exception was not thrown, there is at least one match.  Fake it.
+	        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	        mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes);
+	        // See if all matches have the same return type, and save that to avoid losing information.
+	        Type rt = null;
+	        for (X10MethodInstance xmi : mis) {
+	            if (rt == null) {
+	                rt = xmi.returnType();
+	            } else if (!xts.typeEquals(rt, xmi.returnType(), context)) {
+	                if (xts.typeBaseEquals(rt, xmi.returnType(), context)) {
+	                    rt = X10TypeMixin.baseType(rt);
+	                } else {
+	                    rt = null;
+	                    break;
+	                }
+	            }
+	        }
+	        if (rt != null) mi = mi.returnType(rt);
+	    }
+	    return mi;
+	}
+
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		Type targetType = target.type();
-
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
 		List<Type> typeArgs = Collections.EMPTY_LIST;
 		List<Type> actualTypes = new ArrayList<Type>(this.arguments.size());
@@ -263,10 +299,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 		X10MethodInstance mi = null;
 		List<Expr> args = null;
 
-		// First try to find the method without implicit conversions.
 		try {
-			Context context = tc.context();
-			mi = ts.findMethod(targetType, ts.MethodMatcher(targetType, Name.make("apply"), typeArgs, actualTypes, context));
+		    // First try to find the method without implicit conversions.
+			mi = findAppropriateMethod(tc, targetType, Name.make("apply"), typeArgs, actualTypes);
 			args = this.arguments;
 		}
 		catch (SemanticException e) {
