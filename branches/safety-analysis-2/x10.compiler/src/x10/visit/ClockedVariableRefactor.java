@@ -82,6 +82,11 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	 
     private final X10TypeSystem xts;
     private final X10NodeFactory xnf;
+    
+    
+    public boolean isClockedInt(Type t){
+    	return false;
+    }
 	
 	public ClockedVariableRefactor(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
@@ -90,6 +95,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	}
 	
 	 private static final QName CLOCKEDVAR = QName.make("x10.compiler.ClockedVar");
+	 private static final QName CLOCKEDATOMICINT = QName.make("x10.compiler.ClockedAtomicInt");
 	 private static final QName RAIL = QName.make("x10.lang.Rail");
 	 private static final QName ARRAY = QName.make("x10.lang.Array");
 	
@@ -362,8 +368,9 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	 private Node visitMake(X10Call call) {	
 		 Type type;
 			try {
-				if (call.target().toString().contentEquals("x10.lang.Rail"))
-					type = xts.typeForName(RAIL);
+				if (call.target().toString().contentEquals("x10.lang.Rail")) {
+					type = xts.typeForName(RAIL);	
+				}
 				else if (call.target().toString().contentEquals("x10.lang.Array")) 
 					type = xts.typeForName(ARRAY);
 				else 
@@ -378,6 +385,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 							Expr c = this.extractClock(tn.type());
 							Expr op = this.extractOp(tn.type());
 							Expr opInit = this.extractOpInit(tn.type());
+						
 						
 						
 							
