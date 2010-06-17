@@ -66,12 +66,12 @@ public class TrivialTest {
 	  
 	  
 	  
-	  finish{
+	  /*finish{
 		  async{}
 		  async{
 			  f2();
 		  }
-	  }
+	  }*/
 	  //f8();
 	  /* test last statement 
 	  f2();
@@ -92,7 +92,9 @@ public class TrivialTest {
           /*at(here){
 		  async{}
 	  }*/
+	  
 	  /*4 
+	   * f6() is not marked as the last stmt in finish, because ir has a goto after f6()
 	   finish{
 		  f6();
 	  }*/
@@ -125,11 +127,13 @@ public class TrivialTest {
 		
 		body : ()=>void = ()=> f1(3);
 		f7(body); */
-	  /* test ateach	  val R: Region = 1..100;
+		
+	  /* test ateach	 
+	  val R: Region = 1..100;
 	  val d:Dist = R -> here;
 	  ateach(p in d){
 		  async(p){}
-	  }*/
+	  }*/ 
 
 	  /* test foreach
 	  val r = 0..10;
@@ -149,7 +153,9 @@ public class TrivialTest {
 	          return ;
 	      }	  */
   
-	 /*var i:int = 1;
+	 /* nested finish
+	  * 
+	  var i:int = 1;
          //i = bar(((x:int) => x +1),i);
          finish{
         	 var j:int = 1;
@@ -258,13 +264,16 @@ public class TrivialTest {
 	 /*var i:int = 1;
 	 for(i=3;i<9;i++){
 		 for(i=3;i<9;i++){
+			 f2();
 			 i = i +1;
 			 if(i>5){
+				 f2();
 				break; 
 			 }
 		 }
 		 i = i + 1;
 		 if(i<3){
+			 f2();
 			 continue;
 		 }
 	 }*/
@@ -272,8 +281,8 @@ public class TrivialTest {
 	 /* arity=1: pass!
 	 finish{
 		 async{ var i:int = 1;}
-	 }
-	 */
+	 }*/
+	 
 	 
 	 /* arity=1: pass!
 	 var i:int = 1;
@@ -512,11 +521,11 @@ public class TrivialTest {
 	//cannot find
 	//async(here){f1(f2());}
 	
-	//cannot find
+	//cannot find*/
 	/*async(here){
 		f1(2);
 		f2();
-	}*/
+	}
 	
 	//find methods
 	//f1(2);
@@ -527,10 +536,10 @@ public class TrivialTest {
 	//f3();
 	
 	/* test recursion */
-	/*finish{
+	/**/finish{
 	f4();
 	f5();
-	}*/
+	}
 	
 	
 	
