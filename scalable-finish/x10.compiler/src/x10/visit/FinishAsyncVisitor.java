@@ -47,6 +47,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		OutputUtil.loadCallTable("/Users/blshao/calltable.dat");
 	private String src_package = null;
 	private String src_path = null;
+	private String src_method = null;
 	final String theLanguage;
 	final X10TypeSystem xts;
     final X10NodeFactory xnf;
@@ -120,6 +121,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		int line = n.position().line();
 		int column = n.position().endColumn();
 		String methodName = n.name().toString();
+		src_method = methodName;
 		CallTableMethodKey mk = new CallTableMethodKey(src_package,methodName,line,column);
 		boolean f = calltable.keySet().contains(mk);
 		if(f){
@@ -136,7 +138,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		int line = n.position().line();
 		int column = n.position().column();
 		CallTableFinishKey at; 
-		at = new CallTableFinishKey(src_package,line,column,-1,false);
+		at = new CallTableFinishKey(src_package,src_method,line,column,-1,false);
 		//FIXME: if "at" is in a normal method, wala gives the package
 		// this method belongs to as an "id"; However, if "at" is in an
 		// async, which is treated as a wala-generated method, the "id"
@@ -148,7 +150,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 			System.out.println("find at:"+n.toString());
 		}
 		else{
-			at = new CallTableFinishKey(src_path,line,column,-1,false);
+			at = new CallTableFinishKey(src_path,src_method,line,column,-1,false);
 			f = calltable.keySet().contains(at);
 			if(f){
 				System.out.println("find at:"+n.toString());
@@ -181,7 +183,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		int line = n.body().position().line();
 		int column = n.body().position().column();
 		//System.out.println("line = " + line + ", column = "+column);
-		CallTableFinishKey fs = new CallTableFinishKey(src_package,line,column,-1,true);
+		CallTableFinishKey fs = new CallTableFinishKey(src_package,src_method,line,column,-1,true);
 		boolean f = calltable.keySet().contains(fs);
 		if(f){
 			System.out.println("find finish:"+n.toString());
