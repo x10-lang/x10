@@ -49,7 +49,9 @@ ifndef DISABLE_X10RT_PGAS
   include pgas/pgas.mk
 endif
 
-include standalone/standalone.mk
+ifndef ENABLE_CROSS_COMPILE_BGP
+   include standalone/standalone.mk
+endif
 
 install: $(LIBS) $(PROPERTIES)
 	(test -n "$(LIBS)" && $(CP) $(LIBS) $(X10_HOME)/x10.dist/lib) || true
