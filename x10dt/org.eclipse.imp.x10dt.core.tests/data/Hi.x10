@@ -1,0 +1,1 @@
+public class Hi { public global def bar(); }
