@@ -149,7 +149,7 @@ public class CallTableUtil {
 		    // get that entry and its object list
 		    if (callee instanceof CallTableAtVal) {
 			CallTableFinishKey tmpkey = new CallTableFinishKey(
-				callee.scope, ((CallTableAtVal) callee).line,
+				callee.scope, callee.name, ((CallTableAtVal) callee).line,
 				((CallTableAtVal) callee).column,
 				((CallTableAtVal) callee).blk, false);
 			LinkedList<CallTableVal> tmplist = calltable

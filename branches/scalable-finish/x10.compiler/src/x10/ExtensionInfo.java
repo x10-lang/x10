@@ -386,6 +386,15 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                goals.add(vg);
 
            }
+           // finish-annotation 
+           if(x10.Configuration.FINISH_ANNOTS){
+        	   TypeSystem ts = extInfo.typeSystem();
+               NodeFactory nf = extInfo.nodeFactory();
+               FinishAnnotationVisitor av = new FinishAnnotationVisitor(job,ts,nf,"java");    
+               VisitorGoal vg = (VisitorGoal) new VisitorGoal("FinishAnnot",job,av).intern(this);	   
+               goals.add(vg);
+
+           }
 
            goals.add(NativeClassVisitor(job));
 
