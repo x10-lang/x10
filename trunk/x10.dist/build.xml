@@ -55,22 +55,16 @@
         <condition property="local.ecj.jar" value="${env.LOCAL_ECJ_JAR}">
             <isset property="env.LOCAL_ECJ_JAR"/>
         </condition>
-        <condition property="custom.bash" value="${env.CUSTOM_BASH}" else="/bin/bash">
-            <isset property="env.CUSTOM_BASH"/>
-        </condition>
     </target>
 
     <target name="clean">
         <delete>
             <fileset dir="${bin}">
                 <include name="defs"/>
-                <include name="script"/>
                 <include name="setupX10"/>
                 <include name="java_x10rt"/>
                 <include name="x10"/>
                 <include name="x10c"/>
-                <include name="x10c++"/>
-                <include name="runx10"/>
             </fileset>
         </delete>
     </target>
@@ -254,8 +248,6 @@
         <antcall target="setupX10"/>
         <antcall target="x10"/>
         <antcall target="x10c"/>
-        <antcall target="x10c++"/>
-        <antcall target="runx10"/>
         <antcall target="java_x10rt"/>
     </target>
 
@@ -314,12 +306,6 @@
         </condition>
     </target>
 
-    <target name="script-deps">
-        <condition property="script.up-to-date">
-            <uptodate targetfile="${bin}/script" srcfile="${ant.file}"/>
-        </condition>
-    </target>
-
     <target name="find-java">
         <echo message="JAVA_HOME = '${env.JAVA_HOME}'"/>
         <echo message="java.home = '${java.home}'"/>
@@ -356,9 +342,7 @@
         <echo message="X10_PLATFORM = '${env.X10_PLATFORM}'"/>
         <echo message="TOP = '${basedir}'"/>
         <!-- TODO: some of this is x10c-specific; factor out into x10c.in -->
-        <echo file="${bin}/defs" append="no" message="#!"/>
-        <echo file="${bin}/defs" append="yes" message="${custom.bash}"/>
-        <echo file="${bin}/defs" append="yes">
+	<echo file="${bin}/defs" append="no">#!/usr/bin/env bash
 # DO NOT EDIT - This file was automatically generated.
 
 #JAVA='${java.executable}'
@@ -414,18 +398,6 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
 </echo>
     </target>
 
-    <target name="executable-script" depends="find-java,script-deps" unless="script.up-to-date"
-            description="creates a file containing the shell path">
-        <echo message="Creating ${bin}/script"/>
-        <echo message="FILE_SEP = '${file.separator}'"/>
-        <echo message="PATH_SEP = '${path.separator}'"/>
-        <echo message="X10_PLATFORM = '${env.X10_PLATFORM}'"/>
-        <echo message="TOP = '${basedir}'"/>
-        <!-- TODO: some of this is x10c-specific; factor out into x10c.in -->
-        <echo file="${bin}/script" append="no" message="#!"/>
-        <echo file="${bin}/script" append="yes" message="${custom.bash}"/>
-    </target>
-
     <target name="setupX10" unless="setupX10.up-to-date"
             depends="executable-defs"
             description="creates a configuration script for x10">
@@ -458,38 +430,6 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         <delete file="${bin}/defs"/>
     </target>
 
-    <target name="x10c++" unless="x10c++.up-to-date"
-            depends="executable-script"
-            description="creates the executable script x10c++">
-        <echo message="Creating ${bin}/x10c++"/>
-        <concat destfile="${bin}/x10c++" append="no">
-            <filelist dir="${bin}" files="script"/>
-        </concat>
-        <concat destfile="${bin}/x10c++" append="yes">
-            <filelist dir="${bin}" files="x10c++.in"/>
-        </concat>
-
-        <chmod perm="+x" file="${bin}/x10c++"/>
-
-        <delete file="${bin}/script"/>
-    </target>
-
-    <target name="runx10" unless="runx10.up-to-date"
-            depends="executable-script"
-            description="creates the executable script runx10">
-        <echo message="Creating ${bin}/runx10"/>
-        <concat destfile="${bin}/runx10" append="no">
-            <filelist dir="${bin}" files="script"/>
-        </concat>
-        <concat destfile="${bin}/runx10" append="yes">
-            <filelist dir="${bin}" files="runx10.in"/>
-        </concat>
-
-        <chmod perm="+x" file="${bin}/runx10"/>
-
-        <delete file="${bin}/script"/>
-    </target>
-
     <target name="x10" unless="x10.up-to-date"
             depends="executable-defs"
             description="creates the executable script x10">
@@ -508,7 +448,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
 
     <target name="java_x10rt" unless="java_x10rt.up-to-date"
             depends="executable-defs"
-            description="creates the executable script x10">
+            description="creates the executable script java_x10rt">
         <echo message="Creating ${bin}/java_x10rt"/>
         <concat destfile="${bin}/java_x10rt" append="no">
             <filelist dir="${bin}" files="defs"/>
