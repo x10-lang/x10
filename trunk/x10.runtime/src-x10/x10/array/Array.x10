@@ -13,6 +13,7 @@ package x10.array;
 
 import x10.compiler.Inline;
 import x10.compiler.Native;
+import x10.util.IndexedMemoryChunk;
 
 /**
  * <p>An array defines a mapping from {@link Point}s to data values of some type T.
@@ -80,21 +81,36 @@ public final class Array[T](
     public property rail: boolean = region.rail;
 
 
-    private val raw:Rail[T]!;
+    private val raw:IndexedMemoryChunk[T];
+    private val rawLength:int;
     private val layout:RectLayout!;
 
     @Native("java", "true") // TODO: optimize this for Java as well.
     @Native("c++", "BOUNDS_CHECK_BOOL")
     private native def checkBounds():boolean;
 
-    // TODO: made public for use in Rail.copyTo/copyFrom from user code until proper copyTo/copyFrom 
-    //       is implemented for arrays.  This method may not be public in X10 2.1.0 and later.
-    public @Inline def raw():Rail[T]! = raw;
+    /**
+     * Return the IndexedMemoryChunk[T] that is providing the backing storage for the array.
+     * This method is primarily intended to be used to interface with native libraries 
+     * (eg BLAS, ESSL) and to support user-defined copyTo/copyFrom idioms until the proper
+     * copyTo/copyFrom methods are added to the Array API as first class operations.<p>
+     * 
+     * This method should be used sparingly, since it may make client code dependent on the layout
+     * algorithm used to map Points in the Array's Region to indicies in the backing IndexedMemoryChunk.
+     * The specifics of this mapping are unspecified, although it would be reasonable to assume that
+     * if the rect property is true, then every element of the backing IndexedMemoryChunk[T] actually
+     * contatins a valid element of T.  Furthermore, for a multi-dimensional array it is currently true
+     * (and likely to remain true) that the layout used is compatible with the expected by 
+     * platform BLAS libraries.
+     *
+     * @return the IndexedMemoryChunk[T] that is the backing storage for the Array object.
+     */
+    public @Inline def raw() = raw;
    
 
     // TODO: This is a hack around the way regions are currently defined.
     //       to try to make checking slightly more efficient.
-    //       This will be fixed in 2.0.4.
+    //       This will be fixed in 2.1.0.
     private val baseRegion:BaseRegion{self.rank==this.rank};
 
     // TODO: XTENLANG-1188 this should be a const (static) field, but working around C++ backend bug
@@ -113,7 +129,8 @@ public final class Array[T](
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
-        raw = Rail.make[T](n);
+        raw = IndexedMemoryChunk[T](n);
+        rawLength = n;
         baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
@@ -130,11 +147,12 @@ public final class Array[T](
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
-        val r  = Rail.make[T](n);
+        val r  = IndexedMemoryChunk[T](n);
 	for (p:Point(reg.rank) in reg) {
             r(layout.offset(p))= init(p);
         }
         raw = r;
+        rawLength = n;
         baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
@@ -151,8 +169,12 @@ public final class Array[T](
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
-        val r  = Rail.make[T](n, init);
+        val r  = IndexedMemoryChunk[T](n);
+	for (var i:int = 0; i<n; i++) {
+            r(i) = init;
+	}
         raw = r;
+        rawLength = n;
         baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
@@ -164,7 +186,6 @@ public final class Array[T](
      *
      */    
     public def this(rail:Rail[T]!):Array[T]{self.rank==1,rect,zeroBased} {
-        // TODO: could make this more efficient by optimizing rail copy.
 	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
     }
 
@@ -444,10 +465,10 @@ public final class Array[T](
     public def lift(dst:Array[T](region)!, op:(T)=>T):Array[T](region)! {
 	// TODO: parallelize these loops.
 	if (region.rect) {
-            // In a rect region, every element in the backing raw Rail[T]
+            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
-            // the traversal and simply lift on the Rail itself.
-            for (var i:int =0; i<raw.length; i++) {
+            // the traversal and simply lift on the IndexedMemoryChunk itself.
+            for (var i:int =0; i<rawLength; i++) {
                 dst.raw(i) = op(raw(i));
             }	
         } else {
@@ -496,10 +517,10 @@ public final class Array[T](
     public def lift(dst:Array[T](region)!, src:Array[T](region)!, op:(T,T)=>T):Array[T](region)! {
 	// TODO: parallelize these loops.
 	if (region.rect) {
-            // In a rect region, every element in the backing raw Rail[T]
+            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
-            // the traversal and simply lift on the Rail itself.
-            for (var i:int =0; i<raw.length; i++) {
+            // the traversal and simply lift on the IndexedMemoryChunk itself.
+            for (var i:int =0; i<rawLength; i++) {
                 dst.raw(i) = op(raw(i), src.raw(i));
             }	
         } else {
@@ -528,10 +549,10 @@ public final class Array[T](
         //       use it to efficiently parallelize these loops.
         var accum:T = unit;
 	if (region.rect) {
-            // In a rect region, every element in the backing raw Rail[T]
+            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
-            // the traversal and simply reduce on the Rail itself.
-            for (var i:int=0; i<raw.length; i++) {
+            // the traversal and simply reduce on the IndexedMemoryChunk itself.
+            for (var i:int=0; i<rawLength; i++) {
                 accum = op(accum, raw(i));
             }          
         } else {
