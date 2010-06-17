@@ -42,7 +42,12 @@ public class ValHashMap[K,V] implements ValMap[K,V] {
         
     private def this(map:HashMap[K,V]!) {
 		val t:Rail[HashMap.HashEntry[K,V]!]! = map.table;
-		table = ValRail.make[HashEntry[K,V]!](t.length, (index:Int)=> new HashEntry[K,V](t(index).getKey(), t(index).getValue()) );
+		table =  = ValRail.make[HashEntry[K,V]!](t.length, (index:Int)=> {
+		    val entry:HashMap.HashEntry[K,V]! = t(index);
+			var res:HashEntry[K,V]! = null;
+			if (entry!=null) res = new HashEntry[K,V](entry.getKey(), entry.getValue());
+			return res;
+		});
     }    
     
     protected static global safe def hash[T](k:T): Int {
