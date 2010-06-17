@@ -117,8 +117,10 @@ public class Activity {
     public var tag:Object!;
 
     def dump() {
+        /* FIXME: ExpressionFlattener won't work with @NativeString magic
         Runtime.printf(@NativeString "%p ", Runtime.nativeThis(this));
         Runtime.printf(@NativeString "%s\n", Runtime.nativeClosureName(body));
+        */
     }
 }
 

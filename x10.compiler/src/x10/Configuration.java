@@ -64,10 +64,13 @@ public final class Configuration extends x10.config.Configuration {
 	private static final String ARRAY_OPTIMIZATIONS_desc = "Generate allocation of specialized Java array classes";
 
 	public static boolean INLINE_OPTIMIZATIONS = false;
-	private static final String INLINE_OPTIMIZATIONS_desc = "Perform inlining optimizations";
+    private static final String INLINE_OPTIMIZATIONS_desc = "Perform inlining optimizations";
 
 	public static boolean CLOSURE_INLINING = true;
 	private static final String CLOSURE_INLINING_desc = "Perform closure literal inlining";
+
+	public static boolean FLATTEN_EXPRESSIONS = false;
+    private static final String FLATTEN_EXPRESSIONS_desc = "Flatten all expressions";
 
 	public static String PLUGINS = "";
 	private static final String PLUGINS_desc = "Comma-separated list of compiler plugins to run.";
