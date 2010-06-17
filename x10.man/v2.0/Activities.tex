@@ -775,9 +775,10 @@ Note an important property of an (unconditional) atomic block:
  \mbox{\xcd"atomic \{s1; atomic s2\}"} &=& \mbox{\xcd"atomic \{s1; s2\}"}
 \end{eqnarray}
 
-\bard{The following is false -- atomic while(false) -- but no deadlocks.}
-Further, an atomic block will eventually terminate successfully or
-thrown an exception; it may not introduce a deadlock.
+Atomic blocks do not introduce deadlocks.    They may exhibit all the bad
+behavior of sequential programs, including throwing exceptions and running
+forever, but they are guaranteed not to deadlock.
+
 
 \subsubsection{Example}
 
