@@ -45,6 +45,7 @@ public class FinishAnnotationVisitor extends ContextVisitor {
 
 	private Node visitAnnotation(AnnotationNode n) {
 		System.out.println("Annotation:" + n.toString());
+		System.out.println(n.annotationType());
 		/*X10ParsedClassType_c xpct = (X10ParsedClassType_c)n.annotationType().typeRef().getCached();
 		List<Expr> inits = xpct.propertyInitializers();
 		for(int i=0;i<inits.size();i++){
