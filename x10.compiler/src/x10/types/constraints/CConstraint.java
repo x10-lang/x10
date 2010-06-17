@@ -63,8 +63,11 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	/**
 	 * 
 	 */
+	public CConstraint(XVar self) {
+        this.self = self;
+    }
 	public CConstraint() {
-		 self = XTerms.makeUQV(SELF_VAR_PREFIX);
+		 this(XTerms.makeUQV(SELF_VAR_PREFIX));
 	}
 
 	/**
