@@ -14,7 +14,6 @@ package x10.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -874,7 +873,7 @@ public class Synthesizer {
      * @param methods The methods to be inserted in
      * @return A newly created class with methods as members
      */
-    public X10ClassDecl addMethods(X10ClassDecl cDecl, Set<X10MethodDecl> methods){
+    public X10ClassDecl addMethods(X10ClassDecl cDecl, List<X10MethodDecl> methods){
         List<ClassMember> cm = new ArrayList<ClassMember>();
         cm.addAll(cDecl.body().members());
         cm.addAll(methods);
