@@ -72,6 +72,7 @@
     <condition property="bdwgc.enabled">
         <and>
             <isfalse value="${DISABLE_GC}" />
+	    <isfalse value="${CROSS_COMPILE_BGP}" />
             <or>
                 <os family="unix" name="linux"/>
                 <os family="mac"/>
