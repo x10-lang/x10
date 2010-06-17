@@ -1,15 +1,8 @@
 #include "defs.h"
-#include "mysort.h"
 
 /* Set this variable to zero to run the data generator 
    on one thread (for debugging purposes) */
 #define PARALLEL_SDG 0
-
-struct pairs {
-
-   VERT_T key;
-   VERT_T value;
-};
 
 double genScalData(graphSDG* SDGdata) {
 
@@ -34,12 +27,12 @@ double genScalData(graphSDG* SDGdata) {
     assert(dest != NULL); 
 
     /* sprng seed */
-    seed = 985456376;
+    seed = 2387;
 
     elapsed_time = get_seconds();
 
 #ifdef _OPENMP
-#if  PARALLEL_SDG
+#if PARALLEL_SDG
     omp_set_num_threads(omp_get_max_threads());
     // omp_set_num_threads(16);
 #else
@@ -71,21 +64,19 @@ double genScalData(graphSDG* SDGdata) {
 #endif
     
     /* Initialize RNG stream */ 
+	stream = init_sprng(0, tid, nthreads, seed, SPRNG_DEFAULT);
 
 #ifdef DIAGNOSTIC
     if (tid == 0) 
         elapsed_time_part = get_seconds();
 #endif
 
-	stream = init_sprng(SPRNG_LCG64, 0, 1, seed, SPRNG_DEFAULT);
     /* Start adding edges */
 #ifdef _OPENMP
 #pragma omp for
 #endif    
     for (i=0; i<m; i++) {
-	//stream = init_sprng(SPRNG_LCG64, i, m, seed, SPRNG_DEFAULT);
 
-      do {
         u = 1;
         v = 1;
         step = n/2;
@@ -135,22 +126,11 @@ double genScalData(graphSDG* SDGdata) {
                 u += step;
                 v += step;
             }
-           //printf ("u v %d %d %d %f %d\n",tid,  u, v, p, SCALE);
-        }
-     } while (u == v);           
+        }           
         
         src[i] = u-1;
         dest[i] = v-1;
     }
-
-/*
-    for (i = 0;i  < m; i++) {
-     printf ("%d ", src[i]);
-    }
-    printf ("\n");
-    for (i = 0;i  < m; i++) {
-     printf ("%d ", dest[i]);
-    } */
 
 #ifdef DIAGNOSTIC
     if (tid == 0) {
@@ -167,45 +147,74 @@ double genScalData(graphSDG* SDGdata) {
         assert(permV != NULL);
     }
 
-    struct pairs *kv= (struct pairs*)  malloc(N*sizeof(struct pairs));
+#ifdef _OPENMP
+#pragma omp barrier
 
+#pragma omp for
+#endif    
     for (i=0; i<n; i++) {
-	//stream = init_sprng(SPRNG_LCG64, i, n, seed, SPRNG_DEFAULT);
-        kv[i].key =  (n*sprng(stream));
-        kv[i].value = i;
-
+        permV[i] = i;
     }
 
-   mysort((void*) (kv), n);
+#ifdef _OPENMP
+    if (tid == 0) {
+        vLock = (omp_lock_t *) malloc(n*sizeof(omp_lock_t));
+        assert(vLock != NULL);
+    }
 
+#pragma omp barrier
 
-/*
-       for (i=0; i < n; i++) {
-          for (j=i+1; j < n; j++ ){
+#pragma omp for
+    for (i=0; i<n; i++) {
+        omp_init_lock(&vLock[i]);
+    }
 
-             if (keys[i] > keys[j]) {
+#endif
+    
+#ifdef _OPENMP
+#pragma omp for
+#endif    
+    for (i=0; i<n; i++) {
+        j = n*sprng(stream);
+        if (i != j) {
+#ifdef _OPENMP
+            int l1 = omp_test_lock(&vLock[i]);
+            if (l1) {
+                int l2 = omp_test_lock(&vLock[j]);
+                if (l2) {
+#endif
+                    tmpVal = permV[i];
+                    permV[i] = permV[j];
+                    permV[j] = tmpVal;
+#ifdef _OPENMP
+                    omp_unset_lock(&vLock[j]);
+                }
+                omp_unset_lock(&vLock[i]);
+            }
+#endif
+        }
+    }
 
-               int tmp0 = keys[i];
-               keys[i] = keys[j];
-               keys[j] = tmp0;
+#ifdef _OPENMP
+#pragma omp for
+    for (i=0; i<n; i++) {
+        omp_destroy_lock(&vLock[i]);
+    }
+    
+#pragma omp barrier
 
-               int tmp1 = values[i];
-               values[i] = values[j];
-               values[j] = tmp1;
-
-             }
-           }
-         }
-*/
+    if (tid == 0) {
+        free(vLock);
+    }
+#endif
 
 #ifdef _OPENMP
 #pragma omp for
 #endif    
     for (i=0; i<m; i++) {
-        src[i] = kv[src[i]].value;
-        dest[i] = kv[dest[i]].value;
+        src[i] = permV[src[i]];
+        dest[i] = permV[dest[i]];
     } 
-
 
 #ifdef DIAGNOSTIC
     if (tid == 0) {
@@ -221,7 +230,6 @@ double genScalData(graphSDG* SDGdata) {
     
     /* Generate edge weights */
     if (tid == 0) {
-	//stream = init_sprng(SPRNG_LCG64, i, m, seed, SPRNG_DEFAULT);
         wt = (WEIGHT_T *) malloc(M*sizeof(WEIGHT_T));
         assert(wt != NULL);
     }

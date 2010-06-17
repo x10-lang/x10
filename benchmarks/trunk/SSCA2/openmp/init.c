@@ -37,10 +37,10 @@ void init(int SCALE, int cutshort) {
     SubGraphPathLength = 3;
 
 if (cutshort) {
-    if (SCALE < 10)
+    if (SCALE < 5)
         K4approx = SCALE;
     else 
-        K4approx = 10;
+        K4approx = 5;
 }
 else
     K4approx = SCALE;

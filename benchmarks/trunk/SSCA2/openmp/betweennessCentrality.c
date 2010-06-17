@@ -75,7 +75,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC, int filter) {
 #endif
 
     /* Initialize RNG stream */ 
-	stream = init_sprng(SPRNG_LCG64, tid, nthreads, seed, SPRNG_DEFAULT);
+	stream = init_sprng(0, tid, nthreads, seed, SPRNG_DEFAULT);
 
 #ifdef _OPENMP
 #pragma omp for
@@ -321,6 +321,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC, int filter) {
 #pragma omp barrier
 #endif
 
+
             if (tid == 0) {
                 start[phase_num] = end[phase_num-1];
                 psCount[0] = start[phase_num];
@@ -349,6 +350,7 @@ double betweennessCentrality(graph* G, DOUBLE_T* BC, int filter) {
 #ifdef _OPENMP        
 #pragma omp barrier
 #endif
+            //printf ("%d\n", phase_num);
 
         while (phase_num > 0) {
 #ifdef _OPENMP        
