@@ -1,0 +1,65 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{yglang}[2005/09/12 v0.5]
+\RequirePackage{xspace}
+
+\newcommand{\@pl}[1]{\mbox{\textsc{#1}}\xspace}
+\newcommand\lang[1]{\@pl{#1}}
+
+\newcommand\NonCitingUseX[1]{\csname nocite#1\endcsname}
+\newcommand\NonCitingUse[1]{\NonCitingUseX{#1}\xspace}
+\newcommand\@IgnoreLanguageCitation[1]{%
+    \expandafter\gdef\csname#1\endcsname{\csname nocite#1\endcsname}%
+}
+\newcommand\StopLanguageCitation[1]{%
+    \expandafter\gdef\csname#1\endcsname{\csname nocite#1\endcsname\xspace}%
+}
+
+
+\def\@LANG#1#2#3{%
+    \expandafter\gdef\csname nocite#1\endcsname{#3}% Define the base version, as e.g., \nociteJava
+    \expandafter\gdef\csname#1\endcsname{% First time invocation.
+        \NonCitingUseX{#1}\relax             % Invoke the base version.
+        \StopLanguageCitation{#1}\relax  % Reset the definition for all future uses.
+        ~#2\relax                     % Append the citation.
+        \xspace
+    }%
+}
+
+\newcommand\NewLanguageCitation[2]{\@LANG{#1}{\textup{#2}}{\textsc{#1}}}
+\newcommand\NewLangaugeCitationSpecial[3]{\@LANG{#1}{#2}{#3}}
+
+
+%Use alphabetical ordering
+\NewLanguageCitation{Ada}{\cite{Tucker:97}}
+\NewLangaugeCitationSpecial{AJEE}{\cite{Cohen:Gil:04}}{\textsc{AspectJ2EE}}
+\NewLanguageCitation{AspectJ}{\cite{Kiczales:2001}}
+\NewLanguageCitation{AWK}{\cite{Aho:Kernighan:Weinberger:Book:88}}
+%\NewLangaugeCitationSpecial{CC}{\cite{Stroustrup:Book:97}}{\mbox{C++}\xspace} - this causes too much space
+\newcommand\CC{{\mbox{\textsc{C}++}}\xspace}
+\NewLanguageCitation{Cecil}{\cite{Chambers:Cecil:93}}
+\NewLanguageCitation{CLOS}{\cite{CLOS}}
+\NewLanguageCitation{Cobol}{}
+\NewLanguageCitation{CommonLoops}{\cite{Bobrow:Kahn:Kiczales:Masinter:Stefik:Zdybel:86}}
+\NewLangaugeCitationSpecial{CProlog}{\cite{Shapiro:87}}{\textsc{Concurrent Prolog}}
+\NewLanguageCitation{Datalog}{\cite{Ceri:Gottlob:Tanca:90}}
+\NewLanguageCitation{Dylan}{\cite{Dylan:Shalit:97}}
+\NewLanguageCitation{Eiffel}{\cite{Eiffel:Reference:97}}
+\NewLanguageCitation{Fortran}{}
+\NewLanguageCitation{Flavors}{\cite{Moon:Flavors:86}}
+\NewLanguageCitation{Java}{\cite{Arnold:Gosling:96}}
+\NewLanguageCitation{Kea}{\cite{Kea}}
+\NewLanguageCitation{MixGen}{\cite{Allen:Bannet:Cartwright:03}}
+\NewLanguageCitation{Modula}{\cite{Reiser:Wirth:92}}
+\NewLanguageCitation{ML}{\cite{ml-spec:Milner:Tofte:Harper:MacQueen:97}}
+\NewLanguageCitation{NextGen}{\cite{Allen:Bannet:Cartwright:03}}
+\NewLanguageCitation{Pascal}{\cite{Wirth:71}}
+\NewLanguageCitation{PolyGlot}{\cite{PolyGlot}}
+\NewLanguageCitation{ObjectiveC}{\cite{Cox:Book:Evolutionary:86}}
+\NewLanguageCitation{Prolog}{\cite{Deransart:Cervoni:Ed-Dbali:96}}
+\NewLanguageCitation{Scala}{\cite{Odersky:Altherr:Cremet:Emir:Maneth:Micheloud:Mihaylov:Schinz:Stenman:Zenger:04}}
+\NewLanguageCitation{SQL}{}
+\NewLanguageCitation{Self}{\cite{Ungar:Smith:87}}
+\NewLanguageCitation{Smalltalk}{\cite{Goldberg:Book:84}}
+\NewLanguageCitation{TCL}{\cite{Ousterhout:90}}
+\NewLangaugeCitationSpecial{THETA}{\cite{Liskov:al:95}}{\lang{Theta}}
+\NewLanguageCitation{XQuery}{\cite{XQuery}}
