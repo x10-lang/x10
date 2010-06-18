@@ -1,10 +1,14 @@
 package x10.finish.util;
 
 
+import java.util.Iterator;
+
+import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
 import com.ibm.wala.cfg.ControlFlowGraph;
 import com.ibm.wala.cfg.IBasicBlock;
 import com.ibm.wala.ipa.cfg.EdgeFilter;
 import com.ibm.wala.ipa.cfg.PrunedCFG;
+
 
 /**
  * A view of a CFG that ignores exceptional edges
@@ -23,7 +27,17 @@ public class MyExceptionPrunedCFG {
     }
 
     public boolean hasExceptionalEdge(T src, T dst) {
-      if(src.isEntryBlock() && dst.isExitBlock()){
+	Iterator<I> all = src.iterator();
+	boolean flag = false;
+	while(all.hasNext()){
+	    I inst = all.next();
+	    if(inst instanceof AstJavaInvokeInstruction){
+		flag = true;
+	    }else{
+		flag = false;
+	    }
+	}
+      if(flag && dst.isExitBlock()){
 	  return false;
       }
       return true;

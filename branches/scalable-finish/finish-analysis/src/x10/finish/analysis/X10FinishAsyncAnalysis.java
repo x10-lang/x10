@@ -469,7 +469,7 @@ public class X10FinishAsyncAnalysis {
 		    .getControlFlowGraph();
 	    
 	    // control flow graph without exception
-	    PrunedCFG<SSAInstruction, ISSABasicBlock> epcfg = ExceptionPrunedCFG.make(cfg);
+	    PrunedCFG<SSAInstruction, ISSABasicBlock> epcfg = MyExceptionPrunedCFG.make(cfg);
 	    //ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg = cfg;
 	    if (epcfg != null) {
 		String _package = 
@@ -508,7 +508,8 @@ public class X10FinishAsyncAnalysis {
 		NatLoopSolver.findAllLoops(epcfg, dom, loops, loopvisited, root);
 		//printGraph(epcfg);
 		if (md.getMethod().getName().toString().contains("foo")){
-		    //GraphUtil.printCFG(epcfg, md.getMethod().getName().toString());
+		    GraphUtil.printCFG(epcfg, md.getMethod().getName().toString()+"_removed");
+		    GraphUtil.printCFG(cfg, md.getMethod().getName().toString());
 		}
 		parseBlock(epcfg, env);
 		if(last_inst!=null){
