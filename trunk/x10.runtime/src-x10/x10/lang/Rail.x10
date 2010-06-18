@@ -39,7 +39,7 @@ public final class Rail[T](length: Int)
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
-    @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5)")
+    @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4, #5)")
     public native static safe def make[S](length: Int, init: (Int) => S): Rail[S]!{self.length==length};
 
     /**
@@ -51,7 +51,7 @@ public final class Rail[T](length: Int)
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
-    @Native("c++", "x10::lang::Rail<#1 >::makePinned(#4, #5)")
+    @Native("c++", "x10::lang::Rail<void>::makePinned<#1 >(#4, #5)")
     public native static safe def makePinned[S](length: Int, init: (Int) => S): Rail[S]!{self.length==length};
 
 
@@ -64,7 +64,7 @@ public final class Rail[T](length: Int)
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
-    @Native("c++", "x10::lang::Rail<#1 >::makeAligned(#4, #5, #6)")
+    @Native("c++", "x10::lang::Rail<void>::makeAligned<#1 >(#4, #5, #6)")
     public native static safe def makeAligned[S](length: Int, init: (Int) => S, alignment: Int): Rail[S]!{self.length==length};
 
     /**
@@ -76,7 +76,7 @@ public final class Rail[T](length: Int)
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5, #6)")
-    @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5, #6)")
+    @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4, #5, #6)")
     public native static safe def make[S](length: Int, off:Int, init:Rail[S]): Rail[S]!{self.length==length};
 
 
@@ -92,7 +92,7 @@ public final class Rail[T](length: Int)
      */
 
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5, #6)")
-    @Native("c++", "x10::lang::Rail<#1 >::makeAligned(#4, #5, #6, #7)")
+    @Native("c++", "x10::lang::Rail<void>::makeAligned<#1 >(#4, #5, #6, #7)")
     public native static safe def makeAligned[S](length: Int, off:Int, init:Rail[S], alignment:Int): Rail[S]!{self.length==length};
 
     /**
@@ -104,7 +104,7 @@ public final class Rail[T](length: Int)
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
-    @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
+    @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4)")
     public native static safe def make[S](length: Int): Rail[S]!{self.length==length};
 
     /**
@@ -117,7 +117,7 @@ public final class Rail[T](length: Int)
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
-    @Native("c++", "x10::lang::Rail<#1 >::makeAligned(#4, #5)")
+    @Native("c++", "x10::lang::Rail<void>::makeAligned<#1 >(#4, #5)")
     public native static safe def makeAligned[S](length: Int, alignment:Int): Rail[S]!{self.length==length};
 
     /**
@@ -128,7 +128,7 @@ public final class Rail[T](length: Int)
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
-    @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5)")
+    @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4, #5)")
     public native static safe def make[S](length: Int, init:S): Rail[S]!{self.length==length};
 
     /**
@@ -140,7 +140,7 @@ public final class Rail[T](length: Int)
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
-    @Native("c++", "x10::lang::Rail<#1 >::makeAligned(#4, #5, #6)")
+    @Native("c++", "x10::lang::Rail<void>::makeAligned<#1 >(#4, #5, #6)")
     public native static safe def makeAligned[S](length: Int, init:S, alignment:Int): Rail[S]!{self.length==length};
 
     /**
@@ -167,7 +167,7 @@ public final class Rail[T](length: Int)
      * @param init The length and elements will be copied from this ValRail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
-    @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
+    @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4)")
     public native static safe operator [U](r: ValRail[U]): Rail[U]!{self.length==r.length};
 
     /**

@@ -106,7 +106,7 @@ namespace x10 {
     namespace util {
         template<class T> x10aux::ref<GrowableRail<T> > GrowableRail<T>::_constructor(x10_int size) {
             this->x10::lang::Object::_constructor();
-            _array = x10::lang::Rail<T>::make(size);
+            _array = x10::lang::Rail<void>::make<T>(size);
             _len = 0;
             return this;
         }
@@ -154,7 +154,7 @@ namespace x10 {
         }
 
         template<class T> x10aux::ref<x10::lang::Rail<T> > GrowableRail<T>::toRail() {
-            x10aux::ref<x10::lang::Rail<T> > ans = x10::lang::Rail<T>::make(_len);
+            x10aux::ref<x10::lang::Rail<T> > ans = x10::lang::Rail<void>::make<T>(_len);
             for (int i=0; i<_len; i++) {
                 (*ans)[i] = (*_array)[i];
             }
@@ -193,7 +193,7 @@ namespace x10 {
                 newSize = 8;
             }
 
-            x10aux::ref<x10::lang::Rail<T> > tmp = x10::lang::Rail<T>::make(newSize);
+            x10aux::ref<x10::lang::Rail<T> > tmp = x10::lang::Rail<void>::make<T>(newSize);
             for (int i=0; i<_len; i++) {
                 (*tmp)[i] = (*_array)[i];
             }
@@ -219,7 +219,7 @@ namespace x10 {
                 newSize = 8;
             }
 
-            x10aux::ref<x10::lang::Rail<T> > tmp = x10::lang::Rail<T>::make(newSize);
+            x10aux::ref<x10::lang::Rail<T> > tmp = x10::lang::Rail<void>::make<T>(newSize);
             for (int i=0; i<_len; i++) {
                 (*tmp)[i] = (*_array)[i];
             }
