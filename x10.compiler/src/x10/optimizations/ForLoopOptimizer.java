@@ -331,7 +331,11 @@ public class ForLoopOptimizer extends ContextVisitor {
         } catch (SemanticException e) {
             throw new InternalCompilerError("We cannot explode the formal.  Huh?", formal.position(), e);
         }
-        bodyStmts.add(body);
+        if (body instanceof Block) {
+            bodyStmts.addAll(((Block) body).statements());
+        } else {
+            bodyStmts.add(body);
+        }
         Stmt result           = createStandardFor(pos, iterLDecl, hasExpr, createBlock(pos, bodyStmts));
         if (VERBOSE) result.dump(System.out);
         return result;
