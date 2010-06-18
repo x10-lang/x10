@@ -1,0 +1,178 @@
+\clearextrapart{Introduction}
+
+\subsection*{Objectives}
+
+
+\vest This Standard specifies the form and meaning of programs written
+in the Scheme programming language.
+
+\vest Scheme was initially conceived as a vehicle for programming
+language research founded on a few key concepts that together
+critically distinguish it from others in the related Algol and LISP
+families of languages.  Through several independent implementations,
+Scheme has evolved to include a commonly accepted base
+set of data types and procedures as well as other features that are
+considered experimental or controversial.
+
+\vest The principal objective of this Standard is to specify a
+language containing exactly those features for which there has been
+extensive experience and thus a conservative consensus for
+standardization.  This provides users with a basis for constructing
+programs that are portable across implementations without jeopardizing
+research and future evolution of the language.
+
+
+\subsection*{Scope}
+
+\vest This Standard specifies the representation of Scheme programs,
+their syntax, the semantic rules for interpreting them, and the
+representation of data to be input or output by them.
+
+\vest This Standard does not specify the mechanisms by which Scheme
+programs are transferred to and from system memory and placed into
+execution, or the size or complexity of a program and its data that
+will exceed the capacity of a particular implementation.
+
+
+\subsection*{Future Directions}
+
+\vest Future revisions to this Standard may be anticipated by a series
+of informal language specifications collectively known as the
+``Revised Reports on the Algorithmic Language Scheme''
+(see~\cite{RRRS}, \cite{R3RS}, \cite{R4RS}). These reports extend the
+standard language to include features that are considered mature
+enough to merit wide-spread implementation and experimentation.
+Addition of such a feature to the report suggests that Scheme
+implementors should examine the addition and carefully consider it as
+a candidate for formal standardization.
+
+
+\subsection*{Compliance}
+
+\vest A {\it conforming program\/} shall use only those features of
+the language that are specified in this Standard.  It shall not
+contain dependencies on any unspecified or undefined aspect of this
+specification.
+
+\vest A {\it conforming implementation\/} shall accept any conforming
+program, and execute it as specified in this Standard.  Conforming
+implementations may have extensions, provided they do not alter the
+behavior of any conforming program.
+
+
+\subsection*{Organization of the document}
+
+\vest This document is divided into the following major sections:
+
+\begin{enumerate}
+
+\item this introduction;
+
+\item three chapters that present the fundamental ideas of the
+language and describe the notational conventions used for describing
+the language and writing programs in the language;
+
+\item two chapters that specify the syntax and semantics of
+expressions, programs, and definitions;
+
+\item a chapter describing Scheme's built-in procedures, which include
+all of the language's data manipulation and input/output primitives;
+
+\item a chapter providing a formal syntax for Scheme written in
+extended Backus-Naur Form;
+
+\item an appendix providing a formal denotational semantics for
+Scheme;
+
+\item two appendices outlining some issues in the implementation of
+Scheme's arithmetic;
+
+\item an index.
+
+\end{enumerate}
+
+
+\subsection*{Definitions of terms}
+
+\vest In this Standard, \defining{shall} is to be interpreted as a
+requirement on an implementation or a program; conversely,
+\defining{shall not} is to be interpreted as a prohibition.
+
+\vest The word \defining{should} is to be interpreted as a strong
+recommendation in keeping with the intent of the Standard; conversely,
+\defining{should not} is to be interpreted as a strong discouragement.
+
+The following terms are used in this document.  Other terms are
+defined at their first appearance, indicated by {\it italic\/} type.
+
+\defining{applicative order}. A property of a programming language or
+procedure: the arguments to a procedure call are evaluated before the
+procedure is invoked, and the result of each evaluation is passed to
+the procedure in place of its argument expression.
+
+\defining{bignum}. A multiple-precision computer representation for very
+large integers (cf.~{\it fixnum}).
+
+\defining{extent}. A period of time, usually referring to the lifetime of
+an object.  Once created, an object with \defining{unlimited extent}
+exists forever.
+
+\defining{first-class object}. An object that can be the value of a
+variable or can be stored in a data structure.  In Scheme, first-class
+objects have {\it unlimited extent}.
+
+\defining{fixnum}. A limited-precision computer representation
+for integers, where the limitation is imposed by machine-architecture
+constraints (cf.~{\it bignum}).
+
+\defining{flonum}. A floating-point number.
+
+\defining{procedure}. A parameterized program fragment, called a
+``subroutine'' or ``function'' in some programming languages.
+
+\defining{recursive}. Self-referential.  In common usage, a
+``recursive procedure'' is one that calls itself; similarly a
+\defining{recursion} is a call by a procedure to itself.  A set of procedures
+is \defining{mutually recursive} if they refer to one another.
+
+\defining{scope}. The region of a program's source text that is associated
+with a linguistic construct.  Normally used with ``variable'' to
+describe the region over which a variable is bound: ``the {\it scope}
+of a variable''.
+
+\defining{side effect}.  Loosely speaking, an expression has a side
+effect if it performs some observable action in addition to returning
+a value.  For example, a variable assignment is a side effect.
+
+\defining{tail recursive}. A property of the implementation of a
+programming language.  In a {\it tail-recursive} implementation,
+iterative processes can be expressed by means of procedure calls.
+(The process described by a program is iterative if and only if the
+order of its space growth is constant, aside from that used for the
+values of the program's variables.)
+
+\defining{top level environment}.  The environment used to resolve
+free variable references in a Scheme program.
+
+
+\subsection*{Examples}
+
+\vest This Standard describes in detail the form and meaning of the
+features of the Scheme language.  To assist the reader, the document
+provides examples to clarify the intent or operation of certain
+features.  Because many aspects of the language are purposely left
+undefined, these examples often merely typify the results to be
+expected and should not be construed as implying further constraints
+on the language specification.
+
+
+\subsection*{Base Document}
+
+\vest This document is derived from ``Revised$^4$ Report on the
+Algorithmic Language Scheme,''~\cite{R4RS} edited by William Clinger
+and Jonathan Rees.
+
+
+\subsection*{References}
+
+\input{bib}

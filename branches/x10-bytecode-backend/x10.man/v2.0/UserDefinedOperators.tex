@@ -1,0 +1,97 @@
+\chapter{Types}
+\label{XtenTypes}\index{types}
+
+\Xten{] supports user-defined operators of the following kinds.
+
+\begin{xten}
+MethodDeclaration ::=  
+   MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter ) 
+       WhereClauseopt ResultTypeopt Throwsopt 
+         MethodBody
+\end{xten}
+
+\paragraph{User-defined binary operator}
+The binary operators are
+\begin{xten}
+\end{xten}
+The user can specify code for such operators using the following productions:
+\begin{xten}
+MethodDeclaration ::=  
+   MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter ) 
+      WhereClauseopt ResultTypeopt Throwsopt 
+        MethodBody
+MethodDeclaration ::=  
+   MethodModifiersopt operator TypeParametersopt ( FormalParameter ) BinOp this 
+      WhereClauseopt ResultTypeopt Throwsopt 
+        MethodBody
+MethodDeclaration ::=  
+   MethodModifiersopt operator TypeParametersopt ( FormalParameter ) BinOp ( FormalParameter ) 
+       WhereClauseopt ResultTypeopt Throwsopt 
+         MethodBody
+\end{xten}
+
+\paragraph{User-defined prefix operator}
+\begin{xten}
+MethodDeclaration ::=  
+   MethodModifiersopt operator TypeParametersopt PrefixOp this 
+     WhereClauseopt ResultTypeopt Throwsopt 
+       MethodBody
+\end{xten}
+\paragraph{User-defined application operator}
+The progammer may define an application operator using the following syntex.
+This operator must {\em not} be \Xcd{static}.
+\begin{xten}
+MethodDeclaration ::=  
+   MethodModifiersopt operator this TypeParametersopt FormalParameters 
+     WhereClauseopt ResultTypeopt Throwsopt 
+       MethodBody
+\end{xten}
+
+\paragraph{User-defined assignment operator}
+\begin{xten}
+MethodDeclaration ::=  
+  MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter ) 
+     WhereClauseopt ResultTypeopt Throwsopt 
+       MethodBody
+\end{xten}
+
+\paragraph{User-defined implicit conversion operators}
+
+On a container type \Xcd{T} an implicit cast can be defined from a \Xcd{Formalparameter} of the form \Xcd{x:S}
+to \Xcd{T} using the syntax:
+\begin{xten}
+MethodDeclaration ::=  
+  MethodModifiersopt operator TypeParametersopt ( FormalParameter ) 
+    WhereClauseopt ResultTypeopt Throwsopt 
+     MethodBody
+\end{xten}
+This operator can be applied whenever an expression \Xcd{e} of type \Xcd{S} occurs in a context where a (subtype of)
+\Xcd{T} is expected. If this operator is applied, the type of the expression is the result type of this declaration.
+
+The compiler checks that the result type is a subtype of the container type \Xcd{T}.
+
+\paragraph{User-defined explicit conversion operators}
+Both the operator declarations below are required to be \Xcd{static}.
+
+This operator declaration is treated as if it defines on the container
+a method with name \Xcd{operator\_as}, with return type \Xcd{Type},
+and the given type parameters, formal parameters, where clause, throw
+clause and body.
+
+\begin{xten}
+MethodDeclaration ::=  
+  MethodModifiersopt operator TypeParametersopt ( FormalParameter ) as Type 
+    WhereClauseopt Throwsopt 
+      MethodBody
+\end{xten}
+
+This operator declaration is the same as the previous one
+except that the return type must be inferred by the compiler.
+
+\begin{xten}
+MethodDeclaration ::=  
+  MethodModifiersopt operator TypeParametersopt ( FormalParameter ) as ? 
+    WhereClauseopt Throwsopt 
+      MethodBody
+\end{xten}
+
