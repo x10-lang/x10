@@ -105,7 +105,8 @@ public class X10Field_c extends Field_c {
 		    if (xtc.throwExceptions())
 		        throw e;
 		    Errors.issue(tc.job(), e, this);
-		    X10FieldInstance fi = findAppropriateField(tc, target.type(), name.id(), target instanceof TypeNode);
+		    Type tType = target != null ? target.type() : tc.context().currentClass();
+		    X10FieldInstance fi = findAppropriateField(tc, tType, name.id(), target instanceof TypeNode);
 		    n = (X10Field_c)fieldInstance(fi).type(fi.type());
 		}
 		return n;
@@ -185,7 +186,7 @@ public class X10Field_c extends Field_c {
 		final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		final X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		final X10Context c = (X10Context) tc.context(); 
-		Type tType = target.type();
+		Type tType = target != null ? target.type() : c.currentClass();
 		
 
 		if (target instanceof TypeNode) {
