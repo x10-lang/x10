@@ -109,34 +109,6 @@ namespace x10 {
 
             virtual x10aux::ref<Iterator<T> > iterator();
 
-            static R make(x10_int length) { return makeAligned(length, 8); }
-            static R makeAligned(x10_int length, x10_int alignment);
-
-            static R make(x10_int length, T init) { return makeAligned(length, init, 8); }
-            static R makeAligned(x10_int length, T init, x10_int alignment);
-            
-            static R make(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init) {
-                return makeAligned(length, init, 8);
-            }
-            static R makeAligned(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init, x10_int alignment);
-
-            static R make(x10aux::ref<ValRail<T> > other) {
-                return makeAligned(other, 8);
-            }
-            static R makeAligned(x10aux::ref<ValRail<T> > other, x10_int alignment);
-
-            static R make(x10_int length, x10_int offset, x10aux::ref<ValRail<T> > other) {
-                return makeAligned(length, offset, other, 8);
-            }
-            static R makeAligned(x10_int length, x10_int offset, x10aux::ref<ValRail<T> > other, x10_int alignment);
-
-            static R make(x10_int length, x10_int offset, x10aux::ref<Rail<T> > other) {
-                return makeAligned(length, offset, other, 8);
-            }
-            static R makeAligned(x10_int length, x10_int offset, x10aux::ref<Rail<T> > other, x10_int alignment);
-            
-            static R makePinned(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init);
-            
             void reset(x10aux::ref<Fun_0_1<x10_int,T> > init);
             void reset(T val);
 
@@ -155,24 +127,14 @@ namespace x10 {
 
             template<class S> static x10aux::ref<S> _deserialize(x10aux::deserialization_buffer &buf);
 
-            static R makeCUDA(x10::lang::Place p, x10_int length);
-
             static const x10aux::serialization_id_t _copy_to_serialization_id;
-
-            static void *_copy_to_buffer_finder(x10aux::deserialization_buffer&, x10_int);
-
-            static void _copy_to_notifier(x10aux::deserialization_buffer&, x10_int);
-
-            static void *_copy_to_cuda_buffer_finder(x10aux::deserialization_buffer&, x10_int);
-
-            static void _copy_to_cuda_notifier(x10aux::deserialization_buffer&, x10_int);
 
             virtual void copyTo (x10_int src_off, R dst, x10_int dst_off,
                                  x10_int len);
 
             virtual void copyTo (x10_int src_off,
                                  x10::lang::Place dst_place,
-                                 x10aux::ref<Fun_0_0<x10::util::Pair<R, x10_int> > > dst_finder,
+                                 x10aux::ref<Fun_0_0<x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> > > dst_finder,
                                  x10_int len);
 
             virtual void copyTo (x10_int src_off,
@@ -182,29 +144,21 @@ namespace x10 {
 
             virtual void copyTo (x10_int src_off,
                                  x10::lang::Place dst_place,
-                                 x10aux::ref<Fun_0_0<x10::util::Pair<R, x10_int> > > dst_finder,
+                                 x10aux::ref<Fun_0_0<x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> > > dst_finder,
                                  x10_int len,
                                  x10aux::ref<VoidFun_0_0> notifier);
 
             static const x10aux::serialization_id_t _copy_from_serialization_id;
 
-            static void *_copy_from_buffer_finder(x10aux::deserialization_buffer&, x10_int);
-
-            static void _copy_from_notifier(x10aux::deserialization_buffer&, x10_int);
-
-            static void *_copy_from_cuda_buffer_finder(x10aux::deserialization_buffer&, x10_int);
-
-            static void _copy_from_cuda_notifier(x10aux::deserialization_buffer&, x10_int);
-
             virtual void copyFrom (x10_int dst_off, R src, x10_int src_off,
                                    x10_int len);
 
             virtual void copyFrom (x10_int dst_off, x10::lang::Place src_place,
-                                   x10aux::ref<Fun_0_0<x10::util::Pair<R, x10_int> > > src_finder,
+                                   x10aux::ref<Fun_0_0<x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> > > src_finder,
                                    x10_int len);
 
             virtual void copyFrom (x10_int dst_off, x10::lang::Place src_place,
-                                   x10aux::ref<Fun_0_0<x10::util::Pair<V, x10_int> > > src_finder,
+                                   x10aux::ref<Fun_0_0<x10::util::Pair<x10aux::ref<ValRail<T> >, x10_int> > > src_finder,
                                    x10_int len);
 
             virtual x10aux::ref<String> toString();
@@ -229,6 +183,52 @@ namespace x10 {
         public:
             static x10aux::RuntimeType rtt;
             static const x10aux::RuntimeType* getRTT() { return &rtt; }
+
+            template <class T> static x10aux::ref<Rail<T> > make(x10_int length) { return makeAligned<T>(length, 8); }
+            template <class T> static x10aux::ref<Rail<T> > makeAligned(x10_int length, x10_int alignment);
+
+            template <class T> static x10aux::ref<Rail<T> > make(x10_int length, T init) { return makeAligned<T>(length, init, 8); }
+            template <class T> static x10aux::ref<Rail<T> > makeAligned(x10_int length, T init, x10_int alignment);
+            
+            template <class T> static x10aux::ref<Rail<T> > make(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init) {
+                return makeAligned<T>(length, init, 8);
+            }
+            template <class T> static x10aux::ref<Rail<T> > makeAligned(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init, x10_int alignment);
+
+            template <class T> static x10aux::ref<Rail<T> > make(x10aux::ref<ValRail<T> > other) {
+                return makeAligned<T>(other, 8);
+            }
+            template <class T> static x10aux::ref<Rail<T> > makeAligned(x10aux::ref<ValRail<T> > other, x10_int alignment);
+
+            template <class T> static x10aux::ref<Rail<T> > make(x10_int length, x10_int offset, x10aux::ref<ValRail<T> > other) {
+                return makeAligned<T>(length, offset, other, 8);
+            }
+            template <class T> static x10aux::ref<Rail<T> > makeAligned(x10_int length, x10_int offset, x10aux::ref<ValRail<T> > other, x10_int alignment);
+
+            template <class T> static x10aux::ref<Rail<T> > make(x10_int length, x10_int offset, x10aux::ref<Rail<T> > other) {
+                return makeAligned<T>(length, offset, other, 8);
+            }
+            template <class T> static x10aux::ref<Rail<T> > makeAligned(x10_int length, x10_int offset, x10aux::ref<Rail<T> > other, x10_int alignment);
+            
+            template <class T> static x10aux::ref<Rail<T> > makePinned(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init);
+
+            template <class T> static x10aux::ref<Rail<T> > makeCUDA(x10::lang::Place p, x10_int length);
+
+            template <class T> static void *_copy_to_buffer_finder(x10aux::deserialization_buffer&, x10_int);
+
+            template <class T> static void _copy_to_notifier(x10aux::deserialization_buffer&, x10_int);
+
+            template <class T> static void *_copy_to_cuda_buffer_finder(x10aux::deserialization_buffer&, x10_int);
+
+            template <class T> static void _copy_to_cuda_notifier(x10aux::deserialization_buffer&, x10_int);
+
+            template <class T> static void *_copy_from_buffer_finder(x10aux::deserialization_buffer&, x10_int);
+
+            template <class T> static void _copy_from_notifier(x10aux::deserialization_buffer&, x10_int);
+
+            template <class T> static void *_copy_from_cuda_buffer_finder(x10aux::deserialization_buffer&, x10_int);
+
+            template <class T> static void _copy_from_cuda_notifier(x10aux::deserialization_buffer&, x10_int);
         };
     }
 }
@@ -282,14 +282,14 @@ namespace x10 {
             x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<Rail<T> >())
         };
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::makeAligned(x10_int length, x10_int alignment) {
+        template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10_int length, x10_int alignment) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             // Memset both for efficiency and to allow T to be a struct.
             memset(rail->raw(), 0, length * sizeof(T));
             return rail;
         }
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::makeAligned(x10_int length, T init, x10_int alignment) {
+        template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10_int length, T init, x10_int alignment) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = init;
@@ -297,10 +297,10 @@ namespace x10 {
             return rail;
         }
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::makeAligned(x10_int length,
-                                                                      x10aux::ref<Fun_0_1<x10_int,T> > init,
-                                                                      x10_int alignment ) {
-            R rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
+        template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10_int length,
+                                                                         x10aux::ref<Fun_0_1<x10_int,T> > init,
+                                                                         x10_int alignment ) {
+            x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             x10aux::ref<x10::lang::Reference> initAsRef = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Reference> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsRef->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
@@ -309,33 +309,33 @@ namespace x10 {
             return rail;
         }
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::makeAligned(x10_int length, x10_int offset,
-                                                                      x10aux::ref<ValRail<T> > other,
-                                                                      x10_int alignment) {
+        template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10_int length, x10_int offset,
+                                                                         x10aux::ref<ValRail<T> > other,
+                                                                         x10_int alignment) {
             x10aux::nullCheck(other);
-            R rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
+            x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i+offset];
             }
             return rail;
         }
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::makeAligned(x10_int length, x10_int offset,
-                                                                      x10aux::ref<Rail<T> > other,
-                                                                      x10_int alignment) {
+        template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10_int length, x10_int offset,
+                                                                         x10aux::ref<Rail<T> > other,
+                                                                         x10_int alignment) {
             x10aux::nullCheck(other);
-            R rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
+            x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i+offset];
             }
             return rail;
         }
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::makeAligned(x10aux::ref<ValRail<T> > other,
-                                                                      x10_int alignment) {
+        template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10aux::ref<ValRail<T> > other,
+                                                                         x10_int alignment) {
             x10aux::nullCheck(other);
             x10_int length = other->FMGL(length);
-            R rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
+            x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i];
             }
@@ -343,9 +343,9 @@ namespace x10 {
         }
 
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::makePinned(x10_int length,
-                                                                     x10aux::ref<Fun_0_1<x10_int,T> > init) {
-            R rail = x10aux::alloc_pinned_rail<T,Rail<T> >(length);
+        template <class T> x10aux::ref<Rail<T> > Rail<void>::makePinned(x10_int length,
+                                                                        x10aux::ref<Fun_0_1<x10_int,T> > init) {
+            x10aux::ref<Rail<T> > rail = x10aux::alloc_pinned_rail<T,Rail<T> >(length);
             x10aux::ref<x10::lang::Reference> initAsRef = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Reference> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsRef->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
@@ -380,8 +380,8 @@ namespace x10 {
         }
 
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::makeCUDA(x10::lang::Place p,
-                                                                   x10_int length) {
+        template <class T> x10aux::ref<Rail<T> > Rail<void>::makeCUDA(x10::lang::Place p,
+                                                                      x10_int length) {
 
             // create a local proxy with the right size, but rather than
             // pointing to a remote object of type rail, it just points to the
@@ -390,7 +390,7 @@ namespace x10 {
             // one peculiarity of this design is that the GPU never knows how large its
             // rails are, but the host actually does!
 
-            R proxy = x10aux::alloc_rail_remote<T,Rail<T> >(length);
+            x10aux::ref<Rail<T> > proxy = x10aux::alloc_rail_remote<T,Rail<T> >(length);
             proxy->location = p.FMGL(id);
             x10aux::set_remote_ref(proxy.operator->(),
                                    x10aux::remote_alloc(p.FMGL(id), ((size_t)length)*sizeof(T)) );
@@ -402,21 +402,21 @@ namespace x10 {
 
 
         // bf {{{
-        template <class T> void *Rail<T>::_copy_to_buffer_finder (
+        template <class T> void *Rail<void>::_copy_to_buffer_finder (
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
             assert(len%sizeof(T) == 0); // we can only transmit whole array elements
             len /= sizeof(T);
             
-            typedef x10::util::Pair<R,x10_int> P;
+            typedef x10::util::Pair<x10aux::ref<Rail<T> >,x10_int> P;
             x10_ubyte code = buf.read<x10_ubyte>();
-            R this_;
+            x10aux::ref<Rail<T> > this_;
             x10_int dst_off;
             _X_("Finding a rail for copyTo ("<<(int)code<<")");
             switch (code) {
                 case 0: case 2: { // get rail+offset explicitly
-                    this_ = buf.read<R>();
+                    this_ = buf.read<x10aux::ref<Rail<T> > >();
                     dst_off = buf.read<x10_int>();
                     break;
                 }
@@ -440,16 +440,16 @@ namespace x10 {
         } // }}}
                                                                                            
         // nf {{{
-        template <class T> void Rail<T>::_copy_to_notifier (
+        template <class T> void Rail<void>::_copy_to_notifier (
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
-            typedef x10::util::Pair<R,x10_int> P;
+            typedef x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> P;
             x10_ubyte code = buf.read<x10_ubyte>();
             _X_("Completing a rail copyTo ("<<(int)code<<")");
             switch (code) {
                 case 0: {
-                    buf.read<R>();
+                    buf.read<x10aux::ref<Rail<T> > >();
                     buf.read<x10_int>();
                     Rail_notifyEnclosingFinish(buf);
                 } break;
@@ -460,7 +460,7 @@ namespace x10 {
                     break;
                 }
                 case 2: {
-                    buf.read<R>();
+                    buf.read<x10aux::ref<Rail<T> > >();
                     buf.read<x10_int>();
                     x10aux::ref<Reference> vf = buf.read<x10aux::ref<VoidFun_0_0> >();
                     (vf.operator->()->*(x10aux::findITable<VoidFun_0_0>(vf->_getITables())->apply))();
@@ -480,7 +480,7 @@ namespace x10 {
         } // }}}
                                                                                            
         // cuda bf {{{
-        template <class T> void *Rail<T>::_copy_to_cuda_buffer_finder (
+        template <class T> void *Rail<void>::_copy_to_cuda_buffer_finder (
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
@@ -509,7 +509,7 @@ namespace x10 {
         } // }}}
                                                                                            
         // cuda nf {{{
-        template <class T> void Rail<T>::_copy_to_cuda_notifier (
+        template <class T> void Rail<void>::_copy_to_cuda_notifier (
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
@@ -529,15 +529,15 @@ namespace x10 {
                                                                                            
         template<class T> const x10aux::serialization_id_t Rail<T>::_copy_to_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addPutFunctions(Rail<T>::_copy_to_buffer_finder,
-                                  Rail<T>::_copy_to_notifier,
-                                  Rail<T>::_copy_to_cuda_buffer_finder,
-                                  Rail<T>::_copy_to_cuda_notifier);
+                ::addPutFunctions(Rail<void>::_copy_to_buffer_finder<T>,
+                                  Rail<void>::_copy_to_notifier<T>,
+                                  Rail<void>::_copy_to_cuda_buffer_finder<T>,
+                                  Rail<void>::_copy_to_cuda_notifier<T>);
 
         // RAIL FINISH (0) {{{
         template <class T> void Rail<T>::copyTo (x10_int src_off,
-                                                 x10aux::ref<Rail<T> > dst, x10_int dst_off,
-                                                 x10_int len)
+                                                    x10aux::ref<Rail<T> > dst, x10_int dst_off,
+                                                    x10_int len)
         {
             // check beginning and end of range
             x10aux::checkRailBounds(src_off, FMGL(length));
@@ -576,11 +576,11 @@ namespace x10 {
         } // }}}
 
         // RAIL NOTIFIER (2) (this one designed for LU) {{{
-        template <class T> void Rail<T>::copyTo (x10_int src_off, R dst, x10_int dst_off,
-                                                 x10_int len,
-                                                 x10aux::ref<VoidFun_0_0> notifier)
+        template <class T> void Rail<T>::copyTo (x10_int src_off, x10aux::ref<Rail<T> > dst, x10_int dst_off,
+                                                    x10_int len,
+                                                    x10aux::ref<VoidFun_0_0> notifier)
         {
-            typedef x10::util::Pair<R,x10_int> P;
+            typedef x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> P;
             x10aux::ref<Reference> n = notifier;
             x10aux::place dst_place = x10aux::location(dst);
 
@@ -607,7 +607,7 @@ namespace x10 {
                                                  x10_int len,
                                                  x10aux::ref<VoidFun_0_0> notifier)
         {
-            typedef x10::util::Pair<R,x10_int> P;
+            typedef x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> P;
             x10aux::place dst_place = dst_place_.FMGL(id);
 
             // check beginning and end of range
@@ -634,12 +634,12 @@ namespace x10 {
         // {{{ *** COPY FROM ***
 
         // bf {{{
-        template <class T> void *Rail<T>::_copy_from_buffer_finder (
+        template <class T> void *Rail<void>::_copy_from_buffer_finder (
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
-            typedef x10::util::Pair<R,x10_int> PR;
-            typedef x10::util::Pair<V,x10_int> PV;
+            typedef x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> PR;
+            typedef x10::util::Pair<x10aux::ref<ValRail<T> >,x10_int> PV;
             assert(len%sizeof(T) == 0); // we can only transmit whole array elements
             len /= sizeof(T);
             x10_ubyte code = buf.read<x10_ubyte>();
@@ -649,7 +649,7 @@ namespace x10 {
             _X_("Finding a rail for copyFrom ("<<(int)code<<")");
             switch (code) {
                 case 0: { // get rail+offset explicitly
-                    R this_ = buf.read<R>();
+                    x10aux::ref<Rail<T> > this_ = buf.read<x10aux::ref<Rail<T> > >();
                     src_off = buf.read<x10_int>();
                     length = this_->FMGL(length);
                     ptr = &this_->_data[src_off];
@@ -658,7 +658,7 @@ namespace x10 {
                 case 1: { // get rail+offset from closure
                     x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<PR> > >();
                     PR pair = (bf.operator->()->*(x10aux::findITable<Fun_0_0<PR> >(bf->_getITables())->apply))();
-                    R this_ = pair.FMGL(first);
+                    x10aux::ref<Rail<T> > this_ = pair.FMGL(first);
                     src_off = pair.FMGL(second);
                     x10aux::dealloc(bf.operator->());
                     length = this_->FMGL(length);
@@ -668,7 +668,7 @@ namespace x10 {
                 case 2: { // get valrail+offset from closure
                     x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<PV> > >();
                     PV pair = (bf.operator->()->*(x10aux::findITable<Fun_0_0<PV> >(bf->_getITables())->apply))();
-                    V this_ = pair.FMGL(first);
+                    x10aux::ref<ValRail<T> > this_ = pair.FMGL(first);
                     src_off = pair.FMGL(second);
                     x10aux::dealloc(bf.operator->());
                     length = this_->FMGL(length);
@@ -687,17 +687,17 @@ namespace x10 {
         } // }}}
                                                                                            
         // nf {{{
-        template <class T> void Rail<T>::_copy_from_notifier (
+        template <class T> void Rail<void>::_copy_from_notifier (
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
-            typedef x10::util::Pair<R,x10_int> PR;
-            typedef x10::util::Pair<V,x10_int> PV;
+            typedef x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> PR;
+            typedef x10::util::Pair<x10aux::ref<ValRail<T> >,x10_int> PV;
             x10_ubyte code = buf.read<x10_ubyte>();
             _X_("Completing a rail copyFrom ("<<(int)code<<")");
             switch (code) {
                 case 0: {
-                    buf.read<R>();
+                    buf.read<x10aux::ref<Rail<T> > >();
                     buf.read<x10_int>();
                     Rail_notifyEnclosingFinish(buf);
                 } break;
@@ -718,11 +718,11 @@ namespace x10 {
         } // }}}
                                                                                            
         // cuda bf {{{
-        template <class T> void *Rail<T>::_copy_from_cuda_buffer_finder (
+        template <class T> void *Rail<void>::_copy_from_cuda_buffer_finder (
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
-            typedef x10::util::Pair<R,x10_int> P;
+            typedef x10::util::Pair<x10aux::ref<Rail<T> >,x10_int> P;
             assert(len%sizeof(T) == 0); // we can only transmit whole array elements
             len /= sizeof(T);
             x10_ubyte code = buf.read<x10_ubyte>();
@@ -746,16 +746,16 @@ namespace x10 {
         } // }}}
                                                                                            
         // cuda nf {{{
-        template <class T> void Rail<T>::_copy_from_cuda_notifier (
+        template <class T> void Rail<void>::_copy_from_cuda_notifier (
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
-            typedef x10::util::Pair<R,x10_int> P;
+            typedef x10::util::Pair<x10aux::ref<Rail<T> >, x10_int> P;
             x10_ubyte code = buf.read<x10_ubyte>();
             _X_("Completing a rail copyFrom ("<<(int)code<<")");
             switch (code) {
                 case 0: {
-                    buf.read<R>();
+                    buf.read<x10aux::ref<Rail<T> > >();
                     buf.read<x10_int>();
                     Rail_notifyEnclosingFinish(buf);
                 } break;
@@ -765,10 +765,10 @@ namespace x10 {
                                                                                            
         template<class T> const x10aux::serialization_id_t Rail<T>::_copy_from_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addGetFunctions(Rail<T>::_copy_from_buffer_finder,
-                                  Rail<T>::_copy_from_notifier,
-                                  Rail<T>::_copy_from_cuda_buffer_finder,
-                                  Rail<T>::_copy_from_cuda_notifier);
+                ::addGetFunctions(Rail<void>::_copy_from_buffer_finder<T>,
+                                  Rail<void>::_copy_from_notifier<T>,
+                                  Rail<void>::_copy_from_cuda_buffer_finder<T>,
+                                  Rail<void>::_copy_from_cuda_notifier<T>);
 
         // RAIL FINISH (0) {{{
         template <class T> void Rail<T>::copyFrom (x10_int dst_off,
