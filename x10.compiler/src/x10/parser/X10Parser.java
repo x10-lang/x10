@@ -6996,7 +6996,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4030 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 4032 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
+                setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), Identifier));
                       break;
             }
     
@@ -7012,7 +7012,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4035 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
                 //#line 4037 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
+                setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                       break;
             }
     
@@ -7038,7 +7038,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4045 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
                 //#line 4047 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
+                setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
     
@@ -7054,7 +7054,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4050 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
                 //#line 4052 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
+                setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
                       break;
             }
     
