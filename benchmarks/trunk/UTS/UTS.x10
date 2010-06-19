@@ -247,9 +247,9 @@ public class UTS {
 	    val ns = st().nodesGiven;
 	    Console.OUT.println(there+": processed " + nodes + " nodes.");
 	    val ratio = (1.0*nodes)/nodeSum;
-	    val ratioS = (""+ratio).substring(0,6);
+	    val ratioS = safeSubstring(""+ratio, 0, 6);
 	    val imbalance = (100.0*(ratio-idealRatio))/idealRatio;
-	    val imbalanceS = (""+ imbalance).substring(0,6);
+	    val imbalanceS = safeSubstring(""+ imbalance, 0,6);
 	    Console.OUT.println("\t " + st().lifelines + " lifeline steals received "  
 				+ st().lifelineNodes + " (total nodes).");
 	    Console.OUT.println("\t " + ratioS + " ratio, "  
@@ -264,15 +264,17 @@ public class UTS {
 
 	Console.OUT.println("Overhead::\n\t" + stolenSum + " total nodes stolen."); 
 	val theftEfficiency = (stolenSum*1.0)/steals;
-	Console.OUT.println("\t" + ("" + steals).substring(0,6)+ " direct steals."); 
-	Console.OUT.println("\t" + ("" + theftEfficiency).substring(0,8)+ " nodes stolen per attempt."); 
+	Console.OUT.println("\t" + safeSubstring("" + steals, 0,6)+ " direct steals."); 
+	Console.OUT.println("\t" + safeSubstring("" + theftEfficiency, 0,8)+ " nodes stolen per attempt."); 
 	Console.OUT.println("\t" + ll_ + " lifeline steals.");
-	Console.OUT.println("\t" + ("" + (1.0*llN_)/ll_).substring(0,8) + " nodes stolen/lifeline steal.");
-	Console.OUT.println("\t" + ("" + balance).substring(0,6) + "% absmax imbalance.");
-	Console.OUT.println("Performance = "+nodeSum+"/"+("" + (time/1E9)).substring(0,6)
-			+"="+ ("" + (nodeSum/(time/1E3))).substring(0,6) + "M nodes/s");
+	Console.OUT.println("\t" + safeSubstring("" + (1.0*llN_)/ll_, 0,8) + " nodes stolen/lifeline steal.");
+	Console.OUT.println("\t" + safeSubstring("" + balance, 0,6) + "% absmax imbalance.");
+	Console.OUT.println("Performance = "+nodeSum+"/"+safeSubstring("" + (time/1E9), 0,6)
+			+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M nodes/s");
 
   }
+
+  private static def safeSubstring(str:String, start:int, end:int) = str.substring(start, Math.min(end, str.length()));
 	
   public static def main (args : Rail[String]!) {
 	  try {
