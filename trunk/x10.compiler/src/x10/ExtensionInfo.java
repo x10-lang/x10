@@ -439,7 +439,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                for (Goal g : goals) {
                    newGoals.add(g);
                    if (!reachedTypeChecking)
-                       newGoals.add(new VisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job)));
+                       newGoals.add(new VisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job, g.name())));
                    if (g==typeCheckedGoal) {
                        newGoals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
                        reachedTypeChecking = true;

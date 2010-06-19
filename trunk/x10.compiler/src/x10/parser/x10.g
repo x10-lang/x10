@@ -4029,12 +4029,12 @@ FinishExpression ::= finish ( Expression ) Block
         ./
                   | super . Identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
+                    setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), Identifier));
           $EndJava
         ./
                   | ClassName . super$sup . Identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier));
+                    setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier));
           $EndJava
         ./
                   | Primary . class$c
@@ -4044,12 +4044,12 @@ FinishExpression ::= finish ( Expression ) Block
         ./
                   | super . class$c
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
+                    setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
           $EndJava
         ./
                   | ClassName . super$sup . class$c
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
+                    setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
           $EndJava
         ./
     

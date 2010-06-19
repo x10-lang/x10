@@ -14,10 +14,12 @@ import x10.ast.X10Formal_c;
 
 public class PositionInvariantChecker extends NodeVisitor
 {
-    private Job job;
+    private final Job job;
+    private final String previousGoalName;
 
-    public PositionInvariantChecker(Job job) {
+    public PositionInvariantChecker(Job job, String previousName) {
         this.job = job;
+        previousGoalName = previousName;
     }
 
     public NodeVisitor enter(Node parent, Node n)
@@ -29,7 +31,8 @@ public class PositionInvariantChecker extends NodeVisitor
             checkInvariants(parent, n);
 
         } catch (AssertionError e) {
-            String msg = e.getMessage()+("!")+
+            String msg = "After goal "+previousGoalName+": "+
+                    e.getMessage()+("!")+
                     (" parentPos=")+(parent.position())+
                     (" nPos=")+(n.position())+
                     (" parent=")+(parent)+
