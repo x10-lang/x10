@@ -86,7 +86,7 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 
 # Set flags to generate optimized code if we've been asked to do so.
 if [[ "$optimize" = "true" ]]; then
-  args=" -BAD_PLACE_RUNTIME_CHECK=false -OPTIMIZE=true $args"
+  args=" -OPTIMIZE=true $args"
 fi
 
 if [[ "$ext" = "x10c.ExtensionInfo" ]]; then
