@@ -12,12 +12,15 @@ package x10.util.synthesizer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.types.ClassDef;
@@ -26,6 +29,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
+import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import x10.ast.X10NodeFactory;
 import x10.types.X10Context;
@@ -70,6 +74,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
     protected List<IStmtSynth> stmtSythns; //all synthesizers for generate the code block
     protected HashMap<String, Local> localVarMap; //name to local var map
     
+    protected HashMap<Expr, Stmt>refToDeclMap; //used to add additional local declare at the beginning of a block
     
     /**
      * Create a code block synth and specify its container
@@ -247,6 +252,29 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
             stmts.add(iss.genStmt());
         }
         block = xnf.Block(pos, stmts);
+        
+        //special process if refToDeclMap is not null
+        if(refToDeclMap != null){
+            //first detect all locals;
+            LocalExprFinder lef = new LocalExprFinder();
+            block.visit(lef);//no replacement, just detect
+            
+            HashSet<Stmt> localDecls = new HashSet<Stmt>();
+            for(Local local : lef.localList){
+                Stmt s = refToDeclMap.get(local);
+                if(s != null){
+                    localDecls.add(s);
+                }
+            }
+            //finally, add all these into the block
+            if(localDecls.size() > 0){
+                ArrayList<Stmt> nStmts = new ArrayList<Stmt>();
+                nStmts.addAll(localDecls);
+                nStmts.addAll(block.statements());
+                block = xnf.Block(pos, nStmts);
+            }
+        }
+        
         return block;
     }
 
@@ -254,5 +282,28 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
         return close();
     }
 
+    /**
+     * If user set the map, the close method will search all locals
+     * And if find one local is in the map, it will add the declares in the code body
+     * @param refToDeclMap
+     */
+    public void setRefToDeclMap(HashMap<Expr, Stmt> refToDeclMap) {
+        this.refToDeclMap = refToDeclMap;
+    }
     
+    
+    static class LocalExprFinder extends NodeVisitor {
+        ArrayList<Local> localList;
+        public LocalExprFinder(){
+            localList = new ArrayList<Local>();
+        }
+        
+        public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
+            if (n instanceof Local) {
+                localList.add((Local) n);
+            }
+            return n;
+        }
+    }
+
 }
