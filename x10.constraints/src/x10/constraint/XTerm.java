@@ -32,10 +32,6 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	// The default is OBJECT. May be overridden by subclasses.
 	public XTermKind kind() { return XTermKind.OBJECT;}
 	
-	public Solver solver() {
-		return null;
-	}
-	
 	public final XTerm subst(XTerm y, XVar x) {
 	    return subst(y, x, true);
 	}
