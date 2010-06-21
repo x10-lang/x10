@@ -7012,7 +7012,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4035 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
                 //#line 4037 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
+                setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                       break;
             }
     
@@ -7054,7 +7054,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4050 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
                 //#line 4052 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
+                setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
                       break;
             }
     

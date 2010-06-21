@@ -4034,7 +4034,7 @@ FinishExpression ::= finish ( Expression ) Block
         ./
                   | ClassName . super$sup . Identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier));
+                    setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier));
           $EndJava
         ./
                   | Primary . class$c
@@ -4049,7 +4049,7 @@ FinishExpression ::= finish ( Expression ) Block
         ./
                   | ClassName . super$sup . class$c
         /.$BeginJava
-                    setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
+                    setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
           $EndJava
         ./
     
