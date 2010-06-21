@@ -508,7 +508,7 @@ public final class ExpressionFlattener extends ContextVisitor {
                                                       left );
             stmts.add(tmpLDecl);
             List<Stmt> andStmts = new ArrayList<Stmt>();
-            stmts.addAll(getStatements(expr.right()));
+            andStmts.addAll(getStatements(expr.right()));
             Expr right = getResult(expr.right());
             andStmts.add(syn.createAssignment( pos,
                                                syn.createLocal(pos, tmpLDecl), 
