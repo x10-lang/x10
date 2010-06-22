@@ -40,7 +40,7 @@ class Timer {
     private long base_time;
     private long elapsed_time;
 
-    private static final long UNIT = 1000;
+    private static final long UNIT = 1000000;
 
     public Timer() {
 	clear();
