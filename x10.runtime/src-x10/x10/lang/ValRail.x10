@@ -19,7 +19,7 @@ import x10.util.Pair;
  * supporting constant-time access by integer index.  See x10.lang.Rail for a comparison with
  * arrays in X10 and other languages.
  */
-@NativeRep("java", "x10.core.ValRail<#1>", "x10.core.ValRail.BoxedValRail", "new x10.rtt.ParameterizedType(x10.core.ValRail._RTT, #2)")
+@NativeRep("java", "x10.core.ValRail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.ValRail._RTT, #2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::ValRail<#1 > >", "x10::lang::ValRail<#1 >", null)
 public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
 
