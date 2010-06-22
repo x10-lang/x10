@@ -782,7 +782,7 @@ public final class Runtime {
 
         //Worker Id for CollectingFinish
         private var workerId :Int;
-        public def setWorderId(id:Int) {
+        public def setWorkerId(id:Int) {
             workerId = id;
         }
 
@@ -904,7 +904,7 @@ public final class Runtime {
             workers(0) = master;
             threads(0) = Thread.currentThread();
             Thread.currentThread().worker(master);
-            workers(0).setWorderId(0);
+            workers(0).setWorkerId(0);
 
             // other workers
             for (var i:Int = 1; i<size; i++) {
@@ -912,7 +912,7 @@ public final class Runtime {
                 workers(i) = worker;
                 threads(i) = new Thread(worker.apply.(), "thread-" + i);
                 threads(i).worker(worker);
-                workers(i).setWorderId(i);
+                workers(i).setWorkerId(i);
             }
             this.workers = workers;
             this.threads = threads;
