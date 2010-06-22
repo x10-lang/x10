@@ -375,14 +375,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            // finish-async analysis
            if(x10.Configuration.FINISH_ASYNCS){
+        	   
         	   TypeSystem ts = extInfo.typeSystem();
                NodeFactory nf = extInfo.nodeFactory();
                FinishAsyncVisitor fav = new FinishAsyncVisitor(job,ts,nf,"java");
-               FinishAnnotationVisitor av = new FinishAnnotationVisitor(job,ts,nf,"java");    
-               // calltable.dat is the analysis result
-               VisitorGoal vg = (VisitorGoal) new VisitorGoal("FinishAnnot",job,av).intern(this);	   
-               //goals.add(vg);
                goals.add(new VisitorGoal("FinishAsyncs",job,fav).intern(this));
+               FinishAnnotationVisitor av = new FinishAnnotationVisitor(job,ts,nf,"java");    
+               VisitorGoal vg = (VisitorGoal) new VisitorGoal("FinishAnnot",job,av).intern(this);
                goals.add(vg);
 
            }
