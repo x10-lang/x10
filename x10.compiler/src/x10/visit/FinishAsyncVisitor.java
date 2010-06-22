@@ -12,6 +12,7 @@ import java.util.LinkedList;
 
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.BooleanLit;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.IntLit;
@@ -52,6 +53,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 	final X10TypeSystem xts;
     final X10NodeFactory xnf;
  	static {
+ 		System.out.println("annotating finish ...");
 		System.out.println("table:");
 		CallTableUtil.dumpCallTable(calltable);	 
 	}
@@ -193,9 +195,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 			List<AnnotationNode> old = (List<AnnotationNode>)(xext.annotations());
 			LinkedList<AnnotationNode> newannote = new LinkedList<AnnotationNode>();
 			//retains all existing annotations
-			for(int i=0;i<old.size();i++){
-				newannote.add(old.get(i));
-			}
+			newannote.addAll(old);
 			//TODO: add an annotation for each of async or at within this finish
 			LinkedList<CallTableVal> vals = calltable.get(fs);
 			for(int i=0;i<vals.size();i++){
@@ -245,12 +245,13 @@ public class FinishAsyncVisitor extends ContextVisitor {
 	}
 	private AnnotationNode makeFinishAnnotation(Finish n, int arity, int place, 
 			boolean islast, String notes) throws SemanticException{
+		// find the type of this annotation
 		Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
-		//System.out.println(t.toString());
-		X10CanonicalTypeNode_c tn = new X10CanonicalTypeNode_c(n.position(),t);
+		// create a node (type node) for this type
+		CanonicalTypeNode tn = xnf.CanonicalTypeNode(n.position(),t);
+		// create a annotation (ast node) based on the type node
 		AnnotationNode an = ((X10NodeFactory_c)nf).AnnotationNode(n.position(), tn);
-		Ref r = an.annotationType().typeRef();
-		X10ParsedClassType_c xpct = (X10ParsedClassType_c)r.getCached();
+		// create parameters for this annotation
 		IntLit x10arity = nf.IntLit(n.position(), IntLit.INT,arity);
 		IntLit x10place = nf.IntLit(n.position(), IntLit.INT,place);
 		BooleanLit x10islast = nf.BooleanLit(n.position(),islast);
@@ -260,8 +261,12 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		initproperties.add(x10place);
 		initproperties.add(x10islast);
 		initproperties.add(x10notes);
+		// patch this annotation with parameters
+		Ref r = an.annotationType().typeRef();
+		X10ParsedClassType_c xpct = (X10ParsedClassType_c)r.getCached();
 		xpct = (X10ParsedClassType_c) xpct.propertyInitializers(initproperties);
 		r.update(xpct);
+		// return the annotation
 		System.out.println("newly created annotation:"+an.toString());
 		return an;
 	}
