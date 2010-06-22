@@ -37,15 +37,16 @@
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.io.Console;
-import x10.util.Random;
 import x10.io.File;
 import x10.io.FileWriter;
+import x10.io.Printer;
+import x10.util.Random;
 
 class Timer {
     private var base_time: Long;
     private var elapsed_time: Long;
 
-    private static val UNIT = 1000L;
+    private static val UNIT = 1000000L;
 
     def this() {
         clear();
@@ -67,7 +68,7 @@ class Timer {
         return (elapsed_time as Float) / UNIT;
     }
 
-    public def report(pstream: x10.io.Printer) {
+    public def report(pstream: Printer) {
         elapsed_seconds: Float = elapsed();
         pstream.println("Time " + elapsed_seconds + " msec");
     }
@@ -90,23 +91,23 @@ class GCTest {
 	}
         
 	@Native("java", "#0.gc()")
-	public def gc(): Void { }
+	public def gc() { }
         
 	@Native("java", "#0.totalMemory()")
-	public def totalMemory(): Long { return 0L; }
+	public def totalMemory() = 0L;
         
 	@Native("java", "#0.freeMemory()")
-	public def freeMemory(): Long { return 0L; }
+	public def freeMemory() = 0L;
         
 	@Native("java", "#0.runFinalization()")
-	public def runFinalization(): Void { }
+	public def runFinalization() { }
     }
 
     // WGG - pick these sizes carefully: will kill some systems
     static val GC_POINTERS = 200;
     static val GC_OBJECTS = 2000;
     static val MAX_OBJ_SIZE = 4000;
-    val objects = Rail.make[GCTestElem](GC_POINTERS, (i: Int) => null as GCTestElem);
+    val objects = Rail.make[GCTestElem](GC_POINTERS);
     val counter: Counter! = new Counter();
     var seed1: Long  = 121393;  // WGG - no, I didn't look these up in Knuth
     var seed2: Long  = 196418;
@@ -129,9 +130,9 @@ class GCTest {
 	return sum;
     }
     
-    public def start(pstream:x10.io.Printer): Void {
+    public def start(pstream: Printer): Void {
         var size: Int, which: Int;
-        RT: NativeRuntime! = NativeRuntime.getRuntime();
+        val RT = NativeRuntime.getRuntime();
 
         // Test the cost of a full mark-and-sweep (at least for Sun Java)
         totalmemory = RT.totalMemory();
@@ -159,7 +160,7 @@ class GCTest {
         incrGCtimer.record();
     }
 
-    public def report(pstream: x10.io.Printer) {
+    public def report(pstream: Printer) {
 	pstream.println("System.gc() w/ " + freememory + "B memory avail of " + totalmemory + "B total");
 	StringHelper.bmfill(pstream, "GC'd " + recoveredmemory + "B, leaving " + newfreememory + "B of " + newtotalmemory + "B total: ", fullGCtimer.elapsed());
 	StringHelper.bmfill(pstream, GC_OBJECTS + " obj rand. new'd/assigned (avg " + (total_size / GC_OBJECTS) + "B), " + counter.objs_collected + " GC'd: ", incrGCtimer.elapsed());
@@ -172,7 +173,7 @@ class GCTestElem {
 
     public def this(counter: GCTest.Counter!, size: Int) {
         this.counter = counter;
-        collect = Rail.make[Byte](size, (i: Int) => 0 as Byte);
+        collect = Rail.make[Byte](size);
     }
 
     protected def finalize() {
@@ -192,14 +193,14 @@ class LoopTest {
         t.record();
     }
 
-    public def report(pstream: x10.io.Printer): Void {
+    public def report(pstream: Printer): Void {
 	StringHelper.bmfill(pstream, "Empty loop iterated " + ITERATIONS + " times: ", t.elapsed());
     }
 }
 
 class ArrayTest {
     static val ARRAY_INTS = 1000000;
-    val arr = Rail.make[Int](ARRAY_INTS, (x: Int)=>0);
+    val arr = Rail.make[Int](ARRAY_INTS);
     var t: Timer!;
 
     public def start(): Void {
@@ -212,7 +213,7 @@ class ArrayTest {
         t.record();
     }
 
-    public def report(pstream: x10.io.Printer) {
+    public def report(pstream: Printer) {
 	StringHelper.bmfill(pstream,"Assigned to " + ARRAY_INTS + " array ints: ", t.elapsed());
     }
 }
@@ -234,7 +235,7 @@ class FieldTest {
         t.record();
     }
 
-    public def report(pstream: x10.io.Printer): Void {
+    public def report(pstream: Printer): Void {
 	StringHelper.bmfill(pstream, FIELD_ACCESSES + " object int field accesses: ", t.elapsed());
     }
 }
@@ -286,7 +287,7 @@ class ArithmeticTest {
         doublemulttimer.record();
     }
 
-    public def report(pstream: x10.io.Printer): Void {
+    public def report(pstream: Printer): Void {
 	StringHelper.bmfill(pstream, "Added " + ADDS + " ints in loop: ", intaddtimer.elapsed());
 	StringHelper.bmfill(pstream, "Multipled " + MULTS + " ints in loop: ", intmulttimer.elapsed());
 	StringHelper.bmfill(pstream, "Added " + ADDS + " doubles in loop: ", doubleaddtimer.elapsed());
@@ -317,7 +318,7 @@ class MethodTest {
         othertimer.record();
     }
 
-    public def report(pstream: x10.io.Printer): Void {
+    public def report(pstream: Printer): Void {
 	StringHelper.bmfill(pstream, METHOD_CALLS + " method calls in same object: ", sametimer.elapsed());
 	StringHelper.bmfill(pstream, METHOD_CALLS + " method calls in other object: ", othertimer.elapsed());
     }
@@ -345,7 +346,7 @@ class ExceptionTest {
         t.record();
     }
 
-    public def report(pstream: x10.io.Printer): Void {
+    public def report(pstream: Printer): Void {
 	StringHelper.bmfill(pstream, "Threw and caught " + THROWS + " exceptions: ", t.elapsed());
     }
 }
@@ -386,7 +387,7 @@ class ThreadTest {
         t.record();
     }
 
-    public def report(pstream: x10.io.Printer): Void {
+    public def report(pstream: Printer): Void {
 	StringHelper.bmfill(pstream,THREADCNT + " threads, switched " + SWITCHES + " times each: ", t.elapsed());
     }
 }
@@ -397,7 +398,7 @@ class IOTest {
     var buffer: Rail[Byte]!;
     var out: FileWriter;
 
-    public def start(pstream:x10.io.Printer): Void {
+    public def start(pstream: Printer): Void {
         bytetimer = new Timer();
         blocktimer = new Timer();
 
@@ -417,7 +418,7 @@ class IOTest {
         }
         bytetimer.record();
 
-        buffer = Rail.make[Byte](BUFSIZE, (i: Int) => 0 as Byte);
+        buffer = Rail.make[Byte](BUFSIZE);
         blocktimer.mark();
         try {
             out.write(buffer);
@@ -426,7 +427,7 @@ class IOTest {
         blocktimer.record();
     }
 
-    public def report(pstream: x10.io.Printer): Void {
+    public def report(pstream: Printer): Void {
 	StringHelper.bmfill(pstream, BUFSIZE + " writes of 1 byte: ", bytetimer.elapsed());
 	StringHelper.bmfill(pstream, "1 write of " + BUFSIZE + " bytes: ", blocktimer.elapsed());
     }
@@ -453,27 +454,27 @@ class StringHelper {
         return fill(numstr, "", numlen + (totalplaces - places), "0");
     }
 
-    public static def bmfill(ps: x10.io.Printer, str1: String, str2: String): Void {
+    public static def bmfill(ps: Printer, str1: String, str2: String): Void {
         ps.println(fill(str1, str2, 64, " "));
     }
 
-    public static def bmfill(ps: x10.io.Printer, str1: String, num: Float): Void {
+    public static def bmfill(ps: Printer, str1: String, num: Float): Void {
         ps.println(fill(str1, floatfill(num, 3), 64, " "));
     }
 
 } // end class StringHelper
 
 
-class BenchmarkX10 {
+class Benchmark {
     var next: Int;
-    var pstream: x10.io.Printer;
+    var pstream: Printer;
     var cumtimer: Timer!;
     var skipgc: Boolean;
     var mode: String;
     var optflags: String;
     static val version = "1.0";
 
-    def this(thestream: x10.io.Printer, SkipGc: Boolean, OptFlags: String) {
+    def this(thestream: Printer, SkipGc: Boolean, OptFlags: String) {
         cumtimer = new Timer();
         cumtimer.mark();
         next = -1; // preincrements to 0
@@ -484,7 +485,7 @@ class BenchmarkX10 {
     }
 
     public static def main(args: Rail[String]!): Void {
-        val bm = new BenchmarkX10(x10.io.Console.OUT, false, "unspecified");
+        val bm = new Benchmark(x10.io.Console.OUT, false, "unspecified");
 
         if (args.length == 0)
             bm.runbenchmarks();
@@ -594,7 +595,7 @@ class BenchmarkX10 {
     @Native("java", "System.getProperty(\"java.version\", \"?\")")
     public static def getJavaVersion(): String { return "?"; }
     
-    public def runGetProperties(pstream: x10.io.Printer): Void {
+    public def runGetProperties(pstream: Printer): Void {
         var arch: String, os: String, osversion: String, javavendor: String, javaversion: String;
 
         pstream.println("\nSystem Configuration");
@@ -621,55 +622,55 @@ class BenchmarkX10 {
 
     }
 
-    public static def runGCTest(pstream: x10.io.Printer) {
+    public static def runGCTest(pstream: Printer) {
         val gc = new GCTest();
         gc.start(pstream);
         gc.report(pstream);
     }
 
-    public static def runLoopTest(pstream: x10.io.Printer) {
+    public static def runLoopTest(pstream: Printer) {
         val lt = new LoopTest();
         lt.start();
         lt.report(pstream);
     }
 
-    public static def runArrayTest(pstream: x10.io.Printer) {
+    public static def runArrayTest(pstream: Printer) {
         val arr_t = new ArrayTest();
         arr_t.start();
         arr_t.report(pstream);
     }
 
-    public static def runFieldTest(pstream: x10.io.Printer) {
+    public static def runFieldTest(pstream: Printer) {
         val ft = new FieldTest();
         ft.start();
         ft.report(pstream);
     }
 
-    public static def runArithTest(pstream: x10.io.Printer) {
+    public static def runArithTest(pstream: Printer) {
         val arith_t = new ArithmeticTest();
         arith_t.start();
         arith_t.report(pstream);
     }
 
-    public static def runMethodTest(pstream: x10.io.Printer) {
+    public static def runMethodTest(pstream: Printer) {
         val meth_t = new MethodTest();
         meth_t.start();
         meth_t.report(pstream);
     }
 
-    public static def runExceptionTest(pstream: x10.io.Printer) {
+    public static def runExceptionTest(pstream: Printer) {
         val throw_t = new ExceptionTest();
         throw_t.start();
         throw_t.report(pstream);
     }
 
-    public static def runThreadTest(pstream: x10.io.Printer) {
+    public static def runThreadTest(pstream: Printer) {
         val thread_t = new ThreadTest();
         thread_t.start();
         thread_t.report(pstream);
     }
 
-    public static def runIOTest(pstream: x10.io.Printer) {
+    public static def runIOTest(pstream: Printer) {
         val io_t = new IOTest();
         io_t.start(pstream);
         io_t.report(pstream);
