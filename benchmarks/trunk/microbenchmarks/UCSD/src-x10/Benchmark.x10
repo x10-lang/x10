@@ -86,9 +86,7 @@ class GCTest {
     @NativeRep("java", "java.lang.Runtime", null, null)
     static class NativeRuntime {
 	@Native("java", "java.lang.Runtime.getRuntime()")
-        public static def getRuntime(): NativeRuntime! {
-	    return new NativeRuntime();
-	}
+        public static def getRuntime() = new NativeRuntime();
         
 	@Native("java", "#0.gc()")
 	public def gc() { }
