@@ -1400,7 +1400,7 @@ public final class Runtime {
             startFinish();
         }
 
-        public global def offer(o:T) {
+        public static def offer[T](o:T) {
             val thisWorker = worker();
             val id = thisWorker.workerId;
             val state = currentState();
