@@ -25,7 +25,7 @@ namespace x10 {
                                                               x10_boolean zeroed);
 
         public:
-            T* data; /* TODO: This should be const T* const data */
+            T* data; /* TODO: This should be T* const data */
 
             IndexedMemoryChunk__RawChunk(): data(NULL) {}
             IndexedMemoryChunk__RawChunk(T* _data): data(_data) {}
