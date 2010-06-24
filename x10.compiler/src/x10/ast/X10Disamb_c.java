@@ -94,8 +94,6 @@ public class X10Disamb_c extends Disamb_c {
 	    		    Receiver e = makeMissingFieldTarget((FieldInstance) vi);
 	    		    throw new SemanticException("Ambiguous reference to field " + this.name + "; both self." + name + " and " + e + "." + name + " match.", pos);
 	    		}
-	    		
-	    		Expr prop = null;
 
 	    		if (fi instanceof X10FieldInstance) {
 	    		    X10FieldInstance xfi = (X10FieldInstance) fi;
@@ -104,7 +102,6 @@ public class X10Disamb_c extends Disamb_c {
 	    		        f = f.fieldInstance(xfi);
 	    		        Type ftype = X10Field_c.rightType(xfi.rightType(), xfi.x10Def(), f.target(), c);
 	    		        f = (Field) f.type(ftype);
-	    		        prop = f;
 	    		        return f;
 	    		    }
 	    		    else {
@@ -120,14 +117,10 @@ public class X10Disamb_c extends Disamb_c {
 
 	    		if (vi != null) {
                             Node n = disambiguateVarInstance(vi);
-                            if (n != null && prop != null)
-                                throw new SemanticException("Reference to field or property " + name + " is ambiguous; both " + prop + " and " + n + " match.", pos);
                             if (n != null)
                                 return n;
                         }
-	    		
-	    		if (prop != null)
-	    		    return prop;
+
 
                         // Now try 0-ary property methods.
                         try {
@@ -233,7 +226,6 @@ public class X10Disamb_c extends Disamb_c {
 		Type t = e.type();
 
 	        X10Context xc = (X10Context) this.c;
-		X10TypeSystem xts = (X10TypeSystem) ts;
 
 		// If in a class header, don't search the supertypes of this class.
 		if (xc.inSuperTypeDeclaration()) {
@@ -373,7 +365,6 @@ public class X10Disamb_c extends Disamb_c {
 	    }
 	    else {
 		// The field is non-static, so we must prepend with self.
-		X10Context xc = (X10Context) c;
 		
 		Expr e = ((X10NodeFactory) nf).Self(pos); 
 		e = e.type(currentDepType);
