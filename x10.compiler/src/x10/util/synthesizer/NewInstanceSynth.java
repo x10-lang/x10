@@ -88,7 +88,7 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
         if(outerRef != null){ //in case it has outer, it need set the new's qualifier
             ClassDef outerDef = outerRef.get();
             Expr q = xnf.This(Position.COMPILER_GENERATED,
-                        xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, outerDef.asType()));
+                        xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, outerDef.asType())).type(outerDef.asType());
             aNew = aNew.qualifier(q);
         }
         
