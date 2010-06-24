@@ -216,7 +216,7 @@ public class HashMap[K,V] implements Map[K,V] {
         val map: HashMap[Key,Value]!;
         var i: Int;
         
-        def this(map: HashMap[Key,Value]!) { this.map = map; this.i = 0; }
+        def this(map: HashMap[Key,Value]!) { this.map = map; this.i = 0; advance(); }
 
         def advance(): void {
             while (i < map.table.length) {
