@@ -16,8 +16,11 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.Stmt;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -34,7 +37,7 @@ import x10.types.X10TypeSystem;
  */
 public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, IExprSynth {
 
-    Type classType;     //The new instance's type
+    ClassType classType;     //The new instance's type
     
     //Default value for other needed information;
     
@@ -42,7 +45,7 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
     List<Type> argTypes; //arguments' type --> If we could reason the args' type from args, the list could be eliminated
     List<Expr> args;     //arguments
     
-    public NewInstanceSynth(X10NodeFactory xnf, X10Context xct, Position pos, Type classType){
+    public NewInstanceSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassType classType){
         super(xnf, xct, pos);
         this.classType = classType;
 
@@ -79,6 +82,16 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
         ConstructorInstance constructorIns = constructorDef.asInstance();
 
         New aNew = xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(classType)), args);
+        
+       // aNew.qualifier(qualifier);
+        Ref<? extends ClassDef> outerRef = classType.def().outer();
+        if(outerRef != null){ //in case it has outer, it need set the new's qualifier
+            ClassDef outerDef = outerRef.get();
+            Expr q = xnf.This(Position.COMPILER_GENERATED,
+                        xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, outerDef.asType()));
+            aNew = aNew.qualifier(q);
+        }
+        
         // Add annotations to New
         if (annotations.size() > 0) {
             aNew = (New) ((X10Del) aNew.del()).annotations(annotations);
