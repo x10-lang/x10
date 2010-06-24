@@ -19,14 +19,14 @@ namespace x10 {
 
         template<class T> class IndexedMemoryChunk__RawChunk {
         private:
-            T* data; /* TODO: This should be const T* const data */
-
             static IndexedMemoryChunk__RawChunk allocInternal(size_t numElements,
                                                               x10_int alignment,
                                                               x10_boolean pinned,
                                                               x10_boolean zeroed);
 
         public:
+            T* data; /* TODO: This should be const T* const data */
+
             IndexedMemoryChunk__RawChunk(): data(NULL) {}
             IndexedMemoryChunk__RawChunk(T* _data): data(_data) {}
 
