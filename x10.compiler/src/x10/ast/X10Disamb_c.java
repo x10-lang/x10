@@ -38,6 +38,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
+import polyglot.types.CodeDef;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.extension.X10Del;
@@ -89,7 +90,7 @@ public class X10Disamb_c extends Disamb_c {
 	    		catch (SemanticException ex) {
 	    		}
 
-	    		if (fi != null && vi instanceof FieldInstance) {
+                if (fi != null && vi instanceof FieldInstance && !c.inStaticContext()) {
 	    		    Receiver e = makeMissingFieldTarget((FieldInstance) vi);
 	    		    throw new SemanticException("Ambiguous reference to field " + this.name + "; both self." + name + " and " + e + "." + name + " match.", pos);
 	    		}

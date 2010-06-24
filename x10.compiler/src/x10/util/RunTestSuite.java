@@ -26,12 +26,14 @@ public class RunTestSuite {
     // Inside those files we should have "ERR" markers that we use to test the position of the errors is correct.
     //_MustFailTimeout means that when running the file it will have an infinite loop
     private static final String[] EXCLUDE_FILES_WITH_SUFFIX = {
-            "_DYNAMIC_CALLS.x10",
+            "_DYNAMIC_CALLS.x10","_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_FILES = {
     };
     private static final String[] EXCLUDE_FILES_WITH = {
-            "TypedefOverloading","NQueens"
+            "TypedefOverloading","NQueens",
+            "PlaceCheckArray.x10",
+            "XTENLANG_106.x10","XTENLANG_111.x10","XTENLANG_217.x10","XTENLANG_62.x10"
     };
     private static final String[] INCLUDE_ONLY_FILES_WITH = {
             //"_MustFailCompile.x10",
