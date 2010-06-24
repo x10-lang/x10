@@ -36,7 +36,7 @@ public class X10ParsedName extends ParsedName {
 			return nf.AmbQualifierNode(pos, name);
 		}
 
-		return nf.X10AmbQualifierNode(pos, prefix.toPrefix(), name);
+		return nf.AmbQualifierNode(pos, prefix.toPrefix(), name);
 	}
 
 
@@ -47,6 +47,6 @@ public class X10ParsedName extends ParsedName {
 		    return nf.AmbTypeNode(pos, name);
 		}
 		
-		return nf.X10AmbTypeNode(pos, prefix.toPrefix(), name);
+		return nf.AmbTypeNode(pos, prefix.toPrefix(), name);
 	}
 }
