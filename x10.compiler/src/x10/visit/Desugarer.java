@@ -75,6 +75,7 @@ import x10.ast.FunctionTypeNode;
 import x10.ast.Future;
 import x10.ast.Here;
 import x10.ast.Next;
+import x10.ast.Offer;
 import x10.ast.ParExpr;
 import x10.ast.SettableAssign;
 import x10.ast.SettableAssign_c;
@@ -189,6 +190,8 @@ public class Desugarer extends ContextVisitor {
             return visitWhen((When) n);
         if (n instanceof Finish)
             return visitFinish((Finish) n);
+        if (n instanceof Offer)
+            return visitOffer((Offer) n);
         if (n instanceof ForEach)
             return visitForEach((ForEach) n);
         if (n instanceof AtEach)
@@ -625,12 +628,7 @@ public class Desugarer extends ContextVisitor {
         
         Expr a = xnf.Assign(pos, local1, Assign.ASSIGN, newCF).type(coFinishT);
         Stmt s1 = xnf.Eval(pos, a);
-
-        // Traverse the body
-        LocalOfferVisitor ldVisitor = new LocalOfferVisitor(local1,xContext(),xts,xnf,synth);
-        Block fbody = xnf.Block(pos, f.body());
-        Block newfbody = (Block)fbody.visit(ldVisitor);
-        Block tryBlock = xnf.Block(pos,newfbody);
+        Block tryBlock = xnf.Block(pos,f.body());
 
         // Begin catch block
         Name tmp2 = Name.make("Throwvar");
@@ -664,8 +662,23 @@ public class Desugarer extends ContextVisitor {
         Block finalBlock = xnf.Block(pos, returnS);
         return xnf.Block(pos, localDecl, s1, xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finalBlock));
     }
+    //  offer e ->
+    //  x10.lang.Runtime.CollectingFinish.offer(e);      
+	private Stmt visitOffer(Offer n) throws SemanticException {
+		
+    	Position pos = n.position();
+    	Expr offerTarget = n.expr();
+    	Type reducerTarget = offerTarget.type();    	 
+    	Name OFFER = Name.make("offer");  
+    	Type coFinish = xts.load("x10.lang.Runtime.CollectingFinish");
+        Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(reducerTarget))); 	   	  	    	    	
+    	Call call = synth.makeStaticCall(pos, coFinishT, OFFER, Collections.singletonList(offerTarget), xts.Void(), Collections.singletonList(reducerTarget),  xContext());
+    	
+    	Stmt offercall = xnf.Eval(pos, call);     	
+    	return offercall;		 
+	}
 
-    
+
     private Stmt visitLocalDecl(LocalDecl n) throws SemanticException {
         if (n.init() instanceof FinishExpr) {
             Position pos = n.position();
