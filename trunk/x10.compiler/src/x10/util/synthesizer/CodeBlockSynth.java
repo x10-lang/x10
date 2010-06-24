@@ -24,6 +24,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
@@ -202,7 +203,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
         return synth;
     }
 
-    public NewInstanceSynth createNewInstaceStmt(Position pos, Type classType) {
+    public NewInstanceSynth createNewInstaceStmt(Position pos, ClassType classType) {
         NewInstanceSynth synth = new NewInstanceSynth(xnf, xct, pos, classType);
         addStmt(synth);
         return synth;
