@@ -85,7 +85,7 @@ public final class Array[T](
     private val rawLength:int;
     private val layout:RectLayout!;
 
-    @Native("java", "true") // TODO: optimize this for Java as well.
+    @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
     private native def checkBounds():boolean;
 
