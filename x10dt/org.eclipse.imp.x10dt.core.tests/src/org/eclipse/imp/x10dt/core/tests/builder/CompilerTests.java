@@ -264,6 +264,6 @@ public class CompilerTests extends CompilerTestsBase {
 		for(String s: files){
 			fs.add(new File(DATA_PATH + s));
 		}
-		return compile(fs.toArray(new File[0]), options, errors, getRuntimeJar());
+		return compile(fs.toArray(new File[0]), options, errors, getRuntimeJar() + ":" + DATA_PATH);
 	}
 }

@@ -61,15 +61,22 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 
 	@Test
 	public void compilerTest() throws Exception {
-		//Submit everything to the compiler at once
-		Collection<ErrorInfo> allErrors = new ArrayList<ErrorInfo>();
-		compile(sources, options, allErrors, getRuntimeJar());
+		//TODO: check what needs to go here for sourcepath
+		String coll = DATA_PATH + File.separator + "x10" + File.separator + "lib" + File.separator + "collections";
+		String stream = DATA_PATH + File.separator + "x10" + File.separator + "lib" + File.separator + "streams";
+		String sourcepath = getRuntimeJar() + ":" + DATA_PATH + ":" + coll + ":" + stream;
 		
+		//Submit everything to the compiler at once
+		System.err.println("***Compiling all files");
+		Collection<ErrorInfo> allErrors = new ArrayList<ErrorInfo>();
+		compile(sources, options, allErrors, sourcepath);
+		
+		System.err.println("***Compiling files one at a time");
 		//Submit files one by one
 		Collection<ErrorInfo> errors = new ArrayList<ErrorInfo>();
 		for(File f: sources){
 			File[] fs = {f};
-			compile(fs, options, errors, getRuntimeJar());
+			compile(fs, options, errors, sourcepath);
 		}
 		
 		//Compare error queues

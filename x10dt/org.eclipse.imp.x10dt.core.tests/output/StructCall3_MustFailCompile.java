@@ -1,0 +1,141 @@
+
+class S1
+extends x10.core.Struct
+{public static final x10.rtt.RuntimeType<S1>_RTT = new x10.rtt.RuntimeType<S1>(
+/* base class */S1.class
+, /* parents */ new x10.rtt.Type[] {x10.rtt.Types.runtimeType(java.lang.Object.class), x10.rtt.Types.runtimeType(x10.core.Struct.class)}
+);
+public x10.rtt.RuntimeType getRTT() {return _RTT;}
+
+
+
+    
+//#line 18
+final int
+      x;
+    
+//#line 19
+final int
+      y;
+    
+    
+//#line 21
+public S1(final int a,
+                          final int b) {
+        
+//#line 21
+super();
+        
+//#line 21
+this.x = a;
+        
+//#line 21
+this.y = b;
+    }
+    
+    
+//#line 23
+final public int
+                  sum(
+                  ){
+        
+//#line 23
+return ((((int)(x))) + (((int)(y))));
+    }
+
+final public boolean structEquals(final java.lang.Object o) {
+    if (!(o instanceof S1)) return false;
+    if (!x10.rtt.Equality.equalsequals(this.x, ((S1) o).x)) return false;
+    if (!x10.rtt.Equality.equalsequals(this.y, ((S1) o).y)) return false;
+    return true;
+    }
+
+}
+
+public class StructCall3_MustFailCompile
+extends harness.
+  x10Test
+{public static final x10.rtt.RuntimeType<StructCall3_MustFailCompile>_RTT = new x10.rtt.RuntimeType<StructCall3_MustFailCompile>(
+/* base class */StructCall3_MustFailCompile.class
+, /* parents */ new x10.rtt.Type[] {harness.x10Test._RTT}
+);
+public x10.rtt.RuntimeType getRTT() {return _RTT;}
+
+
+
+    
+    
+//#line 40
+public boolean
+                  run(
+                  ){
+        
+//#line 42
+final S1 a =
+          new S1(1,
+                 3);
+        
+//#line 43
+return true;
+    }
+    
+    
+//#line 45
+/* template:Main { */
+    public static class Main extends x10.runtime.impl.java.Runtime {
+    	public static void main(java.lang.String[] args) {
+    		// start native runtime
+    		new Main().start(args);
+    	}
+    
+    	// called by native runtime inside main x10 thread
+    	public void main(final x10.core.Rail<java.lang.String> args) {
+    		try {
+    
+    			// start xrx
+    			x10.lang.Runtime.start(
+    				// static init activity
+    				new x10.core.fun.VoidFun_0_0() {
+    					public void apply() {
+    						// preload classes
+    						if (Boolean.getBoolean("x10.PRELOAD_CLASSES")) {
+    							x10.runtime.impl.java.PreLoader.preLoad(this.getClass().getEnclosingClass(), Boolean.getBoolean("x10.PRELOAD_STRINGS"));
+    						}
+    					}
+    				},
+    				// body of main activity
+    				new x10.core.fun.VoidFun_0_0() {
+    					public void apply() {
+    						// catch and rethrow checked exceptions
+    						// (closures cannot throw checked exceptions)
+    						try {
+    							// call the original app-main method
+    							StructCall3_MustFailCompile.main(args);
+    						} catch (java.lang.RuntimeException e) {
+    							throw e;
+    						} catch (java.lang.Error e) {
+    							throw e;
+    						} catch (java.lang.Throwable t) {
+    			 		   		throw new x10.lang.MultipleExceptions(t);
+    			 		   	}
+    					}
+    				});
+    
+    		} catch (java.lang.Throwable t) {
+    			t.printStackTrace();
+    		}
+    	}
+    }
+    
+    // the original app-main method
+    public static void main(x10.core.Rail<java.lang.String> args)  {
+        
+//#line 46
+new StructCall3_MustFailCompile().execute();
+    }/* } */
+    
+    public StructCall3_MustFailCompile() {
+        super();
+    }
+
+}
