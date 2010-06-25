@@ -61,10 +61,7 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 
 	@Test
 	public void compilerTest() throws Exception {
-		//TODO: check what needs to go here for sourcepath
-		String coll = DATA_PATH + File.separator + "x10" + File.separator + "lib" + File.separator + "collections";
-		String stream = DATA_PATH + File.separator + "x10" + File.separator + "lib" + File.separator + "streams";
-		String sourcepath = getRuntimeJar() + ":" + DATA_PATH + ":" + coll + ":" + stream;
+		String sourcepath = getRuntimeJar() + ":" + DATA_PATH;
 		
 		//Submit everything to the compiler at once
 		System.err.println("***Compiling all files");
