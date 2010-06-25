@@ -363,6 +363,8 @@ public class X10Context_c extends Context_c implements X10Context {
     			X10MethodDef md = (X10MethodDef) cc;
     			while (md.name().toString().contains("$dummyAsync")) {
     				cxt = cxt.pop();
+    				if (cxt == null)
+    					break;
     				cc = cxt.currentCode();
     				if (cc instanceof X10MethodDef)
     					md = (X10MethodDef) cc;
