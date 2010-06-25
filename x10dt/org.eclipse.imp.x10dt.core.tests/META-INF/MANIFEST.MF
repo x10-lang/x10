@@ -4,12 +4,12 @@ Bundle-Name: Tests
 Bundle-SymbolicName: org.eclipse.imp.x10dt.core.tests
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.imp.x10dt.core.tests.Activator
-Require-Bundle: org.eclipse.ui,
+Require-Bundle: x10.compiler;bundle-version="2.0.4";visibility:=reexport,
+ org.eclipse.ui,
  org.eclipse.core.runtime,
  org.junit4;bundle-version="4.5.0",
  org.eclipse.imp.x10dt.core;bundle-version="2.0.4",
  polyglot3;bundle-version="3.2.0",
- org.eclipse.core.resources;bundle-version="3.5.2",
- x10.compiler;bundle-version="2.0.4"
+ org.eclipse.core.resources;bundle-version="3.5.2"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
