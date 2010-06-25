@@ -1431,7 +1431,7 @@ public class Synthesizer {
 		if (r == null && t.receiver() instanceof XLit) {
 		    Object val = ((XLit) t.receiver()).val();
 		    if (val instanceof QName) {
-		        r = xnf.TypeNodeFromQualifiedName(pos, ((QName) val).qualifier());
+		        r = xnf.TypeNodeFromQualifiedName(pos, (QName) val);
 		    }
 		}
 		Name n = Name.make(t.field().toString());
