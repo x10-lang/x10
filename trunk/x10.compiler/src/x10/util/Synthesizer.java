@@ -1,5 +1,5 @@
 /*
-i *  This file is part of the X10 project (http://x10-lang.org).
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
  *  You may not use this file except in compliance with the License.
@@ -1427,7 +1427,13 @@ public class Synthesizer {
 		return null;
 	}
 	Expr makeExpr(XField t, Position pos) {
-		Expr r = makeExpr(t.receiver(), pos);
+		Receiver r = makeExpr(t.receiver(), pos);
+		if (r == null && t.receiver() instanceof XLit) {
+		    Object val = ((XLit) t.receiver()).val();
+		    if (val instanceof QName) {
+		        r = xnf.TypeNodeFromQualifiedName(pos, ((QName) val).qualifier());
+		    }
+		}
 		Name n = Name.make(t.field().toString());
 		return xnf.Field(pos, r, xnf.Id(pos, n));
 	}
