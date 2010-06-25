@@ -55,20 +55,15 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
-import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.ui.preferences.BuildPathsPropertyPage;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
-import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
@@ -828,6 +823,22 @@ public class X10Builder extends IncrementalProjectBuilder {
                 postMsgDialog("X10 Error", e.getMessage());
         }
     }
+    
+    /**
+     * Posts a dialog displaying the given message as soon as "conveniently possible".
+     * This is not a synchronous call, since this method will get called from a
+     * different thread than the UI thread, which is the only thread that can
+     * post the dialog box.
+     */
+    private void postMsgDialog(final String title, final String msg) {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+            public void run() {
+                Shell shell= X10DTCorePlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+
+                MessageDialog.openInformation(shell, title, msg);
+            }
+        });
+    }
    
     /***********************
      * END - Compilation
@@ -1090,165 +1101,6 @@ public class X10Builder extends IncrementalProjectBuilder {
             X10DTCorePlugin.getInstance().logException("Error while looking for source files with errors", e);
         }
     }
-    
-    /**
-     * Checks the project's classpath to make sure that an X10 runtime is available,
-     * and warns the user if not.
-     */
-    private void checkClasspathForRuntime() {// BRT put in utils too later
-        if (fSuppressClasspathWarnings)
-            return;
-        try {
-            IClasspathEntry[] entries= fX10Project.getResolvedClasspath(true); // PORT1.7 --  use getRawClasspath() here? Note for Bob?
-            int runtimeIdx= X10RuntimeUtils.findValidX10RuntimeClasspathEntry(entries);//PORT1.7 moved to RuntimeUtils
-
-            if (runtimeIdx >= 0) {
-                IPath entryPath= entries[runtimeIdx].getPath();
-                File entryFile= new File(entryPath.makeAbsolute().toOSString());
-                if(traceOn)System.out.println("X10Builder.checkclasspathForRuntime(), found entryFile: "+entryFile+"; exists="+entryFile.exists());
-                if (!entryFile.exists()) {
-                    postQuestionDialog(ClasspathError + fProject.getName(),
-                            "The X10 runtime entry in the project's classpath does not exist: " + entryPath.toOSString() + "; shall I update the project's classpath with the runtime installed as part of the X10DT?",
-                            new UpdateProjectClasspathHelper(),
-                            new MaybeSuppressFutureClasspathWarnings());
-                    return; // found a runtime entry but it is/was broken
-                }
-                String currentVersion= X10RuntimeUtils.getCurrentRuntimeVersion();
-                if(traceOn)System.out.println("   currentVersion: "+currentVersion);
-                /*
-                int qidx=currentVersion.indexOf("qualifier");
-                if(qidx>=0){
-                	currentVersion=currentVersion.substring(0,qidx-1);
-                }
-*/
-                // TODO Only insist that a jar file whose name embeds the version has the right version.
-                // Jar files whose names don't embed a version number won't be checked.
-                if (entryFile.getPath().endsWith(".jar") && entryFile.getAbsolutePath().indexOf(currentVersion) < 0) {
-                    postQuestionDialog(ClasspathError + fProject.getName(),
-                            "The X10 runtime entry " + entryPath.toOSString() + " in the classpath of project '" + fProject.getName() + "' is an old runtime version; shall I update the project's classpath with the runtime installed as part of the X10DT (version " + currentVersion + ")?",
-                            new UpdateProjectClasspathHelper(),
-                            new MaybeSuppressFutureClasspathWarnings());
-                }
-                return; // found the runtime
-            }
-        } catch (JavaModelException e) {
-            e.printStackTrace();
-        }
-        postQuestionDialog(ClasspathError + fProject.getName(),
-                "No X10 runtime entry exists in the classpath of project '" + fProject.getName() + "'; shall I update the project's classpath with the runtime installed as part of the X10DT?",
-                new UpdateProjectClasspathHelper(),
-                new MaybeSuppressFutureClasspathWarnings());
-    }
-
-    /**
-     * Posts a dialog displaying the given message as soon as "conveniently possible".
-     * This is not a synchronous call, since this method will get called from a
-     * different thread than the UI thread, which is the only thread that can
-     * post the dialog box.
-     */
-    private void postMsgDialog(final String title, final String msg) {
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-            public void run() {
-                Shell shell= X10DTCorePlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
-
-                MessageDialog.openInformation(shell, title, msg);
-            }
-        });
-    }
-
-    /**
-     * Posts a dialog displaying the given message as soon as "conveniently possible".
-     * This is not a synchronous call, since this method will get called from a
-     * different thread than the UI thread, which is the only thread that can
-     * post the dialog box.
-     */
-    private void postQuestionDialog(final String title, final String query, final Runnable runIfYes, final Runnable runIfNo) {
-        final IWorkbench wb= PlatformUI.getWorkbench();
-        wb.getDisplay().asyncExec(new Runnable() {
-            public void run() {
-                Shell shell= wb.getActiveWorkbenchWindow().getShell();
-                boolean response= MessageDialog.openQuestion(shell, title, query);
-
-                if (response)
-                    runIfYes.run();
-                else if (runIfNo != null)
-                    runIfNo.run();
-            }
-        });
-    }
-
-
-    private final class OpenProjectPropertiesHelper implements Runnable {
-        public void run() {
-            // Open the project properties dialog and go to the "Java Build Path" page
-            PreferenceDialog d= PreferencesUtil.createPropertyDialogOn(null, getProject(), BuildPathsPropertyPage.PROP_ID, null, null);
-
-            d.open();
-        }
-    }
-
-    private boolean fSuppressClasspathWarnings= false;
-
-    private class MaybeSuppressFutureClasspathWarnings implements Runnable {
-        public void run() {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                public void run() {
-                    postQuestionDialog("Classpath error", "Suppress future classpath warnings",
-                            new Runnable() {
-                                public void run() {
-                                    fSuppressClasspathWarnings= true;
-                                }
-                            }, null);
-                }
-            });
-        }
-    }
-
-    private class UpdateProjectClasspathHelper implements Runnable {
-        public void run() {
-            updateProjectClasspath();
-        }
-    }
-                                                                                                                                                                                           
-
-    private void updateProjectClasspath() {
-        try {
-            IClasspathEntry[] entries= fX10Project.getRawClasspath();
-            List<Integer> runtimeIndexes= X10RuntimeUtils.findAllX10RuntimeClasspathEntries(entries);//PORT1.7 moved to X10runtimeUtils
-            IPath languageRuntimePath= X10RuntimeUtils.getLanguageRuntimePath();//PORT1.7 moved to X10runtimeUtils
-            IClasspathEntry newEntry;
-            if (languageRuntimePath == null) {
-                return;
-            }
-            if (languageRuntimePath.isAbsolute()) {
-                newEntry= JavaCore.newLibraryEntry(languageRuntimePath, null, null);
-            } else {
-                newEntry= JavaCore.newVariableEntry(languageRuntimePath, null, null);
-            }
-            IClasspathEntry[] newEntries;
-
-            if (runtimeIndexes.size() == 0) { // no entry, broken or otherwise
-                newEntries= new IClasspathEntry[entries.length + 1];
-                System.arraycopy(entries, 0, newEntries, 0, entries.length);
-                newEntries[entries.length]= newEntry;
-            } else {
-                newEntries= new IClasspathEntry[entries.length - runtimeIndexes.size() + 1];
-                int idx= 0;
-                for(int i=0; i < entries.length; i++) {
-                    if (!runtimeIndexes.contains(i)) {
-                        newEntries[idx++]= entries[i];
-                    }
-                }
-                newEntries[idx]= newEntry;
-            }
-            fX10Project.setRawClasspath(newEntries, new NullProgressMonitor());
-        } catch (JavaModelException e) {
-            e.printStackTrace();
-        }
-    }
-
- 
- 
     
     /***********************
      * END - Unused Methods
