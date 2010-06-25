@@ -50,10 +50,10 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
    */
   public CppProjectWizard() {
     this.fFirstPage = new CppProjectNameDefWizardPage();
-    this.fThirdPage = new CppProjectPropertiesWizardPage(this.fFirstPage);
+    this.fSecondPage = new CppProjectPropertiesWizardPage(this.fFirstPage);
 
     addPage(this.fFirstPage);
-    addPage(this.fThirdPage);
+    addPage(this.fSecondPage);
 
     setWindowTitle(LaunchMessages.PW_WindowTitle);
     setDialogSettings(CppLaunchCore.getInstance().getDialogSettings());
@@ -78,11 +78,11 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
   public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
   	monitor.beginTask(null, 10);
     try {      
-      this.fThirdPage.performFinish(new SubProgressMonitor(monitor, 5));
+      this.fSecondPage.performFinish(new SubProgressMonitor(monitor, 5));
       
       final IWorkingSet[] workingSets = this.fFirstPage.getWorkingSets();
       if (workingSets.length > 0) {
-        final IJavaProject newProject = this.fThirdPage.getJavaProject();
+        final IJavaProject newProject = this.fSecondPage.getJavaProject();
         PlatformUI.getWorkbench().getWorkingSetManager().addToWorkingSets(newProject, workingSets);
       }
 
@@ -92,7 +92,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
     } catch (Exception except) {
       // Something wrong happened, we can cancel the project creation and propagates the error.
       try {
-        this.fThirdPage.performCancel();
+        this.fSecondPage.performCancel();
       } catch (CoreException cancelExcept) {
         throw new InvocationTargetException(cancelExcept);
       }
@@ -127,7 +127,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
 
   public boolean performCancel() {
     try {
-      this.fThirdPage.performCancel();
+      this.fSecondPage.performCancel();
     } catch (CoreException except) {
       DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
                     .createAndOpen(getShell(), LaunchMessages.PW_PrjCancelationErrorTitle, 
@@ -140,7 +140,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
   
   private void createPlatformConfFile(final IProgressMonitor monitor) throws CoreException {
     try {
-      final IFile platformConfFile = X10PlatformConfFactory.getFile(this.fThirdPage.getJavaProject().getProject());
+      final IFile platformConfFile = X10PlatformConfFactory.getFile(this.fSecondPage.getJavaProject().getProject());
       
       final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
       final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
@@ -167,7 +167,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
 
   private final CppProjectNameDefWizardPage fFirstPage;
   
-  private final CppProjectPropertiesWizardPage fThirdPage;
+  private final CppProjectPropertiesWizardPage fSecondPage;
 
   private IWorkbench fWorkbench;
 

@@ -7,29 +7,18 @@
  *****************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.wizards;
 
-import java.io.IOException;
-import java.net.JarURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
+import org.eclipse.imp.x10dt.core.utils.X10DTCoreConstants;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.wizards.NewJavaProjectWizardPageOne;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.osgi.framework.Bundle;
 
 
 final class CppProjectNameDefWizardPage extends NewJavaProjectWizardPageOne {
@@ -71,20 +60,13 @@ final class CppProjectNameDefWizardPage extends NewJavaProjectWizardPageOne {
 
     setControl(composite);
   }
-
+  
   public IClasspathEntry[] getDefaultClasspathEntries() {
     final IClasspathEntry[] entries = new IClasspathEntry[0];
-    try {
-      final IClasspathEntry[] x10CPEntries = createX10RuntimeEntries();
-      final IClasspathEntry[] all = new IClasspathEntry[entries.length + x10CPEntries.length];
-      System.arraycopy(entries, 0, all, 0, entries.length);
-      System.arraycopy(x10CPEntries, 0, all, entries.length, x10CPEntries.length);
-      return all;
-    } catch (Error except) {
-      return new IClasspathEntry[0];
-    } catch (IOException except) {
-      return new IClasspathEntry[0];
-    }
+    final IClasspathEntry[] all = new IClasspathEntry[entries.length + 1];
+    System.arraycopy(entries, 0, all, 0, entries.length);
+    all[entries.length] = JavaCore.newContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID));
+    return all;
   }
 
   // --- Internal Services
@@ -93,59 +75,8 @@ final class CppProjectNameDefWizardPage extends NewJavaProjectWizardPageOne {
     return this.fGenHelloProgBt.getSelection();
   }
 
-  // --- Private code
-
-  private IClasspathEntry[] createX10RuntimeEntries() throws Error, IOException {
-    final List<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
-    if (! addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, CLASSES_DIR)) {
-      addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, SRC_X10_DIR);
-    }
-    addClassPathEntries(cpEntries, X10_COMMON_BUNDLE, CLASSES_DIR);
-    addClassPathEntries(cpEntries, X10_CONSTRAINTS_BUNDLE, CLASSES_DIR);
-    return cpEntries.toArray(new IClasspathEntry[cpEntries.size()]);
-  }
-
-  private boolean addClassPathEntries(final List<IClasspathEntry> cpEntries, final String bundleName, 
-                                      final String folder) throws IOException {
-    final Bundle bundle = Platform.getBundle(bundleName);
-    if (bundle == null) {
-      DialogsFactory.createErrorBuilder().createAndOpen(getShell(), LaunchMessages.PWFP_BundleAccessErrorTitle, 
-                                                        NLS.bind(LaunchMessages.PWFP_BundleAccessErrorMsg, bundleName));
-      throw new Error();
-    } else {
-      URL wURL = bundle.getResource(folder);
-      if (wURL == null) {
-        // We access the root of the jar where the resources should be located.
-        wURL = bundle.getResource(""); //$NON-NLS-1$
-      }
-      final URL url = FileLocator.resolve(wURL);
-      final boolean deployed;
-      final IPath path;
-      if (url.getProtocol().equals("jar")) { //$NON-NLS-1$
-        final JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-        path = new Path(jarConnection.getJarFileURL().getFile());
-        deployed = true;
-      } else {
-        path = new Path(url.getFile());
-        deployed = false;
-      }
-      cpEntries.add(JavaCore.newLibraryEntry(path, null /* sourceAttachmentPath */, null /* sourceAttachmentRootPath */));
-      return deployed;
-    }
-  }
-
   // --- Fields
 
   private Button fGenHelloProgBt;
-
-  private static final String X10_RUNTIME_BUNDLE = "x10.runtime"; //$NON-NLS-1$
-
-  private static final String X10_COMMON_BUNDLE = "x10.common"; //$NON-NLS-1$
-
-  private static final String X10_CONSTRAINTS_BUNDLE = "x10.constraints"; //$NON-NLS-1$
-
-  private static final String CLASSES_DIR = "classes"; //$NON-NLS-1$
-
-  private static final String SRC_X10_DIR = "src-x10"; //$NON-NLS-1$
 
 }

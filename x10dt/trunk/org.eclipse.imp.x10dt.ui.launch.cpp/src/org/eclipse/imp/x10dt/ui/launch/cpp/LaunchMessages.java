@@ -241,10 +241,6 @@ public class LaunchMessages extends NLS {
 
   public static String PW_WindowTitle;
 
-  public static String PWFP_BundleAccessErrorMsg;
-
-  public static String PWFP_BundleAccessErrorTitle;
-
   public static String PWFP_PageDescription;
 
   public static String PWFP_PageTitle;
