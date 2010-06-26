@@ -80,7 +80,14 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
                                                             xts.ConstructorMatcher(classType, argTypes, xct))
                                                             .def();
         ConstructorInstance constructorIns = constructorDef.asInstance();
-
+        
+        //need set formals to the constructorIns
+        List<Type> formalTypes = new ArrayList<Type>();
+        for(Ref<? extends Type> r : constructorDef.formalTypes()){
+            formalTypes.add(r.get());
+        }
+        constructorIns = constructorIns.formalTypes(formalTypes);
+        
         New aNew = xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(classType)), args);
         
        // aNew.qualifier(qualifier);
@@ -96,7 +103,7 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
         if (annotations.size() > 0) {
             aNew = (New) ((X10Del) aNew.del()).annotations(annotations);
         }
-        Expr construct = aNew.constructorInstance(constructorIns).type(classType);
+        Expr construct = aNew.constructorInstance(constructorIns).type(classType);            
         return construct;
     }
     
