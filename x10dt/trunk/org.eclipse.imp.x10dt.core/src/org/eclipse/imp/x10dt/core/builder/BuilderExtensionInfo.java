@@ -95,7 +95,7 @@ public class BuilderExtensionInfo extends x10.ExtensionInfo {
      */
     public Parser parser(Reader reader, FileSource source, final ErrorQueue eq) {
         try {
-            final X10Lexer x10_lexer = new X10Lexer(reader, source.name());
+            final X10Lexer x10_lexer = new X10Lexer(reader, source.toString());
             //
 //          final X10Lexer x10_lexer= (source instanceof SourceLoader.ZipSource) ? new X10Lexer() : new X10Lexer(source.path());//PORT1.7 zip file requires different Lexer
 //          if (source instanceof SourceLoader.ZipSource) {
