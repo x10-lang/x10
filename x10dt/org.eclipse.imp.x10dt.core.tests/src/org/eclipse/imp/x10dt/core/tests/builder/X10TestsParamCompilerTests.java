@@ -59,7 +59,7 @@ public class X10TestsParamCompilerTests extends CompilerTestsBase {
 		return inputs;
 	 }
 
-	@Test
+	@Test(timeout=10000)
 	public void compilerTest() throws Exception {
 		String sourcepath = SOURCE_PATH_BASE + ":" + getCurrentDirsPath(sources);
 		compile(sources, options, new ArrayList<ErrorInfo>(), sourcepath);
