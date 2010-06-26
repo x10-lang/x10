@@ -5,7 +5,11 @@ package x10.visit;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assert;
@@ -31,8 +35,10 @@ import polyglot.ast.FieldDecl;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
+import polyglot.ast.Id;
 import polyglot.ast.If;
 import polyglot.ast.Instanceof;
+import polyglot.ast.Labeled;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
@@ -49,15 +55,11 @@ import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.While;
-import polyglot.ast.Assign.Operator;
 import polyglot.frontend.Job;
 import polyglot.types.Flags;
-import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -100,6 +102,9 @@ public final class ExpressionFlattener extends ContextVisitor {
     X10NodeFactory xnf;
 //    Synthesizer syn;
     ForLoopOptimizer syn; // move functionality to Synthesizer
+    
+    List<Labeled> labels = new ArrayList<Labeled>();
+    Map<Node, List<Labeled>> labelMap = new HashMap<Node, List<Labeled>>();
 
     /**
      * @param job the job to run
@@ -147,16 +152,57 @@ public final class ExpressionFlattener extends ContextVisitor {
         }
         return null;
     }
+    
+    
+    protected NodeVisitor enterCall(Node parent, Node child) throws SemanticException {
+        if (parent instanceof Labeled && child instanceof Stmt) {
+            labels.add((Labeled) parent);
+            if (!(child instanceof Labeled)) {
+                List<Labeled> l = new ArrayList<Labeled>(labels);
+                labelMap.put(child, l);
+                labels.clear();
+            }
+        }
+        return super.enterCall(parent, child);
+        
+    }
+
 
     /* (non-Javadoc)
      * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
      * 
      * Flatten statements (Stmt) and expressions (Expr).
      */
-    public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+    public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+        if (n instanceof Labeled) 
+            return flattenLabeled((Labeled) n);
+        if (parent instanceof Labeled && n instanceof Stmt) {
+            return flattenLabeledNode(n, labelMap.remove(old));
+        }
         if (n instanceof Expr) return flattenExpr((Expr) n);
         if (n instanceof Stmt) return flattenStmt((Stmt) n);
         return n;
+    }
+
+    /**
+     * @param stmt
+     * @return
+     */
+    private Stmt flattenLabeled(Labeled stmt) {
+        return stmt.statement();
+    }
+
+    /**
+     * @param n
+     * @param list
+     * @return
+     */
+    private Node flattenLabeledNode(Node n, List<Labeled> list) {
+        if (n instanceof For) return flattenFor((For) n, list);
+        if (n instanceof ForLoop) return flattenForLoop((ForLoop) n, list);
+        if (n instanceof While) return flattenWhile((While) n, list);
+        if (n instanceof Do) return flattenDo((Do) n, list);
+        return null;
     }
 
     /**
@@ -218,13 +264,10 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @return a flat expression equivalent to expr
      */
     private Expr flattenStmtExpr(StmtExpr expr) {
-        assert (! (expr.result() instanceof StmtExpr)); // if this ever happens, uncomment the code to flatten expr.result()
-        /*
-        if (expr.result() instanceof StmtExpr) { // this (probably) never happens
+        if (expr.result() instanceof StmtExpr) { // the inliner produces StmtExpr's
             expr = expr.append(getStatements(expr.result()));
             expr = expr.result(getResult(expr.result()));
         }
-        */
         return expr;
     }
 
@@ -488,7 +531,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      * (Short-circuit AND (&&) and OR (||) are special.)
      * <pre>
      * ({s1; e1}) && ({s2; e2}))  ->  ({s1; var t  = e1; if ( t){s2; t = e2;}; t})
-     * ({s1; e1}) ¦¦ ({s2; e2}))  ->  ({s1; var t  = e1; if (!t){s2; t =be2;}; t})
+     * ({s1; e1}) || ({s2; e2}))  ->  ({s1; var t  = e1; if (!t){s2; t =be2;}; t})
      * ({s1; e1}) op ({s2; e2}))  ->  ({s1; val t1 = e1; s2; val t2 = e2; t1 op t2}) 
      * </pre>
      * 
@@ -652,10 +695,10 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (stmt instanceof LocalDecl) return flattenLocalDecl((LocalDecl) stmt);
         else if (stmt instanceof Block)     return flattenBlock((Block) stmt);
         else if (stmt instanceof If)        return flattenIf((If) stmt);
-        else if (stmt instanceof Do)        return flattenDo((Do) stmt);
-        else if (stmt instanceof For)       return flattenFor((For) stmt);
-        else if (stmt instanceof ForLoop)   return flattenForLoop((ForLoop) stmt);
-        else if (stmt instanceof While)     return flattenWhile((While) stmt);
+        else if (stmt instanceof For)       return flattenFor((For) stmt, null);
+        else if (stmt instanceof ForLoop)   return flattenForLoop((ForLoop) stmt, null);
+        else if (stmt instanceof While)     return flattenWhile((While) stmt, null);
+        else if (stmt instanceof Do)        return flattenDo((Do) stmt, null);
         else if (stmt instanceof Return)    return flattenReturn((Return) stmt);
         else if (stmt instanceof Throw)     return flattenThrow((Throw) stmt);
         else if (stmt instanceof Switch)    return flattenSwitch((Switch) stmt);
@@ -696,9 +739,10 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param stmt the block to be flattened
      * @return a block with all of its constituent statements flattened.
      */
-    private StmtSeq flattenBlock(Block stmt) {
+    private Stmt flattenBlock(Block stmt) {
         assert (!(stmt instanceof StmtExpr));
-        return syn.toStmtSeq(stmt);
+        // return syn.toStmtSeq(stmt);
+        return stmt;
     }
 
     /**
@@ -841,11 +885,12 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param stmt the for-loop to be flattened
      * @return a flat statement with
      */
-    private StmtSeq flattenForLoop(ForLoop stmt) {
+    private Stmt flattenForLoop(ForLoop stmt, List<Labeled> labels) {
         List<Stmt> stmts = new ArrayList<Stmt>();
         Expr primary = getPrimaryAndStatements(stmt.domain(), stmts);
-        stmts.add(stmt.domain(primary));
-        return syn.toStmtSeq(stmt.position(), stmts);
+        stmt = (ForLoop) stmt.domain(primary);
+        stmts.add(label(stmt, labels));
+        return toStmt(stmt.position(), stmts);
     }
 
     /**
@@ -998,7 +1043,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param stmt the while loop to be flattened
      * @return a flat statement with the same semantics as stmt
      */
-    private StmtSeq flattenWhile(While stmt) {
+    private Stmt flattenWhile(While stmt, List<Labeled> labels) {
         List<Stmt> stmts = new ArrayList<Stmt>();
         if ( (null==stmt.cond()) ||
              !(stmt.cond() instanceof BooleanLit) || 
@@ -1012,7 +1057,7 @@ public final class ExpressionFlattener extends ContextVisitor {
             stmts.add(stmt.body());
             stmt = stmt.body(syn.createBlock(stmt.position(), stmts));
         }
-        return syn.toStmtSeq(stmt);
+        return label(stmt, labels);
     }
 
     /**
@@ -1024,7 +1069,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param stmt the do loop to be flattened
      * @return a flat statement with the same semantics as stmt
      */
-    private StmtSeq flattenDo(Do stmt) {
+    private Stmt flattenDo(Do stmt, List<Labeled> labels) {
         List<Stmt> stmts = new ArrayList<Stmt>();
         Position pos = stmt.position();
         LocalDecl tmpLDecl = syn.createLocalDecl( pos, 
@@ -1040,8 +1085,8 @@ public final class ExpressionFlattener extends ContextVisitor {
         bodyStmts.add(syn.createAssignment(pos, syn.createLocal(pos, tmpLDecl), Assign.ASSIGN, primary));
         stmt = stmt.cond(syn.createLocal(pos, tmpLDecl));
         stmt = stmt.body(syn.createBlock(pos, bodyStmts));
-        stmts.add(stmt);
-        return syn.toStmtSeq(syn.createBlock(pos, stmts));
+        stmts.add(label(stmt, labels));
+        return syn.createBlock(pos, stmts);
     }
 
     /** 
@@ -1054,7 +1099,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @param stmt the for-loop to be flattened
      * @return a flat statement with the same semantics as stmt
      */
-    private StmtSeq flattenFor(For stmt) {
+    private Stmt flattenFor(For stmt, List<Labeled> labels) {
         List<Stmt> stmts = new ArrayList<Stmt>();
         Position pos = stmt.position();
         stmts.addAll(stmt.inits());
@@ -1082,8 +1127,10 @@ public final class ExpressionFlattener extends ContextVisitor {
         stmt = stmt.inits(Collections.<ForInit>emptyList());
         stmt = stmt.iters(Collections.<ForUpdate>emptyList());
         stmt = stmt.body(syn.createBlock(pos, bodyStmts));
-        stmts.add(stmt);
-        return syn.toStmtSeq(syn.createBlock(pos, stmts));
+        stmts.add(label(stmt, labels));
+//        Id dummy = xnf.Id(Position.COMPILER_GENERATED, "dummy");
+//        return syn.toStmtSeq(xnf.Labeled(pos, dummy, syn.toStmtSeq(syn.createBlock(pos, stmts))));
+        return syn.createBlock(pos, stmts);
     }
 
     /**
@@ -1178,6 +1225,29 @@ public final class ExpressionFlattener extends ContextVisitor {
     private Expr toFlatExpr(Position pos, List<Stmt> stmts, Expr expr) {
         if (stmts.isEmpty()) return expr;
         return syn.createStmtExpr(pos, stmts, expr);
+    }
+
+    /**
+     * @param pos
+     * @param stmts
+     * @return
+     */
+    private Stmt toStmt(Position pos, List<Stmt> stmts) {
+        if (1 == stmts.size() && stmts.get(0) == pos ) return stmts.get(0);
+        return syn.createBlock(pos, stmts);
+    }
+
+    /**
+     * Prefix a list of labels to a statement.
+     * 
+     * @param stmt the statement to be labeled
+     * @param labels a list of Labeled nodes containing the labels
+     * @return either the stmt (there are no labels), or a Labeled statements
+     */
+    private Stmt label(Stmt stmt, List<Labeled> labels) {
+        if (null == labels || labels.isEmpty())
+            return stmt;
+        return label(labels.remove(labels.size()-1).statement(stmt), labels);
     }
 
 }
