@@ -1,0 +1,92 @@
+\chapter{Lexical structure}
+
+In general, \Xten{} follows \java{} rules \cite[Chapter 3]{jls2} for
+lexical structure.
+
+Lexically a program consists of a stream of white space, comments,
+identifiers, keywords, literals, separators and operators.
+
+\paragraph{Whitespace}
+% Whitespace \index{whitespace} follows \java{} rules \cite[Chapter 3.6]{jls2}.
+ASCII space, horizontal tab (HT), form feed (FF) and line
+terminators constitute white space.
+
+\paragraph{Comments}
+% Comments \index{comments} follows \java{} rules
+% \cite[Chapter 3.7]{jls2}. 
+All text included within the ASCII characters ``\xcd"/*"'' and
+``\xcd"*/"'' is
+considered a comment and ignored; nested comments are not
+allowed.  All text from the ASCII characters
+``\xcd"//"'' to the end of line is considered a comment and is ignored.
+
+\paragraph{Identifiers}
+
+Identifiers \index{identifier} are defined as in \java.
+Identifiers consist of a single letter followed by zero or more
+letters or digits.
+Letters are defined as the characters for which the \java{}
+method \xcd"Character.isJavaIdentifierStart" returns true.
+Digits are defined as the ASCII characters \xcd"0" through \xcd"9".
+
+\paragraph{Keywords}
+\Xten{} reserves the following keywords:
+\begin{xten}
+abstract        any             as              async
+at              ateach          atomic          await
+break           case            catch           class
+clocked         const           continue        current
+def             default         do              else
+extends         extern          final           finally
+finish          for             foreach         future
+goto            has             here            if
+implements      import          in              instanceof
+interface       local           native          new
+next            nonblocking     or              package
+private         protected       property        public
+return          safe            self            shared
+static          super           switch          this
+throw           throws          try             type
+val             value           var             when
+while
+\end{xten}
+Note that the primitive types are not considered keywords.
+The keyword \xcd{goto} is reserved, but not used.
+
+\paragraph{Literals}\label{Literals}\index{literals}
+
+Literals are either integers, floating point numbers, booleans,
+characters, strings, and \xcd"null".
+\XtenCurrVer{} defines literal syntax in the same way as \java{} does.
+Unsigned 32-bit integers are suffixed with
+\xcd{U} or \xcd{u}.
+Signed 64-bit integers are suffixed with
+\xcd{L} or \xcd{l}.
+Unsigned 64-bit integers are suffixed with
+any of \xcd{LU}, \xcd{Lu}, \xcd{UL}, \xcd{Ul},
+\xcd{lU}, \xcd{lu}, \xcd{uL}, or \xcd{ul}.
+
+\paragraph{Separators}
+\Xten{} has the following separators and delimiters:
+\begin{xten}
+( )  { }  [ ]  ;  ,  .
+\end{xten}
+
+\paragraph{Operators}
+\Xten{} has the following operators:
+\begin{xten}
+==  !=  <   >   <=  >=
+&&  ||  &   |   ^
+<<  >>  >>>
++   -   *   /   %
+++  --  !   ~
+&=  |=  ^=
+<<= >>= >>>
++=  -=  *=  /=  %=
+=   ?   :   =>  ->
+<:  :>  @   ..
+\end{xten}
+
+
+
+

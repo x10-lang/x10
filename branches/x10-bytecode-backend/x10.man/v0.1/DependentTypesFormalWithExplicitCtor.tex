@@ -1,0 +1,587 @@
+\documentclass{article}
+\input{../../../../vj/res/pagesizes}
+\input{../../../../vj/res/vijay-macros}
+\def\csharp{{\sf C\#}}
+\usepackage[pdftex]{graphicx}
+\def\Xten{{\sf X10}}
+\def\java{{\sf Java}}
+\def\FXten{{\sf FX10}}
+\begin{document}
+\title{Formalizing Dependent Types for \Xten}
+\author{
+({\sc Draft Version 0.04})\\
+(Please do not cite)\\
+(Send comments to {\tt vsaraswa@us.ibm.com}.)
+}
+
+\date{April 19 2006}
+\maketitle
+
+\begin{abstract}
+We formalize the basic ideas of dependent-types for Java like
+languages (introduced in \cite{DependentTypes}), in the context of
+\FXten, a Featherweight version of \Xten{} \cite{X10}.  For now, we
+focus on a sequential language; distribution and concurrency
+constructs {\em a la} \Xten{} are to be added later. This note should
+be taken as a companion to \cite{X10-concur} which formalizes the
+dynamic semantics for \FXten. It is intended to provide the basis for
+a place-based type-system for scalars and arrays.
+\end{abstract}
+
+\section{Introduction}
+
+\section{Basic \FXten}
+The abstract syntax for \FXten{} is specified in
+Table~\ref{Table:AST}. We consider a parametric version of the
+language, with an underlying constraint system $\cal C$ \cite{cccc} being used to
+specify dependent types. 
+
+%% TODO: The formal type-checking rules are defined only in the case in which 
+%% the subject and arguments of a method call are final variables/parameters.
+%% Need to think through why this is the case, and motivate and adjust.
+
+\begin{table}
+  \begin{tabular}{|llll|}
+\hline
+ (Classes) & CL &{::=}& {\tt class C($\tt \bar{\tt f}:\bar{\tt X}$, var $\tt\bar{\tt g}:\bar{\tt Y}$)extends D\{K\ $\bar{\tt M}$\}} \\
+ (Constructor) & K &{::=}& {\tt def C($\tt \bar{\tt u}:\bar{\tt U},\bar{\tt f}:\bar{\tt X},\bar{\tt g}:\bar{Y}$ \&c):T
+                       = \{super($\bar{\tt u}$); this.$\bar{\tt f},\bar{\tt g}=\bar{\tt f},\bar{\tt g}$;\}} \\
+ (Method) & M &{::=}& {\tt def m($\tt\bar{\tt x}:\bar{\tt X}$ \&c):T = e}\\
+ (Expression) & e,r,s &{::=}& {\tt null} \alt {\tt n} \alt {\tt x} \alt {\tt new C($\tt \bar{e}$)}  \\
+    &&& \alt {\tt \{val $\tt\bar{\tt x}:\bar{\tt X}=\bar{\tt e}$; e\}} \alt {\tt e;e} \\
+    &&& \alt {\tt x.f} \alt {\tt x.f=e} \alt {\tt x.m($\tt \bar{\tt x}$)} \alt {\tt (T) e} \\
+    &&& \alt {\tt c?e:e}\alt \ldots\\
+ (Type) & T,U,V,X,Y &{::=}& {\tt C(\&c)} \alt \tt nullable\ C(\&c)\\
+ (Constraint) & c,d &{::=}& {\tt true} \alt {\tt c\&c} \alt \alt ce==ce \alt ce !=ce \alt $\tt (\exists x:T)\, c$\ldots \\
+ (Term) & ce &{::=}& {\tt self} \alt {\tt f} \alt x \alt \ldots \\
+\hline
+  \end{tabular}
+\caption{Abstract syntax for \FXten.}\label{Table:AST}
+\end{table}
+
+We follow \cite{FJ,MJ} in our treatment. Meta-variables {\tt C}, {\tt
+D}, {\tt E} range over class names; {\tt f} and {\tt g} range over
+field names; {\tt m} ranges over method names; {\tt x}, {\tt y}, {\tt
+z} range over parameter and local variable names; other meta-variables are specified in
+Table~\ref{Table:AST}.
+
+We write $\bar{e}$ as shorthand for $\tt e_1,\ldots, e_n$
+(comma-separated sequence); this sequence may be empty ({\tt n=0}).
+Similarly for $\bar{x}$.
+$\bar{\tt M}$ and $\bar{\tt K}$ are similar except that no commas
+separate the items in the sequence. We use the obvious abbreviation:
+$\tt\bar{\tt f}:\bar{X},$ abbreviates $\tt f_1:X_1,\ldots, f_n:X_n$
+({\tt n} may be zero).  {\tt var $\tt\bar{\tt g}:\bar{\tt Y}$}
+abbreviates the sequence {\tt var $\tt g_1:Y_1, \ldots, g_n:Y_n$} if
+$\tt n > 1$ and the empty sequence otherwise. Empty parameter
+sequences may be omitted (like Scala, unlike Java). 
+
+The phrase ``{\tt \&c}'' is called a {\em where clause}. We abbreviate
+{\tt \&true} to the empty string. Similarly {\tt this.$\bar{\tt
+f}$=$\bar{\tt e}$;} abbreviates {$\tt this.f_1=e_1;\ldots
+this.f_n=e_n$}.  {\tt \{val $\tt\bar{\tt x}:\bar{\tt X}=\bar{\tt e};\}$}
+abbreviates {\tt \{val $\tt x_1: X_1= e_1;\ldots; x_n:X_n=e_n;\}$}.
+Sequences of field declarations, parameter declarations, local
+variable declarations, are assumed to not contain any duplicates.
+Sequences of constructors in a class must not contain two constructors
+with the same sequence of parameters types; similarly for
+methods. (\FXten{} permits {\em ad hoc} polymorphism.)
+
+\paragraph{Expressions.}
+For expressions, we assume the following precedence order (from less
+tight to more tight): sequencing, type-cast, assignment, conditional,
+field invocation, method invocation.
+
+We also reserve the local variable name ``{\tt this}'' and ``{\tt
+self}''. That is, no program may define a local variable or parameter
+named {\tt this} or {\tt self}. 
+
+We note that, somewhat unusually, field selection, assignment, method
+invocation and constructor invocation take constants as arguments,
+rather than expressions. This is necessary because we need a name for
+the arguments so that the name can be substituted for the formal
+argument in the resulting type. The version of these operations which
+takes arbitrary expressionas as arguments can be obtained by combining
+with the local variable combinator. Thus, {\tt e.m(e1)} is simply {\tt
+\{val x,y:X,Y=e,e1; x.m(y)\}}, where {\tt x} and {\tt y} are
+new local variables, and the type of the expressions {\tt e} and {\tt
+e1} is {\tt X} and {\tt Y} respectively. Below, when writing actual
+programs we shall feel free to use the abbreviated {\tt e.m(e1)} form.
+
+The two-armed conditional expression {\tt c?e:e} does not take an
+arbitrary expression as a test; rather it takes as argument a
+constraint which must satisfy the property that its negation is also a
+constraint. (Note that we do not require that constraints are closed
+under negation in general.) {\tt c?e:e1} is best thought of as a
+``{\tt typecase}'' expression. It permits the compiler to reason
+conditionally about the expression, by propagating the
+constraint down the positive branch and its negation down the negative
+branch.
+
+\paragraph{Types.}
+We reserve the class names ``{\tt Object}'' and ``{\tt
+int}''.\footnote{In a subsequent version of this document we will
+introduce value types, and then {\tt int} will be just another value
+type, defined with native methods.}
+
+A type is of the form {\tt C(\&c)} where {\tt c} is a constraint.
+Intuitively, a type {\tt C(\&c)} is the type of all objects that are
+instances of {\tt C} and satisfy the condition {\tt c}. Note that if
+the condition {\tt c} is unsatisfiable, then the type is
+empty. Variables/parameters cannot be declared at empty types.
+
+From the abbreviation rules above, the type {\tt C(\&true)} may be
+abbreviated to {\tt C}.  {\tt c} may contain references to parameters
+and variables visible at the point of declaration of the type
+(including {\tt this}), and the special variable {\tt self} which
+refers to the object to which the type applies.  The fields of {\tt C}
+may occur unqualified in {\tt c}, they are presumed to be qualified with the
+special variable {\tt self}.\footnote{
+Note that in general {\tt this} is
+different from {\tt self}.  For instance the type {\tt B(\& f =
+this.g)} appearing in the body of the definition of the class {\tt A}
+is the type of all instances of {\tt B} whose {\tt f} field has the
+same value as the {\tt g} field of the current {\tt A} object. (It is
+the same as the type {\tt B(\& self.f = this.g}).)}
+
+The special variable {\tt this} may {\em not} be referenced in a type
+in the definition of a constructor (e.g.{} in the constraint in the
+parameter list of the constructor, or in the return type of the
+constructor). This recognizes the fact that an object does not exist
+until it is created. 
+
+The type {\tt nullable C(\&c)} is the type {\tt C(\&c)} together with
+the special value {\tt null}. Thus the type {\tt nullable C(\&c)} is
+never empty: if {\tt c} is inconsistent it permits precisely the value
+{\tt null}.
+
+The terms {\tt ce} in a constraint are drawn from an underlying
+constraint system, $\cal C$ \cite{cccc}. {\em For now we take the
+constraint system to be fixed, but it makes sense to permit the
+programmer to extend the constraint system with new value types, and
+operations over them, provided that a constraint solver is supplied
+for these types.}
+
+Recall that for readability, we permit the expression {\tt self.f} to
+be abbreviated to {\tt f} in the constraint {\tt c} of a type {\tt
+C(\&c)}.  {\tt self} is often absent in types. It is particularly
+useful in {\em singleton types}, e.g. {\tt Point(\&self=p)} which is
+satisfied by any object that is an instance of {\tt Point} and is the
+same as {\tt p}.
+
+We also permit the shorthand {\tt C($\overline{\tt ce}$)} for {\tt
+C(\&$\overline{\tt f}=\overline{\tt ce}$)} where $\tt \overline f$ is the textual
+order enumeration of the {\tt val} fields of {\tt C}. If the class has
+no field, then we use the shorthand {\tt C(ce)} for {\tt
+C(\&self=ce)}. Thus {\tt int(0)} is satisfied precisely by the value
+{\tt 0}.
+
+Finally, we permit the shorthand $\tt (\exists x:T) C(\&c)$ for
+$\tt C(\exists x:T)c)$.
+
+{\em In a later version of this document we will introduce type definitions.
+This will let us use, for instance, the abbreviation {\tt nat}
+for the type {\tt int(\&self >= 0)}. 
+}
+
+\paragraph{Program.}
+A {\em program} is a pair of a set of classes and an expression. For
+simplicity we shall leave the set of classes implicit. We shall assume
+that every class name used in the program (except {\tt Object}) is
+defined exactly once in the program. We assume that the class
+hierarchy, defined by $\leq$ in the next section is acyclic
+(anti-symmetric).
+
+\subsection{Remarks on the syntax}
+In a class declaration, $\tt\bar{\tt f}$ represents the val (final)
+fields of the class, $\tt\bar{\tt g}$ the var (mutable)
+fields.\footnote{ The addition of {\tt var} constructor and method
+parameters and local variables is routine and omitted for
+brevity. Similarly for initializers of fields, static fields and
+methods. We may add exceptions later since they play an integral part in the
+semantics of concurrent constructs.} 
+
+%% $\tt c$ is the {\em class
+%% invariant} (a constraint on the fields of the class true for all
+%% instances of the class); this must be checked when validating the
+%% constructor.\footnote{In the current formulation there is only one
+%% constructor, so the class invariant can be folded into the return type
+%% of the constructor. However, it makes sense to permit multiple
+%% constructors in the future, so we shall retain the separate syntax for
+%% the class invariant.}
+
+After Scala \cite{scala}, we have chosen the ML-style variable
+declaration (type comes after the variable, and is separated by a
+colon), as opposed to conventional Java-style declarations, so that
+the return type of a method may appear after the declaration of the
+parameters of the method. This permits parameters to appear in the
+return type, while respecting the ``define before use''
+meta-rule. This syntax also permits types (for parameters, variables
+and methods) to be optional, while still retaining readability.  Note
+that the language above does not permit mutable constructor or method
+parameters.
+
+In a constructor declaration, {\tt c} is a constraint on the
+constructor parameters $\bar{\tt x}$ that must be true for the
+constructor to be invoked.  A constructor may specify the return type
+(useful for specifying constraints on the fields of the object
+returned by the constructor).  In a method definition, {\tt c} is a
+constraint on the parameters $\bar{\tt x}$ and the final fields of the
+object on which the method is being invoked that must be true for this
+method to be invoked. In a type specification, {\tt c} is a constraint
+on the final fields of the class {\tt C}. A constraint is a boolean
+valued expression over final fields and local variables written using
+the operations provided in the underlying constraint system.
+
+The abstract syntax differs from the syntax in \cite{DependentTypes}
+in many notational respects. It differs substantively in that there is
+no distinction between parameters of classes and fields, and
+parameters of methods and arguments to the method. All arguments to a
+method are considered final. There are no implicit parameters for
+classes.  All final fields of a class may be used in defining a
+dependent type on that class.
+
+\subsection{Example}
+\begin{example}[List]\label{List}
+Consider the class {\tt List}. We shall use generic syntax for
+type parameters; this will be formalized in a subsequent version 
+of this note in a fashion similar to \cite{FJ}. For now, 
+the reader should understand generic syntax in the spirit of \cite{FJ}.
+
+{\footnotesize
+\begin{verbatim}
+  class List<X>( n:int(&self>=0), 
+                 var node: nullable X, 
+                     rest: nullable List<X>(n-1)) {
+    /** Returns the empty list. Defined only when the parameter n 
+        has the value 0. Invocation: new List(0)<X>().
+     */
+    def List(n:int(&self>=0), node: nullable X, rest: nullable List<X>(n-1)) = {
+      super(); this.n=n; this.node=node; this.rest=rest;
+    }
+    def makeList:List<X>(0)=new List(0,null, null)
+    def makeList(node:X):List<X>(1)=new List(1,node,makeList)
+    def makeList{node:X, rest:nullable List<X>):List<X>(rest.n+1)=
+     rest==null ? makeList(node):new List(rest.n+1,node,rest)
+
+    def append(arg:List<X>):List<X>(n+arg.n)  =
+         (n == 0) ? arg : new List<X>(node, rest.append(arg))
+    def rev : List<X>(n) = rev(new List<X>())
+    def rev(arg:List<X>):List<X>(n+arg.n) = 
+         (n == 0) ? arg : rest.rev(new List<X>( node, arg))
+    /** Return a list of compile-time unknown length, obtained by filtering
+        this with f. */
+    def filter(f: fun<X,boolean>):List<X> = 
+         (n==0) ? this
+         : (f(node) ? 
+           new List<X>(node, rest.filter(f));
+            : rest.filter(f))
+    /** Return a list of m numbers from o..m-1. */
+    def gen(m:int(&self>= 0)):List<int(&self>=0)>(m) = gen(0,m)
+    /** Return a list of (m-i) elements, from i to m-1. */
+    def gen(i:int(&self>=0), m:int(&self>=i)):List<int(&self>=0)>(m-i) = 
+       (i == m)? new List<nat>() : new List<nat>(i, gen(i+1,m))
+  }  
+\end{verbatim}}
+
+The class {\tt List} has three fields, the {\tt val} field {\tt n},
+and the {\tt var} fields {\tt node} and {\tt rest}. {\tt rest} is
+required to be a {\tt List} whose {\tt n} field has the value {\tt
+this.n-1}.  {\tt n} is required to be non-negative -- this is checked
+statically for each constructor.
+
+Three constructors are provided. The first takes no arguments and
+returns instances of {\tt List} which satisfy the constraint {\tt
+n=0}. The second takes a single argument and returns a list of size
+{\tt 1}. The third takes two arguments, {\tt node} (of type {\tt X})
+and {\tt rest} of type {\tt List<X>}, and returns a list of size {\tt
+rest.n+1}. That is, the length of the list returned depends on the
+value of a parameter to the constructor. 
+
+Functions that append one list to another or that reverse a list can
+be defined quite naturally. In both cases the size of the
+list returned is known statically (as a function of the size of the
+list and the argument to the method).  The example also illustrates a
+method {\tt filter} which returns a list whose size cannot be known
+statically (it depends on properties of the argument function {\tt f}
+which are not captured statically).
+
+The {\tt gen} methods\footnote{These should really be {\tt static}.}
+illustrate ``{\tt self}''-constraints. The first {\tt gen} method
+takes a single argument {\tt m} that is required to be a non-negative
+{\tt int}.  The second {\tt gen} method illustrates that the type of a
+parameter can depend on the value of another parameter: {\tt m} is
+required to be no less than {\tt i}. This assumption are necessary in
+order to guarantee that the result type of the method is not empty,
+that is, to guarantee {\tt m-i >= 0}.
+\end{example}
+
+{\em Note:
+Language extensions to be made to get a fuller subset of \Xten:
+
+\begin{itemize}
+  \item Add multiple constructors.
+  \item Permit arbitrary code in constructors.
+  \item Add static state -- or at least distinguish between objects and traits.
+  \item Permit fields to be overridden?
+  \item Add functions.
+  \item Add exceptions.
+  \item Add places.
+  \item Add async, finish, future.
+  \item Add regions, distributions and arrays.
+  \item Add generics with declaration-time
+  covariance/contravariance/invariance, a la Scala.  Generics should
+  be instantiable with arbitrary value types.
+  \item Consider adding generic values (universal quantification).
+  \item Arrays should be generic.
+\end{itemize}
+}
+
+\subsection{Type system}
+A {\em typing environment}, $\Gamma$, is a collection of variable
+typings $x:T$ together with zero or more constraints on variables. The
+constraint system satisfies the axiom:
+
+$$
+\tt \Gamma, x:C(\&c) \vdash c[x/self]
+$$
+
+\noindent Thus, for instance, we have:
+$$
+\tt x:List(\& n=3) \vdash x.n=3
+$$
+\noindent (asuming {\tt n} is a field in {\tt List}, and hence an abbreviation for {\tt self.n}).
+
+Typing judgements for expressions are of the form $\tt \Gamma \vdash
+e:T$, read as ``Under the assumptions $\Gamma$, {\tt e} has type {\tt
+T}.'' We use sequence notation in the obvious way: $\tt \Gamma \vdash
+\bar{x}:\bar{X}$ is shorthand for the collection of typing judgements
+$\tt \Gamma \vdash x_1:X_1 \ldots \Gamma \vdash x_n:X_n$.
+
+\subsubsection{Subtyping rules}
+We will also use the sub-typing judgement $\tt \Gamma \vdash X \leq Y$
+on types, read as ``Under the assumptions $\Gamma$ the type $\tt X$ is
+a sub-type of $\tt Y$.
+
+$$
+\begin{array}{llll}
+\tt \Gamma \vdash C \leq C
+& \tt 
+\from{\tt \Gamma \vdash C \leq D \ \ \ \Gamma \vdash D \leq E}
+\infer{\tt\Gamma \vdash C \leq E}
+&
+\from{\tt class\ C(\ldots)\ extends\ D\ \ldots}
+\infer{\tt\Gamma \vdash C \leq D}
+&
+\from{\tt \Gamma \vdash C \leq D \ \ \ \Gamma, c \vdash d}
+\infer{\tt\Gamma \vdash C(\&c) \leq D(\&d)}
+\end{array}
+$$
+
+Under the assumptions of well-formed programs, this relation is acyclic.
+
+\subsubsection{Static semantics rules}
+$$
+\begin{array}{|l|}\hline
+\begin{array}{ll}
+\rname{\sc\tt (T-Null)}\from{}\infer{\tt \Gamma \vdash null: nullable\ T}  &
+\rname{\sc\tt (T-Nullable)}\from{\tt\Gamma \vdash e:T}\infer{\tt \Gamma \vdash e: nullable\ T}  
+\end{array}\\
+\quad\\
+\begin{array}{ll}
+\rname{\sc\tt (T-Lit)}\from{}\infer{\tt \Gamma \vdash n:int(n)}  
+&  \rname{\sc\tt (T-Var)}\from{}\infer{\tt \Gamma,x:T \vdash x:T}
+\end{array} \\
+\quad\\
+\begin{array}{ll}
+\rname{\sc\tt (T-Field-r)}\from{
+  \begin{array}{l}
+  \tt  \Gamma \vdash x:T \\
+  \tt f:U \in fields(T) \\
+  \tt \theta=[x/this] \\
+ \end{array}}
+\infer{\tt \Gamma \vdash x.f:U \theta}
+&
+\rname{\sc\tt (T-Field-w)}
+\from{
+  \begin{array}{l}
+  \tt  \Gamma \vdash x:T \\
+  \tt f:U \in varfields(T) \\
+  \tt \theta=[x/this] \\
+  \begin{array}{ll}
+  \tt \Gamma \vdash g:V & \tt \Gamma \vdash V \leq U\theta
+  \end{array}
+ \end{array}}
+\infer{\tt \Gamma \vdash x.f=g:U\theta}
+\end{array}
+\\
+\quad\\
+\begin{array}{ll}
+\rname{\sc\tt (T-New)}\from{
+  \begin{array}{l}
+  \tt \Gamma \vdash \bar{y}:\bar{Y} \\
+  \tt C(\bar{z}:\bar{Z}\&c):T \in ctor(C) \\
+  \tt \theta=[\bar{y}/\bar{z}] \\
+  \begin{array}{ll}
+  \tt \Gamma \vdash \bar{Y} \leq \bar{Z}\theta &
+  \tt \Gamma \vdash c\theta 
+  \end{array}
+ \end{array}}
+\infer{\tt \Gamma \vdash new\ C(\bar{y}):T\theta}
+&
+\rname{\sc\tt (T-Invoke)}
+\from{
+  \begin{array}{l}
+   \tt \Gamma \vdash x,\bar{y}:X,\bar{Y} \\
+   \tt m(\bar{z}:\bar{Z}\&c):T \in mType(X) \\
+   \tt \theta=[x/this,\bar{y}/\bar{z}] \\
+   \begin{array}{ll}
+   \tt \Gamma \vdash \bar{Y} \leq \bar{Z}\theta &
+    \tt \Gamma \vdash c\theta
+   \end{array}
+ \end{array}}
+\infer{\tt \Gamma \vdash x.m(\bar{y}):T\theta}
+\end{array}
+\\
+\quad\\
+\begin{array}{ll}
+\rname{\sc\tt (T-Local)}
+\from{
+  \begin{array}{l}
+   \tt \Gamma[\bar{x}:\bar{X}] \vdash \bar{d}:\bar{Y} \\
+   \tt \Gamma[\bar{x}:\bar{X}] \vdash \bar{Y} \leq \bar{X} \\
+   \tt \Gamma[\bar{x}:\bar{X}] \vdash e:Z
+ \end{array}}
+\infer{\tt \Gamma \vdash \{val\ \bar{x}:\bar{X}=\bar{d};e\}:\exists \bar{\tt x}:\bar{\tt X}.Z}
+&
+\rname{\sc\tt (T-Cast)}\from{}\infer{\tt \Gamma \vdash (T) e: T}
+\end{array}
+\\
+\quad\\
+\begin{array}{ll}
+\rname{\sc\tt (T-Seq)}
+\from{
+  \begin{array}{ll}
+   \tt \Gamma \vdash d:S   & 
+   \tt \Gamma \vdash e:T
+ \end{array}}
+\infer{\tt \Gamma \vdash d;e:T}
+&
+\rname{\sc\tt (T-Cond)}
+\from{
+  \begin{array}{l}
+   \tt \Gamma \vdash c:boolean \\
+  \begin{array}{ll}
+   \tt \Gamma, c \vdash r:T &  \tt \Gamma, ! c \vdash s:T
+ \end{array}
+ \end{array}}
+\infer{\tt \Gamma \vdash (c?r:s) :T}
+\end{array}\\
+\quad\\
+\rname{\sc\tt (T-Method)}
+\from{
+  \begin{array}{l}
+   \tt class\ C(\bar{\tt f}:\bar{\tt X},var\ \bar{\tt g}:\bar{\tt Y})\,extends\ D\{K\ \bar{\tt M}\}\\
+   \tt M_i = def\ m(\bar{\tt z}:\bar{\tt Z}\&d):T=e\\
+   \tt\Gamma, \bar{\tt z}:\bar{\tt Z}, this:C,d \vdash e:T
+ \end{array}}
+\infer{\tt \Gamma \vdash M_i\ OK\ in\ C}\\
+\quad\\
+\rname{\sc\tt (T-Class)}
+\from{
+  \begin{array}{l}
+\tt   K=def\ C(\overline{\tt u,f,g}:\overline{\tt U,X,Y}\& c):T
+                       = \{super(\bar{\tt u}); this.\overline{\tt f,g}=\overline{\tt f,g};\} \\
+\tt  D\ OK \ \ \ \ \  K_d=ctor(D)= def\ D(\bar{\tt u}:\bar{\tt U}\&d):Z=\ldots \\
+  \tt \overline{\tt u,f,g}:\overline{\tt U,X,Y},c\vdash d \\
+  \tt \overline{\tt u,f,g}:\overline{\tt U,X,Y},c,this:C,
+   this.\bar{\tt u},\bar{\tt f},\bar{\tt g}=\bar{\tt u},\bar{\tt f},\bar{\tt g}\vdash 
+this:T[this/self] \\
+  \tt \bar{\tt M}\ OK \ in \ C\\
+ \end{array}}
+\infer{\tt class\ C(\bar{\tt f}:\bar{\tt X},\, var\, \tt\bar{\tt g}:\bar{\tt Y})\,extends\ D\{K\ \bar{\tt M}\}\ OK}\\
+\quad\\ \hline
+\end{array}
+$$
+
+Note that {\tt (T-Cond)} applies to conditionals {\tt c?r:s} where the
+test is a constraint term.  This means it can be built up using the
+primitive functions supplied with the constraint system, and must not
+reference any mutable variable.
+
+\subsubsection{Auxiliary definitions}
+The rules use some auxiliary definitions. 
+For any type {\tt T}, {\tt fields(T)} is the set of typed fields for that type:
+$$
+\begin{array}{l}
+\begin{array}{ll}
+\tt fields(Object)=\emptyset & \tt fields(C(\&c))=fields(C)
+\end{array} \\
+\tt fields(C)=fields(D),\bar{\tt x}:\bar{\tt X},\bar{\tt y}:\bar{\tt Y}
+\ \ \mbox{\em if 
+{\tt class C($\tt \bar{\tt x}:\bar{\tt X},var\ \bar{\tt y}:\bar{\tt Y}$\&c) extends D\ldots}}  
+\end{array}
+$$
+
+%%\noindent Given two sets $S$ and $T$ of field type assertions, the set $S,T$
+%%has all the elements of $T$ and all the elements of $S$ except those
+%%whose variable is the same as a variable of an element in $T$. Thus
+%%the above definitions implement field overriding: fields of {\tt C}
+%%with the same name hide the fields of {\tt D} with the same name (even
+%%if they have different types).
+
+For any type {\tt T}, {\tt varfields(T)} is the set of mutable fields for that type:
+$$
+\begin{array}{l}
+\begin{array}{ll}
+\tt varfields(Object)=\emptyset & \tt varfields(C(\&c))=varfields(C)
+\end{array} \\
+\tt varfields(C)=varfields(D)[\bar{y}:\bar{Y}]\ \ \mbox{\em if 
+{\tt class C($\tt \bar{\tt x}:\bar{\tt X},var\ \bar{\tt y}:\bar{\tt Y}$\&c) extends D\ldots}}  
+\end{array}
+$$
+
+The set of constructors of a type {\tt T=C(\&c)} ({\tt ctor(C)}) is
+the set of all elements {$\tt C(\bar{\tt x}:\bar{\tt X}\&c):T$} such
+that the constructor {$\tt def C(\bar{\tt x}:\bar{\tt
+X}\&c):T$=\ldots} occurs in the definition of the class {\tt C}. We omit a formal definition.
+The set of methods of a type {\tt T=C(\&c)}, {\tt mType(T)}, is the
+set of all elements {$\tt m(\bar{z}:\bar{Z}\&c):T$}  such that the method
+{$\tt def m(\bar{z}:\bar{Z}\&c):T=e$} occurs in the definition of the class
+{\tt C} or an ancestor class. We omit a formal definition.
+
+\subsection{Dynamic semantics}
+
+{\em Establish theorems: Subject reduction, well-typed program can do no wrong.}
+{\em Adapt from \cite{X10-concur}.}
+
+\subsection{Example revisited}
+
+Here we consider a concrete constraint system with the type {\tt int} (with arithmetic operations).
+
+{\em Show the List example type-checks.}
+
+\section{\FXten{} with places}
+
+{\em
+  \begin{itemize}
+    \item Follow the outline of my recent set of slides.
+    \item Every reference object now has a final {\tt place} field, {\tt loc}.
+    \item The constant {\tt here} evaluates to the current place.
+    \item {\tt place} is a value type, with a fixed but unknown set of
+      operations, we can assume {\tt .next:place}.
+    \item The type {\tt T@!} is represented by {\tt T(\&loc=here}), and
+      the type {\tt T@x} by {\tt T(\&loc=x.loc)}.
+    \item The rules for field read/write and method invocation are changed to require that
+      the subject be of type {\tt \_(\&loc=here)}.
+    \item The new place-shifting control construct {\tt eval(p)e} is introduced.
+  \end{itemize}
+}
+
+%\section{\FXten{} with regions}
+
+%\section{\FXten{} with distributions}
+
+\bibliographystyle{plain}
+\bibliography{master}
+\end{document}

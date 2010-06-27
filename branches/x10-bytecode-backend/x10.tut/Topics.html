@@ -1,0 +1,63 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="./x10tutorial.css" />
+</head>
+
+<body>
+
+<h1>Object-Oriented Programming in X10</h1>
+
+<div class="todo">
+
+<h2>Next Topics (Bard's notes)</h2>
+<ol>
+<li>Guards</li>
+<li>Generic classes and containers</li>
+</ol>
+
+<h2>Object Topics</h2>
+
+<ol>
+<li>* Objects all live in fixed places.</li>
+<li>* Object references and how they are transmitted (and how they carry global   fields). </li>
+<li>* 'global' stuff </li>
+<li>  - a single object has a global and a non-global part.</li>
+<li>* how static fields work</li>
+<li>* Some operations can only be used at the object's home.</li>
+</ol>
+
+<h2>Topics (Bard's notes)</h2>
+<ol>
+<li><kbd>x10.lang.Object</kbd></li>
+<li><kbd>obj.home</kbd>; objects all have a place.</li>
+<li>Garbage collection</li>
+<li>Unlike Java: no synchronization.  (Use <kbd>atomic</kbd>)</li>
+<li>Kinds of fields: non-global / global.  val/var. Property.
+</li>
+<li>Objects vs. Object <i>references</i>.  (refs may be non-local.  Global
+  refs carry values of <kbd>global</kbd> fields, so they're kinda big.)
+</li>
+<li>Methods and field accesses have to be done at <kbd>here</kbd>, unless
+  they are global</li>
+<li>Table of things that are expensive.</li>
+<li>Table of kinds of methods and what they are for: pinned, nonblocking,
+  sequential, safe, pure, global, property, static</li>
+<li>Properties</li>
+<li>Interfaces</li>
+<li>Inheritance (OO boilerplate) -- implements and extends</li>
+<li>Exceptions on methods</li>
+<li>Constructors (incl. advice on typing them)</li>
+<li>Proto</li>
+<li>Fields</li>
+<li>Static fields </li>
+
+
+</ol>
+
+<h2>Advanced Topics for later</h2>
+<ul>F-bounded quantification (see K-means email from Jonathan Brezin) </ul>
+
+</div>
+
+</body>
+</html>
