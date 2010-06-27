@@ -117,7 +117,7 @@ public struct IndexedMemoryChunk[T] {
     */
 
 
-    @NativeRep("java", "x10.core.Rail<#1>", "x10.core.Rail.BoxedRail", "new x10.rtt.ParameterizedType(x10.core.Rail._RTT, #2)")
+    @NativeRep("java", "x10.core.Rail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Rail._RTT, #2)")
     @NativeRep("c++", "x10::util::IndexedMemoryChunk__RawChunk<#1 >", "x10::util::IndexedMemoryChunk__RawChunk<#1 >", null)
     private static struct RawChunk[T] {
 	@Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")

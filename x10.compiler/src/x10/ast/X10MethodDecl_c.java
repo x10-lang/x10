@@ -220,8 +220,15 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 		mi.setFormalNames(formalNames);
 
-		if (n.returnType() instanceof UnknownTypeNode && n.body() == null)
-			throw new SemanticException("Cannot infer method return type; method has no body.", position());
+		if (n.returnType() instanceof UnknownTypeNode && n.body() == null) {
+			Errors.issue(tb.job(),
+			             new SemanticException("Cannot infer method return type; method has no body.",
+			                                   position()));
+			NodeFactory nf = tb.nodeFactory();
+			TypeSystem ts = tb.typeSystem();
+			Position rtpos = n.returnType().position();
+			n = (X10MethodDecl_c) n.returnType(nf.CanonicalTypeNode(rtpos, ts.unknownType(rtpos)));
+		}
 
 		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		if (xf.isProperty()) {
@@ -576,7 +583,12 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// has been asserted.
 		Context childtc = enterChildScope(returnType(), tc.context());
 		ContextVisitor childVisitor = tc.context(childtc);
-		return super.conformanceCheck(childVisitor);
+		try {
+		    return super.conformanceCheck(childVisitor);
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e, this);
+		    return this;
+		}
 	}
 
 	final static boolean CHECK_VISIBILITY = false;

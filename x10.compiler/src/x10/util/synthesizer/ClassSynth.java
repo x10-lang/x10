@@ -23,6 +23,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.Name;
@@ -103,6 +104,21 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
     public void setSuperType(Type superType) {
         classDef.superType(Types.ref(superType));
     }
+    
+    public void setOuter(ClassDef outClassDef){
+        if(outClassDef != null){
+            classDef.outer(Types.ref(outClassDef));            
+        }
+    }
+    
+    public ClassDef getOuter(){
+        Ref<? extends ClassDef> outRef = classDef.outer();
+        if(outRef != null){
+            return outRef.get();
+        }
+        return null;
+    }
+    
 
     public void setFlags(Flags flags) {
         try {

@@ -125,17 +125,11 @@ public class XPromise_c implements XPromise, Serializable {
                 if (visited.contains(p))
                     continue;
                 visited.add(p);
-                if (p.term() instanceof XField) {
-                    XField f = (XField) p.term();
-                    XName field = f.field();
-                    if (field.equals(key))
-                        p.setTerm(XConstraint.makeField(term, field), visited);
-                    else
-                        System.out.println(term + "." + key + " = " + p + " (different field)");
-                }
-                else {
-                    System.out.println(term + "." + key + " = " + p + " (not a field)");
-                }
+                assert p.term() instanceof XField : term + "." + key + " = " + p + " (not a field)";
+                XField f = (XField) p.term();
+                XName field = f.field();
+                assert field.equals(key) : term + "." + key + " = " + p + " (different field)";
+                p.setTerm(XConstraint.makeField(term, field), visited);
             }
         }
     }

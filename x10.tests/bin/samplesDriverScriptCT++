@@ -80,7 +80,6 @@ cleanUpExit() {
 			-e 's;@x10c_serial@;"'"${__cat_x10c_serial}"'";' \
 			-e 's;@x10c_post@;"'"${__cat_x10c_post}"'";' \
 			-e 's;@x10c_COMPILER_FRAGMENT_DATA_DIRECTORY@;"'"${__cat_x10c_COMPILER_FRAGMENT_DATA_DIRECTORY}"'";' \
-			-e 's;@x10c_BAD_PLACE_RUNTIME_CHECK@;"'"${__cat_x10c_BAD_PLACE_RUNTIME_CHECK}"'";' \
 			-e 's;@x10c_LOOP_OPTIMIZATIONS@;"'"${__cat_x10c_LOOP_OPTIMIZATIONS}"'";' \
 			-e 's;@x10c_ARRAY_OPTIMIZATIONS@;"'"${__cat_x10c_ARRAY_OPTIMIZATIONS}"'";' \
 			-e 's;@x10c_INLINE_OPTIMIZATIONS@;"'"${__cat_x10c_INLINE_OPTIMIZATIONS}"'";' \
@@ -97,7 +96,6 @@ cleanUpExit() {
 			-e 's;@x10_ABSTRACT_EXECUTION_TIMES@;"'"${__cat_x10_ABSTRACT_EXECUTION_TIMES}"'";' \
 			-e 's;@x10_BIND_THREADS@;"'"${__cat_x10_BIND_THREADS}"'";' \
 			-e 's;@x10_BIND_THREADS_DIAGNOSTICS@;"'"${__cat_x10_BIND_THREADS_DIAGNOSTICS}"'";' \
-			-e 's;@x10_BAD_PLACE_RUNTIME_CHECK@;"'"${__cat_x10_BAD_PLACE_RUNTIME_CHECK}"'";' \
 			-e 's;@x10_OPTIMIZE_FOREACH@;"'"${__cat_x10_OPTIMIZE_FOREACH}"'";' \
 			-e 's;@x10_PRELOAD_CLASSES@;"'"${__cat_x10_PRELOAD_CLASSES}"'";' \
 			-e 's;@x10_PRELOAD_STRINGS@;"'"${__cat_x10_PRELOAD_STRINGS}"'";' \
@@ -321,7 +319,6 @@ __cat_x10c_commandlineonly="false"
 __cat_x10c_serial="true"
 __cat_x10c_post="java -jar $X10_HOME/x10.dist/lib/ecj.jar -1.5 -nowarn"
 __cat_x10c_COMPILER_FRAGMENT_DATA_DIRECTORY="data/"
-__cat_x10c_BAD_PLACE_RUNTIME_CHECK="true"
 __cat_x10c_LOOP_OPTIMIZATIONS="true"
 __cat_x10c_ARRAY_OPTIMIZATIONS="true"
 __cat_x10c_INLINE_OPTIMIZATIONS="false"
@@ -339,7 +336,6 @@ __cat_x10_ABSTRACT_EXECUTION_STATS="false"
 __cat_x10_ABSTRACT_EXECUTION_TIMES="false"
 __cat_x10_BIND_THREADS="false"
 __cat_x10_BIND_THREADS_DIAGNOSTICS="false"
-__cat_x10_BAD_PLACE_RUNTIME_CHECK="false"
 __cat_x10_OPTIMIZE_FOREACH="false"
 __cat_x10_PRELOAD_CLASSES="false"
 __cat_x10_PRELOAD_STRINGS="false"

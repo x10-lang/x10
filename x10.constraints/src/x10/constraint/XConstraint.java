@@ -223,22 +223,6 @@ public class XConstraint implements  Cloneable {
 	 * @return true iff the constraint is consistent.
      */
     public boolean consistent() {
-        if (consistent) {
-            List<XTerm> atoms = constraints();
-            if (atoms.size() == 0) {
-                consistent = true;
-            }
-            else {
-            	for (XTerm t : atoms) {
-            		if (! consistent)
-            			break;
-            		Solver solver = t.solver();
-            		if (solver != null) {
-            			consistent &= solver.isConsistent(atoms);
-            		}
-                }
-            }
-        }		
         return consistent;
     }
 
@@ -400,9 +384,6 @@ public class XConstraint implements  Cloneable {
         return null;
     }
 
-    private XTerm simplify(XTerm t) {
-    	return t;
-    }
     
     /**
      * Add t1=t2 to the constraint, unless it is inconsistent. 
@@ -411,14 +392,7 @@ public class XConstraint implements  Cloneable {
      * @param val -- t2
      */
     public void addBinding(XTerm left, XTerm right) throws XFailure {
-    	if (right instanceof XEquals) {
-    		right = simplify(right);
-    	}
-    	if (left instanceof XEquals) {
-    		left = simplify(left);
-    	}
-    	
-        assert left != null;
+    	assert left != null;
         assert right != null;
 
         if (!consistent)
@@ -478,15 +452,6 @@ public class XConstraint implements  Cloneable {
             return;
         
         p = intern(t);
-        
-        addDerivedEqualities(t);
-    }
-
-    public void addDerivedEqualities(XTerm t) throws XFailure {
-    	Solver solver = t.solver();
-    	if (solver != null) {
-            solver.addDerivedEqualitiesInvolving(this, t);
-        }
     }
 
     public XConstraint addBindingPromise(XTerm t1, XPromise p)  {
@@ -519,16 +484,6 @@ public class XConstraint implements  Cloneable {
 	 * @return
 	 */
     public boolean entails(XConstraint other)  {
-        return entails(other, (XConstraint) null);
-    }
-    
-    /**
-	 * Does this entail constraint other in environment sigma?
-	 * 
-	 * @param t
-	 * @return
-	 */
-    public boolean entails(XConstraint other, XConstraint sigma)  {
         if (!consistent())
             return true;
         if (other == null || other.valid())
@@ -537,7 +492,7 @@ public class XConstraint implements  Cloneable {
 //        	return true;
         List<XTerm> otherConstraints = other.extConstraints();
         for (XTerm t : otherConstraints)
-        	if (! entails(t, sigma))
+        	if (! entails(t))
         		return false;
         return true;
     }
@@ -702,31 +657,18 @@ public class XConstraint implements  Cloneable {
 	 * @return
 	 */
     public boolean equiv(XConstraint other) throws XFailure {
-        return equiv(other, null);
-    }
-
-	/**
-	 * Does this entail c, and c entail this, given sigma
-	 * 
-	 * @param t
-	 * @return sigma, c |- this  and sigma, this |- c
-	 */
-    public boolean equiv(XConstraint other, XConstraint sigma){
-        boolean result = entails(other, sigma);
+        boolean result = entails(other);
         if (result) {
             if (other == null)
                 result = valid;
             else
-                result = other.entails(this, sigma);
+                result = other.entails(this);
         }
         return result;
     }
 
     /** Return true if this constraint entails t. */
     public boolean entails(XTerm t) {
-    	return entails(t, (XConstraint) null);
-    }
-    protected boolean entails(XTerm t, XConstraint sigma) {
         if (t instanceof XEquals) {
             XEquals f = (XEquals) t;
             XTerm left = f.left();
@@ -779,19 +721,6 @@ public class XConstraint implements  Cloneable {
         		}
         	}
         	return false;
-        }
-       
-
-        if (t.solver() != null) {
-        	if (t.solver().entails(this, t, sigma))
-        		return true;
-        }
-        List<XTerm> atoms = constraints();
-        for (XTerm ta : atoms) {
-        	if (ta.solver() != null && ta.solver() != t.solver()) {
-        		if (ta.solver().entails(this, t, sigma))
-        			return true;
-        	}
         }
 
         return false;

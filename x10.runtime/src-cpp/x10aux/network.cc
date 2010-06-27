@@ -274,8 +274,13 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
 }
 
 x10_int x10aux::num_threads() {
-	const char* env = getenv("X10_NTHREADS");
-    if (env==NULL) return 2;
+#ifdef __bg__
+    x10_int default_nthreads = 1;
+#else
+    x10_int default_nthreads = 2;
+#endif
+    const char* env = getenv("X10_NTHREADS");
+    if (env==NULL) return default_nthreads;
     x10_int num = strtol(env, NULL, 10);
     assert (num > 0);
     return num;
@@ -283,7 +288,13 @@ x10_int x10aux::num_threads() {
 
 x10_boolean x10aux::no_steals() { return getenv("X10_NO_STEALS") != NULL; }
 
-x10_boolean x10aux::static_threads() { return (getenv("X10_STATIC_THREADS") != NULL); }
+x10_boolean x10aux::static_threads() { 
+#ifdef __bg__
+    return true;
+#else
+    return (getenv("X10_STATIC_THREADS") != NULL); 
+#endif
+}
 
 static void receive_async (const x10rt_msg_params *p) {
     _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);

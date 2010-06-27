@@ -167,31 +167,19 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 
-	public AmbTypeNode AmbTypeNode(Position pos, Prefix qualifier, Id name) {
-	    X10AmbTypeNode_c n = new X10AmbTypeNode_c(pos, qualifier, name);
-	    n = (X10AmbTypeNode_c)n.ext(extFactory().extAmbTypeNode());
-	    n = (X10AmbTypeNode_c)n.del(delFactory().delAmbTypeNode());
+	public X10AmbTypeNode AmbTypeNode(Position pos, Prefix p, Id name) {
+	    X10AmbTypeNode_c n = new X10AmbTypeNode_c(pos, p, name);
+	    n = (X10AmbTypeNode_c) n.ext(extFactory().extAmbTypeNode());
+	    n = (X10AmbTypeNode_c) n.del(delFactory().delAmbTypeNode());
 	    return n;
 	}
 
-	public X10AmbTypeNode X10AmbTypeNode(Position pos, Prefix prefix, Id name) {
-		X10AmbTypeNode_c n = new X10AmbTypeNode_c(pos, prefix, name);
-		n = (X10AmbTypeNode_c) n.ext(extFactory().extAmbTypeNode());
-		n = (X10AmbTypeNode_c) n.del(delFactory().delAmbTypeNode());
-		return n;
-	}
 
-	public AmbQualifierNode AmbQualifierNode(Position pos, Prefix prefix, Id name) {
+	public X10AmbQualifierNode AmbQualifierNode(Position pos, Prefix prefix, Id name) {
 		X10AmbQualifierNode_c n = new X10AmbQualifierNode_c(pos, prefix, name);
 		n = (X10AmbQualifierNode_c) n.ext(extFactory().extAmbQualifierNode());
 		n = (X10AmbQualifierNode_c) n.del(delFactory().delAmbQualifierNode());
 		return n;
-	}
-	public X10AmbQualifierNode X10AmbQualifierNode(Position pos, Prefix prefix, Id name) {
-	    X10AmbQualifierNode_c n = new X10AmbQualifierNode_c(pos, prefix, name);
-	    n = (X10AmbQualifierNode_c) n.ext(extFactory().extAmbQualifierNode());
-	    n = (X10AmbQualifierNode_c) n.del(delFactory().delAmbQualifierNode());
-	    return n;
 	}
 
 	public UnknownTypeNode UnknownTypeNode(Position pos) {

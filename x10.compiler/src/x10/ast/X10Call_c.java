@@ -268,7 +268,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 					otn = nf.AmbMacroTypeNode(position(), r, name(), typeArguments(), Collections.EMPTY_LIST);
 				}
 				else {
-				    otn = nf.X10AmbTypeNode(position(), r, name());
+				    otn = nf.AmbTypeNode(position(), r, name());
 				}
 				
 				otn = otn.typeRef(Types.lazyRef(ts.unknownType(position())));

@@ -85,7 +85,7 @@ public final class Array[T](
     private val rawLength:int;
     private val layout:RectLayout!;
 
-    @Native("java", "true") // TODO: optimize this for Java as well.
+    @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
     private native def checkBounds():boolean;
 
@@ -428,6 +428,27 @@ public final class Array[T](
         }
         raw(layout.offset(p)) = v;
         return v;
+    }
+
+
+    /**
+     * Fill all elements of the array to contain the argument value.
+     *
+     * @param v the value with which to fill the array
+     */
+    public def fill(v:T) {
+	if (region.rect) {
+            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
+            // is included in the points of region, therfore we can simply fill
+            // the IndexedMemoryChunk itself.
+            for (var i:int =0; i<rawLength; i++) {
+                raw(i) = v;
+            }	
+        } else {
+            for (p in region) {
+                raw(layout.offset(p)) = v;
+            }
+        }
     }
 
 	
