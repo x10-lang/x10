@@ -1,0 +1,49 @@
+ /** 
+  Modified Jacobi iteration in X10 (cf Jacobi program in ZPL).
+
+  Start with an array a[1..N,1..N] of some arithmetic type.
+  Extend with 0 boundary elements on all sides of the square array.
+  At each step of the iteration, replace the value of a cell with the average of its adjacent
+  cells in the (i,j) dimensions. 
+  Compute the error at each iteration as the max of the changes in value across the whole array.
+  Continue the iteration until the error falls below a pre-given bound.
+
+  Assume that Field defines 0, 1, +, / and a max operation.
+
+   @author vj 7/6/2004
+ */
+
+ public class FixedPoint<value T implements Field, D[0..M+1]> {
+     config int N;
+     final T epsilon;
+
+     public FixedPoint(T eps) {
+	 this.epsilon = eps;
+     }
+     void int fixed(final T[D] a) {
+	 clock l = new clock();
+	 clocked(l) final T[D] b = (0'T[D[0]] || a[D[1..M]] || new T(M+1)[D[M+1]]);
+	 int iters := 0;
+	 do {
+	     next l;
+	     final _ temp 
+		 = new T[D[1..M]] (i) {
+		     now (l) {
+			 return async {b[i+1]} + async {b[i-1]}/(1'T+1'T);
+		     }
+		 }
+	     next l;
+	     T err = max D[1..M]<< (b - temp);
+	     next(l) b = temp;
+	     iters++;
+	 } while (err >= delta);
+	 return iters;
+     }
+     public static void main() {
+	 distribution D = [0..N+1] block;
+	 System.out.println("iterations:" 
+			    +(new FixedPoint<double, D>(0.0001'double)).
+			    fixed(new double[D]));
+     }
+ }
+
