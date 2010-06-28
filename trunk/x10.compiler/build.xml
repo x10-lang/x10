@@ -15,12 +15,10 @@
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
-    <property name="asm.jar" value="asm.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
         <path refid="polyglot.classpath"/>
-        <path refid="asm.classpath"/>
         <path refid="x10.constraints.classpath"/>
         <path refid="x10.common.classpath"/>
     </path>
@@ -32,9 +30,6 @@
     </path>
     <path id="polyglot.classpath">
         <pathelement location="${lib}/${polyglot.jar}"/>
-    </path>
-    <path id="asm.classpath">
-        <pathelement location="${lib}/${asm.jar}"/>
     </path>
     <path id="x10.constraints.classpath">
         <pathelement location="${x10.constraints.location}/classes"/>
