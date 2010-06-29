@@ -63,8 +63,11 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	/**
 	 * 
 	 */
+	public CConstraint(XVar self) {
+        this.self = self;
+    }
 	public CConstraint() {
-		 self = XTerms.makeUQV(SELF_VAR_PREFIX);
+		 this(XTerms.makeUQV(SELF_VAR_PREFIX));
 	}
 
 	/**
@@ -295,9 +298,9 @@ public class CConstraint extends XConstraint  implements ThisVar {
        return entails(otherConstraints, otherSelf, sigma);
    }
   
-   protected boolean entails(XTerm  term, XVar self, final CConstraint sigma) throws XFailure {
+   protected boolean entails(XTerm  term, XVar self) throws XFailure {
    	XTerm subst = term.subst(self(), self);
-   	return entails(subst, (CConstraint) null);
+   	return entails(subst);
    }
    
 
@@ -313,7 +316,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
        }
        
    	for (XTerm term : conjuncts) {
-   		if (! me.entails(term, self, (CConstraint) null))
+   		if (! me.entails(term, self))
    			return false;
    	}
    	
@@ -396,10 +399,9 @@ public class CConstraint extends XConstraint  implements ThisVar {
    	
    	CConstraint result = new CConstraint();
    	XVar resultSelf = result.self();
-   	CConstraint sigma = new CConstraint();
    	for (XTerm term : other.constraints()) {
    		try {
-   			if (entails(term, otherSelf, sigma)) {
+   			if (entails(term, otherSelf)) {
    				term = term.subst(resultSelf, otherSelf);
    				result.addTerm(term);
    			}

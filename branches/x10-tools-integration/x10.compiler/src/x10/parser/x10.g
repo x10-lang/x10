@@ -925,21 +925,9 @@ public static class MessageHandler implements IMessageHandler {
                     FlagsNode f = extractFlags(TypeDefModifiersopt);
                     List annotations = extractAnnotations(TypeDefModifiersopt);
                     for (Formal v : (List<Formal>) FormalParametersopt) {
-                        if (!v.flags().flags().isFinal()) throw new InternalCompilerError("Type definition parameters must be final.", v.position()); 
+                        if (!v.flags().flags().isFinal()) syntaxError("Type definition parameters must be final.", v.position());
                     }
                     TypeDecl cd = nf.TypeDecl(pos(), f, Identifier, TypeParametersopt, FormalParametersopt, WhereClauseopt, Type);
-                    cd = (TypeDecl) ((X10Ext) cd.ext()).annotations(annotations);
-                    setResult(cd);
-          $EndJava
-        ./
-                         | TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt ;
-        /.$BeginJava
-                    FlagsNode f = extractFlags(TypeDefModifiersopt);
-                    List annotations = extractAnnotations(TypeDefModifiersopt);
-                    for (Formal v : (List<Formal>) FormalParametersopt) {
-                        if (!v.flags().flags().isFinal()) throw new InternalCompilerError("Type definition parameters must be final.", v.position()); 
-                    }
-                    TypeDecl cd = nf.TypeDecl(pos(), f, Identifier, TypeParametersopt, FormalParametersopt, WhereClauseopt, null);
                     cd = (TypeDecl) ((X10Ext) cd.ext()).annotations(annotations);
                     setResult(cd);
           $EndJava
@@ -975,10 +963,11 @@ public static class MessageHandler implements IMessageHandler {
 
     MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           ProcedureDecl pd;
            if (Identifier.id().toString().equals("this")) {
-                       ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
+                       pd = nf.X10ConstructorDecl(pos(),
                                                  extractFlags(MethodModifiersopt),
-                                                 nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
+                                                 Identifier,
                                                  HasResultTypeopt,
                                                  TypeParametersopt,
                                                  FormalParameters,
@@ -986,11 +975,10 @@ public static class MessageHandler implements IMessageHandler {
                                                  Throwsopt,
                                                  Offersopt,
                                                  MethodBody);
-         cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(MethodModifiersopt));
-         setResult(cd);
+
               }
               else {
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           pd = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               Identifier,
@@ -1000,14 +988,14 @@ public static class MessageHandler implements IMessageHandler {
               Throwsopt,
               Offersopt,
               MethodBody);
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
-          setResult(md);
           }
+          pd = (ProcedureDecl) ((X10Ext) pd.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(pd);
           $EndJava
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.binaryMethodName(BinOp)),
@@ -1025,7 +1013,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), X10Unary_c.unaryMethodName(PrefixOp)),
@@ -1043,7 +1031,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.binaryMethodName(BinOp)),
@@ -1063,7 +1051,7 @@ public static class MessageHandler implements IMessageHandler {
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt  Throwsopt Offersopt MethodBody
         /.$BeginJava
            Name op = X10Binary_c.invBinaryMethodName(BinOp);
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.invBinaryMethodName(BinOp)),
@@ -1082,7 +1070,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), X10Unary_c.unaryMethodName(PrefixOp)),
@@ -1100,7 +1088,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               nf.Id(pos(), Name.make("apply")),
@@ -1118,7 +1106,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               nf.Id(pos(), Name.make("set")),
@@ -1136,7 +1124,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt),
               Type,
               nf.Id(pos(), Converter.operator_as),
@@ -1154,7 +1142,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               nf.Id(pos(), Converter.operator_as),
@@ -1172,7 +1160,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               nf.Id(pos(), Converter.implicit_operator_as),
@@ -1189,16 +1177,16 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt MethodBody
+    PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               Identifier,
               TypeParametersopt,
               FormalParameters,
               WhereClauseopt,
-              Throwsopt,
+              Collections.EMPTY_LIST,
               null, // offersOpt
               MethodBody);
           md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
@@ -1207,7 +1195,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
                                 | MethodModifiersopt property Identifier WhereClauseopt HasResultTypeopt MethodBody
         /.$BeginJava
-           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+           MethodDecl md = nf.X10MethodDecl(pos(pos()),
               extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
               Identifier,
@@ -1301,7 +1289,7 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
             AddFlags tn = (AddFlags) ConstrainedType;
             tn.addFlags(X10Flags.PROTO);
-            setResult(tn);
+            setResult(ConstrainedType.position(pos()));
           $EndJava
         ./
 
@@ -1340,7 +1328,7 @@ public static class MessageHandler implements IMessageHandler {
 
     NamedType ::= Primary . Identifier TypeArgumentsopt Argumentsopt DepParametersopt 
         /.$BeginJava
-                TypeNode type = nf.X10AmbTypeNode(pos(), Primary, Identifier);
+                TypeNode type = nf.AmbTypeNode(pos(), Primary, Identifier);
                 // TODO: place constraint
                 if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
                     type = nf.AmbDepTypeNode(pos(), Primary, Identifier, TypeArgumentsopt, Argumentsopt, DepParametersopt);
@@ -1479,13 +1467,13 @@ public static class MessageHandler implements IMessageHandler {
        ExistentialList ::= FormalParameter
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Formal.class, false);
-                    l.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
+                    l.add(FormalParameter.flags(nf.FlagsNode(Position.COMPILER_GENERATED, Flags.FINAL)));
                     setResult(l);
           $EndJava
         ./
                           | ExistentialList ; FormalParameter
         /.$BeginJava
-                    ExistentialList.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
+                    ExistentialList.add(FormalParameter.flags(nf.FlagsNode(Position.COMPILER_GENERATED, Flags.FINAL)));
           $EndJava
         ./
 
@@ -1709,23 +1697,6 @@ public static class MessageHandler implements IMessageHandler {
     
     ExpressionStatement ::= StatementExpression ;
         /.$BeginJava
-                    boolean eval = true;
-                    if (StatementExpression instanceof X10Call) {
-                        X10Call c = (X10Call) StatementExpression;
-                        if (c.name().id().toString().equals("property") && c.target() == null) {
-                            setResult(nf.AssignPropertyCall(c.position(),c.typeArguments(), c.arguments()));
-                            eval = false;
-                        }
-                        if (c.name().id().toString().equals("super") && c.target() instanceof Expr) {
-                            setResult(nf.X10SuperCall(c.position(), (Expr) c.target(), c.typeArguments(), c.arguments()));
-                            eval = false;
-                       }
-                       if (c.name().id().toString().equals("this") && c.target() instanceof Expr) {
-                            setResult(nf.X10ThisCall(c.position(), (Expr) c.target(), c.typeArguments(), c.arguments()));
-                            eval = false;
-                       }
-                    }
-                        
                     setResult(nf.Eval(pos(), StatementExpression));
           $EndJava
         ./
@@ -3711,16 +3682,6 @@ FinishExpression ::= finish ( Expression ) Block
     -- Chapter 15
     
     Primary ::= Literal
-                        | TypeName . class
-        /.$BeginJava
-                    if (TypeName instanceof ParsedName)
-                    {
-                        ParsedName a = (ParsedName) TypeName;
-                        setResult(nf.ClassLit(pos(), a.toType()));
-                    }
-                    else assert(false);
-          $EndJava
-        ./
                         | self
         /.$BeginJava
                     setResult(nf.Self(pos()));
@@ -4029,12 +3990,12 @@ FinishExpression ::= finish ( Expression ) Block
         ./
                   | super . Identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
+                    setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), Identifier));
           $EndJava
         ./
                   | ClassName . super$sup . Identifier
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier));
+                    setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier));
           $EndJava
         ./
                   | Primary . class$c
@@ -4044,12 +4005,12 @@ FinishExpression ::= finish ( Expression ) Block
         ./
                   | super . class$c
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
+                    setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
           $EndJava
         ./
                   | ClassName . super$sup . class$c
         /.$BeginJava
-                    setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
+                    setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex($sup)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex($c)), "class")));
           $EndJava
         ./
     

@@ -9,18 +9,20 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.constraint;
+import harness.x10Test;
 
-import java.util.List;
+/**
+ * @author yoav
+ */
 
-public interface Solver {
+public class XTENLANG_1466 extends x10Test {
 
-	boolean isConsistent(List<XTerm> atoms);
+    public def run(): boolean {
+        val f:Test! = true ? null : new Test();
+        return f == null;
+    }
 
-	boolean isValid(List<XTerm> atoms);
-
-	boolean entails(XConstraint env, XTerm t, XConstraint sigma);
-
-	void addDerivedEqualitiesInvolving(XConstraint c, XTerm t) throws XFailure;
-
+    public static def main(Rail[String]) {
+        new XTENLANG_1466().execute();
+    }
 }

@@ -15,6 +15,8 @@ import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.Expr;
+import polyglot.ast.ForInit;
+import polyglot.ast.ForUpdate;
 import polyglot.ast.Stmt;
 
 /**
@@ -27,7 +29,7 @@ import polyglot.ast.Stmt;
  * 
  * @author igor
  */
-public interface StmtExpr extends Expr, Block {
+public interface StmtExpr extends Expr, Block, ForInit, ForUpdate {
 
     /**
      * Append a list of statements to the statement expression (just before the result),

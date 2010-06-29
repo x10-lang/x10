@@ -26,14 +26,17 @@ public class RunTestSuite {
     // Inside those files we should have "ERR" markers that we use to test the position of the errors is correct.
     //_MustFailTimeout means that when running the file it will have an infinite loop
     private static final String[] EXCLUDE_FILES_WITH_SUFFIX = {
-            "_DYNAMIC_CALLS.x10",
-            "_MustFailCompile.x10",
-
+            "_DYNAMIC_CALLS.x10","_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_FILES = {
     };
     private static final String[] EXCLUDE_FILES_WITH = {
-            "TypedefOverloading","NQueens"
+            "TypedefOverloading","NQueens",
+            "PlaceCheckArray.x10",
+            "XTENLANG_106.x10","XTENLANG_111.x10","XTENLANG_217.x10","XTENLANG_62.x10"
+    };
+    private static final String[] INCLUDE_ONLY_FILES_WITH = {
+            //"_MustFailCompile.x10",
     };
 
     static {
@@ -47,9 +50,16 @@ public class RunTestSuite {
         for (String mid : EXCLUDE_FILES_WITH)
             if (name.contains(mid))
                 return true;
+        if (INCLUDE_ONLY_FILES_WITH.length>0) {
+            for (String mid : INCLUDE_ONLY_FILES_WITH)
+                if (name.contains(mid))
+                    return false;
+            return true; 
+        }
         return false;
     }
-    private static final int MAX_FILES_NUM = Integer.MAX_VALUE; // Change it if you want to process only a small number of files
+    public static boolean ONE_FILE_AT_A_TIME = false;
+    private static final int MAX_FILES_NUM = Integer.MAX_VALUE; // Change it if you want to process only a small number of files    
 
     /**
      * Finds all *.x10 files in all sub-directories, and compiles them.
@@ -60,13 +70,13 @@ public class RunTestSuite {
      *  C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests
      * @throws Throwable
      */
-    public static boolean ONE_FILE_AT_A_TIME = false;
     public static void main(String[] args) throws Throwable {
         assert args.length>0 : "The first command line argument must be an x10 filename or a comma separated list of the directories.\n"+
                     "E.g.,\n"+
                     "C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10";
         List<String> remainingArgs = new ArrayList<String>(Arrays.asList(args));
         remainingArgs.remove(0);
+        remainingArgs.add("-STATIC_CALLS");
 
         final String dirName = args[0];
         ArrayList<File> files = new ArrayList<File>(10);

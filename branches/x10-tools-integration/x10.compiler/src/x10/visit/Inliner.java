@@ -129,6 +129,7 @@ import x10cpp.visit.X10SearchVisitor;
  * 
  * @author nystrom
  * @author igor
+ * @author alpern
  */
 public class Inliner extends ContextVisitor {
 
@@ -188,7 +189,7 @@ public class Inliner extends ContextVisitor {
         final X10MethodDecl[] decl = new X10MethodDecl[1];
         ast.visit(new NodeVisitor() {
             public Node override(Node n) {
-                if (n instanceof Expr || n instanceof Stmt || n instanceof TypeNode) {
+                if (n instanceof Expr || n instanceof Stmt || n instanceof TypeNode) { // FIXME: for any local classes 
                     return n;
                 }
                 if (decl[0] != null) {
@@ -723,6 +724,7 @@ public class Inliner extends ContextVisitor {
             MethodInstance smi = xts.findMethod(ami.container(),
                                                 xts.MethodMatcher(ami.container(), Name.make("set"), aTypes, context));
             a = ((SettableAssign) a).methodInstance(smi);
+            a = ((SettableAssign) a).applyMethodInstance(ami);
         }
         return a;
     }
@@ -1266,6 +1268,7 @@ public class Inliner extends ContextVisitor {
             return c;
         }
 
+        // FIXME: dead code follows
         // Inline simple getters and setters // FIXME: dead for now
         if (n instanceof ClosureCall) {
             ClosureCall c = (ClosureCall) n;

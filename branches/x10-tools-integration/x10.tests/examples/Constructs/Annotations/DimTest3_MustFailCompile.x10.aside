@@ -45,8 +45,8 @@ public class DimTest3_MustFailCompile extends harness.x10Test {
 // values from the AMD file by the navigation software underestimated the effect
 // of the thruster firings on the spacecraft trajectory by this factor.
 	
-    	var model: double = 1.0;
-    	var actual: double = model;
+    	var model: double@Unit(Force.newton) = 1.0;
+    	var actual: double@Unit(Force.lbf) = model;
         var diff: double = (actual * 4.45) - model;
         return -0.001 <= diff && diff <= 0.001;
     }

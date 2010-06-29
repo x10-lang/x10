@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 #
 #  This file is part of the X10 project (http://x10-lang.org).
@@ -14,9 +15,9 @@
 # Can also be used to invoke valgrind, gdb, etc
 # Should work on Cygwin, Linux, Darwin, AIX
 
-prog="$(readlink $0 2>&1)"
+prog="$(readlink "$0" 2>&1)"
 [ $? -eq 127 -o "$prog" = "" ] && prog="$0"
-TOP="$(cd "$(dirname $prog)/.." && pwd)"
+TOP="$(cd "$(dirname "$prog")/.." && pwd)"
 
 PATH="$PATH:."
 

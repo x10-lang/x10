@@ -39,6 +39,12 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 
 /**
+ * A StmtExpr is a sequence of statements followed by an expression, the result.
+ * 
+ * The result may be null, if the type of the StmtExpr is Void.  This is used to
+ * flatten a call to a void method.  Such StmtExpr's can only be used in Eval statements.
+ *     - Bowen
+ * 
  * @author igor
  *
  */
@@ -50,7 +56,7 @@ public class StmtExpr_c extends Expr_c implements StmtExpr {
 	public StmtExpr_c(Position pos, List<Stmt> statements, Expr result) {
 		super(pos);
 	    assert(statements != null);
-	    assert(result != null);
+//	    assert(result != null); // result can be null, if the type is Void  -- Bowen
 	    this.statements = TypedList.copyAndCheck(statements, Stmt.class, true);
         this.result = result;
 	}
