@@ -112,7 +112,8 @@ public class UTS {
 	}
 	def event(verbose:Boolean, s:String) {
 		if (verbose)
-		Console.OUT.println(s + " on " + here.id + " at " + System.nanoTime());
+		Console.OUT.println("[Place(" + here.id+"), at " 
+				    + System.nanoTime() + "] " + s);
 	}
 
 	/** Check if the current node (governed by the SHA1Rand state) has any
@@ -151,6 +152,7 @@ public class UTS {
 	 */
 	def processStack(st:PLH) {
 		var count:Int=0;
+	    event("Starting main loop.");
 	    while (stack.size() > 0) {
 		   processSubtree(stack.pop());
 		   if ((count++ & nu) == 0) {
@@ -158,9 +160,11 @@ public class UTS {
 			  distribute(st, 1);
 		   }
 	    }
+	    event("Processed stack.");
 	    val loot = attemptSteal(st);
 	    if (loot != null) 
 	    	processLoot(st, loot, false, 1);
+	    event("Finished main loop.");
 	}
 
 	/** If our buddy has requested a lifeline, and we have ample supply 
@@ -168,6 +172,7 @@ public class UTS {
 	 */
 	def distribute(st:PLH, depth:Int) {
 		if (thief >= 0) {
+		    event("Distributing to " + thief);
 			val loot = trySteal(thief);
 			if (loot != null) {
 				async (Place(thief))
@@ -194,18 +199,21 @@ public class UTS {
 		    while((q_ =  myRandom.nextInt(P)) == p) ;
 		    val q = q_;
 		    stealsAttempted++;
+		event("Stealing from " + q);
 		    val loot = at (Place(q)) st().trySteal(p);
 		    if (loot != null) {
-		    	event("Steal succeeded with " + loot.length() + " items");
+		    	event("Steal succeeded with " + 
+			      (loot == null ? 0 : loot.length()) + " items");
 			  return loot;
 		    }
 		}
-		event("Steal(s) failed");
+		event("No loot; establishing lifeline.");
 		// resigned to make a lifeline steal.
-		val lifeline = (p+1) % P;
-		val loot = at(Place(lifeline)) st().trySteal(p); 
-		event("Lifeline steal result " + loot.length());
-		return loot;
+		    val lifeline = (p+1) % P;
+		    val loot = at(Place(lifeline)) st().trySteal(p); 
+		    event("Lifeline steal result " + 
+			  (loot==null ? 0 : loot.length()));
+		    return loot;
 	}
 
 	/** Invoked to process stolen work. It can either be invoked 
@@ -235,13 +243,19 @@ public class UTS {
 		stealsReceived++;
 		val length = stack.size();
 		if (length <= 2) {
-			if (here.id == (p+1)% Place.MAX_PLACES) thief = p;
-			return null;
+		    if (here.id == (p+1)% Place.MAX_PLACES) {
+			thief = p;
+			event("Established lifeline donee " + thief);
+		    }
+		    event("Returning null");
+		    return null;
 		}
 		val numSteals = length/2;
 		stealsSuffered++;
 		nodesGiven += numSteals;
-		return stack.pop(numSteals);
+		val result = stack.pop(numSteals);
+		event("Steal result is  " + result);
+		return result;
 	}
 
 	def launch(st:PLH, loot:ValRail[SHA1Rand], depth:Int) {
@@ -255,7 +269,7 @@ public class UTS {
 		maxDepth = max(chainDepth, maxDepth);
 		processLoot(st, loot, true, depth);
 		timeAlive = System.nanoTime()-lastTimeStamp;
-		event("Finished.");
+		event("Finished launch.");
 	}
 	/** Called only for the root node. Processes all the children of 
 	 the root node and then proceeds to divide these children up 
@@ -288,6 +302,7 @@ public class UTS {
 	static def max(i:Int, j:Int) = i < j  ? j : i;
 	
 	static def stats(st:PLH, time:Long, verbose:Boolean) {
+	    Console.OUT.println("Stats:");
 		val P = Place.MAX_PLACES;
 		var nodeSum_:Long=0L;
 		var stolenSum_:Long=0;
@@ -345,9 +360,8 @@ public class UTS {
 						+ ns + " nodes.");
 				val ta = st().timeAlive, td = st().timeDead;
 				Console.OUT.println("\t max launch depth=" + st().maxDepth);
-				Console.OUT.println("\t time alove = " + ta + "(" + 
-						((100*ta)/(ta+td)) + "%)");
-				
+				Console.OUT.println("\t time alive = " + ta + "(" + 
+						    ((ta+td)==0 ? "INF%)" : ((100*ta)/(ta+td) + "%)")));
 			}
 
 	Console.OUT.println("Overhead::\n\t" + stolenSum + " total nodes stolen."); 
@@ -423,9 +437,12 @@ private static def safeSubstring(str:String, start:int, end:int) = str.substring
 			} else {
 				val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
 						()=>new BinomialState(qq, mf,k,nu, w, e));
+				Console.OUT.println("Starting...");
 				var time:Long = System.nanoTime();
 				st().main(st, b0, SHA1Rand(r));
 				time = System.nanoTime() - time;
+				Console.OUT.println("Starting...");
+
 				stats(st, time, verbose);
 			}
 			Console.OUT.println("--------");
