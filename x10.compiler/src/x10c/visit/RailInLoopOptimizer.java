@@ -300,7 +300,6 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                           return null;
                                       }                                        
                                     }
-                                    // ??
                                     moves.add((Stmt) xnf.Eval(e.position(), (Expr) e));
                                     return null;
                                 }
@@ -336,8 +335,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                     }
                                 }
                                 if (!contains) {
-                                    name = Name.makeFresh("railval");
-                                    targetAndIsFinals.add(new Pair<JavaArray, Boolean>(new JavaArray(n.position(), type, local, null, null, name), false));
+                                    return n;
                                 }
                                 if (parent instanceof Block) {
                                     for (Stmt stmt : ((Block) parent).statements()) {
@@ -541,6 +539,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
         return n;
     }
 
+    // FIXME move to x10.ast or represent other nodes
     private static class PrivatizeExpr extends Expr_c {
 
         private final Type type;
@@ -577,6 +576,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
         }
 
         @Override
+        // FIXME move to X10PrettyPrintVisitor.visit()
         public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
             X10Translator tr = (X10Translator) pp;
             Emitter er = new Emitter(w, tr);
@@ -627,6 +627,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
         }
     }
 
+    // FIXME move to x10.ast
     private static class JavaArray extends Expr_c {
 
         private final Receiver rail;
@@ -644,6 +645,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
         }
 
         @Override
+        // FIXME move to X10PrettyPrintVisitor.visit()
         public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
             X10Translator tr = (X10Translator) pp;
             Emitter er = new Emitter(w, tr);
