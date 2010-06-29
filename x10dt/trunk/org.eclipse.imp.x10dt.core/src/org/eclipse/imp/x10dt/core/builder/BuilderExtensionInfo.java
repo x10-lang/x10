@@ -12,28 +12,42 @@
 package org.eclipse.imp.x10dt.core.builder;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.ParseErrorCodes;
+import polyglot.frontend.Compiler;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.SourceGoal_c;
+import polyglot.main.Options;
+import polyglot.main.Report;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
+import polyglot.util.QuotedStringTokenizer;
+import polyglot.visit.PostCompiled;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
+import x10cpp.X10CPPCompilerOptions;
+import x10cpp.visit.X10CPPTranslator;
+import x10cuda.visit.CUDACodeGenerator;
 
 public class BuilderExtensionInfo extends x10.ExtensionInfo {
     private final X10Builder fBuilder;
@@ -61,30 +75,23 @@ public class BuilderExtensionInfo extends x10.ExtensionInfo {
                     throw new IllegalStateException("Not an End Goal?");
                 }
                 endGoal.addPrereq(new CollectBookmarksGoal(job, fBuilder));
-                goals.add(0, RetrieveJob(job));
                 return goals;
             }
-            
-            Goal RetrieveJob(Job job) {
-                return new SourceGoal_c("Job retriever", job) {
-                    @Override
-                    public boolean runTask() {
-                    	if (contains(fSources, job))
-                    		BuilderExtensionInfo.this.fJobs.add(job);
+           
+            protected Goal PostCompiled() {
+                return new PostCompiled(extInfo) {
+                    protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
+                    	if (options.post_compiler != null && !options.output_stdout) {
+                    		String commandline = "-1.5 -nowarn -classpath " + options.constructPostCompilerClasspath();
+                            for (Object f: compiler.outputFiles()){
+                                commandline += " " + (String) f;
+                            }
+                            
+                            BatchCompiler.compile(commandline, new PrintWriter(System.out), new PrintWriter(System.err), null);                  
+                        }
                         return true;
                     }
-                }.intern(scheduler);
-            }
-            
-            private boolean contains(Collection<IFile> sources, Job job){
-            	for(IFile file: sources){
-            		IPath filePath = fBuilder.fProject.getWorkspace().getRoot().getLocation().append(file.getFullPath());
-            		IPath jobPath = new Path(job.source().path());
-            		if (filePath.equals(jobPath)){
-            			return true;
-            		}
-            	}
-            	return false;
+                }.intern(this);
             }
         };
     }

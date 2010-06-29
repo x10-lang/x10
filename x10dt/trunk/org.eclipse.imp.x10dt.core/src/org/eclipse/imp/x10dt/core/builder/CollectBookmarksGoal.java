@@ -26,11 +26,8 @@ public class CollectBookmarksGoal extends SourceGoal_c {
     public CollectBookmarksGoal(Job job, X10Builder builder) {
         super(job);
         fBuilder= builder;
-        //TODO: confirm that the compiler checks package declarations
-        //removing dependency computation goal which is a prereq
+        addPrereq(job.extensionInfo().scheduler().intern(new CheckPackageDeclGoal(job, fBuilder)));
        
-        //addPrereq(job.extensionInfo().scheduler().intern(new CheckPackageDeclGoal(job, fBuilder)));
-        addPrereq(job.extensionInfo().scheduler().TypeChecked(job));
     }
 
     @Override

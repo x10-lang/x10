@@ -129,10 +129,6 @@ public class X10Builder extends IncrementalProjectBuilder {
             return processResource(res, false);
         }
     }
-
-//    public Collection<ErrorInfo> getErrors(){
-//    	return fErrors;
-//    }
     
     protected boolean processResource(final IResource resource) {
             	if (resource instanceof IFile) {
@@ -192,45 +188,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
     
     
-    /*
-     * Visitor to find files that have a compilation error
-     */
-    private class HasErrorVisitor implements IResourceVisitor {
-        boolean hasErrors = false;
-        public boolean visit(IResource res) throws CoreException {
-            return processResource(res);
-        }
-        protected boolean processResource(IResource resource) throws CoreException {
-            if (resource instanceof IFile) {
-                IFile file= (IFile) resource;
-                if (isSourceFile(file) && hasErrors(file)){
-                	hasErrors = true;
-                	return false;
-                }
-            } else if (isBinaryFolder(resource)) {
-                return false;
-            }
-            return true;
-        }
-    }
-    
-    private boolean hasErrors(IFile file) throws CoreException{
-    	return file.findMaxProblemSeverity(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE) == IMarker.SEVERITY_ERROR;
-    }
-
-    private HasErrorVisitor fHasErrorVisitor= new HasErrorVisitor();
-
-    public boolean hasErrors() {
-        try { 
-            fProject.accept(fHasErrorVisitor);
-            return fHasErrorVisitor.hasErrors;
-        } catch (CoreException e) {
-            X10DTCorePlugin.getInstance().logException("Error while looking to see if project has errors", e);
-        }
-        return false;
-    }
-    
-
+ 
     /******************
      * END - Visitors
      ******************/
@@ -383,7 +341,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
         collectChangeDependents();
         //collectFilesWithErrors();
-        collectFilesWithNoJavaFile();
+        //collectFilesWithNoJavaFile();
         if (fBuildAll) fBuildAll = false;
     }
 
@@ -479,15 +437,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         IWorkspace ws= ResourcesPlugin.getWorkspace();
     	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
         	public void run(IProgressMonitor monitor) {
-        		//Due to bug XTENLANG-1368, we can't hand all the source files at once to the compiler
-        		//Once this is fixed, remove the for loop below.
         		compileAllSources(sources, fErrors);
-        	
-//        		for(IFile f: sources){
-//        			Collection<IFile> c = new ArrayList<IFile>();
-//        			c.add(f);
-//        			compileAllSources(c, fErrors);
-//        		}
         	}
         };
         try {
@@ -499,7 +449,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10C completed on source file set.");
     }
 
- 
+    
     private void compileAllSources(Collection<IFile> sources, final Collection<ErrorInfo> errors) {  
     	final BuilderExtensionInfo extInfo = new BuilderExtensionInfo(this,sources);
     	buildOptions(extInfo);
@@ -513,7 +463,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         List<Source> streams= collectStreamSources(sources);
         try {
         		compiler.compile(streams);
-        		computeDependencies(/*extInfo.getJobs());*/  extInfo.scheduler().commandLineJobs());
+        		computeDependencies(extInfo.scheduler().commandLineJobs());
         } catch (InternalCompilerError ice) {
             // HACK - RMF 2/1/2005: Polyglot may throw an InternalCompilerError when a
             // source file (say A) references a type residing in a package directory when
@@ -555,7 +505,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         		try {
 					((StreamSource)s).close();
 				} catch (IOException e) {
-					
+			
 				}
         	}
         }
@@ -566,7 +516,9 @@ public class X10Builder extends IncrementalProjectBuilder {
         try {
             List<IPath> projectSrcLoc= getProjectSrcPath();
             String projectSrcPath= pathListToPathString(projectSrcLoc);// note this is user's src dir, plus runtime jar.
-            String outputDir= fProject.getWorkspace().getRoot().getLocation().append((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
+           // String outputDir= fProject.getWorkspace().getRoot().getLocation().append((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
+            String outputDir= fProject.getWorkspace().getRoot().getLocation().append(fX10Project.getOutputLocation()).toOSString(); // HACK: just take 1st directory as output
+          
             //BRT note: probably won't work if > 1 src folder
             List<String> optsList = new ArrayList();
             String[] stdOptsArray = new String[] {
@@ -578,25 +530,26 @@ public class X10Builder extends IncrementalProjectBuilder {
                 "-sourcepath", 
                 projectSrcPath,
                 "-commandlineonly",
-                "-c"
+                //"-c" //Removing now that we want to use ecj as post-compiler
             };
             for (String s: stdOptsArray) {
                 optsList.add(s);
             }
             IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
-            
-            optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10Constants.P_BADPLACERUNTIMECHECK)));
+           
+            //TODO!!!! MAKE SURE THAT X10DT DOES NOT LET THE USER TALK ABOUT BAD_PLACE_RUNTIME and ARRAY_OPTIMIZATION (gone away).
+            //optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10Constants.P_BADPLACERUNTIMECHECK)));
             optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS)));
-            optsList.add(0, "-ARRAY_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10Constants.P_ARRAYOPTIMIZATIONS)));
+            //optsList.add(0, "-ARRAY_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10Constants.P_ARRAYOPTIMIZATIONS)));
             optsList.add(0, "-STATIC_CALLS="+(prefService.getBooleanPreference(X10Constants.P_STATICCALLS)));
             optsList.add(0, "-VERBOSE_CALLS="+(prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS)));
-            optsList.add(0, "-OPTIMIZE="+(prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS)));
+            optsList.add(0, "-OPTIMIZE="+(prefService.getBooleanPreference(X10Constants.P_OPTIMIZE)));
             optsList.add(0, "-CLOSURE_INLINING="+(prefService.getBooleanPreference(X10Constants.P_CLOSUREINLINING)));
             optsList.add(0, "-WORK_STEALING="+(prefService.getBooleanPreference(X10Constants.P_WORKSTEALING)));
             if (prefService.getBooleanPreference(X10Constants.P_PERMITASSERT)) {
                 optsList.add(0, "-assert");
             }
-
+            
             if (prefService.isDefined(X10Constants.P_ADDITIONALCOMPILEROPTIONS)) {
                 String optionString = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
                 String[] options = optionString.split("\\s");
@@ -703,21 +656,6 @@ public class X10Builder extends IncrementalProjectBuilder {
     	IWorkspace ws= ResourcesPlugin.getWorkspace();
         final IWorkspaceRoot wsRoot= ws.getRoot();
         final List<IFile> genFiles= new ArrayList<IFile>();
-       
-//		final boolean traceOn=false;
-//        for(IFile srcFile: fSourcesToCompile) {
-//        	if(traceOn)System.out.println("srcFile: "+srcFile);
-//            IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
-//            if(traceOn)System.out.println("genJavaFile: "+genJavaFile);
-//            IPath genFileFolder= srcFile.getFullPath().removeLastSegments(1);
-//            if(traceOn)System.out.println("genFileFolder: "+genFileFolder);
-//            genFiles.add(wsRoot.getFile(genJavaFile));
-//        }
-//        
-//        for(IFile srcFile: fSourcesToDelete){
-//        	IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
-//        	genFiles.add(wsRoot.getFile(genJavaFile));
-//        }
         
         for(IFile srcFile: sources){
         	IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
@@ -730,7 +668,8 @@ public class X10Builder extends IncrementalProjectBuilder {
         		IStatus status= null;
         		for (IFile file : genFiles) {
         			try {
-        				file.delete(true, new NullProgressMonitor());
+        				if (file.exists())
+        					file.delete(true, new NullProgressMonitor());
         			} catch (CoreException e) {
         				if (status == null) {
         					status = new Status(IStatus.ERROR,
@@ -1086,7 +1025,9 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
     
-  
+    private boolean hasErrors(IFile file) throws CoreException{
+    	return file.findMaxProblemSeverity(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE) == IMarker.SEVERITY_ERROR;
+    }
 
     private X10ErrorVisitor fErrorVisitor= new X10ErrorVisitor();
 

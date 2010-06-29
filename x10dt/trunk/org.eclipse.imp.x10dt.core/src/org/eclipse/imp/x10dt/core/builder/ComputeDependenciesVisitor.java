@@ -220,7 +220,7 @@ class ComputeDependenciesVisitor extends ContextVisitor {
 //        	}
 //        }
     	} catch(Exception e) {
-    		//System.err.println(e);
+    		System.err.println(e);
     	} catch(InternalError e){
     		//System.err.println(e);
     		//n.dump(System.err);
