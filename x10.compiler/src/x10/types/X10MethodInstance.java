@@ -29,7 +29,7 @@ public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance<
 	boolean isSafe();
 	
 	// Use X10MethodInstance as the return type rather than X10MethodInstance
-	MethodInstance returnType(Type returnType);
+	X10MethodInstance returnType(Type returnType);
 	
 	/** Type to use in a RHS context rather than the return type. */
 	Type rightType();

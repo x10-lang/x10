@@ -38,6 +38,8 @@ public class MatBuilder {
         mat.add(new VarRow(cols, a));
     }
 
+    public safe def apply(i:int, j:int) = mat(i)(j);
+
     public safe def set(v:int, i:int, j:int) {
         need(i+1);
         mat(i)(j) = v;

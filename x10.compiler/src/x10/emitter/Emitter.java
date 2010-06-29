@@ -307,6 +307,22 @@ public class Emitter {
                                     component = new CastExpander(w, this, (Node) component).castTo(((Expr)component).type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 				}
 				prettyPrint(component, tr);
+			} else if (regex.charAt(pos) == '`') {
+			    w.write(regex.substring(start, pos));
+			    int endpos = pos;
+			    while (regex.charAt(++endpos) != '`') { }
+			    String optionName = regex.substring(pos + 1, endpos);
+                Object optionValue = null;
+			    try {
+			        Class<?> configClass = Class.forName("x10.Configuration");
+			        java.lang.reflect.Field optionField = configClass.getField(optionName);
+			        optionValue = optionField.get(null);
+                } catch (Exception e) {
+                    throw new InternalCompilerError("Template '" + id + "' uses `" + optionName + "`");
+                }
+                w.write(optionValue.toString());
+                pos = endpos;
+                start = pos + 1;
 			}
 			pos++;
 		}

@@ -49,7 +49,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
     	if (!(o instanceof ConstrainedType))
     		return base.isSubtype(o);
     	ConstrainedType<?> ct = (ConstrainedType<?>) o;
-    	return base.isSubtype(ct.base) && ct.constraint.entails(constraint, null);
+    	return base.isSubtype(ct.base) && ct.constraint.entails(constraint);
 
     }
     

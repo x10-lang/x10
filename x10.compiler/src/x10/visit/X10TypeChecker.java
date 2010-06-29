@@ -14,12 +14,14 @@ package x10.visit;
 import java.util.HashMap;
 import java.util.Map;
 
+import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
+import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -114,7 +116,17 @@ public class X10TypeChecker extends TypeChecker {
 	    
 	protected Node leaveCall(Node old, final Node n, NodeVisitor v) throws SemanticException {
 	    try {
-	        return super.leaveCall(old, n, v);
+	        final TypeChecker tc = (TypeChecker) v;
+	        // Inline the super call without checking for expressions with unknown type
+	        Node m = n;
+	        m = m.del().disambiguate(tc);
+	        m = m.del().typeCheck(tc);
+	        m = m.del().checkConstants(tc);
+	        // Record the new node in the memo table.
+	        memo.put(old, m);
+	        memo.put(n, m);
+	        memo.put(m, m);
+	        return m;
 	    } catch (SemanticException z) {
 	        boolean newp = extensionInfo.errorSet().add(z);
 	        if (newp)

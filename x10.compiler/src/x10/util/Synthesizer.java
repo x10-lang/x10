@@ -1,5 +1,5 @@
 /*
-i *  This file is part of the X10 project (http://x10-lang.org).
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
  *  You may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@ package x10.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -874,7 +873,7 @@ public class Synthesizer {
      * @param methods The methods to be inserted in
      * @return A newly created class with methods as members
      */
-    public X10ClassDecl addMethods(X10ClassDecl cDecl, Set<X10MethodDecl> methods){
+    public X10ClassDecl addMethods(X10ClassDecl cDecl, List<X10MethodDecl> methods){
         List<ClassMember> cm = new ArrayList<ClassMember>();
         cm.addAll(cDecl.body().members());
         cm.addAll(methods);
@@ -1428,7 +1427,13 @@ public class Synthesizer {
 		return null;
 	}
 	Expr makeExpr(XField t, Position pos) {
-		Expr r = makeExpr(t.receiver(), pos);
+		Receiver r = makeExpr(t.receiver(), pos);
+		if (r == null && t.receiver() instanceof XLit) {
+		    Object val = ((XLit) t.receiver()).val();
+		    if (val instanceof QName) {
+		        r = xnf.TypeNodeFromQualifiedName(pos, (QName) val);
+		    }
+		}
 		Name n = Name.make(t.field().toString());
 		return xnf.Field(pos, r, xnf.Id(pos, n));
 	}

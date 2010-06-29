@@ -1441,16 +1441,21 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (type1.isNull() || type2.isNull()) {
             t = type1.isNull() ? type2 : type1;
             if (X10TypeMixin.permitsNull(t)) return t;
-            if (true) // todo: remove this
-                throw new SemanticException("No least common ancestor found for types \"" + type1 +
-    								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
+            // Maybe there is a constraint {self!=null} that we can remove from "t", and then null will be allowed.
+            // e.g., true ? null : new Test()
+            //      	 T1: type(null)
+     	    //      	 T2: Test{self.home==here, self!=null}
+            // The lub should be:  Test{self.home==here}
+
             CConstraint ct = X10TypeMixin.realX(t);
-            t = X10TypeMixin.baseType(t);
-            if (!X10TypeMixin.permitsNull(t))
+            Type baseType = X10TypeMixin.baseType(t);
+            if (!X10TypeMixin.permitsNull(baseType))
                 throw new SemanticException("No least common ancestor found for types \"" + type1 +
     								"\" and \"" + type2 + "\", because one is null and the other cannot contain null.");
-            // todo we need to keep all the constraints except the one that says the type is not null
-            return X10TypeMixin.addConstraint(t, ct); 
+            // we need to keep all the constraints except the one that says the type is not null
+            final Type res = X10TypeMixin.addConstraint(baseType, X10TypeMixin.allowNull(ct));
+            assert X10TypeMixin.permitsNull(res);
+            return res;
         } else {
             t = leastCommonAncestorBase(X10TypeMixin.baseType(type1),
     			X10TypeMixin.baseType(type2));

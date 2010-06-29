@@ -12,21 +12,30 @@
 import harness.x10Test;
 
 /**
+ * @author yoav
  */
-public class ArraySubtypeCheck_MustFailCompile extends x10Test {
 
-    class Sup {}
+public class XTENLANG_1462 extends x10Test {
 
-    class Sub extends Sup {}
-    
-    public def run(): boolean = {
-        val R:Region = 0..3;
-        var subarr00: Array[Sub] = new Array[Sub](R, (Point)=>null);
-        var suparr00: Array[Sup] = subarr00; // ERR
+    public def run(): boolean {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
-        new ArraySubtypeCheck_MustFailCompile().execute();
+    public static def main(Rail[String]) {
+        new XTENLANG_1462().execute();
     }
+	
+	
+	static class Bar(p:Int) {
+		def this(q:Int):Bar{self.p==q} {
+			property(q);
+		}
+		static def test(z:Bar{p==3}) {
+			val b:Bar{p==3} = new Bar(3);
+		}
+		def membertest(z:Bar{self.p==3}) {p==2} {
+			val b:Bar{self.p==3} = new Bar(3);
+		}
+	}
+
 }

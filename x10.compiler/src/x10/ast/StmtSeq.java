@@ -12,7 +12,10 @@
 package x10.ast;
 
 import polyglot.ast.Block;
+import polyglot.ast.ForInit;
+import polyglot.ast.ForUpdate;
 import polyglot.ast.NodeList;
+import polyglot.visit.NodeVisitor;
 
 /** A StmtSeq is an immutable representation of a sequence of statements. Usually 
  * sequences of statements are represented in a block. However a block 
@@ -32,6 +35,6 @@ import polyglot.ast.NodeList;
  * @author vj
  *
  */
-public interface StmtSeq extends NodeList, Block {
+public interface StmtSeq extends NodeList, Block, ForUpdate, ForInit {
 
 }

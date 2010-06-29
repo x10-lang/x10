@@ -28,8 +28,12 @@ EXECUTABLES     =
 X10_HOME        = ${CURDIR}/../..
 
 COMMON_OBJS     = common/x10rt_front.o common/x10rt_logical.o common/x10rt_cuda.o common/x10rt_emu.o
+
+# Include JNI bindings in x10rt if we can find a JDK unless cross-compiling for BGP
+ifndef ENABLE_CROSS_COMPILE_BGP
 ifdef JNI_INCLUDES
   COMMON_OBJS += jni/jni_x10rt.o jni/jni_message.o
+endif
 endif
 
 ifdef ENABLE_X10RT_CUDA
@@ -49,7 +53,9 @@ ifndef DISABLE_X10RT_PGAS
   include pgas/pgas.mk
 endif
 
-include standalone/standalone.mk
+ifndef ENABLE_CROSS_COMPILE_BGP
+   include standalone/standalone.mk
+endif
 
 install: $(LIBS) $(PROPERTIES)
 	(test -n "$(LIBS)" && $(CP) $(LIBS) $(X10_HOME)/x10.dist/lib) || true

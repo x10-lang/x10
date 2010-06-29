@@ -950,7 +950,29 @@ public class X10TypeMixin {
 		return t;
 	}
 	*/
-	
+
+    /**
+     * Returns a new constraint that allows null.
+     * E.g., given "{self.home==here, self!=null}" it returns "{self.home==here}"
+     * @param c a constraint "c" that doesn't allow null
+     * @return a new constraint with all the constraints in "c" except {self!=null}
+     */
+	public static CConstraint allowNull(CConstraint c) {
+        final XVar self = c.self();
+        CConstraint res = new CConstraint(self);
+        assert !res.disEntails(self,XTerms.NULL);
+        for (XTerm term : c.constraints()) {
+            CConstraint copy = res.copy();
+            try {
+                copy.addTerm(term);
+            } catch (XFailure xFailure) {
+                assert false : xFailure;
+            }
+            if (!copy.disEntails(self,XTerms.NULL))
+                res = copy;
+        }
+        return res;
+    }
 	public static boolean permitsNull(Type t) {
 		if (isX10Struct(t))
 			return false;

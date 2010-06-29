@@ -66,6 +66,7 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.FlagsNode;
+import polyglot.ast.ProcedureDecl;
 import polyglot.parse.ParsedName;
 import x10.ast.AddFlags;
 import x10.ast.AnnotationNode;
@@ -94,6 +95,7 @@ import x10.ast.X10IntLit_c;
 import x10.extension.X10Ext;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Parser;
+import polyglot.frontend.Globals;
 import polyglot.lex.BooleanLiteral;
 import polyglot.lex.CharacterLiteral;
 import polyglot.lex.DoubleLiteral;
@@ -1144,7 +1146,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
                 List annotations = extractAnnotations(TypeDefModifiersopt);
                 for (Formal v : (List<Formal>) FormalParametersopt) {
-                    if (!v.flags().flags().isFinal()) throw new InternalCompilerError("Type definition parameters must be final.", v.position()); 
+                    if (!v.flags().flags().isFinal()) syntaxError("Type definition parameters must be final.", v.position());
                 }
                 TypeDecl cd = nf.TypeDecl(pos(), f, Identifier, TypeParametersopt, FormalParametersopt, WhereClauseopt, Type);
                 cd = (TypeDecl) ((X10Ext) cd.ext()).annotations(annotations);
@@ -1156,27 +1158,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 17:  TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt ;
             //
             case 17: {
-               //#line 937 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 935 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
-                List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 935 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(3);
-                //#line 935 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
-                List TypeParametersopt = (List) getRhsSym(4);
-                //#line 935 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
-                List FormalParametersopt = (List) getRhsSym(5);
-                //#line 935 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 937 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                FlagsNode f = extractFlags(TypeDefModifiersopt);
-                List annotations = extractAnnotations(TypeDefModifiersopt);
-                for (Formal v : (List<Formal>) FormalParametersopt) {
-                    if (!v.flags().flags().isFinal()) throw new InternalCompilerError("Type definition parameters must be final.", v.position()); 
-                }
-                TypeDecl cd = nf.TypeDecl(pos(), f, Identifier, TypeParametersopt, FormalParametersopt, WhereClauseopt, null);
-                cd = (TypeDecl) ((X10Ext) cd.ext()).annotations(annotations);
-                setResult(cd);
-                      break;
+                syntaxError("Type definition is missing '= Type'",pos());
             }
     
             //
@@ -1261,10 +1243,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 976 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(10);
                 //#line 978 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
+                ProcedureDecl pd;
        if (Identifier.id().toString().equals("this")) {
-                   ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
+                   pd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(MethodModifiersopt),
-                                             nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
+                                             Identifier,
                                              HasResultTypeopt,
                                              TypeParametersopt,
                                              FormalParameters,
@@ -1272,11 +1255,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
                                              Throwsopt,
                                              Offersopt,
                                              MethodBody);
-     cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(MethodModifiersopt));
-     setResult(cd);
           }
           else {
-       MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(10)),
+       pd = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           Identifier,
@@ -1286,9 +1267,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
           Throwsopt,
           Offersopt,
           MethodBody);
-      md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
-      setResult(md);
       }
+     pd = (ProcedureDecl) ((X10Ext) pd.ext()).annotations(extractAnnotations(MethodModifiersopt));
+     setResult(pd);
                       break;
             }
     
@@ -1318,7 +1299,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 1008 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(15);
                 //#line 1010 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-       MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(15)),
+       MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
           nf.Id(pos(getRhsFirstTokenIndex(7)), X10Binary_c.binaryMethodName(BinOp)),
@@ -1954,7 +1935,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 1302 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
         AddFlags tn = (AddFlags) ConstrainedType;
         tn.addFlags(X10Flags.PROTO);
-        setResult(tn);
+        setResult(ConstrainedType.position(pos()));
                       break;
             }
     
@@ -2024,7 +2005,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 1341 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(6);
                 //#line 1343 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-            TypeNode type = nf.X10AmbTypeNode(pos(), Primary, Identifier);
+            TypeNode type = nf.AmbTypeNode(pos(), Primary, Identifier);
             // TODO: place constraint
             if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
                 type = nf.AmbDepTypeNode(pos(), Primary, Identifier, TypeArgumentsopt, Argumentsopt, DepParametersopt);
@@ -2301,7 +2282,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
                 //#line 1481 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
-                l.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
+                l.add(FormalParameter.flags(nf.FlagsNode(Position.COMPILER_GENERATED, Flags.FINAL)));
                 setResult(l);
                       break;
             }
@@ -2316,7 +2297,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 1486 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 //#line 1488 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                ExistentialList.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
+                ExistentialList.add(FormalParameter.flags(nf.FlagsNode(Position.COMPILER_GENERATED, Flags.FINAL)));
                       break;
             }
     
@@ -2651,24 +2632,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                //#line 1712 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 1710 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1712 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                boolean eval = true;
-                if (StatementExpression instanceof X10Call) {
-                    X10Call c = (X10Call) StatementExpression;
-                    if (c.name().id().toString().equals("property") && c.target() == null) {
-                        setResult(nf.AssignPropertyCall(c.position(),c.typeArguments(), c.arguments()));
-                        eval = false;
-                    }
-                    if (c.name().id().toString().equals("super") && c.target() instanceof Expr) {
-                        setResult(nf.X10SuperCall(c.position(), (Expr) c.target(), c.typeArguments(), c.arguments()));
-                        eval = false;
-                   }
-                   if (c.name().id().toString().equals("this") && c.target() instanceof Expr) {
-                        setResult(nf.X10ThisCall(c.position(), (Expr) c.target(), c.typeArguments(), c.arguments()));
-                        eval = false;
-                   }
-                }
-                    
+                //#line 1712 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"                        
                 setResult(nf.Eval(pos(), StatementExpression));
                       break;
             }
@@ -6430,16 +6394,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 437:  Primary ::= TypeName . class
             //
             case 437: {
-               //#line 3716 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3714 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
-                ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3716 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                if (TypeName instanceof ParsedName)
-                {
-                    ParsedName a = (ParsedName) TypeName;
-                    setResult(nf.ClassLit(pos(), a.toType()));
-                }
-                else assert(false);
+               assert(false);
                       break;
             }
     
@@ -6996,7 +6951,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4030 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 4032 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
+                setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), Identifier));
                       break;
             }
     
@@ -7012,7 +6967,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4035 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
                 //#line 4037 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
+                setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                       break;
             }
     
@@ -7038,7 +6993,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4045 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
                 //#line 4047 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
+                setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
     
@@ -7054,7 +7009,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4050 "C:/eclipsews/head5/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
                 //#line 4052 "C:/eclipsews/head5/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
+                setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
                       break;
             }
     

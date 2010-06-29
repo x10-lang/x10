@@ -328,7 +328,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     @Override
-    protected Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
+    public Set<FieldInstance> findFields(Type container, TypeSystem_c.FieldMatcher matcher) {
         assert_(container);
 
         Set<FieldInstance> candidates = new HashSet<FieldInstance>();
@@ -683,29 +683,29 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
     }
 
-    public X10FieldInstance createFakeField(QName containerName, Name name) {
-        return createFakeField(typeForNameSilent(containerName), name);
+    public X10FieldInstance createFakeField(QName containerName, Flags flags, Name name) {
+        return createFakeField(typeForNameSilent(containerName), flags, name);
     }
     public X10FieldInstance createFakeField(Name name) {
-        return createFakeField(unknownClassDef().asType(), name);
+        return createFakeField(unknownClassDef().asType(), Flags.PUBLIC.Static(), name);
     }
-    public X10FieldInstance createFakeField(ClassType container, Name name) {
+    public X10FieldInstance createFakeField(ClassType container, Flags flags, Name name) {
         Position pos = Position.COMPILER_GENERATED;
         Type type = unknownType(pos);
         XVar thisVar = XTerms.makeEQV();
         List<Ref<? extends Type>> excTypes = Collections.emptyList();
-        X10FieldDef fd = (X10FieldDef) fieldDef(pos, Types.ref(container), Flags.PUBLIC.Static(),
+        X10FieldDef fd = (X10FieldDef) fieldDef(pos, Types.ref(container), flags,
                                                 Types.ref(type), name, thisVar);
         return (X10FieldInstance) fd.asInstance();
     }
 
-    public X10MethodInstance createFakeMethod(QName containerName, Name name, List<Type> typeArgs, List<Type> argTypes) {
-        return createFakeMethod(typeForNameSilent(containerName), name, typeArgs, argTypes);
+    public X10MethodInstance createFakeMethod(QName containerName, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes) {
+        return createFakeMethod(typeForNameSilent(containerName), flags, name, typeArgs, argTypes);
     }
     public X10MethodInstance createFakeMethod(Name name, List<Type> typeArgs, List<Type> argTypes) {
-        return createFakeMethod(unknownClassDef().asType(), name, typeArgs, argTypes);
+        return createFakeMethod(unknownClassDef().asType(), Flags.PUBLIC.Static(), name, typeArgs, argTypes);
     }
-    public X10MethodInstance createFakeMethod(ClassType container, Name name, List<Type> typeArgs, List<Type> argTypes) {
+    public X10MethodInstance createFakeMethod(ClassType container, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes) {
         Position pos = Position.COMPILER_GENERATED;
         Type returnType = unknownType(pos);
         List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
@@ -717,7 +717,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
         XVar thisVar = XTerms.makeEQV();
         List<Ref<? extends Type>> excTypes = Collections.emptyList();
-        X10MethodDef md = (X10MethodDef) methodDef(pos, Types.ref(container), Flags.PUBLIC.Static(),
+        X10MethodDef md = (X10MethodDef) methodDef(pos, Types.ref(container), flags,
                                                    Types.ref(returnType), name, Collections.EMPTY_LIST,
                                                    args, thisVar, formalNames, null, null, excTypes, null, null);
         List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
@@ -2297,9 +2297,44 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return (X10MethodInstance) super.findMethod(container, matcher);
     }
 
+    public Collection<X10MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException {
+        assert_(container);
+        Context context = matcher.context();
+        List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
+        if (acceptable.size() == 0) {
+            throw new NoMemberException(NoMemberException.METHOD,
+                                        "No valid method call found for " + matcher.signature() +
+                                        " in " +
+                                        container + ".");
+        }
+        Collection<MethodInstance> maximal =
+            findMostSpecificProcedures(acceptable, (Matcher<MethodInstance>) matcher, context);
+        Collection<X10MethodInstance> result = new ArrayList<X10MethodInstance>();
+        for (MethodInstance mi : maximal) {
+            result.add((X10MethodInstance) mi);
+        }
+        return result;
+    }
+
     @Override
     public X10ConstructorInstance findConstructor(Type container, polyglot.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
         return (X10ConstructorInstance) super.findConstructor(container, matcher);
+    }
+
+    public Collection<X10ConstructorInstance> findConstructors(Type container, polyglot.types.TypeSystem_c.ConstructorMatcher matcher) throws SemanticException {
+        assert_(container);
+        Context context = matcher.context();
+        List<ConstructorInstance> acceptable = findAcceptableConstructors(container, matcher);
+        if (acceptable.size() == 0) {
+            throw new NoMemberException(NoMemberException.CONSTRUCTOR,
+                                        "No valid constructor found for " + matcher.signature() + ").");
+        }
+        Collection<ConstructorInstance> maximal = findMostSpecificProcedures(acceptable, matcher, context);
+        Collection<X10ConstructorInstance> result = new ArrayList<X10ConstructorInstance>();
+        for (ConstructorInstance mi : maximal) {
+            result.add((X10ConstructorInstance) mi);
+        }
+        return result;
     }
 
     public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {

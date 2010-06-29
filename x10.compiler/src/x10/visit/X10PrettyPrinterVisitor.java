@@ -248,6 +248,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        }
 	    }
 	    if (!valid) {
+	        System.err.println("Bad statement expression: " +n+ " at " +n.position()); // DEBUG
+	        n.dump(System.err);                                   // DEBUG
 	        throw new InternalCompilerError("Statement expression uses non-final variables from the outer scope", n.position());
 	    }
 	    w.write("(new Object() { ");
