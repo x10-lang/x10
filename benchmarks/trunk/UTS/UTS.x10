@@ -171,7 +171,7 @@ public class UTS {
 			val loot = trySteal(thief);
 			if (loot != null) {
 				async (Place(thief))
-				  launch(st, loot, depth);
+				  st().launch(st, loot, depth);
 				thief = -1;
 			}
 		}
