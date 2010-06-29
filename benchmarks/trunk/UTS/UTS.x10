@@ -20,9 +20,7 @@ public class UTS {
 		public def apply () : Int = 0;
 	}
 
-	static def event(s:String) {
-		Console.OUT.println(s + " on " + here.id + " at " + System.nanoTime());
-	}
+	
 	static class SeqBinomialState {
 		// params that define the tree
 		val q:Long, m:Int;
@@ -83,8 +81,11 @@ public class UTS {
 	    var lifelines:Long=0L;
 	    var lifelineNodes:Long=0L;
 	    val stack = new Stack[SHA1Rand]();
+	    
 	    val q:Long, m:Int, k:Int, nu:Int;
+	    val logEvents:Boolean;
 	    val myRandom = new Random();
+	    
 	    var nodesCounter:Long = 0L;
 	    var stealsAttempted:Long = 0L;
 	    var stealsPerpetrated:Long = 0L;
@@ -92,14 +93,26 @@ public class UTS {
 	    var stealsSuffered:Long = 0L;
 	    var nodesGiven:Long = 0L;
 	    var nodesReceived:Long = 0L;
+	    var lastTimeStamp:Long=-1L;
+	    var timeAlive:Long = 0L;
+	    var timeDead:Long=0L;
+	    var chainDepth:Int=0, maxDepth:Int=0;
 
 	/** Initialize the state. Executed at all places when executing the 
 	 PlaceLocalHandle.make command in main (of UTS).
 	 */
-	public def this (q:Long, m:Int, k:Int, nu:Int, w:Int) {
+	public def this (q:Long, m:Int, k:Int, nu:Int, w:Int, e:Boolean) {
 		this.q = q; this.m = m; this.k=k; this.nu=nu;
 		width=w;
 		thief= -1;
+		logEvents=e;
+	}
+	def event(s:String) {
+		event(logEvents, s);
+	}
+	def event(verbose:Boolean, s:String) {
+		if (verbose)
+		Console.OUT.println(s + " on " + here.id + " at " + System.nanoTime());
 	}
 
 	/** Check if the current node (governed by the SHA1Rand state) has any
@@ -142,23 +155,23 @@ public class UTS {
 		   processSubtree(stack.pop());
 		   if ((count++ & nu) == 0) {
 			  Runtime.probe();	
-			  distribute(st);
+			  distribute(st, 1);
 		   }
 	    }
 	    val loot = attemptSteal(st);
-	    if (loot != null) processLoot(st, loot, false);
+	    if (loot != null) 
+	    	processLoot(st, loot, false, 1);
 	}
 
 	/** If our buddy has requested a lifeline, and we have ample supply 
 	 of nodes, give him half (i.e, launch a remote async).
 	 */
-	def distribute(st:PLH) {
+	def distribute(st:PLH, depth:Int) {
 		if (thief >= 0) {
 			val loot = trySteal(thief);
 			if (loot != null) {
-				async (Place(thief)) {
-				  st().processLoot(st, loot,true);
-				}
+				async (Place(thief))
+				  launch(st, loot, depth);
 				thief = -1;
 			}
 		}
@@ -197,10 +210,9 @@ public class UTS {
 
 	/** Invoked to process stolen work. It can either be invoked 
 	 synchronously by a place that was successful in stealing from
-	 another node, or by a buddy (or root node) to jumpstart this 
-	 current place again using async.
+	 another node, or through a launch from a buddy.
 	 */
-	def processLoot(st:PLH, loot:ValRail[SHA1Rand], lifeline:boolean) {
+	def processLoot(st:PLH, loot:ValRail[SHA1Rand], lifeline:Boolean, depth:Int) {
 		if (lifeline) {
 			lifelines ++;
 			lifelineNodes += loot.length();
@@ -210,7 +222,7 @@ public class UTS {
 		}
 		for (r in loot) processSubtree(r);
 
-		distribute(st);
+		distribute(st, depth+1);
 		processStack(st);
 	}
 
@@ -232,6 +244,19 @@ public class UTS {
 		return stack.pop(numSteals);
 	}
 
+	def launch(st:PLH, loot:ValRail[SHA1Rand], depth:Int) {
+		event("Launched at depth " + depth);
+		val time = System.nanoTime();
+		if (lastTimeStamp > 0) {
+			timeDead += (time - lastTimeStamp);
+		}
+		lastTimeStamp= time;
+		chainDepth=depth;
+		maxDepth = max(chainDepth, maxDepth);
+		processLoot(st, loot, true, depth);
+		timeAlive = System.nanoTime()-lastTimeStamp;
+		event("Finished.");
+	}
 	/** Called only for the root node. Processes all the children of 
 	 the root node and then proceeds to divide these children up 
 	 evenly amongst all the places. This is the bootstrap mechanism
@@ -240,20 +265,18 @@ public class UTS {
 	def main (st:PLH, b0:Int, rng:SHA1Rand) {
 		val P=Place.MAX_PLACES;
 		event("Start main finish");
+		lastTimeStamp = System.nanoTime();
 		finish {
-			event("Start main");
+			event("Launch main");
 			processSubtree(rng, b0);
 			val lootSize = stack.size()/P;
 			for (var pi:Int=1 ; pi<P ; ++pi) {
 				val loot = pop(lootSize);
-				async (Place(pi)) { 
-					event("Start main");
-					st().processLoot(st, loot, true);
-					event("End main");
-				}
+				async (Place(pi))
+				  st().launch(st, loot, 1);
 			}
 			processStack(st);
-			event("End main");
+			event("Finish main");
 		} 
 		event("End main finish");
 	}
@@ -261,12 +284,16 @@ public class UTS {
 
 	static def abs(i:Float)  = i < 0.0F ? -i : i;
 	static def absMax(i:Float, j:Float) = abs(i) < abs(j) ? j : i;
+	static def max(i:Long, j:Long) = i < j  ? j : i;
+	static def max(i:Int, j:Int) = i < j  ? j : i;
+	
 	static def stats(st:PLH, time:Long, verbose:Boolean) {
 		val P = Place.MAX_PLACES;
 		var nodeSum_:Long=0L;
 		var stolenSum_:Long=0;
 		var steals_:Long=0;
 		var ll_:Long=0, llN_:Long=0;
+		// needs to be cleaned up.
 		for ((i) in 0..P-1) {
 			val there = Place(i);
 			nodeSum_ += at (there) st().nodesCounter;
@@ -316,6 +343,11 @@ public class UTS {
 				Console.OUT.println("\t" + ss+"/"+sr+"="
 						+ pr + "% suffered, gave " 
 						+ ns + " nodes.");
+				val ta = st().timeAlive, td = st().timeDead;
+				Console.OUT.println("\t max launch depth=" + st().maxDepth);
+				Console.OUT.println("\t time alove = " + ta + "(" + 
+						((100*ta)/(ta+td)) + "%)");
+				
 			}
 
 	Console.OUT.println("Overhead::\n\t" + stolenSum + " total nodes stolen."); 
@@ -341,6 +373,7 @@ private static def safeSubstring(str:String, start:int, end:int) = str.substring
 					 Option("a", "", "Tree shape function"),
 					 Option("d", "", "Tree depth"),
 					 Option("s", "", "Sequential"),
+					 Option("e", "", "Event logs, default 0 (no)."),
 					 Option("q", "", "BIN: probability of a non-leaf node"),
 					 Option("m", "", "BIN: number of children for non-leaf node"),
 					 Option("k", "", "Number of items to steal; default 0. If 0, steal half. "),
@@ -356,6 +389,7 @@ private static def safeSubstring(str:String, start:int, end:int) = str.substring
 			val verbose = opts("-v",0)==1;
 			val nu:Int = opts("-n",200);
 			val w:Int = opts("-w", 0);
+			val e = opts("-e", 0)==1;
 
 			// geometric options
 			val geo_tree_shape_fn:Int = opts ("-a", 0);
@@ -375,6 +409,8 @@ private static def safeSubstring(str:String, start:int, end:int) = str.substring
 					"   r=" + r +
 					"   m=" + mf +
 					"   s=" + seq +
+					"   w=" + w +
+					"   n=" + nu +
 					"   q=" + q);
 
 			val qq = (q*NORMALIZER) as Long;
@@ -386,7 +422,7 @@ private static def safeSubstring(str:String, start:int, end:int) = str.substring
 			Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
 			} else {
 				val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
-						()=>new BinomialState(qq, mf,k,nu, w));
+						()=>new BinomialState(qq, mf,k,nu, w, e));
 				var time:Long = System.nanoTime();
 				st().main(st, b0, SHA1Rand(r));
 				time = System.nanoTime() - time;
