@@ -39,6 +39,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.MacroType;
@@ -201,8 +202,11 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       // Mark the type as an error, so we don't try looking it up again.
       LazyRef<Type> sym = (LazyRef<Type>) type;
       sym.update(ar.typeSystem().unknownType(position()));
-    
-      throw ex;
+      X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
+      if (xtc.throwExceptions())
+          throw ex;
+      Errors.issue(tc.job(), ex, this);
+      return nf.CanonicalTypeNode(position(), sym);
   }
   
   @Override

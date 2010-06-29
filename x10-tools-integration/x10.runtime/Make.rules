@@ -71,13 +71,16 @@ ifndef NO_VAR_OVERRIDE
 
 ifdef ENABLE_CROSS_COMPILE_BGP
   override MPICXX = /bgsys/drivers/ppcfloor/comm/bin/mpicxx
-  #override CXX = /bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-g++
-  #override CC =/bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-gcc
   override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
+  override LDFLAGS += -lpthread
+  export X10_STATIC_LIB=1
   override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
   export X10RT_PLATFORM=bgp
   # needed for gcc 4.1
   X10CPPFLAGS += -CLOSURE_INLINING=false
+  ifdef OPTIMIZE
+    override CXXFLAGS += -O2 -finline-functions
+  endif
 else
 
   ifeq ($(shell uname -s),AIX)

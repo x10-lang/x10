@@ -139,6 +139,7 @@ or continue statement. The scope of a label is the statement labeled.
 lbl : for ((i) in 1..10) {
    for ((j) in i..10) {  
       if (a(i,j) == 0) break lbl;
+      if (a(i,j) == 1) continue lbl;
       do_things_to(a(i,j)); 
    }
 }
@@ -146,7 +147,7 @@ lbl : for ((i) in 1..10) {
 %~~siv
 %} } 
 %~~neg
-\bard{When XTENLANG-1434 has been fixed, add a 'continue lbl' to this example}
+
 
 \section{Break statement}
 

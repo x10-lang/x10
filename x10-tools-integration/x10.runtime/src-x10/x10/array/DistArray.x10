@@ -262,9 +262,11 @@ public class DistArray[T] (
         return v;
     }
 	
+    @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
     const checkBounds = true;
 
+    @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "PLACE_CHECK_BOOL")
     const checkPlace = true;
 

@@ -18,8 +18,8 @@ import harness.x10Test;
 public class ArrayTypeCheck3_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
-        val a1:Array[Int](3)  =  // should be Array[Int](2)
-            new Array[Int]([0..2, 0..3] as Region(2), (p(i): Point)=>i);
+		// should be Array[Int](2)
+        val a1:Array[Int](3)  =  new Array[Int]([0..2, 0..3] as Region(2), (p(i): Point)=>i); // ERR
         return true;
     }
 

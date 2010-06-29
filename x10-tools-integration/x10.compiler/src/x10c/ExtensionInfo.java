@@ -23,6 +23,7 @@ import x10.visit.SharedBoxer;
 import x10c.visit.CastRemover;
 import x10c.visit.Desugarer;
 import x10c.visit.JavaCaster;
+import x10c.visit.RailInLoopOptimizer;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
     @Override
@@ -40,10 +41,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             List<Goal> goals = super.goals(job);
             JavaCaster(job).addPrereq(Desugarer(job));
             CastsRemoved(job).addPrereq(JavaCaster(job));
-            SharedBoxed(job).addPrereq(CastsRemoved(job));
+            RailInLoopOptimizer(job).addPrereq(CastsRemoved(job));
+            SharedBoxed(job).addPrereq(RailInLoopOptimizer(job));
             CodeGenerated(job).addPrereq(Desugarer(job));
             CodeGenerated(job).addPrereq(JavaCaster(job));
             CodeGenerated(job).addPrereq(CastsRemoved(job));
+            CodeGenerated(job).addPrereq(RailInLoopOptimizer(job));
             CodeGenerated(job).addPrereq(SharedBoxed(job));
             return goals;
         }
@@ -55,6 +58,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
         }
 
+        private Goal RailInLoopOptimizer(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new VisitorGoal("RailInLoopOptimized", job, new RailInLoopOptimizer(job, ts, nf)).intern(this);
+        }
+        
         private Goal JavaCaster(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();

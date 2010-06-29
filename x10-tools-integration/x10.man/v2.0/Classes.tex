@@ -1705,7 +1705,7 @@ addition to add it to \xcd`x`.
         (i:Int) => p.a(i) + q.a(i)
      ));
 
-  public static def main(ValRail[String]) {
+  public static def main(Rail[String]) {
      val x = new Poly([0,1]);
      x10.io.Console.OUT.println("1+x=" + (1+x));
   }
@@ -1735,7 +1735,9 @@ indices \xcd`i`. (This has a
 possibly surprising consequence for the order of evaluation: in \xcd`a(i)=b`,
 as in \xcd`a.set(b,i)`, \xcd`a` is evaluated first, then \xcd`b`, and finally
 \xcd`i`.)  Again, it is possible to overload \xcd`set` to provide a variety of
-subscripting operations.
+subscripting operations.  Each \xcd`set` method must have a corresponding
+\xcd`apply` method; that is, \xcd`a(i,j)=b` is only defined when \xcd`a(i,j)`
+is defined, despite the fact that \xcd`a(i,j)=b` does not evaluate \xcd`a(i,j)`.
 
 The \xcd`Oddvec` class of somewhat peculiar vectors illustrates this.
 \xcd`a()` returns a string representation of the oddvec, which probably should
@@ -1752,6 +1754,7 @@ class Oddvec {
   var v : Rail[Int]! = Rail.make[Int](3, (Int)=>0);
   public def apply() = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
   public def apply(i:Int) = v(i);
+  public def apply(i:Int, j:Int) = [v(i),v(j)];
   public def set(newval:Int, i:Int) = {v(i) = newval;}
   public def set(newval:Int, i:Int, j:Int) = {
        v(i) = newval; v(j) = newval+1;} 

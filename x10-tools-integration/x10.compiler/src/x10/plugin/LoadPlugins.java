@@ -41,18 +41,6 @@ public class LoadPlugins extends AbstractGoal_c {
 	}
 
 	public boolean runTask() {
-		// Handle some hard-coded plugins
-		String xmlProcessor = Configuration.XML_PROCESSOR;
-		boolean exportXML = Configuration.EXTERNALIZE_ASTS;
-
-		if (xmlProcessor != null && ! xmlProcessor.equals("")) {
-			exportXML = true;
-		}
-
-		if (exportXML) {
-			loadPlugin(extInfo, QName.make("x10.dom.ExternalizerPlugin"));
-		}
-
 		String compilerPlugins = Configuration.PLUGINS;
 
 		if (compilerPlugins != null && ! compilerPlugins.equals("")) {

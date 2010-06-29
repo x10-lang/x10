@@ -11,6 +11,7 @@
 
 package x10.types;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
@@ -82,6 +84,13 @@ public interface X10TypeSystem extends TypeSystem {
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context);
 
     /**
+     * Find matching fields.
+     *
+     * @exception SemanticException if no matching field can be found.
+     */
+    Set<FieldInstance> findFields(Type container, FieldMatcher matcher) throws SemanticException;
+
+    /**
      * Find a method. We need to pass the class from which the method is being
      * found because the method we find depends on whether the method is
      * accessible from that class. We also check if the field is accessible from
@@ -93,6 +102,13 @@ public interface X10TypeSystem extends TypeSystem {
     X10MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException;
 
     /**
+     * Find matching methods.
+     *
+     * @exception SemanticException if no matching method can be found.
+     */
+    Collection<X10MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException;
+
+    /**
      * Find a constructor. We need to pass the class from which the constructor
      * is being found because the constructor we find depends on whether the
      * constructor is accessible from that class.
@@ -101,6 +117,13 @@ public interface X10TypeSystem extends TypeSystem {
      *                    if the constructor cannot be found or is inaccessible.
      */
     X10ConstructorInstance findConstructor(Type container, TypeSystem_c.ConstructorMatcher matcher) throws SemanticException;
+
+    /**
+     * Find matching constructors.
+     *
+     * @exception SemanticException if no matching constructor can be found.
+     */
+    Collection<X10ConstructorInstance> findConstructors(Type container, ConstructorMatcher matcher) throws SemanticException;
 
     /**
      * Create a <code>ClosureType</code> with the given signature.

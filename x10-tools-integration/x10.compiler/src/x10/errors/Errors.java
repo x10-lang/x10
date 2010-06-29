@@ -540,7 +540,7 @@ public class Errors {
 	
 	public static class CannotAssignToElement extends SemanticException {
 		private static final long serialVersionUID = -9118489907802078734L;
-		public CannotAssignToElement(String leftString, boolean arrayP,  Expr right, Type t,  Position pos) {
+		public CannotAssignToElement(String leftString, boolean arrayP, Expr right, Type t, Position pos) {
 			super("Cannot assign expression to " + (arrayP ? "array " : "rail ") + "element of given type." 
 					+ "\n\t Expression: " + right
 					+ "\n\t Type: " + right.type()
@@ -553,6 +553,23 @@ public class Errors {
 				return false;
 			return((CannotAssignToElement)o).position().equals(position());
 		}
+	}
+	public static class CannotPerformAssignmentOperation extends SemanticException {
+	    private static final long serialVersionUID = 2577635917256629928L;
+	    public CannotPerformAssignmentOperation(String leftString, boolean arrayP, String op, Expr right, Type t, Position pos) {
+	        super("Cannot perform assignment expression to " + (arrayP ? "array " : "rail ") + "element of given type." 
+	              + "\n\t Expression: " + right
+	              + "\n\t Operation: " + op
+	              + "\n\t Type: " + right.type()
+	              + "\n\t " + (arrayP ? "Array ": "Rail ") +"element: "  + leftString
+	              + "\n\t Type: " + t,
+	              pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof CannotPerformAssignmentOperation) )
+	            return false;
+	        return((CannotPerformAssignmentOperation)o).position().equals(position());
+	    }
 	}
 	public static class AssignSetMethodCantBeStatic extends SemanticException {
 		private static final long serialVersionUID = 2179749179921672516L;

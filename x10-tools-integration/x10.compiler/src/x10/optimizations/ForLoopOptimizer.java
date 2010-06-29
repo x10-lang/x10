@@ -18,6 +18,8 @@ import java.util.List;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
+import polyglot.ast.BooleanLit;
+import polyglot.ast.Branch;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.For;
@@ -32,6 +34,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
 import polyglot.ast.Assign.Operator;
 import polyglot.frontend.Job;
 import polyglot.types.FieldInstance;
@@ -50,6 +53,7 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.ForLoop;
 import x10.ast.ForLoop_c;
 import x10.ast.RegionMaker;
+import x10.ast.StmtSeq;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
 import x10.ast.X10Formal;
@@ -327,7 +331,11 @@ public class ForLoopOptimizer extends ContextVisitor {
         } catch (SemanticException e) {
             throw new InternalCompilerError("We cannot explode the formal.  Huh?", formal.position(), e);
         }
-        bodyStmts.add(body);
+        if (body instanceof Block) {
+            bodyStmts.addAll(((Block) body).statements());
+        } else {
+            bodyStmts.add(body);
+        }
         Stmt result           = createStandardFor(pos, iterLDecl, hasExpr, createBlock(pos, bodyStmts));
         if (VERBOSE) result.dump(System.out);
         return result;
@@ -458,6 +466,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public LocalDecl createLocalDecl(Position pos, Flags flags, Name name, Expr init) {
+        if (init.type().isVoid()) {
+            System.err.println("ERROR: ForLoopOptimizer.createLocalDecl: creating void local assignment for " +init+ " at " +pos);
+        }
         return createLocalDecl(pos, flags, name, init.type(), init);
     }
 
@@ -551,7 +562,137 @@ public class ForLoopOptimizer extends ContextVisitor {
         return stmts;
     }
 
+    /**
+     * Create a break statement.
+     * 
+     * @param pos the Position of the break statement in source code
+     * @return the synthesized break statement
+     * TODO: move to Synthesizer
+     */
+    public Branch createBreak(Position pos) {
+        return xnf.Break(pos);
+    }
+
+    /**
+     * Create a declaration for an uninitialized local variable from scratch.
+     * (A local variable definition is created as a side-effect and may be retrieved from the result.)
+     * 
+     * @param pos the Position of the declaration
+     * @param flags the Flags ("static", "public", "var") for the declared local variable
+     * @param name the Name of the declared local variable
+     * @param type the Type of the declared local variable
+     * @return the LocalDecl representing the declaration of the local variable
+     * TODO: move into Synthesizer
+     */
+    public LocalDecl createLocalDecl(Position pos, Flags flags, Name name, Type type) {
+        LocalDef def = xts.localDef(pos, flags, Types.ref(type), name);
+        return createLocalDecl(pos, def);
+    }
+
+ 
+    /**
+     * Create a declaration for a local variable from an uninitialized local type definition.
+     * 
+     * @param pos the Position of the declaration
+     * @param def the definition of the declared local variable
+     * @return the LocalDecl representing the declaration of the local variable
+     * TODO: move into Synthesizer
+     */
+    public LocalDecl createLocalDecl(Position pos, LocalDef def) {
+        return xnf.LocalDecl( pos, 
+                              xnf.FlagsNode(pos, def.flags()),
+                              xnf.CanonicalTypeNode(pos, def.type().get()), 
+                              xnf.Id(pos, def.name()) ).localDef(def);
+    }
+
+    /**
+     * Create an assignment statement.
+     * 
+     * @param pos the Position of the assignment in source code
+     * @param target the left-hand side of the assignment
+     * @param op the assignment operator
+     * @param source the right-hand side of the assignment
+     * @return the synthesized assignment statement
+     * TODO: move to synthesizer
+     */
+    public Stmt createAssignment(Position pos, Expr target, Operator op, Expr source) {
+        return createAssignment(createAssign(pos, target, op, source));
+    }
+
+    /**
+     * Create as assignment statement for a given Assign expression.
+     * 
+     * @param expr the expression to evaluate
+     * @return the synthesized assignment statement
+     * TODO: move to Synthesizer
+     */
+    public Stmt createAssignment(Assign expr) {
+        return createEval(expr);
+    }
+
+    /**
+     * Create an evaluation statement for a given expression.
+     * 
+     * @param expr the expression to be evaluated
+     * @return a synthesized statement that evaluates expr
+     * TODO: move to Synthesizer
+     */
+    public Stmt createEval(Expr expr) {
+        return xnf.Eval(expr.position(), expr);
+    }
+
+
+    /**
+     * Create a conditional statements.
+     * 
+     * @param pos the Position of the conditional statement in source code.
+     * @param cond the boolean expression to be tested
+     * @param thenStmt the statement to execute if cond is true
+     * @param elseStmt the statement to execute if cond is false
+     * @return the synthesized conditional statement
+     * TODO: move to Synthesizer
+     */
+    public Stmt createIf(Position pos, Expr cond, Stmt thenStmt, Stmt elseStmt) {
+        if (null == elseStmt) return xnf.If(pos, cond, thenStmt);
+        return xnf.If(pos, cond, thenStmt, elseStmt);
+    }
+
+    /**
+     * Turn a single statement into a statement sequence.
+     * 
+     * @param stmt the statement to be encapsulated
+     * @return a synthesized statement sequence comprising stmt
+     */
+    public StmtSeq toStmtSeq(Stmt stmt) {
+        return toStmtSeq(stmt.position(), Collections.singletonList(stmt));
+    }
+
+    /**
+     * Turn a list of statements into a statement sequence.
+     * 
+     * @param pos the Position of the statement sequence in source code
+     * @param stmts a list of statements
+     * @return a synthesized statement sequence comprising stmts
+     * TODO: move to Synthesizer
+     */
+    public StmtSeq toStmtSeq(Position pos, List<Stmt> stmts) {
+        return xnf.StmtSeq(pos, stmts);
+    }
+
     // helper methods that create subclasses of Expr
+
+    /**
+     * Create a statement expression -- a block of statements with a result value.
+     * 
+     * @param pos the Position of the statement expression in source code
+     * @param stmts the statements to proceed evaluation of expr
+     * @param expr the result of the statement expression
+     * @return a synthesized statement expresssion comprising stmts and expr
+     * TODO: move to Synthesizer
+     */
+    public Expr createStmtExpr(Position pos, List<Stmt> stmts, Expr expr) {
+        return xnf.StmtExpr(pos, stmts, expr).type(expr.type());
+    }
 
     /**
      * Create an IntLit node representing a given integer literal.
@@ -566,6 +707,80 @@ public class ForLoopOptimizer extends ContextVisitor {
         } catch (SemanticException e) {
             throw new InternalCompilerError("Int literal with value "+val+" would not typecheck", e);
         }
+    }
+
+    /**
+     * Create the boolean literal "true".
+     * 
+     * @param pos the Position of the literal in source code
+     * @return the synthesized boolean literal
+     * TODO: move to synthesizer
+     */
+    public BooleanLit createTrue(Position pos) {
+        return (BooleanLit) xnf.BooleanLit(pos, true).type(xts.Boolean());
+    }
+
+    /**
+     * Create the boolean litteral "false".
+     * 
+     * @param pos the Position of the literal in source code
+     * @return the synthesized boolean literal
+     * TODO: move to the synthesizer
+     */
+    public BooleanLit createFalse(Position pos) {
+        return (BooleanLit) xnf.BooleanLit(pos, false).type(xts.Boolean());
+    }
+
+    /**
+     * Create the boolean negation of a given (boolean) expression.
+     * 
+     * @param expr the boolean expressin to be negated
+     * @return a synthesized expression which is the boolean negation of expr
+     * TODO:  move to synthesizer
+     */
+    public Unary createNot(Expr expr) {
+        return createNot(expr.position(), expr);
+    }
+
+
+    /**
+     * Create the boolean negation of a given (boolean) expression.
+     * 
+     * @param pos the Position of the negated expression in the source code
+     * @param expr the boolean expression to be negated
+     * @return a synthesized expression that negates expr
+     * TODO: move to Synthesizer
+     */
+    public Unary createNot(Position pos, Expr expr) {
+        assert (expr.type().isBoolean());
+        return createUnary(pos, Unary.NOT, expr);
+    }
+
+
+    /**
+     * Create a unary expression.
+     * 
+     * @param pos the Position of the unary expression in the source code
+     * @param op the unary operation of the expression
+     * @param expr the argument to the unary operator
+     * @return a synthesized unary expression equivalent to applying op to expr
+     * TODO: move to Synthesizer
+     */
+    public Unary createUnary(Position pos, polyglot.ast.Unary.Operator op, Expr expr) {
+        return (Unary) xnf.Unary(pos, op, expr).type(expr.type());
+    }
+
+    /**
+     * Create a local variable reference copied from another
+     * 
+     * @param pos the Position of the new local variable reference in source code.
+     * @param local the local variable reference to copy
+     * @return a synthesized local variable reference
+     * TODO: move to Synthesizer
+     */
+
+    public Local createLocal(Position pos, Local local) {
+        return syn.createLocal(pos, local.localInstance());
     }
 
     /** 
@@ -888,6 +1103,16 @@ public class ForLoopOptimizer extends ContextVisitor {
      */
     public X10MethodInstance createMethodInstance(Expr receiver, Name name, Expr... args) {
         return createMethodInstance(receiver.type(), name, args);
+    }
+
+    /**
+     * Create a new Name for a temporary variable.
+     * 
+     * @return the newly created name
+     * TODO: move to Synthesizer
+     */
+    public Name createTemporaryName() {
+        return Name.makeFresh("t");
     }
 
     /** 

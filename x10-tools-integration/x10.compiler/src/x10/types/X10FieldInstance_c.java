@@ -79,7 +79,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 //    }
     
     @Override
-    public FieldInstance type(Type type) {
+    public X10FieldInstance type(Type type) {
         // clear the right type so we recompute it.
         return type(type, null);
     }

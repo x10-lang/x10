@@ -15,12 +15,6 @@
     <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="polyglot.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/updates/plugins"/>
     <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_3.2.0.jar"/>
-    <property name="polyglot.bytecode.jar" value="polyglot-bytecode.jar"/>
-    <property name="polyglot.bytecode.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/polyglot.bytecode/lib"/>
-    <property name="polyglot.bytecode.jar.url" value="${polyglot.bytecode.url}/polyglot-bytecode.jar"/>
-    <property name="asm.jar" value="asm.jar"/>
-    <property name="asm.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/polyglot.bytecode/lib"/>
-    <property name="asm.jar.url" value="${asm.url}/asm-all-3.2.jar"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
@@ -43,20 +37,11 @@
         <condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
             <isset property="env.LOCAL_POLYGLOT_JAR"/>
         </condition>
-        <condition property="local.polyglot.bytecode.jar" value="${env.LOCAL_POLYGLOT_BYTECODE_JAR}">
-            <isset property="env.LOCAL_POLYGLOT_BYTECODE_JAR"/>
-        </condition>
-        <condition property="local.asm.jar" value="${env.LOCAL_ASM_JAR}">
-            <isset property="env.LOCAL_ASM_JAR"/>
-        </condition>
         <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
             <isset property="env.LOCAL_LPG_JAR"/>
         </condition>
         <condition property="local.ecj.jar" value="${env.LOCAL_ECJ_JAR}">
             <isset property="env.LOCAL_ECJ_JAR"/>
-        </condition>
-        <condition property="custom.bash" value="${env.CUSTOM_BASH}" else="/bin/bash">
-            <isset property="env.CUSTOM_BASH"/>
         </condition>
     </target>
 
@@ -64,13 +49,10 @@
         <delete>
             <fileset dir="${bin}">
                 <include name="defs"/>
-                <include name="script"/>
                 <include name="setupX10"/>
                 <include name="java_x10rt"/>
                 <include name="x10"/>
                 <include name="x10c"/>
-                <include name="x10c++"/>
-                <include name="runx10"/>
             </fileset>
         </delete>
     </target>
@@ -116,15 +98,11 @@
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
         <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
-        <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
-        <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
         <condition property="cache.up-to-date">
             <and>
                 <isset property="lpg.jar.present"/>
                 <isset property="ecj.jar.present"/>
                 <isset property="polyglot.jar.present"/>
-                <isset property="polyglot.bytecode.jar.present"/>
-                <isset property="asm.jar.present"/>
             </and>
         </condition>
     </target>
@@ -169,33 +147,7 @@
         <fail message="Unable to find ${polyglot.jar} at ${local.polyglot.jar}" unless="polyglot.jar.present"/>
     </target>
 
-    <target name="polyglot-bytecode-jar" depends="init,polyglot-bytecode-local-jar" unless="local.polyglot.bytecode.jar">
-        <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${polyglot.bytecode.jar.url}" dest="${lib}/${polyglot.bytecode.jar}"/>
-        <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
-        <fail message="Unable to get ${polyglot.bytecode.jar} from ${polyglot.bytecode.jar.url}" unless="polyglot.bytecode.jar.present"/>
-    </target>
-    <target name="polyglot-bytecode-local-jar" depends="init" if="local.polyglot.bytecode.jar">
-        <mkdir dir="${lib}"/>
-        <copy file="${local.polyglot.bytecode.jar}" tofile="${lib}/${polyglot.bytecode.jar}"/>
-        <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
-        <fail message="Unable to find ${polyglot.bytecode.jar} at ${local.polyglot.bytecode.jar}" unless="polyglot.bytecode.jar.present"/>
-    </target>
-
-    <target name="asm-jar" depends="init,asm-local-jar" unless="local.asm.jar">
-        <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${asm.jar.url}" dest="${lib}/${asm.jar}"/>
-        <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
-        <fail message="Unable to get ${asm.jar} from ${asm.jar.url}" unless="asm.jar.present"/>
-    </target>
-    <target name="asm-local-jar" depends="init" if="local.asm.jar">
-        <mkdir dir="${lib}"/>
-        <copy file="${local.asm.jar}" tofile="${lib}/${asm.jar}"/>
-        <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
-        <fail message="Unable to find ${asm.jar} at ${local.asm.jar}" unless="asm.jar.present"/>
-    </target>
-
-    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,polyglot-jar,polyglot-bytecode-jar,asm-jar"/>
+    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,polyglot-jar"/>
 
     <target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
         <antcall target="update-jar-cache"/>
@@ -254,8 +206,6 @@
         <antcall target="setupX10"/>
         <antcall target="x10"/>
         <antcall target="x10c"/>
-        <antcall target="x10c++"/>
-        <antcall target="runx10"/>
         <antcall target="java_x10rt"/>
     </target>
 
@@ -314,12 +264,6 @@
         </condition>
     </target>
 
-    <target name="script-deps">
-        <condition property="script.up-to-date">
-            <uptodate targetfile="${bin}/script" srcfile="${ant.file}"/>
-        </condition>
-    </target>
-
     <target name="find-java">
         <echo message="JAVA_HOME = '${env.JAVA_HOME}'"/>
         <echo message="java.home = '${java.home}'"/>
@@ -356,9 +300,7 @@
         <echo message="X10_PLATFORM = '${env.X10_PLATFORM}'"/>
         <echo message="TOP = '${basedir}'"/>
         <!-- TODO: some of this is x10c-specific; factor out into x10c.in -->
-        <echo file="${bin}/defs" append="no" message="#!"/>
-        <echo file="${bin}/defs" append="yes" message="${custom.bash}"/>
-        <echo file="${bin}/defs" append="yes">
+	<echo file="${bin}/defs" append="no">#!/usr/bin/env bash
 # DO NOT EDIT - This file was automatically generated.
 
 #JAVA='${java.executable}'
@@ -368,13 +310,9 @@
 #PATH_SEP='${path.separator}'
 #CONFIG_FILE='${config}'
 POLYGLOT_JAR='${polyglot.jar}'
-POLYGLOT_BYTECODE_JAR='${polyglot.bytecode.jar}'
-ASM_JAR='${asm.jar}'
 LPG_JAR='${lpg.jar}'
 ECJ_JAR='${ecj.jar}'
 POLYGLOT_URL='${polyglot.jar.url}'
-POLYGLOT_BYTECODE_URL='${polyglot.bytecode.jar.url}'
-ASM_URL='${asm.jar.url}'
 LPG_URL='${lpg.jar.url}'
 ECJ_URL='${ecj.jar.url}'
 
@@ -395,9 +333,9 @@ case "$UNAME" in
 esac
 # NOTE: the above assumes that Cygwin==win32 (probably valid)
 
-prog="$(readlink $0 2&gt;&amp;1)"
+prog="$(readlink "$0" 2&gt;&amp;1)"
 [ $? -eq 127 -o "$prog" = "" ] &amp;&amp; prog="$0"
-TOP="$(cd "$(dirname $prog)/.." &amp;&amp; pwd)"
+TOP="$(cd "$(dirname "$prog")/.." &amp;&amp; pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -am "$TOP")"; fi
 
 if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
@@ -412,18 +350,6 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
 if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
 
 </echo>
-    </target>
-
-    <target name="executable-script" depends="find-java,script-deps" unless="script.up-to-date"
-            description="creates a file containing the shell path">
-        <echo message="Creating ${bin}/script"/>
-        <echo message="FILE_SEP = '${file.separator}'"/>
-        <echo message="PATH_SEP = '${path.separator}'"/>
-        <echo message="X10_PLATFORM = '${env.X10_PLATFORM}'"/>
-        <echo message="TOP = '${basedir}'"/>
-        <!-- TODO: some of this is x10c-specific; factor out into x10c.in -->
-        <echo file="${bin}/script" append="no" message="#!"/>
-        <echo file="${bin}/script" append="yes" message="${custom.bash}"/>
     </target>
 
     <target name="setupX10" unless="setupX10.up-to-date"
@@ -458,38 +384,6 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         <delete file="${bin}/defs"/>
     </target>
 
-    <target name="x10c++" unless="x10c++.up-to-date"
-            depends="executable-script"
-            description="creates the executable script x10c++">
-        <echo message="Creating ${bin}/x10c++"/>
-        <concat destfile="${bin}/x10c++" append="no">
-            <filelist dir="${bin}" files="script"/>
-        </concat>
-        <concat destfile="${bin}/x10c++" append="yes">
-            <filelist dir="${bin}" files="x10c++.in"/>
-        </concat>
-
-        <chmod perm="+x" file="${bin}/x10c++"/>
-
-        <delete file="${bin}/script"/>
-    </target>
-
-    <target name="runx10" unless="runx10.up-to-date"
-            depends="executable-script"
-            description="creates the executable script runx10">
-        <echo message="Creating ${bin}/runx10"/>
-        <concat destfile="${bin}/runx10" append="no">
-            <filelist dir="${bin}" files="script"/>
-        </concat>
-        <concat destfile="${bin}/runx10" append="yes">
-            <filelist dir="${bin}" files="runx10.in"/>
-        </concat>
-
-        <chmod perm="+x" file="${bin}/runx10"/>
-
-        <delete file="${bin}/script"/>
-    </target>
-
     <target name="x10" unless="x10.up-to-date"
             depends="executable-defs"
             description="creates the executable script x10">
@@ -508,7 +402,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
 
     <target name="java_x10rt" unless="java_x10rt.up-to-date"
             depends="executable-defs"
-            description="creates the executable script x10">
+            description="creates the executable script java_x10rt">
         <echo message="Creating ${bin}/java_x10rt"/>
         <concat destfile="${bin}/java_x10rt" append="no">
             <filelist dir="${bin}" files="defs"/>
@@ -575,7 +469,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         <zip destfile="${src.zip.location}/x10-${src.zip.version}.zip">
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <zipfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${polyglot.jar},lib/${polyglot.bytecode.jar},lib/${asm.jar},lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
+            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
             <zipfileset prefix="x10.compiler" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
