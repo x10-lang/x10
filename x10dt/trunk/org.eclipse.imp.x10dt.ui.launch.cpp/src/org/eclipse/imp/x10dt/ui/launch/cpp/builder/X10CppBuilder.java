@@ -10,10 +10,13 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.AbstractX10Builder;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
@@ -37,6 +40,10 @@ public final class X10CppBuilder extends AbstractX10Builder {
     final ExtensionInfo extInfo = new CppBuilderExtensionInfo(monitor);
     buildOptions(classPath, sourcePath, localOutputDir, (X10CPPCompilerOptions) extInfo.getOptions(), withMainMethod);
     return extInfo;
+  }
+  
+  public IFilter<IFile> createNativeFilesFilter() {
+    return new NativeFilesFilter();
   }
   
   public IX10BuilderFileOp createX10BuilderFileOp() throws CoreException {
@@ -65,6 +72,30 @@ public final class X10CppBuilder extends AbstractX10Builder {
     options.compile_command_line_only = true;
     options.post_compiler = null;
     Configuration.MAIN_CLASS = (withMainMethod) ? null : ""; //$NON-NLS-1$
+  }
+  
+  // --- Private classes
+  
+  private static final class NativeFilesFilter implements IFilter<IFile> {
+
+    // --- Interface methods implementation
+    
+    public boolean accepts(final IFile element) {
+      final String extension = '.' + element.getFileExtension();
+      for (final String possibleExtension : POSSIBLE_EXTENSIONS) {
+        if (possibleExtension.equals(extension)) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+    // --- Fields
+    
+    private static final String[] POSSIBLE_EXTENSIONS = { Constants.CC_EXT, Constants.CPP_EXT, Constants.CXX_EXT,
+                                                          Constants.H_EXT, Constants.HPP_EXT,
+                                                          Constants.INC_EXT };
+    
   }
   
 }

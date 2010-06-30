@@ -32,14 +32,15 @@ public interface IX10BuilderFileOp {
   public void archive(final IProgressMonitor monitor) throws CoreException;
   
   /**
-   * Cleans all the artifacts created by X10 compiler as well as the compiled files generated on them.
+   * Deletes all the artifacts created by X10 compiler as well as the compiled files generated on them and the native ones.
    * 
    * @param sourcesToCompile The X10 source files to consider.
+   * @param nativeFiles The list of native files.
    * @param monitor The monitor to consider for reporting progress or canceling the operation.
-   * @throws CoreException Occurs if we could not delete some generated and/or compiled files.
+   * @throws CoreException Occurs if we could not delete some generated and/or compiled/native files.
    */
-  public void clearGeneratedAndCompiledFiles(final Collection<IFile> sourcesToCompile, 
-                                             final SubMonitor monitor) throws CoreException;
+  public void cleanFiles(final Collection<IFile> sourcesToCompile, final Collection<IFile> nativeFiles,
+                         final SubMonitor monitor) throws CoreException;
   
   /**
    * Compiles the generated files on the target platform.
@@ -50,6 +51,15 @@ public interface IX10BuilderFileOp {
    * logged.
    */
   public boolean compile(final IProgressMonitor monitor) throws CoreException;
+  
+  /**
+   * Copies the give files to the target output directory.
+   * 
+   * @param files The files to copy.
+   * @param monitor The monitor to consider for reporting progress or canceling the operation.
+   * @throws CoreException Occurs if we could not copy the files transmitted.
+   */
+  public void copyToOutputDir(final Collection<IFile> files, final SubMonitor monitor) throws CoreException;
   
   /**
    * Returns if yes or no we have all prerequisites in order to satisfy the operations provided with this interface.

@@ -19,7 +19,11 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,15 +32,18 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.builder.DependencyInfo;
 import org.eclipse.imp.x10dt.core.builder.PolyglotDependencyInfo;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.AlwaysTrueFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CollectionUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IdentityFunctor;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
@@ -71,6 +78,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
                                                     final IProgressMonitor monitor);
   
   /**
+   * Creates a filter for all the native files that may be present in the projects for the current back-end.
+   * 
+   * @return A non-null filter instance.
+   */
+  public abstract IFilter<IFile> createNativeFilesFilter();
+  
+  /**
    * Creates the instance of {@link IX10BuilderFileOp} depending of the connection type, local or remote.
    * 
    * @return A non-null object.
@@ -80,7 +94,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   // --- Abstract methods implementation
   
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
     try {
       if (this.fProjectWrapper == null) {
@@ -88,11 +102,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       }
       this.fDependencyInfo.clearAllDependencies();
       this.fSourcesToCompile.clear();
+      this.fNativeFiles.clear();
 
       final SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
       
       final Set<IProject> dependentProjects = new HashSet<IProject>();
-      collectSourceFilesToCompile(dependentProjects, subMonitor.newChild(5));
+      collectSourceFilesToCompile(this.fSourcesToCompile, this.fProjectWrapper, dependentProjects, this.fDependencyInfo,
+                                  this.fNativeFiles, createNativeFilesFilter(), subMonitor.newChild(10));
       
       clearMarkers();
       
@@ -106,10 +122,11 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         }
       }
       
-      this.fX10BuilderFileOp.clearGeneratedAndCompiledFiles(this.fSourcesToCompile, subMonitor);
+      this.fX10BuilderFileOp.cleanFiles(this.fSourcesToCompile, this.fNativeFiles, subMonitor);
 
       final String localOutputDir = JavaProjectUtils.getProjectOutputDirPath(getProject());
-      compileX10Files(localOutputDir, subMonitor.newChild(30));
+      this.fX10BuilderFileOp.copyToOutputDir(this.fNativeFiles, subMonitor.newChild(5));
+      compileX10Files(localOutputDir, subMonitor.newChild(20));
       
       compileGeneratedFiles(this.fX10BuilderFileOp, localOutputDir, subMonitor.newChild(65));
       
@@ -140,9 +157,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
             return;
           }
         }
+        this.fSourcesToCompile.clear();
+        this.fNativeFiles.clear();
         // No need to persist dependent projects here since it will be repeated later on.
-        collectSourceFilesToCompile(new HashSet<IProject>(), subMonitor.newChild(1));
-        this.fX10BuilderFileOp.clearGeneratedAndCompiledFiles(this.fSourcesToCompile, subMonitor.newChild(1));
+        collectSourceFilesToCompile(this.fSourcesToCompile, this.fProjectWrapper, new HashSet<IProject>(), 
+                                    this.fDependencyInfo, this.fNativeFiles, createNativeFilesFilter(), 
+                                    subMonitor.newChild(1));
+        this.fX10BuilderFileOp.cleanFiles(this.fSourcesToCompile, this.fNativeFiles, subMonitor.newChild(1));
       }
     } finally {
       monitor.done();
@@ -169,12 +190,58 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     IResourceUtils.deleteBuildMarkers(getProject());
   }
   
-  private void collectSourceFilesToCompile(final Set<IProject> dependentProjects,
+  private void collectSourceFilesToCompile(final Collection<IFile> sourcesToCompile, final IJavaProject javaProject,
+                                           final Set<IProject> dependentProjects, final DependencyInfo dependencyInfo,
+                                           final Collection<IFile> nativeFiles, final IFilter<IFile> nativeFilesFilter, 
                                            final SubMonitor monitor) throws CoreException {
     try {
       monitor.beginTask(Messages.CPPB_CollectingSourcesTaskName, 1);
-      getProject().accept(new SourceFilesCollector(this.fSourcesToCompile, this.fDependencyInfo,
-                                                   getProject(), dependentProjects));
+      
+      final IProject project = javaProject.getProject();
+      
+      final IResourceVisitor visitor = new IResourceVisitor() {
+        
+        // --- Interface methods implementation
+        
+        public boolean visit(final IResource resource) throws CoreException {
+          if ((resource.getType() == IResource.FILE) && ! resource.isDerived()) {
+            final IFile file = (IFile) resource;
+            final String extension = '.' + file.getFileExtension();
+            if (Constants.X10_EXT.equals(extension)) {
+              sourcesToCompile.add(file);
+              if (! resource.getProject().equals(project)) {
+                dependentProjects.add(resource.getProject());
+              }
+            
+              // Adds possible dependents now.
+              final String path = resource.getLocation().toString();
+              final Set<String> dependents = dependencyInfo.getDependentsOf(path);
+              if (dependents != null) {
+                for (final String dependent : dependents) {
+                  final IFile dependentFile = project.getFile(dependent);
+                  if (dependentFile != null) {
+                    sourcesToCompile.add(dependentFile);
+                    if (! dependentFile.getProject().equals(project)) {
+                      dependentProjects.add(dependentFile.getProject());
+                    }
+                  }
+                }
+              }
+            } else if (nativeFilesFilter.accepts(file)) {
+              nativeFiles.add(file);
+            }
+          }
+          return true;
+        }
+        
+      };
+      
+      final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+      for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
+        if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+          root.getFolder(cpEntry.getPath()).accept(visitor);
+        }
+      }
     } finally {
       monitor.done();
     }
@@ -237,5 +304,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   private IX10BuilderFileOp fX10BuilderFileOp;
   
   private Collection<IFile> fSourcesToCompile = new HashSet<IFile>();
+  
+  private Collection<IFile> fNativeFiles = new HashSet<IFile>();
   
 }

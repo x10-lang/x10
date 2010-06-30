@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
@@ -53,12 +54,12 @@ final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10B
       } else {
         final IFileStore destFile = destDir.getChild(name);
         fileStore.copy(destFile, EFS.OVERWRITE, null);
-        if (name.endsWith(CC_EXT)) {
+        if (name.endsWith(Constants.CC_EXT)) {
           String destPath = destFile.toURI().getPath();
           if (this.fTargetOS == ETargetOS.WINDOWS && destPath.startsWith("/")) { //$NON-NLS-1$
             destPath = destPath.substring(1);
           }
-          addCompiledFile(fileStore.toLocalFile(EFS.NONE, null), destPath);
+          addCppFile(fileStore.toLocalFile(EFS.NONE, null).getAbsolutePath(), destPath);
         }
         monitor.worked(1);
       }
