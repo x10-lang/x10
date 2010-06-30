@@ -21,6 +21,11 @@ public class LongType extends RuntimeType<Long> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Long";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Long;
     }

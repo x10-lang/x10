@@ -21,6 +21,11 @@ public class BooleanType extends RuntimeType<Boolean> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Boolean";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Boolean;
     }

@@ -21,6 +21,11 @@ public class ShortType extends RuntimeType<Short> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Short";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Short;
     }

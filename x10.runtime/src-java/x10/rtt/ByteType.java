@@ -21,6 +21,11 @@ public class ByteType extends RuntimeType<Byte> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Byte";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Byte;
     }

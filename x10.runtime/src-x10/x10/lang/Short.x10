@@ -23,7 +23,7 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some Short constants.
  */
-@NativeRep("java", "short", null, "x10.rtt.Type.SHORT")
+@NativeRep("java", "short", null, "x10.rtt.Types.SHORT")
 @NativeRep("c++", "x10_short", "x10_short", null)
 public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], Ordered[Short]*/ {
     /**

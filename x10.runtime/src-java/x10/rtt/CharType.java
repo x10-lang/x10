@@ -11,7 +11,6 @@
 
 package x10.rtt;
 
-import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
 
 
@@ -20,6 +19,11 @@ public class CharType extends RuntimeType<Character> {
         super(char.class);
     }
     
+    @Override
+    public String typeName() {
+        return "x10.lang.Char";
+    }
+
     @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Character;

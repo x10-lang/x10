@@ -23,7 +23,7 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some Byte constants.
  */
-@NativeRep("java", "byte", null, "x10.rtt.Type.BYTE")
+@NativeRep("java", "byte", null, "x10.rtt.Types.BYTE")
 @NativeRep("c++", "x10_byte", "x10_byte", null)
 public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Ordered[Byte]*/ {
     /**
