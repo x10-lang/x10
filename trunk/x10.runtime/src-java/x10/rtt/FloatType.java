@@ -21,6 +21,11 @@ public class FloatType extends RuntimeType<Float> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Float";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Float;
     }

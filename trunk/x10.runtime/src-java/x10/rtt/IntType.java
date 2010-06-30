@@ -21,6 +21,11 @@ public class IntType extends RuntimeType<Integer> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Int";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Integer;
     }

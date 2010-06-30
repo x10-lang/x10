@@ -321,8 +321,8 @@ public class RuntimeType<T> implements Type<T> {
         return base.toString().substring(6);
     }
 
-    public String typeName(Object o) {
-        String str = base.toString().substring(6);
+    public final String typeName(Object o) {
+        String str = typeName();
         if (variances != null && variances.length > 0) {
             if (o instanceof Any) {
                 str += "[";

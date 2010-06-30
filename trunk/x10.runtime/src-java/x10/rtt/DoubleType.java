@@ -21,6 +21,11 @@ public class DoubleType extends RuntimeType<Double> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Double";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Double;
     }
