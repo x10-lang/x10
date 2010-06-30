@@ -82,12 +82,16 @@ public class BuilderExtensionInfo extends x10.ExtensionInfo {
                 return new PostCompiled(extInfo) {
                     protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
                     	if (options.post_compiler != null && !options.output_stdout) {
-                    		String commandline = "-1.5 -nowarn -classpath " + options.constructPostCompilerClasspath();
-                            for (Object f: compiler.outputFiles()){
-                                commandline += " " + (String) f;
+                    		Collection<String> commandline = new ArrayList<String>();
+                    		commandline.add("-1.5");
+                    		commandline.add("-nowarn");
+                    		commandline.add("-classpath");
+                    		commandline.add(options.constructPostCompilerClasspath());
+                    		for (Object f: compiler.outputFiles()){
+                                commandline.add((String) f);
                             }
                             
-                            BatchCompiler.compile(commandline, new PrintWriter(System.out), new PrintWriter(System.err), null);                  
+                            BatchCompiler.compile(commandline.toArray(new String[0]), new PrintWriter(System.out), new PrintWriter(System.err), null);                  
                         }
                         return true;
                     }
