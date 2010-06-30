@@ -298,7 +298,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                               targetAndIsFinals.set(i, new Pair<JavaArray, Boolean>(pair.fst(), false));
                                           }
                                           return null;
-                                      }                                        
+                                      }
                                     }
                                     moves.add((Stmt) xnf.Eval(e.position(), (Expr) e));
                                     return null;
@@ -367,7 +367,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     return n;
                 };
             });
-            
+
             // for valrail
             Stmt visited4;
             if (VALRAIL_OPTIMIZE) {
@@ -501,7 +501,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                         }
                         return n;
                     };
-                });                
+                });
             } else {
                 visited4 = visited3;
             }
@@ -533,7 +533,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                 }
             }
             statements.add(loop);
-            return xnf.StmtSeq(n.position(), statements);
+            return xnf.Block(n.position(), statements);
         }
 
         return n;
