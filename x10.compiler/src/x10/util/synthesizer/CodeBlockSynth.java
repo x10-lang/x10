@@ -75,8 +75,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
     protected List<IStmtSynth> stmtSythns; //all synthesizers for generate the code block
     protected HashMap<String, Local> localVarMap; //name to local var map
     
-    protected HashMap<Expr, Stmt>refToDeclMap; //used to add additional local declare at the beginning of a block
-    
+    protected List<NodeVisitor> codeProcessingJobs;   
     /**
      * Create a code block synth and specify its container
      * @param xnf
@@ -254,25 +253,10 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
         }
         block = xnf.Block(pos, stmts);
         
-        //special process if refToDeclMap is not null
-        if(refToDeclMap != null){
-            //first detect all locals;
-            LocalExprFinder lef = new LocalExprFinder();
-            block.visit(lef);//no replacement, just detect
-            
-            HashSet<Stmt> localDecls = new HashSet<Stmt>();
-            for(Local local : lef.localList){
-                Stmt s = refToDeclMap.get(local);
-                if(s != null){
-                    localDecls.add(s);
-                }
-            }
-            //finally, add all these into the block
-            if(localDecls.size() > 0){
-                ArrayList<Stmt> nStmts = new ArrayList<Stmt>();
-                nStmts.addAll(localDecls);
-                nStmts.addAll(block.statements());
-                block = xnf.Block(pos, nStmts);
+        //now process the final jobs
+        if(codeProcessingJobs != null){
+            for(NodeVisitor visitor : codeProcessingJobs){
+                block = (Block) block.visit(visitor);
             }
         }
         
@@ -284,27 +268,15 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
     }
 
     /**
-     * If user set the map, the close method will search all locals
-     * And if find one local is in the map, it will add the declares in the code body
-     * @param refToDeclMap
+     * Add some code visiting jobs.
+     * During code gen, the code visitor will running.
+     * @param visitor
      */
-    public void setRefToDeclMap(HashMap<Expr, Stmt> refToDeclMap) {
-        this.refToDeclMap = refToDeclMap;
+    public void addCodeProcessingJob(NodeVisitor visitor){
+        if(codeProcessingJobs == null){
+            codeProcessingJobs = new ArrayList<NodeVisitor>();
+        }
+        codeProcessingJobs.add(visitor);
     }
     
-    
-    static class LocalExprFinder extends NodeVisitor {
-        ArrayList<Local> localList;
-        public LocalExprFinder(){
-            localList = new ArrayList<Local>();
-        }
-        
-        public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
-            if (n instanceof Local) {
-                localList.add((Local) n);
-            }
-            return n;
-        }
-    }
-
 }
