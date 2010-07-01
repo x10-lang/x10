@@ -31,7 +31,7 @@
             delegate="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationDelegate"
             id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"
             modes="run,debug"
-            name="X10 Application"
+            name="X10 Application (Java back-end)"
             public="true"
             sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
             sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
