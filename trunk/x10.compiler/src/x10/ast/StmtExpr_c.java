@@ -53,13 +53,13 @@ public class StmtExpr_c extends Expr_c implements StmtExpr {
     protected List<Stmt> statements;
     protected Expr result;
 
-	public StmtExpr_c(Position pos, List<Stmt> statements, Expr result) {
-		super(pos);
-	    assert(statements != null);
-//	    assert(result != null); // result can be null, if the type is Void  -- Bowen
-	    this.statements = TypedList.copyAndCheck(statements, Stmt.class, true);
+    public StmtExpr_c(Position pos, List<Stmt> statements, Expr result) {
+        super(pos);
+        assert(statements != null);
+        //assert(result != null); // result can be null, if the type is Void  -- Bowen
+        this.statements = TypedList.copyAndCheck(statements, Stmt.class, true);
         this.result = result;
-	}
+    }
 
     /** Visit the children of the statement expression. */
     public Node visitChildren(NodeVisitor v) {
@@ -70,7 +70,7 @@ public class StmtExpr_c extends Expr_c implements StmtExpr {
 
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        return type(result.type());
+        return type(result == null ? tc.typeSystem().Void() : result.type());
     }
 
     /** Get the result of the statement expression. */
@@ -154,7 +154,9 @@ public class StmtExpr_c extends Expr_c implements StmtExpr {
             printBlock(n, w, tr);
             w.newline();
         }
-        printSubExpr(result, w, tr);
+        if (result != null) {
+            printSubExpr(result, w, tr);
+        }
         w.end();
         w.unifiedBreak(0, 1, " ", 1);
         w.write("})");
@@ -166,8 +168,12 @@ public class StmtExpr_c extends Expr_c implements StmtExpr {
     }
 
     public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
-        v.visitCFGList(statements, result, ENTRY);
-        v.visitCFG(result, this, EXIT);
+        if (result == null) {
+            v.visitCFGList(statements, this, EXIT);
+        } else {
+            v.visitCFGList(statements, result, ENTRY);
+            v.visitCFG(result, this, EXIT);
+        }
         return succs;
     }
 
@@ -188,19 +194,21 @@ public class StmtExpr_c extends Expr_c implements StmtExpr {
 	        sb.append(n.toString());
 	    }
 
-	    sb.append(" ");
-	    sb.append(result.toString());
+	    if (result != null) {
+	        sb.append(" ");
+	        sb.append(result.toString());
+	    }
 
 	    sb.append(" })");
 	    return sb.toString();
 	}
 
     public Object constantValue() {
-        return result.constantValue();
+        return result == null ? null : result.constantValue();
     }
 
     public boolean isConstant() {
-        return result.isConstant();
+        return result != null && result.isConstant();
     }
 
     public Precedence precedence() {

@@ -55,6 +55,7 @@ import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -542,7 +543,8 @@ public class Emitter {
 			if (flags.isStatic())
 				h.write(flags.retain(Flags.STATIC).translate());
 			else if (def.typeParameters().size() != 0) {
-			    if (!flags.isFinal()) {
+			    X10ClassDef cd = (X10ClassDef) Types.get(def.container()).toClass().def();
+			    if (!flags.isFinal() && !cd.flags().isFinal() && !cd.isStruct()) {
 			        // FIXME: [IP] for now just make non-virtual.
 			        // In the future, will need to have some sort of dispatch object, e.g. the following:
 			        // class Foo { def m[T](a: X): Y { ... } }; class Bar extends Foo { def m[T](a: X): Y { ... } }

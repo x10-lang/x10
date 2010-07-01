@@ -162,7 +162,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 		return this;
 	}
-	protected X10MethodDecl_c offerType(TypeNode offerType) {
+	public X10MethodDecl_c offerType(TypeNode offerType) {
 		if (this.offerType != offerType)  {
 			X10MethodDecl_c n = (X10MethodDecl_c) copy();
 			n.offerType = offerType;
