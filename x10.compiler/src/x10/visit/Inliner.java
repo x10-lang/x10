@@ -97,6 +97,7 @@ import x10.ast.X10Cast;
 import x10.ast.X10Local_c;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
+import x10.ast.X10Special;
 import x10.types.ClosureDef;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
@@ -1168,6 +1169,9 @@ public class Inliner extends ContextVisitor {
             if (!context.currentCode().equals(def)) return n;
             if (n.kind() == Special.SUPER) {
                 throw new InternalCompilerError("super not supported when inlining", n.position());
+            }
+            if (n.kind() == X10Special.SELF) {
+                return n;
             }
             assert (n.kind() == Special.THIS);
             Position pos = n.position();
