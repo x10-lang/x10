@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="org.eclipse.imp.x10dt.update.custom" default="build.update.zip" basedir=".">
+<project name="org.eclipse.imp.x10dt.update.custom" basedir=".">
 
     <target name="init.custom">
         <property name="global.plugin.script" value="../org.eclipse.imp.x10dt.update/exportPlugin.xml"/>
@@ -26,6 +26,7 @@
 
         <available file="${ptp.update.cache.dir}/features" property="ptp.update.cache.verified"/>
 
+<!--
         <property name="polyglotProjectName"   value="polyglot3"/>
 
         <available file="../${polyglotProjectName}" property="polyglot.workspace.verified"/>
@@ -36,6 +37,7 @@
         <fail unless="lpg.workspace.verified">
             The project 'lpg.update' does not exist in your workspace.
         </fail>
+  -->
 
         <antcall target="retrieve.ptp"/>
 
@@ -50,11 +52,11 @@
     </target>
 
 	<target name="prepare.x10.dist">
+        <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="squeakyclean"/>
+        <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="bin"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="ecj-jar"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="polyglot-jar"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="lpg-jar"/>
-        <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="asm-jar"/>
-        <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="polyglot-bytecode-jar"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="compiler-jar"/>
 	</target>
 
@@ -178,47 +180,32 @@
         </for>
     </target>
 
-    <target name="collect.lpg.artifacts">
-        <delete dir="../lpg.update/plugins" includes="*.jar"/>
-        <delete dir="../lpg.update/features" includes="*.jar"/>
+    <target name="collect.lpg.artifacts" depends="init">
+        <!-- Get the LPG runtime bundles (real and wrapper) -->
+        <property name="lpg.runtime.java.jar.name" value="lpg.runtime.java_${lpg.update.version}.jar"/>
+        <property name="lpg.runtime.java.plugin.url" value="${lpg.update.site.url}/plugins/${lpg.runtime.java.jar.name}"/>
+        <get usetimestamp="yes" dest="${update.temp.folder}/plugins/${lpg.runtime.java.jar.name}" src="${lpg.runtime.java.plugin.url}"/>
 
-        <ant antfile="../lpg.update/exportUpdate.xml" target="build.plugins"/>
-        <ant antfile="../lpg.update/exportUpdate.xml" target="build.features"/>
+        <property name="lpg.runtime.jar.name" value="lpg.runtime_${lpg.update.version}.jar"/>
+        <property name="lpg.runtime.plugin.url" value="${lpg.update.site.url}/plugins/${lpg.runtime.jar.name}"/>
+        <get usetimestamp="yes" dest="${update.temp.folder}/plugins/${lpg.runtime.jar.name}" src="${lpg.runtime.plugin.url}"/>
 
-        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
-           <fileset dir="../lpg.update/plugins" includes="lpg.runtime_*.jar"/>
-           <fileset dir="../lpg.update/plugins" includes="lpg.runtime.java_*.jar"/>
-        </copy>
-        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
-            <fileset dir="../lpg.update/features" includes="lpg.runtime_*.jar"/>
-        </copy>
+        <!-- Get the feature -->
+        <property name="lpg.feature.jar.name" value="lpg.runtime_${lpg.update.version}.jar"/>
+        <property name="lpg.runtime.feature.url" value="${lpg.update.site.url}/features/${lpg.feature.jar.name}"/>
+        <get usetimestamp="yes" dest="${update.temp.folder}/features/${lpg.feature.jar.name}" src="${lpg.runtime.feature.url}"/>
     </target>
 
     <target name="collect.polyglot.artifacts" depends="init">
-        <property name="polyglotPluginId"         value="polyglot3"/>
-        <property name="polyglotFeatureId"        value="polyglot3"/>
-        <property name="polyglotBytecodeProjectName" value="polyglot.bytecode"/>
-        <property name="polyglotBytecodePluginId"    value="polyglot.bytecode"/>
-        <property name="polyglotFeatureId"        value="polyglot3"/>
-        <!-- The name of the X10DT ws  project containing the Polyglot source snapshot is "polyglot3". -->
-        <delete dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="*.jar"/>
-        <delete dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="*.jar"/>
+        <property name="polyglot.jar.name" value="polyglot3_${polyglot.update.version}.jar"/>
+        <property name="polyglot.plugin.url" value="${polyglot.update.site.url}/plugins/${polyglot.jar.name}"/>
+        <get usetimestamp="yes" dest="${update.temp.folder}/plugins/${polyglot.jar.name}" src="${polyglot.plugin.url}"/>
 
-        <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-plugin"/>
-        <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-features"/>
-        <ant antfile="../${polyglotBytecodeProjectName}/build.xml" dir="../${polyglotBytecodeProjectName}" target="eclipse-plugin-jar"/>
-        
-        <copy verbose="true" todir="${update.temp.folder}/plugins" failonerror="true" overwrite="true">
-           <fileset dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="${polyglotPluginId}_*.jar"/>
-        </copy>
-        <copy verbose="true" failonerror="true" overwrite="true"
-              file="../${polyglotBytecodeProjectName}/lib/${polyglotBytecodePluginId}_${polyglot.bytecode.version}.jar"
-              tofile="${update.temp.folder}/plugins/${polyglotBytecodePluginId}_${polyglot.bytecode.version}.jar"/>
-        <copy verbose="true" todir="${update.temp.folder}/features" failonerror="true" overwrite="true">
-           <fileset dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="${polyglotFeatureId}_*.jar"/>
-        </copy>
+        <property name="polyglot.feature.jar.name" value="polyglot3_${polyglot.update.version}.jar"/>
+        <property name="polyglot.feature.url" value="${polyglot.update.site.url}/features/${polyglot.feature.jar.name}"/>
+        <get usetimestamp="yes" dest="${update.temp.folder}/features/${polyglot.feature.jar.name}" src="${polyglot.feature.url}"/>
     </target>
-    
+
     <target name="collect.imp.artifacts" depends="retrieve.imp">
          <!-- imp.update.cache.dir is the local cache of the (unzipped) IMP update site   -->
         <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
