@@ -34,15 +34,20 @@ public abstract class AbstractStateSynth {
     
     public AbstractStateSynth(X10NodeFactory xnf, X10Context xct, Position pos) {
         this.xnf = xnf;
-        this.xct = xct;
         this.pos = pos;
+        
+        setContext(xct);
+
+    }
+    
+    
+    public void setContext(X10Context xct){
+        this.xct = xct;
         if(xct != null){
             //Some synthesizer doesn't use xct and xts
             xts = (X10TypeSystem) xct.typeSystem();
             synth = new Synthesizer(xnf, xts);
         }
-
-
     }
     
     /**
