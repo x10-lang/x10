@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.Header;
 import x10.compiler.Inline;
 
 /**
@@ -69,7 +70,7 @@ final class RectLayout(rank: int) extends Layout {
     // Layout
     //
 
-    final global @Inline def size(): int {
+    final global @Header @Inline def size(): int {
         return size;
     }
 
@@ -80,25 +81,25 @@ final class RectLayout(rank: int) extends Layout {
         return offset;
     }
 
-    final global @Inline def offset(i0: int): int  {
+    final global @Header @Inline def offset(i0: int): int  {
         var offset:int = i0 - min0;
         return offset;
     }
 
-    final global @Inline def offset(i0: int, i1: int): int {
+    final global @Header @Inline def offset(i0: int, i1: int): int {
         var offset:int  = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         return offset;
     }
 
-    final global @Inline def offset(i0: int, i1: int, i2: int): int {
+    final global @Header @Inline def offset(i0: int, i1: int, i2: int): int {
         var offset:int = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         offset = offset*delta2 + i2 - min2;
         return offset;
     }
 
-    final global @Inline def offset(i0: int, i1: int, i2: int, i3: int): int {
+    final global @Header @Inline def offset(i0: int, i1: int, i2: int, i3: int): int {
         var offset:int = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         offset = offset*delta2 + i2 - min2;

@@ -11,6 +11,7 @@
 
 package x10.util;
 
+import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
@@ -78,7 +79,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    public safe @Inline def apply(index:int) = chunk.apply(index);
+    public safe @Header @Inline def apply(index:int) = chunk.apply(index);
 
 
     /**
@@ -87,7 +88,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    public safe @Inline def apply(index:long) = chunk.apply(index);
+    public safe @Header @Inline def apply(index:long) = chunk.apply(index);
 
     /**
      * Operator that allows assignment of IndexedMemoryChunk elements by index.
@@ -96,7 +97,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    public safe @Inline def set(value:T, index:int) = chunk.set(value, index);
+    public safe @Header @Inline def set(value:T, index:int) = chunk.set(value, index);
 
 
     /**
@@ -106,14 +107,14 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    public safe @Inline def set(value:T, index:long) = chunk.set(value, index);
+    public safe @Header @Inline def set(value:T, index:long) = chunk.set(value, index);
 
 
     /* TODO: Java codegen doesn't support static overloading on signed vs. unsigned.
-    public safe @Inline def apply(index:uint) = chunk.apply(index);
-    public safe @Inline def apply(index:ulong) = chunk.apply(index);
-    public safe @Inline def set(value:T, index:uint) = chunk.set(value, index);
-    public safe @Inline def set(value:T, index:ulong) = chunk.set(value, index);
+    public safe @Header @Inline def apply(index:uint) = chunk.apply(index);
+    public safe @Header @Inline def apply(index:ulong) = chunk.apply(index);
+    public safe @Header @Inline def set(value:T, index:uint) = chunk.set(value, index);
+    public safe @Header @Inline def set(value:T, index:ulong) = chunk.set(value, index);
     */
 
 
