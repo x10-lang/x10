@@ -15,11 +15,15 @@ import x10.lang.annotations.MethodAnnotation;
 
 /**
  * This annotation is used to allow the programmer
- * to direct the compiler to unconditionally inline
- * the annotated method whenever a call expression is
- * statically resolved to invoke the method.</p>
- *
- * This annotation is processed by the X10 compiler's
- * common optimizer.
+ * to direct the compiler to mark the method as 'inline'
+ * in the C++ backend and generate code for it in the
+ * header file.
+ * WARNING: This annotation can only
+ * be correctly applied to methods of generic types
+ * and to methods whose bodies only operate
+ * on fields/methods of the annotated method's class
+ * and on primitive structs.  If the annotation is
+ * improperly applied, the generated C++ code won't
+ * compile.
  */
-public interface Inline extends MethodAnnotation { }
+public interface Header extends MethodAnnotation { }

@@ -1798,6 +1798,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         return sb.toString();
 	}
 
+	public static final QName HEADER_ANNOTATION = QName.make("x10.compiler.Header");
+
 	public void visit(MethodDecl_c dec) {
 		// TODO: if method overrides another method with generic
 		// types, check if C++ does the right thing.
@@ -1841,7 +1843,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         boolean inlineInClassDecl = false;
         boolean inlineDirective = false;
         try {
-            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Inline"));
+            Type annotation = (Type) xts.systemResolver().find(HEADER_ANNOTATION);
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
                 if (container.x10Def().typeParameters().size() == 0) {
                     inlineInClassDecl = true;
@@ -1934,7 +1936,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    boolean inlineInClassDecl = false;
 	    try {
-	        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Inline"));
+	        Type annotation = (Type) xts.systemResolver().find(HEADER_ANNOTATION);
 	        if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
 	            inlineInClassDecl = true;
 	        }

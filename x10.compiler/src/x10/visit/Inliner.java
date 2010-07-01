@@ -46,6 +46,7 @@ import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -79,12 +80,14 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.SubtypeSet;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeCheckPreparer;
 import x10.Configuration;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
+import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr;
 import x10.ast.SettableAssign;
 import x10.ast.StmtExpr;
@@ -158,13 +161,15 @@ public class Inliner extends ContextVisitor {
         super(job, ts, nf);
     }
 
+    public static final QName INLINE_ANNOTATION = QName.make("x10.compiler.Inline");
+
     @Override
     public NodeVisitor begin() {
         try {
-            InlineType = (Type) ts.systemResolver().find(QName.make("x10.compiler.Inline"));
+            InlineType = (Type) ts.systemResolver().find(INLINE_ANNOTATION);
         }
         catch (SemanticException e) {
-            System.out.println("Unable to find x10.compiler.Inline: "+e);
+            System.out.println("Unable to find "+INLINE_ANNOTATION+": "+e);
             InlineType = null;
         }
         return super.begin();
@@ -178,12 +183,14 @@ public class Inliner extends ContextVisitor {
 
     private X10MethodDecl getDeclaration(final X10MethodDef md) {
         if (md.annotationsMatching(InlineType).isEmpty()) return null;
-        if (!md.flags().isStatic() && !md.flags().isFinal()) return null;
         X10ClassDef cd = getContainer(md);
+        if (!md.flags().isStatic() && !md.flags().isFinal() && !cd.flags().isFinal() && !cd.isStruct()) return null;
         Job job = cd.job();
         if (job == null) return null;
         Node ast = job.ast();
-        ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
+        if (job != this.job()) {
+            ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
+        }
 //        job.ast(ast);
 //        System.out.println("==> Typechecked "+cd);
         final X10MethodDecl[] decl = new X10MethodDecl[1];
@@ -210,19 +217,20 @@ public class Inliner extends ContextVisitor {
     }
 
     private Type instantiate(X10MethodInstance mi, List<Type> tArgs, ParameterType t) {
-        List<Type> tParms = mi.typeParameters();
+        List<Ref<? extends Type>> mParms = mi.x10Def().typeParameters();
+        List<Type> mArgs = mi.typeParameters();
         int i = 0;
-        for (Type tp : tParms) {
-            if (t.typeEquals(tp, context))
-                return tArgs.get(i);
+        for (Ref<? extends Type> tpr : mParms) {
+            if (t.typeEquals(tpr.get(), context))
+                return mArgs.get(i);
             ++i;
         }
         X10ClassType ct = (X10ClassType) mi.container();
         X10ClassDef cd = ct.x10Def();
         tArgs = ct.typeArguments();
-        List<ParameterType> tPs = cd.typeParameters();
+        List<ParameterType> tParms = cd.typeParameters();
         i = 0;
-        for (ParameterType pt : tPs) {
+        for (ParameterType pt : tParms) {
             if (t.typeEquals(pt, context))
                 return tArgs.get(i);
             ++i;
@@ -252,7 +260,6 @@ public class Inliner extends ContextVisitor {
         for (TypeNode tn : c.typeArguments()) {
             tArgs.add(tn.type());
         }
-        List<Type> tParms = mi.typeParameters();
         final HashMap<Name, LocalDef> vars = new HashMap<Name, LocalDef>();
         return (X10MethodDecl) decl.visit(new ContextVisitor(job, ts, nf) {
             protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
@@ -288,22 +295,71 @@ public class Inliner extends ContextVisitor {
                 }
                 if (n instanceof LocalDecl) {
                     LocalDecl d = (LocalDecl) n;
-                    if (d.type() != ((LocalDecl) old).type()) {
+                    boolean sigChanged = d.type() != ((LocalDecl) old).type();
+                    if (sigChanged) {
                         LocalDef ld = d.localDef();
                         Name name = ld.name();
                         LocalDef ild = ts.localDef(ld.position(), ld.flags(), d.type().typeRef(), name);
-                        vars.put(name, ild);
+                        vars.put(name, ild); // FIXME: scoping
                         return d.localDef(ild);
                     }
                 }
                 if (n instanceof Formal) {
                     Formal f = (Formal) n;
-                    if (f.type() != ((Formal) old).type()) {
+                    boolean sigChanged = f.type() != ((Formal) old).type();
+                    if (sigChanged) {
                         LocalDef ld = f.localDef();
                         Name name = ld.name();
                         LocalDef ild = ts.localDef(ld.position(), ld.flags(), f.type().typeRef(), name);
                         vars.put(name, ild);
                         return f.localDef(ild);
+                    }
+                }
+                if (n instanceof ClassDecl) {
+                    ClassDecl d = (ClassDecl) n;
+                    boolean sigChanged = d.superClass() != ((ClassDecl) old).superClass();
+                    List<TypeNode> interfaces = d.interfaces();
+                    List<TypeNode> oldInterfaces = ((ClassDecl) old).interfaces();
+                    for (int i = 0; i < interfaces.size(); i++) {
+                        sigChanged |= interfaces.get(i) != oldInterfaces.get(i);
+                    }
+                    if (sigChanged) {
+                        throw new InternalCompilerError("Inlining of code with instantiated local classes not supported");
+                    }
+                }
+                if (n instanceof X10MethodDecl) {
+                    X10MethodDecl d = (X10MethodDecl) n;
+                    boolean sigChanged = d.returnType() != ((X10MethodDecl) old).returnType();
+                    List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+                    List<LocalDef> formalNames = new ArrayList<LocalDef>();
+                    List<Formal> params = d.formals();
+                    List<Formal> oldParams = ((X10MethodDecl) old).formals();
+                    for (int i = 0; i < params.size(); i++) {
+                        Formal p = params.get(i);
+                        sigChanged |= p != oldParams.get(i);
+                        argTypes.add(p.type().typeRef());
+                        formalNames.add(p.localDef());
+                    }
+                    sigChanged |= d.guard() != ((X10MethodDecl) old).guard();
+                    List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
+                    SubtypeSet excs = d.exceptions();
+                    SubtypeSet oldExcs = ((X10MethodDecl) old).exceptions();
+                    for (Type et : excs) {
+                        sigChanged |= !oldExcs.contains(et);
+                        excTypes.add(Types.ref(et));
+                    }
+                    sigChanged |= d.offerType() != ((X10MethodDecl) old).offerType();
+                    if (sigChanged) {
+                        X10MethodDef md = (X10MethodDef) d.methodDef();
+                        X10TypeSystem xts = (X10TypeSystem) ts;
+                        DepParameterExpr g = d.guard();
+                        TypeNode ot = d.offerType();
+                        X10MethodDef imd = xts.methodDef(md.position(), md.container(), md.flags(), d.returnType().typeRef(),
+                                                     md.name(), md.typeParameters(), argTypes, md.thisVar(), formalNames,
+                                                     g == null ? null : g.valueConstraint(),
+                                                     g == null ? null : g.typeConstraint(), excTypes,
+                                                     ot == null ? null : ot.typeRef(), null /* the body will never be used */);
+                        return d.methodDef(imd);
                     }
                 }
                 return n;
@@ -1146,7 +1202,9 @@ public class Inliner extends ContextVisitor {
             }
         }
         Expr e = ret.expr();
-        e = cast(e, retType);
+        if (e != null) {
+            e = cast(e, retType);
+        }
 
         X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
         X10TypeSystem xts = (X10TypeSystem) typeSystem();
