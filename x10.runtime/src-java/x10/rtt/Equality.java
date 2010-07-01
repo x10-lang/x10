@@ -36,12 +36,6 @@ public class Equality {
     public static boolean equalsequals(short a, double b) { return a == b; }
     public static boolean equalsequals(short a, Object b) { return equalsequals((Object) a, b); }
     
-//    public static boolean equalsequals(char a, byte b) { return a == b; }
-//    public static boolean equalsequals(char a, short b) { return a == b; }
-//    public static boolean equalsequals(char a, int b) { return a == b; }
-//    public static boolean equalsequals(char a, long b) { return a == b; }
-//    public static boolean equalsequals(char a, float b) { return a == b; }
-//    public static boolean equalsequals(char a, double b) { return a == b; }
     public static boolean equalsequals(char a, char b) { return a == b; }
     public static boolean equalsequals(char a, Object b) { return equalsequals((Object) a, b); }
     
@@ -77,16 +71,6 @@ public class Equality {
     public static boolean equalsequals(double a, double b) { return a == b; }
     public static boolean equalsequals(double a, Object b) { return equalsequals((Object) a, b); }
     
-    public static boolean equalsequals(String a, String b) {
-        if (a == null) {
-            return b == null;
-        } else {
-            return a.equals(b);
-        }
-    }
-    public static boolean equalsequals(Struct a, Struct b) { return a.structEquals(b); }
-    public static boolean equalsequals(Ref a, Ref b) { return a == b; }
-
     public static boolean equalsequals(Object a, boolean b) { return equalsequals(a, (Object) b); }
     public static boolean equalsequals(Object a, byte b) { return equalsequals(a, (Object) b); }
     public static boolean equalsequals(Object a, short b) { return equalsequals(a, (Object) b); }
@@ -97,24 +81,31 @@ public class Equality {
     public static boolean equalsequals(Object a, double b) { return equalsequals(a, (Object) b); }
 
     public static boolean equalsequals(Object a, Object b) {
+        // Ref equality is pointer equality.
+        // This also handles "null == null" and serves as a short cut for other types.
         if (a == b) return true;
-        
-        // Ref equality is pointer equality, which we already tested.
+        if (a instanceof Ref || b instanceof Ref) return false;
+
+        // Struct equality is value equality that implys non-null.
         if (a == null || b == null) return false;
         
-        if (a instanceof Ref || b instanceof Ref) return false;
+        // String is not struct but equality is value based.
+        if (a instanceof String && b instanceof String)
+            return a.equals(b);
         
+        // equality of structs are follows
+        if (a instanceof Boolean && b instanceof Boolean)
+            return (boolean) (Boolean) a == (boolean) (Boolean) b;
         if (a instanceof Character && b instanceof Character)
             return (char) (Character) a == (char) (Character) b;
         if (a instanceof Number && b instanceof Number)
             return equalsNumbers(a, b);
-        if (a instanceof Comparable) return ((Comparable) a).compareTo(b) == 0;
         if (a instanceof Struct) return ((Struct) a).structEquals(b);
         
         return false;
     }
     
-    public static boolean equalsNumbers(Object a, Object b) {
+    private static boolean equalsNumbers(Object a, Object b) {
         if (a instanceof Double && b instanceof Double) {
             return (double) (Double) a == (double) (Double) b;
         }
