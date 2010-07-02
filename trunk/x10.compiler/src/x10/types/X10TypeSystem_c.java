@@ -606,23 +606,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return new X10MemberTypeMatcher(container, name, context);
     }
 
-    private final static Set<String> primitiveTypeNames = new HashSet<String>();
-
-    static {
-        primitiveTypeNames.add("boolean");
-        primitiveTypeNames.add("byte");
-        primitiveTypeNames.add("char");
-        primitiveTypeNames.add("short");
-        primitiveTypeNames.add("int");
-        primitiveTypeNames.add("long");
-        primitiveTypeNames.add("float");
-        primitiveTypeNames.add("double");
-    }
-
-    public boolean isPrimitiveTypeName(Name name) {
-        return primitiveTypeNames.contains(name.toString());
-    }
-
     public ClassDef unknownClassDef() {
         if (unknownClassDef == null) {
             unknownClassDef = new X10ClassDef_c(this, null);
@@ -770,16 +753,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return unknownType;
     }
 
-/*
-    private X10ParsedClassType primitiveType_;
-
-    public Type Primitive() {
-        if (primitiveType_ == null)
-            primitiveType_ = (X10ParsedClassType) load("x10.lang.Primitive");
-        return primitiveType_;
-    }
-
-    */
   /*  private X10ParsedClassType boxType_;
 
     public Type Box() {
