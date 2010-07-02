@@ -55,7 +55,7 @@ public final class Array[T](
     /**
      * The region of this array.
      */
-    region:Region
+    region:Region{self != null}
 )  implements (Point(region.rank))=>T,
               Iterable[Point(region.rank)] {
 
@@ -86,7 +86,7 @@ public final class Array[T](
 
     private val raw:IndexedMemoryChunk[T];
     private val rawLength:int;
-    private val layout:RectLayout!;
+    private val layout:RectLayout!{self!=null};
 
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
