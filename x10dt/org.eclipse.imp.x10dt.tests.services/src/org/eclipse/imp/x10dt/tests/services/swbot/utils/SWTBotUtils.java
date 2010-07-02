@@ -36,6 +36,7 @@ public final class SWTBotUtils {
         final Menu bar = parentMenu.widget.getMenu();
         if (bar != null) {
           for (MenuItem item : bar.getItems()) {
+            System.out.println(item.getText());
             if (item.getText().equals(menuItemName)) {
               return item;
             }

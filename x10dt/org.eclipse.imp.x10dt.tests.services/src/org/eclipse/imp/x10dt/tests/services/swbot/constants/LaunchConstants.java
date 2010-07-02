@@ -17,6 +17,8 @@ public final class LaunchConstants {
   
   public static final String RUN_MENU = "Run"; //$NON-NLS-1$
   
+  public static final String RUN_HISTORY_ITEM = "Run History"; //$NON-NLS-1$
+  
   public static final String RUN_CONFS_MENU_ITEM = "Run Configurations..."; //$NON-NLS-1$
   
   public static final String RUN_CONF_DIALOG_TITLE = "Run Configurations"; //$NON-NLS-1$
