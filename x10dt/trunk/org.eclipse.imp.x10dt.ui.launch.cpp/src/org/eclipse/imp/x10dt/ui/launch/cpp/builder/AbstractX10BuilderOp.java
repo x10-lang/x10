@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
@@ -40,6 +41,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
+import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.osgi.util.NLS;
@@ -49,7 +51,8 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
-  protected AbstractX10BuilderOp(final IX10PlatformConf platformConf, final IProject project, final String workspaceDir) {
+  protected AbstractX10BuilderOp(final IX10PlatformConf platformConf, final IProject project, 
+                                 final String workspaceDir) throws CoreException {
     this.fConfName = platformConf.getName();
     this.fProject = project;
     this.fWorkspaceDir = workspaceDir;
@@ -57,6 +60,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     final IConnectionConf connConf = platformConf.getConnectionConf();
     final boolean isCygwin = this.fPlatformConf.getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS;
     this.fTargetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
+    if (this.fTargetOpHelper == null) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.CPPB_NoValidConnectionError));
+    }
   }
   
   // --- Interface methods implementation

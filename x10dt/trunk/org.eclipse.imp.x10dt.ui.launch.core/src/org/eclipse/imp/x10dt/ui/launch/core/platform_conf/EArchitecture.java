@@ -15,23 +15,13 @@ package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
 public enum EArchitecture {
   
   /**
-   * Architecture x86.
+   * x86 architecture.
    */
   x86,
   
   /**
-   * Architecture POWER5.
+   * POWER architecture.
    */
-  Power5,
-  
-  /**
-   * Architecture POWER6.
-   */
-  Power6,
-  
-  /**
-   * Architecture Power7.
-   */
-  Power7;
+  Power;
 
 }

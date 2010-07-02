@@ -173,6 +173,8 @@ public class LaunchMessages extends NLS {
 
   public static String CLCD_PathNotFound;
 
+  public static String CCVC_CompilerNotSupportedWarning;
+
   public static String CCVC_IBMCompilerVersionNotTested;
 
   public static String CCVC_NoFoundVersionWarning;

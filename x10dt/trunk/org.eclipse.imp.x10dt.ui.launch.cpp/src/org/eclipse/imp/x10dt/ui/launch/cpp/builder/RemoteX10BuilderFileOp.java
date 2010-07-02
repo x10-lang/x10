@@ -24,7 +24,7 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10BuilderFileOp {
   
-  RemoteX10BuilderFileOp(final IProject project, final IX10PlatformConf platformConf) {
+  RemoteX10BuilderFileOp(final IProject project, final IX10PlatformConf platformConf) throws CoreException {
     super(platformConf, project, platformConf.getCppCompilationConf().getRemoteOutputFolder());
     this.fTargetOS = platformConf.getCppCompilationConf().getTargetOS();
   }

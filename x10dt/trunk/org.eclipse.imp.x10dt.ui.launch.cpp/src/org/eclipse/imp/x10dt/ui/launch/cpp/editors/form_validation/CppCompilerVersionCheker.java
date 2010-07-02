@@ -35,17 +35,29 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
   // --- Interface methods implementation
   
   public boolean validate(final String text) {
+    removeMessages();
     if (getControl().isEnabled() && (text.length() > 0)) {
-      final AbstractCompilerVersionOutputListener listener = createOutputListener(text);
-      try {
-        this.fTargetOpHelper.run(Arrays.asList(text, listener.getOption()), listener);
-        return listener.validateVersion();
-      } catch (Exception except) {
-        addMessages(NLS.bind(LaunchMessages.CCVC_VersionCheckingCmdError, except.getMessage()), IMessageProvider.ERROR);
-        return false;
+      final AbstractCompilerVersionOutputListener listener;
+      final String lowerCaseName = text.toLowerCase();
+      if (((text.length() >= 3) && (lowerCaseName.charAt(0) == 'x') && (lowerCaseName.charAt(1) == 'l') && 
+          (lowerCaseName.charAt(2) == 'c')) || MPCC.equals(text)) {
+        listener = new XlC_CompilerVersionOutputListener();
+      } else if (GPP.equals(text) || GCC.equals(text)){
+        listener = new GnuCompilerVersionOutputListener();
+      } else {
+        listener = null;
       }
-    } else {
-      removeMessages();
+      if (listener == null) {
+        addMessages(LaunchMessages.CCVC_CompilerNotSupportedWarning, IMessageProvider.WARNING);
+      } else {
+        try {
+          this.fTargetOpHelper.run(Arrays.asList(text, listener.getOption()), listener);
+          return listener.validateVersion();
+        } catch (Exception except) {
+          addMessages(NLS.bind(LaunchMessages.CCVC_VersionCheckingCmdError, except.getMessage()), IMessageProvider.ERROR);
+          return false;
+        }
+      }
     }
     return true;
   }
@@ -61,18 +73,6 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
   
   public int hashCode() {
     return getControl().hashCode();
-  }
-  
-  // --- Private code
-  
-  private AbstractCompilerVersionOutputListener createOutputListener(final String compiler) {
-    final String lowerCaseName = compiler.toLowerCase();
-    if ((compiler.length() >= 3) && (lowerCaseName.charAt(0) == 'x') && (lowerCaseName.charAt(1) == 'l') && 
-        (lowerCaseName.charAt('2') == 'c')) {
-      return new XlC_CompilerVersionOutputListener();
-    } else {
-      return new GnuCompilerVersionOutputListener();
-    }
   }
   
   // --- Private classes
@@ -220,6 +220,12 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
   
   private final EArchitecture fArchitecture;
   
+
+  private static final String GCC = "gcc"; //$NON-NLS-1$
+  
+  private static final String GPP = "g++"; //$NON-NLS-1$
+  
+  private static final String MPCC = "mpCC_r"; //$NON-NLS-1$
   
   private static final String GNU_COMPILER_OPTION = "-dumpversion"; //$NON-NLS-1$
   

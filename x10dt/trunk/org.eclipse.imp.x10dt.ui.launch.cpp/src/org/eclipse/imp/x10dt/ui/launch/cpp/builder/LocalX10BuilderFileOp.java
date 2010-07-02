@@ -19,7 +19,8 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 final class LocalX10BuilderFileOp extends AbstractX10BuilderOp implements IX10BuilderFileOp {
 
-  LocalX10BuilderFileOp(final IProject project, final String workspaceDir, final IX10PlatformConf platformConf) {
+  LocalX10BuilderFileOp(final IProject project, final String workspaceDir, 
+                        final IX10PlatformConf platformConf) throws CoreException {
     super(platformConf, project, workspaceDir);
   }
   

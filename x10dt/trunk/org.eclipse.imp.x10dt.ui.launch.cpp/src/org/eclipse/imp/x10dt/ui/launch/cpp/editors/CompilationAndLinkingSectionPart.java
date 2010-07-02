@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 
+import java.util.Arrays;
+
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFactory;
@@ -14,6 +16,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.KeyboardUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
@@ -32,6 +35,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -68,6 +72,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     this.fCompilerBrowseBt.setEnabled(shouldEnable);
     this.fArchiverBrowseBt.setEnabled(shouldEnable);
     this.fLinkerBrowseBt.setEnabled(shouldEnable);
+    selectOsAndArchitecture();
     if (shouldEnable) {
       checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
     }
@@ -395,6 +400,83 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     this.fBitsArchBt.setSelection(cppCompConf.getBitsArchitecture() == EBitsArchitecture.E64Arch);
   }
   
+  private void selectArchitecture(final ITargetOpHelper targetOpHelper) {
+    final LastLineOutputListener processorListener = new LastLineOutputListener();
+    try {
+      targetOpHelper.run(Arrays.asList(UNAME, UNAME_P_OPT), processorListener);
+    } catch (Exception except) {
+      // Do nothing.
+    }
+
+    String output = processorListener.getOutput();
+    if (output == null) {
+      // We fail to get an output with "uname -p". Last option is to try with "uname -m".
+      final LastLineOutputListener machineListener = new LastLineOutputListener();
+      try {
+        targetOpHelper.run(Arrays.asList(UNAME, UNAME_M_OPT), machineListener);
+        
+        output = machineListener.getOutput();
+      } catch (Exception except) {
+        // Do nothing.
+      }
+    }
+      
+    EArchitecture architecture = null;
+    if (output != null) {  
+      if (output.matches(I86_REGEX) || output.startsWith(X86_PROC)) {
+        architecture = EArchitecture.x86;
+      } else if (output.contains(POWER) || output.contains(PPC)) {
+        architecture = EArchitecture.Power;
+      }
+      this.fBitsArchBt.setSelection(output.contains(A64BITS));
+      this.fBitsArchBt.notifyListeners(SWT.Selection, new Event());
+    }
+    
+    if (architecture != null) {
+      int index = -1;
+      for (final String archName : this.fArchCombo.getItems()) {
+        ++index;
+        final EArchitecture curArch = (EArchitecture) this.fArchCombo.getData(archName);
+        if (curArch == architecture) {
+          this.fArchCombo.select(index);
+          this.fArchCombo.notifyListeners(SWT.Selection, new Event());
+          break;
+        }
+      }
+    }
+  }
+  
+  private void selectOS(final ITargetOpHelper targetOpHelper) {
+    final OSDetectionListener osDetectionListener = new OSDetectionListener();
+    try {
+      targetOpHelper.run(Arrays.asList(UNAME, UNAME_S_OPT), osDetectionListener);
+      final ETargetOS detectedOS = osDetectionListener.getDetectedOS();
+      int index = -1;
+      for (final String osName : this.fOSCombo.getItems()) {
+        ++index;
+        final ETargetOS targetOS = (ETargetOS) this.fOSCombo.getData(osName);
+        if (detectedOS == targetOS) {
+          this.fOSCombo.select(index);
+          break;
+        }
+      }
+      this.fOSCombo.notifyListeners(SWT.Selection, new Event());
+    } catch (Exception except) {
+      // Do nothing. Simply forgets.
+    }
+  }
+  
+  private void selectOsAndArchitecture() {
+    final IX10PlatformConf platformConf = getPlatformConf();
+    final ICppCompilationConf cppCompConf = platformConf.getCppCompilationConf();
+    final IConnectionConf connConf = platformConf.getConnectionConf();
+    final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), 
+                                                                        cppCompConf.getTargetOS() ==  ETargetOS.WINDOWS, 
+                                                                        connConf.getConnectionName());
+    selectOS(targetOpHelper);
+    selectArchitecture(targetOpHelper);
+  }
+  
   private void updateCompilationCommands(final Text compilerText, final Text compilingOptsText, final Text archiverText,
                                          final Text archivingOptsText, final Text linkerText, final Text linkingOptsText,
                                          final Text linkingLibsText, final Button bitsArchBt, final EArchitecture architecture,
@@ -427,6 +509,74 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
   }
   
+  // --- Private classes
+  
+  private static final class OSDetectionListener implements IProcessOuputListener {
+
+    // --- Interface methods implementation
+    
+    public void read(final String line) {
+      this.fOutput = line;
+    }
+
+    public void readError(final String line) {
+    }
+    
+    // --- Internal services
+    
+    ETargetOS getDetectedOS() {
+      final String output = this.fOutput.toLowerCase();
+      if (LINUX.equals(output)) {
+        return ETargetOS.LINUX;
+      } else if (AIX.equals(output)) {
+        return ETargetOS.AIX;
+      } else if (DARWIN.equals(output)) {
+        return ETargetOS.MAC;
+      } else if (output.startsWith(CYGWIN)) {
+        return ETargetOS.WINDOWS;
+      } else {
+        return ETargetOS.UNIX;
+      }
+    }
+    
+    // --- Fields
+    
+    private String fOutput;
+    
+    
+    private static final String LINUX = "linux"; //$NON-NLS-1$
+    
+    private static final String CYGWIN = "cygwin"; //$NON-NLS-1$
+    
+    private static final String AIX = "aix"; //$NON-NLS-1$
+    
+    private static final String DARWIN = "darwin"; //$NON-NLS-1$
+    
+  }
+  
+  private static final class LastLineOutputListener implements IProcessOuputListener {
+
+    // --- Interface methods implementation
+    
+    public void read(final String line) {
+      this.fOutput = line;
+    }
+
+    public void readError(final String line) {
+    }
+    
+    // --- Internal services
+    
+    String getOutput() {
+      return this.fOutput;
+    }
+    
+    // --- Fields
+    
+    private String fOutput;
+    
+  }
+  
   // --- Fields
   
   private Combo fOSCombo;
@@ -455,4 +605,24 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   
   private Button fLinkerBrowseBt;
 
+  
+  
+  private static final String UNAME = "uname"; //$NON-NLS-1$
+  
+  private static final String UNAME_S_OPT = "-s"; //$NON-NLS-1$
+  
+  private static final String UNAME_P_OPT = "-p"; //$NON-NLS-1$
+  
+  private static final String UNAME_M_OPT = "-m"; //$NON-NLS-1$
+  
+  private static final String X86_PROC = "x86"; //$NON-NLS-1$
+  
+  private static final String I86_REGEX = "i.86"; //$NON-NLS-1$
+  
+  private static final String POWER = "power"; //$NON-NLS-1$
+  
+  private static final String PPC = "ppc"; //$NON-NLS-1$
+  
+  private static final String A64BITS = "64"; //$NON-NLS-1$
+  
 }

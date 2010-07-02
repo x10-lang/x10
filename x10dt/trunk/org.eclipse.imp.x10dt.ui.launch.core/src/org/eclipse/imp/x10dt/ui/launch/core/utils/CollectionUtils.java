@@ -27,11 +27,11 @@ public final class CollectionUtils {
    * @param filter The filter to use.
    * @return The filtered collection.
    */
-  public static <T> Collection<T> filter( final Collection<T> source, final IFilter<T> filter ) {
+  public static <T> Collection<T> filter(final Collection<T> source, final IFilter<T> filter) {
     final Collection<T> collection = new ArrayList<T>(source.size());
-    for ( final T element : source ) {
-      if ( filter.accepts( element ) ) {
-        collection.add( element );
+    for (final T element : source) {
+      if (filter.accepts(element)) {
+        collection.add(element);
       }
     }
     return collection;

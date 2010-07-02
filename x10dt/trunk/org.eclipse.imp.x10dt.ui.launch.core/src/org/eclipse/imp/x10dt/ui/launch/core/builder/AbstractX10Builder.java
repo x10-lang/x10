@@ -248,7 +248,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   }
   
   private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final String localOutputDir,
-                                           final SubMonitor monitor) throws CoreException {
+                                     final SubMonitor monitor) throws CoreException {
     monitor.beginTask(null, 100);
 
     builderOp.transfer(localOutputDir, monitor.newChild(10));
