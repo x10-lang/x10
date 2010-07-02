@@ -161,10 +161,10 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         x10_lexer.reset(new char[0], ""); // PORT1.7 BOB HACK to make sure lexer has a lexstream, needed by remapTerminalSymbols() (which probably shouldn't need it!)
         x10_parser = new X10Parser(x10_lexer.getILexStream());
         if (reader instanceof CharBufferReader) {
-            x10_lexer.reset(((CharBufferReader) reader).getBuffer(), source.path());
+            x10_lexer.reset(((CharBufferReader) reader).getBuffer(), source.toString());
         } else {
             char[] buffer= StreamUtils.readReaderContents(reader).toCharArray();
-            x10_lexer.reset(buffer, source.path());
+            x10_lexer.reset(buffer, source.toString());
         }
         x10_parser.initialize(typeSystem(), nodeFactory(), source, eq); // PORT1.7 Now created early, but initialized here once the source is known
         x10_lexer.lexer(x10_parser.getIPrsStream());
