@@ -15,7 +15,7 @@ package x10.array;
 /**
  * A RectRegion is a finite, rank-dimensional, dense rectangular region.
  */
-public final class RectRegion extends BaseRegion{rect} {
+public final class RectRegion extends Region{rect} {
 
     global private val size:int;
     global private val mins:ValRail[int];
@@ -227,6 +227,7 @@ public final class RectRegion extends BaseRegion{rect} {
 
 
     public global safe def equals(thatObj:Any): boolean {
+	if (this == thatObj) return true;
         if (!(thatObj instanceof Region)) return false; 
         val that:Region = thatObj as Region;
 
@@ -268,5 +269,11 @@ public final class RectRegion extends BaseRegion{rect} {
         s += "]";
         return s;
     }
+
+
+    public global def scanners():Iterator[Region.Scanner]! {
+        throw U.unsupported("TODO: scanners not defined for RectRegion");
+    }
+
 
 }

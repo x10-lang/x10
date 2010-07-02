@@ -109,11 +109,6 @@ public final class Array[T](
     public @Header @Inline def raw() = raw;
    
 
-    // TODO: This is a hack around the way regions are currently defined.
-    //       to try to make checking slightly more efficient.
-    //       This will be fixed in 2.1.0.
-    private val baseRegion:BaseRegion{self.rank==this.rank};
-
     // TODO: XTENLANG-1188 this should be a const (static) field, but working around C++ backend bug
     private val bounds = (pt:Point):RuntimeException => new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
 
@@ -132,7 +127,6 @@ public final class Array[T](
         val n = layout.size();
         raw = IndexedMemoryChunk[T](n);
         rawLength = n;
-        baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
 
@@ -154,7 +148,6 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-        baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
 
@@ -176,7 +169,6 @@ public final class Array[T](
 	}
         raw = r;
         rawLength = n;
-        baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
 
@@ -262,7 +254,7 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     public safe @Header @Inline def apply(i0:int){rank==1}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0);
+        if (checkBounds()) region.check(bounds, i0);
         return raw(layout.offset(i0));
     }
 
@@ -278,7 +270,7 @@ public final class Array[T](
      * @see #set(T, Int, Int)
      */
     public safe @Header @Inline def apply(i0:int, i1:int){rank==2}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1);
+        if (checkBounds()) region.check(bounds, i0, i1);
         return raw(layout.offset(i0,i1));
     }
 
@@ -295,7 +287,7 @@ public final class Array[T](
      * @see #set(T, Int, Int, Int)
      */
     public safe @Header @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2);
+        if (checkBounds()) region.check(bounds, i0, i1, i2);
         return raw(layout.offset(i0, i1, i2));
     }
 
@@ -313,7 +305,7 @@ public final class Array[T](
      * @see #set(T, Int, Int, Int, Int)
      */
     public safe @Header @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2, i3);
+        if (checkBounds()) region.check(bounds, i0, i1, i2, i3);
         return raw(layout.offset(i0, i1, i2, i3));
     }
 
@@ -328,7 +320,7 @@ public final class Array[T](
      */
     public safe @Header @Inline def apply(pt:Point{self.rank==this.rank}):T {
         if (checkBounds()) {
-	    baseRegion.check(bounds, pt);
+	    region.check(bounds, pt);
         }
         return raw(layout.offset(pt));
     }
@@ -347,7 +339,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int){rank==1}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0);
+        if (checkBounds()) region.check(bounds, i0);
         raw(layout.offset(i0)) = v;
         return v;
     }
@@ -366,7 +358,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1);
+        if (checkBounds()) region.check(bounds, i0, i1);
         raw(layout.offset(i0,i1)) = v;
         return v;
     }
@@ -386,7 +378,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2);
+        if (checkBounds()) region.check(bounds, i0, i1, i2);
         raw(layout.offset(i0, i1, i2)) = v;
         return v;
     }
@@ -407,7 +399,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2, i3);
+        if (checkBounds()) region.check(bounds, i0, i1, i2, i3);
         raw(layout.offset(i0, i1, i2, i3)) = v;
         return v;
     }
@@ -425,7 +417,7 @@ public final class Array[T](
      */
     public safe @Header @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
         if (checkBounds()) {
-            baseRegion.check(bounds, p);
+            region.check(bounds, p);
         }
         raw(layout.offset(p)) = v;
         return v;
