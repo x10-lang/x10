@@ -17,7 +17,7 @@ package x10.array;
  * @author bdlucas
  * @author vj
  */
-class EmptyRegion extends BaseRegion {
+final class EmptyRegion extends Region {
 
     def this(val rank: int): EmptyRegion{self.rank==rank} {
         super(rank,true,false);
@@ -35,6 +35,12 @@ class EmptyRegion extends BaseRegion {
     protected global def computeBoundingBox(): Region(rank) {
         throw U.illegal("bounding box not not defined for empty region");
     }
+    public global def min(): ValRail[int] {
+        throw U.illegal("min not not defined for empty region");
+    }
+    public global def max(): ValRail[int] {
+        throw U.illegal("max not not defined for empty region");
+    }
     public global def contains(that: Region(rank)) = that.isEmpty();
     public global def contains(p:Point):Boolean = false;
 
@@ -47,6 +53,10 @@ class EmptyRegion extends BaseRegion {
     }
     public global def iterator():Iterator[Point(rank)] {
         return new ERIterator(rank);
+    }
+
+    public global def scanners():Iterator[Region.Scanner]! {
+        throw U.illegal("TODOL scanners not defined for empty region");
     }
 
     public global safe def toString() = "empty(" + rank + ")";

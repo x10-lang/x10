@@ -28,9 +28,6 @@ public class DistArray[T] (
              Iterable[Point(dist.region.rank)]
 {
 
-    // XTENLANG-49
-    static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
-
     private static class LocalState[T] {
         val layout:RectLayout;
         val raw:Rail[T]!;
@@ -131,25 +128,25 @@ public class DistArray[T] (
     // XXX but ref to here and rail accesses make this not so high performance
     //
 
-    final public safe global def apply(i0: int): T {
+    final public safe global def apply(i0: int){rank==1}: T {
         if (checkPlace) checkPlace(i0);
         if (checkBounds) checkBounds(i0);
         return raw()(layout().offset(i0));
     }
 
-    final public safe global def apply(i0: int, i1: int): T {
+    final public safe global def apply(i0: int, i1: int){rank==2}: T {
         if (checkPlace) checkPlace(i0, i1);
         if (checkBounds) checkBounds(i0, i1);
         return raw()(layout().offset(i0,i1));
     }
 
-    final public safe global def apply(i0: int, i1: int, i2: int): T {
+    final public safe global def apply(i0: int, i1: int, i2: int){rank==3}: T {
         if (checkPlace) checkPlace(i0, i1, i2);
         if (checkBounds) checkBounds(i0, i1, i2);
         return raw()(layout().offset(i0,i1,i2));
     }
 
-    final public safe global def apply(i0: int, i1: int, i2: int, i3: int): T {
+    final public safe global def apply(i0: int, i1: int, i2: int, i3: int){rank==4}: T {
         if (checkPlace) checkPlace(i0, i1, i2, i3);
         if (checkBounds) checkBounds(i0, i1, i2, i3);
         return raw()(layout().offset(i0,i1,i2,i3));
@@ -161,28 +158,28 @@ public class DistArray[T] (
     // XXX but ref to here and rail accesses make this not so high performance
     //
 
-    final public safe global def set(v: T, i0: int): T {
+    final public safe global def set(v: T, i0: int){rank==1}: T {
         if (checkPlace) checkPlace(i0);
         if (checkBounds) checkBounds(i0);
         raw()(layout().offset(i0)) = v;
         return v;
     }
 
-    final public safe global def set(v: T, i0: int, i1: int): T {
+    final public safe global def set(v: T, i0: int, i1: int){rank==2}: T {
         if (checkPlace) checkPlace(i0, i1);
         if (checkBounds) checkBounds(i0, i1);
         raw()(layout().offset(i0,i1)) = v;
         return v;
     }
 
-    final public safe global def set(v: T, i0: int, i1: int, i2: int): T {
+    final public safe global def set(v: T, i0: int, i1: int, i2: int){rank==3}: T {
         if (checkPlace) checkPlace(i0, i1, i2);
         if (checkBounds) checkBounds(i0, i1, i2);
         raw()(layout().offset(i0,i1,i2)) = v;
         return v;
     }
 
-    final public safe global def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
+    final public safe global def set(v: T, i0: int, i1: int, i2: int, i3: int){rank==4}: T {
         if (checkPlace) checkPlace(i0, i1, i2, i3);
         if (checkBounds) checkBounds(i0, i1, i2, i3);
         raw()(layout().offset(i0,i1,i2,i3)) = v;
@@ -279,43 +276,43 @@ public class DistArray[T] (
         new BadPlaceException("point " + pt + " not defined at " + here);
 
     safe global def checkBounds(pt: Point(rank)) {
-        (region as BaseRegion(rank)).check(bounds, pt);
+        region.check(bounds, pt);
     }
 
-    safe global def checkBounds(i0: int) {
-        (region as BaseRegion(1)).check(bounds, i0);
+    safe global def checkBounds(i0: int){rank==1} {
+        region.check(bounds, i0);
     }
 
-    safe global def checkBounds(i0: int, i1: int) {
-        (region as BaseRegion(2)).check(bounds, i0, i1);
+    safe global def checkBounds(i0: int, i1: int){rank==2} {
+        region.check(bounds, i0, i1);
     }
 
-    safe global def checkBounds(i0: int, i1: int, i2: int) {
-        (region as BaseRegion(3)).check(bounds, i0, i1, i2);
+    safe global def checkBounds(i0: int, i1: int, i2: int){rank==3} {
+        region.check(bounds, i0, i1, i2);
     }
 
-    safe global def checkBounds(i0: int, i1: int, i2: int, i3: int) {
-        (region as BaseRegion(4)).check(bounds, i0, i1, i2, i3);
+    safe global def checkBounds(i0: int, i1: int, i2: int, i3: int){rank==4} {
+        region.check(bounds, i0, i1, i2, i3);
     }
 
     safe global def checkPlace(pt: Point(rank)) {
-        (dist.get(here) as BaseRegion(rank)).check(place, pt);
+        dist.get(here).check(place, pt);
     }
 
-    safe global def checkPlace(i0: int) {
-        (dist.get(here) as BaseRegion(1)).check(place, i0);
+    safe global def checkPlace(i0: int){rank==1} {
+        dist.get(here).check(place, i0);
     }
 
-    safe global def checkPlace(i0: int, i1: int) {
-        (dist.get(here) as BaseRegion(2)).check(place, i0, i1);
+    safe global def checkPlace(i0: int, i1: int){rank==2} {
+        dist.get(here).check(place, i0, i1);
     }
 
-    safe global def checkPlace(i0: int, i1: int, i2: int) {
-        (dist.get(here) as BaseRegion(3)).check(place, i0, i1, i2);
+    safe global def checkPlace(i0: int, i1: int, i2: int){rank==3} {
+        dist.get(here).check(place, i0, i1, i2);
     }
 
-    safe global def checkPlace(i0: int, i1: int, i2: int, i3: int) {
-        (dist.get(here) as BaseRegion(4)).check(place, i0, i1, i2, i3);
+    safe global def checkPlace(i0: int, i1: int, i2: int, i3: int){rank==4} {
+        dist.get(here).check(place, i0, i1, i2, i3);
     }
     //
     // views

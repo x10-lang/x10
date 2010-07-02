@@ -14,7 +14,7 @@ package x10.array;
 /**
  * A full region is the unbounded region that contains all points of its rank
  */
-class FullRegion extends BaseRegion{rect} {
+final class FullRegion extends Region{rect} {
 
     def this(val rank:int):FullRegion{self.rank==rank} {
         super(rank, true, false);
@@ -25,6 +25,8 @@ class FullRegion extends BaseRegion{rect} {
     public global def size():int {
         throw U.unsupported("Full Region is infinite; size not supported");
     }
+    public global def min() = ValRail.make(rank, (Int)=>Int.MIN_VALUE);
+    public global def max() = ValRail.make(rank, (Int)=>Int.MAX_VALUE);
     public global def intersection(that: Region(rank)): Region(rank) = that;
     public global def product(that: Region): Region/*(this.rank+that.rank)*/ {
         if (that.isEmpty()) {
@@ -48,4 +50,13 @@ class FullRegion extends BaseRegion{rect} {
     public global def contains(that: Region(rank)):Boolean = true;
     public global def contains(p:Point):Boolean = true;
     public global safe def toString() = "full(" + rank + ")";
+
+
+    public global def scanners():Iterator[Region.Scanner]! {
+        throw U.unsupported("TODO: scanners not defined for full region");
+    }
+
+    public global def iterator():Iterator[Point(rank)] {
+        throw U.unsupported("TODO: scanners not defined for full region");
+    }
 }
