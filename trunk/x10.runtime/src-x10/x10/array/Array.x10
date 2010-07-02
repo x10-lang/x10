@@ -14,6 +14,8 @@ package x10.array;
 import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
+import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
 import x10.util.IndexedMemoryChunk;
 
 /**
@@ -107,11 +109,6 @@ public final class Array[T](
      * @return the IndexedMemoryChunk[T] that is the backing storage for the Array object.
      */
     public @Header @Inline def raw() = raw;
-   
-
-    // TODO: XTENLANG-1188 this should be a const (static) field, but working around C++ backend bug
-    private val bounds = (pt:Point):RuntimeException => new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
-
 
     /**
      * Construct an Array over the region reg whose elements are zero-initialized; 
@@ -254,7 +251,9 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     public safe @Header @Inline def apply(i0:int){rank==1}:T {
-        if (checkBounds()) region.check(bounds, i0);
+        if (checkBounds() && !region.contains(i0)) {
+            raiseBoundsError(i0);
+        }
         return raw(layout.offset(i0));
     }
 
@@ -270,7 +269,9 @@ public final class Array[T](
      * @see #set(T, Int, Int)
      */
     public safe @Header @Inline def apply(i0:int, i1:int){rank==2}:T {
-        if (checkBounds()) region.check(bounds, i0, i1);
+        if (checkBounds() && !region.contains(i0, i1)) {
+            raiseBoundsError(i0, i1);
+        }
         return raw(layout.offset(i0,i1));
     }
 
@@ -287,7 +288,9 @@ public final class Array[T](
      * @see #set(T, Int, Int, Int)
      */
     public safe @Header @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds()) region.check(bounds, i0, i1, i2);
+        if (checkBounds() && !region.contains(i0, i1, i2)) {
+            raiseBoundsError(i0, i1, i2);
+        }
         return raw(layout.offset(i0, i1, i2));
     }
 
@@ -305,7 +308,9 @@ public final class Array[T](
      * @see #set(T, Int, Int, Int, Int)
      */
     public safe @Header @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds()) region.check(bounds, i0, i1, i2, i3);
+        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+            raiseBoundsError(i0, i1, i2, i3);
+        }
         return raw(layout.offset(i0, i1, i2, i3));
     }
 
@@ -319,8 +324,8 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def apply(pt:Point{self.rank==this.rank}):T {
-        if (checkBounds()) {
-	    region.check(bounds, pt);
+        if (checkBounds() && !region.contains(pt)) {
+            raiseBoundsError(pt);
         }
         return raw(layout.offset(pt));
     }
@@ -339,7 +344,9 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int){rank==1}:T {
-        if (checkBounds()) region.check(bounds, i0);
+        if (checkBounds() && !region.contains(i0)) {
+            raiseBoundsError(i0);
+        }
         raw(layout.offset(i0)) = v;
         return v;
     }
@@ -358,7 +365,9 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
-        if (checkBounds()) region.check(bounds, i0, i1);
+        if (checkBounds() && !region.contains(i0, i1)) {
+            raiseBoundsError(i0, i1);
+        }
         raw(layout.offset(i0,i1)) = v;
         return v;
     }
@@ -378,7 +387,9 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds()) region.check(bounds, i0, i1, i2);
+        if (checkBounds() && !region.contains(i0, i1, i2)) {
+            raiseBoundsError(i0, i1, i2);
+        }
         raw(layout.offset(i0, i1, i2)) = v;
         return v;
     }
@@ -399,7 +410,9 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds()) region.check(bounds, i0, i1, i2, i3);
+        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+            raiseBoundsError(i0, i1, i2, i3);
+        }
         raw(layout.offset(i0, i1, i2, i3)) = v;
         return v;
     }
@@ -416,8 +429,8 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     public safe @Header @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
-        if (checkBounds()) {
-            region.check(bounds, p);
+        if (checkBounds() && !region.contains(p)) {
+            raiseBoundsError(p);
         }
         raw(layout.offset(p)) = v;
         return v;
@@ -616,6 +629,23 @@ public final class Array[T](
         }
         return dst;
     }
+
+    private @NoInline @NoReturn def raiseBoundsError(i0:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
+    }    
+    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in array");
+    }    
+    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in array");
+    }    
+    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in array");
+    }    
+    private @NoInline @NoReturn def raiseBoundsError(pt:Point(rank)) {
+        throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
+    }    
+
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
