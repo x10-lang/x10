@@ -38,29 +38,9 @@ public class X10CPPDelFactory_c extends X10DelFactory_c {
         return new MessagePassingCodeGenerator((StreamWrapper)w,tr);
     }
 
-
-	/**
-	 * A delegate that redirects translate to the object given by makeCodeGenerator.
-	 */
-	public class TD extends X10Del_c {
-		public void translate(CodeWriter w, Translator tr) {
-			if (jl() instanceof Node) {
-				Node n = (Node) jl();
-				X10Ext ext = (X10Ext) n.ext();
-				if (ext != null && ext.comment() != null)
-					w.write(ext.comment());
-			}
-			makeCodeGenerator(w, tr).visitAppropriate(jl());
-		}
-	};
-
-	public JL delNodeImpl() {
-		return new TD();
-	}
-
 	/**
 	 * For each closure, add the delegate that redirects translate
-	 * to the X10PrettyPrinterVisitor and overrides enterScope.
+	 * to the code generator and overrides enterScope.
 	 */
 	public JL delClosureImpl() {
 		return new TD() {
