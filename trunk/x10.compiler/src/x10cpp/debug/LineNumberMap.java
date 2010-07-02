@@ -557,30 +557,30 @@ public class LineNumberMap extends StringTable {
 
 //	    // A cross reference of X10 statements to the first C++ statement.
 //	    // Sorted by X10 file index and X10 source file line.
-//	    ArrayList<CPPLineInfo> x10toCPPlist = new ArrayList<CPPLineInfo>(m.map.size());
-//	    for (Key p : m.map.keySet()) {
-//	        Entry e = m.map.get(p);
-//	        x10toCPPlist.add(
-//	                new CPPLineInfo(findFile(m.lookupString(e.fileId), files), // _X10index
-//	                                0,                                         // FIXME: _X10method
-//	                                offsets[p.fileId],                         // _CPPindex
-//	                                e.line,                                    // _X10line
-//	                                p.start_line,                              // _CPPline
-//	                                p.fileId));
-//	    }
-//	    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
-//	    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-//	    for (CPPLineInfo cppDebugInfo : x10toCPPlist) {
-//	        w.write("    { ");
-//	        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
-//	        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
-//	        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
-//	        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
-//	        w.write(""+cppDebugInfo.cppfromline);                              // _CPPline
-//	        w.writeln(" },");
-//	    }
-//	    w.writeln("};");
-//	    w.forceNewline();
+	    ArrayList<CPPLineInfo> x10toCPPlist = new ArrayList<CPPLineInfo>(m.map.size());
+	    for (Key p : m.map.keySet()) {
+	        Entry e = m.map.get(p);
+	        x10toCPPlist.add(
+	                new CPPLineInfo(findFile(m.lookupString(e.fileId), files), // _X10index
+	                                0,                                         // FIXME: _X10method
+	                                offsets[p.fileId],                         // _CPPindex
+	                                e.line,                                    // _X10line
+	                                p.start_line,                              // _CPPline
+	                                p.fileId));
+	    }
+	    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
+	    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+	    for (CPPLineInfo cppDebugInfo : x10toCPPlist) {
+	        w.write("    { ");
+	        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
+	        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
+	        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
+	        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
+	        w.write(""+cppDebugInfo.cppfromline);                              // _CPPline
+	        w.writeln(" },");
+	    }
+	    w.writeln("};");
+	    w.forceNewline();
 
 	    // A list of the X10 method names.
 	    // Sorted by X10 method name.
