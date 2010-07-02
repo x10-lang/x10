@@ -269,8 +269,10 @@
     false
     final
     finally
+--    finish
     for
     foreach
+--    future
     global
     goto
     here
@@ -289,11 +291,12 @@
     null
     offer
     offers
+--    operator
     or
     package
     private
-    protected
     property
+    protected
     proto
     public
     return
