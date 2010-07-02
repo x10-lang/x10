@@ -824,7 +824,7 @@ public class X10TypeMixin {
 	}
 	
 	public static boolean isNonNull(Type t) {
-		return disEntails(t, selfVar(t),XTerms.NULL);
+		return disEntails(t, self(t), XTerms.NULL);
 	}
 
 	static XTerm findProperty(Type t, Name propName) {
