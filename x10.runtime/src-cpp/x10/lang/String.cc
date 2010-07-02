@@ -401,9 +401,11 @@ x10_int String::compareTo(ref<String> s) {
     nullCheck(s);
     if (ref<String>(s).operator->() == this) return 0; // short-circuit trivial equality
     int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
-    if (length_diff != 0)
-        return length_diff;
-    return (x10_int) strncmp(this->FMGL(content), s->FMGL(content), this->length());
+    size_t min_length = length_diff < 0 ? this->FMGL(content_length) : s->FMGL(content_length);
+    int cmp = strncmp(this->FMGL(content), s->FMGL(content), min_length);
+    if (cmp != 0)
+        return (x10_int) cmp;
+    return (x10_int) length_diff;
 }
 
 /* FIXME: Unicode support */
