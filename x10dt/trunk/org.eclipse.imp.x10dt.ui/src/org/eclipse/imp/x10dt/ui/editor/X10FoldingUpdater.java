@@ -327,7 +327,6 @@ public class X10FoldingUpdater implements IFoldingUpdater
                 n instanceof Loop || // includes For, ForLoop, While, do
                 n instanceof AtEach ||
                 n instanceof ForEach ||
-                n instanceof Now ||
                 n instanceof Async ||
                 n instanceof Atomic)
             {
