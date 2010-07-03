@@ -37,7 +37,7 @@ public class PositionInvariantChecker extends NodeVisitor
                     (" nPos=")+(n.position())+
                     (" parent=")+(parent)+
                     (" n=")+(n).toString();
-            job.compiler().errorQueue().enqueue(ErrorInfo.WARNING,msg,n.position());
+            job.compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR,msg,n.position());
         }
 
         return this;
