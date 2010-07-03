@@ -2913,7 +2913,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        return ((X10Special_c) e).qualifier() != null;
 	    if (e instanceof X10Cast_c)
 	        return needsNullCheck(((X10Cast_c) e).expr());
-	    return true;
+	    return !X10TypeMixin.isNonNull(e.type());
 	}
 
 	public void visit(X10Call_c n) {
