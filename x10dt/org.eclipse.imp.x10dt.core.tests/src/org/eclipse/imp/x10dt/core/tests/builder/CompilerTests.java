@@ -18,10 +18,8 @@ import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 
 public class CompilerTests extends CompilerTestsBase {
-	private static String DATA_PATH = "data" + File.separator;
-	private static String[] STATIC_CALLS = {"-STATIC_CALLS=true"};
-	private static String[] NOT_STATIC_CALLS = {"-STATIC_CALLS=false"};
-	
+	private static String DATA_PATH = "data" + File.separator + "base" + File.separator;
+
 	@Test
 	public void hello1_static_calls() throws Exception {
 		String[] sources = {"Hello1.x10"};
@@ -247,10 +245,23 @@ public class CompilerTests extends CompilerTestsBase {
 	}
 	
 	@Test
+	public void jira1509_static_calls() throws Exception {
+		String[] sources = {"Hello4.x10"};
+		compile(sources, STATIC_CALLS, new ArrayList<ErrorInfo>());
+	}
+	
+	@Test
+	public void jira1509_not_static_calls() throws Exception {
+		String[] sources = {"Hello4.x10"};
+		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());
+	}
+	
+	@Test
 	public void hello3_static_calls() throws Exception {
 		String[] sources = {"Hello3.x10"};
 		compile(sources, STATIC_CALLS, new ArrayList<ErrorInfo>());
 	}
+	
 	
 	@Test
 	public void hello3_not_static_calls() throws Exception {

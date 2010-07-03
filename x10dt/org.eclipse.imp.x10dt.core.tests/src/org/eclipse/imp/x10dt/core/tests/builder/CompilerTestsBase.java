@@ -18,6 +18,10 @@ import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 
 public class CompilerTestsBase {
+	
+	protected static String[] STATIC_CALLS = {"-STATIC_CALLS=true", "-CHECK_INVARIANTS"};
+	protected static String[] NOT_STATIC_CALLS = {"-STATIC_CALLS=false", "-CHECK_INVARIANTS"};
+	
 
 	private static String OUTPUT_DIR = "output";
 	/**
@@ -53,10 +57,13 @@ public class CompilerTestsBase {
 			}
 			System.err.println(sourcepath);
 			for (ErrorInfo e : errors) {
-				System.err.println(e);
+				System.err.println(e + ":" + e.getPosition());
+			}
+			for(ErrorInfo error: errors){
+				Assert.assertFalse(getTestId(files, options), internalError(error));
+				Assert.assertFalse(getTestId(files, options), notWellFormed(error));
 			}
 			Assert.assertFalse(getTestId(files, options), duplicateErrors(errors));
-			Assert.assertFalse(getTestId(files, options), notWellFormed(errors));
 			return errors.isEmpty();
 		} catch (Throwable e) {
 			throw new Exception(getTestId(files, options), e);
@@ -121,14 +128,19 @@ public class CompilerTestsBase {
 		return ".." + File.separator + "x10.dist" + File.separator + "lib" + File.separator + "x10.jar";
 	}
 	
+	private String getErrorString(ErrorInfo e){
+		return e.toString() + e.getPosition()==null?"":":" + e.getPosition();
+	}
 	
 	
 	private boolean duplicateErrors(Collection<ErrorInfo> errors){
 		Map<String,Integer> count = new HashMap<String,Integer>(); //Map of message string to count
 		for(ErrorInfo e1: errors){
-			String m1 = e1.toString();
+			if (e1.getErrorKind() == ErrorInfo.INTERNAL_ERROR) continue;
+			String m1 = getErrorString(e1);
 			for(ErrorInfo e2: errors){
-				if(m1.equals(e2.toString())){
+				String m2 = getErrorString(e2);
+				if(m1.equals(m2)){
 					if (count.get(m1) == null){
 						count.put(m1, 1);
 					} else {
@@ -139,20 +151,26 @@ public class CompilerTestsBase {
 		}
 		return false;
 	}
-	
-	private boolean notWellFormed(Collection<ErrorInfo> errors){
-		for(ErrorInfo e: errors){
-			//TODO: add other well-formedness conditions here.
-			if (e.getMessage().contains("{amb}")){
-				return true;
-			}
-		}
+
+	private boolean notWellFormed(ErrorInfo e) {
+		// TODO: add other well-formedness conditions here.
+		if (e.getMessage().contains("{amb}"))
+			return true;
+		if (e.getMessage().contains("<unknown>"))
+			return true;
+		if (e.getMessage().contains("place_"))
+			return true;
+		if (e.getMessage().contains("self_"))
+			return true;
 		return false;
 	}
 
-
 	
-
+	private boolean internalError(ErrorInfo e){
+		if (e.getErrorKind() == ErrorInfo.INTERNAL_ERROR)
+			return true;
+		return false;
+	}
 	
 	
 }

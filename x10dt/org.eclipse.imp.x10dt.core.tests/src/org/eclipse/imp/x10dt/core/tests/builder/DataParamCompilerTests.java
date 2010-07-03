@@ -33,14 +33,6 @@ public class DataParamCompilerTests extends CompilerTestsBase {
 	private static String SOURCE_PATH_BASE = getRuntimeJar() + ":" + LIB_PATH + ":" + DATA_PATH;
 
 	
-	/*
-	 * Options
-	 */
-	
-	private static String[] STATIC_CALLS = {"-STATIC_CALLS=true"};
-	private static String[] NOT_STATIC_CALLS = {"-STATIC_CALLS=false"};
-	
-	
 	
 	public DataParamCompilerTests(File[] sources, String[] options){
 		super();
