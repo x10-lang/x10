@@ -166,9 +166,14 @@ public final class RectRegion extends Region{rect} {
         return i0>=min0 && i0<=max0;
     }
 
-    public global def contains(i0:int, i1:int){rank==2}:boolean {
-        return i0>=min0 && i0<=max0 && 
-               i1>=min1 && i1<=max1;
+    public global def contains(i0:int, i1:int){rank==2}:boolean { 
+        if (zeroBased) {
+            return ((i0 as UInt) <= (max0 as UInt)) &&
+                   ((i1 as UInt) <= (max1 as UInt));
+        } else {
+            return i0>=min0 && i0<=max0 && 
+                   i1>=min1 && i1<=max1;
+        }
     }
 
     public global def contains(i0:int, i1:int, i2:int){rank==3}:boolean {
