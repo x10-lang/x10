@@ -55,6 +55,7 @@ import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
+import polyglot.types.ArrayType;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
@@ -145,6 +146,9 @@ import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10c.ast.X10CBackingArrayAccessAssign_c;
+import x10c.ast.X10CBackingArrayAccess_c;
+import x10c.ast.X10CBackingArray_c;
 
 
 /**
@@ -192,6 +196,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		this.tr = tr;
 		this.er = new Emitter(w,tr);
 	}
+
+	public void visit(Node n) {
+	    
+	    // invoke appropriate visit method for Java backend's specific nodes
+	    if (n instanceof X10CBackingArray_c) {visit((X10CBackingArray_c) n);return;}
+	    if (n instanceof X10CBackingArrayAccess_c) {visit((X10CBackingArrayAccess_c) n); return;} 
+	    if (n instanceof X10CBackingArrayAccessAssign_c) {visit((X10CBackingArrayAccessAssign_c)n); return;}
+
+	    // FIXME
+//    	    tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
+// 	        "Unhandled node type: "+n.getClass(), n.position());
+
+	    // Don't call through del; that would be recursive.
+	    n.translate(w, tr);
+    	}
 
 	public void visit(Block_c n) {
 	    String s = er.getJavaImplForStmt(n, (X10TypeSystem) tr.typeSystem());
@@ -267,11 +286,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.write(";");
 	    w.end(); w.newline();
 	    w.write("} }.eval())");
-	}
-
-	public void visit(Node n) {
-		// Don't call through del; that would be recursive.
-		n.translate(w, tr);
 	}
 
 	public void visit(LocalAssign_c n) {
@@ -2712,6 +2726,47 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		throw new InternalCompilerError("No method to implement " + n, n.position());
 	}
+
+        public void visit(X10CBackingArray_c n) {
+            w.write("(");
+            w.write("(");
+            ArrayType arrayType = (ArrayType) n.type();
+            if (arrayType.base().isBoolean() || arrayType.base().isNumeric() || arrayType.base().isChar()) {
+                er.printType(arrayType.base(), 0);
+            } else {
+                w.write("java.lang.Object");
+            }
+            w.write("[]");
+            w.write(")");
+            er.prettyPrint(n.container(), tr);
+            w.write(".");
+            w.write("value");
+            w.write(")");
+        }
+        
+        public void visit(X10CBackingArrayAccess_c n) {
+            w.write("(");
+            w.write("(");
+            er.printType(n.type(), PRINT_TYPE_PARAMS);
+            w.write(")");
+            
+            er.prettyPrint(n.array(), tr);
+            w.write("[");
+            er.prettyPrint(n.index(), tr);
+            w.write("]");
+            w.write(")");
+        }
+
+        public void visit(X10CBackingArrayAccessAssign_c n) {
+            er.prettyPrint(n.array(), tr);
+            w.write("[");
+            er.prettyPrint(n.index(), tr);
+            w.write("]");
+            
+            w.write(n.operator().toString());
+            
+            er.prettyPrint(n.right(), tr);
+        }
 
 	/**
 	 * A list of one object that has an infinite circular iterator.
