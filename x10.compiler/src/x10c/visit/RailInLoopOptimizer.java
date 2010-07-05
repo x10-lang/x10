@@ -157,7 +157,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                         X10CanonicalTypeNode tn = xnf.X10CanonicalTypeNode(n.position(), type);
                                         Id id = backingArrayToId.get(pair.fst());
                                         LocalDef ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
-                                        return xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), Flags.FINAL),tn, ld.name(), xnf.Local(n.position(), id).type(type)).localDef(ldef).type(tn);
+                                        return xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), Flags.FINAL), tn, ld.name(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(type)).localDef(ldef).type(tn);
                                     }
                                 }
                                 Id id = xnf.Id(ld.position(), Name.make(ld.name().toString()));
@@ -239,9 +239,11 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 targetAndIsFinals.add(new Pair<BackingArray, Boolean>(ba, true));
                             }
                             if (elem == null) {
-                                return xnf.BackingArrayAccess(pos, xnf.Local(pos, id).type(target.type()), index, type);
+                                LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(target.type()), id.id());
+                                return xnf.BackingArrayAccess(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()).type(target.type()), index, type);
                             }
-                            return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id), index, Assign.ASSIGN, elem);
+                            LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
+                            return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()), index, Assign.ASSIGN, elem);
                         }
                     }
                     if (n instanceof SettableAssign_c) {
@@ -291,7 +293,8 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             else {
                                 ba = xnf.BackingArray(n.position(), id, createArrayType(type), array);
                             }
-                            return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id), ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right());
+                            LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
+                            return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()), ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right());
                         }
                     }
                     // rail = Rail.make(10) -> rail = Rail.make(10); railvaluexxx = (int[]) rail.value;
@@ -361,7 +364,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                                 if (parent instanceof Block) {
                                     for (Stmt stmt : ((Block) parent).statements()) {
-                                        if (stmt instanceof LocalDecl && ((LocalDecl)stmt).init() instanceof BackingArray) {
+                                        if (stmt instanceof LocalDecl && ((LocalDecl) stmt).init() instanceof BackingArray) {
                                             BackingArray ba = (BackingArray) ((LocalDecl) stmt).init();
                                             if (backingArrayToId.get(ba).toString().equals(id.toString())) {
                                                 return n;
@@ -374,11 +377,12 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 Type pt = X10TypeMixin.baseType(((X10ClassType) type).typeArguments().get(0));
                                 Expr expr;
                                 if (la.right() instanceof NullLit) {
-                                    expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).type(type), Assign.ASSIGN, la.right()).type(type);
-                                }
-                                else {
+                                    LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
+                                    expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(type), Assign.ASSIGN, la.right()).type(type);
+                                } else {
                                     Type arrayType = createArrayType(type);
-                                    expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).type(arrayType), Assign.ASSIGN, xnf.BackingArray(n.position(), id, arrayType, local) ).type(arrayType);
+                                    LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(arrayType), id.id());
+                                    expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType), Assign.ASSIGN, xnf.BackingArray(n.position(), id, arrayType, local)).type(arrayType);
                                 }
                                 stmts.add(xnf.Eval(n.position(), expr));
                                 return xnf.StmtSeq(n.position(), stmts);
@@ -433,7 +437,6 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                     }
                                     boolean contain = false;
                                     for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
-//                                        if (pair.fst().id().toString().equals(ja.array().toString())) {
                                         if (backingArrayToId.get(pair.fst()).toString().equals(ja.array().toString())) {
                                             contain = true;
                                             if (pair.snd() == false) {
@@ -465,9 +468,11 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                     targetAndIsFinals.add(new Pair<BackingArray, Boolean>(ba, true));
                                 }
                                 if (elem == null) {
-                                    return xnf.BackingArrayAccess(pos, xnf.Local(pos, id).type(target.type()), index, type);
+                                    LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(target.type()), id.id());
+                                    return xnf.BackingArrayAccess(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()).type(target.type()), index, type);
                                 }
-                                return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id).type(type), index, Assign.ASSIGN, elem).type(type);
+                                LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
+                                return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id).localInstance(ldef.asInstance()).type(type), index, Assign.ASSIGN, elem).type(type);
                             }
                         }
                         if (n instanceof SettableAssign_c) {
