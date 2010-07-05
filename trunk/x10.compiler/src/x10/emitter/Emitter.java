@@ -105,6 +105,7 @@ import x10.types.constraints.CConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
 import x10.visit.X10PrettyPrinterVisitor.CircularList;
+import x10c.types.BackingArrayType;
 
 public class Emitter {
 
@@ -605,6 +606,18 @@ public class Emitter {
 			printType(mt.definedType(),
 					X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
 			return;
+		}
+
+		if (type instanceof BackingArrayType) {
+		    Type base = ((BackingArrayType) type).base();
+		    if (base.isBoolean() || base.isChar() || base.isNumeric()) {
+		        printType(base, 0);
+		    }
+		    else {
+		        w.write("java.lang.Object");
+		    }
+		    w.write("[]");
+		    return;
 		}
 
 		// Print the class name
@@ -2135,7 +2148,8 @@ public class Emitter {
             else {
                 if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType_c) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
                     prettyPrint(e, tr);
-                } else {
+                }
+                else {
                     //cast eagerly
                     expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     expander.expand(tr);

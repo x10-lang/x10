@@ -12,17 +12,20 @@ package x10c.visit;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import polyglot.ast.Assign;
 import polyglot.ast.Block;
 import polyglot.ast.Do;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
-import polyglot.ast.Expr_c;
 import polyglot.ast.Field;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
+import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
@@ -32,44 +35,44 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.NullLit;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
-import polyglot.ast.Term;
 import polyglot.ast.While;
 import polyglot.frontend.Job;
+import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.util.CodeWriter;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
-import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import polyglot.visit.PrettyPrinter;
 import x10.ast.SettableAssign_c;
 import x10.ast.X10Call;
+import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Loop;
-import x10.ast.X10NodeFactory;
-import x10.emitter.Emitter;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10Flags;
 import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import x10.visit.X10PrettyPrinterVisitor;
-import x10.visit.X10Translator;
+import x10c.ast.BackingArray;
+import x10c.ast.BackingArrayAccess;
+import x10c.ast.X10CBackingArrayAccess_c;
+import x10c.ast.X10CNodeFactory_c;
+import x10c.types.X10CTypeSystem_c;
 
 public class RailInLoopOptimizer extends ContextVisitor {
 
     private static final boolean VALRAIL_OPTIMIZE = true;
-    private final X10TypeSystem xts;
-    private final X10NodeFactory xnf;
+    private final X10CTypeSystem_c xts;
+    private final X10CNodeFactory_c xnf;
 
     public RailInLoopOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+        xts = (X10CTypeSystem_c) ts;
+        xnf = (X10CNodeFactory_c) nf;
     }
 
     @Override
@@ -117,7 +120,8 @@ public class RailInLoopOptimizer extends ContextVisitor {
             });
 
             // targets to privatize
-            final List<Pair<JavaArray, Boolean>> targetAndIsFinals = new ArrayList<Pair<JavaArray, Boolean>>();
+            final List<Pair<BackingArray, Boolean>> targetAndIsFinals = new ArrayList<Pair<BackingArray, Boolean>>();
+            final Map<BackingArray, Id> backingArrayToId = new HashMap<BackingArray, Id>(); 
 
             // to merge privatization statement
             Stmt visited1 = (Stmt) loop.body().visit(new NodeVisitor() {
@@ -132,29 +136,38 @@ public class RailInLoopOptimizer extends ContextVisitor {
                 public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
                     if (n instanceof LocalDecl) {
                         LocalDecl ld = (LocalDecl) n;
-                        ignores.add(ld.name().toString());
-                    }
-                    if (n instanceof PrivatizeExpr) {
-                        PrivatizeExpr privtz = (PrivatizeExpr) n;
-                        Term rail = privtz.rail;
-                        if (!ignores.contains(rail.toString())) {
-                            if (rail instanceof Field && ignores.contains(((Field) rail).target().toString())) {
-                                ignores.add(privtz.valName);
-                                return n;
-                            }
-                            if (rail instanceof JavaArray && ignores.contains(((JavaArray) rail).index.toString())) {
-                                ignores.add(privtz.valName);
-                                return n;
-                            }
-                            for (Pair<JavaArray, Boolean> pair : targetAndIsFinals) {
-                                // already privatized at another loop
-                                if (pair.fst().rail.toString().equals(rail.toString())) {
-                                    ignores.add(privtz.valName);
-                                    return new PrivatizeExpr(n.position(), privtz.type, privtz.valName, pair.fst().name.toString(), privtz.isFinal);
+                        Expr init = ld.init();
+                        if (init instanceof BackingArray) {
+                            BackingArray ba = (BackingArray) init;
+                            Expr rail = ba.container();
+                            if (!ignores.contains(rail.toString())) {
+                                if (rail instanceof Field && ignores.contains(((Field) rail).target().toString())) {
+                                    ignores.add(ld.name().toString());
+                                    return n;
                                 }
+                                if (rail instanceof X10CBackingArrayAccess_c && ignores.contains(((X10CBackingArrayAccess_c) rail).index().toString())) {
+                                    ignores.add(ld.name().toString());
+                                    return n;
+                                }
+                                Type type = ld.type().type();
+                                for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
+                                    // already privatized at another loop
+                                    if (pair.fst().container().toString().equals(rail.toString())) {
+                                        ignores.add(ld.name().toString());
+                                        X10CanonicalTypeNode tn = xnf.X10CanonicalTypeNode(n.position(), type);
+                                        Id id = backingArrayToId.get(pair.fst());
+                                        LocalDef ldef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
+                                        return xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), Flags.FINAL),tn, ld.name(), xnf.Local(n.position(), id).type(type)).localDef(ldef).type(tn);
+                                    }
+                                }
+                                Id id = xnf.Id(ld.position(), Name.make(ld.name().toString()));
+                                BackingArray nba = xnf.BackingArray(n.position(), id, type, rail);
+                                backingArrayToId.put(nba, id);
+                                targetAndIsFinals.add(new Pair<BackingArray, Boolean>(nba, true));
                             }
-                            JavaArray jna = new JavaArray(n.position(), privtz.type, (Receiver) privtz.rail, null, null, Name.make(privtz.valName));
-                            targetAndIsFinals.add(new Pair<JavaArray, Boolean>(jna, true));
+                        }
+                        else {
+                            ignores.add(ld.name().toString());
                         }
                     }
                     return n;
@@ -197,7 +210,8 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 if (X10Flags.toX10Flags(((Local) target).flags()).isShared()) {
                                     return n;
                                 }
-                            } else if (target instanceof Field) {
+                            }
+                            else if (target instanceof Field) {
                                 if (!((Field) target).flags().isFinal()) {
                                     return n;
                                 } else if (ignores.contains(((Field) target).target().toString())) {
@@ -209,20 +223,25 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             }
 
                             boolean contains = false;
-                            Name name = null;
-                            for (Pair<JavaArray, Boolean> pair : targetAndIsFinals) {
-                                if (pair.fst().rail.toString().equals(target.toString())) {
+                            Id id = null;
+                            for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
+                                if (pair.fst().container().toString().equals(target.toString())) {
                                     contains = true;
-                                    name = pair.fst().name;
+                                    id = backingArrayToId.get(pair.fst());
                                     break;
                                 }
                             }
 
                             if (!contains) {
-                                name = Name.makeFresh("railval");
-                                targetAndIsFinals.add(new Pair<JavaArray, Boolean>(new JavaArray(pos, type, target, null, null, name), true));
+                                id = xnf.Id(pos, Name.makeFresh(target.toString().replace(".", "$").replaceAll("[\\[\\]]", "_") + "$value"));
+                                BackingArray ba = xnf.BackingArray(pos, id, createArrayType(type), (Expr) target);
+                                backingArrayToId.put(ba, id);
+                                targetAndIsFinals.add(new Pair<BackingArray, Boolean>(ba, true));
                             }
-                            return new JavaArray(pos, type, target, index, elem, name);
+                            if (elem == null) {
+                                return xnf.BackingArrayAccess(pos, xnf.Local(pos, id).type(target.type()), index, type);
+                            }
+                            return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id), index, Assign.ASSIGN, elem);
                         }
                     }
                     if (n instanceof SettableAssign_c) {
@@ -254,53 +273,56 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             }
 
                             boolean contains = false;
-                            Name name = null;
-                            for (Pair<JavaArray, Boolean> pair : targetAndIsFinals) {
-                                if (pair.fst().rail.toString().equals(array.toString())) {
+                            Id id = null;
+                            for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
+                                if (pair.fst().container().toString().equals(array.toString())) {
                                     contains = true;
-                                    name = pair.fst().name;
+                                    id = backingArrayToId.get(pair.fst());
                                     break;
                                 }
                             }
-                            JavaArray jna;
+                            BackingArray ba;
                             if (!contains) {
-                                name = Name.makeFresh("railvalue");
-                                jna = new JavaArray(n.position(), type, array, ((SettableAssign_c) n).index().get(0), null, name);
-                                targetAndIsFinals.add(new Pair<JavaArray, Boolean>(jna, true));
-                            } else {
-                                jna = new JavaArray(n.position(), type, array, ((SettableAssign_c) n).index().get(0), null, name);
+                                id = xnf.Id(n.position(), Name.makeFresh(array.toString().replace(".", "$").replaceAll("[\\[\\]]", "_") + "$value"));
+                                ba = xnf.BackingArray(n.position(), id, createArrayType(type), array);
+                                backingArrayToId.put(ba, id);
+                                targetAndIsFinals.add(new Pair<BackingArray, Boolean>(ba, true));
                             }
-                            return xnf.AmbAssign(n.position(), jna, ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right());
+                            else {
+                                ba = xnf.BackingArray(n.position(), id, createArrayType(type), array);
+                            }
+                            return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id), ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right());
                         }
                     }
                     // rail = Rail.make(10) -> rail = Rail.make(10); railvaluexxx = (int[]) rail.value;
-                    if (n instanceof Eval) {
-                        if (((Eval) n).expr() instanceof PrivatizeExpr) {
-                            Expr e = ((Eval) n).expr();
-                            PrivatizeExpr privatize = (PrivatizeExpr) e;
-                            Term rail = privatize.rail;
+                    if (n instanceof LocalDecl) {
+                        LocalDecl ld = (LocalDecl) n;
+                        Expr init = ((LocalDecl) n).init();
+                        if (init instanceof BackingArray) {
+                            BackingArray ba = (BackingArray) init;
+                            Expr rail = ba.container();
                             if (rail != null) {
                                 if (!ignores.contains(rail.toString())) {
                                     if (rail instanceof Field && ignores.contains(((Field) rail).target().toString())) {
                                         return n;
                                     }
-                                    if (rail instanceof JavaArray) {
-                                        if (ignores.contains(((JavaArray) rail).index.toString())) {
+                                    if (rail instanceof X10CBackingArrayAccess_c) {
+                                        if (ignores.contains(((X10CBackingArrayAccess_c) rail).index().toString())) {
                                             return n;
                                         }
                                     }
-
+                                    
                                     for (int i = 0; i < targetAndIsFinals.size(); i++) {
-                                      Pair<JavaArray, Boolean> pair = targetAndIsFinals.get(i);
-                                      // already exist
-                                      if (pair.fst().name.toString().equals(privatize.valName.toString())) {
-                                          if (!privatize.isFinal) {
-                                              targetAndIsFinals.set(i, new Pair<JavaArray, Boolean>(pair.fst(), false));
-                                          }
-                                          return null;
-                                      }
+                                        Pair<BackingArray, Boolean> pair = targetAndIsFinals.get(i);
+                                        // already exist
+                                        if (backingArrayToId.get(pair.fst()).toString().equals(ld.name().toString())) {
+                                            if (!ld.flags().flags().isFinal()) {
+                                                targetAndIsFinals.set(i, new Pair<BackingArray, Boolean>(pair.fst(), false));
+                                            }
+                                            return null;
+                                        }
                                     }
-                                    moves.add((Stmt) xnf.Eval(e.position(), (Expr) e));
+                                    moves.add(ld);
                                     return null;
                                 }
                             }
@@ -324,13 +346,13 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             Local local = la.local();
                             if (xts.isRail(type) || xts.isValRail(type)) {
                                 boolean contains = false;
-                                Name name = null;
+                                Id id = null;
                                 for (int i = 0; i < targetAndIsFinals.size(); i++) {
-                                    Pair<JavaArray, Boolean> pair = targetAndIsFinals.get(i);
-                                    if (pair.fst().rail.toString().equals(local.toString())) {
+                                    Pair<BackingArray, Boolean> pair = targetAndIsFinals.get(i);
+                                    if (pair.fst().container().toString().equals(local.toString())) {
                                         contains = true;
-                                        name = pair.fst().name;
-                                        targetAndIsFinals.set(i, new Pair<JavaArray, Boolean>(pair.fst(), false));
+                                        id = backingArrayToId.get(pair.fst());
+                                        targetAndIsFinals.set(i, new Pair<BackingArray, Boolean>(pair.fst(), false));
                                         break;
                                     }
                                 }
@@ -339,12 +361,10 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                                 if (parent instanceof Block) {
                                     for (Stmt stmt : ((Block) parent).statements()) {
-                                        if (stmt instanceof Eval) {
-                                            Expr expr = ((Eval) stmt).expr();
-                                            if (expr instanceof PrivatizeExpr) {
-                                                if (((PrivatizeExpr) expr).valName.equals(name.toString())) {
-                                                    return n;
-                                                }
+                                        if (stmt instanceof LocalDecl && ((LocalDecl)stmt).init() instanceof BackingArray) {
+                                            BackingArray ba = (BackingArray) ((LocalDecl) stmt).init();
+                                            if (backingArrayToId.get(ba).toString().equals(id.toString())) {
+                                                return n;
                                             }
                                         }
                                     }
@@ -352,12 +372,13 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 List<Stmt> stmts = new ArrayList<Stmt>();
                                 stmts.add((Stmt) n);
                                 Type pt = X10TypeMixin.baseType(((X10ClassType) type).typeArguments().get(0));
-                                PrivatizeExpr expr;
+                                Expr expr;
                                 if (la.right() instanceof NullLit) {
-                                    expr = new PrivatizeExpr(n.position(), pt, name.toString(), null, false, false);
+                                    expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).type(type), Assign.ASSIGN, la.right()).type(type);
                                 }
                                 else {
-                                    expr = new PrivatizeExpr(n.position(), pt, name.toString(), local, false, false);
+                                    Type arrayType = createArrayType(type);
+                                    expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).type(arrayType), Assign.ASSIGN, xnf.BackingArray(n.position(), id, arrayType, local) ).type(arrayType);
                                 }
                                 stmts.add(xnf.Eval(n.position(), expr));
                                 return xnf.StmtSeq(n.position(), stmts);
@@ -402,17 +423,18 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
 
                                 // for valrail
-                                if (target instanceof JavaArray) {
-                                    JavaArray ja = (JavaArray) target;
-                                    if (!xts.isValRail(ja.rail.type())) {
+                                if (target instanceof BackingArrayAccess) {
+                                    BackingArrayAccess ja = (BackingArrayAccess) target;
+                                    if (!xts.isValRail(ja.array().type())) {
                                         return n;
                                     }
-                                    if (!ja.index.isConstant() && !(ja.index instanceof Local && !ignores.contains(ja.index.toString()))) {
+                                    if (!ja.index().isConstant() && !(ja.index() instanceof Local && !ignores.contains(ja.index().toString()))) {
                                         return n;
                                     }
                                     boolean contain = false;
-                                    for (Pair<JavaArray, Boolean> pair : targetAndIsFinals) {
-                                        if (pair.fst().name.toString().equals(ja.name.toString())) {
+                                    for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
+//                                        if (pair.fst().id().toString().equals(ja.array().toString())) {
+                                        if (backingArrayToId.get(pair.fst()).toString().equals(ja.array().toString())) {
                                             contain = true;
                                             if (pair.snd() == false) {
                                                 return n;
@@ -427,20 +449,25 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
 
                                 boolean contains = false;
-                                Name name = null;
-                                for (Pair<JavaArray, Boolean> pair : targetAndIsFinals) {
-                                    if (pair.fst().rail.toString().equals(target.toString())) {
+                                Id id = null;
+                                for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
+                                    if (pair.fst().container().toString().equals(target.toString())) {
                                         contains = true;
-                                        name = pair.fst().name;
+                                        id = backingArrayToId.get(pair.fst());
                                         break;
                                     }
                                 }
 
                                 if (!contains) {
-                                    name = Name.makeFresh("railval");
-                                    targetAndIsFinals.add(new Pair<JavaArray, Boolean>(new JavaArray(pos, type, target, null, null, name), true));
+                                    id = xnf.Id(pos, Name.makeFresh(target.toString().replace(".", "$").replaceAll("[\\[\\]]", "_") + "$value"));
+                                    BackingArray ba = xnf.BackingArray(pos, id, createArrayType(type), (Expr) target);
+                                    backingArrayToId.put(ba, id);
+                                    targetAndIsFinals.add(new Pair<BackingArray, Boolean>(ba, true));
                                 }
-                                return new JavaArray(pos, type, target, index, elem, name);
+                                if (elem == null) {
+                                    return xnf.BackingArrayAccess(pos, xnf.Local(pos, id).type(target.type()), index, type);
+                                }
+                                return xnf.BackingArrayAccessAssign(pos, xnf.Local(pos, id).type(type), index, Assign.ASSIGN, elem).type(type);
                             }
                         }
                         if (n instanceof SettableAssign_c) {
@@ -455,17 +482,17 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                     return n;
                                 }
 
-                                if (array instanceof JavaArray) {
-                                    JavaArray ja = (JavaArray) array;
-                                    if (!xts.isValRail(ja.rail.type())) {
+                                if (array instanceof BackingArrayAccess) {
+                                    BackingArrayAccess ja = (BackingArrayAccess) array;
+                                    if (!xts.isValRail(ja.array().type())) {
                                         return n;
                                     }
-                                    if (!ja.index.isConstant() && !(ja.index instanceof Local && !ignores.contains(ja.index.toString()))) {
+                                    if (!ja.index().isConstant() && !(ja.index() instanceof Local && !ignores.contains(ja.index().toString()))) {
                                         return n;
                                     }
                                     boolean contain = false;
-                                    for (Pair<JavaArray, Boolean> pair : targetAndIsFinals) {
-                                        if (pair.fst().name.toString().equals(ja.name.toString())) {
+                                    for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
+                                        if (backingArrayToId.get(pair.fst()).toString().equals(ja.array().toString())) {
                                             contain = true;
                                             if (pair.snd() == false) {
                                                 return n;
@@ -480,23 +507,25 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
 
                                 boolean contains = false;
-                                Name name = null;
-                                for (Pair<JavaArray, Boolean> pair : targetAndIsFinals) {
-                                    if (pair.fst().rail.toString().equals(array.toString())) {
+                                Id id = null;
+                                for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
+                                    if (pair.fst().container().toString().equals(array.toString())) {
                                         contains = true;
-                                        name = pair.fst().name;
+                                        id = backingArrayToId.get(pair.fst());
                                         break;
                                     }
                                 }
-                                JavaArray jna;
+                                BackingArray jna;
                                 if (!contains) {
-                                    name = Name.makeFresh("railvalue");
-                                    jna = new JavaArray(n.position(), type, array, ((SettableAssign_c) n).index().get(0), null, name);
-                                    targetAndIsFinals.add(new Pair<JavaArray, Boolean>(jna, true));
+                                    id = xnf.Id(n.position(), Name.makeFresh(array.toString().replace(".", "$").replaceAll("[\\[\\]]", "_") + "$value"));
+                                    jna = xnf.BackingArray(n.position(), id, createArrayType(type), array);
+                                    backingArrayToId.put(jna, id);
+                                    targetAndIsFinals.add(new Pair<BackingArray, Boolean>(jna, true));
                                 } else {
-                                    jna = new JavaArray(n.position(), type, array, ((SettableAssign_c) n).index().get(0), null, name);
+                                    jna = xnf.BackingArray(n.position(), id, createArrayType(type), array);
                                 }
-                                return xnf.AmbAssign(n.position(), jna, ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right());
+                                
+                                return xnf.BackingArrayAccessAssign(n.position(), array, ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right());
                             }
                         }
                         return n;
@@ -525,11 +554,23 @@ public class RailInLoopOptimizer extends ContextVisitor {
 
             List<Stmt> statements = new ArrayList<Stmt>();
             statements.addAll(moves);
-            for (Pair<JavaArray, Boolean> pair : targetAndIsFinals) {
-                Type type = X10TypeMixin.baseType(pair.fst().rail.type());
+            for (Pair<BackingArray, Boolean> pair : targetAndIsFinals) {
+                Type type = X10TypeMixin.baseType(pair.fst().container().type());
                 if (type instanceof X10ClassType) {
                     Type pt = ((X10ClassType) type).typeArguments().get(0);
-                    statements.add(xnf.Eval(n.position(), new PrivatizeExpr(n.position(), X10TypeMixin.baseType(pt), pair.fst().name.toString(), (Term) pair.fst().rail, true, pair.snd())));
+                    X10CanonicalTypeNode tn = xnf.X10CanonicalTypeNode(n.position(), pair.fst().type());
+                    LocalDecl ld;
+                    if (pair.snd()) {
+                        ld = xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), xts.Final()), tn, backingArrayToId.get(pair.fst()), pair.fst())
+                        .localDef(xts.localDef(n.position(), xts.Final(), Types.ref(pair.fst().type()), backingArrayToId.get(pair.fst()).id()))
+                        .type(tn);
+                    }
+                    else {
+                        ld = xnf.LocalDecl(n.position(), xnf.FlagsNode(n.position(), xts.NoFlags()), tn, backingArrayToId.get(pair.fst()), pair.fst())
+                        .localDef(xts.localDef(n.position(), xts.NoFlags(), Types.ref(pair.fst().type()), backingArrayToId.get(pair.fst()).id()))
+                        .type(tn);
+                    }
+                    statements.add(ld);
                 }
             }
             statements.add(loop);
@@ -539,153 +580,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
         return n;
     }
 
-    // FIXME move to x10.ast or represent other nodes
-    private static class PrivatizeExpr extends Expr_c {
-
-        private final Type type;
-        private final String valName;
-        private final Term rail;
-        private final boolean isDecl;
-        private final String privtzName;
-
-        private boolean isFinal;
-
-        public PrivatizeExpr(Position pos, Type type, String valName, Term rail, boolean isDecl, boolean isFinal) {
-            super(pos);
-            this.type = type;
-            this.valName = valName;
-            this.rail = rail;
-            this.isDecl = isDecl;
-            this.privtzName = null;
-            this.isFinal = isFinal;
-        }
-
-        public PrivatizeExpr(Position pos, Type type, String valName, String privtzName, boolean isFinal) {
-            super(pos);
-            this.type = type;
-            this.valName = valName;
-            this.rail = null;
-            this.isDecl = true;
-            this.privtzName = privtzName;
-            this.isFinal = isFinal;
-        }
-
-        @Override
-        public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
-            return null;
-        }
-
-        @Override
-        // FIXME move to X10PrettyPrintVisitor.visit()
-        public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
-            X10Translator tr = (X10Translator) pp;
-            Emitter er = new Emitter(w, tr);
-            if (isFinal) {
-                w.write("final ");
-            }
-            if (isDecl) {
-                if (type.isBoolean() || type.isNumeric() || type.isChar()) {
-                    er.printType(type, 0);
-                } else {
-                    w.write("java.lang.Object");
-                }
-                w.write("[] ");
-            }
-            w.write(valName);
-            w.write(" = ");
-
-            if (privtzName != null) {
-                w.write(privtzName);
-                return;
-            }
-            else if (rail == null) {
-                w.write("null");
-                return;
-            }
-            else {
-                w.write("(");
-                if (type.isBoolean() || type.isNumeric() || type.isChar()) {
-                    er.printType(type, 0);
-                } else {
-                    w.write("java.lang.Object");
-                }
-                w.write("[]");
-                w.write(")");
-
-                er.prettyPrint(rail, tr);
-                w.write(".value");
-            }
-        }
-
-        public Term firstChild() {
-            return null;
-        }
-
-        @Override
-        public String toString() {
-            return (isFinal ? "final " : "") + type + " " + valName + " = " + rail;
-        }
-    }
-
-    // FIXME move to x10.ast
-    private static class JavaArray extends Expr_c {
-
-        private final Receiver rail;
-        private final Expr index;
-        private final Expr elem;
-        private final Name name;
-
-        public JavaArray(Position pos, Type type, Receiver rail, Expr index, Expr elem, Name name) {
-            super(pos);
-            super.type = type;
-            this.rail = rail;
-            this.index = index;
-            this.elem = elem;
-            this.name = name;
-        }
-
-        @Override
-        // FIXME move to X10PrettyPrintVisitor.visit()
-        public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
-            X10Translator tr = (X10Translator) pp;
-            Emitter er = new Emitter(w, tr);
-            if (elem == null && index == null) {
-                w.write(name.toString());
-                return;
-            }
-            if (elem == null && !(type.isBoolean() || type.isNumeric() || type.isChar())) {
-                w.write("(");
-                w.write("(");
-                er.printType(type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
-                w.write(")");
-            }
-            w.write(name.toString());
-            if (index != null) {
-                w.write("[");
-                er.prettyPrint(index, tr);
-                w.write("]");
-            }
-            if (elem == null && !(type.isBoolean() || type.isNumeric() || type.isChar())) {
-                w.write(")");
-            }
-            if (elem != null) {
-                w.write(" = ");
-                er.prettyPrint(elem, tr);
-            }
-        }
-
-        @Override
-        public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
-            return null;
-        }
-
-        public Term firstChild() {
-            return null;
-        }
-
-        @Override
-        public String toString() {
-            return name.toString();
-        }
+    Type createArrayType(Type t) {
+        return xts.createBackingArray(t.position(), Types.ref(t));
     }
 }
