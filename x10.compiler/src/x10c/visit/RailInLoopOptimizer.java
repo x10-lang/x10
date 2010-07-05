@@ -526,11 +526,9 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                     jna = xnf.BackingArray(n.position(), id, createArrayType(type), array);
                                     backingArrayToId.put(jna, id);
                                     targetAndIsFinals.add(new Pair<BackingArray, Boolean>(jna, true));
-                                } else {
-                                    jna = xnf.BackingArray(n.position(), id, createArrayType(type), array);
                                 }
-                                
-                                return xnf.BackingArrayAccessAssign(n.position(), array, ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right());
+                                LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
+                                return xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(type), ((SettableAssign_c) n).index().get(0), ((SettableAssign_c) n).operator(), ((SettableAssign_c) n).right());
                             }
                         }
                         return n;
