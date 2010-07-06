@@ -27,18 +27,11 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	/*
 	 * Paths
 	 */
-	private static String DATA_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "Constructs" + File.separator;;
+	private static String FUZZ_PATH = "fuzz"  + File.separator;
+	private static String DATA_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "Constructs" + File.separator;
 	private static String LIB_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "x10lib" + File.separator;
 	private static String SOURCE_PATH_BASE = getRuntimeJar() + ":" + LIB_PATH + ":" + DATA_PATH;
 
-	/*
-	 * Options
-	 */
-
-	private static String[] STATIC_CALLS = { "-STATIC_CALLS=true" };
-	private static String[] NOT_STATIC_CALLS = { "-STATIC_CALLS=false" };
-
-	private static int CAPACITY = 1024;
 	
 	public FuzzParamCompilerTests(File[] sources, String[] options) {
 		super();
@@ -49,11 +42,9 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	@Parameters
 	public static Collection inputs() {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
-		for (File f : getSources(new File(DATA_PATH))) {
-			for (File f1: fuzz(f)){
-				inputs.add(new Object[] { new File[] { f1 }, STATIC_CALLS });
-				inputs.add(new Object[] { new File[] { f1 }, NOT_STATIC_CALLS });
-			}
+		for (File f : getSources(new File(FUZZ_PATH))) {
+			inputs.add(new Object[] { new File[] { f }, STATIC_CALLS });
+			inputs.add(new Object[] { new File[] { f }, NOT_STATIC_CALLS });
 		}
 		return inputs;
 	}
@@ -64,22 +55,35 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 		compile(sources, options, new ArrayList<ErrorInfo>(), sourcepath);
 	}
 
-	private static Collection<File> fuzz(File f){
-		Collection<File> results = new ArrayList<File>();
-//		try {
-//			BufferedReader reader = new BufferedReader(new FileReader(f));
-//			BufferedWriter writer = new BufferedWriter(new FileWriter(f));
-//			writer.
-//			CharBuffer buffer = CharBuffer.allocate(CAPACITY);
-//			int length = reader.read(buffer);
-//			reader.close();
+
+	/**
+	 * This method takes a file f and creates a collection of files resulting
+	 * from introducing syntactic errors in f (introduce blank space in various places in the file.
+	 * 
+	 * @param f file to fuzz
+	 */
+	private static void fuzz(File f){
+		try {
+			long length = f.length();
+			BufferedReader reader = new BufferedReader(new FileReader(f));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(f));
+			CharBuffer buffer = CharBuffer.allocate((int) length);
+			reader.read(buffer);
+			reader.close();
+			new File("fuzz" + File.separator + "test").mkdir();
 //			for(FuzzIterator t = new FuzzIterator(buffer); t.hasNext();){
-//				File newFile = t.next();
-//				results.add
+//				CharBuffer newBuffer = t.next();
+//				File.
+//				writer
 //			}
-//		} catch (IOException e){
-//			System.err.println(e);
-//		}
-		return results;
+		} catch (IOException e){
+			System.err.println(e);
+		}
+	}
+	
+	public static void main(String[] args){
+		for (File f : getSources(new File(DATA_PATH))) {
+			fuzz(f);
+		}
 	}
 }
