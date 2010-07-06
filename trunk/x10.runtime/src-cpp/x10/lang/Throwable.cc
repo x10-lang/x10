@@ -20,9 +20,6 @@
 
 #ifdef __GLIBC__
 #   include <execinfo.h> // for backtrace()
-#   ifdef USE_BFD
-#       include <bfd.h> // for filename / line number info
-#   endif
 #   include <cxxabi.h> // for demangling of symbol
 #else
 #   if defined(_AIX)
@@ -186,9 +183,28 @@ int backtrace(void** trace, size_t max_size) {
 
 
 ref<Throwable> Throwable::fillInStackTrace() {
-#if defined(__GLIBC__) || defined(_AIX)
+#if defined(__GLIBC__)
     if (FMGL(trace_size)>=0) return this;
     FMGL(trace_size) = ::backtrace(FMGL(trace), sizeof(FMGL(trace))/sizeof(*FMGL(trace)));
+#elif defined(_AIX)
+    if (FMGL(trace_size)>=0) return this;
+
+    // walk the stack, saving the offsets for each stack frame into "trace".
+    unsigned long stackAddr;
+	#if defined(_LP64)
+		__asm__ __volatile__ ("std 1, %0 \n\t" : "=m" (stackAddr));
+	#else
+		__asm__ __volatile__ ("stw 1, %0 \n\t" : "=m" (stackAddr));
+	#endif
+	FMGL(trace_size) = 0;
+	while (FMGL(trace_size) < MAX_TRACE_SIZE)
+	{
+		FMGL(trace)[FMGL(trace_size)] = (void*)*(((unsigned long *)stackAddr)+2); // link register is saved here in the stack
+		stackAddr = *((long *)stackAddr);
+		FMGL(trace_size)++;
+		if (stackAddr == 0) // the end of the stack (main)
+			break;
+	}
 #endif
     return this;
 }
@@ -234,122 +250,6 @@ void extract_frame (const char *start, char * &filename, char * &symbol, size_t 
     }
 }
 
-#ifdef USE_BFD
-// This one opens up the executable file (filename) and looks for addr,
-// returning a string containing the source file and line number corresponding
-// to that address.
-void extract_src_file_line_num (const char *filename, size_t addr,
-                                char *&srcfile, size_t &linenum) {
-    linenum=-1;
-    //std::cerr<<"Filename: \""<<filename<<"\"  addr: 0x"<<std::hex<<addr<<std::dec<<std::endl;
-    bfd *abfd = bfd_openr(filename,NULL);
-    if (abfd==NULL) {
-        srcfile = strdup("?");
-        // file not readable, apparently
-        return;
-    }
-
-    if (bfd_check_format (abfd, bfd_archive)) {
-        bfd_close(abfd);
-        srcfile = strdup("??");
-        // file readable but of the wrong format?
-        return;
-    }
-
-    char ** matching;
-    if (! bfd_check_format_matches (abfd, bfd_object, &matching)) {
-        // no idea what this is for
-        srcfile = strdup("???");
-        return;
-    }
-
-    if ((bfd_get_file_flags (abfd) & HAS_SYMS) == 0)  {
-        bfd_close(abfd);
-        // file has no symbols
-        srcfile = strdup("????");
-        return;
-    }
-
-    asymbol **syms = NULL;
-
-    unsigned int sz;
-    //FIXME: the (void**) cast below is a hack - what the hell is wrong with this API?!
-    long symcount = bfd_read_minisymbols (abfd, FALSE, (void**)&syms, &sz);
-    if (symcount == 0) {
-        symcount = bfd_read_minisymbols (abfd, TRUE, (void**)&syms, &sz);
-    }
-    if (symcount < 0) {
-        bfd_close(abfd);
-        // file has no symbols (again?)
-        srcfile = strdup("?????");
-        return;
-    }
-    for (asection *sec = abfd->sections; sec!=NULL; sec=sec->next) {
-
-        if ((bfd_get_section_flags(abfd, sec) & SEC_ALLOC) == 0)
-            continue;
-
-        bfd_vma vma = bfd_get_section_vma (abfd, sec);
-
-        if (addr < vma) continue;
-
-        bfd_size_type size = bfd_get_section_size (sec);
-        if (addr >= vma + size) continue;
-
-        const char *srcpath=NULL; // we want this
-        unsigned int line=0; // we want this
-        const char *funcname=NULL; // already have this info, so don't bother returning it
-        bfd_boolean found = bfd_find_nearest_line (abfd, sec, syms, addr - vma,
-                                                   &srcpath, &funcname, &line);
-
-        if (found) {
-            linenum = line; //return value;
-
-            if (srcpath==NULL) {
-                // I have no idea why this happens but it does...
-                srcfile = strdup("??????");
-                ::free(syms);
-                bfd_close(abfd);
-                return;
-            }
-
-            const char *srcfile_;
-
-            // get the filename
-            srcfile_ = strrchr(srcpath,'/');
-            if (srcfile_==NULL) {
-                // no '/' in srcpath
-                srcfile_ = srcpath;
-            } else {
-                // skip over the '/' to leave just the file name
-                srcfile_++;
-            }
-
-            srcfile = strdup(srcfile_); // return value;
-
-            ::free(syms);
-            bfd_close(abfd);
-            return;
-        }
-
-
-    }
-
-    ::free(syms);
-    bfd_close(abfd);
-
-    srcfile = strdup("???????");
-}
-
-void *__init_bfd() {
-    bfd_init();
-    return NULL;
-}
-
-static void *__init_bfd_ = __init_bfd();
-
-#endif // USE_BFD
-
 #endif // __GLIBC_
 
 
@@ -384,18 +284,6 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
             char *filename; char *symbol; size_t addr;
             extract_frame(messages[i],filename,symbol,addr);
             char *msg = symbol;
-            #ifdef USE_BFD
-            if (addr != 0) {
-                char *srcfile; size_t srcline;
-                extract_src_file_line_num(filename, addr, srcfile, srcline);
-                // I hate writing C.
-                size_t msgsz = 1 + snprintf(NULL, 0, "%s (%s:%d)", symbol, srcfile, srcline);
-                msg = (char*)malloc(msgsz);
-                snprintf(msg, msgsz, "%s (%s:%d)", symbol, srcfile, srcline);
-                ::free(symbol);
-                ::free(srcfile);
-            }
-            #endif
             (*rail)[i] = String::Lit(msg);
             ::free(msg);
             ::free(filename);
@@ -407,6 +295,41 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
             const char *msg = "No stacktrace recorded.";
             FMGL(cachedStackTrace) = alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
         }
+
+    	// build up a fake stack from our saved addresses
+    	// the fake stack doesn't need anything more than back-pointers and enough offset to hold the frame references
+    	unsigned long* fakeStack = (unsigned long *)malloc((FMGL(trace_size)+1) * 3 * sizeof(unsigned long)); // pointer, junk, link register, junk, junk, junk
+    	long i;
+    	for (i=0; i<FMGL(trace_size); i++)
+    	{
+    		fakeStack[i*3] = (unsigned long)&(fakeStack[(i+1)*3]);
+    		fakeStack[i*3+1] = 0xdeadbeef;
+    		fakeStack[i*3+2] = (unsigned long)FMGL(trace)[i];
+    	}
+    	fakeStack[i*3] = 0;
+
+    	// manipulate the existing stack to point to our fake stack
+    	unsigned long stackPointer;
+		#if defined(_LP64)
+			__asm__ __volatile__ ("std 1, %0 \n\t" : "=m" (stackPointer));
+		#else
+			__asm__ __volatile__ ("stw 1, %0 \n\t" : "=m" (stackPointer));
+		#endif
+
+    	unsigned long originalStackPointer = stackPointer;
+    	*((unsigned long*)stackPointer) = (unsigned long)fakeStack; // this line overwrites the back chain pointer in the stack to the fake one.
+
+    	// call the original slow backtrace method to convert the offsets into text
+    	// this overwrites the contents of "trace" and value of "trace_size", which are no longer needed.
+    	FMGL(trace_size) = ::backtrace(FMGL(trace), sizeof(FMGL(trace))/sizeof(*FMGL(trace)));
+
+    	// replace the stack frame pointer to point to the real stack again
+    	*((unsigned long*)stackPointer) = originalStackPointer;
+
+    	// delete the fake stack, which is no longer needed
+    	free(fakeStack);
+
+    	// from here on down, proceed as before
         ref<ValRail<ref<String> > > rail =
             alloc_rail<ref<String>,ValRail<ref<String> > >(FMGL(trace_size));
         char *msg;
