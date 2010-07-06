@@ -1764,7 +1764,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write(") { ");
 		
                 List<Stmt> statements = n.body().statements();
-                boolean throwException = throwException(statements);
+                boolean throwException = false;
+                boolean throwThrowable = false;
+                for (Stmt stmt : statements) {
+                    final List<Type> throwables = getThrowables(stmt);
+                    if (throwables == null) {
+                        continue;
+                    }
+                    for (Type type : throwables) {
+                        if (type != null) {
+                            if (type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().RuntimeException(), tr.context())) {
+                                throwException = true;
+                            } else if (!type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().Error(), tr.context())) {
+                                throwThrowable = true;
+                            }
+                        }
+                    }
+                }
                 
                 TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
                 if (runAsync) {
@@ -1774,7 +1790,33 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         }
                     });
                 }
-                if (throwException) {
+                if (throwThrowable) {
+                    tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
+                        public void expand(Translator tr) {
+                            w.write("throw ex;");
+                        }
+                    });
+                    tryCatchExpander.addCatchBlock("java.lang.Error", "er", new Expander(er) {
+                        public void expand(Translator tr) {
+                            w.write("throw er;");
+                        }
+                    });                    
+                    if (runAsync) {
+                        tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
+                            public void expand(Translator tr) {
+                                w.write("x10.lang.Runtime.pushException(t);");
+                            }
+                        });
+                    } else {
+                        tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
+                            public void expand(Translator tr) {
+                                w.write("throw new x10.runtime.impl.java.WrappedRuntimeException(t);");
+                            }
+                        });
+                    }
+                    tryCatchExpander.expand(tr2); 
+                }
+                else if (throwException) {
                     tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex", new Expander(er) {
                         public void expand(Translator tr) {
                             w.write("throw ex;");
@@ -1865,25 +1907,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         private boolean throwException(List<Stmt> statements) {
             for (Stmt stmt : statements) {
-                final List<Type> exceptions = new ArrayList<Type>();
-                stmt.visit(
-                    new NodeVisitor() {
-                        @Override
-                        public Node leave(Node old, Node n, NodeVisitor v) {
-                            if (n instanceof X10Call_c) {
-                                List<Type> throwTypes = ((X10Call_c) n).methodInstance().throwTypes();
-                                if (throwTypes != null) exceptions.addAll(throwTypes);
-                            }
-                            if (n instanceof Throw) {
-                                exceptions.add(((Throw) n).expr().type());
-                            }
-                            if (n instanceof X10New_c) {
-                                List<Type> throwTypes = ((X10New_c) n).procedureInstance().throwTypes();
-                                if (throwTypes != null) exceptions.addAll(throwTypes);
-                            }
-                            return n;
-                        }
-                });
+                final List<Type> exceptions = getThrowables(stmt);
                 if (exceptions == null) {
                     continue;
                 }
@@ -1891,11 +1915,36 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (type != null) {
                         if (type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().RuntimeException(), tr.context())) {
                             return true;
+                        } else if (!type.isSubtype(tr.typeSystem().Exception(), tr.context()) && !type.isSubtype(tr.typeSystem().Error(), tr.context())) {
+                            return true;
                         }
                     }
                 }
             }
             return false;
+        }
+
+        private static List<Type> getThrowables(Stmt stmt) {
+            final List<Type> throwables = new ArrayList<Type>();
+            stmt.visit(
+                new NodeVisitor() {
+                    @Override
+                    public Node leave(Node old, Node n, NodeVisitor v) {
+                        if (n instanceof X10Call_c) {
+                            List<Type> throwTypes = ((X10Call_c) n).methodInstance().throwTypes();
+                            if (throwTypes != null) throwables.addAll(throwTypes);
+                        }
+                        if (n instanceof Throw) {
+                            throwables.add(((Throw) n).expr().type());
+                        }
+                        if (n instanceof X10New_c) {
+                            List<Type> throwTypes = ((X10New_c) n).procedureInstance().throwTypes();
+                            if (throwTypes != null) throwables.addAll(throwTypes);
+                        }
+                        return n;
+                    }
+            });
+            return throwables;
         }
 
 	private boolean containsPrimitive(Closure_c n) {
