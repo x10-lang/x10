@@ -130,7 +130,7 @@ public final class LocalAndRemoteLaunchTest {
     editorBot.sleep(100);
     
     editorBot.textWithLabel(PlatformConfConstants.HOST_TEXT_LABEL).setText("localhost"); //$NON-NLS-1$
-    editorBot.textWithLabel(PlatformConfConstants.USER_TEXT_LABEL).setText("egeay"); //$NON-NLS-1$
+    editorBot.textWithLabel(PlatformConfConstants.USER_TEXT_LABEL).setText(System.getProperty("user.name")); //$NON-NLS-1$
     editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
     final String privateKeyFile = String.format("%s/.ssh/id_rsa", System.getProperty("user.home")); //$NON-NLS-1$ //$NON-NLS-2$
     editorBot.textWithLabel(PlatformConfConstants.PRIVATE_KEY_FILE_LABEL).setText(privateKeyFile);
