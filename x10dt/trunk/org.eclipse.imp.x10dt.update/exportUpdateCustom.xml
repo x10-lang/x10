@@ -243,6 +243,7 @@
              
         </copy>
         <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+        	<fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp_*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.aix*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.core*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.debug*.jar"/> 
