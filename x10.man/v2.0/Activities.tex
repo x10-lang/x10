@@ -397,7 +397,7 @@ computation.
 
 An \Xten{} computation is initiated from the command line on the
 presentation of a classname \xcd"C". The class must have a
-\xcd"public static def main(a: Rail[String])" method, otherwise an
+\xcd"public static def main(a: Rail[String]):Void" method, otherwise an
 exception is thrown
 and the computation terminates.  The single statement
 \begin{xten}
@@ -526,7 +526,7 @@ value of the computation.
 %~~gen
 % package Activities.Futures.Exmaple.NotATreeAnymore;
 % class Futu {
-%   public static def main(argv:Rail[String]!) {
+%   public static def main(argv:Rail[String]!):Void {
 %~~vis
 \begin{xten}
     val future_a = future "expression that takes a long time";
