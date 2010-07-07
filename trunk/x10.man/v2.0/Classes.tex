@@ -1240,7 +1240,7 @@ argument \xcd`x`.  We would like to write code thus:
 % 
 %~~vis
 \begin{xten}
-  public static def main(Rail[String]) {
+  public static def main(Rail[String]):Void {
      val X = new Poly([0,1]);
      val t <: Poly = 7 * X + 6 * X * X * X; 
      val u <: Poly = 3 + 5*X - 7*X*X;
@@ -1343,7 +1343,7 @@ Writing the same code with method calls, while possible, is far less elegant:
 %   static def const(n:Int) = n as UglyPoly;
 % 
 %   public static def Main(x:Rail[String]) = main(x);
-%   public static def main(Rail[String]) {
+%   public static def main(Rail[String]):Void {
 %      val X = new UglyPoly([0,1]);
 %      val t <: UglyPoly = 7 * X + 6 * X * X * X; 
 % 
@@ -1610,7 +1610,7 @@ class Poly {
   public global val coeff : ValRail[Int];
   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
   public static operator (a:Int) as Poly! = new Poly([a]);
-  public static def main(Rail[String]) {
+  public static def main(Rail[String]):Void {
      val three : Poly! = 3 as Poly!;
   }
 }
@@ -1632,7 +1632,7 @@ satisfied the more specific constraint.  For example:
 class Uni(n:Int) {
   public def this(n:Int) : Uni{self.n==n} = {property(n);}
   static operator (String) as Uni{self.n != 9} = new Uni(3);
-  public static def main(Rail[String]) {
+  public static def main(Rail[String]):Void {
     val u = "" as Uni{self.n != 9 && self.n != 3};
   }
 }
@@ -1705,7 +1705,7 @@ addition to add it to \xcd`x`.
         (i:Int) => p.a(i) + q.a(i)
      ));
 
-  public static def main(Rail[String]) {
+  public static def main(Rail[String]):Void {
      val x = new Poly([0,1]);
      x10.io.Console.OUT.println("1+x=" + (1+x));
   }
@@ -1761,7 +1761,7 @@ class Oddvec {
   // ... 
 \end{xten}
 %~~siv
-%  public static def main(argv:Rail[String]!) {
+%  public static def main(argv:Rail[String]!):Void {
 %     val a = new Oddvec();
 %     x10.io.Console.OUT.println(a() + " ... " + a(0));
 %     a(1) = 20;
