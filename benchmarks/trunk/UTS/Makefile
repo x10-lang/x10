@@ -4,8 +4,14 @@
 
 export X10CXX 		?= ~/x10-trunk/x10.dist/bin/x10c++
 
-#leave blank by default, let x10c++ choose a sensible default
+#leave blank by default, X10 automatically chooses a transport for you. To
+#force a particular implementation, please uncheck one of the other options.
 export X10RTTRANSPORT	?= 
+#export X10RTTRANSPORT	?= -x10rt mpi
+#export X10RTTRANSPORT	?= -x10rt standalone
+#export X10RTTRANSPORT	?= -x10rt pgas_lapi
+#export X10RTTRANSPORT	?= -x10rt pgas_bgp
+#export X10RTTRANSPORT	?= -x10rt pgas_sockets
 
 export X10CXXFLAGS 	?= -report postcompile=5 
 
@@ -53,7 +59,7 @@ UTS: UTS.x10 sha1_rand.hpp sha1.c
 	${X10CXX} -v -NO_CHECKS -O  ${X10CXXFLAGS} ${X10RTTRANSPORT} $< -o $@ 
 
 run-UTS: UTS
-	mpirun -np 4 -hostfile host.list ./UTS -r 42 -b 2000 -m 8 -q 0.124975
+	mpirun -np 1 -hostfile host.list ./UTS -r 42 -b 2000 -m 8 -q 0.124975
 	#${X10RUN} gdb ./UTS
 
 test: Sha1Rand.cpp libsha1.a
