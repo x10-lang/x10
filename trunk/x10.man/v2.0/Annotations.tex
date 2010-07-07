@@ -113,17 +113,18 @@ The following examples illustrate the syntax:
 
 Annotations are declared as interfaces.  They must be
 subtypes of the interface \texttt{x10.lang.annotation.Annotation}.
-Annotations on types, expressions, statements, classes, fields,
-methods, constructors, and local variable declarations (or
-formal parameters)
-must extend
-\texttt{ExpressionAnnotation},
-\texttt{StatementAnnotation},
-\texttt{ClassAnnotation},
-\texttt{FieldAnnotation},
-\texttt{MethodAnnotation},
-\texttt{ConstructorAnnotation}, and
-\texttt{VariableAnnotation}, respectively.
+Annotations on particular static entities must extend the corresponding
+\xcd`Annotation` subclasses, as follows: 
+\begin{itemize}
+\item Expressions---\xcd`ExpressionAnnotation`
+\item Statements---\xcd`StatementAnnotation`
+\item Classes---\xcd`ClassAnnotation`
+\item Fields---\xcd`FieldAnnotation`
+\item Methods---\xcd`MethodAnnotation`
+\item Imports---\xcd`ImportAnnotation`
+\item Packages---\xcd`PackageAnnotation`
+\end{itemize}
+
 
 \section{Compiler plugins}
 \index{plugins}
