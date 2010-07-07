@@ -155,7 +155,6 @@
     
     <target name="add.features.to.site.xml.ptp">
         <fileset id="ptp.feature.jar.filelist" dir="${ptp.update.cache.dir}/features">
-            <include name="org.eclipse.ptp_*.jar"/>
             <include name="org.eclipse.ptp.core*.jar"/>
             <include name="org.eclipse.ptp.debug*.jar"/>
             <!-- <include name="org.eclipse.ptp.master*.jar"/> -->
@@ -209,18 +208,18 @@
     <target name="collect.imp.artifacts" depends="retrieve.imp">
          <!-- imp.update.cache.dir is the local cache of the (unzipped) IMP update site   -->
         <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
-           <fileset dir="${imp.update.cache.dir}/features/" includes="org.eclipse.imp.runtime_*.jar"/>
-            <fileset dir="${imp.update.cache.dir}/features/" includes="org.eclipse.imp.java.hosted_*.jar"/>
+           <fileset dir="${imp.update.cache.dir}/features/" includes="org.eclipse.imp.runtime*.jar"/>
+            <fileset dir="${imp.update.cache.dir}/features/" includes="org.eclipse.imp.java.hosted*.jar"/>
         </copy>
          <!-- fixme really should dynamically copy plugin jars based on list in feature manifest -->
         <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
-            <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.doc_*.jar"/>
-             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.runtime_*.jar"/>
-             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.smapi_*.jar"/>
-             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.smapifier_*.jar"/>
-             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.xform_*.jar"/>
-             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.java.hosted_*.jar"/>
-             <fileset dir="${imp.update.cache.dir}/plugins" includes="com.ibm.wala.shrike_*.jar"/>            
+            <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.doc*.jar"/>
+             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.runtime*.jar"/>
+             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.smapi*.jar"/>
+             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.smapifier*.jar"/>
+             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.xform*.jar"/>
+             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.java.hosted*.jar"/>
+             <fileset dir="${imp.update.cache.dir}/plugins" includes="com.ibm.wala.shrike*.jar"/>            
         </copy>
     </target>
 
@@ -228,14 +227,13 @@
         <!-- ptp.update.cache.dir is the local cache of the (unzipped) ptp update site   
             which is the unzipped contents of ptp-master-*.zip   -->
         <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
-        <!-- don't get ptp end-user runtime because it includes pldt
-            <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp_*.jar"/>
-            -->
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.core*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.external*.jar"/>
+        	<fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.debug*.jar"/> 
           
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.remotetools*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.remote.remotetools*.jar"/>
+        	<fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.remote.rse*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.remote_*.jar"/>
             
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.rm*.jar"/>
@@ -245,10 +243,6 @@
              
         </copy>
         <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
-            <!--
-            <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp*.jar"/>
-            -->
-            <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp_*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.aix*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.core*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.debug*.jar"/> 
@@ -261,6 +255,7 @@
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remotetools*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remote.remotetools*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remote_*.jar"/>
+        	<fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remote.rse*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remote.core*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remote.ui*.jar"/>
             
