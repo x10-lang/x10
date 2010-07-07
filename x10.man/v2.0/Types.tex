@@ -363,6 +363,21 @@ The \xcd"get" method on a \xcd`Cell[Int]` returns an \xcd"Int"; the
 \xcd"Cell" alone is not a legal type because the parameter is
 not bound.
 
+Methods may be generic, even methods in non-generic classes: 
+%~~gen
+% package Types.For.Cripes.Sake.Generic.Methods;
+% import x10.util.*;
+%~~vis
+\begin{xten}
+class NonGeneric {
+  static def first[T](x:List[T]!):T = x(0);
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
 \subsection{Variance of Type Parameters}
 \index{covariant}
 \index{contravariant}
