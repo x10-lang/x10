@@ -156,5 +156,16 @@
             id="org.eclipse.imp.x10dt.X10_CONTAINER">
       </classpathContainerInitializer>
    </extension>
+   <extension
+         id="classpathMarker"
+         name="X10 Classpath Marker"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <persistent
+            value="false">
+      </persistent>
+   </extension>
 
 </plugin>

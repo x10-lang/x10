@@ -19,6 +19,7 @@ public class Messages extends NLS {
   
   public static String XCCI_BundleNotFoundError;
   public static String XCCI_ClasspathResIOError;
+  public static String XCCI_NoX10JARFound;
   public static String XCCI_WrongClassPathContainer;
   
   // --- Private code
