@@ -1268,6 +1268,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                     for (int i = 0; i < catchBlocks.size(); ++i) {
 		                Catch cb = catchBlocks.get(i);
+		                if (i > 0) {
+		                    w.write("else ");
+		                }
 		                w.write("if (" + temp + ".getCause() instanceof ");
 		                new TypeExpander(er, cb.catchType(), false, false, false).expand(tr);
 		                w.write(") {");
@@ -1285,7 +1288,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		                w.write("}");
                         w.newline();
 		            }
+                    w.write("else {");
+                    w.newline();
 		            w.write("throw " + temp + ";");
+		            w.newline();
+		            w.write("}");
                     w.newline();
 		        }
 		    });
