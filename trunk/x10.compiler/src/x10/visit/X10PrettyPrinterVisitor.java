@@ -1306,15 +1306,27 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	
 	public void visit(Tuple_c c) {
-		Type t = X10TypeMixin.getParameterType(c.type(), 0);
-		new Template(er, "tuple", 
-				new TypeExpander(er, t, true, true, false),
-				new RuntimeTypeExpander(er, t), 
-				new TypeExpander(er, t, false, false, false),
-				new Join(er, ",", c.arguments())).expand();
+	    Type t = X10TypeMixin.getParameterType(c.type(), 0);
+	    w.write("x10.core.RailFactory.<");
+            new TypeExpander(er, t, true, true, false).expand();
+            w.write(">");
+            w.write("makeValRailFromJavaArray(");
+            new RuntimeTypeExpander(er, t).expand();
+            w.write(", ");
+            if (X10TypeMixin.baseType(t) instanceof ParameterType) {
+                new RuntimeTypeExpander(er, t).expand();
+                w.write(".makeArray(");
+                new Join(er, ", ", c.arguments()).expand();
+                w.write(")");
+            } else {
+                w.write("new ");
+                new TypeExpander(er, t, false, false, false).expand();
+                w.write("[] {");
+                new Join(er, ", ", c.arguments()).expand();
+                w.write("}");
+            }
+            w.write(")");
 	}
-
-
 
 	public void visit(X10Call_c c) {
 	    Type type = X10TypeMixin.baseType(c.type());
