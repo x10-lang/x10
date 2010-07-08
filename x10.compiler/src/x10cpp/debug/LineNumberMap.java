@@ -457,10 +457,10 @@ public class LineNumberMap extends StringTable {
 	    public final int cppfromline;
 	    public final int cpptoline;
 	    public final int fileId;
-	    public CPPLineInfo(int x10index, int x10method, int cppindex, int x10line, int x10column, int cppfromline, int fileId) {
-	        this(x10index, x10method, cppindex, x10line, x10column, cppfromline, -1, fileId);
+	    public CPPLineInfo(int x10index, int x10method, int cppindex, int x10line, int cppfromline, int fileId, int x10column) {
+	        this(x10index, x10method, cppindex, x10line, cppfromline, -1, fileId, x10column);
 	    }
-	    public CPPLineInfo(int x10index, int x10method, int cppindex, int x10line, int x10column, int cppfromline, int cpptoline, int fileId) {
+	    public CPPLineInfo(int x10index, int x10method, int cppindex, int x10line, int cppfromline, int cpptoline, int fileId, int x10column) {
 	        this.x10index = x10index;
 	        this.x10method = x10method;
 	        this.cppindex = cppindex;
@@ -569,9 +569,9 @@ public class LineNumberMap extends StringTable {
 	                                0,                                         // FIXME: _X10method
 	                                offsets[p.fileId],                         // _CPPindex
 	                                e.line,                                    // _X10line
-	                                e.column,                                  // _X10column
 	                                p.start_line,                              // _CPPline
-	                                p.fileId));
+	                                p.fileId,
+	                                e.column));                                  // _X10column	                                
 	    }
 	    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
 	    
@@ -642,7 +642,8 @@ public class LineNumberMap extends StringTable {
 	                                e.line,                                    // _X10line
 	                                p.start_line,                              // _CPPfromline
 	                                p.end_line,                                // _CPPtoline
-	                                p.fileId));
+	                                p.fileId,
+	                                e.column));
 	    }
 	    Collections.sort(cpptoX10xrefList, CPPLineInfo.byCPPinfo());
 	    w.writeln("static const struct _CPPtoX10xref _CPPtoX10xrefList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
