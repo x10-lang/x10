@@ -55,44 +55,42 @@ public abstract class RailFactory {
         return new Rail<T>(type, length, newArray);
     }
 
-    // FIXME correct only when the object is java primitive or String type array 
-    public static <T> Rail<T> makeRailFromJavaArray(Object array) {
-        if (array instanceof int[]) {
-            return new Rail<T>((Type) Types.INT, ((int[]) array).length, array);
-        }
-        if (array instanceof long[]) {
-            return new Rail<T>((Type) Types.LONG, ((long[]) array).length, array);
-        }
-        if (array instanceof float[]) {
-            return new Rail<T>((Type) Types.FLOAT, ((float[]) array).length, array);
-        }
-        if (array instanceof double[]) {
-            return new Rail<T>((Type) Types.DOUBLE, ((double[]) array).length, array);
-        }
-        if (array instanceof byte[]) {
-            return new Rail<T>((Type) Types.BYTE, ((byte[]) array).length, array);
-        }
-        if (array instanceof short[]) {
-            return new Rail<T>((Type) Types.SHORT, ((short[]) array).length, array);
-        }
-        if (array instanceof char[]) {
-            return new Rail<T>((Type) Types.CHAR, ((char[]) array).length, array);
-        }
-        if (array instanceof boolean[]) {
-            return new Rail<T>((Type) Types.BOOLEAN, ((boolean[]) array).length, array);
-        }
-        if (array instanceof String[]) {
-            return new Rail<T>(new RuntimeType(String.class), ((String[]) array).length, array);
-        }
-        // FIXME cannot get correct RTT info. from array
-        return new Rail<T>(new RuntimeType(array.getClass().getComponentType()), ((Object[]) array).length, array);
-    }
+//    public static <T> Rail<T> makeRailFromJavaArray(Object array) {
+//        if (array instanceof int[]) {
+//            return new Rail<T>((Type) Types.INT, ((int[]) array).length, array);
+//        }
+//        if (array instanceof long[]) {
+//            return new Rail<T>((Type) Types.LONG, ((long[]) array).length, array);
+//        }
+//        if (array instanceof float[]) {
+//            return new Rail<T>((Type) Types.FLOAT, ((float[]) array).length, array);
+//        }
+//        if (array instanceof double[]) {
+//            return new Rail<T>((Type) Types.DOUBLE, ((double[]) array).length, array);
+//        }
+//        if (array instanceof byte[]) {
+//            return new Rail<T>((Type) Types.BYTE, ((byte[]) array).length, array);
+//        }
+//        if (array instanceof short[]) {
+//            return new Rail<T>((Type) Types.SHORT, ((short[]) array).length, array);
+//        }
+//        if (array instanceof char[]) {
+//            return new Rail<T>((Type) Types.CHAR, ((char[]) array).length, array);
+//        }
+//        if (array instanceof boolean[]) {
+//            return new Rail<T>((Type) Types.BOOLEAN, ((boolean[]) array).length, array);
+//        }
+//        if (array instanceof String[]) {
+//            return new Rail<T>(new RuntimeType(String.class), ((String[]) array).length, array);
+//        }
+//        // cannot get correct RTT info. from array
+//        return new Rail<T>(new RuntimeType(array.getClass().getComponentType()), ((Object[]) array).length, array);
+//    }
 
-    // FIXME correct only when the object is java primitive or String type array 
-    public static <T> ValRail<T> makeValRailFromJavaArray(Object array) {
-        Rail<T> r = makeRailFromJavaArray(array);
-        return new ValRail<T>(r.type, r.length, r.value);
-    }
+//    public static <T> ValRail<T> makeValRailFromJavaArray(Object array) {
+//        Rail<T> r = makeRailFromJavaArray(array);
+//        return new ValRail<T>(r.type, r.length, r.value);
+//    }
 
     public static <T> Rail<T> makeRailFromJavaArray(Type type, Object array) {
         return new Rail<T>(type, type.arrayLength(array) , array);
