@@ -79,8 +79,10 @@ public abstract class Region(
      * rails of ints.
      */
 
-    public static def makeRectangular(min: Rail[int]!, max: Rail[int]!):Region(min.length){self.rect} 
-        = new RectRegion(min, max);
+    public static def makeRectangular(minArg: Rail[int]!, maxArg: Rail[int](minArg.length)!):Region(minArg.length){self.rect}
+        = makeRectangular(minArg as ValRail[int], maxArg as ValRail[int](minArg.length));  
+    public static def makeRectangular(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect}
+        = new RectRegion(minArg, maxArg);
 
     /**
      * Construct a rank-1 rectangular region with the specified bounds.

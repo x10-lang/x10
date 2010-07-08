@@ -637,15 +637,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(">");
 		}
 
-		if (n.superClass() != null) {
+        final TypeNode superClassNode = n.superClass();
+        if (superClassNode!= null || flags.isStruct()) {
 			w.allowBreak(0);
 			w.write("extends ");
-			Type superType = n.superClass().type();
-			// FIXME: HACK! If a class extends x10.lang.Object, swipe in x10.core.Ref
-			if (!xts.typeEquals(superType, xts.Object(), context))
-			    er.printType(superType, PRINT_TYPE_PARAMS | BOX_PRIMITIVES | NO_VARIANCE);
-			else
-			    w.write("x10.core.Ref");
+            if (flags.isStruct()) {
+                assert superClassNode==null : superClassNode;
+                w.write("x10.core.Struct");
+            } else {
+                assert superClassNode!=null;
+			    Type superType = superClassNode.type();
+                // FIXME: HACK! If a class extends x10.lang.Object, swipe in x10.core.Ref
+                if (!xts.typeEquals(superType, xts.Object(), context))
+                    er.printType(superType, PRINT_TYPE_PARAMS | BOX_PRIMITIVES | NO_VARIANCE);
+                else
+                    w.write("x10.core.Ref");
+            }
 		}
 
 		// Filter out x10.lang.Any from the interfaces.
@@ -736,33 +743,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		n.print(n.body(), w, tr);
 		w.newline();
 		
-		// Generate structEquals for structs
-        if (flags.isStruct()) {
-            w.write("final public boolean structEquals(final java.lang.Object o) {");
-            w.newline(4);
-            w.begin(0);
-            w.write("if (!(o instanceof " + def.fullName() +")) return false;");
-            w.newline();
-            for (PropertyDecl pd : n.properties()) {
-                w.write("if (!x10.rtt.Equality.equalsequals(this." + pd.name() + ", ((" + def.fullName() + ") o)." + pd.name() + ")) return false;");
-                w.newline();
-            }
-            for (ClassMember member : n.body().members()) {
-                if (member instanceof FieldDecl_c) {
-                    FieldDecl_c field = (FieldDecl_c) member;
-                    if (field.flags().flags().isStatic()) continue;
-                    w.write("if (!x10.rtt.Equality.equalsequals(this." + field.name() + ", ((" + def.fullName() + ") o)." + field.name() + ")) return false;");
-                    w.newline();
-                }
-            }
-            w.write("return true;");
-            w.newline();
-            w.end();
-            w.write("}");
-            w.newline();            
-
-            w.newline();            
-        }
 
 		w.write("}");
 		w.newline(0);
@@ -929,7 +909,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
                     
                     w.write(" || ");
-                    new RuntimeTypeExpander(er, xts.Struct()).expand(tr);
+                    w.write("x10.rtt.Types.runtimeType(x10.core.Struct.class)"); // new RuntimeTypeExpander(er, xts.Struct()).expand(tr);
                     w.write(".");
                     w.write("instanceof$(");
                     tr.print(c, c.expr(), w);

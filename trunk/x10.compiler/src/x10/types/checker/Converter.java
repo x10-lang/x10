@@ -142,6 +142,8 @@ public class Converter {
 				result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
 			}
 			if (dynamicCallp) {
+                if (Configuration.STATIC_CALLS)
+                    throw new SemanticException("Expression " + e + " cannot be cast to type " + tn.type() + ".", e.position()); 
 				Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
 			}
 		}
@@ -197,7 +199,7 @@ public class Converter {
 				Type toType = formals.get(j);
 
 				try {
-					Expr e2 = attemptCoercion(!(Configuration.STATIC_CALLS), tc, e, toType);
+					Expr e2 = attemptCoercion(true, tc, e, toType);
 					transformedArgs.add(e2);
 					transformedArgTypes.add(e2.type());
 				}
