@@ -36,6 +36,15 @@ public class UByteType extends RuntimeType<Byte> {
     }
     
     @Override
+    public Object makeArray(Object... elem) {
+        byte[] arr = new byte[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).byteValue();
+        }
+        return arr;
+    }
+    
+    @Override
     public Byte getArray(Object array, int i) {
         return ((byte[]) array)[i];
     }

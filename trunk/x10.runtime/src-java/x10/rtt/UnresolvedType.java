@@ -66,6 +66,10 @@ public final class UnresolvedType implements Type {
         throw new UnsupportedOperationException();
     }
 
+    public Object makeArray(Object... elems) {
+        throw new UnsupportedOperationException();
+    }
+
     public final Fun_0_2 maxOperator() {
         throw new UnsupportedOperationException();
     }

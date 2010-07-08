@@ -36,6 +36,15 @@ public class LongType extends RuntimeType<Long> {
     }
     
     @Override
+    public Object makeArray(Object... elem) {
+        long[] arr = new long[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).longValue();
+        }
+        return arr;
+    }
+    
+    @Override
     public Long getArray(Object array, int i) {
         return ((long[]) array)[i];
     }

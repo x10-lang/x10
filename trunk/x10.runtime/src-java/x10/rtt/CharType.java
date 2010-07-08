@@ -35,6 +35,15 @@ public class CharType extends RuntimeType<Character> {
     }
     
     @Override
+    public Object makeArray(Object... elem) {
+        char[] arr = new char[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Character)elem[i]).charValue();
+        }
+        return arr;
+    }
+    
+    @Override
     public Character getArray(Object array, int i) {
         return ((char[]) array)[i];
     }

@@ -127,6 +127,10 @@ public final class ParameterizedType<T> implements Type<T>{
         return rtt.makeArray(length);
     }
 
+    public final Object makeArray(Object... elems) {
+        return rtt.makeArray(elems);
+    }
+
     public final Fun_0_2<T, T, T> maxOperator() {
         return rtt.maxOperator();
     }

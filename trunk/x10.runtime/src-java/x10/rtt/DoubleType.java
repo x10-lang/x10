@@ -36,6 +36,15 @@ public class DoubleType extends RuntimeType<Double> {
     }
     
     @Override
+    public Object makeArray(Object... elem) {
+        double[] arr = new double[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).doubleValue();
+        }
+        return arr;
+    }
+    
+    @Override
     public Double getArray(Object array, int i) {
         return ((double[]) array)[i];
     }
