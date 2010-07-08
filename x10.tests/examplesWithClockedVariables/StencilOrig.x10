@@ -23,12 +23,14 @@ public class StencilOrig {
 
     def this(n: int, p: int) { this.N=n; this.P=p;}
 
-    def step(A:Rail[Double]!, R: Region(1)) {
+    def step(A:Rail[Double]!, R: Region(1), c: Clock) {
        var diff: Double = 0;
        for ((q) in R) {
            val newVal = (A(q-1)+ A(q+1))/2.0 ; 
            diff = Math.max(diff, Math.abs(newVal - A(q)));
+           next;
            A(q) = newVal;
+           next;
        }
        return diff;
     }
@@ -37,12 +39,16 @@ public class StencilOrig {
        val A = Rail.make[Double](N+2, (int)=>0.0D); 
        A(N+1) = N+1.0D;
        val blocks = block(1..N, P);
+       val c = Clock.make();
        for (; delta > epsilon; iters++) {
           delta = 0;
-          finish for ((p):Point(1) in 0..P-1) async {
-             val myDelta  = step(A, blocks(p));
+          for ((p):Point(1) in 1..P-1) async clocked(c){
+             val myDelta  = step(A, blocks(p), c);
              atomic  delta= Math.max(delta, myDelta);
           }
+          val myDelta  = step(A, blocks(0), c);
+          atomic  delta= Math.max(delta, myDelta);
+          next;
        }
        return true;
     }

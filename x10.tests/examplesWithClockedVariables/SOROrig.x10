@@ -24,16 +24,32 @@ class SOROrigCore {
 	 // update interior Points
 	 //
 	 //JGFInstrumentor.startTimer("Section2:SOROrigCore:Kernel");
-
+		val c = Clock.make();
 	 for ((p) in 1..numIter) 
 	     for ((o) in 0..1) 
-		 finish for((ii) in 0..(((M-2-(1+o))/2))) async {
-		 val i = 2 * ii + 1 + o;
-		 for ((j) in 1..N-2) 
-		     G(i, j) = omega_over_four * (G(i-1, j) + G(i+1, j) + G(i, j-1)
+		 {
+		 	
+		 		for((ii) in 1..(((M-2-(1+o))/2))) async clocked(c) {
+		 			val i = 2 * ii + 1 + o;
+		 			for ((j) in 1..N-2) {
+		     			val tmp = omega_over_four * (G(i-1, j) + G(i+1, j) + G(i, j-1)
 						  + G(i, j+1)) + one_minus_omega * G(i, j);
-	     }
-
+	     				next;
+	     				G(i,j) = tmp;
+	     				next;
+	     	 		}
+	     		}
+	     	 	val i = 2 * 0 + 1 + o;
+		 		for ((j) in 1..N-2) {
+		     		val tmp = omega_over_four * (G(i-1, j) + G(i+1, j) + G(i, j-1)
+						  + G(i, j+1)) + one_minus_omega * G(i, j);
+	     			next;
+	     			G(i,j) = tmp;
+	     			next;
+	     		}
+	     		next;  
+	     	//Console.OUT.println("Here");  
+	 	}
 	 //JGFInstrumentor.stopTimer("Section2:SOROrigCore:Kernel");
 	 gTotal = G.reduce(Double.+, 0);
     }

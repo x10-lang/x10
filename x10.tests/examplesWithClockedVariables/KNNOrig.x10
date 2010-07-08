@@ -1,3 +1,11 @@
+
+/* 
+Approximate but deterministic KNN 
+Author: Nalini Vasudevan
+
+*/
+
+
 import x10.util.Random;
 
 class Point {
