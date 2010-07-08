@@ -36,6 +36,15 @@ public class UIntType extends RuntimeType<Integer> {
     }
     
     @Override
+    public Object makeArray(Object... elem) {
+        int[] arr = new int[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).intValue();
+        }
+        return arr;
+    }
+    
+    @Override
     public Integer getArray(Object array, int i) {
         return ((int[]) array)[i];
     }

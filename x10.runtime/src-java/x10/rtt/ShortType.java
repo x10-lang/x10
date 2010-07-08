@@ -36,6 +36,15 @@ public class ShortType extends RuntimeType<Short> {
     }
     
     @Override
+    public Object makeArray(Object... elem) {
+        short[] arr = new short[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).shortValue();
+        }
+        return arr;
+    }
+    
+    @Override
     public Short getArray(Object array, int i) {
         return ((short[]) array)[i];
     }

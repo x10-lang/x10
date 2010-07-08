@@ -36,6 +36,15 @@ public class BooleanType extends RuntimeType<Boolean> {
     }
     
     @Override
+    public Object makeArray(Object... elem) {
+        boolean[] arr = new boolean[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Boolean)elem[i]).booleanValue();
+        }
+        return arr;
+    }
+    
+    @Override
     public Boolean getArray(Object array, int i) {
         return ((boolean[]) array)[i];
     }

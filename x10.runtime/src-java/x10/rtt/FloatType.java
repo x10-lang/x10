@@ -36,6 +36,15 @@ public class FloatType extends RuntimeType<Float> {
     }
     
     @Override
+    public Object makeArray(Object... elem) {
+        float[] arr = new float[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).floatValue();
+        }
+        return arr;
+    }
+    
+    @Override
     public Float getArray(Object array, int i) {
         return ((float[]) array)[i];
     }
