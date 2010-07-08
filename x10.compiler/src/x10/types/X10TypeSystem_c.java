@@ -85,6 +85,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10StringLit_c;
+import x10.ast.X10ClassDecl_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
@@ -1094,7 +1095,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public CodeDef asyncCodeInstance(boolean isStatic) {
     	// Need to create a new one on each call. Portions of this methodDef, such as thisVar may be destructively modified later.
-                return methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), isStatic ? Public().Static() : Public(), 
+                return methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), isStatic ? Public().Static() : Public(),
                 		Types.ref(VOID_),
                 		Name.make(DUMMY_ASYNC), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
     }
@@ -1323,12 +1324,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			}
 		});
 		return ANY;
-    }
-    Type STRUCT_ = null;
-    public Type Struct() {
-    	if (STRUCT_ != null) 
-    		return STRUCT_;
-    	return STRUCT_ = x10.util.Struct.makeDef(this).asType();
     }
     public Type String() {
         if (STRING_ != null)
@@ -1744,7 +1739,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
     
     public boolean isStruct(Type me) {
-        return typeEquals(me, Struct(), emptyContext());
+        return X10TypeMixin.isX10Struct(me);
+            //typeEquals(me, Struct(), emptyContext());
     }
     
     public boolean isClock(Type me) {

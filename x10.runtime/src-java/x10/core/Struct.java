@@ -20,10 +20,10 @@ public abstract class Struct implements Any {
     public Struct() {}
 
     public boolean equals(Object o) {
-        return structEquals(o);
+        return _struct_equals(o);
     }
-    
-    abstract public boolean structEquals(Object o);
+
+    abstract public boolean _struct_equals(Object o);
 
     public static final RuntimeType<Struct> _RTT = new RuntimeType<Struct>(Struct.class);
     public RuntimeType getRTT() {return _RTT;}

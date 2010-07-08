@@ -420,7 +420,6 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isX10DistArray(Type me);
 
     Context emptyContext();
-    Type Struct();
     boolean isExactlyFunctionType(Type t);
     
     Name homeName();

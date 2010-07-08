@@ -125,6 +125,7 @@ public final struct Place(id: Int)  {
     }
 
     public global safe def toString() = "(Place " + this.id + ")";
+    public global safe def equals(p:Place) = p.id==this.id; 
     public global safe def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
     public global safe def hashCode()=id;
 }

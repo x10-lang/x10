@@ -27,25 +27,25 @@ import polyglot.types.Flags;
  */
 public class X10Flags extends Flags {
     public static final Set X10_FLAGS = new TreeSet();
-    public static final Flags EXTERN = createFlag("extern", null);
-    public static final Flags VALUE = createFlag("value", null);
-    public static final Flags REFERENCE = createFlag("reference", null);
-    public static final Flags ATOMIC = createFlag("atomic", null);
-    public static final Flags PURE = createFlag("pure", null);
-    public static final Flags MUTABLE = createFlag("mutable", null);
-    public static final Flags SAFE = createFlag("safe", null);
- //   public static final Flags LOCAL = createFlag("local", null);
-    public static final Flags NON_BLOCKING = createFlag("nonblocking", null);
-    public static final Flags SEQUENTIAL = createFlag("sequential", null);
-    public static final Flags INCOMPLETE = createFlag("incomplete", null);
-    public static final Flags PROPERTY = createFlag("property", null);
-    public static final Flags SHARED = createFlag("shared", null);
-    public static final Flags GLOBAL = createFlag("global", null);
-   // public static final Flags ROOTED = createFlag("rooted", null);
-    public static final Flags STRUCT = createFlag("struct", null);
-    public static final Flags PROTO = createFlag("proto", null);
-    public static final Flags PINNED = createFlag("pinned", null);
-    public static final Flags HASTYPE = createFlag("hastype", null); // can only be created through a <: Type declaration.
+    public static final X10Flags EXTERN = createFlag("extern", null);
+    public static final X10Flags VALUE = createFlag("value", null);
+    public static final X10Flags REFERENCE = createFlag("reference", null);
+    public static final X10Flags ATOMIC = createFlag("atomic", null);
+    public static final X10Flags PURE = createFlag("pure", null);
+    public static final X10Flags MUTABLE = createFlag("mutable", null);
+    public static final X10Flags SAFE = createFlag("safe", null);
+ //   public static final X10Flags LOCAL = createFlag("local", null);
+    public static final X10Flags NON_BLOCKING = createFlag("nonblocking", null);
+    public static final X10Flags SEQUENTIAL = createFlag("sequential", null);
+    public static final X10Flags INCOMPLETE = createFlag("incomplete", null);
+    public static final X10Flags PROPERTY = createFlag("property", null);
+    public static final X10Flags SHARED = createFlag("shared", null);
+    public static final X10Flags GLOBAL = createFlag("global", null);
+   // public static final X10Flags ROOTED = createFlag("rooted", null);
+    public static final X10Flags STRUCT = createFlag("struct", null);
+    public static final X10Flags PROTO = createFlag("proto", null);
+    public static final X10Flags PINNED = createFlag("pinned", null);
+    public static final X10Flags HASTYPE = createFlag("hastype", null); // can only be created through a <: Type declaration.
 
     /**
      * Return a new Flags object with a new name. Should be called only once per
@@ -58,7 +58,7 @@ public class X10Flags extends Flags {
      *            to print before all other flags, null if we should print at
      *            the end.
      */
-    public static Flags createFlag(String name, Flags after) {
+    public static X10Flags createFlag(String name, Flags after) {
         addToOrder(name, after);
         X10_FLAGS.add(name);
         return new X10Flags(name);

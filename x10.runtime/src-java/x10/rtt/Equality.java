@@ -100,7 +100,7 @@ public class Equality {
             return (char) (Character) a == (char) (Character) b;
         if (a instanceof Number && b instanceof Number)
             return equalsNumbers(a, b);
-        if (a instanceof Struct) return ((Struct) a).structEquals(b);
+        if (a instanceof Struct) return ((Struct) a)._struct_equals(b);
         
         return false;
     }

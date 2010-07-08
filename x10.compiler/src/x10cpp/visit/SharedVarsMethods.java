@@ -92,7 +92,7 @@ public class SharedVarsMethods {
     static final String DESERIALIZE_BODY_METHOD = "_deserialize_body";
     public static final String DESERIALIZE_CUDA_METHOD = "_deserialize_cuda";
     static final String STRUCT_EQUALS = "x10aux::struct_equals";
-    static final String STRUCT_EQUALS_METHOD = "_struct_equals";
+    public static final String STRUCT_EQUALS_METHOD = "_struct_equals";
     public static final String REFERENCE_TYPE = "x10::lang::Reference";
     public static final String CLOSURE_TYPE = "x10::lang::Closure";
 

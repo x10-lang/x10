@@ -18,6 +18,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.visit.NodeVisitor;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
+import polyglot.types.SemanticException;
 import x10.ast.AnnotationNode_c;
 import x10.ast.DepParameterExpr;
 import x10.ast.X10Formal_c;
@@ -33,20 +34,20 @@ public class InstanceInvariantChecker extends NodeVisitor
         this.job = job;
     }
 
-    public NodeVisitor enter(Node n)
-    {
+    public Node visitEdgeNoOverride(Node parent, Node n) {
         try
         {
             if (Report.should_report("InstanceInvariantChecker", 2))
 	            Report.report(2, "Checking invariants for: " + n);
             checkInvariants(n);
+            n.del().visitChildren(this); // if there is an error, I don't recurse to the children
 
-        } catch (AssertionError e) {
+        } catch (SemanticException e) {
             String msg = e.getMessage()+("!")+
                     (" n=")+(n).toString();
             job.compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR,msg,n.position());
         }
-        return this;
+        return n;
     }
     
     private boolean isAmbiguous(Node n){
@@ -56,42 +57,45 @@ public class InstanceInvariantChecker extends NodeVisitor
     	}
     	return false;
     }
+    private void myAssert(boolean cond, String msg) throws SemanticException {
+        if (!cond)
+            throw new SemanticException(msg);
+    }
     
-    private void checkInvariants(Node n) {
-        assert (n != null) : "Cannot visit null";
+    private void checkInvariants(Node n) throws SemanticException {
+        myAssert(n != null,"Cannot visit null");
 
-        if (isAmbiguous(n))
-        	assert false : "Ambiguous node found in AST";
+        myAssert(!isAmbiguous(n), "Ambiguous node found in AST");
         
         if (n instanceof Typed) {
-            assert ((Typed)n).type()!=null;
+            myAssert(((Typed)n).type()!=null,"Typed node is missing type");
         }
 
         if (n instanceof ClassMember) {
-            assert ((ClassMember)n).memberDef()!=null;
+            myAssert(((ClassMember)n).memberDef()!=null,"ClassMember missing memberDef");
         }
         if (n instanceof VarDecl) {
-            assert ((VarDecl)n).localDef()!=null;
+            myAssert(((VarDecl)n).localDef()!=null,"VarDecl missing localDef");
         }
 
         if (n instanceof ProcedureCall) {
-            assert ((ProcedureCall)n).procedureInstance()!=null;
+            myAssert(((ProcedureCall)n).procedureInstance()!=null,"ProcedureCall missing procedureInstance");
         }
         if (n instanceof NamedVariable) {
-            assert ((NamedVariable)n).varInstance()!=null;
+            myAssert(((NamedVariable)n).varInstance()!=null,"NamedVariable missing varInstance");
         }
         if (n instanceof FieldAssign) {
-            assert ((FieldAssign)n).fieldInstance()!=null;
+            myAssert(((FieldAssign)n).fieldInstance()!=null,"FieldAssign missing fieldInstance");
         }
         // x10 specific
         if (n instanceof Closure) {
-            assert ((Closure)n).closureDef()!=null;
+            myAssert(((Closure)n).closureDef()!=null,"Closure missing closureDef");
         }
         if (n instanceof AssignPropertyBody) {
-            assert ((AssignPropertyBody)n).constructorInstance()!=null;
+            myAssert(((AssignPropertyBody)n).constructorInstance()!=null,"AssignPropertyBody missing constructorInstance");
         }
         if (n instanceof SettableAssign) {
-            assert ((SettableAssign)n).methodInstance()!=null;
+            myAssert(((SettableAssign)n).methodInstance()!=null,"SettableAssign missing methodInstance");
         }
     }
 }

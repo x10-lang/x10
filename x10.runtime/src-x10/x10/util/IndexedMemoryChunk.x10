@@ -47,6 +47,15 @@ import x10.compiler.NativeRep;
 public struct IndexedMemoryChunk[T] {
     private val chunk:RawChunk[T];
 
+    public global safe def toString():String {
+        return "IndexedMemoryChunk";
+    }
+    public global safe def equals(other:Any):Boolean {
+        return false;
+    }
+    public global safe def hashCode():Int {
+        return 0;
+    }
 
     public def this(numElements:int) {
 	this(numElements, 8, false, false);
