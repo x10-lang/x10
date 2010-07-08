@@ -47,7 +47,7 @@ public abstract class Runtime implements Runnable {
 		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
 		// execute root x10 activity
-		main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args));
+		main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(new x10.rtt.RuntimeType<java.lang.String>(java.lang.String.class),args));
 	}
 
 	/**
