@@ -1550,6 +1550,17 @@ public class Synthesizer {
     
     
     /**
+     * Get an string value expression
+     * @param value string
+     * @param pos
+     * @return
+     */
+    public Expr stringValueExpr(String value, Position pos){
+        return xnf.StringLit(pos, value).type(xts.String());
+    }
+    
+    
+    /**
      * Get this expression, ((ClassType)this)
      * @param classType
      * @param pos

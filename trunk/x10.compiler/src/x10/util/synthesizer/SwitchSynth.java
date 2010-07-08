@@ -36,6 +36,7 @@ public class SwitchSynth extends AbstractStateSynth implements IStmtSynth{
     ArrayList<Integer> switchTable; //store the switch condition
     ArrayList<List<Stmt>> switchBlockTable; //store the statements under the switch table
     
+    List<Stmt> defaultStmts;
     
     public SwitchSynth(X10NodeFactory xnf, X10Context context, Position pos, Expr switchCond){
         super(xnf, context, pos);
@@ -85,6 +86,29 @@ public class SwitchSynth extends AbstractStateSynth implements IStmtSynth{
         stmts.add(stmt);
     }
     
+    /**
+     * Insert stmts into the switch's default condition
+     * @param stmts
+     */
+    public void insertStatementsInDefault(List<Stmt> stmts){
+
+        for(Stmt stmt : stmts){
+            insertStatementInDefault(stmt);
+        }
+    }
+    
+    /**
+     * Insert one stmt into the switch's default condition
+     * @param stmt
+     */
+    public void insertStatementInDefault(Stmt stmt){
+        if(defaultStmts == null){
+            defaultStmts = new ArrayList<Stmt>();
+        }
+        
+        defaultStmts.add(stmt);
+    }
+    
     
     
     
@@ -110,6 +134,12 @@ public class SwitchSynth extends AbstractStateSynth implements IStmtSynth{
             switchElements.add(ca);
             switchElements.add(swb);
         }
+        
+        if(defaultStmts != null && defaultStmts.size() > 0){
+            switchElements.add(xnf.Default(pos));
+            switchElements.add(xnf.SwitchBlock(pos, defaultStmts));
+        }
+        
         Switch sw = xnf.Switch(pos,
                                switchCond,  switchElements);
         return sw;
