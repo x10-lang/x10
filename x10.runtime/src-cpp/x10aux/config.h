@@ -15,10 +15,11 @@
 /*
  * The following performance macros are supported:
  *   NO_EXCEPTIONS     - remove all exception-related code
- *   NO_CHECKS         - same as NO_BOUNDS_CHECKS NO_NULL_CHECKS NO_PLACE_CHECKS
+ *   NO_CHECKS         - same as NO_BOUNDS_CHECKS NO_NULL_CHECKS NO_PLACE_CHECKS NO_ASSERTIONS
  *   NO_BOUNDS_CHECKS  - remove all bounds-checking code
  *   NO_NULL_CHECKS    - remove all null-checking code
  *   NO_PLACE_CHECKS   - remove all place-checking code
+ *   NO_ASSERTIONS     - remove all assertion checking code
  *   NO_IOSTREAM       - remove all iostream-related code
  *
  * The following #defines make be specified by the enclosing build
@@ -69,6 +70,9 @@
 #ifndef NO_PLACE_CHECKS
 #define NO_PLACE_CHECKS
 #endif//NO_PLACE_CHECKS
+#ifndef NO_ASSERTIONS
+#define NO_ASSERTIONS
+#endif//NO_ASSERTIONS
 #endif
 
 #ifndef NDEBUG 
