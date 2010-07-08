@@ -24,6 +24,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
 	public X10CompilerOptions(ExtensionInfo extension) {
 		super(extension);
 		serialize_type_info = false; // turn off type info serialization for X10
+		assertions = true; // turn on assertion generation for X10
 	}
 
 	protected int parseCommand(String args[], int index, Set source) 
@@ -31,6 +32,11 @@ public class X10CompilerOptions extends polyglot.main.Options {
 	{
 		int i = super.parseCommand(args, index, source);
 		if (i != index) return i;
+
+		if (args[i].equals("-noassert")) {
+			assertions = false;
+			return ++i;
+		}
 
 		try {
 			Configuration.parseArgument(args[index]);
@@ -56,6 +62,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
 	 */
 	public void usage(PrintStream out) {
 		super.usage(out);
+		usageForFlag(out, "-noassert", "turn off assertion generation");
 		String[][] options = Configuration.options();
 		for (int i = 0; i < options.length; i++) {
 			String[] optinfo = options[i];

@@ -2227,6 +2227,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!tr.job().extensionInfo().getOptions().assertions)
 			return;
 
+		sw.write("#ifndef NO_ASSERTIONS");
+		sw.newline();
+		sw.write("if (x10aux::x10__assertions_enabled)");
+		sw.newline(4); sw.begin(0);
 		sw.write("x10aux::x10__assert(");
 		n.print(n.cond(), sw, tr);
 		if (n.errorMessage() != null) {
@@ -2235,6 +2239,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			n.print(n.errorMessage(), sw, tr);
 		}
 		sw.write(");");
+		sw.end(); sw.newline();
+		sw.write("#endif//NO_ASSERTIONS");
 		sw.newline();
 	}
 
