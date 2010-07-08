@@ -4,6 +4,8 @@
       label="%featureName"
       version="2.0.4.qualifier"
       provider-name="%providerName"
+      os="win32,linux,macosx"
+      arch="x86,x86_64"
       image="eclipse_update_120.jpg">
 
    <description url="http://x10-lang.org">
@@ -145,7 +147,7 @@
          install-size="0"
          version="2.0.4.qualifier"
          fragment="true"/>
-         
+
    <plugin
          id="x10.dist.macosx.x86_64.fragment"
          os="macosx"
