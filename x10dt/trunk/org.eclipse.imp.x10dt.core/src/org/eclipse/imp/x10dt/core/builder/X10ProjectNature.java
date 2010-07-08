@@ -17,12 +17,17 @@
  */
 package org.eclipse.imp.x10dt.core.builder;
 
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 
 import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
+import org.eclipse.jdt.core.JavaCore;
 
 public class X10ProjectNature extends ProjectNatureBase {
     public static final String k_natureID= X10DTCorePlugin.kPluginID + ".x10nature";
@@ -48,5 +53,21 @@ public class X10ProjectNature extends ProjectNatureBase {
 
     public IPluginLog getLog() {
         return X10DTCorePlugin.getInstance();
+    }
+    
+    @Override
+    public void configure() throws CoreException {
+    	super.configure();
+    	IProject project = getProject();
+    	IProjectDescription description = project.getDescription();
+    	ICommand[] commands = description.getBuildSpec();
+    	ICommand[] newCommands = new ICommand[commands.length - 1];
+    	for(int i = 0; i < commands.length; i++){
+    		if (!commands[i].getBuilderName().equals(JavaCore.BUILDER_ID)){
+    			newCommands[i] = commands[i];
+    		}
+    	}
+    	description.setBuildSpec(newCommands);
+    	project.setDescription(description, new NullProgressMonitor());
     }
 }
