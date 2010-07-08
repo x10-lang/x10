@@ -29,17 +29,27 @@ public class Template extends Expander {
 	private final String id;
 	//private final String template;
 	private final Object[] args;
+	private String regex;
 	public Template(Emitter er, String id, Object... args) {
 		super(er);
 		
 		this.id = id;
 		this.args = args;
 	}
+	public static Template createTemplateFromRegex(Emitter er, String regex, Object... args) {
+	    Template template = new Template(er, null, args);
+	    template.regex = regex;
+	    return template;
+	}
 	public void expand() {
 		expand(er.tr);
 	}
 	public void expand(Translator tr) {
-		er.dump(id, args, tr);
+	    if (id == null) {
+	        er.dumpRegex("internal", args, tr, regex);
+	    } else {
+	        er.dump(id, args, tr);
+	    }
 	}
 	public String toString() {
 		return id + " " + er.convertToString(args);

@@ -2287,9 +2287,12 @@ public class Emitter {
 		// clocks = new Template("clock", c.clocks().get(0));
 		// else {
 		Integer id = X10PrettyPrinterVisitor.getUniqueId_();
-		clocks = new Template(this, "clocked", new Loop(this, "clocked-loop", c
-				.clocks(), new CircularList<Integer>(id)), id);
+//		clocks = new Template(this, "clocked", new Loop(this, "clocked-loop", c
+//				.clocks(), new CircularList<Integer>(id)), id);
 		// }
+                clocks = Template.createTemplateFromRegex(this, "x10.core.RailFactory.<x10.lang.Clock>makeValRailFromJavaArray(x10.lang.Clock._RTT, new x10.lang.Clock[] { #0 })", new Loop(this, "clocked-loop", c
+                    .clocks(), new CircularList<Integer>(id)), id);
+		
 		return clocks;
 	}
 
