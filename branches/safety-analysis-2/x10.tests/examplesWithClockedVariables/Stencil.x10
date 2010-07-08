@@ -42,36 +42,33 @@ public class Stencil {
            val newVal = (A(q-1)+ A(q+1))/2.0 ; 
            diff = diff > Math.abs(newVal - A(q))? diff: Math.abs(newVal - A(q));
            A(q) = newVal;
+           next;
        }
        
        return diff;
     }
 
     public def run() : boolean = @ ClockedM(c) {
-       finish {
+
        val A = Rail.make[Double @ Clocked[double](c, opD, 0.0D)](N+2, (int)=>0.0D); 
        A(N+1) = N+1.0D;
        next;
        val blocks = block(1..N, P);
-      
+       finish for (; delta > epsilon; iters++) {
         for((p):Point(1) in 1..P-1) 
           async clocked(c) {
       
-           for (; delta > epsilon; ) {
+           
             delta = step(A, blocks(p));
-   
-             next;
            
           }
          
-       }
+       
    
-           for (; delta > epsilon; iters++) {
-             	delta  = step(A, blocks(0));
-
-             next;
-          }
-      }
+       
+            delta  = step(A, blocks(0));
+			next;
+ 		}     
        return true;
     }
 
