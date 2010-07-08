@@ -30,9 +30,10 @@ page X10.Compiler {
         project out { } 
     }
     fields {
-        boolean BadPlaceRuntimeCheck {
-            tooltip "Enable the generation of code to check for direct accesses to data at another place";
-            defvalue true; }
+    						    boolean ConservativeBuild {
+    						    			    defvalue false;
+    						    			    tooltip "When rebuilding include all files that have no generated files";
+    						    }
         boolean PermitAssert { label "Permit asserts"; defvalue true; }
         boolean StaticCalls  { label "Strict static call checking"; defvalue false; }
         boolean VerboseCalls { label "Emit warnings for casts inserted at dynamically-checked calls"; defvalue false; }
@@ -41,7 +42,6 @@ page X10.Compiler {
             tooltip "The arguments to x10 compile command will be echoed in the console view.";
             defvalue false; } 
         string AdditionalCompilerOptions {
-            defvalue "-commandlineonly"; 
             validator "org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsValidator"; }
     }
 }
@@ -56,7 +56,6 @@ page X10.Compiler.Optimizations {
     fields {
         boolean Optimize            { defvalue false; }
         boolean LoopOptimizations   { defvalue true; }
-        boolean ArrayOptimizations  { defvalue true; }
         boolean InlineOptimizations { defvalue false; }
         boolean ClosureInlining     { defvalue true; }
         boolean WorkStealing        { tooltip "Enable code generation for the work-stealing scheduler"; defvalue false; }

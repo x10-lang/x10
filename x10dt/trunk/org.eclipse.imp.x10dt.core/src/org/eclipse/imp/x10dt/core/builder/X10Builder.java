@@ -341,7 +341,11 @@ public class X10Builder extends IncrementalProjectBuilder {
         if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
         collectChangeDependents();
         //collectFilesWithErrors();
-        //collectFilesWithNoJavaFile();
+        
+        IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
+        if (prefService.getBooleanPreference(X10Constants.P_CONSERVATIVEBUILD)){
+        	collectFilesWithNoJavaFile();
+        }
         if (fBuildAll) fBuildAll = false;
     }
 
@@ -536,11 +540,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 optsList.add(s);
             }
             IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
-           
-            //TODO!!!! MAKE SURE THAT X10DT DOES NOT LET THE USER TALK ABOUT BAD_PLACE_RUNTIME and ARRAY_OPTIMIZATION (gone away).
-            //optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10Constants.P_BADPLACERUNTIMECHECK)));
             optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS)));
-            //optsList.add(0, "-ARRAY_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10Constants.P_ARRAYOPTIMIZATIONS)));
             optsList.add(0, "-STATIC_CALLS="+(prefService.getBooleanPreference(X10Constants.P_STATICCALLS)));
             optsList.add(0, "-VERBOSE_CALLS="+(prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS)));
             optsList.add(0, "-OPTIMIZE="+(prefService.getBooleanPreference(X10Constants.P_OPTIMIZE)));

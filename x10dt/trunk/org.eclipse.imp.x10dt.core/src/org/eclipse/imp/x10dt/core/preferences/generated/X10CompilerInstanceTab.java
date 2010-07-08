@@ -33,16 +33,16 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 	{
 		List<FieldEditor> fields = new ArrayList<FieldEditor>();
 
-		BooleanFieldEditor BadPlaceRuntimeCheck = fPrefUtils.makeNewBooleanField(
+		BooleanFieldEditor ConservativeBuild = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
-			"instance", "BadPlaceRuntimeCheck", "Bad place runtime check",
-			"Enable the generation of code to check for direct accesses to data at another place",
+			"instance", "ConservativeBuild", "Conservative build",
+			"When rebuilding include all files that have no generated files",
 			parent,
 			true, true,
 			false, false,
 			false, false,
 			true);
-		fields.add(BadPlaceRuntimeCheck);
+		fields.add(ConservativeBuild);
 
 
 		BooleanFieldEditor PermitAssert = fPrefUtils.makeNewBooleanField(

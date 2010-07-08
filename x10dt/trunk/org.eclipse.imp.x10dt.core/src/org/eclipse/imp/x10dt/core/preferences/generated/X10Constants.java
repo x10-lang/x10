@@ -15,7 +15,7 @@ public class X10Constants {
 
 	public static final String P_TABWIDTH = "tabWidth";
 
-	public static final String P_BADPLACERUNTIMECHECK = "BadPlaceRuntimeCheck";
+	public static final String P_CONSERVATIVEBUILD = "ConservativeBuild";
 
 	public static final String P_PERMITASSERT = "PermitAssert";
 
@@ -30,8 +30,6 @@ public class X10Constants {
 	public static final String P_OPTIMIZE = "Optimize";
 
 	public static final String P_LOOPOPTIMIZATIONS = "LoopOptimizations";
-
-	public static final String P_ARRAYOPTIMIZATIONS = "ArrayOptimizations";
 
 	public static final String P_INLINEOPTIMIZATIONS = "InlineOptimizations";
 

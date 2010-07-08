@@ -57,18 +57,6 @@ public class X10CompilerOptimizationsInstanceTab extends InstancePreferencesTab 
 		fields.add(LoopOptimizations);
 
 
-		BooleanFieldEditor ArrayOptimizations = fPrefUtils.makeNewBooleanField(
-			page, this, fPrefService,
-			"instance", "ArrayOptimizations", "Array optimizations",
-			"",
-			parent,
-			true, true,
-			false, false,
-			false, false,
-			true);
-		fields.add(ArrayOptimizations);
-
-
 		BooleanFieldEditor InlineOptimizations = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
 			"instance", "InlineOptimizations", "Inline optimizations",
