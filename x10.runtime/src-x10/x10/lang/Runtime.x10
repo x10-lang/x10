@@ -331,14 +331,6 @@ public final class Runtime {
          * Wait for pending subactivities to complete.
          */
         def waitForFinish(safe:Boolean):Void;
-
-        /**
-         * Collecting Finish Use for Handle Stack in each Place
-         */
-         global def finishStackPush(o:Object, i: Int):Void;
-         global def finishStackPop(i:Int):Object;
-         global def finishStackSize(i:Int):Int;
-         def waitForFinishExpr(safe:Boolean, o:()=>Object):Rail[Object]!;
     
 }
 
@@ -355,12 +347,12 @@ public final class Runtime {
                 lock.unlock();
                 return finishState;
             }
-            val remoteFinish = new RemoteFinish();
+            
+            val remoteFinish = rootFinish.makeRemote();
             map.put(rootFinish, remoteFinish);
             lock.unlock();
             return remoteFinish;
         }
-        
         public def remove(rootFinish:RootFinish) {
             lock.lock();
             map.remove(rootFinish);
@@ -369,21 +361,83 @@ public final class Runtime {
     }
 
 
+    static class StatefulReducer[T] {
+    	global val reducer:Reducible[T];
+    var result:T;
+    def this(r:Reducible[T]) {
+    	this.reducer=r;
+    	this.result=reducer.zero();
+    }
+    def accept(t:T) {
+    	this.result=reducer(result,t);
+    }
+    def result()=result;
+    }
+
+    static class RootCollectingFinish[T] extends RootFinish {
+    	val sr:StatefulReducer[T]!;
+    	global val reducer:Reducible[T];
+    def this(r:Reducible[T]) {
+    	super();
+    	this.reducer=r;
+    	this.sr=new StatefulReducer[T](r);
+    }
+    def accept(t:T) {
+    	sr.accept(t);
+    }
+    def notify(rail:ValRail[Int], v:T):Void {
+        var b:Boolean = true;
+        lock();
+        for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+            counts(i) += rail(i);
+            seen(i) |= counts(i) != 0;
+            if (counts(i) != 0) b = false;
+        }
+        sr.accept(v);
+        if (b) release();
+        unlock();
+    }
+    def notify2(rail:ValRail[Pair[Int,Int]], v:T):Void {
+        lock();
+        for(var i:Int=0; i<rail.length; i++) {
+            counts(rail(i).first) += rail(i).second;
+            seen(rail(i).first) = true;
+        }
+        for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+            if (counts(i) != 0) {
+                unlock();
+                sr.accept(v);
+                return;
+            }
+        }
+        sr.accept(v);
+        release();
+        unlock();
+    }
+
+    global def makeRemote() = new RemoteCollectingFinish[T](reducer);
+    
+    //Collecting Finish Use: for start merger at each place to collect result
+    final public def waitForFinishExpr(safe:Boolean):T {
+        waitForFinish(safe);
+        return sr.result();
+    }
+
+    }
+    	
+    	
+    
     static class RootFinish extends Latch implements FinishState, Mortal {
-        private val counts:Rail[Int]!;
-        private val seen:Rail[Boolean]!;
-        private var exceptions:Stack[Throwable]!;
-
-        //Collecting Finish Use : Stack to store, each Worker has one Stack
-        public const MAX = 1000;
-        public global val mapStack :Rail[Stack[Object]!]! = Rail.make[Stack[Object]!](MAX, (Int) => new Stack[Object]());
-
+        protected val counts:Rail[Int]!;
+        protected val seen:Rail[Boolean]!;
+        protected var exceptions:Stack[Throwable]!;
         def this() {
             val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
             seen = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
             c(here.id) = 1;
             counts = c;
         }
+        global def makeRemote() = new RemoteFinish();
 
         private def notifySubActivitySpawnLocal(place:Place):Void {
             lock();
@@ -502,120 +556,101 @@ public final class Runtime {
                 (Runtime.proxy(this) as RemoteFinish!).pushException(t);
             }
         }
-        //Collecting Finish Use : Stack push, pop, and sizing
-        public global def finishStackPush(o:Object, i:Int):Void {
-            if (here.equals(home)) {
-                (this as RootFinish!).finishStackPushLocal(o as Object,i);
-            }  else {
-                (Runtime.proxy(this) as RemoteFinish!).finishStackPush(o as Object,i);
-            }
-        }
-
-        public global def finishStackPop(i:Int):Object {
-            var o:Object = null;
-            if (here.equals(home)) {
-                o = (this as RootFinish!).finishStackPopLocal(i);
-            }  else {
-                o = (Runtime.proxy(this) as RemoteFinish!).finishStackPop(i);
-            }
-            return o;
-        }
-
-        public global def finishStackSize(i:Int):Int {
-            var size : Int = 0;
-            if (here.equals(home)) {
-                size = (this as RootFinish!).finishStackSizeLocal(i);
-            }  else {
-                size = (Runtime.proxy(this) as RemoteFinish!).finishStackSize(i);
-            }
-            return size;
-        }
-
-
-        public def finishStackPushLocal(o:Object, i:Int):Void {
-            if(mapStack(i) != null)
-                mapStack(i).push(o);
-        }
-
-        public def finishStackPopLocal(i:Int):Object {
-            var o:Object = null;
-            if(mapStack(i) != null)
-                o = mapStack(i).pop();
-            return o;
-        }
-
-        public def finishStackSizeLocal(i:Int):Int {
-            var size : Int = 0;
-            if(mapStack(i) != null)
-                size = mapStack(i).size();
-            return size;
-        }
-
-        //Collecting Finish Use: for start merger at each place to collect result
-        final public def waitForFinishExpr(safe:Boolean, merger :()=>Object):Rail[Object]! {
-            val result :Rail[Object]! = Rail.make[Object](Place.MAX_PLACES, (Int) => null);
-            if (!NO_STEALS && safe) worker().join(this);
-            await();
-            seen(hereInt()) = true;
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (seen(i)) {
-                    val o = evalAt[Object](Place.places(i),merger) as Object;
-                    result(i) = o;
-                }
-            }
-
-            val closure = ()=>runtime().finishStates.remove(this);
-            seen(hereInt()) = false;
-            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (seen(i)) {
-                    runAtNative(i, closure);
-                }
-            }
-            dealloc(closure);
-
-            if (null != exceptions) {
-                if (exceptions.size() == 1) {
-                    val t = exceptions.peek();
-                    if (t instanceof Error) {
-                        throw t as Error;
-                    }
-                    if (t instanceof RuntimeException) {
-                        throw t as RuntimeException;
-                    }
-                }
-                throw new MultipleExceptions(exceptions);
-            }
-           return result;
-        }
-    
+      
 }
 
+    static class RemoteCollectingFinish[T] extends RemoteFinish {
+    	val sr:StatefulReducer[T]!;
+    def this(r:Reducible[T]) {
+    	super();
+    	this.sr=new StatefulReducer[T](r);
+    }
+    
+    /**
+     * An activity created under this finish has terminated.
+     */
+    public def notifyActivityTermination(r:RootFinish):Void {
+        lock.lock();
+        counts(here.id)--;
+        if (count.decrementAndGet() > 0) {
+            lock.unlock();
+            return;
+        }
+        val e = exceptions;
+        exceptions = null;
+        if (2*length > Place.MAX_PLACES) {
+            val m = counts as ValRail[Int];
+            for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
+            length = 1;
+            lock.unlock();
+            if (null != e) {
+                val t:Throwable;
+                if (e.size() == 1) {
+                    t = e.peek();
+                } else {
+                    t = new MultipleExceptions(e);
+                }
+                val closure = () => { (r as RootCollectingFinish[T]!).notify(m, t); deallocObject(m); };
+                runAtNative(r.home.id, closure);
+                dealloc(closure);
+            } else {
+                val x = sr.result();
+                val closure = () => { (r as RootCollectingFinish[T]!).notify(m, x); deallocObject(m); };
+                runAtNative(r.home.id, closure);
+                dealloc(closure);
+            }
+            deallocObject(m);
+        } else {
+            val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
+            for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
+            length = 1;
+            lock.unlock();
+            if (null != e) {
+                val t:Throwable;
+                if (e.size() == 1) {
+                    t = e.peek();
+                } else {
+                    t = new MultipleExceptions(e);
+                }
+                val closure = () => { (r as RootCollectingFinish[T]!).notify2(m, t); deallocObject(m); };
+                runAtNative(r.home.id, closure);
+                dealloc(closure);
+            } else {
+                val x = sr.result();
+                val closure = () => { (r as RootCollectingFinish[T]!).notify2(m, x) ; deallocObject(m); };
+                runAtNative(r.home.id, closure);
+                dealloc(closure);
+            }
+            deallocObject(m);
+        }
+    }
+    def accept(t:T) {
+    	sr.accept(t);
+    }
+    
+    }
 
     static class RemoteFinish {
         /**
          * The Exception Stack is used to collect exceptions
          * issued when activities associated with this finish state terminate abruptly.
          */
-        private var exceptions:Stack[Throwable]!;
+        protected var exceptions:Stack[Throwable]!;
 
         /**
          * The monitor is used to serialize updates to the finish state.
          */
-        private val lock = new Lock();
+        protected val lock = new Lock();
 
         /**
          * Keep track of the number of activities associated with this finish state.
          */
-        private val counts = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
+        protected val counts = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
 
-        private val message = Rail.make[Int](Place.MAX_PLACES, (Int)=>here.id);
-        private var length:Int = 1;
+        protected val message = Rail.make[Int](Place.MAX_PLACES, (Int)=>here.id);
+        protected var length:Int = 1;
 
-        private var count:AtomicInteger! = new AtomicInteger(0);
-        //Collecting Finish Use
-        public const MAX = 1000;
-        public global val mapStack :Rail[Stack[Object]!]! = Rail.make[Stack[Object]!](MAX, (Int) => new Stack[Object]());
-
+        protected var count:AtomicInteger! = new AtomicInteger(0);
 
         public def notifyActivityCreation():Void {
             count.getAndIncrement();
@@ -699,26 +734,7 @@ public final class Runtime {
             exceptions.push(t);
             lock.unlock();
         }
-        //Collecting Finish Use
-        public global def finishStackPush(o:Object, i:Int):Void {
-            if(mapStack(i) != null)
-                mapStack(i).push(o);
-        }
-
-        public global def finishStackPop(i:Int):Object {
-            var o:Object = null;
-            if(mapStack(i) != null)
-                o = mapStack(i).pop();
-            return o;
-        }
-
-        public global def finishStackSize(i:Int):Int {
-            var size : Int = 0;
-            if(mapStack(i) != null)
-                size = mapStack(i).size();
-            return size;
-        }
-    
+     
     }
 
 
@@ -1389,61 +1405,38 @@ public final class Runtime {
         }
     }
     //Collecting Finish Implementation
+    // All these methods should be moved to Pool.
     public static class CollectingFinish[T] {
-        protected global val Reducible : Reducible[T];
-       // an upper bound on the number of workers
-        private const MAX = 1000;
-
         //Exposed API
+    	// should become startFinish(r:Reducible[T])
         public def this(r:Reducible[T]) {
-            Reducible = r;
-            startFinish();
+        	val a = activity();
+        	if (null == a.finishStack)
+        		a.finishStack = new Stack[FinishState!]();
+        	a.finishStack.push(new RootCollectingFinish[T](r));
+
         }
 
-        public static def offer[T](o:T) {
+        public static def offer[T](t:T) {
             val thisWorker = worker();
             val id = thisWorker.workerId;
             val state = currentState();
-            val x = o as Object;
-            state.finishStackPush(o as Object,id);
+            if (here.equals(state.home)) {
+                (state as RootCollectingFinish[T]!).accept(t);
+            } else {
+                (Runtime.proxy(state as RootFinish) as RemoteCollectingFinish[T]!).accept(t);
+            }
        }
         public def stopFinishExpr():T {
-            val a = activity();
-            val finishState = a.finishStack.peek();
-            finishState.notifyActivityTermination();
-
-            val closure = ():Object => {
-                val o = localMerge(finishState) as Object;
-                return o;
-            };
-
-            val resultRail :Rail[Object]! = finishState.waitForFinishExpr(safe(),closure);
-            a.finishStack.pop();
-
-            var result :T = Reducible.zero();
-            for (var i:Int = 0; i<Place.MAX_PLACES; i++){
-                if(resultRail(i) != null) {
-                    val ob :T = resultRail(i) as T;
-                    result = Reducible.apply(result,ob);
-                }
-            }
-
-            return result;
-       }
-
-       //Local merge running on each place
-       public global def localMerge(finishstate : FinishState):T {
-           var result :T = Reducible.zero();
-           var ob : T = Reducible.zero();
-           val state = currentState();
-
-           for (var i:Int = 0; i<MAX; i++) {
-               while (finishstate.finishStackSize(i)!= 0 ) {
-                   ob = finishstate.finishStackPop(i) as T;
-                   result = Reducible.apply(result,ob);
-               }
-           }
-           return result;
+        	 val thisWorker = worker();
+             val id = thisWorker.workerId;
+             val state = currentState();
+             (state as RootCollectingFinish[T]!).notifyActivityTermination();
+             val a = activity();
+             a.finishStack.pop();
+             assert here.equals(home);
+             return (state as RootCollectingFinish[T]!).waitForFinishExpr(true);
+            
        }
 
     }
