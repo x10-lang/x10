@@ -123,7 +123,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      *         whose contents are initialized to contain the Chars in this String.
      * @see #bytes()
      */
-    @Native("java", "x10.core.RailFactory.<java.lang.Character>makeValRailFromJavaArray((#0).toCharArray())")
+    @Native("java", "x10.core.RailFactory.<java.lang.Character>makeValRailFromJavaArray(x10.rtt.Types.CHAR, (#0).toCharArray())")
     @Native("c++", "(#0)->chars()")
     public native global def chars(): ValRail[Char];
 
@@ -132,7 +132,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @return the ValRail of Bytes representing this String in the default charset.
      * @see #chars()
      */
-    @Native("java", "x10.core.RailFactory.<java.lang.Byte>makeValRailFromJavaArray((#0).getBytes())")
+    @Native("java", "x10.core.RailFactory.<java.lang.Byte>makeValRailFromJavaArray(x10.rtt.Types.BYTE, (#0).getBytes())")
     @Native("c++", "(#0)->bytes()")
     public native global def bytes(): ValRail[Byte];
 
@@ -324,7 +324,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @param regex the delimiting regular expression.
      * @return the ValRail of Strings computed by splitting this String around matches of the given regular expression.
      */
-    @Native("java", "x10.core.RailFactory.makeValRailFromJavaArray((#0).split(#1))")
+    @Native("java", "x10.core.RailFactory<java.lang.String>.makeValRailFromJavaArray(new x10.rtt.RuntimeType<java.lang.String>(java.lang.String.class), (#0).split(#1))")
     @Native("c++", "(#0)->split(#1)")
     public native global def split(regex: String): ValRail[String];
 
