@@ -1,7 +1,7 @@
 package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 /**
  * Locs represents a set of mutable locations in the source code corresponding
@@ -54,6 +54,6 @@ public interface Locs {
 	 * @param t
 	 * @return
 	 */
-	Locs substitute(XTerm t, XRoot s);
+	Locs substitute(XTerm t, XVar s);
 
 }
