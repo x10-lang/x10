@@ -2,7 +2,7 @@ package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XLocal;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 
 /**
@@ -35,7 +35,7 @@ public class LocalLocs_c extends Locs_c implements LocalLocs {
 	/**
 	 * It should never be the case that 
 	 */
-	public Locs substitute(XTerm t, XRoot s) {
+	public Locs substitute(XTerm t, XVar s) {
 		assert false : "Should never have to replace " + s + " by " + t + " in " + this;
 		return this;
 	}
