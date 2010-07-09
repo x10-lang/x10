@@ -19,9 +19,9 @@ import harness.x10Test;
 public class RailAlias extends x10Test {
      public def this(): RailAlias = { }
      public def run(): boolean = {
-          var r: Region{rail} = [0..10];
-          var a: Array[double]{rail} = Array.make[double](r, (x:Point)=>0.0);
-          var d: double = a(1);
+          val r: Region{rail} = [0..10];
+          val a <: Array[double]{rail} = new Array[double](r, (x:Point)=>0.0);
+          val d: double = a(1);
           for (val (p) in a.region) a(p) = 1.0; 
           return true;
      }

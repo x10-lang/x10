@@ -25,6 +25,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.LocalDecl;
 import polyglot.frontend.Job;
 import x10.ast.Closure_c;
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.types.X10CPPContext_c;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
@@ -55,14 +56,16 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     private Name blocksVar; public Name blocksVar() { return blocksVar; }
     private Name threadsVar; public Name threadsVar() { return threadsVar; }
     private SharedMem shm; public SharedMem shm() { return shm; }
+    private boolean directParams; public boolean directParams() { return directParams; }
     private ArrayList<VarInstance> kernelParams; public ArrayList<VarInstance> kernelParams() { return kernelParams; }
-    public void setCUDAKernelCFG(Expr blocks, Name blocksVar, Expr threads, Name threadsVar, SharedMem shm) {
+    public void setCUDAKernelCFG(Expr blocks, Name blocksVar, Expr threads, Name threadsVar, SharedMem shm, boolean directParams) {
         this.blocks = blocks;
         this.blocksVar = blocksVar;
         this.threads = threads;
         this.threadsVar = threadsVar;
         this.shm = shm;
         this.kernelParams = variables();
+        this.directParams = directParams;
         if (autoBlocks!=null)
             this.kernelParams.add(autoBlocks.localDef().asInstance());
         if (autoThreads!=null)
@@ -82,6 +85,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
         if (cudaStream==null) {
             cudaStream = sw.getNewStream("cu");
             j.compiler().outputFiles().add(wrappingClass()+".cu");
+            ((X10CPPCompilerOptions)j.extensionInfo().getOptions()).compilationUnits().add(wrappingClass()+".cu");
             cudaStream.write("#include <x10aux/config.h>"); cudaStream.newline();
             cudaStream.write("#include <cfloat>"); cudaStream.newline();
             cudaStream.forceNewline();

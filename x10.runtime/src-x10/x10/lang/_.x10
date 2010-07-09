@@ -11,6 +11,7 @@
 
 package x10.lang;
 
+
 // Members of the class x10.lang._ are imported automatically.
 public class _ {
     public static type void = Void;
@@ -84,9 +85,12 @@ public class _ {
     
     public static type Array[T](r:Int) = Array[T]{self.rank==r};
     public static type Array[T](r:Region) = Array[T]{self.region==r};
-    public static type Array[T](d:Dist) = Array[T]{self.dist==d};
     public static type Array[T](a:Array[T]) = Array[T]{self==a};
 
+    public static type DistArray[T](r:Int) = DistArray[T]{self.rank==r};
+    public static type DistArray[T](r:Region) = DistArray[T]{self.region==r};
+    public static type DistArray[T](d:Dist) = DistArray[T]{self.dist==d};
+    public static type DistArray[T](a:DistArray[T]) = DistArray[T]{self==a};
 
     public static type ValRail[T](n:Int) = ValRail[T]{self.length==n};
     public static type Rail[T](n:Int) = Rail[T]{self.length==n};

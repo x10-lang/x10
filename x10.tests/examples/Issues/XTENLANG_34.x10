@@ -20,7 +20,7 @@ class XTENLANG_34 extends x10Test {
     static class C {}
     
     public def run():boolean {
-        val o:Object = 1.0;
+        val o:Any = 1.0;
         val x = o as int;
         return true;
     }

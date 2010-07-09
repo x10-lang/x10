@@ -112,6 +112,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     String comment;
     List<AnnotationNode> annotations;
     HashMap procHash = new HashMap();
+    boolean subtreeValid = true;
     
     public String comment() {
         return this.comment;
@@ -468,7 +469,22 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 		  return true;
 	 else
 		  return false;
-}
+  }
+
+    public boolean subtreeValid() {
+        return subtreeValid;
+    }
+
+    public X10Ext subtreeValid(boolean val) {
+        X10Ext_c n = (X10Ext_c) copy();
+        n.subtreeValid = val;
+        return n;
+    }
+    
+    public Node setSubtreeValid(boolean val) {
+        Node n = this.node();
+        return n.ext(this.subtreeValid(val));
+    }
   
   private Effect computeEffect(Local local, EffectComputer ec) {
       Effect result = Effects.makeSafe();

@@ -96,8 +96,22 @@ const int x10aux::cuda_cfgs[] = {
   0 /* terminator */
 };
 
-void x10aux::blocks_threads (place p, msg_type t, int shm, int &bs, int &ts, const int *cfgs)
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_ubyte &bs, x10_ubyte &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_byte &bs, x10_byte &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_ushort &bs, x10_ushort &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_short &bs, x10_short &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_uint &bs, x10_uint &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_int &bs, x10_int &ts, const int *cfgs)
 { x10rt_blocks_threads(p,t,shm,&bs,&ts,cfgs); }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_ulong &bs, x10_ulong &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
+void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_long &bs, x10_long &ts, const int *cfgs)
+{ x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
 
 
 
@@ -260,8 +274,13 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
 }
 
 x10_int x10aux::num_threads() {
-	const char* env = getenv("X10_NTHREADS");
-    if (env==NULL) return 2;
+#ifdef __bg__
+    x10_int default_nthreads = 1;
+#else
+    x10_int default_nthreads = 2;
+#endif
+    const char* env = getenv("X10_NTHREADS");
+    if (env==NULL) return default_nthreads;
     x10_int num = strtol(env, NULL, 10);
     assert (num > 0);
     return num;
@@ -269,7 +288,13 @@ x10_int x10aux::num_threads() {
 
 x10_boolean x10aux::no_steals() { return getenv("X10_NO_STEALS") != NULL; }
 
-x10_boolean x10aux::static_threads() { return (getenv("X10_STATIC_THREADS") != NULL); }
+x10_boolean x10aux::static_threads() { 
+#ifdef __bg__
+    return true;
+#else
+    return (getenv("X10_STATIC_THREADS") != NULL); 
+#endif
+}
 
 static void receive_async (const x10rt_msg_params *p) {
     _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);
@@ -286,7 +311,7 @@ static void receive_async (const x10rt_msg_params *p) {
 }
 
 static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads, size_t *shm,
-                      size_t *argc, const char **argv, size_t *cmemc, const char **cmemv)
+                      size_t *argc, char **argv, size_t *cmemc, char **cmemv)
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
@@ -294,16 +319,14 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::CUDAPre pre = x10aux::DeserializationDispatcher::getCUDAPre(sid);
-    x10_ulong env = pre(buf, p->dest_place, *blocks, *threads, *shm);
+    pre(buf, p->dest_place, *blocks, *threads, *shm, *argc, *argv, *cmemc, *cmemv);
     assert(buf.consumed() <= p->len);
-    *argv = (char*)(size_t)env;
-    *argc = sizeof(void*);
 }
 
 static void cuda_post (const x10rt_msg_params *p, void *env)
 {
     _X_(ANSI_X10RT<<"Receiving a kernel post callback, deserialising..."<<ANSI_RESET);
-    remote_free(p->dest_place, (x10_ulong)(size_t)env);
+    //remote_free(p->dest_place, (x10_ulong)(size_t)env);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
     x10aux::ref<x10::lang::Reference> fs = buf.read<x10aux::ref<x10::lang::Reference> >();
     x10aux::ref<x10::lang::Runtime> rt = x10::lang::PlaceLocalHandle_methods<x10aux::ref<x10::lang::Runtime> >::apply(x10::lang::Runtime::FMGL(runtime));

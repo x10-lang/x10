@@ -24,6 +24,9 @@ import x10.compiler.ClockedVar;
         @Native("c++", "true")
         private static def isCPP () = false as Boolean;
 
+        @Native("java", "true")
+        private static def isJava () = false;
+
         // TODO: check if T is pointer-free
         private static def useNativeFor (x:Place) = isCPP() && x!=here;
 
@@ -46,13 +49,33 @@ import x10.compiler.ClockedVar;
                                                 src: ValRail[T], src_off:Int,
                                                 len:Int) : Void;
 
+        // VERSIONS WITH LOCAL RAIL
+
+        @Native("java", "(#4).copyToLocal(#5,#6,#7,#8)")
+        @Native("c++", "printf(\"Should never occur, see Rail.x10\")")
+        private static native def copyToLocal_[T] (src: Rail[T]!, src_off:Int,
+                                              dst: Rail[T], dst_off:Int,
+                                              len:Int) : Void;
+        @Native("java", "(#4).copyFromLocal(#5,#6,#7,#8)")
+        @Native("c++", "printf(\"Should never occur, see Rail.x10\")")
+        private static native def copyFromLocal_[T] (dst: Rail[T]!, dst_off:Int,
+                                                src: Rail[T], src_off:Int,
+                                                len:Int) : Void;
+        @Native("java", "(#4).copyFromLocal(#5,#6,#7,#8)")
+        @Native("c++", "printf(\"Should never occur, see Rail.x10\")")
+        private static native def copyFromLocal_[T] (dst: Rail[T]!, dst_off:Int,
+                                                src: ValRail[T], src_off:Int,
+                                                len:Int) : Void;
+
         public static def copyTo[T] (src: Rail[T]!, src_off:Int,
                                      dst: Rail[T], dst_off:Int,
                                      len:Int) : Void {
+            if (dst.home == here && isJava()) { copyToLocal_(src,src_off,dst,dst_off,len); return; }
             if (useNativeFor(dst.home)) { copyTo_(src,src_off,dst,dst_off,len); return; }
             // could be further optimised to send only the part of the valrail needed
             val to_serialize = src as ValRail[T];
             at (dst) {
+                if (isJava()) { ValRail__NativeRep.copyToLocal_(to_serialize,src_off,dst,dst_off,len); } else
                 //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
                 for (var i:Int=0 ; i<len ; ++i) {
                     dst(dst_off+i) = to_serialize(src_off+i);
@@ -63,6 +86,7 @@ import x10.compiler.ClockedVar;
         public static def copyFrom[T] (dst: Rail[T]!, dst_off:Int,
                                        src: Rail[T], src_off:Int,
                                        len:Int) : Void {
+            if (src.home == here && isJava()) { copyFromLocal_(dst,dst_off,src,src_off,len); return; }
             if (useNativeFor(src.home)) { copyFrom_(dst,dst_off,src,src_off,len); return; }
             // semantics allows an async per rail element inside a single finish
             // this version is optimised to use a single async for the whole rail
@@ -70,6 +94,7 @@ import x10.compiler.ClockedVar;
             at (src) {
                 val to_serialize = src as ValRail[T];
                 at (dst) {
+                    if (isJava()) { copyFromLocal_(dst,dst_off,to_serialize,src_off,len); } else
                     //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
                     for (var i:Int=0 ; i<len ; ++i) {
                         dst(dst_off+i) = to_serialize(src_off+i);
@@ -81,6 +106,7 @@ import x10.compiler.ClockedVar;
         public static def copyFrom[T] (dst: Rail[T]!, dst_off:Int,
                                        src: ValRail[T], src_off:Int,
                                        len:Int) : Void {
+            if (isJava()) { copyFromLocal_(dst,dst_off,src,src_off,len); return; }
             if (useNativeFor(src.home)) { copyFrom_(dst,dst_off,src,src_off,len); return; }
             // source is always local
             // semantics allows an async per rail element inside a single finish
@@ -100,13 +126,13 @@ import x10.compiler.ClockedVar;
                                               dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
                                               len:Int) : Void;
 
-        @Native("c++", "(#4)->copyTo(#5,#6,#7,#8)")
+        @Native("c++", "(#4)->copyFrom(#5,#6,#7,#8)")
         @Native("java", "java.lang.System.out.println(\"Should never occur, see Rail.x10\")")
         public static  native def copyFrom_[T] (src: Rail[T]!, src_off:Int,
                                                 dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
                                                 len:Int) : Void;
 
-        @Native("c++", "(#4)->copyTo(#5,#6,#7,#8)")
+        @Native("c++", "(#4)->copyFrom(#5,#6,#7,#8)")
         @Native("java", "java.lang.System.out.println(\"Should never occur, see Rail.x10\")")
         public static  native def copyFrom1_[T] (dst: Rail[T]!, dst_off:Int,
                                                  src_place:Place, src_finder:()=>Pair[ValRail[T]!,Int],
@@ -327,7 +353,7 @@ import x10.compiler.ClockedVar;
 	   public static safe def setClocked[T](r: Rail[T]!, index: Int, value: T)
     	{
     	   val cv = r(index) as ClockedVar[T]!;
-    	   cv.set(value);  
+    	   cv.setClocked(value);  
     
     	}
     	
@@ -335,7 +361,7 @@ import x10.compiler.ClockedVar;
     	 public static safe def getClocked[T](r: Rail[T]!, index: Int): T
     	{
     	   val cv = r(index) as ClockedVar[T]!;
-    	   return cv.get();  
+    	   return cv.getClocked();  
   
     	}
     	

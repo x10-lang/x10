@@ -36,7 +36,7 @@ public class ArrayCopy2 extends x10Test {
     /**
      * Does not throw an error iff A(i) == B(i) for all points i.
      */
-    public def arrayEqual[T](A: Array[T], B: Array[T](A.rank)) {
+    public def arrayEqual[T](A: DistArray[T], B: DistArray[T](A.rank)) {
         // Spawn an activity for each index to
         // fetch the B(i) value
         // Then compare it to the A(i) value
@@ -53,7 +53,7 @@ public class ArrayCopy2 extends x10Test {
      * regions are equal.
      * Throws an error iff some assertion failed.
      */
-    public def arrayCopy(val A: Array[int], val B: Array[int](A.rank)) {
+    public def arrayCopy(val A: DistArray[int], val B: DistArray[int](A.rank)) {
 
         val D = A.dist;
         val E = B.dist;
@@ -62,10 +62,10 @@ public class ArrayCopy2 extends x10Test {
         val D_1 = Dist.makeUnique(D.places());
 
         // number of times elems of A are accessed
-        val accessed_a = Array.make[Int](D);
+        val accessed_a = DistArray.make[Int](D);
 
         // number of times elems of B are accessed
-        val accessed_b = Array.make[Int](E);
+        val accessed_b = DistArray.make[Int](E);
 
         finish
             ateach (x in D_1) {
@@ -83,7 +83,8 @@ public class ArrayCopy2 extends x10Test {
                     atomic accessed_a(i)++;
                 }
                 // check if dist ops are working
-
+		/*
+		 TODO: restore this test case once we restore Dist/Region subtraction.
                 val D_nonlocal = D - D_local;
                 chk((D_local || D_nonlocal).equals(D));
                 for (k in D_local) {
@@ -94,6 +95,7 @@ public class ArrayCopy2 extends x10Test {
                     chk(outOfRange(D_local, k));
                     chk(D_nonlocal(k) != px);
                 }
+	       */
             }
 
         // ensure each A[i] was accessed exactly once
@@ -128,8 +130,8 @@ public class ArrayCopy2 extends x10Test {
 				       + D.region.equals(R));
 	    */
             chk(D.region.equals(E.region) && D.region.equals(R));
-            val A = Array.make[int](D);
-            val B = Array.make[int](E, (p(i,j,k,l): Point) => { val x = ((i*N+j)*N+k)*N+l; x*x+1 });
+            val A = DistArray.make[int](D);
+            val B = DistArray.make[int](E, (p(i,j,k,l): Point) => { val x = ((i*N+j)*N+k)*N+l; x*x+1 });
             arrayCopy(A, B);
             arrayEqual(A, B);
         }
@@ -147,17 +149,17 @@ public class ArrayCopy2 extends x10Test {
     static class dist2 {
 
         const BLOCK: int = 0;
-        const BLOCKCYCLIC: int = 1;
-        const CONSTANT: int = 2;
-	const N_DIST_TYPES=3;
+        const CONSTANT: int = 1;
+        //const BLOCKCYCLIC: int = 1;
+	const N_DIST_TYPES=2;
         /**
          * Return a dist with region r, of type disttype
          */
         public static def getDist(distType: Int, R: Region): Dist(R) = {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(R,0) as Dist(R);
-                case BLOCKCYCLIC: return Dist.makeBlockCyclic(R, 0,3) as Dist(R);
                 case CONSTANT: return (R->here) as Dist(R);
+                // case BLOCKCYCLIC: return Dist.makeBlockCyclic(R, 0,3) as Dist(R);
                 default: throw new Error();
             }
         }

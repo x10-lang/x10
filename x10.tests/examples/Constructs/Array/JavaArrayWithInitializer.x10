@@ -23,12 +23,12 @@ public class JavaArrayWithInitializer extends x10Test {
 
     public def run(): boolean = {
 
-        val foo1  = Array.make[int](0..N-1->here, ((i): Point)=> i);
+        val foo1  = new Array[int](0..N-1, ((i): Point)=> i);
 
         x10.io.Console.OUT.println("1");
 
         for (val (i): Point in 0..N-1) chk(foo1(i) == i);
-        val foo2  = Array.make[int](0..N-1 -> here, ((i): Point)=>i);
+        val foo2  = new Array[int](0..N-1, ((i): Point)=>i);
 
         x10.io.Console.OUT.println("2");
 

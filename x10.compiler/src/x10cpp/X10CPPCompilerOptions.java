@@ -13,6 +13,9 @@ package x10cpp;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import polyglot.frontend.ExtensionInfo;
@@ -84,4 +87,8 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 	    }
 	    super.usageForFlag(out, flag, description);
 	}
+	
+	private Set<String> compilationUnits = new HashSet<String>();
+    
+	public Set<String> compilationUnits() { return compilationUnits; }	
 }

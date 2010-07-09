@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 
+import x10.util.Box;
 import x10.util.List;
 
 /**
@@ -20,18 +21,22 @@ import x10.util.List;
  *
  * @author bdlucas 8/2008
  */
+/* changed return type to Box[T] by mtake */
 import x10.util.ArrayList;
 public class ClosureExample1 extends x10Test {
 
-    def find[T](f:(T)=>Boolean, xs: List[T]):T {
+    // def find[T](f:(T)=>Boolean, xs: List[T]):T {
+    def find[T](f:(T)=>Boolean, xs: List[T]): Box[T] {
         for (x in xs)
-            if (f(x)) return x;
+            // if (f(x)) return x;
+            if (f(x)) return x as Box[T];
         return null;
     }
 
     val xs: List[Int]! = new ArrayList[Int]();
     
-    val x: Int = find((x: Int) => (x>0), xs);
+    // val x: Int = find((x: Int) => (x>0), xs);
+    val x: Box[Int] = find((x: Int) => (x>0), xs);
 
     public def run(): boolean = {
         // XXX just syntax and type check for now

@@ -18,7 +18,7 @@ import harness.x10Test;
 public class PlaceCheckArray extends x10Test {
 
 
-    val a = Array.make[int](Dist.makeUnique());
+    val a = DistArray.make[int](Dist.makeUnique());
 
     public def run01(): boolean {
         try {

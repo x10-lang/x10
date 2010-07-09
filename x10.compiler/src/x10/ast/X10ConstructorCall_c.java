@@ -81,7 +81,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    TypeSystem ts = tb.typeSystem();
 
 	    // Remove super() calls for java.lang.Object.
-	    if (kind == SUPER && tb.currentClass().fullName().equals(QName.make("x10.lang.Ref"))) {
+	    if (kind == SUPER && tb.currentClass().fullName().equals(QName.make("x10.lang.Object"))) {
 		return tb.nodeFactory().Empty(position());
 	    }
 
@@ -120,7 +120,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        Context context = tc.context();
             ClassType ct = context.currentClass();
 	        Type superType = ct.superClass();
-	        if (superType == null) {
+	        if (kind == SUPER && superType == null) {
 	        	// this can happen for structs, and for Object
 	        	Type type =  context.currentClass();
 	        	if (X10TypeMixin.isX10Struct(type)

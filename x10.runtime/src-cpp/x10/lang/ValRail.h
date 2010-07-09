@@ -84,12 +84,29 @@ namespace x10 {
             
             virtual x10aux::ref<x10::lang::String> toString();
 
-            static x10aux::ref<ValRail<T> > make(x10_int length);
+            static x10aux::ref<ValRail<T> > make(x10_int length) {
+                return makeAligned(length, 8);
+            }
+            static x10aux::ref<ValRail<T> > makeAligned(x10_int length, x10_int alignment);
 
             static x10aux::ref<ValRail<T> > make(x10_int length,
-                                                 x10aux::ref<Fun_0_1<x10_int,T> > init );
+                                                 x10aux::ref<Fun_0_1<x10_int,T> > init) {
+                return makeAligned(length, init, 8);
+            }
+            static x10aux::ref<ValRail<T> > makeAligned(x10_int length,
+                                                        x10aux::ref<Fun_0_1<x10_int,T> > init,
+                                                        x10_int alignment);
 
-            static x10aux::ref<ValRail<T> > make(x10aux::ref<Rail<T> > other);
+            static x10aux::ref<ValRail<T> > make(x10aux::ref<Rail<T> > other) {
+                return makeAligned(other, 8);
+            }
+            static x10aux::ref<ValRail<T> > makeAligned(x10aux::ref<Rail<T> > other, x10_int alignment);
+
+            // All ValRails are mortal
+            virtual x10_boolean _isMortal() { return true; }
+
+            // ValRail will take care of deserializing remote objects properly
+            virtual bool _custom_deserialization() { return true; }
 
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -175,16 +192,17 @@ namespace x10 {
             return true;
         }
 
-        template<class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length) {
-            x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+        template<class T> x10aux::ref<ValRail<T> > ValRail<T>::makeAligned(x10_int length, x10_int alignment) {
+            x10aux::ref<ValRail<T> > rail = x10aux::alloc_aligned_rail<T,ValRail<T> >(length, alignment);
             // Memset both for efficiency and to allow T to be a struct.
             memset(rail->raw(), 0, length * sizeof(T));
             return rail;
         }
 
-        template<class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length,
-                                                                     x10aux::ref<Fun_0_1<x10_int,T> > init ) {
-            x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+        template<class T> x10aux::ref<ValRail<T> > ValRail<T>::makeAligned(x10_int length,
+                                                                    x10aux::ref<Fun_0_1<x10_int,T> > init,
+                                                                    x10_int alignment) {
+            x10aux::ref<ValRail<T> > rail = x10aux::alloc_aligned_rail<T,ValRail<T> >(length, alignment);
             x10aux::ref<x10::lang::Reference> initAsRef = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Reference> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsRef->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
@@ -193,10 +211,10 @@ namespace x10 {
             return rail;
         }
 
-        template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10aux::ref<Rail<T> > other) {
+        template <class T> x10aux::ref<ValRail<T> > ValRail<T>::makeAligned(x10aux::ref<Rail<T> > other, x10_int alignment) {
             x10aux::nullCheck(other);
             x10_int length = other->FMGL(length);
-            x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+            x10aux::ref<ValRail<T> > rail = x10aux::alloc_aligned_rail<T,ValRail<T> >(length, alignment);
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i];
             }
@@ -242,7 +260,7 @@ namespace x10 {
 
         template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
             x10_int length = buf.read<x10_int>();
-            x10aux::ref<ValRail<T> > this_ = x10aux::alloc_rail_remote<T,ValRail<T> >(length);
+            x10aux::ref<ValRail<T> > this_ = x10aux::alloc_rail<T,ValRail<T> >(length);
             buf.record_reference(this_); // TODO: avoid; no global refs; final class
             this_->_deserialize_body(buf);
             return this_;
@@ -255,7 +273,7 @@ namespace x10 {
             if (rr.ref != 0) {
                 this_ = ValRail<T>::template _deserializer<ValRail<T> >(buf);
             }
-            return Object::_finalize_reference<T>(this_, rr);
+            return Object::_finalize_reference<S>(this_, rr, buf);
         }
     }
 }

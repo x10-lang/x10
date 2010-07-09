@@ -410,7 +410,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      * @param x the given Float
      * @return the given Float converted to a UShort.
      */
-    @Native("java", "((short)(float)(#1))")
+    @Native("java", "x10.core.Floats.toUShort(#1)")
     @Native("c++",  "((x10_ushort) (#1))")
     public native static safe operator (x:Float) as UShort;
 
@@ -419,7 +419,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      * @param x the given Double
      * @return the given Double converted to a UShort.
      */
-    @Native("java", "((short)(double)(#1))")
+    @Native("java", "x10.core.Floats.toUShort(#1)")
     @Native("c++",  "((x10_ushort) (#1))")
     public native static safe operator (x:Double) as UShort;
 

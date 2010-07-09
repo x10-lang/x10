@@ -29,7 +29,7 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -52,7 +52,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	public polyglot.ast.TypeNode astNode() { return astNode; }
 	
 	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
-	        XRoot thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {
+	        XVar thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {
 
 		super(ts, pos);
 		this.container = container;
@@ -67,6 +67,9 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		this.type = type;
 	}
 	
+	public Ref<? extends Type> offerType() {
+		return null;
+	}
 	// BEGIN ANNOTATION MIXIN
 	List<Ref<? extends Type>> annotations;
 
@@ -175,12 +178,12 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		this.type = type;
 	}
 
-	XRoot thisVar;
-	public XRoot thisVar() {
+	XVar thisVar;
+	public XVar thisVar() {
 	    return this.thisVar;
 	}
 
-	public void setThisVar(XRoot thisVar) {
+	public void setThisVar(XVar thisVar) {
 	    this.thisVar = thisVar;
 	}
 

@@ -54,7 +54,6 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XRoot;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
@@ -70,6 +69,7 @@ import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.visit.X10TypeChecker;
+import x10.visit.ChangePositionVisitor;
 import x10.types.checker.VarChecker;
 
 
@@ -236,7 +236,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         X10Context c = (X10Context) tc.context();
 
-        XRoot thisVar = c.thisVar();
+        XVar thisVar = c.thisVar();
 
         List<Type> typeArgs = new ArrayList<Type>(this.typeArgs.size());
 
@@ -393,9 +393,9 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
         // dependency error, but instead get a less precise type.
         sym.update(t);
         
-        if (! n.typeArgs().isEmpty() || ! n.args().isEmpty())
+     /*   if (! n.typeArgs().isEmpty() || ! n.args().isEmpty())
             throw new SemanticException("Could not find or instantiate type \"" + n + "\".", position());
-            
+         */   
         CanonicalTypeNode result = nf.CanonicalTypeNode(position(), sym);
         // FIXME: [IP] HACK
         if (t instanceof MacroType) {
@@ -434,7 +434,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
                             }
                         }
                     };
-                depExpr = (DepParameterExpr) depExpr.visit(subst);
+                depExpr = (DepParameterExpr) depExpr.visit(subst).visit(new ChangePositionVisitor(position())); // todo: we should desugar only after type-checking
                 result = ((X10CanonicalTypeNode)result).constraintExpr(depExpr);
             }
         }
@@ -450,8 +450,12 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
     	 {
           	
 
-          	VarChecker ac = new VarChecker(childtc.job(), Globals.TS(), Globals.NF());
-          	result.visit(ac);
+          	VarChecker ac = (VarChecker) new VarChecker(childtc.job(), Globals.TS(), Globals.NF()).context(childtc.context());
+          	try {
+          	    result.visit(ac);
+          	} catch (InternalCompilerError e) {
+          	    throw new SemanticException(e.getMessage(), e.position());
+          	}
           	
           	if (ac.error != null) {
           		throw ac.error;

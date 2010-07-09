@@ -14,9 +14,9 @@ package x10.types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import polyglot.ast.Block;
 import polyglot.ast.MethodDecl;
+import polyglot.ast.TypeNode;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef_c;
@@ -37,9 +37,8 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.ast.AnnotationNode;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
@@ -61,6 +60,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     protected Ref<? extends Effect> effect;
     List<AnnotationNode> bodyAnnotations;
     MethodDecl methodDecl;
+    Ref<? extends Type> offerType;
 
     public X10MethodDef_c(TypeSystem ts, Position pos,
             Ref<? extends StructType> container,
@@ -70,11 +70,13 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             Name name,
             List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
-            XRoot thisVar,
+            XVar thisVar,
             List<LocalDef> formalNames,
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard,
-            List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
+            List<Ref<? extends Type>> excTypes, 
+            Ref< ? extends Type> offerType,
+            Ref<XTerm> body) {
         super(ts, pos, container, flags, returnType, name, formalTypes, excTypes);
 	this.effect = effect;
         this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
@@ -83,14 +85,19 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         this.guard = guard;
         this.typeGuard = typeGuard;
         this.body = body;
+        this.offerType = offerType;
     }
 
-    XRoot thisVar;
-    public XRoot thisVar() {
+    XVar thisVar;
+    public XVar thisVar() {
         return this.thisVar;
     }
     
-    public void setThisVar(XRoot thisVar) {
+
+    public Ref<? extends Type> offerType() {
+    	return this.offerType;
+    }
+    public void setThisVar(XVar thisVar) {
         this.thisVar = thisVar;
     }
 
@@ -176,6 +183,10 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
     
     
+    public void setOfferType(Ref<? extends Type> s) {
+        this.offerType = s;
+    }
+    
     public List<Ref<? extends Type>> typeParameters() {
 	        return Collections.unmodifiableList(typeParameters);
     }
@@ -183,9 +194,34 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
 	    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
     }
-	
+
     public String signature() {
-        return name + (typeParameters.isEmpty() ? "" : typeParameters.toString()) + "(" + CollectionUtil.listToString(formalTypes) + ")";
+        StringBuilder sb = new StringBuilder(name.toString());
+        if (! typeParameters.isEmpty()) {
+            sb.append("[");
+            boolean first = true;
+            for (Ref<? extends Type> p : typeParameters) {
+                if (!first) {
+                    sb.append(",");
+                }
+                first = false;
+                sb.append(p);
+            }
+            sb.append("]");
+        }
+        sb.append('(');
+        boolean first = true;
+        for (LocalDef l : formalNames()) {
+            if (!first) {
+                sb.append(",");
+            }
+            first = false;
+            sb.append(l.name().toString())
+                .append(':')
+                .append(l.type().get().toString());
+        }
+        sb.append(')');
+        return sb.toString();
     }
 
     @Override
@@ -196,7 +232,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         return asInstance;
     }
     
-    public static boolean hasVar(Type type, XRoot var) {
+    public static boolean hasVar(Type type, XVar var) {
 	    if (type instanceof ConstrainedType) {
 		    XConstraint rc = X10TypeMixin.realX(type);
 		    if (rc != null && rc.hasVar(var))
@@ -220,7 +256,9 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
     
 	public String toString() {
-		String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + signature() + (guard() != null ? guard() : "") + ": " + returnType();
+		String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + 
+		signature() + (guard() != null ? guard() : "") 
+		+ ": " + returnType();
 
 		if (!throwTypes().isEmpty()) {
 			s += " throws " + CollectionUtil.listToString(throwTypes());

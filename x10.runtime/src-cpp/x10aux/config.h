@@ -60,15 +60,34 @@
 #endif
 
 #ifdef NO_CHECKS
+#ifndef NO_BOUNDS_CHECKS
 #define NO_BOUNDS_CHECKS
+#endif//NO_BOUNDS_CHECKS
+#ifndef NO_NULL_CHECKS
 #define NO_NULL_CHECKS
+#endif//NO_NULL_CHECKS
+#ifndef NO_PLACE_CHECKS
 #define NO_PLACE_CHECKS
+#endif//NO_PLACE_CHECKS
 #endif
 
 #ifndef NDEBUG 
+#ifndef TRACE_ENV_VAR
 #define TRACE_ENV_VAR
+#endif//TRACE_ENV_VAR
 #endif
 
+#ifdef NO_BOUNDS_CHECKS
+#define BOUNDS_CHECK_BOOL false
+#else
+#define BOUNDS_CHECK_BOOL true
+#endif
+
+#ifdef NO_PLACE_CHECKS
+#define PLACE_CHECK_BOOL false
+#else
+#define PLACE_CHECK_BOOL true
+#endif
 
 #ifndef NO_IOSTREAM
 #  include <iostream>

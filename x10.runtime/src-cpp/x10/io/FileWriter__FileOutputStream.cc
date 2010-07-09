@@ -15,11 +15,21 @@ using namespace x10aux;
 using namespace x10::lang;
 using namespace x10::io;
 
-x10aux::ref<FileWriter__FileOutputStream> FileWriter__FileOutputStream::STANDARD_OUT
-    = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(stdout);
+static FileWriter__FileOutputStream* _STANDARD_OUT_cache = NULL;
+x10aux::ref<FileWriter__FileOutputStream> FileWriter__FileOutputStream::STANDARD_OUT()
+{
+	if (NULL == _STANDARD_OUT_cache)
+		_STANDARD_OUT_cache = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(stdout);
+	return _STANDARD_OUT_cache;
+}
 
-x10aux::ref<FileWriter__FileOutputStream> FileWriter__FileOutputStream::STANDARD_ERR
-    = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(stderr);
+static FileWriter__FileOutputStream* _STANDARD_ERR_cache = NULL;
+x10aux::ref<FileWriter__FileOutputStream> FileWriter__FileOutputStream::STANDARD_ERR()
+{
+	if (NULL == _STANDARD_ERR_cache)
+		_STANDARD_ERR_cache = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(stderr);
+	return _STANDARD_ERR_cache;
+}
 
 x10aux::ref<FileWriter__FileOutputStream>
 FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name) {

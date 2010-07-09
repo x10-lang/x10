@@ -26,6 +26,7 @@ import polyglot.ast.Node;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.AbstractGoal_c;
+import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
@@ -74,10 +75,17 @@ import x10.visit.X10TypeChecker;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
+	TypeNode hasType;
+	public Type hasType() {
+		return hasType==null ? null : hasType.type();
+	}
     public X10FieldDecl_c(Position pos, FlagsNode flags, TypeNode type,
             Id name, Expr init)
     {
-        super(pos, flags, type, name, init);
+        super(pos, flags, 
+        		type instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(type.position()) : type, name, init);
+        if (type instanceof HasTypeNode_c) 
+			hasType = ((HasTypeNode_c) type).typeNode();
     }
     
     @Override
@@ -87,8 +95,17 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         }
         return c;
     }
+    
+    protected X10FieldDecl_c reconstruct(TypeNode hasType) {
+    	if (this.hasType != hasType)  {
+    		X10FieldDecl_c n = (X10FieldDecl_c) copy();
+    		n.hasType = hasType;
+    		return n;
+    	}
+    	return this;
+    }
 	public Context enterChildScope(Node child, Context c) {
-		if (child == this.type) {
+		if (child == this.type || child==this.hasType) {
 			X10Context xc = (X10Context) c.pushBlock();
 			FieldDef fi = fieldDef();
 			xc.addVariable(fi.asInstance());
@@ -96,7 +113,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 			c = xc;
 		}
 				
-	    if (child == this.type || child == this.init) {
+	    if (child == this.type || child == this.init || child == this.hasType) {
 			c = PlaceChecker.pushHereTerm(fieldDef(), (X10Context) c);
 		}
 		Context cc = super.enterChildScope(child, c);
@@ -287,25 +304,27 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    return super.setResolverOverride(parent, v);
 	    }
 
-	        @Override
-	        public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-	        	 
-	            if (type() instanceof UnknownTypeNode) {
-	            	  NodeVisitor childtc = tc.enter(parent, this);
-	                
-	                Expr init = (Expr) this.visitChild(init(), childtc);
-	                if (init != null) {
-	                    Type t = init.type();
-	                    if (t instanceof X10ClassType) {
-	                        X10ClassType ct = (X10ClassType) t;
-	                        if (ct.isAnonymous()) {
-	                            if (ct.interfaces().size() > 0)
-	                                t = ct.interfaces().get(0);
-	                            else
-	                                t = ct.superClass();
-	                        }
+	    @Override
+	    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
+
+	        if (hasType != null && ! flags().flags().isFinal()) {
+	            Errors.issue(tc.job(), new Errors.OnlyValMayHaveHasType(this));
+	        }
+	        if (type() instanceof UnknownTypeNode) {
+	            NodeVisitor childtc = tc.enter(parent, this);
+
+	            Expr init = (Expr) this.visitChild(init(), childtc);
+	            if (init != null) {
+	                Type t = init.type();
+	                if (t instanceof X10ClassType) {
+	                    X10ClassType ct = (X10ClassType) t;
+	                    if (ct.isAnonymous()) {
+	                        if (ct.interfaces().size() > 0)
+	                            t = ct.interfaces().get(0);
+	                        else
+	                            t = ct.superClass();
 	                    }
-	                    X10Context xc = (X10Context) enterChildScope(type(), tc.context());
+	                    /*X10Context xc = (X10Context) enterChildScope(type(), tc.context());
 	                    t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
 	                    
 	                    LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
@@ -313,33 +332,55 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                    
 	                    FlagsNode flags = (FlagsNode) this.visitChild(flags(), childtc);
 	                    Id name = (Id) this.visitChild(name(), childtc);
+	                */
+			}
+	                X10Context xc = (X10Context) enterChildScope(type(), tc.context());
+	                t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
+	                LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
+	                r.update(t);
+	                {
 	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
-	                    
-	                    Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init), childtc);
-	                    List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
-	                    if (oldAnnotations == null || oldAnnotations.isEmpty()) {
-	                            return n;
+	                    TypeNode htn  = null;
+	                    if (hasType != null) {
+	                        htn = (TypeNode) visitChild(hasType, childtc);
+	                        if (! Globals.TS().isSubtype(type().type(), htn.type(),tc.context())) {
+	                            Errors.issue(tc.job(),
+	                                         new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
+	                                                                                 htn.type(),
+	                                                                                 position()));
+	                        }
 	                    }
-	                    List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
-	                    if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
-	                            return ((X10Del) n.del()).annotations(newAnnotations);
-	                    }
+	                }
+	                FlagsNode flags = (FlagsNode) this.visitChild(flags(), childtc);
+	                Id name = (Id) this.visitChild(name(), childtc);
+	                TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
+
+	                Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init), childtc);
+	                List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
+	                if (oldAnnotations == null || oldAnnotations.isEmpty()) {
 	                    return n;
 	                }
+	                List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
+	                if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
+	                    return ((X10Del) n.del()).annotations(newAnnotations);
+	                }
+	                return n;
 	            }
-	            return super.typeCheckOverride(parent, tc);
 	        }
+	        return null;
+	    }
 	     
 	    @Override
 	    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	    	Type type =  this.type().type();
+            final TypeNode typeNode = this.type();
+            Type type =  typeNode.type();
 	    	Type oldType = (Type)type.copy();
 	    	X10Context xc = (X10Context) enterChildScope(type(), tc.context());
 	    	X10Flags f = X10Flags.toX10Flags(flags.flags());
 	    	if (f.isGlobal() && ! f.isFinal()) {
 	    		throw new Errors.GlobalFieldIsVar(this);
 	    	}
-	    	X10TypeMixin.checkMissingParameters(type);
+	    	X10TypeMixin.checkMissingParameters(typeNode);
 	    	
 	    	// Need to replace here by current placeTerm in type, 
 	    	// since the field of this type can be referenced across
@@ -348,7 +389,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	type = PlaceChecker.ReplaceHereByPlaceTerm(type, xc);
 
 	    	if (type.isVoid())
-	    		throw new SemanticException("Field cannot have type " + this.type().type() + ".", position());
+	    		throw new SemanticException("Field cannot have type " + typeNode.type() + ".", position());
 
 	    	if (X10TypeMixin.isProto(type)) {
 	    		throw new SemanticException("Field cannot have type " 
@@ -423,5 +464,18 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	        return child.type();
 	    }
+	    /** Visit the children of the declaration. */
+	    public Node visitChildren(NodeVisitor v) {
+	        X10FieldDecl_c n = (X10FieldDecl_c) super.visitChildren(v);
+	        TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
+            return n.reconstruct(hasType);
+	    }
+	    
+	    public Node visitSignature(NodeVisitor v) {
+	    	X10FieldDecl_c n = (X10FieldDecl_c) super.visitSignature(v);
+	    	  TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
+	    	  return n.reconstruct(hasType);
+	        }
+	    
 }
 

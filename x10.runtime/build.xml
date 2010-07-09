@@ -45,6 +45,7 @@
 
     <target name="init">
         <mkdir dir="${build}"/>
+        <mkdir dir="${build}/gen"/>
         <javac destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${x10.common.location}/contrib/ant"/>
             <include name="Ejc.java"/>
@@ -71,11 +72,26 @@
     <condition property="bdwgc.enabled">
         <and>
             <isfalse value="${DISABLE_GC}" />
+	    <isfalse value="${CROSS_COMPILE_BGP}" />
             <or>
                 <os family="unix" name="linux"/>
                 <os family="mac"/>
                 <os family="windows"/>
+                <os family="unix" name="freebsd"/>
             </or>
+        </and>
+    </condition>
+    <!-- darwin architectures -->
+    <condition property="darwin.32" value="-arch i386 " else="">
+        <and>
+            <os family="mac"/>
+            <istrue value="${env.USE_32BIT}" />
+        </and>
+    </condition>
+    <condition property="darwin.64" value="-arch x86_64 " else="">
+        <and>
+            <os family="mac"/>
+            <istrue value="${env.USE_64BIT}" />
         </and>
     </condition>
     <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
@@ -105,6 +121,9 @@
     <condition property="x10c.optimize" value="-O" else="">
         <istrue value="${optimize}" />
     </condition>
+    <condition property="x10c.no_checks" value="-NO_CHECKS=true" else="">
+        <istrue value="${NO_CHECKS}" />
+    </condition>
     <target name="available-procs" unless="available.procs">
         <property name="available.procs" value="2"/>
     </target>
@@ -113,7 +132,7 @@
     <target name="clean" depends="clean-java,clean-cpp,clean-x10rt"/>
     <target name="distclean-java" depends="clean-java"/>
     <target name="clean-java">
-        <delete dir="${build}"/>
+        <delete dir="${build}" failonerror="false"/>
     </target>
     <target name="distclean-cpp" depends="clean-cpp,clean-bdwgc"/>
     <target name="clean-cpp" depends="available-procs">
@@ -124,8 +143,7 @@
         </exec>
     </target>
     <target name="prepare-clean-bdwgc" if="bdwgc.enabled">
-        <delete dir="${bdwgc.dir}/install" quiet="true"/>
-        <available file="${bdwgc.dir}/src/Makefile" property="bdwgc.makefile.present"/>
+        <delete dir="${bdwgc.dir}" quiet="true"/>
     </target>
     <target name="clean-bdwgc" depends="prepare-clean-bdwgc" if="bdwgc.makefile.present">
         <exec executable="${make.exe}" failonerror="true" dir="${bdwgc.dir}/src">
@@ -210,10 +228,10 @@
         <pathconvert property="xrx.list" refid="changed.xrx.files" dirsep="/" pathsep=" ">
             <map from="${basedir}${file.separator}src-x10${file.separator}" to=""/>
         </pathconvert>
-        <echo message="x10c -c ${xrx.list}"/>
+        <echo message="x10c ${x10c.optimize} ${x10c.no_checks} -c ${xrx.list}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
             <arg value="-c" />
-            <arg value="'${x10.dist.location}/bin/x10c' ${x10c.optimize} -d '${gen}' -J-ea -rtdev -sourcepath . -commandlineonly -c ${xrx.list}" />
+            <arg value="'${x10.dist.location}/bin/x10c' ${x10c.optimize} ${x10c.no_checks} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CALLS -commandlineonly -c ${xrx.list}" />
         </exec>
     </target>
     <target name="build-xrx" depends="init,gen-xrx,build-java">
@@ -296,7 +314,34 @@
             <echo message="Installing BDWGC to ${bdwgc.platform.dir}"/>
             <if>
               <conditions>
-                <os family="unix" name="linux"/>
+		<or>
+                  <os family="unix" name="linux" arch="ppc"/>
+                  <os family="unix" name="linux" arch="ppc32"/>
+                  <os family="unix" name="linux" arch="ppc64"/>
+		</or>
+              </conditions>
+              <sequential>
+                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                  <arg value="${bdwgc.dir}/src/configure" />
+                  <arg value="-enable-threads=posix" />
+                  <arg value="-enable-thread-local-alloc" />
+                  <arg value="--enable-sigrt-signals" />
+                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                </exec>
+              </sequential>
+            </if>
+            <if>
+              <conditions>
+                <and>
+                  <os family="unix" name="linux" />
+                  <not>
+		    <or>
+                      <os family="unix" name="linux" arch="ppc"/>
+                      <os family="unix" name="linux" arch="ppc32"/>
+                      <os family="unix" name="linux" arch="ppc64"/>
+		    </or>
+		  </not>
+                </and>
               </conditions>
               <sequential>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
@@ -316,7 +361,10 @@
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
                   <arg value="-enable-thread-local-alloc" />
-                  <arg value="CFLAGS=-D_XOPEN_SOURCE" />
+                  <arg value="--disable-dependency-tracking" />
+                  <!-- there is no good way to make an @rpath shared gc lib -->
+                  <arg value="--disable-shared" />
+                  <env key="CFLAGS" value="${darwin.32}${darwin.64}-D_XOPEN_SOURCE" />
                   <arg value="--prefix=${bdwgc.platform.dir}/install" />
                 </exec>
               </sequential>
@@ -350,6 +398,19 @@
                 </exec>
               </sequential>
             </if>
+            <if>
+              <conditions>
+                <os family="unix" name="freebsd"/>
+              </conditions>
+              <sequential>
+                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                  <arg value="${bdwgc.dir}/src/configure" />
+                  <arg value="-enable-threads=posix" />
+                  <arg value="-enable-thread-local-alloc" />
+                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                </exec>
+              </sequential>
+            </if>
             <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                 <env key="OBJECT_MODE" value="32_64" />
                 <arg value="-j${available.procs}" />
@@ -366,7 +427,7 @@
         <mkdir dir="${lib}"/>
         <copy todir="${lib}" preservelastmodified="true" flatten="true" >
            <!--<fileset dir="${bdwgc.dir}/install/lib" includes="libgc.a"/>-->
-           <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*"/>
+           <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*,lib/*gc*.dylib"/>
            <fileset dir="${bdwgc.dir}/install" includes="bin/*.dll"/> <!-- Cygwin -->
         </copy>
         <copy todir="${inc}">
@@ -395,6 +456,8 @@
                        dir="${bdwgc.dir}/src" strip="0" />
               </sequential>
             </if>
+            <patch patchfile="${basedir}/src-cpp/bdwgc-patches/enableRTSignals.patch.txt"
+                   dir="${bdwgc.dir}/src" strip="0" />
         </sequential>
     </target>
 

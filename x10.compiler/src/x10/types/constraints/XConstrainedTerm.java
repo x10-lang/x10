@@ -11,8 +11,8 @@
 
 package x10.types.constraints;
 
+import polyglot.util.InternalCompilerError;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 
@@ -64,9 +64,9 @@ public class XConstrainedTerm  {
 	 */
 	public static XConstrainedTerm make(XTerm t) {
 		try {
-			return instantiate(new CConstraint_c(), t);
+			return instantiate(new CConstraint(), t);
 		} catch (XFailure r) {
-			throw new InternalError("Cannot constrain " + t);
+			throw new InternalCompilerError("Cannot constrain " + t);
 		}
 	}
 	/**
@@ -118,7 +118,7 @@ public class XConstrainedTerm  {
 	 */
 	public CConstraint xconstraint() {
 		CConstraint s = constraint();
-		s = s == null ? new CConstraint_c() : s.copy();
+		s = s == null ? new CConstraint() : s.copy();
 		try {
 			s = s.substitute(term(), s.self());
 		} catch (XFailure z) {

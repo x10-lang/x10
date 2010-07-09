@@ -33,7 +33,7 @@ public class Array1b extends x10Test {
         chk(d.equals(Dist.makeConstant([e, e], here)));
         chk(d.equals(Dist.makeConstant(r, here)));
 
-        val ia = Array.make[int](d, (Point)=>0);
+        val ia = DistArray.make[int](d, (Point)=>0);
 
         for (val p(i): Point in e) for (val q(j): Point in e) {
             chk(ia(i, j) == 0);

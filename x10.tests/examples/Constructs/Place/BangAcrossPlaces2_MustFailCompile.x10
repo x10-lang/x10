@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CALLS
+
 import harness.x10Test;
 
 /**
@@ -34,7 +36,7 @@ class BangAcrossPlaces2_MustFailCompile  extends x10Test {
     }
     public static def main(Rail[String]) {
 	  new 
-	  BangAcrossPlaces_MustFailCompile2().execute();
+	  BangAcrossPlaces2_MustFailCompile().execute();
     }
 
 }

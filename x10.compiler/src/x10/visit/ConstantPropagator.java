@@ -39,7 +39,7 @@ import x10.ast.X10NodeFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.types.X10TypeMixin;
@@ -57,8 +57,9 @@ import x10.types.constraints.Constraints;
  * <p> TODO: Propagate through rails A(0) = v; ... A(0) --> v. TODO: Dead code
  * elimination. visitor.
  * 
- * @param theValueIfBindingTimeIsStatic
- * @return
+ * FIXME: [IP] propagate closure literals
+ * 
+ * @author nystrom
  */
 public class ConstantPropagator extends ContextVisitor {
     public ConstantPropagator(Job job, TypeSystem ts, NodeFactory nf) {
@@ -167,7 +168,7 @@ public class ConstantPropagator extends ContextVisitor {
         Type t = e.type();
         CConstraint c = X10TypeMixin.xclause(t);
         if (c != null) {
-            XRoot r = c.self();
+            XVar r = c.self();
             if (r instanceof XLit) {
                 XLit l = (XLit) r;
                 return l.val();
@@ -201,7 +202,7 @@ public class ConstantPropagator extends ContextVisitor {
         Type t = e.type();
         CConstraint c = X10TypeMixin.xclause(t);
         if (c != null) {
-            XRoot r = c.self();
+            XVar r = c.self();
             if (r instanceof XLit) {
                 XLit l = (XLit) r;
                 return true;

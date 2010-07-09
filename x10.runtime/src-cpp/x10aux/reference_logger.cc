@@ -11,8 +11,6 @@
 
 #include <x10aux/reference_logger.h>
 
-#include <x10/lang/Lock__ReentrantLock.h>
-
 using namespace x10::lang;
 using namespace x10aux;
 
@@ -21,12 +19,10 @@ using namespace x10aux;
 #define NUM_BUCKETS 4096
 #define ADDR_SHIFT 7
 
-#define GATHER_STATS 1
-
-ReferenceLogger *x10aux::ReferenceLogger::it = new (x10aux::alloc<ReferenceLogger>()) ReferenceLogger();
+ReferenceLogger *x10aux::ReferenceLogger::it;
 
 ReferenceLogger::ReferenceLogger() {
-    _lock = Lock__ReentrantLock::_make();
+    _lock = new (alloc<reentrant_lock>())reentrant_lock();
     _buckets = x10aux::alloc<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
     memset(_buckets, 0, NUM_BUCKETS*sizeof(Bucket*));
 }
@@ -44,6 +40,7 @@ void ReferenceLogger::log_(void *x) {
     Bucket *cur = _buckets[bucket];
     while (cur != NULL) {
         if (cur->_reference == x) {
+            _S_("RefLogger: "<<x<<" was already recorded as a globally escaped reference");
             _lock->unlock();
             return;
         }
@@ -54,6 +51,7 @@ void ReferenceLogger::log_(void *x) {
     newBucket->_next = _buckets[bucket];
     _buckets[bucket] = newBucket;
 
+    _S_("RefLogger: recording "<<x<<" as a new globally escaped reference");
     _lock->unlock();
 }
 #endif /* X10_USE_BDWGC */

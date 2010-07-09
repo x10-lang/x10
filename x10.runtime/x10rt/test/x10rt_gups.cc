@@ -4,7 +4,26 @@
 
 #include <stdint.h>
 
+
 #include <x10rt_front.h>
+#include <x10rt_net.h>
+#include <x10rt_logical.h>
+
+#ifdef X10RT_PANE_HACK
+#define TRANSPORT pane
+#include <pgasrt.h>
+#endif
+
+#ifdef _AIX
+#define PAGESIZE_4K  0x1000
+#define PAGESIZE_64K 0x10000
+#define PAGESIZE_16M 0x1000000
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/vminfo.h>
+#endif
+
+#define OP_NEW
 
 // {{{ nano_time
 #include <sys/time.h>
@@ -19,20 +38,20 @@ const long long POLY    = 7LL;
 const long long PERIOD  = 1317624576693539401LL;
 
 // {{{ HPCC_starts
-static unsigned long long HPCC_starts(long long n) {
+static uint64_t HPCC_starts(long long n) {
     int i, j;
-    unsigned long long m2[64];
+    uint64_t m2[64];
     while (n < 0) n += PERIOD;
     while (n > PERIOD) n -= PERIOD;
     if (n == 0) return 0x1;
-    unsigned long long temp = 0x1;
+    uint64_t temp = 0x1;
     for (i=0; i<64; i++) {
         m2[i] = temp;
         temp = (temp << 1) ^ ((long long) temp < 0 ? POLY : 0);
         temp = (temp << 1) ^ ((long long) temp < 0 ? POLY : 0);
     }
     for (i=62; i>=0; i--) if ((n >> i) & 1) break;
-    unsigned long long ran = 0x2;
+    uint64_t ran = 0x2;
     while (i > 0) {
         temp = 0;
         for (j=0; j<64; j++) if ((ran >> j) & 1) temp ^= m2[j];
@@ -46,9 +65,9 @@ static unsigned long long HPCC_starts(long long n) {
 
 x10rt_msg_type DIST_ID, MAIN_ID, UPDATE_ID, PONG_ID, VALIDATE_ID, QUIT_ID;
 
-unsigned long long *localTable;
-unsigned long long *globalTable;
-unsigned long long localTableSize;
+uint64_t *localTable;
+uint64_t *globalTable;
+uint64_t localTableSize;
 
 long long pongs_outstanding = 0;
 bool finished = false;
@@ -76,18 +95,18 @@ static void recv_dist (const x10rt_msg_params *p) {
     x10rt_send_msg(&p2);
 }
 
-static void do_update (unsigned long long index, unsigned long long update) {
+static void do_update (uint64_t index, uint64_t update) {
     localTable[index] ^= update;
 
-    #if defined(NO_REMOTE_XOR)
+    #ifdef OP_EMULATE
     decrement(0);
     #endif
 }
 
 static void recv_update (const x10rt_msg_params *p)
 {
-    unsigned long long index;
-    unsigned long long update;
+    uint64_t index;
+    uint64_t update;
 
     char *buf = (char*) p->msg;
     memcpy(&index, buf+0, 8);
@@ -101,45 +120,62 @@ static void recv_pong (const x10rt_msg_params *)
     pongs_outstanding--;
 }
 
-static void do_main (unsigned long long logLocalTableSize, unsigned long long numUpdates) {
-    unsigned long long mask = (1<<logLocalTableSize)-1;
-    unsigned long long local_updates = numUpdates / x10rt_nhosts();
+static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
+    #ifdef X10RT_PANE_HACK
+    __pgasrt_tsp_barrier();
+    #endif
+    uint64_t mask = (1<<logLocalTableSize)-1;
+    uint64_t local_updates = numUpdates / x10rt_nhosts();
 
-    unsigned long long ran = HPCC_starts(x10rt_here() * local_updates);
+    uint64_t ran = HPCC_starts(x10rt_here() * local_updates);
+
+    x10rt_place here = x10rt_here();
+    x10rt_place nhosts = x10rt_nhosts();
 
     // HOT LOOP STARTS
-    for (unsigned long long i=0 ; i<local_updates ; ++i) {
-        unsigned long place = ((ran>>logLocalTableSize) & (x10rt_nhosts()-1));
-        unsigned long long index = ran & mask;
-        unsigned long long update = ran;
-        if (x10rt_here()==place) {
+    for (uint64_t i=0 ; i<local_updates ; ++i) {
+        ran = (ran << 1) ^ (((int64_t)ran)<0L ? POLY : 0L);
+        unsigned long place = ((ran>>logLocalTableSize) & (nhosts-1));
+        uint64_t index = ran & mask;
+        uint64_t update = ran;
+        if (here==place) {
             do_update(index,update);
         } else {
-            #ifdef NO_REMOTE_XOR
+            #ifdef OP_EMULATE
             char *buf2 = (char*)x10rt_msg_realloc(NULL,0, 16);
             memcpy(buf2+0, &index, 8);
             memcpy(buf2+8, &update, 8);
             x10rt_msg_params params = {place, UPDATE_ID, buf2, 16};
             x10rt_send_msg(&params);
-            #else
-            unsigned long long remote_addr = globalTable[place];
-            x10rt_remote_xor(place, remote_addr + sizeof(long long)*index, update);
+            #endif
+            #ifdef OP_OLD
+            uint64_t remote_addr = globalTable[place];
+            x10rt_remote_xor(place, remote_addr + sizeof(uint64_t)*index, update);
+            #endif
+            #ifdef OP_NEW
+            uint64_t remote_addr = globalTable[place];
+            remote_addr += sizeof(uint64_t)*(index);
+            x10rt_remote_op(place, remote_addr, X10RT_OP_XOR, update);
             #endif
         }
-
-        ran = (ran << 1) ^ (((long long)ran)<0L ? POLY : 0L);
     }
     // HOT LOOP ENDS
 
-    #ifndef NO_REMOTE_XOR
+    #ifdef X10RT_PANE_HACK
+    __pgasrt_tsp_barrier();
+    #endif
+
+    #ifndef OP_EMULATE
+    #ifdef OP_OLD
     x10rt_remote_op_fence();
+    #endif
     decrement(0);
     #endif
 }
 
 static void recv_main (const x10rt_msg_params *p) {
-    unsigned long long logLocalTableSize;
-    unsigned long long numUpdates;
+    uint64_t logLocalTableSize;
+    uint64_t numUpdates;
     unsigned char *buf = (unsigned char*) p->msg;
     memcpy(&logLocalTableSize, buf+0, 8);
     memcpy(&numUpdates, buf+8, 8);
@@ -150,7 +186,7 @@ static void recv_main (const x10rt_msg_params *p) {
 static void do_validate (void) {
     int err = 0;
 
-    for (unsigned long long i=0 ; i<localTableSize ; ++i) {
+    for (uint64_t i=0 ; i<localTableSize ; ++i) {
         if (localTable[i] != i) err++;
     }
 
@@ -182,10 +218,10 @@ void show_help(std::ostream &out, char* name)
 
 
 // {{{ run_test
-void runBenchmark (unsigned long long logLocalTableSize,
-                   unsigned long long numUpdates)
+void runBenchmark (uint64_t logLocalTableSize,
+                   uint64_t numUpdates)
 {
-    #ifdef NO_REMOTE_XOR
+    #ifdef OP_EMULATE
     pongs_outstanding=numUpdates;
     #else
     pongs_outstanding=x10rt_nhosts();
@@ -216,6 +252,7 @@ void validate (void)
     while (pongs_outstanding) x10rt_probe();
 } // }}}
 
+
 // {{{ main
 int main(int argc, char **argv)
 {
@@ -227,31 +264,31 @@ int main(int argc, char **argv)
     VALIDATE_ID = x10rt_register_msg_receiver(&recv_validate,NULL,NULL,NULL,NULL);
     QUIT_ID = x10rt_register_msg_receiver(&recv_quit,NULL,NULL,NULL,NULL);
 
-    unsigned long long logLocalTableSize = 12;
+    uint64_t logLocalTableSize = 12;
     bool enable_validate = false;
-    unsigned long long updates = 4;
+    uint64_t updates = 4;
 
     for (int i=1 ; i<argc; ++i) {
-        if (!strcmp(argv[i], "--help")) {
+        if (!strncmp(argv[i], "--help", 100)) {
             show_help(std::cout,argv[0]);
             exit(EXIT_SUCCESS);
-        } else if (!strcmp(argv[i], "-h")) {
+        } else if (!strncmp(argv[i], "-h", 100)) {
             show_help(std::cout,argv[0]);
             exit(EXIT_SUCCESS);
 
-        } else if (!strcmp(argv[i], "--mem")) {
+        } else if (!strncmp(argv[i], "--mem", 100)) {
             logLocalTableSize = strtoul(argv[++i],NULL,0);
-        } else if (!strcmp(argv[i], "-m")) {
+        } else if (!strncmp(argv[i], "-m", 100)) {
             logLocalTableSize = strtoul(argv[++i],NULL,0);
 
-        } else if (!strcmp(argv[i], "--updates")) {
+        } else if (!strncmp(argv[i], "--updates", 100)) {
             updates = strtoul(argv[++i],NULL,0);
-        } else if (!strcmp(argv[i], "-u")) {
+        } else if (!strncmp(argv[i], "-u", 100)) {
             updates = strtoul(argv[++i],NULL,0);
 
-        } else if (!strcmp(argv[i], "--validate")) {
+        } else if (!strncmp(argv[i], "--validate", 100)) {
             enable_validate = true;
-        } else if (!strcmp(argv[i], "-v")) {
+        } else if (!strncmp(argv[i], "-v", 100)) {
             enable_validate = true;
 
         } else {
@@ -262,20 +299,67 @@ int main(int argc, char **argv)
     }
 
     localTableSize = 1 << logLocalTableSize;
-    unsigned long long tableSize = localTableSize * x10rt_nhosts();
-    unsigned long long numUpdates = updates * tableSize;
+    uint64_t tableSize = localTableSize * x10rt_nhosts();
+    uint64_t numUpdates = updates * tableSize;
 
-    localTable = (unsigned long long*) malloc(localTableSize*sizeof(unsigned long long));
+    #ifdef _AIX
+    int shm_id=shmget(IPC_PRIVATE, localTableSize*sizeof(uint64_t), (IPC_CREAT|IPC_EXCL|0600));
+    if (shm_id == -1) {
+        std::cerr << "shmget failure" << std::endl;
+        abort();
+    }
+    struct shmid_ds shm_buf = { 0 };
+    shm_buf.shm_pagesize = PAGESIZE_16M;
+    if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
+        std::cerr << "Could not get 16M pages" << std::endl;
+        abort();
+    }
+    localTable = (uint64_t*) shmat(shm_id,0,0); // map memory
+    shmctl(shm_id, IPC_RMID, NULL); // no idea what this does
+
+    // pagesizes OK?
+    for (char *p = (char*)localTable; p < ((char*)localTable) + localTableSize*sizeof(uint64_t) ;) {
+	struct vm_page_info pginfo;
+	pginfo.addr = (uint64_t) (size_t) p;
+	vmgetinfo(&pginfo,VM_PAGE_INFO,sizeof(struct vm_page_info));
+	if (pginfo.pagesize < PAGESIZE_64K) {
+	    fprintf(stderr, "x10rt_gups error: Found a page smaller than 64K at %p of %p\n", p, localTable);
+	    abort();
+	}
+	if (pginfo.pagesize < PAGESIZE_16M) {
+	    fprintf(stderr, "x10rt_gups error: Found a page smaller than 16M at %p of %p (not checking for any more)\n", p, localTable);
+	    break;
+	}
+        p += pginfo.pagesize;
+    }
+
+    #else
+    localTable = (uint64_t*) malloc(localTableSize*sizeof(uint64_t));
+    #endif
+
+
+
+    if (localTable == NULL) {
+        std::cerr<<"Could not allocate memory for local table ("
+                 << localTableSize*sizeof(uint64_t) << " bytes)" << std::endl;
+        abort();
+    }
     for (unsigned int i=0 ; i<localTableSize ; ++i) localTable[i] = i;
 
-    globalTable = (unsigned long long*) malloc(x10rt_nhosts() * sizeof(*globalTable));
+    globalTable = (uint64_t*) malloc(x10rt_nhosts() * sizeof(*globalTable));
+    if (globalTable == NULL) {
+        std::cerr<<"Could not allocate memory for global table ("
+                 << x10rt_nhosts() * sizeof(*globalTable) << " bytes)" << std::endl;
+        abort();
+    }
 
     x10rt_registration_complete();
 
     // make sure everyone knows the address of everyone else's rail
     pongs_outstanding = x10rt_nhosts();
+    uint64_t intptr = x10rt_register_mem(localTable, localTableSize*sizeof(uint64_t));
     for (unsigned long i=0 ; i<x10rt_nhosts() ; ++i) {
-        uint64_t intptr = (uint64_t) (size_t) localTable;
+	intptr = (size_t) localTable;
         if (i==x10rt_here()) {
             globalTable[i] = intptr;
             pongs_outstanding--;
@@ -292,13 +376,23 @@ int main(int argc, char **argv)
         x10rt_probe();
     }
 
+    x10rt_barrier();
+
+/*
+    std::cerr << "globalTable = { ";
+    for (unsigned long i=0 ; i<x10rt_nhosts() ; ++i) {
+        std::cerr << (i==0?"":", ") << globalTable[i];
+    }
+    std::cerr << " }\n" << std::endl;
+*/
+
     if (x10rt_here()==0) {
         std::cout<<"Main table size:   2^"<<logLocalTableSize<<"*"<<x10rt_nhosts()
                                           <<" == "<<tableSize<<" words"<<std::endl;;
         std::cout<<"Number of places:  "<<x10rt_nhosts()<<std::endl;
         std::cout<<"Number of updates: "<<numUpdates<<std::endl;
 
-        unsigned long long nanos = -nano_time();
+        uint64_t nanos = -nano_time();
         runBenchmark(logLocalTableSize, numUpdates);
         nanos += nano_time();
 

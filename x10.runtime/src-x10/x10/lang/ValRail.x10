@@ -19,7 +19,7 @@ import x10.util.Pair;
  * supporting constant-time access by integer index.  See x10.lang.Rail for a comparison with
  * arrays in X10 and other languages.
  */
-@NativeRep("java", "x10.core.ValRail<#1>", "x10.core.ValRail.BoxedValRail", "new x10.core.ValRail.RTT(#2)")
+@NativeRep("java", "x10.core.ValRail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.ValRail._RTT, #2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::ValRail<#1 > >", "x10::lang::ValRail<#1 >", null)
 public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
 
@@ -35,7 +35,19 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      */
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4, #5)")
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4, #5)")
-    public native static def make[T](length: Int, init: (Int) => T): ValRail[T](length);
+    public native static def make[T](length: Int, init: (Int) => T): ValRail[T](length)!;
+    
+    /**
+     * Create an appropriately aligned ValRail and initialize it by evaluating the given closure at each index.
+     *
+     * @param length The number of elements.
+     * @param init Evaluated once per element to initialize the ValRail.
+     * @param alignment The 0th element will be located at an address that is an integer multiple of this param (must be power of 2).
+     * @return The reference to the new ValRail.
+     */
+    @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4, #5)")
+    @Native("c++", "x10::lang::ValRail<#1 >::makeAligned(#4, #5, #6)")
+    public native static def makeAligned[T](length: Int, init: (Int) => T, alignment: Int): ValRail[T](length)!;
 
     /**
      * Cast operator that creates a new ValRail from a Rail.
@@ -52,8 +64,8 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "#0.apply(#1)")
-    @Native("c++", "(*#0)[#1]")
+    @Native("java", "(#0).apply$G(#1)")
+    @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
     public global native safe def apply(i: Int): T;
     
@@ -62,7 +74,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      *
      * @return A new iterator instance.
      */
-    @Native("java", "#0.iterator()")
+    @Native("java", "(#0).iterator()")
     @Native("c++", "(#0)->iterator()")
     public global native def iterator(): Iterator[T];
 
@@ -75,7 +87,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      * @return <code>true</code> if <code>this</code> is equal
      * to <code>other</code> and <code>false</code> otherwise.
      */
-    @Native("java", "#0.equals(#1)")
+    @Native("java", "(#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
     public global safe native def equals(other:Any):boolean;
 
@@ -90,7 +102,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      * @param dst_off the offset of the first element store in the destination.
      * @param len the number of elements to copy.
      */
-    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#0,#1,#2,#3,#4)")
+    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::ValRail__NativeRep::copyTo(#0,#1,#2,#3,#4)")
     public global native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
 
@@ -106,7 +118,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      *                   the first element to copy to in the destination.
      * @param len the number of elements to copy.
      */
-    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#0,#1,#2,#3,#4)")
+    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::ValRail__NativeRep::copyTo(#0,#1,#2,#3,#4)")
     public global native def copyTo (src_off:Int,
                                      dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],

@@ -23,10 +23,10 @@ import harness.x10Test;
  
 public class FlattenArray3 extends x10Test {
 
-    var a: Array[int](2);
+    var a: Array[int](2)!;
 
     public def this(): FlattenArray3 = {
-        a = Array.make[int](([1..10, 1..10] as Region)->here, ((i,j): Point) => { return i+j;});
+        a = new Array[int]([1..10, 1..10], ((i,j): Point) => { return i+j;});
     }
 
     def m(var x: int): int = {

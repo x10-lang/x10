@@ -23,9 +23,8 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
-import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.constraint.XTerm;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
 import x10.types.X10Flags;
@@ -37,7 +36,7 @@ import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 public class X10Special_c extends Special_c implements X10Special {
@@ -139,9 +138,7 @@ public class X10Special_c extends Special_c implements X10Special {
         
         if (t == null || (c.inStaticContext() && ts.typeEquals(t, c.currentClass(), c))) {
             // trying to access "this" or "super" from a static context.
-            throw new SemanticException("Cannot access a non-static " +
-                "field or method, or refer to \"this\" or \"super\" " + 
-                "from a static context.", this.position());
+            throw new SemanticException("Cannot access a non-static field or method, or refer to \"this\" or \"super\" from a static context.", this.position());
         }
 
         X10Special result = this;
@@ -150,7 +147,7 @@ public class X10Special_c extends Special_c implements X10Special {
         if (kind == THIS) {
             Type tt = X10TypeMixin.baseType(t);
             CConstraint cc = X10TypeMixin.xclause(t);
-            cc = cc == null ? new CConstraint_c() : cc.copy();
+            cc = cc == null ? new CConstraint() : cc.copy();
             try {
             	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
                 cc.addSelfBinding(var);
@@ -168,7 +165,7 @@ public class X10Special_c extends Special_c implements X10Special {
         	Type superClass =  X10TypeMixin.superClass(t);
             Type tt = X10TypeMixin.baseType(superClass);
             CConstraint cc = X10TypeMixin.xclause(superClass);
-            cc = cc == null ? new CConstraint_c() : cc.copy();
+            cc = cc == null ? new CConstraint() : cc.copy();
             try {
             	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
                 cc.addSelfBinding(var);

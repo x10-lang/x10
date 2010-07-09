@@ -27,15 +27,15 @@ import x10.util.Box;
  */
 public final class Runtime {
 
-    @Native("java", "java.lang.System.out.println(#1)")
+    @Native("java", "java.lang.System.err.println(#1)")
     @Native("c++", "x10aux::system_utils::println((#1)->toString()->c_str())")
     public native static def println(o:Object) : Void;
 
-    @Native("java", "java.lang.System.out.println()")
+    @Native("java", "java.lang.System.err.println()")
     @Native("c++", "x10aux::system_utils::println(\"\")")
     public native static def println() : Void;
 
-    @Native("java", "java.lang.System.out.printf(#4, #5)")
+    @Native("java", "java.lang.System.err.printf(#4, #5)")
     @Native("c++", "x10aux::system_utils::printf(#4, #5)")
     public native static def printf[T](fmt:String, t:T) : Void;
 
@@ -149,16 +149,16 @@ public final class Runtime {
 
     @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
     @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
-    static class Lock {
+    public static class Lock {
         public native def this();
 
         public native def lock():Void;
 
-        public native def tryLock():Void;
+        public native def tryLock():Boolean;
 
         public native def unlock():Void;
 
-        public native def getHoldCount():Int;
+        native def getHoldCount():Int;
     }
 
 
@@ -331,7 +331,16 @@ public final class Runtime {
          * Wait for pending subactivities to complete.
          */
         def waitForFinish(safe:Boolean):Void;
-    }
+
+        /**
+         * Collecting Finish Use for Handle Stack in each Place
+         */
+         global def finishStackPush(o:Object, i: Int):Void;
+         global def finishStackPop(i:Int):Object;
+         global def finishStackSize(i:Int):Int;
+         def waitForFinishExpr(safe:Boolean, o:()=>Object):Rail[Object]!;
+    
+}
 
 
     static class FinishStates implements (RootFinish)=>RemoteFinish {
@@ -351,15 +360,27 @@ public final class Runtime {
             lock.unlock();
             return remoteFinish;
         }
+        
+        public def remove(rootFinish:RootFinish) {
+            lock.lock();
+            map.remove(rootFinish);
+            lock.unlock();
+        }
     }
 
 
     static class RootFinish extends Latch implements FinishState, Mortal {
         private val counts:Rail[Int]!;
+        private val seen:Rail[Boolean]!;
         private var exceptions:Stack[Throwable]!;
+
+        //Collecting Finish Use : Stack to store, each Worker has one Stack
+        public const MAX = 1000;
+        public global val mapStack :Rail[Stack[Object]!]! = Rail.make[Stack[Object]!](MAX, (Int) => new Stack[Object]());
 
         def this() {
             val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
+            seen = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
             c(here.id) = 1;
             counts = c;
         }
@@ -393,6 +414,14 @@ public final class Runtime {
         public def waitForFinish(safe:Boolean):Void {
             if (!NO_STEALS && safe) worker().join(this);
             await();
+            val closure = ()=>runtime().finishStates.remove(this);
+            seen(hereInt()) = false;
+            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                if (seen(i)) {
+                    runAtNative(i, closure);
+                }
+            }
+            dealloc(closure);
             if (null != exceptions) {
                 if (exceptions.size() == 1) {
                     val t = exceptions.peek();
@@ -412,6 +441,7 @@ public final class Runtime {
             lock();
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 counts(i) += rail(i);
+                seen(i) |= counts(i) != 0;
                 if (counts(i) != 0) b = false;
             }
             if (b) release();
@@ -422,6 +452,7 @@ public final class Runtime {
             lock();
             for(var i:Int=0; i<rail.length; i++) {
                 counts(rail(i).first) += rail(i).second;
+                seen(rail(i).first) = true;
             }
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (counts(i) != 0) {
@@ -471,7 +502,93 @@ public final class Runtime {
                 (Runtime.proxy(this) as RemoteFinish!).pushException(t);
             }
         }
-    }
+        //Collecting Finish Use : Stack push, pop, and sizing
+        public global def finishStackPush(o:Object, i:Int):Void {
+            if (here.equals(home)) {
+                (this as RootFinish!).finishStackPushLocal(o as Object,i);
+            }  else {
+                (Runtime.proxy(this) as RemoteFinish!).finishStackPush(o as Object,i);
+            }
+        }
+
+        public global def finishStackPop(i:Int):Object {
+            var o:Object = null;
+            if (here.equals(home)) {
+                o = (this as RootFinish!).finishStackPopLocal(i);
+            }  else {
+                o = (Runtime.proxy(this) as RemoteFinish!).finishStackPop(i);
+            }
+            return o;
+        }
+
+        public global def finishStackSize(i:Int):Int {
+            var size : Int = 0;
+            if (here.equals(home)) {
+                size = (this as RootFinish!).finishStackSizeLocal(i);
+            }  else {
+                size = (Runtime.proxy(this) as RemoteFinish!).finishStackSize(i);
+            }
+            return size;
+        }
+
+
+        public def finishStackPushLocal(o:Object, i:Int):Void {
+            if(mapStack(i) != null)
+                mapStack(i).push(o);
+        }
+
+        public def finishStackPopLocal(i:Int):Object {
+            var o:Object = null;
+            if(mapStack(i) != null)
+                o = mapStack(i).pop();
+            return o;
+        }
+
+        public def finishStackSizeLocal(i:Int):Int {
+            var size : Int = 0;
+            if(mapStack(i) != null)
+                size = mapStack(i).size();
+            return size;
+        }
+
+        //Collecting Finish Use: for start merger at each place to collect result
+        final public def waitForFinishExpr(safe:Boolean, merger :()=>Object):Rail[Object]! {
+            val result :Rail[Object]! = Rail.make[Object](Place.MAX_PLACES, (Int) => null);
+            if (!NO_STEALS && safe) worker().join(this);
+            await();
+            seen(hereInt()) = true;
+            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                if (seen(i)) {
+                    val o = evalAt[Object](Place.places(i),merger) as Object;
+                    result(i) = o;
+                }
+            }
+
+            val closure = ()=>runtime().finishStates.remove(this);
+            seen(hereInt()) = false;
+            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                if (seen(i)) {
+                    runAtNative(i, closure);
+                }
+            }
+            dealloc(closure);
+
+            if (null != exceptions) {
+                if (exceptions.size() == 1) {
+                    val t = exceptions.peek();
+                    if (t instanceof Error) {
+                        throw t as Error;
+                    }
+                    if (t instanceof RuntimeException) {
+                        throw t as RuntimeException;
+                    }
+                }
+                throw new MultipleExceptions(exceptions);
+            }
+           return result;
+        }
+    
+}
 
 
     static class RemoteFinish {
@@ -495,6 +612,10 @@ public final class Runtime {
         private var length:Int = 1;
 
         private var count:AtomicInteger! = new AtomicInteger(0);
+        //Collecting Finish Use
+        public const MAX = 1000;
+        public global val mapStack :Rail[Stack[Object]!]! = Rail.make[Stack[Object]!](MAX, (Int) => new Stack[Object]());
+
 
         public def notifyActivityCreation():Void {
             count.getAndIncrement();
@@ -578,6 +699,26 @@ public final class Runtime {
             exceptions.push(t);
             lock.unlock();
         }
+        //Collecting Finish Use
+        public global def finishStackPush(o:Object, i:Int):Void {
+            if(mapStack(i) != null)
+                mapStack(i).push(o);
+        }
+
+        public global def finishStackPop(i:Int):Object {
+            var o:Object = null;
+            if(mapStack(i) != null)
+                o = mapStack(i).pop();
+            return o;
+        }
+
+        public global def finishStackSize(i:Int):Int {
+            var size : Int = 0;
+            if(mapStack(i) != null)
+                size = mapStack(i).size();
+            return size;
+        }
+    
     }
 
 
@@ -618,7 +759,7 @@ public final class Runtime {
     }
 
 
-    final static class Worker implements ()=>Void {
+    public final static class Worker implements ()=>Void {
         val latch:Latch!;
         // release the latch to stop the worker
 
@@ -638,6 +779,12 @@ public final class Runtime {
         private val debug = new GrowableRail[Activity!]();
 
         private var tid:Long;
+
+        //Worker Id for CollectingFinish
+        private var workerId :Int;
+        public def setWorkerId(id:Int) {
+            workerId = id;
+        }
 
         def this(latch:Latch!, p:Int) {
             this.latch = latch;
@@ -697,6 +844,21 @@ public final class Runtime {
             return true;
         }
 
+        public def probe () : Void {
+            // process all queued activities
+            val tmp = activity; // save current activity
+            while (true) {
+                activity = poll();
+                if (activity == null) {
+                    activity = tmp; // restore current activity
+                    return;
+                }
+                debug.add(pretendLocal(activity));
+                runAtLocal(activity.home.id, (activity as Activity!).run.());
+                debug.removeLast();
+            }
+        }
+
         def dump(id:Int, thread:Thread!) {
             Runtime.printf(@NativeString "WORKER %d", id);
             Runtime.printf(@NativeString " = THREAD %#lx\n", tid);
@@ -707,6 +869,10 @@ public final class Runtime {
         }
     }
 
+    public static def probe () {
+        event_probe();
+        worker().probe();
+    }
 
     static class Pool implements ()=>Void {
         private val latch:Latch!;
@@ -738,6 +904,7 @@ public final class Runtime {
             workers(0) = master;
             threads(0) = Thread.currentThread();
             Thread.currentThread().worker(master);
+            workers(0).setWorkerId(0);
 
             // other workers
             for (var i:Int = 1; i<size; i++) {
@@ -745,6 +912,7 @@ public final class Runtime {
                 workers(i) = worker;
                 threads(i) = new Thread(worker.apply.(), "thread-" + i);
                 threads(i).worker(worker);
+                workers(i).setWorkerId(i);
             }
             this.workers = workers;
             this.threads = threads;
@@ -882,7 +1050,14 @@ public final class Runtime {
     /**
      * Return the current place
      */
+    @Native("c++", "x10::lang::Place_methods::_make(x10aux::here)")
     public static def here():Place = Thread.currentThread().home;
+
+    /**
+     * Return the id of the current place
+     */
+    @Native("c++", "x10aux::here")
+    public static def hereInt():int = Thread.currentThread().locInt();
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.
@@ -905,7 +1080,7 @@ public final class Runtime {
                 }
             }
             registerHandlers();
-            if (Thread.currentThread().locInt() == 0) {
+            if (hereInt() == 0) {
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
                 pool();
                 if (!isLocal(Place.MAX_PLACES - 1)) {
@@ -939,7 +1114,7 @@ public final class Runtime {
         val state = currentState();
         val phases = clockPhases().register(clocks);
         state.notifySubActivitySpawn(place);
-        if (place.id == Thread.currentThread().locInt()) {
+        if (place.id == hereInt()) {
             execute(new Activity(body, state, clocks, phases));
         } else {
             val c = ()=>execute(new Activity(body, state, clocks, phases));
@@ -951,7 +1126,7 @@ public final class Runtime {
         val state = currentState();
         state.notifySubActivitySpawn(place);
         val ok = safe();
-        if (place.id == Thread.currentThread().locInt()) {
+        if (place.id == hereInt()) {
             execute(new Activity(body, state, ok));
         } else {
             var closure:()=>Void;
@@ -977,6 +1152,27 @@ public final class Runtime {
         val state = currentState();
         state.notifySubActivitySpawn(here);
         execute(new Activity(body, state, safe()));
+    }
+
+    public static def runUncountedAsync(place:Place, body:()=>Void):Void {
+        val ok = safe();
+        if (place.id == hereInt()) {
+            execute(new Activity(body, ok));
+        } else {
+            var closure:()=>Void;
+            // Workaround for XTENLANG_614
+            if (ok) {
+                closure = ()=>execute(new Activity(body, true));
+            } else {
+                closure = ()=>execute(new Activity(body, false));
+            }
+            runAtNative(place.id, closure);
+            dealloc(closure);
+        }
+    }
+
+    public static def runUncountedAsync(body:()=>Void):Void {
+        execute(new Activity(body, safe()));
     }
 
     /**
@@ -1195,6 +1391,66 @@ public final class Runtime {
             thread.unpark();
         }
     }
+    //Collecting Finish Implementation
+    public static class CollectingFinish[T] {
+        protected global val Reducible : Reducible[T];
+       // an upper bound on the number of workers
+        private const MAX = 1000;
+
+        //Exposed API
+        public def this(r:Reducible[T]) {
+            Reducible = r;
+            startFinish();
+        }
+
+        public static def offer[T](o:T) {
+            val thisWorker = worker();
+            val id = thisWorker.workerId;
+            val state = currentState();
+            val x = o as Object;
+            state.finishStackPush(o as Object,id);
+       }
+        public def stopFinishExpr():T {
+            val a = activity();
+            val finishState = a.finishStack.peek();
+            finishState.notifyActivityTermination();
+
+            val closure = ():Object => {
+                val o = localMerge(finishState) as Object;
+                return o;
+            };
+
+            val resultRail :Rail[Object]! = finishState.waitForFinishExpr(safe(),closure);
+            a.finishStack.pop();
+
+            var result :T = Reducible.zero();
+            for (var i:Int = 0; i<Place.MAX_PLACES; i++){
+                if(resultRail(i) != null) {
+                    val ob :T = resultRail(i) as T;
+                    result = Reducible.apply(result,ob);
+                }
+            }
+
+            return result;
+       }
+
+       //Local merge running on each place
+       public global def localMerge(finishstate : FinishState):T {
+           var result :T = Reducible.zero();
+           var ob : T = Reducible.zero();
+           val state = currentState();
+
+           for (var i:Int = 0; i<MAX; i++) {
+               while (finishstate.finishStackSize(i)!= 0 ) {
+                   ob = finishstate.finishStackPop(i) as T;
+                   result = Reducible.apply(result,ob);
+               }
+           }
+           return result;
+       }
+
+    }
+
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

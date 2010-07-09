@@ -18,8 +18,8 @@ import harness.x10Test;
 public class NullableObjectToConstrainedType2 extends x10Test {
 	 
 	public def run(): boolean = {
-		var nullableVarNotNull: X10DepTypeClassOne = new X10DepTypeClassOne(1);
-		return (nullableVarNotNull instanceof X10DepTypeClassOne{p==1});
+		var nullableVarNotNull: X10DepTypeClassOneB = new X10DepTypeClassOneB(1);
+		return (nullableVarNotNull instanceof X10DepTypeClassOneB{p==1});
 	}
 	
 	public static def main(var args: Rail[String]): void = {

@@ -19,6 +19,15 @@
 #include <x10aux/throw.h>
 #include <x10/lang/OutOfMemoryError.h>
 
+#ifdef _AIX
+#define PAGESIZE_4K  0x1000
+#define PAGESIZE_64K 0x10000
+#define PAGESIZE_16M 0x1000000
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/vminfo.h>
+#endif
+
 using namespace x10aux;
 
 #ifdef __CYGWIN__
@@ -103,9 +112,58 @@ size_t x10aux::heap_size() {
 #endif
 }
 
-    
+void *x10aux::alloc_internal_pinned(size_t size) {
+    void *obj;
 
+#ifdef _AIX
+    int shm_id=shmget(IPC_PRIVATE, size, (IPC_CREAT|IPC_EXCL|0600));
+    if (shm_id == -1) {
+        std::cerr << "shmget failure" << std::endl;
+        abort();
+    }
+    struct shmid_ds shm_buf = { 0 };
+    shm_buf.shm_pagesize = PAGESIZE_16M;
+    if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
+        std::cerr << "Could not get 16M pages" << std::endl;
+        abort();
+    }
+    obj = shmat(shm_id,0,0);  // map memory
+    shmctl(shm_id, IPC_RMID, NULL); // no idea what this does
 
+    // pagesizes OK?
+    for (char *p = (char*)obj; p < ((char*)obj) + size;) {
+        struct vm_page_info pginfo;
+        pginfo.addr = (uint64_t) (size_t) p;
+        vmgetinfo(&pginfo,VM_PAGE_INFO,sizeof(struct vm_page_info));
+        if (pginfo.pagesize < PAGESIZE_64K) {
+            fprintf(stderr, "alloc_internal_pinned: Found a page smaller than 64K at %p of %p\n", p, obj);
+            abort();
+        }
+        if (pginfo.pagesize < PAGESIZE_16M) {
+            fprintf(stderr, "alloc_internal_pinned: Found a page smaller than 16M at %p of %p (not checking for any more)\n", p, obj);
+            break;
+        }
+        p += pginfo.pagesize;
+    }
+
+#else
+    if (x10rt_nplaces() == 1) {
+        // Because there is only a single place, we can just fall back to malloc
+        // Don't call x10rt_register_mem because on most transports, it is
+        // unimplemented and unhelpfully returns 0 to indicate that.
+        return x10aux::alloc_internal(size, false);
+    } else {
+        // In a multi-place run, we have to return the same virtual address in all
+        // places or the program won't work.  Getting here indicates that we can't
+        // do that, so we must abort the program.
+        std::cerr << "alloc_internal_pinned not supported in multi-place executions on this platform\n";
+        std::cerr << "aborting execution\n";
+        abort();
+    }
+#endif
+
+    return (void*)x10rt_register_mem(obj, size);
+}
 
         
 

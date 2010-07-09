@@ -26,7 +26,7 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -46,6 +46,8 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected CodeInstance<?> asInstance;
     
     protected XConstrainedTerm placeTerm;
+    protected Ref<? extends Type> offerType;
+    
   
 
     public ClosureDef_c(TypeSystem ts, Position pos, 
@@ -54,11 +56,12 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             Ref<? extends Type> returnType,
      //       List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
-            XRoot thisVar,
+            XVar thisVar,
             List<LocalDef> formalNames, 
             Ref<CConstraint> guard,
        //     Ref<TypeConstraint> typeGuard,
-            List<Ref<? extends Type>> throwTypes) {
+            List<Ref<? extends Type>> throwTypes,
+            Ref<? extends Type> offerType) {
 
         super(ts, pos);
         this.typeContainer = typeContainer;
@@ -71,8 +74,12 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.guard = guard;
      //   this.typeGuard = typeGuard;
         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
+        this.offerType = offerType;
     }
     
+    public Ref<? extends Type> offerType() {
+    	return offerType;
+    }
     public ClosureDef position(Position pos) {
     	ClosureDef_c n = (ClosureDef_c) copy();
     	n.position = pos;
@@ -140,12 +147,12 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 	//    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
     }
     
-    XRoot thisVar;
-    public XRoot thisVar() {
+    XVar thisVar;
+    public XVar thisVar() {
         return this.thisVar;
     }
     
-    public void setThisVar(XRoot thisVar) {
+    public void setThisVar(XVar thisVar) {
         this.thisVar = thisVar;
     }
 

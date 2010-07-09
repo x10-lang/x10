@@ -21,6 +21,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -32,8 +33,11 @@ import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -45,18 +49,22 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
+import x10.extension.X10Del;
 import x10.extension.X10Del_c;
+import x10.extension.X10Ext;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbConstructorMatcher;
+import x10.visit.X10TypeChecker;
 
 
 /**
@@ -141,6 +149,84 @@ public class X10New_c extends New_c implements X10New {
         return n;
     }
 
+    @Override
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+        Node n = super.typeCheckOverride(parent, tc);
+        NodeVisitor childtc = tc.enter(parent, n);
+        List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
+        if (oldAnnotations == null || oldAnnotations.isEmpty()) {
+            return n;
+        }
+        List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
+        if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
+            return ((X10Del) n.del()).annotations(newAnnotations);
+        }
+        return n;
+    }
+
+    /**
+     * @param ar
+     * @param ct
+     * @throws SemanticException
+     */
+    protected New findQualifier(TypeChecker ar, ClassType ct) throws SemanticException {
+        // If we're instantiating a non-static member class, add a "this"
+        // qualifier.
+        NodeFactory nf = ar.nodeFactory();
+        TypeSystem ts = ar.typeSystem();
+        Context c = ar.context();
+
+        // Search for the outer class of the member.  The outer class is
+        // not just ct.outer(); it may be a subclass of ct.outer().
+        Type outer = null;
+        
+        Name name = ct.name();
+        ClassType t = c.currentClass();
+        
+        // We're in one scope too many.
+        if (t == anonType) {
+            t = t.outer();
+        }
+        
+        // Search all enclosing classes for the type.
+        while (t != null) {
+            try {
+                Type mt = ts.findMemberType(t, name, c);
+
+                if (mt instanceof ClassType) {
+                    ClassType cmt = (ClassType) mt;
+                    if (cmt.def() == ct.def()) {
+                    outer = t;
+                    break;
+                    }
+                }
+            }
+            catch (SemanticException e) {
+            }
+            
+            t = t.outer();
+        }
+        
+        if (outer == null) {
+            throw new SemanticException("Could not find non-static member class \"" +
+                                        name + "\".", position());
+        }
+        
+        // Create the qualifier.
+        Expr q;
+
+        if (outer.typeEquals(c.currentClass(), ar.context())) {
+            q = nf.This(Position.COMPILER_GENERATED);
+        }
+        else {
+            q = nf.This(Position.COMPILER_GENERATED,
+                        nf.CanonicalTypeNode(Position.COMPILER_GENERATED, outer));
+        }
+        
+        q = q.type(outer);
+        return qualifier(q);
+    }
+    
     public New_c typeCheckObjectType(TypeChecker childtc) throws SemanticException {
         X10NodeFactory nf = (X10NodeFactory) childtc.nodeFactory();
         X10TypeSystem ts = (X10TypeSystem) childtc.typeSystem();
@@ -271,7 +357,6 @@ public class X10New_c extends New_c implements X10New {
             throws SemanticException {
         final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         final Context context = tc.context();
-        ClassDef currentClassDef = context.currentClassDef();
 
         List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new DumbConstructorMatcher(targetType, typeArgs, argTypes, context));
         return Converter.tryImplicitConversions(n, tc, targetType, methods, new MatcherMaker<ConstructorInstance>() {
@@ -290,6 +375,25 @@ public class X10New_c extends New_c implements X10New {
     	  
     }
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
+        try {
+            return typeCheck1(tc);
+        } catch (SemanticException e) {
+            X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
+            if (xtc.throwExceptions())
+                throw e;
+            Errors.issue(tc.job(), e, this);
+            X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+	        List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
+	        for (Expr a : this.arguments) {
+	            argTypes.add(a.type());
+	        }
+	        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(tn.type());
+            X10ConstructorInstance ci = ts.createFakeConstructor(ct, argTypes);
+	        Type rt = ci.returnType();
+            return (X10New_c) constructorInstance(ci).type(rt);
+        }
+    }
+    public Node typeCheck1(ContextVisitor tc) throws SemanticException {
         final X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
         // ///////////////////////////////////////////////////////////////////
@@ -318,7 +422,7 @@ public class X10New_c extends New_c implements X10New {
         Type t = tn.type();
         X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
 
-        X10ConstructorInstance ci=null;
+        X10ConstructorInstance ci;
         List<Expr> args;
 
         try {
@@ -327,7 +431,6 @@ public class X10New_c extends New_c implements X10New {
                 if (anonType != null) {
                     c = c.pushClass(anonType, anonType.asType());
                 }
-                ClassDef currentClassDef = c.currentClassDef();
                 ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, 
                 		Collections.EMPTY_LIST, argTypes, c));
                 if (xts.isStructType(ci.returnType()) && ! isStructConstructorCall) {
@@ -368,11 +471,6 @@ public class X10New_c extends New_c implements X10New {
             throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", position());
         }
 
-        if (anonType != null) {
-            // The type of the new expression is the anonymous type, not the
-            // base type.
-            ct = (X10ClassType) anonType.asType();
-        }
 
         // Copy the method instance so we can modify it.
       //  tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
@@ -381,13 +479,12 @@ public class X10New_c extends New_c implements X10New {
         X10New_c result = (X10New_c) this.constructorInstance(ci);
         result = (X10New_c) result.arguments(args);
 
-        result.checkWhereClause(tc);
+        result.checkWhereClause();
         result = (X10New_c) result.type(ci.returnType());
         return result;
     }
 
-    private void checkWhereClause(ContextVisitor tc) throws SemanticException {
-        X10Context c = (X10Context) tc.context();
+    private void checkWhereClause() throws SemanticException {
         X10ConstructorInstance ci = (X10ConstructorInstance) constructorInstance();
         if (ci != null) {
             CConstraint guard = ci.guard();
@@ -397,17 +494,13 @@ public class X10New_c extends New_c implements X10New {
         }
     }
 
-    /**
+    /*
      * Compute the new resulting type for the method call by replacing this and
      * any argument variables that occur in the rettype depclause with new
      * variables whose types are determined by the static type of the receiver
      * and the actual arguments to the call.
      * 
      * Also add the self.home==here clause.
-     * 
-     * @param tc
-     * @return
-     * @throws SemanticException
      */
     private X10ConstructorInstance adjustCI(X10ConstructorInstance xci, ContextVisitor tc) throws SemanticException {
         if (xci == null)
@@ -422,7 +515,6 @@ public class X10New_c extends New_c implements X10New {
         	// Add self != null
         	type = X10TypeMixin.addDisBinding(type, X10TypeMixin.selfVar(type), XTerms.NULL);
         }
-       
         
         if (body != null) {
             // If creating an anonymous class, we need to adjust the return type
@@ -436,7 +528,22 @@ public class X10New_c extends New_c implements X10New {
         return xci;
        // return (X10New_c) this.constructorInstance(xci).type(type);
     }
-    
-   
-   
+
+    // TODO: Move down into New_c
+    public void dump(CodeWriter w) {
+        super.dump(w);
+
+        if (ci != null) {
+            w.allowBreak(4, " ");
+            w.begin(0);
+            w.write("(instance " + ci + ")");
+            w.end();
+        }
+
+        w.allowBreak(4, " ");
+        w.begin(0);
+        w.write("(arguments " + arguments + ")");
+        w.end();
+    }
+
 }

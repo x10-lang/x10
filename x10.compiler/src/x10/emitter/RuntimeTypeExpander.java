@@ -15,9 +15,8 @@ import java.util.List;
 
 import polyglot.types.Type;
 import polyglot.visit.Translator;
-import x10.constraint.XConstraint;
-import x10.types.FunctionType;
 import x10.types.ConstrainedType;
+import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -25,14 +24,12 @@ import x10.types.constraints.CConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
 
 final public class RuntimeTypeExpander extends Expander {
-    /**
-	 * 
-	 */
-	private final Type at;
+
+    private final Type at;
 
     public RuntimeTypeExpander(Emitter er, Type at) {
-    	super(er);
-		if (at instanceof X10ClassType) {
+        super(er);
+        if (at instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) at;
 
             if (ct.isAnonymous()) {
@@ -70,27 +67,24 @@ final public class RuntimeTypeExpander extends Expander {
             FunctionType ct = (FunctionType) at;
             List<Type> args = ct.argumentTypes();
             Type ret = ct.returnType();
-            er.w.write("new ");
-            if (ret.isVoid()) {
-                er.w.write("x10.core.fun.VoidFun");
+            
+            // XTENLANG-1102
+            if (args.size() > 0) {
+                er.w.write("new x10.rtt.ParameterizedType(");
+                printFunRTT(ct, args, ret);
+                for (Type a:args) {
+                    er.w.write(",");
+                    new RuntimeTypeExpander(er, a).expand(tr);
+                }
+                if (!ret.isVoid()) {
+                    er.w.write(",");
+                    new RuntimeTypeExpander(er, ret).expand(tr);
+                }
+                er.w.write(")");
             }
             else {
-                er.w.write("x10.core.fun.Fun");
+                printFunRTT(ct, args, ret);
             }
-            er.w.write("_" + ct.typeParameters().size());
-            er.w.write("_" + args.size());
-            er.w.write(".RTT(");
-            String sep = "";
-            for (Type a : args) {
-                er.w.write(sep);
-                sep = ",";
-                new RuntimeTypeExpander(er, a).expand(tr);
-            }
-            if (! ret.isVoid()) {
-                er.w.write(sep);
-                new RuntimeTypeExpander(er, ret).expand(tr);
-            }
-            er.w.write(")");
             return;
         }
 
@@ -109,26 +103,14 @@ final public class RuntimeTypeExpander extends Expander {
             }
             
             if (pat == null) {
+                // XTENLANG-1102
                 if (ct.isGloballyAccessible() && ct.typeArguments().size() == 0) {
-                    er.w.write(er.rttName(cd));
-                    er.w.write(".it");
-                }
-                else {
-                    er.w.write("new ");
-                    er.w.write(er.rttName(cd));
-                    
-                    er.w.write("<");
+                    er.w.write(cd.fullName().toString() + "." + "_RTT");
+                } else {
+                    er.w.write("new x10.rtt.ParameterizedType(");
+                    er.w.write(cd.fullName().toString() + "." + "_RTT");
                     for (int i = 0; i < ct.typeArguments().size(); i++) {
-                    	if (i != 0)
-                    		er.w.write(", ");
-                    	new TypeExpander(er, ct.typeArguments().get(i), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES).expand(tr);
-                    }
-                    er.w.write(">");
-
-                    er.w.write("(");
-                    for (int i = 0; i < ct.typeArguments().size(); i++) {
-                        if (i != 0)
-                            er.w.write(", ");
+                        er.w.write(", ");
                         new RuntimeTypeExpander(er, ct.typeArguments().get(i)).expand(tr);
                     }
                     er.w.write(")");
@@ -170,6 +152,17 @@ final public class RuntimeTypeExpander extends Expander {
         er.printType(at, 0);
         er.w.write(".class");
         er.w.write(")");
+    }
+
+    private void printFunRTT(FunctionType ct, List<Type> args, Type ret) {
+        if (ret.isVoid()) {
+            er.w.write("x10.core.fun.VoidFun");
+        } else {
+            er.w.write("x10.core.fun.Fun");
+        }
+        er.w.write("_" + ct.typeParameters().size());
+        er.w.write("_" + args.size());
+        er.w.write("._RTT");
     }
 
     String typeof(Type t) {

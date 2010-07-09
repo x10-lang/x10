@@ -71,15 +71,18 @@ public class ClockedVar[T] implements ClockableVar{
      		xWrite(i) = opInitial;
       }
       
-    public def get():T {
-    	  return xRead;
+    public def get$G():ClockedVar[T] {
+    	  return this;
    }
 
+    public def getClocked():T {
+	return xRead;
+    }
 
 
 
 
-    public def set(x:T) {
+    public def setClocked(x:T) {
         //Console.OUT.println("Worker id" + Runtime.workerTid());
         val workerId = (Runtime.workerTid() - 8) as Int;
     	changed = true;

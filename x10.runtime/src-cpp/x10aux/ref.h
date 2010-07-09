@@ -28,7 +28,7 @@ namespace x10aux {
         return *(x10_addr_t*)(((char*)obj)-sizeof(x10_addr_t));
     }
     inline x10_addr_t get_remote_ref_maybe_null(void *obj) {
-        return obj==NULL ? NULL : get_remote_ref(obj);
+        return obj==NULL ? 0 : get_remote_ref(obj);
     }
     inline void set_remote_ref(void *obj, x10_addr_t ref) {
         *(x10_addr_t*)(((char*)obj)-sizeof(x10_addr_t)) = ref;
@@ -187,12 +187,22 @@ namespace x10aux {
         return obj;
     }
 
+    // A no-op for non-refs
+    template <class T> inline T nullCheck(T str) {
+        return str;
+    }
+
     template <class T> inline ref<T> placeCheck(ref<T> obj) {
         #if !defined(NO_PLACE_CHECKS) && !defined(NO_EXCEPTIONS)
         //if (remote_ref::is_remote(obj.operator->())) throwBPE();
         if (location(obj) != here) throwBPE();
         #endif
         return obj;
+    }
+
+    // A no-op for non-refs
+    template <class T> inline T placeCheck(T str) {
+        return str;
     }
 
     // will be initialised to NULL

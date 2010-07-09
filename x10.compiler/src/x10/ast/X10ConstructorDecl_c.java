@@ -23,6 +23,7 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
@@ -37,6 +38,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
+import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -47,11 +49,12 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRef_c;
-import x10.constraint.XRoot;
+import x10.constraint.XRef;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.X10ClassDef;
@@ -65,6 +68,8 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
+import x10.types.checker.ThisChecker;
+import x10.types.checker.VarChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -78,15 +83,21 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     protected DepParameterExpr guard; // ignored for now.
     protected TypeNode returnType;
     protected List<TypeParamNode> typeParameters;
+    protected TypeNode hasType;
+    protected TypeNode offerType; 
     
     public X10ConstructorDecl_c(Position pos, FlagsNode flags, 
             Id name, TypeNode returnType, 
             List<TypeParamNode> typeParams, List<Formal> formals, 
-            DepParameterExpr guard, List<TypeNode> throwTypes, Block body) {
+            DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body) {
         super(pos, flags,  name, formals, throwTypes, body);
-        this.returnType = returnType;
+        // null, not unknown. 
+        this.returnType = returnType instanceof HasTypeNode_c ? null : returnType; 
+        if (returnType instanceof HasTypeNode_c) 
+			hasType = ((HasTypeNode_c) returnType).typeNode();
         this.guard = guard;
         this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
+        this.offerType = offerType;
     }
     
     public TypeNode returnType() {
@@ -101,6 +112,14 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
         n.guard = e;
         return n;
+    }
+    protected X10ConstructorDecl_c hasType(TypeNode hasType) {
+    	if (this.hasType != hasType)  {
+    		X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
+    		n.hasType = hasType;
+    		return n;
+    	}
+    	return this;
     }
     
     public List<TypeParamNode> typeParameters() {
@@ -124,7 +143,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     }
 
     protected ConstructorDef createConstructorDef(TypeSystem ts, ClassDef ct, Flags flags) {
-        X10ConstructorDef ci = (X10ConstructorDef) super.createConstructorDef(ts, ct, flags);
+    	X10ConstructorDef ci = (X10ConstructorDef) ((X10TypeSystem) ts).constructorDef(position(), Types.ref(ct.asType()), flags,
+                Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList(), 
+                offerType == null ? null : offerType.typeRef());
+        
         ci.setThisVar(((X10ClassDef) ct).thisVar());
         return ci;
     }
@@ -152,8 +174,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
         // Set the constructor name to the short name of the class, to shut up the Java type-checker.
         // The X10 parser has "this" for the name.
-	n = (X10ConstructorDecl_c) n.name(nf.Id(n.position(), currentClass.name()));
-        
+        n = (X10ConstructorDecl_c) n.name(nf.Id(n.position(), currentClass.name()));
+
+        TypeNode htn = (TypeNode) n.visitChild(n.hasType, tb);
+        n = (X10ConstructorDecl_c) n.hasType(htn);
         
         if (returnType == null)
         	n = (X10ConstructorDecl_c) n.returnType(nf.CanonicalTypeNode(n.position(), currentClass.asType()));
@@ -267,11 +291,13 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	DepParameterExpr guard = (DepParameterExpr) visitChild(result.guard, v);
     	if (guard != result.guard)
     	    result = (X10ConstructorDecl_c) result.guard(guard);
+    	TypeNode htn = (TypeNode) result.visitChild(result.hasType, v);
+    	result = (X10ConstructorDecl_c) result.hasType(htn);
     	return result;
     }
 
 
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	X10ConstructorDecl nn = this;
     	X10ConstructorDecl old = nn;
 
@@ -285,7 +311,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         nn = (X10ConstructorDecl) nn.typeParameters(processedTypeParams);
     	List<Formal> processedFormals = nn.visitList(nn.formals(), childtc);
         nn = (X10ConstructorDecl) nn.formals(processedFormals);
-        if (tc.hasErrors()) throw new SemanticException();
         
         nn = (X10ConstructorDecl) X10Del_c.visitAnnotations(nn, childtc);
 
@@ -313,7 +338,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         if (nn.guard() != null) {
         	DepParameterExpr processedWhere = (DepParameterExpr) nn.visitChild(nn.guard(), childtc);
         	nn = (X10ConstructorDecl) nn.guard(processedWhere);
-        	if (tc.hasErrors()) throw new SemanticException();
         
         	// Now build the new formal arg list.
         	// TODO: Add a marker to the TypeChecker which records
@@ -355,7 +379,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             			Type t =  tc.context().currentClass();
             			CConstraint dep = X10TypeMixin.xclause(t);
             			if (c != null && dep != null) {
-            				XRoot thisVar = ((X10MemberDef) constructorDef()).thisVar();
+            				XVar thisVar = ((X10MemberDef) constructorDef()).thisVar();
             				if (thisVar != null)
             				    dep = dep.substitute(thisVar, c.self());
 //            				dep = dep.copy();
@@ -366,15 +390,22 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             		}
             	}
             	catch (XFailure e) {
-            		throw new SemanticException(e.getMessage(), position());
+                    tc.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, e.getMessage(), position());
+                    c = null;
             	}
 
         	// Check if the guard is consistent.
         	if (c != null && ! c.consistent()) {
-        		throw new SemanticException("The constructor's dependent clause is inconsistent.",
-        				 guard != null ? guard.position() : position());
+                Errors.issue(tc.job(),
+                        new Errors.DependentClauseIsInconsistent("constructor", guard),
+                        this);
+                // FIXME: [IP] mark constraint clause as invalid
         	}
         }
+
+        // Step I.c. Check the throw types
+        List<TypeNode> processedThrowTypes = nn.visitList(nn.throwTypes(), childtc);
+        nn = (X10ConstructorDecl) nn.throwTypes(processedThrowTypes);
 
         X10ConstructorDef nnci = (X10ConstructorDef) nn.constructorDef();
 
@@ -394,12 +425,11 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	(( X10Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
     	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
     	Ref<? extends Type> ref = r.typeRef();
-    	Type t = Types.get(ref);
-    	//t = ((X10Type) t).setFlags(X10Flags.ROOTED);
-    	//((Ref<Type>) ref).update(t);
-    	if (childtc1.hasErrors()) throw new SemanticException();
+    	Type type = Types.get(ref);
         nn = (X10ConstructorDecl) nn.returnType(r);
         ((Ref<Type>) nnci.returnType()).update(r.type());
+        
+        
        // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
         
        /* Type retTypeBase =  X10TypeMixin.baseOfProto(r.type());
@@ -423,10 +453,24 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
        	//Report.report(1, "X10MethodDecl_c: after visiting formals " + childtc2.context());
        	// Now process the body.
         nn = (X10ConstructorDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
-        if (childtc2.hasErrors()) throw new SemanticException();
         nn = (X10ConstructorDecl) childtc2.leave(parent, old, nn, childtc2);
         
-        X10MethodDecl_c.dupFormalCheck(typeParameters, formals);
+        try {
+            X10MethodDecl_c.dupFormalCheck(typeParameters, formals);
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
+        }
+        {
+            if (hasType != null) {
+                final TypeNode h = (TypeNode) nn.visitChild(((X10ConstructorDecl_c) nn).hasType, childtc1);
+                Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
+                nn = (X10ConstructorDecl) ((X10ConstructorDecl_c) nn).hasType(h);
+                if (! Globals.TS().isSubtype(nnci.returnType().get(), hasType,tc.context())) {
+                    Errors.issue(tc.job(),
+                            new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
+                }
+            }
+        }
 
         return nn;
     }
@@ -434,6 +478,22 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10ConstructorDecl_c n = this;
+        
+        ThisChecker thisC = (ThisChecker) new ThisChecker(tc.job()).context(tc.context());
+       if (formals != null) {
+           visitList(formals, thisC);
+           if (thisC.error()) {
+                   throw new Errors.ThisNotPermittedInConstructorFormals(formals, position());
+           }
+       }
+       thisC.clearError();
+    
+       if (returnType != null) {
+           visitChild(returnType, thisC);
+           if (thisC.error()) {
+                   throw new Errors.ThisNotPermittedInConstructorReturnType(returnType, position());
+           }
+       }
         
         for (TypeNode type : n.throwTypes()) {
             CConstraint rc = X10TypeMixin.xclause(type.type());
@@ -468,6 +528,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10MethodDecl_c.checkVisibility(tc.typeSystem(), tc.context(), this);
 
         return n;
+    }
+    /** Visit the children of the constructor. */
+    public Node visitChildren(NodeVisitor v) {
+        X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.visitChildren(v);
+        TypeNode htn = (TypeNode) n.visitChild(n.hasType, v);
+        return n.hasType(htn);
     }
 
     public String toString() {

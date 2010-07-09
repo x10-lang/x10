@@ -12,30 +12,53 @@
 package x10.array;
 
 /**
- * Represents and empty region, implemented as a UnionRegion with no
- * regions.
- *
- *TODO (vj): This way of implementing EmptyRegion sets the rect property to false.
- *This is incorrect. An EmptyRegion should be immutable -- there should be no way
- *of mutating it into a non-empty region, and its rect property should be set.
- *To be taken care of in the rewrite of the Array library.
+ * Represents an empty region.
  *
  * @author bdlucas
+ * @author vj
  */
-
-class EmptyRegion extends UnionRegion {
+final class EmptyRegion extends Region {
 
     def this(val rank: int): EmptyRegion{self.rank==rank} {
-        super(new PolyRegionListBuilder(rank));
+        super(rank,true,false);
     }
 
-    public global def product(r: Region): Region(rank) {
-        return this;
-    }
-
+    public global def isConvex() = true;
+    public global def isEmpty() = true;
+    public global def size() = 0;
+    public global def intersection(that: Region(rank)): Region(rank) = this;
+    public global def product(that: Region): Region/*(this.rank+that.rank)*/ 
+        = new EmptyRegion(this.rank + that.rank);
+    public global def projection(axis: int): Region(1) = new EmptyRegion(1);
+    public global def translate(p:Point(rank)): Region(rank) = this;
+    public global def eliminate(i:Int)= new EmptyRegion(rank-1);
     protected global def computeBoundingBox(): Region(rank) {
         throw U.illegal("bounding box not not defined for empty region");
     }
+    public global def min(): ValRail[int] {
+        throw U.illegal("min not not defined for empty region");
+    }
+    public global def max(): ValRail[int] {
+        throw U.illegal("max not not defined for empty region");
+    }
+    public global def contains(that: Region(rank)) = that.isEmpty();
+    public global def contains(p:Point):Boolean = false;
+
+    private static class ERIterator(myRank:int) implements Iterator[Point(myRank)]() {
+        def this(r:int) { property(r); }
+        public def hasNext():boolean = false;
+        public def next():Point(myRank) {
+            throw new x10.util.NoSuchElementException();
+        }
+    }
+    public global def iterator():Iterator[Point(rank)] {
+        return new ERIterator(rank);
+    }
+
+    public global def scanners():Iterator[Region.Scanner]! {
+        throw U.illegal("TODOL scanners not defined for empty region");
+    }
 
     public global safe def toString() = "empty(" + rank + ")";
+
 }

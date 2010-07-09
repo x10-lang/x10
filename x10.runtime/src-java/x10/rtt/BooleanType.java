@@ -21,6 +21,11 @@ public class BooleanType extends RuntimeType<Boolean> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Boolean";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Boolean;
     }
@@ -58,35 +63,33 @@ public class BooleanType extends RuntimeType<Boolean> {
     @Override
     public Fun_0_2<Boolean, Boolean, Boolean> andOperator() {
         return new Fun_0_2<Boolean, Boolean, Boolean>() {
-            public Boolean apply(Boolean x, Boolean y) {
+            public Boolean apply$G(Boolean x, Boolean y) {
                 return x & y;
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BOOLEAN; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BOOLEAN; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BOOLEAN; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BOOLEAN; return null;}
         };
     }
 
     @Override
     public Fun_0_2<Boolean, Boolean, Boolean> orOperator() {
         return new Fun_0_2<Boolean, Boolean, Boolean>() {
-            public Boolean apply(Boolean x, Boolean y) {
+            public Boolean apply$G(Boolean x, Boolean y) {
                 return x | y;
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BOOLEAN; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.BOOLEAN; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.BOOLEAN; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BOOLEAN; return null;}
         };
     }
 
     @Override
     public Fun_0_1<Boolean, Boolean> notOperator() {
         return new Fun_0_1<Boolean, Boolean>() {
-            public Boolean apply(Boolean x) {
+            public Boolean apply$G(Boolean x) {
                 return !x;
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BOOLEAN; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.BOOLEAN; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.BOOLEAN; return null;}
         };
     }
 }

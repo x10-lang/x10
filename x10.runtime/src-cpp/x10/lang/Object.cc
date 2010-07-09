@@ -43,7 +43,13 @@ x10_int x10::lang::Object::hashCode() {
 }
 
 x10aux::ref<x10::lang::String> x10::lang::Object::toString() {
-    return String::Lit(alloc_printf("%s@%p",this->_type()->name(),(void*)this));
+    void *v;
+    if (this->location == x10aux::here) {
+        v = (void*)this; 
+    } else {
+        v = (void*)x10aux::get_remote_ref(this);
+    }                              
+    return String::Lit(alloc_printf("%s@%p",this->_type()->name(),v));
 }
 
 x10aux::ref<x10::lang::String> x10::lang::Object::typeName() {
@@ -85,7 +91,12 @@ void Object::_serialize_reference(ref<Object> this_, serialization_buffer &buf)
     } else if (loc == x10aux::here) {
         _S_("Serialising a "<<ANSI_SER<<ANSI_BOLD<<"local Object"<<ANSI_RESET<<
                 " object of type "<<this_->_type()->name());
-        buf.write((x10_addr_t)(size_t)this_.operator->());
+        buf.write((x10_addr_t)(size_t)this_.operator->()); 
+        #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
+        if (!this_->_isMortal()) {
+            ReferenceLogger::log(this_.operator->());
+        }
+        #endif
     } else {
         _S_("Serialising a "<<ANSI_SER<<ANSI_BOLD<<"remote Object"<<ANSI_RESET<<
                 " object of type "<<this_->_type()->name()<<" (loc="<<loc<<")");

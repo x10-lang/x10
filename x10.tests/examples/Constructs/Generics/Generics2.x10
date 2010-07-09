@@ -17,11 +17,15 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Generics2 extends x10Test {
-        class Get[T] { val x: T; def this(y: T) = { x = y; } def get(): T = x; }
+	class Get[T] { 
+		val x: T; 
+	def this(y: T) = { x = y; } 
+	def get(): T = x; 
+	}
 
 	public def run(): boolean = {
-                val b: String = new Get[String]("").get();
-		return b == "";
+	  val b: String = new Get[String]("").get();
+	  return b == "";
 	}
 
 	public static def main(var args: Rail[String]): void = {

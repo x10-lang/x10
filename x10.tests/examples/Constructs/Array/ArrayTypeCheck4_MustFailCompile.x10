@@ -27,17 +27,17 @@ public class ArrayTypeCheck4_MustFailCompile extends x10Test {
     public def run(): boolean = {
 
         val O = Dist.makeConstant([0..2, 0..3], here);
-        val a1 = Array.make[int](O, (var p(i): Point): int => { return i; });
+        val a1 = DistArray.make[int](O, (var p(i): Point): int => { return i; });
 
         x10.io.Console.OUT.println("1");
 
         val E = Dist.makeConstant(-1..-2, here);
-        val a2  = a1 as Array[int](E);
+        val a2  = a1 as DistArray[int](E);
 
         x10.io.Console.OUT.println("2");
 
         val D = Dist.makeUnique();
-        val a3  = a2 as Array[int](D);
+        val a3  = a2 as DistArray[int](D);
 
         x10.io.Console.OUT.println("3");
 

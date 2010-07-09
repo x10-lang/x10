@@ -64,8 +64,6 @@ public interface X10NodeFactory extends NodeFactory {
     AtStmt AtStmt(Position pos, Expr place, Stmt body);
 	AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body);
 
-    X10AmbQualifierNode X10AmbQualifierNode(Position pos, Prefix prefix, Id name);
-    X10AmbTypeNode X10AmbTypeNode(Position pos, Prefix prefix, Id name);
 
     ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
     ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
@@ -73,7 +71,7 @@ public interface X10NodeFactory extends NodeFactory {
     ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
     ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
 
-    X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type t, DepParameterExpr e);
+    X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type t);
     X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> t, DepParameterExpr e);
 
     X10Cast X10Cast(Position pos, TypeNode castType, Expr expr);
@@ -83,7 +81,8 @@ public interface X10NodeFactory extends NodeFactory {
     UnknownTypeNode UnknownTypeNode(Position pos);
     TypeParamNode TypeParamNode(Position pos, Id name);
     TypeParamNode TypeParamNode(Position pos, Id name, ParameterType.Variance variance);
-    TypeNode FunctionTypeNode(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes);   
+    TypeNode FunctionTypeNode(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, 
+    		TypeNode returnType, List<TypeNode> throwTypes, TypeNode offersType);   
     Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals);
     Expr Contains(Position pos, Expr item, Expr collection);
 	TypeDecl TypeDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr guard, TypeNode type);
@@ -128,7 +127,7 @@ public interface X10NodeFactory extends NodeFactory {
 	DepParameterExpr DepParameterExpr(Position pos, List<Formal> formals, List<Expr> cond);
     MethodDecl X10MethodDecl(Position pos, FlagsNode flags,
     		TypeNode returnType, Id name, List<TypeParamNode> typeParams,
-    		List<Formal> formals, DepParameterExpr guard, List<TypeNode> throwTypes, Block body);
+    		List<Formal> formals, DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body);
 	SettableAssign SettableAssign(Position pos, Expr a, List<Expr> indices, Assign.Operator op, Expr rhs);
 
 	Tuple Tuple(Position pos, List<Expr> args);
@@ -140,18 +139,21 @@ public interface X10NodeFactory extends NodeFactory {
     
     ConstructorDecl X10ConstructorDecl(Position pos, FlagsNode flags, Id name,
             TypeNode returnType, List<TypeParamNode> typeParams, List<Formal> formals, 
-            DepParameterExpr guard, List<TypeNode> throwTypes, Block body);
+            DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body);
     PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name);
     PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init);
     Special Self(Position pos);
     
-    StmtSeq StmtSeq(Position pos, List<Stmt> l);
+    StmtExpr StmtExpr(Position pos, List<Stmt> statements, Expr result);
+    StmtSeq StmtSeq(Position pos, List<Stmt> statements);
     Expr ConstantDistMaker(Position pos, Expr left, Expr right);
     Expr RegionMaker(Position pos, Expr left, Expr right);
     AssignPropertyCall AssignPropertyCall(Position pos, List<TypeNode> typeArgs, List<Expr> argList);
 
-	Closure Closure(Position pos,  List<Formal> formals, DepParameterExpr guard, TypeNode returnType, 
+    Closure Closure(Position pos,  List<Formal> formals, DepParameterExpr guard, TypeNode returnType, 
 			List<TypeNode> throwTypes, Block body);
+	Closure Closure(Position pos,  List<Formal> formals, DepParameterExpr guard, TypeNode returnType, 
+			List<TypeNode> throwTypes, TypeNode offerType, Block body);
 
 	ClosureCall ClosureCall(Position position, Expr closure,  List<Expr> args);
 	ClosureCall ClosureCall(Position position, Expr closure,  List<TypeNode> typeargs, List<Expr> args);
@@ -174,4 +176,7 @@ public interface X10NodeFactory extends NodeFactory {
     LocalTypeDef LocalTypeDef(Position pos, TypeDecl typeDefDeclaration);
     
     Closure Closure(Closure c, Position pos);
+    TypeNode HasType(TypeNode tn);
+    Offer Offer(Position pos, Expr e);
+    FinishExpr FinishExpr(Position p, Expr e, Stmt s);
 }

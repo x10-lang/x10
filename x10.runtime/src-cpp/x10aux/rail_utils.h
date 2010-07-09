@@ -21,7 +21,8 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 
-namespace x10 { namespace lang {
+namespace x10 {
+    namespace lang {
         class String;
     }
 }
@@ -41,6 +42,8 @@ namespace x10aux {
         #endif
     }
 
+    template<class T, class R> R* alloc_aligned_rail(x10_int length, x10_int alignment);
+
     template<class T, class R> R* alloc_rail(x10_int length);
     template<class T, class R> R* alloc_rail(x10_int length, T v0);
     template<class T, class R> R* alloc_rail(x10_int length, T v0, T v1);
@@ -51,7 +54,8 @@ namespace x10aux {
     template<class T, class R> R *alloc_rail(x10_int length, T v0, T v1, T v2, T v3, T v4, T v5, T v6, ...);
 }
 
-#include <x10/lang/String.h>
+#include <x10aux/string_utils.h>
+#include <x10/lang/Object.h>
 
 namespace x10aux {
 
@@ -62,11 +66,9 @@ namespace x10aux {
     void freeStringStream (std::stringstream *ss);
 #endif
 
-    extern ref<x10::lang::String> emptyRailToString;
-    
     template<class T> ref<x10::lang::String> railToString(x10_int length, T* data) {
         if (0 == length) {
-            return emptyRailToString;
+            return string_utils::lit("[]");
         }
         #ifndef NO_IOSTREAM
         std::stringstream *ss = allocStringStream();
@@ -75,20 +77,34 @@ namespace x10aux {
         }
         return railToStringFinalize(ss); // NOTE: Finalize is responsible for calling dealloc.
         #else
-        return x10::lang::String::Lit("[NO_IOSTREAM: not printing rail contents]");
+        return string_utils::lit("[NO_IOSTREAM: not printing rail contents]");
         #endif
     }
 
+// platform-specific min rail alignment
+#ifdef _POWER
+#define X10_MIN_RAIL_ALIGNMENT 16
+#else
+#define X10_MIN_RAIL_ALIGNMENT ((x10_int)sizeof(x10_double))
+#endif
     
-    template<class T, class R> R* alloc_rail_internal(x10_int length, bool remote) {
+    
+    template<class T, class R> R* alloc_rail_internal(x10_int length,
+                                                      bool remote,
+                                                      x10_int alignment) {
         bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+        // assert power of 2
+        assert((alignment & (alignment-1)) == 0);
+        if (alignment < X10_MIN_RAIL_ALIGNMENT) {
+            alignment = X10_MIN_RAIL_ALIGNMENT;
+        }
         /*
          * We allocate a single piece of storage that is big enough for both
          * R and its (aligned) backing data array. We then do some pointer arithmetic
          * to get the aligned "interior pointer" to use for data and pass it as
          * an argument to R's constructor (R's data ptr is declared const to enable compiler optimization).
          */
-        size_t alignPad = 8;
+        size_t alignPad = alignment;
         size_t alignDelta = alignPad-1;
         size_t alignMask = ~alignDelta;
         size_t sz = sizeof(R) + alignPad + length*sizeof(T);
@@ -102,14 +118,31 @@ namespace x10aux {
         return rail;
     }
 
-    template<class T, class R> R* alloc_rail(x10_int length) {
-        R* rail = alloc_rail_internal<T,R>(length, false);
+    template<class T, class R> R* alloc_pinned_rail(x10_int length) {
+        bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
+        R* uninitialized_rail = x10aux::alloc<R>(sizeof(R), containsPtrs);
+        T* raw_data = (T*) x10aux::alloc_internal_pinned(length*sizeof(T));
+        R *rail = new (uninitialized_rail) R(length, (T*)raw_data);
+        _M_("In alloc_pinned_rail<"<<getRTT<T>()->name()
+                            <<","<<getRTT<R>()->name()<<">"
+            <<": rail = " << (void*)rail << "; length = " << length);
+
         rail->x10::lang::Object::_constructor();
         return rail;
     }
 
+    template<class T, class R> R* alloc_aligned_rail(x10_int length, x10_int alignment) {
+        R* rail = alloc_rail_internal<T,R>(length, false, alignment);
+        rail->x10::lang::Object::_constructor();
+        return rail;
+    }
+
+    template<class T, class R> R* alloc_rail(x10_int length) {
+        return alloc_aligned_rail<T,R>(length, 8);
+    }
+
     template<class T, class R> R* alloc_rail_remote(x10_int length) {
-        return alloc_rail_internal<T,R>(length, true);
+        return alloc_rail_internal<T,R>(length, true, 8);
     }
     
     template<class T, class R> R* alloc_rail(x10_int length, T v0) {

@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class ClosureExample2 extends ClosureTest {
 
-    def incr(A: Array[Int]): Array[Int] = {
+    def incr(A: Array[Int]!): Array[Int] = {
         val f = (x: Int) => x+1; // e.g., f(1) == 2
         return A.lift(f);
     }

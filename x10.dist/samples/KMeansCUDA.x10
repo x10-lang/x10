@@ -15,7 +15,7 @@ import x10.io.File;
 import x10.io.Marshal;
 import x10.io.IOException;
 
-//import x10.util.DistributedRail;
+import x10.util.DistributedRail;
 import x10.util.Pair;
 import x10.util.HashMap;
 
@@ -25,8 +25,10 @@ import x10.util.Option;
 import x10.compiler.Unroll;
 import x10.compiler.CUDA;
 import x10.compiler.CUDAUtilities;
+import x10.compiler.Native;
 
 
+/*
 final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     global val data : PlaceLocalHandle[Rail[T]];
     global val firstPlace : Place;
@@ -149,6 +151,7 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     }
 
 }
+*/
 
 
 public class KMeansCUDA {
@@ -163,7 +166,12 @@ public class KMeansCUDA {
         }
     }
 
-    private static def round_up (x:Int, n:Int) = (x-1) - ((x-1)%n) + n;
+/*
+    @Native("c++", "#4")
+    private static global def placePun[T](x:T) = x as T!;
+*/
+
+    private static def round_up (x:UInt, n:UInt) = (x-1) - ((x-1)%n) + n;
 
     public static def main (args : Rail[String]!) {
         try {
@@ -176,9 +184,10 @@ public class KMeansCUDA {
                 Option("c","clusters","number of clusters to find"),
                 Option("s","slices","factor by which to oversubscribe computational resources"),
                 Option("n","num","quantity of points")]);
-            val fname = opts("-p", "points.dat"), num_clusters=opts("-c",8),
-                num_slices=opts("-s",4), num_global_points=opts("-n", 100000),
-                iterations=opts("-i",500);
+            // The casts can go on resolution of XTENLANG-1413
+            val fname = opts("-p", "points.dat"), num_clusters=opts("-c",8) as UInt,
+                num_slices=opts("-s",4) as UInt, num_global_points=opts("-n", 100000) as UInt,
+                iterations=opts("-i",500) as UInt;
             val verbose = opts("-v"), quiet = opts("-q");
 
             val MEM_ALIGN = 32; // FOR CUDA
@@ -201,13 +210,13 @@ public class KMeansCUDA {
             finish async {
 
                 // SPMD style for algorithm
-                //val clk = Clock.make();
+                val clk = Clock.make();
 
                 val num_slice_points = num_global_points / num_slices;
 
                 for ((slice) in 0..num_slices-1) {
 
-                    for (h in Place.places) for (gpu in h.children()) async (h) /*clocked(clk)*/ {
+                    for (h in Place.places) for (gpu in h.children()) async (h) clocked(clk) {
 
                         // carve out local portion of points (point-major)
                         val num_local_points = num_slice_points / Place.NUM_ACCELS;
@@ -221,16 +230,16 @@ public class KMeansCUDA {
                         };
 
                         // these are pretty big so allocate up front
-                        val host_points = Rail.make(num_local_points_stride*4, init);
-                        val gpu_points = Rail.makeRemote(gpu, num_local_points_stride*4, host_points);
-                        val host_nearest = Rail.make(num_local_points, (Int)=>0 as Int);
-                        val gpu_nearest = Rail.makeRemote(gpu, num_local_points, (Int)=>0 as Int);
+                        val host_points = Rail.make(num_local_points_stride*4 as Int, init);
+                        val gpu_points = Rail.makeRemote(gpu, num_local_points_stride*4 as Int, host_points);
+                        val host_nearest = Rail.make[Int](num_local_points as Int, (Int)=>0 as Int);
+                        val gpu_nearest = Rail.makeRemote[Int](gpu, num_local_points as Int, (Int)=>0 as Int);
 
                         //next;
 
                         val start_time = System.currentTimeMillis();
 
-                        main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
+                        main_loop: for (var iter:UInt=0 ; iter<iterations ; iter++) {
 
                             val clusters_copy = clusters as ValRail[Float];
 
@@ -244,7 +253,7 @@ public class KMeansCUDA {
                                     for ((thread) in 0..threads-1) async {
                                         val tid = block * threads + thread;
                                         val tids = blocks * threads;
-                                        for (var p:Int=tid ; p<num_local_points ; p+=tids) {
+                                        for (var p:UInt=tid ; p<num_local_points ; p+=tids) {
                                             var closest:Int = -1;
                                             var closest_dist:Float = Float.MAX_VALUE;
                                             @Unroll(20) for ((k) in 0..num_clusters-1) { 
@@ -270,22 +279,22 @@ public class KMeansCUDA {
 
                             // bring gpu results onto host
                             k_start_time = System.currentTimeMillis();
-                            finish host_nearest.copyFrom(0, gpu_nearest, 0, num_local_points);
+                            finish host_nearest.copyFrom(0, gpu_nearest, 0, num_local_points as Int);
                             Console.OUT.println("dma: "+(System.currentTimeMillis() - k_start_time));
                             
                             // compute new clusters
 
                             // hoist from loop for performance reasons
-                            val host_clusters : Rail[Float]! = clusters();
-                            val host_cluster_counts : Rail[Int]! = cluster_counts();
+                            val host_clusters = clusters();
+                            val host_cluster_counts = cluster_counts();
 
                             host_clusters.reset(0);
                             host_cluster_counts.reset(0);
 
                             k_start_time = System.currentTimeMillis();
-                            for (var p:Int=0 ; p<num_local_points ; p++) {
+                            for (var p:UInt=0 ; p<num_local_points ; p++) {
                                 val closest = host_nearest(p);
-                                for (var d:Int=0 ; d<4 ; ++d)
+                                for (var d:UInt=0 ; d<4u ; ++d)
                                     host_clusters(closest*4+d) += host_points(p+d*num_local_points_stride);
                                 host_cluster_counts(closest)++;
                             }
@@ -294,17 +303,17 @@ public class KMeansCUDA {
                             clusters.collectiveReduce(Float.+);
                             cluster_counts.collectiveReduce(Int.+);
 
-                            for (var k:Int=0 ; k<num_clusters ; ++k) { 
-                                for (var d:Int=0 ; d<4 ; ++d) host_clusters(k*4+d) /= host_cluster_counts(k);
+                            for (var k:UInt=0 ; k<num_clusters ; ++k) { 
+                                for (var d:UInt=0 ; d<4u ; ++d) host_clusters(k*4u+d) /= host_cluster_counts(k);
                             }
 
-                            if (offset==0 && verbose) {
+                            if (offset==0u && verbose) {
                                 Console.OUT.println("Iteration: "+iter);
-                                printClusters(clusters(),4);
+                                printClusters(clusters() as Rail[Float]!,4u);
                             }
 
                             // TEST FOR CONVERGENCE
-                            for (var j:Int=0 ; j<num_clusters*4 ; ++j) {
+                            for (var j:UInt=0 ; j<num_clusters*4 ; ++j) {
                                 if (true/*||Math.abs(clusters_copy(j)-clusters(j))>0.0001*/) continue main_loop;
                             }
 
@@ -312,7 +321,7 @@ public class KMeansCUDA {
 
                         } // main_loop
 
-                        if (offset==0) {
+                        if (offset==0u) {
                             val stop_time = System.currentTimeMillis();
                             if (!quiet) Console.OUT.print(num_global_points+" "+num_clusters+" 4 ");
                             Console.OUT.println((stop_time-start_time)/1E3);
