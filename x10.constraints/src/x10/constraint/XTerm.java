@@ -22,69 +22,22 @@ import java.util.Set;
  * @author vj
  *
  */
-public interface XTerm extends Serializable, Cloneable {
-	public XTerm clone();
-	List<XEQV> eqvs();
+public abstract class XTerm implements  Serializable, Cloneable {
 
-	Solver solver();
-	XTermKind kind();
+	
+	public XTerm() {
+		super();
+	}
 
-	/** 
-	 * Returns true if the variable v occurs in this term.
-	 * @param v -- the variable being checked.
-	 * @return true if v occurs in this
-	 */
-	boolean hasVar(XVar v);
+	// The default is OBJECT. May be overridden by subclasses.
+	public XTermKind kind() { return XTermKind.OBJECT;}
+	
+	public final XTerm subst(XTerm y, XVar x) {
+	    return subst(y, x, true);
+	}
 
-	/**
-	 * Does this contain an existentially quantified variable?
-	 * 
-	 * @return true if it is, false if it isn't.
-	 */
-	boolean hasEQV();
-
-	/**
-	 * Is this itself an EQV?
-	 * @return
-	 */
-	boolean isEQV();
-
-	/**
-	 * If true, bind this variable when processing this=t, for
-	 * any term t. In case t also prefers being bound, choose any
-	 * one.
-	 * 
-	 * @return true if this  prefers being bound in a constraint this==t.
-	 */
-	boolean prefersBeingBound();
-
-	/**
-	 * Is <code>this</code> a prefix of <code>term</code>, i.e. is <code>term</code> of the form 
-	 * <code>this.f1...fn</code>?
-	 * 
-	 * @return
-	 */
-	boolean prefixes(XTerm term);
-
-	/**
-       Intern this term into constraint and return the promise
-       representing the term. 
-       
-       <p> Throw an XFailure if the resulting constraint is inconsistent.
-	 */
-	XPromise internIntoConstraint(XConstraint_c constraint, XPromise last)
-	throws XFailure;
-
-	/**
-	 * Returns true if this term is an atomic formula.
-	 *  == constraints are represented specially, and not considered atomic formulas.
-	 * 
-	 * @return true -- if this term represents an atomic formula
-	 */
-	boolean isAtomicFormula();
-
-	void markAsAtomicFormula();
-
+	int nextId = 0;
+	
 	/**
 	 * Return the result of substituting y for x in this.
 	 * 
@@ -94,6 +47,97 @@ public interface XTerm extends Serializable, Cloneable {
 	 *            the variable which is being substituted for
 	 * @return the term with the substitution applied
 	 */
-	XTerm subst(XTerm y, XRoot x);
-	XTerm subst(XTerm y, XRoot x, boolean propagate);
+	public XTerm subst(XTerm y, final XVar x, boolean propagate) {
+	    XTerm t = this;
+	    return t;
+	}
+
+	@Override
+	public XTerm clone() {
+		try {
+			XTerm n = (XTerm) super.clone();
+			return n;
+		}
+		catch (CloneNotSupportedException e) {
+			return this;
+		}
+	}
+
+	public boolean rootVarIsSelf() {
+		return false;
+	}
+
+	/**
+	 * Does this contain an existentially quantified variable?
+	 * 
+	 * @return true if it is, false if it isn't.
+	 */
+	public boolean hasEQV() {
+		return false;
+	}
+	
+	/**
+	 * Is this itself an EQV?
+	 * @return
+	 */
+	public boolean isEQV() {
+		return false;
+	}
+	
+	public abstract List<XEQV> eqvs();
+
+	/**
+	 * Is <code>this</code> a prefix of <code>term</code>, i.e. is <code>term</code> of the form 
+	 * <code>this.f1...fn</code>?
+	 * 
+	 * @return
+	 */
+	public boolean prefixes(XTerm term) {
+		return false;
+	}
+
+	/**
+	 * If true, bind this variable when processing this=t, for
+	 * any term t. In case t also prefers being bound, choose any
+	 * one.
+	 * 
+	 * @return true if this  prefers being bound in a constraint this==t.
+	 */
+	public boolean prefersBeingBound() {
+		return toString().startsWith("_self") || hasEQV();
+	}
+
+	protected boolean isAtomicFormula = false;
+
+	/**
+	 * Returns true if this term is an atomic formula.
+	 *  == constraints are represented specially, and not considered atomic formulas.
+	 * 
+	 * @return true -- if this term represents an atomic formula
+	 */
+	public boolean isAtomicFormula() {
+		return isAtomicFormula;
+	}
+
+	public void markAsAtomicFormula() {
+		isAtomicFormula = true;
+	}
+
+
+	/** 
+	 * Returns true if the variable v occurs in this term.
+	 * @param v -- the variable being checked.
+	 * @return true if v occurs in this
+	 */
+	public abstract boolean hasVar(XVar v);
+
+	/**
+       Intern this term into constraint and return the promise
+       representing the term. 
+       
+       <p> Throw an XFailure if the resulting constraint is inconsistent.
+	 */
+	abstract XPromise internIntoConstraint(XConstraint constraint, XPromise last)
+	throws XFailure;
+
 }
