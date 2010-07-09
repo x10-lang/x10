@@ -11,22 +11,18 @@
 
 package x10.constraint;
 
-import java.util.ArrayList;
+public abstract class XRef<T> {
+	public T result;
 
-/**
- * Represents t1 - t2
- * 
- * Intended as placeholder for special treatment for propagation rules and simplification rules
- * for -.
- * @author vj
- *
- */
-public class XMinus_c extends XFormula_c {
-
-	public XMinus_c(XTerm... args) {
-		super(XTerms.minusName, args);
+	public final T get() {
+		if (result == null)
+			result = compute();
+		return result;
 	}
+
+	public abstract T compute();
+
 	public String toString() {
-		return arguments.get(0) + "-" + arguments.get(1);
+		return String.valueOf(result);
 	}
 }
