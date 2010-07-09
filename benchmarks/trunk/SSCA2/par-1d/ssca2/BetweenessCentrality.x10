@@ -33,7 +33,7 @@ import x10.compiler.NativeCPPInclude;
   * <p>
   * In the second phase, the graph is traversed in the backward direction to that of the BFS. During the traversal,
   * for each vertex w, and for all of its predecessor v, del(v) is updated as follows:
-  *       del (v) = del(v) + sig(v)/sig(w)*(1+del(w).
+  *       del (v) = del(v) + sig(v)/sig(w)*(1+del(w)).
   *
   * BetweenessCentrality of a vertex, bc(v), is simply obtained by computing the running sum of del(v).
   * 
@@ -130,7 +130,7 @@ abstract class BetweenessCentrality {
      }
 
 
-      public abstract  global def compute_bc (source:Types.VERT_T, world: Comm!) : Void;
+      public abstract  global def compute_bc (source:Types.VERT_T, world: Comm!, nthreads: Int) : Void;
 
 
       /**
@@ -210,7 +210,7 @@ abstract class BetweenessCentrality {
                s.reset();
                count.reset();
 
-               compute_bc(startVertex, world);
+               compute_bc(startVertex, world, GLOBALS.nthreads);
 
                  for (var k: Int = 0; k < s.length; k++) {
                         //x10.io.Console.ERR.println("w: " + s(k));

@@ -12,6 +12,7 @@
 package ssca2;
 
 import x10.util.*;
+import x10.lang.Runtime.Lock;
 
 class BetweenessAlltoall extends BetweenessCentrality {
 
@@ -28,6 +29,7 @@ class BetweenessAlltoall extends BetweenessCentrality {
      global val L_cent: PlaceLocalHandle[GrowableRail[Pair[VERT_T,Double]]];
      global val N_bfs: PlaceLocalHandle[Rail[GrowableRail[UVDSQuad]]];
      global val L_bfs: PlaceLocalHandle[GrowableRail[UVDSQuad]];
+     global val VLock: PlaceLocalHandle[LinearArray[Lock]];
 
 
      //timers and statistics
@@ -38,6 +40,14 @@ class BetweenessAlltoall extends BetweenessCentrality {
      global val L_size_avg: PStat;
      global val S_size_avg: PStat;
      global val Levels: PStat;
+
+/*    public def x10_set_lock(l: AtomicBoolean) {
+      while (l.compareAndSet(false, true) == false){};
+   }
+
+    public def x10_unset_lock(l: AtomicBoolean) {
+      l.set(false);
+   } */
 
      public def this(pg: Defs.pGraph,  val filter: Boolean, val SCALE: Types.INT_T, val K4Approx: Types.INT_T) {
 
@@ -61,10 +71,12 @@ class BetweenessAlltoall extends BetweenessCentrality {
                 N_bfs = PlaceLocalHandle.make[Rail[GrowableRail[UVDSQuad]]](unique, ()=>Rail.make[GrowableRail[UVDSQuad]](NUM_PLACES,(n:Int)=>new GrowableRail[UVDSQuad](0)));
                 L_bfs = PlaceLocalHandle.make[GrowableRail[UVDSQuad]](unique, ()=>new GrowableRail[UVDSQuad](10));
 
+                VLock = PlaceLocalHandle.make[LinearArray[Lock]](unique, ()=>LinearArray.make[Lock](pg.restrict_here().vertices, (n:Int)=>new Lock()));
+
      }
 
 
-      public global def compute_bc (val source: VERT_T, world:Comm!, ntheads: Int): Void {
+      public global def compute_bc (val source: VERT_T, world:Comm!, nthreads: Int): Void {
           val N = N_bfs(); 
           val L = L_bfs();
 
@@ -79,6 +91,7 @@ class BetweenessAlltoall extends BetweenessCentrality {
 
               //x10.io.Console.ERR.println("point 1");
 
+          val vLock = VLock();
 
            var lsize: Long = 0l;
            var ssize: Long = 0l;
@@ -105,15 +118,18 @@ class BetweenessAlltoall extends BetweenessCentrality {
               //world.barrier();
               if (LSize == 0) break;
 
+
                 L.setLength(0);
              count.add(count(l));
-              for (var i: Int = start; i <=end; i++) {
+                finish for (var i: Int = start; i <= end; i++) {
+                 val l_final = l;
                 val vertex = s(i);
+                  //x10.io.Console.ERR.println("phase " + i + " " + " " + s.length);
 
+                 async { 
                 val lo = numEdges(vertex);
                 val hi = numEdges(vertex+1)-1;
 
-                //for ((k) in  lo..hi) 
                   for (var k: Int = lo; k <= hi; k++) {
 
                   if (((weight(k) & 7) ==0) && filter) continue;
@@ -124,21 +140,27 @@ class BetweenessAlltoall extends BetweenessCentrality {
                   //x10.io.Console.ERR.println("phase " + l + " " + neighbor + " " + d(neighbor) + " " + sig(neighbor) );
 
                   if (NUM_PLACES == 1){
+                  vLock(neighbor).lock();
+                    /* atomic */{
                     if (d(neighbor) == -1) {
-                      s.add(neighbor);
-                      count(l+1)++;
+                      atomic {s.add(neighbor);
+                       pred(neighbor).add(vertex); 
+                      count(l_final+1)++;
+                       }
                       d(neighbor) = d(vertex) + 1;
                       sig(neighbor) = sig(vertex);
-                       (pred(neighbor) as WrapRail[VERT_T]!).add(vertex);
                     }  else if (d(neighbor) == d(vertex) + 1) {
                            sig(neighbor) += sig(vertex);
-                          (pred(neighbor) as WrapRail[VERT_T]!).add(vertex);
+                           atomic { pred(neighbor).add(vertex); }
                     }
 
+                  vLock(neighbor).unlock();
+                   }
                   } else { 
                     val owner = pg.owner_id(neighbor);   
-                    (N(owner) as GrowableRail[UVDSQuad]!).add(UVDSQuad(vertex, neighbor, d(vertex), sig(vertex))); }
-                }
+                    atomic { (N(owner) as GrowableRail[UVDSQuad]!).add(UVDSQuad(vertex, neighbor, d(vertex), sig(vertex))) ; } 
+                   }
+                }}
               }
 
                  alltoallv_timer.start();

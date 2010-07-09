@@ -3,9 +3,10 @@ import x10.util.*;
 import x10.lang.PlaceLocalHandle;
 
 public class Defs {
+
 	public static val container: Defs! = new Defs();
 	
-	public static  def init (val SCALE: Types.INT_T, CUTSHORT: Boolean) {
+	public static  def init (val SCALE: Types.INT_T, CUTSHORT: Boolean, val nthreads: Int) {
 		val N = 1 << SCALE  as Types.LONG_T;
 		val M = 8*N as Types.LONG_T;
 		val MaxIntWeight = (1<<SCALE) as  Types.WEIGHT_T;
@@ -14,7 +15,7 @@ public class Defs {
                   val K4Approx = CUTSHORT ? (SCALE < 5 ? SCALE: 5) : SCALE;
 
 
-		container.globals = Consts (SCALE, N, M, MaxIntWeight, SubGraphPathLength, K4Approx);
+		container.globals = Consts (SCALE, N, M, MaxIntWeight, SubGraphPathLength, K4Approx, nthreads);
 	} 
 	
 	public var globals: Consts;
@@ -24,9 +25,6 @@ public class Defs {
 	static val B: Types.DOUBLE_T=0.1;
 	static val C: Types.DOUBLE_T=B;
 	static val D: Types.DOUBLE_T=0.25;
-
-
-	
 
  public static struct graph {
         global val n: Types.LONG_T;

@@ -29,14 +29,17 @@ class SSCA2 {
 	
 		val USE_ASYNC = args.length > 7 ?  Boolean.parseBoolean(args(7)) : false;
 
+		val THREADS = args.length > 8 ?  Int.parseInt(args(8)) : 1;
+
                 x10.io.Console.OUT.println( SERIAL_GRAPH_GEN + " " + " " + FILTER + " " + CUTSHORT + " " +  USE_ASYNC + " " + NOSELF + " "  + ALLGATHER);
 	
 		x10.io.Console.OUT.println("HPCS SSCA#2 Graph Analysis Benchmark v2.0");
 		x10.io.Console.OUT.println("Running...");
 		//     val globals = new Defs();
-		Defs.init(SCALE, CUTSHORT);
+		Defs.init(SCALE, CUTSHORT, THREADS);
 		
 		x10.io.Console.OUT.println("# of places:" + Place.MAX_PLACES);
+		x10.io.Console.OUT.println("# of threads/places:" + THREADS);
 		x10.io.Console.OUT.println("SCALE :" + SCALE);
 		
 		x10.io.Console.OUT.println("Scalable Data Generator");

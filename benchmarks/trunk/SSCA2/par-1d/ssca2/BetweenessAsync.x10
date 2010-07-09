@@ -25,7 +25,7 @@ class BetweenessAsync extends BetweenessCentrality {
          super(pg, filter, SCALE, K4Approx);
      }
 
-      public global def compute_bc( source:Types.VERT_T, world:Comm!): Void {
+      public global def compute_bc( source:Types.VERT_T, world:Comm!,  nthreads: Types.INT_T): Void {
 
              val pred = Pred() as LinearArray[WrapRail[Types.VERT_T]](1)!;
                val del = Del() as LinearArray[Types.DOUBLE_T](1)!;
