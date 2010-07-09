@@ -103,12 +103,14 @@ public final class Array[T](
      * The specifics of this mapping are unspecified, although it would be reasonable to assume that
      * if the rect property is true, then every element of the backing IndexedMemoryChunk[T] actually
      * contatins a valid element of T.  Furthermore, for a multi-dimensional array it is currently true
-     * (and likely to remain true) that the layout used is compatible with the expected by 
-     * platform BLAS libraries.
+     * (and likely to remain true) that the layout used is a row-major layout (like C, unlike Fortran)
+     * and is compatible with the layout expected by platform BLAS libraries that operate on row-major
+     * C arrays.
      *
      * @return the IndexedMemoryChunk[T] that is the backing storage for the Array object.
      */
     public @Header @Inline def raw() = raw;
+
 
     /**
      * Construct an Array over the region reg whose elements are zero-initialized; 
@@ -122,7 +124,7 @@ public final class Array[T](
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
-        raw = IndexedMemoryChunk[T](n);
+        raw = IndexedMemoryChunk[T](n, true);
         rawLength = n;
     }
 
@@ -161,9 +163,17 @@ public final class Array[T](
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
         val r  = IndexedMemoryChunk[T](n);
-	for (var i:int = 0; i<n; i++) {
-            r(i) = init;
-	}
+        if (reg.rect) {
+            // Can be optimized into a simple fill of the backing IndexedMemoryChunk
+            // because every element of the chunk is used by a point in the region.
+	    for (var i:int = 0; i<n; i++) {
+                r(i) = init;
+	    }
+        } else {
+	    for (p:Point(reg.rank) in reg) {
+                r(layout.offset(p))= init;
+            }
+        }
         raw = r;
         rawLength = n;
     }
@@ -191,7 +201,6 @@ public final class Array[T](
      *       since this is a constructor.
      */    
     public def this(rail:ValRail[T]!):Array[T]{self.rank==1,rect,zeroBased} {
-        // TODO: could make this more efficient by optimizing rail copy.
 	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
     }
 
@@ -459,42 +468,41 @@ public final class Array[T](
 
 	
     /**
-     * Lift this array using the given unary operation.
-     * Apply the operation pointwise to the elements of this array.
-     * Return a new array with the same region as this array.
-     * Each element of the new array is the result of applying the given operation to the
-     * corresponding element of this array.
-     *
+     * Map the given unary operation onto the elements of this array
+     * constructing a new result array such that for all points <code>p</code>
+     * in <code>this.region</code>,
+     * <code>result(p) == op(this(p))</code>.<p>
+     * 
      * @param op the given unary operation
-     * @return a new array with the same region as this array.
+     * @return a new array with the same region as this array where <code>result(p) == op(this(p))</code>
+     * 
      * @see #reduce((T,T)=>T,T)
      * @see #scan((T,T)=>T,T)
      */
-    public def lift(op:(T)=>T):Array[T](region)! {
-        // TODO: parallelize this operation.
+    public def map(op:(T)=>T):Array[T](region)! {
         return new Array[T](region, (p:Point(this.rank))=>op(apply(p)));
     }
 
 
     /**
-     * Lift this array using the given unary operation.
-     * Apply the operation pointwise to the elements of this array
-     * storing the result in the destination array.
-     * Each element of destination will be set to be the result of 
-     * applying the given operation to the corresponding element of this array.
+     * Map the given unary operation onto the elements of this array
+     * storing the results in the dst array such that for all points <code>p</code>
+     * in <code>this.region</code>,
+     * <code>dst(p) == op(this(p))</code>.<p>
      *
-     * @param dst the destination array for the lift operation
+     * @param dst the destination array for the results of the map operation
      * @param op the given unary operation
-     * @return dst after applying the lift operation.
+     * @return dst after applying the map operation.
+     * 
      * @see #reduce((T,T)=>T,T)
      * @see #scan((T,T)=>T,T)
      */
-    public def lift(dst:Array[T](region)!, op:(T)=>T):Array[T](region)! {
+    public def map(dst:Array[T](region)!, op:(T)=>T):Array[T](region)!{self==dst} {
 	// TODO: parallelize these loops.
 	if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
-            // the traversal and simply lift on the IndexedMemoryChunk itself.
+            // the traversal and simply map on the IndexedMemoryChunk itself.
             for (var i:int =0; i<rawLength; i++) {
                 dst.raw(i) = op(raw(i));
             }	
@@ -508,45 +516,41 @@ public final class Array[T](
 
 
     /**
-     * Lift this array and a second source array using the given binary operation.
-     * Apply the operation pointwise to the elements of this array and the
-     * argument src array, returning a new array with the same region as this array.
-     * Each element of the new array is the result of applying the given operation to the
-     * corresponding element of this array and src.
+     * Map the given binary operation onto the elements of this array
+     * and the other src array, storing the results in a new result array 
+     * such that for all points <code>p</code> in <code>this.region</code>,
+     * <code>result(p) == op(this(p), src(p))</code>.<p>
      *
      * @param op the given binary operation
      * @param src the other src array
-     * @return a new array with the same region as this array containing the result of the lift.
+     * @return a new array with the same region as this array containing the result of the map
      * @see #reduce((T,T)=>T,T)
      * @see #scan((T,T)=>T,T)
      */
-    public def lift(src:Array[T](this.region)!, op:(T,T)=>T):Array[T](region)! {
-        // TODO: parallelize this operation.
+    public def map(src:Array[T](this.region)!, op:(T,T)=>T):Array[T](region)! {
         return new Array[T](region, (p:Point(this.rank))=>op(apply(p), src(p)));
     }
 
 
     /**
-     * Lift this array and a second source array using the given binary operation.
-     * Apply the operation pointwise to the elements of this array and the 
-     * other array storing the result in the destination array.
-     * Each element of destination will be set to be the result of 
-     * applying the given operation to the corresponding element of this array
-     * and the src array.
+     * Map the given binary operation onto the elements of this array
+     * and the other src array, storing the results in the given dst array 
+     * such that for all points <code>p</code> in <code>this.region</code>,
+     * <code>dst(p) == op(this(p), src(p))</code>.<p>
      *
-     * @param dst the destination array for the lift operation
-     * @param src the second source array for the lift operation
+     * @param dst the destination array for the map operation
+     * @param src the second source array for the map operation
      * @param op the given binary operation
-     * @return destination after applying the lift operation.
+     * @return destination after applying the map operation.
      * @see #reduce((T,T)=>T,T)
      * @see #scan((T,T)=>T,T)
      */
-    public def lift(dst:Array[T](region)!, src:Array[T](region)!, op:(T,T)=>T):Array[T](region)! {
+    public def map(dst:Array[T](region)!, src:Array[T](region)!, op:(T,T)=>T):Array[T](region)! {
 	// TODO: parallelize these loops.
 	if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
-            // the traversal and simply lift on the IndexedMemoryChunk itself.
+            // the traversal and simply map on the IndexedMemoryChunk itself.
             for (var i:int =0; i<rawLength; i++) {
                 dst.raw(i) = op(raw(i), src.raw(i));
             }	
@@ -568,7 +572,7 @@ public final class Array[T](
      * @param op the given binary operation
      * @param unit the given initial value
      * @return the final result of the reduction.
-     * @see #lift((T)=>T)
+     * @see #map((T)=>T)
      * @see #scan((T,T)=>T,T)
      */
     public def reduce(op:(T,T)=>T, unit:T):T {
@@ -601,7 +605,7 @@ public final class Array[T](
      * @param op the given binary operation
      * @param unit the given initial value
      * @return a new array containing the result of the scan 
-     * @see #lift((T)=>T)
+     * @see #map((T)=>T)
      * @see #reduce((T,T)=>T,T)
      */
     public def scan(op:(T,T)=>T, unit:T): Array[T](region)! = scan(new Array[T](region), op, unit); // TODO: private constructor to avoid useless zeroing
@@ -618,7 +622,7 @@ public final class Array[T](
      * @param op the given binary operation
      * @param unit the given initial value
      * @return a new array containing the result of the scan 
-     * @see #lift((T)=>T)
+     * @see #map((T)=>T)
      * @see #reduce((T,T)=>T,T)
      */
     public def scan(dst:Array[T](region)!, op:(T,T)=>T, unit:T): Array[T](region)! {

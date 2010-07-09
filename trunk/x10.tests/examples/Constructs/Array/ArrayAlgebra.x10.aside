@@ -54,7 +54,7 @@ public class ArrayAlgebra extends x10Test {
         arrEq(ia1.scan(Int.+, 0),
               DistArray.make[Int](D, (var Point (i): Point): int => (ia1 | 0..i).reduce(Int.+, 0)));
 
-        arrEq(makeArray(D01, 1).lift(Int.+, makeArray(D01, -4)),
+        arrEq(makeArray(D01, 1).map(Int.+, makeArray(D01, -4)),
                 makeArray(D01, -3));
 
         // are we still supporting +,-,... on arrays?

@@ -17,7 +17,7 @@ import harness.x10Test;
 
 /**
  * Tests miscellaneous features together: async, future, atomic,
- * distributed array, dist ops, reduction, scan, lift.
+ * distributed array, dist ops, reduction, scan, map.
  *
  * @author kemal 12/2004
  */
@@ -102,8 +102,8 @@ public class MiscTest1 extends x10Test {
         chk(sum == (future(D(pNP_1)) y(pNP_1)).force());
         chk(sum == (future(D(NP-1)) y(NP-1)).force());
 
-        // test lift
-        val z: DistArray[int]{dist==D} =  x.lift(Int.+, y) as DistArray[int]{dist==D};
+        // test map
+        val z: DistArray[int]{dist==D} =  x.map(Int.+, y) as DistArray[int]{dist==D};
 
         finish ateach (val pi in D) chk(z(pi) == x(pi) + y(pi));
 
