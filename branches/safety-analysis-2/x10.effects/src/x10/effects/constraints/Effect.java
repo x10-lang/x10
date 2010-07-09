@@ -199,7 +199,7 @@ public interface Effect extends Cloneable {
 	void addInitializedClock(Locs t);
 	
 	
-	Effect substitute(XTerm t, XRoot r);
+	Effect substitute(XTerm t, XVar r);
 	Pair<XLocal,Effect> freshSubst(XLocal x);
 	boolean safe();
 	boolean unsafe();

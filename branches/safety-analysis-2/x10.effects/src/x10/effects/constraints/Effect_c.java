@@ -451,7 +451,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
         return p.fst.interferenceWith(p.snd, c2);
 	}
 
-	public Effect substitute(XTerm t, XRoot r) {
+	public Effect substitute(XTerm t, XVar r) {
 		Effect_c result = new Effect_c(safety);
 		for (Locs l : readSet()) {
 			result.readSet().add(l.substitute(t,r));

@@ -3,7 +3,7 @@ package x10.effects.constraints;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 
 
@@ -17,7 +17,7 @@ public class FieldLocs_c extends RigidTerm_c implements FieldLocs {
 	
 	public XName field() { return fieldName;}
 	
-	public Locs substitute(XTerm t, XRoot s) {
+	public Locs substitute(XTerm t, XVar s) {
 		XTerm old = designator();
 		XTerm result = old.clone().subst(t, s);
 		return (result.equals(old)) ? this
