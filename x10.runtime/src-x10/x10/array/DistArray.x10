@@ -316,18 +316,17 @@ public class DistArray[T] (
     // operations
     //
 
-    public global def lift(op:(T)=>T): DistArray[T](dist)
+    public global def map(op:(T)=>T): DistArray[T](dist)
         = make[T](dist, ((p:Point)=>op(this(p as Point(rank)))));
 
-    public global def lift(r:Region(rank), op:(T)=>T): DistArray[T]
+    public global def map(r:Region(rank), op:(T)=>T): DistArray[T]
         = make[T](dist | r, ((p:Point)=>op(this(p as Point(rank)))));
 
 
-    public global def lift(src:DistArray[T](this.dist), op:(T,T)=>T):DistArray[T](dist)
+    public global def map(src:DistArray[T](this.dist), op:(T,T)=>T):DistArray[T](dist)
         = make[T](dist, ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
 
-
-    public global def lift(src:DistArray[T](this.dist), r:Region(rank), op:(T,T)=>T):DistArray[T](rank)
+    public global def map(src:DistArray[T](this.dist), r:Region(rank), op:(T,T)=>T):DistArray[T](rank)
         = make[T]((dist | r) as Dist(rank), ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
 
     public global def reduce(op:(T,T)=>T, unit:T):T {

@@ -17,7 +17,7 @@ import harness.x10Test;
 /**
  * Constant promotions to arrays: (D n)
  * disjoint union and overlay of arrays
- * array lift, scan and reduce.
+ * array map, scan and reduce.
  *
  * @author kemal 4/2005
  */
@@ -58,7 +58,7 @@ public class ArrayAlgebraWithDType extends x10Test {
         arrEq(ia1.scan(Int.+, 0),
               DistArray.make[Int](D, (var Point (i): Point): int => (ia1 | 0..i).reduce(Int.+)));
         
-        arrEq(makeArray(D01, 1).lift(Int.+, makeArray(D01, -4)), makeArray(D01, -3));
+        arrEq(makeArray(D01, 1).map(Int.+, makeArray(D01, -4)), makeArray(D01, -3));
 
         // are we still supporting +,-,... on arrays?
         arrEq(makeArray(D01, 1) + makeArray(D01, -4), makeArray(D01, -3) * makeArray(D01, 1));
