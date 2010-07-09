@@ -93,4 +93,16 @@ namespace x10aux {
         }
     }
 }
+
+#define X10_IFACE_THUNK_DEF_R_1(T,name,R,P1) \
+static R name (x10aux::ref<Reference> self, P1 x1) { \
+    return (self.operator->()->*(x10aux::findITable<T>(self->_getITables())->name))(x1); \
+}
+
+#define X10_IFACE_THUNK_DEF_1(T,name,P1) \
+static void name (x10aux::ref<Reference> self, P1 x1) { \
+    (self.operator->()->*(x10aux::findITable<T>(self->_getITables())->name))(x1); \
+}
+
+
 #endif

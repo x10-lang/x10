@@ -62,7 +62,7 @@ typedef void x10rt_handler(const x10rt_msg_params *);
  * captured state).  \todo work in progress
  */
 typedef void x10rt_cuda_pre(const x10rt_msg_params *, size_t *blocks, size_t *threads, size_t *shm,
-                            size_t *argc, const char **argv, size_t *cmemc, const char **cmemv);
+                            size_t *argc, char **argv, size_t *cmemc, char **cmemv);
 
 /** A callback that runs on the CPU on behalf of the GPU, just after a kernel
  * has completed.  This is used for updating finish states and other things
@@ -79,6 +79,21 @@ typedef void *x10rt_finder(const x10rt_msg_params *, x10rt_copy_sz);
  * e.g. to inform the requester of the copy that the copy is complete.
  */
 typedef void x10rt_notifier(const x10rt_msg_params *, x10rt_copy_sz);
+
+/** The list of remote operations supported.
+ */
+typedef enum {
+    X10RT_OP_ADD = 0, 
+    X10RT_OP_AND = 1,
+    X10RT_OP_OR  = 2,
+    X10RT_OP_XOR = 3
+} x10rt_op_type;
+
+/** The list of optional x10rt_net features.
+ */
+typedef enum {
+    X10RT_OPT_REMOTE_OP = 0
+} x10rt_opt;
 
 #endif
 

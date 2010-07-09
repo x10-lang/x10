@@ -21,7 +21,7 @@ public class AsyncTest3 extends x10Test {
 
 	public def run() {
 	    try {
-		val A: Array[int](1) = Array.make[int](Dist.makeUnique());
+		val A: DistArray[int](1) = DistArray.make[int](Dist.makeUnique());
 		chk(Place.MAX_PLACES >= 2);
 		chk(A.dist(0) == here);
 		chk(A.dist(1) != here);
@@ -57,7 +57,7 @@ public class AsyncTest3 extends x10Test {
 	 * for a typical compiler
 	 */
 	static class X {
-		public var z: Array[int](1) = [ 1, 0 ];
+		public var z: Array[int](1)! = new Array[int]([ 1, 0 ]);
 		def zero() = z(z(z(1))); 
 		def one() = z(z(z(0))); 
 		def modify() { z(0)++; }

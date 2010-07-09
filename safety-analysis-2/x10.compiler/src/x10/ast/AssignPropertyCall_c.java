@@ -25,6 +25,7 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -37,8 +38,8 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 
 import x10.constraint.XFailure;
-import x10.constraint.XRef_c;
-import x10.constraint.XRoot;
+import x10.constraint.XRef;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.errors.Errors;
@@ -49,7 +50,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 
 /**
  * @author vj
@@ -180,6 +181,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		
 		
 	}
+	
 	protected void checkReturnType(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties)
 	throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -195,15 +197,13 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		if (result.valid())
 			result = null;
 
-		if (result != null) {
+		 {
 			CConstraint known = Types.get(thisConstructor.supClause());
-			known = (known==null ? new CConstraint_c() : known.copy());
+			known = (known==null ? new CConstraint() : known.copy());
 			try {
 				known.addIn(Types.get(thisConstructor.guard()));
 
-				XRoot thisVar = thisConstructor.thisVar();
-				if (! XTypeTranslator.THIS_VAR)
-					thisVar = ts.xtypeTranslator().transThisWithoutTypeConstraint();
+				XVar thisVar = thisConstructor.thisVar();
 
 				for (int i = 0; i < arguments.size(); i++) {
 					Expr initializer = arguments.get(i);
@@ -224,17 +224,22 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 				}
 
+				// Set the returntype of the enclosing constructor to be this inferred type.
+				Type inferredResultType = X10TypeMixin.addConstraint(X10TypeMixin.baseType(returnType), known);
+				Ref <? extends Type> r = thisConstructor.returnType();
+				((Ref<Type>) r).update(inferredResultType);
 				// bind this==self; sup clause may constrain this.
 				if (thisVar != null) {
 					known =known.instantiateSelf(thisVar);
-					result =  result.instantiateSelf(thisVar);
+					
 					// known.addSelfBinding(thisVar);
 					// known.setThisVar(thisVar);
 				}
-
-				
-				if (! known.entails(result, ctx.constraintProjection(known, result))) {
-					throw new Errors.ConstructorReturnTypeNotEntailed(known, result, position());
+				if (result != null) {
+					result =  result.instantiateSelf(thisVar);
+					if (! known.entails(result, ctx.constraintProjection(known, result))) {
+						throw new Errors.ConstructorReturnTypeNotEntailed(known, result, position());
+					}
 				}
 			}
 			catch (XFailure e) {

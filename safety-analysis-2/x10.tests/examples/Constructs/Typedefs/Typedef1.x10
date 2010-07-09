@@ -17,9 +17,10 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Typedef1 extends x10Test {
+                static type foo = int;
+                static type bar = Typedef1;
+
 	public def run(): boolean = {
-                type foo = int;
-                type bar = Typedef1;
                 val x: foo = 3;
                 val y: bar = this;
 		return x == 3 && y == this;

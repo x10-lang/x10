@@ -21,7 +21,7 @@ public interface Area extends Measure {
     @DerivedUnit(Length.foot * Length.foot) const foot2: double = _;
     @DerivedUnit(Length.mile * Length.mile) const mile2: double = _;
 
-    @DerivedUnit(43560 * Length.foot2) const acre: double = _;
+    @DerivedUnit(43560 * foot2) const acre: double = _;
     @DerivedUnit(acre * 100 / 40.5) const hectare: double = _;
     @DerivedUnit(Length.mile * Length.mile) const section: double = _;
 

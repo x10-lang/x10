@@ -19,7 +19,7 @@ import harness.x10Test;
 public class AsyncTest5 extends x10Test {
 
 	public def run(): boolean = {
-		val A: Array[int](1) = Array.make[int](Dist.makeUnique());
+		val A: DistArray[int](1) = DistArray.make[int](Dist.makeUnique());
 		chk(Place.MAX_PLACES >= 2);
 		finish async chk(A.dist(0) == here);
 		// verify unique distribution

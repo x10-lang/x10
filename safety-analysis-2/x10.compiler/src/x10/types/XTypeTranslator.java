@@ -38,6 +38,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.ast.Contains;
@@ -45,27 +46,27 @@ import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
+import x10.ast.X10Cast;
 import x10.ast.X10Field_c;
 import x10.ast.X10Special;
-import x10.constraint.XEQV_c;
+import x10.constraint.XEQV;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XLit_c;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRef_c;
-import x10.constraint.XRoot;
+import x10.constraint.XRef;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
-import x10.types.constraints.SubtypeConstraint_c;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
@@ -107,7 +108,7 @@ public class XTypeTranslator {
 	}
 
 	public XTerm trans(XTerm target, FieldInstance fi) {
-		return trans(new CConstraint_c(), target, fi);
+		return trans(new CConstraint(), target, fi);
 	}
 	public XTerm trans(CConstraint c, XTerm target, FieldInstance fi)  {
 		if (fi == null)
@@ -134,7 +135,7 @@ public class XTypeTranslator {
 	}
 	
 	public XTerm trans(XTerm target, FieldInstance fi, Type t) throws SemanticException {
-		return trans(new CConstraint_c(), target, fi, t);
+		return trans(new CConstraint(), target, fi, t);
 	}
 	public XTerm trans(CConstraint c, XTerm target, FieldInstance fi, Type t) throws SemanticException {
 		XTerm v;
@@ -147,7 +148,7 @@ public class XTypeTranslator {
 		        target  = XTerms.makeLit(((X10ClassType) container).fullName());
 		    }
 		    else {
-		        throw new SemanticException("Cannot translate a static field of non-class type " + container + ".");
+		        throw new Errors.CannotTranslateStaticField(container, fi.position());
 		    }
 		}
 		if (target instanceof XVar) {
@@ -195,7 +196,7 @@ public class XTypeTranslator {
 		        }
 		    }
 		    // why is this code not in X10Context_c.thisVar()?
-		    XRoot thisVar = xc == null ? null : xc.thisVar();
+		    XVar thisVar = xc == null ? null : xc.thisVar();
 		    for (X10Context outer = (X10Context) xc.pop();
 		    outer != null && thisVar == null;
 		    outer = (X10Context) outer.pop())
@@ -217,7 +218,7 @@ public class XTypeTranslator {
 	}
 
 	public CConstraint normalize(CConstraint c, X10Context xc) {
-		CConstraint result = new CConstraint_c();
+		CConstraint result = new CConstraint();
 		for (XTerm term : c.extConstraints()) {
 			try {
 			if (term instanceof XEquals) {
@@ -243,11 +244,11 @@ public class XTypeTranslator {
 		}
 		return result;
 	}
-	public XLocal trans(LocalInstance li) throws SemanticException {
+	public XLocal trans(LocalInstance li) {
 		return trans(li, li.type());
 	}
 	
-	public XLocal trans(LocalInstance li, Type t) throws SemanticException {
+	public XLocal trans(LocalInstance li, Type t) {
 		XLocal v = XTerms.makeLocal(XTerms.makeName(li.def(), li.name().toString()));
 		addTypeToEnv(v, t);
 		return v;
@@ -280,7 +281,7 @@ public class XTypeTranslator {
 		return XTerms.makeLit(t);
 	}
 	
-	public static Type subst(Type t, XTerm y, XRoot x) throws SemanticException {
+	public static Type subst(Type t, XTerm y, XVar x) throws SemanticException {
 	    return Subst.subst(t, y, x);
 	}
 
@@ -320,7 +321,7 @@ public class XTypeTranslator {
 		return XTerms.makeLit(null);
 	}
 	
-	public static class XTypeLit_c extends XLit_c {
+	public static class XTypeLit_c extends XLit {
 	    private XTypeLit_c(Type l) {
 		super(l);
 	    }
@@ -333,7 +334,7 @@ public class XTypeTranslator {
 	    return X10TypeMixin.hasVar(type(), v);
 	    }
 
-	    public XTerm subst(XTerm y, XRoot x, boolean propagate) {
+	    public XTerm subst(XTerm y, XVar x, boolean propagate) {
 		XTypeLit_c n = (XTypeLit_c) super.subst(y, x, propagate);
 		if (n == this) n = (XTypeLit_c) clone();
 		try {
@@ -408,7 +409,7 @@ public class XTypeTranslator {
         private void transType(TypeConstraint c, SubtypeTest t, X10Context xc) throws SemanticException {
                 TypeNode left = t.subtype();
                 TypeNode right = t.supertype();
-                c.addTerm(new SubtypeConstraint_c(left.type(), right.type(), t.equals()));
+                c.addTerm(new SubtypeConstraint(left.type(), right.type(), t.equals()));
         }
 
         private XTerm simplify(Binary rb, XTerm v) {
@@ -496,6 +497,8 @@ public class XTypeTranslator {
 		Flags f = xmi.flags();
 		if (X10Flags.toX10Flags(f).isProperty()) {
 			XTerm r = trans(c, t.target(), xc);
+			if (r == null)
+				return null;
 			// FIXME: should just return the atom, and add atom==body to the real clause of the class
 			// FIXME: fold in class's real clause constraints on parameters into real clause of type parameters
 			XTerm body = xmi.body();
@@ -504,7 +507,6 @@ public class XTypeTranslator {
 				// hardwire s.at(t) for an interface
 				// return s.home = t is Place ? t : t.home
 				body  = PlaceChecker.rewriteAtClause(c, xmi, t, r, xc);
-				//System.err.println("Golden...XTypeTranslator: translated " + t + " to " + body);
 			}
 			if (body != null) {
 				if (xmi.x10Def().thisVar() != null && t.target() instanceof Expr) {
@@ -513,22 +515,19 @@ public class XTypeTranslator {
 					body = body.subst(r, xmi.x10Def().thisVar());
 				}
 				for (int i = 0; i < t.arguments().size(); i++) {
-					//XRoot x = (XRoot) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
-					//XRoot x = (XRoot) xmi.formalTypes().get(i);
-					XRoot x = (XRoot) XTerms.makeLocal(new XNameWrapper(xmi.formalNames().get(i).def()));
+					//XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
+					//XVar x = (XVar) xmi.formalTypes().get(i);
+					XVar x = (XVar) XTerms.makeLocal(new XNameWrapper(xmi.formalNames().get(i).def()));
 					XTerm y = trans(c, t.arguments().get(i), xc);
 					if (y == null)
 						assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 
 						+ t.position() + ")";
 					body = body.subst(y, x);
 				}
-				//System.err.println("Golden...XTypeTranslator 2: translating" + t + " to " + body);
 				addTypeToEnv(body, xmi.returnType());
 				return body;
 			}
 			else {
-
-				//System.err.println("Golden...XTypeTranslator 3: translating" + t);
 				if (t.arguments().size() == 0) {
 					XName field = XTerms.makeName(xmi.def(), Types.get(xmi.def().container()) + "#" + xmi.name() + "()");
 					XTerm v;
@@ -586,10 +585,16 @@ public class XTypeTranslator {
 			return trans(c, (Variable) term, xc);
 		if (term instanceof X10Special)
 			return trans(c, (X10Special) term, xc);
+		if (term instanceof Expr && term.type() instanceof UnknownType)
+			return null;
 		if (term instanceof Expr) {
 			Expr e = (Expr) term;
 			if (e.isConstant())
 				return XTerms.makeLit(e.constantValue());
+		}
+		if (term instanceof X10Cast) {
+			X10Cast cast = ((X10Cast) term);
+			return trans(c, cast.expr().type(cast.type()), xc);
 		}
 		if (term instanceof Call) {
 		    return trans(c, (Call) term, xc);
@@ -632,7 +637,7 @@ public class XTypeTranslator {
 	 * @throws SemanticException
 	 */
 	public CConstraint constraint(List<Formal> formals, Expr term, X10Context xc) throws SemanticException {
-            CConstraint c = new CConstraint_c();
+            CConstraint c = new CConstraint();
             if (term == null)
                 return c;
             
@@ -649,13 +654,14 @@ public class XTypeTranslator {
                 c.addTerm(t);
             }
             catch (XFailure e) {
-                throw new SemanticException(e.getMessage());
+                c.setInconsistent();
+               // throw new SemanticException(e.getMessage());
             }
             return c;
 	}
 	
 	public TypeConstraint typeConstraint(List<Formal> formals, Expr term, X10Context xc) throws SemanticException {
-	    TypeConstraint c = new TypeConstraint_c();
+	    TypeConstraint c = new TypeConstraint();
         if (term == null)
         	return c;
         

@@ -51,6 +51,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -63,25 +64,31 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XLocal;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.parser.X10ParsedName;
 import x10.types.AnnotatedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10TypeSystem_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbMethodMatcher;
+import x10.visit.X10TypeChecker;
+import x10cpp.postcompiler.CXXCommandBuilder;
 
 
 /**
@@ -108,7 +115,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		n.arguments = new ArrayList<Expr>(args);
 		return n;
 	}
-
+	public Call_c reconstruct(Receiver target, Id name, List<Expr> arguments) {
+		return super.reconstruct(target, name, arguments);
+	}
 	
 	@Override
 	public Node visitChildren(NodeVisitor v) {
@@ -148,7 +157,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			// Override to change the type from C to C{self==this}.
 			Type t = currentClass;
 			X10TypeSystem xts = (X10TypeSystem) ts;
-			XRoot thisVar = null;
+			XVar thisVar = null;
 			if (XTypeTranslator.THIS_VAR) {
 				CodeDef cd = xc.currentCode();
 				if (cd instanceof X10MemberDef) {
@@ -260,7 +269,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 					otn = nf.AmbMacroTypeNode(position(), r, name(), typeArguments(), Collections.EMPTY_LIST);
 				}
 				else {
-				    otn = nf.X10AmbTypeNode(position(), r, name());
+				    otn = nf.AmbTypeNode(position(), r, name());
 				}
 				
 				otn = otn.typeRef(Types.lazyRef(ts.unknownType(position())));
@@ -295,7 +304,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		 if (n != null)
 			 return n;
 		// Otherwise try and find the usual null target method.
-		return typeCheckNullTargetForMethod(tc, typeArgs, argTypes);
+		 
+			 n = typeCheckNullTargetForMethod(tc, typeArgs, argTypes);
+			 return n;
+		
 	}
 	
 	
@@ -317,7 +329,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		Receiver r;
 		if (mi.flags().isStatic()) {
 			Type container = findContainer(ts, mi);       
-			XRoot this_ = getThis(container);
+			XVar this_ = getThis(container);
 			if (this_ != null)
 			    container = X10TypeMixin.setSelfVar(container, this_);
 			r = nf.CanonicalTypeNode(position().startOf(), container).typeRef(Types.ref(container));
@@ -331,7 +343,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		
 
 			if (! ts.typeEquals(scope, c.currentClass(), c)) {
-				XRoot this_ = getThis(scope);
+				XVar this_ = getThis(scope);
 				if (this_ != null)
 				    scope = X10TypeMixin.setSelfVar(scope, this_);
 				r = (Special) nf.This(position().startOf(),
@@ -359,7 +371,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 					+ " must be declared as a proto method since it is called on a receiver " + 
 					target() + " with a proto type.");
 	}
-	XRoot getThis(Type t) {
+	XVar getThis(Type t) {
 	    t = X10TypeMixin.baseType(t);
 	    if (t instanceof X10ClassType) {
 	        return ((X10ClassType) t).x10Def().thisVar();
@@ -368,9 +380,38 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	}
 
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	    Node n;
+	    try {
+	        n = typeCheck1(tc);
+	    } catch (SemanticException e) {
+	        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
+	        if (xtc.throwExceptions())
+	            throw e;
+	        Errors.issue(tc.job(), e, this);
+	        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+	        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
+	        for (TypeNode tn : this.typeArguments) {
+	            typeArgs.add(tn.type());
+	        }
+	        List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
+	        for (Expr a : this.arguments) {
+	            argTypes.add(a.type());
+	        }
+	        X10MethodInstance mi = ts.createFakeMethod(name.id(), typeArgs, argTypes);
+	        Type rt = mi.rightType(); // X10Field_c.rightType(mi.rightType(), mi.x10Def(), n.target, c);
+	        n = (X10Call_c) methodInstance(mi).type(rt);
+	    }
+	    return n;
+	}
+	public Node typeCheck1(ContextVisitor tc) throws SemanticException {
 		X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		X10Context c = (X10Context) tc.context();
+
+		if (mi != null && ((X10MethodInstance)mi).isValid()) // already typechecked
+		    return this;
+
+		X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
 
 		Expr cc = null;
 		
@@ -390,9 +431,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 			try {
 				Node n = f;
-				n = n.del().disambiguate(tc);
-				n = n.del().typeCheck(tc);
-				n = n.del().checkConstants(tc);
+				n = n.del().disambiguate(xtc);
+				n = n.del().typeCheck(xtc);
+				n = n.del().checkConstants(xtc);
 				if (n instanceof Expr && n instanceof Variable) {
 					e = (Expr) n;
 //					if (! ts.isFunction(e.type())) {
@@ -406,12 +447,15 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			if (e != null) {
 				assert typeArguments().size() == 0;
 				ClosureCall ccx = nf.ClosureCall(position(), e,  arguments());
-				X10MethodInstance ci = (X10MethodInstance) ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking closure call."));
+				X10MethodInstance ci = 
+				    (X10MethodInstance) ts.createMethodInstance(position(), 
+				                                                new ErrorRef_c<MethodDef>(ts, position(), 
+				                                                        "Cannot get MethodDef before type-checking closure call."));
 				ccx = ccx.closureInstance(ci);
 				Node n = ccx;
 				try {
-				    n = n.del().disambiguate(tc);
-				    n = n.del().typeCheck(tc);
+				    n = n.del().disambiguate(xtc);
+				    n = n.del().typeCheck(xtc);
 				    cc = (Expr) n;
 				}
 				catch (SemanticException ex) {
@@ -427,16 +471,19 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 		}
 		
-		// We have a cc and a valid call with no target. The one with 
-		if (cc instanceof ClosureCall)
-			if (((ClosureCall) cc).target() instanceof Local) {
+		// We have a cc and a valid call with no target. The one with //todo: fill in this comment
+		if (cc instanceof ClosureCall) {
+			ClosureCall call = (ClosureCall) cc;
+			if (call.target() instanceof Local) {
 				// cc is of the form r() where r is a local variable.
 				// This overrides any other possibility for this call, e.g. a static or an instance method call.
-				X10TypeMixin.checkMissingParameters(cc.type());
+				X10TypeMixin.checkMissingParameters(cc);
+				Checker.checkOfferType(position(), call.closureInstance(), tc);
 				return cc;
 
 
 			}
+		}
 		/////////////////////////////////////////////////////////////////////
 		// Inline the super call here and handle type arguments.
 		/////////////////////////////////////////////////////////////////////
@@ -453,58 +500,79 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    Type et = e.type();
 		    argTypes.add(et);
 		}
-
+		// TODO: Need to try struct call with implicit conversions as well.
 		if (this.target == null) {
 			Node n =  null;
+			// First try to find the method without implicit conversions.
 			try {
-				n=this.typeCheckNullTarget(tc, typeArgs, argTypes, arguments);
-				
+				n=this.typeCheckNullTarget(xtc, typeArgs, argTypes, arguments);
+				// Success! n has the answer.
 			}
 			catch (SemanticException e) {
-				if (cc != null) {
-					Node result = cc.typeCheck(tc);
-					if (result instanceof Expr) {
-						X10TypeMixin.checkMissingParameters(((Expr) result).type());
-					}
-					return result;
-				}
-				throw new SemanticException("Method or static constructor not found for " +
-						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c),
-						position());
+				// OK that didnt work. Try implicit conversions.
+				X10MethodInstance mi = null;
+				List<Expr> args = null;
+				 // Now, try to find the method with implicit conversions, making them explicit.
+				 try {
+					 Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, null, typeArgs, argTypes);
+					 mi = (X10MethodInstance) p.fst();
+					 args = p.snd();
+				 } catch (SemanticException e2) {
+					 // Nothing worked. If you have a cc, thats the one. Exit with cc.
+					 if (cc != null) {
+						 Node result = cc.typeCheck(tc);
+						 if (result instanceof Expr) {
+							 X10TypeMixin.checkMissingParameters((Expr) result);
+						 }
+						// Checker.checkOfferType(position(), call.closureInstance(), tc);
+						 return result;
+					 }
+					 // otherwise error.
+					 MethodMatcher matcher = ((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c);
+					 throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
+				 }
+				 
+				 // OK so now we have mi and args that correspond to a success.    
+				 // Copy the method instance so we can modify it.
+				 assert mi != null && args != null;
+				 Type rt = mi.rightType(); // X10Field_c.rightType(mi.rightType(), mi.x10Def(), n.target, c);
+				 X10Call_c result = (X10Call_c) methodInstance(mi).type(rt);
+				 // Set up n with the answer.
+				 n = result.arguments(args);
 			}
 			
-			if (n instanceof X10Call_c)
-			 PlaceChecker.checkLocalReceiver((Call) n, tc);
+			if (n instanceof X10Call_c) {
+				n = PlaceChecker.makeReceiverLocalIfNecessary((X10Call) n, tc);
+				Checker.checkOfferType(position(), (X10MethodInstance) ((X10Call_c) n).methodInstance(), tc);
+			}
 			
 			
 			// We have both!
 			if (cc != null) {
-			
-				throw new SemanticException("Ambiguous call; both " + 
-						((n instanceof X10New) 
-								? ((X10New) n).constructorInstance().toString()
-										: ((X10Call) n).methodInstance().toString()) 
-										+ " and closure " + cc + " match.", position());
-				
+			    throw new Errors.AmbiguousCall(((n instanceof X10New) 
+                                                           ? ((X10New) n).constructorInstance() 
+                                                                   : ((X10Call) n).methodInstance()), cc, position());
 			}
 				
 			if (n instanceof Expr) {
-				X10TypeMixin.checkMissingParameters(((Expr) n).type());
+				X10TypeMixin.checkMissingParameters((Expr) n);
 			}
 			return n;
 		}
 
 		Node structCall = null;
-    		if (target instanceof TypeNode) {
-    		    Type t = ((TypeNode) target).type();
-    		    t = X10TypeMixin.baseType(t);
-    		    if (t instanceof ParameterType) {
-    		        throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
-    		    }
-    		    structCall = tryStructConstructor(tc, target, typeArgs, argTypes, arguments);
-    		    if (structCall != null)
-    		    	return structCall;
-    		}
+		if (target instanceof TypeNode) {
+			Type t = ((TypeNode) target).type();
+			t = X10TypeMixin.baseType(t);
+			if (t instanceof ParameterType) {
+				throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
+			}
+			structCall = tryStructConstructor(xtc, target, typeArgs, argTypes, arguments);
+			if (structCall != null) {
+				Checker.checkOfferType(position(), (X10ConstructorInstance) ((X10New_c) structCall).constructorInstance(), tc);
+				return structCall;
+			}
+		}
 
 		X10Call_c n = this;
 
@@ -532,7 +600,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		            if (cc != null) {
 		            	Node result = cc.typeCheck(tc);
 		            	if (result instanceof Expr) {
-		            		X10TypeMixin.checkMissingParameters(((Expr) result).type());
+		            		X10TypeMixin.checkMissingParameters((Expr) result);
 		            	}
 		                return result;
 		            }
@@ -576,13 +644,14 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		/////////////////////////////////////////////////////////////////////
 
 		result.checkProtoMethod();
-		PlaceChecker.checkLocalReceiver(result, tc);
+		result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, tc);
 		// the arguments here.
 		result.checkConsistency(c);
 		//	        	result = result.adjustMI(tc);
 		//	        	result.checkWhereClause(tc);
 		result.checkAnnotations(tc);
-		X10TypeMixin.checkMissingParameters(result.type());
+		X10TypeMixin.checkMissingParameters(result);
+		Checker.checkOfferType(position(), (X10MethodInstance) result.methodInstance(), tc);
 
 		return result;
 	}
@@ -662,4 +731,3 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		return sb.toString();
 	}
 }
-

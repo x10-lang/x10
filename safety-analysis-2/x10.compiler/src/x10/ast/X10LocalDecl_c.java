@@ -22,6 +22,7 @@ import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
+import polyglot.frontend.Globals;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
@@ -49,6 +50,7 @@ import x10.types.AnnotatedType;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldDef;
+import x10.types.X10Flags;
 import x10.types.X10LocalDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -59,10 +61,13 @@ import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10TypeChecker;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
-	
+	TypeNode hasType;
 	public X10LocalDecl_c(Position pos, FlagsNode flags, TypeNode type,
 			Id name, Expr init) {
-		super(pos, flags, type, name, init);
+		super(pos, flags, 
+				type instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(type.position()) : type, name, init);
+		if (type instanceof HasTypeNode_c) 
+			hasType = ((HasTypeNode_c) type).typeNode();
 	}
 
 	/**
@@ -73,12 +78,14 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	 */
 	@Override
 	public void addDecls(Context c) {
-		super.addDecls(c);
-
+        if (li!=null) // if we had errors in type checking, li might be null (e.g., "var x = ...")
+		    super.addDecls(c);
 	}
 		
+
 	@Override
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
+		X10LocalDecl_c n = this;
 		if (type instanceof UnknownTypeNode) {
 			if (init == null)
 				throw new SemanticException("Cannot infer variable type; variable has no initializer.", position());
@@ -89,9 +96,9 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 			if (! flags.flags().isFinal())
 				throw new SemanticException("Cannot infer type of a mutable (non-val) variable.", position());
 		}
-			
+		
 		// This installs a LocalDef 
-		X10LocalDecl_c n = (X10LocalDecl_c) super.buildTypes(tb);
+		 n = (X10LocalDecl_c) super.buildTypes(tb);
 		X10LocalDef fi = (X10LocalDef) n.localDef();
 
 	        List<AnnotationNode> as = ((X10Del) n.del()).annotations();
@@ -106,70 +113,103 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	        return n;
 	}
 	
+	  /** Reconstruct the declaration. */
+    protected LocalDecl_c reconstruct(FlagsNode flags, TypeNode type, TypeNode htn, Id name, Expr init) {
+        if (this.flags != flags || this.type != type || this.hasType != htn || this.name != name || this.init != init) {
+        	X10LocalDecl_c n =  (X10LocalDecl_c) reconstruct(flags, type, name, init);
+        	n.hasType = htn;
+        	return n;
+        }
+
+        return this;
+    }
+    protected X10LocalDecl_c hasType(TypeNode hasType) {
+    	if (this.hasType != hasType)  {
+    		X10LocalDecl_c n = (X10LocalDecl_c) copy();
+    		n.hasType = hasType;
+    		return n;
+    	}
+    	return this;
+    }
+
 	/**
 	 * If the initializer is not null, and the type is Unknown (e.g. because the type was not explicitly
 	 * specified by the programmer, and hence must be inferred), then update the type to be the type
 	 * of the initializer. 
 	 */
-        @Override
-        public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-        	 NodeVisitor childtc = tc.enter(parent, this);
-        	
-        	 XConstrainedTerm  pt = ((X10Context) tc.context()).currentPlaceTerm();
-        	 assert pt.term()!= null;
-        	 ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
-            if (type() instanceof UnknownTypeNode) {
-               
-                
-                Expr init = (Expr) this.visitChild(init(), childtc);
-                if (init != null) {
-                    Type t = init.type();
-                    if (t instanceof X10ClassType) {
-                        X10ClassType ct = (X10ClassType) t;
-                        if (ct.isAnonymous()) {
-                            if (ct.interfaces().size() > 0)
-                                t = ct.interfaces().get(0);
-                            else
-                                t = ct.superClass();
-                        }
+    @Override
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
+        NodeVisitor childtc = tc.enter(parent, this);
+
+        XConstrainedTerm  pt = ((X10Context) tc.context()).currentPlaceTerm();
+        assert pt.term()!= null;
+        ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
+        if (type() instanceof UnknownTypeNode) {
+
+
+            Expr init = (Expr) this.visitChild(init(), childtc);
+            if (init != null) {
+                Type t = init.type();
+                if (t instanceof X10ClassType) {
+                    X10ClassType ct = (X10ClassType) t;
+                    if (ct.isAnonymous()) {
+                        if (ct.interfaces().size() > 0)
+                            t = ct.interfaces().get(0);
+                        else
+                            t = ct.superClass();
                     }
-                    LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
-                    r.update(t);
-                    
-                    FlagsNode flags = (FlagsNode) this.visitChild(flags(), childtc);
-                    Id name = (Id) this.visitChild(name(), childtc);
-                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
-                    
-                    Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init), childtc);
-                    List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
-                    if (oldAnnotations == null || oldAnnotations.isEmpty()) {
-                            return n;
+                }
+                LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
+                r.update(t);
+
+                FlagsNode flags = (FlagsNode) this.visitChild(flags(), childtc);
+                Id name = (Id) this.visitChild(name(), childtc);
+                TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
+                TypeNode htn  = null;
+                if (hasType != null) {
+                    htn = (TypeNode) visitChild(hasType, childtc);
+                    if (! Globals.TS().isSubtype(type().type(), htn.type(), tc.context())) {
+                        Errors.issue(tc.job(),
+                                     new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
+                                                                             htn.type(),
+                                                                             position()));
                     }
-                    List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
-                    if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
-                            return ((X10Del) n.del()).annotations(newAnnotations);
-                    }
+                }
+
+                Node n = tc.leave(parent, this, reconstruct(flags, tn, htn, name, init), childtc);
+                List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
+                if (oldAnnotations == null || oldAnnotations.isEmpty()) {
                     return n;
                 }
+                List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
+                if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
+                    return ((X10Del) n.del()).annotations(newAnnotations);
+                }
+                return n;
             }
-            return super.typeCheckOverride(parent, tc);
         }
+        return null;
+    }
 
-        /**
-         * At this point, the type of the declaration should be known. If the type was not specified
-         * then typeCheckOverride would have set it from the type of the initializer.
-         */
+    /**
+     * At this point, the type of the declaration should be known. If the type was not specified
+     * then typeCheckOverride would have set it from the type of the initializer.
+     */
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		Type type = type().type();
+        final TypeNode typeNode = type();
+        Type type = typeNode.type();
      
     
-		X10TypeMixin.checkMissingParameters(type);
+		X10TypeMixin.checkMissingParameters(typeNode);
 		type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
+/*<<<<<<< .working
 	
 	    Ref<Type> r =  (Ref<Type>) type().typeRef();
-	    r.update(type); /*FIXME */
 	    
+=======*/
+	    Ref<Type> r = (Ref<Type>) typeNode.typeRef();
+            r.update(type);
         
 	    if (type.isVoid())
 	        throw new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
@@ -183,7 +223,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	        throw new SemanticException(e.getMessage(), position());
 	    }
 
-	     X10LocalDecl_c n = (X10LocalDecl_c) this.type(tc.nodeFactory().CanonicalTypeNode(type().position(), type));
+	     X10LocalDecl_c n = (X10LocalDecl_c) this.type(tc.nodeFactory().CanonicalTypeNode(typeNode.position(), type));
 
 	    // Need to check that the initializer is a subtype of the (declared or inferred) type of the variable,
 	    // or can be implicitly coerced to the type.
@@ -231,7 +271,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	}
 
 	public Context enterChildScope(Node child, Context c) {
-		if (child == this.type) {
+		if (child == this.type || child == this.hasType) {
 			X10Context xc = (X10Context) c.pushBlock();
 			LocalDef li = localDef();
 			xc.addVariable(li.asInstance());
@@ -250,4 +290,11 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
             return child.type();
         }
+        /** Visit the children of the declaration. */
+        public Node visitChildren(NodeVisitor v) {
+        	X10LocalDecl_c n = (X10LocalDecl_c) super.visitChildren(v);
+            TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
+            return n.hasType(hasType);
+        }
+
 }

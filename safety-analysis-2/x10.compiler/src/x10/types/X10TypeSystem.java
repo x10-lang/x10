@@ -11,6 +11,7 @@
 
 package x10.types;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import polyglot.types.VarInstance;
@@ -23,10 +24,13 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
+import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -36,11 +40,12 @@ import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.VarDef;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
+import polyglot.types.TypeSystem_c.FieldMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XLit;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -74,10 +79,18 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type futureOf(Position p, Ref<? extends Type> t);
 
+    FieldMatcher FieldMatcher(Type container, boolean contextKnowsReceiver, Name name, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs,  List<Type> argTypes, Context context);
 
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context);
+
+    /**
+     * Find matching fields.
+     *
+     * @exception SemanticException if no matching field can be found.
+     */
+    Set<FieldInstance> findFields(Type container, FieldMatcher matcher) throws SemanticException;
 
     /**
      * Find a method. We need to pass the class from which the method is being
@@ -91,6 +104,13 @@ public interface X10TypeSystem extends TypeSystem {
     X10MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException;
 
     /**
+     * Find matching methods.
+     *
+     * @exception SemanticException if no matching method can be found.
+     */
+    Collection<X10MethodInstance> findMethods(Type container, MethodMatcher matcher) throws SemanticException;
+
+    /**
      * Find a constructor. We need to pass the class from which the constructor
      * is being found because the constructor we find depends on whether the
      * constructor is accessible from that class.
@@ -99,6 +119,13 @@ public interface X10TypeSystem extends TypeSystem {
      *                    if the constructor cannot be found or is inaccessible.
      */
     X10ConstructorInstance findConstructor(Type container, TypeSystem_c.ConstructorMatcher matcher) throws SemanticException;
+
+    /**
+     * Find matching constructors.
+     *
+     * @exception SemanticException if no matching constructor can be found.
+     */
+    Collection<X10ConstructorInstance> findConstructors(Type container, ConstructorMatcher matcher) throws SemanticException;
 
     /**
      * Create a <code>ClosureType</code> with the given signature.
@@ -171,22 +198,32 @@ public interface X10TypeSystem extends TypeSystem {
     		Ref<? extends CodeInstance<?>> methodContainer, 
     				Ref<? extends Type> returnType,
     				List<Ref<? extends Type>> argTypes, 
-    				XRoot thisVar, 
+    				XVar thisVar, 
     				List<LocalDef> formalNames,
     				Ref<CConstraint> guard, 
-    				List<Ref<? extends Type>> throwTypes);
+    				List<Ref<? extends Type>> throwTypes,
+    				Ref<? extends Type> offerType);
 
   
+    MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+            Flags flags, Ref<? extends Type> returnType, Name name,
+            List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>>  excTypes, Ref<? extends Type> offerType);
     
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Ref<? extends Effect> effect,
 	    Name name,
-	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
-	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
+	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
+	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType, Ref<XTerm> body);
 
     /**
-     * Return the ClassType object for the x10.lang.Array interface.
+     * Return the ClassType object for the x10.array.Array class.
      */
     Type Array();
+
+    
+    /**
+     * Return the ClassType object for the x10.array.DistArray class.
+     */
+    Type DistArray();
 
     /**
      * Return the ClassType object for the x10.lang.Rail interface.
@@ -194,14 +231,12 @@ public interface X10TypeSystem extends TypeSystem {
      * @return
      */
     Type Rail();
+
     
     /**
-     * Return the ClassType object for the struct x10.lang.Primitive 
-     *
-     * @return
-    
-    Type Primitive();
+     * Return the ClassType object for the x10.lang.Runtime.Mortal interface.
      */
+    Type Mortal();
 
     /**
      * Return the ClassType object for the x10.lang.ValRail interface.
@@ -250,26 +285,6 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isUInt(Type t);
     boolean isULong(Type t);
 
-    // RMF 7/11/2006 - Added so that the parser can create a canonical type node
-    // for "primitive types", which otherwise will cause disambiguation to fail.
-    //
-    // Technically, there are no primitive types in X10, but the compiler can't
-    // quite treat types like "int" as ordinary object types - there are no
-    // source
-    // or class files corresponding to them, and therefore disambiguating such
-    // types will always fail. The solution is to prevent the compiler from
-    // attempting to disambiguate them by giving the parser enough information
-    // to create a CanonicalTypeNode for them. Currently this is only an issue
-    // when such types are decorated with place specifiers, in which case the
-    // ClassOrInterfaceType production fires, and the left-hand side type could
-    // be either an ordinary class/interface or a "primitive type". In the
-    // absence of place specifiers, the base Java grammar rule IntegralType
-    // fires, which always creates a CanonicalTypeNode.
-    /**
-     * @return true iff the given name is that of a "primitive type".
-     */
-    public boolean isPrimitiveTypeName(Name name);
-
     boolean hasSameClassDef(Type t1, Type t2);
     
     X10TypeEnv env(Context c);
@@ -310,9 +325,13 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean equalTypeParameters(List<Type> a, List<Type> b, Context context);
 
+    ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
+            Flags flags, List<Ref<? extends Type>> argTypes,
+            List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType);
+    
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
-	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
-	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes);
+	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
+	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType);
 
     Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
 
@@ -380,7 +399,7 @@ public interface X10TypeSystem extends TypeSystem {
 
     X10FieldDef fieldDef(Position pos,
             Ref<? extends StructType> container, Flags flags,
-            Ref<? extends Type> type, Name name, XRoot thisVar);
+            Ref<? extends Type> type, Name name, XVar thisVar);
 
     boolean isUnsigned(Type r);
 
@@ -400,11 +419,11 @@ public interface X10TypeSystem extends TypeSystem {
      * @throws SemanticException
      */
     void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException;
-    
-  
-    
+   
     boolean isX10Array(Type me);
-    
+
+    boolean isX10DistArray(Type me);
+
     Context emptyContext();
     Type Struct();
     boolean isExactlyFunctionType(Type t);
@@ -419,4 +438,18 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isFinalVariable(VarInstance<?> vi);
     boolean isFinalVariable(VarDecl vd);
 
+
+    public boolean isRegion(Type me);
+
+    public boolean isDistribution(Type me);
+
+    public boolean isDistributedArray(Type me);
+
+    public boolean isComparable(Type me);
+
+    public boolean isIterable(Type me);
+
+    public boolean isIterator(Type me);
+    public boolean isReducible(Type me);
+    public Type Reducible();
 }

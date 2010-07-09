@@ -24,7 +24,7 @@ import x10.compiler.ClockedVar;
  * future Rail may be deprecated in favor of single-place, zero-based linear
  * specialization of the array library.
  */
-@NativeRep("java", "x10.core.Rail<#1>", "x10.core.Rail.BoxedRail", "new x10.core.Rail.RTT(#2)")
+@NativeRep("java", "x10.core.Rail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Rail._RTT, #2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Rail<#1 > >", "x10::lang::Rail<#1 >", null)
 public final class Rail[T](length: Int)
     implements Settable[Int,T], Iterable[T]
@@ -40,8 +40,33 @@ public final class Rail[T](length: Int)
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
-    @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5)")
+    @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4, #5)")
     public native static safe def make[S](length: Int, init: (Int) => S): Rail[S]!{self.length==length};
+
+    /**
+     * Create a Rail and initialize it by evaluating the given closure at each index;
+     * the backing storage for the Rail will be allocated in pinned memory.
+     *
+     * @param length The number of elements.
+     * @param init Evaluated once per element to initialize the Rail.
+     * @return The reference to the new Rail.
+     */
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
+    @Native("c++", "x10::lang::Rail<void>::makePinned<#1 >(#4, #5)")
+    public native static safe def makePinned[S](length: Int, init: (Int) => S): Rail[S]!{self.length==length};
+
+
+    /**
+     * Create an appropriately aligned Rail and initialize it by evaluating the given closure at each index.
+     *
+     * @param length The number of elements.
+     * @param init Evaluated once per element to initialize the Rail.
+     * @param alignment The 0th element will be located at an address that is an integer multiple of this param (must be power of 2).
+     * @return The reference to the new Rail.
+     */
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
+    @Native("c++", "x10::lang::Rail<void>::makeAligned<#1 >(#4, #5, #6)")
+    public native static safe def makeAligned[S](length: Int, init: (Int) => S, alignment: Int): Rail[S]!{self.length==length};
 
     /**
      * Create a Rail and initialize it by copying elements from another Rail.
@@ -52,17 +77,35 @@ public final class Rail[T](length: Int)
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5, #6)")
-    @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5, #6)")
+    @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4, #5, #6)")
     public native static safe def make[S](length: Int, off:Int, init:Rail[S]): Rail[S]!{self.length==length};
 
+
     /**
-     * Creates an unitiialized Rail, use with caution!
+     * Create an appropriately aligned Rail and initialize it by copying elements from
+     * another Rail.  Note that there is no connection between the alignment of the two rails involved.
+     *
+     * @param length The number of Rail elements.
+     * @param off Start copying elements from this offset of the given Rail.
+     * @param init The Rail to initialize from.
+     * @param alignment The 0th element will be located at an address that is an integer multiple of this param (must be power of 2).
+     * @return The reference to the new Rail.
+     */
+
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5, #6)")
+    @Native("c++", "x10::lang::Rail<void>::makeAligned<#1 >(#4, #5, #6, #7)")
+    public native static safe def makeAligned[S](length: Int, off:Int, init:Rail[S], alignment:Int): Rail[S]!{self.length==length};
+
+    /**
+     * Creates an Rail whose contents are zero-initialized; in future releases
+     * of X10, this method will only be callable of sizeof(T) bytes of zeros
+     * is a valid value of type T. 
      *
      * @param length The number of Rail elements.
      * @return The reference to the new Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
-    @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
+    @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4)")
     public native static safe def make[S](length: Int): Rail[S]!{self.length==length};
 
 	 @Native("java", "x10.lang.Rail__NativeRep.<#2>makeClockedRail(#3, #4, #5, #6, #7)")
@@ -74,16 +117,52 @@ public final class Rail[T](length: Int)
      @Native("java", "x10.lang.Rail__NativeRep.<#2>setClocked(#3, #0, #4, #5)")
      public native static safe def setClocked[T](index: Int, value: T): void;
      
-      @Native("java", "x10.lang.Rail__NativeRep.<#2>getClocked(#3, #0, #4)")
+      @Native("java", "x10.lang.Rail__NativeRep.<#2>getClocked$G(#3, #0, #4)")
      public native static safe def getClocked[T](index: Int): T;
  
+
+    /**
+     * Creates an appropriately aligned Rail whose contents are zero-initialized; 
+     * in future releases of X10, this method will only be callable of sizeof(T) 
+     * bytes of zeros is a valid value of type T. 
+     *
+     * @param length The number of Rail elements.
+     * @param alignment The 0th element will be located at an address that is an integer multiple of this param (must be power of 2).
+     * @return The reference to the new Rail.
+     */
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
+    @Native("c++", "x10::lang::Rail<void>::makeAligned<#1 >(#4, #5)")
+    public native static safe def makeAligned[S](length: Int, alignment:Int): Rail[S]!{self.length==length};
+
+    /**
+     * Creates an Rail whose contents are initialized to init.
+     *
+     * @param length The number of Rail elements.
+     * @param init The value with which to initialize all values of the Rail.
+     * @return The reference to the new Rail.
+     */
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
+    @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4, #5)")
+    public native static safe def make[S](length: Int, init:S): Rail[S]!{self.length==length};
+
+    /**
+     * Creates an appropriately aligned Rail whose contents are initialized to init.
+     *
+     * @param length The number of Rail elements.
+     * @param alignment The 0th element will be located at an address that is an integer multiple of this param (must be power of 2).
+     * @param init The value with which to initialize all values of the Rail.
+     * @return The reference to the new Rail.
+     */
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
+    @Native("c++", "x10::lang::Rail<void>::makeAligned<#1 >(#4, #5, #6)")
+    public native static safe def makeAligned[S](length: Int, init:S, alignment:Int): Rail[S]!{self.length==length};
 
     /**
      * Re-initializes a Rail.
      *
      * @param init Evaluated once per element to reinitialize the Rail.
      */
-    @Native("java", "#0.reset(#1)")
+    @Native("java", "(#0).reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
     public native safe def reset(init: (Int) => T): Void;
 
@@ -92,7 +171,7 @@ public final class Rail[T](length: Int)
      *
      * @param init Every element will be set to this value
      */
-    @Native("java", "#0.reset(#1)")
+    @Native("java", "(#0).reset(#1)")
     @Native("c++", "(#0)->reset(#1)")
     public native safe def reset(init: T): Void;
 
@@ -102,7 +181,7 @@ public final class Rail[T](length: Int)
      * @param init The length and elements will be copied from this ValRail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
-    @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
+    @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4)")
     public native static safe operator [U](r: ValRail[U]): Rail[U]!{self.length==r.length};
 
     /**
@@ -111,8 +190,8 @@ public final class Rail[T](length: Int)
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    @Native("java", "#0.apply(#1)")
-    @Native("c++", "(*#0)[#1]")
+    @Native("java", "(#0).apply$G(#1)")
+    @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
     public native safe def apply(i: Int): T;
 
@@ -123,9 +202,9 @@ public final class Rail[T](length: Int)
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    @Native("java", "#0.set(#1, #2)")
-    @Native("c++", "(*#0)[#2] = #1")
-    @Native("cuda", "(#0)[#2] = #1")
+    @Native("java", "(#0).set$G(#1, #2)")
+    @Native("c++", "(#0)->set(#1, #2)")
+    @Native("cuda", "(#0)[#2] = #1") // FIXME: evaluation order
     public native safe def set(v: T, i: Int): T;
 
     /**
@@ -133,7 +212,7 @@ public final class Rail[T](length: Int)
      *
      * @return A new iterator instance.
      */
-    @Native("java", "#0.iterator()")
+    @Native("java", "(#0).iterator()")
     @Native("c++", "(#0)->iterator()")
     public native safe def iterator(): Iterator[T];
 
@@ -362,7 +441,7 @@ public final class Rail[T](length: Int)
      * remote place.  You may find copyTo/copyFrom are a better choice as they are
      * faster and safer.
      */ 
-    @Native("java", "#0.view()")
+    @Native("java", "(#0).view()")
     @Native("c++", "#0->view()")
     public native def view(): ValRail[T]{self.length==this.length};
 

@@ -11,9 +11,6 @@
 
 package x10.runtime.impl.java;
 
-import java.util.HashMap;
-import x10.runtime.impl.java.Thread;
-import x10.runtime.impl.java.Runtime;
 
 /**
  * Implementation of PlaceLocalHandle service for Java-based runtime.
@@ -25,7 +22,7 @@ public final class PlaceLocalHandle<T>{
     objects = new Object[Runtime.MAX_PLACES];
   }
 
-  public T apply() {
+  public T apply$G() {
     int here = Thread.currentThread().home();
     Object data = objects[here];
     assert data != null : "At "+here+": get called on uninitialized local object";

@@ -8,6 +8,8 @@
 //LIMITATION:
 //This test case will not meet expectations. It is a limitation of the current release.
 import harness.x10Test;;
+import x10.array.Dist;
+import x10.array.Array;
 
 /**
  * Test to check that unsafe is being parsed correctly.

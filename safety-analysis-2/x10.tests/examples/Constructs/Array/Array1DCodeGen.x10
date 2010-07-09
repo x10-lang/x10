@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class Array1DCodeGen extends x10Test {
 
-    final def matgen(val a: Array[double](3), val b: Array[double](3)): double = {
+    final def matgen(val a: DistArray[double](3), val b: DistArray[double](3)): double = {
 
         var n: int = a.region.max(0);
         var init: int = 1325;
@@ -36,29 +36,29 @@ public class Array1DCodeGen extends x10Test {
         return norma;
     }
 
-    final def write(val a: Array[double](3), val i: int, val j: int, val k: int, val val: double): void = {
+    final def write(val a: DistArray[double](3), val i: int, val j: int, val k: int, val val: double): void = {
         async (a.dist(i, j, k)) atomic a(i, j, k) = val;
     }
 
     final 
     static // BARD: This failed to compile with a place error.
            // So I made it static.
-    def plusWrite(val a: Array[double](3), val i: int, val j: int, val k: int, val val: double): void = {
+    def plusWrite(val a: DistArray[double](3), val i: int, val j: int, val k: int, val val: double): void = {
         async (a.dist(i, j, k)) atomic a(i, j, k) += val;
     }
     
     public def run(): boolean = {
 
         val R = [0..9, 0..9, 0..9] as Region{rank==3&&zeroBased&&rect};
-        val a = Array.make[double](Dist.makeConstant(R, here));
-        val b = Array.make[double](Dist.makeConstant(R, here));
+        val a = DistArray.make[double](Dist.makeConstant(R, here));
+        val b = DistArray.make[double](Dist.makeConstant(R, here));
 
         x10.io.Console.OUT.println("runtime type of 3dZeroBasedRect array is " + a.typeName());
 
         val result = matgen(a,b);
         val S = [0..9, 0..9, 0..9] as Region;
-        val aa =  Array.make[double](Dist.makeConstant(S, here));
-        val bb =  Array.make[double](Dist.makeConstant(S, here));
+        val aa =  DistArray.make[double](Dist.makeConstant(S, here));
+        val bb =  DistArray.make[double](Dist.makeConstant(S, here));
         var result1: double = matgen(aa,bb);
 
         x10.io.Console.OUT.println("runtime type of unknown array is " + aa.typeName());

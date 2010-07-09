@@ -33,7 +33,6 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XTerm;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
@@ -55,8 +54,8 @@ import x10.visit.ExprFlattener.Flattener;
 public class AtExpr_c extends PlacedClosure_c
     implements AtExpr {
     
-    public AtExpr_c(Position p, Expr place, TypeNode returnType, Block body) {
-	    super(p, place, returnType, body);
+    public AtExpr_c(Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
+	    super(p, place, returnType, offerType, body);
     }
 
     public Node typeCheck( ContextVisitor tc ) throws SemanticException {

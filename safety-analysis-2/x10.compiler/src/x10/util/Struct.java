@@ -34,7 +34,7 @@ import x10.ast.AnnotationNode;
 import x10.ast.X10StringLit_c;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
@@ -90,7 +90,7 @@ public class Struct {
        String fullNameWithThis = fullName + "#this";
        //String fullNameWithThis = "this";
        XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-       XRoot thisVar = XTerms.makeLocal(thisName);
+       XVar thisVar = XTerms.makeLocal(thisName);
 
        final LazyRef<X10ParsedClassType> PLACE = Types.lazyRef(null);
        PLACE.setResolver(new Runnable() {
@@ -139,6 +139,7 @@ public class Struct {
                null, 
                null, 
                Collections.EMPTY_LIST, 
+               null, //offerTye
                null);
        final LazyRef<X10ParsedClassType> NATIVE_LOC = Types.lazyRef(null);
        NATIVE_LOC.setResolver(new Runnable() {
@@ -168,6 +169,7 @@ public class Struct {
                null, 
                null, 
                Collections.EMPTY_LIST, 
+               null, //offerType
                null);
        final LazyRef<X10ParsedClassType> NATIVE_AT_1 = Types.lazyRef(null);
        NATIVE_AT_1.setResolver(new Runnable() {
@@ -198,6 +200,7 @@ public class Struct {
                null,
                null,
                Collections.EMPTY_LIST,
+               null, // offerType
                null
        );
        final LazyRef<X10ParsedClassType> NATIVE_TYPE_NAME = Types.lazyRef(null);
@@ -243,6 +246,7 @@ public class Struct {
                null,
                null,
                Collections.EMPTY_LIST,
+               null, // offerType
                null
        );
        final LazyRef<X10ParsedClassType> NATIVE_TYPE_NAME2 = Types.lazyRef(null);
@@ -274,6 +278,7 @@ public class Struct {
                null, 
                null, 
                Collections.EMPTY_LIST, 
+               null, // offerType
                null);
        final LazyRef<X10ParsedClassType> NATIVE_AT_2 = Types.lazyRef(null);
        NATIVE_AT_2.setResolver(new Runnable() {

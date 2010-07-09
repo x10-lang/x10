@@ -11,6 +11,7 @@
 
 package x10.lang;
 
+// FIXME: fold into Ordered[T]
 /**
  * This interface imposes a total ordering on the entities of each type that implements it.
  *
@@ -35,7 +36,7 @@ public interface Comparable[T] {
      * @return a negative integer, zero, or a positive integer if this entity is less than, equal
      * to, or greater than the given entity.
      */
-    def compareTo(that:T):Int;
+    global def compareTo(that:T):Int;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

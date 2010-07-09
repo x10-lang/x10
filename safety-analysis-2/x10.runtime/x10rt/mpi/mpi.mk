@@ -27,7 +27,7 @@ $(MPI_DYNLIB): mpi/x10rt_mpi.o $(COMMON_OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 else
 $(MPI_DYNLIB): mpi/x10rt_mpi.o $(COMMON_OBJS)
-	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -o $@ $^
+	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
 endif
 
 etc/x10rt_mpi.properties:

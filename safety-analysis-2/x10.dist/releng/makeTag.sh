@@ -19,6 +19,11 @@ while [ $# != 0 ]; do
 	export TAG=$2
 	shift
     ;;
+
+    *)
+	echo "unknown option: '$1'"
+	exit 1
+    ;;
    esac
    shift
 done

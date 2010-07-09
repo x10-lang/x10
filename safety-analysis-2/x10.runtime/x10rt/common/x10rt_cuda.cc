@@ -22,12 +22,12 @@ namespace {
     // TODO: fine grained synchronisation, lock free datastructures
     pthread_mutex_t big_lock_of_doom;
 
-    static inline void DEBUG(const char *fmt, ...) {
+    inline void DEBUG(int level, const char *fmt, ...) {
         (void) fmt;
         va_list ap;
         va_start(ap, fmt);
         #ifdef TRACE
-        vfprintf(stderr, fmt, ap);
+        if (level<=TRACE) vfprintf(stderr, fmt, ap);
         #endif
         va_end(ap);
     }
@@ -108,7 +108,7 @@ namespace {
     /* }}} */
 
 
-    static size_t dma_slice_sz (void) {
+    size_t dma_slice_sz (void) {
         static size_t sz = 0;
         if (sz == 0) {
             const char *env_var = "X10RT_CUDA_DMA_SLICE";
@@ -139,17 +139,19 @@ namespace {
         virtual bool is_copy() { return false; }
     };
 
+    #define CUDA_PARAM_SZ 80
     struct x10rt_cuda_kernel : x10rt_cuda_base_op<x10rt_cuda_kernel> {
         size_t blocks;
         size_t threads;
         size_t shm;
         size_t argc;
-        const char *argv;
+        char param_data[CUDA_PARAM_SZ];
+        char *argv;
         size_t cmemc;
-        const char *cmemv;
+        char *cmemv;
         x10rt_cuda_kernel (x10rt_msg_params &p_)
           : x10rt_cuda_base_op<x10rt_cuda_kernel>(p_), blocks(0), threads(0), shm(0),
-            argc(0), argv(0), cmemc(0), cmemv(0)
+            argc(CUDA_PARAM_SZ), argv(param_data), cmemc(0), cmemv(0)
         { }
         virtual bool is_kernel() { return true; }
     };
@@ -273,6 +275,7 @@ struct x10rt_cuda_ctx {
     void *pinned_mem2;
     void *front;
     void *back;
+    size_t commit;
     op_queue<x10rt_cuda_kernel> kernel_q;
     op_queue<x10rt_cuda_copy> dma_q;
     Table<x10rt_functions> cbs;
@@ -431,7 +434,6 @@ void x10rt_cuda_registration_complete (x10rt_cuda_ctx *ctx)
 #endif
 }
 
-
 void *x10rt_cuda_device_alloc (x10rt_cuda_ctx *ctx,
                                size_t len)
 {
@@ -439,6 +441,8 @@ void *x10rt_cuda_device_alloc (x10rt_cuda_ctx *ctx,
     pthread_mutex_lock(&big_lock_of_doom);
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
     CUdeviceptr ptr;
+    ctx->commit += len;
+    DEBUG(2,"CUDA committed memory: %llu bytes\n", (unsigned long long)ctx->commit);
     CU_SAFE(cuMemAlloc(&ptr, len));
     CU_SAFE(cuCtxPopCurrent(NULL));
     pthread_mutex_unlock(&big_lock_of_doom);
@@ -472,14 +476,14 @@ void *do_buffer_finder (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x10
 {
     x10rt_msg_type type = p->type;
     x10rt_finder *hh = ctx->cbs[type].copy_cbs.hh;
-    DEBUG("probe: finder callback begins\n");
+    DEBUG(2,"probe: finder callback begins\n");
     void *remote = hh(p, len); /****CALLBACK****/
-    DEBUG("probe: finder callback ends\n");
+    DEBUG(2,"probe: finder callback ends\n");
     if (remote==NULL) {
         x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
-        DEBUG("probe: finder callback returned NULL, running notifier\n");
+        DEBUG(2,"probe: finder callback returned NULL, running notifier\n");
         ch(p, len); /****CALLBACK****/
-        DEBUG("probe: notifier callback ends\n");
+        DEBUG(2,"probe: notifier callback ends\n");
     }
     return remote;
 }
@@ -581,10 +585,10 @@ void x10rt_cuda_send_msg (x10rt_cuda_ctx *ctx, x10rt_msg_params *p)
     x10rt_cuda_kernel *op = new (safe_malloc<x10rt_cuda_kernel>()) x10rt_cuda_kernel(*p);
 
     x10rt_cuda_pre *pre = ctx->cbs[p->type].kernel_cbs.pre;
-    DEBUG("x10rt_cuda_send_msg: pre callback begins\n");
+    DEBUG(2,"x10rt_cuda_send_msg: pre callback begins\n");
     pre(p, &op->blocks, &op->threads, &op->shm,
         &op->argc, &op->argv, &op->cmemc, &op->cmemv); /****CALLBACK****/
-    DEBUG("x10rt_cuda_send_msg: pre callback ends\n");
+    DEBUG(2,"x10rt_cuda_send_msg: pre callback ends\n");
 
     pthread_mutex_lock(&big_lock_of_doom);
     ctx->kernel_q.push_back(op);
@@ -677,12 +681,12 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             if (kop != NULL) {
                 assert(kop->is_kernel());
                 assert(!kop->begun);
-                DEBUG("probe: kernel invoke\n");
                 x10rt_msg_type type = kop->p.type;
                 CUfunction k = ctx->cbs[type].kernel_cbs.kernel;
                 // y and z params we leave as 1, as threads can vary from 1 to 512
                 CU_SAFE(cuFuncSetBlockShape(k, kop->threads, 1, 1));
-                CU_SAFE(cuParamSetv(k, 0, &kop->argv, kop->argc));
+                DEBUG(1,"%p<<<%d,%d,%d>>> argc: %d  argv: %p\n", (void*)k, kop->blocks, kop->threads, kop->shm, kop->argc, (void*)kop->argv);
+                CU_SAFE(cuParamSetv(k, 0, &kop->argv[0], kop->argc));
                 CU_SAFE(cuParamSetSize(k, kop->argc));
                 CU_SAFE(cuFuncSetSharedSize(k, kop->shm));
                 CU_SAFE(cuLaunchGridAsync(k, kop->blocks, 1, ctx->kernel_q.stream));
@@ -695,16 +699,16 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             ctx->kernel_q.current = NULL;
             assert(kop->is_kernel());
             assert(kop->begun);
-            DEBUG("probe: kernel complete\n");
+            DEBUG(2,"probe: kernel complete\n");
             x10rt_msg_type type = kop->p.type;
             x10rt_cuda_post *fptr = ctx->cbs[type].kernel_cbs.post;
-            DEBUG("probe: post callback begins\n");
+            DEBUG(2,"probe: post callback begins\n");
             CU_SAFE(cuCtxPopCurrent(NULL));
             pthread_mutex_unlock(&big_lock_of_doom);
             fptr(&kop->p, &kop->argv); /****CALLBACK****/
             pthread_mutex_lock(&big_lock_of_doom);
             CU_SAFE(cuCtxPushCurrent(ctx->ctx));
-            DEBUG("probe: post callback ends\n");
+            DEBUG(2,"probe: post callback ends\n");
             kop->~x10rt_cuda_kernel();
             free(kop);
         }
@@ -739,7 +743,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
         assert(dma_sz <= dma_slice_sz());
 
         if (cop->is_get()) {
-            DEBUG("get(%p,%p,%llu,%llu,%llu)\n", src, dst, (unsigned long long)len, (unsigned long long)started, (unsigned long long)finished);
+            DEBUG(1,"get(%p,%p,%llu,%llu,%llu)\n", src, dst, (unsigned long long)len, (unsigned long long)started, (unsigned long long)finished);
             // front buffer handled last tick... available for re-use
             if (started > 0) ctx->swapBuffers();
             // invoke async copy into back buffer
@@ -750,13 +754,13 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                                           ctx->dma_q.stream));
             }
             if (started > 0) {
-                DEBUG("memcpy(%p,%p,%d)\n", dst+finished, ctx->front, started-finished);
+                DEBUG(2,"memcpy(%p,%p,%d)\n", dst+finished, ctx->front, started-finished);
                 ::memcpy(dst+finished, ctx->front, started-finished);
                 finished = started;
             }
             started += dma_sz;
         } else if (cop->is_put()) {
-            DEBUG("put(%p,%p,%llu,%llu,%llu)\n", src, dst, (unsigned long long)len, (unsigned long long)started, (unsigned long long)finished);
+            DEBUG(1,"put(%p,%p,%llu,%llu,%llu)\n", src, dst, (unsigned long long)len, (unsigned long long)started, (unsigned long long)finished);
             // back buffer has now been copied to device... available for re-use
             if (started > 0) {
                 ctx->swapBuffers();
@@ -767,7 +771,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                 finished = started;
             }
             if (dma_sz > 0) {
-                DEBUG("memcpy(%p,%p,%d)\n", ctx->front, src+started, dma_sz);
+                DEBUG(2,"memcpy(%p,%p,%d)\n", ctx->front, src+started, dma_sz);
                 ::memcpy(ctx->front, src+started, dma_sz);
                 started += dma_sz;
             }

@@ -20,18 +20,22 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.ContextVisitor;
+import x10.Configuration;
+import x10.ast.X10Call;
+import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode_c;
-import x10.constraint.XEQV_c;
+import x10.ast.X10Field_c;
+import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XLit_c;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.AnnotatedType;
+import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.types.ClosureType_c;
 import x10.types.X10ClassDef;
 import x10.types.X10Context;
@@ -42,7 +46,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
@@ -64,12 +68,14 @@ public class PlaceChecker {
 	 * 
 	 * @return a newly constructed UQV representing a fixed but unknown place.
 	 */
-	static XTerm makePlace() {
-		return XTerms.makeUQV("_place");
+	public static XTerm makePlace() {
+		XTerm place = XTerms.makeUQV("_place");
+		
+		return place;
 	}
 
 	public static boolean isGlobalPlace(XTerm term) {
-		return (term instanceof XEQV_c && term.toString().startsWith("_place"));
+		return (term instanceof XEQV && term.toString().startsWith("_place"));
 	}
 	/**
 	 * Return r.home.
@@ -88,7 +94,7 @@ public class PlaceChecker {
 		return ((StructType) xts.Any()).fieldNamed(xts.homeName());
 	}
 	static XTerm homeVar(XTerm target, X10TypeSystem xts)  {
-		return xts.xtypeTranslator().trans(new CConstraint_c(), target, AnyHome(xts));
+		return xts.xtypeTranslator().trans(new CConstraint(), target, AnyHome(xts));
 	}
 	
 	public static XTerm placeTerm(Type t) {
@@ -101,7 +107,7 @@ public class PlaceChecker {
 	 */
 	public static CConstraint ThisHomeEqualsPlaceTerm(XTerm thisVar, X10Context cxt) {
 		XTerm h =  PlaceChecker.homeVar(thisVar);
-		CConstraint c = new CConstraint_c();
+		CConstraint c = new CConstraint();
 		if (h != null) {
 			try {
 				c.addBinding(h, cxt.currentPlaceTerm());
@@ -114,7 +120,7 @@ public class PlaceChecker {
 	public static CConstraint ThisHomeEqualsHere(XTerm thisVar, X10TypeSystem ts) {
 		
 		XTerm h =  PlaceChecker.homeVar(thisVar, ts);
-		CConstraint c = new CConstraint_c();
+		CConstraint c = new CConstraint();
 		if (h != null) {
 			try {
 				c.addBinding(h, here());
@@ -125,13 +131,22 @@ public class PlaceChecker {
 	}
 	
 	public static Type AddIsHereClause(Type type, Context cxt) {
-		XTerm selfVar = X10TypeMixin.selfVar(type);
+		XVar selfVar = X10TypeMixin.selfVar(type);
+		if (selfVar == null) {
+		    selfVar = XTerms.makeEQV("self");
+		    try {
+		        type = X10TypeMixin.setSelfVar(type, selfVar);
+		    } catch (SemanticException e) {
+		        throw new InternalCompilerError("Cannot set self var for type "+type, e);
+		    }
+		}
     	XTerm locVar = homeVar(selfVar, (X10TypeSystem) cxt.typeSystem());
     	//XConstrainedTerm pt = ((X10Context) cxt).currentPlaceTerm();
     	// if (pt != null)
     	type = X10TypeMixin.addBinding(type, locVar, here());// here, not pt); // pt, not PlaceChecker.here()
     	return type;
 	}
+	
 	public static Type ReplaceHereByPlaceTerm(Type type, X10Context xct) {
 		Type oldType = (Type) type.copy();
 		if (xct.currentPlaceTerm() == null)
@@ -140,7 +155,7 @@ public class PlaceChecker {
 			if (xct.currentPlaceTerm() !=null) 
 				type = Subst.subst(type, xct.currentPlaceTerm().term(), here()); 
 		} catch (SemanticException z) {
-			throw new InternalError("Unexpectedly inconsistent constraint.");
+			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
 	
 		 /*if(oldType instanceof AnnotatedType) {
@@ -174,10 +189,21 @@ public class PlaceChecker {
 			if (term != null)
 				type = Subst.subst(type,  term, here()); 
 		} catch (SemanticException z) {
-			throw new InternalError("Unexpectedly inconsistent constraint.");
+			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
 		return type;
 	}
+	
+	public static Type ReplacePlaceTermByHere(Type type, XTerm term) {
+		try {
+			if ( term instanceof XVar)
+				type = Subst.subst(type,  here(), (XVar) term); 
+		} catch (SemanticException z) {
+			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
+		}
+		return type;
+	}
+	
 	public static void AddThisHomeEqualsPlaceTerm(CConstraint c, XTerm thisVar, X10Context xc) throws XFailure {
 		 XTerm locVar = homeVar(thisVar, (X10TypeSystem) xc.typeSystem());
          XConstrainedTerm thisPlace = xc.currentThisPlace();
@@ -198,10 +224,10 @@ public class PlaceChecker {
 	}
 	/*
 	private static XConstrainedTerm makePlace(int i, String placeName, X10TypeSystem ts) {
-		CConstraint c = new CConstraint_c();
+		CConstraint c = new CConstraint();
 		X10FieldInstance fi = null;
 		Type type = ts.Place();
-		 CConstraint c2 = new CConstraint_c();
+		 CConstraint c2 = new CConstraint();
 		 try {
 			 XTerm id = Synthesizer.makeProperty(ts.Place(), c2.self(), "id");
 			 if (id == null)
@@ -332,7 +358,7 @@ public class PlaceChecker {
      */
 	public static boolean isAtPlace(Receiver r, Expr place, X10Context xc) {
     	assert place != null;
-    	CConstraint_c c = new CConstraint_c();
+    	CConstraint c = new CConstraint();
     	XTerm placeTerm = ((X10TypeSystem) xc.typeSystem()).xtypeTranslator().trans(c, place, xc);
     	if (placeTerm == null) {
     		assert false;  // Maybe should create a UQV? place might be a method call...?
@@ -362,12 +388,12 @@ public class PlaceChecker {
  	   
  		   try {
  			   XConstrainedTerm h = xc.currentPlaceTerm();
- 			   CConstraint pc = h == null ? new CConstraint_c() : xc.currentPlaceTerm().xconstraint().copy();
+ 			   CConstraint pc = h == null ? new CConstraint() : xc.currentPlaceTerm().xconstraint().copy();
  			   
  			   Type rType = r.type();
  			   XTerm target = X10TypeMixin.selfVarBinding(rType); 
  			   if (target != null && target.toString().contains("$dummyAsync#this")) {
- 				  XRoot thisVar = xc.thisVar();
+ 				  XVar thisVar = xc.thisVar();
  				  for (X10Context outer = (X10Context) xc.pop();
 				   outer != null && target != null && target.toString().contains("$dummyAsync#this");
 				   outer = (X10Context) outer.pop())
@@ -380,7 +406,7 @@ public class PlaceChecker {
  				   if (target == null)
  					   // The receiver is not named. So make up a new name.
  					   // The only thing we know about the name is that it is of rType,
- 					   target = XTerms.makeUQV();
+ 					   target = XTerms.makeUQV("_target");
  			   } 
  			   rType = X10TypeMixin.instantiateSelf(target, rType); 
  			  
@@ -396,7 +422,7 @@ public class PlaceChecker {
  			   // Add this.here = currentThisPlace.
  			   XConstrainedTerm th = xc.currentThisPlace();
  			   if (th != null) {
- 				   XRoot thisVar = xc.thisVar();
+ 				   XVar thisVar = xc.thisVar();
  				   for (X10Context outer = (X10Context) xc.pop();
  				   outer != null && thisVar == null;
  				   outer = (X10Context) outer.pop())
@@ -425,7 +451,7 @@ public class PlaceChecker {
      * @throws SemanticException
      */
     
-    public static void checkFieldPlaceType( Field field, X10Context xc) 
+    public static void checkFieldPlaceType( Field field, ContextVisitor tc) 
     throws SemanticException {
     	X10Flags xFlags = X10Flags.toX10Flags(field.fieldInstance().flags());
     	// A global field can be accessed from anywhere.
@@ -436,7 +462,8 @@ public class PlaceChecker {
     	if (xFlags.isStatic())
     		return;
     
-    	X10TypeSystem ts = (X10TypeSystem) xc.typeSystem();
+    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	X10Context xc = (X10Context) tc.context();
     	Receiver target = field.target();
     	if (! ts.isSubtype(target.type(), ts.Object(), xc))
     		return;
@@ -461,7 +488,7 @@ public class PlaceChecker {
     
     
     /* public CConstraint isHereConstraint(Receiver r, X10Context xc) {
-  	   CConstraint pc = new CConstraint_c();
+  	   CConstraint pc = new CConstraint();
 
   	   XTerm target = xtypeTranslator().trans(pc, r, xc);
   	   assert r != null;
@@ -469,7 +496,7 @@ public class PlaceChecker {
 
      }
      public CConstraint isHereConstraint(XTerm target, X10Context xc) {
-  	   CConstraint c = new CConstraint_c();
+  	   CConstraint c = new CConstraint();
   	   return isHereConstraint(c, target, xc);
      }
      protected CConstraint isHereConstraint(CConstraint pc, XTerm target, X10Context xc) {
@@ -486,6 +513,46 @@ public class PlaceChecker {
      }
     */
     
+    public static Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
+    	try {
+			checkLocalReceiver(n, tc);
+		} catch (Errors.PlaceTypeException z) {
+			// ok, compensate by generating a dynamic cast.
+			if (Configuration.STATIC_CALLS)
+				throw z;
+			X10Call_c result = (X10Call_c) n;
+			Receiver r = result.target();
+			if (r instanceof Expr) {
+				Expr target = (Expr) r;
+				Type type = PlaceChecker.AddIsHereClause(X10TypeMixin.baseType(target.type()), tc.context());
+			 	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
+				target = Converter.attemptCoercion(true, tc, target, type);
+				n = (X10Call) result.reconstruct(target, result.name(), result.arguments());
+			}
+			
+		}
+		return n;
+    }
+    
+    public static X10Field_c makeFieldAccessLocalIfNecessary(X10Field_c n, ContextVisitor tc) throws SemanticException {
+    	try {
+			checkFieldPlaceType(n, tc);
+		} catch (Errors.PlaceTypeException z) {
+			// ok, compensate by generating a dynamic cast.
+			if (Configuration.STATIC_CALLS)
+				throw z;
+			Receiver r = n.target();
+			if (r instanceof Expr) {
+				Expr target = (Expr) r;
+				Type type = PlaceChecker.AddIsHereClause(X10TypeMixin.baseType(target.type()), tc.context());
+			 	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
+				target = Converter.attemptCoercion(true, tc, target, type);
+				n =  n.reconstruct(target, n.name());
+			}
+			
+		}
+		return n;
+    }
     /**
      * Check that this method call is place safe (throwing an error if it isnt, i.e.
      * if the call is to a method that is not global, and the receiver
@@ -558,9 +625,17 @@ public class PlaceChecker {
 	    public static XConstrainedTerm computePlaceTerm( Expr place, X10Context xc, 
 	    		X10TypeSystem  ts
 	    		) throws SemanticException {
+	    	if (place instanceof Field) {
+				Field fp = (Field) place;
+				FieldInstance fi = fp.fieldInstance();
+				if ((ts.typeEquals(fi.container(), ts.Any(), xc) || ts.typeEquals(fi.container(), ts.Object(), xc)) &&
+						fi.name().equals(ts.homeName())) {
+					place = (Expr) fp.target();
+				}
+			}
 	 		Type placeType = place.type();
 			CConstraint d = X10TypeMixin.xclause(placeType);
-			d = (d==null) ? new CConstraint_c() : d.copy();
+			d = (d==null) ? new CConstraint() : d.copy();
 			CConstraint pc = null;
 			XTerm term = null;
 			XConstrainedTerm pt = null;
@@ -568,7 +643,7 @@ public class PlaceChecker {
 	    	if (placeIsPlace)  {
 	    		term = ts.xtypeTranslator().trans(pc, place, xc);
 	    		if (term == null) {
-	    			term = XTerms.makeUQV();
+	    			term = makePlace();
 	    		}
 	    		try {
 	    			pt = XConstrainedTerm.instantiate(d, term);
@@ -582,7 +657,7 @@ public class PlaceChecker {
 	    		if (placeIsRef) {
 	    			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
 	    			if (src == null) {
-	    				src = XTerms.makeUQV();
+	    				src = XTerms.makeUQV("_anon");
 	    			}
 	    			try {
 	    				d= d.substitute(src, d.self());

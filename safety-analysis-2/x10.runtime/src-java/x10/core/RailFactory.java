@@ -11,21 +11,72 @@
 
 package x10.core;
 
+import java.util.Arrays;
+
 import x10.core.fun.Fun_0_1;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
 
 public class RailFactory {
-    public static <T> ValRail<T> makeValRail(Type<T> type, int length, Fun_0_1<Integer,T> init) {
-        Object o = type.makeArray(length);
-        for (int i = 0; i < length; i++) {
-            type.setArray(o, i, init.apply(i));
+    private static <T> void initJavaArray(Object value, Fun_0_1<Integer,T> init) {
+        if (value instanceof int[]) {
+            int[] typed_value = (int[]) value;
+            for (int i = 0; i < typed_value.length; i++) {
+                typed_value[i] = (Integer) init.apply$G(i);
+            }
+        } else if (value instanceof long[]) {
+            long[] typed_value = (long[]) value;
+            for (int i = 0; i < typed_value.length; i++) {
+                typed_value[i] = (Long) init.apply$G(i);
+            }
+        } else if (value instanceof float[]) {
+            float[] typed_value = (float[]) value;
+            for (int i = 0; i < typed_value.length; i++) {
+                typed_value[i] = (Float) init.apply$G(i);
+            }
+        } else if (value instanceof double[]) {
+            double[] typed_value = (double[]) value;
+            for (int i = 0; i < typed_value.length; i++) {
+                typed_value[i] = (Double) init.apply$G(i);
+            }
+        } else if (value instanceof byte[]) {
+            byte[] typed_value = (byte[]) value;
+            for (int i = 0; i < typed_value.length; i++) {
+                typed_value[i] = (Byte) init.apply$G(i);
+            }
+        } else if (value instanceof short[]) {
+            short[] typed_value = (short[]) value;
+            for (int i = 0; i < typed_value.length; i++) {
+                typed_value[i] = (Short) init.apply$G(i);
+            }
+        } else if (value instanceof char[]) {
+            char[] typed_value = (char[]) value;
+            for (int i = 0; i < typed_value.length; i++) {
+                typed_value[i] = (Character) init.apply$G(i);
+            }
+        } else if (value instanceof boolean[]) {
+            boolean[] typed_value = (boolean[]) value;
+            for (int i = 0; i < typed_value.length; i++) {
+                typed_value[i] = (Boolean) init.apply$G(i);
+            }
+        } else {
+            Object[] typed_value = (Object[]) value;
+            for (int i = 0; i < typed_value.length; i++) {
+                typed_value[i] = init.apply$G(i);
+            }
         }
+    }
+
+    public static <T> ValRail<T> makeValRail(Type type, int length, Fun_0_1<Integer,T> init) {
+        Object o = type.makeArray(length);
+        initJavaArray(o, init);
         ValRail<T> array = new ValRail<T>(type, length, o);
         return array;
     }
     
+/*<<<<<<< .working
+
 
     
     public static <T> Rail<T> makeVarRail(Type<T> type, int length, Fun_0_1<Integer,T> init) {
@@ -33,41 +84,68 @@ public class RailFactory {
         for (int i = 0; i < length; i++) {
             array.set(init.apply(i), i);
         }
+=======*/
+    public static <T> Rail<T> makeVarRail(Type type, int length, Fun_0_1<Integer,T> init) {
+        Object o = type.makeArray(length);
+        initJavaArray(o, init);
+        Rail<T> array = new Rail<T>(type, length, o);
+//>>>>>>> .merge-right.r14749
         return array;
     }
     
-    public static <T> ValRail<T> makeValRail(Type<T> type, int length) {
+    public static <T> void resetLocal(Object value, T v) {
+        if (value instanceof int[]) {
+            Arrays.fill((int[]) value, (Integer) v);
+        } else if (value instanceof long[]) {
+            Arrays.fill((long[]) value, (Long) v);
+        } else if (value instanceof float[]) {
+            Arrays.fill((float[]) value, (Float) v);
+        } else if (value instanceof double[]) {
+            Arrays.fill((double[]) value, (Double) v);
+        } else if (value instanceof byte[]) {
+            Arrays.fill((byte[]) value, (Byte) v);
+        } else if (value instanceof short[]) {
+            Arrays.fill((short[]) value, (Short) v);
+        } else if (value instanceof char[]) {
+            Arrays.fill((char[]) value, (Character) v);
+        } else if (value instanceof boolean[]) {
+            Arrays.fill((boolean[]) value, (Boolean) v);
+        } else {
+            Arrays.fill((Object[]) value, v);
+        }
+    }
+
+    public static <T> ValRail<T> makeValRail(Type type, int length) {
         Object o = type.makeArray(length);
         ValRail<T> array = new ValRail<T>(type, length, o);
-        T zero = type.zeroValue();
-        for (int i = 0; i < length; i++) {
-            type.setArray(o, i, zero);
-        }
+        // zero clear of a new Java array is redundant.
+        //T zero = (T) type.zeroValue();
+        //resetLocal(array.value, zero);
         return array;
     }
     
-    public static <T> Rail<T> makeVarRail(Type<T> type, int length) {
+    public static <T> Rail<T> makeVarRail(Type type, int length) {
         Rail<T> array = new Rail<T>(type, length);
-        T zero = type.zeroValue();
-        for (int i = 0; i < length; i++) {
-            array.set(zero, i);
-        }
+        // zero clear of a new Java array is redundant.
+        //T zero = (T) type.zeroValue();
+        //resetLocal(array.value, zero);
         return array;
     }
 
+    public static <T> Rail<T> makeVarRail(Type type, int length, T init) {
+        Object o = type.makeArray(length);
+        resetLocal(o, init);
+        return new Rail<T>(type, length, o);
+    }
+
+    public static <T> Rail<T> makeVarRail(Type type, int length, int offset, Rail<T> init) {
+        Object newArray = type.makeArray(length);
+        System.arraycopy(init.getBackingArray(), offset, newArray, 0, length);
+        return new Rail<T>(type, length, newArray);
+    }
+
+
     public static <T> Rail<T> makeRailFromJavaArray(Object array) {
-        if (array instanceof boolean[]) {
-            return new Rail<T>((Type) Types.BOOLEAN, ((boolean[]) array).length, array);
-        }
-        if (array instanceof byte[]) {
-            return new Rail<T>((Type) Types.BYTE, ((byte[]) array).length, array);
-        }
-        if (array instanceof short[]) {
-            return new Rail<T>((Type) Types.SHORT, ((short[]) array).length, array);
-        }
-        if (array instanceof char[]) {
-            return new Rail<T>((Type) Types.CHAR, ((char[]) array).length, array);
-        }
         if (array instanceof int[]) {
             return new Rail<T>((Type) Types.INT, ((int[]) array).length, array);
         }
@@ -79,6 +157,18 @@ public class RailFactory {
         }
         if (array instanceof double[]) {
             return new Rail<T>((Type) Types.DOUBLE, ((double[]) array).length, array);
+        }
+        if (array instanceof byte[]) {
+            return new Rail<T>((Type) Types.BYTE, ((byte[]) array).length, array);
+        }
+        if (array instanceof short[]) {
+            return new Rail<T>((Type) Types.SHORT, ((short[]) array).length, array);
+        }
+        if (array instanceof char[]) {
+            return new Rail<T>((Type) Types.CHAR, ((char[]) array).length, array);
+        }
+        if (array instanceof boolean[]) {
+            return new Rail<T>((Type) Types.BOOLEAN, ((boolean[]) array).length, array);
         }
         if (array instanceof String[]) {
             return new Rail<T>(new RuntimeType(String.class), ((String[]) array).length, array);

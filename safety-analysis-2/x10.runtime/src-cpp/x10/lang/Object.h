@@ -67,6 +67,8 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf) { }
 
+            virtual bool _custom_deserialization() { return false; }
+
             template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &);
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
@@ -90,11 +92,15 @@ namespace x10 {
             // A helper method for computing the final deserialized reference
             // res is ignored if rr.ref is null, and could even be uninitialized
             // res is freed if rr.loc is here
-            template<class R> static x10aux::ref<R> _finalize_reference(x10aux::ref<Object> res, Object::_reference_state rr);
+            template<class R> static x10aux::ref<R> _finalize_reference(x10aux::ref<Object> res, Object::_reference_state rr, x10aux::deserialization_buffer &buf);
 
             virtual void _deserialize_body(x10aux::deserialization_buffer &buf) { }
 
             template<class T> friend class x10aux::ref;
+
+            // Will be overriden by classes that implement x10.lang.Runtime.Mortal to return true.
+            // Used in _serialize_reference to disable reference logging for specific classes.
+            virtual x10_boolean _isMortal() { return false; }
 
             virtual x10_int hashCode();
 
@@ -141,19 +147,26 @@ namespace x10 {
                 res = x10aux::DeserializationDispatcher::create<T>(buf, id);
             }
             // res is uninitialized if rr.ref is null
-            return _finalize_reference<T>(res, rr);
+            return _finalize_reference<T>(res, rr, buf);
         }
 
         // Given a deserialized object pointer (allocated with alloc_remote) and
         // remote reference info, return the reference to the right object
-        template<class R> x10aux::ref<R> Object::_finalize_reference(x10aux::ref<Object> obj, Object::_reference_state rr) {
+        template<class R> x10aux::ref<R> Object::_finalize_reference(x10aux::ref<Object> obj, Object::_reference_state rr, x10aux::deserialization_buffer &buf) {
             if (rr.ref == 0) {
                 return x10aux::null;
             }
+            if (obj->_custom_deserialization()) { // trust the deserializer to allocate the right object
+                _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
+                        " "<<obj->_type()->name());
+                return obj;
+            }
             if (rr.loc == x10aux::here) { // a remote object coming home to roost
                 _S_("\ta local object come home");
+                x10aux::ref<R> ret = static_cast<R*>((void*)(size_t)rr.ref);
+                buf.update_reference(x10aux::ref<R>(obj), ret);
                 x10aux::dealloc_remote(obj.operator->());
-                return static_cast<R*>((void*)(size_t)rr.ref);
+                return ret;
             }
             _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
                     " "<<obj->_type()->name());

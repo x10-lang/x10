@@ -85,9 +85,10 @@ public class X10FieldAssign_c extends FieldAssign_c {
     		if (! (ts.isSubtype(s, t, tc.context()))) 
     			throw new Errors.CannotAssign(n.right(), n.target().type(), n.position);
 
-    		PlaceChecker.checkFieldPlaceType((Field) left(tc.nodeFactory()), (X10Context) tc.context());
-    		
-    		n= (X10FieldAssign_c) n.type(t);
+    		X10Field_c target = PlaceChecker.makeFieldAccessLocalIfNecessary((X10Field_c) left(tc.nodeFactory()), tc);
+    		n= (X10FieldAssign_c) n.reconstruct(target.target(), n.name());
+    		t = n.leftType();
+    		n = (X10FieldAssign_c) n.type(t);
     		return n;
     	}
     	

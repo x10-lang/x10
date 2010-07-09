@@ -20,7 +20,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.UnknownType;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
@@ -105,7 +105,7 @@ class Subst {
        return rt;
     }
     public 
-    static Type project(Type t, XRoot v) {
+    static Type project(Type t, XVar v) {
     	if (t == null)
     		return null;
     	
@@ -159,14 +159,14 @@ class Subst {
      * @throws SemanticException
      */
     public
-    static List<Type> subst(List<Type> ts, XTerm[] y, XRoot[] x) throws SemanticException {
+    static List<Type> subst(List<Type> ts, XTerm[] y, XVar[] x) throws SemanticException {
     	List<Type> result= new ArrayList<Type>(ts.size());
     	for (Type t : ts) 
     		result.add(subst(t, y, x));
     	return result;
     }
     public
-        static Type subst(Type t, XTerm[] y, XRoot[] x) throws SemanticException {
+        static Type subst(Type t, XTerm[] y, XVar[] x) throws SemanticException {
             assert y.length == x.length;
             Type oldType = (Type) t.copy();
             if (t == null)
@@ -239,7 +239,7 @@ class Subst {
     
         
 
-        public static Type subst(Type t, XTerm[] y, XRoot[] x, Type[] Y, ParameterType[] X) throws SemanticException {
+        public static Type subst(Type t, XTerm[] y, XVar[] x, Type[] Y, ParameterType[] X) throws SemanticException {
             if (t instanceof ConstrainedType) {
                 Type ct = t;
                 Type base = X10TypeMixin.baseType(ct);
@@ -294,18 +294,18 @@ class Subst {
         }
         
         public
-        static Type subst(Type t, XTerm y, XRoot x) throws SemanticException {
-            return subst(t, new XTerm[] { y }, new XRoot[] { x });
+        static Type subst(Type t, XTerm y, XVar x) throws SemanticException {
+            return subst(t, new XTerm[] { y }, new XVar[] { x });
         }
         
         public
         static Type subst(Type t, Type Y, ParameterType X) throws SemanticException {
-            return subst(t, new XTerm[] {}, new XRoot[] { }, new Type[] { Y }, new ParameterType[] { X });
+            return subst(t, new XTerm[] {}, new XVar[] { }, new Type[] { Y }, new ParameterType[] { X });
         }
         
         public
-        static CConstraint subst(CConstraint t, XTerm y, XRoot x) throws SemanticException {
-            return subst(t, new XTerm[] { y }, new XRoot[] { x }, new Type[0], new ParameterType[0]);
+        static CConstraint subst(CConstraint t, XTerm y, XVar x) throws SemanticException {
+            return subst(t, new XTerm[] { y }, new XVar[] { x }, new Type[0], new ParameterType[0]);
         }
         
         public
@@ -314,7 +314,7 @@ class Subst {
         }
         
         public
-        static TypeConstraint subst(TypeConstraint t, XTerm y, XRoot x) throws SemanticException {
+        static TypeConstraint subst(TypeConstraint t, XTerm y, XVar x) throws SemanticException {
             if (t == null)
                 return null;
             return t.subst(y, x);
@@ -327,7 +327,7 @@ class Subst {
             return subst.reinstantiate(t);
         }
         
-       public static TypeConstraint subst(TypeConstraint t, XTerm[] y, XRoot[] x) throws SemanticException {
+       public static TypeConstraint subst(TypeConstraint t, XTerm[] y, XVar[] x) throws SemanticException {
             assert y.length == x.length;
             
             if (t == null)
@@ -354,13 +354,13 @@ class Subst {
             return t;
         }
         
-       public  static TypeConstraint subst(TypeConstraint t, XTerm[] y, XRoot[] x, Type[] Y, ParameterType[] X) throws SemanticException {
+       public  static TypeConstraint subst(TypeConstraint t, XTerm[] y, XVar[] x, Type[] Y, ParameterType[] X) throws SemanticException {
             TypeConstraint t2 = subst(t, y, x);
             TypeConstraint t3 = subst(t2, Y, X);
             return t3;
         }
         
-        public static CConstraint subst(CConstraint t, XTerm[] y, XRoot[] x) throws SemanticException {
+        public static CConstraint subst(CConstraint t, XTerm[] y, XVar[] x) throws SemanticException {
             if (t == null)
                 return null;
             
@@ -379,7 +379,7 @@ class Subst {
             return t;
         }
         
-        public static CConstraint subst(CConstraint t, XTerm[] y, XRoot[] x, Type[] Y, ParameterType[] X) throws SemanticException {
+        public static CConstraint subst(CConstraint t, XTerm[] y, XVar[] x, Type[] Y, ParameterType[] X) throws SemanticException {
             CConstraint t2 = subst(t, y, x);
             CConstraint t3 = subst(t2, Y, X);
             return t3;

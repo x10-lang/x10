@@ -49,7 +49,7 @@ import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.visit.X10TypeChecker;
 
 public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
@@ -59,15 +59,17 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	DepParameterExpr guard;
 	List<TypeNode> throwTypes;
 	TypeNode returnType;
+	TypeNode offersType;
 
-	public FunctionTypeNode_c(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, DepParameterExpr guard,
-			List<TypeNode> throwTypes) {
+	public FunctionTypeNode_c(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, DepParameterExpr guard, 
+			List<TypeNode> throwTypes, TypeNode offersType) {
 		super(pos);
 		this.typeParams = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 		this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 		this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 		this.returnType = returnType;
 		this.guard = guard;
+		this.offersType = offersType;
 	}
 
 	@Override
@@ -102,7 +104,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 				//   typeParams, 
 				formalTypes, formalNames, 
 				guard != null ? guard.valueConstraint() 
-						: Types.<CConstraint>lazyRef(new CConstraint_c()),
+						: Types.<CConstraint>lazyRef(new CConstraint()),
 						// guard != null ? guard.typeConstraint() : null,
 						throwTypes);
 
@@ -133,6 +135,10 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	 */
 	public TypeNode returnType() {
 		return this.returnType;
+	}
+	
+	public TypeNode offersType() {
+		return this.offersType;
 	}
 
 	/** Set the return type of the method. */

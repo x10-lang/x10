@@ -43,6 +43,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
@@ -86,7 +87,7 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.extension.X10Del;
@@ -110,11 +111,12 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 import x10.util.Synthesizer;
+import x10.visit.ChangePositionVisitor;
+
 /**
  * The same as a Java class, except that it needs to handle properties.
  * Properties are converted into public final instance fields immediately.
@@ -123,7 +125,7 @@ import x10.util.Synthesizer;
  *
  */
 public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
-   
+    
     List<PropertyDecl> properties;
 
     public List<PropertyDecl> properties() { return properties; }
@@ -451,31 +453,41 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         final DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, childTb);
         n = (X10ClassDecl_c) n.classInvariant(ci);
 
-        final LazyRef<CConstraint> c = new LazyRef_c<CConstraint>(new CConstraint_c());
+        final LazyRef<CConstraint> c = new LazyRef_c<CConstraint>(new CConstraint());
 
         final X10ClassDecl_c nn = n;
         
         // Add all the constraints on the supertypes into the invariant.
         c.setResolver(new Runnable() {
         	public void run() {
-        		CConstraint x = new CConstraint_c();
+        		CConstraint x = new CConstraint();
         		try {
         			if (ci != null) {
         				CConstraint xi = ci.valueConstraint().get();
         				x.addIn(xi);
+        				if (! xi.consistent())
+        				    x.setInconsistent();
         				TypeConstraint ti = ci.typeConstraint().get();
         			}
         			if (nn.superClass != null) {
         				Type t = nn.superClass.type();
         				CConstraint tc = X10TypeMixin.xclause(t);
-        				if (tc != null)
+        				if (tc != null) {
         					x.addIn(tc);
+        					if (! tc.consistent()) {
+        					    x.setInconsistent();
+        					}
+        				}
         			}
         			for (TypeNode tn : nn.interfaces) {
         				Type t = tn.type();
         				CConstraint tc = X10TypeMixin.xclause(t);
-        				if (tc != null)
+        				if (tc != null) {
         					x.addIn(tc);
+        					if (! tc.consistent()) {
+                                                    x.setInconsistent();
+                                                }
+        				}
         			}
         		}
         		catch (XFailure e) {
@@ -487,13 +499,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         def.setClassInvariant(c);
         
-        final LazyRef<TypeConstraint> tc = new LazyRef_c<TypeConstraint>(new TypeConstraint_c());
+        final LazyRef<TypeConstraint> tc = new LazyRef_c<TypeConstraint>(new TypeConstraint());
 
         
         // Set the type bounds for the def.
        tc.setResolver(new Runnable() {
         	public void run() {
-        		TypeConstraint x = new TypeConstraint_c();
+        		TypeConstraint x = new TypeConstraint();
 
         		if (ci != null) {
 
@@ -533,9 +545,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
      * @param tc
      * @param childtc
      * @return
-     * @throws SemanticException
      */
-    public Node adjustAbstractMethods( ContextVisitor tc) throws SemanticException {
+    public Node adjustAbstractMethods( ContextVisitor tc) {
     	X10ClassDecl_c n = this;
     	
     	if (n.flags().flags().isInterface())
@@ -612,9 +623,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     
     
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
 
-X10ClassDecl_c n = this;
+        X10ClassDecl_c n = this;
     	
     	NodeVisitor v = tc.enter(parent, n);
     	
@@ -626,11 +637,14 @@ X10ClassDecl_c n = this;
     	TypeChecker oldchildtc = (TypeChecker) childtc.copy();
     	ContextVisitor oldtc = (ContextVisitor) tc.copy();
     	
-    	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
-    	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
-    	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
-    	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
-    
+    	try {
+    	    n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
+    	    n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
+    	    n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
+    	    n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
+    	} catch (SemanticException e) {
+    	    Errors.issue(tc.job(), e, this);
+        }
     	
     	n = (X10ClassDecl_c) X10Del_c.visitAnnotations(n, childtc);
 
@@ -640,10 +654,10 @@ X10ClassDecl_c n = this;
         if (type.superType() != null) {
         	if (((X10ClassDef) type).isStruct()) {
         		if (! (X10TypeMixin.isX10Struct(type.superType().get()))) {
-        		
-        			throw new SemanticException(type.superType() 
-        					+ " cannot be the superclass for " + type 
-        					+ "; a struct must subclass a struct.",position());
+        			Errors.issue(tc.job(),
+        			             new Errors.StructMustHaveStructSupertype(type.superType(),
+        			                                                      type,
+        			                                                      position()));
         		}
         	}
         }
@@ -687,10 +701,10 @@ X10ClassDecl_c n = this;
         
         // Check for instance type definitions -- these are not supported.
         for (TypeDef def : ((X10ClassDef) type).memberTypes()) {
-        	  MacroType mt = def.asType();
-          	if (mt.container() != null && !mt.flags().isStatic()) {
-          	    throw new SemanticException("Illegal type def " + mt + ": type-defs must be static.", def.position());
-          	}
+            MacroType mt = def.asType();
+            if (mt.container() != null && !mt.flags().isStatic()) {
+                Errors.issue(tc.job(), new Errors.TypedefMustBeStatic(mt, def.position()), this);
+            }
         }
       
         
@@ -700,27 +714,28 @@ X10ClassDecl_c n = this;
             if (t != null) {
                 if (!t.typeEquals(ct, tc.context())) {
                     String kind = ct.flags().isInterface() ? "interface" : "class";
-                    throw new Errors.CannotExtendTwoInstancesSameInterfaceLimitation(t, ct, position());
+                    Errors.issue(tc.job(),
+                                 new Errors.CannotExtendTwoInstancesSameInterfaceLimitation(t, ct,
+                                                                                            position()));
                 }
             }
             map.put(ct.x10Def(), ct);
         }
         
-        
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	
     	if (X10Flags.toX10Flags(flags().flags()).isStruct()) {
     		if (n.classDef().isInnerClass() && ! flags().flags().isStatic()) {
-    			throw new Errors.StructMustBeStatic(n);
+    			Errors.issue(tc.job(), new Errors.StructMustBeStatic(n));
     		}
     		n.checkStructMethods(parent, tc);
-    		
     	}
     	
     	return n;
     }
     
-    protected void checkStructMethods(Node parent, ContextVisitor tc) throws SemanticException {
+    // TODO
+    protected void checkStructMethods(Node parent, ContextVisitor tc) {
     	
     }
 
@@ -918,6 +933,12 @@ X10ClassDecl_c n = this;
     	X10ClassDecl_c result = (X10ClassDecl_c) superConformanceCheck(tc);
     	X10Context context = (X10Context) tc.context();
     	
+    	X10ClassDef cd = (X10ClassDef) classDef();
+        CConstraint c = cd.classInvariant().get();
+        if (c != null && ! c.consistent()) {
+            throw new Errors.InconsistentInvariant(cd, this.position());
+        }
+    
     	// Check that we're in the right file.
     	if (flags.flags().isPublic() && type.isTopLevel()) {
     	    Job job = tc.job();
@@ -981,10 +1002,11 @@ X10ClassDecl_c n = this;
         return succs;
     }
 
-    protected ConstructorDecl createDefaultConstructor(ClassDef thisType,
+    protected ConstructorDecl createDefaultConstructor(ClassDef _thisType,
     		TypeSystem ts, NodeFactory nf) throws SemanticException
     {
-    	  Position pos = body().position().startOf();
+          X10ClassDef thisType = (X10ClassDef) _thisType;
+    	  Position pos = Position.COMPILER_GENERATED; //body().position().startOf();
     	  X10NodeFactory xnf = (X10NodeFactory) nf;
           Block block = null;
 
@@ -998,9 +1020,7 @@ X10ClassDecl_c n = this;
           List<TypeParamNode> typeFormals = Collections.EMPTY_LIST;
           List<Formal> formals = Collections.EMPTY_LIST;
           DepParameterExpr guard = null;
-          TypeNode returnType = null;
-          
-         
+
           if (! properties.isEmpty()) {
         	  // build type parameters.
         	/*  typeFormals = new ArrayList<TypeParamNode>(typeParameters.size());
@@ -1012,20 +1032,28 @@ X10ClassDecl_c n = this;
         	  
         	  formals = new ArrayList<Formal>(properties.size());
         	  List<Expr> actuals = new ArrayList<Expr>(properties.size());
+              ChangePositionVisitor changePositionVisitor = new ChangePositionVisitor(pos);
         	  for (PropertyDecl pd: properties) {
-        		  Id name = pd.name();
-        		  formals.add(xnf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL), 
-        				  (TypeNode) pd.type().copy(), name));
+        		  Id name = (Id) pd.name().position(pos);
+                  TypeNode typeNode = (TypeNode) pd.type().copy();
+                  Node newNode = typeNode.visit(changePositionVisitor);
+                  formals.add(xnf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL),
+        				  (TypeNode) newNode, name));
         		  actuals.add(xnf.Local(pos, name));
         	  }
         	 
         	  guard = classInvariant();
         	  s2 =  xnf.AssignPropertyCall(pos, Collections.EMPTY_LIST, actuals);
-        	  // TODO: Check that this works.
-        	  returnType = xnf.CanonicalTypeNode(pos, thisType.asType());
+        	  // TODO: add constraint on the return type
           }
           block = s2 == null ? (s1 == null ? nf.Block(pos) : nf.Block(pos, s1))
         		  : (s1 == null ? nf.Block(pos, s2) : nf.Block(pos, s1, s2));
+
+          X10ClassType resultType = (X10ClassType) thisType.asType();
+          // for Generic classes
+          final List<ParameterType> typeParams = thisType.typeParameters();
+          resultType = (X10ClassType)resultType.typeArguments((List)typeParams);
+          X10CanonicalTypeNode returnType = (X10CanonicalTypeNode) xnf.CanonicalTypeNode(pos, resultType);
 
           ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
                   nf.FlagsNode(pos, Flags.PUBLIC),
@@ -1035,6 +1063,7 @@ X10ClassDecl_c n = this;
                   formals,
                   guard, 
                   Collections.EMPTY_LIST, // throwTypes
+                  null, // offerType
                   block);
         return cd;
         

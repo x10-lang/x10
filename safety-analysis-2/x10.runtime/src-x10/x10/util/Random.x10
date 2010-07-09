@@ -63,7 +63,7 @@ public class Random {
         while (true) {
             var x: int = nextInt();
             for (var j: int = 0; j < 4; j++) {
-                if (i > buf.length)
+                if (i >= buf.length)
                     return;
                 buf(i) = (x & 0xff) as Byte;
                 i++;
@@ -144,7 +144,7 @@ public class Random {
         // Knuth, vol 2, 2nd ed, p. 102
         mt(0) = (seed as Long) as Int;
         for (var i: int = 1; i < N; i++) {
-            mt(i) = (69069L * mt(i-1)) as Int;
+            mt(i) = (69069L * mt(i-1) + 1) as Int;
         }
 
         // make sure we twist once.

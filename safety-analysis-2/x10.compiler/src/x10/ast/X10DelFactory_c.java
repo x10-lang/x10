@@ -25,6 +25,7 @@ import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.X10NamedType;
 import x10.types.X10TypeSystem;
+import x10.visit.X10DelegatingVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
 
 /**
@@ -33,9 +34,16 @@ import x10.visit.X10PrettyPrinterVisitor;
 public class X10DelFactory_c extends AbstractDelFactory_c {
 
 	/**
-	 * A delegate that redirects translate to the X10PrettyPrinterVisitor.
+	 * Used to allow subclasses to override the code generator.
 	 */
-	public static class TD extends X10Del_c {
+	protected X10DelegatingVisitor makeCodeGenerator(CodeWriter w, Translator tr) {
+		return new X10PrettyPrinterVisitor(w, tr);
+	}
+
+	/**
+	 * A delegate that redirects translate to the object given by makeCodeGenerator.
+	 */
+	public class TD extends X10Del_c {
 		public void translate(CodeWriter w, Translator tr) {
 			if (jl() instanceof Node) {
 				Node n = (Node) jl();
@@ -43,7 +51,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 				if (ext != null && ext.comment() != null)
 					w.write(ext.comment());
 			}
-			new X10PrettyPrinterVisitor(w,tr).visitAppropriate(jl());
+			makeCodeGenerator(w, tr).visitAppropriate(jl());
 		}
 	};
 
@@ -99,12 +107,12 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 		return delNodeImpl();
 	}
 
-    /**
-     * For each future, add the delegate that redirects translate
-     * to the X10PrettyPrinterVisitor.
-     */
-    public JL delFutureImpl() {
-        return delNodeImpl();
-    }
+	/**
+	 * For each future, add the delegate that redirects translate
+	 * to the X10PrettyPrinterVisitor.
+	 */
+	public JL delFutureImpl() {
+		return delNodeImpl();
+	}
 }
 

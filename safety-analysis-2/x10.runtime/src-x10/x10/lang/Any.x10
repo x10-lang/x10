@@ -26,10 +26,15 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "java.lang.Object", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Any>", "x10::lang::Any", null)
-public interface Any( @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
-        @Native("c++", 
-        "x10::lang::Place_methods::place(x10aux::get_location(#0))")
-                home: Place) {
+public interface Any(
+    /**
+     * The home location of this entity.
+     * This will be 'here' for non-object entities.
+     */
+    @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
+    @Native("c++", "x10::lang::Place_methods::place(x10aux::get_location(#0))")
+    home: Place
+) {
 
     /**
      * Return the home location of this entity.
@@ -48,7 +53,7 @@ public interface Any( @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0
      */
     @Native("java", "x10.core.Ref.at(#0, #1)")
     @Native("c++", "(x10aux::get_location(#0) == (#1)->location)")
-    property def at(r:Object):Boolean;
+    property safe def at(r:Object):Boolean;
 
     /**
      * Return true if the home location of this entity is the given place.
@@ -58,7 +63,7 @@ public interface Any( @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0
      */
     @Native("java", "x10.core.Ref.at(#0, #1.id)")
     @Native("c++", "(x10aux::get_location(#0) == (#1)->FMGL(id))")
-    property def at(p:Place):Boolean;
+    property safe def at(p:Place):Boolean;
 
     /**
      * Return the string representation of this entity.

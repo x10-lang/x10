@@ -9,9 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;;
+import harness.x10Test;
 
-interface public interface X10InterfaceOne {
+public interface X10InterfaceOne {
 
-	public  def interfaceMethod(): void;;
+	public  def interfaceMethod(): void;
 }

@@ -19,8 +19,7 @@ public class IntValueArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
 
-        val d = Dist.makeConstant([1..10, 1..10], here);
-        val ia = Array.make[int](d, ((i,j):Point) => i+j);
+        val ia = new Array[int]([1..10, 1..10], ((i,j):Point) => i+j);
 
         for (p(i,j):Point(2) in [1..10, 1..10]) chk(ia(p) == i+j);
 

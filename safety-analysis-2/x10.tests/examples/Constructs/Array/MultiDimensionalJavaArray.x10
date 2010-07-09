@@ -20,13 +20,12 @@ import harness.x10Test;
 
 public class MultiDimensionalJavaArray extends x10Test {
 
-    const MIN = 0..99;
-    const MAJ = 0..9;
     const PI = Math.PI;
 
     public def run(): boolean = {
-
-        val a = Array.make[Array[Double](1)](MIN, (Point) => Array.make[Double](MAJ));
+        val MIN = 0..99;
+        val MAJ = 0..9;
+        val a = new Array[Array[Double](1)!](MIN, (Point) => new Array[Double](MAJ));
 
         for (val (i,j): Point(2) in ([MIN, MAJ] as Region))
             a(i)(j) = (i * j / PI);

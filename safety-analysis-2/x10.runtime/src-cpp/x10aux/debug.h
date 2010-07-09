@@ -26,11 +26,8 @@
 // static const char _X10strings[] = {};
 //   // All strings, concatenated, with intervening nulls.
 //   // e.g., for the strings "aa", "bb", and "cc" , this variable would contain  "aa\0bb\0ccc".
-// static const struct _X10sourceFile _X10sourceList[];
+// static const struct _X10sourceFile _X10sourceList[] = {};
 //   // A list of X10 source files that contributed to the generation of the current C++ file.
-// static const struct _X10toCPPxref _X10toCPPlist[] = {};
-//   // A cross reference of X10 statements to the first C++ statement.
-//   // Sorted by X10 file index and X10 source file line.
 // static const struct _CPPtoX10xref _CPPtoX10xrefList[] = {};
 //   // A cross reference of C++ statements to X10 statements.
 //   // Sorted by C++ file index and C++ source file line. 
@@ -38,6 +35,21 @@
 // static const struct _X10methodName _X10methodNameList[] = {};
 //   // A list of the X10 method names.
 //   // Sorted by X10 method name.
+// static const struct _MetaDebugInfo _MetaDebugInfo __attribute__((used)) = {
+//     sizeof(struct _MetaDebugInfo),
+//     X10_META_LANG,
+//     sizeof(_X10strings),
+//     sizeof(_X10sourceList),
+//     0,
+//     sizeof(_CPPtoX10xrefList),
+//     sizeof(_X10methodNameList),
+//     _X10strings,
+//     _X10sourceList,
+//     NULL,
+//     _CPPtoX10xrefList,
+//     _X10methodNameList
+// };
+//   // A meta-structure that refers to all of the above
 
 struct _X10sourceFile
 {
@@ -64,10 +76,6 @@ struct _CPPtoX10xref
     uint32_t _CPPtoLine;      // Last line number of C++ line range
 };
 
-struct _MethodSignature
-{
-};
-
 struct _X10methodName
 {
     uint32_t _x10class;          // Index of the X10 containing class name in _X10strings
@@ -78,7 +86,34 @@ struct _X10methodName
                                  // of the corresponding argument in _X10strings
     uint32_t _cppClass;          // Index of the C++ class name in _X10strings
     uint16_t _x10argCount;       // The number of X10 arguments
-    uint16_t _lineIndex;         // Index into _X10toCPPlist of the first line of the method
+    uint16_t _lineIndex;         // Index into _CPPtoX10xrefList of the first line of the method
+};
+
+enum _MetaLanguage {
+  X10_META_LANG = 0    // Metalanguage 0 is X10
+};
+
+#ifndef NULL
+#define NULL ((void*)0)
+#endif
+
+struct _MetaDebugInfo_t {
+  unsigned short structSize;      // size of this structure
+  unsigned char metalanguage;     // language (allows the use of this technique for other languages)
+  unsigned char debugVersion;     // version of this structure (so we can change it in future)
+
+  // The remainder of this structure is language/version specific
+  unsigned x10stringSize;         // the size in bytes of the string table (including the trailing NUL)
+  unsigned x10sourceListSize;     // the size in bytes of the X10 source list
+  unsigned x10toCPPlistSize;      // the size in bytes of the X10->C++ cross reference
+  unsigned cPPtoX10xrefListSize;  // the size in bytes of the C++->X10 cross reference
+  unsigned x10methodNameListSize; // the size in bytes of the X10 method name mapping list
+
+  const char*                  x10strings;        // The string table
+  const struct _X10sourceFile* x10sourceList;     // The list of X10 source files
+  const struct _X10toCPPxref*  x10toCPPlist;      // The X10->C++ cross reference
+  const struct _CPPtoX10xref*  cPPtoX10xrefList;  // The C++->X10 cross reference
+  const struct _X10methodName* x10methodNameList; // The method name mapping list
 };
 
 extern void _X10_Entry_Hook();     // A hook at the start of every X10 method.

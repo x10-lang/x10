@@ -31,8 +31,7 @@ x10_boolean x10aux::char_utils::isUpperCase(x10_char x) {
 }
 
 x10_boolean x10aux::char_utils::isTitleCase(x10_char x) {
-    (void) x;
-    assert(false); /* FIXME: STUBBED NATIVE */
+    /* FIXME: Proper title case support */
     return false;
 }
 
@@ -70,9 +69,8 @@ x10_boolean x10aux::char_utils::isUnicodeIdentifierIgnorable(x10_char x) {
 }
 
 x10_boolean x10aux::char_utils::isSpaceChar(x10_char x) {
-    (void) x;
-    assert(false); /* FIXME: STUBBED NATIVE */
-    return false;
+    /* FIXME: Unicode support */
+    return isWhitespace(x);
 }
 
 x10_boolean x10aux::char_utils::isWhitespace(x10_char x) {
@@ -96,12 +94,7 @@ x10_char x10aux::char_utils::toUpperCase(x10_char x) {
 }
 
 x10_char x10aux::char_utils::toTitleCase(x10_char x) {
-    (void) x;
-    assert(false); /* FIXME: STUBBED NATIVE */
-    return x;
-}
-
-x10_char x10aux::char_utils::reverseBytes(x10_char x) {
-    return ((x.v&0x00FF)<<8)|((x.v&0xFF00)>>8);
+    /* FIXME: Proper title case support */
+    return toUpperCase(x);
 }
 // vim:tabstop=4:shiftwidth=4:expandtab

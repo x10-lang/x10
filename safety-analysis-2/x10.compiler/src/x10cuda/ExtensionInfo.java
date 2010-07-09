@@ -20,6 +20,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
 import polyglot.visit.PostCompiled;
 import x10.ast.X10NodeFactory_c;
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.ExtensionInfo.X10CPPScheduler;
 import x10cpp.ast.X10CPPExtFactory_c;
 import x10cpp.visit.X10CPPTranslator;
@@ -56,7 +57,8 @@ public class ExtensionInfo extends x10cpp.ExtensionInfo {
                     if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
                         return true;
                     // use & to avoid short-circuit
-                    return CUDACodeGenerator.postCompile(options, compiler, eq) & X10CPPTranslator.postCompile(options, compiler, eq);
+                    X10CPPCompilerOptions opts = (X10CPPCompilerOptions)options;
+                    return CUDACodeGenerator.postCompile(opts, compiler, eq) & X10CPPTranslator.postCompile(opts, compiler, eq);
                 }
             }.intern(this);
         }

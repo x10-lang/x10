@@ -12,6 +12,7 @@
 package x10.ast;
 
 import java.util.Collections;
+import java.util.Set;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
@@ -39,7 +40,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -52,13 +53,15 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10TypeSystem_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.matcher.Subst;
+import x10.visit.X10TypeChecker;
 import x10.errors.Errors;
 
 
@@ -78,24 +81,80 @@ public class X10Field_c extends Field_c {
 		super(pos, target, name);
 	}
 
+	public X10Field_c reconstruct(Receiver target, Id name) {
+	    return (X10Field_c) super.reconstruct(target, name);
+	}
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		
-		Node n = typeCheck1(tc);
-		// Keep this at the very end. This is caught by 
-		// handle proto.
-		X10TypeMixin.checkMissingParameters(type());
-		if (! ((X10Context) tc.context()).inAssignment()) {
-			if (n instanceof X10Field_c) {
-				Field nf = (Field) n;
-				Type xtType = nf.target().type();
-				if (X10TypeMixin.isProto(xtType)) {
-					throw new Errors.CannotReadFieldOfProtoValue(nf,
-							nf.position());
-
-				}
-			}
+		Node n;
+		try {
+		    n = typeCheck1(tc);
+		    // Keep this at the very end. This is caught by 
+		    // handle proto.
+		    X10TypeMixin.checkMissingParameters(this);
+		    if (! ((X10Context) tc.context()).inAssignment()) {
+		        if (n instanceof X10Field_c) {
+		            Field nf = (Field) n;
+		            Type xtType = nf.target().type();
+		            if (X10TypeMixin.isProto(xtType)) {
+		                throw new Errors.CannotReadFieldOfProtoValue(nf, nf.position());
+		            }
+		        }
+		    }
+		} catch (SemanticException e) {
+		    X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
+		    if (xtc.throwExceptions())
+		        throw e;
+		    Errors.issue(tc.job(), e, this);
+		    Type tType = target != null ? target.type() : tc.context().currentClass();
+		    X10FieldInstance fi = findAppropriateField(tc, tType, name.id(), target instanceof TypeNode);
+		    n = (X10Field_c)fieldInstance(fi).type(fi.type());
 		}
 		return n;
+	}
+
+	public static X10FieldInstance findAppropriateField(ContextVisitor tc, Type targetType,
+	        Name name, boolean isStatic) throws SemanticException
+	{
+	    X10FieldInstance fi;
+	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    Context context = tc.context();
+	    Set<FieldInstance> fis = ts.findFields(targetType, ts.FieldMatcher(targetType, name, context));
+	    // If exception was not thrown, there is at least one match.  Fake it.
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	    // See if all matches have the same type, and save that to avoid losing information.
+	    Type rt = null;
+	    for (FieldInstance xfi : fis) {
+	        if (rt == null) {
+	            rt = xfi.type();
+	        } else if (!xts.typeEquals(rt, xfi.type(), context)) {
+	            if (xts.typeBaseEquals(rt, xfi.type(), context)) {
+	                rt = X10TypeMixin.baseType(rt);
+	            } else {
+	                rt = null;
+	                break;
+	            }
+	        }
+	    }
+	    // See if all matches have the same container, and save that to avoid losing information.
+	    Type ct = null;
+	    for (FieldInstance xfi : fis) {
+	        if (ct == null) {
+	            ct = xfi.container();
+	        } else if (!xts.typeEquals(ct, xfi.container(), context)) {
+	            if (xts.typeBaseEquals(ct, xfi.container(), context)) {
+	                ct = X10TypeMixin.baseType(ct);
+	            } else {
+	                ct = null;
+	                break;
+	            }
+	        }
+	    }
+	    if (ct != null) targetType = ct;
+	    Flags flags = Flags.PUBLIC;
+	    if (isStatic) flags = flags.Static();
+	    fi = xts.createFakeField(targetType.toClass(), flags, name);
+	    if (rt != null) fi = fi.type(rt);
+	    return fi;
 	}
 	
     // Fix XTENLANG-945
@@ -127,7 +186,7 @@ public class X10Field_c extends Field_c {
 		final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		final X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		final X10Context c = (X10Context) tc.context(); 
-		Type tType = target.type();
+		Type tType = target != null ? target.type() : c.currentClass();
 		
 
 		if (target instanceof TypeNode) {
@@ -167,9 +226,19 @@ public class X10Field_c extends Field_c {
 			}
 		}
 
+
+		// vj: Hack to work around the design decision to represent "here" as this.home for
+		// instance methods. This decision creates a problem for non-final variables that are 
+		// located in the current place. "this" is going to get quantified out by the FieldMatcher.
+		// therefore we temporarily replace this.home with a new UQV, currentPlace, and then on
+		// return from the matcher, substitute it back in.
+		XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
+		XVar currentPlace = XTerms.makeUQV("place");
 		try {
-		   
-			X10FieldInstance fi = (X10FieldInstance) ts.findField(tType, ts.FieldMatcher(tType, name.id(), c));
+		
+		   Type tType2 = placeTerm==null ? tType : Subst.subst(tType, currentPlace, (XVar) placeTerm);
+			X10FieldInstance fi = (X10FieldInstance) 
+			ts.findField(tType, ts.FieldMatcher(tType2, X10TypeMixin.contextKnowsType(target), name.id(), c));
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field " + name +
 						" on node of type " + target.getClass().getName() + ".",
@@ -184,11 +253,15 @@ public class X10Field_c extends Field_c {
 			X10Field_c result = this;
 			Type type = c.inDepType()? rightType(fi.rightType(), fi.x10Def(), target, c) :
 				fieldRightType(fi.rightType(), fi.x10Def(), target, c);
-			if (type instanceof UnknownType) {
-				throw new SemanticException();
-			}
 
-			Type retType = type;
+            // todo: Yoav commented out because we treat UnknownType like an invalid type
+//			if (type instanceof UnknownType) {
+//				throw new SemanticException();
+//			}
+
+			// substitute currentPlace back in.
+			type = placeTerm == null ? type : Subst.subst(type, placeTerm, currentPlace);
+					Type retType = type;
 
 			// Substitute in the actual target for this.  This is done by findField, now.
 			//			Type thisType = tType;
@@ -206,13 +279,13 @@ public class X10Field_c extends Field_c {
 
 			// Check the guard
 			CConstraint guard = ((X10FieldInstance) result.fieldInstance()).guard();
-			if (guard != null && ! new CConstraint_c().entails(guard, 
+			if (guard != null && ! new CConstraint().entails(guard, 
 					c.constraintProjection(guard))) {
 				throw new SemanticException("Cannot access field.  Field guard not satisfied.", position());
 			}
 
 			checkFieldAccessesInDepClausesAreFinal(result, tc);
-			PlaceChecker.checkFieldPlaceType(result, c);
+			result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
 
 			//System.err.println("X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
@@ -229,6 +302,7 @@ public class X10Field_c extends Field_c {
 						Type nt = c.inDepType() ? 
 								rightType(mi.rightType(), mi.x10Def(), target, c) 
 								:fieldRightType(mi.rightType(), mi.x10Def(), target, c);
+							
 						call = (Call) call.type(nt);
 						return call;
 					}
@@ -259,7 +333,7 @@ public class X10Field_c extends Field_c {
 				
 				if (receiver == null)
 					receiver = XTerms.makeEQV();
-				t = Subst.subst(t, (new XVar[] { receiver }), (new XRoot[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
+				t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
 			}
 		}
 		return t;
@@ -271,20 +345,21 @@ public class X10Field_c extends Field_c {
 			x = x.copy();
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
-			if (target instanceof Expr) {
+			if (target instanceof Expr) { // ) {
 				CConstraint xc = X10TypeMixin.xclause(target.type());
 				if (xc != null && ! xc.valid()) {
 					xc = xc.copy();
 					try {
 						XVar receiver = X10TypeMixin.selfVarBinding(target.type());
 						//assert receiver != null;
-						XRoot root = null;
+						XVar root = null;
 						if (receiver == null) {
 							receiver = root = XTerms.makeUQV();
 							
 						}
 						xc = xc.substitute(receiver, xc.self());
-						x.addIn(xc);
+						if (! X10TypeMixin.contextKnowsType(target))
+							x.addIn(xc);
 						x=x.substitute(receiver, fi.thisVar());
 						if (root != null) {
 							x = x.project(root);

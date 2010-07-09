@@ -38,4 +38,8 @@ public interface X10MethodDef extends MethodDef, X10ProcedureDef {
    
     Ref<? extends Effect> effect();
     
+    
+    Ref<? extends Type> offerType();
+    void setOfferType(Ref<? extends Type> s);
+    
 }

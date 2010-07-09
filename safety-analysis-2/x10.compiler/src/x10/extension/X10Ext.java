@@ -64,10 +64,23 @@ public interface X10Ext extends Ext {
      */
     public Node annotations(List<AnnotationNode> annotations);
 
-	Node computeEffectsOverride(Node n, EffectComputer ec) throws SemanticException;
-        EffectComputer computeEffectsEnter(EffectComputer ec);
-        Node computeEffects(EffectComputer ec);
-        Effect effect();
+    Node computeEffectsOverride(Node n, EffectComputer ec) throws SemanticException;
+    EffectComputer computeEffectsEnter(EffectComputer ec);
+    Node computeEffects(EffectComputer ec);
+    Effect effect();
 	
 	
+    
+    /**
+     * Are this node and all of its children valid?
+     * @return
+     */
+    public boolean subtreeValid();
+    
+    /**
+     * Set the validity status for this node and all of its children.
+     * @param val
+     * @return
+     */
+    public Node setSubtreeValid(boolean val);
 }

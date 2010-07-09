@@ -11,7 +11,6 @@
 
 package x10.rtt;
 
-import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
 
 
@@ -20,6 +19,11 @@ public class CharType extends RuntimeType<Character> {
         super(char.class);
     }
     
+    @Override
+    public String typeName() {
+        return "x10.lang.Char";
+    }
+
     @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Character;
@@ -48,23 +52,21 @@ public class CharType extends RuntimeType<Character> {
     @Override
     public Fun_0_2<Character, Character, Character> maxOperator() {
         return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
+            public Character apply$G(Character x, Character y) {
                 return (x > y ? x : y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.CHAR; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.CHAR; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.CHAR; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.CHAR; return null;}
         };
     }
     @Override
     public Fun_0_2<Character, Character, Character> minOperator() {
         return new Fun_0_2<Character, Character, Character>() {
-            public Character apply(Character x, Character y) {
+            public Character apply$G(Character x, Character y) {
                 return (x < y ? x : y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.CHAR; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.CHAR; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.CHAR; }
+            public RuntimeType<?> getRTT() { return _RTT; }
+            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.CHAR; return null;}
         };
     }
     

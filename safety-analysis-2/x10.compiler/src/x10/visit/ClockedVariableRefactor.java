@@ -90,8 +90,8 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	
 	public ClockedVariableRefactor(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
-	    xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
+	    	xts = (X10TypeSystem) ts;
+        	xnf = (X10NodeFactory) nf;
 	}
 	
 	 private static final QName CLOCKEDVAR = QName.make("x10.compiler.ClockedVar");
@@ -115,11 +115,11 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	        try {
 	            Type type = xts.typeForName(CLOCKEDVAR);
 	            
-	            mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(local.type(), Name.make("get"), Collections.EMPTY_LIST, context));
+	            mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(local.type(), Name.make("getClocked"), Collections.EMPTY_LIST, context));
 	        } catch (SemanticException e) {
 	            throw new InternalCompilerError("Something is terribly wrong", e);
 	        }
-	        Call call = xnf.Call(local.position(), local, xnf.Id(local.position(), "get"));
+	        Call call = xnf.Call(local.position(), local, xnf.Id(local.position(), "getClocked"));
 	        call = (Call) call.methodInstance(mi).type(local.type());
 	        return call;
 	    }
@@ -275,14 +275,17 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	            try {
 	                Type type = xts.typeForName(CLOCKEDVAR);
 	                List<Type> typeArguments = ((X10ClassType) type).typeArguments();
-	                mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(right.type(), Name.make("set"), typeArguments, context));
+	                mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(right.type(), Name.make("setClocked"), typeArguments, context));
 	            } catch (SemanticException e) {
 	                throw new InternalCompilerError("Something is terribly wrong", e);
 	            }
 	            if (bo == null) { // i.e. =         a = b -> a.set(b)
-	                return (Call) xnf.Call(position, local, xnf.Id(position, "set"), right).methodInstance(mi).type(right.type());
+	                Call c =  (Call) xnf.Call(position, local, xnf.Id(position, "setClocked"), right).methodInstance(mi).type(right.type());
+			//System.out.println(c);
+			return c;
 	            } else {          // i.e. += *= ... a += b -> a.set(a.get() + b)
-	                return (Call) xnf.Call(position, local, xnf.Id(position, "set"), xnf.Binary(position, createWrappingCall(local), bo, right))
+			System.out.println("FIXME");
+	                return (Call) xnf.Call(position, local, xnf.Id(position, "setClocked"), xnf.Binary(position, createWrappingCall(local), bo, right))
 	                .methodInstance(mi).type(right.type());
 	            }
 	        }
@@ -314,49 +317,34 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	            try {
 	                Type type = xts.typeForName(CLOCKEDVAR);
 	                List<Type> typeArguments = ((X10ClassType) type).typeArguments();
-	                mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(right.type(), Name.make("set"), typeArguments, context));
+	                mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(right.type(), Name.make("setClocked"), typeArguments, context));
 	            } catch (SemanticException e) {
 	                throw new InternalCompilerError("Something is terribly wrong", e);
 	            }
 	            if (bo == null) { // i.e. =         a = b -> a.set(b)
-	                return (Call) xnf.Call(position, field, xnf.Id(position, "set"), right).methodInstance(mi).type(right.type());
+	                return (Call) xnf.Call(position, field, xnf.Id(position, "setClocked"), right).methodInstance(mi).type(right.type());
 	            } else {          // i.e. += *= ... a += b -> a.set(a.get() + b)
 	            	System.out.println("FIXME");
-	               /* return (Call) xnf.Call(position, field, xnf.Id(position, "set"), xnf.Binary(position, createWrappingCall(local), bo, right))
+	               /* return (Call) xnf.Call(position, field, xnf.Id(position, "setClocked"), xnf.Binary(position, createWrappingCall(local), bo, right))
 	                .methodInstance(mi).type(right.type());*/ // FIXME
 	            }
 	        }
 	        return n;
 	    }
 	  
-	  
-	  private Node visitLocal(X10Local_c local) {
-		   X10MethodInstance mi;
-           try {
-               Type type = xts.typeForName(CLOCKEDVAR);
-              
-               mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(local.type(), Name.make("get"), Collections.EMPTY_LIST, context));
-           } catch (SemanticException e) {
-        	   throw new InternalCompilerError("Something is terribly wrong", e);
-           }
-        	   Position position = local.position();
-        	   return (Call) xnf.Call(position, local, xnf.Id(position, "get"), local).methodInstance(mi).type(local.type());
-        	  // return createWrappingCall(local);
-           }
-	  
+	 	  
 	  private Node visitField(X10Field_c field) {
 		  if (isClockedType (field.fieldInstance().def().type().get())) {
 			 X10MethodInstance mi;
           	try {
               Type type = xts.typeForName(CLOCKEDVAR);
              
-              mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(field.type(), Name.make("get"), Collections.EMPTY_LIST, context));
+              mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(field.type(), Name.make("getClocked"), Collections.EMPTY_LIST, context));
           	} catch (SemanticException e) {
           		throw new InternalCompilerError("Something is terribly wrong", e);
           	}
        	   	Position position = field.position();
-     
-       	   	return (Call) xnf.Call(position, field, xnf.Id(position, "get")).methodInstance(mi).type(field.type());
+       	   	return (Call) xnf.Call(position, field, xnf.Id(position, "getClocked")).methodInstance(mi).type(field.type());
 		  }
 		  return field;
        	  // return createWrappingCall(local);
