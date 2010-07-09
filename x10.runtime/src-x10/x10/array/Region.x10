@@ -424,33 +424,5 @@ public abstract class Region(
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {
         property(r, t, z);
     }
-
-
-
-////XXXXX about to be deleted.  Dave.
-    global def check(err:(Point)=>RuntimeException, pt: Point(this.rank)) {
-        if (!contains(pt))
-            throw err(pt);
-    }
-
-    global def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
-        check(err, Point.make(i0)); 
-    }
-
-    global def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
-        check(err, Point.make(i0,i1)); 
-    }
-
-    global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
-        check(err, Point.make(i0,i1,i2)); 
-    }
-
-    global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
-        check(err, Point.make(i0,i1,i2,i3)); 
-    }
-
-
-
-
 }
 

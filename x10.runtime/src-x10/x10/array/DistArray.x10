@@ -11,7 +11,11 @@
 
 package x10.array;
 
+import x10.compiler.Header;
+import x10.compiler.Inline;
 import x10.compiler.Native;
+import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
 
 /**
  * This class represents an array with raw chunk in each place,
@@ -123,65 +127,125 @@ public class DistArray[T] (
     final protected global def raw():Rail[T]! = localHandle().raw;
     final protected global def layout() = localHandle().layout;
 
-    //
-    // high-performance methods here to facilitate inlining
-    // XXX but ref to here and rail accesses make this not so high performance
-    //
+
+    @Native("java", "(!`NO_CHECKS`)")
+    @Native("c++", "BOUNDS_CHECK_BOOL")
+    private global safe native def checkBounds():boolean;
+
+    @Native("java", "(!`NO_CHECKS`)")
+    @Native("c++", "PLACE_CHECK_BOOL")
+    private global safe native def checkPlace():boolean;
+
+
+    public final safe global def apply(pt: Point(rank)): T {
+        if (checkBounds() && !region.contains(pt)) {
+            raiseBoundsError(pt);
+        }
+        if (checkPlace() && dist(pt) != here) {
+            raisePlaceError(pt);
+        }
+        return raw()(layout().offset(pt));
+    }
+
+    /**
+     * @deprecated
+     */
+    public final safe global def get(pt: Point(rank)): T = apply(pt);
 
     final public safe global def apply(i0: int){rank==1}: T {
-        if (checkPlace) checkPlace(i0);
-        if (checkBounds) checkBounds(i0);
+        if (checkBounds() && !region.contains(i0)) {
+            raiseBoundsError(i0);
+        }
+        if (checkPlace() && dist(i0) != here) {
+            raisePlaceError(i0);
+        }
         return raw()(layout().offset(i0));
     }
 
     final public safe global def apply(i0: int, i1: int){rank==2}: T {
-        if (checkPlace) checkPlace(i0, i1);
-        if (checkBounds) checkBounds(i0, i1);
+        if (checkBounds() && !region.contains(i0, i1)) {
+            raiseBoundsError(i0, i1);
+        }
+        if (checkPlace() && dist(i0, i1) != here) {
+            raisePlaceError(i0,i1);
+        }
         return raw()(layout().offset(i0,i1));
     }
 
     final public safe global def apply(i0: int, i1: int, i2: int){rank==3}: T {
-        if (checkPlace) checkPlace(i0, i1, i2);
-        if (checkBounds) checkBounds(i0, i1, i2);
+        if (checkBounds() && !region.contains(i0, i1, i2)) {
+            raiseBoundsError(i0, i1, i2);
+        }
+        if (checkPlace() && dist(i0,i1,i2) != here) {
+            raisePlaceError(i0,i1,i2);
+        }
         return raw()(layout().offset(i0,i1,i2));
     }
 
     final public safe global def apply(i0: int, i1: int, i2: int, i3: int){rank==4}: T {
-        if (checkPlace) checkPlace(i0, i1, i2, i3);
-        if (checkBounds) checkBounds(i0, i1, i2, i3);
+        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+            raiseBoundsError(i0, i1, i2, i3);
+        }
+        if (checkPlace() && dist(i0,i1,i2,i3) != here) {
+            raisePlaceError(i0,i1,i2,i3);
+        }
         return raw()(layout().offset(i0,i1,i2,i3));
     }
 
 
-    //
-    // high-performance methods here to facilitate inlining
-    // XXX but ref to here and rail accesses make this not so high performance
-    //
+    // XXXX settable order
+    public final safe global def set(v: T, pt: Point(rank)): T {
+        if (checkBounds() && !region.contains(pt)) {
+            raiseBoundsError(pt);
+        }
+        if (checkPlace() && dist(pt) != here) {
+            raisePlaceError(pt);
+        }
+        val r = raw();
+        r(layout().offset(pt)) = v;
+        return v;
+    }
 
     final public safe global def set(v: T, i0: int){rank==1}: T {
-        if (checkPlace) checkPlace(i0);
-        if (checkBounds) checkBounds(i0);
+        if (checkBounds() && !region.contains(i0)) {
+            raiseBoundsError(i0);
+        }
+        if (checkPlace() && dist(i0) != here) {
+            raisePlaceError(i0);
+        }
         raw()(layout().offset(i0)) = v;
         return v;
     }
 
     final public safe global def set(v: T, i0: int, i1: int){rank==2}: T {
-        if (checkPlace) checkPlace(i0, i1);
-        if (checkBounds) checkBounds(i0, i1);
+        if (checkBounds() && !region.contains(i0, i1)) {
+            raiseBoundsError(i0, i1);
+        }
+        if (checkPlace() && dist(i0,i1) != here) {
+            raisePlaceError(i0,i1);
+        }
         raw()(layout().offset(i0,i1)) = v;
         return v;
     }
 
     final public safe global def set(v: T, i0: int, i1: int, i2: int){rank==3}: T {
-        if (checkPlace) checkPlace(i0, i1, i2);
-        if (checkBounds) checkBounds(i0, i1, i2);
+        if (checkBounds() && !region.contains(i0, i1, i2)) {
+            raiseBoundsError(i0, i1, i2);
+        }
+        if (checkPlace() && dist(i0,i1,i2) != here) {
+            raisePlaceError(i0,i1,i2);
+        }
         raw()(layout().offset(i0,i1,i2)) = v;
         return v;
     }
 
     final public safe global def set(v: T, i0: int, i1: int, i2: int, i3: int){rank==4}: T {
-        if (checkPlace) checkPlace(i0, i1, i2, i3);
-        if (checkBounds) checkBounds(i0, i1, i2, i3);
+        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+            raiseBoundsError(i0, i1, i2, i3);
+        }
+        if (checkPlace() && dist(i0,i1,i2,i3) != here) {
+            raisePlaceError(i0,i1,i2,i3);
+        }
         raw()(layout().offset(i0,i1,i2,i3)) = v;
         return v;
     }
@@ -235,85 +299,6 @@ public class DistArray[T] (
 
 ///// TODO: BELOW HERE IS CODE PULLED IN FROM BaseArray.  Need to reorgzinze this.
 
-
-
-    //
-    // low-perfomance methods here
-    // high-performance methods are in subclass to facilitate inlining
-    //     
-
-    public final safe global def apply(pt: Point(rank)): T {
-        if (checkPlace) checkPlace(pt);
-        if (checkBounds) checkBounds(pt);
-        return raw()(layout().offset(pt));
-    }
-
-    public final safe global def get(pt: Point(rank)): T = apply(pt);
-
-    // XXXX settable order
-    public final safe global def set(v: T, pt: Point(rank)): T {
-        if (checkPlace) checkPlace(pt);
-        if (checkBounds) checkBounds(pt);
-        val r = raw();
-        r(layout().offset(pt)) = v;
-        return v;
-    }
-	
-    @Native("java", "(!`NO_CHECKS`)")
-    @Native("c++", "BOUNDS_CHECK_BOOL")
-    const checkBounds = true;
-
-    @Native("java", "(!`NO_CHECKS`)")
-    @Native("c++", "PLACE_CHECK_BOOL")
-    const checkPlace = true;
-
-    // TODO: XTENLANG-1188;  This field should be a const, but C++ backend generates bad code if it is
-    global val bounds = (pt:Point):RuntimeException =>
-        new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
-
-    // TODO: XTENLANG-1188;  This field should be a const, but C++ backend generates bad code if it is
-    global val place = (pt:Point):RuntimeException =>
-        new BadPlaceException("point " + pt + " not defined at " + here);
-
-    safe global def checkBounds(pt: Point(rank)) {
-        region.check(bounds, pt);
-    }
-
-    safe global def checkBounds(i0: int){rank==1} {
-        region.check(bounds, i0);
-    }
-
-    safe global def checkBounds(i0: int, i1: int){rank==2} {
-        region.check(bounds, i0, i1);
-    }
-
-    safe global def checkBounds(i0: int, i1: int, i2: int){rank==3} {
-        region.check(bounds, i0, i1, i2);
-    }
-
-    safe global def checkBounds(i0: int, i1: int, i2: int, i3: int){rank==4} {
-        region.check(bounds, i0, i1, i2, i3);
-    }
-
-    safe global def checkPlace(pt: Point(rank)) {
-        dist.get(here).check(place, pt);
-    }
-
-    safe global def checkPlace(i0: int){rank==1} {
-        dist.get(here).check(place, i0);
-    }
-
-    safe global def checkPlace(i0: int, i1: int){rank==2} {
-        dist.get(here).check(place, i0, i1);
-    }
-
-    safe global def checkPlace(i0: int, i1: int, i2: int){rank==3} {
-        dist.get(here).check(place, i0, i1, i2);
-    }
-
-    safe global def checkPlace(i0: int, i1: int, i2: int, i3: int){rank==4} {
-        dist.get(here).check(place, i0, i1, i2, i3);
-    }
     //
     // views
     //
@@ -441,6 +426,38 @@ public class DistArray[T] (
     public global def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 
 
+    private global safe @NoInline @NoReturn def raiseBoundsError(i0:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
+    }    
+    private global safe @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in array");
+    }    
+    private global safe @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in array");
+    }    
+    private global safe @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in array");
+    }    
+    private global safe @NoInline @NoReturn def raiseBoundsError(pt:Point(rank)) {
+        throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
+    }    
+
+
+    private global safe @NoInline @NoReturn def raisePlaceError(i0:int) {
+        throw new BadPlaceException("point (" + i0 + ") not defined at " + here);
+    }    
+    private global safe @NoInline @NoReturn def raisePlaceError(i0:int, i1:int) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+") not defined at " + here);
+    }    
+    private global safe @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+") not defined at " + here);
+    }    
+    private global safe @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int, i3:int) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not defined at " + here);
+    }    
+    private global safe @NoInline @NoReturn def raisePlaceError(pt:Point(rank)) {
+        throw new BadPlaceException("point " + pt + " not defined at " + here);
+    }    
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
