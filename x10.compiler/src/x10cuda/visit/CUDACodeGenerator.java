@@ -484,19 +484,20 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         	//System.out.println(b);
         	/* example of KMeansCUDA kernel
 				{
-				    [OPTIONAL] final x10.lang.Int{self==8} blocks = x10.compiler.CUDAUtilities.autoBlocks();
-				    [OPTIONAL] final x10.lang.Int{self==1} threads = x10.compiler.CUDAUtilities.autoThreads();
+				    [OPTIONAL] final x10.lang.Int blocks = x10.compiler.CUDAUtilities.autoBlocks();
+				    [OPTIONAL] final x10.lang.Int threads = x10.compiler.CUDAUtilities.autoThreads();
+	                [OPTIONAL]* final x10.lang.Rail[x10.lang.Float] cmem = x10.lang.Rail.make[x10.lang.Float](x10.lang.Int.operator*(num_clusters, 4), clusters_copy);
 				    {
-				        final x10.lang.Int{self==0} block321min322 = 0;
-				        final x10.lang.Int block321max323 = x10.lang.Int{self==8, blocks==8}.operator-(blocks, 1);
-				        for (x10.lang.Int{self==0} block321 = block321min322;; x10.lang.Int{self==0}.operator<=(block321, block321max323)eval(block321 += 1);) {
+				        final x10.lang.Int block321min322 = 0;
+				        final x10.lang.Int block321max323 = x10.lang.Int.operator-(blocks, 1);
+				        for (x10.lang.Int block321 = block321min322;; x10.lang.Int{self==0}.operator<=(block321, block321max323)eval(block321 += 1);) {
 				            final x10.lang.Int block = block321;
 				            {
-				                final x10.lang.Rail[x10.lang.Float]{self.home==gpu} clustercache = x10.lang.Rail.make[x10.lang.Float](x10.lang.Int{self==num_clusters}.operator*(num_clusters, 4), clusters_copy);
+				                [OPTIONAL]* final x10.lang.Rail[x10.lang.Float] clustercache = x10.lang.Rail.make[x10.lang.Float](x10.lang.Int.operator*(num_clusters, 4), clusters_copy);
 				                {
 				                    final x10.lang.Int{self==0} thread318min319 = 0;
-				                    final x10.lang.Int thread318max320 = x10.lang.Int{self==1, threads==1}.operator-(threads, 1);
-				                    for (x10.lang.Int{self==0} thread318 = thread318min319;; x10.lang.Int{self==0}.operator<=(thread318, thread318max320)eval(thread318 += 1);) {
+				                    final x10.lang.Int thread318max320 = x10.lang.Int.operator-(threads, 1);
+				                    for (x10.lang.Int{self==0} thread318 = thread318min319;; x10.lang.Int.operator<=(thread318, thread318max320)eval(thread318 += 1);) {
 				                        final x10.lang.Int thread = thread318;
 				                        {
 				                            eval(x10.lang.Runtime.runAsync( (){}: x10.lang.Void => { ... }));
@@ -511,11 +512,42 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             assert !generatingKernel() : "Nesting of cuda annotation makes no sense.";
             // TODO: assert the block is the body of an async
 
-            assert b.statements().size()==1 || b.statements().size()==3 : b.statements();
-            if (b.statements().size()==3) {
-                checkAutoVar(b.statements().get(0));
-                checkAutoVar(b.statements().get(1));
+            assert b.statements().size()>=1 : b.statements();
+            
+            // handle autoblocks/autothreads and constant memory declarations
+            for (int i=0 ; i<b.statements().size()-1 ; ++i) {
+            	Stmt ld_ = b.statements().get(i);
+                assert ld_ instanceof LocalDecl : ld_.getClass(); // FIXME: proper error
+                LocalDecl s_ = (LocalDecl)ld_;
+                
+                Expr init_expr = s_.init();
+                assert init_expr instanceof X10Call_c : init_expr.getClass(); // FIXME: proper error
+                X10Call_c init_call = (X10Call_c) init_expr;
+                
+                Receiver init_call_target = init_call.target();
+                assert init_call_target instanceof CanonicalTypeNode : init_call_target.getClass(); // FIXME: proper error
+                CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
+                
+                String classname = init_call_target_node.nameString();
+                int targs = init_call.typeArguments().size();
+                int args = init_call.arguments().size();
+                String methodname = init_call.name().toString();
+                
+                if (classname.equals("CUDAUtilities") && targs==0 && args==0 && methodname.equals("autoBlocks")) {
+                    assert context().autoBlocks()==null : "Already have autoBlocks: "+context().autoBlocks();
+                    context().autoBlocks(s_);
+                    context().established().autoBlocks(s_);
+                } else if (classname.equals("CUDAUtilities") && targs==0 && args==0 && methodname.equals("autoThreads")) {
+                    assert context().autoThreads()==null : "Already have autoThreads: "+context().autoThreads();
+                    context().autoThreads(s_);
+                    context().established().autoThreads(s_);
+                } else if (classname.equals("Rail") && targs==2 && args==2 && methodname.equals("make")) {
+                	//
+                } else {
+                    assert false : init_call;
+                }
             }
+
             Stmt for_block_ = b.statements().get(b.statements().size()-1);
             assert for_block_ instanceof Block : for_block_.getClass(); // FIXME: proper
             // error
