@@ -117,6 +117,7 @@ import x10.ast.Range_c;
 import x10.ast.RegionMaker_c;
 import x10.ast.Region_c;
 import x10.ast.SettableAssign_c;
+import x10.ast.StmtExpr_c;
 import x10.ast.StmtSeq_c;
 import x10.ast.SubtypeTest_c;
 import x10.ast.Tuple_c;
@@ -215,9 +216,9 @@ public class X10DelegatingVisitor {
 		if (n instanceof AssignPropertyCall_c) { visit((AssignPropertyCall_c)n); return; }
 		if (n instanceof Assert_c) { visit((Assert_c)n); return; }
 		if (n instanceof SwitchBlock_c) { visit((SwitchBlock_c)n); return; }
-		if (n instanceof AssignPropertyBody_c) { visit((AssignPropertyBody_c)n); return; }
 		if (n instanceof StmtSeq_c) { visit((StmtSeq_c)n); return; }
 		if (n instanceof Block_c) { visit((Block_c)n); return; }
+		if (n instanceof AssignPropertyBody_c) { visit((AssignPropertyBody_c)n); return; }
 		if (n instanceof AbstractBlock_c) { visit((AbstractBlock_c)n); return; }
 		if (n instanceof Stmt_c) { visit((Stmt_c)n); return; }
 		if (n instanceof X10MethodDecl_c) { visit((X10MethodDecl_c)n); return; }
@@ -287,6 +288,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof Future_c) { visit((Future_c)n); return; }
 		if (n instanceof Closure_c) { visit((Closure_c)n); return; }
 		if (n instanceof ClosureCall_c) { visit((ClosureCall_c)n); return; }
+		if (n instanceof StmtExpr_c) { visit((StmtExpr_c)n); return; }
 		if (n instanceof Expr_c) { visit((Expr_c)n); return; }
 		if (n instanceof X10ConstructorDecl_c) { visit((X10ConstructorDecl_c)n); return; }
 		if (n instanceof ConstructorDecl_c) { visit((ConstructorDecl_c)n); return; }
@@ -389,6 +391,7 @@ public class X10DelegatingVisitor {
 					public void visit(AtExpr_c n) { visit((Expr_c)n); }
 					public void visit(Future_c n) { visit((Closure_c)n); }
 				public void visit(ClosureCall_c n) { visit((Expr_c)n); }
+				public void visit(StmtExpr_c n) { visit((Expr_c)n); }
 			public void visit(FieldDecl_c n) { visit((Term_c)n); }
 				public void visit(X10FieldDecl_c n) { visit((FieldDecl_c)n); }
 					public void visit(PropertyDecl_c n) { visit((X10FieldDecl_c)n); }
@@ -399,9 +402,9 @@ public class X10DelegatingVisitor {
 				public void visit(X10MethodDecl_c n) { visit((MethodDecl_c)n); }
 			public void visit(Stmt_c n) { visit((Term_c)n); }
 				public void visit(AbstractBlock_c n) { visit((Stmt_c)n); }
+					public void visit(AssignPropertyBody_c n) { visit((AbstractBlock_c)n); }
 					public void visit(Block_c n) { visit((AbstractBlock_c)n); }
 					public void visit(StmtSeq_c n) { visit((AbstractBlock_c)n); }
-						public void visit(AssignPropertyBody_c n) { visit((StmtSeq_c)n); }
 					public void visit(SwitchBlock_c n) { visit((AbstractBlock_c)n); }
 				public void visit(Assert_c n) { visit((Stmt_c)n); }
 				public void visit(AssignPropertyCall_c n) { visit((Stmt_c)n); }

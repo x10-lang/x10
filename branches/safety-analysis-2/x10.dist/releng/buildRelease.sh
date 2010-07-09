@@ -22,11 +22,6 @@ while [ $# != 0 ]; do
         svn_command=co
     ;;
 
-    -platform)
-        export X10_PLATFORM=$2
-	shift
-    ;;
-
     -dir)
         workdir=$2
 	shift
@@ -50,10 +45,20 @@ if [[ -z "$X10_TAG" ]]; then
     exit 1
 fi
 
-if [[ -z "$X10_PLATFORM" ]]; then
-    echo "usage: $0 must give X10 platform as -platform <platform>"
-    exit 1
-fi
+UNAME=`uname -smp | sed -e 's/ /,/g'`
+case "$UNAME" in
+  CYGWIN*,i*86,*) export X10_PLATFORM='cygwin_x86';;
+  Linux,*86_64*,*) export X10_PLATFORM='linux_x86_64';;
+  Linux,*86*,*) export X10_PLATFORM='linux_x86';;
+  Linux,ppc*,*) export X10_PLATFORM='linux_ppc';;
+  AIX,*,powerpc) export X10_PLATFORM='aix_ppc';;
+  Darwin,*,i*86) export X10_PLATFORM='macosx_x86'
+      export USE_32BIT=true
+      export USE_64BIT=true
+   ;;
+    
+  *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
+esac
 
 date
 

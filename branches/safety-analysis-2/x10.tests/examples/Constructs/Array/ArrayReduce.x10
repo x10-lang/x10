@@ -20,12 +20,13 @@ public class ArrayReduce extends TestArray {
     public const N: int = 9;
 
     public def run(): boolean {
+	chk(Place.places.length == 4, "This test must be run with 4 places");
 
-        val dist = Dist.makeBlockCyclic(0..N, 0, 2);
+        val dist = Dist.makeBlock(0..N);
         prDist("dist", dist);
 
         pr("--- original");
-        val a = Array.make[double](dist, (p:Point)=>p(0) as double);
+        val a = DistArray.make[double](dist, (p:Point)=>p(0) as double);
         for (pt:Point(1) in a) {
             val x = (future(a.dist(pt)) a(pt)).force();
             out.print(x + " ");
@@ -51,8 +52,8 @@ public class ArrayReduce extends TestArray {
     }
 
     def expected() = 
-        "--- dist: Dist(0->([0..1] || [8..9]),1->[2..3],2->[4..5],3->[6..7])\n" +
-        "0 0 1 1 2 2 3 3 0 0 \n" +
+        "--- dist: Dist(0->[0..2],1->[3..5],2->[6..7],3->[8..9])\n" + 
+        "0 0 0 1 1 1 2 2 3 3 \n" +
         "--- original\n" +
         "0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 \n" +
         "--- reduced\n" +

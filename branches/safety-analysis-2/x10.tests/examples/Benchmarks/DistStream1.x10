@@ -47,8 +47,8 @@ public class DistStream1 extends Benchmark {
         finish for (var p:int=0; p<PARALLELISM; p++) {
             val pl = Place.place(p);
             val a = as(p) as Rail[double]!pl;
-            val b = bs(p) as Rail[double]!pl;
-            val c = cs(p) as Rail[double]!pl;
+            val b = bs(p);
+            val c = cs(p);
             async (pl) {
                 for (var tt:int=0; tt<NUM_TIMES; tt++) // XTENLANG-311
                     for (var i:int=0; i<localSize; i++)

@@ -16,13 +16,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XFormula_c;
+import x10.constraint.XFormula;
 import x10.constraint.XLit;
-import x10.constraint.XLit_c;
 import x10.constraint.XPromise;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.core.fun.Fun_0_1;
@@ -44,14 +42,14 @@ public class ConstrainedType<T> extends RuntimeType<T> {
     }
     
     public boolean instanceof$(Object o) {
-        return base.instanceof$(o) && (tester == null || tester.apply((T) o));
+        return base.instanceof$(o) && (tester == null || tester.apply$G((T) o));
     }
     
     public boolean isSubtype(Type<?> o) {
     	if (!(o instanceof ConstrainedType))
     		return base.isSubtype(o);
     	ConstrainedType<?> ct = (ConstrainedType<?>) o;
-    	return base.isSubtype(ct.base) && ct.constraint.entails(constraint, null);
+    	return base.isSubtype(ct.base) && ct.constraint.entails(constraint);
 
     }
     
@@ -93,7 +91,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
         return null;
     }
     
-    public static class XSubtype_c extends XFormula_c {
+    public static class XSubtype_c extends XFormula {
         public XSubtype_c(XTerm left, XTerm right) {
             super(XTerms.makeName("<:"), left, right);
             markAsAtomicFormula();
@@ -107,7 +105,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
             return getType(right());
         }
 
-        public XPromise internIntoConstraint(XConstraint_c c, XPromise last) throws XFailure {
+        public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
             Type<?> l = subtype();
             Type<?> r = supertype();
             // Check that l descends from r.  See TODO in SubtypeSolver.java
@@ -117,7 +115,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
             return super.internIntoConstraint(c, last);
         }
 
-        public static <T> Type<T> subst(Type<T> t, XTerm y, XRoot x) {
+        public static <T> Type<T> subst(Type<T> t, XTerm y, XVar x) {
             if (t instanceof ConstrainedType) {
                 ConstrainedType<T> ct = (ConstrainedType<T>) t;
                 Type<T> base = subst(ct.base, y, x);
@@ -147,7 +145,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
             return t;
         }
 
-        public XTerm subst(XTerm y, XRoot x, boolean propagate) {
+        public XTerm subst(XTerm y, XVar x, boolean propagate) {
             List<XTerm> newArgs = new ArrayList<XTerm>();
             boolean changed = false;
             Type<?> left = subtype();
@@ -169,7 +167,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
         }
     }
     
-    public static class XTypeLit_c extends XLit_c {
+    public static class XTypeLit_c extends XLit {
         public XTypeLit_c(Type<?> type) {
         	super(type);
         }
@@ -192,7 +190,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
 			return null;
         }
 
-        public XTerm subst(XTerm y, XRoot x, boolean propagate) {
+        public XTerm subst(XTerm y, XVar x, boolean propagate) {
             XTypeLit_c n = (XTypeLit_c) super.subst(y, x, propagate);
             if (n == this) n = (XTypeLit_c) clone();
             n.val = XSubtype_c.subst(type(), y, x);

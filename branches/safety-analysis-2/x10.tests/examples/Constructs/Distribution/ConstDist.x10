@@ -18,8 +18,8 @@ public class ConstDist extends x10Test {
     
         val R = [0..9, 0..9];
         val D = Dist.makeConstant(R, here);
-        val a = Array.make[double](Dist.makeConstant(R, here));
-        val b = Array.make[double](Dist.makeConstant(R, here));
+        val a = DistArray.make[double](Dist.makeConstant(R, here));
+        val b = DistArray.make[double](Dist.makeConstant(R, here));
         
         x10.io.Console.OUT.println("results are " + a + " " + b);
 

@@ -11,7 +11,7 @@
 
 package x10.util;
 
-public interface Map[-K,V]   {
+public interface Map[K,V]   {
 	public safe def containsKey(k: K): boolean;
 
 	public safe def get(k: K): Box[V];
@@ -28,9 +28,9 @@ public interface Map[-K,V]   {
 
 	public def clear(): void;
 	
-	public def entries(): Set[Entry[K,V]];
+	public def entries(): Set[Entry[K,V]!]!;
 	
-	public interface Entry[Key,Val] {
+	public static interface Entry[Key,Val] {
 	    public def getKey(): Key;
 	    public def getValue(): Val;
 	    public def setValue(Val): void;

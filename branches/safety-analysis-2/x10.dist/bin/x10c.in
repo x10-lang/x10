@@ -57,7 +57,7 @@ EOF
     exit 1
 fi
 
-[ -z "$DEXT" ] && DEXT="x10.ExtensionInfo"
+[ -z "$DEXT" ] && DEXT="x10c.ExtensionInfo"
 [ -z "$ext" ] && ext="$DEXT"
 
 CONFIG_DIR="${TOP}${FILE_SEP}etc"
@@ -73,12 +73,6 @@ fi
 extargs=""
 # [DC] assert should be off by default
 # extargs="$extargs -assert"
-# FIXME: HACK (at Vijay's request)
-# FIXME: [DC] this is now a no-op?
-# To be removed once serialization of types is fixed in x10c
-# HACK!!! HACK!!! HACK!!! vvv
-extargs="$extargs -noserial"
-# HACK!!! HACK!!! HACK!!! ^^^
 
 classpath="${CP_OVERRIDE}"
 [ -n "$dev" ] && classpath="${classpath}${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot3-dev${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
@@ -92,10 +86,10 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 
 # Set flags to generate optimized code if we've been asked to do so.
 if [[ "$optimize" = "true" ]]; then
-  args=" -BAD_PLACE_RUNTIME_CHECK=false -OPTIMIZE=true $args"
+  args=" -OPTIMIZE=true $args"
 fi
 
-if [[ "$ext" = "x10.ExtensionInfo" ]]; then
+if [[ "$ext" = "x10c.ExtensionInfo" ]]; then
   # Java backend
   command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post 'java -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.5 -nowarn' -extclass $ext $extargs $args"
 else

@@ -25,6 +25,9 @@
 #ifdef M_LOG2_E
 #  define SAVE_EXTRA_CONSTANTS
 #endif
+#ifdef DOMAIN
+#  define SAVE_MATHERR_CONSTANTS
+#endif
 #ifdef signgam
 #  define SAVE_SIGNGAM
 #endif
@@ -96,13 +99,15 @@ namespace x10aux {
         #ifdef SAVE_SIGNGAM
         SAVE_MATH_CONST(int, signgam);
         #endif
-        #ifdef SAVE_CONSTANTS
+        #ifdef SAVE_MATHERR_CONSTANTS
         SAVE_MATH_CONST(int, DOMAIN);
         SAVE_MATH_CONST(int, SING);
         SAVE_MATH_CONST(int, OVERFLOW);
         SAVE_MATH_CONST(int, UNDERFLOW);
         SAVE_MATH_CONST(int, TLOSS);
         SAVE_MATH_CONST(int, PLOSS);
+        #endif
+        #ifdef SAVE_CONSTANTS
         SAVE_MATH_CONST(double, M_E);
         SAVE_MATH_CONST(double, M_LOG2E);
         SAVE_MATH_CONST(double, M_LOG10E);

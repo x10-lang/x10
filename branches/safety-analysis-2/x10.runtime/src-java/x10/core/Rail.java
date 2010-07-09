@@ -12,8 +12,12 @@
 package x10.core;
 
 import x10.core.fun.Fun_0_1;
+import x10.rtt.ParameterizedType;
+import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.rtt.UnresolvedType;
+import x10.rtt.RuntimeType.Variance;
 
 public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T> {
     public final int length;
@@ -31,7 +35,19 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
         this.value = array;
     }
     
-	public Iterator<T> iterator() {
+    public void copyToLocal(int src_off, Rail<T> dst, int dst_off, int len) {
+        System.arraycopy(value, src_off, dst.value, dst_off, len);
+    }
+
+    public void copyFromLocal(int dst_off, Rail<T> src, int src_off, int len) {
+        System.arraycopy(src.value, src_off, value, dst_off, len);
+    }
+
+    public void copyFromLocal(int  dst_off, ValRail<T> src, int src_off, int len) {
+        System.arraycopy(src.value, src_off, value, dst_off, len);
+    }
+
+    public Iterator<T> iterator() {
 		return new RailIterator();
 	}
 
@@ -42,8 +58,8 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
 			return i < length;
 		}
 
-		public T next() {
-			return apply(i++);
+		public T next$G() {
+			return apply$G(i++);
 		}
 	}
 
@@ -104,16 +120,20 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
     	return (Object[]) value;
     }
 
-    public Integer length() {
-    	return length;
+    public int length() {
+        return length;
     }
     
-    public T get(Integer i) {
-    	return apply(i);
+    public T get(int i) {
+        return apply$G(i);
     }
     
-    public T apply(Integer i) {
-    	return type.getArray(value, i);
+    public T apply$G(Integer i) {
+    	return apply$G((int)i);
+    }
+
+    public T apply$G(int i) {
+        return type.getArray(value, i);
     }
     
     protected T set$(T v, Integer i) {
@@ -134,19 +154,27 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
         for (int i = 0; i < length; i++) {
             if (i > 0)
                 sb.append(", ");
-            sb.append(apply(i));
+            sb.append(apply$G(i));
         }
         sb.append("]");
         return sb.toString();
     }
 
-    public T set(T v, Integer i) {
+    public T set$G(T v, Integer i) {
+        return set$G(v, (int)i);
+    }
+
+    public T set$G(T v, int i) {
         return type.setArray(value, i, v);
     }
 
     public void reset(T v) {
+        if (home == x10.runtime.impl.java.Thread.currentThread().home()) {
+            RailFactory.resetLocal(value, v);
+            return;
+        }
         for (int i=0; i<length; i++) {
-            set(v, i);
+            set$G(v, i);
         }
     }
     
@@ -155,51 +183,23 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
     //
     
   
+    public ValRail<T> view() {
+        return new ValRail<T>(type, this);
+    }
 
     //
     // Runtime type information
     //
-    
-    static public class RTT<T> extends x10.rtt.RuntimeType<Rail<T>> {
-        Type<T> type;
-        
-        public RTT(Type<T> type) {
-            super(Rail.class);
-            this.type = type;
+    public static final RuntimeType<Rail> _RTT = new RuntimeType<Rail>(
+        Rail.class, 
+        new Variance[] {Variance.INVARIANT},
+        new Type<?>[] {
+            new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(Settable._RTT, Types.INT, new UnresolvedType(0))
         }
-
-        public boolean instanceof$(java.lang.Object o) {
-            if (!(o instanceof Rail))
-                return false;
-            Rail r = (Rail) o;
-            if (! r.type.equals(type)) // invariant
-                return false;
-            return true;
-        }
-        
-        public boolean isSubtype(Type<?> type) {
-            if (type instanceof Rail.RTT) {
-                Rail.RTT r = (Rail.RTT) type;
-                return r.type.equals(this.type);
-            }
-//            if (type instanceof Fun_0_1.RTT) {
-//                Fun_0_1.RTT r = (Fun_0_1.RTT) type;
-//                return r.I.equals(Types.INT) && r.V.equals(this.type);
-//            }
-//            if (type instanceof Settable.RTT) {
-//                Settable.RTT r = (Settable.RTT) type;
-//                return r.I.equals(Types.INT) && r.V.equals(this.type);
-//            }
-            return false;
-        }
-    }
-
-    public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
-    public Type<?> rtt_x10$lang$Fun_0_1_U()  { return type; }
-    public Type<?> rtt_x10$lang$Settable_I() { return Types.INT; }
-    public Type<?> rtt_x10$lang$Settable_V() { return type; }
-    
-    public ValRail<T> view() {
-    	return new ValRail<T>(type, this);
+    );
+    public RuntimeType<Rail> getRTT() {return _RTT;}
+    public Type<?> getParam(int i) {
+        return i == 0 ? type : null;
     }
 }

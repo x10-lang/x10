@@ -22,10 +22,9 @@ public class Array1 extends x10Test {
 
     public def run(): boolean = {
 
-        val e:Region{rank==1} = 1..10;
-        val r:Region{rank==2} = [e,e];
-        val d = r->here;
-        val ia: Array[int](d) = Array.make[int](d, (Point)=>0);
+        val e = 1..10;
+        val r = [e,e] as Region;
+        val ia = new Array[int](r, (Point)=>0);
 
         for (p(i) in e) {
             for (q(j) in e) {
@@ -34,7 +33,7 @@ public class Array1 extends x10Test {
             }
         }
 
-        for (val p(i,j): Point(2) in d) {
+        for (val p(i,j): Point(2) in r) {
             val q1:Point(2) = [i,j];
             chk(i == q1(0));
             chk(j == q1(1));

@@ -17,33 +17,25 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 
 public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
-    //"mpCC_r -q64 -qrtti=all -qarch=pwr5 -O3 -qtune=pwr5 -qhot -qinline"
-    //"mpCC_r -q64 -qrtti=all"
-    public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
-    public static final boolean USE_32BIT = System.getenv("USE_32BIT")!=null;
-    
     public AIX_CXXCommandBuilder(Options options, ErrorQueue eq) {
         super(options, eq);
         assert (CXXCommandBuilder.PLATFORM.startsWith("aix_"));
     }
 
-    protected boolean gcEnabled() { return false; }
-
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
         
         if (USE_XLC) {
-            cxxCmd.add("-qsuppress=1540-0809:1540-1101:1500-029");
-            cxxCmd.add(USE_32BIT ? "-q32" : "-q64");
-            cxxCmd.add("-qrtti=all");
-            cxxCmd.add("-bmaxdata:0x80000000");
-            if (XLC_EXTRA_FLAGS != null) {
-                cxxCmd.add(XLC_EXTRA_FLAGS);
+            cxxCmd.add("-qrtti=all"); // AIX specific.
+            if (USE_32BIT) {
+                cxxCmd.add("-bmaxdata:0x80000000");
             }
+            cxxCmd.add("-brtl"); // AIX specific.
         } else {
             cxxCmd.add("-Wno-long-long");
             cxxCmd.add("-Wno-unused-parameter");
             cxxCmd.add("-maix64"); // Assume 64-bit
+            cxxCmd.add("-Wl,-brtl");
         }     
     }
 

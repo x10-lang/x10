@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import polyglot.ast.AmbAssign;
+import polyglot.ast.AmbExpr;
+import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
@@ -43,6 +46,7 @@ import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -56,69 +60,314 @@ import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.FunctionDef;
+import polyglot.types.FunctionInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.SubtypeSet;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeCheckPreparer;
+import x10.Configuration;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
+import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr;
-import x10.ast.SettableAssign_c;
+import x10.ast.SettableAssign;
+import x10.ast.StmtExpr;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
+import x10.ast.X10Local_c;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
+import x10.ast.X10Special;
+import x10.types.ClosureDef;
+import x10.types.ConstrainedType;
+import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10Use;
 import x10.types.checker.Converter;
+import x10.util.Synthesizer;
+import x10cpp.visit.X10SearchVisitor;
+import x10.effects.constraints.Effect;
+import x10.effects.constraints.Effects;
 
 /**
  * This visitor inlines calls to methods and closures under the following
  * conditions:
  * <ul>
  * <li>The exact class of the method target is known.
- * <li>The call appears in either an Eval (e.g., 'm();') or an Eval(Assign) with
- * operator = (e.g., 'x = m();').
- * <li>The method being invoked is annotated @x10.compiler.Inline
+ * <li>The method being invoked is annotated @x10.compiler.Inline .
  * <li>The closure call target is a literal closure.
  * </ul>
  * 
- * @author nystrom
+ * Note that the code produced by the inliner is technically not valid
+ * X10 code -- it may use statement expressions, the variable
+ * declarations in inner blocks may shadow those in the outer blocks,
+ * and it may contain calls to methods and constructors (and accesses
+ * to fields) that would not normally be accessible from the starting
+ * context.
  * 
+ * To produce valid X10 code (by limiting the contexts for inlining),
+ * set ALLOW_STMTEXPR to false.
+ * 
+ * @author nystrom
+ * @author igor
+ * @author alpern
  */
 public class Inliner extends ContextVisitor {
 
-    Type InlineType;
+    /**
+     * Allow inlining in all contexts.  Can only be done if the backend supports
+     * emitting statement expression nodes.  Otherwise, only inline in statement
+     * contexts.
+     * 
+     * This constant also controls the use of other non-X10 features, like
+     * having shadowed variable declarations, calls to inaccessible methods and
+     * constructors, and accesses to inaccessible fields.
+     */
+    private static final boolean ALLOW_STMTEXPR = true;
+
+    /**
+     * A rather arbitrary inlining depth limit.
+     */
+    private static final int INLINE_DEPTH_LIMIT = 10;
+
+    /**
+     * The cached type of the @Inline annotation.
+     */
+    private Type InlineType;
 
     public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
     }
 
+    public static final QName INLINE_ANNOTATION = QName.make("x10.compiler.Inline");
+
     @Override
     public NodeVisitor begin() {
         try {
-            InlineType = (Type) ts.systemResolver().find(QName.make("x10.compiler.Inline"));
+            InlineType = (Type) ts.systemResolver().find(INLINE_ANNOTATION);
         }
         catch (SemanticException e) {
+            System.out.println("Unable to find "+INLINE_ANNOTATION+": "+e);
             InlineType = null;
         }
         return super.begin();
+    }
+
+    private X10ClassDef getContainer(X10MethodDef md) {
+        Type containerBase = X10TypeMixin.baseType(Types.get(md.container()));
+        assert (containerBase instanceof X10ClassType);
+        return ((X10ClassType) containerBase).x10Def();
+    }
+
+    private X10MethodDecl getDeclaration(final X10MethodDef md) {
+        if (md.annotationsMatching(InlineType).isEmpty()) return null;
+        X10ClassDef cd = getContainer(md);
+        if (!md.flags().isStatic() && !md.flags().isFinal() && !cd.flags().isFinal() && !cd.isStruct()) return null;
+        Job job = cd.job();
+        if (job == null) return null;
+        Node ast = job.ast();
+        if (job != this.job()) {
+            ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
+        }
+//        job.ast(ast);
+//        System.out.println("==> Typechecked "+cd);
+        final X10MethodDecl[] decl = new X10MethodDecl[1];
+        ast.visit(new NodeVisitor() {
+            public Node override(Node n) {
+                if (n instanceof Expr || n instanceof Stmt || n instanceof TypeNode) { // FIXME: for any local classes 
+                    return n;
+                }
+                if (decl[0] != null) {
+                    return n;
+                }
+                return null;
+            }
+            public Node leave(Node old, Node n, NodeVisitor v) {
+                if (n instanceof X10MethodDecl) {
+                    X10MethodDecl d = (X10MethodDecl) n;
+                    if (d.methodDef() == md)
+                        decl[0] = d;
+                }
+                return n;
+            }
+        });
+        return decl[0];
+    }
+
+    private Type instantiate(X10MethodInstance mi, List<Type> tArgs, ParameterType t) {
+        List<Ref<? extends Type>> mParms = mi.x10Def().typeParameters();
+        List<Type> mArgs = mi.typeParameters();
+        int i = 0;
+        for (Ref<? extends Type> tpr : mParms) {
+            if (t.typeEquals(tpr.get(), context))
+                return mArgs.get(i);
+            ++i;
+        }
+        X10ClassType ct = (X10ClassType) mi.container();
+        X10ClassDef cd = ct.x10Def();
+        tArgs = ct.typeArguments();
+        List<ParameterType> tParms = cd.typeParameters();
+        i = 0;
+        for (ParameterType pt : tParms) {
+            if (t.typeEquals(pt, context))
+                return tArgs.get(i);
+            ++i;
+        }
+        return null;
+    }
+
+    private Type instantiate(X10MethodInstance mi, List<Type> tArgs, ConstrainedType t) {
+        Type bt = Types.get(t.baseType());
+        Type ibt = instantiate(mi, tArgs, bt);
+        if (ibt == bt) return t;
+        return X10TypeMixin.constrainedType(ibt, Types.get(t.constraint()));
+    }
+
+    private Type instantiate(X10MethodInstance mi, List<Type> tArgs, Type t) {
+        if (t instanceof ConstrainedType) {
+            return instantiate(mi, tArgs, (ConstrainedType) t);
+        } else if (t instanceof ParameterType) {
+            return instantiate(mi, tArgs, (ParameterType) t);
+        }
+        return t;
+    }
+
+    private X10MethodDecl instantiate(final X10MethodDecl decl, X10Call c) {
+        final X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+        final List<Type> tArgs = new ArrayList<Type>();
+        for (TypeNode tn : c.typeArguments()) {
+            tArgs.add(tn.type());
+        }
+        final HashMap<Name, LocalDef> vars = new HashMap<Name, LocalDef>();
+        return (X10MethodDecl) decl.visit(new ContextVisitor(job, ts, nf) {
+            protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+                if (n instanceof TypeNode) {
+                    Type type = ((TypeNode) n).type();
+                    Type iType = instantiate(mi, tArgs, type);
+                    if (iType != type) {
+                        return ((TypeNode) n).typeRef(Types.ref(iType));
+                    }
+                }
+                if (n instanceof Expr) {
+                    Expr e = (Expr) n;
+                    Expr ie = e.type(instantiate(mi, tArgs, e.type()));
+                    if (ie instanceof X10Call) {
+                        X10Call c = (X10Call) ie;
+                        if (c.isTargetImplicit()) {
+                            c = (X10Call) c.targetImplicit(false);
+                        }
+                        return c.typeCheck(this);
+                    } else if (ie instanceof Field) {
+                        Field f = (Field) ie;
+                        if (f.isTargetImplicit()) {
+                            f = (Field) f.targetImplicit(false);
+                        }
+                        return f.typeCheck(this);
+                    } else if (ie instanceof Local) {
+                        LocalDef ld = vars.get(((Local) ie).name().id());
+                        if (ld != null) {
+                            return ((Local) ie).localInstance(ld.asInstance());
+                        }
+                    }
+                    return ie;
+                }
+                if (n instanceof LocalDecl) {
+                    LocalDecl d = (LocalDecl) n;
+                    boolean sigChanged = d.type() != ((LocalDecl) old).type();
+                    if (sigChanged) {
+                        LocalDef ld = d.localDef();
+                        Name name = ld.name();
+                        LocalDef ild = ts.localDef(ld.position(), ld.flags(), d.type().typeRef(), name);
+                        vars.put(name, ild); // FIXME: scoping
+                        return d.localDef(ild);
+                    }
+                }
+                if (n instanceof Formal) {
+                    Formal f = (Formal) n;
+                    boolean sigChanged = f.type() != ((Formal) old).type();
+                    if (sigChanged) {
+                        LocalDef ld = f.localDef();
+                        Name name = ld.name();
+                        LocalDef ild = ts.localDef(ld.position(), ld.flags(), f.type().typeRef(), name);
+                        vars.put(name, ild);
+                        return f.localDef(ild);
+                    }
+                }
+                if (n instanceof ClassDecl) {
+                    ClassDecl d = (ClassDecl) n;
+                    boolean sigChanged = d.superClass() != ((ClassDecl) old).superClass();
+                    List<TypeNode> interfaces = d.interfaces();
+                    List<TypeNode> oldInterfaces = ((ClassDecl) old).interfaces();
+                    for (int i = 0; i < interfaces.size(); i++) {
+                        sigChanged |= interfaces.get(i) != oldInterfaces.get(i);
+                    }
+                    if (sigChanged) {
+                        throw new InternalCompilerError("Inlining of code with instantiated local classes not supported");
+                    }
+                }
+                if (n instanceof X10MethodDecl) {
+                    X10MethodDecl d = (X10MethodDecl) n;
+                    boolean sigChanged = d.returnType() != ((X10MethodDecl) old).returnType();
+                    List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+                    List<LocalDef> formalNames = new ArrayList<LocalDef>();
+                    List<Formal> params = d.formals();
+                    List<Formal> oldParams = ((X10MethodDecl) old).formals();
+                    for (int i = 0; i < params.size(); i++) {
+                        Formal p = params.get(i);
+                        sigChanged |= p != oldParams.get(i);
+                        argTypes.add(p.type().typeRef());
+                        formalNames.add(p.localDef());
+                    }
+                    sigChanged |= d.guard() != ((X10MethodDecl) old).guard();
+                    List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
+                    SubtypeSet excs = d.exceptions();
+                    SubtypeSet oldExcs = ((X10MethodDecl) old).exceptions();
+                    for (Type et : excs) {
+                        sigChanged |= !oldExcs.contains(et);
+                        excTypes.add(Types.ref(et));
+                    }
+                    sigChanged |= d.offerType() != ((X10MethodDecl) old).offerType();
+                    if (sigChanged) {
+                        X10MethodDef md = (X10MethodDef) d.methodDef();
+                        X10TypeSystem xts = (X10TypeSystem) ts;
+                        DepParameterExpr g = d.guard();
+                        TypeNode ot = d.offerType();
+                        X10MethodDef imd = xts.methodDef(md.position(), md.container(), md.flags(), d.returnType().typeRef(),
+                                                    Types.ref(Effects.makeUnsafe()), md.name(), md.typeParameters(), argTypes, md.thisVar(), formalNames,
+                                                     g == null ? null : g.valueConstraint(),
+                                                     g == null ? null : g.typeConstraint(), excTypes,
+                                                     ot == null ? null : ot.typeRef(), null /* the body will never be used */);
+                        return d.methodDef(imd);
+                    }
+                }
+                return n;
+            }
+        }.context(context()));
     }
 
     /**
@@ -131,52 +380,27 @@ public class Inliner extends ContextVisitor {
      * @return Either the method body, with suitable substitutions, or
      *         s_if_cannot_inline.
      */
-    public Stmt inline(Stmt s_if_cannot_inline, X10Call c, final X10MethodDef md, Expr result) {
+    public Stmt inline(Stmt s_if_not_inline, X10Call c, X10MethodInstance mi, Expr result) {
+        if (!staticTypeIsExact(c.target()) && !mi.flags().isFinal())
+            return s_if_not_inline;
+
+        final X10MethodDef md = mi.x10Def();
+
         // Don't inline recursively.  Recursive inlining will be handled when this method is inlined elsewhere.
         if (md == context().currentCode())
-            return s_if_cannot_inline;
+            return s_if_not_inline;
 
-        Type container = Types.get(md.container());
-        Type base = X10TypeMixin.baseType(container);
-        if (base instanceof X10ClassType) {
-            X10ClassDef cd = ((X10ClassType) base).x10Def();
-            Job job = cd.job();
-            if (job != null) {
-                Node ast = job.ast();
-                final X10MethodDecl[] decl = new X10MethodDecl[1];
-                ast.visit(new NodeVisitor() {
-                    public Node override(Node n) {
-                        if (n instanceof Expr || n instanceof Stmt || n instanceof TypeNode) {
-                            return n;
-                        }
-                        return null;
-                    }
-
-                    public Node leave(Node old, Node n, NodeVisitor v) {
-                        if (n instanceof X10MethodDecl) {
-                            X10MethodDecl d = (X10MethodDecl) n;
-                            if (d.methodDef() == md)
-                                decl[0] = d;
-                        }
-                        return n;
-                    }
-                });
-
-                X10MethodDecl decl0 = decl[0];
-                if (decl0 != null) {
-                    if (canInlineHere(decl0.body(), context().currentClassDef())) {
-                        if (Report.should_report("inline", 1))
-                            Report.report(1, "Inlining call " + c + " into " + context().currentCode());
-                        return rewriteBody(decl0.body(), decl0.typeParameters(), decl0.formals(), c.target(), c.typeArguments(), c.arguments(), result, cd);
-                    }
-                    else {
-                        if (Report.should_report("inline", 1))
-                            Report.report(1, "Cannot inline call " + c + " into " + context().currentCode() + "; inlined code would be illegal");
-                    }
-                }
-            }
+        X10MethodDecl decl = getDeclaration(md);
+        if (decl == null)
+            return s_if_not_inline;
+        if (!canInlineHere(decl.body(), context().currentClassDef())) {
+            if (Report.should_report("inline", 1))
+                Report.report(1, "Cannot inline call " + c + " into " + context().currentCode() + "; inlined code would be illegal");
+            return s_if_not_inline;
         }
-        return s_if_cannot_inline;
+        if (Report.should_report("inline", 1))
+            Report.report(1, "Inlining call " + c + " into " + context().currentCode());
+        return rewriteBody(decl.body(), decl.typeParameters(), decl.formals(), c.target(), c.typeArguments(), c.arguments(), result, getContainer(md));
     }
 
     private boolean canInlineHere(Block body, final ClassDef currentClassDef) {
@@ -551,14 +775,15 @@ public class Inliner extends ContextVisitor {
             assert (e instanceof Field);
             assert ((Field) e).fieldInstance() != null;
             a = ((FieldAssign) a).fieldInstance(((Field)e).fieldInstance());
-        } else if (a instanceof SettableAssign_c) {
+        } else if (a instanceof SettableAssign) {
             assert (e instanceof X10Call);
             MethodInstance ami = ((X10Call)e).methodInstance();
             List<Type> aTypes = new ArrayList<Type>(ami.formalTypes());
             aTypes.add(0, ami.returnType());
             MethodInstance smi = xts.findMethod(ami.container(),
                                                 xts.MethodMatcher(ami.container(), Name.make("set"), aTypes, context));
-            a = ((SettableAssign_c) a).methodInstance(smi);
+            a = ((SettableAssign) a).methodInstance(smi);
+            a = ((SettableAssign) a).applyMethodInstance(ami);
         }
         return a;
     }
@@ -614,8 +839,7 @@ public class Inliner extends ContextVisitor {
         });
     }
 
-    static final int limit = 10;
-    int count;
+    private int count;
 
     /** Return a clone of this visitor, incrementing the counter. */
     public Inliner inc() {
@@ -624,11 +848,10 @@ public class Inliner extends ContextVisitor {
         return v;
     }
 
-    public Node propagate(Node n) {
+    public Node propagateConstants(Node n) {
         ConstantPropagator cp = new ConstantPropagator(job, ts, nf);
         cp = (ConstantPropagator) cp.context(context());
-        Node n1 = n.visit(cp);
-        return n1;
+        return n.visit(cp);
     }
 
     @Override
@@ -764,11 +987,353 @@ public class Inliner extends ContextVisitor {
         throw new MoreThanOne();
     }
 
-    public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (InlineType == null)
-            return n;
+    /**
+     * Cast a given expression to a given type, unless it is already of that type.
+     * TODO: factor out to Synthesizer
+     * @param a the given expression
+     * @param fType the given type
+     * @return a cast node, or the original expression
+     */
+    private Expr cast(Expr a, Type fType) {
+        X10TypeSystem xts = (X10TypeSystem) typeSystem();
+        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+        Context context = context();
+        if (!xts.typeDeepBaseEquals(fType, a.type(), context)) {
+            Position pos = a.position();
+            a = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, fType), a,
+                            Converter.ConversionType.UNCHECKED).type(fType);
+        }
+        return a;
+    }
 
-        // Inline simple getters and setters 
+    /**
+     * Create a reference to a local variable with a given def.
+     * TODO: factor out to Synthesizer.
+     * @param pos the position
+     * @param t the given local def
+     * @return the local node
+     */
+    private Expr local(Position pos, LocalDef t) {
+        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+        LocalInstance li = t.asInstance();
+        return xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
+    }
+
+    private LocalDef computeThis(MethodDef def) {
+        X10TypeSystem xts = (X10TypeSystem) typeSystem();
+        if (def.flags().isStatic()) return null;
+        return xts.localDef(def.position(), xts.Final(), def.container(), Name.makeFresh("this"));
+    }
+
+    /**
+     * Rewrites a given closure so that it has exactly one return statement at the end.
+     * @author igor
+     * TODO: factor out into its own class
+     */
+    public class InliningRewriter extends ContextVisitor {
+        private final FunctionDef def;
+        private final LocalDef ths;
+        private final LocalDef ret;
+        private final Name label;
+        public InliningRewriter(Closure closure) {
+            this(closure.closureDef(), null, closure.body().statements());
+        }
+        public InliningRewriter(X10MethodDecl decl, LocalDef ths) {
+            this(decl.methodDef(), ths, decl.body().statements());
+        }
+        private InliningRewriter(FunctionDef def, LocalDef ths, List<Stmt> body) {
+            super(Inliner.this.job(), Inliner.this.typeSystem(), Inliner.this.nodeFactory());
+            this.context = Inliner.this.context();
+            this.def = def;
+            this.ths = ths;
+            if (body.size() == 1 && body.get(0) instanceof Return) {
+                // Closure already has the right properties; make return rewriting a no-op
+                this.ret = null;
+                this.label = null;
+            } else {
+                X10TypeSystem xts = (X10TypeSystem) typeSystem();
+                Name rn = Name.makeFresh("ret");
+                Type rt = def.returnType().get();
+                this.ret = rt.isVoid() ? null : xts.localDef(def.position(), xts.NoFlags(), Types.ref(rt), rn);
+                this.label = Name.makeFresh("__ret");
+            }
+        }
+        public Node override(Node n) {
+            if (def == null) return n;
+            return null;
+        }
+        // TODO: use override to short-circuit the traversal
+        public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+            if (n instanceof AmbExpr || n instanceof AmbAssign || n instanceof AmbTypeNode) {
+                throw new InternalCompilerError("Ambiguous node found: "+n, n.position());
+            }
+            if (n instanceof X10MethodDecl)
+                return visitMethodDecl((X10MethodDecl)n);
+            if (n instanceof Closure)
+                return visitClosure((Closure)n);
+            if (n instanceof Return)
+                return visitReturn((Return)n);
+            if (n instanceof Field)
+                return visitField((Field)n);
+            if (n instanceof Call)
+                return visitCall((X10Call)n);
+            if (n instanceof X10Call)
+                return visitCall((X10Call)n);
+            if (n instanceof Special)
+                return visitSpecial((Special)n);
+            return n;
+        }
+        private Block rewriteBody(Position pos, Block body) throws SemanticException {
+            if (label == null) return body;
+            X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+            X10TypeSystem xts = (X10TypeSystem) typeSystem();
+            List<Stmt> newBody = new ArrayList<Stmt>();
+            if (ret != null) {
+                newBody.add(xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.NoFlags()),
+                            xnf.CanonicalTypeNode(pos, ret.type()),
+                            xnf.Id(pos, ret.name())).localDef(ret));
+            }
+            newBody.add(xnf.Labeled(pos, xnf.Id(pos, label),
+                        xnf.Do(pos, body, (Expr) xnf.BooleanLit(pos, false).typeCheck(this))));
+            if (ret != null) {
+                Expr rval = xnf.Local(pos, xnf.Id(pos, ret.name())).localInstance(ret.asInstance()).type(ret.type().get());
+                newBody.add(xnf.Return(pos, rval));
+            } else {
+                newBody.add(xnf.Return(pos));
+            }
+            return xnf.Block(body.position(), newBody);
+        }
+        // def m(`x:`T):R=S -> def m(`x:`T)={r:R; L:do{ S[return v/r=v; break L;]; }while(false); return r;}
+        private X10MethodDecl visitMethodDecl(X10MethodDecl n) throws SemanticException {
+            // First check that we are within the right method
+            if (n.methodDef() != def) return n;
+            return (X10MethodDecl) n.body(rewriteBody(n.position(), n.body()));
+        }
+        // (`x:`T):R=>S -> (`x:`T)=>{r:R; L:do{ S[return v/r=v; break L;]; }while(false); return r;}
+        private Closure visitClosure(Closure n) throws SemanticException {
+            // First check that we are within the right closure
+            if (n.closureDef() != def) return n;
+            return (Closure) n.body(rewriteBody(n.position(), n.body()));
+        }
+        // return v; -> r=v; break L;
+        private Stmt visitReturn(Return n) throws SemanticException {
+            // First check that we are within the right code body
+            if (!context.currentCode().equals(def)) return n;
+            if (label == null) return n;
+            assert ((ret == null) == (n.expr() == null));
+            X10NodeFactory xnf = (X10NodeFactory) nf;
+            Position pos = n.position();
+            List<Stmt> retSeq = new ArrayList<Stmt>();
+            if (ret != null) {
+                Type rt = ret.type().get();
+                Expr xl = xnf.Local(pos, xnf.Id(pos, ret.name())).localInstance(ret.asInstance()).type(rt);
+                retSeq.add(xnf.Eval(pos, xnf.Assign(pos, xl, Assign.ASSIGN, n.expr()).type(rt)));
+            }
+            retSeq.add(xnf.Break(pos, xnf.Id(pos, label)));
+            return xnf.StmtSeq(pos, retSeq);
+        }
+        private Expr getThis(Position pos) {
+            X10NodeFactory xnf = (X10NodeFactory) nf;
+            LocalInstance tli = ths.asInstance();
+            return xnf.Local(pos, xnf.Id(pos, tli.name())).localInstance(tli).type(tli.type());
+        }
+        // f -> ths.f
+        private Field visitField(Field n) throws SemanticException {
+            // First check that we are within the right code body
+            if (!context.currentCode().equals(def)) return n;
+            if (!n.isTargetImplicit()) return n;
+            FieldInstance fi = n.fieldInstance();
+            assert ((ths == null) == (fi.flags().isStatic()));
+            X10NodeFactory xnf = (X10NodeFactory) nf;
+            Position pos = n.position();
+            if (fi.flags().isStatic()) {
+                return n.target(xnf.CanonicalTypeNode(pos, fi.container())).targetImplicit(false);
+            }
+            return n.target(getThis(pos)).targetImplicit(false);
+        }
+        // m(...) -> ths.m(...)
+        private X10Call visitCall(X10Call n) throws SemanticException {
+            // First check that we are within the right code body
+            if (!context.currentCode().equals(def)) return n;
+            if (!n.isTargetImplicit()) return n;
+            MethodInstance mi = n.methodInstance();
+            assert ((ths == null) == (mi.flags().isStatic()));
+            X10NodeFactory xnf = (X10NodeFactory) nf;
+            Position pos = n.position();
+            if (mi.flags().isStatic()) {
+                return (X10Call) n.target(xnf.CanonicalTypeNode(pos, mi.container())).targetImplicit(false);
+            }
+            return (X10Call) n.target(getThis(pos)).targetImplicit(false);
+        }
+        // this -> ths
+        private Expr visitSpecial(Special n) throws SemanticException {
+            // First check that we are within the right code body
+            if (!context.currentCode().equals(def)) return n;
+            if (n.kind() == Special.SUPER) {
+                throw new InternalCompilerError("super not supported when inlining", n.position());
+            }
+            if (n.kind() == X10Special.SELF) {
+                return n;
+            }
+            assert (n.kind() == Special.THIS);
+            Position pos = n.position();
+            return getThis(pos);
+        }
+    }
+
+    // TODO: generate a closure call instead of a statement expression
+    private Expr rewriteInlinedBody(Position pos, Type retType, List<Formal> formals, Block body, LocalDecl ths, List<Expr> args) {
+        boolean clashes = false;
+        for (Expr a : args) {
+            X10SearchVisitor<X10Local_c> xLocals = new X10SearchVisitor<X10Local_c>(X10Local_c.class);
+            a.visit(xLocals);
+            if (!xLocals.found()) continue;
+            ArrayList<X10Local_c> locals = xLocals.getMatches();
+            for (X10Local_c t : locals) {
+                Name name = t.localInstance().name();
+                for (Formal f : formals) {
+                    if (f.name().id().equals(name)) clashes = true;
+                }
+            }
+        }
+
+        List<Stmt> bodyStmts = body.statements();
+        assert (bodyStmts.get(bodyStmts.size()-1) instanceof Return) : "Last statement is not a return";
+        // We know that the last statement has to be a return
+        Return ret = (Return) bodyStmts.get(bodyStmts.size()-1);
+        List<Stmt> statements = new ArrayList<Stmt>();
+        for (Stmt stmt : bodyStmts) {
+            if (stmt != ret) {
+                statements.add(stmt);
+            }
+        }
+        Expr e = ret.expr();
+        if (e != null) {
+            e = cast(e, retType);
+        }
+
+        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+        X10TypeSystem xts = (X10TypeSystem) typeSystem();
+        Synthesizer synth = new Synthesizer(xnf, xts);
+        StmtExpr result = (StmtExpr) xnf.StmtExpr(pos, statements, e).type(retType);
+
+        List<Stmt> declarations = new ArrayList<Stmt>();
+        if (ths != null) {
+            declarations.add(ths);
+        }
+        LocalDef[] alt = null;
+        if (clashes) {
+            alt = new LocalDef[args.size()];
+            int i = 0;
+            for (Expr a : args) {
+                Type fType = formals.get(i).type().type();
+                Name tmp = Name.makeFresh();
+                alt[i] = xts.localDef(pos, xts.Final(), Types.ref(fType), tmp);
+                declarations.add(synth.makeLocalVar(pos, alt[i], a));
+                i++;
+            }
+        }
+        int i = 0;
+        for (Expr a : args) {
+            Formal f = formals.get(i);
+            Expr v = clashes ? local(pos, alt[i]) : a;
+            declarations.add(synth.makeLocalVar(pos, f.localDef(), v));
+            i++;
+        }
+
+        return result.prepend(declarations);
+    }
+
+    private Expr inlineMethodCall(X10Call c, X10MethodDecl decl, List<Expr> args) {
+        if (decl.body() == null) return c;
+        LocalDef ths = computeThis(decl.methodDef());
+//        System.out.println("About to inline "+decl+" at "+c.position());
+//        decl.dump(System.out);
+        // Ensure that the last statement of the body is the only return in the method
+        decl = (X10MethodDecl) decl.visit(new InliningRewriter(decl, ths));
+        LocalDecl ld = null;
+        if (ths != null) {
+            X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+            X10TypeSystem xts = (X10TypeSystem) typeSystem();
+            Position tpos = ths.position();
+            ld = xnf.LocalDecl(tpos,
+                    xnf.FlagsNode(tpos, ths.flags()),
+                    xnf.CanonicalTypeNode(tpos, ths.type()),
+                    xnf.Id(tpos, ths.name()),
+                    (Expr) c.target()).localDef(ths);
+        }
+        return rewriteInlinedBody(c.position(), decl.returnType().type(), decl.formals(), decl.body(), ld, args);
+    }
+
+    private Expr inlineClosureCall(ClosureCall c, Closure closure, List<Expr> args) {
+        // Ensure that the last statement of the body is the only return in the closure
+        closure = (Closure) closure.visit(new InliningRewriter(closure));
+        return rewriteInlinedBody(c.position(), closure.returnType().type(), closure.formals(), closure.body(), null, args);
+    }
+
+    private Closure getClosureLiteral(Expr target) {
+        if (target instanceof Closure)
+            return (Closure) target;
+        if (target instanceof ParExpr)
+            return getClosureLiteral(((ParExpr)target).expr());
+        return null;
+    }
+
+    public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+        if (!ALLOW_STMTEXPR) return n;  // FIXME: for now
+
+        if (n instanceof X10Call) {
+            X10Call c = (X10Call) n;
+            if (InlineType == null) return n;
+            try {
+            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+            X10MethodDecl decl = getDeclaration(mi.x10Def());
+            if (decl != null) {
+                decl = instantiate(decl, c);
+                List<Expr> args = new ArrayList<Expr>();
+                int counter = 0;
+                for (Expr a : c.arguments()) {
+                    Type fType = mi.formalTypes().get(counter);
+                    a = cast(a, fType);
+                    args.add(a);
+                    counter++;
+                }
+                Expr result = inlineMethodCall(c, decl, args);
+                result = (Expr) propagateConstants(result);
+                result = (Expr) result.visit(this);
+                return result;
+            }
+            } catch (InternalCompilerError e) {
+                throw new InternalCompilerError("Error while inlining", n.position(), e);
+            }
+        }
+
+        if (n instanceof ClosureCall) {
+            ClosureCall c = (ClosureCall) n;
+            // If the target is a closure literal, inline the body
+            Closure lit = getClosureLiteral(c.target());
+            if (lit != null) {
+                X10MethodInstance ci = c.closureInstance();
+                X10TypeSystem xts = (X10TypeSystem) typeSystem();
+                X10NodeFactory nf = (X10NodeFactory) nodeFactory();
+                List<Expr> args = new ArrayList<Expr>();
+                int counter = 0;
+                for (Expr a : c.arguments()) {
+                    Type fType = ci.formalTypes().get(counter);
+                    a = cast(a, fType);
+                    args.add(a);
+                    counter++;
+                }
+                Expr result = inlineClosureCall(c, lit, args);
+                result = (Expr) propagateConstants(result);
+                result = (Expr) result.visit(this);
+                return result;
+            }
+            return c;
+        }
+
+        // FIXME: dead code follows
+        // Inline simple getters and setters // FIXME: dead for now
         if (n instanceof ClosureCall) {
             ClosureCall c = (ClosureCall) n;
             if (c.arguments().size() == 1 && c.target() instanceof Expr && ((Expr) c.target()).isConstant() && ((Expr) c.target()).constantValue() instanceof Object[]) {
@@ -796,10 +1361,10 @@ public class Inliner extends ContextVisitor {
                 d = d.init(null);
                 Local var = makeLocal(d);
                 Stmt s = inlineClosure((Closure) c.target(), c, var);
-                s = (Stmt) propagate(s);
+                s = (Stmt) propagateConstants(s);
                 Expr e = getVarRhs(s, var, false);
                 if (e != null) {
-                    if (count < limit) {
+                    if (count < INLINE_DEPTH_LIMIT) {
                         e = (Expr) parent.visitChild(e, inc());
                     }
                     return e;
@@ -807,6 +1372,7 @@ public class Inliner extends ContextVisitor {
             }
         }
 
+        /*
         if (n instanceof Return) {
             Return r = (Return) n;
 
@@ -822,7 +1388,7 @@ public class Inliner extends ContextVisitor {
                     Stmt s = (Stmt) leaveCall(parent, old, eval, v);
                     Expr e = getVarRhs(s, var, false);
                     if (e != null) {
-                        if (count < limit) {
+                        if (count < INLINE_DEPTH_LIMIT) {
                             e = (Expr) parent.visitChild(e, inc());
                         }
                         return r.expr(e);
@@ -872,8 +1438,8 @@ public class Inliner extends ContextVisitor {
             }
 
             if (s != d) {
-                s = propagate(s);
-                if (count < limit) {
+                s = propagateConstants(s);
+                if (count < INLINE_DEPTH_LIMIT) {
                     Node r = parent.visitChild(s, inc());
                     if (r instanceof LocalDecl) {
                         LocalDecl d2 = (LocalDecl) r;
@@ -899,7 +1465,7 @@ public class Inliner extends ContextVisitor {
             if (eval.expr() instanceof Assign) {
                 Assign a = (Assign) eval.expr();
                 if (a.operator() == Assign.ASSIGN) {
-                    Expr result = a.left(nf);
+                    Expr result = (a instanceof SettableAssign_c) ? ((SettableAssign_c)a).left(nf, this) : a.left(nf);
                     Expr call = a.right();
                     s = attemptInlineCall(eval, call, result);
                 }
@@ -909,8 +1475,8 @@ public class Inliner extends ContextVisitor {
             }
 
             if (s != eval) {
-                s = propagate(s);
-                if (count < limit) {
+                s = propagateConstants(s);
+                if (count < INLINE_DEPTH_LIMIT) {
                     return parent.visitChild(s, inc());
                 }
             }
@@ -931,6 +1497,7 @@ public class Inliner extends ContextVisitor {
             if (ss.size() != b.statements().size())
                 return b.statements(ss);
         }
+        */
 
         return n;
     }
@@ -1029,9 +1596,7 @@ public class Inliner extends ContextVisitor {
                 return s;
 
             if (!md.annotationsMatching(InlineType).isEmpty()) {
-                if (staticTypeIsExact(c.target()) || md.flags().isFinal()) {
-                    return inline(s_if_not_inline, c, md, result);
-                }
+                return inline(s_if_not_inline, c, mi, result);
             }
         }
 

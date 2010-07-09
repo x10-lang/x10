@@ -17,13 +17,14 @@ public class Histogram {
   /**
     * Compute the histogram of the array a in the rail b.
     */
-    public static def run(a:Array[int](1), b: Rail[int]!) {
+    public static def run(a:Array[int](1)!, b: Rail[int]!) {
 	finish 
 	    foreach((i) in a.region) {
 	       val bin = a(i)% b.length;
 	       atomic b(bin)++;
 	    }
     }
+
     public static def main(args:Rail[String]!) {
 	if (args.length != 2) {
 	    Console.OUT.println("Usage: Histogram SizeOfArray Buckets");
@@ -32,7 +33,7 @@ public class Histogram {
         }
 	val N = int.parse(args(0));
 	val S = int.parse(args(1));
-	val a = Array.make[int](0..N-1, ((i):Point)=> i);
+	val a = new Array[int](0..N-1, ((i):Point)=> i);
 	val b = Rail.make[int](S);
 	run(a, b);
 	val v = b(0);

@@ -22,23 +22,21 @@ import polyglot.util.TypedList;
 
 public interface SettableAssign extends Assign {
     /** Get the array of the expression. */
-	public Expr array();
-	
-	/** Set the array of the expression. */
-	public SettableAssign array(Expr array);
-	
-	/** Get the index of the expression. */
-	public List<Expr> index();
-	
-	/** Set the index of the expression. */
-	public SettableAssign index(List<Expr> index) ;
-	
-	/**
-	 * The ClassDef for the class in which this assignment occurs.
-	 * @return
-	 */
-	public ClassDef invokingClass();
+    public Expr array();
 
-	public MethodInstance methodInstance();
-	SettableAssign methodInstance(MethodInstance mi);
+    /** Set the array of the expression. */
+    public SettableAssign array(Expr array);
+
+    /** Get the index of the expression. */
+    public List<Expr> index();
+
+    /** Set the index of the expression. */
+    public SettableAssign index(List<Expr> index) ;
+
+    public MethodInstance methodInstance();
+    SettableAssign methodInstance(MethodInstance mi);
+
+    public MethodInstance applyMethodInstance();
+
+    public SettableAssign applyMethodInstance(MethodInstance ami);
 }

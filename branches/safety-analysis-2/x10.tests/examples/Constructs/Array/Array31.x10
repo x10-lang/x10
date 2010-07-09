@@ -20,7 +20,7 @@ public class Array31 extends x10Test {
 
     public def run(): boolean = {
         val r:Region(1) = 1..10;
-        var ia: Array[Int](1) = Array.make[Int](r, (Point)=>0);
+        var ia: Array[Int](1)! = new Array[Int](r, (Point)=>0);
         ia(1) = 42;
         return 42 == ia(1);
     }

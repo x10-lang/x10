@@ -14,7 +14,7 @@
 
 #include <x10/lang/Object.h>
 
-#include <pthread.h>
+#include <x10aux/lock.h>
 
 namespace x10 {
     namespace lang {
@@ -34,11 +34,7 @@ namespace x10 {
             RTT_H_DECLS_CLASS;
 
             static x10aux::ref<Lock__ReentrantLock> _make();
-            ~Lock__ReentrantLock() { teardown(); }
-
-        private:
-            void initialize();
-            void teardown();
+            ~Lock__ReentrantLock() { }
 
         public:
            /**
@@ -50,7 +46,8 @@ namespace x10 {
             * If the lock is held by another thread then the calling thread
             * blocks until the lock is available.
             */
-            void lock();
+            void lock() { _lock.lock(); }
+
 
             /**
              * Attempts to release this lock.
@@ -60,7 +57,8 @@ namespace x10 {
              * If the calling thread is not the owner of this lock then
              * IllegalMonitorStateException is thrown.
              */
-            void unlock();
+            void unlock() { if (!_lock.unlock()) raiseException(); }
+                
 
             /**
              * Acquires the lock [non-blocking call].
@@ -74,7 +72,7 @@ namespace x10 {
              * If the lock is owned by another thread the this method will
              * return immediately with the value false.
              */
-            x10_boolean tryLock();
+            x10_boolean tryLock() { return _lock.tryLock(); }
 
             /**
              * Queries the number of holds on this lock by the calling thread.
@@ -82,13 +80,11 @@ namespace x10 {
              * not matched by an unlock action.
              * Returns zero if this lock is not held by the calling thread.
              */
-            x10_int getHoldCount();
+            x10_int getHoldCount() { return _lock.getHoldCount(); }
 
         private:
-            // lock id
-            pthread_mutex_t __lock;
-            // lock attributes
-            pthread_mutexattr_t __lock_attr;
+            x10aux::reentrant_lock _lock;
+            void raiseException();
         };
     }
 }

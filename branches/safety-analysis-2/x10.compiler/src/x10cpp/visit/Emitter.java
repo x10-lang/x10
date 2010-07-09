@@ -55,6 +55,7 @@ import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -63,6 +64,7 @@ import polyglot.util.Position;
 import polyglot.visit.Translator;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
+import x10.extension.X10Ext;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -212,6 +214,26 @@ public class Emitter {
 		return translateType(type, false);
 	}
 
+	/**
+	 * Return the full name of the type, taking into account nested class mangling.
+	 * @param ct the type
+	 * @return the full name of the type
+	 */
+	public static QName fullName(X10ClassType ct) {
+	    QName full;
+	    if (ct.def().isNested()) {
+	        // This is a legitimate case.  We do not invoke StaticNestedClassRemover on
+	        // classes for which we don't generate code.  Thus, while we cannot see a
+	        // definition of a nested class, we may well see references to such classes.
+	        // At the moment, we cannot make sure that StaticNestedClassRemover runs on
+	        // all classes - when we can, we should re-enable this assert.
+	        Name mangled = StaticNestedClassRemover.mangleName(ct.def());
+	        QName pkg = ct.package_() != null ? ct.package_().fullName() : null;
+	        full = QName.make(pkg, mangled);
+	    } else
+	        full = ct.fullName();
+	    return full;
+	}
 
 	/**
 	 * Translate a type.
@@ -283,19 +305,7 @@ public class Emitter {
 					return dumpRegex("NativeRep", o, pat);
 				}
 				else {
-					if (ct.def().isNested()) {
-						// This is a legitimate case.  We do not invoke StaticNestedClassRemover on
-						// classes for which we don't generate code.  Thus, while we cannot see a
-						// definition of a nested class, we may well see references to such classes.
-						// At the moment, we cannot make sure that StaticNestedClassRemover runs on
-						// all classes - when we can, we should re-enable this assert.
-						//assert false : "Nested class: "+ct;
-						Name mangled = StaticNestedClassRemover.mangleName(ct.def());
-						QName pkg = ct.package_() != null ? ct.package_().fullName() : null;
-						QName full = QName.make(pkg, mangled);
-						name = full.toString();
-					} else
-						name = ct.fullName().toString();
+					name = fullName(ct).toString();
 				}
 			}
 			if (ct.typeArguments().size() != 0) {
@@ -324,19 +334,19 @@ public class Emitter {
 	
 	public static String structMethodClass(ClassType ct, boolean fqn, boolean chevrons) {
 	    X10ClassType classType = (X10ClassType)ct;
-	    QName qname = classType.fullName();
-	    String name = fqn ? qname.toString() : qname.name().toString();
+	    QName full = fullName(classType);
+	    String name = fqn ? full.toString() : full.name().toString();
 	    name += "_methods";
-        if (chevrons && classType.typeArguments().size() != 0) {
-            String args = "";
-            int s = classType.typeArguments().size();
-            for (Type t: classType.typeArguments()) {
-                args += translateType(t, true); // type arguments are always translated as refs
-                if (--s > 0)
-                    args +=", ";
-            }
-            name += chevrons(args);
-        }
+	    if (chevrons && classType.typeArguments().size() != 0) {
+	        String args = "";
+	        int s = classType.typeArguments().size();
+	        for (Type t: classType.typeArguments()) {
+	            args += translateType(t, true); // type arguments are always translated as refs
+	            if (--s > 0)
+	                args +=", ";
+	        }
+	        name += chevrons(args);
+	    }
 	    name = translate_mangled_FQN(name);
 	    return name;
 	}
@@ -508,10 +518,13 @@ public class Emitter {
 		return returnType != null ? returnType : from.returnType();
 	}
 
-	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
-		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify);
+	private static final QName NORETURN_ANNOTATION = QName.make("x10.compiler.NoReturn");
+
+	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify, boolean inlineDirective) {
+		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify, inlineDirective);
 	}
-	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, boolean qualify) {
+	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
+	                 boolean qualify, boolean inlineDirective) {
 		X10Flags flags = X10Flags.toX10Flags(n.flags().flags());
 		X10MethodDef def = (X10MethodDef) n.methodDef();
 		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
@@ -523,6 +536,10 @@ public class Emitter {
 		if (qualify) {
 			printTemplateSignature(((X10ClassType)n.methodDef().container().get()).typeArguments(), h);
 		}
+		
+		if (inlineDirective) {
+		    h.write("inline ");
+		}
 
 		printTemplateSignature(toTypeList(def.typeParameters()), h);
 
@@ -530,7 +547,8 @@ public class Emitter {
 			if (flags.isStatic())
 				h.write(flags.retain(Flags.STATIC).translate());
 			else if (def.typeParameters().size() != 0) {
-			    if (!flags.isFinal()) {
+			    X10ClassDef cd = (X10ClassDef) Types.get(def.container()).toClass().def();
+			    if (!flags.isFinal() && !cd.flags().isFinal() && !cd.isStruct()) {
 			        // FIXME: [IP] for now just make non-virtual.
 			        // In the future, will need to have some sort of dispatch object, e.g. the following:
 			        // class Foo { def m[T](a: X): Y { ... } }; class Bar extends Foo { def m[T](a: X): Y { ... } }
@@ -582,6 +600,24 @@ public class Emitter {
 		}
 		h.end();
 		h.write(")");
+		
+		if (!qualify) {
+		    boolean noReturnPragma = false;
+		    try {
+		        X10TypeSystem xts = (X10TypeSystem)tr.typeSystem();
+		        Type annotation = (Type) xts.systemResolver().find(NORETURN_ANNOTATION);
+		        if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
+		            noReturnPragma = true;
+		        }
+		    } catch (SemanticException e) { 
+		        /* Ignore exception when looking for annotation */  
+		    }		
+
+		    if (noReturnPragma) {
+		        h.write(" X10_PRAGMA_NORETURN ");
+		    }
+		}
+        
 		h.end();
 		if (!qualify) {
 			assert (!flags.isNative());
@@ -625,7 +661,7 @@ public class Emitter {
 
 	void printRTTDefn(X10ClassType ct, CodeWriter h) {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
-	    String x10name = ct.fullName().toString();
+	    String x10name = fullName(ct).toString();
 	    int numParents = 0;
 	    if (ct.superClass() != null) {
 	        numParents++;
@@ -652,7 +688,7 @@ public class Emitter {
 	        } else {
 	            h.write("const x10aux::RuntimeType** parents = NULL; "); h.newline();
 	        }
-	        h.write("rtt.initStageTwo(\""+ct.fullName()+"\", "+numParents+ ", parents, 0, NULL, NULL);");
+	        h.write("rtt.initStageTwo(\""+fullName(ct)+"\", "+numParents+ ", parents, 0, NULL, NULL);");
 	        if (ct.isX10Struct() && isPointerless(ct)) {
 	            h.newline(); h.write("rtt.containsPtrs = false;");
 	        }
@@ -1034,7 +1070,7 @@ public class Emitter {
             sw.write("this_ = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
             sw.end(); sw.newline();
             sw.writeln("}");
-            sw.write("return x10::lang::Object::_finalize_reference"+chevrons("__T")+"(this_, rr);");
+            sw.write("return x10::lang::Object::_finalize_reference"+chevrons("__T")+"(this_, rr, buf);");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
             sw.popCurrentStream();

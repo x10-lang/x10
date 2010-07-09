@@ -12,6 +12,7 @@
 package x10.types;
 
 import java.util.List;
+import java.util.HashMap;
 
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -23,7 +24,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarDef;
 import x10.constraint.XFailure;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -37,6 +38,12 @@ public interface X10Context extends Context {
 	 */
 	String MAGIC_VAR_PREFIX = "x10$__var";
 	// Use addVariable to add a PropertyInstance to the context.
+
+	/** Context name table */
+	String MAGIC_NAME_PREFIX = "X10$";
+	HashMap<String,Name> contextNameTable = new HashMap<String,Name>();
+	/** Return the same mangled name if has been created using the same string. */ 
+	Name makeFreshName(String name);
 	
 	/** Return the locals declared in this scope (and only this scope). */
 	List<LocalDef> locals();
@@ -70,6 +77,20 @@ public interface X10Context extends Context {
 	 */
 	XConstrainedTerm currentThisPlace();
 	
+	/**
+	 * We are entering the scope of a collecting finish. All offers
+	 * within this scope must return an expression of type t.
+	 * @param t -- the type of the collecting finish.
+	 * @return
+	 */
+	Context pushCollectingFinishScope(Type t);
+	
+	/**
+	 * The type of the collecting finish whose scope we are in.
+	 * null if we are not in the scope of a collecting finish
+	 * @return
+	 */
+	Type collectingFinishType();
 	
 	/** Current constraint on here. */
 	//CConstraint currentPlaceConstraint();
@@ -162,7 +183,7 @@ public interface X10Context extends Context {
 
     CodeDef definingCodeDef(Name name);
 
-    XRoot thisVar();
+    XVar thisVar();
 
     CConstraint constraintProjection(CConstraint... cs) throws XFailure;
     

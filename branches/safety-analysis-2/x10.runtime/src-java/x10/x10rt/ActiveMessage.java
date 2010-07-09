@@ -22,16 +22,16 @@ import java.lang.reflect.Modifier;
 /**
  * <p>A class whose instances represent active messages that have been registered
  * with the X10RT runtime.  The primary operation that is available, is to invoke
- * send on the message object, which will send an active message to the target node
- * composed of a message id and the data payload.  The target node will respond to this
+ * send on the message object, which will send an active message to the target place
+ * composed of a message id and the data payload.  The target place will respond to this
  * message by invoking the java method associated with the active message with the data
  * payload of the message as its arguments.</p>
  * <p>It is important to note that this implements a mostly asynchronous messaging system.
- * If a node sends a message to itself, then send will be synchronous (the send is implemented
- * by directly invoking the target method with the given arguments).  If the node sends a message
- * to a different node, then send will return as soon as the data has been transfered to the network
+ * If a place sends a message to itself, then send will be synchronous (the send is implemented
+ * by directly invoking the target method with the given arguments).  If the place sends a message
+ * to a different place, then send will return as soon as the data has been transfered to the network
  * layer and the send is locally complete.  Local completion does not imply that the target method
- * has been invoked/completed on the remote node.</p>
+ * has been invoked/completed on the remote place.</p>
  */
 public class ActiveMessage {
 
@@ -50,7 +50,7 @@ public class ActiveMessage {
 
     /**
      * The numeric id assigned to this message by the {@link MessageRegistry} and
-     * used to communicate message identity between nodes.
+     * used to communicate message identity between places.
      */
     private final int messageId;
 
@@ -76,21 +76,21 @@ public class ActiveMessage {
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      */
-    public void send(Node node) {
-        if (X10RT.here() == node) {
+    public void send(Place place) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null);
@@ -101,27 +101,27 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rtrt
-            sendRemote(node.getId(), messageId);
+            sendRemote(place.getId(), messageId);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg first argument to the target method
      */
-    public void send(Node node, int arg) {
-        if (X10RT.here() == node) {
+    public void send(Place place, int arg) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 // Reflection is picky about narrowing conversions, while jni is not.
@@ -145,28 +145,28 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg);
+            sendRemote(place.getId(), messageId, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, int arg1, int arg2) {
-        if (X10RT.here() == node) {
+    public void send(Place place, int arg1, int arg2) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 // Reflection is picky about narrowing conversions, while jni is not.
@@ -201,29 +201,29 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      * @param arg3 third argument to the target method
      */
-    public void send(Node node, int arg1, int arg2, int arg3) {
-        if (X10RT.here() == node) {
+    public void send(Place place, int arg1, int arg2, int arg3) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 // Reflection is picky about narrowing conversions, while jni is not.
@@ -258,30 +258,30 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2, arg3);
+            sendRemote(place.getId(), messageId, arg1, arg2, arg3);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      * @param arg3 third argument to the target method
      * @param arg4 fourth argument to the target method
      */
-    public void send(Node node, int arg1, int arg2, int arg3, int arg4) {
-        if (X10RT.here() == node) {
+    public void send(Place place, int arg1, int arg2, int arg3, int arg4) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 // Reflection is picky about narrowing conversions, while jni is not.
@@ -317,30 +317,30 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2, arg3, arg4);
+            sendRemote(place.getId(), messageId, arg1, arg2, arg3, arg4);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg first argument to the target method
      */
-    public void send(Node node, long arg) {
+    public void send(Place place, long arg) {
         // Because there is a send(I)V, we can't get here via a widening conversion.
         assert method.getParameterTypes()[0].equals(Long.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -351,31 +351,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg);
+            sendRemote(place.getId(), messageId, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, long arg1, long arg2) {
+    public void send(Place place, long arg1, long arg2) {
         // We've covered all the combinations explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Long.TYPE) && method.getParameterTypes()[1].equals(Long.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg1, arg2);
@@ -386,31 +386,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, int arg1, long arg2) {
+    public void send(Place place, int arg1, long arg2) {
         // We've covered all the possibilities for arg2 explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Long.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 // Arg1 may have had a widening conversion applied which we need to undo before calling invoke.
@@ -432,31 +432,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, long arg1, int arg2) {
+    public void send(Place place, long arg1, int arg2) {
         // We've covered all the possibilities for arg1 explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Long.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 // Arg2 may have had a widening conversion applied which we need to undo before calling invoke.
@@ -478,31 +478,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg first argument to the target method
      */
-    public void send(Node node, float arg) {
+    public void send(Place place, float arg) {
         // Because there is a 1 argument send defined for both int and long,
         // it should be impossible to get here via a widening conversion.
         assert method.getParameterTypes()[0].equals(Float.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -513,31 +513,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg);
+            sendRemote(place.getId(), messageId, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, float arg1, float arg2) {
+    public void send(Place place, float arg1, float arg2) {
         // We've covered all the combinations explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Float.TYPE) && method.getParameterTypes()[1].equals(Float.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg1, arg2);
@@ -548,31 +548,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, int arg1, float arg2) {
+    public void send(Place place, int arg1, float arg2) {
         // We've covered all the possibilities for arg2 explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[1].equals(Float.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 // Arg1 may have had a widening conversion applied which we need to undo before calling invoke.
@@ -594,31 +594,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, long arg1, float arg2) {
+    public void send(Place place, long arg1, float arg2) {
         // We've covered all the combinations explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Long.TYPE) && method.getParameterTypes()[1].equals(Float.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg1, arg2);
@@ -629,31 +629,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, float arg1, int arg2) {
+    public void send(Place place, float arg1, int arg2) {
         // We've covered all the possibilities for arg1 explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Float.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 // Arg2 may have had a widening conversion applied which we need to undo before calling invoke.
@@ -675,31 +675,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, float arg1, long arg2) {
+    public void send(Place place, float arg1, long arg2) {
         // We've covered all the combinations explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Float.TYPE) && method.getParameterTypes()[1].equals(Long.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg1, arg2);
@@ -710,31 +710,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg first argument to the target method
      */
-    public void send(Node node, double arg) {
+    public void send(Place place, double arg) {
         // Because there is a 1 argument send defined for int, float, and long
         // it should be impossible to get here via a widening conversion.
         assert method.getParameterTypes()[0].equals(Double.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -745,31 +745,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg);
+            sendRemote(place.getId(), messageId, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, double arg1, double arg2) {
+    public void send(Place place, double arg1, double arg2) {
         // We've covered all the combinations explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Double.TYPE) && method.getParameterTypes()[1].equals(Double.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg1, arg2);
@@ -780,31 +780,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, int arg1, double arg2) {
+    public void send(Place place, int arg1, double arg2) {
         // We've covered all the possibilities for arg2 explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[1].equals(Double.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 // Arg1 may have had a widening conversion applied which we need to undo before calling invoke.
@@ -826,31 +826,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, float arg1, double arg2) {
+    public void send(Place place, float arg1, double arg2) {
         // We've covered all the combinations explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Float.TYPE) && method.getParameterTypes()[1].equals(Double.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg1, arg2);
@@ -861,31 +861,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, long arg1, double arg2) {
+    public void send(Place place, long arg1, double arg2) {
         // We've covered all the combinations explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Long.TYPE) && method.getParameterTypes()[1].equals(Double.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg1, arg2);
@@ -896,31 +896,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, double arg1, int arg2) {
+    public void send(Place place, double arg1, int arg2) {
         // We've covered all the possibilities for arg1 explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Double.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 // Arg2 may have had a widening conversion applied which we need to undo before calling invoke.
@@ -942,31 +942,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, double arg1, float arg2) {
+    public void send(Place place, double arg1, float arg2) {
         // We've covered all the combinations explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Double.TYPE) && method.getParameterTypes()[1].equals(Float.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg1, arg2);
@@ -977,31 +977,31 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param arg1 first argument to the target method
      * @param arg2 second argument to the target method
      */
-    public void send(Node node, double arg1, long arg2) {
+    public void send(Place place, double arg1, long arg2) {
         // We've covered all the combinations explicitly, so we can't get here via widening conversion.
         assert method.getParameterTypes()[0].equals(Double.TYPE) && method.getParameterTypes()[1].equals(Long.TYPE);
 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg1, arg2);
@@ -1012,27 +1012,27 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendRemote(node.getId(), messageId, arg1, arg2);
+            sendRemote(place.getId(), messageId, arg1, arg2);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
      * @param arg first argument to the target method
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      */
-    public void send(Node node, boolean[] arg) {
-        if (X10RT.here() == node) {
+    public void send(Place place, boolean[] arg) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -1043,27 +1043,27 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendArrayRemote(node.getId(), messageId, arg.length, arg);
+            sendArrayRemote(place.getId(), messageId, arg.length, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
      * @param arg first argument to the target method
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      */
-    public void send(Node node, byte[] arg) {
-        if (X10RT.here() == node) {
+    public void send(Place place, byte[] arg) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -1074,27 +1074,27 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendArrayRemote(node.getId(), messageId, arg.length, arg);
+            sendArrayRemote(place.getId(), messageId, arg.length, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
      * @param arg first argument to the target method
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      */
-    public void send(Node node, short[] arg) {
-        if (X10RT.here() == node) {
+    public void send(Place place, short[] arg) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -1105,27 +1105,27 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendArrayRemote(node.getId(), messageId, arg.length, arg);
+            sendArrayRemote(place.getId(), messageId, arg.length, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
      * @param arg first argument to the target method
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      */
-    public void send(Node node, char[] arg) {
-        if (X10RT.here() == node) {
+    public void send(Place place, char[] arg) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -1136,27 +1136,27 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendArrayRemote(node.getId(), messageId, arg.length, arg);
+            sendArrayRemote(place.getId(), messageId, arg.length, arg);
         }
     }
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
      * @param arg first argument to the target method
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      */
 
-    public void send(Node node, int[] arg) {
-        if (X10RT.here() == node) {
+    public void send(Place place, int[] arg) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -1167,27 +1167,27 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendArrayRemote(node.getId(), messageId, arg.length, arg);
+            sendArrayRemote(place.getId(), messageId, arg.length, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
      * @param arg first argument to the target method
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      */
-    public void send(Node node, float[] arg) {
-        if (X10RT.here() == node) {
+    public void send(Place place, float[] arg) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -1198,27 +1198,27 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendArrayRemote(node.getId(), messageId, arg.length, arg);
+            sendArrayRemote(place.getId(), messageId, arg.length, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
      * @param arg first argument to the target method
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      */
-    public void send(Node node, long[] arg) {
-        if (X10RT.here() == node) {
+    public void send(Place place, long[] arg) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -1229,27 +1229,27 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendArrayRemote(node.getId(), messageId, arg.length, arg);
+            sendArrayRemote(place.getId(), messageId, arg.length, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
      * @param arg first argument to the target method
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      */
-    public void send(Node node, double[] arg) {
-        if (X10RT.here() == node) {
+    public void send(Place place, double[] arg) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -1260,28 +1260,28 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendArrayRemote(node.getId(), messageId, arg.length, arg);
+            sendArrayRemote(place.getId(), messageId, arg.length, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
      * @param arg first argument to the target method
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      */
-    public void send(Node node, int start, int end, int[] arg) {
+    public void send(Place place, int start, int end, int[] arg) {
         if (start > end) throw new IllegalArgumentException("start must greater than end"); 
-        if (X10RT.here() == node) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 method.invoke(null, arg);
@@ -1292,27 +1292,27 @@ public class ActiveMessage {
             }
         } else {
             // remote send: pass down to x10rt
-            sendArrayRemote(node.getId(), messageId, start, end, arg);
+            sendArrayRemote(place.getId(), messageId, start, end, arg);
         }
     }
 
     /**
-     * Send the message represented by <code>this</code> to <code>Node</code>.
-     * If <code>node</code> is equal to {@link X10RT#here()}, then the
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
      * send is implemented as a direct invocation of the target method and will
      * not return until the method invocation completes.
-     * If <code>node</code> is not equal to {@link X10RT#here()}, then the
-     * send is implemented by sending an active message to the remote node,
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
      * transmitting the {@link #messageId} and any arguments as data payload. In the remote
      * case, the invocation of send will return as soon as the local network send has
      * completed.  IE, in the remote case, the completion of send does not imply that the
-     * method has completed (or even been invoked) on the remote node.
+     * method has completed (or even been invoked) on the remote place.
      *
-     * @param node the Node to which the message should be sent.
+     * @param place the Place to which the message should be sent.
      * @param args the arguments to the target method
      */
-    public void send(Node node, Object...args) {
-        if (X10RT.here() == node) {
+    public void send(Place place, Object...args) {
+        if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
             try {
                 if ((method.getModifiers() & Modifier.STATIC) == Modifier.STATIC) {
@@ -1414,7 +1414,7 @@ public class ActiveMessage {
 
                 objStream.close();
                 byte[] rawBytes = byteStream.toByteArray();
-                sendGeneralRemote(node.getId(), messageId, rawBytes.length, rawBytes);
+                sendGeneralRemote(place.getId(), messageId, rawBytes.length, rawBytes);
             } catch (IOException e) {
                 if (X10RT.REPORT_UNCAUGHT_USER_EXCEPTIONS) {
                     e.printStackTrace();
@@ -1441,7 +1441,7 @@ public class ActiveMessage {
             for (Class<?> p : message.method.getParameterTypes()) {
                 parameterTypes[idx++] = p;
             }
-            wrappedArgs = new Object[parameterTypes.length+1];
+            wrappedArgs = new Object[parameterTypes.length];  
         }
         
         for (int i=0; i<parameterTypes.length; i++) {
@@ -1511,7 +1511,6 @@ public class ActiveMessage {
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
                         }
-                        //assert false : "implement me " + type;
                     }
                 } else {
                     if (type.equals(Boolean.TYPE)) {
@@ -1531,7 +1530,6 @@ public class ActiveMessage {
                     } else if (type.equals(Double.TYPE)) {
                         wrappedArgs[i] = Double.valueOf(objStream.readDouble());
                     } else {
-                        //assert false : "implement me " + type;
                         try {
                             wrappedArgs[i] = objStream.readObject();
                         } catch (ClassNotFoundException e) {
@@ -1566,58 +1564,56 @@ public class ActiveMessage {
 
     private static synchronized native void registerMethodImpl(Method method, Class<?> targetClass, int messageId);
 
-    private static native void sendRemote(int node, int messageId);
+    private static native void sendRemote(int place, int messageId);
 
-    private static native void sendRemote(int node, int messageId, int arg);
-    private static native void sendRemote(int node, int messageId, int arg1, int arg2);
-    private static native void sendRemote(int node, int messageId, int arg1, int arg2, int arg3);
-    private static native void sendRemote(int node, int messageId, int arg1, int arg2, int arg3, int arg4);
-
-    /*
-     * Have to consider combinations to avoid widening operations being applied in ways that
-     * are hard to handle efficiently in native code.
-     */
-    private static native void sendRemote(int node, int messageId, long arg);
-    private static native void sendRemote(int node, int messageId, long arg1, long arg2);
-    private static native void sendRemote(int node, int messageId, int arg1, long arg2);
-    private static native void sendRemote(int node, int messageId, long arg1, int arg2);
+    private static native void sendRemote(int place, int messageId, int arg);
+    private static native void sendRemote(int place, int messageId, int arg1, int arg2);
+    private static native void sendRemote(int place, int messageId, int arg1, int arg2, int arg3);
+    private static native void sendRemote(int place, int messageId, int arg1, int arg2, int arg3, int arg4);
 
     /*
      * Have to consider combinations to avoid widening operations being applied in ways that
      * are hard to handle efficiently in native code.
      */
-    private static native void sendRemote(int node, int messageId, float arg);
-    private static native void sendRemote(int node, int messageId, float arg1, float arg2);
-    private static native void sendRemote(int node, int messageId, int arg1, float arg2);
-    private static native void sendRemote(int node, int messageId, long arg1, float arg2);
-    private static native void sendRemote(int node, int messageId, float arg1, int arg2);
-    private static native void sendRemote(int node, int messageId, float arg1, long arg2);
+    private static native void sendRemote(int place, int messageId, long arg);
+    private static native void sendRemote(int place, int messageId, long arg1, long arg2);
+    private static native void sendRemote(int place, int messageId, int arg1, long arg2);
+    private static native void sendRemote(int place, int messageId, long arg1, int arg2);
 
     /*
      * Have to consider combinations to avoid widening operations being applied in ways that
      * are hard to handle efficiently in native code.
      */
-    private static native void sendRemote(int node, int messageId, double arg);
-    private static native void sendRemote(int node, int messageId, double arg1, double arg2);
-    private static native void sendRemote(int node, int messageId, int arg1, double arg2);
-    private static native void sendRemote(int node, int messageId, float arg1, double arg2);
-    private static native void sendRemote(int node, int messageId, long arg1, double arg2);
-    private static native void sendRemote(int node, int messageId, double arg1, int arg2);
-    private static native void sendRemote(int node, int messageId, double arg1, long arg2);
-    private static native void sendRemote(int node, int messageId, double arg1, float arg2);
+    private static native void sendRemote(int place, int messageId, float arg);
+    private static native void sendRemote(int place, int messageId, float arg1, float arg2);
+    private static native void sendRemote(int place, int messageId, int arg1, float arg2);
+    private static native void sendRemote(int place, int messageId, long arg1, float arg2);
+    private static native void sendRemote(int place, int messageId, float arg1, int arg2);
+    private static native void sendRemote(int place, int messageId, float arg1, long arg2);
 
-    private static native void sendArrayRemote(int node, int messageId, int arraylen, boolean[] array);
-    private static native void sendArrayRemote(int node, int messageId, int arraylen, byte[] array);
-    private static native void sendArrayRemote(int node, int messageId, int arraylen, short[] array);
-    private static native void sendArrayRemote(int node, int messageId, int arraylen, char[] array);
-    private static native void sendArrayRemote(int node, int messageId, int arraylen, int[] array);
-    private static native void sendArrayRemote(int node, int messageId, int arraylen, float[] array);
-    private static native void sendArrayRemote(int node, int messageId, int arraylen, long[] array);
-    private static native void sendArrayRemote(int node, int messageId, int arraylen, double[] array);
+    /*
+     * Have to consider combinations to avoid widening operations being applied in ways that
+     * are hard to handle efficiently in native code.
+     */
+    private static native void sendRemote(int place, int messageId, double arg);
+    private static native void sendRemote(int place, int messageId, double arg1, double arg2);
+    private static native void sendRemote(int place, int messageId, int arg1, double arg2);
+    private static native void sendRemote(int place, int messageId, float arg1, double arg2);
+    private static native void sendRemote(int place, int messageId, long arg1, double arg2);
+    private static native void sendRemote(int place, int messageId, double arg1, int arg2);
+    private static native void sendRemote(int place, int messageId, double arg1, long arg2);
+    private static native void sendRemote(int place, int messageId, double arg1, float arg2);
 
-    private static native void sendArrayRemote(int node, int messageId, int start, int end, int[] array);
+    private static native void sendArrayRemote(int place, int messageId, int arraylen, boolean[] array);
+    private static native void sendArrayRemote(int place, int messageId, int arraylen, byte[] array);
+    private static native void sendArrayRemote(int place, int messageId, int arraylen, short[] array);
+    private static native void sendArrayRemote(int place, int messageId, int arraylen, char[] array);
+    private static native void sendArrayRemote(int place, int messageId, int arraylen, int[] array);
+    private static native void sendArrayRemote(int place, int messageId, int arraylen, float[] array);
+    private static native void sendArrayRemote(int place, int messageId, int arraylen, long[] array);
+    private static native void sendArrayRemote(int place, int messageId, int arraylen, double[] array);
 
-    private static native void sendGeneralRemote(int node, int messageId, int arraylen, byte[] rawBytes);
+    private static native void sendArrayRemote(int place, int messageId, int start, int end, int[] array);
 
-    static native void processQueue();
+    private static native void sendGeneralRemote(int place, int messageId, int arraylen, byte[] rawBytes);
 }

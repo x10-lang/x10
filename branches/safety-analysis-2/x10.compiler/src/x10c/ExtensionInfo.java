@@ -20,11 +20,27 @@ import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
 import polyglot.types.TypeSystem;
 import x10.visit.SharedBoxer;
+import x10c.ast.X10CNodeFactory_c;
+import x10c.types.X10CTypeSystem_c;
+import x10c.visit.CastRemover;
+import x10c.visit.Desugarer;
+import x10c.visit.JavaCaster;
+import x10c.visit.RailInLoopOptimizer;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
     @Override
     protected Scheduler createScheduler() {
         return new X10CScheduler(this);
+    }
+
+    @Override
+    protected NodeFactory createNodeFactory() {
+        return new X10CNodeFactory_c(this);
+    }
+
+    @Override
+    protected TypeSystem createTypeSystem() {
+        return new X10CTypeSystem_c();
     }
 
     static class X10CScheduler extends X10Scheduler {
@@ -35,15 +51,47 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         @Override
         public List<Goal> goals(Job job) {
             List<Goal> goals = super.goals(job);
+            JavaCaster(job).addPrereq(Desugarer(job));
+            CastsRemoved(job).addPrereq(JavaCaster(job));
+            RailInLoopOptimizer(job).addPrereq(CastsRemoved(job));
+            SharedBoxed(job).addPrereq(RailInLoopOptimizer(job));
             CodeGenerated(job).addPrereq(Desugarer(job));
+            CodeGenerated(job).addPrereq(JavaCaster(job));
+            CodeGenerated(job).addPrereq(CastsRemoved(job));
+            CodeGenerated(job).addPrereq(RailInLoopOptimizer(job));
             CodeGenerated(job).addPrereq(SharedBoxed(job));
             return goals;
         }
+        
+        @Override
+        public Goal Desugarer(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+        }
 
+        private Goal RailInLoopOptimizer(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new VisitorGoal("RailInLoopOptimized", job, new RailInLoopOptimizer(job, ts, nf)).intern(this);
+        }
+        
+        private Goal JavaCaster(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new VisitorGoal("JavaCasted", job, new JavaCaster(job, ts, nf)).intern(this);
+        }
+
+        private Goal CastsRemoved(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new VisitorGoal("CastsRemoved", job, new CastRemover(job, ts, nf)).intern(this);
+        }
+        
         private Goal SharedBoxed(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("sharedBoxer", job, new SharedBoxer(job, ts, nf)).intern(this);
+            return new VisitorGoal("SharedBoxed", job, new SharedBoxer(job, ts, nf)).intern(this);
         }
     }
 }

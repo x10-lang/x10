@@ -14,13 +14,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
-
-namespace x10 {
-    namespace lang {
-        class Lock__ReentrantLock;
-    }
-}
-
+#include <x10aux/lock.h>
 
 namespace x10aux {
 
@@ -38,13 +32,16 @@ namespace x10aux {
             void *_reference;
             Bucket *_next;
         };
-        x10aux::ref<x10::lang::Lock__ReentrantLock> _lock;
+        x10aux::reentrant_lock *_lock;
         Bucket **_buckets;
 
     public:
         ReferenceLogger();
         void log_(void *x);
-        static void log(void *x) { it->log_(x); }
+        static void log(void *x) {
+        	if (NULL == it) it = new (x10aux::alloc<ReferenceLogger>()) ReferenceLogger();
+        	it->log_(x);
+        }
         template<class T> friend const char *x10aux::typeName();
     };
 

@@ -21,9 +21,6 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-ref<String> x10aux::nullString = String::Lit("null");
-
-
 Rail<ref<String> > *x10aux::convert_args(int ac, char **av) {
     assert(ac>=1);
     x10_int x10_argc = ac  - 1;
@@ -51,6 +48,14 @@ ref<String> x10aux::vrc_to_string(ref<ValRail<x10_char> > v) {
         str[i] = (*v)[i].v;
     str[v->FMGL(length)] = '\0';
     return String::Steal(str);
+}
+
+ref<String> x10aux::string_utils::lit(const char* s) {
+    return String::Lit(s);
+}
+
+const char* x10aux::string_utils::cstr(ref<String> s) {
+    return s->c_str();
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

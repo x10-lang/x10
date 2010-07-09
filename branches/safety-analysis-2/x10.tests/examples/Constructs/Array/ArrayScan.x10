@@ -21,7 +21,7 @@ public class ArrayScan extends TestArray {
 
     public def run(): boolean {
 
-        val a = Array.make[double](0..N, (p:Point)=>p(0) as double);
+        val a = new Array[double](0..N, (p:Point)=>p(0) as double);
         pr("original", a);
 
         val sum = (a:double,b:double) => a+b;
@@ -40,8 +40,8 @@ public class ArrayScan extends TestArray {
         new ArrayScan().execute();
     }
 
-    def pr(msg:String, a: Array[double]) {
-        val aa = a as Array[double](1);
+    def pr(msg:String, a:Array[double]!) {
+        val aa = a as Array[double](1)!;
         out.println("--- " + msg);
         for (pt:Point(1) in aa)
             out.print(aa(pt) + " ");

@@ -54,4 +54,8 @@ public interface X10ProcedureInstance<T extends ProcedureDef> extends TypeObject
      */
     TypeConstraint typeGuard();
     X10ProcedureInstance<T> typeGuard(TypeConstraint guard);
+    
+    /** The type of offer statements permitted in the body. 
+	 * May be null -- no offers are permitted.*/
+	Ref<? extends Type> offerType();
 }

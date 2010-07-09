@@ -13,6 +13,7 @@ package x10.types;
 
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.constraint.XTerm;
 
@@ -28,12 +29,14 @@ public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance<
 	boolean isSafe();
 	
 	// Use X10MethodInstance as the return type rather than X10MethodInstance
-	MethodInstance returnType(Type returnType);
+	X10MethodInstance returnType(Type returnType);
 	
 	/** Type to use in a RHS context rather than the return type. */
 	Type rightType();
 	
 	XTerm body();
 	X10MethodInstance body(XTerm body);
+	
+	
 
 }

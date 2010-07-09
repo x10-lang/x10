@@ -15,8 +15,13 @@ using namespace x10aux;
 using namespace x10::lang;
 using namespace x10::io;
 
-x10aux::ref<FileReader__FileInputStream> FileReader__FileInputStream::STANDARD_IN
-    = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(stdin);
+static FileReader__FileInputStream* _STANDARD_IN_cache = NULL;
+x10aux::ref<FileReader__FileInputStream> FileReader__FileInputStream::STANDARD_IN()
+{
+	if (NULL == _STANDARD_IN_cache)
+		_STANDARD_IN_cache = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(stdin);
+    return _STANDARD_IN_cache;
+}
 
 x10aux::ref<FileReader__FileInputStream>
 FileReader__FileInputStream::_make(x10aux::ref<x10::lang::String> name) {

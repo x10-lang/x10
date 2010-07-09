@@ -39,11 +39,11 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.types.X10Context;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
 import x10.visit.X10TypeChecker;
 
 /** An immutable representation of a dependent type constraint.
@@ -158,8 +158,8 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
     	DepParameterExpr_c n = (DepParameterExpr_c) copy();
-    	n.valueConstraint = Types.<CConstraint>lazyRef(new CConstraint_c(), new SetResolverGoal(tb.job()));
-    	n.typeConstraint = Types.<TypeConstraint>lazyRef(new TypeConstraint_c(), new SetResolverGoal(tb.job()));
+    	n.valueConstraint = Types.<CConstraint>lazyRef(new CConstraint(), new SetResolverGoal(tb.job()));
+    	n.typeConstraint = Types.<TypeConstraint>lazyRef(new TypeConstraint(), new SetResolverGoal(tb.job()));
     	return n;
       }
 
@@ -228,7 +228,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 
             NodeFactory nf = tc.nodeFactory();
             
-            if (e instanceof SubtypeTest) {
+            if (X10TypeMixin.isTypeConstraintExpression(e)) {
                 if (types == null)
                     types = e;
                 else

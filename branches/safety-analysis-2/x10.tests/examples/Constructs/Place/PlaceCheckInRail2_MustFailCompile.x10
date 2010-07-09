@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CALLS
+
 import harness.x10Test;
 
 /**
@@ -47,6 +49,6 @@ public class PlaceCheckInRail2_MustFailCompile extends x10Test {
 	}
 
     public static def main(Rail[String]) {
-        new PlaceCheckInRail_MustFailCompile2().execute();
+        new PlaceCheckInRail2_MustFailCompile().execute();
     }
 }

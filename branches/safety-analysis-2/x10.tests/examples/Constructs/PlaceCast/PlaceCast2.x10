@@ -20,7 +20,7 @@ public class PlaceCast2 extends x10Test {
 	public def run(): boolean = {
 			val d = Dist.makeUnique();
 		x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
-		val disagree = Array.make[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
+		val disagree = DistArray.make[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
 				x10.io.Console.OUT.println("The currentplace is:" + here);
 				return new BoxedBoolean();
 			});
@@ -29,7 +29,8 @@ public class PlaceCast2 extends x10Test {
 			// at any activity at any place
 			try {
 				// FIX: d(p) currently causes the compiler to assert an error.
-				val x  = disagree(p) as BoxedBoolean!d(p);
+				val dp = d(p);
+				val x  = disagree(p) as BoxedBoolean!dp;
 				at (this) atomic  nplaces++; 
 			} catch (x: BadPlaceException)  {
 				x10.io.Console.OUT.println("Caught bad place exception for " + p);
@@ -38,7 +39,7 @@ public class PlaceCast2 extends x10Test {
 		      }
 		}
 		x10.io.Console.OUT.println("nplaces == " + nplaces);
-		return nplaces == Place.places.size();
+		return nplaces == Place.places.length();
 	}
 
 	public static def main(Rail[String]) {

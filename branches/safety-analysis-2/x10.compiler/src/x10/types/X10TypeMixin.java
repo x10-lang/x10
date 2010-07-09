@@ -17,8 +17,16 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Cast;
+import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.Formal;
+import polyglot.ast.Lit;
+import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.Unary;
+import polyglot.ast.Unary_c;
+import polyglot.ast.Variable;
 import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
@@ -28,7 +36,6 @@ import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef_c;
-import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -41,21 +48,20 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.ast.Here;
+import x10.ast.ParExpr;
 import x10.ast.SemanticError;
-import x10.ast.X10ClassDecl_c;
-import x10.constraint.XEquals;
+import x10.ast.SubtypeTest;
 import x10.constraint.XFailure;
-import x10.constraint.XLit;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.TypeConstraint_c;
 import x10.types.constraints.XConstrainedTerm;
 
 /** 
@@ -122,11 +128,11 @@ public class X10TypeMixin {
             return c;
         }
         
-        return new TypeConstraint_c();
+        return new TypeConstraint();
     }
     public static CConstraint realX(Type t) {
 	if (t instanceof ParameterType) {
-	    return new CConstraint_c();
+	    return new CConstraint();
 	}
 	else if (t instanceof ConstrainedType) {
             return ((ConstrainedType) t).getRealXClause();
@@ -152,7 +158,7 @@ public class X10TypeMixin {
 		    return c;
 		}
 
-		return new CConstraint_c();
+		return new CConstraint();
 	}
 	
     /**
@@ -166,7 +172,7 @@ public class X10TypeMixin {
     	try {
     	return c.substitute(v, c.self());
     	} catch (XFailure z) {
-    		CConstraint c1 = new CConstraint_c();
+    		CConstraint c1 = new CConstraint();
     		c1.setInconsistent();
     		return c1;
     	}
@@ -369,10 +375,10 @@ public class X10TypeMixin {
     	
     }
     public static Type addBinding(Type t, XTerm t1, XTerm t2) {
-    	assert (! (t instanceof UnknownType));
+    	//assert (! (t instanceof UnknownType));
         try {
             CConstraint c = xclause(t);
-            c = c == null ? new CConstraint_c() :c.copy();
+            c = c == null ? new CConstraint() :c.copy();
             c.addBinding(t1, t2);
             return xclause(X10TypeMixin.baseType(t), c);
         }
@@ -396,7 +402,7 @@ public class X10TypeMixin {
      	assert (! (t instanceof UnknownType));
         try {
             CConstraint c = xclause(t);
-            c = c == null ? new CConstraint_c() :c.copy();
+            c = c == null ? new CConstraint() :c.copy();
             c.addBinding(t1, t2);
             return xclause(X10TypeMixin.baseType(t), c);
         }
@@ -404,12 +410,19 @@ public class X10TypeMixin {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
         }
     }
+    public static Type addSelfBinding(Type t, XTerm t1) throws XFailure {
+        assert (! (t instanceof UnknownType));
+            CConstraint c = xclause(t);
+            c = c == null ? new CConstraint() :c.copy();
+            c.addSelfBinding(t1);
+            return xclause(X10TypeMixin.baseType(t), c); 
+    }
     
     public static Type addDisBinding(Type t, XTerm t1, XTerm t2) {
      	assert (! (t instanceof UnknownType));
         try {
             CConstraint c = xclause(t);
-            c = c == null ? new CConstraint_c() :c.copy();
+            c = c == null ? new CConstraint() :c.copy();
             c.addDisBinding(t1, t2);
             return xclause(X10TypeMixin.baseType(t), c);
         }
@@ -421,7 +434,7 @@ public class X10TypeMixin {
     	assert (! (t instanceof UnknownType));
         try {
             CConstraint c = xclause(t);
-            c = c == null ? new CConstraint_c() :c.copy();
+            c = c == null ? new CConstraint() :c.copy();
             c.addIn(xc);
             return xclause(X10TypeMixin.baseType(t), c);
         }
@@ -433,7 +446,7 @@ public class X10TypeMixin {
     public static Type addTerm(Type t, XTerm term) {
         try {
             CConstraint c = xclause(t);
-            c = c == null ? new CConstraint_c() :c.copy();
+            c = c == null ? new CConstraint() :c.copy();
             c.addTerm(term);
             return xclause(X10TypeMixin.baseType(t), c);
         }
@@ -449,7 +462,7 @@ public class X10TypeMixin {
     }
 
     public static XVar selfVar(Type thisType) {
-	    CConstraint c = xclause(thisType);
+	    CConstraint c = xclause(thisType); // Should this be realX(thisType) ???  - Bowen
 	    return selfVar(c);
     }
 
@@ -459,7 +472,7 @@ public class X10TypeMixin {
     }
 
     public static XVar selfVarBinding(Type thisType) {
-	    CConstraint c = xclause(thisType);
+	    CConstraint c = xclause(thisType); // Should this be realX(thisType) ???  - Bowen
 	    return selfVarBinding(c);
     }
 
@@ -468,10 +481,20 @@ public class X10TypeMixin {
 	    return c.bindingForVar(c.self());
     }
 
+    public static XTerm selfBinding(Type thisType) {
+        CConstraint c = realX(thisType);
+        return selfBinding(c);
+    }
+    
+    public static XTerm selfBinding(CConstraint c) {
+        if (c == null) return null;
+        return c.bindingForVar(c.self());
+    }
+    
     public static Type setSelfVar(Type t, XVar v) throws SemanticException {
     	CConstraint c = xclause(t);
     	if (c == null) {
-    		c = new CConstraint_c();
+    		c = new CConstraint();
     	}
     	else {
     		c = c.copy();
@@ -488,7 +511,7 @@ public class X10TypeMixin {
     public static Type setThisVar(Type t, XVar v) throws SemanticException {
         CConstraint c = xclause(t);
         if (c == null) {
-            c = new CConstraint_c();
+            c = new CConstraint();
         }
         else {
             c = c.copy();
@@ -661,20 +684,20 @@ public class X10TypeMixin {
 	  public static boolean entails(Type t, XTerm t1, XTerm t2) {
 		 CConstraint c = realX(t);
 		 if (c==null) 
-			 c = new CConstraint_c();
+			 c = new CConstraint();
 		 return c.entails(t1, t2);
 	  }
 	  
 	  public static boolean disEntails(Type t, XTerm t1, XTerm t2) {
 		 CConstraint c = realX(t);
 		 if (c==null) 
-			 c = new CConstraint_c();
+			 c = new CConstraint();
 		 return c.disEntails(t1, t2);
 	  }
 	  public static boolean disEntailsSelf(Type t, XTerm t2) {
 			 CConstraint c = realX(t);
 			 if (c==null) 
-				 c = new CConstraint_c();
+				 c = new CConstraint();
 			 return c.disEntails(c.self(), t2);
 		  }
 
@@ -687,7 +710,7 @@ public class X10TypeMixin {
 	    X10FieldInstance fi = getProperty(t, propName);
 	    if (fi != null) {
 		    try {
-			    CConstraint c = new CConstraint_c();
+			    CConstraint c = new CConstraint();
 			    XVar term = xts.xtypeTranslator().trans(c, c.self(), fi);
 			    c.addBinding(term, xts.xtypeTranslator().trans(true));
 	            return r.entails(c, context.constraintProjection(r, c));
@@ -704,7 +727,7 @@ public class X10TypeMixin {
 	            try {
 	                X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.EMPTY_LIST, xts.emptyContext()));
 	                XTerm body = mi.body();
-	                CConstraint c = new CConstraint_c();
+	                CConstraint c = new CConstraint();
 	                body = body.subst(c.self(), mi.x10Def().thisVar());
 	                c.addTerm(body);
 	                return r.entails(c, context.constraintProjection(r, c));
@@ -749,7 +772,7 @@ public class X10TypeMixin {
 		  CConstraint c = realX(t);
 		    if (c != null) {
 			    // build the synthetic term.
-			    XTerm var = selfVar(c);
+			    XTerm var = selfVar(t);
 			    if (var !=null) {
 				    X10FieldInstance fi = getProperty(t, propName);
 				    if (fi != null) {
@@ -801,7 +824,7 @@ public class X10TypeMixin {
 	}
 	
 	public static boolean isNonNull(Type t) {
-		return disEntails(t, selfVar(t),XTerms.NULL);
+		return disEntails(t, self(t), XTerms.NULL);
 	}
 
 	static XTerm findProperty(Type t, Name propName) {
@@ -819,7 +842,7 @@ public class X10TypeMixin {
 
 	public static XTerm rank(Type t, X10Context context) {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-	    return findOrSythesize(t, Name.make("rank"));
+	    return findOrSynthesize(t, Name.make("rank"));
 	}
 
 	public static Type railBaseType(Type t) {
@@ -843,7 +866,8 @@ public class X10TypeMixin {
 		X10ClassType ct = (X10ClassType) t;
 		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 		ClassType a = (ClassType) ts.Array();
-		if (ct.def() == a.def())
+		ClassType da = (ClassType) ts.Array();
+		if (ct.def() == a.def() || ct.def() == da.def())
 		    return ct.typeArguments().get(0);
 		else
 		    arrayBaseType(ct.superClass());
@@ -851,23 +875,32 @@ public class X10TypeMixin {
 	    return null;
 	}
 
-	public static boolean isVarArray(Type t) {
-	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-	    Type tt = baseType(t);
-	    Type at = baseType(ts.Array());
-	    if (tt instanceof ClassType && at instanceof ClassType) {
-	        ClassDef tdef = ((ClassType) tt).def();
-	        ClassDef adef = ((ClassType) at).def();
-	        return ts.descendsFrom(tdef, adef);
-	    }
-	    return false;
-	}
-
 	public static boolean isX10Array(Type t) {
-	    return isVarArray(t);
+        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        Type tt = baseType(t);
+        Type at = baseType(ts.Array());
+        if (tt instanceof ClassType && at instanceof ClassType) {
+            ClassDef tdef = ((ClassType) tt).def();
+            ClassDef adef = ((ClassType) at).def();
+            return ts.descendsFrom(tdef, adef);
+        }
+        return false;
+	}
+	
+	public static boolean isX10DistArray(Type t) {
+        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        Type tt = baseType(t);
+        Type at = baseType(ts.DistArray());
+        if (tt instanceof ClassType && at instanceof ClassType) {
+            ClassDef tdef = ((ClassType) tt).def();
+            ClassDef adef = ((ClassType) at).def();
+            return ts.descendsFrom(tdef, adef);
+        }
+        return false;
 	}
 
-	static XTerm findOrSythesize(Type t, Name propName) {
+
+	public static XTerm findOrSynthesize(Type t, Name propName) {
 	    return find(t, propName);
 	}
 
@@ -917,22 +950,50 @@ public class X10TypeMixin {
 		return t;
 	}
 	*/
-	
+
+    /**
+     * Returns a new constraint that allows null.
+     * E.g., given "{self.home==here, self!=null}" it returns "{self.home==here}"
+     * @param c a constraint "c" that doesn't allow null
+     * @return a new constraint with all the constraints in "c" except {self!=null}
+     */
+	public static CConstraint allowNull(CConstraint c) {
+        final XVar self = c.self();
+        CConstraint res = new CConstraint(self);
+        assert !res.disEntails(self,XTerms.NULL);
+        for (XTerm term : c.constraints()) {
+            CConstraint copy = res.copy();
+            try {
+                copy.addTerm(term);
+            } catch (XFailure xFailure) {
+                assert false : xFailure;
+            }
+            if (!copy.disEntails(self,XTerms.NULL))
+                res = copy;
+        }
+        return res;
+    }
 	public static boolean permitsNull(Type t) {
 		if (isX10Struct(t))
 			return false;
 		if (X10TypeMixin.disEntailsSelf(t, XTerms.NULL))
 			return false;
-		if (((X10TypeSystem) t.typeSystem()).isParameterType(t))
+		X10TypeSystem ts = ((X10TypeSystem) t.typeSystem());
+		if (ts.isParameterType(t)) {
+			List<Type> upper =  ts.env(ts.emptyContext()).upperBounds(t);
+			for (Type type : upper) {
+				if (permitsNull(type)) 
+					return true;
+			}
 			return false;
+		}
 		return true;
-		
 	}
 
-	public static XRoot thisVar(XRoot xthis, Type thisType) {
+	public static XVar thisVar(XVar xthis, Type thisType) {
 	    Type base = baseType(thisType);
 	    if (base instanceof X10ClassType) {
-	        XRoot supVar = ((X10ClassType) base).x10Def().thisVar();
+	        XVar supVar = ((X10ClassType) base).x10Def().thisVar();
 	        return supVar;
 	    }
 	    return xthis;
@@ -1026,7 +1087,11 @@ public class X10TypeMixin {
 	    return true;
 	}
 	
-	public static void checkMissingParameters(Type xt) throws SemanticException {
+	public static void checkMissingParameters(Receiver receiver) throws SemanticException {
+        Type xt = receiver.type();
+        checkMissingParameters(xt,receiver.position());
+    }
+	public static void checkMissingParameters(Type xt, Position pos) throws SemanticException {
 		if (xt == null) return;
 		xt = baseType(xt);
 		
@@ -1035,14 +1100,14 @@ public class X10TypeMixin {
 			
 			if (xt1.subst() == null || xt1.subst().isMissingParameters()){
 			List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
-				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, xt.position());
+				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, pos);
 			}
 		}
 	}
 	public static Type arrayElementType(Type t) {
 		t = baseType(t);
 		X10TypeSystem xt = (X10TypeSystem) t.typeSystem();
-		if (xt.isX10Array(t) || xt.isRail(t)) {
+		if (xt.isX10Array(t) || xt.isX10DistArray(t) || xt.isRail(t)) {
 			if (t instanceof X10ParsedClassType) {
 				Type result = ((X10ParsedClassType) t).typeArguments().get(0);
 				return result;
@@ -1050,4 +1115,58 @@ public class X10TypeMixin {
 		}
 		return null;
 	}
+	
+	public static boolean isTypeConstraintExpression(Expr e) {
+	    if (e instanceof ParExpr) 
+	        return isTypeConstraintExpression(((ParExpr) e).expr());
+	    else if (e instanceof Unary_c)
+	        return isTypeConstraintExpression(((Unary) e).expr());
+	    else if (e instanceof SubtypeTest)
+	        return true;
+	    return false;
+	}
+	public static boolean contextKnowsType(Receiver r) {
+		if (r instanceof Variable)
+			return ((Variable) r).flags().isFinal();
+		if (r instanceof Field)
+			return contextKnowsType( ((Field) r).target());
+		if (r instanceof Special || r instanceof Here || r instanceof Lit)
+			return true;
+		if (r instanceof ParExpr) 
+			return contextKnowsType(((ParExpr) r).expr());
+		if (r instanceof Cast) 
+			return contextKnowsType(((Cast) r).expr());
+		return false;
+			
+		
+	}
+	/**
+	 * Return T if type implements Reducer[T];
+	 * @param type
+	 * @return
+	 */
+	public static Type reducerType(Type type) {
+		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+			Type base = X10TypeMixin.baseType(type);
+
+			if (base instanceof X10ClassType) {
+				if (ts.hasSameClassDef(base, ts.Reducible())) {
+					return X10TypeMixin.getParameterType(base, 0);
+				}
+				else {
+					Type sup = ts.superClass(type);
+					if (sup != null) {
+						Type t = reducerType(sup);
+						if (t != null) return t;
+					}
+					for (Type ti : ts.interfaces(type)) {
+						Type t = reducerType(ti);
+						if (t != null) {
+							return t;
+						}
+					}
+				}
+			}
+			return null;
+		}
 }

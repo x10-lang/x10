@@ -75,16 +75,106 @@ public final class OptionsParser {
     public def apply (key:String) = set.containsKey(key) || map.containsKey(key);
 
     public def apply (key:String, d:String) = map.getOrElse(key, d);
+    /* Uncomment on resolution of XTENLANG-1413
+    public def apply (key:String, d:UByte) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return UByte.parseUByte(v);
+        } catch (e:NumberFormatException) {
+            throw new Err("Expected UByte, got: \""+v+"\"");
+        }
+    }
+    */
+    public def apply (key:String, d:Byte) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return Byte.parseByte(v);
+        } catch (e:NumberFormatException) {
+            throw new Err("Expected Byte, got: \""+v+"\"");
+        }
+    }
+    /* Uncomment on resolution of XTENLANG-1413
+    public def apply (key:String, d:UShort) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return UShort.parseUShort(v);
+        } catch (e:NumberFormatException) {
+            throw new Err("Expected UShort, got: \""+v+"\"");
+        }
+    }
+    */
+    public def apply (key:String, d:Short) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return Short.parseShort(v);
+        } catch (e:NumberFormatException) {
+            throw new Err("Expected Short, got: \""+v+"\"");
+        }
+    }
+    /* Uncomment on resolution of XTENLANG-1413
+    public def apply (key:String, d:UInt) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return UInt.parseUInt(v);
+        } catch (e:NumberFormatException) {
+            throw new Err("Expected UInt, got: \""+v+"\"");
+        }
+    }
+    */
     public def apply (key:String, d:Int) throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
             return Int.parseInt(v);
         } catch (e:NumberFormatException) {
+            throw new Err("Expected Long, got: \""+v+"\"");
+        }
+    }
+    /* Uncomment on resolution of XTENLANG-1413
+    public def apply (key:String, d:ULong) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return ULong.parseULong(v);
+        } catch (e:NumberFormatException) {
+            throw new Err("Expected ULong, got: \""+v+"\"");
+        }
+    }
+    */
+    public def apply (key:String, d:Long) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return Long.parseLong(v);
+        } catch (e:NumberFormatException) {
             throw new Err("Expected Int, got: \""+v+"\"");
+        }
+    }
+
+
+    public def apply (key:String, d:Double) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return Double.parseDouble(v);
+        } catch (e:NumberFormatException) {
+            throw new Err("Expected Double, got: \""+v+"\"");
+        }
+    }
+    public def apply (key:String, d:Float) throws Err {
+        if (!map.containsKey(key)) return d;
+        val v = map.getOrElse(key, "???");
+        try {
+            return Float.parseFloat(v);
+        } catch (e:NumberFormatException) {
+            throw new Err("Expected Float, got: \""+v+"\"");
         }
     }
 }
 
-// vim: shiftwidth=8:tabstop=8:expandtab
-
+// vim: shiftwidth=4:tabstop=4:expandtab

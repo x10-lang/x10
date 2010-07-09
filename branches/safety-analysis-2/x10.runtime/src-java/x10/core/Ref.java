@@ -32,22 +32,7 @@ public class Ref implements Any {
     public boolean equals(Object o) {
 	return this == o;
     }
-  
-
     
-    public static class RTT extends RuntimeType<Ref> {
-    	public static final RTT it = new RTT();
-
-    	public RTT() {
-            super(Ref.class);
-        }
-
-        @Override
-        public boolean instanceof$(Object o) {
-            return o instanceof Ref;
-        }
-    }
-
     public Ref box$() {
         return this;
     }
@@ -89,8 +74,39 @@ public class Ref implements Any {
             return Thread.currentThread().home();
         }
     }
+    
     public static String typeName(Object obj) {
-        String s = obj.getClass().toString();
-    	return s.equals("class java.lang.Object") ? "class x10.lang.Object" : s;
+        String s;
+        if (obj instanceof Any) {
+            s = ((Any) obj).getRTT().typeName(obj);
+        } else {
+            s = obj.getClass().toString().substring(6);
+            // TODO: create mapping table of @NativeRep'ed type to X10 type and use it.
+            // TODO: unsigned types
+            if (s.startsWith("java.")) {
+                if (s.startsWith("java.io.")) {
+                    if (s.equals("java.io.FileInputStream")) {
+                        s = "x10.io.FileReader";
+                    } else if (s.equals("java.io.FileOutputStream")) {
+                        s = "x10.io.FileWriter";
+                    } else if (s.equals("java.io.InputStream")) {
+                        s = "x10.io.InputStreamReader";
+                    } else if (s.equals("java.io.OutputStream")) {
+                        s = "x10.io.OutputStreamWriter";
+                    } else {
+                        s = "x10." + s.substring("java.".length());
+                    }
+                } else if (s.startsWith("java.lang.Integer")) {
+                    s = "x10.lang.Int";
+                } else {
+                    s = "x10." + s.substring("java.".length());
+                }
+            }
+        }
+        return s;
     }
+    
+    public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class);
+    public RuntimeType getRTT() {return _RTT;}
+    public Type<?> getParam(int i) {return null;}
 }

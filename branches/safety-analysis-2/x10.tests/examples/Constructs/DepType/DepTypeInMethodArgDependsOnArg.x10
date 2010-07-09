@@ -21,8 +21,7 @@ public class DepTypeInMethodArgDependsOnArg extends x10Test {
 			      val a_src: Array[double]{rank==a_dest.rank}): void = {	
 			      }
 	public def run(): boolean = {
-		val buffDest: Array[double]{rank==2} 
-                    = Array.make[double]([1..10, 1..10]->here);
+		val buffDest: Array[double]{rank==2} = new Array[double]([1..10, 1..10]);
 		val buffSrc = buffDest;
 		arraycopy(buffDest,  buffSrc);
 		return true;

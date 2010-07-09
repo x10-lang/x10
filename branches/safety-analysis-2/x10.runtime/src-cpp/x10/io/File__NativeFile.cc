@@ -20,6 +20,10 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 
+#if defined(__FreeBSD__)
+#include <sys/types.h>
+#endif
+
 #include <limits.h>
 
 using namespace x10::lang;
@@ -105,6 +109,9 @@ File__NativeFile::isHidden() {
 #elif defined (_AIX)
 #   define STAT_TIME_SEC(type) st_##type##time
 #   define STAT_TIME_NSEC(type) st_##type##time_n
+#elif defined (__FreeBSD__)
+#   define STAT_TIME_SEC(type) st_##type##timespec.tv_sec
+#   define STAT_TIME_NSEC(type) st_##type##timespec.tv_nsec
 #else
 #   define STAT_TIME_SEC(type) st_##type##tim.tv_sec
 #   define STAT_TIME_NSEC(type) st_##type##tim.tv_nsec

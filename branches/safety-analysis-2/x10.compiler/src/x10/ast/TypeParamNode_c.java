@@ -104,8 +104,8 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	}
 
 	public void addDecls(Context c) {
-		X10Context xc = (X10Context) c;
-		c.addNamed((Named) type());
+        if (type!=null)
+		    c.addNamed(type);
 	}
 
 	public Node visitChildren(NodeVisitor v) {

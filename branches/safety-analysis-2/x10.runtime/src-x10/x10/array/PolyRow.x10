@@ -30,7 +30,7 @@ import x10.io.Printer;
 public class PolyRow(rank:Int) extends ValRow {
 
     static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
-    static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
+    //static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
     static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
 

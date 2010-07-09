@@ -13,7 +13,7 @@ import harness.x10Test;
 
 /**
  * Two remote references to the same object must be equal.
- * @author igor 06/2009
+ * @author igor 03/2010
  */
 class RemoteRefEquality extends x10Test {
 

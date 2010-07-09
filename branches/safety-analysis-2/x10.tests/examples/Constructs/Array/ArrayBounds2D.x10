@@ -51,7 +51,7 @@ public class ArrayBounds2D extends x10Test {
     private static def arrayAccess(var lb1: int, var ub1: int, var lb2: int, var ub2: int, var i: int, var j: int): boolean = {
 
         //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j);
-        var a: Array[int](2) = Array.make[int](Dist.makeConstant([lb1..ub1, lb2..ub2], here), (Point)=>0);
+        val a = new Array[int]([lb1..ub1, lb2..ub2], (Point)=>0);
         var withinBounds: boolean = true;
 
         try {

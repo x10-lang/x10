@@ -32,7 +32,7 @@ import polyglot.types.Qualifier;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
 import x10.ast.SettableAssign;
-import x10.constraint.XArray;
+//import x10.constraint.XArray;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
@@ -124,9 +124,9 @@ public class TermCreator {
                     Type localType= local.type();
                     X10TypeSystem ts= (X10TypeSystem) localType.typeSystem();
                     Type t = X10TypeMixin.baseType(local.type());
-                    if (t.isArray() || t.isClass() && ts.descendsFrom(t.toClass().def(), ts.Array().toClass().def())) {
+                    /*if (t.isArray() || t.isClass() && ts.descendsFrom(t.toClass().def(), ts.Array().toClass().def())) {
                         fTermMap.put(old, XTerms.makeArray(new XVarDefWrapper(local)));
-                    } else {
+                    } else*/ {
                         fTermMap.put(old, XTerms.makeLocal(new XVarDefWrapper(local)));
                     }
                     
@@ -150,14 +150,15 @@ public class TermCreator {
                     Call call = (Call) old;
                     
                     //throw new UnsupportedOperationException("Don't know how to create an XTerm for a method call.");
-                } else if (old instanceof SettableAssign) {
+                /*} else if (old instanceof SettableAssign) {
                     SettableAssign sa= (SettableAssign) old;
                     Expr array= sa.array();
                     List<Expr> indices= sa.index();
                     XTerm arrayTerm= fTermMap.get(array);
                     XTerm indexTerm= fTermMap.get(indices.get(0));
 
-                    fTermMap.put(old, XTerms.makeArrayElement((XArray) arrayTerm, indexTerm));
+                    // FIXME fTermMap.put(old, (XTerm) XTerms.makeArrayElement((XArray) arrayTerm, indexTerm));
+                    fTermMap.put(old, (XTerm) XTerms.makeLocal(arrayTerm)); */
                 } else if (old instanceof FieldAssign) {
                     FieldAssign fa= (FieldAssign) old;
                     FieldInstance fi= fa.fieldInstance();

@@ -19,6 +19,6 @@ public interface Iterator[+T] {
     @Native("java", "#0.hasNext()")
     public def hasNext(): boolean;
     
-    @Native("java", "#0.next()")
+    @Native("java", "#0.next$G()")
     public def next():T;
 }

@@ -37,7 +37,7 @@ import polyglot.visit.NodeVisitor;
 import x10.types.X10TypeSystem;
 
 /**
- * Visitor that inserts boxing and unboxing code into the AST.
+ * Visitor that moves field initializers to the constructor.
  */
 public class FieldInitializerMover extends ContextVisitor {
     X10TypeSystem xts;
@@ -91,6 +91,9 @@ public class FieldInitializerMover extends ContextVisitor {
                         ConstructorDecl cd = (ConstructorDecl) cm;
 
                         Block body = cd.body();
+                        if (body == null) {
+                        	body = job().extensionInfo().nodeFactory().Block(cd.position());
+                        }
                         List<Stmt> stmts = body.statements();
                         if (stmts.size() > 0) {
                             Stmt s = stmts.get(0);

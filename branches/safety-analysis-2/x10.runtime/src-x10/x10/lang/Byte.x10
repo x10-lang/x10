@@ -23,7 +23,7 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some Byte constants.
  */
-@NativeRep("java", "byte", null, "x10.rtt.Type.BYTE")
+@NativeRep("java", "byte", null, "x10.rtt.Types.BYTE")
 @NativeRep("c++", "x10_byte", "x10_byte", null)
 public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Ordered[Byte]*/ {
     /**
@@ -270,7 +270,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * @param x the given Float
      * @return the given Float converted to a Byte.
      */
-    @Native("java", "((byte)(float)(#1))")
+    @Native("java", "x10.core.Floats.toByte(#1)")
     @Native("c++",  "((x10_byte) (#1))")
     public native static safe operator (x:Float) as Byte;
 
@@ -279,7 +279,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * @param x the given Double
      * @return the given Double converted to a Byte.
      */
-    @Native("java", "((byte)(double)(#1))")
+    @Native("java", "x10.core.Floats.toByte(#1)")
     @Native("c++",  "((x10_byte) (#1))")
     public native static safe operator (x:Double) as Byte;
 
@@ -307,13 +307,12 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
     @Native("c++", "((x10_byte)0x7f)")
     public const MAX_VALUE = 0x7f as Byte;
 
-
     /**
      * Returns a String representation of this Byte in the specified radix.
      * @param radix the radix to use in the String representation
      * @return a String representation of this Byte in the specified radix.
      */
-    @Native("java", "java.lang.Integer.toString(#0, #1)")
+    @Native("java", "x10.core.Bytes.toString(#0, #1)")
     @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
     public global safe native def toString(radix:Int): String;
 
@@ -321,7 +320,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * Returns a String representation of this Byte as a hexadecimal number.
      * @return a String representation of this Byte as a hexadecimal number.
      */
-    @Native("java", "java.lang.Integer.toHexString(#0)")
+    @Native("java", "x10.core.Bytes.toString(#0, 16)")
     @Native("c++", "x10aux::byte_utils::toHexString(#0)")
     public global safe native def toHexString(): String;
 
@@ -329,7 +328,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * Returns a String representation of this Byte as an octal number.
      * @return a String representation of this Byte as an octal number.
      */
-    @Native("java", "java.lang.Integer.toOctalString(#0)")
+    @Native("java", "x10.core.Bytes.toString(#0, 8)")
     @Native("c++", "x10aux::byte_utils::toOctalString(#0)")
     public global safe native def toOctalString(): String;
 
@@ -337,7 +336,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * Returns a String representation of this Byte as a binary number.
      * @return a String representation of this Byte as a binary number.
      */
-    @Native("java", "java.lang.Integer.toBinaryString(#0)")
+    @Native("java", "x10.core.Bytes.toString(#0, 2)")
     @Native("c++", "x10aux::byte_utils::toBinaryString(#0)")
     public global safe native def toBinaryString(): String;
 

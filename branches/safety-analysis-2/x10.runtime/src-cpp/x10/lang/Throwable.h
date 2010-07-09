@@ -36,10 +36,20 @@ namespace x10 {
             x10aux::ref<Throwable> FMGL(cause);
             x10aux::ref<String> FMGL(message);
 
-            //any longer than this and stacktrace will be truncated
+            // This stores the the native backtrace information
+            // captured when the exception was thrown.
+            // If the exception was raised on a different place,
+            // then this will not have valid information, but there may
+            // still be a human-readable backtrace available in the
+            // cachedStackTrace field.
             void *FMGL(trace)[MAX_TRACE_SIZE]; 
             int FMGL(trace_size);
 
+            // Computing the human-readable form of the backtrace is expensive.
+            // Once we do it, keep it around for future use.
+            typedef x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > StringRail;
+            StringRail FMGL(cachedStackTrace);
+            
             static x10aux::ref<Throwable> _make();
             static x10aux::ref<Throwable> _make(x10aux::ref<String> message);
             static x10aux::ref<Throwable> _make(x10aux::ref<Throwable> cause);
@@ -66,7 +76,6 @@ namespace x10 {
             virtual x10aux::ref<Throwable> getCause() { return FMGL(cause); }
             virtual x10aux::ref<String> toString();
             virtual x10aux::ref<Throwable> fillInStackTrace();
-            typedef x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > StringRail;
             virtual StringRail getStackTrace();
             virtual void printStackTrace();
             virtual void printStackTrace(x10aux::ref<x10::io::Printer>);

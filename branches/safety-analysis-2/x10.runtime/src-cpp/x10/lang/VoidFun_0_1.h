@@ -47,6 +47,9 @@ namespace x10 {
                 x10aux::ref<x10::lang::String> (I::*toString)();
                 x10aux::ref<x10::lang::String> (I::*typeName)();
             };
+
+            X10_IFACE_THUNK_DEF_1(VoidFun_0_1<P1>, apply, P1)
+
         };
 
         template<class P1> void VoidFun_0_1<P1>::_initRTT() {

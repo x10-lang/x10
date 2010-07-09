@@ -9,18 +9,12 @@
     <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime_2.0.17.jar"/>
+    <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime.java_2.0.18.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
     <property name="ecj.jar.url" value="http://dist.codehaus.org/x10/dependencies/ecj-3.5.1.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="polyglot.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/updates/plugins"/>
-    <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_3.1.3.jar"/>
-    <property name="polyglot.bytecode.jar" value="polyglot-bytecode.jar"/>
-    <property name="polyglot.bytecode.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/polyglot.bytecode/lib"/>
-    <property name="polyglot.bytecode.jar.url" value="${polyglot.bytecode.url}/polyglot-bytecode.jar"/>
-    <property name="asm.jar" value="asm.jar"/>
-    <property name="asm.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/polyglot.bytecode/lib"/>
-    <property name="asm.jar.url" value="${asm.url}/asm-all-3.2.jar"/>
+    <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_3.2.0.jar"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
@@ -45,12 +39,6 @@
         <condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
             <isset property="env.LOCAL_POLYGLOT_JAR"/>
         </condition>
-        <condition property="local.polyglot.bytecode.jar" value="${env.LOCAL_POLYGLOT_BYTECODE_JAR}">
-            <isset property="env.LOCAL_POLYGLOT_BYTECODE_JAR"/>
-        </condition>
-        <condition property="local.asm.jar" value="${env.LOCAL_ASM_JAR}">
-            <isset property="env.LOCAL_ASM_JAR"/>
-        </condition>
         <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
             <isset property="env.LOCAL_LPG_JAR"/>
         </condition>
@@ -64,6 +52,7 @@
             <fileset dir="${bin}">
                 <include name="defs"/>
                 <include name="setupX10"/>
+                <include name="java_x10rt"/>
                 <include name="x10"/>
                 <include name="x10c"/>
             </fileset>
@@ -71,9 +60,9 @@
     </target>
 
     <target name="squeakyclean" depends="clean">
-        <delete dir="${etc}" />
+        <delete dir="${etc}" failonerror="false"/>
         <mkdir dir="${etc}" />
-        <delete dir="${incdir}" />
+        <delete dir="${incdir}" failonerror="false"/>
         <mkdir dir="${incdir}" />
         <mkdir dir="${lib}" />
         <delete> <!-- TODO: download jars elsewhere and copy -->
@@ -81,13 +70,14 @@
                 <include name="*.a"/>
                 <include name="*.la"/>
                 <include name="*.so"/>
+                <include name="*.dylib"/>
                 <include name="*.dll"/>
                 <include name="*.mft"/>
                 <include name="x10*.jar"/>
             </fileset>
         </delete>
         <!-- TODO: remove generated libs, but not downloaded ones
-        <delete dir="${lib}" />
+        <delete dir="${lib}" failonerror="false"/>
         <mkdir dir="${lib}" />
         -->
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
@@ -98,7 +88,7 @@
     </target>
 
     <target name="distclean" depends="squeakyclean">
-        <delete dir="${lib}" />
+        <delete dir="${lib}" failonerror="false"/>
         <mkdir dir="${lib}" />
         <ant antfile="${x10.runtime.location}/build.xml" target="distclean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
@@ -107,72 +97,66 @@
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
     <target name="dist" depends="dist-java,dist-cpp"/>
 
+    <target name="check-jar-cache" depends="init">
+        <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+        <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
+        <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
+        <condition property="cache.up-to-date">
+            <and>
+                <isset property="lpg.jar.present"/>
+                <isset property="ecj.jar.present"/>
+                <isset property="polyglot.jar.present"/>
+            </and>
+        </condition>
+    </target>
+
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
+        <get usetimestamp="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
+        <delete file="${lib}/lpgruntime.jar"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
-        <fail message="Unable to get ${lpg.jar}" unless="lpg.jar.present"/>
+        <fail message="Unable to get ${lpg.jar} from ${lpg.jar.url}" unless="lpg.jar.present"/>
     </target>
     <target name="lpg-local-jar" depends="init" if="local.lpg.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.lpg.jar}" tofile="${lib}/${lpg.jar}"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
-        <fail message="Unable to find ${lpg.jar}" unless="lpg.jar.present"/>
+        <fail message="Unable to find ${lpg.jar} at ${local.lpg.jar}" unless="lpg.jar.present"/>
     </target>
 
     <target name="ecj-jar" depends="init,ecj-local-jar" unless="local.ecj.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
+        <get usetimestamp="true" src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
-        <fail message="Unable to get ${ecj.jar}" unless="ecj.jar.present"/>
+        <fail message="Unable to get ${ecj.jar} from ${ecj.jar.url}" unless="ecj.jar.present"/>
     </target>
     <target name="ecj-local-jar" depends="init" if="local.ecj.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.ecj.jar}" tofile="${lib}/${ecj.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
-        <fail message="Unable to find ${ecj.jar}" unless="ecj.jar.present"/>
+        <fail message="Unable to find ${ecj.jar} at ${local.ecj.jar}" unless="ecj.jar.present"/>
     </target>
 
     <target name="polyglot-jar" depends="init,polyglot-local-jar" unless="local.polyglot.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
+        <get usetimestamp="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
         <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
-        <fail message="Unable to get ${polyglot.jar}" unless="polyglot.jar.present"/>
+        <fail message="Unable to get ${polyglot.jar} from ${polyglot.jar.url}" unless="polyglot.jar.present"/>
     </target>
     <target name="polyglot-local-jar" depends="init" if="local.polyglot.jar">
         <mkdir dir="${lib}"/>
         <copy file="${local.polyglot.jar}" tofile="${lib}/${polyglot.jar}"/>
         <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
-        <fail message="Unable to find ${polyglot.jar}" unless="polyglot.jar.present"/>
+        <fail message="Unable to find ${polyglot.jar} at ${local.polyglot.jar}" unless="polyglot.jar.present"/>
     </target>
 
-    <target name="polyglot-bytecode-jar" depends="init,polyglot-bytecode-local-jar" unless="local.polyglot.bytecode.jar">
-        <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${polyglot.bytecode.jar.url}" dest="${lib}/${polyglot.bytecode.jar}"/>
-        <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
-        <fail message="Unable to get ${polyglot.bytecode.jar}" unless="polyglot.bytecode.jar.present"/>
-    </target>
-    <target name="polyglot-bytecode-local-jar" depends="init" if="local.polyglot.bytecode.jar">
-        <mkdir dir="${lib}"/>
-        <copy file="${local.polyglot.bytecode.jar}" tofile="${lib}/${polyglot.bytecode.jar}"/>
-        <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
-        <fail message="Unable to find ${polyglot.bytecode.jar}" unless="polyglot.bytecode.jar.present"/>
+    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,polyglot-jar"/>
+
+    <target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
+        <antcall target="update-jar-cache"/>
     </target>
 
-    <target name="asm-jar" depends="init,asm-local-jar" unless="local.asm.jar">
-        <mkdir dir="${lib}"/>
-        <get usetimestamp="true" ignoreerrors="true" src="${asm.jar.url}" dest="${lib}/${asm.jar}"/>
-        <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
-        <fail message="Unable to get ${asm.jar}" unless="asm.jar.present"/>
-    </target>
-    <target name="asm-local-jar" depends="init" if="local.asm.jar">
-        <mkdir dir="${lib}"/>
-        <copy file="${local.asm.jar}" tofile="${lib}/${asm.jar}"/>
-        <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
-        <fail message="Unable to find ${asm.jar}" unless="asm.jar.present"/>
-    </target>
-
-    <target name="build" depends="init,bin,etc,lpg-jar,ecj-jar,polyglot-jar,polyglot-bytecode-jar,asm-jar">
+    <target name="build" depends="init,bin,etc,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
@@ -229,6 +213,7 @@
         <antcall target="setupX10"/>
         <antcall target="x10"/>
         <antcall target="x10c"/>
+        <antcall target="java_x10rt"/>
     </target>
 
     <target name="etc"
@@ -258,11 +243,16 @@
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/x10c.in"/>
         </uptodate>
+        <uptodate property="java_x10rt.up-to-date" targetfile="${bin}/java_x10rt">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/java_x10rt.in"/>
+        </uptodate>
         <condition property="bin.up-to-date">
             <and>
                 <isset property="setupX10.up-to-date"/>
                 <isset property="x10.up-to-date"/>
                 <isset property="x10c.up-to-date"/>
+                <isset property="java_x10rt.up-to-date"/>
             </and>
         </condition>
     </target>
@@ -317,7 +307,7 @@
         <echo message="X10_PLATFORM = '${env.X10_PLATFORM}'"/>
         <echo message="TOP = '${basedir}'"/>
         <!-- TODO: some of this is x10c-specific; factor out into x10c.in -->
-        <echo file="${bin}/defs" append="no">#!/bin/bash
+	<echo file="${bin}/defs" append="no">#!/usr/bin/env bash
 # DO NOT EDIT - This file was automatically generated.
 
 #JAVA='${java.executable}'
@@ -327,13 +317,9 @@
 #PATH_SEP='${path.separator}'
 #CONFIG_FILE='${config}'
 POLYGLOT_JAR='${polyglot.jar}'
-POLYGLOT_BYTECODE_JAR='${polyglot.bytecode.jar}'
-ASM_JAR='${asm.jar}'
 LPG_JAR='${lpg.jar}'
 ECJ_JAR='${ecj.jar}'
 POLYGLOT_URL='${polyglot.jar.url}'
-POLYGLOT_BYTECODE_URL='${polyglot.bytecode.jar.url}'
-ASM_URL='${asm.jar.url}'
 LPG_URL='${lpg.jar.url}'
 ECJ_URL='${ecj.jar.url}'
 
@@ -349,13 +335,14 @@ case "$UNAME" in
   Darwin,*,i*86) export X10_PLATFORM='macosx_x86';;
   Darwin,*,powerpc) export X10_PLATFORM='macosx_ppc';;
   SunOS,*,sparc) export X10_PLATFORM='sunos_sparc';;
+  FreeBSD,*64*,*) export X10_PLATFORM='freebsd_amd64';;
   *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
 esac
 # NOTE: the above assumes that Cygwin==win32 (probably valid)
 
-prog="$(readlink $0 2&gt;&amp;1)"
+prog="$(readlink "$0" 2&gt;&amp;1)"
 [ $? -eq 127 -o "$prog" = "" ] &amp;&amp; prog="$0"
-TOP="$(cd "$(dirname $prog)/.." &amp;&amp; pwd)"
+TOP="$(cd "$(dirname "$prog")/.." &amp;&amp; pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -am "$TOP")"; fi
 
 if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
@@ -420,6 +407,22 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         <delete file="${bin}/defs"/>
     </target>
 
+    <target name="java_x10rt" unless="java_x10rt.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script java_x10rt">
+        <echo message="Creating ${bin}/java_x10rt"/>
+        <concat destfile="${bin}/java_x10rt" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/java_x10rt" append="yes">
+            <filelist dir="${bin}" files="java_x10rt.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/java_x10rt"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
     <!-- the following lines have only ever been tested on AIX -->
     <!-- they build the LAPI support library -->
     <target name="buildLAPISupportTask">
@@ -473,7 +476,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         <zip destfile="${src.zip.location}/x10-${src.zip.version}.zip">
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <zipfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${polyglot.jar},lib/${polyglot.bytecode.jar},lib/${asm.jar},lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
+            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
             <zipfileset prefix="x10.compiler" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>

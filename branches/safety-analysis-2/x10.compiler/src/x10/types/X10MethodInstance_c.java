@@ -19,6 +19,7 @@ import java.util.List;
 import polyglot.types.ArrayType;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
+import polyglot.types.ErrorRef_c;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
@@ -26,6 +27,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance_c;
+import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.PrimitiveType;
 import polyglot.types.ProcedureInstance;
@@ -43,12 +45,12 @@ import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
-import x10.constraint.XRoot;
+import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.Matcher;
 import x10.effects.constraints.Effect;
@@ -118,6 +120,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return n;
     }
 
+    public Ref <? extends Type> offerType() {
+    	return x10Def().offerType();
+    }
+  
     /** Constraint on formal parameters. */
     protected CConstraint guard;
     public CConstraint guard() {
@@ -181,7 +187,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return n;
     }
 
-    public static void buildSubst(X10MethodInstance mi, List<XVar> ys, List<XRoot> xs, XRoot thisVar) {
+    public static void buildSubst(X10MethodInstance mi, List<XVar> ys, List<XVar> xs, XVar thisVar) {
         if (mi.x10Def().thisVar() != null && mi.x10Def().thisVar() != thisVar) {
             ys.add(thisVar);
             xs.add(mi.x10Def().thisVar());
@@ -190,7 +196,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         buildSubst(mi.container(), ys, xs, thisVar);
     }
 
-    public static void buildSubst(Type t, List<XVar> ys, List<XRoot> xs, XRoot thisVar) {
+    public static void buildSubst(Type t, List<XVar> ys, List<XVar> xs, XVar thisVar) {
         Type container = X10TypeMixin.baseType(t);
         if (container instanceof X10ClassType) {
             X10ClassDef cd = ((X10ClassType) container).x10Def();
@@ -282,8 +288,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public String signature() {
         StringBuilder sb = new StringBuilder();
+        Name name = this.name();
         sb.append(name != null ? name : def().name());
         List<String> params = new ArrayList<String>();
+        List<Type> typeParameters = this.typeParameters();
         if (typeParameters != null) {
             for (int i = 0; i < typeParameters.size(); i++) {
                 params.add(typeParameters.get(i).toString());
@@ -300,7 +308,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             sb.append("]");
         }
         List<String> formals = new ArrayList<String>();
+        List<Type> formalTypes = this.formalTypes();
         if (formalTypes != null) {
+            List<LocalInstance> formalNames = this.formalNames();
             for (int i = 0; i < formalTypes.size(); i++) {
                 String s = "";
                 String t = formalTypes.get(i).toString();
@@ -325,14 +335,17 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         sb.append("(");
         sb.append(CollectionUtil.listToString(formals));
         sb.append(")");
+        CConstraint guard = this.guard();
         if (guard != null)
             sb.append(guard);
         else if (x10Def().guard() != null)
             sb.append(x10Def().guard());
+        TypeConstraint typeGuard = this.typeGuard();
         if (typeGuard != null)
             sb.append(typeGuard);
         else if (x10Def().typeGuard() != null)
             sb.append(x10Def().typeGuard());
+        Ref<? extends Type> returnType = this.returnTypeRef();
         if (returnType != null && returnType.known()) {
             sb.append(": ");
             sb.append(returnType);
@@ -361,7 +374,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                 else {
                     CConstraint rc = X10TypeMixin.xclause(t);
                     if (rc == null)
-                        rc = new CConstraint_c();
+                        rc = new CConstraint();
 
                     XTerm receiver;
 
@@ -425,5 +438,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return Types.get(effect);
     }
 
-
+    public boolean isValid() {
+        return !(def instanceof ErrorRef_c<?>);
+    }
 }
