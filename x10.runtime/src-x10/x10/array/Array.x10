@@ -195,7 +195,7 @@ public final class Array[T](
      * values are initialized to the corresponding values in the 
      * argument ValRail.
      *
-     * TODO: rail is declared to be a ValRail[T]! as a hack around
+     * XTENLANG-1527: rail is declared to be a ValRail[T]! as a hack around
      *       a compiler bug.  Without the !, the front-end complains that you
      *       can't refer to "T" in a static context, which is complete nonsense
      *       since this is a constructor.
