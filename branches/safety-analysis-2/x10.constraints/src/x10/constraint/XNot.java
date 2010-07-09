@@ -11,6 +11,19 @@
 
 package x10.constraint;
 
-public interface XNot extends XFormula {
-
+public class XNot extends XFormula  {
+	
+	public XNot(XTerm arg) {
+		super(XTerms.notName, arg);
+	}
+	
+	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+		assert false : "Should not intern " + this;
+		return super.internIntoConstraint(c, last);
+	}
+	
+	@Override
+	public String toString() {
+		return "!" + unaryArg();
+	}
 }

@@ -14,11 +14,11 @@ package x10.constraint;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XSubst_c extends XRef_c<XConstraint> {
+public class XSubst extends XRef<XConstraint> {
 
 	XTerm y;
-	XRoot x;
-	XRef_c<XConstraint> ref;
+	XVar x;
+	XRef<XConstraint> ref;
 
 	@Override
 	public String toString() {
@@ -26,7 +26,7 @@ public class XSubst_c extends XRef_c<XConstraint> {
 	}
 
 	/** term[y/x] */
-	XSubst_c(XRef_c<XConstraint> ref, XTerm y, XRoot x) {
+	XSubst(XRef<XConstraint> ref, XTerm y, XVar x) {
 //		if (ref instanceof XSubst_c) {
 //			XSubst_c s = (XSubst_c) ref;
 //			if (s.result == null) {
@@ -60,24 +60,23 @@ public class XSubst_c extends XRef_c<XConstraint> {
 //			System.out.print("");
 	}
 	
-	private static int count = 0;
 
 	@Override
 	public XConstraint compute() {
-		XRef_c<XConstraint> ref = this.ref;
+		XRef<XConstraint> ref = this.ref;
 		XTerm y = this.y;
-		XRoot x = this.x;
+		XVar x = this.x;
 		
 		assert ref != null;
 		assert y != null;
 		assert x != null;
 		
 		// avoid recursion by using a stack
-		ArrayList<XSubst_c> stack = new ArrayList<XSubst_c>();
+		ArrayList<XSubst> stack = new ArrayList<XSubst>();
 		stack.add(this);
 		
-		while (ref instanceof XSubst_c) {
-			XSubst_c s = (XSubst_c) ref;
+		while (ref instanceof XSubst) {
+			XSubst s = (XSubst) ref;
 			
 			if (s.result != null)
 				break;
@@ -101,7 +100,7 @@ public class XSubst_c extends XRef_c<XConstraint> {
 		boolean inconsistent = false;
 		
 		for (int i = stack.size()-1; i >= 0; i--) {
-			XSubst_c s = stack.get(i);
+			XSubst s = stack.get(i);
 			
 			try {
 				if (! inconsistent) {
@@ -114,7 +113,7 @@ public class XSubst_c extends XRef_c<XConstraint> {
 			}
 			catch (XFailure e) {
 				inconsistent = true;
-				XConstraint c2 = new XConstraint_c();
+				XConstraint c2 = new XConstraint();
 				c2.setInconsistent();
 				c = c2;
 			}

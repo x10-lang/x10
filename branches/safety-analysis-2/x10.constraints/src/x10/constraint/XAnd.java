@@ -17,6 +17,20 @@ package x10.constraint;
  * @author vj
  *
  */
-public interface XAnd extends XFormula {
+
+public class XAnd extends XFormula {
+	
+	public XAnd(XTerm left, XTerm right) {
+		super(XTerms.andName, left, right);
+	}
+	
+	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+		return super.internIntoConstraint(c, last);
+	}
+
+	@Override
+	public String toString() {
+		return left() + ", " + right();
+	}
 
 }

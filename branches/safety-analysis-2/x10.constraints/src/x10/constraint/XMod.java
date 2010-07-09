@@ -11,19 +11,24 @@
 
 package x10.constraint;
 
-public class XNot_c extends XFormula_c implements XNot {
-	
-	public XNot_c(XTerm arg) {
-		super(XTerms.notName, arg);
+import java.util.List;
+
+
+/**
+ * Represents t1 + t2
+ * 
+ * Intended as placeholder for special treatment for propagation rules and simplification rules
+ * for +.
+ * @author vj
+ *
+ */
+public class XMod extends XFormula {
+
+
+	public XMod(XTerm... args) {
+		super(XTerms.modName, args);
 	}
-	
-	public XPromise internIntoConstraint(XConstraint_c c, XPromise last) throws XFailure {
-		assert false : "Should not intern " + this;
-		return super.internIntoConstraint(c, last);
-	}
-	
-	@Override
 	public String toString() {
-		return "!" + unaryArg();
+		return arguments.get(0) + "%" + arguments.get(1);
 	}
 }
