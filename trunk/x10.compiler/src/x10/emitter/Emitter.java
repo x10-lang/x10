@@ -2290,28 +2290,34 @@ public class Emitter {
 //		clocks = new Template(this, "clocked", new Loop(this, "clocked-loop", c
 //				.clocks(), new CircularList<Integer>(id)), id);
 		// }
-                clocks = Template.createTemplateFromRegex(this, "x10.core.RailFactory.<x10.lang.Clock>makeValRailFromJavaArray(x10.lang.Clock._RTT, new x10.lang.Clock[] { #0 })", new Loop(this, "clocked-loop", c
-                    .clocks(), new CircularList<Integer>(id)), id);
-		
+
+		// SYNOPSIS: #0=clock    #1=unique_id
+		String regex = "#0,";
+		Loop loop = new Loop(this, "clocked-loop", regex, c.clocks(), new CircularList<Integer>(id));
+		clocks = Template.createTemplateFromRegex(this, null,
+		                                          "x10.core.RailFactory.<x10.lang.Clock>makeValRailFromJavaArray(x10.lang.Clock._RTT, new x10.lang.Clock[] { #0 })",
+		                                          loop,
+		                                          id);
+
 		return clocks;
 	}
 
-	public void processClockedLoop(String template, X10ClockedLoop l) {
+	public void processClockedLoop(String template, String regex, X10ClockedLoop l) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		new Template(this, template,
-		/* #0 */l.formal().flags(),
-		/* #1 */l.formal().type(),
-		/* #2 */l.formal().name(),
-		/* #3 */l.domain(),
-				/* #4 */new Join(this, "\n", new Join(this, "\n", l.locals()),
-						l.body()),
-				/* #5 */processClocks(l),
-				/* #6 */new Join(this, "\n", l.locals()),
-				/* #7 */new TypeExpander(this, l.formal().type().type(),
-						X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-								| X10PrettyPrinterVisitor.BOX_PRIMITIVES),
-				/* #8 */l.position().nameAndLineString().replace("\\", "\\\\"))
-				.expand(tr2);
+		Template.createTemplateFromRegex(this, template, regex,
+	                    /* #0 */l.formal().flags(),
+	                    /* #1 */l.formal().type(),
+	                    /* #2 */l.formal().name(),
+	                    /* #3 */l.domain(),
+	                            /* #4 */new Join(this, "\n", new Join(this, "\n", l.locals()),
+	                                    l.body()),
+	                            /* #5 */processClocks(l),
+	                            /* #6 */new Join(this, "\n", l.locals()),
+	                            /* #7 */new TypeExpander(this, l.formal().type().type(),
+	                                    X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
+	                                            | X10PrettyPrinterVisitor.BOX_PRIMITIVES),
+	                            /* #8 */l.position().nameAndLineString().replace("\\", "\\\\"))
+	                            .expand(tr2);
 	}
 
 	public String convertToString(Object[] a) {

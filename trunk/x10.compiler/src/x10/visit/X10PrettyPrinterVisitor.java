@@ -1544,22 +1544,24 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		String pat = er.getJavaImplForDef(mi.x10Def());
 		if (pat != null) {
-//			boolean needsHereCheck = er.needsHereCheck(target, context);
+		    boolean needsHereCheck = er.needsHereCheck(target, context);
 			
 			CastExpander targetArg;
 			boolean cast = xts.isParameterType(t);
-//			if (needsHereCheck && ! (target instanceof TypeNode || target instanceof New)) {
-//				Template tmplate = new Template(er, "place-check", new TypeExpander(er, target.type(), true, false, false), target);
-//				targetArg = new CastExpander(w, er, tmplate);
-//				if (cast) {
-//					targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES);
-//				}
-//			} else {
+			if (needsHereCheck && ! (target instanceof TypeNode || target instanceof New)) {
+                // SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
+                String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))";
+				Template tmplate = Template.createTemplateFromRegex(er, "place-check", regex, new TypeExpander(er, target.type(), true, false, false), target);
+				targetArg = new CastExpander(w, er, tmplate);
+				if (cast) {
+					targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES);
+				}
+			} else {
 				targetArg = new CastExpander(w, er, target);
 				if (cast) {
 					targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES);
 				}
-//			}
+			}
 			List<Type> typeArguments  = Collections.<Type>emptyList();
 			if (mi.container().isClass() && !mi.flags().isStatic()) {
 			    X10ClassType ct = (X10ClassType) mi.container().toClass();
@@ -1621,7 +1623,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				if (needsHereCheck) {
 					// don't annotate calls with implicit target, or this and super
 					// the template file only emits the target
-					miContainer = new CastExpander(w, er, new Template(er, "place-check", new TypeExpander(er, t, true, false, false), target));
+		            // SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
+		            String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))";
+		            Template template = Template.createTemplateFromRegex(er, "place-check", regex, new TypeExpander(er, t, true, false, false), target);
+					miContainer = new CastExpander(w, er, template);
 				}
 				else {
 					miContainer = new CastExpander(w, er, target);
@@ -2204,26 +2209,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 			Object body = f.body();
 
-			if (!form.isUnnamed())
-				body = new Join(er, "\n",
-						new Template(er, "point-create",
-								form.flags(),
-								form.type(),
-								form.name(),
-								new Join(er, ",", idxs)
-						),
-						body);
+			if (!form.isUnnamed()) {
+			    // SYNOPSIS: #0=modifiers #1=type #2=var #3=idxs_list
+			    String regex = "#0 #1 #2 = x10.array.Point.make(#3);";
+                Template template = Template.createTemplateFromRegex(er, "point-create", regex,
+                                                                     form.flags(),
+                                                                     form.type(),
+                                                                     form.name(),
+                                                                     new Join(er, ",", idxs)
+                    ); 
+			    body = new Join(er, "\n", template, body);
+			}
 
-			body = new Join(er, "\n",
-					new Loop(er, "final-var-assign", new CircularList<String>("int"), idx_vars, idxs),
-					body);
+			// SYNOPSIS: #0=type #1=final_var #2=value_var
+			String regex1 = "final #0 #1 = #2;";
+            Loop loop1 = new Loop(er, "final-var-assign", regex1, new CircularList<String>("int"), idx_vars, idxs);
+			body = new Join(er, "\n", loop1, body);
 
+			// SYNOPSIS: #0=generated_index_var #1=region_var #2=index #3=limit_var
+			String regex2 = "for (int #0 = #1.min(#2), #3 = #1.max(#2); #0 <= #3; #0++)";
+            Loop loop2 = new Loop(er, "forloop-mult-each", regex2, idxs, new CircularList<String>(regVar), vals, lims);
 			// SYNOPSIS: #0=region_expr #1=region_var #2=rect_for_header #3=rect_for_body #4=regular_for_iterator
             String regex = "{ x10.array.Region #1 = (#0).region(); if (#1.rect()) { #2 { #3 } } else { #4 }	}";
 			er.dumpRegex("forloop-mult", new Object[] {
 			        f.domain(),
                     regVar,
-                    new Loop(er, "forloop-mult-each", idxs, new CircularList<String>(regVar), vals, lims),
+                    loop2,
                     body,
                     //                           new Template("forloop",
                     //                                   form.flags(),
@@ -2254,12 +2265,39 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(ForEach_c f) {
 		assert (false);
 		// System.out.println("X10PrettyPrinter.visit(ForEach c): |" + f.formal().flags().translate() + "|");
-		er.processClockedLoop("foreach", f);
+		// SYNOPSIS: foreach (#0 #2: #1 in #3) clocked(#5) {#4}    #6=locals #7=boxed type #8=position
+		String regex =
+		    "for (x10.core.Iterator<#7> #2__ = (#3).iterator(); #2__.hasNext(); ) {\n" +
+		        "#0 #1 #2 = #2__.next();\n" +
+		        "#6\n" +
+                "x10.runtime.Runtime.runAsync(x10.runtime.Runtime.here(), #5,\n" +
+                    "new x10.core.fun.VoidFun_0_0() {\n" +
+                        "public void apply() {\n" +
+                            "#4\n" +
+                        "}\n" +
+                    "}, \"foreach-#8\");\n" +
+            "}";
+		er.processClockedLoop("foreach", regex, f);
 	}
 
 	public void visit(AtEach_c f) {
 		assert (false);
-		er.processClockedLoop("ateach", f);
+		// SYNOPSIS: ateach (#0 #2: #1 in #3) clocked(#5) {#4}    #6=locals #7=boxed type #8=position
+		String regex =
+		    "{\n" +
+		        "x10.array.Dist #2__distCopy = #3; // make copy to avoid recomputation\n" +
+		        "for (x10.core.Iterator<#7> #2__ = #2__distCopy.iterator(); #2__.hasNext(); ) {\n" +
+		            "#0 #1 #2 = #2__.next();\n" +
+		            "#6\n" +
+		            "x10.runtime.Runtime.runAsync(#2__distCopy.apply(#2), #5,\n" +
+                        "new x10.core.fun.VoidFun_0_0() {\n" +
+                            "public void apply() {\n" +
+                                "#4\n" +
+                            "}\n" +
+                        "}, \"ateach-#8\");\n" +
+                "}\n" +
+            "}";
+		er.processClockedLoop("ateach", regex, f);
 	}
 
 	public void visit(Now_c n) {
@@ -2331,7 +2369,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			if (needsHereCheck) {
 				// no check required for implicit targets, this and super
 				// the template file only emits the target
-				new Template(er, "place-check", new TypeExpander(er, t, true, false, false), target).expand();
+			    // SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
+			    String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))";
+				Template.createTemplateFromRegex(er, "place-check", regex, new TypeExpander(er, t, true, false, false), target).expand();
 				// then emit '.' and name of the field.
 				w.write(".");
 				w.write(Emitter.mangleToJava(n.name().id()));
@@ -2423,7 +2463,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		boolean needsHereCheck = er.needsHereCheck(array, context);
 		Template tmp = null; 
 		if (needsHereCheck) {
-			tmp = new Template(er, "place-check", new TypeExpander(er, array.type(), true, false, false), array);
+            // SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
+            String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))";
+			tmp = Template.createTemplateFromRegex(er, "place-check", regex, new TypeExpander(er, array.type(), true, false, false), array);
 		}
 
 		boolean nativeop = false;
