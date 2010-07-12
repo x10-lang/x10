@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -98,6 +99,8 @@ public class X10Builder extends IncrementalProjectBuilder {
     private static PluginBase sPlugin= null;
     protected PolyglotDependencyInfo fDependencyInfo;
     private Collection<IPath> fSrcFolderPaths; // project-relative paths
+    private Map<IPath,IPath> fBinFolderPaths;  // project-relative paths, maps src paths to corresponding bin path if it exists. 
+    										   // value-set does not contain default output location for project.
     private static final boolean traceOn=false;
     
     /**
@@ -182,9 +185,14 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private boolean isBinaryFolder(IResource resource) {
-        // BUG This should check whether the given resource is in an "output folder"
-        // of a source classpath entry, analogous to above check in isSourceFile().
-        return resource.getFullPath().lastSegment().equals("bin"); //TODO: Fix 
+		try {
+			IPath path = resource.getFullPath().removeFirstSegments(1);
+	    	return fX10Project.getOutputLocation().removeFirstSegments(1).equals(path) || fBinFolderPaths.values().contains(resource.getFullPath().removeFirstSegments(1));
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return false;
     }
     
     
@@ -282,6 +290,7 @@ public class X10Builder extends IncrementalProjectBuilder {
      */
     private void collectSourceFolders() throws JavaModelException {
         fSrcFolderPaths= new HashSet<IPath>();
+        fBinFolderPaths = new HashMap<IPath,IPath>();
         IClasspathEntry[] cpEntries= fX10Project.getResolvedClasspath(true);
 
         for(int i= 0; i < cpEntries.length; i++) {
@@ -292,8 +301,14 @@ public class X10Builder extends IncrementalProjectBuilder {
                     X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Source classpath entry refers to another project: " + entryPath);
                     continue;
                 }
-                fSrcFolderPaths.add(entryPath.removeFirstSegments(1));
+                IPath path = entryPath.removeFirstSegments(1);
+                fSrcFolderPaths.add(path);
+                IPath output = cpEntry.getOutputLocation();
+                if (output != null){
+                	fBinFolderPaths.put(path, cpEntry.getOutputLocation().removeFirstSegments(1));
+                }
             }
+                
         }
     }
 
@@ -958,7 +973,7 @@ public class X10Builder extends IncrementalProjectBuilder {
      ***********************/
     
     /***********************
-     * Unused Methods
+     * Visitor Helpers
      ***********************/
     
     /*
@@ -982,10 +997,32 @@ public class X10Builder extends IncrementalProjectBuilder {
     	}
     }
 
+    /**
+     * Returns the corresponding java file in an output folder
+     * @param path  project-relative path
+     * @return project-relative path
+     */
+    private IPath getJavaFile(IPath path) { //project relative path
+    	for(IPath src: fSrcFolderPaths){
+    		if (src.isPrefixOf(path)){
+    			IPath rest = path.removeFirstSegments(src.segmentCount()).removeFileExtension().addFileExtension("java");
+    			IPath bin;
+				try {
+					bin = fBinFolderPaths.get(src)!=null? fBinFolderPaths.get(src) : fX10Project.getOutputLocation().removeFirstSegments(1);
+					IPath result  = bin.append(rest);
+					return result;
+				} catch (JavaModelException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
+    		}
+    	}
+    	return null;
+    }
     private boolean hasNoJava(IFile file){
-    	 IPath genJavaFile= file.getFullPath().removeFileExtension().addFileExtension("java");
+    	 IPath genJavaFile= getJavaFile(file.getFullPath().removeFirstSegments(1));
     	 IFile javaFile= fProject.getWorkspace().getRoot().getFile(genJavaFile);
-         if (!javaFile.exists()) 
+         if (!javaFile.exists())
         	 return true;
          return false;
     }
@@ -1044,7 +1081,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
     
     /***********************
-     * END - Unused Methods
+     * END - Visitor Helpers
      ***********************/
     
 }
