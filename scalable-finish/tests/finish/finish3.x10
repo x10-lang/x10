@@ -55,7 +55,20 @@ public class finish3 {
                         f2();
                 }
         }
-
+finish{
+			 at(here){
+			 finish{
+				 async{}
+				 
+					 at(here){
+						 async{}
+					 }
+				 
+			 }
+			 
+		 }
+			 async{}
+		 }
   }        
 }
 

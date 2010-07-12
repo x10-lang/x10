@@ -34,9 +34,35 @@ public class finish6 {
                         async{}
                         at(here){}
                 }
+                f2();
         }
-
-
+        for(;;){
+        	for(;;){
+        		async{}
+        		break;
+        	}
+        	f1();
+        }
+        for(;;){
+        	for(;;){
+        		async{}
+                        continue;	
+        	}
+        	f1();
+        }
+        for(;;){
+		 finish{
+			 for(;;){
+				 async{}
+			 }
+		 }
+        }
+        finish{
+		 for(;;){
+			 async{}
+		 }
+		
+	 }
   }        
 }
 

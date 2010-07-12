@@ -1,0 +1,28 @@
+               An X10 implementation of the NPB3.0 CG Benchmark 
+
+In this implementation, the matrix and vectors are partitioned across places. 
+
+Note that the master thread has affinity with the default place 0.
+
+Besides standard NPB test problems, a small test problem (Class SS) is also defined here for debugging.
+
+Related class: Block, CGGen, CGSolver, CRSparseMatrix, LocalVector, Random, SparseMat, Timer, Util, Vector
+	Here, CGGen and Timer are direct port of the Java classes from the NPB3.0 release.
+
+Reference:
+	Datta et al. Titanium Performance and Potential: an NPB Experimental Study. 
+	In Proceedings of the 18th International Workshop on Languages and Compilers for Parallel Computing (LCPC), 
+	October 2005.        
+
+Usage:
+	
+    a) x10c -d directoryForGeneratedFiles -BAD_PLACE_RUNTIME_CHECK=false npb2/CGDriver.x10
+		directoryForGeneratedFiles contains the generated .class and .java files
+		
+    b) x10 -classpath directoryForGeneratedfiles -NUMBER_OF_LOCAL_PLACES=mmm -INIT_THREADS_PER_PLACE=1  
+        -PRELOAD_CLASSES=true npb2.CGDriver -CLASS
+        mmm is the number of places to use which has to be an even power of 2 at this moment
+        CLASS = any of {S, W, A, B, C}
+
+LocalVector implements interface x10.lang.RemoteDoubleArrayCopier which can be found in x10.runtime/src/x10/lang,
+ where you can also find the definition of x10.lang.Runtime.arrayCopy() and x10.lang.Runtime.asyncDoubleArrayCopy().

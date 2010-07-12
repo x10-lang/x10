@@ -11,8 +11,8 @@ i++;
 }
 
 public def foo():void throws IllegalOperationException {
-	@FinishAsync(1,1,true,"async")
-	@FinishAsync(1,1,true,"at")
+	//@FinishAsync(1,1,true,"async")
+	//@FinishAsync(1,1,true,"at")
 	@FinishAsync(1,1,true,"async")
 	  finish{
 	  async{}
