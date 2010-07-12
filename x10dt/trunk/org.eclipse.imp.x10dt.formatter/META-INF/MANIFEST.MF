@@ -15,5 +15,5 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.imp.x10dt.core,
  org.eclipse.imp.formatting,
  polyglot3;bundle-version="3.0.2",
- x10.compiler.p3;bundle-version="1.7.4"
+ x10.compiler;bundle-version="1.7.5"
 Eclipse-LazyStart: true
