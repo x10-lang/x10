@@ -65,27 +65,21 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_IllegalPrjName;
 
-  public static String CAT_IOError;
-
   public static String CAT_MainTypeGroupName;
 
-  public static String CAT_MainTypeSearchError;
-
-  public static String CAT_MainTypeSearchInternalError;
+  public static String CAT_NoCPPProjectNature;
 
   public static String CAT_NoExistingProject;
 
-	public static String CAT_NoMainX10FileFound;
-
   public static String CAT_OutputToConsoleMsg;
-
-  public static String CAT_ParsingX10FilesMsg;
 
   public static String CAT_PrjSelectionDialogMsg;
 
   public static String CAT_PrjSelectionDialogTitle;
 
   public static String CAT_ProjectGroupName;
+
+  public static String CAT_ProjectNatureAccessError;
 
   public static String CAT_ReadConfigError;
   
@@ -95,15 +89,7 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_SearchButton;
 
-	public static String CAT_SearchInfoResult;
-
-  public static String CAT_SearchingMainMethodsMsg;
-
   public static String CAT_TabName;
-
-  public static String CAT_X10FileSearchOrCPFailure;
-
-  public static String CAT_X10ParsingInternalError;
 
   public static String CISP_AutoDetect;
 
@@ -392,10 +378,6 @@ public class LaunchMessages extends NLS {
   public static String RMCP_ValidateRemoteConn;
 
   public static String RMCP_ValidateRemoteConnBt;
-
-  public static String XCTD_DialogMsg;
-
-  public static String XCTD_DialogTitle;
 
   public static String XPC_ArchivingFailure;
 

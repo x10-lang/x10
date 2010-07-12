@@ -12,47 +12,28 @@ import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
 
-import java.io.File;
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
-import lpg.runtime.IMessageHandler;
-
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
+import org.eclipse.imp.utils.Pair;
+import org.eclipse.imp.x10dt.ui.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
-import org.eclipse.imp.x10dt.ui.launch.core.Messages;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.CpEntryAsStringFunc;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.IPathToFileFunc;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.JavaModelFileResource;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.RuntimeFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFactory;
-import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.AlwaysTrueFilter;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.CollectionUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IdentityFunctor;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
@@ -60,12 +41,11 @@ import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PlatformConfUtils;
-import org.eclipse.imp.x10dt.ui.parser.ExtensionInfo;
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.imp.x10dt.ui.utils.LaunchUtils;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
@@ -84,29 +64,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
-import org.eclipse.ui.dialogs.SelectionDialog;
 
-import polyglot.ast.Node;
-import polyglot.frontend.Compiler;
-import polyglot.frontend.FileSource;
-import polyglot.frontend.Globals;
-import polyglot.frontend.Source;
 import polyglot.types.ClassType;
-import polyglot.types.MethodDef;
-import polyglot.util.ErrorInfo;
-import polyglot.util.ErrorQueue;
-import polyglot.util.Position;
-import polyglot.visit.NodeVisitor;
-import x10.X10CompilerOptions;
-import x10.ast.X10MethodDecl;
-import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
 
 
 final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchConfigurationTab {
@@ -229,6 +192,15 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           setErrorMessage(NLS.bind(LaunchMessages.CAT_NoExistingProject, projectName));
           return false;
         }
+        try {
+          if (! project.hasNature(CppLaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+            setErrorMessage(NLS.bind(LaunchMessages.CAT_NoCPPProjectNature, projectName));
+            return false;
+          }
+        } catch (CoreException except) {
+          setErrorMessage(NLS.bind(LaunchMessages.CAT_ProjectNatureAccessError, projectName));
+          return false;
+        }
         if (! project.isOpen()) {
           setErrorMessage(NLS.bind(LaunchMessages.CAT_ClosedProject, projectName));
           return false;
@@ -249,7 +221,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         } else {
         	final ITargetOpHelper targetOpHelper = getTargetOpHelper();
         	if (targetOpHelper == null) {
-        		setErrorMessage(Messages.CPPB_NoPTPConnectionForName);
+        		setErrorMessage(org.eclipse.imp.x10dt.ui.launch.core.Messages.CPPB_NoPTPConnectionForName);
         		return false;
         	}
           try {
@@ -269,62 +241,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   
   // --- Private code
   
-  private void collectX10Types(final IProject project, final Collection<ClassType> x10Types,
-                               final IProgressMonitor monitor) throws CoreException {
-    monitor.beginTask(null, 10);
-    
-    final Collection<Source> x10Files = new LinkedList<Source>();
-    project.accept(new X10FileResourceVisitor(x10Files));
-    
-    final IJavaProject javaProject = JavaCore.create(project);
-    
-    final Set<String> cps = JavaProjectUtils.getFilteredCpEntries(javaProject, new CpEntryAsStringFunc(), 
-                                                                  new AlwaysTrueFilter<IPath>());
-    final StringBuilder cpBuilder = new StringBuilder();
-    int i = -1;
-    for (final String cpEntry : cps) {
-      if (++i > 0) {
-        cpBuilder.append(File.pathSeparatorChar);
-      }
-      cpBuilder.append(cpEntry);
-    }
-    
-    final Set<IPath> srcPaths = JavaProjectUtils.getFilteredCpEntries(javaProject, new IdentityFunctor<IPath>(),
-                                                                      new RuntimeFilter());
-    final List<File> sourcePath = CollectionUtils.transform(srcPaths, new IPathToFileFunc());
-    
-    final ExtensionInfo extInfo = new ExtensionInfo(null /* monitor */, new ShallowMessageHander());
-    final X10CompilerOptions compilerOptions = (X10CompilerOptions) extInfo.getOptions();
-    compilerOptions.assertions = true;
-    compilerOptions.compile_command_line_only = true;
-    compilerOptions.serialize_type_info = false;
-    compilerOptions.post_compiler = null;
-    compilerOptions.classpath = cpBuilder.toString();
-    compilerOptions.output_classpath = compilerOptions.classpath;
-    compilerOptions.source_path = sourcePath;
-    
-    extInfo.setInterestingSources(x10Files);
-    
-    final Compiler compiler = new Compiler(extInfo, new ShallowErrorQueue());
-    Globals.initialize(compiler);
-    
-    monitor.subTask(LaunchMessages.CAT_ParsingX10FilesMsg);
-    // Unfortunately we can't pass the monitor to the compiler :-/ So we have no way of canceling the operation.
-    compiler.compile(x10Files);
-    monitor.worked(7);
-    if (! monitor.isCanceled()) {
-      monitor.subTask(LaunchMessages.CAT_SearchingMainMethodsMsg);
-      final NodeVisitor nodeVisitor = new X10TypeNodeVisitor(x10Types);
-      for (final Source source : x10Files) {
-        final Node astRootNode = extInfo.getASTFor(source);
-        if (astRootNode != null) {
-          astRootNode.visit(nodeVisitor);
-        }
-      }
-    }
-    monitor.worked(3);
-  }
-  
   private void createMainTypeEditor(final Composite parent) {
     final Group group = new Group(parent, SWT.NONE);
     group.setFont(parent.getFont());
@@ -339,7 +255,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
     this.fSearchMainTypeBt = createPushButton(group, LaunchMessages.CAT_SearchButton, null /* image */);
     this.fSearchMainTypeBt.addSelectionListener(new SearchMainTypeBtSelectionListener());
-    this.fSearchMainTypeBt.setEnabled(false);
   }
   
   private void createProgramArgs(final Composite parent) {
@@ -426,7 +341,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     for (final Listener listener : listeners) {
       text.removeListener(SWT.Modify, listener);
     }
-    text.setText(configuration.getAttribute(name, EMPTY_STR));
+    text.setText(configuration.getAttribute(name, Constants.EMPTY_STR));
     for (final Listener listener : listeners) {
       text.addListener(SWT.Modify, listener);
     }
@@ -479,24 +394,22 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
     public void modifyText(final ModifyEvent event) {
       final String name = CppApplicationTab.this.fProjectText.getText().trim();
-      boolean enabled = false;
-      if (name.length() > 0) {
-        final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
-        enabled = project.exists();
-        if (project.exists()) {
-          CppApplicationTab.this.fMainTypeText.setText(EMPTY_STRING);
-        	final int errorCount = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
-        	if (errorCount > 0) {
-        		enabled = false;
-        	} else {
-        		CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
-        		for (final ICppApplicationTabListener listener : CppApplicationTab.this.fTabListeners) {
-        			listener.platformConfSelected(CppApplicationTab.this.fX10PlatformConf);
-        		}
-        	}
+      try {
+        if (name.length() > 0) {
+          final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
+          if (project.exists() && project.hasNature(CppLaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+          	final int errorCount = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+          	if (errorCount == 0) {
+          		CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
+          		for (final ICppApplicationTabListener listener : CppApplicationTab.this.fTabListeners) {
+          			listener.platformConfSelected(CppApplicationTab.this.fX10PlatformConf);
+          		}
+          	}
+          }
         }
+      } catch (CoreException except) {
+        // Forget at this point, it will be handled by the validation.
       }
-      CppApplicationTab.this.fSearchMainTypeBt.setEnabled(enabled);
 
       setDirty(true);
       updateLaunchConfigurationDialog();
@@ -509,48 +422,43 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     // --- Interface methods implementation
     
     public void widgetDefaultSelected(final SelectionEvent event) {
+      widgetSelected(event);
     }
 
     public void widgetSelected(final SelectionEvent event) {
       final String projectName = CppApplicationTab.this.fProjectText.getText().trim();
+      final IProject project;
       if (projectName.length() > 0) {
-        final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-        if (project.exists()) {
-          final Collection<ClassType> x10Types = new ArrayList<ClassType>();
-          final IRunnableWithProgress runnable = new IRunnableWithProgress() {
-              
-            public void run(IProgressMonitor monitor) {
-              try {
-                collectX10Types(project, x10Types, monitor);
-              } catch (CoreException except) {
-                DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
-                              .createAndOpen(getShell(), LaunchMessages.CAT_MainTypeSearchError, 
-                                             NLS.bind(LaunchMessages.CAT_X10FileSearchOrCPFailure, project.getName()));
-              }
-            }
-              
-          };
-          try {
-            new ProgressMonitorDialog(getShell()).run(true, false, runnable);
-          } catch (Exception except) {
-            DialogsFactory.createErrorBuilder().setDetailedMessage(except)
-                          .createAndOpen(getShell(), LaunchMessages.CAT_MainTypeSearchInternalError,
-                                         LaunchMessages.CAT_X10ParsingInternalError);
-          }
-            
-          if (x10Types.isEmpty()) {
-          	final MessageBox msgBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
-          	msgBox.setText(LaunchMessages.CAT_SearchInfoResult);
-          	msgBox.setMessage(LaunchMessages.CAT_NoMainX10FileFound);
-          	msgBox.open();
-          } else {
-            final SelectionDialog dialog = new X10ClassTypeSelectionDialog(getShell(), x10Types);
-            if (dialog.open() == Window.OK) {
-              final ClassType resultType = (ClassType) dialog.getResult()[0];
-              CppApplicationTab.this.fMainTypeText.setText(resultType.fullName().toString());
-            }
+        project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+      } else {
+        project = null;
+      }
+      final IJavaElement[] scope;
+      if ((project == null) || ! project.exists()) {
+        scope = null;
+      } else {
+        boolean hasValidNature = false;
+        try {
+          hasValidNature = project.hasNature(CppLaunchCore.X10_CPP_PRJ_NATURE_ID);
+        } catch (CoreException except) {
+          // Do nothing.
+        }
+        scope = hasValidNature ? new IJavaElement[] { JavaCore.create(project) } : null;
+      }
+      try {
+        final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, CppLaunchCore.X10_CPP_PRJ_NATURE_ID,
+                                                                                getShell());
+        if (mainType != null) {
+          CppApplicationTab.this.fMainTypeText.setText(mainType.first.fullName().toString());
+          if (scope == null) {
+            CppApplicationTab.this.fProjectText.setText(mainType.second.getJavaProject().getElementName());
           }
         }
+      } catch (InvocationTargetException except) {
+        ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, 
+                              ((CoreException) except.getTargetException()).getStatus());
+      } catch (InterruptedException except) {
+        // Do nothing.
       }
       updateLaunchConfigurationDialog();
     }
@@ -583,108 +491,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
   }
   
-  private static final class ShallowMessageHander implements IMessageHandler {
-    
-    // --- Interface methods implementation
-    
-    public void handleMessage(final int errorCode, final int[] msgLocation, final int[] errorLocation, 
-                              final String filename, final String[] errorInfo) {
-      // Do nothing
-    }
-    
-  }
-  
-  private static final class X10FileResourceVisitor implements IResourceVisitor {
-    
-    X10FileResourceVisitor(final Collection<Source> x10Files) {
-      this.fX10Files = x10Files;
-    }
-    
-    // --- Interface methods implementation
-    
-    public boolean visit(final IResource resource) throws CoreException {
-      if (resource.getType() == IResource.FILE) {
-        final IFile file = (IFile) resource;
-        if (X10_EXT.equalsIgnoreCase(file.getFileExtension())) {
-          try {
-            this.fX10Files.add(new FileSource(new JavaModelFileResource(file)));
-          } catch (IOException except) {
-            throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CAT_IOError, except));
-          }
-        }
-      }
-      return true;
-    }
-    
-    // --- Fields
-    
-    private final Collection<Source> fX10Files;
-    
-  }
-  
-  private static final class ShallowErrorQueue implements ErrorQueue {
-
-    // --- Interface methods implementation
-    
-    public void enqueue(final int type, final String message) {
-    }
-
-    public void enqueue(final int type, final String message, final Position position) {
-    }
-
-    public void enqueue(final ErrorInfo errorInfo) {
-    }
-
-    public int errorCount() {
-      return 0;
-    }
-
-    public void flush() {
-    }
-
-    public boolean hasErrors() {
-      return false;
-    }
-    
-  }
-  
-  private static final class X10TypeNodeVisitor extends NodeVisitor {
-    
-    X10TypeNodeVisitor(final Collection<ClassType> x10Types) {
-      this.fX10Types = x10Types;
-    }
-    
-    // --- Overridden methods
-    
-    public Node override(final Node node) {
-      if (node instanceof X10MethodDecl) {
-        final X10MethodDecl methodDecl = (X10MethodDecl) node;
-        final MethodDef methodDef = methodDecl.methodDef();
-        if (methodDef == null) {
-        	return null;
-        }
-        final X10ClassType classType = (X10ClassType) methodDef.asInstance().container();
-        final X10TypeSystem typeSystem = (X10TypeSystem) classType.typeSystem();
-        if (methodDecl.name().toString().equals(MAIN_METHOD_NAME) && methodDecl.flags().flags().isPublic() &&
-            methodDecl.flags().flags().isStatic() && methodDecl.returnType().type().isVoid() &&
-            (methodDecl.formals().size() == 1) && 
-            typeSystem.isSubtype(methodDecl.formals().get(0).type().type(), 
-                                 typeSystem.Rail(typeSystem.String()), typeSystem.emptyContext())) {
-          this.fX10Types.add(classType);
-        }
-        // We don't search for a "main method" within methods.
-        return node;
-      } else {
-        return null;
-      }
-    }
-    
-    // --- Fields
-    
-    private final Collection<ClassType> fX10Types;
-    
-  }
-  
   // --- Fields
   
   private final Collection<ICppApplicationTabListener> fTabListeners;
@@ -702,12 +508,5 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   private Button fToConsoleBt;
   
   private IX10PlatformConf fX10PlatformConf;
-  
-  
-  private static final String X10_EXT = "x10"; //$NON-NLS-1$
-  
-  private static final String MAIN_METHOD_NAME = "main"; //$NON-NLS-1$
-  
-  private static final String EMPTY_STR = ""; //$NON-NLS-1$
     
 }

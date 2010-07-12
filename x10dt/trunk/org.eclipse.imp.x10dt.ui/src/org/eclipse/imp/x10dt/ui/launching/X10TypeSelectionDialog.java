@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.launching;
+package org.eclipse.imp.x10dt.ui.launching;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -14,8 +14,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
-import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
+import org.eclipse.imp.x10dt.ui.Messages;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -27,16 +27,26 @@ import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 
 import polyglot.types.ClassType;
 
-
-final class X10ClassTypeSelectionDialog extends FilteredItemsSelectionDialog {
+/**
+ * Selection dialog to select a list of X10 types among a list of types provided.
+ * 
+ * @author egeay
+ */
+public final class X10TypeSelectionDialog extends FilteredItemsSelectionDialog {
   
-  X10ClassTypeSelectionDialog(final Shell shell, final Collection<ClassType> x10Types) {
+  /**
+   * Creates the selection dialog with the required shell and the help of the X10 types transmitted.
+   * 
+   * @param shell The shell to consider for the selection dialog.
+   * @param x10Types The list of X10 types that represents the scope of selection.
+   */
+  public X10TypeSelectionDialog(final Shell shell, final Collection<ClassType> x10Types) {
     super(shell, false);
     
     this.fX10Types = x10Types;
     
-    setTitle(LaunchMessages.XCTD_DialogTitle);
-    setMessage(LaunchMessages.XCTD_DialogMsg);
+    setTitle(Messages.XTSD_SelectX10TypeDlgTitle);
+    setMessage(Messages.XTSD_SelectX10TypeMsg);
     setInitialPattern("**"); //$NON-NLS-1$
     setListLabelProvider(new X10TypeLabelProvider());
   }
@@ -62,7 +72,7 @@ final class X10ClassTypeSelectionDialog extends FilteredItemsSelectionDialog {
   }
 
   protected IDialogSettings getDialogSettings() {
-    final IDialogSettings dialogSettings = CppLaunchCore.getInstance().getDialogSettings();
+    final IDialogSettings dialogSettings = X10DTUIPlugin.getInstance().getDialogSettings();
     IDialogSettings section = dialogSettings.getSection(SETTINGS_ID);
     if (section == null) {
       section = dialogSettings.addNewSection(SETTINGS_ID);
@@ -101,7 +111,7 @@ final class X10ClassTypeSelectionDialog extends FilteredItemsSelectionDialog {
     }
 
     public boolean matchItem(final Object item) {
-      if (X10ClassTypeSelectionDialog.this.fX10Types.contains(item)) {
+      if (X10TypeSelectionDialog.this.fX10Types.contains(item)) {
         return matches(((ClassType) item).name().toString());
       } else {
         return false;
@@ -150,6 +160,6 @@ final class X10ClassTypeSelectionDialog extends FilteredItemsSelectionDialog {
   
   private final Collection<ClassType> fX10Types;
   
-  private static final String SETTINGS_ID = CppLaunchCore.PLUGIN_ID + ".MAIN_METHOD_SELECTION_DIALOG"; //$NON-NLS-1$
+  private static final String SETTINGS_ID = X10DTUIPlugin.PLUGIN_ID + ".MAIN_METHOD_SELECTION_DIALOG"; //$NON-NLS-1$
 
 }

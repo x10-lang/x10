@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.eclipse.imp.x10dt.ui.launch.cpp;singleton:=true
 Bundle-Version: 2.0.4.qualifier
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: org.eclipse.core.filesystem,
+Require-Bundle: lpg.runtime.java,
+ org.eclipse.core.filesystem,
  org.eclipse.core.resources,
  org.eclipse.core.runtime,
  org.eclipse.debug.core,
@@ -17,7 +18,9 @@ Require-Bundle: org.eclipse.core.filesystem,
  org.eclipse.imp.x10dt.ui,
  org.eclipse.imp.x10dt.ui.launch.core,
  org.eclipse.jdt.core,
+ org.eclipse.jdt.debug.ui,
  org.eclipse.jdt.ui,
+ org.eclipse.jface.text,
  org.eclipse.ptp.core,
  org.eclipse.ptp.debug.core,
  org.eclipse.ptp.launch,
@@ -28,6 +31,7 @@ Require-Bundle: org.eclipse.core.filesystem,
  org.eclipse.ptp.rm.ibm.ll.core,
  org.eclipse.ptp.rm.ibm.pe.core,
  org.eclipse.ptp.rm.mpi.openmpi.core,
+ org.eclipse.ptp.rm.mpi.mpich2.core,
  org.eclipse.ptp.services.core,
  org.eclipse.ptp.ui,
  org.eclipse.ui,
@@ -35,10 +39,7 @@ Require-Bundle: org.eclipse.core.filesystem,
  org.eclipse.ui.ide,
  org.eclipse.ui.forms,
  polyglot3,
- x10.compiler,
- org.eclipse.ptp.rm.mpi.mpich2.core,
- org.eclipse.jface.text,
- lpg.runtime.java
+ x10.compiler
 Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.imp.x10dt.ui.launch.cpp;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug",

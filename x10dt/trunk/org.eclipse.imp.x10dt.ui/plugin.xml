@@ -56,20 +56,11 @@
    <extension
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
-            label="X10 Application"
+            label="X10 Application (Java back-end)"
             icon="icons/x10_application.gif"
             modes="run,debug"
-            class="org.eclipse.imp.x10dt.ui.launching.X10LaunchShortcut"
+            class="org.eclipse.imp.x10dt.ui.launching.X10JavaLaunchShortcut"
             id="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut">
-         <perspective
-               id="org.eclipse.jdt.ui.JavaPerspective">
-         </perspective>
-         <perspective
-               id="org.eclipse.debug.ui.DebugPerspective">
-         </perspective>
-         <perspective
-               id="org.eclipse.imp.x10dt.ui.perspective">
-         </perspective>
          <contextualLaunch>
             <enablement>
                <with
@@ -78,19 +69,39 @@
                         value="1">
                   </count>
                   <iterate>
-                     <or>
-                        <instanceof
-                              value="org.eclipse.core.resources.IFile">
-                        </instanceof>
+                     <and>
+                        <or>
+                           <and>
+                              <instanceof
+                                    value="org.eclipse.core.resources.IFile">
+                              </instanceof>
+                              <test
+                                    property="org.eclipse.debug.ui.matchesPattern"
+                                    value="*.x10">
+                              </test>
+                           </and>
+                           <instanceof
+                                 value="org.eclipse.jdt.core.IPackageFragment">
+                           </instanceof>
+                           <instanceof
+                                 value="org.eclipse.jdt.core.IPackageFragmentRoot">
+                           </instanceof>
+                           <instanceof
+                                 value="org.eclipse.jdt.core.IJavaProject">
+                           </instanceof>
+                        </or>
                         <test
-                              value="*.x10"
-                              property="org.eclipse.debug.ui.matchesPattern">
+                              property="org.eclipse.debug.ui.projectNature"
+                              value="org.eclipse.imp.x10dt.core.x10nature">
                         </test>
-                     </or>
+                     </and>
                   </iterate>
                </with>
             </enablement>
          </contextualLaunch>
+         <configurationType
+               id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType">
+         </configurationType>
       </shortcut>
    </extension>
    <extension

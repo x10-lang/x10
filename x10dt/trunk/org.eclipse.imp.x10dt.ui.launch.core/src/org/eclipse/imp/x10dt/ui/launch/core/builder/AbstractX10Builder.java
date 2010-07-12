@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.builder.DependencyInfo;
 import org.eclipse.imp.x10dt.core.builder.PolyglotDependencyInfo;
+import org.eclipse.imp.x10dt.core.utils.JavaModelFileResource;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;

@@ -18,7 +18,7 @@
 package org.eclipse.imp.x10dt.ui.cheatsheet.actions;
 
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.imp.x10dt.ui.launching.X10LaunchShortcut;
+import org.eclipse.imp.x10dt.ui.launching.X10JavaLaunchShortcut;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
@@ -35,9 +35,8 @@ public class LaunchX10ProgramAction extends Action implements ICheatSheetAction 
     }
 
     public void run(String[] params, ICheatSheetManager manager) {
-	X10LaunchShortcut x10ls= new X10LaunchShortcut();
 	IEditorPart editorPart= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 
-	x10ls.launch(editorPart, ILaunchManager.RUN_MODE);
+	new X10JavaLaunchShortcut().launch(editorPart, ILaunchManager.RUN_MODE);
     }
 }

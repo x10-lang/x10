@@ -57,6 +57,7 @@ import org.osgi.framework.BundleContext;
  */
 public class X10DTCorePlugin extends PluginBase {
 	public static final String kPluginID= "org.eclipse.imp.x10dt.core";
+	public static final String PROJECT_NATURE_ID = kPluginID + ".x10nature"; //$NON-NLS-1$
 	public static final String X10DT_CONSOLE_NAME = "X10DT info";
     public static final String kLanguageName = "X10";
     

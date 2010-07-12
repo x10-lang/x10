@@ -33,6 +33,8 @@ Require-Bundle: org.eclipse.core.runtime,
  lpg.runtime.java;bundle-version="2.0.18"
 Bundle-Vendor: tibbitts@us.ibm.com
 Bundle-Activator: org.eclipse.imp.x10dt.ui.X10DTUIPlugin
-Export-Package: org.eclipse.imp.x10dt.ui.launching,
+Export-Package: org.eclipse.imp.x10dt.ui,
+ org.eclipse.imp.x10dt.ui.launching,
  org.eclipse.imp.x10dt.ui.parser,
- org.eclipse.imp.x10dt.ui.perspective.actions
+ org.eclipse.imp.x10dt.ui.perspective.actions,
+ org.eclipse.imp.x10dt.ui.utils
