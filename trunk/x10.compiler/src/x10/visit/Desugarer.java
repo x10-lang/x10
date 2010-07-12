@@ -497,7 +497,7 @@ public class Desugarer extends ContextVisitor {
         		xnf.Block(pos,
                 		xnf.Eval(pos, call(pos, LOCK, xts.Void())),
                         xnf.While(pos,
-                        		xnf.Unary(pos, a.expr(), Unary.NOT),
+                        		xnf.Unary(pos, a.expr(), Unary.NOT).type(xts.Boolean()),  // TODO: handle constraints (should be done in the synthesizer)
                         		xnf.Eval(pos, call(pos, AWAIT, xts.Void())))),
         		Collections.EMPTY_LIST,
         		xnf.Block(pos,
@@ -677,7 +677,6 @@ public class Desugarer extends ContextVisitor {
     	Stmt offercall = xnf.Eval(pos, call);     	
     	return offercall;		 
 	}
-
 
     private Stmt visitLocalDecl(LocalDecl n) throws SemanticException {
         if (n.init() instanceof FinishExpr) {
