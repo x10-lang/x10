@@ -106,14 +106,14 @@ static inline void release_lock(pthread_mutex_t * lock) {
  */
 
 typedef enum {
-    X10RT_REQ_TYPE_SEND                 = 1,
+    //X10RT_REQ_TYPE_SEND                 = 1,
     X10RT_REQ_TYPE_RECV                 = 2,
     X10RT_REQ_TYPE_GET_INCOMING_DATA    = 3,
-    X10RT_REQ_TYPE_GET_OUTGOING_REQ     = 4,
+    //X10RT_REQ_TYPE_GET_OUTGOING_REQ     = 4,
     X10RT_REQ_TYPE_GET_INCOMING_REQ     = 5,
     X10RT_REQ_TYPE_GET_OUTGOING_DATA    = 6,
     X10RT_REQ_TYPE_PUT_OUTGOING_DATA    = 7,
-    X10RT_REQ_TYPE_PUT_OUTGOING_REQ     = 8,
+    //X10RT_REQ_TYPE_PUT_OUTGOING_REQ     = 8,
     X10RT_REQ_TYPE_PUT_INCOMING_REQ     = 9,
     X10RT_REQ_TYPE_PUT_INCOMING_DATA    = 10,
     X10RT_REQ_TYPE_UNDEFINED            = -1
@@ -534,16 +534,22 @@ unsigned long x10rt_net_here(void) {
     return global_state.rank;
 }
 
-void *x10rt_net_msg_realloc(void *old, size_t old_sz, size_t new_sz) {
-    return ChkRealloc<void>(old, new_sz);
-}
-void *x10rt_net_get_realloc(void *old, size_t old_sz, size_t new_sz) {
-    return ChkRealloc<void>(old, new_sz);
-}
-void *x10rt_net_put_realloc(void *old, size_t old_sz, size_t new_sz) {
-    return ChkRealloc<void>(old, new_sz);
+void x10rt_net_send_msg(x10rt_msg_params * p) {
+    assert(global_state.init);
+    assert(!global_state.finalized);
+    assert(p->type > 0);
+
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    if (MPI_SUCCESS!=MPI_Send(p->msg,p->len,MPI_BYTE,p->dest_place,p->type,global_state.mpi_comm)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
+        abort();
+    }
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
 }
 
+#if 0
+// This original implementation does not allow the user to reuse the buffer immediately after calling
+// x10rt_send_msg.  Furthermore, with this change, the benefit of MPI_Isend seems now to have disappeared.
 void x10rt_net_send_msg(x10rt_msg_params * p) {
     assert(global_state.init);
     assert(!global_state.finalized);
@@ -591,6 +597,7 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
         global_state.pending_send_list.enqueue(req);
     }
 }
+#endif
 
 void x10rt_net_send_get(x10rt_msg_params *p,
         void *buf, unsigned long len) {
@@ -603,7 +610,8 @@ void x10rt_net_send_get(x10rt_msg_params *p,
     assert(!global_state.finalized);
     get_req.type       = p->type;
     get_req.dest_place = p->dest_place;
-    get_req.msg        = p->msg;
+    get_req.msg        = ChkAlloc<void>(p->len);
+    memcpy(get_req.msg, p->msg, p->len);
     get_req.msg_len    = p->len;
     get_req.len        = len;
 
@@ -636,30 +644,28 @@ void x10rt_net_send_get(x10rt_msg_params *p,
     global_state.pending_recv_list.enqueue(req);
 
     /* send the GET request */
-    req = global_state.free_list.popNoFail();
     memcpy(static_cast <void *> (&get_msg[1]), p->msg, p->len);
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_Isend(get_msg,
+    if (MPI_SUCCESS != MPI_Send(get_msg,
                 get_msg_len,
                 MPI_BYTE,
                 p->dest_place,
                 global_state._reserved_tag_get_req,
-                global_state.mpi_comm,
-                req->getMPIRequest())) {
+                global_state.mpi_comm)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    req->setBuf(get_msg);
-    req->setType(X10RT_REQ_TYPE_GET_OUTGOING_REQ);
+    free(get_msg);
 
-    global_state.pending_send_list.enqueue(req);
 }
 
 
+#if 0
+// old non-blocking buffer-swallowing implementation
 void x10rt_net_send_put(x10rt_msg_params *p,
-        void *buf, unsigned long len) {
+                        void *buf, unsigned long len) {
     int put_msg_len;
     x10rt_put_req * put_msg;
     assert(global_state.init);
@@ -715,13 +721,71 @@ void x10rt_net_send_put(x10rt_msg_params *p,
     req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_DATA);
     global_state.pending_send_list.enqueue(req);
 }
+#endif
 
+void x10rt_net_send_put(x10rt_msg_params *p,
+        void *buf, unsigned long len) {
+    int put_msg_len;
+    x10rt_put_req * put_msg;
+    assert(global_state.init);
+    assert(!global_state.finalized);
+
+
+    /*      PUT Message
+     * +-------------------------------------------+
+     * | type | msg | msg_len | len | <- msg ... ->|
+     * +-------------------------------------------+
+     *  <------ x10rt_put_req ----->
+     */
+    put_msg_len         = sizeof(*put_msg) + p->len;
+    put_msg             = ChkAlloc<x10rt_put_req>(put_msg_len);
+    put_msg->type       = p->type;
+    put_msg->msg        = p->msg;
+    put_msg->msg_len    = p->len;
+    put_msg->len        = len;
+    memcpy(static_cast <void *> (&put_msg[1]), p->msg, p->len);
+
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    if (MPI_SUCCESS != MPI_Send(put_msg,
+                put_msg_len,
+                MPI_BYTE,
+                p->dest_place,
+                global_state._reserved_tag_put_req,
+                global_state.mpi_comm)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
+        abort();
+    }
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    free(put_msg);
+
+    x10rt_req * req = global_state.free_list.popNoFail();
+
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    if (MPI_SUCCESS != MPI_Isend(buf,
+                len,
+                MPI_BYTE,
+                p->dest_place,
+                global_state._reserved_tag_put_data,
+                global_state.mpi_comm,
+                req->getMPIRequest())) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
+        abort();
+    }
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    req->setBuf(NULL);
+    req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_DATA);
+    global_state.pending_send_list.enqueue(req);
+}
+
+/*
+used by old non-blocking buffer-swallowing implementation
 static void send_completion(x10rt_req_queue * q,
         x10rt_req * req) {
     free(req->getBuf());
     q->remove(req);
     global_state.free_list.enqueue(req);
 }
+*/
 
 static void recv_completion(int ix, int bytes,
         x10rt_req_queue * q, x10rt_req * req) {
@@ -766,11 +830,14 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
     global_state.free_list.enqueue(req);
 }
 
+/*
+used by old non-blocking buffer-swallowing implementation
 static void get_outgoing_req_completion(x10rt_req_queue * q, x10rt_req * req) {
     free(req->getBuf());
     q->remove(req);
     global_state.free_list.enqueue(req);
 }
+*/
 
 static void get_incoming_req_completion(int dest_place,
         x10rt_req_queue * q, x10rt_req * req) {
@@ -793,7 +860,6 @@ static void get_incoming_req_completion(int dest_place,
     void * local = cb(&p, len);
     get_lock(&global_state.lock);
 
-    free(req->getBuf());
 
     /* reuse request for sending reply */
     if (MPI_SUCCESS != MPI_Isend(local,
@@ -819,12 +885,15 @@ static void get_outgoing_data_completion(x10rt_req_queue * q,
     global_state.free_list.enqueue(req);
 }
 
+/*
+needed by old non-blocking buffer-swallowing implementation
 static void put_outgoing_req_completion(x10rt_req_queue * q,
         x10rt_req * req) {
     free(req->getBuf());
     q->remove(req);
     global_state.free_list.enqueue(req);
 }
+*/
 
 static void put_outgoing_data_completion(x10rt_req_queue * q,
         x10rt_req * req) {
@@ -912,18 +981,18 @@ static void check_pending_sends() {
         req = q->next(req);
         if (complete) {
             switch (req_copy->getType()) {
-                case X10RT_REQ_TYPE_SEND:
-                    send_completion(q, req_copy);
-                    break;
-                case X10RT_REQ_TYPE_GET_OUTGOING_REQ:
-                    get_outgoing_req_completion(q, req_copy);
-                    break;
+                //case X10RT_REQ_TYPE_SEND:
+                //    send_completion(q, req_copy);
+                //    break;
+                //case X10RT_REQ_TYPE_GET_OUTGOING_REQ:
+                //    get_outgoing_req_completion(q, req_copy);
+                //    break;
                 case X10RT_REQ_TYPE_GET_OUTGOING_DATA:
                     get_outgoing_data_completion(q, req_copy);
                     break;
-                case X10RT_REQ_TYPE_PUT_OUTGOING_REQ:
-                    put_outgoing_req_completion(q, req_copy);
-                    break;
+                //case X10RT_REQ_TYPE_PUT_OUTGOING_REQ:
+                //    put_outgoing_req_completion(q, req_copy);
+                //    break;
                 case X10RT_REQ_TYPE_PUT_OUTGOING_DATA:
                     put_outgoing_data_completion(q, req_copy);
                     break;

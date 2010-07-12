@@ -13,7 +13,7 @@
 
 #ifdef ENABLE_CUDA
 
-#include <cuda.h> // Proprietory nvidia header
+#include <cuda.h> // Proprietary nvidia header
 
 //#define TRACE 1
 
@@ -101,6 +101,18 @@ namespace {
                 errstr = "CUDA_ERROR_LAUNCH_INCOMPATIBLE_TEXTURING"; break;
             case CUDA_ERROR_UNKNOWN:
                 errstr = "CUDA_ERROR_UNKNOWN"; break;
+
+            case CUDA_ERROR_NOT_MAPPED_AS_ARRAY:
+                errstr = "CUDA_ERROR_NOT_MAPPED_AS_ARRAY"; break;
+            case CUDA_ERROR_NOT_MAPPED_AS_POINTER:
+                errstr = "CUDA_ERROR_NOT_MAPPED_AS_POINTER"; break;
+            case CUDA_ERROR_ECC_UNCORRECTABLE:
+                errstr = "CUDA_ERROR_ECC_UNCORRECTABLE"; break;
+            case CUDA_ERROR_POINTER_IS_64BIT:
+                errstr = "CUDA_ERROR_POINTER_IS_64BIT"; break;
+            case CUDA_ERROR_SIZE_IS_64BIT:
+                errstr = "CUDA_ERROR_SIZE_IS_64BIT"; break;
+        
         }
         fprintf(stderr,"%s (At %s:%d)\n",errstr,file,line);
         abort();

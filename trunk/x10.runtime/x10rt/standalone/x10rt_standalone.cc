@@ -654,45 +654,17 @@ x10rt_place x10rt_net_here (void)
 	return state.myPlaceId;
 }
 
-void *x10rt_net_msg_realloc (void *old, size_t old_sz, size_t new_sz)
-{
-	void* ret = realloc(old, new_sz);
-	if (ret == NULL && new_sz != 0)
-		error("Unable to realloc a message");
-	return ret;
-}
-
-void *x10rt_net_get_realloc (void *old, size_t old_sz, size_t new_sz)
-{
-	void* ret = realloc(old, new_sz);
-	if (ret == NULL && new_sz != 0)
-		error("Unable to realloc a GET message");
-	return ret;
-}
-
-void *x10rt_net_put_realloc (void *old, size_t old_sz, size_t new_sz)
-{
-	void* ret = realloc(old, new_sz);
-	if (ret == NULL && new_sz != 0)
-		error("Unable to realloc a PUT message");
-	return ret;
-}
-
 void x10rt_net_send_msg (x10rt_msg_params *p)
 {
 	// originating place calls this method, to send something? to a remote place.  It returns once the data transfer is complete.
 	// There is not really anything to do here except put the pointer to the message into the receivers buffer
 	insertNewMessage(STANDARD, p, NULL, 0, NULL);
-	if (p->len > 0)
-		free(p->msg);
 }
 
 void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
 	// The local place uses this method to bring in data from a remote place
 	insertNewMessage(GET, p, buf, len, NULL);
-	if (p->len > 0)
-		free(p->msg);
 }
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
@@ -713,8 +685,6 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 { 
 	// originating place calls this method, to transfer data to a remote place.  It returns once the data transfer is complete.
 	insertNewMessage(PUT, p, buf, len, NULL);
-	if (p->len > 0)
-		free(p->msg);
 }
 
 void x10rt_net_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long update)
