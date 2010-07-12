@@ -4,6 +4,7 @@ package x10.finish.util;
 import java.util.Iterator;
 
 import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
+import com.ibm.wala.cast.x10.ssa.AsyncInvokeInstruction;
 import com.ibm.wala.cfg.ControlFlowGraph;
 import com.ibm.wala.cfg.IBasicBlock;
 import com.ibm.wala.ipa.cfg.EdgeFilter;
@@ -29,13 +30,23 @@ public class MyExceptionPrunedCFG {
     public boolean hasExceptionalEdge(T src, T dst) {
 	Iterator<I> all = src.iterator();
 	boolean flag = false;
+	System.err.println("src instructions:");
 	while(all.hasNext()){
 	    I inst = all.next();
-	    if(inst instanceof AstJavaInvokeInstruction){
+	    System.err.println("\t:"+inst.toString());
+	    System.err.println("\t:"+inst.getClass());
+	    if(inst instanceof AstJavaInvokeInstruction ||
+	       inst instanceof AsyncInvokeInstruction){
 		flag = true;
 	    }else{
 		flag = false;
 	    }
+	}
+	System.err.println("dest instructions:");
+	Iterator<I> alld = dst.iterator();
+	while(alld.hasNext()){
+	    I inst = alld.next();
+	    System.err.println("\t:"+inst.toString());
 	}
       if(flag && dst.isExitBlock()){
 	  return false;
