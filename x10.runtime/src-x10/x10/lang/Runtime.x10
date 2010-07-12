@@ -366,7 +366,7 @@ public final class Runtime {
         var result:T;
         val MAX = 1000;
         var resultRail : Rail[T] = Rail.make[T](MAX);
-
+        var workerFlag : Rail[Boolean] = Rail.make[Boolean](MAX,(Int) => false);
     def this(r:Reducible[T]) {
     	this.reducer=r;
     	this.result=reducer.zero();
@@ -376,12 +376,15 @@ public final class Runtime {
     	this.result=reducer(result,t);
     }
     def accept(t: T, id : Int ) {
-        if ((id >= 0 ) && (id < MAX))
+        if ((id >= 0 ) && (id < MAX)) {
             this.resultRail(id) = reducer(this.resultRail(id),t);
+            this.workerFlag(id) = true;   
+        }    
     }
     def placeMerge(){
-        for (var i:Int = 0; i<MAX; i++) {
-            this.result = reducer(result,resultRail(i));
+        for(var i:Int =0; i<MAX; i++) {
+            if (this.workerFlag(i))
+                this.result = reducer(result,resultRail(i));
         }
     }
 
