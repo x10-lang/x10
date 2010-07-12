@@ -482,7 +482,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     			if ((! Configuration.VERBOSE_CALLS) && (! Configuration.STATIC_CALLS)) {
     				int count = ext.weakCallsCount();
     				if (count > 0) {
-    					compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses.");
+    					compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses, run with -VERBOSE_CALLS for more details.");
     				}
     			}
     			return true;
