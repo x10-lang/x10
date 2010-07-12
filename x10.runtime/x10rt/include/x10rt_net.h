@@ -72,10 +72,24 @@ X10RT_C x10rt_place x10rt_net_nhosts (void);
 /** \see #x10rt_lgl_here */
 X10RT_C x10rt_place x10rt_net_here (void);
 
+/** \see #x10rt_msg_realloc
+ * \param old As in x10rt_msg_realloc
+ * \param old_sz As in x10rt_msg_realloc
+ * \param new_sz As in x10rt_msg_realloc
+ */
+X10RT_C void *x10rt_net_msg_realloc (void *old, size_t old_sz, size_t new_sz);
+
 /** \see #x10rt_lgl_send_msg
  * \param p As in x10rt_lgl_send_msg.
  */
 X10RT_C void x10rt_net_send_msg (x10rt_msg_params *p);
+
+/** \see #x10rt_get_realloc
+ * \param old As in x10rt_get_realloc
+ * \param old_sz As in x10rt_get_realloc
+ * \param new_sz As in x10rt_get_realloc
+ */
+X10RT_C void *x10rt_net_get_realloc (void *old, size_t old_sz, size_t new_sz);
 
 /** \see #x10rt_lgl_send_msg
  * \param p As in x10rt_lgl_send_msg.
@@ -83,6 +97,13 @@ X10RT_C void x10rt_net_send_msg (x10rt_msg_params *p);
  * \param len As in x10rt_lgl_send_msg.
  */
 X10RT_C void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
+
+/** \see #x10rt_put_realloc
+ * \param old As in x10rt_put_realloc
+ * \param old_sz As in x10rt_put_realloc
+ * \param new_sz As in x10rt_put_realloc
+ */
+X10RT_C void *x10rt_net_put_realloc (void *old, size_t old_sz, size_t new_sz);
 
 /** \see #x10rt_lgl_send_msg
  * \param p As in x10rt_lgl_send_msg.

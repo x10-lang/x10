@@ -181,7 +181,7 @@ public:
     unsigned long bytesWritten;
     
     MessageWriter(unsigned long initialSizeInBytes) : size(initialSizeInBytes) {
-        buffer = malloc(size);
+        buffer = x10rt_msg_realloc(NULL,0,size);
         cursor = buffer;
         bytesWritten = 0;
     }
@@ -788,7 +788,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__II(JNIEnv *env, 
     
     x10rt_msg_params msg = {place, V_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }
 
 
@@ -806,7 +805,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__III(JNIEnv *env,
     
     x10rt_msg_params msg = {place, I_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 
@@ -825,8 +823,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIII(JNIEnv *env
     
     x10rt_msg_params msg = {place, II_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
-}
+}    
 
 
 /*
@@ -845,7 +842,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIII(JNIEnv *en
     
     x10rt_msg_params msg = {place, III_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -865,7 +861,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIIII(JNIEnv *e
     
     x10rt_msg_params msg = {place, IIII_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }
 
 /*
@@ -882,7 +877,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJ(JNIEnv *env,
     
     x10rt_msg_params msg = {place, J_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -900,7 +894,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJJ(JNIEnv *env
     
     x10rt_msg_params msg = {place, JJ_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -918,7 +911,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIJ(JNIEnv *env
     
     x10rt_msg_params msg = {place, IJ_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -936,7 +928,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJI(JNIEnv *env
     
     x10rt_msg_params msg = {place, JI_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -953,7 +944,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIF(JNIEnv *env,
     
     x10rt_msg_params msg = {place, F_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -971,7 +961,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFF(JNIEnv *env
     
     x10rt_msg_params msg = {place, FF_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -989,7 +978,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIIF(JNIEnv *env
     
     x10rt_msg_params msg = {place, IF_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1007,7 +995,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJF(JNIEnv *env
     
     x10rt_msg_params msg = {place, JF_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1024,7 +1011,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFI(JNIEnv *env
     writer.writeJInt(arg2);
     
     x10rt_msg_params msg = {place, FI_Handler, writer.buffer, numBytes};
-    free(msg.msg);
     x10rt_send_msg(&msg);
 }    
 
@@ -1043,7 +1029,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFJ(JNIEnv *env
     
     x10rt_msg_params msg = {place, FJ_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }
 
 /*
@@ -1060,7 +1045,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IID(JNIEnv *env,
     
     x10rt_msg_params msg = {place, D_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1078,7 +1062,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDD(JNIEnv *env
     
     x10rt_msg_params msg = {place, DD_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1096,7 +1079,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIID(JNIEnv *env
     
     x10rt_msg_params msg = {place, ID_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1114,7 +1096,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFD(JNIEnv *env
     
     x10rt_msg_params msg = {place, FD_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1132,7 +1113,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIJD(JNIEnv *env
     
     x10rt_msg_params msg = {place, JD_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1150,7 +1130,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDI(JNIEnv *env
     
     x10rt_msg_params msg = {place, DI_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1168,7 +1147,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDJ(JNIEnv *env
     
     x10rt_msg_params msg = {place, DJ_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1186,7 +1164,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIDF(JNIEnv *env
     
     x10rt_msg_params msg = {place, DF_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1205,7 +1182,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3Z(JNIE
     
     x10rt_msg_params msg = {place, ZArray_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1224,7 +1200,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3B(JNIE
     
     x10rt_msg_params msg = {place, BArray_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1243,7 +1218,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3S(JNIE
     
     x10rt_msg_params msg = {place, SArray_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1262,7 +1236,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3C(JNIE
     
     x10rt_msg_params msg = {place, CArray_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1281,7 +1254,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3I(JNIE
     
     x10rt_msg_params msg = {place, IArray_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1300,7 +1272,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3F(JNIE
     
     x10rt_msg_params msg = {place, FArray_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1319,7 +1290,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3J(JNIE
     
     x10rt_msg_params msg = {place, JArray_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1338,7 +1308,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendArrayRemote__III_3D(JNIE
     
     x10rt_msg_params msg = {place, DArray_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*
@@ -1369,7 +1338,6 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendGeneralRemote(JNIEnv *en
     
     x10rt_msg_params msg = {place, General_Handler, writer.buffer, numBytes};
     x10rt_send_msg(&msg);
-    free(msg.msg);
 }    
 
 /*************************************************************************

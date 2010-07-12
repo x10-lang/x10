@@ -201,7 +201,7 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
 
         _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
 
-        x10rt_msg_params params = {p, id, buf.borrow(), sz};
+        x10rt_msg_params params = {p, id, buf.steal(), sz};
         x10rt_send_msg(&params);
 
     } else {
@@ -245,7 +245,7 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
 
         _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
 
-        x10rt_msg_params params = {p, real_id, buf.borrow(), sz};
+        x10rt_msg_params params = {p, real_id, buf.steal(), sz};
         x10rt_send_msg(&params);
 
     }
@@ -254,20 +254,22 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
 void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
                        serialization_buffer &buf, void *data, x10aux::copy_sz len)
 {
+    size_t buf_length = buf.length(); // must do this before steal();
     msg_type id = DeserializationDispatcher::getMsgType(id_);
-    x10rt_msg_params p = { place, id, buf.borrow(), buf.length()};
+    x10rt_msg_params p = { place, id, buf.steal(), buf_length };
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a get: "<<ANSI_RESET
-        <<data<<" sid "<<id_<<" id "<<id<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place);
+        <<data<<" sid "<<id_<<" id "<<id<<" size "<<len<<" header "<<buf_length<<" to place: "<<place);
     x10rt_send_get(&p, data, len);
 }
 
 void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
                        serialization_buffer &buf, void *data, x10aux::copy_sz len)
 {
+    size_t buf_length = buf.length(); // must do this before steal();
     msg_type id = DeserializationDispatcher::getMsgType(id_);
-    x10rt_msg_params p = { place, id, buf.borrow(), buf.length() };
+    x10rt_msg_params p = { place, id, buf.steal(), buf_length };
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a put: "<<ANSI_RESET
-        <<data<<" sid "<<id_<<" id "<<id<<" size "<<len<<" header "<<buf.length()<<" to place: "<<place);
+        <<data<<" sid "<<id_<<" id "<<id<<" size "<<len<<" header "<<buf_length<<" to place: "<<place);
     x10rt_send_put(&p, data, len);
 }
 
@@ -445,10 +447,11 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 {
     bool finished = false;
     x10aux::serialization_buffer buf;
+    buf.realloc_func = x10aux::put_realloc;
     buf.write((x10_ulong)(size_t)&finished);
     buf.write(addr);
     size_t len = buf.length();
-    x10rt_msg_params p = {gpu, kernel_put, buf.borrow(), len};
+    x10rt_msg_params p = {gpu, kernel_put, buf.steal(), len};
     x10rt_send_put(&p, var, sz);
     while (!finished) x10rt_probe();
 }

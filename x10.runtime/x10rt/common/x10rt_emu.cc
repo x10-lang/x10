@@ -17,7 +17,7 @@ namespace {
     {
         char *buf = (char*) p->msg;
         x10rt_remote_ptr victim;
-        // FIXME: SERIALIZATION FRAMEWORK
+        // FIXME: ENDIAN SWAP
         ::memcpy(&victim, buf+0, 8);
         ::memcpy(&value, buf+8, 8);
         victim_ = (unsigned long long*)(size_t)victim;
@@ -25,8 +25,8 @@ namespace {
 
     void *pack_remote_op_data (x10rt_remote_ptr victim, unsigned long long value)
     {
-        // FIXME: SERIALIZATION FRAMEWORK
-        char *buf = (char*)malloc(16);
+        // FIXME: ENDIAN SWAP
+        char *buf = (char*)x10rt_net_msg_realloc(NULL,0, 16);
         ::memcpy(buf+0, &victim, 8);
         ::memcpy(buf+8, &value, 8);
         return buf;
@@ -78,7 +78,6 @@ void x10rt_emu_remote_op (x10rt_place place, x10rt_remote_ptr victim,
     x10rt_msg_params params = {place, id, pack_remote_op_data(victim,value), 16};
     x10rt_net_send_msg(&params);
     x10rt_net_probe();
-    free(params.msg);
 }
 
 void x10rt_emu_init (x10rt_msg_type *counter)

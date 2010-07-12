@@ -68,12 +68,18 @@ x10rt_place x10rt_child_index (x10rt_place child)
 { return x10rt_lgl_child_index(child); }
 
 
+void *x10rt_msg_realloc (void *old, size_t old_sz, size_t new_sz)
+{ return x10rt_lgl_msg_realloc(old, old_sz, new_sz); }
 void x10rt_send_msg (x10rt_msg_params *p)
 { return x10rt_lgl_send_msg(p); }
 
+void *x10rt_get_realloc (void *old, size_t old_sz, size_t new_sz)
+{ return x10rt_lgl_get_realloc(old, old_sz, new_sz); }
 void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 { return x10rt_lgl_send_get(p, buf, len); }
 
+void *x10rt_put_realloc (void *old, size_t old_sz, size_t new_sz)
+{ return x10rt_lgl_put_realloc(old, old_sz, new_sz); }
 void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 { return x10rt_lgl_send_put(p, buf, len); }
 
