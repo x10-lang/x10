@@ -2,14 +2,13 @@ package x10.finish.util;
 
 import java.util.HashMap;
 
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
 import x10.finish.table.CallTableAsyncVal;
 import x10.finish.table.CallTableAtVal;
-import x10.finish.table.CallTableFinishKey;
+import x10.finish.table.CallTableScopeKey;
 import x10.finish.table.CallTableKey;
 import x10.finish.table.CallTableMethodKey;
 import x10.finish.table.CallTableVal;
@@ -137,79 +136,42 @@ public class CallTableUtil {
 		LinkedList<CallTableVal> new_vals = (LinkedList<CallTableVal>) OutputUtil
 			.copy(vals);
 
-		// check each object in the list of the second column
+		// check each object in vals
 		for (int i = 0; i < vals.size(); i++) {
 		    CallTableVal callee = vals.get(i);
 		    CallTableVal.Arity tmparity = callee.getArity();
 		    Iterator<CallTableVal> tmpiter = null;
-		    // System.err.println("\tval:"+callee.toString());
-
-		    // if this "object" in the list also has an entry in the
-		    // table
-		    // get that entry and its object list
-		    if (callee instanceof CallTableAtVal) {
-			CallTableFinishKey tmpkey = new CallTableFinishKey(
-				callee.scope, callee.name, ((CallTableAtVal) callee).line,
-				((CallTableAtVal) callee).column,
-				((CallTableAtVal) callee).blk, false);
-			LinkedList<CallTableVal> tmplist = calltable
-				.get(tmpkey);
-			if (tmplist != null) {
-			    tmpiter = tmplist.iterator();
-			}
-
-		    } else {
-			CallTableMethodKey tmpkey = new CallTableMethodKey(
-				callee.scope, callee.name, callee.line, callee.column);
-			LinkedList<CallTableVal> tmplist = calltable
-				.get(tmpkey);
-			if (tmplist != null) {
-			    tmpiter = tmplist.iterator();
-			}
-		    }
-
-		    if (tmpiter != null) {
-			// add each object in the new list to the old one
-			// if this object was not there before
+		    /* when the "at" or "method" this callee represents 
+		     * is also a "key" in this table, get this CallTableKey object
+		     */
+		    CallTableKey tmpkey = getKey(callee);
+		    LinkedList<CallTableVal> tmplist = calltable.get(tmpkey);
+		    if (tmplist != null) {
+			tmpiter = tmplist.iterator();
+			/* add each CallTableVal in this newly obtained 
+			 * CallTableKey to the original key's list
+			 */
 			while (tmpiter.hasNext()) {
 			    CallTableVal tmpcallee = tmpiter.next();
-			    // we need a copy of tmpcallee here, because when we
-			    // add this callee to
-			    // a new caller's list, and if we change this
-			    // callee's arity, we don't want
-			    // the original callee which is in another caller's
-			    // list is changed too
-			    CallTableVal copiedcallee = (CallTableVal) OutputUtil
-				    .copy(tmpcallee);
-			    /* FIXME: buggy code here causes infinite loops */
-			    /*
-			     * if(copiedcallee instanceof CallTableAsyncVal &&
-			     * callee instanceof CallTableAsyncVal){
-			     * ((CallTableAsyncVal
-			     * )copiedcallee).addPC(((CallTableAsyncVal
-			     * )callee).pc); }
+			    /* we need a copy of tmpcallee here, because when 
+			     * we add this callee to a new caller's list, and
+			     * if we change this callee's arity, we don't 
+			     * want the original callee which is in another 
+			     * caller's list is changed too
 			     */
+			    CallTableVal copiedcallee = 
+				(CallTableVal) OutputUtil.copy(tmpcallee);
+			    
 			    if (!new_vals.contains(copiedcallee)) {
 				copiedcallee.setArity(tmparity);
-				// FIXME:
-				/*
-				 * changing the newly added callee's blk number
-				 * to that of the method which calls it, makes
-				 * sense
-				 */
 				copiedcallee.blk = callee.blk;
 				new_vals.add(copiedcallee);
 				changed = true;
 			    } else {
 				int index = new_vals.indexOf(copiedcallee);
-
-				// tv has the same signature, but possibly
-				// different arities as tmpcallee
-
-				// and here we don't use a copied one, because
-				// it is already in the list and if
-				// we wish to change its arity it will not
-				// affect tmpcallee
+				/* tv has the same signature, but possibly
+				 * different arities as tmpcallee
+				 */
 				CallTableVal tv = new_vals.get(index);
 				if (tmpcallee.a.compareTo(tv.a) > 0) {
 				    tv.setArity(tmpcallee.a);
@@ -229,5 +191,19 @@ public class CallTableUtil {
 	}// end of while(!terminate)
 
 	return calltable;
+    }
+
+    private static CallTableKey getKey(CallTableVal callee) {
+	CallTableKey tmpkey;
+	if (callee instanceof CallTableAtVal) {
+	    tmpkey = new CallTableScopeKey(callee.scope, callee.name,
+		    ((CallTableAtVal) callee).line,
+		    ((CallTableAtVal) callee).column,
+		    ((CallTableAtVal) callee).blk, false);
+	} else {
+	    tmpkey = new CallTableMethodKey(callee.scope, callee.name,
+		    callee.line, callee.column);
+	}
+	return tmpkey;
     }
 }
