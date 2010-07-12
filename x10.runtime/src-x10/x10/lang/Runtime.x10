@@ -363,14 +363,28 @@ public final class Runtime {
 
     static class StatefulReducer[T] {
     	global val reducer:Reducible[T];
-    var result:T;
+        var result:T;
+        val MAX = 1000;
+        var resultRail : Rail[T] = Rail.make[T](MAX);
+
     def this(r:Reducible[T]) {
     	this.reducer=r;
     	this.result=reducer.zero();
+    	this.resultRail = Rail.make[T](MAX, (Int) => reducer.zero());
     }
     def accept(t:T) {
     	this.result=reducer(result,t);
     }
+    def accept(t: T, id : Int ) {
+        if ((id >= 0 ) && (id < MAX))
+            this.resultRail(id) = reducer(this.resultRail(id),t);
+    }
+    def placeMerge(){
+        for (var i:Int = 0; i<MAX; i++) {
+            this.result = reducer(result,resultRail(i));
+        }
+    }
+
     def result()=result;
     }
 
@@ -386,6 +400,9 @@ public final class Runtime {
     	lock();
     	sr.accept(t);
     	unlock();
+    }
+    def accept(t:T, id:Int) {
+        sr.accept(t,id);
     }
     def notify(rail:ValRail[Int], v:T):Void {
         var b:Boolean = true;
@@ -422,6 +439,7 @@ public final class Runtime {
     //Collecting Finish Use: for start merger at each place to collect result
     final public def waitForFinishExpr(safe:Boolean):T {
         waitForFinish(safe);
+        sr.placeMerge();
         return sr.result();
     }
 
@@ -596,6 +614,7 @@ public final class Runtime {
                 runAtNative(r.home.id, closure);
                 dealloc(closure);
             } else {
+            	sr.placeMerge();
                 val x = sr.result();
                 val closure = () => { (r as RootCollectingFinish[T]!).notify(m, x); deallocObject(m); };
                 runAtNative(r.home.id, closure);
@@ -618,6 +637,7 @@ public final class Runtime {
                 runAtNative(r.home.id, closure);
                 dealloc(closure);
             } else {
+            	sr.placeMerge();
                 val x = sr.result();
                 val closure = () => { (r as RootCollectingFinish[T]!).notify2(m, x) ; deallocObject(m); };
                 runAtNative(r.home.id, closure);
@@ -630,6 +650,9 @@ public final class Runtime {
     	lock.lock();
     	sr.accept(t);
     	lock.unlock();
+    }
+    def accept(t:T, id:Int) {
+        sr.accept(t,id);
     }
     
     }
@@ -1426,20 +1449,21 @@ public final class Runtime {
             val id = thisWorker.workerId;
             val state = currentState();
             if (here.equals(state.home)) {
-                (state as RootCollectingFinish[T]!).accept(t);
+                (state as RootCollectingFinish[T]!).accept(t,id);
             } else {
-                (Runtime.proxy(state as RootFinish) as RemoteCollectingFinish[T]!).accept(t);
+                (Runtime.proxy(state as RootFinish) as RemoteCollectingFinish[T]!).accept(t,id);
             }
        }
         public def stopFinishExpr():T {
         	 val thisWorker = worker();
              val id = thisWorker.workerId;
              val state = currentState();
-             (state as RootCollectingFinish[T]!).notifyActivityTermination();
-             val a = activity();
-             a.finishStack.pop();
+             (state as RootCollectingFinish[T]!).notifyActivityTermination();                       
              assert here.equals(home);
-             return (state as RootCollectingFinish[T]!).waitForFinishExpr(true);
+             val result = (state as RootCollectingFinish[T]!).waitForFinishExpr(true);
+             val a = activity();
+             a.finishStack.pop();  
+             return result;
             
        }
 
