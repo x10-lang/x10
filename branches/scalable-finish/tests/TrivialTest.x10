@@ -153,32 +153,7 @@ public class TrivialTest {
 	          return ;
 	      }	  */
   
-	 /* nested finish
-	  * 
-	  var i:int = 1;
-         //i = bar(((x:int) => x +1),i);
-         finish{
-        	 var j:int = 1;
-                 j = j + 1;
-                 finish{}
-                 
-         }*/
-         
-         /*
-          *PolyScanner.x10:
-        		- loop(body: (Rail[int])=>void, p:Rail[int]!,q:Rail[int]!, r:int):	 
-          
-         val r = Region.makeEmpty(3);
-         val ps:PolyScanner! = new PolyScanner(r);
-         val v:Rail[int]=[1,2,3];
-         ps.loop((v:Rail[int])=>f2(),v,v,0);*/
-         
-         /**
-          * test InvertedGraph and Dominator in wala 
-          *
-
-	         
-	 */
+	 
 	 
 	 /* was failed : arity is not correct "asyncs" within a method call   
 	  * now successful:
@@ -220,47 +195,6 @@ public class TrivialTest {
 		 i = i + 1;
 	 }
 	 */
-	 /* consecutive loop
-	  var i:int = 1;
-	 for(i=3;i<9;i++){
-		 i = i +1;
-		 f2();
-		 i = i + 1;
-	 }
-	 for(i=3;i<9;i++){
-		 i = i +1;
-		 f2();
-		 i = i + 1;
-	 }
-	 * 
-	 */
-	 
-	 /* nested loop 
-	  var i:int = 1;
-	 for(i=3;i<9;i++){
-		 i = i +1;
-		 f2();
-		 
-		 for(i=3;i<9;i++){
-			 i = i +1;
-			 f2();
-			 i = i + 1;
-		 }
-		 i = i + 1;
-	 }
-	 * 
-	 */
-	 /*
-	  var i:int = 1;
-	 for(i=3;i<9;i++){
-		 for(i=3;i<9;i++){
-			 i = i +1;
-			 f2();
-			 i = i + 1;
-		 }
-	 }
-	 */
-	 
 	 /*var i:int = 1;
 	 for(i=3;i<9;i++){
 		 for(i=3;i<9;i++){
@@ -278,140 +212,15 @@ public class TrivialTest {
 		 }
 	 }*/
 	 
-	 /* arity=1: pass!
-	 finish{
-		 async{ var i:int = 1;}
+	 
+	 
 	 }*/
 	 
 	 
-	 /* arity=1: pass!
-	 var i:int = 1;
-	 for(i=1;i<10;i++){
-		 finish{
-			 async{var j:int = 1;}
-		 }
-	 }*/
-	 /* arity=unbounded: pass!
-	 var i:int = 1;
-	 var j:int = 1;
-	 for(i=1;i<10;i++){
-		 finish{
-			 for(j=1;j<10;j++){
-				 async{var k:int =1;}
-				 j++;
-			 }
-		 }
-	 }*/
-	 /* arity=unbounded: pass!
-	 var j:int = 1;
-	 finish{
-		 for(j=1;j<10;j++){
-			 async{var k:int =1;}
-		 }
-		
-	 }*/
-	 /* arity=ZeroOrOne: pass!
-	 var f:boolean=true;
-	 finish{
-		 if(f){
-			 async{var k:int =1;}
-		 }
-		 async{}
-	 }*/
-	 /*
-	  at(here){
-		 val i = 1;
-	 }*/
 	 
-	 /*
-	 at(here){
-
-	   val f = true;
-	     if(f){
-		 async{}
-	     }
-	 }*/
-	 
-	 
-	 /*
-	  * should this at care about its finish? - No
-	 at(here){
-		 finish{
-			 async{}
-		 }
-	 }
-	  */
-	 /*
-	  at(here){
-			 finish{
-				 
-			 val f = true;
-			if(f){	 async{}}
-			 async{}
-			 }
-			 async{}
-		 }*/
-	 
-	/*	 
-	  at(here){ val f = true;
-		if(f){	 
-			 finish{
-				 
-			async{}}
-			 }
-		 }*/
-		 
-	/*
-		 finish{
-			 at(here){
-				 async{}
-			 }
-		 }
-	 */
-	 /*finish{
-		 
-	 val f = true;
-	 if(f){
-		 at(here){
-			 async{}
-		 }
-	 }
-	 }*/
-	 /*finish{
-		 at(here){
-		 
-			 
-				 async{}
-			 }
-		 }*/
 		 
 		 
-	/*finish{
-			 finish{
-				 async{}
-				 at(here){
-					 at(here){
-						 async{}
-					 }
-				 }
-			 }
-			 async{}
-		 }*/
-		 /* 
-		 finish{
-			 at(here){
-			 finish{
-				 async{}
-				 
-					 at(here){
-						 async{}
-					 }
-				 
-			 }
-			 
-		 }
-			 async{}
-		 }*/	
+		 */	
 	/*val f = true;
 		 if(f){finish{
 		 at(here){
