@@ -44,8 +44,13 @@ void StaticInitBroadcastDispatcher::doBroadcast(serialization_id_t id, char* the
     assert (the_buf != NULL);
     for (x10aux::place place = 1; place < x10aux::num_hosts ; place++) {
         x10rt_msg_params p = {place, DeserializationDispatcher::getMsgType(id), the_buf, sz};
+        // Save the buffer for the rest of the broadcast
+        the_buf = (char*)x10rt_msg_realloc(NULL, 0, sz);
+        ::memmove(the_buf, p.msg, sz);
         x10rt_send_msg(&p);
     }
+    // Free the buffer
+    x10rt_msg_realloc(the_buf, sz, 0);
 }
 
 void StaticInitBroadcastDispatcher::await() {

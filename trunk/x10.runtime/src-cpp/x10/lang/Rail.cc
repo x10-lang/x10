@@ -59,6 +59,7 @@ void x10::lang::Rail_serializeAndSendPut(Place dst_place_, ref<Reference> df, x1
                                          serialization_id_t _id, void* data, size_t size)
 {
     serialization_buffer buf;
+    buf.realloc_func = x10aux::put_realloc;
     buf.write(code);
     buf.write(df);
     Rail_serialize_finish_state (dst_place_.FMGL(id), buf);
@@ -69,6 +70,7 @@ void x10::lang::Rail_serializeAndSendGet(Place src_place_, ref<Reference> df, x1
                                          serialization_id_t _id, void* data, size_t size)
 {
     serialization_buffer buf;
+    buf.realloc_func = x10aux::get_realloc;
     buf.write(code);
     buf.write(df);
     Rail_serialize_finish_state (x10aux::here, buf);

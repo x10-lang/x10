@@ -63,7 +63,7 @@ int addr_map::_position(const void* p) {
 
 serialization_buffer::serialization_buffer (void)
     // do not use GC
-    : buffer(NULL), limit(NULL), cursor(NULL), map()
+    : realloc_func(x10aux::msg_realloc), buffer(NULL), limit(NULL), cursor(NULL), map()
 { }
 
 void serialization_buffer::grow (void) {
@@ -73,7 +73,7 @@ void serialization_buffer::grow (void) {
     if (new_capacity<16) new_capacity = 16; // biggest primitive we might serialise -- a SIMD variable
     
     // do not use GC
-    buffer = (char*)realloc(buffer, new_capacity);
+    buffer = (char*)realloc_func(buffer, old_capacity, new_capacity);
 
     // update pointers to use (potentially) new buffer
     limit = buffer + new_capacity;

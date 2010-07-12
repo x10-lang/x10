@@ -42,8 +42,8 @@ namespace x10aux {
         buf.write(f);
         x10_uint sz = buf.length();
         serialized_bytes += sz; asyncs_sent++;
-        doBroadcast(STATIC_BROADCAST_ID, buf.borrow(), sz);
-        // buffer cleaned up when buf destructed
+        char *the_buf = buf.steal();
+        doBroadcast(STATIC_BROADCAST_ID, the_buf, sz);
     }
 
     template<> inline const char *typeName<StaticInitBroadcastDispatcher>()

@@ -213,6 +213,10 @@ namespace x10aux {
 
     // A growable buffer for serializing into
     class serialization_buffer {
+    public:
+        typedef void *realloc_func_t(void *, size_t, size_t);
+        realloc_func_t *realloc_func;
+
     private:
         char *buffer;
         char *limit;
@@ -226,7 +230,7 @@ namespace x10aux {
         ~serialization_buffer (void) {
             #ifndef NDEBUG
             if (buffer!=NULL) {
-                free(buffer);
+                fprintf(stderr, "Serialization buffer destructed before steal() called\n");
             }
             #endif
         }
@@ -237,7 +241,6 @@ namespace x10aux {
         size_t capacity (void) { return limit - buffer; }
 
         char *steal() { char *buf = buffer; buffer = NULL; return buf; }
-        char *borrow() { return buffer; }
 
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Write;
