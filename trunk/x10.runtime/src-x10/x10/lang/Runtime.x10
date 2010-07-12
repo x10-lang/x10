@@ -383,7 +383,9 @@ public final class Runtime {
     	this.sr=new StatefulReducer[T](r);
     }
     def accept(t:T) {
+    	lock();
     	sr.accept(t);
+    	unlock();
     }
     def notify(rail:ValRail[Int], v:T):Void {
         var b:Boolean = true;
@@ -625,7 +627,9 @@ public final class Runtime {
         }
     }
     def accept(t:T) {
+    	lock.lock();
     	sr.accept(t);
+    	lock.unlock();
     }
     
     }
