@@ -1,0 +1,242 @@
+CG/SparseMat.x10
+        final Block[:rail] M;
+        1. finish async(M.distribution[p]) {
+	        System.err.println(M[p].toString());
+		M[p].print();
+	   }
+        2. finish ateach(point p : M)	
+	        M[p].multiply((double[:rail]) in.a[p].e, (double[:rail]) temp.a[p].e);
+
+CG/Block.x10
+        final Block[.] M;
+        finish async(M.distribution[p]) {
+	        final double[:rail] out = new double[[0:bx-1]]; 
+		System.out.println(M[p]);
+		M[p].multiply(in, out);
+		for (point [k] : out) System.out.println("out["+k+"]="+out[k]);
+	}
+
+CG/Vector.x10  
+                final LocalVector[.] a; 
+		1. finish ateach( point q : D) a[q].set(x); 
+		2. finish ateach( point q:D) a[q].copyFrom((double[:rail]) source.a[q].e);
+		3. final Vector/*(:R==this.R &&localSize==this.localSize)*/ x, 
+		   final Vector /*(:R==this.R &&localSize==this.localSize)*/ y ){ 
+		   finish ateach( point q : D) {
+                           a[q].axpy(alpha, beta,(double[:rail]) x.a[q].e, 
+                                           (double[:rail]) y.a[q].e);
+                   }
+		4. finish ateach (point [q] : D) {
+			async (D[qt]) x10.lang.X10System.arraycopy(e, target.e);
+		    }
+
+		5. finish ateach(point q:D){
+                        for (point [i] : rowPartner) {
+		                final int k = rowPartner[i];
+		                final int index = I*parent.py+k;
+		                x10.lang.Runtime.arrayCopy(e,0,buffer, i*size, size);
+		                x10.lang.Runtime.asyncDoubleArrayCopy(parent.a, i*size, 
+				place.places(index), i*size, size, true);
+		                await done[i];
+                                done[i]=false;
+		                for (int m=0; m<size; ++m) e[m] += scratch[i*size+m];
+	                }                 
+                   }  
+
+	        6. finish ateach(point q:D){
+                        final LocalVector me = this;
+	                for (point [i] : rowPartner) {
+		                final int k = rowPartner[i];
+		                final LocalVector target=parent.a[I*parent.py+k];
+		                final double temp=sum;
+		                async (target) { 
+		                        target.scratch[i]=temp; 
+		                        atomic target.done[i]=true;
+		                }
+		                await done[i];
+		                done[i]=false;
+		                sum += scratch[i]; 
+	                }                       
+                   }
+	       7. finish async (D[q]) {
+	    	        int pi=q/py,pj=q%py;
+		        System.out.println("block at place "+D[q].id +" : " + 
+                                        a[q].toStringValue());
+	           }
+
+
+FFT/fftDist.x10
+
+	finish ateach (point [p]: UNIQUE) FFT[p].rowFFTS(true,fwd);
+	finish ateach (point [p]: UNIQUE) FFT[p].rowFFTS(false, fwd);
+	finish ateach(point [p]: UNIQUE) FFT[p].bytwiddle(true, M_PI, sign);
+	finish ateach(point [p]: UNIQUE) FFT[p].bytwiddle(false, M_PI, sign);
+	finish ateach(point [p]: UNIQUE) FFT[p].transpose(FFT, FFT[p].A, FFT[p].B);
+	finish ateach(point [p]: UNIQUE) FFT[p].exchange(FFT, ARRAY_B);
+	finish ateach(point [p]: UNIQUE) FFT[p].scatter(FFT, FFT[p].A, FFT[p].B);
+	finish ateach(point [p]: UNIQUE) FFT[p].transpose(FFT, FFT[p].B, FFT[p].A);
+	finish ateach(point [p]: UNIQUE) FFT[p].exchange(FFT, ARRAY_A);
+	finish ateach(point [p]: UNIQUE) FFT[p].scatter(FFT, FFT[p].B, FFT[p].A);
+	finish ateach(point [p]: UNIQUE) FFT[p].check();
+	finish ateach(point [p]: UNIQUE) FFT[p].checkEQ();
+	for (point [p] : UNIQUE) finish async (UNIQUE[p]) FFT[p].print(name);
+
+
+FT/Ft.x10
+        1. finish{
+                for (point [i]: UNIQUE) { 				
+			m_array[i] = new DoubleArray(m_localSize, offset, UNIQUE[i]);
+		}
+           }
+        2. finish async {
+                final clock clk=clock.factory.clock();
+		ateach (point [PID]: UNIQUE) clocked(clk) {
+			initializeC(NUMPLACES, NX, NY, NZ, OFFSET, CPAD_COLS);
+			double cputime1=0, cputime2=0;
+			int current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
+			final DoubleArray local_ex = ex.getArray(PID);
+			final DoubleArray localPlanes2d = Planes2d.getArray(PID);
+			final DoubleArray localPlanes1d = Planes1d.getArray(PID);
+			final DoubleArray local_V = V.getArray(PID);
+			FFTInit(FT_COMM, localPlanes2d.m_array, localPlanes1d.m_array, PID);
+			if (!MAKE_FFTW_THREADSAFE) 
+                                next; //next needed here when MAKE_FFTW_THREADSAFE=0 in fft-fftw3.c
+			
+                        init_exp(local_ex.m_array, 1.0e-6, PID);
+			computeInitialConditions(localPlanes2d.m_array, PID);
+			FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
+			next;
+			FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_FWD, current_orientation, PID);
+			next;  
+
+			cputime2 = -mysecond(); cputime1=cputime2;
+			current_orientation = set_view(PLANES_ORIENTED_X_Y_Z,PID);
+			computeInitialConditions(localPlanes2d.m_array, PID);
+			init_exp(local_ex.m_array, 1.0e-6, PID);
+			FFT2DComm(localPlanes2d, Planes1d, FFT_FWD, current_orientation, PID, clk);
+			cputime1 += mysecond(); timers[PID]+=cputime1;
+			next;
+			
+                        cputime1 = -mysecond(); 
+			FT_1DFFT(FT_COMM, localPlanes1d.m_array, local_V.m_array, 0, FFT_FWD, current_orientation, PID);
+			cputime1 += mysecond(); timers[PID]+=cputime1;
+			next; //not redundant
+			
+                        cputime1 = -mysecond();
+			current_orientation = switch_view(current_orientation, PID);
+			int saved_orientation = current_orientation;
+			for (int iter = 1; iter <= MAX_ITER; iter ++) {
+				current_orientation = set_view(saved_orientation, PID);
+				parabolic2(localPlanes2d.m_array, local_V.m_array, local_ex.m_array, iter, 1.0e-6);
+				FFT2DComm(localPlanes2d, Planes1d, FFT_BWD, current_orientation, PID, clk);
+				cputime1 += mysecond(); timers[PID]+=cputime1;
+				next;
+					
+                                cputime1 = -mysecond();
+				FT_1DFFT(FT_COMM, localPlanes1d.m_array, localPlanes2d.m_array, 1, FFT_BWD, current_orientation, PID);
+				current_orientation = switch_view(current_orientation, PID);
+				checksum(localPlanes2d, PID, iter, clk);
+				cputime1 += mysecond(); timers[PID]+=cputime1;
+				next;
+				
+                                cputime1 = -mysecond();
+			}
+			cputime2 += mysecond();
+		}
+	}
+        2. finish for (j=1; j <= 1024; ++j) {
+			proc = getowner(q, r, s);
+			if (proc == PID) {
+				idx = 2*origindexmap(q,r,s);
+			}
+	   }
+
+HPL/PLU2_C.x10
+        1. 
+    	finish foreach (point [pi,pj] : [0:px-1,0:py-1]) {	
+    	    while(startY < ny) { 
+    		boolean done=false;
+    		for (int j=startY; j < min(startY+LOOK_AHEAD, ny) && !done; ++j) {
+    		    for (int i=startX[j]; i <nx; ++i) {
+    			final Block b = myBlocks[lord(i,j)];
+    			if (b.ready) {
+    			    if (i==startX[j]) startX[j]++;
+    			} else done |= b.step(startY, startX);
+    			Thread.yield();
+    		    }
+    		}
+    	    }
+    	}
+MG/LevelData.x10:
+        1. finish ateach(point [i]:m_places){
+	        if (PERF_On && (!PERF_CommOnly)) 
+                        x10.lang.perf.addLocalOps((long)(m_regions[i].size()*PERF_Comp));
+	}
+        2. finish ateach(point [i]:m_places){//at each place in parallel
+		for (point [p]:[LOW:HIGH]){	
+			if ((m_numPlaces>1)&&PERF_On && (!PERF_CompOnly)) 
+                                x10.lang.perf.addLocalOps();
+			if (m_placeGrid.contains(source)){
+				sourceID=m_placeGrid.ordinal(source);
+				async{};
+			}
+			else{
+				async{};	
+			}
+					
+		}
+	  }
+        3. finish async{
+	        final clock clk=clock.factory.clock();	
+		ateach(point [i]:m_places) clocked(clk){			
+                        for (int j=0;j<3;j++){				
+				next;
+			}
+		}
+	  }
+MG/MGOP.x10
+        1. finish{
+                async{
+                        atech(point [i]:m_places) clocked(clk){
+                                for(){
+                                        next;
+                                }
+                        }
+                }
+                ateach(point [i]:m_places){//at each place in parallel
+		        for (point [p]:[LOW:HIGH]){	
+			        if ((m_numPlaces>1)&&PERF_On && (!PERF_CompOnly)) 
+                                        x10.lang.perf.addLocalOps();
+			        if (m_placeGrid.contains(source)){
+				        sourceID=m_placeGrid.ordinal(source);
+				        async{};
+			        }
+			        else{
+				        async{};	
+			        }
+					
+		        }
+                }
+        }
+
+RA/FragmentedRandomAccess.x10
+        1. 
+	finish ateach(point [p] : dist.UNIQUE) {
+	    for (long i=0; i<NUM_UPDATES/NUM_PLACES; i++) {
+		@aggregate async(dist.UNIQUE[placeID]) Table[placeID].update(temp);
+	    }
+	}
+
+
+STREAM/Stream.x10:
+        2. finish async {
+		ateach(point [i]:dist.UNIQUE) clocked (clk) {
+			for (int j=0;j<NUM_TIMES; j++) {
+				next; 
+			}
+			for (point [p]:D|here) // verification
+			        if (a[p] != b[p]+alpha* c[p]) 
+				        async(place.FIRST_PLACE) clocked (clk) verified[0]=false;
+		}
+        }
+
