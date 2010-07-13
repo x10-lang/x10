@@ -118,8 +118,8 @@ abstract public class x10Test {
            x10.io.Console.OUT.println("noErr = " + noErr);
            return noErr;
         }
-         // uncomment this definition will casue wala to fail building callgraph
-        //public abstract def test() : Void;
+         // FIXME:uncomment this definition will casue wala to fail building callgraph
+        public abstract def test() : Void;
         public val errors : List[String]! = new ArrayList[String]();
 
          public def errorString() : String = {
