@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.Stack;
 
-import x10.finish.table.CallTableAsyncVal;
+import x10.finish.table.CallTableMethodVal;
 import x10.finish.table.CallTableAtVal;
 import x10.finish.table.CallTableScopeKey;
 import x10.finish.table.CallTableKey;
@@ -310,7 +310,7 @@ public class X10FinishAsyncAnalysis {
 	    ISSABasicBlock root = epcfg.entry();
 	    arity = checkAsync(root, curblk);
 	}
-	CallTableAsyncVal aval = new CallTableAsyncVal(defpack, defname, defline, defcol,arity,
+	CallTableMethodVal aval = new CallTableMethodVal(defpack, defname, defline, defcol,arity,
 		callpack, callname, calline, callcol, env.cur_block, is_async);
 	updateLastInst(env.cur_scope,aval);
 	replaceTable(tmpkey, aval);
@@ -328,8 +328,6 @@ public class X10FinishAsyncAnalysis {
 	int index = instmap.get(inst).intValue();
 	int line = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
 	int column = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
-	//System.err.println("async position:"+ ((AstMethod) epcfg.getMethod()).getSourcePosition(index).toString());
-	//System.err.println("async last column:"+ ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol());
 	updateTable(epcfg,env,pack,"activity",line,column,callsite_pack,callsite_name,line,column,true);
 
     }
@@ -340,36 +338,40 @@ public class X10FinishAsyncAnalysis {
 	CGNode caller = cg.getNode(env.cur_method_node);
 	String callerpack = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
 	String callername = getName(caller.getMethod().getName().toString());
-	//FIXME: don't understand why caller and callee are interchanged
-	int calleeline = ((AstMethod)caller.getMethod()).getSourcePosition().getFirstLine();
-	int calleecolumn = ((AstMethod)caller.getMethod()).getSourcePosition().getLastCol();
+	
+	
+	//FIXME: remove this two lines and figure out how to get def 
+	int defline = ((AstMethod)caller.getMethod()).getSourcePosition().getFirstLine();
+	int defcolumn = ((AstMethod)caller.getMethod()).getSourcePosition().getLastCol();
+	
 	
 	CallSiteReference callsite =inst.getCallSite();
 	Set<CGNode> allcallees = cg.getPossibleTargets(caller,callsite);
-	//System.err.println("caller:"+caller.getMethod().getName().toString());
-	if (allcallees.size() > 0) {
+ 	if (allcallees.size() > 0) {
 	    Iterator<CGNode> it = allcallees.iterator();
 	    while (it.hasNext()) {
 		CGNode callee = it.next();
-		System.err.println(callee.getMethod().getSignature());
-		String calleepack = getPackage(callee.getMethod().getDeclaringClass().getName().toString());
-		String calleename = getName(callee.getMethod().getName().toString());
-		//System.err.println("\tcallee:"+calleename);
+		 
+		String defpack = getPackage(callee.getMethod().getDeclaringClass().getName().toString());
+		String defname = getName(callee.getMethod().getName().toString());
+		defline = ((AstMethod)callee.getMethod()).getSourcePosition().getFirstLine();
+		defcolumn = ((AstMethod)callee.getMethod()).getSourcePosition().getLastCol();
 		int index = instmap.get(inst).intValue();
-		int callerline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
-		int callercolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
-		updateTable(epcfg,env,calleepack,calleename,calleeline,calleecolumn,
-			callerpack,callername,callerline,callercolumn,false);
+		int calledline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
+		int calledcolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
+		updateTable(epcfg,env,defpack,defname,defline,defcolumn,
+			callerpack,callername,calledline,calledcolumn,false);
 	    }
 	} else {
+	    //TODO:
+	    System.err.println("cannot find callee's cgnode");
 	    String calleepack = getPackage(inst.getDeclaredTarget().getDeclaringClass().getName().toString());
 	    String calleename = getName(inst.getDeclaredTarget().getName().toString());
-	    //System.err.println("\tcallee:"+name);
 	    int index = instmap.get(inst).intValue();
-	    int callerline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
-	    int callercolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
-	    updateTable(epcfg,env,calleepack,calleename,calleeline,calleecolumn,
-			callerpack,callername,callerline,callercolumn,false);
+	    int calledline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
+	    int calledcolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
+	    updateTable(epcfg,env,calleepack,calleename,defline,defcolumn,
+			callerpack,calleename,calledline,calledcolumn,false);
 	}
     }
 
@@ -509,10 +511,10 @@ public class X10FinishAsyncAnalysis {
 		NatLoopSolver.findAllLoops(epcfg, dom, loops, loopvisited, root);
 		//printGraph(epcfg);
 		if (md.getMethod().getName().toString().contains("run")){
-		    GraphUtil.printCFG(epcfg, md.getMethod().getName().toString()+"_removed");
-		    GraphUtil.printCFG(cfg, md.getMethod().getName().toString());
+		    //GraphUtil.printCFG(epcfg, md.getMethod().getName().toString()+"_removed");
+		    //GraphUtil.printCFG(cfg, md.getMethod().getName().toString());
 		}
-		//parseBlock(epcfg, env);
+		parseBlock(epcfg, env);
 		if(last_inst!=null){
 		    last_inst.aslast=ctk;
 		    ctk.lastStmt = last_inst;
@@ -584,7 +586,6 @@ public class X10FinishAsyncAnalysis {
 		return null;
 	    }
 	};
-
 	engine.addX10SystemModule(new SourceDirectoryTreeModule(new File(
 		"../x10.runtime/src-x10/"), "10"));
 	File dirpath = new File("/"+os+"/blshao/workspace/wala-bridge-1.0/" +
@@ -594,34 +595,40 @@ public class X10FinishAsyncAnalysis {
 	
 	engine.addX10SourceModule(new SourceFileModule(testedFile, testedFile
 		.getName()));
-	//File x10TestFile = new File("/"+os+"/blshao/workspace/wala-bridge-1.0/" +
-    	//	"x10.tests/examples/x10lib/harness/x10Test.x10");
-	//engine.addX10SourceModule(new SourceFileModule(x10TestFile,x10TestFile.getName()));
+	boolean ifSaved = true;
+	boolean ifExpanded = false;
+	boolean ifStat = false;
+	boolean ifDump = true;
+	boolean[] mask = {true,true,true};
 	// build the call graph: ExplicitCallGraph
 	cg = engine.buildDefaultCallGraph();
-	// System.out.println("cha:  "+cg.getClassHierarchy().toString());
 	System.out.println("Baolin here again --- Call Graph");
 	buildCallTable();
-	//CallTableUtil.getStat();
-	CallTableUtil.dumpCallTable(calltable);
-	System.out.println("saving ... ...");
-	OutputUtil.saveCallTable("/"+os+"/blshao/calltable.dat", calltable);
+	if(ifStat){
+	    System.out.println("Intitial Table:");
+	    CallTableUtil.getStat(calltable);
+	}
+	if(ifDump){
+	    CallTableUtil.dumpCallTable(calltable);
+	}
+	if(ifSaved){
+	    System.out.println("saving ... ...");
+	    OutputUtil.saveCallTable("/"+os+"/blshao/calltable.dat", calltable);
+	}
+	if(ifExpanded){
+	    System.out.println("Expanding Talbe:");
+	    CallTableUtil.expandCallTable(calltable, mask);
+	    CallTableUtil.updateAllArity(calltable);
+	    CallTableUtil.expandCallTable(calltable, mask);	
+	}
+	if(ifStat && ifExpanded){
+	    System.out.println("New Talbe:");
+	    CallTableUtil.getStat(calltable);
+	}
+	if(ifDump && ifStat && ifExpanded){
+	    CallTableUtil.dumpCallTable(calltable);
+	}
 	System.out.println("finished ... ");
-	//HashMap<CallTableKey, LinkedList<CallTableVal>> newtable;
-	//System.out.println("loading ... ...");
-	//newtable = OutputUtil.loadCallTable("calltable.dat");
-	//CallTableUtil.dumpCallTable(newtable);
-	//CallTableUtil.expandCallTable();	
-	//CallTableUtil.getStat();
-	//System.out.println("new table\n");
-	//CallTableUtil.dumpCallTable();
-	//CallTableUtil.updateAllArity();
-	//System.out.println("updated new table\n");
-	//CallTableUtil.dumpCallTable();
-	//CallTableUtil.expandCallTable();
-	//CallTableUtil.getStat();
-	//System.out.println("new table\n");
-	//CallTableUtil.dumpCallTable();
     } // end of compile
     private String getPackage(String s){
 	if(s.contains("activity")){
