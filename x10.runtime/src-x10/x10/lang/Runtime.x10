@@ -293,7 +293,8 @@ public final class Runtime {
         }
 
         def drop() {
-           for(clock:Clock in keySet()) clock.dropUnsafe();
+            for(clock:Clock in keySet()) clock.dropInternal();
+            clear();
         }
     }
 
