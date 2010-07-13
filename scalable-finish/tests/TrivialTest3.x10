@@ -11,22 +11,16 @@ i++;
 }
 
 public def foo():void throws IllegalOperationException {
-	//@FinishAsync(1,1,true,"async")
-	//@FinishAsync(1,1,true,"at")
-	@FinishAsync(1,1,true,"async")
-	  finish{
-	  async{}
-	  at(here){}
-	  async{}
-      }
-     /* var f:boolean  = true;
+
+      var f:boolean  = true;
       if(f){
+    	  f1();
     	  throw new IllegalOperationException();
     	  //f1();
     	  }
       var i:int = 1;
       i++;
-      i = i + 3;*/
+      i = i + 3;
       
    }
 
