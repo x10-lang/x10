@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.imp.utils.Pair;
+import org.eclipse.imp.x10dt.ui.Messages;
 import org.eclipse.imp.x10dt.ui.launching.X10TypeSelectionDialog;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModel;
@@ -82,8 +83,8 @@ public final class LaunchUtils {
     final int numberOfTypes = jeMainClasses.numberOfTypes();
     if (numberOfTypes == 0) {
       final MessageBox msgBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
-      msgBox.setText("Main Type Search Result");
-      msgBox.setMessage("No X10 files found with a main method.");
+      msgBox.setText(Messages.LU_MainTypeSearchResult);
+      msgBox.setMessage(Messages.LU_NoMainTypeFound);
       msgBox.open();
       return null;
     } else if (numberOfTypes == 1) {
