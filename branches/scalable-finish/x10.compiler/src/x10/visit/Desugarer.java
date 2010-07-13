@@ -30,6 +30,7 @@ import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Formal;
 import polyglot.ast.IntLit;
+import polyglot.ast.IntLit_c;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
@@ -58,6 +59,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
+import x10.ast.AnnotationNode;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.AtExpr;
@@ -91,11 +93,13 @@ import x10.ast.X10Unary_c;
 import x10.constraint.XConstraint;
 import x10.constraint.XRoot;
 import x10.emitter.Emitter;
+import x10.extension.X10Ext;
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -136,6 +140,10 @@ public class Desugarer extends ContextVisitor {
     private static final Name AWAIT = Name.make("await");
     private static final Name RELEASE = Name.make("release");
     private static final Name START_FINISH = Name.make("startFinish");
+    //added for scalable finish
+    private static final Name START_LOCAL_FINISH = Name.make("startLocalFinish");
+    private static final Name START_SIMPLE_FINISH = Name.make("startSimpleFinish");
+    //
     private static final Name PUSH_EXCEPTION = Name.make("pushException");
     private static final Name STOP_FINISH = Name.make("stopFinish");
     private static final Name APPLY = Name.make("apply");
@@ -520,6 +528,58 @@ public class Desugarer extends ContextVisitor {
         List<Expr> args = new ArrayList<Expr>();
         return xnf.Block(pos, f.body(), xnf.Eval(pos, synth.makeStaticCall(pos, target, FENCE, args, xts.Void(), xContext())));
     }
+    /**
+     * Recognize the following pattern:
+     * @FinishAsync(,,,"local") which means all asyncs in this finish are in the same place as finish
+     * @param f
+     * @return a method call expression that invokes "startLocalFinish"
+     * @throws SemanticException
+     */
+    private Expr specializedFinish2(Finish f) throws SemanticException {
+    	//System.out.println("Desugar.visitFinish");
+        Position pos = f.position();
+        //boolean isLocal=false;
+    	int p=0;
+        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
+        if (!((X10Ext) f.ext()).annotationMatching(annotation).isEmpty()) {
+        	List<AnnotationNode> allannots = ((X10Ext)(f.ext())).annotations();
+        	
+	        /*for(int i=0;i<allannots.size();i++){
+	        	AnnotationNode a = allannots.get(i);
+	        	Ref r = a.annotationType().typeRef();
+	    		X10ParsedClassType_c xpct = (X10ParsedClassType_c)r.getCached();
+	    		List<Expr> allProperties = xpct.propertyInitializers();
+	    		Expr pattern = allProperties.get(3);
+	    		if(pattern instanceof IntLit_c){
+	    			if(((IntLit_c) pattern).value()==1){
+	    				isLocal=true;
+	    			}
+	    			
+	    		}
+	        }*/
+        	if(allannots.size()==1){
+        		AnnotationNode a = allannots.get(0);
+	        	Ref r = a.annotationType().typeRef();
+	    		X10ParsedClassType_c xpct = (X10ParsedClassType_c)r.getCached();
+	    		List<Expr> allProperties = xpct.propertyInitializers();
+	    		Expr pattern = allProperties.get(3);
+	    		if(pattern instanceof IntLit_c){
+	    			p = (int)((IntLit_c) pattern).value();
+	    		}
+        	}
+        }
+        /*if(isLocal==false){
+        	return call(pos, START_FINISH, xts.Void());
+        }
+    	return call(pos, START_LOCAL_FINISH, xts.Void());*/
+        System.out.println("pattern:"+p);
+        switch(p){
+        case 1:return call(pos, START_LOCAL_FINISH, xts.Void());
+        case 2:return call(pos, START_SIMPLE_FINISH, xts.Void());
+        //TODO:more patterns can be filled here
+        default:return call(pos, START_FINISH, xts.Void());
+        }
+    }
 
     // finish S; ->
     //    try { Runtime.startFinish(); S; }
@@ -528,8 +588,9 @@ public class Desugarer extends ContextVisitor {
     private Stmt visitFinish(Finish f) throws SemanticException {
         Position pos = f.position();
         Name tmp = getTmp();
-
-        Stmt specializedFinish = specializeFinish(f);
+        //
+        Stmt specializedFinish=null;
+        //specializedFinish = specializeFinish(f);
         if (specializedFinish != null)
             return specializedFinish;
 
@@ -544,7 +605,7 @@ public class Desugarer extends ContextVisitor {
                 xnf.Id(pos, PUSH_EXCEPTION), Collections.EMPTY_LIST,
                 Collections.singletonList(local)).methodInstance(mi).type(xts.Void());
 
-        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, START_FINISH, xts.Void())), f.body());
+        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, specializedFinish2(f)), f.body());
         Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call)));
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, STOP_FINISH, xts.Void())));
 
