@@ -123,7 +123,7 @@ public final class X10Utils {
     compiler.compile(x10Files);
     monitor.worked(7);
     monitor.subTask(Messages.XU_SearchForMainTypes);
-    final NodeVisitor nodeVisitor = new X10TypeNodeVisitor(x10Types);
+    final NodeVisitor nodeVisitor = new X10MainTypeNodeVisitor(x10Types);
     for (final Source source : x10Files) {
       if (monitor.isCanceled()) {
         throw new InterruptedException();
@@ -245,9 +245,9 @@ public final class X10Utils {
     
   }
   
-  private static final class X10TypeNodeVisitor extends NodeVisitor {
+  private static final class X10MainTypeNodeVisitor extends NodeVisitor {
     
-    X10TypeNodeVisitor(final Collection<ClassType> x10Types) {
+    X10MainTypeNodeVisitor(final Collection<ClassType> x10Types) {
       this.fX10Types = x10Types;
     }
     
