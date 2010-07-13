@@ -41,7 +41,7 @@ public class Activity {
     /**
      * the finish state governing the execution of this activity (may be remote)
      */
-    val finishState:Runtime.FinishState;
+    val finishState:Runtime.RootFinishState;
 
     /**
      * safe to run pending jobs while waiting for a finish (temporary)
@@ -63,12 +63,13 @@ public class Activity {
      * The finish states for the finish statements currently executed by this activity.
      * Lazily created.
      */
-    var finishStack:Stack[Runtime.FinishState!]!;
+    var finishStack:Stack[Runtime.RootFinishState!]!;
 
     /**
      * Create activity.
      */
-    def this(body:()=>Void, finishState:Runtime.FinishState, safe:Boolean) {
+    def this(body:()=>Void, finishState:Runtime.RootFinishState, safe:Boolean) {
+    	Console.OUT.println("activity created@"+here);
         this.finishState = finishState;
         this.safe = safe;
         finishState.notifyActivityCreation();
@@ -78,7 +79,7 @@ public class Activity {
     /**
      * Create clocked activity.
      */
-    def this(body:()=>Void, finishState:Runtime.FinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
+    def this(body:()=>Void, finishState:Runtime.RootFinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
         this(body, finishState, false);
         clockPhases = Runtime.ClockPhases.make(clocks, phases);
     }
@@ -90,12 +91,14 @@ public class Activity {
         this.finishState = null;
         this.safe = safe;
         this.body = body;
+        
     }
 
     /**
      * Run activity.
      */
     def run():Void {
+    	Console.OUT.println("activity run@"+here);
         try {
             body();
         } catch (t:Throwable) {
@@ -107,8 +110,12 @@ public class Activity {
             }
         }
         if (null != clockPhases) clockPhases.drop();
-        if (null != finishState) finishState.notifyActivityTermination();
+        if (null != finishState){
+        	 
+        	finishState.notifyActivityTermination();
+        }
         Runtime.dealloc(body);
+        Console.OUT.println("activity terminates@"+here);
     }
 
     /**
