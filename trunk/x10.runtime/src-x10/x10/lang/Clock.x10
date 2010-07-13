@@ -46,6 +46,12 @@ public class Clock(name:String) {
         }
     }
 
+    private def dropLocal(ph:Int) {
+        --count;
+        if (-ph != phase)
+            resumeLocal();
+    }
+
     global def register() {
         if (dropped()) throw new ClockUseException();
         val ph = get();
@@ -75,11 +81,12 @@ public class Clock(name:String) {
 
     global def dropUnsafe() {
         val ph = remove();
-        async (this) atomic {
-            --count;
-            if (-ph != phase) 
-            	resumeLocal();
-        }
+        async (this) dropLocal(ph);
+    }
+
+    global def dropInternal() {
+        val ph = get();
+        async (this) dropLocal(ph);
     }
 
     public global def registered():Boolean = Runtime.clockPhases().containsKey(this);

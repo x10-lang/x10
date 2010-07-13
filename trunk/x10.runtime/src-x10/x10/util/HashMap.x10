@@ -139,7 +139,6 @@ public class HashMap[K,V] implements Map[K,V] {
     }
     
     public safe def put(k: K, v: V): Box[V] {
-        modCount++;
         if (occupation == table.length || (shouldRehash && occupation >= table.length / 2))
             rehash();
 
@@ -154,13 +153,14 @@ public class HashMap[K,V] implements Map[K,V] {
             if (e == null) {
                 if (i - h > MAX_PROBES)
                     shouldRehash = true;
+                modCount++;
                 table(j) = new HashEntry[K,V](k, v, h);
                 size++;
                 occupation++;
                 return null;
             } else if (e.hash == h && k.equals(e.key)) {
-                if (i - h > MAX_PROBES)
-                    shouldRehash = true;
+//                if (i - h > MAX_PROBES)
+//                    shouldRehash = true;
                 val old = e.value;
                 e.value = v;
                 if (e.removed) {
