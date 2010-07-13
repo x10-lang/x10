@@ -81,7 +81,7 @@ class SOROrigCore {
 public class SOROrig extends SOROrigCore {
 
    private var size: Int;
-   private val datasizes =   Array.make[int](0..2, ((i):Point)=> i == 0? 10: (i==1? 1500 :2500));
+   private val datasizes =   new Array[int](0..2, ((i):Point)=> i == 0? 10: (i==1? 1500 :2500));
    private const JACOBI_NUM_ITER = 10000;
    private const RANDOM_SEED  = 10101010L;
 
@@ -128,7 +128,7 @@ public class SOROrig extends SOROrigCore {
    }
 
    private static def RandomMatrix(M: int, N: int, R: Random!): Array[Double] {
-	val t = Array.make[Double]([0..M-1, 0..N-1]);
+	val t = new Array[Double]([0..M-1, 0..N-1]);
    for ((i,j) in t.region) 
 	t(i, j) = R.nextDouble() * 1e-6;
    return t;

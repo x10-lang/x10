@@ -15,7 +15,7 @@ class SeriesTest {
 	 */
 	def buildTestData(): void = {
 		val R: Region = [0..1, 0..array_rows-1];
-		testArray = Array.make[double @ Clocked[Double] (c, op, 0.0)]([0..1, 0..array_rows-1], (i:Point) => 0.0);  // Array of arrays.
+		testArray = new Array[double @ Clocked[Double] (c, op, 0.0)]([0..1, 0..array_rows-1], (i:Point) => 0.0);  // Array of arrays.
 	}
 
 	/**

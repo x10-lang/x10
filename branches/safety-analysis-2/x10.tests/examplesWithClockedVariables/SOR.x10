@@ -73,7 +73,7 @@ class SORCore {
 public class SOR extends SORCore {
 
    private var size: Int;
-   private val datasizes =   Array.make[int](0..2, ((i):Point)=> i == 0? 10: (i==1? 1500 :2500));
+   private val datasizes =   new Array[int](0..2, ((i):Point)=> i == 0? 10: (i==1? 1500 :2500));
    private const JACOBI_NUM_ITER = 10000;
    private const RANDOM_SEED  = 10101010L;
 
@@ -120,7 +120,7 @@ public class SOR extends SORCore {
    }
 
    private static def RandomMatrix(c: Clock, M: int, N: int, R: Random!): Array[Double] = @ ClockedM(c) {
-	val t = Array.make[Double @ Clocked[Double](c, op, 0.0)]([0..M-1, 0..N-1], (p: Point) => R.nextDouble() * 1e-6);
+	val t = new Array[Double @ Clocked[Double](c, op, 0.0)]([0..M-1, 0..N-1], (p: Point) => R.nextDouble() * 1e-6);
    for ((i,j) in t.region) 
 	t(i, j) = R.nextDouble() * 1e-6;
    return t;
