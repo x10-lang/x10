@@ -51,35 +51,41 @@ public class TrivialTest2 extends x10Test {
 		
                 //TODO: test code
 
-	  var i:int = 1;
+                f4();
+ //finish{
+		//async{}
+		//f4();
+//		async{};
+	//}
+	  // var i:int = 1;
   // finish{
 	  // f4();
 	  // async{}
 	  // at(here){async{}}
   // }
 	 // f5();
-   f3([1,2,3],[1,2]);
+   // f3([1,2,3],[1,2]);
    
-	  finish{
-		  f6(); 
-		  at(here){f1();}
-		 }
-	  async{
-		  at(here){}
-		  async{
-			  bar();
-			  at(here){}
-		  }
-	  }
-	  finish{
-		 at(here){f4();}
-		 finish{
-			 at(here){}
-		 }
-	  }
-	  at(here){
-		  at(here){f6();}
-	  }
+	 // finish{
+		  // f6(); 
+		  // at(here){f1();}
+		 // }
+	  // async{
+		  // at(here){}
+		  // async{
+			  // bar();
+			  // at(here){}
+		  // }
+	  // }
+	  // finish{
+		 // at(here){f4();}
+		 // finish{
+			 // at(here){}
+		 // }
+	  // }
+	  // at(here){
+		  // at(here){f6();}
+	  // }
                 //default successful condition
                 var b: boolean = false;
 		atomic { b = flag; }

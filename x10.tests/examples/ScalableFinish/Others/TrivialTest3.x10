@@ -32,20 +32,17 @@ i++;
         public def run() {
 		
                 //TODO: test code
-	//@FinishAsync(1,1,true,"async")
-	//@FinishAsync(1,1,true,"at")
-	@FinishAsync(1,1,true,"async")
-	  finish{
-	  async{}
-	  at(here){}
-	  async{}
-      }
-     /* var f:boolean  = true;
+      finish{
+        	async{}
+        }
+      /*var f:boolean  = true;
       if(f){
+    	  f1();
     	  throw new IllegalOperationException();
     	  //f1();
     	  }
       var i:int = 1;
+    	  f1();
       i++;
       i = i + 3;*/
  
