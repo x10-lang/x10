@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
-import x10.finish.table.CallTableAsyncVal;
+import x10.finish.table.CallTableMethodVal;
 import x10.finish.table.CallTableAtVal;
 import x10.finish.table.CallTableScopeKey;
 import x10.finish.table.CallTableKey;
@@ -73,7 +73,7 @@ public class CallTableUtil {
 	    // CallTableAtVal always has the same scope as its enclosing
 	    // methods,
 	    // but it is just skipped because it never causes a recursion
-	    if (v instanceof CallTableAsyncVal) {
+	    if (v instanceof CallTableMethodVal) {
 		String val_sig = v.scope;
 		if (val_sig.endsWith(key_sig)) {
 		    rec_call = true;
@@ -114,11 +114,15 @@ public class CallTableUtil {
      */
     @SuppressWarnings("unchecked")
     public static HashMap<CallTableKey, LinkedList<CallTableVal>> expandCallTable(
-	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable) {
+	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable, boolean[] mask) {
 	boolean changed = true;
 	Set<CallTableKey> keyset;
 	Iterator<CallTableKey> keyit;
 	HashMap<CallTableKey, LinkedList<CallTableVal>> new_table;
+	if(mask.length!=3){
+	    System.err.println("mask is invalid!");
+	    return calltable;
+	}
 
 	while (changed) {
 	    // System.err.println(".........");
@@ -146,7 +150,9 @@ public class CallTableUtil {
 		     */
 		    CallTableKey tmpkey = getKey(callee);
 		    LinkedList<CallTableVal> tmplist = calltable.get(tmpkey);
-		    if (tmplist != null) {
+		    //TODO: not tested
+		    boolean expand = expandOrNot(callee,mask);
+		    if (tmplist != null && expand) {
 			tmpiter = tmplist.iterator();
 			/* add each CallTableVal in this newly obtained 
 			 * CallTableKey to the original key's list
@@ -193,13 +199,31 @@ public class CallTableUtil {
 	return calltable;
     }
 
+    private static boolean expandOrNot(CallTableVal callee, boolean[] mask) {
+	if(callee instanceof CallTableAtVal && mask[0]==true){
+	    return true;
+	}
+	if(callee instanceof CallTableMethodVal){
+	    CallTableMethodVal mycallee = (CallTableMethodVal)callee;
+	    if(mycallee.is_async==true && mask[1]==true){
+		return true;
+	    }
+	    if(mycallee.is_async==false && mask[2]==true){
+		return true;
+	    }
+	}
+	    
+	return false;
+    }
+    
     private static CallTableKey getKey(CallTableVal callee) {
 	CallTableKey tmpkey;
 	if (callee instanceof CallTableAtVal) {
+	    boolean isFinish=false;
 	    tmpkey = new CallTableScopeKey(callee.scope, callee.name,
 		    ((CallTableAtVal) callee).line,
 		    ((CallTableAtVal) callee).column,
-		    ((CallTableAtVal) callee).blk, false);
+		    ((CallTableAtVal) callee).blk, isFinish);
 	} else {
 	    tmpkey = new CallTableMethodKey(callee.scope, callee.name,
 		    callee.line, callee.column);
