@@ -124,7 +124,7 @@ public final class Array[T](
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
-        raw = IndexedMemoryChunk[T](n, true);
+        raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
     }
 
@@ -141,7 +141,7 @@ public final class Array[T](
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
-        val r  = IndexedMemoryChunk[T](n);
+        val r  = IndexedMemoryChunk.allocate[T](n);
 	for (p:Point(reg.rank) in reg) {
             r(layout.offset(p))= init(p);
         }
@@ -162,7 +162,7 @@ public final class Array[T](
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
-        val r  = IndexedMemoryChunk[T](n);
+        val r  = IndexedMemoryChunk.allocate[T](n);
         if (reg.rect) {
             // Can be optimized into a simple fill of the backing IndexedMemoryChunk
             // because every element of the chunk is used by a point in the region.
