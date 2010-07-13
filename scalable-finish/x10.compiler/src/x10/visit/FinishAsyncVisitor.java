@@ -139,8 +139,8 @@ public class FinishAsyncVisitor extends ContextVisitor {
 	private Node visitExitAt(AtStmt n){
 		int line = n.position().line();
 		int column = n.position().column();
-		CallTableFinishKey at; 
-		at = new CallTableFinishKey(src_package,src_method,line,column,-1,false);
+		CallTableScopeKey at; 
+		at = new CallTableScopeKey(src_package,src_method,line,column,-1,false);
 		//FIXME: if "at" is in a normal method, wala gives the package
 		// this method belongs to as an "id"; However, if "at" is in an
 		// async, which is treated as a wala-generated method, the "id"
@@ -152,7 +152,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 			System.out.println("find at:"+n.toString());
 		}
 		else{
-			at = new CallTableFinishKey(src_path,src_method,line,column,-1,false);
+			at = new CallTableScopeKey(src_path,src_method,line,column,-1,false);
 			f = calltable.keySet().contains(at);
 			if(f){
 				System.out.println("find at:"+n.toString());
@@ -185,9 +185,10 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		int line = n.body().position().line();
 		int column = n.body().position().column();
 		//System.out.println("line = " + line + ", column = "+column);
-		CallTableFinishKey fs = new CallTableFinishKey(src_package,src_method,line,column,-1,true);
+		CallTableScopeKey fs = new CallTableScopeKey(src_package,src_method,line,column,-1,true);
 		boolean f = calltable.keySet().contains(fs);
 		if(f){
+			int pattern = getPattern(fs);
 			System.out.println("find finish:"+n.toString());
 			
 			X10Ext_c xext = (X10Ext_c) n.ext();
@@ -207,13 +208,13 @@ public class FinishAsyncVisitor extends ContextVisitor {
 				}else{
 					islast = true;
 				}
-				if(v instanceof CallTableAsyncVal){
-					if(((CallTableAsyncVal)v).is_async){
-						newannote.add(makeFinishAnnotation(n,v.a.ordinal(),fakeplace,islast,"async"));
+				if(v instanceof CallTableMethodVal){
+					if(((CallTableMethodVal)v).is_async){
+						newannote.add(makeFinishAnnotation(n,v.a.ordinal(),fakeplace,islast,pattern));
 					}
 				}
 				if(v instanceof CallTableAtVal){
-					newannote.add(makeFinishAnnotation(n,v.a.ordinal(),fakeplace,islast,"at"));
+					newannote.add(makeFinishAnnotation(n,v.a.ordinal(),fakeplace,islast,pattern));
 				}
 			}
 			
@@ -243,8 +244,12 @@ public class FinishAsyncVisitor extends ContextVisitor {
 	private Node visitClosure(ClosureCall n){
 		return n;
 	}
+	private int getPattern(CallTableKey f){
+		//TODO: get patterns of a finish
+		return 1;
+	}
 	private AnnotationNode makeFinishAnnotation(Finish n, int arity, int place, 
-			boolean islast, String notes) throws SemanticException{
+			boolean islast, int pattern) throws SemanticException{
 		// find the type of this annotation
 		Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
 		// create a node (type node) for this type
@@ -255,12 +260,12 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		IntLit x10arity = nf.IntLit(n.position(), IntLit.INT,arity);
 		IntLit x10place = nf.IntLit(n.position(), IntLit.INT,place);
 		BooleanLit x10islast = nf.BooleanLit(n.position(),islast);
-		StringLit x10notes = nf.StringLit(n.position(),notes);
+		IntLit x10pattern = nf.IntLit(n.position(), IntLit.INT,pattern);
 		List<Expr> initproperties = new LinkedList<Expr>();
 		initproperties.add(x10arity);
 		initproperties.add(x10place);
 		initproperties.add(x10islast);
-		initproperties.add(x10notes);
+		initproperties.add(x10pattern);
 		// patch this annotation with parameters
 		Ref r = an.annotationType().typeRef();
 		X10ParsedClassType_c xpct = (X10ParsedClassType_c)r.getCached();

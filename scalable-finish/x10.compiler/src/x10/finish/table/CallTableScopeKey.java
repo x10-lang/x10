@@ -3,7 +3,7 @@ package x10.finish.table;
  * 
  * class represents a finish block in x10
  */
-public class CallTableFinishKey extends CallTableKey {
+public class CallTableScopeKey extends CallTableKey {
 	
 	private static final long serialVersionUID = 1L;
 	/**
@@ -16,7 +16,7 @@ public class CallTableFinishKey extends CallTableKey {
 	 */
 	public int blk;
 	
-	public CallTableFinishKey(String s,String n, int line, int column, 
+	public CallTableScopeKey(String s,String n, int line, int column, 
 		int b, boolean f) {
 		// finish = f;
 		super(s,n,line,column);
@@ -40,8 +40,8 @@ public class CallTableFinishKey extends CallTableKey {
 	}
 
 	public boolean equals(Object o) {
-	    if (o instanceof CallTableFinishKey) {
-		return this.toString().equals(((CallTableFinishKey) o).toString());
+	    if (o instanceof CallTableScopeKey) {
+		return this.toString().equals(((CallTableScopeKey) o).toString());
 	    }
 	    return false;
 	}
