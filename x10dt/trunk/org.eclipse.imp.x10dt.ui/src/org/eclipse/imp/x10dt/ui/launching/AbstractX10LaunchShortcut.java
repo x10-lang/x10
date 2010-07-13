@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -80,7 +81,12 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
       final IJavaElement[] elements = new IJavaElement[structuredSelection.size()];
       final Iterator<?> it = structuredSelection.iterator();
       for (int i = 0, size = structuredSelection.size(); i < size; ++i) {
-        elements[i] = (IJavaElement) it.next();
+        final Object obj = it.next();
+        if (obj instanceof IFile) {
+          elements[i] = new X10FileElementWrapper((IFile) obj);
+        } else {
+          elements[i] = (IJavaElement) obj;
+        }
       }
       searchAndLaunch(elements, mode);
     }
