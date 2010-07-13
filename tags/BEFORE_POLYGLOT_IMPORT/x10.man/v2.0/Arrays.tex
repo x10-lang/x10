@@ -1,0 +1,539 @@
+\chapter{Local and Distributed Arrays}\label{XtenArrays}\index{arrays}
+
+\Xcd{Array}s provide indexed access to data at a single \Xcd{Place}, {\em via}
+\Xcd{Point}s---indices of any dimensionality. \Xcd{DistArray}s is similar, but
+spreads the data across multiple \xcd`Place`s, {\em via} \Xcd{Dist}s.  
+We refer to arrays either sort as ``general arrays''.  
+
+
+This chapter provides an overview of the \Xcd{x10.array} classes \Xcd{Array}
+and \Xcd{DistArray}, and their supporting classes \Xcd{Point}, \Xcd{Region}
+and \Xcd{Dist}.  
+
+
+
+\section{Points}\label{point-syntax}\index{point syntax}
+
+General arrays are indexed by \xcd`Point`s--$n$-dimensional tuples of
+integers.  The \xcd`rank`
+property of a point gives its dimensionality.  Points can be constructed from
+integers or \xcd`ValRail`s by
+the \xcd`Point.make` factory methods:
+%~~gen
+% package Arrays.Points.Example1;
+% class Example1 {
+% def example1() {
+%~~vis
+\begin{xten}
+val origin_1 : Point{self.rank==1} = Point.make(0);
+val origin_2 : Point{self.rank==2} = Point.make(0,0);
+val origin_5 : Point{self.rank==5} = Point.make([0,0,0,0,0]);
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
+There is an implicit conversion from \xcd`ValRail[Int]` to \xcd`Point`, giving
+a convenient syntax for constructing points: 
+
+%~~gen
+% package Arrays.Points.Example2;
+% class Example{
+% def example() {
+%~~vis
+\begin{xten}
+val p : Point = [1,2,3];
+val q : Point{rank==5} = [1,2,3,4,5];
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
+The coordinates of a point are available by subscripting; \xcd`p(i)` is the
+\xcd"i"th coordinate of the point \xcd"p".
+
+\section{Regions}\label{XtenRegions}\index{region}
+
+A region is a set of points.  {}\Xten{}
+provides a built-in class, \xcd"x10.lang.Region", to allow the
+creation of new regions and to perform operations on regions. 
+
+Each region \xcd"R" has a constant integer rank, \xcd"R.rank".
+%% TODO: Should be uint.
+
+Here are several examples of region declarations:
+\begin{xten}
+val MAX_HEIGHT=20;
+val Null = Region.makeUnit();  // Empty 0-dimensional region          
+val N = 10;
+val K = 2;
+val R1 = 1..100; // 1-dim region with extent 1..100
+val R2 = [1..100] as Region(1); // same as R1
+val R3 = (0..99) * (-1..MAX_HEIGHT);   
+val R4 = [0..99, -1..MAX_HEIGHT] as Region(2); // same as R3  
+val R5 = Region.makeUpperTriangular(N);
+val R7 = R4 && R5; // intersection of two regions
+val R8 = R4 || R5; // union of two regions
+\end{xten}
+
+The expression \xcdmath"a$_1$..a$_2$"
+is shorthand for the rectangular, rank-1 region
+consisting of the points
+$\{$\xcdmath"[a$_1$]", \dots, \xcdmath"[a$_2$]"$\}$.
+Each subexpression of \xcdmath"a$_i$" must be of type \xcd"Int".
+If \xcdmath"a$_1$"
+is greater than \xcdmath"a$_2$", the region is empty.
+
+A region may be constructed by converting from a rail of
+regions or a rail of points, typically using a rail constructor
+(\Sref{RailConstructors})
+(e.g., \xcd"R4" above).
+The region constructed from a rail of points represents the
+region containing just those points.
+The region constructed from a rail of regions
+represents
+the Cartesian product of each of the arguments.
+\XtenCurrVer{} does not (yet) support hierarchical regions.
+
+\index{region!upperTriangular}
+\index{region!lowerTriangular}\index{region!banded}
+
+Various built-in regions are provided through  factory
+methods on \xcd"Region".  For instance:
+\begin{itemize}
+\item \xcd"Region.makeUpperTriangular(N)" returns a region corresponding
+to the non-zero indices in an upper-triangular \xcd"N x N" matrix.
+\item \xcd"Region.makeLowerTriangular(N)" returns a region corresponding
+to the non-zero indices in a lower-triangular \xcd"N x N" matrix.
+\end{itemize}
+
+All the points in a region are ordered canonically by the
+lexicographic total order. Thus the points of a region \xcd"R=(1..2)*(1..2)"
+are ordered as 
+\begin{xten}
+(1,1), (1,2), (2,1), (2,2)
+\end{xten}
+Sequential iteration statements such as \xcd"for" (\Sref{ForAllLoop})
+iterate over the points in a region in the canonical order.
+
+A region is said to be {\em rectangular}\index{region!convex} if it is of
+the form \xcdmath"(T$_1$ * $\cdots$ * T$_k$)" for some set of regions
+\xcdmath"T$_i$". Such a
+region satisfies the property that if two points $p_1$ and $p_3$ are
+in the region, then so is every point $p_2$ between them (that is, it is {\em convex}). 
+(Note that \xcd"||" may produce non-convex regions from convex regions, e.g.,
+\xcd"[1,1] || [3,3]" is a non-convex region.  The operation
+\xcd`R.boundingBox()` gives the smallest rectangular region containing
+\xcd`R`.)  
+
+
+
+%%RECT.CLOSURE  For each region \xcd"R", the {\em rectangular closure} of \xcd"R" is the
+%%RECT.CLOSURE  smallest rectangular region enclosing \xcd"R".  For each integer \xcd"i"
+%%RECT.CLOSURE  less than \xcd"R.rank", the term \xcd"R(i)" represents the enumeration
+%%RECT.CLOSURE  in the \xcd"i"th dimension of the rectangular closure of \xcd"R". It may be
+%%RECT.CLOSURE  used in a type expression wherever an enumeration may be used.
+
+
+
+\subsection{Operations on regions}
+Various non side-effecting operators (i.e., pure functions) are
+provided on regions. These allow the programmer to express sparse as
+well as dense regions.
+
+Let \xcd"R" be a region. A subset of \xcd"R" is also called a
+{\em sub-region}.\index{region!sub-region}
+
+Let \xcdmath"R$_1$" and \xcdmath"R$_2$" be two regions whose type
+establishes that they are of the same rank. Let 
+\xcdmath"S" be a region of unrelated rank.
+
+\xcdmath"R$_1$ && R$_2$" is the intersection of \xcdmath"R$_1$" and
+\xcdmath"R$_2$". 
+
+\index{region!intersection}
+
+\xcdmath"R$_1$ || R$_2$" is the union of the \xcdmath"R$_1$" and
+\xcdmath"R$_2$".\index{region!union}
+
+\xcdmath"R$_1$ - R$_2$" is the set difference of \xcdmath"R$_1$" and
+\xcdmath"R$_2$".\index{region!set difference}
+
+\xcdmath"R$_1$ * S" is the Cartesian product of \xcdmath"R$_1$" and
+\xcdmath"S",  formed by pairing each point in \xcdmath"R$_1$" with every the point in \xcdmath"S".
+\index{region!product}
+Thus, \xcd"([1..2,3..4] as Region 2) * (5..6)"
+is the region of rank \Xcd{3} containing the points \Xcd{(x,y,z)}
+where \Xcd{x} is \Xcd{1} or \Xcd{2}, 
+\Xcd{y} is \Xcd{3} or \Xcd{4}, and
+\Xcd{z} is \Xcd{5} or \Xcd{6}. 
+
+
+For a region \xcdmath"R" and point \xcdmath"p" of the same rank 
+\xcdmath"R+p" and \xcdmath"R-p" represent the translation of the region
+with \xcdmath"p". That is, point \xcdmath"q" is in 
+\xcdmath"R" if and only if point \xcdmath"q+p" is in \xcdmath"R+p". (And similarly
+for \xcdmath"R-p".)
+
+%%TODO: Determine how equality is actually implemented. This should not be the definition of ==. 
+%%  This could be the definition of .equals(..).
+
+%% Two regions are equal (\xcd"==") if they represent the same set of
+%% points.\index{region!==}
+
+For more details on the available methods on \xcdmath"Region", please
+consult the API documentation.
+
+
+\section{Distributions}\label{XtenDistributions}
+\index{distribution}
+
+A {\em distribution} is a mapping from a region to a set of places.
+{}\Xten{} provides a built-in class, \xcd"x10.lang.Dist", to allow the creation of new distributions and
+to perform operations on distributions. This class is \xcd"final" in
+{}\XtenCurrVer; future versions of the language may permit
+user-definable distributions. 
+%DIST_VAR% Since distributions play a dual role
+%DIST_VAR% (values as well as types), variables of type \xcd"Dist" must
+%DIST_VAR% be initialized and are implicitly \xcd"val".
+%DIST_VAR% \bard{Is this true?}
+
+The {\em rank} of a distribution is the rank of the underlying region.
+
+%Recall that each program runs in a fixed number of places, determined
+%by runtime parameters. The static constant Place.MAX_PLACES specifies
+%the maximum number of places. The collection of places is assumed to
+%be totally ordered.
+
+
+\begin{xten}
+R: Region = 1..100;
+D: Dist = Dist.makeBlock(R);
+D: Dist = Dist.makeCyclic(R);
+D: Dist = R -> here;
+D: Dist = Dist.random(R);
+\end{xten}
+
+Let \xcd"D" be a distribution. \xcd"D.region" denotes the underlying
+region. \xcd"D.places" is the set of places constituting the range of
+\xcd"D" (viewed as a function). Given a point \xcd"p", the expression
+\xcd"D(p)" represents the application of \xcd"D" to \xcd"p", that is,
+the place that \xcd"p" is mapped to by \xcd"D". The evaluation of the
+expression \xcd"D(p)" throws an \xcd"ArrayIndexOutofBoundsException"
+if \xcd"p" does not lie in the underlying region.
+
+When operated on as a distribution, a region \xcd"R" implicitly
+behaves as the distribution mapping each item in \xcd"R" to \xcd"here"
+(i.e., \xcd"R->here", see below). Conversely, when used in a context
+expecting a region, a distribution \xcd"D" should be thought of as
+standing for \xcd"D.region".
+
+{}\oldtodo{Allan: We do not specify how the values of an array at a place
+are stored, e.g. in row-major or column major order. Need to work this
+out.}
+
+\subsection{Operations returning distributions}
+
+Let \xcd"R" be a region, \xcd"Q" a set of places \{\xcd"p1", \dots, \xcd"pk"\}
+(enumerated in canonical order), and \xcd"P" a place.  
+
+\paragraph{Unique distribution} \index{distribution!unique}
+The distribution \xcd"Dist.makeUnique(Q)" is the unique distribution from the
+region \xcd"1..k" to \xcd"Q" mapping each point \xcd"i" to \xcd"pi".
+
+\paragraph{Constant distributions.} \index{distribution!constant}
+The distribution \xcd"R->P" maps every point in \xcd"R" to \xcd"P", as does
+\xcd`Dist.makeConstant(R,P)`. 
+
+\paragraph{Block distributions.}\index{distribution!block}
+The distribution \xcd"Dist.makeBlock(R, Q)" distributes the elements of \xcd"R"
+(in order) over the set of places \xcd"Q" in blocks  as
+follows. Let $p$ equal \xcd"|R| div N" and $q$ equal \xcd"|R| mod N",
+where \xcd"N" is the size of \xcd"Q", and 
+\xcd"|R|" is the size of \xcd"R".  The first $q$ places get
+successive blocks of size $(p+1)$ and the remaining places get blocks of
+size $p$.
+
+The distribution \xcd"Dist.makeBlock(R)" is the same distribution as {\cf
+Dist.makeBlock(R, Place.places)}.
+
+\oldtodo{Check into block distributions per dimension.}
+\paragraph{Cyclic distributions.} \index{distribution!cyclic}
+The distribution \xcd"Dist.makeCyclic(R, Q)" distributes the points in \xcd"R"
+cyclically across places in \xcd"Q" in order.
+
+The distribution \xcd"Dist.makeCyclic(R)" is the same distribution as
+\xcd"Dist.makeCyclic(R, Place.places)". 
+
+Thus the distribution \xcd"Dist.makeCyclic(Place.MAX_PLACES)" provides a 1--1
+mapping from the region \xcd"Place.MAX_PLACES" to the set of all
+places and is the same as the distribution \xcd"Dist.makeCyclic(Place.places)".
+
+\paragraph{Block cyclic distributions.}\index{distribution!block cyclic}
+The distribution \xcd"Dist.makeBlockCyclic(R, N, Q)" distributes the elements
+of \xcd"R" cyclically over the set of places \xcd"Q" in blocks of size
+\xcd"N".
+
+\paragraph{Arbitrary distributions.} \index{distribution!arbitrary}
+The distribution \xcd"Dist.makeArbitrary(R,Q)" arbitrarily allocates points in {\cf
+R} to \xcd"Q". As above, \xcd"Dist.makeArbitrary(R)" is the same distribution as
+\xcd"Dist.makeArbitrary(R, Place.places)".
+
+\oldtodo{Determine which other built-in distributions to provide.}
+
+\paragraph{Domain Restriction.} \index{distribution!restriction!region}
+
+If \xcd"D" is a distribution and \xcd"R" is a sub-region of {\cf
+D.region}, then \xcd"D | R" represents the restriction of \xcd"D" to
+\xcd"R".  The compiler throws an error if it cannot determine that
+\xcd"R" is a sub-region of \xcd"D.region".
+
+\paragraph{Range Restriction.}\index{distribution!restriction!range}
+
+If \xcd"D" is a distribution and \xcd"P" a place expression, the term
+\xcd"D | P" denotes the sub-distribution of \xcd"D" defined over all the
+points in the region of \xcd"D" mapped to \xcd"P".
+
+Note that \xcd"D | here" does not necessarily contain adjacent points
+in \xcd"D.region". For instance, if \xcd"D" is a cyclic distribution,
+\xcd"D | here" will typically contain points that are \xcd"P" apart,
+where \xcd"P" is the number of places. An implementation may find a
+way to still represent them in contiguous memory, e.g., using a
+complex arithmetic function to map from the region index to an index
+into the array.
+
+\subsection{User-defined distributions}\index{distribution!user-defined}
+
+Future versions of \Xten{} may provide user-defined distributions, in
+a way that supports static reasoning.
+
+\subsection{Operations on distributions}
+
+A {\em sub-distribution}\index{sub-distribution} of \xcd"D" is
+any distribution \xcd"E" defined on some subset of the region of
+\xcd"D", which agrees with \xcd"D" on all points in its region.
+We also say that \xcd"D" is a {\em super-distribution} of
+\xcd"E". A distribution \xcdmath"D$_1$" {\em is larger than}
+\xcdmath"D$_2$" if \xcdmath"D$_1$" is a super-distribution of
+\xcdmath"D$_2$".
+
+Let \xcdmath"D$_1$" and \xcdmath"D$_2$" be two distributions.  
+
+
+\paragraph{Intersection of distributions.}\index{distribution!intersection}
+\xcdmath"D$_1$ && D$_2$", the intersection of \xcdmath"D$_1$"
+and \xcdmath"D$_2$", is the largest common sub-distribution of
+\xcdmath"D$_1$" and \xcdmath"D$_2$".
+
+\paragraph{Asymmetric union of distributions.}\index{distribution!union!asymmetric}
+\xcdmath"D$_1$.overlay(D$_2$)", the asymmetric union of
+\xcdmath"D$_1$" and \xcdmath"D$_2$", is the distribution whose
+region is the union of the regions of \xcdmath"D$_1$" and
+\xcdmath"D$_2$", and whose value at each point \xcd"p" in its
+region is \xcdmath"D$_2$(p)" if \xcdmath"p" lies in
+\xcdmath"D$_2$.region" otherwise it is \xcdmath"D$_1$(p)".
+(\xcdmath"D$_1$" provides the defaults.)
+
+\paragraph{Disjoint union of distributions.}\index{distribution!union!disjoint}
+\xcdmath"D$_1$ || D$_2$", the disjoint union of \xcdmath"D$_1$"
+and \xcdmath"D$_2$", is defined only if the regions of
+\xcdmath"D$_1$" and \xcdmath"D$_2$" are disjoint. Its value is
+\xcdmath"D$_1$.overlay(D$_2$)" (or equivalently
+\xcdmath"D$_2$.overlay(D$_1$)".  (It is the least
+super-distribution of \xcdmath"D$_1$" and \xcdmath"D$_2$".)
+
+\paragraph{Difference of distributions.}\index{distribution!difference}
+\xcdmath"D$_1$ - D$_2$" is the largest sub-distribution of
+\xcdmath"D$_1$" whose region is disjoint from that of
+\xcdmath"D$_2$".
+
+
+\subsection{Example}
+\begin{xten}
+def dotProduct(a: Array[T](D), b: Array[T](D)): Array[Double](D) =
+  (new Array[T]([1:D.places],
+      (Point) => (new Array[T](D | here,
+                    (i): Point) => a(i)*b(i)).sum())).sum();
+\end{xten}
+
+This code returns the inner product of two \xcd"T" vectors defined
+over the same (otherwise unknown) distribution. The result is the sum
+reduction of an array of \xcd"T" with one element at each place in the
+range of \xcd"D". The value of this array at each point is the sum
+reduction of the array formed by multiplying the corresponding
+elements of \xcd"a" and \xcd"b" in the local sub-array at the current
+place.
+
+
+
+
+\section{Array initializer}\label{ArrayInitializer}\label{array!creation}
+
+Arrays are instantiated by invoking one of the \xcd"make" factory
+methods of the \xcd"Array" class.
+
+An array creation 
+must take either an \xcd"Int" as an argument or a \xcd"Dist". In the first
+case an array is created over the distribution \xcd"[0:N-1]->here";
+in the second over the given distribution. 
+
+An array creation operation may also specify an initializer
+function.
+The function is applied in parallel
+at all points in the domain of the distribution. The array
+construction operation terminates locally only when the array has been
+fully created and initialized (at all places in the range of the
+distribution).
+
+For instance:
+\begin{xten}
+val data : Array[Int]
+    = Array.make[Int](1..1000->here, ((i):Point) => i);
+val data2 : Array[Int]
+    = Array.make[Int]([1..1000,1..1000]->here, ((i,j):Point) => i*j);
+\end{xten}
+
+{}\noindent 
+The first declaration stores in \xcd"data" a reference to a mutable
+array with \xcd"1000" elements each of which is located in the
+same place as the array. Each array component is initialized to \xcd"i".
+
+The second declaration stores in \xcd"data2" a reference to a mutable
+2-d array over \xcd"[1..1000, 1..1000]" initialized with \xcd"i*j"
+at point \xcd"[i,j]".
+
+Other examples:
+\begin{xten}
+val D1:Dist(1) = ...; /* An expression that creates a Dist */
+val D2:Dist(2) = ...; /* An expression that creates a Dist */
+
+val data : Array[Int]
+    = Array.make[Int](1000, ((i):Point) => i*i);
+
+val data2 : Array[Float]
+    = Array.make[Float](D1, ((i):Point) => i*i as Float);
+
+val result : Array[Float]
+   = Array.make[Float](D2, ((i,j):Point) => i+j as Float);;
+\end{xten}
+
+\section{Operations on arrays}
+In the following let \xcd"a" be an array with distribution \xcd"D" and
+base type \xcd"T". 
+
+\subsection{Element operations}\index{array!access}
+The value of \xcd"a" at a point \xcd"p" in its region of definition is
+obtained by using the indexing operation \xcd"a(p)". This operation
+may be used on the left hand side of an assignment operation to update
+the value. The operator assignments \xcd"a(i) op= e" are also available
+in \Xten{}.
+
+For array variables, the right-hand-side of an assignment must
+have the same distribution \xcd"D" as an array being assigned. This
+assignment involves
+control communication between the sites hosting \xcd"D". Each
+site performs the assignment(s) of array components locally. The
+assignment terminates when assignment has terminated at all
+sites hosting \xcd"D".
+
+\subsection{Constant promotion}\label{ConstantArray}\index{arrays!constant promotion}
+
+For a distribution \xcd"D" and a val \xcd"v" of
+type \xcd"T" the expression \xcd"new Array[T](D, (p: Point) => v)"
+denotes the mutable array with
+distribution \xcd"D" and base type \xcd"T" initialized with \xcd"v"
+at every point.
+
+\subsection{Restriction of an array}\index{array!restriction}
+
+Let \xcd"D1" be a sub-distribution of \xcd"D". Then \xcd"a | D1"
+represents the sub-array of \xcd"a" with the distribution \xcd"D1".
+
+Recall that a rich set of operators are available on distributions
+(\Sref{XtenDistributions}) to obtain sub-distributions
+(e.g. restricting to a sub-region, to a specific place etc).
+
+\subsection{Assembling an array}
+Let \xcd"a1,a2" be arrays of the same base type \xcd"T" defined over
+distributions \xcd"D1" and \xcd"D2" respectively. Assume that both
+arrays are value or reference arrays. 
+\paragraph{Assembling arrays over disjoint regions}\index{array!union!disjoint}
+
+If \xcd"D1" and \xcd"D2" are disjoint then the expression \xcd"a1 || a2" denotes the unique array of base type \xcd"T" defined over the
+distribution \xcd"D1 || D2" such that its value at point \xcd"p" is
+\xcd"a1(p)" if \xcd"p" lies in \xcd"D1" and \xcd"a2(p)"
+otherwise. This array is a reference (value) array if \xcd"a1" is.
+
+\paragraph{Overlaying an array on another}\index{array!union!asymmetric}
+The expression
+\xcd"a1.overlay(a2)" (read: the array \xcd"a1" {\em overlaid with} \xcd"a2")
+represents an array whose underlying region is the union of that of
+\xcd"a1" and \xcd"a2" and whose distribution maps each point \xcd"p"
+in this region to \xcd"D2(p)" if that is defined and to \xcd"D1(p)"
+otherwise. The value \xcd"a1.overlay(a2)(p)" is \xcd"a2(p)" if it is defined and \xcd"a1(p)" otherwise.
+
+This array is a reference (value) array if \xcd"a1" is.
+
+The expression \xcd"a1.update(a2)" updates the array \xcd"a1" in place
+with the result of \xcd"a1.overlay(a2)".
+
+\oldtodo{Define Flooding of arrays}
+
+\oldtodo{Wrapping an array}
+
+\oldtodo{Extending an array in a given direction.}
+
+\subsection{Global operations }
+
+\paragraph{Pointwise operations}\label{ArrayPointwise}\index{array!pointwise operations}
+The unary \xcd"lift" operation applies a function to each element of
+an array, returning a new array with the same distribution.
+The \xcd"lift" operation is implemented by the following method
+in \xcd"Array[T]":
+\begin{xten}
+def lift[S](f: (T) => S): Array[S](dist);
+\end{xten}
+
+The binary \xcd"lift" operation takes a binary function and
+another
+array over the same distribution and applies the function
+pointwise to corresponding elements of the two arrays, returning
+a new array with the same distribution.
+The \xcd"lift" operation is implemented by the following method
+in \xcd"Array[T]":
+\begin{xten}
+def lift[S,R](f: (T,S) => R, Array[S](dist)): Array[R](dist);
+\end{xten}
+
+\paragraph{Reductions}\label{ArrayReductions}\index{array!reductions}
+
+Let \xcd"f" be a function of type \xcd"(T,T)=>T".  Let
+\xcd"a" be a value or reference array over base type \xcd"T".
+Let \xcd"unit" be a value of type \xcd"T".
+Then the
+operation \xcd"a.reduce(f, unit)" returns a value of type \xcd"T" obtained
+by performing \xcd"f" on all points in \xcd"a" in some order, and in
+parallel.  The function \xcd"f" must be associative and
+commutative.  The value \xcd"unit" should satisfy
+\xcd"f(unit,x)" \xcd"==" \xcd"x" \xcd"==" \xcd"f(x,unit)".
+
+This operation involves communication between the places over which
+the array is distributed. The \Xten{} implementation guarantees that
+only one value of type \xcd"T" is communicated from a place as part of
+this reduction process.
+
+\paragraph{Scans}\label{ArrayScans}\index{array!scans}
+
+Let \xcd"f" be a reduction operator defined on type \xcd"T". Let
+\xcd"a" be a value or reference array over base type \xcd"T" and
+distribution \xcd"D". Then the operation \xcd"a||f()" returns an array
+of base type \xcd"T" and distribution \xcd"D" whose $i$th element
+(in canonical order) is obtained by performing the reduction \xcd"f"
+on the first $i$ elements of \xcd"a" (in canonical order).
+
+This operation involves communication between the places over which
+the array is distributed. The \Xten{} implementation will endeavour to
+minimize the communication between places to implement this operation.
+
+Other operations on arrays may be found in \xcd"x10.lang.Array" and
+other related classes.
