@@ -701,8 +701,7 @@ public class LineNumberMap extends StringTable {
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
-//            w.writeln("sizeof(_X10toCPPlist),");
-            w.writeln("0,");
+            w.writeln("sizeof(_X10toCPPlist),"); // w.writeln("0,");
             w.writeln("sizeof(_CPPtoX10xrefList),");
         } else {
             w.writeln("0,");
@@ -717,8 +716,7 @@ public class LineNumberMap extends StringTable {
         w.writeln("_X10strings,");
         if (!m.isEmpty()) {
             w.writeln("_X10sourceList,");
-//            w.writeln("_X10toCPPlist,");
-            w.writeln("NULL,");
+            w.writeln("_X10toCPPlist,");  // w.writeln("NULL,");
             w.writeln("_CPPtoX10xrefList,");
         } else {
             w.writeln("NULL,");
