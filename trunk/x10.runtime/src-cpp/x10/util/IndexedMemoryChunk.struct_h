@@ -52,17 +52,29 @@ namespace x10 {
     
             void _deserialize_body(x10aux::deserialization_buffer& buf);
             
-            x10_boolean equals(x10aux::ref<x10::lang::Any>);
+            x10_boolean equals(x10aux::ref<x10::lang::Any> that) { return _struct_equals(that); }
     
-            x10_boolean equals(x10::util::IndexedMemoryChunk<T>);
+            x10_boolean equals(x10::util::IndexedMemoryChunk<T> that) { return _struct_equals(that); }
     
             x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
     
-            x10_boolean _struct_equals(x10::util::IndexedMemoryChunk<T>);
+            x10_boolean _struct_equals(x10::util::IndexedMemoryChunk<T> that) { 
+                return x10aux::struct_equals(FMGL(data), that->FMGL(data));
+            }
     
             x10aux::ref<x10::lang::String> toString();
     
-            x10_int hashCode();
+            x10_int hashCode() { return (x10_int)(FMGL(data)); }
+
+	    x10_boolean at(x10aux::ref<x10::lang::Object> obj) { return true; }
+            x10_boolean at(x10::lang::Place place) { return true; }
+
+            x10::lang::Place home() {
+	        /* NOTE: Should probably call Place_methods::make, but don't want to include Place.h */
+	        x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp;
+	    }
+
+            x10aux::ref<x10::lang::String> typeName();
         };
 
 
