@@ -7,19 +7,14 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
-/*
- * (C) Copyright IBM Corporation 2007
- * 
- * This file is part of the Eclipse IMP.
- */
 package org.eclipse.imp.x10dt.ui.editor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import lpg.runtime.Adjunct;
 import lpg.runtime.ILexStream;
@@ -53,27 +48,25 @@ import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Atomic;
 import x10.ast.ForEach;
-import x10.ast.Now;
 import x10.ast.When;
 import polyglot.visit.NodeVisitor;
 
-public class X10FoldingUpdater implements IFoldingUpdater
-{
+public class X10FoldingUpdater implements IFoldingUpdater {
     private Annotation[] fOldAnnotations;
     // Map of annotations to positions; accumulates new annotations
     // and is used in updating the annotation model
-    private HashMap newAnnotations;
+    private Map<Annotation,Position> newAnnotations;
 
     // List of annotations; accumulates new annotations (disregarding
     // positions); serves as a list of keys for newAnnotations and
     // is used in comparing and listing annotations
-    private List annotations;
+    private List<Annotation> annotations;
 
     // Used to support checking of whether annotations have
     // changed between invocations of updateFoldingStructure
     // (because, if they haven't, then it's probably best not
     // to update the folding structure)
-    private ArrayList oldAnnotationsList = null;
+    private List<Annotation> oldAnnotationsList = null;
     private boolean astWasInvalid = false;
         
     private IPrsStream prsStream;
@@ -89,20 +82,16 @@ public class X10FoldingUpdater implements IFoldingUpdater
     * work for certain very rapid edits of source text (e.g., rapid replacement
     * of elements).
     */
-    private boolean differ(ArrayList list1, ArrayList list2)
-    {
+    private boolean differ(List<Annotation> list1, List<Annotation> list2) {
         return (list1.size() != list2.size());
     }
         
-    private void dumpAnnotations(final List annotations, final HashMap newAnnotations)
-    {
-        for (int i = 0; i < annotations.size(); i++)
-        {
+    private void dumpAnnotations(final List<Annotation> annotations, final Map<Annotation,Position> newAnnotations) {
+        for (int i = 0; i < annotations.size(); i++) {
             Annotation a = (Annotation) annotations.get(i);
             Position p = (Position) newAnnotations.get(a);
 
-            if (p == null)
-            {
+            if (p == null) {
                 System.out.println("Annotation position is null");
                 continue;
             }
@@ -115,10 +104,8 @@ public class X10FoldingUpdater implements IFoldingUpdater
     * Use this version of makeAnnotation when you have a range of 
     * tokens to fold.
     */
-    private void makeAnnotation(IToken first_token, IToken last_token)
-    {
-        if (last_token.getEndLine() > first_token.getLine())
-        {
+    private void makeAnnotation(IToken first_token, IToken last_token) {
+        if (last_token.getEndLine() > first_token.getLine()) {
             IToken next_token = prsStream.getIToken(prsStream.getNext(last_token.getTokenIndex()));
             IToken[] adjuncts = next_token.getPrecedingAdjuncts();
             IToken gate_token = adjuncts.length == 0 ? next_token : adjuncts[0];
@@ -133,8 +120,7 @@ public class X10FoldingUpdater implements IFoldingUpdater
     * Use this version of makeAnnotation(..) when you have the start
     * and end offset of the region to fold.
     */
-    private void makeAnnotation(int start_offset, int end_offset)
-    {
+    private void makeAnnotation(int start_offset, int end_offset) {
         int length = end_offset - start_offset + 1;
         ProjectionAnnotation annotation = new ProjectionAnnotation();
         newAnnotations.put(annotation, new Position(start_offset, length));
@@ -247,14 +233,14 @@ public class X10FoldingUpdater implements IFoldingUpdater
         // Map of annotations to positions; accumulates new annotations
         // and is used in updating the annotation model
         //
-        newAnnotations = new HashMap();
+        newAnnotations = new HashMap<Annotation,Position>();
 
         //
         // List of annotations; accumulates new annotations (disregarding
         // positions); serves as a list of keys for newAnnotations and
         // is used in comparing and listing annotations
         //
-        annotations = new ArrayList();
+        annotations = new ArrayList<Annotation>();
 
         makeAnnotations(parseController);
             
@@ -285,9 +271,9 @@ public class X10FoldingUpdater implements IFoldingUpdater
                 // default test provided below is simplistic although quick and
                 // usually effective.)
                 //
-                differ(oldAnnotationsList, (ArrayList) annotations))
+                differ(oldAnnotationsList, annotations))
         {
-            oldAnnotationsList = (ArrayList) annotations; // Save annotations to compare for changes next time through
+            oldAnnotationsList = annotations; // Save annotations to compare for changes next time through
             annotationModel.modifyAnnotations(fOldAnnotations, newAnnotations, null);
         }
 
