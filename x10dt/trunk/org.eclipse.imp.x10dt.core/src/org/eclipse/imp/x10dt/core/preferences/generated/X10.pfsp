@@ -16,11 +16,26 @@ page X10 {
             tooltip "The number of spaces equivalent to one tab in the source editor";
             range 1 .. 20;
             defvalue 4; }
-//      boolean spacesForTabs {
-//          label "Use spaces for tabs";
-//          defvalue false; }
+   	     boolean spacesForTabs {
+	            label "Use spaces for tabs";
+            defvalue false; }
     }
 }
+
+page X10.Formatting {
+    fields {
+        int indentWidth {
+            tooltip "The number of spaces by which to indent various entities relative to their containing constructs";
+            range 1 .. 20;
+            defvalue 4; }
+        boolean indentBlockStatements {
+            defvalue true; }
+        boolean indentMethodBody {
+            defvalue true; }
+        boolean indentTypeBody {
+            defvalue true; }
+    }
+			}
 
 page X10.Compiler {
     tabs {

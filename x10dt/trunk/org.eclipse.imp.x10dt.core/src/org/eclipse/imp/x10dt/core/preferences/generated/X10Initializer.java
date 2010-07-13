@@ -16,6 +16,11 @@ public class X10Initializer extends PreferencesInitializer {
 		IPreferencesService service = X10DTCorePlugin.getInstance().getPreferencesService();
 
 		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_TABWIDTH, 4);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_SPACESFORTABS, false);
+		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INDENTWIDTH, 4);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INDENTBLOCKSTATEMENTS, true);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INDENTMETHODBODY, true);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INDENTTYPEBODY, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_CONSERVATIVEBUILD, false);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_PERMITASSERT, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_STATICCALLS, false);

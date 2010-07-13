@@ -15,6 +15,16 @@ public class X10Constants {
 
 	public static final String P_TABWIDTH = "tabWidth";
 
+	public static final String P_SPACESFORTABS = "spacesForTabs";
+
+	public static final String P_INDENTWIDTH = "indentWidth";
+
+	public static final String P_INDENTBLOCKSTATEMENTS = "indentBlockStatements";
+
+	public static final String P_INDENTMETHODBODY = "indentMethodBody";
+
+	public static final String P_INDENTTYPEBODY = "indentTypeBody";
+
 	public static final String P_CONSERVATIVEBUILD = "ConservativeBuild";
 
 	public static final String P_PERMITASSERT = "PermitAssert";

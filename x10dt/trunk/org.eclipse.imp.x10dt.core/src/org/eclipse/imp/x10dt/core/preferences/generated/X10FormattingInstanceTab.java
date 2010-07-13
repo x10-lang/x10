@@ -14,9 +14,9 @@ import org.osgi.service.prefs.Preferences;
 /**
  * The instance level preferences tab.
  */
-public class X10InstanceTab extends InstancePreferencesTab {
+public class X10FormattingInstanceTab extends InstancePreferencesTab {
 
-	public X10InstanceTab(IPreferencesService prefService) {
+	public X10FormattingInstanceTab(IPreferencesService prefService) {
 		super(prefService, true);
 	}
 
@@ -33,28 +33,52 @@ public class X10InstanceTab extends InstancePreferencesTab {
 	{
 		List<FieldEditor> fields = new ArrayList<FieldEditor>();
 
-		IntegerFieldEditor tabWidth = fPrefUtils.makeNewIntegerField(
+		IntegerFieldEditor indentWidth = fPrefUtils.makeNewIntegerField(
 			page, this, fPrefService,
-			"instance", "tabWidth", "Tab width",
-			"The number of spaces equivalent to one tab in the source editor",
+			"instance", "indentWidth", "indent width",
+			"The number of spaces by which to indent various entities relative to their containing constructs",
 			parent,
 			true, true,
 			false, String.valueOf(0),
 			false, "0",
 			true);
-		fields.add(tabWidth);
+		fields.add(indentWidth);
 
 
-		BooleanFieldEditor spacesForTabs = fPrefUtils.makeNewBooleanField(
+		BooleanFieldEditor indentBlockStatements = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
-			"instance", "spacesForTabs", "Use spaces for tabs",
+			"instance", "indentBlockStatements", "indent block statements",
 			"",
 			parent,
 			true, true,
 			false, false,
 			false, false,
 			true);
-		fields.add(spacesForTabs);
+		fields.add(indentBlockStatements);
+
+
+		BooleanFieldEditor indentMethodBody = fPrefUtils.makeNewBooleanField(
+			page, this, fPrefService,
+			"instance", "indentMethodBody", "indent method body",
+			"",
+			parent,
+			true, true,
+			false, false,
+			false, false,
+			true);
+		fields.add(indentMethodBody);
+
+
+		BooleanFieldEditor indentTypeBody = fPrefUtils.makeNewBooleanField(
+			page, this, fPrefService,
+			"instance", "indentTypeBody", "indent type body",
+			"",
+			parent,
+			true, true,
+			false, false,
+			false, false,
+			true);
+		fields.add(indentTypeBody);
 
 		return fields.toArray(new FieldEditor[fields.size()]);
 	}
