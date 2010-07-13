@@ -154,6 +154,8 @@ public class CompilerTestsBase {
 
 	private boolean notWellFormed(ErrorInfo e) {
 		// TODO: add other well-formedness conditions here.
+		if (e.getMessage() == null)
+			return true;
 		if (e.getMessage().contains("{amb}"))
 			return true;
 		if (e.getMessage().contains("<unknown>"))

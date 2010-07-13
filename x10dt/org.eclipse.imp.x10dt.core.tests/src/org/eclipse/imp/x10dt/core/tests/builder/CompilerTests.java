@@ -269,6 +269,19 @@ public class CompilerTests extends CompilerTestsBase {
 		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());
 	}
 	
+	@Test
+	public void jira1543_static_calls() throws Exception {
+		String[] sources = {"List.x10"};
+		compile(sources, STATIC_CALLS, new ArrayList<ErrorInfo>());
+	}
+	
+	
+	@Test
+	public void jira1543_not_static_calls() throws Exception {
+		String[] sources = {"List.x10"};
+		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());
+	}
+	
 	
 	private boolean compile(String[] files, String[] options, Collection<ErrorInfo> errors) throws Exception{
 		Collection<File> fs = new ArrayList<File>();
