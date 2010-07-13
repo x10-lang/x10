@@ -12,5 +12,6 @@
 package x10.compiler;
 
 import x10.lang.annotations.StatementAnnotation;
-
-public interface FinishAsync(arity:int,place:int,isLast:boolean,notes:String) extends StatementAnnotation { }
+// pattern 0 is the default implementation
+// pattern 1 : all async are in the same place as finish
+public interface FinishAsync(arity:int,place:int,isLast:boolean,pattern:Int) extends StatementAnnotation { }
