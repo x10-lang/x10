@@ -49,8 +49,8 @@ public struct ClockedIndexedMemoryChunk[T] {
     private val chunk:Rail[ClockedVar[T]];
 
 
-    public def this(numElements:int, c: Clock!, oper: (T,T) => T!, opInitial:T) {
-    	chunk = Rail.make[ClockedVar[T]](numElements, (int) => new ClockedVar[T](c, oper, opInitial));
+    public def this(numElements:int, c: Clock, oper: (T,T) => T, opInitial:T) {
+    	chunk = Rail.make[ClockedVar[T]](numElements, (int) => new ClockedVar[T](c as Clock!, oper as (T,T) => T!, opInitial));
     }
 
 
@@ -63,6 +63,9 @@ public struct ClockedIndexedMemoryChunk[T] {
      */
     public safe @Header @Inline def apply(index:int) = (chunk(index) as ClockedVar[T]!).getClocked();
 
+
+    public safe @Header @Inline def setRead(value:T, index:int) = (chunk(index) as ClockedVar[T]!).setR(value);
+    
 
     /**
      * Operator that allows access of ClockedIndexedMemoryChunk elements by index.

@@ -521,10 +521,11 @@ public class LUFact extends Linpack {
 		var slimRegion: Region = [0..0, 0..lda]; //fake out because we don't support array sections
 		
 
-		a = Array.make[double @ Clocked[Double] (c, op, 0.0)]([0..ldaa, 0..lda], (i: Point) => 0.0);
-		b = Array.make[double @ Clocked[Double] (c, op, 0.0)]([0..0, 0..lda], (i: Point) => 0.0);
-		x = Array.make[double @ Clocked[Double] (c, op, 0.0)]([0..0, 0..lda], (i: Point) => 0.0);
-		ipvt = Array.make[int @ Clocked[int] (c, opInt, 0)](0..ldaa, (i: Point) => 0);
+		a = new Array[double @ Clocked[Double] (c, op, 0.0)]([0..ldaa, 0..lda], (i: Point) => 0.0);
+
+		b = new Array[double @ Clocked[Double] (c, op, 0.0)]([0..0, 0..lda], (i: Point) => 0.0);
+		x = new Array[double @ Clocked[Double] (c, op, 0.0)]([0..0, 0..lda], (i: Point) => 0.0);
+		ipvt = new Array[int @ Clocked[int] (c, opInt, 0)](0..ldaa, (i: Point) => 0);
 
 		var nl: long =  n;   //avoid integer overflow
 		ops = (2.0*(nl*nl*nl))/3.0 + 2.0*(nl*nl);

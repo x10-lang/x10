@@ -515,10 +515,10 @@ public class LUFactOrig extends Linpack {
 		var slimRegion: Region = [0..0, 0..lda]; //fake out because we don't support array sections
 		
 
-		a = Array.make[double]([0..ldaa, 0..lda]);
-		b = Array.make[double]([0..0, 0..lda]);
-		x = Array.make[double]([0..0, 0..lda]);
-		ipvt = Array.make[int](0..ldaa);
+		a = new Array[double]([0..ldaa, 0..lda]);
+		b = new Array[double]([0..0, 0..lda]);
+		x = new Array[double]([0..0, 0..lda]);
+		ipvt = new Array[int](0..ldaa);
 
 		var nl: long =  n;   //avoid integer overflow
 		ops = (2.0*(nl*nl*nl))/3.0 + 2.0*(nl*nl);
