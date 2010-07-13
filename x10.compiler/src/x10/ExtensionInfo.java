@@ -371,29 +371,29 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ForwardReferencesChecked(job));
            goals.add(PropertyAssignmentsChecked(job));
            goals.add(X10Expanded(job));
-
-
+           
            // finish-async analysis
            if(x10.Configuration.FINISH_ASYNCS){
-        	   
-        	   TypeSystem ts = extInfo.typeSystem();
-               NodeFactory nf = extInfo.nodeFactory();
-               FinishAsyncVisitor fav = new FinishAsyncVisitor(job,ts,nf,"java");
-               goals.add(new VisitorGoal("FinishAsyncs",job,fav).intern(this));
-               FinishAnnotationVisitor av = new FinishAnnotationVisitor(job,ts,nf,"java");    
-               VisitorGoal vg = (VisitorGoal) new VisitorGoal("FinishAnnot",job,av).intern(this);
-               goals.add(vg);
-
+        	   Goal finishAsyncOpt = FinishAsyncOptimization(job);
+        	   if(finishAsyncOpt != null){
+        		   goals.add(finishAsyncOpt);
+        	   }
            }
-           // finish-annotation 
+           // finish-annotation
+           /*
+            * recognize FinishAsync Annotations of each finish, 
+            * this piece of code is just for exercise, not of particular use
+            * 
            if(x10.Configuration.FINISH_ANNOTS){
         	   TypeSystem ts = extInfo.typeSystem();
                NodeFactory nf = extInfo.nodeFactory();
                FinishAnnotationVisitor av = new FinishAnnotationVisitor(job,ts,nf,"java");    
                VisitorGoal vg = (VisitorGoal) new VisitorGoal("FinishAnnot",job,av).intern(this);	   
                goals.add(vg);
+               FinishAnnotationVisitor av = new FinishAnnotationVisitor(job,ts,nf,"java");    
+               VisitorGoal vg = (VisitorGoal) new VisitorGoal("FinishAnnot",job,av).intern(this);
 
-           }
+           }*/
 
            goals.add(NativeClassVisitor(job));
 
@@ -662,6 +662,39 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
+       }
+       
+       public Goal FinishAsyncOptimization(Job job){
+    	   TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           Goal result = null;
+           try{
+        	   FinishAsyncVisitor fav = new FinishAsyncVisitor(job,ts,nf,"java");
+               result = new VisitorGoal("FinishAsyncs",job,fav).intern(this);
+               //FIXME: the following boxed code is just a tempalte for integrating 
+        	   // wala with x10. It uses reflection to compile the compier possibly 
+        	   // without wala support and dynamically link wala when it presents.
+        	   // This piece of code is copied from WSCodeGenerator
+        	   /****************************************************************/
+               ClassLoader cl = Thread.currentThread().getContextClassLoader();
+               Class<?> c = cl
+               .loadClass("x10.compiler.ws.visit.WSCodeGenerator");
+               Constructor<?> con = c.getConstructor(Job.class,
+                                                     TypeSystem.class,
+                                                     NodeFactory.class);
+               ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf);
+               /***********************************************************************/
+               
+           }
+           catch (ClassNotFoundException e) {
+               //System.err.println("[X10_FA_ERR]Cannot load wala anlaysis engine. Ignore Finish-Async optimization.");
+           } catch (Throwable e) {
+               System.err.println("[X10_FA_ERR]Error in loading wala anlaysis engine. Ignore Finish-Async optimization.");
+               e.printStackTrace();
+           }    	   
+               
+           
+    	   return result;
        }
     }
     
