@@ -47,7 +47,6 @@ import x10.compiler.NativeRep;
 public struct IndexedMemoryChunk[T] {
     private val chunk:RawChunk[T];
 
-
     public def this(numElements:int) {
 	this(numElements, 8, false, false);
     }

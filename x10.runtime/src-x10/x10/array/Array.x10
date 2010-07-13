@@ -17,6 +17,7 @@ import x10.compiler.Native;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 import x10.util.IndexedMemoryChunk;
+import x10.util.ClockedIndexedMemoryChunk;
 
 /**
  * <p>An array defines a mapping from {@link Point}s to data values of some type T.
@@ -51,7 +52,7 @@ import x10.util.IndexedMemoryChunk;
  * @see Region
  * @see DistArray
  */
-public final class Array[T](
+public class Array[T](
     /**
      * The region of this array.
      */
@@ -85,12 +86,12 @@ public final class Array[T](
 
 
     private val raw:IndexedMemoryChunk[T];
-    private val rawLength:int;
-    private val layout:RectLayout!{self!=null};
+    protected val rawLength:int;
+    protected val layout:RectLayout!{self!=null};
 
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
-    private native def checkBounds():boolean;
+    protected native def checkBounds():boolean;
 
     /**
      * Return the IndexedMemoryChunk[T] that is providing the backing storage for the array.
@@ -117,7 +118,18 @@ public final class Array[T](
      *
      * @param reg The region over which to construct the array.
      */
-    public def this(reg:Region):Array[T]{self.region==reg} {
+  
+ 
+      protected def this(reg:Region, isClocked: boolean):Array[T]{self.region==reg} {
+        property(reg);
+	layout = new RectLayout(reg.min(), reg.max());
+        val n = layout.size();
+	raw = IndexedMemoryChunk[T](0);
+	rawLength = n;
+     }
+
+    
+      public def this(reg:Region):Array[T]{self.region==reg} {
 	property(reg);
 
         layout = new RectLayout(reg.min(), reg.max());
@@ -167,6 +179,8 @@ public final class Array[T](
         raw = r;
         rawLength = n;
     }
+
+
 
 
     /**

@@ -87,7 +87,6 @@ public class ClockedVar[T] implements ClockableVar{
         val workerId = (Runtime.workerTid() - 8) as Int;
     	changed = true;
         this.xWrite(workerId) = op(this.xWrite(workerId), x);
- 
     } 
     
     public def setR(x:T){this.xRead=x;}

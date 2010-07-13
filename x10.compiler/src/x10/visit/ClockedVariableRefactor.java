@@ -52,6 +52,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.ClassDef;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -66,6 +67,7 @@ import x10.ast.X10LocalAssign_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
 import x10.ast.X10NodeFactory;
+import x10.ast.X10New;
 import x10.extension.X10Ext;
 import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
@@ -75,6 +77,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeSystem;
 
 public class ClockedVariableRefactor extends ContextVisitor {
@@ -97,7 +100,8 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	 private static final QName CLOCKEDVAR = QName.make("x10.compiler.ClockedVar");
 	 private static final QName CLOCKEDATOMICINT = QName.make("x10.compiler.ClockedAtomicInt");
 	 private static final QName RAIL = QName.make("x10.lang.Rail");
-	 private static final QName ARRAY = QName.make("x10.lang.Array");
+	 private static final QName ARRAY = QName.make("x10.array.Array");
+	 private static final QName CLOCKEDARRAY = QName.make("x10.array.ClockedArray");
 	
 	 /*FIXME*/
 	 	private boolean isClockedType(Type type) {
@@ -351,7 +355,66 @@ public class ClockedVariableRefactor extends ContextVisitor {
           }
 	  
 	  
-	  
+	 private Node visitNew (X10New neew) {
+	   Type type;
+	   Type enclosingClass = neew.constructorInstance().container().toType();
+	   if (!(enclosingClass instanceof  X10ParsedClassType))
+		return neew;
+	   if (!(((X10ParsedClassType) enclosingClass).def().toString().contentEquals("x10.array.Array"))) 
+		return neew;
+	   X10ParsedClassType pct = (X10ParsedClassType) enclosingClass;
+	    try {
+	  	type = xts.typeForName(CLOCKEDARRAY);
+		X10ParsedClassType newType = new X10ParsedClassType_c(type.toClass().def());	
+		for (Type t: pct.typeArguments()) {
+			if (this.isClockedType(t)) {
+				X10MethodInstance mi;
+				List<Expr> args;
+					
+				Expr c = this.extractClock(t);
+				Expr op = this.extractOp(t);
+				Expr opInit = this.extractOpInit(t);
+
+		
+				List<Type> typeArgs = new ArrayList<Type>();
+				for (Type ta: pct.typeArguments()) {
+					while (ta instanceof AnnotatedType)
+						ta = ((AnnotatedType)ta).baseType();
+					typeArgs.add(ta);
+				}
+							
+				List<Type> argTypes = new ArrayList<Type>();
+				for (Expr arg: neew.arguments()) {
+					argTypes.add(arg.type());
+				}
+				argTypes.add(c.type());
+				argTypes.add(op.type());
+				argTypes.add(opInit.type());
+							
+							
+				args = new ArrayList<Expr>();
+				for (Expr arg: neew.arguments()) {
+					args.add(arg);
+				}
+				args.add(c);
+				args.add(op);
+				args.add(opInit);
+				X10ClassType finalType = newType.typeArguments(typeArgs);				
+				Expr construct = xnf.New(neew.position(), xnf.CanonicalTypeNode(neew.position(), finalType), args)
+	                	.constructorInstance(xts.findConstructor(finalType, xts.ConstructorMatcher(newType, argTypes, context)))
+	                	.type(finalType);
+				return (X10New) construct;
+		 }
+	       }	
+	      } catch (SemanticException e) {
+		throw new InternalCompilerError("Something is terribly wrong", e);
+	   }
+						
+	      return neew;					
+				
+
+
+	} 
 	    
 	 private Node visitMake(X10Call call) {	
 		 Type type;
@@ -557,7 +620,10 @@ public class ClockedVariableRefactor extends ContextVisitor {
             }
         } else if (!(parent instanceof X10FieldAssign_c) && n instanceof X10Field_c) {
         	return visitField((X10Field_c)n);
-        	
+	
+	} else if (n instanceof X10New) {
+		return visitNew((X10New) n);
+
         } else if (n instanceof X10Call) {
         	// Deal with Rail.make and Array.make
         	

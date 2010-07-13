@@ -51,46 +51,14 @@ import x10.util.ClockedIndexedMemoryChunk;
  * @see Region
  * @see DistArray
  */
-public final class ClockedArray[T](
-    /**
-     * The region of this array.
-     */
-    region:Region{self != null}
-)  implements (Point(region.rank))=>T,
-              Iterable[Point(region.rank)] {
+public class ClockedArray[T] 
 
-    //
-    // properties
-    //
-
-    /**
-     * The rank of this array.
-     */
-    public property rank: int = region.rank;
-
-    /**
-     * Is this array defined over a rectangular region?
-     */
-    public property rect: boolean = region.rect;
-
-    /**
-     * Is this array's region zero-based?
-     */
-    public property zeroBased: boolean = region.zeroBased;
-
-    /**
-     * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
-     */
-    public property rail: boolean = region.rail;
+               extends Array[T] {
 
 
-    private val raw:ClockedIndexedMemoryChunk[T];
-    private val rawLength:int;
-    private val layout:RectLayout!{self!=null};
 
-    @Native("java", "(!`NO_CHECKS`)")
-    @Native("c++", "BOUNDS_CHECK_BOOL")
-    private native def checkBounds():boolean;
+    private val cRaw:ClockedIndexedMemoryChunk[T];
+
 
     /**
      * Return the IndexedMemoryChunk[T] that is providing the backing storage for the array.
@@ -108,7 +76,7 @@ public final class ClockedArray[T](
      *
      * @return the IndexedMemoryChunk[T] that is the backing storage for the Array object.
      */
-    public @Header @Inline def raw() = raw;
+    public @Header @Inline def cRaw() = cRaw;
 
     /**
      * Construct an Array over the region reg whose elements are zero-initialized; 
@@ -118,12 +86,10 @@ public final class ClockedArray[T](
      * @param reg The region over which to construct the array.
      */
 
-    public def this(reg:Region, c: Clock!, oper: (T,T) => T!, opInitial:T):ClockedArray[T]{self.region==reg} {
-	property(reg);
-        layout = new RectLayout(reg.min(), reg.max());
+    public def this(reg:Region, c: Clock, oper: (T,T) => T, opInitial:T):ClockedArray[T]{self.region==reg} {
+	super(reg, true);
         val n = layout.size();
-        raw = ClockedIndexedMemoryChunk[T](n, c, oper, opInitial);
-        rawLength = n;
+        cRaw = ClockedIndexedMemoryChunk[T](n, c, oper, opInitial);
     }
 
 
@@ -134,17 +100,14 @@ public final class ClockedArray[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:(Point(reg.rank))=>T, c: Clock!, oper: (T,T) => T!, opInitial:T):ClockedArray[T]{self.region==reg} {
-        property(reg);
-
-        layout = new RectLayout(reg.min(), reg.max());
+    public def this(reg:Region, init:(Point(reg.rank))=>T, c: Clock, oper: (T,T) => T, opInitial:T):ClockedArray[T]{self.region==reg} {
+	super(reg, true);
         val n = layout.size();
         val r = ClockedIndexedMemoryChunk[T](n, c, oper, opInitial);
 	for (p:Point(reg.rank) in reg) {
-            r(layout.offset(p))= init(p);
+            r.setRead(init(p), layout.offset(p));
         }
-        raw = r;
-        rawLength = n;
+        cRaw = r;
     }
 
 
@@ -155,17 +118,14 @@ public final class ClockedArray[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(reg:Region, init:T, c: Clock!, oper: (T,T) => T!, opInitial:T):ClockedArray[T]{self.region==reg} {
-        property(reg);
-
-        layout = new RectLayout(reg.min(), reg.max());
+    public def this(reg:Region, init:T, c: Clock, oper: (T,T) => T, opInitial:T):ClockedArray[T]{self.region==reg} {
+	super(reg, true);
         val n = layout.size();
         val r = ClockedIndexedMemoryChunk[T](n, c, oper, opInitial);
 	for (var i:int = 0; i<n; i++) {
             r(i) = init;
 	}
-        raw = r;
-        rawLength = n;
+        cRaw = r;
     }
 
     /**
@@ -191,7 +151,7 @@ public final class ClockedArray[T](
         if (checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
-        return raw(layout.offset(i0));
+        return cRaw(layout.offset(i0));
     }
 
     /**
@@ -209,7 +169,7 @@ public final class ClockedArray[T](
         if (checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        return raw(layout.offset(i0,i1));
+        return cRaw(layout.offset(i0,i1));
     }
 
     /**
@@ -228,7 +188,7 @@ public final class ClockedArray[T](
         if (checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
-        return raw(layout.offset(i0, i1, i2));
+        return cRaw(layout.offset(i0, i1, i2));
     }
 
     /**
@@ -248,7 +208,7 @@ public final class ClockedArray[T](
         if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
-        return raw(layout.offset(i0, i1, i2, i3));
+        return cRaw(layout.offset(i0, i1, i2, i3));
     }
 
     /**
@@ -264,7 +224,7 @@ public final class ClockedArray[T](
         if (checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
-        return raw(layout.offset(pt));
+        return cRaw(layout.offset(pt));
     }
 
  
@@ -284,7 +244,7 @@ public final class ClockedArray[T](
         if (checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
-        raw(layout.offset(i0)) = v;
+        cRaw(layout.offset(i0)) = v;
         return v;
     }
 
@@ -305,7 +265,7 @@ public final class ClockedArray[T](
         if (checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        raw(layout.offset(i0,i1)) = v;
+        cRaw(layout.offset(i0,i1)) = v;
         return v;
     }
 
@@ -327,7 +287,7 @@ public final class ClockedArray[T](
         if (checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
-        raw(layout.offset(i0, i1, i2)) = v;
+        cRaw(layout.offset(i0, i1, i2)) = v;
         return v;
     }
 
@@ -350,7 +310,7 @@ public final class ClockedArray[T](
         if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
-        raw(layout.offset(i0, i1, i2, i3)) = v;
+        cRaw(layout.offset(i0, i1, i2, i3)) = v;
         return v;
     }
 
@@ -369,7 +329,7 @@ public final class ClockedArray[T](
         if (checkBounds() && !region.contains(p)) {
             raiseBoundsError(p);
         }
-        raw(layout.offset(p)) = v;
+        cRaw(layout.offset(p)) = v;
         return v;
     }
 
@@ -381,15 +341,15 @@ public final class ClockedArray[T](
      */
     public def fill(v:T) {
 	if (region.rect) {
-            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
+            // In a rect region, every element in the backing cRaw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can simply fill
             // the IndexedMemoryChunk itself.
             for (var i:int =0; i<rawLength; i++) {
-                raw(i) = v;
+                cRaw(i) = v;
             }	
         } else {
             for (p in region) {
-                raw(layout.offset(p)) = v;
+                cRaw(layout.offset(p)) = v;
             }
         }
     }
@@ -413,11 +373,11 @@ public final class ClockedArray[T](
         //       use it to efficiently parallelize these loops.
         var accum:T = unit;
 	if (region.rect) {
-            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
+            // In a rect region, every element in the backing cRaw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
             // the traversal and simply reduce on the IndexedMemoryChunk itself.
             for (var i:int=0; i<rawLength; i++) {
-                accum = op(accum, raw(i));
+                accum = op(accum, cRaw(i));
             }          
         } else {
             for (p in region) {
