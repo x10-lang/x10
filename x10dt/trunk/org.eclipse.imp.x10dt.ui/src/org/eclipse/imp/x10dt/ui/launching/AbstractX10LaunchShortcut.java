@@ -117,10 +117,12 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     return null;    
   }
   
+  @SuppressWarnings("deprecation")
+  // We will need to use the new method "generateLaunchConfigurationName" once Galileo won't be supported anymore by X10DT.
   private ILaunchConfiguration createConfiguration(final Pair<ClassType, IJavaElement> type) {
     final ILaunchConfigurationType launchConfType = getConfigurationType();
     final String namePrefix = type.first.fullName().toString();
-    final String confName = DebugPlugin.getDefault().getLaunchManager().generateLaunchConfigurationName(namePrefix);
+    final String confName = DebugPlugin.getDefault().getLaunchManager().generateUniqueLaunchConfigurationNameFrom(namePrefix);
     try {
       final IProject project = type.second.getResource().getProject();
       final ILaunchConfigurationWorkingCopy workingCopy = launchConfType.newInstance(project, confName);
