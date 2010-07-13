@@ -8,7 +8,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.utils.Pair;
-import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
+import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.eclipse.imp.x10dt.ui.Messages;
 import org.eclipse.imp.x10dt.ui.utils.LaunchUtils;
 import org.eclipse.jdt.core.IJavaElement;
@@ -84,15 +84,14 @@ public class X10MainTab extends JavaMainTab {
     } else {
       boolean hasValidNature = false;
       try {
-        hasValidNature = project.getProject().hasNature(X10DTCorePlugin.PROJECT_NATURE_ID);
+        hasValidNature = project.getProject().hasNature(X10ProjectNature.k_natureID);
       } catch (CoreException except) {
         // Do nothing.
       }
       scope = hasValidNature ? new IJavaElement[] { project } : null;
     }
     try {
-      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.PROJECT_NATURE_ID,
-                                                                              getShell());
+      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, X10ProjectNature.k_natureID, getShell());
       if (mainType != null) {
         super.fMainText.setText(mainType.first.fullName().toString());
         if ((project == null) || ! project.exists()) {

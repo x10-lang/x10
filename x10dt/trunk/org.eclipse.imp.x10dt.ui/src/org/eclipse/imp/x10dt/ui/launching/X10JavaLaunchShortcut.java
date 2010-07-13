@@ -18,6 +18,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
+import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.eclipse.jdt.core.IJavaElement;
 
 import polyglot.types.ClassType;
@@ -36,7 +37,7 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
   }
   
   protected String getProjectNatureId() {
-    return X10DTCorePlugin.PROJECT_NATURE_ID;
+    return X10ProjectNature.k_natureID;
   }
   
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
