@@ -13,10 +13,7 @@ import x10.io.Console;
 
 /**
  * A simple illustration of loop parallelization within a single place.
- * @author ??
- * @author vj
  */
-
 public class ArraySum {
 
     var sum: Int;
