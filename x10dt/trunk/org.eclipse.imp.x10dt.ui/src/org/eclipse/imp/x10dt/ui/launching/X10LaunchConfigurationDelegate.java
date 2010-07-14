@@ -17,6 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -40,6 +45,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbench;
 
 /**
  * TODO need to reconcile changes made to X10LaunchConfigurationDelegate in x10dt.ui for X10 1.7
@@ -111,7 +117,30 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	}
 
     public void launch(final ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-		boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
+    	final IWorkbench workbench = X10DTUIPlugin.getInstance().getWorkbench();
+    	workbench.getDisplay().syncExec(new Runnable() {
+			public void run() {
+				try {
+					final Shell parent = workbench.getActiveWorkbenchWindow().getShell();
+					String projectName;
+					projectName = configuration.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME,"");
+					IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
+					IProject project = wsRoot.getProject(projectName);
+					if (project.findMaxProblemSeverity(X10DTCorePlugin.kPluginID + ".problemMarker", true,
+							IResource.DEPTH_INFINITE) == IMarker.SEVERITY_ERROR) {
+						// stop launch because there are errors in the project.
+						MessageDialog.openError(parent, "",
+										"Cannot launch application because there are errors in the project.");
+					}
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+    	});
+    	
+   
+    	boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
 
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
