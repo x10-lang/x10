@@ -18,6 +18,7 @@ final class FullRegion extends Region{rect} {
 
     def this(val rank:int):FullRegion{self.rank==rank} {
         super(rank, true, false);
+	if (rank<0) throw new IllegalArgumentException("Rank is negative ("+rank+")");
     }
 
     public global def isConvex() = true;
