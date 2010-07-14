@@ -15,6 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.Pair;
 import x10.compiler.ClockedVar;
+import x10.compiler.Inline;
 
 // FIXME: should be static class in Rail
 
@@ -326,44 +327,25 @@ import x10.compiler.ClockedVar;
             return r;
         }
 
-    	public static safe def makeClockedRail[T](length: Int, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedVar[T]]!{self.length==length} 
-    	{
-    	   //Console.OUT.println("Making ClockedRail");
-    	   val clk = c as Clock!;
-    	   val oper = op as (T, T) => T!;
-    	   val opInitial = opInit as T!;
-     	   return Rail.make[ClockedVar[T]](length, (int) => new ClockedVar [T] (clk, oper, opInitial));
-    	}
+    	public static safe @Inline def makeClockedRail[T](length: Int, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedVar[T]]!{self.length==length} 
+     	   =  Rail.make[ClockedVar[T]](length, (int) => new ClockedVar [T] (c as Clock!, op as (T,T) => T!, opInit as T!));
     	
     	
     	
     	
-    	public static safe def makeClockedRail[T](length: Int, init: (Int) => T, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedVar[T]]!{self.length==length} 
-    	{
-    	   //Console.OUT.println("Making ClockedRail");
-    	   val clk = c as Clock!;
-    	   val oper = op as (T, T) => T!;
-    	   val opInitial = opInit as T!;
-    	  
-     	   return Rail.make[ClockedVar[T]](length, (i:int) => new ClockedVar [T] (clk, oper, opInitial, init(i)));
-
-    	}
+    	public static safe @Inline def makeClockedRail[T](length: Int, init: (Int) => T, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedVar[T]]!{self.length==length} 
+     	   =  Rail.make[ClockedVar[T]](length, (i:int) => new ClockedVar [T] (c as Clock!, op as (T,T) => T!, opInit as T!, init(i)));
 
 
-	   public static safe def setClocked[T](r: Rail[T]!, index: Int, value: T)
-    	{
-    	   val cv = r(index) as ClockedVar[T]!;
-    	   cv.setClocked(value);  
+
+	   public static safe @Inline def setClocked[T](r: Rail[T]!, index: Int, value: T)
+    	   = (r(index) as ClockedVar[T]!).setClocked(value);
     
-    	}
     	
     	
-    	 public static safe def getClocked[T](r: Rail[T]!, index: Int): T
-    	{
-    	   val cv = r(index) as ClockedVar[T]!;
-    	   return cv.getClocked();  
+    	 public static safe @Inline def getClocked[T](r: Rail[T]!, index: Int): T
+    	   = (r(index) as ClockedVar[T]!).getClocked();  
   
-    	}
     	
     	
     	

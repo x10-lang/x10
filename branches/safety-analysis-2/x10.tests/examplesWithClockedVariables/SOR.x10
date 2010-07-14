@@ -23,7 +23,11 @@ class SORCore {
 	
 	val omega_over_four  = omega * 0.25;
 	val one_minus_omega = 1.0 - omega;
-
+	///Console.OUT.println(G.reduce(Double.+, 0.0));
+	//Console.OUT.println(G(1,1));
+	val t  = omega_over_four * (G(1-1, 1) + G(1+1, 1) + G(1, 1-1)
+						  + G(1, 1+1)) + one_minus_omega * G(1, 1);
+	//Console.OUT.println(t);
 	 // update interior Points
 	 //
 	 //JGFInstrumentor.startTimer("Section2:SORCore:Kernel");
@@ -31,15 +35,17 @@ class SORCore {
 	 for ((p) in 1..numIter) { 
 	     for ((o) in 0..1) {
 		 for ((ii) in 0..(((M-2-(1+o))/2))) async clocked(c) {
-		 val i = 2 * ii + 1 + o;
-		 for ((j) in 1..N-2) 
-		     G(i, j) = omega_over_four * (G(i-1, j) + G(i+1, j) + G(i, j-1)
+		   val i = 2 * ii + 1 + o;
+		   for ((j) in 1..N-2) { 
+		   	G(i, j) = omega_over_four * (G(i-1, j) + G(i+1, j) + G(i, j-1)
 						  + G(i, j+1)) + one_minus_omega * G(i, j);
-			
-	     }
+		  }	
+	         }
+	      next;
+	      // Console.OUT.println(G.reduce(Double.+, 0.0));
+	      //Console.OUT.println(G(1,1));
 	   
-		}
-		  next;
+	   }
 	 }
 	 //JGFInstrumentor.stopTimer("Section2:SORCore:Kernel");
 	 gTotal = G.reduce(Double.+, 0.0);
@@ -74,7 +80,7 @@ public class SOR extends SORCore {
 
    private var size: Int;
    private val datasizes =   new Array[int](0..2, ((i):Point)=> i == 0? 10: (i==1? 1500 :2500));
-   private const JACOBI_NUM_ITER = 10000;
+   private const JACOBI_NUM_ITER = 1000;
    private const RANDOM_SEED  = 10101010L;
 
    val R  = new Random(RANDOM_SEED);
@@ -93,7 +99,7 @@ public class SOR extends SORCore {
 
    public def JGFvalidate(c: Clock) {
 	//val refval = [ 0.0012191583622038237D, 1.123010681492097D, 1.9967774998523777D ];
-	val refval = [ 4.306821467221954E-5, 1.123010681492097D, 1.9967774998523777D ];
+	val refval = [ 5.4617236894063186E-5  , 1.123010681492097D, 1.9967774998523777D ];
 	val dev = Math.abs(gTotal - refval(size));
 	if (dev > 1.0e-12) {
 	    Console.OUT.println("Validation failed");
@@ -121,9 +127,7 @@ public class SOR extends SORCore {
 
    private static def RandomMatrix(c: Clock, M: int, N: int, R: Random!): Array[Double] = @ ClockedM(c) {
 	val t = new Array[Double @ Clocked[Double](c, op, 0.0)]([0..M-1, 0..N-1], (p: Point) => R.nextDouble() * 1e-6);
-   for ((i,j) in t.region) 
-	t(i, j) = R.nextDouble() * 1e-6;
-   return t;
+   	return t;
    }
    
    public static def main(args:Rail[String]!)= {
