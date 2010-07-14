@@ -46,8 +46,8 @@ public class KMeansSPMD {
                 Option("d","dim","number of dimensions"),
                 Option("s","slices","factor by which to oversubscribe computational resources"),
                 Option("n","num","quantity of points")]);
-            val fname = opts("-p", "points.dat"), num_clusters=opts("-c",8),
-                num_slices=opts("-s",1), num_global_points=opts("-n", 100000),
+            val fname = opts("-p", "points.dat"), num_clusters=opts("-c",4),
+                num_slices=opts("-s",1), num_global_points=opts("-n", 2000),
                 iterations=opts("-i",50), dim=opts("-d", 4);
             val verbose = opts("-v"), quiet = opts("-q");
 
