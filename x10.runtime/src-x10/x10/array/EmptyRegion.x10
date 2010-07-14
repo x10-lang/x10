@@ -21,6 +21,7 @@ final class EmptyRegion extends Region {
 
     def this(val rank: int): EmptyRegion{self.rank==rank} {
         super(rank,true,false);
+	if (rank<0) throw new IllegalArgumentException("Rank is negative ("+rank+")");
     }
 
     public global def isConvex() = true;
