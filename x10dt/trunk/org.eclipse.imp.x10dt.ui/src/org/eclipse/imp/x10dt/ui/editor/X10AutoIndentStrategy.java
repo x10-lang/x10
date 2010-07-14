@@ -84,7 +84,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
     }
 
     /**
-     * Creates a new Java auto indent strategy for the given document partitioning.
+     * Creates a new X10 auto indent strategy for the given document partitioning.
      * 
      * @param partitioning the document partitioning
      * @param project the project to get formatting preferences from, or null to use default preferences
@@ -225,12 +225,12 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
             // make sure we don't have any leading comments etc.
             if (d.get(lineOffset, p - lineOffset).trim().length() != 0)
                 return;
-            // line of last javacode
+            // line of last src code
             int pos= scanner.findNonWhitespaceBackward(p, X10HeuristicScanner.UNBOUND);
             if (pos == -1)
                 return;
             int lastLine= d.getLineOfOffset(pos);
-            // only shift if the last java line is further up and is a braceless block candidate
+            // only shift if the last src line is further up and is a braceless block candidate
             if (lastLine < line) {
                 X10Indenter indenter= new X10Indenter(d, scanner, fProject);
                 StringBuffer indent= indenter.computeIndentation(p, true);
@@ -252,7 +252,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         StringBuffer indent= indenter.computeIndentation(c.offset);
 
         if (indent == null)
-            indent= new StringBuffer(); //$NON-NLS-1$
+            indent= new StringBuffer();
 
 //      System.out.println("Indentation computed: '" + indent + "'");
 
@@ -267,6 +267,8 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
             IRegion reg= d.getLineInformation(line);
             int lineEnd= reg.getOffset() + reg.getLength();
             int contentStart= findEndOfWhiteSpace(d, c.offset, lineEnd);
+
+            // begin mmk stuff?
             boolean endOfComment= false;
 
             if (afterStartOfBlockComment(d, c.offset)) {
@@ -279,13 +281,15 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                     }
                 }
             }
+            // end mmk stuff?
 
             c.length= Math.max(contentStart - c.offset, 0);
             int start= reg.getOffset();
-//            ITypedRegion region= TextUtilities.getPartition(d, fPartitioning, start, true);
-//            if (IJavaPartitions.JAVA_DOC.equals(region.getType()))
-//                start= d.getLineInformationOfOffset(region.getOffset()).getOffset();
+            ITypedRegion region= TextUtilities.getPartition(d, fPartitioning, start, true);
+            if (IX10Partitions.X10_DOC.equals(region.getType()))
+                start= d.getLineInformationOfOffset(region.getOffset()).getOffset();
 
+            // begin mmk stuff?
             // process prefix for block comment lines
             if (c.offset > start
                     && contentStart - 2 >= 0
@@ -332,13 +336,14 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                 buf.append("*");
                 if (!endOfComment)
                     buf.append(" ");
-            } else if (getBracketCount(d, start, c.offset, true) > 0 && closeBrace() && !isClosed(d, c.offset, c.length)) {
+            } else // end mmk stuff?
+            	if (getBracketCount(d, start, c.offset, true) > 0 && closeBrace() && !isClosed(d, c.offset, c.length)) {
                 // insert closing brace on new line after an unclosed opening brace
                 c.caretOffset= c.offset + buf.length();
                 c.shiftsCaret= false;
                 // copy old content of line behind insertion point to new line
                 // unless we think we are inserting an anonymous type definition
-                if (c.offset == 0 || !(computeAnonymousPosition(d, c.offset - 1, fPartitioning, lineEnd) != -1)) {
+                if (c.offset == 0 || computeAnonymousPosition(d, c.offset - 1, fPartitioning, lineEnd) == -1) {
                     if (lineEnd - contentStart > 0) {
                         c.length= lineEnd - c.offset;
                         buf.append(d.get(contentStart, lineEnd - contentStart).toCharArray());
@@ -463,12 +468,17 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         if (scanTo == -1)
             scanTo= length;
         int closingParen= findClosingParenToLeft(scanner, pos) - 1;
+		boolean hasNewToken= looksLikeAnonymousClassDef(document, partitioning, scanner, pos);
+		int openingParen= -1;
         while (true) {
             int startScan= closingParen + 1;
             closingParen= scanner.scanForward(startScan, scanTo, ')');
-            if (closingParen == -1)
-                break;
-            int openingParen= scanner.findOpeningPeer(closingParen - 1, '(', ')');
+            if (closingParen == -1) {
+				if (hasNewToken && openingParen != -1)
+					return openingParen + 1;
+				break;
+			}
+            openingParen= scanner.findOpeningPeer(closingParen - 1, '(', ')');
             // no way an expression at the beginning of the document can mean anything
             if (openingParen < 1)
                 break;
@@ -537,8 +547,9 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
      * list.
      * 
      * @param document the document being modified
-     * @param position the first character position in <code>document</code> to be considered
      * @param partitioning the document partitioning
+	 * @param scanner the scanner
+     * @param position the first character position in <code>document</code> to be considered
      * @return <code>true</code> if the content of <code>document</code> looks like an anonymous class definition,
      *         <code>false</code> otherwise
      */
@@ -552,7 +563,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
     }
 
     /**
-     * Checks whether <code>position</code> resides in a default (Java) partition of <code>document</code>.
+     * Checks whether <code>position</code> resides in a default (X10) partition of <code>document</code>.
      * 
      * @param document the document being modified
      * @param position the position to be checked
@@ -572,7 +583,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
     }
 
     private boolean isClosed(IDocument document, int offset, int length) {
-        CompilationUnitInfo info= getCompilationUnitForMethod(document, offset, fPartitioning);
+        CompilationUnitInfo info= getCompilationUnitForMethod(document, offset);
         if (info == null)
             return false;
         CompilationUnit compilationUnit= null;
@@ -708,6 +719,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
             int insertLength= 0;
             int first= document.computeNumberOfLines(prefix) + firstLine; // don't format first line
             int lines= temp.getNumberOfLines();
+			int tabLength= getVisualTabLengthPreference();
             boolean changed= false;
             for(int l= first; l < lines; l++) { // we don't change the number of lines while adding indents
                 IRegion r= temp.getLineInformation(l);
@@ -721,7 +733,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                     StringBuffer correct= indenter.computeIndentation(lineOffset);
                     if (correct == null)
                         return; // bail out
-                    insertLength= subtractIndent(correct, current, addition);
+                    insertLength= subtractIndent(correct, current, addition, tabLength);
                     if (l != first && temp.get(lineOffset, lineLength).trim().length() != 0) {
                         isIndentDetected= true;
                         if (insertLength == 0) {
@@ -742,9 +754,9 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                 }
                 // relatively indent all pasted lines
                 if (insertLength > 0)
-                    addIndent(temp, l, addition);
+                    addIndent(temp, l, addition, tabLength);
                 else if (insertLength < 0)
-                    cutIndent(temp, l, -insertLength);
+                    cutIndent(temp, l, -insertLength, tabLength);
             }
             temp.stopRewriteSession(session);
             newText= temp.get(prefix.length(), temp.getLength() - prefix.length());
@@ -780,13 +792,12 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                 break;
             to++;
         }
-        // don't count the space before javadoc like, asterisk-style comment lines
-        // TODO do what the following was supposed to do, using logic appropriate to a single-partition strategy
-//        if (to > from && to < endOffset - 1 && document.get(to - 1, 2).equals(" *")) { //$NON-NLS-1$
-//            String type= TextUtilities.getContentType(document, IJavaPartitions.JAVA_PARTITIONING, to, true);
-//            if (type.equals(IJavaPartitions.JAVA_DOC) || type.equals(IJavaPartitions.JAVA_MULTI_LINE_COMMENT))
-//                to--;
-//        }
+        // don't count the space before X10doc like, asterisk-style comment lines
+        if (to > from && to < endOffset - 1 && document.get(to - 1, 2).equals(" *")) { //$NON-NLS-1$
+            String type= TextUtilities.getContentType(document, IX10Partitions.X10_PARTITIONING, to, true);
+            if (type.equals(IX10Partitions.X10_DOC) || type.equals(IX10Partitions.X10_MULTI_LINE_COMMENT))
+                to--;
+        }
         return document.get(from, to - from);
     }
 
@@ -799,11 +810,12 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
      * @param current the current indentation (might contain non-whitespace)
      * @param difference a string buffer - if the return value is positive, it will be cleared and set to the substring
      *            of <code>current</code> of that length
+	 * @param tabLength the length of a tab
      * @return the difference in length of <code>correct</code> and <code>current</code>
      */
-    private int subtractIndent(CharSequence correct, CharSequence current, StringBuffer difference) {
-        int c1= computeVisualLength(correct);
-        int c2= computeVisualLength(current);
+    private int subtractIndent(CharSequence correct, CharSequence current, StringBuffer difference, int tabLength) {
+        int c1= computeVisualLength(correct, tabLength);
+        int c2= computeVisualLength(current, tabLength);
         int diff= c1 - c2;
         if (diff <= 0)
             return diff;
@@ -812,7 +824,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         while (len < diff) {
             char c= correct.charAt(i++);
             difference.append(c);
-            len+= computeVisualLength(c);
+            len+= computeVisualLength(c, tabLength);
         }
         return diff;
     }
@@ -824,17 +836,36 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
      * @param document the document
      * @param line the line
      * @param indent the indentation to insert
+	 * @param tabLength the length of a tab
      * @throws BadLocationException on concurrent document modification
      */
-    private static void addIndent(Document document, int line, CharSequence indent) throws BadLocationException {
+    private void addIndent(Document document, int line, CharSequence indent, int tabLength) throws BadLocationException {
         IRegion region= document.getLineInformation(line);
         int insert= region.getOffset();
         int endOffset= region.getOffset() + region.getLength();
-        // go behind line comments
-        while (insert < endOffset - 2 && document.get(insert, 2).equals(LINE_COMMENT))
-            insert+= 2;
-        // insert indent
-        document.replace(insert, 0, indent.toString());
+		// Compute insert after all leading line comment markers
+		int newInsert= insert;
+		while (newInsert < endOffset - 2 && document.get(newInsert, 2).equals(LINE_COMMENT))
+			newInsert += 2;
+
+		// Heuristic to check whether it is commented code or just a comment
+		if (newInsert > insert) {
+			int whitespaceCount= 0;
+			int i= newInsert;
+			while (i < endOffset - 1) {
+				 char ch= document.get(i, 1).charAt(0);
+				 if (!Character.isWhitespace(ch))
+					 break;
+				 whitespaceCount= whitespaceCount + computeVisualLength(ch, tabLength);
+				 i++;
+			}
+
+			if (whitespaceCount != 0 && whitespaceCount >= fPrefsSvc.getIntPreference(fProject, X10Constants.P_INDENTWIDTH))
+				insert= newInsert;
+		}
+
+		// Insert indent
+		document.replace(insert, 0, indent.toString());
     }
 
     /**
@@ -844,9 +875,10 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
      * @param document the document
      * @param line the line
      * @param toDelete the number of space equivalents to delete.
+	 * @param tabLength the length of a tab
      * @throws BadLocationException on concurrent document modification
      */
-    private void cutIndent(Document document, int line, int toDelete) throws BadLocationException {
+    private void cutIndent(Document document, int line, int toDelete, int tabLength) throws BadLocationException {
         IRegion region= document.getLineInformation(line);
         int from= region.getOffset();
         int endOffset= region.getOffset() + region.getLength();
@@ -858,34 +890,35 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
             char ch= document.getChar(to);
             if (!Character.isWhitespace(ch))
                 break;
-            toDelete-= computeVisualLength(ch);
+            toDelete-= computeVisualLength(ch, tabLength);
             if (toDelete >= 0)
                 to++;
             else
                 break;
         }
-        document.replace(from, to - from, null);
+        document.replace(from, to - from, ""); //$NON-NLS-1$
     }
 
     /**
      * Returns the visual length of a given <code>CharSequence</code> taking into account the visual tabulator length.
      * 
      * @param seq the string to measure
+	 * @param tabLength the length of a tab
      * @return the visual length of <code>seq</code>
      */
-    private int computeVisualLength(CharSequence seq) {
+    private int computeVisualLength(CharSequence seq, int tabLength) {
         int size= 0;
-        int tablen= getVisualTabLengthPreference();
-        for(int i= 0; i < seq.length(); i++) {
-            char ch= seq.charAt(i);
-            if (ch == '\t') {
-                if (tablen != 0)
-                    size+= tablen - size % tablen;
-                // else: size stays the same
-            } else {
-                size++;
-            }
-        }
+
+        for (int i= 0; i < seq.length(); i++) {
+			char ch= seq.charAt(i);
+			if (ch == '\t') {
+				if (tabLength != 0)
+					size += tabLength - size % tabLength;
+				// else: size stays the same
+			} else {
+				size++;
+			}
+		}
         return size;
     }
 
@@ -893,11 +926,12 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
      * Returns the visual length of a given character taking into account the visual tabulator length.
      * 
      * @param ch the character to measure
+	 * @param tabLength the length of a tab
      * @return the visual length of <code>ch</code>
      */
-    private int computeVisualLength(char ch) {
+    private int computeVisualLength(char ch, int tabLength) {
         if (ch == '\t')
-            return getVisualTabLengthPreference();
+            return tabLength;
         else
             return 1;
     }
@@ -991,13 +1025,14 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
     }
 
     /**
-     * Skips the scope opened by <code>token</code> in <code>document</code>, returns either the position of the
+     * Skips the scope opened by <code>token</code>.
      * 
-     * @param pos
-     * @param token
-     * @return the position after the scope
+     * @param scanner the scanner
+     * @param start the start position
+     * @param token the token
+     * @return the position after the scope or <code>X10HeuristicScanner.NOT_FOUND</code>
      */
-    private static int skipScope(X10HeuristicScanner scanner, int pos, int token) {
+    private static int skipScope(X10HeuristicScanner scanner, int start, int token) {
         int openToken= token;
         int closeToken;
         switch (token) {
@@ -1015,7 +1050,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                 return -1; // dummy
         }
         int depth= 1;
-        int p= pos;
+        int p= start;
         while (true) {
             int tok= scanner.nextToken(p, X10HeuristicScanner.UNBOUND);
             p= scanner.getPosition();
@@ -1226,7 +1261,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         return true; // Perhaps we're running directly inside the test harness (outside any editor)
     }
 
-    private static CompilationUnitInfo getCompilationUnitForMethod(IDocument document, int offset, String partitioning) {
+    private static CompilationUnitInfo getCompilationUnitForMethod(IDocument document, int offset) {
         try {
             X10HeuristicScanner scanner= new X10HeuristicScanner(document);
             IRegion sourceRange= scanner.findSurroundingBlock(offset);

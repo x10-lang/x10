@@ -3,10 +3,14 @@ package org.eclipse.imp.x10dt.ui.editor;
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jdt.internal.ui.text.JavaHeuristicScanner;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.jface.text.TypedRegion;
 
 public class X10HeuristicScanner implements Symbols {
 	/**
@@ -78,7 +82,41 @@ public class X10HeuristicScanner implements Symbols {
 	}
 
 	/**
-	 * Stops upon a non-java identifier (as defined by {@link Character#isJavaIdentifierPart(char)}) character.
+	 * Stops upon a non-whitespace character in the default partition.
+	 *
+	 * @see JavaHeuristicScanner.NonWhitespace
+	 */
+	private final class NonWhitespaceDefaultPartition extends NonWhitespace {
+		/*
+		 * @see org.eclipse.jdt.internal.ui.text.JavaHeuristicScanner.StopCondition#stop(char)
+		 */
+		public boolean stop(char ch, int position, boolean forward) {
+			return super.stop(ch, position, true) && isDefaultPartition(position);
+		}
+
+		/*
+		 * @see org.eclipse.jdt.internal.ui.text.JavaHeuristicScanner.StopCondition#nextPosition(int, boolean)
+		 */
+		public int nextPosition(int position, boolean forward) {
+			ITypedRegion partition= getPartition(position);
+			if (fPartition.equals(partition.getType()))
+				return super.nextPosition(position, forward);
+
+			if (forward) {
+				int end= partition.getOffset() + partition.getLength();
+				if (position < end)
+					return end;
+			} else {
+				int offset= partition.getOffset();
+				if (position > offset)
+					return offset - 1;
+			}
+			return super.nextPosition(position, forward);
+		}
+	}
+
+	/**
+	 * Stops upon a non-x10 identifier (as defined by {@link Character#isJavaIdentifierPart(char)}) character.
 	 */
 	private static class NonX10IdentifierPart extends StopCondition {
 		/*
@@ -86,6 +124,40 @@ public class X10HeuristicScanner implements Symbols {
 		 */
 		public boolean stop(char ch, int position, boolean forward) {
 			return !Character.isJavaIdentifierPart(ch);
+		}
+	}
+
+	/**
+	 * Stops upon a non-x10 identifier character in the default partition.
+	 *
+	 * @see X10HeuristicScanner.NonX10IdentifierPart
+	 */
+	private final class NonX10IdentifierPartDefaultPartition extends NonX10IdentifierPart {
+		/*
+		 * @see org.eclipse.imp.x10dt.ui.editor.X10HeuristicScanner.StopCondition#stop(char)
+		 */
+		public boolean stop(char ch, int position, boolean forward) {
+			return super.stop(ch, position, true) || !isDefaultPartition(position);
+		}
+
+		/*
+		 * @see org.eclipse.jdt.internal.ui.text.JavaHeuristicScanner.StopCondition#nextPosition(int, boolean)
+		 */
+		public int nextPosition(int position, boolean forward) {
+			ITypedRegion partition= getPartition(position);
+			if (fPartition.equals(partition.getType()))
+				return super.nextPosition(position, forward);
+
+			if (forward) {
+				int end= partition.getOffset() + partition.getLength();
+				if (position < end)
+					return end;
+			} else {
+				int offset= partition.getOffset();
+				if (position > offset)
+					return offset - 1;
+			}
+			return super.nextPosition(position, forward);
 		}
 	}
 
@@ -118,12 +190,37 @@ public class X10HeuristicScanner implements Symbols {
 		 * @see org.eclipse.imp.x10dt.ui.editor.X10HeuristicScanner.StopCondition#stop(char, int)
 		 */
 		public boolean stop(char ch, int position, boolean forward) {
-			return Arrays.binarySearch(fChars, ch) >= 0;
+			return Arrays.binarySearch(fChars, ch) >= 0 && isDefaultPartition(position);
+		}
+
+		/*
+		 * @see org.eclipse.jdt.internal.ui.text.JavaHeuristicScanner.StopCondition#nextPosition(int, boolean)
+		 */
+		public int nextPosition(int position, boolean forward) {
+			// Skip over characters in the partitions we're not interested in
+			ITypedRegion partition= getPartition(position);
+			if (fPartition.equals(partition.getType()))
+				return super.nextPosition(position, forward);
+
+			if (forward) {
+				int end= partition.getOffset() + partition.getLength();
+				if (position < end)
+					return end;
+			} else {
+				int offset= partition.getOffset();
+				if (position > offset)
+					return offset - 1;
+			}
+			return super.nextPosition(position, forward);
 		}
 	}
 
 	/** The document being scanned. */
 	private final IDocument fDocument;
+	/** The partitioning being used for scanning. */
+	private final String fPartitioning;
+	/** The partition to scan in. */
+	private final String fPartition;
 
 	/* internal scan state */
 
@@ -132,22 +229,33 @@ public class X10HeuristicScanner implements Symbols {
 	/** the most recently read position. */
 	private int fPos;
 
+	/**
+	 * The most recently used partition.
+	 * @since 3.2
+	 */
+	private ITypedRegion fCachedPartition= new TypedRegion(-1, 0, "__no_partition_at_all"); //$NON-NLS-1$
+
 	/* preset stop conditions */
+	private final StopCondition fNonWSDefaultPart= new NonWhitespaceDefaultPartition();
 	private final static StopCondition fNonWS= new NonWhitespace();
 	private final StopCondition fNonIdent= new NonX10IdentifierPart();
 
 	/**
-	 * Calls <code>this(document, IJavaPartitions.JAVA_PARTITIONING, IDocument.DEFAULT_CONTENT_TYPE)</code>.
+	 * Calls <code>this(document, IX10Partitions.X10_PARTITIONING, IDocument.DEFAULT_CONTENT_TYPE)</code>.
 	 *
 	 * @param document the document to scan.
 	 */
-	public X10HeuristicScanner(IDocument document) {
+	public X10HeuristicScanner(IDocument document, String partitioning, String partition) {
 		fDocument= document;
+		fPartitioning= partitioning;
+		fPartition= partition;
+	}
+
+	public X10HeuristicScanner(IDocument document) {
+		this(document, IX10Partitions.X10_PARTITIONING, IDocument.DEFAULT_CONTENT_TYPE);
 	}
 
 	/**
-	 * Returns the most recent internal scan position.
-	 *
 	 * @return the most recent internal scan position.
 	 */
 	public int getPosition() {
@@ -165,7 +273,7 @@ public class X10HeuristicScanner implements Symbols {
 	 * @return a constant from {@link Symbols} describing the next token
 	 */
 	public int nextToken(int start, int bound) {
-		int pos= scanForward(start, bound, fNonWS);
+		int pos= scanForward(start, bound, fNonWSDefaultPart);
 		if (pos == NOT_FOUND)
 			return TokenEOF;
 
@@ -235,7 +343,7 @@ public class X10HeuristicScanner implements Symbols {
 	 * @return a constant from {@link Symbols} describing the previous token
 	 */
 	public int previousToken(int start, int bound) {
-		int pos= scanBackward(start, bound, fNonWS);
+		int pos= scanBackward(start, bound, fNonWSDefaultPart);
 		if (pos == NOT_FOUND)
 			return TokenEOF;
 
@@ -500,7 +608,7 @@ public class X10HeuristicScanner implements Symbols {
 	 * @return the smallest position of a non-whitespace character in [<code>position</code>, <code>bound</code>) that resides in a Java partition, or <code>NOT_FOUND</code> if none can be found
 	 */
 	public int findNonWhitespaceForward(int position, int bound) {
-		return scanForward(position, bound, fNonWS);
+		return scanForward(position, bound, fNonWSDefaultPart);
 	}
 
 	/**
@@ -512,7 +620,7 @@ public class X10HeuristicScanner implements Symbols {
 	 * @return the smallest position of a non-whitespace character in [<code>position</code>, <code>bound</code>), or <code>NOT_FOUND</code> if none can be found
 	 */
 	public int findNonWhitespaceForwardInAnyPartition(int position, int bound) {
-		return scanForward(position, bound, fNonWS);
+		return scanForward(position, bound, fNonWSDefaultPart);
 	}
 
 	/**
@@ -525,7 +633,7 @@ public class X10HeuristicScanner implements Symbols {
 	 * @return the highest position of a non-whitespace character in (<code>bound</code>, <code>position</code>] that resides in a Java partition, or <code>NOT_FOUND</code> if none can be found
 	 */
 	public int findNonWhitespaceBackward(int position, int bound) {
-		return scanBackward(position, bound, fNonWS);
+		return scanBackward(position, bound, fNonWSDefaultPart);
 	}
 
 	/**
@@ -646,6 +754,38 @@ public class X10HeuristicScanner implements Symbols {
 	 */
 	public int scanBackward(int position, int bound, char[] chars) {
 		return scanBackward(position, bound, new CharacterMatch(chars));
+	}
+
+	/**
+	 * Checks whether <code>position</code> resides in a default (Java) partition of <code>fDocument</code>.
+	 *
+	 * @param position the position to be checked
+	 * @return <code>true</code> if <code>position</code> is in the default partition of <code>fDocument</code>, <code>false</code> otherwise
+	 */
+	public boolean isDefaultPartition(int position) {
+		return fPartition.equals(getPartition(position).getType());
+	}
+
+	/**
+	 * Returns the partition at <code>position</code>.
+	 *
+	 * @param position the position to get the partition for
+	 * @return the partition at <code>position</code> or a dummy zero-length
+	 *         partition if accessing the document fails
+	 */
+	private ITypedRegion getPartition(int position) {
+		if (!contains(fCachedPartition, position)) {
+			Assert.isTrue(position >= 0);
+			Assert.isTrue(position <= fDocument.getLength());
+
+			try {
+				fCachedPartition= TextUtilities.getPartition(fDocument, fPartitioning, position, false);
+			} catch (BadLocationException e) {
+				fCachedPartition= new TypedRegion(position, 0, "__no_partition_at_all"); //$NON-NLS-1$
+			}
+		}
+
+		return fCachedPartition;
 	}
 
 	/**
