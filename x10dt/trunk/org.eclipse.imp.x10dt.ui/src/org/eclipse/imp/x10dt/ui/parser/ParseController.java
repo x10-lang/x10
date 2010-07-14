@@ -78,9 +78,8 @@ public class ParseController extends SimpleLPGParseController {
         try {
             fMonitor.setMonitor(monitor);
             
-            String path= fFilePath.toOSString();
-            File file= new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString() : path);
-
+            String path= fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toOSString():fFilePath.toOSString();
+            File file= new File(path);
             fileSource= new FileSource(new StringResource(contents, file, path));
 
             List<Source> streams= new ArrayList<Source>();
