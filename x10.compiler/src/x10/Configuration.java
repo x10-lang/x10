@@ -33,9 +33,6 @@ public final class Configuration extends x10.config.Configuration {
      */
     public static final ConfigurationError LOAD_ERROR;
 
-    public static String COMPILER_FRAGMENT_DATA_DIRECTORY = "data/";
-    private static final String COMPILER_FRAGMENT_DATA_DIRECTORY_desc = "Advanced functionality: Directory for compiler templates";
-
     public static boolean CHECK_INVARIANTS = true;
     private static final String CHECK_INVARIANTS_desc = "Check AST invariants such as position containment, existance of xxxInstance(), etc";
 
