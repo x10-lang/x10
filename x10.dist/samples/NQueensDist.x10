@@ -12,10 +12,8 @@
 import x10.io.Console;
 
 /**
-   A distributed version of NQueens. Runs over NUM_PLACES.
-   Identical to NQueensPar, except that it runs over multiple placs.
-
-   @author vj
+ * A distributed version of NQueens. Runs over NUM_PLACES.
+ * Identical to NQueensPar, except that it runs over multiple placs.
  */
 public class NQueensDist {
     public static val expectedSolutions =

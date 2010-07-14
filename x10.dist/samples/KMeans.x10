@@ -18,10 +18,7 @@ import x10.util.Random;
  * <p> 
  * This class implements a sequential program, that is readily parallelizable.
  * 
- * @author cunningham
- * @author vj 
  */
-
 public class KMeans(myDim:Int) {
 
     const DIM=2,  K=4, POINTS=2000, ITERATIONS=50;
