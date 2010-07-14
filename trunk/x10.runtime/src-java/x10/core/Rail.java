@@ -207,10 +207,6 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
     //
     
   
-    public ValRail<T> view() {
-        return new ValRail<T>(type, this);
-    }
-
     //
     // Runtime type information
     //
