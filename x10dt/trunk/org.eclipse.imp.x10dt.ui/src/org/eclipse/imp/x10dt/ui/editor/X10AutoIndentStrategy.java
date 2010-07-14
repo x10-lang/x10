@@ -44,10 +44,12 @@ import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
@@ -654,19 +656,19 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         return true;
     }
 
-//    /**
-//     * Installs a java partitioner with <code>document</code>.
-//     * 
-//     * @param document the document
-//     */
-//    private static void installJavaStuff(Document document) {
-//    	String[] types= new String[] { IJavaPartitions.JAVA_DOC, IJavaPartitions.JAVA_MULTI_LINE_COMMENT, IJavaPartitions.JAVA_SINGLE_LINE_COMMENT, IJavaPartitions.JAVA_STRING,
-//                IJavaPartitions.JAVA_CHARACTER, IDocument.DEFAULT_CONTENT_TYPE };
-//        FastPartitioner partitioner= new FastPartitioner(new FastJavaPartitionScanner(), types);
-//        partitioner.connect(document);
-//        document.setDocumentPartitioner(IJavaPartitions.JAVA_PARTITIONING, partitioner);
-//    }
-//
+    /**
+     * Installs an X10 document partitioner on <code>document</code>.
+     * 
+     * @param document the document
+     */
+    private static void installDocPartitioner(IDocument document) {
+    	String[] types= new String[] { IX10Partitions.X10_DOC, IX10Partitions.X10_MULTI_LINE_COMMENT, IX10Partitions.X10_SINGLE_LINE_COMMENT, IX10Partitions.X10_STRING,
+                IX10Partitions.X10_CHARACTER, IDocument.DEFAULT_CONTENT_TYPE };
+        FastPartitioner partitioner= new FastPartitioner(new X10PartitionScanner(), types);
+        partitioner.connect(document);
+        document.setDocumentPartitioner(partitioner); // document.setDocumentPartitioner(IX10Partitions.X10_PARTITIONING, partitioner);
+    }
+
 //    /**
 //     * Installs a java partitioner with <code>document</code>.
 //     * 
@@ -1214,6 +1216,10 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
      * org.eclipse.jface.text.DocumentCommand)
      */
     public void customizeDocumentCommand(IDocument d, DocumentCommand c) {
+    	IDocumentPartitioner dp = d.getDocumentPartitioner();
+    	if (dp == null) {
+    		installDocPartitioner(d);
+    	}
         if (c.doit == false)
             return;
         clearCachedValues();
