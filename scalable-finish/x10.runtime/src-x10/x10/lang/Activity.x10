@@ -69,7 +69,7 @@ public class Activity {
      * Create activity.
      */
     def this(body:()=>Void, finishState:Runtime.RootFinishState, safe:Boolean) {
-    	Console.OUT.println("activity created@"+here);
+    	//Console.OUT.println("activity created@"+here);
         this.finishState = finishState;
         this.safe = safe;
         finishState.notifyActivityCreation();
@@ -98,7 +98,7 @@ public class Activity {
      * Run activity.
      */
     def run():Void {
-    	Console.OUT.println("activity run@"+here);
+    	//Console.OUT.println("activity run@"+here);
         try {
             body();
         } catch (t:Throwable) {
@@ -115,7 +115,7 @@ public class Activity {
         	finishState.notifyActivityTermination();
         }
         Runtime.dealloc(body);
-        Console.OUT.println("activity terminates@"+here);
+       // Console.OUT.println("activity terminates@"+here);
     }
 
     /**
