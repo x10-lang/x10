@@ -57,4 +57,4 @@ cdir="`pwd`"
 [ "$cdir" = "/" ] && cdir="$cdir."
 cd "$top"
 
-tar -cvzf "$cdir/$tarfile" INSTALL.txt README.txt RELEASE.NOTES.txt bin/{runx10,setupX10,x10,x10c,x10c++,mpirunx10,launcher,manager,daemon} epl-v10.html etc include lib/*.jar lib/{${PLAT_LIBPAT}} samples/*.x10
+tar -cvzf "$cdir/$tarfile" INSTALL.txt README.txt RELEASE.NOTES.txt bin/{runx10,setupX10,x10,x10c,x10c++,mpirunx10,launcher,manager,daemon} epl-v10.html etc include lib/*.jar lib/{${PLAT_LIBPAT}} samples
