@@ -431,7 +431,7 @@ class RayTracer {
 	global val c = Clock.make();
 	val op = Long.+;
 
-	var checksum: long @ Clocked[long] (c, op, 0L)  = 0L;
+	protected var checksum: long @ Clocked[long] (c, op, 0L)  = 0L;
 
 	var size: int;
 
@@ -604,7 +604,7 @@ class RayTracer {
 	 * Returns the shaded color
 	 * @return The color in Vec form (rgb)
 	 */
-	def shade(var level: int, var weight: double, var P: Vec!, var N: Vec!, var I: Vec!, var hit: Isect!, var tRay: Ray!): Vec! = {
+	def shade(var level: int, var weight: double, var P: Vec!, var N: Vec!, var I: Vec!, var hit: Isect!, val tRay: Ray!): Vec! = {
 		var surf: Surface! = hit.surf as Surface!;
 		var bigr: Vec! = new Vec() as Vec!;
 		if (surf.shine > 1e-6) {

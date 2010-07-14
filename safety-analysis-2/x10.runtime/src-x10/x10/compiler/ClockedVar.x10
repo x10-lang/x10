@@ -22,6 +22,7 @@ public class ClockedVar[T] implements ClockableVar{
 
     var xRead:T;
     val WORKERS = 128;
+    val OFFSET = 8;
     val xWrite: Rail[T]! = Rail.make[T](WORKERS);
     val op:(T,T)=>T;
     val opInit:T;
@@ -71,25 +72,24 @@ public class ClockedVar[T] implements ClockableVar{
      		xWrite(i) = opInitial;
       }
       
-    public def get$G():ClockedVar[T] {
-    	  return this;
-   }
+    public @Inline def get$G():ClockedVar[T] = this;
+   
 
-    public def getClocked():T {
-	return xRead;
-    }
+    public @Inline def getClocked():T = xRead;
+    
 
 
 
 
-    public def setClocked(x:T) {
+    public @Inline def setClocked(x:T) {
         //Console.OUT.println("Worker id" + Runtime.workerTid());
-        val workerId = (Runtime.workerTid() - 8) as Int;
     	changed = true;
-        this.xWrite(workerId) = op(this.xWrite(workerId), x);
+        this.xWrite((Runtime.workerTid() - OFFSET) as Int) = op(this.xWrite((Runtime.workerTid() - OFFSET) as Int), x);
     } 
     
-    public def setR(x:T){this.xRead=x;}
+    public @Inline def setR(x:T) {
+	this.xRead=x;
+   }
     
 
     
@@ -98,7 +98,7 @@ public class ClockedVar[T] implements ClockableVar{
         if (changed) {
         	this.xRead = this.xWrite(0);
         	this.xWrite(0) = opInit;
-			var i: int;
+		var i: int;
         	for (i = 1; i < WORKERS; i++) {
         		this.xRead =  op (this.xRead, this.xWrite(i));
         		this.xWrite(i) = opInit;

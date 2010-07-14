@@ -16,7 +16,7 @@
  * //done
  */
 public class StencilOrig {
-    const epsilon  = 1E-4D;
+    const epsilon  = 1E-1D;
     val N: int, P: int;
     var iters: int;
     var delta: double = epsilon+1;
