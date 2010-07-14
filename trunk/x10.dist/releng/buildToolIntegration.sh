@@ -65,10 +65,18 @@ if [ ! -z "$CLEAN" ]; then
 	    x10.tests
         do
             svn export --force https://x10.svn.sourceforge.net/svnroot/x10/branches/x10-tools-integration/$i
+            if [ $? != 0 ]; then
+                svnErrors="true"
+                break
+            fi
         done
         )
 
-    echo "The distribution is now exported to the directory $workdir"
+    if [ ! -z "$svnErrors" ]; then
+        echo "Errors retrieving X10 source; aborting."
+    else
+        echo "The distribution is now exported to the directory $workdir"
+    fi
 fi
 
 echo "Building distribution"
