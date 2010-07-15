@@ -59,7 +59,7 @@ namespace x10 {
             x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
     
             x10_boolean _struct_equals(x10::util::IndexedMemoryChunk<T> that) { 
-                return x10aux::struct_equals(FMGL(data), that->FMGL(data));
+                return x10aux::struct_equals((size_t)FMGL(data), (size_t)(that->FMGL(data)));
             }
     
             x10aux::ref<x10::lang::String> toString();

@@ -130,4 +130,36 @@ public struct IndexedMemoryChunk[T] {
     native safe def set(value:T, index:uint):void;
     native safe def set(value:T, index:ulong):void;
     */
+
+   /*
+    * @Native methods from Any because the handwritten code doesn't 100% match 
+    *         what the compiler would have generated
+    */
+
+    @Native("java", "((Object)#0).toString()")
+    @Native("c++", "(#0)->toString()")
+    public global safe native def  toString():String;
+
+    @Native("java", "((Object)#0).equals(#1)")
+    @Native("c++", "(#0)->equals(#1)")
+    public global safe native def equals(that:Any):Boolean;
+
+    @Native("java", "((Object)#0).hashCode()")
+    @Native("c++", "(#0)->hash_code()")
+    public global safe native def  hashCode():Int;
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab
+
+
+
+
+
+
+
+
+
+
+
+
+    

@@ -86,11 +86,11 @@ template<class FMGL(T)> x10aux::itable_entry x10::util::IndexedMemoryChunk<FMGL(
 
 
 template<class FMGL(T)> void x10::util::IndexedMemoryChunk<FMGL(T)>::_serialize(x10::util::IndexedMemoryChunk<FMGL(T)> this_, x10aux::serialization_buffer& buf) {
-    buf.write(this_->FMGL(data));
+    buf.write((size_t)(this_->FMGL(data)));
 }
 
 template<class FMGL(T)> void x10::util::IndexedMemoryChunk<FMGL(T)>::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    FMGL(data) = buf.read<FMGL(T)*>();
+    FMGL(data) = (FMGL(T)*)buf.read<size_t>();
 }
 
 
@@ -102,11 +102,13 @@ template<class FMGL(T)> x10_boolean x10::util::IndexedMemoryChunk<FMGL(T)>::_str
 }
 
 template<class FMGL(T)> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<FMGL(T)>::toString() {
-    return x10::lang::String::Lit("IndexedMemoryChunk");
+    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%p)", x10aux::getRTT<FMGL(T)>()->name(), FMGL(data));
+    return x10::lang::String::Steal(tmp);
 }
 
 template<class FMGL(T)> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<FMGL(T)>::typeName() {
-    return x10::lang::String::Lit("x10.util.IndexedMemoryChunk");
+    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>", x10aux::getRTT<FMGL(T)>()->name());
+    return x10::lang::String::Steal(tmp);
 }
 
 template<class FMGL(T)> x10aux::RuntimeType x10::util::IndexedMemoryChunk<FMGL(T)>::rtt;
