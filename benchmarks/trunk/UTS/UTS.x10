@@ -62,7 +62,8 @@ public class UTS {
 					 Option("k", "", "Number of items to steal; default 0. If 0, steal half. "),
 					 Option("v", "", "Verbose, default 0 (no)."),
 					 Option("n", "", "Number of nodes to process before probing."),
-					 Option("w", "", "Number of thieves to send out, less 1. (Default 0, so 1 thief will be sent out.)")
+					 Option("w", "", "Number of thieves to send out, less 1. (Default 0, so 1 thief will be sent out."),
+           Option("l", "", "Lifeline method: 0 for linear, 1 for hypercube")
 					 ]);
 
 			val tree_type:Int = opts ("-t", 0);
@@ -86,6 +87,9 @@ public class UTS {
 			// hybrid options
 			val geo_to_bin_shift_depth_ratio:Double = opts ("-f", 0.5);
 
+      // Figure out what kind of connectivity is needed.
+      val l:Int = opts ("-l", 0);
+
 			Console.OUT.println("--------");
 			Console.OUT.println("Places="+Place.MAX_PLACES);
 			Console.OUT.println("b0=" + b0 +
@@ -105,7 +109,7 @@ public class UTS {
 			Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
 			} else {
 				val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
-						()=>new BinomialState(qq, mf,k,nu, w, e));
+						()=>new BinomialState(qq, mf,k,nu, w, e, l));
 				Console.OUT.println("Starting...");
 				var time:Long = System.nanoTime();
 				st().main(st, b0, SHA1Rand(r));
