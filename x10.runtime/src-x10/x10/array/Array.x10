@@ -84,8 +84,8 @@ public final class Array[T](
     public property rail: boolean = region.rail;
 
 
-    private val raw:IndexedMemoryChunk[T];
-    private val rawLength:int;
+    private global val raw:IndexedMemoryChunk[T];
+    private global val rawLength:int;
     private val layout:RectLayout!{self!=null};
 
     @Native("java", "(!`NO_CHECKS`)")

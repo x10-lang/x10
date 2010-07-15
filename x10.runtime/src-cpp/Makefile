@@ -144,6 +144,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/PlaceLocalHandle_Impl.o \
 	x10/lang/Thread.o \
 	x10/util/GrowableRail.o \
+	x10/util/IndexedMemoryChunk.o \
 	x10/util/concurrent/atomic/AtomicBoolean.o \
 	x10/util/concurrent/atomic/AtomicInteger.o \
 	x10/util/concurrent/atomic/AtomicLong.o \
