@@ -33,7 +33,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
@@ -42,6 +41,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFact
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
@@ -284,7 +284,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       command.add("-l" + project.getName()); //$NON-NLS-1$
       command.addAll(X10BuilderUtils.getAllTokens(cppCompConf.getLinkingLibs(true)));
       
-      final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+      final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
       messageConsole.clearConsole();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
       final StringBuilder cmdBuilder = new StringBuilder();

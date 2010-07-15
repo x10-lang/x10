@@ -38,7 +38,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
@@ -48,6 +47,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.ICountableIterable;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
@@ -98,7 +98,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     }
 
     try {
-      final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+      final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
       final int returnCode = this.fTargetOpHelper.run(archiveCmd, this.fWorkspaceDir, new IProcessOuputListener() {
         
@@ -184,7 +184,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         command.add("-o"); //$NON-NLS-1$
         command.add(objectFile);
           
-        final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+        final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
         messageConsole.clearConsole();
         final MessageConsoleStream mcStream = messageConsole.newMessageStream();
         final int returnCode = this.fTargetOpHelper.run(command, new IProcessOuputListener() {

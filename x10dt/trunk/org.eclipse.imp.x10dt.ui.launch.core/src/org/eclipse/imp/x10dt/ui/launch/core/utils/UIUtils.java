@@ -9,8 +9,13 @@ package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleManager;
+import org.eclipse.ui.console.MessageConsole;
 
 /**
  * Utility methods for Eclipse UI operations.
@@ -18,6 +23,26 @@ import org.eclipse.ui.PartInitException;
  * @author egeay
  */
 public final class UIUtils {
+  
+  /**
+   * Returns access to a pre-existing X10 console or creates a new one if none exists.
+   * 
+   * @return A non-null console instance.
+   */
+  public static MessageConsole findOrCreateX10Console() {
+    MessageConsole x10Console = null;
+    final IConsoleManager consoleManager = ConsolePlugin.getDefault().getConsoleManager();
+    for (final IConsole console : consoleManager.getConsoles()) {
+      if (Messages.CPPB_ConsoleName.equals(console.getName())) {
+        x10Console = (MessageConsole) console;
+      }
+    }
+    if (x10Console == null) {
+      x10Console = new MessageConsole(Messages.CPPB_ConsoleName, null);
+      consoleManager.addConsoles(new IConsole[] { x10Console });
+    }
+    return x10Console;
+  }
   
   /**
    * Shows the error log view by calling {@link #showView(String)} with the appropriate id.
