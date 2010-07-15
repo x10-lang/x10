@@ -79,8 +79,10 @@ public abstract class Region(
      * rails of ints.
      */
 
-    public static def makeRectangular(min: Rail[int]!, max: Rail[int]!):Region(min.length){self.rect} 
-        = new RectRegion(min, max);
+    public static def makeRectangular(minArg: Rail[int]!, maxArg: Rail[int](minArg.length)!):Region(minArg.length){self.rect}
+        = makeRectangular(minArg as ValRail[int], maxArg as ValRail[int](minArg.length));  
+    public static def makeRectangular(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect}
+        = new RectRegion(minArg, maxArg);
 
     /**
      * Construct a rank-1 rectangular region with the specified bounds.
@@ -182,7 +184,7 @@ public abstract class Region(
      * The bounding box of a region r is the smallest rectangular region
      * that contains all the points of r.
      */
-    abstract public global def boundingBox(): Region(rank);
+    public global def boundingBox(): Region(rank) = computeBoundingBox();
 
 
     abstract global protected  def computeBoundingBox(): Region(rank);
@@ -260,6 +262,11 @@ public abstract class Region(
      *  abstract public global def difference(that: Region(rank)): Region(rank);
      */
 
+    /**
+     * Returns true iff this region has no points in common with that
+     * region.
+     */
+     public global def disjoint(that:Region(rank)) = intersection(that).isEmpty();
    
 
     /**
@@ -297,13 +304,6 @@ public abstract class Region(
 
    
     abstract public global def eliminate(axis: int): Region /*(rank-1)*/;
-
-    /**
-     * Returns true iff this region has no points in common with that
-     * region.
-     */
-
-    public abstract global def disjoint(that: Region(rank)): boolean;
 
 
     /**
@@ -396,15 +396,33 @@ public abstract class Region(
     // comparison
     //
 
+    public global safe def equals(that:Any):boolean {
+	if (this == that) return true; // short-circuit
+	if (!(that instanceof Region)) return false;
+	val t1 = that as Region;
+	if (rank != t1.rank) return false;
+        val t2 = t1 as Region(rank);
+        return this.contains(t2) && t2.contains(this);
+    }
+
     abstract public global def contains(that: Region(rank)): boolean;
 
-    abstract public global def contains(p: Point): boolean;
+
+    abstract public global def contains(p:Point):boolean;
+    
+    public global def contains(i:int){rank==1} = contains(Point.make(i));
+
+    public global def contains(i0:int, i1:int){rank==2} = contains(Point.make(i0,i1));
+
+    public global def contains(i0:int, i1:int, i2:int){rank==3} = contains(Point.make(i0,i1,i2));
+
+    public global def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(Point.make(i0,i1,i2,i3));
+
+
 
     protected def this(r: int, t: boolean, z: boolean)
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {
         property(r, t, z);
     }
-
-
 }
 

@@ -21,6 +21,11 @@ public class FloatType extends RuntimeType<Float> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Float";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Float;
     }
@@ -28,6 +33,15 @@ public class FloatType extends RuntimeType<Float> {
     @Override
     public Object makeArray(int length) {
         return new float[length];
+    }
+    
+    @Override
+    public Object makeArray(Object... elem) {
+        float[] arr = new float[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).floatValue();
+        }
+        return arr;
     }
     
     @Override

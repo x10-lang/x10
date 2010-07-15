@@ -105,6 +105,7 @@ import x10.types.constraints.CConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
 import x10.visit.X10PrettyPrinterVisitor.CircularList;
+import x10c.types.BackingArrayType;
 
 public class Emitter {
 
@@ -214,59 +215,6 @@ public class Emitter {
 	            str = prefix + str;
 	        }
 	        return str;
-	}
-	
-	static HashMap<String, String> translationCache_ = new HashMap<String, String>();
-
-	public static String translate(String id) {
-		String cached = (String) translationCache_.get(id);
-		if (cached != null)
-			return cached;
-		try {
-			String rname = Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY + id
-					+ ".xcd"; // xcd = x10 compiler data/definition
-			InputStream is = Emitter.class.getClassLoader()
-					.getResourceAsStream(rname);
-			if (is == null)
-				throw new IOException("Cannot find resource '" + rname + "'");
-			byte[] b = new byte[is.available()];
-			for (int off = 0; off < b.length;) {
-				int read = is.read(b, off, b.length - off);
-				off += read;
-			}
-			String trans = new String(b, "UTF-8");
-			// Skip initial lines that start with "// SYNOPSIS: "
-			// (spaces matter!)
-			while (trans.indexOf("// SYNOPSIS: ") == 0)
-				trans = trans.substring(trans.indexOf('\n') + 1);
-			// Remove one trailing newline (if any)
-			if (trans.lastIndexOf('\n') == trans.length() - 1)
-				trans = trans.substring(0, trans.length() - 1);
-			boolean newline = trans.lastIndexOf('\n') == trans.length() - 1;
-			trans = "/* template:" + id + " { */" + trans + "/* } */";
-			// If the template ends in a newline, add it after the footer
-			if (newline)
-				trans = trans + "\n";
-			translationCache_.put(id, trans);
-			is.close();
-			return trans;
-		} catch (IOException io) {
-			throw new InternalCompilerError("No translation for " + id
-					+ " found!", io);
-		}
-	}
-
-	/**
-	 * Expand a given template with given parameters.
-	 * 
-	 * @param id
-	 *            xcd filename for the template
-	 * @param components
-	 *            arguments to the template.
-	 */
-	public void dump(String id, Object[] components, Translator tr) {
-		String regex = translate(id);
-		dumpRegex(id, components, tr, regex);
 	}
 
 	/**
@@ -605,6 +553,18 @@ public class Emitter {
 			printType(mt.definedType(),
 					X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
 			return;
+		}
+
+		if (type instanceof BackingArrayType) {
+		    Type base = ((BackingArrayType) type).base();
+		    if (base.isBoolean() || base.isChar() || base.isNumeric()) {
+		        printType(base, 0);
+		    }
+		    else {
+		        w.write("java.lang.Object");
+		    }
+		    w.write("[]");
+		    return;
 		}
 
 		// Print the class name
@@ -2135,7 +2095,8 @@ public class Emitter {
             else {
                 if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType_c) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
                     prettyPrint(e, tr);
-                } else {
+                }
+                else {
                     //cast eagerly
                     expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     expander.expand(tr);
@@ -2273,28 +2234,37 @@ public class Emitter {
 		// clocks = new Template("clock", c.clocks().get(0));
 		// else {
 		Integer id = X10PrettyPrinterVisitor.getUniqueId_();
-		clocks = new Template(this, "clocked", new Loop(this, "clocked-loop", c
-				.clocks(), new CircularList<Integer>(id)), id);
+//		clocks = new Template(this, "clocked", new Loop(this, "clocked-loop", c
+//				.clocks(), new CircularList<Integer>(id)), id);
 		// }
+
+		// SYNOPSIS: #0=clock    #1=unique_id
+		String regex = "#0,";
+		Loop loop = new Loop(this, "clocked-loop", regex, c.clocks(), new CircularList<Integer>(id));
+		clocks = Template.createTemplateFromRegex(this, null,
+		                                          "x10.core.RailFactory.<x10.lang.Clock>makeValRailFromJavaArray(x10.lang.Clock._RTT, new x10.lang.Clock[] { #0 })",
+		                                          loop,
+		                                          id);
+
 		return clocks;
 	}
 
-	public void processClockedLoop(String template, X10ClockedLoop l) {
+	public void processClockedLoop(String template, String regex, X10ClockedLoop l) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		new Template(this, template,
-		/* #0 */l.formal().flags(),
-		/* #1 */l.formal().type(),
-		/* #2 */l.formal().name(),
-		/* #3 */l.domain(),
-				/* #4 */new Join(this, "\n", new Join(this, "\n", l.locals()),
-						l.body()),
-				/* #5 */processClocks(l),
-				/* #6 */new Join(this, "\n", l.locals()),
-				/* #7 */new TypeExpander(this, l.formal().type().type(),
-						X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-								| X10PrettyPrinterVisitor.BOX_PRIMITIVES),
-				/* #8 */l.position().nameAndLineString().replace("\\", "\\\\"))
-				.expand(tr2);
+		Template.createTemplateFromRegex(this, template, regex,
+	                    /* #0 */l.formal().flags(),
+	                    /* #1 */l.formal().type(),
+	                    /* #2 */l.formal().name(),
+	                    /* #3 */l.domain(),
+	                            /* #4 */new Join(this, "\n", new Join(this, "\n", l.locals()),
+	                                    l.body()),
+	                            /* #5 */processClocks(l),
+	                            /* #6 */new Join(this, "\n", l.locals()),
+	                            /* #7 */new TypeExpander(this, l.formal().type().type(),
+	                                    X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
+	                                            | X10PrettyPrinterVisitor.BOX_PRIMITIVES),
+	                            /* #8 */l.position().nameAndLineString().replace("\\", "\\\\"))
+	                            .expand(tr2);
 	}
 
 	public String convertToString(Object[] a) {

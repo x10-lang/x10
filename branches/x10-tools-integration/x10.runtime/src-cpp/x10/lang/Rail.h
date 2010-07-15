@@ -99,14 +99,6 @@ namespace x10 {
       
             T* raw() { return _data; }
 
-            #if 0
-            virtual x10aux::ref<ValRail<T> > view (void) {
-                ValRail<T>* rail = new (x10aux::alloc<ValRail<T> >()) ValRail<T>(FMGL(length),_data);
-                rail->x10::lang::Object::_constructor();
-                return rail;
-            }
-            #endif
-
             virtual x10aux::ref<Iterator<T> > iterator();
 
             void reset(x10aux::ref<Fun_0_1<x10_int,T> > init);

@@ -281,7 +281,7 @@ class Lambda {
       shared var g : Int = 0;
       val h : Int = 0;
       val closure = (var i: Int, val j: Int) => {
-    	  return a + b + d + e + g + h + i + j + this.a + Lambda.this.a;
+    	  return a + b + d + g + i + j + this.a + Lambda.this.a;
       };
       return closure;
    }

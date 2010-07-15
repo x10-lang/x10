@@ -15,11 +15,24 @@ package x10.array;
 /**
  * A RectRegion is a finite, rank-dimensional, dense rectangular region.
  */
-public final class RectRegion extends BaseRegion{rect} {
+public final class RectRegion extends Region{rect} {
 
     global private val size:int;
     global private val mins:ValRail[int];
     global private val maxs:ValRail[int];
+
+    // Cached contents of the min/max ValRails
+    // to avoid loads & bounds checks when accessing
+    // Critical for performance because this is on the fastpath
+    // of most RectRegion operations.
+    global private val min0:int;
+    global private val min1:int;
+    global private val min2:int;
+    global private val min3:int;
+    global private val max0:int;
+    global private val max1:int;
+    global private val max2:int;
+    global private val max3:int;
 
     private static def allZeros(x:ValRail[int]) {
        for (i in x) if (i != 0) return false;
@@ -42,6 +55,34 @@ public final class RectRegion extends BaseRegion{rect} {
 
 	mins = minArg;
 	maxs = maxArg;
+
+        if (minArg.length>0) {
+            min0 = minArg(0);
+            max0 = maxArg(0);
+        } else {
+            min0 = max0 = 0;
+        }
+
+        if (minArg.length>1) {
+            min1 = minArg(1);
+            max1 = maxArg(1);
+        } else {
+            min1 = max1 = 0;
+        }
+
+        if (minArg.length>2) {
+            min2 = minArg(2);
+            max2 = maxArg(2);
+        } else {
+            min2 = max2 = 0;
+        }
+
+        if (minArg.length>3) {
+            min3 = minArg(3);
+            max3 = maxArg(3);
+        } else {
+            min3 = max3 = 0;
+        }
     }
 
     def this(min:int, max:int):RectRegion{self.rank==1} {
@@ -53,41 +94,6 @@ public final class RectRegion extends BaseRegion{rect} {
     public global def isConvex() = true;
 
     public global def isEmpty() = size == 0;
-
-
-    //
-    // specialized bounds checking for performance
-    // 
-
-    global def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
-        if (i0<min(0) || i0>max(0)) {
-            throw err(Point.make(i0));
-        }
-    }
-
-    global def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
-        if (i0<min(0) || i0>max(0) ||
-            i1<min(1) || i1>max(1)) {
-            throw err(Point.make(i0,i1));
-        }
-    }
-
-    global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
-        if (i0<min(0) || i0>max(0) ||
-            i1<min(1) || i1>max(1) ||
-            i2<min(2) || i2>max(2)) {
-            throw err(Point.make(i0,i1,i2));
-        }
-    }
-
-    global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
-        if (i0<min(0) || i0>max(0) ||
-            i1<min(1) || i1>max(1) ||
-            i2<min(2) || i2>max(2) ||
-            i3<min(3) || i3>max(3)) {
-            throw err([i0,i1,i2,i3] as Point);
-        }
-    }
 
 
     //
@@ -119,6 +125,46 @@ public final class RectRegion extends BaseRegion{rect} {
             if (p(r)<mins(r) || p(r)>maxs(r)) return false;
         }
         return true;
+    }
+
+    public global def contains(i0:int){rank==1}:boolean {
+        return i0>=min0 && i0<=max0;
+    }
+
+    public global def contains(i0:int, i1:int){rank==2}:boolean { 
+        if (zeroBased) {
+            return ((i0 as UInt) <= (max0 as UInt)) &&
+                   ((i1 as UInt) <= (max1 as UInt));
+        } else {
+            return i0>=min0 && i0<=max0 && 
+                   i1>=min1 && i1<=max1;
+        }
+    }
+
+    public global def contains(i0:int, i1:int, i2:int){rank==3}:boolean {
+        if (zeroBased) {
+            return ((i0 as UInt) <= (max0 as UInt)) &&
+                   ((i1 as UInt) <= (max1 as UInt)) &&
+                   ((i2 as UInt) <= (max2 as UInt));
+        } else {
+            return i0>=min0 && i0<=max0 && 
+                   i1>=min1 && i1<=max1 && 
+                   i2>=min2 && i2<=max2;
+        }
+    }
+
+    public global def contains(i0:int, i1:int, i2:int, i3:int){rank==4}:boolean {
+        if (zeroBased) {
+            return ((i0 as UInt) <= (max0 as UInt)) &&
+                   ((i1 as UInt) <= (max1 as UInt)) &&
+                   ((i2 as UInt) <= (max2 as UInt)) &&
+                   ((i3 as UInt) <= (max3 as UInt));
+        } else {
+            return i0>=min0 && i0<=max0 && 
+                   i1>=min1 && i1<=max1 && 
+                   i2>=min2 && i2<=max2 && 
+                   i3>=min3 && i3<=max3;
+        }
     }
 
 
@@ -227,6 +273,7 @@ public final class RectRegion extends BaseRegion{rect} {
 
 
     public global safe def equals(thatObj:Any): boolean {
+	if (this == thatObj) return true;
         if (!(thatObj instanceof Region)) return false; 
         val that:Region = thatObj as Region;
 
@@ -268,5 +315,11 @@ public final class RectRegion extends BaseRegion{rect} {
         s += "]";
         return s;
     }
+
+
+    public global def scanners():Iterator[Region.Scanner]! {
+        throw U.unsupported("TODO: scanners not defined for RectRegion");
+    }
+
 
 }

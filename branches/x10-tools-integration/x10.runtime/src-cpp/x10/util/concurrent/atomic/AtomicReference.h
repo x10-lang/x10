@@ -89,7 +89,7 @@ namespace x10 {
 
                 template<class T> x10aux::ref<AtomicReference<T> > AtomicReference<T>::_make(T val) {
                     x10aux::ref<AtomicReference<T> > result = (new (x10aux::alloc<AtomicReference<T> >())AtomicReference<T>());
-                    x10::lang::Object *tmp = val.get(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
+                    x10::lang::Object *tmp = val.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
                     result->_constructor(tmp);
                     return result;
                 }
@@ -102,13 +102,13 @@ namespace x10 {
                 }
 
                 template<class T> void AtomicReference<T>::set(T val) {
-                    x10::lang::Object* tmp = val.get();
+                    x10::lang::Object* tmp = val.operator->();
                     _data = tmp;
                 }
 
                 template<class T> T AtomicReference<T>::compareAndSet(T oldVal, T newVal) {
-                    x10::lang::Object *oldValPtr = oldVal.get(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
-                    x10::lang::Object *newValPtr = newVal.get(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
+                    x10::lang::Object *oldValPtr = oldVal.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
+                    x10::lang::Object *newValPtr = newVal.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
                     x10::lang::Object *res = (x10::lang::Object *)x10aux::atomic_ops::compareAndSet_ptr((volatile void**)&_data, (void*)oldValPtr, (void*)newValPtr);
                     x10aux::ref<x10::lang::Object> res2 = res; /* boxes to ref */
                     T res3 = res2; /* downcast from ref<Object> to T (ref<S>) */
@@ -161,7 +161,7 @@ namespace x10 {
 
                 template<class T>
                 const x10aux::serialization_id_t AtomicReference<T>::_serialization_id =
-                    x10aux::DeserializationDispatcher::addDeserializer(AtomicReference<T>::template _deserializer<Reference>);
+                    x10aux::DeserializationDispatcher::addDeserializer(AtomicReference<T>::template _deserializer<x10::lang::Object>);
 
                 template<> class AtomicReference<void> {
                 public:

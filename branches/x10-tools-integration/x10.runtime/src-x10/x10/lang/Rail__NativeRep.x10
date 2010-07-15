@@ -306,7 +306,7 @@ import x10.util.Pair;
         }
 
 
-        @Native("c++", "x10::lang::Rail<#1 >::makeCUDA(#4,#5)")
+        @Native("c++", "x10::lang::Rail<void>::makeCUDA<#1 >(#4,#5)")
         private static def cudaMakeRail[T](dst:Place, length:Int) : Rail[T]{self.length==length} = null;
 
         public static safe def makeRemoteRail[T](p:Place, length:Int, init: (Int) => T)

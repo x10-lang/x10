@@ -740,7 +740,7 @@ public class Synthesizer {
 		try {
 			c.addBinding(id, XTerms.makeLit(0));
 			Type type = X10TypeMixin.xclause(xts.Place(), c);
-			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(), 
+			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(),
 					Name.make("FIRST_PLACE"), type, new X10Context_c(xts));
 		} catch (XFailure z) {
 			// wont happen
@@ -1546,6 +1546,17 @@ public class Synthesizer {
      */
     public Expr booleanValueExpr(boolean value, Position pos){
         return xnf.BooleanLit(pos, value).type(xts.Boolean());
+    }
+    
+    
+    /**
+     * Get an string value expression
+     * @param value string
+     * @param pos
+     * @return
+     */
+    public Expr stringValueExpr(String value, Position pos){
+        return xnf.StringLit(pos, value).type(xts.String());
     }
     
     

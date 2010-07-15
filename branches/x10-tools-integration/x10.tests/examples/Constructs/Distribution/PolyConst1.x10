@@ -38,9 +38,9 @@ class PolyConst1 extends TestDist {
 
     def expected() =
         "r [0..9,0..9]\n"+
-        "d Dist(0->[0..9,0..9])\n"+
-        "a Array(Dist(0->[0..9,0..9]))\n"+
-        "b Array(Dist(0->[0..9,0..9]))\n";
+        "d Dist([0..9,0..9]->0)\n"+
+        "a Array(Dist([0..9,0..9]->0))\n"+
+        "b Array(Dist([0..9,0..9]->0))\n";
     
     public static def main(Rail[String]) {
         new PolyConst1().execute();

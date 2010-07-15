@@ -76,7 +76,7 @@ public class RunTestSuite {
                     "C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.tests,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.dist\\samples,C:\\cygwin\\home\\Yoav\\intellij\\sourceforge\\x10.runtime\\src-x10";
         List<String> remainingArgs = new ArrayList<String>(Arrays.asList(args));
         remainingArgs.remove(0);
-        remainingArgs.add("-STATIC_CALLS");
+        //remainingArgs.add("-STATIC_CALLS");
 
         final String dirName = args[0];
         ArrayList<File> files = new ArrayList<File>(10);
@@ -173,10 +173,18 @@ public class RunTestSuite {
             }
         }
         // 2. report all the remaining errors that didn't have a matching ERR marker
-        if (errors.size()>0) {
+        // first report warnings
+        int warningCount = 0;
+        for (ErrorInfo err : errors)
+            if (err.getErrorKind()==ErrorInfo.WARNING) {
+                System.err.println(err);
+                warningCount++;
+            }
+        if (errors.size()>warningCount) {
             System.err.println("\nThe following errors did not have a matching ERR marker:\n\n");
             for (ErrorInfo err : errors)
-                System.err.println("Position: "+err.getPosition()+"\nMessage: "+err+"\n");
+                if (err.getErrorKind()!=ErrorInfo.WARNING)
+                    System.err.println("Position: "+err.getPosition()+"\nMessage: "+err+"\n");
         }
         // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout) 
     }

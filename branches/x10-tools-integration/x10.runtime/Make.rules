@@ -181,6 +181,7 @@ else
         export X10_STATIC_LIB=1
       endif
       export X10RT_PLATFORM=sunos
+      export X10RT_TEST_LDFLAGS = -lrt
     else
     ifeq ($(shell uname -s),FreeBSD)
       override CXXFLAGS += -pthread

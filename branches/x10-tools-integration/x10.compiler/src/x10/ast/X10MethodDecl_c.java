@@ -162,7 +162,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 		return this;
 	}
-	protected X10MethodDecl_c offerType(TypeNode offerType) {
+	public X10MethodDecl_c offerType(TypeNode offerType) {
 		if (this.offerType != offerType)  {
 			X10MethodDecl_c n = (X10MethodDecl_c) copy();
 			n.offerType = offerType;
@@ -918,6 +918,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			}
 		}
 
+		// Step I.c. Check the throw types
+		List<TypeNode> processedThrowTypes = nn.visitList(nn.throwTypes(), childtc);
+		nn = (X10MethodDecl) nn.throwTypes(processedThrowTypes);
 
 		// Step II. Check the return type. 
 		// Now visit the returntype to ensure that its depclause, if any is processed.

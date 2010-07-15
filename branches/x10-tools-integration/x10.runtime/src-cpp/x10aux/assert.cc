@@ -12,12 +12,14 @@
 #include <x10aux/config.h>
 #include <x10aux/assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <x10/lang/String.h>
 
 using namespace x10aux;
 using namespace x10::lang;
 
+#ifndef NO_ASSERTIONS
 void x10aux::x10__assertion_failed(const ref<x10::lang::String>& message) {
     if (message == null) {
         fprintf(stderr,"Assertion failed.\n");
@@ -26,5 +28,8 @@ void x10aux::x10__assertion_failed(const ref<x10::lang::String>& message) {
     }
     abort();
 }
+
+const bool x10aux::x10__assertions_enabled = ::getenv("X10_ENABLE_ASSERTIONS");
+#endif//NO_ASSERTIONS
 
 // vim: textwidth=80:tabstop=4:shiftwidth=4:expandtab

@@ -2,9 +2,8 @@
 
 This program is controlled by the Eclipse Public Licence v1.0.
 
-This is a distribution of the 2.0.3 version of the X10 Programming Language.
+This is a distribution of the X10 Programming Language.
 http://x10-lang.org/
-http://x10.sf.net/
 
 To complete the installation, the scripts in bin/ may need to be made
 executable.
@@ -35,8 +34,11 @@ To run the compiled X10 executable in one place, invoke
 - To run in multiple places on AIX, run
   "LAPI_USE_SHMEM=yes poe ./<class_name> -procs <nplaces> -hostfile HOSTFILE".
   See "man poe" for additional options and the format of HOSTFILE.
+- If you have mpi available, you can use mpirun to run in multiple places.
+  Details will vary depending on the exact syntax of the mpirun command,
+  but something like: "mpirun -hostfile <hosts> -n <nplaces> ./<class_name>" 
+  should work
 
-[*] On Cygwin, the name will be "<class_name>.exe".  If there is
-only one class with a "main" method, the -MAIN_CLASS argument may
-be omitted, but the compiler will then produce an executable with
-the default name ("a.out" on Unix, "a.exe" on Cygwin).
+[*] On Cygwin, the name will be "<class_name>.exe".  
+the -o argument may be omitted, but the compiler will then produce 
+an executable with the default name ("a.out" on Unix, "a.exe" on Cygwin).

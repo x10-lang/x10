@@ -736,16 +736,16 @@ public class Errors {
 		}
 	}
 		
-	public static class StructMustHaveStructSupertype extends SemanticException {
+	public static class ClassMustHaveClassSupertype extends SemanticException {
 	    private static final long serialVersionUID = -7826831387240378409L;
-	    public StructMustHaveStructSupertype(Ref<? extends Type> superType, ClassDef type, Position pos) {
+	    public ClassMustHaveClassSupertype(Ref<? extends Type> superType, ClassDef type, Position pos) {
 	        super(superType + " cannot be the superclass for " + type +
-	              "; a struct must subclass a struct.", pos);
+	              "; a class must subclass a class.", pos);
 	    }
 	    public boolean equals(Object o) {
-	        if (o==null || ! (o instanceof StructMustHaveStructSupertype) )
+	        if (o==null || ! (o instanceof ClassMustHaveClassSupertype) )
 	            return false;
-	        return((StructMustHaveStructSupertype)o).position().equals(position());
+	        return((ClassMustHaveClassSupertype)o).position().equals(position());
 	    }
 	}
 	public static class NoCollectingFinishFound extends SemanticException {

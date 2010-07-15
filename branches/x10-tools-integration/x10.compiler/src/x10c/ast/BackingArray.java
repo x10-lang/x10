@@ -9,16 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;
+package x10c.ast;
 
-public class HelloTest extends x10Test {
-    public def run():boolean {
-         val args = Rail.make[String](0);
-         Hello.main(args);
-         return true;
-    }
+import polyglot.ast.Expr;
 
-    public static def main(args:Rail[String]) {
-	new HelloTest().execute();
-    }
+
+
+public interface BackingArray extends Expr {
+    public abstract Expr container();
 }

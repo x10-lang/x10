@@ -37,6 +37,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -48,7 +49,9 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
+import x10.extension.X10Del;
 import x10.extension.X10Del_c;
+import x10.extension.X10Ext;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
@@ -143,6 +146,21 @@ public class X10New_c extends New_c implements X10New {
             assert anonType.interfaces().size() <= 1;
         }
 
+        return n;
+    }
+
+    @Override
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+        Node n = super.typeCheckOverride(parent, tc);
+        NodeVisitor childtc = tc.enter(parent, n);
+        List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
+        if (oldAnnotations == null || oldAnnotations.isEmpty()) {
+            return n;
+        }
+        List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
+        if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
+            return ((X10Del) n.del()).annotations(newAnnotations);
+        }
         return n;
     }
 

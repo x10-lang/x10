@@ -20,6 +20,7 @@ import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
 
@@ -168,20 +169,34 @@ final public class RuntimeTypeExpander extends Expander {
     String typeof(Type t) {
         if (t.isBoolean())
             return "x10.rtt.Types.BOOLEAN";
-        if (t.isByte())
-            return "x10.rtt.Types.BYTE";
-        if (t.isShort())
-            return "x10.rtt.Types.SHORT";
         if (t.isChar())
             return "x10.rtt.Types.CHAR";
-        if (t.isInt())
-            return "x10.rtt.Types.INT";
-        if (t.isLong())
-            return "x10.rtt.Types.LONG";
-        if (t.isFloat())
-            return "x10.rtt.Types.FLOAT";
-        if (t.isDouble())
-            return "x10.rtt.Types.DOUBLE";
+        if (t.isNumeric()) {
+            X10TypeSystem ts = (X10TypeSystem) er.tr.typeSystem();
+            if (ts.isUnsigned(t)) {
+                if (ts.isUByte(t))
+                    return "x10.rtt.Types.UBYTE";
+                if (ts.isUShort(t))
+                    return "x10.rtt.Types.USHORT";
+                if (ts.isUInt(t))
+                    return "x10.rtt.Types.UINT";
+                if (ts.isULong(t))
+                    return "x10.rtt.Types.ULONG";
+            } else {
+                if (t.isByte())
+                    return "x10.rtt.Types.BYTE";
+                if (t.isShort())
+                    return "x10.rtt.Types.SHORT";
+                if (t.isInt())
+                    return "x10.rtt.Types.INT";
+                if (t.isLong())
+                    return "x10.rtt.Types.LONG";
+                if (t.isFloat())
+                    return "x10.rtt.Types.FLOAT";
+                if (t.isDouble())
+                    return "x10.rtt.Types.DOUBLE";
+            }
+        }
         return null;
     }
 }

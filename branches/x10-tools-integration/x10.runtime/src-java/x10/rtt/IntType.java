@@ -21,6 +21,11 @@ public class IntType extends RuntimeType<Integer> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Int";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Integer;
     }
@@ -28,6 +33,15 @@ public class IntType extends RuntimeType<Integer> {
     @Override
     public Object makeArray(int length) {
         return new int[length];
+    }
+    
+    @Override
+    public Object makeArray(Object... elem) {
+        int[] arr = new int[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).intValue();
+        }
+        return arr;
     }
     
     @Override

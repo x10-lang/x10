@@ -21,6 +21,11 @@ public class UShortType extends RuntimeType<Short> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.UShort";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Short;
     }
@@ -28,6 +33,15 @@ public class UShortType extends RuntimeType<Short> {
     @Override
     public Object makeArray(int length) {
         return new short[length];
+    }
+    
+    @Override
+    public Object makeArray(Object... elem) {
+        short[] arr = new short[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).shortValue();
+        }
+        return arr;
     }
     
     @Override

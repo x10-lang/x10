@@ -11,6 +11,7 @@
 
 package x10.util;
 
+import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
@@ -19,13 +20,13 @@ import x10.compiler.NativeRep;
 /*
  * Implementation note.
  *
- * For C++ we are mapping RawChunk to an optimized hand-written class that provides
+ * For C++ we are mapping IndexedChunk to an optimized hand-written class that provides
  * the minimal required functionality.
  * 
  * For Java, we are currently mapping to Rail. I think the plan here should be to 
  * continue mapping to Rail.  Once Rail disappears as an X10-level source consturct,
  * we can then simplify the Java implementation of Rail accordingly.
- * Alternatively, we could go ahead with the customized implementation of RawChunk<T>
+ * Alternatively, we could go ahead with the customized implementation of IndexedChunk<T>
  * in Java eagerly and then get rid of the Java implementation of Rail at a later date
  * when we kill the X10 version of same.
  */
@@ -43,42 +44,38 @@ import x10.compiler.NativeRep;
  * X10 level when absolutely required for performance. This class
  * is not intended for general usage, since it is inherently unsafe.<p>
  */
+@NativeRep("java", "x10.core.Rail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Rail._RTT, #2)")
+@NativeRep("c++", "x10::util::IndexedMemoryChunk<#1 >", "x10::util::IndexedMemoryChunk<#1 >", null)
 public struct IndexedMemoryChunk[T] {
-    private val chunk:RawChunk[T];
+
+    @Native("java", "null")
+    @Native("c++", "null")
+    private native def this(); // unused; prevent instantiaton outside of native code
+
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
+    public static native def allocate[T](numElements:int):IndexedMemoryChunk[T];
+
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
+    public static native def allocate[T](numElements:int, zeroed:boolean):IndexedMemoryChunk[T];
+
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
+    public static native def allocate[T](numElements:int, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T];
 
 
-    public def this(numElements:int) {
-	this(numElements, 8, false, false);
-    }
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
+    public static native def allocate[T](numElements:long):IndexedMemoryChunk[T];
 
-    public def this(numElements:long) {
-	this(numElements, 8, false, false);
-    }
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
+    public static native def allocate[T](numElements:long, zeroed:boolean):IndexedMemoryChunk[T];
 
-    public def this(numElements:int, zeroed:boolean) {
-	this(numElements, 8, false, zeroed);
-    }
-
-    public def this(numElements:long, zeroed:boolean) {
-	this(numElements, 8, false, zeroed);
-    }
-
-    public def this(numElements:int, alignment:int, pinned:boolean, zeroed:boolean) {
-        chunk = RawChunk.allocate[T](numElements, alignment, pinned, zeroed);
-    }
-
-    public def this(numElements:long, alignment:int, pinned:boolean, zeroed:boolean) {
-        chunk = RawChunk.allocate[T](numElements, alignment, pinned, zeroed);
-    }
-
-
-    /**
-     * Operator that allows access of IndexedMemoryChunk elements by index.
-     *
-     * @param i The index to retreive.
-     * @return The value at that index.
-     */
-    public safe @Inline def apply(index:int) = chunk.apply(index);
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
+    public static native def allocate[T](numElements:long, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T];
 
 
     /**
@@ -87,7 +84,21 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index to retreive.
      * @return The value at that index.
      */
-    public safe @Inline def apply(index:long) = chunk.apply(index);
+    @Native("java", "(#0).apply$G(#1)")
+    @Native("c++", "(#0)->apply(#1)")
+    public native safe def apply(index:int):T;
+
+
+    /**
+     * Operator that allows access of IndexedMemoryChunk elements by index.
+     *
+     * @param i The index to retreive.
+     * @return The value at that index.
+     */
+    @Native("java", "(#0).apply$G((int)(#1))")
+    @Native("c++", "(#0)->apply(#1)")
+    public native safe def apply(index:long):T;
+
 
     /**
      * Operator that allows assignment of IndexedMemoryChunk elements by index.
@@ -96,7 +107,9 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    public safe @Inline def set(value:T, index:int) = chunk.set(value, index);
+    @Native("java", "(#0).set$G(#1, #2)")
+    @Native("c++", "(#0)->set(#1, #2)")
+    public native safe def set(value:T, index:int):void;
 
 
     /**
@@ -106,53 +119,62 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    public safe @Inline def set(value:T, index:long) = chunk.set(value, index);
+    @Native("java", "(#0).set$G(#1, (int)(#2))")
+    @Native("c++", "(#0)->set(#1, #2)")
+    public native safe def set(value:T, index:long):void;
 
 
-    /* TODO: Java codegen doesn't support static overloading on signed vs. unsigned.
-    public safe @Inline def apply(index:uint) = chunk.apply(index);
-    public safe @Inline def apply(index:ulong) = chunk.apply(index);
-    public safe @Inline def set(value:T, index:uint) = chunk.set(value, index);
-    public safe @Inline def set(value:T, index:ulong) = chunk.set(value, index);
+    /**
+     * Copies a contiguous portion of this IndexedMemoryChunk 
+     * to a destination IndexedMemoryChunk at the specified place.
+     * If the destination place is not the same as the current place, then
+     * the copy happens asynchronously and the created remote activity is registered 
+     * with the dynamically enclosing finish of the activity that invoked copyTo.</p>
+     *
+     * Note: No checking is performed to verify that this operation is safe;
+     * it is the responsibility of higher-level abstractions built on top of 
+     * IndexedMemoryChunk to ensure memory, type, and place safety.
+     *
+     * @param srcIndex the index of the first element to copy in the source.
+     * @param dstPlace the destination place (must be the real home of dst).
+     * @param dst the destination IndexedMemoryChunk.
+     * @param dstIndex the index of the first element to store in the destination.
+     * @param numElems the number of elements to copy.
+     */
+    @Native("java", "x10.lang.Rail__NativeRep.copyTo(#8, #0,#1,#3,#4,#5)")
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
+    public native def copyTo (srcIndex:int, dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, numElems:int):void;
+
+
+   /*
+    * @Native methods from Any because the handwritten C++ code doesn't 100% match 
+    * what the compiler would have generated.
     */
 
+    @Native("java", "((Object)#0).toString()")
+    @Native("c++", "(#0)->toString()")
+    public global safe native def  toString():String;
 
-    @NativeRep("java", "x10.core.Rail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Rail._RTT, #2)")
-    @NativeRep("c++", "x10::util::IndexedMemoryChunk__RawChunk<#1 >", "x10::util::IndexedMemoryChunk__RawChunk<#1 >", null)
-    private static struct RawChunk[T] {
-	@Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
-        @Native("c++", "x10::util::IndexedMemoryChunk__RawChunk<#1 >::allocate(#4, #5, #6, #7)")
-        static native def allocate[T](numElements:int, alignment:int, pinned:boolean, zeroed:boolean):RawChunk[T];
+    @Native("java", "((Object)#0).equals(#1)")
+    @Native("c++", "(#0)->equals(#1)")
+    public global safe native def equals(that:Any):Boolean;
 
-	@Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, (int)(#4))")
-        @Native("c++", "x10::util::IndexedMemoryChunk__RawChunk<#1 >::allocate(#4, #5, #6, #7)")
-        static native def allocate[T](numElements:long, alignment:int, pinned:boolean, zeroed:boolean):RawChunk[T];
-
-	@Native("java", "null")
-	@Native("c++", "null")
-	private native def this(); // unused.
-
-        @Native("java", "(#0).apply$G(#1)")
-        @Native("c++", "(#0)->apply(#1)")
-        native safe def apply(index:int):T;
-
-        @Native("java", "(#0).apply$G((int)(#1))")
-        @Native("c++", "(#0)->apply(#1)")
-        native safe def apply(index:long):T;
-
-        @Native("java", "(#0).set$G(#1, #2)")
-        @Native("c++", "(#0)->set(#1, #2)")
-        native safe def set(value:T, index:int):void;
-
-        @Native("java", "(#0).set$G(#1, (int)(#2))")
-        @Native("c++", "(#0)->set(#1, #2)")
-        native safe def set(value:T, index:long):void;
-
-       /* TODO: Java codegen doesn't support static overloading on signed vs. unsigned.
-        native safe def apply(index:uint):T;
-        native safe def apply(index:ulong):T;
-        native safe def set(value:T, index:uint):void;
-        native safe def set(value:T, index:ulong):void;
-	*/
-    }
+    @Native("java", "((Object)#0).hashCode()")
+    @Native("c++", "(#0)->hash_code()")
+    public global safe native def  hashCode():Int;
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab
+
+
+
+
+
+
+
+
+
+
+
+
+    
