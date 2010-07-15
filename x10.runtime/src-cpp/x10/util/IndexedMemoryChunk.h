@@ -26,6 +26,13 @@ template<class T> class IndexedMemoryChunk;
 // ITable junk, both for IndexedMemoryChunk and IBox<IndexedMemoryChunk>
 namespace x10 {
     namespace util { 
+
+        extern void IMC_notifyEnclosingFinish(x10aux::deserialization_buffer&);
+        extern void IMC_serialize_finish_state(x10aux::place, x10aux::serialization_buffer&);
+	    extern void *IMC_copy_to_buffer_finder(x10aux::deserialization_buffer&, x10_int);
+        extern void IMC_copy_to_notifier(x10aux::deserialization_buffer&, x10_int);
+        extern const x10aux::serialization_id_t IMC_copy_to_serialization_id;
+        
         template<class T> class IndexedMemoryChunk_ithunk0 : public x10::util::IndexedMemoryChunk<T> {
         public:
             static x10::lang::Any::itable<IndexedMemoryChunk_ithunk0<T> > itable;
@@ -83,10 +90,10 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
                                                                 x10::util::IndexedMemoryChunk<T> dst,
                                                                 x10_int dstIndex,
                                                                 x10_int numElems) {
+    void* srcAddr = (void*)(&data[srcIndex]);
+    void* dstAddr = (void*)(&dst->data[dstIndex]);
+    size_t numBytes = numElems * sizeof(T);
     if (dstPlace->FMGL(id) == x10aux::here) {
-        void* srcAddr = (void*)(&data[srcIndex]);
-        void* dstAddr = (void*)(&dst->data[dstIndex]);
-        size_t numBytes = numElems * sizeof(T);
         if (data == dst->data) {
             // potentially overlapping, use memmove
             memmove(dstAddr, srcAddr, numBytes);
@@ -94,7 +101,12 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
             memcpy(dstAddr, srcAddr, numBytes);
         }                
     } else {
-        assert(false);
+        x10aux::place dst_place = dstPlace->FMGL(id);
+        x10aux::serialization_buffer buf;
+        buf.realloc_func = x10aux::put_realloc;
+        buf.write((x10_long)(size_t)(dstAddr));
+        IMC_serialize_finish_state(dst_place, buf);
+        x10aux::send_put(dst_place, IMC_copy_to_serialization_id, buf, &data[srcIndex], numBytes);
     }
 }
 
@@ -133,8 +145,6 @@ template<class T> x10aux::itable_entry x10::util::IndexedMemoryChunk<T>::_itable
 
 template<class T> x10aux::itable_entry x10::util::IndexedMemoryChunk<T>::_iboxitables[2] = {x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>(), &IndexedMemoryChunk_iboxithunk0<T>::itable),
                                                                                             x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::util::IndexedMemoryChunk<T> >())};
-
-
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_initRTT() {
     const x10aux::RuntimeType *canonical = x10aux::getRTT<x10::util::IndexedMemoryChunk<void> >();
