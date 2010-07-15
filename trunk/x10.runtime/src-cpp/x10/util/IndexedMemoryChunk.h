@@ -101,11 +101,11 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::IndexedMemoryChunk<T> this_,
                                                                     x10aux::serialization_buffer& buf) {
-    buf.write((size_t)(this_->data));
+    buf.write((x10_long)(size_t)(this_->data));
 }
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    data = (T*)buf.read<size_t>();
+    data = (T*)(size_t)buf.read<x10_long>();
 }
 
 
