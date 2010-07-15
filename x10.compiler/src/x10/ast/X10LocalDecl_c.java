@@ -87,29 +87,33 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		X10LocalDecl_c n = this;
 		if (type instanceof UnknownTypeNode) {
 			if (init == null)
-				throw new SemanticException("Cannot infer variable type; variable has no initializer.", position());
+			    Errors.issue(tb.job(),
+			            new SemanticException("Cannot infer variable type; variable has no initializer.",
+			                    position()));
 			// TODO: For now, since there can be more than once assignment to a mutable variable, 
 			// do not allow mutable variable types to be inferred.
 			// This can be fixed later for local variables by doing better 
 			// type inference.  This should never be done for fields.
 			if (! flags.flags().isFinal())
-				throw new SemanticException("Cannot infer type of a mutable (non-val) variable.", position());
+			    Errors.issue(tb.job(),
+			            new SemanticException("Cannot infer type of a mutable (non-val) variable.",
+			                    position()));
 		}
-		
+
 		// This installs a LocalDef 
-		 n = (X10LocalDecl_c) super.buildTypes(tb);
+		n = (X10LocalDecl_c) super.buildTypes(tb);
 		X10LocalDef fi = (X10LocalDef) n.localDef();
 
-	        List<AnnotationNode> as = ((X10Del) n.del()).annotations();
-	        if (as != null) {
-	            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
-	            for (AnnotationNode an : as) {
-	                ats.add(an.annotationType().typeRef());
-	            }
-	            fi.setDefAnnotations(ats);
-	        }
-	        
-	        return n;
+		List<AnnotationNode> as = ((X10Del) n.del()).annotations();
+		if (as != null) {
+		    List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
+		    for (AnnotationNode an : as) {
+		        ats.add(an.annotationType().typeRef());
+		    }
+		    fi.setDefAnnotations(ats);
+		}
+
+		return n;
 	}
 	
 	  /** Reconstruct the declaration. */
