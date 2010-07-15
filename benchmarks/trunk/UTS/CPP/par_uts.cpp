@@ -208,16 +208,17 @@ static void get_work(void) {
           (x10rt_msg_realloc (NULL, 0, sizeof(x10rt_place)));
       *my_rank = x10rt_here();
 #if DEBUG
-      std::cout << x10rt_here() << " sending request to " 
-                << i << std::endl;
+        std::cout << x10rt_here() << " sending request to " 
+                  << i << std::endl;
 #endif
-      x10rt_msg_params message = 
-                    {i, WORK_REQUEST, my_rank, sizeof(x10rt_place)};
-      x10rt_send_msg (&message);
-      work_response_received = false;
-      while (!work_response_received && !terminated_process_list[i]) 
-                                                          x10rt_probe (); 
-      if (!work_queue.empty()) break;
+        x10rt_msg_params message = 
+                      {i, WORK_REQUEST, my_rank, sizeof(x10rt_place)};
+        x10rt_send_msg (&message);
+        work_response_received = false;
+        while (!work_response_received && !terminated_process_list[i]) 
+                                                            x10rt_probe (); 
+        if (!work_queue.empty()) break;
+      }
     }
   }
 }
