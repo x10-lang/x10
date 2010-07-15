@@ -126,20 +126,20 @@ class Graph {
 
 class GraphUtils {
 
-public static def hash(aa: long): long
+public static def hash(aa: long): ulong
 {
-  var a: long = aa;
-   a = (a+0x7ed55d16) + (a<<12);
-   a = (a^0xc761c23c) ^ (a>>19);
-   a = (a+0x165667b1) + (a<<5);
-   a = (a+0xd3a2646c) ^ (a<<9);
-   a = (a+0xfd7046c5) + (a<<3);
-   a = (a^0xb55a4f09) ^ (a>>16);
+  var a: ulong = aa;
+   a = (a+0x7ed55d16UL) + (a<<12);
+   a = (a^0xc761c23cUL) ^ (a>>19);
+   a = (a+0x165667b1UL) + (a<<5);
+   a = (a+0xd3a2646cUL) ^ (a<<9);
+   a = (a+0xfd7046c5UL) + (a<<3);
+   a = (a^0xb55a4f09UL) ^ (a>>16);
    return a;
 }
 
 public static def makeDimensionalGraph(dim: int, degree:int, numRows:int): EdgeArray {
-  val halfDegree = degree/2;
+  val halfDegree = ((degree + 1)/2);
   val nonZeros = numRows*halfDegree;
   val E = Rail.make[Edge](nonZeros, (int) => new Edge()) as Rail[Edge]!;
 
@@ -160,6 +160,9 @@ public static def makeDimensionalGraph(dim: int, degree:int, numRows:int): EdgeA
     } while (j == i); */ 
  
     val Ek = E(k) as Edge!;
+    if (i == j) {
+		k--; continue;
+    }
     Ek.first = i;  Ek.second = j;
   }
    
@@ -180,7 +183,7 @@ public static def graphFromEdges(EAA: EdgeArray, makeSymmetric: boolean) : Graph
   seq<neighbors> EE = r.map<neighbors>(remDups);
 
   int edgecount = (EE.map<int>(edgeCount_FM)).reduce(utils::addF<int>());*/
-  val n = (EA.nonZeros *2 / EA.numRows) + 1;
+  val n = (EA.nonZeros *2 / EA.numRows);
   Console.OUT.println("n = " + n);
 
   /*cout << "Edges: " << edgecount << " Vertices: " << n << endl; */
@@ -289,7 +292,7 @@ class notYetMatched_FF {
 
       // unmatched head -- reset to -1
         else GDv.ngh = -1; 
-		}
+      }
     }
     return !GDv.flag;
   }
@@ -298,15 +301,15 @@ class notYetMatched_FF {
 
 
 public class MaxMatchingOrig {
-	public static def hashVertex(round: int, i: int): int {
-  		return GraphUtils.hash(round + i) as int;
+	public static def hashVertex(round: int, i: int): ulong {
+  		return GraphUtils.hash(round + i);
 }
 
 // Returns 1 for vertices that are not yet matched.
 
 
 public static def  maxMatchR(Remain: GrowableRail[int]!,  G: Rail[Vertex]!, GD: Rail[VertexD]!, round: int, maxRound: int): void {
-   Console.OUT.println(Remain.length() + " round = " + round);
+   Console.OUT.println(" round = " + round);
   if (Remain.length() > 0) {  
     // avoiding infinite loops
  
@@ -318,27 +321,27 @@ public static def  maxMatchR(Remain: GrowableRail[int]!,  G: Rail[Vertex]!, GD: 
       finish for ((i) in 0 ..Remain.length()-1) async {
       val v = Remain(i);
       var found: int = 0;
-      val hash = Math.abs(hashVertex(round,v));
+      val hash = hashVertex(round,v);
       val GDv = GD(v) as VertexD!;
-      GDv.coin = Math.abs(hash);
+      GDv.coin = ((hash & 0xFFFFUL) as Long) as Int;
 
       if (GDv.coin % 2 == 1) {
 		var j: int; 
 		var ngh: int = 0; 
 		var fl: int = 0;
 		val Gv = G(v) as Vertex!;
-		var jj : int = hash % Gv.degree;
+		var jj : int = ((hash % (Gv.degree as ULong)) as Long) as Int;
 		for (j=0; j < Gv.degree; j++, jj++) {
 	  		if (jj == Gv.degree) jj = 0;
-	  			ngh = Gv.Neighbors(jj);
-	  		Console.OUT.println ("d= " + Gv.degree + " v= " + v + " jj = " + jj + " flip= " + (hashVertex(round,ngh)& 1));;
-	  	    val GDngh = GD (ngh) as VertexD!;
-	  		if (GDngh.flag) 
+	  		ngh = Gv.Neighbors(jj);
+	  		Console.OUT.println ("d= " + Gv.degree + " v= " + v + " jj = " + jj + " flip= " + (hashVertex(round,ngh)& 1UL));;
+	  	    	val GDngh = GD (ngh) as VertexD!;
+	  		if (GDngh.flag || ngh == v) 
 	  			fl++;
 	  		else 
-	  	 		if ((hashVertex(round,ngh) & 1) == 0) {
+	  	 		if ((hashVertex(round,ngh) & 1UL) == 0UL) {
 	  	 			found=1; break;
-	  	 }
+	  	 	}
 	}
 	if (found == 1) {
 	  val GDngh = GD (ngh) as VertexD!; 
@@ -440,8 +443,8 @@ public static def checkMaximalMatching(GG: Graph!, GD: Rail[Int]!): void {
       var j: int;
       for (j=0; j < Gi.degree; j++) {
 			val ngh = Gi.Neighbors(j);
-			if (GD(ngh) < 0) {
-	  		Console.OUT.println ("unassigned vertex: " + i + "," + ngh);
+			if (GD(ngh) < 0 && ngh != i) {
+	  		Console.OUT.println ("unassigned edge: " + i + "," + ngh);
 	
 	   } 
      } 
