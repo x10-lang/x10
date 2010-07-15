@@ -3,7 +3,7 @@
 Many concurrent algorithms proceed in phases: in phase {$k$}, several
 activities work independently, but synchronize together before proceeding on
 to phase {$k+1$}. X10 supports this communication structure (and many
-variations on it) with a generalization of barriers \bard{cite something}
+variations on it) with a generalization of barriers 
 called {\em clocks}. Clocks are designed so that programs which follow a
 simple syntactic discipline will not have either deadlocks or race conditions.
 
@@ -12,20 +12,21 @@ The following minimalist example of clocked code has two worker activities A
 and B, and three phases. In the first phase, each worker activity says its
 name followed by 1; in the second phase, by a 2, and in the third, by a 3.  
 So, if \xcd`say` prints its argument, 
-\xcd`A-1 B-1 A-2 B-2 A-3 B-3`
+\xcd`A-1 B-1 A-2 B-2 B-3 A-3`
 would be a legitimate run of the program, but
 \xcd`A-1 A-2 B-1 B-2 A-3 B-3`
 (with \xcd`A-2` before \xcd`B-1`) would not.
 
-The program creates a clock \xcd`cl` to manage the phases.  Each worker does
+The program creates a clock \xcd`cl` to manage the phases.  Each participating
+activity does
 the work of its first phase, and then executes \xcd`next;` to signal that it
-is finished with that work. \xcd`next;` is blocking, and causes the worker to
-wait until all workers have finished with the phase -- as measured by the
+is finished with that work. \xcd`next;` is blocking, and causes the participant to
+wait until all participant have finished with the phase -- as measured by the
 clock \xcd`cl` to which they are both registered.  
 Then they do the second phase, and another \xcd`next;` to make sure that
 neither proceeds to the third phase until both are ready.  This example uses
-\xcd`finish` to wait for both workers to finish.  The parent thread is also
-registered on the clock just as the workers are, and executes \xcd`next;next;`
+\xcd`finish` to wait for both particiants to finish.  The parent thread is also
+registered on the clock just as the particiants are, and executes \xcd`next;next;`
 to run through the phases.
 
 
@@ -39,8 +40,8 @@ to run through the phases.
 %  public static def main(argv:Rail[String]!) {
 %~~vis
 \begin{xten}
-    val cl = Clock.make();
-    finish{
+    finish async{
+      val cl = Clock.make();
       async clocked(cl) {// Activity A
         say("A-1");
         next;
@@ -56,10 +57,7 @@ to run through the phases.
         next;
         say("B-3"); 
       }// Activity B
-      next;next;       
     }
-    say("All done");
-
 \end{xten}
 %~~siv
 %  }
@@ -73,17 +71,17 @@ The key invariants associated with clocks are as follows.  At any
 stage of the computation, a clock has zero or more {\em registered}
 activities. An activity may perform operations only on those clocks it
 is registered with (these clocks constitute its {\em clock set}).  An
-activity is registered with one or more clocks when it is created.
+activity is registered with zero or more clocks when it is created.
 During its lifetime the only additional clocks it is registered with
 are exactly those that it creates. In particular it is not possible
 for an activity to register itself with a clock it discovers by
-reading a data-structure.
+reading a data structure.
 
 The primary operations that an activity \xcd`a` may perform on a clock \xcd`c`
 that it is registered upon are: 
 \begin{itemize}
-\item It may {\em register} a newly-created activity on \xcd`c`: 
-      \xcd`async clocked(c){S}`.
+\item It may spawn and simultaneously  {\em register} a new activity on
+      \xcd`c`, with the statement       \xcd`async clocked(c){S}`.
 \item It may {\em unregister} itself from \xcd`c`, with \xcd`c.drop()`.  After
       doing so, it can no longer use most primary operations on \xcd`c`.
 \item It may {\em resume} the clock, with \xcd`c.resume()`, indicating that it
@@ -94,7 +92,8 @@ that it is registered upon are:
       of the next phase, \viz, until all other activities registered on that
       clock have called \xcd`c.resume()`.
 \item It may {\em block} on all the clocks it is registered with
-      simultaneously, by the command \xcd`next;`.  This calls \xcd`c.next()`
+      simultaneously, by the command \xcd`next;`.  This, in effect, calls
+      \xcd`c.next()` simultaneously 
       on all clocks \xcd`c` that the current activity is registered with.
 \item Other miscellaneous operations are available as well; see the
       \xcd`Clock` API.
@@ -121,25 +120,25 @@ that it is registered upon are:
 %%CLOCK%% operation on that clock and all statements posted for completion in
 %%CLOCK%% the current phase have been completed.
 
-Though clocks introduce a blocking statement (\xcd"next") an important
-property of \Xten{} is that clocks -- when used with the \xcd`next;` {\em
-  statement} only, without the \xcd`c.next()` method call -- cannot introduce
-deadlocks. That is, the system cannot reach a quiescent state (in which no
-activity is progressing) from which it is unable to progress. For, before
-blocking each activity resumes all clocks it is registered with. Thus if a
-configuration were to be stuck (that is, no activity can progress) all clocks
-will have been resumed. But this implies that all activities blocked on
-\xcd"next" may continue and the configuration is not stuck. The only other
-possibility is that an activity may be stuck on \xcd"finish". But the
-interaction rule between \xcd"finish" and clocks
-(\Sref{sec:finish:clock-rule}) guarantees that this cannot cause a cycle in
-the wait-for graph. A more rigorous proof may be found in \cite{X10-concur05}.
+%%OLIVIER-DENIES%% Though clocks introduce a blocking statement (\xcd"next") an important
+%%OLIVIER-DENIES%% property of \Xten{} is that clocks -- when used with the \xcd`next;` {\em
+%%OLIVIER-DENIES%%   statement} only, without the \xcd`c.next()` method call -- cannot introduce
+%%OLIVIER-DENIES%% deadlocks. That is, the system cannot reach a quiescent state (in which no
+%%OLIVIER-DENIES%% activity is progressing) from which it is unable to progress. For, before
+%%OLIVIER-DENIES%% blocking each activity resumes all clocks it is registered with. Thus if a
+%%OLIVIER-DENIES%% configuration were to be stuck (that is, no activity can progress) all clocks
+%%OLIVIER-DENIES%% will have been resumed. But this implies that all activities blocked on
+%%OLIVIER-DENIES%% \xcd"next" may continue and the configuration is not stuck. The only other
+%%OLIVIER-DENIES%% possibility is that an activity may be stuck on \xcd"finish". But the
+%%OLIVIER-DENIES%% interaction rule between \xcd"finish" and clocks
+%%OLIVIER-DENIES%% (\Sref{sec:finish:clock-rule}) guarantees that this cannot cause a cycle in
+%%OLIVIER-DENIES%% the wait-for graph. A more rigorous proof may be found in \cite{X10-concur05}.
 
 \section{Clock operations}\label{sec:clock}
 There are two language constructs for working with clocks. 
 \xcd`async clocked(cl) S` starts a new activity registered on one or more
 clocks.  \xcd`next;` blocks the current activity until all the activities
-sharing clocks with it are ready to proceed. 
+sharing clocks with it are ready to proceed to the next clock phase. 
 Clocks are objects, and have a number of useful methods on them as well.
 
 \subsection{Creating new clocks}\index{clock!creation}\label{sec:clock:create}
@@ -153,7 +152,7 @@ Clocks are created using a factory method on \xcd"x10.lang.Clock":
 % def example() {
 %~~vis
 \begin{xten}
-val timeSynchronizer: Clock = Clock.make();
+val c: Clock = Clock.make();
 \end{xten}
 %~~siv
 %}}
@@ -196,8 +195,7 @@ The statement
 %~~neg
 starts a new activity, initially registered with
 clocks \xcd`c1`, \xcd`c2`, and \xcd`c3`, and  running \xcd`S`. The activity running this code must
-be registered on those clocks. Furthermore, it cannot be quiescent on any of
-them (see \Sref{resume}), because that would introduce a race condition.
+be registered on those clocks. 
 Violations of these conditions are punished by the throwing of a
 \xcd"ClockUseException"\index{clock!ClockUseException}. 
 
@@ -205,6 +203,41 @@ Violations of these conditions are punished by the throwing of a
 % has not quiesced on (\Sref{resume}). 
 % A \xcd"ClockUseException"\index{clock!ClockUseException} is
 %thrown if (and when) this condition is violated.
+
+If an activity {$\alpha$} that has executed \xcd`c.resume()` then starts a
+new activity {$\beta$} also registered on \xcd`c` (\eg, via \Xcd{async
+clocked(c) S}), the new activity {$\beta$} starts out having also resumed
+\xcd`c`, as if it too had executed \xcd`c.resume()`.  
+%~~gen
+% package Clocks.For.Jocks.In.Clicky.Smocks;
+%class Example{
+%static def S():Void{}
+%static def alpha_phase_two():Void{}
+%static def beta_phase_two():Void{}
+%static def example() {
+%~~vis
+\begin{xten}
+//alpha
+val c = Clock.make();
+c.resume();
+async clocked(c) {
+  // beta;
+  c.next();
+  beta_phase_two();
+}
+c.next();
+alpha_phase_two();
+\end{xten}
+%~~siv
+%} }
+%~~neg
+In the proper execution, {$\alpha$} and {$\beta$} both perform
+\xcd`c.next()` and then their phase-2 actions.  
+However, if {$\beta$} were not
+initially in the resume state for \xcd`c`, there would be a race condition;
+{$\beta$} could perform \xcd`c.next()` and proceed to \xcd`beta_phase_two`
+before {$\alpha$} performed \xcd`c.next()`.
+
 
 An activity may check that it is registered on a clock \xcd"c" by
 %~~exp~~`~~`~~c:Clock ~~
@@ -218,16 +251,15 @@ while a clock \xcd`c` may be stored in a data structure by one activity
 \xcd`a` and read from it by another activity \xcd`b`, \xcd`b` cannot do much
 with \xcd`c` unless it is already registered with it.  In particular, it
 cannot register itself on \xcd`c`, and, lacking that registration, cannot
-register a sub-activity on it with \xcd`clocked(c) async S`.
+register a sub-activity on it with \xcd`async clocked(c) S`.
 \end{note}
 
-\oldtodo{Add text on arrays of clocks.}
 
 \subsection{Resuming clocks}\index{clock!resume}\label{resume}\label{sec:clock:resume}
 \Xten{} permits {\em split phase} clocks. An activity may wish
 to indicate that it has completed whatever work it wishes to perform
 in the current phase of a  clock \xcd"c" it is registered with, without
-suspending all activity. It may do so  by executing 
+suspending altogether. It may do so  by executing 
 %~~exp~~`~~`~~c:Clock ~~
 \xcd`c.resume()`.
 
@@ -237,22 +269,23 @@ An activity may invoke \xcd`resume()` only on a clock it is registered with,
 and has not yet dropped (\Sref{sec:clock:drop}). A
 \xcd"ClockUseException"\index{clock!ClockUseException} is thrown if this
 condition is violated. Nothing happens if the activity has already invoked a
-\xcd"resume" on this clock in the current phase. Otherwise, \xcd`c.resume()`
-indicates that the activity will not transmit \xcd"c" to an 
-\xcd"async" (through a \xcd"clocked" clause), 
-until it terminates, drops \xcd"c" or executes a \xcd"next".
+\xcd"resume" on this clock in the current phase.
+%%OLIVIER-DENIES%%  Otherwise, \xcd`c.resume()`
+%%OLIVIER-DENIES%% indicates that the activity will not transmit \xcd"c" to an 
+%%OLIVIER-DENIES%% \xcd"async" (through a \xcd"clocked" clause), 
+%%OLIVIER-DENIES%% until it terminates, drops \xcd"c" or executes a \xcd"next".
 
-\bard{The following is under investigation}
-\begin{staticrule*}
-It is a static error if any activity has a potentially
-live execution path from a \xcd"resume" statement on a clock \xcd"c"
-to a
-%\xcd"now" or
-async spawn statement (which registers the new
-activity on \xcd"c") unless the path goes through a \xcd"next"
-statement. (A \xcd"c.drop()" following a \xcd"c.resume()" is legal,
-as is \xcd"c.resume()" following a \xcd"c.resume()".)
-\end{staticrule*}
+%%OLIVIER-DENIES%% \bard{The following is under investigation}
+%%OLIVIER-DENIES%% \begin{staticrule*}
+%%OLIVIER-DENIES%% It is a static error if any activity has a potentially
+%%OLIVIER-DENIES%% live execution path from a \xcd"resume" statement on a clock \xcd"c"
+%%OLIVIER-DENIES%% to a
+%%OLIVIER-DENIES%% %\xcd"now" or
+%%OLIVIER-DENIES%% async spawn statement (which registers the new
+%%OLIVIER-DENIES%% activity on \xcd"c") unless the path goes through a \xcd"next"
+%%OLIVIER-DENIES%% statement. (A \xcd"c.drop()" following a \xcd"c.resume()" is legal,
+%%OLIVIER-DENIES%% as is \xcd"c.resume()" following a \xcd"c.resume()".)
+%%OLIVIER-DENIES%% \end{staticrule*}
 
 \subsection{Advancing clocks}\index{clock!next}\label{sec:clock:next}
 An activity may execute the statement
@@ -266,16 +299,31 @@ activity is registered with (if any) have advanced. (The activity
 implicitly issues a \xcd"resume" on all clocks it is registered
 with before suspending.)
 
-An \Xten{} computation is said to be {\em quiescent} on a clock
-\xcd"c" if each activity registered with \xcd"c" has resumed \xcd"c".
-Note that once a computation is quiescent on \xcd"c", it will remain
-quiescent on \xcd"c" forever (unless the system takes some action),
-since no other activity can become registered with \xcd"c".  That is,
-quiescence on a clock is a {\em stable property}.
+\xcd`next;` may be thought of as calling \xcd`c.next()` in parallel for all
+clocks that the current activity is registered with.  (The parallelism is
+conceptually important: if activities {$\alpha$} and {$\beta$} are both
+registered on clocks \xcd`c` and \xcd`d`, and {$\alpha$} executes
+\xcd`c.wait(); d.wait()` while {$\beta$} executes \xcd`d.wait(); c.wait()`,
+then the two will deadlock.  However, if the two clocks are waited on in
+parallel, as \xcd`next;` does, {$\alpha$} and {$\beta$} will not deadlock.)
 
-Once the implementation has detected quiescence on \xcd"c", the system
-marks all activities registered with \xcd"c" as being able to progress
-on \xcd"c". An activity blocked on \xcd"next" resumes execution once
+Equivalently, \xcd`next;` sequentially calls \xcd`c.resume()` for each
+registered clock \xcd`c`, in arbitrary order, and then \xcd`c.wait()` for each
+clock, again in arbitrary order.  Implementations are more likely to use this 
+
+
+%%OLIVIER-DENIES%% An \Xten{} computation is said to be {\em quiescent} on a clock
+%%OLIVIER-DENIES%% \xcd"c" if each activity registered with \xcd"c" has resumed \xcd"c".
+%%OLIVIER-DENIES%% Note that once a computation is quiescent on \xcd"c", it will remain
+%%OLIVIER-DENIES%% quiescent on \xcd"c" forever (unless the system takes some action),
+%%OLIVIER-DENIES%% since no other activity can become registered with \xcd"c".  That is,
+%%OLIVIER-DENIES%% quiescence on a clock is a {\em stable property}.
+
+%%OLIVIER-DENIES%% Once the implementation has detected quiescence on \xcd"c", the system
+%%OLIVIER-DENIES%% marks all activities registered with \xcd"c" as being able to progress
+%%OLIVIER-DENIES%% on \xcd"c". 
+%%OLIVIER-DENIES%% 
+An activity blocked on \xcd"next" resumes execution once
 it is marked for progress by all the clocks it is registered with.
 
 \subsection{Dropping clocks}\index{clock!drop}\label{sec:clock:drop}
@@ -288,8 +336,47 @@ An activity may drop a clock by executing \xcd`c.drop()`.
 clock.  A \xcd"ClockUseException" is thrown if the activity has
 already dropped \xcd"c".
 
+\section{Deadlock Freedom}
 
-%\input{clock/now.tex}
+In general, programs using clocks can deadlock, just as programs using loops
+can fail to terminate.  However, programs written with a particular syntactic
+discipline {\em are} guaranteed to be deadlock-free, just as programs which
+use only bounded loops are guaranteed to terminate.  The syntactic discipline
+is: 
+\begin{itemize}
+\item The \xcd`next()` {\bf method} may not be called on any clock. (The
+      \xcd`next;` statement is allowed.)
+\item Inside of \xcd`finish{S}`, all clocked \xcd`async`s must be in the scope
+      an unclocked \xcd`async`.  
+\end{itemize}
+
+
+The second clause prevents the following deadlock.  
+%~~gen
+% package Clocks.Finish.Hates.Clocks;
+% class Example{
+% def example() {
+%~~vis
+\begin{xten}
+val c:Clock = Clock.make();
+async clocked(c) {                // (A) 
+      finish async clocked(c) {   // (B) Violates clause 2
+            next;                 // (Bnext)
+      }
+      next;                       // (Anext)
+}
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+\xcd`(A)`, first of all, waits for the \xcd`finish` containing \xcd`(B)` to
+finish.  
+\xcd`(B)` will execute its \xcd`next` at \xcd`(Bnext)`, and then wait for all
+other activities registered on \xcd`c` to execute their \xcd`next`s.
+However, \xcd`(A)` is registered on \xcd`c`.  So, \xcd`(B)` cannot finish
+until \xcd`(A)` has proceeded to \xcd`(Anext)`, and \xcd`(A)` cannot proceed
+until \xcd`(B)` finishes. Thus, this causes deadlock.
+
 
 \section{Program equivalences}
 From the discussion above it should be clear that the following

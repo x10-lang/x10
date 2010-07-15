@@ -254,7 +254,7 @@ by the place expression \xcd"a.dist(i)":
 %~~gen
 % package Activities.For.Tactivities.At.Some.Home;
 % class Example {
-% def example(a:DistArray[Int], i:Int) {
+% def example(a:DistArray[Int](1), i:Int) {
 %~~vis
 \begin{xten}
 async (a.dist(i)) {
@@ -340,58 +340,58 @@ from \xcd"finish S" if \xcd`S` throws no exceptions.  (If \xcd`S` throws
 exceptions, \xcd`finish S` wraps them in one layer of 
 \xcd`MultipleExceptions` and \xcd`finish finish S` in two layers.)
 
-\paragraph{Interaction with clocks.}\label{sec:finish:clock-rule}
-
-\xcd"finish S" interacts with clocks (\Sref{XtenClocks}). 
-While executing \xcd"S", an activity must not spawn any \xcd"clocked"
-asyncs. (Asyncs spawned during the execution of \xcd"S" may spawn
-clocked asyncs.) A
-\xcd"ClockUseException"\index{clock!ClockUseException} is thrown
-if (and when) this condition is violated.
-
-This is necessary to prevent deadlocks.  In the following invalid code 
-%~~gen
-% package Activities.Finish.Hates.Clocks;
-% class Example{
-% def example() {
-%~~vis
-\begin{xten}
-val c:Clock = Clock.make();
-async clocked(c) {                // (A) 
-      finish async clocked(c) {   // (B) INVALID
-            next;                 // (Bnext)
-      }
-      next;                       // (Anext)
-}
-\end{xten}
-%~~siv
-% } } 
-%~~neg
-\xcd`(A)`, first of all, waits for the \xcd`finish` containing \xcd`(B)` to
-finish.  
-\xcd`(B)` will execute its \xcd`next` at \xcd`(Bnext)`, and then wait for all
-other activities registered on \xcd`c` to execute their \xcd`next`s.
-However, \xcd`(A)` is registered on \xcd`c`.  So, \xcd`(B)` cannot finish
-until \xcd`(A)` has proceeded to \xcd`(Anext)`, and \xcd`(A)` cannot proceed
-until \xcd`(B)` finishes. Thus, this causes deadlock.
-
-
-
-In \XtenCurrVer{} this condition is checked dynamically; future
-versions of the language will introduce type qualifiers which permit
-this condition to be checked statically.
-
-\futureext{
-The semantics of \xcd"finish S" is conjunctive; it terminates when all
-the activities created during the execution of \xcd"S" (recursively)
-terminate. In many situations (e.g., nondeterministic search) it is
-natural to require a statement to terminate when any {\em one} of the
-activities it has spawned succeeds. The other activities may then be
-safely aborted. Future versions of the language may introduce a
-\xcd"finishone S" construct to support such speculative or nondeterministic
-computation.
-}
-
+%%OLIVIER-DENIES%% \paragraph{Interaction with clocks.}\label{sec:finish:clock-rule}
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% \xcd"finish S" interacts with clocks (\Sref{XtenClocks}). 
+%%OLIVIER-DENIES%% While executing \xcd"S", an activity must not spawn any \xcd"clocked"
+%%OLIVIER-DENIES%% asyncs. (Asyncs spawned during the execution of \xcd"S" may spawn
+%%OLIVIER-DENIES%% clocked asyncs.) A
+%%OLIVIER-DENIES%% \xcd"ClockUseException"\index{clock!ClockUseException} is thrown
+%%OLIVIER-DENIES%% if (and when) this condition is violated.
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% This is necessary to prevent deadlocks.  In the following invalid code 
+%%OLIVIER-DENIES%% %~s~gen
+%%OLIVIER-DENIES%% % package Activities.Finish.Hates.Clocks;
+%%OLIVIER-DENIES%% % class Example{
+%%OLIVIER-DENIES%% % def example() {
+%%OLIVIER-DENIES%% %~s~vis
+%%OLIVIER-DENIES%% \begin{xten}
+%%OLIVIER-DENIES%% val c:Clock = Clock.make();
+%%OLIVIER-DENIES%% async clocked(c) {                // (A) 
+%%OLIVIER-DENIES%%       finish async clocked(c) {   // (B) INVALID
+%%OLIVIER-DENIES%%             next;                 // (Bnext)
+%%OLIVIER-DENIES%%       }
+%%OLIVIER-DENIES%%       next;                       // (Anext)
+%%OLIVIER-DENIES%% }
+%%OLIVIER-DENIES%% \end{xten}
+%%OLIVIER-DENIES%% %~s~siv
+%%OLIVIER-DENIES%% % } } 
+%%OLIVIER-DENIES%% %~s~neg
+%%OLIVIER-DENIES%% \xcd`(A)`, first of all, waits for the \xcd`finish` containing \xcd`(B)` to
+%%OLIVIER-DENIES%% finish.  
+%%OLIVIER-DENIES%% \xcd`(B)` will execute its \xcd`next` at \xcd`(Bnext)`, and then wait for all
+%%OLIVIER-DENIES%% other activities registered on \xcd`c` to execute their \xcd`next`s.
+%%OLIVIER-DENIES%% However, \xcd`(A)` is registered on \xcd`c`.  So, \xcd`(B)` cannot finish
+%%OLIVIER-DENIES%% until \xcd`(A)` has proceeded to \xcd`(Anext)`, and \xcd`(A)` cannot proceed
+%%OLIVIER-DENIES%% until \xcd`(B)` finishes. Thus, this causes deadlock.
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% In \XtenCurrVer{} this condition is checked dynamically; future
+%%OLIVIER-DENIES%% versions of the language will introduce type qualifiers which permit
+%%OLIVIER-DENIES%% this condition to be checked statically.
+%%OLIVIER-DENIES%% 
+%%OLIVIER-DENIES%% \futureext{
+%%OLIVIER-DENIES%% The semantics of \xcd"finish S" is conjunctive; it terminates when all
+%%OLIVIER-DENIES%% the activities created during the execution of \xcd"S" (recursively)
+%%OLIVIER-DENIES%% terminate. In many situations (e.g., nondeterministic search) it is
+%%OLIVIER-DENIES%% natural to require a statement to terminate when any {\em one} of the
+%%OLIVIER-DENIES%% activities it has spawned succeeds. The other activities may then be
+%%OLIVIER-DENIES%% safely aborted. Future versions of the language may introduce a
+%%OLIVIER-DENIES%% \xcd"finishone S" construct to support such speculative or nondeterministic
+%%OLIVIER-DENIES%% computation.
+%%OLIVIER-DENIES%% }
+%%OLIVIER-DENIES%% 
 
 \section{Initial activity}\label{initial-computation}\index{initial activity}
 

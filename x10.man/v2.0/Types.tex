@@ -919,11 +919,12 @@ and
 %~~exp~~`~~`~~x:Int ~~
 \xcd`x instanceof Int{self == 1}` returns false if 
 \xcd`x==2`.
-However, it is a static error if \xcd`e` cannot possibly be an instance of \xcd`C{c}`; 
-the compiler will reject \xcd`1 instanceof Int{self == 2}` because \xcd`1` can
-never satisfy \xcd`Int{self == 2}`.  Similarly, \xcd`1 instanceof String` is a
-static error, rather than an expression always returning false. 
-\bard{Explain the reason for this discontinuous behavior!}
+
+However, it is a static error if \xcd`e` cannot possibly be an instance of
+\xcd`C{c}`; the compiler will reject \xcd`1 instanceof Int{self == 2}` because
+\xcd`1` can never satisfy \xcd`Int{self == 2}`. Similarly, \Xcd{1 instanceof
+String} is a static error, rather than an expression always returning false. 
+
 
 \limitation{
 X10 does not currently handle \xcd`instanceof` of generics in the way you
