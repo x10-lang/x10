@@ -13,7 +13,7 @@
  * @author bdlucas
  */
 
-public class ArrayLift extends TestArray {
+public class ArrayMap extends TestArray {
 
     public const N: int = 9;
 
@@ -31,8 +31,8 @@ public class ArrayLift extends TestArray {
         }
         out.println();
 
-        pr("--- lifted");
-        val b = a.lift((a:double)=>1.5*a) as DistArray[double](dist);
+        pr("--- mapped");
+        val b = a.map((a:double)=>1.5*a) as DistArray[double](dist);
         for (pt:Point(1) in b) {
             val x = (future(b.dist(pt)) b(pt)).force();
             out.print(x + " ");
@@ -43,15 +43,15 @@ public class ArrayLift extends TestArray {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new ArrayLift().execute();
+        new ArrayMap().execute();
     }
 
     def expected() = 
-        "--- dist: Dist(0->[0..2],1->[3..5],2->[6..7],3->[8..9])\n" + 
+        "--- dist: Dist([0..2]->0,[3..5]->1,[6..7]->2,[8..9]->3)\n" + 
         "0 0 0 1 1 1 2 2 3 3 \n" +
         "--- original\n" +
         "0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 \n" +
-        "--- lifted\n" +
+        "--- mapped\n" +
         "0.0 1.5 3.0 4.5 6.0 7.5 9.0 10.5 12.0 13.5 \n";
 
 }

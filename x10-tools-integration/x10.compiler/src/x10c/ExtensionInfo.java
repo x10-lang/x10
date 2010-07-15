@@ -20,6 +20,8 @@ import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
 import polyglot.types.TypeSystem;
 import x10.visit.SharedBoxer;
+import x10c.ast.X10CNodeFactory_c;
+import x10c.types.X10CTypeSystem_c;
 import x10c.visit.CastRemover;
 import x10c.visit.Desugarer;
 import x10c.visit.JavaCaster;
@@ -29,6 +31,16 @@ public class ExtensionInfo extends x10.ExtensionInfo {
     @Override
     protected Scheduler createScheduler() {
         return new X10CScheduler(this);
+    }
+
+    @Override
+    protected NodeFactory createNodeFactory() {
+        return new X10CNodeFactory_c(this);
+    }
+
+    @Override
+    protected TypeSystem createTypeSystem() {
+        return new X10CTypeSystem_c();
     }
 
     static class X10CScheduler extends X10Scheduler {

@@ -20,17 +20,16 @@ import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
-import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
-import polyglot.ast.IntLit;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ast.ConstructorCall;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ConstructorInstance;
@@ -51,12 +50,10 @@ import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.AnnotationNode;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
-import x10.extension.X10Ext;
 import x10.types.ParameterType;
 import x10.types.X10Def;
 import x10.types.X10ConstructorDef;
@@ -201,18 +198,22 @@ public class NativeClassVisitor extends ContextVisitor {
             Expr assign = xnf.FieldAssign(p, special, fid, Assign.ASSIGN, init).fieldInstance(fdef.asInstance()).type(ftype);
             Formal f = xnf.Formal(p, xnf.FlagsNode(p, X10Flags.FINAL), ftnode, xnf.Id(p, id0)).localDef(ldef);
 
+            ArrayList<Stmt> ctorBlock = new ArrayList<Stmt>();
             // super constructor def (noarg)
-            ConstructorDef sdef = xts.findConstructor(cdecl.superClass().type(),
-                    xts.ConstructorMatcher(cdecl.superClass().type(), Collections.<Type>emptyList(), context)).def();
+            final TypeNode superClass = cdecl.superClass();
+            if (superClass!=null) {
+                ConstructorDef sdef = xts.findConstructor(superClass.type(),
+                        xts.ConstructorMatcher(superClass.type(), Collections.<Type>emptyList(), context)).def();
+                ctorBlock.add(xnf.SuperCall(p, Collections.<Expr>emptyList()).constructorInstance(sdef.asInstance()));
+            }
+            ctorBlock.add(xnf.Eval(p, assign));
 
             X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
                     xnf.FlagsNode(p, X10Flags.PRIVATE),
                     cdecl.name(),
                     Collections.<Formal>singletonList(f),
                     Collections.<TypeNode>emptyList(),
-                    xnf.Block(p,
-                            xnf.SuperCall(p, Collections.<Expr>emptyList()).constructorInstance(sdef.asInstance()),
-                            xnf.Eval(p, assign)));
+                    xnf.Block(p,ctorBlock));
             xd.typeParameters(cdecl.typeParameters());
             xd.returnType(ftnode);
 

@@ -38,7 +38,7 @@ public class Jacobi {
    public def read(i: Int, j: Int): double {
       return (future(D(i,j)) => B(i,j)).force();
    }
-   public static def main(args: Array[String]) {
+   public static def main(args: Array[String]):Void {
       val b = new Jacobi().run();
       System.out.println("++++++ "
                          + (b? "Test succeeded."

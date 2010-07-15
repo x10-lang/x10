@@ -96,7 +96,8 @@ public class XTypeTranslator {
 			return XTerms.makeNot(trans(c, t.expr(), xc));
 		XTerm v = XTerms.makeAtom(XTerms.makeName(t.operator()), trans(c, t.expr(), xc));
 		addTypeToEnv(v, t.type());
-		return v;
+		//return v;
+		throw new SemanticException("Cannot translate " + t + " to constraint term.");
 	}
 	
 	public XVar trans(CConstraint c, XVar target, FieldInstance fi) throws SemanticException {
@@ -468,10 +469,11 @@ public class XTypeTranslator {
 	        v = XTerms.makeAnd(lt, rt);
 	    }
 	    else  {
-			v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
-		}
-		addTypeToEnv(v, t.type());
-		return v;
+	        v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
+	        throw new SemanticException("Cannot translate " + t + " to constraint term.");
+	    }
+	    addTypeToEnv(v, t.type());
+	    return v;
 	}
 	
 	private XTerm trans(CConstraint c, Tuple t, X10Context xc) throws SemanticException {

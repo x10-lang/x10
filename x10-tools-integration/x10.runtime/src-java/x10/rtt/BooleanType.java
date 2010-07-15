@@ -21,6 +21,11 @@ public class BooleanType extends RuntimeType<Boolean> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Boolean";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Boolean;
     }
@@ -28,6 +33,15 @@ public class BooleanType extends RuntimeType<Boolean> {
     @Override
     public Object makeArray(int length) {
         return new boolean[length];
+    }
+    
+    @Override
+    public Object makeArray(Object... elem) {
+        boolean[] arr = new boolean[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Boolean)elem[i]).booleanValue();
+        }
+        return arr;
     }
     
     @Override

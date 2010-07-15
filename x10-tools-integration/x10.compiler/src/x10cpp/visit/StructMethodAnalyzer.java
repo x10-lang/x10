@@ -119,7 +119,7 @@ public class StructMethodAnalyzer extends ContextVisitor {
         // constructor.  Any other constructor call will require us to set canBeInlined to false.
         if (n instanceof X10ConstructorCall_c) {
             StructType container = ((X10ConstructorCall_c)n).constructorInstance().container();
-            if (!(xts.typeBaseEquals(container, xts.Struct(), context) || xts.typeBaseEquals(container, myContainer, context))) {
+            if (!(xts.typeBaseEquals(container, myContainer, context))) { //xts.typeBaseEquals(container, xts.Struct(), context) ||
                 canGoInHeaderStream[0] = false;
             }
             return n;

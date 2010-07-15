@@ -1240,7 +1240,7 @@ argument \xcd`x`.  We would like to write code thus:
 % 
 %~~vis
 \begin{xten}
-  public static def main(Rail[String]) {
+  public static def main(Rail[String]):Void {
      val X = new Poly([0,1]);
      val t <: Poly = 7 * X + 6 * X * X * X; 
      val u <: Poly = 3 + 5*X - 7*X*X;
@@ -1343,7 +1343,7 @@ Writing the same code with method calls, while possible, is far less elegant:
 %   static def const(n:Int) = n as UglyPoly;
 % 
 %   public static def Main(x:Rail[String]) = main(x);
-%   public static def main(Rail[String]) {
+%   public static def main(Rail[String]):Void {
 %      val X = new UglyPoly([0,1]);
 %      val t <: UglyPoly = 7 * X + 6 * X * X * X; 
 % 
@@ -1610,7 +1610,7 @@ class Poly {
   public global val coeff : ValRail[Int];
   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
   public static operator (a:Int) as Poly! = new Poly([a]);
-  public static def main(Rail[String]) {
+  public static def main(Rail[String]):Void {
      val three : Poly! = 3 as Poly!;
   }
 }
@@ -1632,7 +1632,7 @@ satisfied the more specific constraint.  For example:
 class Uni(n:Int) {
   public def this(n:Int) : Uni{self.n==n} = {property(n);}
   static operator (String) as Uni{self.n != 9} = new Uni(3);
-  public static def main(Rail[String]) {
+  public static def main(Rail[String]):Void {
     val u = "" as Uni{self.n != 9 && self.n != 3};
   }
 }
@@ -1705,7 +1705,7 @@ addition to add it to \xcd`x`.
         (i:Int) => p.a(i) + q.a(i)
      ));
 
-  public static def main(Rail[String]) {
+  public static def main(Rail[String]):Void {
      val x = new Poly([0,1]);
      x10.io.Console.OUT.println("1+x=" + (1+x));
   }
@@ -1761,7 +1761,7 @@ class Oddvec {
   // ... 
 \end{xten}
 %~~siv
-%  public static def main(argv:Rail[String]!) {
+%  public static def main(argv:Rail[String]!):Void {
 %     val a = new Oddvec();
 %     x10.io.Console.OUT.println(a() + " ... " + a(0));
 %     a(1) = 20;
@@ -1876,102 +1876,146 @@ field are mutable.)
 \bard{Write this example}
 
 
-\section{Type invariants}\label{DepType:ClassGuard}
+\section{Class Guards and Invariants}\label{DepType:ClassGuard}
 \index{type invariants}
 \index{class invariants}
 \index{guards}
 
-There is a general recipe for constructing a list of parameters or
-properties \xcdmath"x$_1$: T$_1${c$_1$}, $\dots$, x$_k$: T$_k${c$_k$}" that must satisfy a given
-(satisfiable) constraint \xcd"c". 
+%%OLD-INVAR%%  There is a general recipe for constructing a list of parameters or
+%%OLD-INVAR%%  properties \xcdmath"x$_1$: T$_1${c$_1$}, $\dots$, x$_k$: T$_k${c$_k$}" that must satisfy a given
+%%OLD-INVAR%%  (satisfiable) constraint \xcd"c". 
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  \begin{xtenmath}
+%%OLD-INVAR%%  class Foo(x$_1$: T1{x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c},
+%%OLD-INVAR%%            x$_2$: T2{x$_3$: T$_3$; $\dots$; x$_k$: T$_k$; c},
+%%OLD-INVAR%%            $\dots$
+%%OLD-INVAR%%            x$_k$: T$_k${c}) {
+%%OLD-INVAR%%    $\dots$
+%%OLD-INVAR%%  }
+%%OLD-INVAR%%  \end{xtenmath}
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  The first type \xcdmath"x$_1$: T$_1${x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c}" is consistent iff
+%%OLD-INVAR%%  \xcdmath"$\exists$x$_1$: T$_1$, x$_2$: T$_2$, $\dots$, x$_k$: T$_k$. c" is consistent. The second is
+%%OLD-INVAR%%  consistent iff
+%%OLD-INVAR%%  \begin{xtenmath}
+%%OLD-INVAR%%  $\forall$x$_1$: T$_1${x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c}
+%%OLD-INVAR%%  $\exists$x$_2$: T$_2$. $\exists$x$_3$: T$_3$, $\dots$, x$_k$: T$_k$. c
+%%OLD-INVAR%%  \end{xtenmath}
+%%OLD-INVAR%%  \noindent But this is always true. Similarly for the conditions for the other
+%%OLD-INVAR%%  properties.
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  Thus logically every satisfiable constraint \xcd"c" on a list of parameters
+%%OLD-INVAR%%  \xcdmath"x$_1$", \dots, \xcdmath"x$_k$"
+%%OLD-INVAR%%  can be expressed using the dependent types of 
+%%OLD-INVAR%%  \xcdmath"x$_i$", provided
+%%OLD-INVAR%%  that the constraint language is rich enough to permit existential
+%%OLD-INVAR%%  quantifiers.
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  Nevertheless we will find it convenient to permit the programmer to
+%%OLD-INVAR%%  explicitly specify a depclause after the list of properties, thus:
+%%OLD-INVAR%%  \begin{xten}
+%%OLD-INVAR%%  class Point(i: Int, j: Int) { ... }
+%%OLD-INVAR%%  class Line(start: Point, end: Point){end != start} { ... }
+%%OLD-INVAR%%  class Triangle (a: Line, b: Line, c: Line)
+%%OLD-INVAR%%     {a.end == b.start,  b.end == c.start,
+%%OLD-INVAR%%      c.end == a.start} { ... }
+%%OLD-INVAR%%  \end{xten}
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  Consider the definition of the class \xcd"Line". This may be thought of as
+%%OLD-INVAR%%  saying: the class \xcd"Line" has two fields, \xcd"start: Point" and
+%%OLD-INVAR%%  \xcd"end: Point".
+%%OLD-INVAR%%  Further, every instance of \xcd"Line" must satisfy the constraint that
+%%OLD-INVAR%%  \xcd"end != start". Similarly for the other class definitions. 
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  In the general case, the production for \grammarrule{NormalClassDeclaration}
+%%OLD-INVAR%%  specifies that the list of properties may be followed by a
+%%OLD-INVAR%%  \grammarrule{Guard}.
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  \begin{grammar}
+%%OLD-INVAR%%  NormalClassDeclaration \:
+%%OLD-INVAR%%        ClassModifiers\opt \xcd"class" Identifier  \\
+%%OLD-INVAR%%     && TypeParameterList\opt PropertyList\opt Guard\opt \\
+%%OLD-INVAR%%     && Extends\opt Interfaces\opt ClassBody \\
+%%OLD-INVAR%%  \\
+%%OLD-INVAR%%  NormalInterfaceDeclaration \:
+%%OLD-INVAR%%        InterfaceModifiers\opt \xcd"interface" Identifier  \\
+%%OLD-INVAR%%     && TypeParameterList\opt PropertyList\opt Guard\opt \\
+%%OLD-INVAR%%     && ExtendsInterfaces\opt InterfaceBody \\
+%%OLD-INVAR%%  \end{grammar}
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  All the properties in the list, together with inherited properties,
+%%OLD-INVAR%%  may appear in the \grammarrule{Guard}. A guard \xcd"c" with
+%%OLD-INVAR%%  property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
+%%OLD-INVAR%%  for a class \xcd"C" is said to be consistent if each of the \xcdmath"T$_i$" are
+%%OLD-INVAR%%  consistent and the constraint
+%%OLD-INVAR%%  \begin{xtenmath}
+%%OLD-INVAR%%  $\exists$x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
+%%OLD-INVAR%%  \end{xtenmath}
+%%OLD-INVAR%%  \noindent is valid (always true).
+%%OLD-INVAR%%  
 
-\begin{xtenmath}
-class Foo(x$_1$: T1{x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c},
-          x$_2$: T2{x$_3$: T$_3$; $\dots$; x$_k$: T$_k$; c},
-          $\dots$
-          x$_k$: T$_k${c}) {
-  $\dots$
-}
-\end{xtenmath}
-
-The first type \xcdmath"x$_1$: T$_1${x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c}" is consistent iff
-\xcdmath"$\exists$x$_1$: T$_1$, x$_2$: T$_2$, $\dots$, x$_k$: T$_k$. c" is consistent. The second is
-consistent iff
-\begin{xtenmath}
-$\forall$x$_1$: T$_1${x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c}
-$\exists$x$_2$: T$_2$. $\exists$x$_3$: T$_3$, $\dots$, x$_k$: T$_k$. c
-\end{xtenmath}
-\noindent But this is always true. Similarly for the conditions for the other
-properties.
-
-Thus logically every satisfiable constraint \xcd"c" on a list of parameters
-\xcdmath"x$_1$", \dots, \xcdmath"x$_k$"
-can be expressed using the dependent types of 
-\xcdmath"x$_i$", provided
-that the constraint language is rich enough to permit existential
-quantifiers.
-
-Nevertheless we will find it convenient to permit the programmer to
-explicitly specify a depclause after the list of properties, thus:
+Classes (and structs and interfaces) may specify a {\em class guard}, a
+constraint which must hold on all values of the class.    In the following
+example, a \xcd`Line` is defined by two distinct \xcd`Pt`s\footnote{We use \xcd`Pt`
+to avoid any possible confusion with the built-in class \xcd`Point`.}
+%~~gen
+% package classes.guards.invariants.glurp;
+%~~vis
 \begin{xten}
-class Point(i: Int, j: Int) { ... }
-class Line(start: Point, end: Point){end != start} { ... }
-class Triangle (a: Line, b: Line, c: Line)
-   {a.end == b.start,  b.end == c.start,
-    c.end == a.start} { ... }
+class Pt(x:Int, y:Int){}
+class Line(a:Pt, b:Pt){a != b} {}
 \end{xten}
+%~~siv
+%
+%~~neg
 
-Consider the definition of the class \xcd"Line". This may be thought of as
-saying: the class \xcd"Line" has two fields, \xcd"start: Point" and
-\xcd"end: Point".
-Further, every instance of \xcd"Line" must satisfy the constraint that
-\xcd"end != start". Similarly for the other class definitions. 
+In most cases the class guard could be phrased as a type constraint on a property of
+the class instead, if preferred.  Arguably, a symmetric constraint like two
+points being different is better expressed as a class guard, rather than
+asymmetrically as a constraint on one type: 
+%~~gen
+% package classes.guards.invariants.glurp2;
+% class Pt(x:Int, y:Int){}
+%~~vis
+\begin{xten}
+class Line(a:Pt, b:Pt{a != b}) {}
+\end{xten}
+%~~siv
+%
+%~~neg
 
-In the general case, the production for \grammarrule{NormalClassDeclaration}
-specifies that the list of properties may be followed by a
-\grammarrule{Guard}.
 
-\begin{grammar}
-NormalClassDeclaration \:
-      ClassModifiers\opt \xcd"class" Identifier  \\
-   && TypeParameterList\opt PropertyList\opt Guard\opt \\
-   && Extends\opt Interfaces\opt ClassBody \\
-\\
-NormalInterfaceDeclaration \:
-      InterfaceModifiers\opt \xcd"interface" Identifier  \\
-   && TypeParameterList\opt PropertyList\opt Guard\opt \\
-   && ExtendsInterfaces\opt InterfaceBody \\
-\end{grammar}
-
-All the properties in the list, together with inherited properties,
-may appear in the \grammarrule{Guard}. A guard \xcd"c" with
-property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
-for a class \xcd"C" is said to be consistent if each of the \xcdmath"T$_i$" are
-consistent and the constraint
-\begin{xtenmath}
-$\exists$x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
-\end{xtenmath}
-\noindent is valid (always true).
 
 \label{DepType:TypeInvariant}
 \index{Class invariant}
 \label{DepType:ClassGuardDef}
 
-The guard is an invariant on all instances of the class or interface.
 
-With every defined class or interface \xcd"T" we associate a {\em type
-invariant} $\mathit{inv}($\xcd"T"$)$ as follows. The type
-invariant associated with \xcd"x10.lang.Object" is 
+
+With every defined class, struct,  or interface \xcd"T" we associate a {\em type
+invariant} $\mathit{inv}($\xcd"T"$)$, which describes the guarantees on the
+properties of values of type \xcd`T`.  
+
+Every value of \xcd`T` satisfies $\mathit{inv}($\xcd"T"$)$ at all times.  This
+is somewhat stronger than the concept of type invariant in most languages
+(which only requires that the invariant holds when no method calls are
+active).  X10 invariants only concern properties, which are immutable; thus,
+once established, they cannot be falsified.
+
+The type
+invariant associated with \xcd"x10.lang.Any"
+is 
 \xcd"true".
 
-The type invariant associated with any interface \xcd"I" that extends
+The type invariant associated with any interface or struct \xcd"I" that extends
 interfaces \xcdmath"I$_1$, $\dots$, I$_k$" and defines properties
 \xcdmath"x$_1$: P$_1$, $\dots$, x$_n$: P$_n$" and
 specifies a guard \xcd"c" is given by:
 
 \begin{xtenmath}
-$\mathit{inv}$(I$_1$), $\dots$, $\mathit{inv}$(I$_k$),
-    self.x$_1$: P$_1$,  $\dots$,  self.x$_n$: P$_n$, c  
+$\mathit{inv}$(I$_1$) && $\dots$ && $\mathit{inv}$(I$_k$) 
+    && self.x$_1$ instanceof P$_1$ &&  $\dots$ &&  self.x$_n$ instanceof P$_n$ 
+    && c  
 \end{xtenmath}
 
 Similarly the type invariant associated with any class \xcd"C" that
@@ -1979,15 +2023,18 @@ implements interfaces \xcdmath"I$_1$, $\dots$, I$_k$",
 extends class \xcd"D" and defines properties
 \xcdmath"x$_1$: P$_1$, $\dots$, x$_n$: P$_n$" and
 specifies a guard \xcd"c" is
-given by:
+given by the same thing with the invariant of the superclass \xcd`D` conjoined:
 \begin{xtenmath}
-$\mathit{inv}$(D), $\mathit{inv}$(I$_1$),  $\dots$, $\mathit{inv}$(I$_k$),
-    self.x$_1$: P$_1$,  $\dots$, self.x$_n$: P$_n$,  c  
+$\mathit{inv}$(I$_1$) && $\dots$ && $\mathit{inv}$(I$_k$) 
+    && self.x$_1$ instanceof P$_1$ &&  $\dots$ &&  self.x$_n$ instanceof P$_n$ 
+    && c  
+    && $\mathit{inv}$(D)
 \end{xtenmath}
 
-It is required that the type invariant associated with a class entail
-the type invariants of each interface that it implements.
 
+Note that the type invariant associated with a class entails the type
+invariants of each interface that it implements (directly or indirectly), and
+the type invariant of each ancestor class.
 It is guaranteed that for any variable \xcd"v" of
 type \xcd"T{c}" (where \xcd"T" is an interface name or a class name) the only
 objects \xcd"o" that may be stored in \xcd"v" are such that \xcd"o" satisfies

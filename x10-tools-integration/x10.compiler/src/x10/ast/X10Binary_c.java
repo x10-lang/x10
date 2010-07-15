@@ -200,7 +200,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 Node n2 = this.visitChild(t2, tc);
 
                 if (n1 instanceof TypeNode && n2 instanceof TypeNode) {
-                    return nf.SubtypeTest(position(), (TypeNode) n1, (TypeNode) n2, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+                    Node n = nf.SubtypeTest(position(), (TypeNode) n1, (TypeNode) n2, true);
+                    n = n.del().disambiguate(tc);
+                    n = n.del().typeCheck(tc);
+                    n = n.del().checkConstants(tc);
+                    return n;
                 }
             }
         }

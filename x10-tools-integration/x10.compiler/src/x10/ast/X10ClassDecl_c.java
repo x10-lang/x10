@@ -18,64 +18,45 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
-import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
-import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
-import polyglot.ast.MethodDecl_c;
-import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.PackageNode;
-import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
-import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
-import polyglot.ast.CanonicalTypeNode;
-import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
-import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
-import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
-import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
-import polyglot.types.Context_c;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
-import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.ObjectType;
-import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.Ref_c;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
@@ -83,16 +64,12 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
-import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 
 import x10.constraint.XFailure;
-import x10.constraint.XVar;
-import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
-import x10.extension.X10Ext;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeDef;
@@ -100,20 +77,15 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
-import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
-import x10.types.X10MethodInstance;
-import x10.types.X10ParsedClassType;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.XConstrainedTerm;
 import x10.util.Synthesizer;
 import x10.visit.ChangePositionVisitor;
 
@@ -231,13 +203,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	thisType.superType(null);
         }
         else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isStruct()) {
-        	 final LazyRef<Type> Struct = Types.lazyRef(null);
+        	/* final LazyRef<Type> Struct = Types.lazyRef(null);
      		Struct.setResolver(new Runnable() {
      			public void run() {
      				Struct.update(xts.Struct());
      			}
-     		});
-        	thisType.superType(Struct);
+     		}); */
+        	thisType.superType(null);
         }
         else if (superClass == null) {
         	superRef.setResolver(new Runnable() {
@@ -258,7 +230,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	// For every struct and interface, add the implicit Any interface.
     	X10Flags flags = X10Flags.toX10Flags(flags().flags());
-    	if (flags.isStruct() 
+    	if (flags.isStruct()
     			|| (flags.isInterface() && ! name.toString().equals("Any"))
     			|| xts.isParameterType(thisType.asType())) {
     		thisType.addInterface(xts.lazyAny());
@@ -424,7 +396,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         for (TypeParamNode tpn : n.typeParameters()) {
             def.addTypeParameter(tpn.type(), tpn.variance());
         }
-        
+
+        if (X10Flags.toX10Flags(flags().flags()).isStruct())
+            n = x10.util.Struct.addStructMethods(tb,n);
+
         return n;
     }
     
@@ -652,10 +627,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         NodeFactory nf = tc.nodeFactory();
         
         if (type.superType() != null) {
-        	if (((X10ClassDef) type).isStruct()) {
-        		if (! (X10TypeMixin.isX10Struct(type.superType().get()))) {
+        	if (!((X10ClassDef) type).isStruct()) {
+        		if ((X10TypeMixin.isX10Struct(type.superType().get()))) {
         			Errors.issue(tc.job(),
-        			             new Errors.StructMustHaveStructSupertype(type.superType(),
+        			             new Errors.ClassMustHaveClassSupertype(type.superType(),
         			                                                      type,
         			                                                      position()));
         		}

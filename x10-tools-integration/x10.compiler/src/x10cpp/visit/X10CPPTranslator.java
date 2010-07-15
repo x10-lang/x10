@@ -149,6 +149,7 @@ public class X10CPPTranslator extends Translator {
 		StreamWrapper w = (StreamWrapper) w_;
 		assert (n != null);
 		final int line = n.position().line();
+		final int column = n.position().column();
 		final String file = n.position().file();
 		if (line > 0 &&
 				((n instanceof Stmt && !(n instanceof Block) && !(n instanceof Catch)) ||
@@ -197,7 +198,7 @@ public class X10CPPTranslator extends Translator {
 		                        int cppStartLine = s.getStartLineOffset()+adjustedStartLine;
 		                        int cppEndLine = s.getStartLineOffset()+fixedEndLine;
 //		                        System.out.println("Adding line number entry: "+cppFile+":"+cppStartLine+"-"+cppEndLine+"->"+file+":"+line);
-		                        lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line);
+		                        lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
 		                        if (def != null) {
 		                            lineNumberMap.addMethodMapping(def, cppFile, cppStartLine, cppEndLine);
 		                        }

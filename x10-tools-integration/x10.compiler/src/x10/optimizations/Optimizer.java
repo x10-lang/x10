@@ -21,6 +21,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
 import polyglot.types.TypeSystem;
+import x10.visit.ExpressionFlattener;
 import x10.visit.Inliner;
 
 public class Optimizer {
@@ -38,8 +39,9 @@ public class Optimizer {
     public List<Goal> goals(Job job) {
         List<Goal> goals = new ArrayList<Goal>();
 
-        if (x10.Configuration.INLINE_OPTIMIZATIONS)
+        if (x10.Configuration.INLINE_OPTIMIZATIONS) {
             goals.add(Inliner(job));
+        }
         goals.add(LoopUnrolling(job));
         goals.add(ForLoopOptimizations(job));
 
@@ -67,4 +69,5 @@ public class Optimizer {
         NodeFactory nf = extInfo.nodeFactory();
         return new VisitorGoal("Inlined", job, new Inliner(job, ts, nf)).intern(scheduler);
     }
+
 }

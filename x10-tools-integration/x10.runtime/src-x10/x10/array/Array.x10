@@ -11,8 +11,11 @@
 
 package x10.array;
 
+import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
+import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
 import x10.util.IndexedMemoryChunk;
 
 /**
@@ -52,7 +55,7 @@ public final class Array[T](
     /**
      * The region of this array.
      */
-    region:Region
+    region:Region{self != null}
 )  implements (Point(region.rank))=>T,
               Iterable[Point(region.rank)] {
 
@@ -81,9 +84,9 @@ public final class Array[T](
     public property rail: boolean = region.rail;
 
 
-    private val raw:IndexedMemoryChunk[T];
-    private val rawLength:int;
-    private val layout:RectLayout!;
+    private global val raw:IndexedMemoryChunk[T];
+    private global val rawLength:int;
+    private val layout:RectLayout!{self!=null};
 
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
@@ -100,21 +103,13 @@ public final class Array[T](
      * The specifics of this mapping are unspecified, although it would be reasonable to assume that
      * if the rect property is true, then every element of the backing IndexedMemoryChunk[T] actually
      * contatins a valid element of T.  Furthermore, for a multi-dimensional array it is currently true
-     * (and likely to remain true) that the layout used is compatible with the expected by 
-     * platform BLAS libraries.
+     * (and likely to remain true) that the layout used is a row-major layout (like C, unlike Fortran)
+     * and is compatible with the layout expected by platform BLAS libraries that operate on row-major
+     * C arrays.
      *
      * @return the IndexedMemoryChunk[T] that is the backing storage for the Array object.
      */
-    public @Inline def raw() = raw;
-   
-
-    // TODO: This is a hack around the way regions are currently defined.
-    //       to try to make checking slightly more efficient.
-    //       This will be fixed in 2.1.0.
-    private val baseRegion:BaseRegion{self.rank==this.rank};
-
-    // TODO: XTENLANG-1188 this should be a const (static) field, but working around C++ backend bug
-    private val bounds = (pt:Point):RuntimeException => new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
+    public @Header @Inline def raw() = raw;
 
 
     /**
@@ -129,9 +124,8 @@ public final class Array[T](
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
-        raw = IndexedMemoryChunk[T](n);
+        raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
-        baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
 
@@ -147,13 +141,12 @@ public final class Array[T](
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
-        val r  = IndexedMemoryChunk[T](n);
+        val r  = IndexedMemoryChunk.allocate[T](n);
 	for (p:Point(reg.rank) in reg) {
             r(layout.offset(p))= init(p);
         }
         raw = r;
         rawLength = n;
-        baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
 
@@ -169,13 +162,20 @@ public final class Array[T](
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
-        val r  = IndexedMemoryChunk[T](n);
-	for (var i:int = 0; i<n; i++) {
-            r(i) = init;
-	}
+        val r  = IndexedMemoryChunk.allocate[T](n);
+        if (reg.rect) {
+            // Can be optimized into a simple fill of the backing IndexedMemoryChunk
+            // because every element of the chunk is used by a point in the region.
+	    for (var i:int = 0; i<n; i++) {
+                r(i) = init;
+	    }
+        } else {
+	    for (p:Point(reg.rank) in reg) {
+                r(layout.offset(p))= init;
+            }
+        }
         raw = r;
         rawLength = n;
-        baseRegion = reg as BaseRegion{self.rank==this.rank};
     }
 
 
@@ -195,13 +195,12 @@ public final class Array[T](
      * values are initialized to the corresponding values in the 
      * argument ValRail.
      *
-     * TODO: rail is declared to be a ValRail[T]! as a hack around
+     * XTENLANG-1527: rail is declared to be a ValRail[T]! as a hack around
      *       a compiler bug.  Without the !, the front-end complains that you
      *       can't refer to "T" in a static context, which is complete nonsense
      *       since this is a constructor.
      */    
     public def this(rail:ValRail[T]!):Array[T]{self.rank==1,rect,zeroBased} {
-        // TODO: could make this more efficient by optimizing rail copy.
 	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
     }
 
@@ -260,8 +259,10 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    public safe @Inline def apply(i0:int){rank==1}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0);
+    public safe @Header @Inline def apply(i0:int){rank==1}:T {
+        if (checkBounds() && !region.contains(i0)) {
+            raiseBoundsError(i0);
+        }
         return raw(layout.offset(i0));
     }
 
@@ -276,8 +277,10 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int)
      */
-    public safe @Inline def apply(i0:int, i1:int){rank==2}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1);
+    public safe @Header @Inline def apply(i0:int, i1:int){rank==2}:T {
+        if (checkBounds() && !region.contains(i0, i1)) {
+            raiseBoundsError(i0, i1);
+        }
         return raw(layout.offset(i0,i1));
     }
 
@@ -293,8 +296,10 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int)
      */
-    public safe @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2);
+    public safe @Header @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
+        if (checkBounds() && !region.contains(i0, i1, i2)) {
+            raiseBoundsError(i0, i1, i2);
+        }
         return raw(layout.offset(i0, i1, i2));
     }
 
@@ -311,8 +316,10 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int, Int)
      */
-    public safe @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2, i3);
+    public safe @Header @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
+        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+            raiseBoundsError(i0, i1, i2, i3);
+        }
         return raw(layout.offset(i0, i1, i2, i3));
     }
 
@@ -325,9 +332,9 @@ public final class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    public safe @Inline def apply(pt:Point{self.rank==this.rank}):T {
-        if (checkBounds()) {
-	    baseRegion.check(bounds, pt);
+    public safe @Header @Inline def apply(pt:Point{self.rank==this.rank}):T {
+        if (checkBounds() && !region.contains(pt)) {
+            raiseBoundsError(pt);
         }
         return raw(layout.offset(pt));
     }
@@ -345,8 +352,10 @@ public final class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    public safe @Inline def set(v:T, i0:int){rank==1}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0);
+    public safe @Header @Inline def set(v:T, i0:int){rank==1}:T {
+        if (checkBounds() && !region.contains(i0)) {
+            raiseBoundsError(i0);
+        }
         raw(layout.offset(i0)) = v;
         return v;
     }
@@ -364,8 +373,10 @@ public final class Array[T](
      * @see #apply(Int, Int)
      * @see #set(T, Point)
      */
-    public safe @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1);
+    public safe @Header @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
+        if (checkBounds() && !region.contains(i0, i1)) {
+            raiseBoundsError(i0, i1);
+        }
         raw(layout.offset(i0,i1)) = v;
         return v;
     }
@@ -384,8 +395,10 @@ public final class Array[T](
      * @see #apply(Int, Int, Int)
      * @see #set(T, Point)
      */
-    public safe @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2);
+    public safe @Header @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
+        if (checkBounds() && !region.contains(i0, i1, i2)) {
+            raiseBoundsError(i0, i1, i2);
+        }
         raw(layout.offset(i0, i1, i2)) = v;
         return v;
     }
@@ -405,8 +418,10 @@ public final class Array[T](
      * @see #apply(Int, Int, Int, Int)
      * @see #set(T, Point)
      */
-    public safe @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds()) baseRegion.check(bounds, i0, i1, i2, i3);
+    public safe @Header @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
+        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+            raiseBoundsError(i0, i1, i2, i3);
+        }
         raw(layout.offset(i0, i1, i2, i3)) = v;
         return v;
     }
@@ -422,9 +437,9 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    public safe @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
-        if (checkBounds()) {
-            baseRegion.check(bounds, p);
+    public safe @Header @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
+        if (checkBounds() && !region.contains(p)) {
+            raiseBoundsError(p);
         }
         raw(layout.offset(p)) = v;
         return v;
@@ -453,42 +468,41 @@ public final class Array[T](
 
 	
     /**
-     * Lift this array using the given unary operation.
-     * Apply the operation pointwise to the elements of this array.
-     * Return a new array with the same region as this array.
-     * Each element of the new array is the result of applying the given operation to the
-     * corresponding element of this array.
-     *
+     * Map the given unary operation onto the elements of this array
+     * constructing a new result array such that for all points <code>p</code>
+     * in <code>this.region</code>,
+     * <code>result(p) == op(this(p))</code>.<p>
+     * 
      * @param op the given unary operation
-     * @return a new array with the same region as this array.
+     * @return a new array with the same region as this array where <code>result(p) == op(this(p))</code>
+     * 
      * @see #reduce((T,T)=>T,T)
      * @see #scan((T,T)=>T,T)
      */
-    public def lift(op:(T)=>T):Array[T](region)! {
-        // TODO: parallelize this operation.
+    public def map(op:(T)=>T):Array[T](region)! {
         return new Array[T](region, (p:Point(this.rank))=>op(apply(p)));
     }
 
 
     /**
-     * Lift this array using the given unary operation.
-     * Apply the operation pointwise to the elements of this array
-     * storing the result in the destination array.
-     * Each element of destination will be set to be the result of 
-     * applying the given operation to the corresponding element of this array.
+     * Map the given unary operation onto the elements of this array
+     * storing the results in the dst array such that for all points <code>p</code>
+     * in <code>this.region</code>,
+     * <code>dst(p) == op(this(p))</code>.<p>
      *
-     * @param dst the destination array for the lift operation
+     * @param dst the destination array for the results of the map operation
      * @param op the given unary operation
-     * @return dst after applying the lift operation.
+     * @return dst after applying the map operation.
+     * 
      * @see #reduce((T,T)=>T,T)
      * @see #scan((T,T)=>T,T)
      */
-    public def lift(dst:Array[T](region)!, op:(T)=>T):Array[T](region)! {
+    public def map(dst:Array[T](region)!, op:(T)=>T):Array[T](region)!{self==dst} {
 	// TODO: parallelize these loops.
 	if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
-            // the traversal and simply lift on the IndexedMemoryChunk itself.
+            // the traversal and simply map on the IndexedMemoryChunk itself.
             for (var i:int =0; i<rawLength; i++) {
                 dst.raw(i) = op(raw(i));
             }	
@@ -502,45 +516,41 @@ public final class Array[T](
 
 
     /**
-     * Lift this array and a second source array using the given binary operation.
-     * Apply the operation pointwise to the elements of this array and the
-     * argument src array, returning a new array with the same region as this array.
-     * Each element of the new array is the result of applying the given operation to the
-     * corresponding element of this array and src.
+     * Map the given binary operation onto the elements of this array
+     * and the other src array, storing the results in a new result array 
+     * such that for all points <code>p</code> in <code>this.region</code>,
+     * <code>result(p) == op(this(p), src(p))</code>.<p>
      *
      * @param op the given binary operation
      * @param src the other src array
-     * @return a new array with the same region as this array containing the result of the lift.
+     * @return a new array with the same region as this array containing the result of the map
      * @see #reduce((T,T)=>T,T)
      * @see #scan((T,T)=>T,T)
      */
-    public def lift(src:Array[T](this.region)!, op:(T,T)=>T):Array[T](region)! {
-        // TODO: parallelize this operation.
+    public def map(src:Array[T](this.region)!, op:(T,T)=>T):Array[T](region)! {
         return new Array[T](region, (p:Point(this.rank))=>op(apply(p), src(p)));
     }
 
 
     /**
-     * Lift this array and a second source array using the given binary operation.
-     * Apply the operation pointwise to the elements of this array and the 
-     * other array storing the result in the destination array.
-     * Each element of destination will be set to be the result of 
-     * applying the given operation to the corresponding element of this array
-     * and the src array.
+     * Map the given binary operation onto the elements of this array
+     * and the other src array, storing the results in the given dst array 
+     * such that for all points <code>p</code> in <code>this.region</code>,
+     * <code>dst(p) == op(this(p), src(p))</code>.<p>
      *
-     * @param dst the destination array for the lift operation
-     * @param src the second source array for the lift operation
+     * @param dst the destination array for the map operation
+     * @param src the second source array for the map operation
      * @param op the given binary operation
-     * @return destination after applying the lift operation.
+     * @return destination after applying the map operation.
      * @see #reduce((T,T)=>T,T)
      * @see #scan((T,T)=>T,T)
      */
-    public def lift(dst:Array[T](region)!, src:Array[T](region)!, op:(T,T)=>T):Array[T](region)! {
+    public def map(dst:Array[T](region)!, src:Array[T](region)!, op:(T,T)=>T):Array[T](region)! {
 	// TODO: parallelize these loops.
 	if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
-            // the traversal and simply lift on the IndexedMemoryChunk itself.
+            // the traversal and simply map on the IndexedMemoryChunk itself.
             for (var i:int =0; i<rawLength; i++) {
                 dst.raw(i) = op(raw(i), src.raw(i));
             }	
@@ -562,7 +572,7 @@ public final class Array[T](
      * @param op the given binary operation
      * @param unit the given initial value
      * @return the final result of the reduction.
-     * @see #lift((T)=>T)
+     * @see #map((T)=>T)
      * @see #scan((T,T)=>T,T)
      */
     public def reduce(op:(T,T)=>T, unit:T):T {
@@ -595,7 +605,7 @@ public final class Array[T](
      * @param op the given binary operation
      * @param unit the given initial value
      * @return a new array containing the result of the scan 
-     * @see #lift((T)=>T)
+     * @see #map((T)=>T)
      * @see #reduce((T,T)=>T,T)
      */
     public def scan(op:(T,T)=>T, unit:T): Array[T](region)! = scan(new Array[T](region), op, unit); // TODO: private constructor to avoid useless zeroing
@@ -612,7 +622,7 @@ public final class Array[T](
      * @param op the given binary operation
      * @param unit the given initial value
      * @return a new array containing the result of the scan 
-     * @see #lift((T)=>T)
+     * @see #map((T)=>T)
      * @see #reduce((T,T)=>T,T)
      */
     public def scan(dst:Array[T](region)!, op:(T,T)=>T, unit:T): Array[T](region)! {
@@ -623,6 +633,23 @@ public final class Array[T](
         }
         return dst;
     }
+
+    private @NoInline @NoReturn def raiseBoundsError(i0:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
+    }    
+    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in array");
+    }    
+    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in array");
+    }    
+    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in array");
+    }    
+    private @NoInline @NoReturn def raiseBoundsError(pt:Point(rank)) {
+        throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
+    }    
+
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

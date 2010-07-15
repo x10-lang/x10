@@ -373,7 +373,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         var first: boolean = true;
         for (p:Place in places) {
             if (!first) s += ",";
-            s += p.id + "->" + get(p);
+            s +=  get(p) + "->" + p.id;
             first = false;
         }
         s += ")";

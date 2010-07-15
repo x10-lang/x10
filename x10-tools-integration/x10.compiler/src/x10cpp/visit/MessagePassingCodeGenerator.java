@@ -48,10 +48,6 @@ import static x10cpp.visit.SharedVarsMethods.getUniqueId_;
 import static x10cpp.visit.SharedVarsMethods.make_ref;
 import static x10cpp.visit.SharedVarsMethods.refsAsPointers;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -105,7 +101,6 @@ import polyglot.ast.Labeled_c;
 import polyglot.ast.LocalClassDecl_c;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Local_c;
-import polyglot.ast.Loop_c;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
@@ -190,7 +185,6 @@ import x10.ast.X10Binary_c;
 import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10CanonicalTypeNode_c;
-import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10Field_c;
@@ -200,7 +194,6 @@ import x10.ast.X10IntLit_c;
 import x10.ast.X10Local_c;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
-import x10.ast.X10Special;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
 import x10.extension.X10Ext;
@@ -865,6 +858,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    h.forceNewline(0);
 		    if (isStruct) {
 		        Emitter.openNamespaces(sh, pkgName);
+                if (def.fullName().toString().equals("x10.lang.Place")) {
+                    sh.write("class Any; class String; // Forward reference are required in Place to prevent circularity");
+                    sh.newline();
+                }
 		        sh.newline(0);
 		        sh.forceNewline(0);
 		    }
@@ -1293,12 +1290,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     private void visitStructBody(ClassBody_c n, X10CPPContext_c context,
                                  X10ClassType currentClass, X10ClassType superClass,
                                  X10TypeSystem xts) {
+        assert superClass==null : "Struct cannot have a superclass! superClass="+superClass;
         ClassifiedStream sh = context.structHeader;
         ClassifiedStream h = sw.header();
-        boolean seenToString = false;
-        boolean seenHashCode = false;  // autodefine hashCode if not userdefined
-        boolean seenEqualsAny = false;  // autodefine equals(Any) if not userdefined
-        boolean seenEqualsSelf = false;  // autodefine equals(S) if not userdefined
         String StructCType = Emitter.translateType(currentClass, false);
 
 
@@ -1340,77 +1334,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 }
                 prev = member;
                 n.printBlock(member, sw, tr);
-
-                // The compiler provides implementations of equals, hashCode, and toString if
-                // there are no user-defined implementations.  So, we need to search the struct's members
-                // and determine which methods to auto-generate and which ones are user-provided.
-                if (member instanceof MethodDecl_c) {
-                    MethodDecl_c mdecl = (MethodDecl_c)member;
-                    if (!mdecl.flags().flags().isAbstract() &&
-                            mdecl.name().id().toString().equals("toString") &&
-                            mdecl.formals().isEmpty() &&
-                            !mdecl.flags().flags().isStatic() &&
-                            xts.typeBaseEquals(xts.String(), mdecl.returnType().type(), context)) {
-                        seenToString = true;
-                    }
-                    if (mdecl.name().id().toString().equals("hashCode") &&
-                            mdecl.formals().isEmpty() &&
-                            !mdecl.flags().flags().isStatic() &&
-                            xts.typeBaseEquals(xts.Int(), mdecl.returnType().type(), context)) {
-                        seenHashCode = true;
-                    }
-                    if (mdecl.name().id().toString().equals("equals") &&
-                            mdecl.formals().size() == 1 &&
-                            xts.typeBaseEquals(xts.Any(), mdecl.formals().get(0).type().type(), context) && 
-                            !mdecl.flags().flags().isStatic() &&
-                            xts.typeBaseEquals(xts.Boolean(), mdecl.returnType().type(), context)) {
-                        seenEqualsAny = true;
-                    }
-                    if (mdecl.name().id().toString().equals("equals") &&
-                            mdecl.formals().size() == 1 &&
-                            xts.typeBaseEquals(currentClass, mdecl.formals().get(0).type().type(), context) && 
-                            !mdecl.flags().flags().isStatic() &&
-                            xts.typeBaseEquals(xts.Boolean(), mdecl.returnType().type(), context)) {
-                        seenEqualsSelf = true;
-                    }
-
-                }
             }
-
-            // Generate structEquals for structs
-            emitter.printType(xts.Boolean(), sh);
-            sh.write(" " + mangled_method_name(STRUCT_EQUALS_METHOD) + "(");
-            sh.write(StructCType + " that");
-            sh.write(") {");
-            sh.newline(4);
-            sh.begin(0);
-            if (superClass != null) {
-                sh.write("if (!this->" + Emitter.translateType(superClass)
-                         + "::" + mangled_method_name(STRUCT_EQUALS_METHOD)
-                         + "(that))");
-                sh.newline(4);
-                sh.begin(0);
-                sh.write("return false;");
-                sh.end();
-                sh.newline();
-            }
-            for (FieldInstance fi : currentClass.fields()) {
-                if (!fi.flags().isStatic()) {
-                    String name = fi.name().toString();
-                    sh.write("if (!" + STRUCT_EQUALS + "(this->"+ mangled_field_name(name)
-                             + ", that->"+ mangled_field_name(name) + "))");
-                    sh.newline(4);
-                    sh.begin(0);
-                    sh.write("return false;");
-                    sh.end();
-                    sh.newline();
-                }
-            }
-            sh.write("return true;");
-            sh.end();
-            sh.newline();
-            sh.write("}");
-            sh.newline();
 
             emitter.generateStructSerializationMethods(currentClass, sw);
             sw.forceNewline();
@@ -1423,124 +1347,65 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.writeln("static x10_boolean at("+StructCType+" this_, x10aux::ref<x10::lang::Object> obj) { return true; }");
         h.writeln("static x10_boolean at("+StructCType+" this_, x10::lang::Place place) { return true; }");
         h.writeln("static x10::lang::Place home("+StructCType+" this_) { /* FIXME: Should probably call Place_methods::make, but don't want to include Place.h */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");
-        h.writeln("static x10aux::ref<x10::lang::String> typeName("+StructCType+" this_) { return this_->typeName(); }");
+        //h.writeln("static x10aux::ref<x10::lang::String> typeName("+StructCType+" this_) { return this_->typeName(); }");
 
-        // All types support equals(Any).  If there is no user-defined equals, then we define one here.
         // We also have to define a redirection method from the struct itself to the implementation
         // in struct_methods to support usage patterns of equals in x10aux.
-        if (seenEqualsAny) {
-            // define redirection method
-            sh.writeln("x10_boolean equals(x10aux::ref<x10::lang::Any>);"); sh.forceNewline();
-            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10_boolean "+ Emitter.translateType(currentClass, false)+ "::equals(x10aux::ref<x10::lang::Any> that) {");
-            sw.newline(4); sw.begin(0);
-            sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::equals(*this, that);");
-            sw.end(); sw.newline();
-            sw.writeln("}");            
-        } else {
-            // define default equals that redirects to struct_equals
-            sh.writeln("x10_boolean equals(x10aux::ref<x10::lang::Any> that);"); sh.forceNewline();
-            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10_boolean "+StructCType+ "::equals(x10aux::ref<x10::lang::Any> that) {");
-            sw.newline(4); sw.begin(0);
-            sw.writeln(make_ref(REFERENCE_TYPE)+" thatAsRef(that);");
-            sw.write("if (thatAsRef->_type()->equals(x10aux::getRTT<"+StructCType+" >())) {");
-            sw.newline(4); sw.begin(0);
-            sw.writeln("x10aux::ref<x10::lang::IBox<"+StructCType+" > > thatAsIBox(that);");
-            sw.write("return _struct_equals(thatAsIBox->value);");
-            sw.end(); sw.newline();
-            sw.writeln("}");
-            sw.write("return false;");            
-            sw.end(); sw.newline();
-            sw.writeln("}"); sw.forceNewline();
-            h.writeln("static x10_boolean equals("+StructCType+" this_, x10aux::ref<x10::lang::Any> that) { return this_->equals(that); }");
-        }
+        // define redirection method
+        sh.writeln("x10_boolean equals(x10aux::ref<x10::lang::Any>);"); sh.forceNewline();
+        emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+        sw.write("x10_boolean "+ Emitter.translateType(currentClass, false)+ "::equals(x10aux::ref<x10::lang::Any> that) {");
+        sw.newline(4); sw.begin(0);
+        sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::equals(*this, that);");
+        sw.end(); sw.newline();
+        sw.writeln("}");
 
-        // Optimized equals(SelfType) to avoid needless boxing.  If there is no user-defined equals(SelfType), then we define one here.
-        // We also have to define a redirection method from the struct itself to the implementation
-        // in struct_methods to support usage patterns of equals in x10aux.
-        if (seenEqualsSelf) {
-            // define redirection method
-            sh.writeln("x10_boolean equals("+StructCType+");"); sh.forceNewline();
-            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10_boolean "+ StructCType+ "::equals("+StructCType+" that) {");
-            sw.newline(4); sw.begin(0);
-            sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::equals(*this, that);");
-            sw.end(); sw.newline();
-            sw.writeln("}");            
-        } else {
-            // define default equals(SelfType) that redirects to struct_equals
-            sh.writeln("x10_boolean equals("+StructCType+" that);"); sh.forceNewline();
-            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10_boolean "+ StructCType+ "::equals("+StructCType+" that) {");
-            sw.newline(4); sw.begin(0);
-            sw.write("return _struct_equals(that);");            
-            sw.end(); sw.newline();
-            sw.writeln("}"); sw.forceNewline();
-            h.writeln("static x10_boolean equals("+StructCType+" this_, "+StructCType+" that) { return this_->equals(that); }");
-        }
+        // define redirection method
+        sh.writeln("x10_boolean equals("+StructCType+");"); sh.forceNewline();
+        emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+        sw.write("x10_boolean "+ StructCType+ "::equals("+StructCType+" that) {");
+        sw.newline(4); sw.begin(0);
+        sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::equals(*this, that);");
+        sw.end(); sw.newline();
+        sw.writeln("}");
+                                          
+        // define redirection method
+        sh.writeln("x10_boolean "+STRUCT_EQUALS_METHOD+"(x10aux::ref<x10::lang::Any>);"); sh.forceNewline();
+        emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+        sw.write("x10_boolean "+ Emitter.translateType(currentClass, false)+ "::"+STRUCT_EQUALS_METHOD+"(x10aux::ref<x10::lang::Any> that) {");
+        sw.newline(4); sw.begin(0);
+        sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::"+STRUCT_EQUALS_METHOD+"(*this, that);");
+        sw.end(); sw.newline();
+        sw.writeln("}");
+
+        // define redirection method
+        sh.writeln("x10_boolean "+STRUCT_EQUALS_METHOD+"("+StructCType+");"); sh.forceNewline();
+        emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+        sw.write("x10_boolean "+ StructCType+ "::"+STRUCT_EQUALS_METHOD+"("+StructCType+" that) {");
+        sw.newline(4); sw.begin(0);
+        sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::"+STRUCT_EQUALS_METHOD+"(*this, that);");
+        sw.end(); sw.newline();
+        sw.writeln("}");
+
+        // define redirection method
+        sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
+        emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+        sw.write("x10aux::ref<x10::lang::String> "+ StructCType+ "::toString() {");
+        sw.newline(4); sw.begin(0);
+        sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::toString(*this);");
+        sw.end(); sw.newline();
+        sw.writeln("}");
         
-        
-        // All types support toString.  If there is no user-defined toString, then we define one here.
-        // We also have to define a redirection method from the struct itself to the implementation
-        // in struct_methods to support usage patterns of toString in x10aux.
-        if (seenToString) {
-            // define redirection method
-            sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
-            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10aux::ref<x10::lang::String> "+ StructCType+ "::toString() {");
-            sw.newline(4); sw.begin(0);
-            sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::toString(*this);");
-            sw.end(); sw.newline();
-            sw.writeln("}");
-        } else {
-            // define default toString
-            sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
-            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10aux::ref<x10::lang::String> "+ StructCType+ "::toString() {");
-            sw.newline(4); sw.begin(0);
-            sw.write("return x10::lang::String::Lit(\"Struct without toString defined.\");");
-            sw.end(); sw.newline();
-            sw.writeln("}"); sw.forceNewline();
-            h.writeln("static x10aux::ref<x10::lang::String> toString("+StructCType+" this_) { return this_->toString(); }");
-        }
+        // define redirection method
+        sh.writeln("x10_int hashCode();"); sh.forceNewline();
+        emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+        sw.write("x10_int "+ StructCType+ "::hashCode() {");
+        sw.newline(4); sw.begin(0);
+        sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::hashCode(*this);");
+        sw.end(); sw.newline();
+        sw.writeln("}");
 
-        // All types support hashCode.  If there is no user-defined toString, then we define one here.
-        // We also have to define a redirection method from the struct itself to the implementation
-        // in struct_methods to support usage patterns of toString in x10aux.        
-        if (seenHashCode) {
-            // define redirection method
-            sh.writeln("x10_int hashCode();"); sh.forceNewline();
-            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10_int "+ StructCType+ "::hashCode() {");
-            sw.newline(4); sw.begin(0);
-            sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::hashCode(*this);");
-            sw.end(); sw.newline();
-            sw.writeln("}");
-        } else {
-            // define default hashCode by hashing all fields.
-            sh.writeln("x10_int hashCode();"); sh.forceNewline();
-            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10_int "+ StructCType+ "::hashCode() {");
-            sw.newline(4); sw.begin(0);
-            sw.writeln("x10_int result = 0;");
-            if (superClass != null) {
-                sw.writeln("result = " + Emitter.translateType(superClass)+ "::hashCode();");
-            }
-            for (FieldInstance fi : currentClass.fields()) {
-                if (!fi.flags().isStatic()) {
-                    String name = fi.name().toString();
-                    // TODO: better hash code combining function here!
-                    sw.writeln("result += x10aux::hash_code(this->"+mangled_field_name(name)+");");
-                }
-            }
-            sw.writeln("return result;");
-            sw.end(); sw.newline();
-            sw.writeln("}"); sw.forceNewline();
-            h.writeln("static x10_int hashCode("+StructCType+" this_) { return this_->hashCode(); }");
-        }
-
-        // define typeName
+        /* define typeName
         sh.writeln("x10aux::ref<x10::lang::String> typeName();"); sh.forceNewline();
         emitter.printTemplateSignature(currentClass.typeArguments(), sw);
         sw.write("x10aux::ref<x10::lang::String> "+ StructCType+ "::typeName() {");
@@ -1548,7 +1413,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.writeln("return x10aux::type_name(*this);");
         sw.end();
         sw.newline();
-        sw.writeln("}"); sw.forceNewline();
+        sw.writeln("}"); sw.forceNewline(); */
     }
 
 	private void generateITablesForClass(X10ClassType currentClass,
@@ -1798,6 +1663,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         return sb.toString();
 	}
 
+	public static final QName HEADER_ANNOTATION = QName.make("x10.compiler.Header");
+
 	public void visit(MethodDecl_c dec) {
 		// TODO: if method overrides another method with generic
 		// types, check if C++ does the right thing.
@@ -1841,7 +1708,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         boolean inlineInClassDecl = false;
         boolean inlineDirective = false;
         try {
-            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Inline"));
+            Type annotation = (Type) xts.systemResolver().find(HEADER_ANNOTATION);
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
                 if (container.x10Def().typeParameters().size() == 0) {
                     inlineInClassDecl = true;
@@ -1934,7 +1801,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    boolean inlineInClassDecl = false;
 	    try {
-	        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Inline"));
+	        Type annotation = (Type) xts.systemResolver().find(HEADER_ANNOTATION);
 	        if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
 	            inlineInClassDecl = true;
 	        }
@@ -2360,6 +2227,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!tr.job().extensionInfo().getOptions().assertions)
 			return;
 
+		sw.write("#ifndef NO_ASSERTIONS");
+		sw.newline();
+		sw.write("if (x10aux::x10__assertions_enabled)");
+		sw.newline(4); sw.begin(0);
 		sw.write("x10aux::x10__assert(");
 		n.print(n.cond(), sw, tr);
 		if (n.errorMessage() != null) {
@@ -2368,6 +2239,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			n.print(n.errorMessage(), sw, tr);
 		}
 		sw.write(");");
+		sw.end(); sw.newline();
+		sw.write("#endif//NO_ASSERTIONS");
 		sw.newline();
 	}
 
@@ -2911,7 +2784,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        return ((X10Special_c) e).qualifier() != null;
 	    if (e instanceof X10Cast_c)
 	        return needsNullCheck(((X10Cast_c) e).expr());
-	    return true;
+	    return !X10TypeMixin.isNonNull(e.type());
 	}
 
 	public void visit(X10Call_c n) {

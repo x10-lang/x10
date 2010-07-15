@@ -117,7 +117,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	public Call_c reconstruct(Receiver target, Id name, List<Expr> arguments) {
 		return super.reconstruct(target, name, arguments);
 	}
-	
+
 	@Override
 	public Node visitChildren(NodeVisitor v) {
 		Receiver target = (Receiver) visitChild(this.target, v);
@@ -132,18 +132,18 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	public Node disambiguate(ContextVisitor tc) throws SemanticException {
 		return this;
 	}
-	
+
 
 	/**
 	 * Looks up a method with given name and argument types.
 	 */
-	protected Pair<MethodInstance,List<Expr>> superFindMethod(ContextVisitor tc, X10Context xc, 
-			TypeSystem_c.MethodMatcher matcher, List<Type> typeArgs, 
+	protected Pair<MethodInstance,List<Expr>> superFindMethod(ContextVisitor tc, X10Context xc,
+			TypeSystem_c.MethodMatcher matcher, List<Type> typeArgs,
 			List<Type> argTypes) throws SemanticException {
 		return superFindMethod(tc, xc, matcher, typeArgs, argTypes, null);
 	}
-	protected Pair<MethodInstance,List<Expr>> superFindMethod(ContextVisitor tc, X10Context xc, 
-			TypeSystem_c.MethodMatcher matcher, List<Type> typeArgs, 
+	protected Pair<MethodInstance,List<Expr>> superFindMethod(ContextVisitor tc, X10Context xc,
+			TypeSystem_c.MethodMatcher matcher, List<Type> typeArgs,
 			List<Type> argTypes, List<Expr> args) throws SemanticException {
 		// Check for any method with the appropriate name.
 		// If found, stop the search since it shadows any enclosing
@@ -204,17 +204,17 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
      * Looks up a method with name "name" and arguments compatible with
      * "argTypes".
      */
-        protected Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, TypeSystem_c.MethodMatcher matcher, 
+        protected Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, TypeSystem_c.MethodMatcher matcher,
         		List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
             X10Context xc = (X10Context) tc.context();
-            Pair<MethodInstance,List<Expr>> result = xc.currentDepType() == null ? 
-            		superFindMethod(tc, xc, matcher, typeArgs, argTypes) 
+            Pair<MethodInstance,List<Expr>> result = xc.currentDepType() == null ?
+            		superFindMethod(tc, xc, matcher, typeArgs, argTypes)
             		: superFindMethod(tc, (X10Context) xc.pop(), matcher, typeArgs, argTypes);
             return result;
     }
-        
-    
- 
+
+
+
 /**
  * First try for a struct constructor, and then look for a static method.
  * @param tc
@@ -224,14 +224,14 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
  * @return
  * @throws SemanticException
  */
-        
+
         protected Node tryStructConstructor(ContextVisitor tc, Receiver r, List<Type> typeArgs, List<Type> argTypes,
     			List<Expr> args) throws SemanticException {
         	try {
 				X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 				X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 				Context c = tc.context();
-			
+
 				// TODO: Actually, determine if there is a struct with the given name,
 				// and able to accept given typeargs and args.
 				//ts.existsStructWithName(name(), tc);
@@ -253,7 +253,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				if (!(ts.isStructType(t))) { // bail
 					throw new SemanticException();
 				}
-		            
+
 				tn = (TypeNode) tn.visit(tb);
 				// First ensure that there is a type associated with tn.
 				tn = (TypeNode) tn.disambiguate(tc);
@@ -262,7 +262,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				t = ts.expandMacros(t);
 				tn = tn.typeRef(Types.lazyRef(t));
 				*/
-				
+
 				TypeNode otn;
 				if (typeArguments().size() > 0) {
 					otn = nf.AmbMacroTypeNode(position(), r, name(), typeArguments(), Collections.EMPTY_LIST);
@@ -270,7 +270,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				else {
 				    otn = nf.AmbTypeNode(position(), r, name());
 				}
-				
+
 				otn = otn.typeRef(Types.lazyRef(ts.unknownType(position())));
 				TypeNode tn2 = (TypeNode) otn.del().typeCheckOverride(this, tc);
 				if (tn2 == null) {
@@ -287,7 +287,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				    return neu;
 				}
 			} catch (SemanticException z) {
-				// TBD: Sometimes this is the real error. e.g. the only legitimate target is the 
+				// TBD: Sometimes this is the real error. e.g. the only legitimate target is the
 				// struct call. We should record this exception and then come back and use this later
 				// if necessary.
 				// This may have caused some errors to print out.
@@ -303,17 +303,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		 if (n != null)
 			 return n;
 		// Otherwise try and find the usual null target method.
-		 
+
 			 n = typeCheckNullTargetForMethod(tc, typeArgs, argTypes);
 			 return n;
-		
+
 	}
-	
-	
+
+
 	protected Node typeCheckNullTargetForMethod(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
-		
+
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		NodeFactory nf = tc.nodeFactory();
 		X10Context c = (X10Context) tc.context();
 
 		// the target is null, and thus implicit
@@ -323,11 +322,18 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		Pair<MethodInstance, List<Expr>> p = findMethod(tc, ts.MethodMatcher(null, name.id(), typeArgs, argTypes, c), typeArgs, argTypes);
 		X10MethodInstance mi = (X10MethodInstance) p.fst();
 		List<Expr> args = p.snd();
-		X10TypeSystem xts = (X10TypeSystem) ts;
+		return typeCheckNullTargetForMethod(tc, typeArgs, argTypes, mi, args);
+	}
+
+	protected Node typeCheckNullTargetForMethod(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes, X10MethodInstance mi, List<Expr> args) throws SemanticException {
+
+		X10TypeSystem xts = (X10TypeSystem) ((X10TypeSystem) tc.typeSystem());
+		NodeFactory nf = tc.nodeFactory();
+		X10Context c = (X10Context) tc.context();
 
 		Receiver r;
 		if (mi.flags().isStatic()) {
-			Type container = findContainer(ts, mi);       
+			Type container = findContainer(xts, mi);
 			XVar this_ = getThis(container);
 			if (this_ != null)
 			    container = X10TypeMixin.setSelfVar(container, this_);
@@ -339,9 +345,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			// different from mi.container().  mi.container() returns a super type
 			// of the class we want.
 			Type scope = c.findMethodScope(name.id());
-		
 
-			if (! ts.typeEquals(scope, c.currentClass(), c)) {
+
+			if (! xts.typeEquals(scope, c.currentClass(), c)) {
 				XVar this_ = getThis(scope);
 				if (this_ != null)
 				    scope = X10TypeMixin.setSelfVar(scope, this_);
@@ -353,21 +359,21 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 		}
 
-		X10Call_c call = (X10Call_c) this.targetImplicit(true).target(r).arguments(args);   
+		X10Call_c call = (X10Call_c) this.targetImplicit(true).target(r).arguments(args);
 		Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), r, c);
 		call = (X10Call_c)call.methodInstance(mi).type(rt);
-		
+
 		call.checkProtoMethod();
-	
+
 		return call;
 	}
-	
+
 	void checkProtoMethod() throws SemanticException {
 		if (X10TypeMixin.isProto(target().type())
-				&& ! X10Flags.toX10Flags(methodInstance().flags()).isProto() 
+				&& ! X10Flags.toX10Flags(methodInstance().flags()).isProto()
 			)
-			throw new SemanticException(methodInstance() 
-					+ " must be declared as a proto method since it is called on a receiver " + 
+			throw new SemanticException(methodInstance()
+					+ " must be declared as a proto method since it is called on a receiver " +
 					target() + " with a proto type.");
 	}
 	XVar getThis(Type t) {
@@ -399,6 +405,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        X10MethodInstance mi = ts.createFakeMethod(name.id(), typeArgs, argTypes);
 	        Type rt = mi.rightType(); // X10Field_c.rightType(mi.rightType(), mi.x10Def(), n.target, c);
 	        n = (X10Call_c) methodInstance(mi).type(rt);
+	        try {
+	            n = ((X10Call_c)n).typeCheckNullTargetForMethod(tc, typeArgs, argTypes, mi, this.arguments);
+	        } catch (SemanticException e2) { }
 	    }
 	    return n;
 	}
@@ -413,9 +422,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
 
 		Expr cc = null;
-		
+
 		{
-		    // Check if target.name is a field or local of function type; 
+		    // Check if target.name is a field or local of function type;
 			// if so, convert to a closure call.
 			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -446,9 +455,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			if (e != null) {
 				assert typeArguments().size() == 0;
 				ClosureCall ccx = nf.ClosureCall(position(), e,  arguments());
-				X10MethodInstance ci = 
-				    (X10MethodInstance) ts.createMethodInstance(position(), 
-				                                                new ErrorRef_c<MethodDef>(ts, position(), 
+				X10MethodInstance ci =
+				    (X10MethodInstance) ts.createMethodInstance(position(),
+				                                                new ErrorRef_c<MethodDef>(ts, position(),
 				                                                        "Cannot get MethodDef before type-checking closure call."));
 				ccx = ccx.closureInstance(ci);
 				Node n = ccx;
@@ -469,7 +478,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				}
 			}
 		}
-		
+
 		// We have a cc and a valid call with no target. The one with //todo: fill in this comment
 		if (cc instanceof ClosureCall) {
 			ClosureCall call = (ClosureCall) cc;
@@ -530,8 +539,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 					 MethodMatcher matcher = ((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c);
 					 throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
 				 }
-				 
-				 // OK so now we have mi and args that correspond to a success.    
+
+				 // OK so now we have mi and args that correspond to a success.
 				 // Copy the method instance so we can modify it.
 				 assert mi != null && args != null;
 				 Type rt = mi.rightType(); // X10Field_c.rightType(mi.rightType(), mi.x10Def(), n.target, c);
@@ -539,20 +548,20 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				 // Set up n with the answer.
 				 n = result.arguments(args);
 			}
-			
+
 			if (n instanceof X10Call_c) {
 				n = PlaceChecker.makeReceiverLocalIfNecessary((X10Call) n, tc);
 				Checker.checkOfferType(position(), (X10MethodInstance) ((X10Call_c) n).methodInstance(), tc);
 			}
-			
-			
+
+
 			// We have both!
 			if (cc != null) {
-			    throw new Errors.AmbiguousCall(((n instanceof X10New) 
-                                                           ? ((X10New) n).constructorInstance() 
+			    throw new Errors.AmbiguousCall(((n instanceof X10New)
+                                                           ? ((X10New) n).constructorInstance()
                                                                    : ((X10Call) n).methodInstance()), cc, position());
 			}
-				
+
 			if (n instanceof Expr) {
 				X10TypeMixin.checkMissingParameters((Expr) n);
 			}
@@ -603,14 +612,14 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		            	}
 		                return result;
 		            }
-		           
+
 		            throw e;
 		        }
 		    }
-		    
+
 		    assert mi != null && args != null;
 		}
-		
+
 		if (cc != null)
 		    throw new SemanticException("Ambiguous call; both " + mi + " and closure match.", position());
 
@@ -626,18 +635,18 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		}
 
 		// If the target is super, but the method is abstract, then complain.
-		if (n.target instanceof Special && 
+		if (n.target instanceof Special &&
 		        ((Special) n.target).kind() == Special.SUPER &&
 		        mi.flags().isAbstract()) {
 		    throw new SemanticException("Cannot call an abstract method " +
-		                                "of the super class", this.position());            
+		                                "of the super class", this.position());
 		}
 
 		// Copy the method instance so we can modify it.
 		Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), n.target, c);
 		X10Call_c result = (X10Call_c) n.methodInstance(mi).type(rt);
 		result = (X10Call_c) result.arguments(args);
-		
+
 		/////////////////////////////////////////////////////////////////////
 		// End inlined super call.
 		/////////////////////////////////////////////////////////////////////
@@ -655,8 +664,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		return result;
 	}
 
-	
-	
+
+
 	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(final X10Call_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
 	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	    final Context context = tc.context();
@@ -669,7 +678,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	            return ts.MethodMatcher(ct, n.name().id(), typeArgs, argTypes, context);
 	        }
 	    });
-	    
+
 	    return p;
 	}
 
@@ -679,17 +688,17 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		try {
 		    if (mi !=null) {
 		        X10Flags flags = X10Flags.toX10Flags(mi.flags());
-		        if (c.inNonBlockingCode() 
+		        if (c.inNonBlockingCode()
 		                && ! (mi.isSafe() || flags.isNonBlocking() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only nonblocking methods can be called from nonblocking code.", 
+		            throw new SemanticException(mi + ": Only nonblocking methods can be called from nonblocking code.",
 		                                        position());
-		        if (c.inSequentialCode() 
+		        if (c.inSequentialCode()
 		                && ! (mi.isSafe() || flags.isSequential() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only sequential methods can be called from sequential code.", 
+		            throw new SemanticException(mi + ": Only sequential methods can be called from sequential code.",
 		                                        position());
-		        if (c.inLocalCode() 
+		        if (c.inLocalCode()
 		                && ! (mi.isSafe() || flags.isPinned() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only pinned methods can be called from pinned code.", 
+		            throw new SemanticException(mi + ": Only pinned methods can be called from pinned code.",
 		                                        position());
 		    }
 		}
