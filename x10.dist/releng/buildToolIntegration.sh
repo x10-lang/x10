@@ -55,7 +55,7 @@ if [ ! -z "$CLEAN" ]; then
         cd $distdir
 
         echo
-        echo getting distrib
+        echo Getting X10 source distribution...
         for i in \
 	    x10.common \
 	    x10.compiler \
@@ -67,13 +67,16 @@ if [ ! -z "$CLEAN" ]; then
             svn export --force https://x10.svn.sourceforge.net/svnroot/x10/branches/x10-tools-integration/$i
             if [ $? != 0 ]; then
                 svnErrors="true"
-                break
             fi
         done
-        )
+        if [ -n "$svnErrors" ]; then
+            exit 1
+        fi
+    )
 
-    if [ ! -z "$svnErrors" ]; then
+    if [ $? != 0 ]; then
         echo "Errors retrieving X10 source; aborting."
+        exit 1
     else
         echo "The distribution is now exported to the directory $workdir"
     fi
