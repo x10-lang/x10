@@ -21,6 +21,11 @@ public class ULongType extends RuntimeType<Long> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.ULong";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Long;
     }
@@ -28,6 +33,15 @@ public class ULongType extends RuntimeType<Long> {
     @Override
     public Object makeArray(int length) {
         return new long[length];
+    }
+    
+    @Override
+    public Object makeArray(Object... elem) {
+        long[] arr = new long[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).longValue();
+        }
+        return arr;
     }
     
     @Override

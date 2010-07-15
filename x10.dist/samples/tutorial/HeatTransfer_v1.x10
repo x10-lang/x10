@@ -46,7 +46,7 @@ public class HeatTransfer_v1 {
         do {
             finish ateach (p in D) Temp(p) = stencil_1(p);
 
-            delta = A.lift(Temp, D.region, (x:Real,y:Real)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
+            delta = A.map(Temp, D.region, (x:Real,y:Real)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
 
             finish ateach (p in D) A(p) = Temp(p);
         } while (delta > epsilon);

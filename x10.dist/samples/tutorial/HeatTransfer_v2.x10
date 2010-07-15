@@ -49,7 +49,7 @@ public class HeatTransfer_v2 {
                 for (p:Point(2) in D | here)
                     Temp(p) = stencil_1(p);
 
-            delta = A.lift(Temp, D.region, (x:Real,y:Real)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
+            delta = A.map(Temp, D.region, (x:Real,y:Real)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
             finish ateach (p in D) A(p) = Temp(p);
         } while (delta > epsilon);
     }

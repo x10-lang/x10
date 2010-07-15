@@ -21,6 +21,11 @@ public class UByteType extends RuntimeType<Byte> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.UByte";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Byte;
     }
@@ -28,6 +33,15 @@ public class UByteType extends RuntimeType<Byte> {
     @Override
     public Object makeArray(int length) {
         return new byte[length];
+    }
+    
+    @Override
+    public Object makeArray(Object... elem) {
+        byte[] arr = new byte[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).byteValue();
+        }
+        return arr;
     }
     
     @Override

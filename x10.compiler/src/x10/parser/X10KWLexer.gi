@@ -102,14 +102,13 @@
     for
     foreach
     future
-    in
-    goto
     global
-    has
+    goto
     here
     if
     implements
     import
+    in
     incomplete
     instanceof
     interface
@@ -118,12 +117,11 @@
     new
     next
     nonblocking
-    now
     null
     offer
     offers
-    or
     operator
+    or
     package
     private
     property
@@ -131,28 +129,22 @@
     proto
     public
     return
-    rooted
     safe
     self
     sequential
     shared
     static
-    strictfp
     struct
     super
     switch
-    synchronized
     this
     throw
     throws
-    transient
     true
     try
-    type  
-    unsafe
+    type
     val
     var
-    volatile
     when
     while
 %End
@@ -203,11 +195,6 @@
               | a s
         /.$BeginAction
                 $setResult($_as);
-          $EndAction
-        ./
-              | h a s
-        /.$BeginAction
-                $setResult($_has);
           $EndAction
         ./
               | i n
@@ -285,11 +272,6 @@
                     $setResult($_nonblocking);
           $EndAction
         ./
-              | n o w
-        /.$BeginAction
-                    $setResult($_now);
-          $EndAction
-        ./
               | o r
         /.$BeginAction
                     $setResult($_or);
@@ -308,11 +290,6 @@
               | s e q u e n t i a l
         /.$BeginAction
                     $setResult($_sequential);
-          $EndAction
-        ./
-              | u n s a f e
-        /.$BeginAction
-                    $setResult($_unsafe);
           $EndAction
         ./
               | w h e n
@@ -517,21 +494,10 @@
                 $setResult($_return);
           $EndAction
         ./
-              | r o o t e d
-        /.$BeginAction
-                $setResult($_rooted);
-          $EndAction
-        ./
 
               | s t a t i c
         /.$BeginAction
                 $setResult($_static);
-          $EndAction
-        ./
-
-              | s t r i c t f p
-        /.$BeginAction
-                $setResult($_strictfp);
           $EndAction
         ./
 
@@ -553,12 +519,6 @@
           $EndAction
         ./
 
-              | s y n c h r o n i z e d
-        /.$BeginAction
-                $setResult($_synchronized);
-          $EndAction
-        ./
-
               | t h i s
         /.$BeginAction
                 $setResult($_this);
@@ -577,12 +537,6 @@
           $EndAction
         ./
 
-              | t r a n s i e n t
-        /.$BeginAction
-                $setResult($_transient);
-          $EndAction
-        ./
-
               | t r u e
         /.$BeginAction
                 $setResult($_true);
@@ -592,12 +546,6 @@
               | t r y
         /.$BeginAction
                 $setResult($_try);
-          $EndAction
-        ./
-
-              | v o l a t i l e
-        /.$BeginAction
-                $setResult($_volatile);
           $EndAction
         ./
 

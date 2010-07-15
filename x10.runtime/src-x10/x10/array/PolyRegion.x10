@@ -25,7 +25,7 @@ import x10.io.Printer;
  * @author bdlucas
  */
 
-public class PolyRegion extends BaseRegion {
+public class PolyRegion extends Region {
 
     // XTENLANG-49
     static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};

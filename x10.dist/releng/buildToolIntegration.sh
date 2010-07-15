@@ -4,6 +4,8 @@
 
 workdir=/tmp/x10-tib-$USER
 
+CLEAN="true"
+
 while [ $# != 0 ]; do
 
   case $1 in
@@ -16,6 +18,10 @@ while [ $# != 0 ]; do
         rev=$2
 	shift
     ;;
+
+    -noclean)
+        CLEAN=""
+        ;;
 
    esac
    shift
@@ -38,33 +44,53 @@ esac
 
 distdir=$workdir/x10
 
-echo
-echo cleaning $workdir
-rm -rf $workdir
-mkdir -p $workdir || exit 1
-mkdir -p $workdir/x10
+if [ ! -z "$CLEAN" ]; then
+    echo
+    echo cleaning $workdir
+    rm -rf $workdir
+    mkdir -p $workdir || exit 1
+    mkdir -p $workdir/x10
 
-(
-cd $distdir
+    (
+        cd $distdir
 
-echo
-echo getting distrib
-for i in \
-	x10.common \
-	x10.compiler \
-	x10.constraints \
-	x10.dist \
-	x10.runtime \
-	x10.tests
-do
-    svn export https://x10.svn.sourceforge.net/svnroot/x10/branches/x10-tools-integration/$i
-done
-)
+        echo
+        echo Getting X10 source distribution...
+        for i in \
+	    x10.common \
+	    x10.compiler \
+	    x10.constraints \
+	    x10.dist \
+	    x10.runtime \
+	    x10.tests
+        do
+            svn export --force https://x10.svn.sourceforge.net/svnroot/x10/branches/x10-tools-integration/$i
+            if [ $? != 0 ]; then
+                svnErrors="true"
+            fi
+        done
+        if [ -n "$svnErrors" ]; then
+            exit 1
+        fi
+    )
 
-echo "The distribution is now exported to the directory $workdir"
+    if [ $? != 0 ]; then
+        echo "Errors retrieving X10 source; aborting."
+        exit 1
+    else
+        echo "The distribution is now exported to the directory $workdir"
+    fi
+fi
 
 echo "Building distribution"
 cd $distdir/x10.dist
+
 ant dist -Doptimize=true
+
+if [ $? != 0 ]; then
+    echo "Ant build failed; aborting build for this platform."
+    exit 1
+fi
+
 $distdir/x10.dist/releng/packageCPPRelease.sh -version tib_$rev -platform $X10_PLATFORM
-echo "Platform specific distribuiton tarball created"
+echo "Platform specific distribution tarball created"

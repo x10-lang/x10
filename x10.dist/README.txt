@@ -2,12 +2,11 @@
 
 This program is controlled by the Eclipse Public Licence v1.0.
 
-This directory contains the 2.0.3 release of X10.
+This is a distribution of the X10 Programming Language.
+http://x10-lang.org/
 
-To build both the C++ and Java backends, run "ant" in x10.dist.
-To build just the C++ backend, run "ant dist-cpp" in x10.dist.
-To build just the Java backend, run "ant dist-java" in x10.dist.
+Please see INSTALL.txt for basic usage instructions.
 
-Prerequisites:
-Set the JAVA_HOME environment variable to point to the
-directory where you find bin/java.
+Please see x10-lang.org for more detailed instructions
+on how to build from source and for general infromation
+about X10.

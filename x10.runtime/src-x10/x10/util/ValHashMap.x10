@@ -16,8 +16,8 @@ public class ValHashMap[K,V] implements ValMap[K,V] {
 		var hashMap:HashMap[Key,Value]! = new HashMap[Key,Value]();
 		val entries:Iterable[Map.Entry[Key,Value]!] = map.entries();
         for (val entry:Map.Entry[Key,Value]! in entries) {
-			assert (entry!=null) : map;
-			hashMap.put(entry.getKey(), entry.getValue());
+			if (entry!=null)
+			    hashMap.put(entry.getKey(), entry.getValue());
 		}
 		return make(hashMap);
 	}
@@ -123,7 +123,7 @@ public class ValHashMap[K,V] implements ValMap[K,V] {
         val map: ValHashMap[Key,Value];
         var i: Int;
         
-        def this(map: ValHashMap[Key,Value]) { this.map = map; this.i = 0; }
+        def this(map: ValHashMap[Key,Value]) { this.map = map; this.i = 0; } // you call advance() after the ctor
 
         def advance(): void {
             while (i < map.table.length) {

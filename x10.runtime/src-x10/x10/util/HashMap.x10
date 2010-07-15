@@ -41,6 +41,8 @@ public class HashMap[K,V] implements Map[K,V] {
     
     /** table.length - 1 */
     var mask: Int;
+
+	var modCount:Int = 0; // to discover concurrent modifications
     
     var shouldRehash: Boolean;
 
@@ -71,6 +73,7 @@ public class HashMap[K,V] implements Map[K,V] {
     }
     
     public def clear(): void {
+        modCount++;
         init(MIN_SIZE);
     }
     
@@ -150,13 +153,14 @@ public class HashMap[K,V] implements Map[K,V] {
             if (e == null) {
                 if (i - h > MAX_PROBES)
                     shouldRehash = true;
+                modCount++;
                 table(j) = new HashEntry[K,V](k, v, h);
                 size++;
                 occupation++;
                 return null;
             } else if (e.hash == h && k.equals(e.key)) {
-                if (i - h > MAX_PROBES)
-                    shouldRehash = true;
+//                if (i - h > MAX_PROBES)
+//                    shouldRehash = true;
                 val old = e.value;
                 e.value = v;
                 if (e.removed) {
@@ -170,6 +174,7 @@ public class HashMap[K,V] implements Map[K,V] {
     }
     
     public def rehash(): void {
+        modCount++;
         val t = table;
         val oldSize = size;
         table = Rail.make[HashEntry[K,V]!](t.length*2);
@@ -194,6 +199,7 @@ public class HashMap[K,V] implements Map[K,V] {
     }
     
     public def remove(k: K): Box[V] {
+        modCount++;
         val e = getEntry(k);
         if (e != null && ! e.removed) {
             size--;
@@ -215,8 +221,9 @@ public class HashMap[K,V] implements Map[K,V] {
     protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]!] {
         val map: HashMap[Key,Value]!;
         var i: Int;
+		var originalModCount:Int;
         
-        def this(map: HashMap[Key,Value]!) { this.map = map; this.i = 0; advance(); }
+        def this(map: HashMap[Key,Value]!) { this.map = map; this.i = 0; originalModCount = map.modCount; } // you call advance() after the ctor
 
         def advance(): void {
             while (i < map.table.length) {
@@ -235,6 +242,7 @@ public class HashMap[K,V] implements Map[K,V] {
         }
         
         public def next(): HashEntry[Key,Value]! {
+			if (originalModCount!=map.modCount) throw new RuntimeException("Your code has a concurrency bug! You updated the hashmap "+(map.modCount-originalModCount)+" times since you created the iterator.");
             val j = i;
 //            assert map.table(j) != null && ! map.table(j).removed : "map entry " + j + " is null or removed";
             i++;

@@ -304,7 +304,7 @@ They are always declared with a type.  (Type inference is not
 advisable, because there is no single expression to deduce a type from.)
 The variable name can be omitted if it is not to be used in the
 scope of the declaration, as in the type of the method 
-\xcd`static def main(Rail[String])` executed at the start of a program that
+\xcd`static def main(Rail[String]):Void` executed at the start of a program that
 does not use its command-line arguments.
 
 \begin{grammar}
@@ -401,7 +401,7 @@ this restriction. The following is correct, albeit obtuse:
 % class NotInitVal {
 %~~vis
 \begin{xten}
-static def main(r: Rail[String]) {
+static def main(r: Rail[String]):Void {
   val a : Int;
   a = r.length;
   val b : String;

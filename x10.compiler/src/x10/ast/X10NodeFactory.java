@@ -125,7 +125,11 @@ public interface X10NodeFactory extends NodeFactory {
 
 	DepParameterExpr DepParameterExpr(Position pos, List<Expr> cond);
 	DepParameterExpr DepParameterExpr(Position pos, List<Formal> formals, List<Expr> cond);
-    MethodDecl X10MethodDecl(Position pos, FlagsNode flags,
+
+    X10MethodDecl MethodDecl(Position pos, FlagsNode flags, TypeNode returnType,
+			Id name,
+			List<Formal> formals, List<TypeNode> throwTypes, Block body);
+    X10MethodDecl X10MethodDecl(Position pos, FlagsNode flags,
     		TypeNode returnType, Id name, List<TypeParamNode> typeParams,
     		List<Formal> formals, DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body);
 	SettableAssign SettableAssign(Position pos, Expr a, List<Expr> indices, Assign.Operator op, Expr rhs);
@@ -179,4 +183,6 @@ public interface X10NodeFactory extends NodeFactory {
     TypeNode HasType(TypeNode tn);
     Offer Offer(Position pos, Expr e);
     FinishExpr FinishExpr(Position p, Expr e, Stmt s);
+
+
 }

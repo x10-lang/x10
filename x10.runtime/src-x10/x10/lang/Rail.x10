@@ -417,17 +417,6 @@ public final class Rail[T](length: Int)
                                 src_place:Place, src_finder:()=>Pair[ValRail[T],Int],
                                 len:Int) : Void;
 
-    /** Creates a ValRail that shares the data of the given Rail.  This is an
-     * unsafe operation that may be removed in future X10 releases.  The ValRail
-     * does not actually contain constant data, so use with caution!  The intended
-     * use-case is to avoid duplicating the content of a Rail when serialising to a
-     * remote place.  You may find copyTo/copyFrom are a better choice as they are
-     * faster and safer.
-     */ 
-    @Native("java", "(#0).view()")
-    @Native("c++", "#0->view()")
-    public native def view(): ValRail[T]{self.length==this.length};
-
     private static class RailIterator[S] implements Iterator[S] {
         private var curIndex:int = 0;
         private val rail:Rail[S]!;

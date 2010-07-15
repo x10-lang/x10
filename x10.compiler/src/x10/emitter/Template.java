@@ -11,9 +11,7 @@
 
 package x10.emitter;
 
-import polyglot.util.InternalCompilerError;
 import polyglot.visit.Translator;
-import x10.visit.X10PrettyPrinterVisitor;
 
 /**
  * Expand a given template with the given set of arguments.
@@ -27,19 +25,28 @@ public class Template extends Expander {
 	 */
 	
 	private final String id;
-	//private final String template;
 	private final Object[] args;
-	public Template(Emitter er, String id, Object... args) {
+	private final String regex;
+	private Template(Emitter er, String id, String regex, Object... args) {
 		super(er);
 		
 		this.id = id;
+		this.regex = regex;
+		assert regex != null;
 		this.args = args;
+	}
+	public static Template createTemplateFromRegex(Emitter er, String id, String regex, Object... args) {
+	    return new Template(er, id, regex, args);
 	}
 	public void expand() {
 		expand(er.tr);
 	}
 	public void expand(Translator tr) {
-		er.dump(id, args, tr);
+//	    if (regex != null) {
+	        er.dumpRegex(id != null ? id : "internal", args, tr, regex);
+//	    } else {
+//	        er.dump(id, args, tr);
+//	    }
 	}
 	public String toString() {
 		return id + " " + er.convertToString(args);

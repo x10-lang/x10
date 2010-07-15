@@ -403,6 +403,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         	}
         }
 
+        // Step I.c. Check the throw types
+        List<TypeNode> processedThrowTypes = nn.visitList(nn.throwTypes(), childtc);
+        nn = (X10ConstructorDecl) nn.throwTypes(processedThrowTypes);
+
         X10ConstructorDef nnci = (X10ConstructorDef) nn.constructorDef();
 
         // Step II. Check the return type. 

@@ -168,20 +168,34 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
 	    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
     }
-	
+
     public String signature() {
-    	StringBuilder sb = new StringBuilder(name.toString());
-    	if (! typeParameters.isEmpty()){
-    		sb.append(typeParameters.toString());
-    	}
-    	sb.append('(');
-    	for (LocalDef l : formalNames()) {
-    		sb.append(l.name().toString())
-    		.append(':')
-    		.append(l.type().get().toString());
-    	}
-       sb.append(')');
-       return sb.toString();
+        StringBuilder sb = new StringBuilder(name.toString());
+        if (! typeParameters.isEmpty()) {
+            sb.append("[");
+            boolean first = true;
+            for (Ref<? extends Type> p : typeParameters) {
+                if (!first) {
+                    sb.append(",");
+                }
+                first = false;
+                sb.append(p);
+            }
+            sb.append("]");
+        }
+        sb.append('(');
+        boolean first = true;
+        for (LocalDef l : formalNames()) {
+            if (!first) {
+                sb.append(",");
+            }
+            first = false;
+            sb.append(l.name().toString())
+                .append(':')
+                .append(l.type().get().toString());
+        }
+        sb.append(')');
+        return sb.toString();
     }
 
     @Override

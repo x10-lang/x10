@@ -9,6 +9,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.visit.NodeVisitor;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
+import polyglot.types.SemanticException;
 import x10.ast.AnnotationNode_c;
 import x10.ast.X10Formal_c;
 
@@ -22,40 +23,45 @@ public class PositionInvariantChecker extends NodeVisitor
         previousGoalName = previousName;
     }
 
-    public NodeVisitor enter(Node parent, Node n)
-    {
+    public Node visitEdgeNoOverride(Node parent, Node n) {
         try
         {
             if (Report.should_report("PositionInvariantChecker", 2))
 	            Report.report(2, "Checking invariants for: " + n);
             checkInvariants(parent, n);
+            n.del().visitChildren(this); // if there is an error, I don't recurse to the children
 
-        } catch (AssertionError e) {
+
+        } catch (SemanticException e) {
             String msg = "After goal "+previousGoalName+": "+
                     e.getMessage()+("!")+
                     (" parentPos=")+(parent.position())+
                     (" nPos=")+(n.position())+
                     (" parent=")+(parent)+
                     (" n=")+(n).toString();
-            job.compiler().errorQueue().enqueue(ErrorInfo.WARNING,msg,n.position());
+            job.compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR,msg,n.position());
         }
 
-        return this;
+        return n;
     }
-    private void checkInvariants(Node parent, Node n) {
+    private void myAssert(boolean cond, String msg) throws SemanticException {
+        if (!cond)
+            throw new SemanticException(msg);
+    }
+    private void checkInvariants(Node parent, Node n) throws SemanticException {
         if (parent == null) return;
-        assert (n != null) : "Cannot visit null";
+        myAssert(n != null,"Cannot visit null");
         Position pPos = parent.position();
         Position nPos = n.position();
-        assert ((pPos != null) && (nPos != null)) : "Positions must never be null";
+        myAssert((pPos != null) && (nPos != null),"Positions must never be null");
         if (nPos.isCompilerGenerated()) return;
         if (pPos.isCompilerGenerated()) {
-            //assert (nPos.isCompilerGenerated()) : "If your parent is COMPILER_GENERATED, then you must be COMPILER_GENERATED";
+            //myAssert(nPos.isCompilerGenerated()) : "If your parent is COMPILER_GENERATED, then you must be COMPILER_GENERATED";
             // todo: take from some ancestor
             return;
         }
-        assert (equals(pPos.file(), nPos.file())) : "Positions must have the same file";
-        assert (equals(pPos.path(), nPos.path())) : "Positions must have the same path";
+        myAssert(equals(pPos.file(), nPos.file()),"Positions must have the same file");
+        myAssert(equals(pPos.path(), nPos.path()),"Positions must have the same path");
 
         /*
         todo: remove this.
@@ -98,15 +104,9 @@ public class PositionInvariantChecker extends NodeVisitor
             checkNumbers(pPos.endColumn(), nPos.endColumn(), false);
     }
 
-    public static void checkNumbers(int pNum, int nNum, boolean isBeginning) {
-        assert nNum>=0 && pNum>=0 : "We have unknown numbers";
-        /*
-        if (nNum < 0) return;
-        if (pNum < 0) {
-            assert (nNum < 0) : "If your parent has no number, then you cannot have a number";
-            return;
-        }      */
-        assert isBeginning ? pNum<=nNum : pNum>=nNum : ("Illegal containment of positions! parentNum=")+(pNum)+(" nodeNum=")+(nNum)+((isBeginning) ? " and parent should be before child" : " and parent should be after child");
+    public void checkNumbers(int pNum, int nNum, boolean isBeginning) throws SemanticException {
+        myAssert(nNum>=0 && pNum>=0,"We have unknown numbers");
+        myAssert(isBeginning ? pNum<=nNum : pNum>=nNum,"Illegal containment of positions");
     }
 
     public static boolean equals(Object o1, Object o2) {

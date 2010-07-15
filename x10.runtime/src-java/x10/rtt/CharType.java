@@ -11,7 +11,6 @@
 
 package x10.rtt;
 
-import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
 
 
@@ -21,6 +20,11 @@ public class CharType extends RuntimeType<Character> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Char";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Character;
     }
@@ -28,6 +32,15 @@ public class CharType extends RuntimeType<Character> {
     @Override
     public Object makeArray(int length) {
         return new char[length];
+    }
+    
+    @Override
+    public Object makeArray(Object... elem) {
+        char[] arr = new char[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Character)elem[i]).charValue();
+        }
+        return arr;
     }
     
     @Override

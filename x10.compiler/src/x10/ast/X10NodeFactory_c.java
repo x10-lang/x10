@@ -652,19 +652,19 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	@Override
-	public MethodDecl MethodDecl(Position pos, FlagsNode flags, TypeNode returnType,
+	public X10MethodDecl MethodDecl(Position pos, FlagsNode flags, TypeNode returnType,
 			Id name,
 			List<Formal> formals, List<TypeNode> throwTypes, Block body)
 	{
 		return X10MethodDecl(pos, flags, returnType, name, Collections.EMPTY_LIST, formals, null, throwTypes, null, body);
 	}
 
-	public MethodDecl X10MethodDecl(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<TypeParamNode> typeParams, List<Formal> formals, 
+	public X10MethodDecl X10MethodDecl(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<TypeParamNode> typeParams, List<Formal> formals,
 			DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body) {
-		MethodDecl n = new X10MethodDecl_c(pos, flags, returnType, name, typeParams,
+		X10MethodDecl n = new X10MethodDecl_c(pos, flags, returnType, name, typeParams,
 				formals, guard, throwTypes, offerType, body);
-		n = (MethodDecl)n.ext(extFactory().extMethodDecl());
-		n = (MethodDecl)n.del(delFactory().delMethodDecl());
+		n = (X10MethodDecl)n.ext(extFactory().extMethodDecl());
+		n = (X10MethodDecl)n.del(delFactory().delMethodDecl());
 		return n;
 	}
 	

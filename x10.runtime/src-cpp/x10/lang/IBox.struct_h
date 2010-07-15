@@ -43,6 +43,8 @@ namespace x10 {
             virtual const x10aux::RuntimeType *_type() const;
             static const x10aux::RuntimeType* getRTT();
 
+            virtual x10_boolean _struct_equals(x10aux::ref<Reference> other);
+            
             virtual x10aux::ref<String> toString();
 
             virtual x10_int hashCode();

@@ -33,10 +33,29 @@ fi
 
 tarfile="x10-$X10_VERSION""_$PLATFORM.tgz"
 
+#
+# PLAT_LIBPAT is a comma-separated list of shell file-globbing patterns that
+# identifies the libraries to be included in the tarball from the 'lib' directory.
+#
+case $PLATFORM in
+    cygwin_*)
+        PLAT_LIBPAT="lib*.*,*.dll"
+        ;;
+    linux_*)
+        PLAT_LIBPAT="lib*.*"
+        ;;
+    aix_*)
+        PLAT_LIBPAT="lib*.*"
+        ;;
+    macosx_*)
+        PLAT_LIBPAT="lib*.*"
+        ;;
+esac
+
 mydir="`dirname "$0"`"
 top="`cd "$mydir"/.. && pwd`"
 cdir="`pwd`"
 [ "$cdir" = "/" ] && cdir="$cdir."
 cd "$top"
-tar -cvzf "$cdir/$tarfile" INSTALL.txt README.txt RELEASE.NOTES.txt bin/{runx10,setupX10,x10,x10c,x10c++,mpirunx10,launcher,manager,daemon} epl-v10.html etc include lib/{lib*,*.jar,*.dll} samples/*.x10
 
+tar -cvzf "$cdir/$tarfile" INSTALL.txt README.txt RELEASE.NOTES.txt bin/{runx10,setupX10,x10,x10c,x10c++,mpirunx10,launcher,manager,daemon} epl-v10.html etc include lib/*.jar lib/{${PLAT_LIBPAT}} samples

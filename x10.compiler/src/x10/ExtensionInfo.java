@@ -405,12 +405,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                if(wsCodeGenGoal != null){
                    goals.add(wsCodeGenGoal);                   
                    wsCodeGenGoal.addPrereq(TypeCheckBarrier());
+                   wsCodeGenGoal.addPrereq(WSExpressionFlattener(job));
                }
            }
            goals.add(InnerClassRemover(job));
-           if (x10.Configuration.FLATTEN_EXPRESSIONS) {
-               goals.add(ExpressionFlattener(job));
-           }
            goals.addAll(Optimizer.goals(this, job));
            goals.add(Desugarer(job));
            goals.add(CodeGenerated(job));
@@ -484,7 +482,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     			if ((! Configuration.VERBOSE_CALLS) && (! Configuration.STATIC_CALLS)) {
     				int count = ext.weakCallsCount();
     				if (count > 0) {
-    					compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses.");
+    					compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses, run with -VERBOSE_CALLS for more details.");
     				}
     			}
     			return true;
@@ -630,7 +628,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal CodeGenerated(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
-    	   return new ValidatingOutputGoal(job, new X10Translator(job, ts, nf, extInfo.targetFactory())).intern(this);
+    	   Goal cg = new ValidatingOutputGoal(job, new X10Translator(job, ts, nf, extInfo.targetFactory()));
+           Goal cg2 = cg.intern(this);
+           if (cg == cg2) {
+               cg2.addPrereq(ExpressionFlattener(job));
+           }
+           return cg2;
        }
 
        public Goal X10MLTypeChecked(Job job) {
@@ -781,10 +784,26 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   return new ValidatingVisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
        }
 
+       public Goal WSExpressionFlattener(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           VisitorGoal ef = new VisitorGoal("WorkStealing ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
+           Goal ef2 = ef.intern(this);
+           if (ef == ef2) {
+               ef.addPrereq(Serialized(job));
+           }
+           return ef2;
+       }
+       
        public Goal ExpressionFlattener(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf)).intern(this);
+           VisitorGoal ef = new VisitorGoal("WorkStealing ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
+           Goal ef2 = ef.intern(this);
+           if (ef == ef2) {
+               ef.addPrereq(Desugarer(job));
+           }
+           return ef2;
        }
        
        public Goal InnerClassRemover(Job job) {

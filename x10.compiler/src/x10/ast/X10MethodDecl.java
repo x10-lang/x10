@@ -24,4 +24,7 @@ public interface X10MethodDecl extends MethodDecl {
 	
 	List<TypeParamNode> typeParameters();
 	X10MethodDecl typeParameters(List<TypeParamNode> typeParams);
+
+	TypeNode offerType();
+	X10MethodDecl_c offerType(TypeNode offerType);
 }

@@ -55,6 +55,7 @@ import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -63,6 +64,7 @@ import polyglot.util.Position;
 import polyglot.visit.Translator;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
+import x10.extension.X10Ext;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -516,10 +518,13 @@ public class Emitter {
 		return returnType != null ? returnType : from.returnType();
 	}
 
+	private static final QName NORETURN_ANNOTATION = QName.make("x10.compiler.NoReturn");
+
 	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify, boolean inlineDirective) {
 		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify, inlineDirective);
 	}
-	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, boolean qualify, boolean inlineDirective) {
+	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
+	                 boolean qualify, boolean inlineDirective) {
 		X10Flags flags = X10Flags.toX10Flags(n.flags().flags());
 		X10MethodDef def = (X10MethodDef) n.methodDef();
 		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
@@ -542,7 +547,8 @@ public class Emitter {
 			if (flags.isStatic())
 				h.write(flags.retain(Flags.STATIC).translate());
 			else if (def.typeParameters().size() != 0) {
-			    if (!flags.isFinal()) {
+			    X10ClassDef cd = (X10ClassDef) Types.get(def.container()).toClass().def();
+			    if (!flags.isFinal() && !cd.flags().isFinal() && !cd.isStruct()) {
 			        // FIXME: [IP] for now just make non-virtual.
 			        // In the future, will need to have some sort of dispatch object, e.g. the following:
 			        // class Foo { def m[T](a: X): Y { ... } }; class Bar extends Foo { def m[T](a: X): Y { ... } }
@@ -594,6 +600,24 @@ public class Emitter {
 		}
 		h.end();
 		h.write(")");
+		
+		if (!qualify) {
+		    boolean noReturnPragma = false;
+		    try {
+		        X10TypeSystem xts = (X10TypeSystem)tr.typeSystem();
+		        Type annotation = (Type) xts.systemResolver().find(NORETURN_ANNOTATION);
+		        if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
+		            noReturnPragma = true;
+		        }
+		    } catch (SemanticException e) { 
+		        /* Ignore exception when looking for annotation */  
+		    }		
+
+		    if (noReturnPragma) {
+		        h.write(" X10_PRAGMA_NORETURN ");
+		    }
+		}
+        
 		h.end();
 		if (!qualify) {
 			assert (!flags.isNative());

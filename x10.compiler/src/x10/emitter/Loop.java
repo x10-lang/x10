@@ -31,26 +31,27 @@ public class Loop extends Expander {
 	 */
 
 	private final String id;
-	//private final String template;
+	private final String regex;
 	private final List<?>[] lists;
 	private final int N;
-	public Loop(Emitter er, String id, List<?> arg) {
-		this(er, id, new List[] { arg });
-	}
-	public Loop(Emitter er, String id, List<?> arg1, List<?> arg2) {
-		this(er, id, new List[] { arg1, arg2 });
-	}
-	public Loop(Emitter er, String id, List<?> arg1, List<?> arg2, List<?> arg3) {
-		this(er, id, new List[] { arg1, arg2, arg3 });
-	}
-	public Loop(Emitter er, String id, List<?> arg1, List<?> arg2, List<?> arg3, List<?> arg4) {
-		this(er, id, new List[] { arg1, arg2, arg3, arg4 });
-	}
-	public Loop(Emitter er, String id, List<?>[] components) {
+    public Loop(Emitter er, String id, String regex, List<?> arg) {
+        this(er, id, regex, new List[] { arg });
+    }
+    public Loop(Emitter er, String id, String regex, List<?> arg1, List<?> arg2) {
+        this(er, id, regex, new List[] { arg1, arg2 });
+    }
+    public Loop(Emitter er, String id, String regex, List<?> arg1, List<?> arg2, List<?> arg3) {
+        this(er, id, regex, new List[] { arg1, arg2, arg3 });
+    }
+    public Loop(Emitter er, String id, String regex, List<?> arg1, List<?> arg2, List<?> arg3, List<?> arg4) {
+        this(er, id, regex, new List[] { arg1, arg2, arg3, arg4 });
+    }
+	public Loop(Emitter er, String id, String regex, List<?>[] components) {
 		super(er);
 	
 		this.id = id;
-		//this.template = translate(id);
+		this.regex = regex;
+		assert(regex != null);
 		this.lists = components;
 		// Make sure we have at least one parameter
 		assert(lists.length > 0);
@@ -73,7 +74,7 @@ public class Loop extends Expander {
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < args.length; j++)
 				args[j] = iters[j].next();
-			er.dump(id, args, tr);
+			er.dumpRegex(id, args, tr, regex);
 		}
 		er.w.write("/* } */");
 	}

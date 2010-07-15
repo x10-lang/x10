@@ -1,3 +1,7 @@
+struct Struct1 {}
+struct Struct2 extends Struct1 {} // ERR
+class AClass extends Struct1 {} // ERR
+
 public class Generics_ERR_MustFailCompile {}
 
 class Bla[T] extends Throwable

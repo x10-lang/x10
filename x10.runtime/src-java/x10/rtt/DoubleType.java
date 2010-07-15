@@ -21,6 +21,11 @@ public class DoubleType extends RuntimeType<Double> {
     }
     
     @Override
+    public String typeName() {
+        return "x10.lang.Double";
+    }
+
+    @Override
     public boolean instanceof$(Object o) {
         return o instanceof java.lang.Double;
     }
@@ -28,6 +33,15 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Object makeArray(int length) {
         return new double[length];
+    }
+    
+    @Override
+    public Object makeArray(Object... elem) {
+        double[] arr = new double[elem.length];
+        for (int i = 0; i < elem.length; i++) {
+            arr[i] = ((Number)elem[i]).doubleValue();
+        }
+        return arr;
     }
     
     @Override

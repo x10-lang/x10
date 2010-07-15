@@ -497,7 +497,7 @@ public class Desugarer extends ContextVisitor {
         		xnf.Block(pos,
                 		xnf.Eval(pos, call(pos, LOCK, xts.Void())),
                         xnf.While(pos,
-                        		xnf.Unary(pos, a.expr(), Unary.NOT),
+                        		xnf.Unary(pos, a.expr(), Unary.NOT).type(xts.Boolean()),  // TODO: handle constraints (should be done in the synthesizer)
                         		xnf.Eval(pos, call(pos, AWAIT, xts.Void())))),
         		Collections.EMPTY_LIST,
         		xnf.Block(pos,
@@ -678,7 +678,6 @@ public class Desugarer extends ContextVisitor {
     	return offercall;		 
 	}
 
-
     private Stmt visitLocalDecl(LocalDecl n) throws SemanticException {
         if (n.init() instanceof FinishExpr) {
             Position pos = n.position();
@@ -826,28 +825,16 @@ public class Desugarer extends ContextVisitor {
         return a;
     }
 
-    // x++ -> ((t:Int)=>t-1)(x+=1) or x-- -> ((t:Int)=>t+1)(x-=1)
+    // x++ -> (x+=1)-1 or x-- -> (x-=1)+1
     protected Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
         Type ret = e.type();
-        CanonicalTypeNode retTN = xnf.CanonicalTypeNode(pos, ret);
         Expr one = getLiteral(pos, ret, 1);
         Assign.Operator asgn = (op == X10Unary_c.POST_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         X10Binary_c.Operator bin = (op == X10Unary_c.POST_INC) ? X10Binary_c.SUB : X10Binary_c.ADD;
-        Name t = Name.make("t");
-        LocalDef fDef = xts.localDef(pos, xts.NoFlags(), Types.ref(ret), t);
-        Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.NoFlags()),
-                retTN, xnf.Id(pos, t)).localDef(fDef);
-        List<Formal> parms = Arrays.asList(new Formal[] { formal });
-        Expr tLocal = xnf.Local(pos, xnf.Id(pos, t)).localInstance(fDef.asInstance()).type(ret);
-        Expr adjust = visitBinary((X10Binary_c) xnf.Binary(pos, tLocal, bin, one).type(ret));
-        Block block = xnf.Block(pos, xnf.Return(pos, adjust));
-        Closure c = synth.makeClosure(pos, ret, parms, block, (X10Context) context);
-        X10MethodInstance ci = c.closureDef().asType().applyMethod();
         Expr incr = assign(pos, e, asgn, one);
         if (e instanceof X10Call)
             incr = visitSettableAssign((SettableAssign_c) incr);
-        List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { incr }));
-        return xnf.ClosureCall(pos, c,  args).closureInstance(ci).type(ret);
+        return visitBinary((X10Binary_c) xnf.Binary(pos, incr, bin, one).type(ret));
     }
 
     // desugar unary operators
