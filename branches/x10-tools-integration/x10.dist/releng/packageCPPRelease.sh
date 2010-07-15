@@ -39,7 +39,7 @@ tarfile="x10-$X10_VERSION""_$PLATFORM.tgz"
 #
 case $PLATFORM in
     cygwin_*)
-        PLAT_LIBPAT="lib*.*,*.dll"
+        PLAT_LIBPAT="{lib*.*,*.dll}"
         ;;
     linux_*)
         PLAT_LIBPAT="lib*.*"
@@ -58,4 +58,4 @@ cdir="`pwd`"
 [ "$cdir" = "/" ] && cdir="$cdir."
 cd "$top"
 
-tar -cvzf "$cdir/$tarfile" INSTALL.txt README.txt RELEASE.NOTES.txt bin/{runx10,setupX10,x10,x10c,x10c++,mpirunx10,launcher,manager,daemon} epl-v10.html etc include lib/*.jar lib/{${PLAT_LIBPAT}} samples
+tar -cvzf "$cdir/$tarfile" INSTALL.txt README.txt RELEASE.NOTES.txt bin/{runx10,setupX10,x10,x10c,x10c++,mpirunx10,launcher,manager,daemon} epl-v10.html etc include lib/*.jar lib/${PLAT_LIBPAT} samples

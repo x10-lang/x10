@@ -18,20 +18,18 @@
 #include <x10/lang/Rail.h>
 #include <x10/io/Printer.h>
 
-#ifdef __GLIBC__
+#if defined(__GLIBC__) || defined(__APPLE__)
 #   include <execinfo.h> // for backtrace()
 #   include <cxxabi.h> // for demangling of symbol
-#else
-#   if defined(_AIX)
-#      include <unistd.h>
-#      include <stdlib.h>
-#      include <stdio.h>
-#      include <string.h>
-#      ifndef __GNUC__
-#         include <demangle.h> // for demangling of symbol
-#      else
-#        include <cxxabi.h> // for demangling of symbol
-#      endif
+#elif defined(_AIX)
+#   include <unistd.h>
+#   include <stdlib.h>
+#   include <stdio.h>
+#   include <string.h>
+#   ifndef __GNUC__
+#      include <demangle.h> // for demangling of symbol
+#   else
+#     include <cxxabi.h> // for demangling of symbol
 #   endif
 #endif
 
@@ -183,7 +181,7 @@ int backtrace(void** trace, size_t max_size) {
 
 
 ref<Throwable> Throwable::fillInStackTrace() {
-#if defined(__GLIBC__)
+#if defined(__GLIBC__) || defined(__APPLE__)
     if (FMGL(trace_size)>=0) return this;
     FMGL(trace_size) = ::backtrace(FMGL(trace), sizeof(FMGL(trace))/sizeof(*FMGL(trace)));
 #elif defined(_AIX)
@@ -249,8 +247,47 @@ void extract_frame (const char *start, char * &filename, char * &symbol, size_t 
         free(mangled);
     }
 }
+#elif defined(__APPLE__)
+// This one gets the function name as a demangled string,
+// the filename of the native executable/library that contains the function,
+// and the value of the program counter (addr).
+void extract_frame (const char *start, char * &filename, char * &symbol, size_t &addr) {
+    // arbitrary_text + " 0x" + address + " " + symbol + " + " offset
+    // arbitrary_text + "(" + symbol + "+0x" + hex_offset + ") [0x" + address +"]"
+    const char *x = strstr(start," 0x");
+    const char *space = strchr(x+1,' ');
+    const char *plus = strchr(space,'+');
 
-#endif // __GLIBC_
+    if (space==NULL || plus==NULL || x==NULL) {
+        filename = NULL;
+        symbol = strdup(start);
+        addr = 0;
+        return;
+    }
+
+    filename = (char*)malloc(x-start+1);
+    strncpy(filename,start,x-start);
+    filename[x-start] = '\0';
+
+    char *mangled = (char*)malloc(plus-space-1);
+    strncpy(mangled,space+1,plus-space-2);
+    mangled[plus-space-2] = '\0';
+
+    size_t offset = strtol(plus+2, NULL, 10);
+    addr = strtol(x+3, NULL, 16);
+    (void)offset;
+    //addr += offset;
+
+    // don't free symbol, it's persistant
+    symbol = NULL;
+    symbol = abi::__cxa_demangle(mangled, NULL, NULL, NULL);
+    if (symbol==NULL) {
+        symbol = mangled;
+    } else {
+        free(mangled);
+    }
+}
+#endif
 
 
 #if !defined(__GLIBC__) && defined(_AIX)
@@ -272,7 +309,7 @@ static char* demangle_symbol(char* name) {
 
 ref<ValRail<ref<String> > > Throwable::getStackTrace() {
     if (FMGL(cachedStackTrace).isNull()) {
-        #if defined(__GLIBC__)
+        #if defined(__GLIBC__) || defined(__APPLE__)
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
             FMGL(cachedStackTrace) = alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));

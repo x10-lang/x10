@@ -30,9 +30,7 @@ static void recv_msg_ping (const x10rt_msg_params *p)
         fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p->len);
         abort();
     }
-    void *tmp = x10rt_msg_realloc(NULL,0,p->len);
-    memcpy(tmp,p->msg,p->len);
-    x10rt_msg_params p2 = {0, PONG_ID, tmp, p->len};
+    x10rt_msg_params p2 = {0, PONG_ID, p->msg, p->len};
     x10rt_send_msg(&p2);
 }
 
@@ -152,9 +150,7 @@ long long run_test(unsigned long iters,
                     if(validate) memset(ping_buf, 0, len);
                     x10rt_send_get(&p, ping_buf, len);
                 } else {
-                    void *tmp = x10rt_msg_realloc(NULL,0,len);
-                    memcpy(tmp,buf,len);
-                    x10rt_msg_params p = {k, PING_ID, tmp, len};
+                    x10rt_msg_params p = {k, PING_ID, buf, len};
                     x10rt_send_msg(&p);
                 }
                 pongs_outstanding++;
