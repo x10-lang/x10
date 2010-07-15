@@ -46,35 +46,6 @@ public class UTS {
 		return nodesCounter;
 	}
 	}
-	/*
-	static class ImplicitStealBinomialState {
-		// params that define the tree
-		val q:Long, m:Int, k:Int;
-
-		var nodesCounter:UInt = 0;
-		public def this (q:Long, m:Int, k:Int) {
-			this.q = q; this.m = m; this.k=k;
-		}
-
-		public final def processSubtree (st:PLH, rng:SHA1Rand) {
-			processSubtree(rng, (rng() < q) ? m : 0);
-		}
-		public final def processSubtree (st: PLH, rng:SHA1Rand, numChildren:Int) {
-			offer 1; 
-			// Iterate over all the children and push on stack. 
-			for (var i:Int=0 ; i<numChildren ; ++i) 
-				@global async 
-				   st().processSubtree(st, SHA1Rand(rng, i));
-		}
-
-		public final def main (st: PLH, b0:Int, rng:SHA1Rand) {
-			val count = finish(Int.+) { processSubtree(st, rng, b0) };
-			Console.OUT.println(nodesCounter+" nodes. ");
-			return nodesCounter;
-		}
-	}
-	 */
-
 	
 	public static def main (args : Rail[String]!) {
 		try {

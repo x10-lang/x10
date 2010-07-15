@@ -1,31 +1,41 @@
 import x10.util.Stack;
 import x10.util.Random;
+import x10.lang.Math;
 
 final class BinomialState {
-	var thief:Int; 
+	/* var thief:Int; */
+  var thiefs:Rail[Boolean] = 
+        Rail.make[Boolean] (x10.lang.Math.log2(Place.MAX_PLACES));
 	val width:Int;
 	var lifelines:Long=0L;
 	var lifelineNodes:Long=0L;
 	val stack = new Stack[UTS.SHA1Rand]();
+  val myLifelines:ValRail[Int] = 
+        ValRail.make[Int](x10.lang.Math.log2(Place.MAX_PLACES),
+                          (i:Int) => (1 << i) ^ here.id);
+
 
 	val q:Long, m:Int, k:Int, nu:Int;
 	val logEvents:Boolean;
 	val myRandom = new Random();
-    public val counter = new Counter();
+  public val counter = new Counter();
 	static type PLH= PlaceLocalHandle[BinomialState];
 	static type SHA1Rand = UTS.SHA1Rand;
+
 	/** Initialize the state. Executed at all places when executing the 
 	 PlaceLocalHandle.make command in main (of UTS).
 	 */
 	public def this (q:Long, m:Int, k:Int, nu:Int, w:Int, e:Boolean) {
 		this.q = q; this.m = m; this.k=k; this.nu=nu;
 		width=w;
-		thief= -1;
+		/* thief= -1; */
 		logEvents=e;
 	}
+
 	def event(s:String) {
 		event(logEvents, s);
 	}
+
 	def event(verbose:Boolean, s:String) {
 		if (verbose)
 			Console.OUT.println("[Place(" + here.id+"), at " 
@@ -53,10 +63,11 @@ final class BinomialState {
 			stack.push(SHA1Rand(rng, i));
 	}
 
-	/** Return an array of "k" elements popped from the local stack.
-	 * 
-	 */
+	/** Return an array of "k" elements popped from the local stack.*/
 	final def pop(k:Int) = ValRail.make[SHA1Rand](k, (int)=> stack.pop());
+
+  /** A trivial function to calculate minimum of 2 integers */
+	def min(i:int,j:int) = i < j ? i : j;
 
 	/** Go through each element in the stack, process it (generate its
 	 children, and add them to the stack) until there is nothing left
@@ -66,7 +77,6 @@ final class BinomialState {
 	 handle and also, distribute a chunk of the local stack (work) to 
 	 our lifeline buddy.
 	 */
-	def min(i:int,j:int) = i < j ? i : j;
 	def processStack(st:PLH) {
 		while (true) {
 			var n:Int = min(stack.size(), nu);
@@ -98,6 +108,7 @@ final class BinomialState {
 	 of nodes, give him half (i.e, launch a remote async).
 	 */
 	def distribute(st:PLH, depth:Int) {
+    /*
 		if (thief >= 0) {
 			event("Distributing to " + thief);
 			val loot = trySteal(thief);
@@ -106,7 +117,32 @@ final class BinomialState {
 				st().launch(st, false, loot, depth);
 				thief = -1;
 			}
-		}
+		} */
+    /* We will go through myLifelines and see how many buddies requested 
+       a lifeline. Count the number, and divide the work we have equally
+       amongst the buddies. 
+       ANJU: What if the people requested the lifeline are mutually 
+       registered as each other's lifelines? There will be a cascade of
+       activity where people are giving each other a part of their work!
+       */
+    val thiefsIterator:Iterator[Boolean]  = thiefs.iterator();
+    var myLifelinesPosition:Int = 0;
+    while (thiefsIterator.hasNext()) {
+      if (true == thiefsIterator.next()) {
+        val thief:Int = myLifelines(myLifelinesPosition);
+        val loot = trySteal (thief);
+        if (null != loot) {
+				  async (Place(thief))
+				  st().launch(st, false, loot, depth);
+          thiefs (myLifelinesPosition) = false;
+        } else {
+          /* No point iterating any further --- there does not seem to be 
+             anything to steal here. */
+          break;
+        }
+      }
+      ++myLifelinesPosition;
+    }
 	}
 
 	/** This is the code invoked locally by each node when there are no 
@@ -135,13 +171,42 @@ final class BinomialState {
 		    }
 		}
 		event("No loot; establishing lifeline.");
+/*
 		// resigned to make a lifeline steal.
 		val lifeline =  (p+1) % P;
 		val loot = at(Place(lifeline)) st().trySteal(p); 
 		event("Lifeline steal result " + 
 				(loot==null ? 0 : loot.length()));
 		return loot;
+*/
+    /* Did not get anything from normal channels --- try lifeline
+       instead. We have log_2(Places.MAX_PLACES) lifelines. We will
+       try to steal from each of them. If none of them succeed, then 
+       setup the lifeline and getback
+    */
+    val lifelineIter:Iterator[Int] = myLifelines.iterator();
+    var loot:ValRail[SHA1Rand] = null;
+    while (lifelineIter.hasNext()) {
+      val lifeline:Int = lifelineIter.next();
+		  loot = at(Place(lifeline)) st().trySteal(p); 
+		  event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
+      if (null!=loot) break;
+    }
+    return loot;
 	}
+
+  /* Check if a particular node is the current node's lifeline */
+  def storeIfLifeline (val node:Int) {
+    val lifelineIter:Iterator[Int] = myLifelines.iterator();
+    var myLifelinesPosition:Int = 0;
+    while (lifelineIter.hasNext()) {
+      if (node == lifelineIter.next()) {
+        thiefs (myLifelinesPosition) = true;    
+        break;
+      }
+      ++myLifelinesPosition;
+    }
+  }
 
 	/** Try to steal from the local stack --- invoked by either a 
 	 theif at a remote place using asyncs (during attemptSteal) 
@@ -152,10 +217,16 @@ final class BinomialState {
 		counter.incStealsReceived();
 		val length = stack.size();
 		if (length <= 2) {
+      /*
 			if (here.id == (p+1)% Place.MAX_PLACES) {
 				thief = p;
 				event("Established lifeline donee " + thief);
 			}
+      */
+      /* We want to check if this is from one of our neighbors, in which 
+         case, they were trying to establish a lifeline. So, store theif
+         so that we can later send him a lifeline if need be. */
+      storeIfLifeline (p);
 			event("Returning null");
 			return null;
 		}
@@ -165,7 +236,6 @@ final class BinomialState {
 	}
 
 	def launch(st:PLH, init:Boolean, loot:ValRail[SHA1Rand], depth:Int) {
-		// event(true, "Launched at depth " + depth + " with loot(" + (loot==null? 0: loot.length)+").");
 		counter.startLive();
 		counter.updateDepth(depth);
 		val n = loot == null ? 0 : loot.length;
@@ -177,11 +247,11 @@ final class BinomialState {
 			for (r in loot) processSubtree(r);
 			counter.incTimeComputing(System.nanoTime() - time);
 		}
-		if (depth > 0)
-			distribute(st, depth+1);
+		if (depth > 0) distribute(st, depth+1);
 		processStack(st);
 		counter.stopLive();
 	}
+
 	/** Called only for the root node. Processes all the children of 
 	 the root node and then proceeds to divide these children up 
 	 evenly amongst all the places. This is the bootstrap mechanism
@@ -205,5 +275,5 @@ final class BinomialState {
 		} 
 		event("End main finish");
 	}
-	}
+}
 
