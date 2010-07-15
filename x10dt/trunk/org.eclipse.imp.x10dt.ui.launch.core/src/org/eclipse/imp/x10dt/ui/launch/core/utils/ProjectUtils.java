@@ -33,7 +33,7 @@ import org.eclipse.osgi.util.NLS;
  *
  * @author egeay
  */
-public final class JavaProjectUtils {
+public final class ProjectUtils {
   
   /**
    * Returns a filtered set of class path entries for a given Java project.
@@ -74,7 +74,7 @@ public final class JavaProjectUtils {
   
   // --- Private code
   
-  private JavaProjectUtils() {}
+  private ProjectUtils() {}
   
   private static <T> void collectCpEntries(final Set<T> container, final IClasspathEntry cpEntry, final IWorkspaceRoot root, 
                                            final IFilter<IPath> libFilter, 

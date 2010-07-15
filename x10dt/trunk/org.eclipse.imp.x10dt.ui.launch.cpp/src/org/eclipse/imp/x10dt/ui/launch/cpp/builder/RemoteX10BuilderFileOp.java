@@ -7,18 +7,27 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
 
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.*;
+
+import java.io.File;
+import java.util.Collection;
+
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.IFileSystem;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.imp.x10dt.ui.launch.core.Constants;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.ICountableIterable;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.ProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 
@@ -27,47 +36,64 @@ final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10B
   RemoteX10BuilderFileOp(final IProject project, final IX10PlatformConf platformConf) throws CoreException {
     super(platformConf, project, platformConf.getCppCompilationConf().getRemoteOutputFolder());
     this.fTargetOS = platformConf.getCppCompilationConf().getTargetOS();
+    
+    final ITargetOpHelper localTargetOpHelper = TargetOpHelperFactory.create(true, false, null);
+    this.fLocalX10BuilderOp = new LocalX10BuilderFileOp(project, ProjectUtils.getProjectOutputDirPath(project), platformConf,
+                                                        localTargetOpHelper);
   }
 
   // --- Interface methods implementation
 
-  public void transfer(final String localOutputDir, final IProgressMonitor monitor) throws CoreException {
+  public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
     final IFileStore fileStore = getTargetOpHelper().getStore(getWorkspaceDir());
     monitor.subTask(Messages.CPPB_TransferTaskName);
-    copyGeneratedFiles(fileStore, new Path(localOutputDir), monitor);
+    copyGeneratedFiles(fileStore, files, monitor);
+  }
+  
+  // --- Overridden methods
+  
+  public void cleanFiles(final ICountableIterable<IFile> files, final SubMonitor monitor) throws CoreException {
+    monitor.beginTask(null, 2);
+    this.fLocalX10BuilderOp.cleanFiles(files, monitor.newChild(1));
+    super.cleanFiles(files, monitor.newChild(1));
   }
   
   // --- Private code
   
-  private void copyGeneratedFiles(final IFileStore destDir, final IPath srcDir, 
+  private void copyGeneratedFiles(final IFileStore destDir, final Collection<File> files, 
                                   final IProgressMonitor monitor) throws CoreException {
     if (! destDir.fetchInfo().exists()) {
       destDir.mkdir(EFS.NONE, null);
     }
-    final IFileStore curDirStore = EFS.getLocalFileSystem().getStore(srcDir);
-    final IFileStore[] files = curDirStore.childStores(EFS.NONE, null);
-    monitor.beginTask(null, files.length);
-    for (final IFileStore fileStore : files) {
-      final String name = fileStore.getName();
-      if (fileStore.fetchInfo().isDirectory()) {
-        copyGeneratedFiles(destDir.getChild(name), srcDir.append(name), new SubProgressMonitor(monitor, 1));
-      } else {
-        final IFileStore destFile = destDir.getChild(name);
-        fileStore.copy(destFile, EFS.OVERWRITE, null);
-        if (name.endsWith(Constants.CC_EXT)) {
-          String destPath = destFile.toURI().getPath();
-          if (this.fTargetOS == ETargetOS.WINDOWS && destPath.startsWith("/")) { //$NON-NLS-1$
-            destPath = destPath.substring(1);
-          }
-          addCppFile(fileStore.toLocalFile(EFS.NONE, null).getAbsolutePath(), destPath);
-        }
-        monitor.worked(1);
-      }
+    final IFileSystem localFileSystem = EFS.getLocalFileSystem();
+    monitor.beginTask(null, files.size());
+    for (final File file : files) {
+      final String ccFilePath = file.getAbsolutePath();
+      copyGeneratedFile(destDir, localFileSystem, ccFilePath);
+      copyGeneratedFile(destDir, localFileSystem, ccFilePath.replace(CC_EXT, H_EXT));
+      copyGeneratedFile(destDir, localFileSystem, ccFilePath.replace(CC_EXT, INC_EXT));
+      
+      monitor.worked(1);
     }
+  }
+
+  private void copyGeneratedFile(final IFileStore destDir, final IFileSystem localFileSystem, 
+                                 final String filePath) throws CoreException {
+    final IFileStore fileStore = localFileSystem.getStore(new Path(filePath));
+    final String name = fileStore.getName();
+    final IFileStore destFile = destDir.getChild(name);
+    fileStore.copy(destFile, EFS.OVERWRITE, null);
+    String destPath = destFile.toURI().getPath();
+    if (this.fTargetOS == ETargetOS.WINDOWS && destPath.startsWith("/")) { //$NON-NLS-1$
+      destPath = destPath.substring(1);
+    }
+    addCppFile(filePath, destPath);
   }
   
   // --- Fields
   
   private final ETargetOS fTargetOS;
+  
+  private final LocalX10BuilderFileOp fLocalX10BuilderOp;
   
 }

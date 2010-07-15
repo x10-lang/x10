@@ -53,6 +53,29 @@ public final class FileUtils {
     directory.delete();
   }
   
+  /**
+   * Returns if a given file starts with "~/" or "${home}/" and if so replaces it with the home directory provided.
+   * 
+   * @param filePath The file path to consider.
+   * @param homeDirectory The home directory to use if a replacement must occur.
+   * @return The original file path or the one after replacement with the home directory.
+   */
+  public static String replaceHomeDirectory(final String filePath, final String homeDirectory) {
+    final String path = filePath.toLowerCase();
+    for (final String prefix : HOME_STARTS) {
+      if (path.startsWith(prefix)) {
+        final String homeDir;
+        if (homeDirectory.endsWith("/") || homeDirectory.endsWith("\\")) { //$NON-NLS-1$ //$NON-NLS-2$
+          homeDir = homeDirectory;
+        } else {
+          homeDir = homeDirectory + '/';
+        }
+        return path.replace(prefix, homeDir);
+      }
+    }
+    return filePath;
+  }
+  
   // --- Private code
   
   private static void collect(final Collection<File> files, final File directory, final IFilter<File> fileFilter, 
@@ -67,5 +90,9 @@ public final class FileUtils {
       }
     }
   }
+  
+  // --- Fields
+  
+  private static final String[] HOME_STARTS = { "~/", "~\\", "${home}/", "${home}\\" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 }

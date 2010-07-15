@@ -9,7 +9,7 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.utils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.ProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 /**
@@ -30,7 +30,7 @@ public final class PlatformConfUtils {
    */
   public static String getWorkspaceDir(final IX10PlatformConf platformConf, final IProject project) throws CoreException {
     if (platformConf.getConnectionConf().isLocal()) {
-      return JavaProjectUtils.getProjectOutputDirPath(project);
+      return ProjectUtils.getProjectOutputDirPath(project);
     } else {
       return platformConf.getCppCompilationConf().getRemoteOutputFolder();
     }

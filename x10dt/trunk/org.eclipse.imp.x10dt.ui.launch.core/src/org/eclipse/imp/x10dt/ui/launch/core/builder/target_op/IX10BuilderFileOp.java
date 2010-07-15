@@ -7,12 +7,14 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.builder.target_op;
 
+import java.io.File;
 import java.util.Collection;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.ICountableIterable;
 
 /**
  * Provides file operations useful for X10 builder regarding the X10 generated files.
@@ -34,13 +36,11 @@ public interface IX10BuilderFileOp {
   /**
    * Deletes all the artifacts created by X10 compiler as well as the compiled files generated on them and the native ones.
    * 
-   * @param sourcesToCompile The X10 source files to consider.
-   * @param nativeFiles The list of native files.
+   * @param files The files to delete.
    * @param monitor The monitor to consider for reporting progress or canceling the operation.
    * @throws CoreException Occurs if we could not delete some generated and/or compiled/native files.
    */
-  public void cleanFiles(final Collection<IFile> sourcesToCompile, final Collection<IFile> nativeFiles,
-                         final SubMonitor monitor) throws CoreException;
+  public void cleanFiles(final ICountableIterable<IFile> files, final SubMonitor monitor) throws CoreException;
   
   /**
    * Compiles the generated files on the target platform.
@@ -73,10 +73,10 @@ public interface IX10BuilderFileOp {
    * Transfers (if necessary) the generated files from the local output directory to the workspace directory of 
    * the target platform.
    * 
-   * @param localOutputDir The local directory containing the generated files.
+   * @param files The files to transfer.
    * @param monitor The monitor to consider for reporting progress or canceling the operation.
    * @throws CoreException Occurs if we could not add some X10 markers to Problems View.
    */
-  public void transfer(final String localOutputDir, final IProgressMonitor monitor) throws CoreException;
+  public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException;
 
 }

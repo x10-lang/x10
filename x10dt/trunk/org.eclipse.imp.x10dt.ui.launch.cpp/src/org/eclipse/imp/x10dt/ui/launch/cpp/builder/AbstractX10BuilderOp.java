@@ -7,7 +7,14 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
 
-import static org.eclipse.imp.x10dt.ui.launch.core.Constants.*;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.A_EXT;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.CC_EXT;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.CPP_EXT;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.CXX_EXT;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.EXEC_PATH;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.H_EXT;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.INC_EXT;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.O_EXT;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +45,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.ICountableIterable;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
@@ -65,6 +73,15 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     }
   }
   
+  protected AbstractX10BuilderOp(final IProject project, final String workspaceDir, final IX10PlatformConf platformConf,
+                                 final ITargetOpHelper targetOpHelper) {
+    this.fConfName = platformConf.getName();
+    this.fProject = project;
+    this.fWorkspaceDir = workspaceDir;
+    this.fPlatformConf = platformConf;
+    this.fTargetOpHelper = targetOpHelper;
+  }
+  
   // --- Interface methods implementation
   
   public final void archive(final IProgressMonitor monitor) throws CoreException {
@@ -75,7 +92,8 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     final StringBuilder libName = new StringBuilder();
     libName.append("lib").append(this.fProject.getName()).append(A_EXT); //$NON-NLS-1$
     archiveCmd.add(libName.toString());
-    for (final String objectFile : this.fObjectFiles) {
+    
+    for (final String objectFile : collectAllObjectFiles()) {
       archiveCmd.add(objectFile);
     }
 
@@ -110,14 +128,13 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     }
   }
   
-  public final void cleanFiles(final Collection<IFile> x10SourceFiles, final Collection<IFile> nativeFiles, 
-                               final SubMonitor monitor) throws CoreException {
+  public void cleanFiles(final ICountableIterable<IFile> files, final SubMonitor monitor) throws CoreException {
     final NullProgressMonitor nullMonitor = new NullProgressMonitor();
     try {
-      monitor.beginTask(null, x10SourceFiles.size() + 1 + nativeFiles.size());
+      monitor.beginTask(null, files.getSize() + 1);
       final IPath wDirPath = new Path(this.fWorkspaceDir);
       
-      for (final IFile sourceFile : x10SourceFiles) {
+      for (final IFile sourceFile : files) {
         if (monitor.isCanceled()) {
           return;
         }
@@ -140,16 +157,6 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         deleteFile(this.fTargetOpHelper.getStore(execPath), nullMonitor);
       }
       monitor.worked(1);
-      
-      for (final IFile nativeFile : nativeFiles) {
-        if (monitor.isCanceled()) {
-          return;
-        }
-        final String fileName = nativeFile.getFullPath().lastSegment();
-        deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(fileName).toString()), nullMonitor);
-        final String rootName = nativeFile.getFullPath().removeFileExtension().lastSegment();
-        deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + O_EXT).toString()), nullMonitor);
-      }
     } finally {
       monitor.done();
     }
@@ -164,7 +171,6 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         final String file = entry.getValue();
         final String extension = file.substring(file.lastIndexOf('.'));
         final String objectFile = this.fTargetOpHelper.getTargetSystemPath(entry.getValue().replace(extension, O_EXT));
-        this.fObjectFiles.add(objectFile);
 
         final List<String> command = new ArrayList<String>();
         command.add(this.fTargetOpHelper.getTargetSystemPath(this.fPlatformConf.getCppCompilationConf().getCompiler()));
@@ -225,6 +231,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   public final void copyToOutputDir(final Collection<IFile> files, final SubMonitor monitor) throws CoreException {
     monitor.beginTask(null, files.size());
     final IFileStore workspaceDirStore = this.fTargetOpHelper.getStore(this.fWorkspaceDir);
+    if (! workspaceDirStore.fetchInfo().exists()) {
+      workspaceDirStore.mkdir(EFS.NONE, null);
+    }
     for (final IFile file : files) {
       final IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.getLocationURI());
       final IFileStore destFile = workspaceDirStore.getChild(fileStore.getName());
@@ -260,6 +269,23 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
   // --- Private code
   
+  private Collection<String> collectAllObjectFiles() throws CoreException {
+    final Collection<String> objectFiles = new LinkedList<String>();
+    collectAllObjectFiles(objectFiles, getTargetOpHelper().getStore(getWorkspaceDir()));
+    return objectFiles;
+  }
+  
+  private void collectAllObjectFiles(final Collection<String> objectFiles, final IFileStore curDirStore) throws CoreException {
+    for (final IFileStore fileStore : curDirStore.childStores(EFS.NONE, null)) {
+      final String name = fileStore.getName();
+      if (fileStore.fetchInfo().isDirectory()) {
+        collectAllObjectFiles(objectFiles, fileStore);
+      } else if (name.endsWith(O_EXT)) {
+        objectFiles.add(fileStore.toURI().getPath());
+      }
+    }
+  }
+  
   private void deleteFile(final IFileStore fileStore, final IProgressMonitor monitor) throws CoreException {
     if (fileStore.fetchInfo().exists()) {
       fileStore.delete(EFS.NONE, monitor);
@@ -284,8 +310,6 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   private final ITargetOpHelper fTargetOpHelper;
   
   private final Map<String, String> fCppFiles = new HashMap<String, String>();
-  
-  private final List<String> fObjectFiles = new LinkedList<String>();
   
   
   private static final String INCLUDE_OPT = "-I"; //$NON-NLS-1$

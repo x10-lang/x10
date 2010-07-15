@@ -8,11 +8,12 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
 
 import java.io.File;
+import java.util.Collection;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.x10dt.ui.launch.core.Constants;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
@@ -24,24 +25,17 @@ final class LocalX10BuilderFileOp extends AbstractX10BuilderOp implements IX10Bu
     super(platformConf, project, workspaceDir);
   }
   
-  // --- Interface methods implementation
-
-  public void transfer(final String localOutputDir, final IProgressMonitor monitor) throws CoreException {
-    collectFilesToCompile(new File(getWorkspaceDir()));
+  LocalX10BuilderFileOp(final IProject project, final String workspaceDir, final IX10PlatformConf platformConf,
+                        final ITargetOpHelper targetOpHelper) {
+    super(project, workspaceDir, platformConf, targetOpHelper);
   }
   
-  // --- Private code
-  
-  private void collectFilesToCompile(final File dir) {
-  	for (final File file : dir.listFiles()) {
-  		if (file.isDirectory()) {
-  			collectFilesToCompile(file);
-  		} else {
-  			if (file.getName().endsWith(Constants.CC_EXT)) {
-  				addCppFile(file.getAbsolutePath(), file.getAbsolutePath());
-  			}
-  		}
-  	}
+  // --- Interface methods implementation
+
+  public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
+    for (final File file : files) {
+      addCppFile(file.getAbsolutePath(), file.getAbsolutePath());
+    }
   }
   
 }

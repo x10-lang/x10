@@ -7,19 +7,29 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
 
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.CC_EXT;
+
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.AbstractX10Builder;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IFilter;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.ProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
 
 import polyglot.main.Report;
 import x10.ExtensionInfo;
@@ -49,10 +59,34 @@ public final class X10CppBuilder extends AbstractX10Builder {
   public IX10BuilderFileOp createX10BuilderFileOp() throws CoreException {
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(getProject());
     if (platformConf.getConnectionConf().isLocal()) {
-      return new LocalX10BuilderFileOp(getProject(), JavaProjectUtils.getProjectOutputDirPath(getProject()), platformConf);
+      return new LocalX10BuilderFileOp(getProject(), ProjectUtils.getProjectOutputDirPath(getProject()), platformConf);
     } else {
       return new RemoteX10BuilderFileOp(getProject(), platformConf);
     }
+  }
+  
+  public File getMainGeneratedFile(final IJavaProject project, final IFile x10File) throws CoreException {
+    final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+    for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
+      if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+        final IPath outputLocation;
+        if (cpEntry.getOutputLocation() == null) {
+          outputLocation = project.getOutputLocation();
+        } else {
+          outputLocation = cpEntry.getOutputLocation();
+        }
+        final StringBuilder sb = new StringBuilder();
+        sb.append('/').append(x10File.getProjectRelativePath().removeFileExtension().toString()).append(CC_EXT);
+        final IPath projectRelativeFilePath = new Path(sb.toString());
+        final int srcPathCount = cpEntry.getPath().removeFirstSegments(1).segmentCount();
+        final IPath generatedFilePath = outputLocation.append(projectRelativeFilePath.removeFirstSegments(srcPathCount));
+        final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(generatedFilePath).getLocationURI());
+        if (fileStore.fetchInfo().exists()) {
+          return fileStore.toLocalFile(EFS.NONE, null);
+        }
+      }
+    }
+    return null;
   }
   
   // --- Private code

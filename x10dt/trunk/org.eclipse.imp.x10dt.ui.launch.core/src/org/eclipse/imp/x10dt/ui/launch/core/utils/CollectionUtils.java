@@ -43,13 +43,38 @@ public final class CollectionUtils {
    * @param <T1> The functor parameter type.
    * @param <T2> The functor return type.
    * @param collection The collection to convert into a list.
-   * @param functor The functor to consider
-   * @return A list equals to the size of the collection transmitted.
+   * @param functor The functor to consider.
+   * @return A list equals at most to the size of the collection transmitted.
    */
   public static <T1, T2> List<T2> transform(final Collection<T1> collection, final IFunctor<T1, T2> functor) {
     final List<T2> list = new ArrayList<T2>(collection.size());
+    T2 result = null;
     for (final T1 element : collection) {
-      list.add(functor.apply(element));
+      result = functor.apply(element);
+      if (result != null) {
+        list.add(result);
+      }
+    }
+    return list;
+  }
+  
+  /**
+   * Converts elements of a countable iterable structure into a list through a functor with one parameter.
+   * 
+   * @param <T1> The functor parameter type.
+   * @param <T2> The functor return type.
+   * @param iterable The iterable to convert into a list.
+   * @param functor The functor to consider.
+   * @return A list equals at most to the size of the iterable structure transmitted.
+   */
+  public static <T1, T2> List<T2> transform(final ICountableIterable<T1> iterable, final IFunctor<T1, T2> functor) {
+    final List<T2> list = new ArrayList<T2>(iterable.getSize());
+    T2 result = null;
+    for (final T1 element : iterable) {
+      result = functor.apply(element);
+      if (result != null) {
+        list.add(result);
+      }
     }
     return list;
   }

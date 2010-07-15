@@ -216,6 +216,8 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
   
   //--- Overridden methods
 
+  @SuppressWarnings("deprecation")
+  // To use IWorkspace#addSaveParticipant(String, ISaveParticipant) once we move away from Galileo.
   public void start(final BundleContext context) throws Exception {
     super.start(context);
     
@@ -228,6 +230,8 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
     fPlugin = this;
   }
 
+  @SuppressWarnings("deprecation")
+  // To use IWorkspace#removeSaveParticipant(String) once we move away from Galileo.
   public void stop(final BundleContext context) throws Exception {
     fPlugin = null;
     ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
