@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
+import polyglot.ast.Node;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
+import polyglot.frontend.Job;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
@@ -24,15 +26,24 @@ public class CompilerTestsBase {
 	
 
 	private static String OUTPUT_DIR = "output";
+	
+	public boolean compile(File[] files, String[] options,
+			final Collection<ErrorInfo> errors, String sourcepath) throws Exception {
+		return compile(files, options, errors, sourcepath, new ArrayList<Job>());	
+	}
+	
+	
 	/**
 	 * 
 	 * @param files
-	 * @param static_calls
+	 * @param options
+	 * @param sourcepath
+	 * @param jobs: non-null collection of jobs to return to caller (from which ASTs can be extracted and visited)
 	 * @return true if compilation succeeds without errors
 	 * @throws Exception 
 	 */
 	public boolean compile(File[] files, String[] options,
-			final Collection<ErrorInfo> errors, String sourcepath) throws Exception {
+			final Collection<ErrorInfo> errors, String sourcepath, Collection<Job> jobs) throws Exception {
 		
 		try {
 			Collection<String> sources = new ArrayList<String>();
@@ -49,6 +60,10 @@ public class CompilerTestsBase {
 					});
 			Globals.initialize(compiler);
 			compiler.compileFiles(sources);
+			
+			//get ASTs
+			jobs.addAll(extInfo.scheduler().commandLineJobs());
+			
 			for (String s : sources) {
 				System.err.print(s + " - ");
 			}

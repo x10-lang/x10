@@ -7,15 +7,23 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
+import org.junit.Assert;
 import org.junit.Test;
 
+import polyglot.ast.ClassDecl;
+import polyglot.ast.Node;
+import polyglot.ast.SourceFile;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
+import polyglot.frontend.Job;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
+import polyglot.types.SemanticException;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
+import polyglot.visit.ContextVisitor;
+import polyglot.visit.NodeVisitor;
 
 public class CompilerTests extends CompilerTestsBase {
 	private static String DATA_PATH = "data" + File.separator + "base" + File.separator;
@@ -269,25 +277,60 @@ public class CompilerTests extends CompilerTestsBase {
 		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());
 	}
 	
+	private void jira1551_check(Collection<Job> jobs) {
+		for (Job job: jobs){
+			job.ast().visit(new ContextVisitor(job,job.extensionInfo().typeSystem(),job.extensionInfo().typeSystem().extensionInfo().nodeFactory()){
+				 @Override
+				 public NodeVisitor enterCall(Node node) throws SemanticException {
+					 if (node instanceof ClassDecl) {
+						 ClassDecl decl = (ClassDecl) node;
+						 if (decl.body().members().isEmpty()){
+							 Assert.assertTrue(false);
+						 }
+					 }
+					 return super.enterCall(node);
+				 }
+			});
+		}
+	}
 	@Test
+	public void jira1551_static_calls() throws Exception {
+		String[] sources = {"Diagonal.x10"};
+		Collection<Job> jobs = new ArrayList<Job>();
+		compile(sources, STATIC_CALLS, new ArrayList<ErrorInfo>(), jobs);
+		jira1551_check(jobs);
+	}
+	
+	@Test
+	public void jira1551_not_static_calls() throws Exception {
+		String[] sources = {"Diagonal.x10"};
+		Collection<Job> jobs = new ArrayList<Job>();
+		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>(), jobs);
+		jira1551_check(jobs);
+	}
+	
+	@Test(timeout=1000)
 	public void jira1543_static_calls() throws Exception {
 		String[] sources = {"List.x10"};
 		compile(sources, STATIC_CALLS, new ArrayList<ErrorInfo>());
 	}
 	
 	
-	@Test
+	@Test(timeout=1000)
 	public void jira1543_not_static_calls() throws Exception {
 		String[] sources = {"List.x10"};
 		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());
 	}
 	
-	
 	private boolean compile(String[] files, String[] options, Collection<ErrorInfo> errors) throws Exception{
+		return compile(files, options, errors, new ArrayList<Job>());
+	}
+	
+	private boolean compile(String[] files, String[] options, Collection<ErrorInfo> errors, Collection<Job> jobs) throws Exception{
 		Collection<File> fs = new ArrayList<File>();
 		for(String s: files){
 			fs.add(new File(DATA_PATH + s));
 		}
-		return compile(fs.toArray(new File[0]), options, errors, getRuntimeJar() + ":" + DATA_PATH);
+		return compile(fs.toArray(new File[0]), options, errors, getRuntimeJar() + ":" + DATA_PATH, jobs);
 	}
 }
