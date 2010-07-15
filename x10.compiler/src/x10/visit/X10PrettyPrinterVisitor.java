@@ -829,7 +829,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             // SYNOPSIS: (#0) #1 #0=type #1=object #2=runtime type #3=depclause
                             String regex =
                                 "(new java.lang.Object() {" +
-                                    "final #0 cast(#0 self) {" +
+                                    "final #0 cast(final #0 self) {" +
                                         (isPrimitive ? "" : "if (self==null) return null;") +
                                         "x10.rtt.Type rtt = #2;" +
                                         "if (rtt != null && ! rtt.instanceof$(self)) throw new java.lang.ClassCastException();" +
@@ -914,7 +914,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 // SYNOPSIS: (#0) #1 #0=param type #1=primitive or Parameter type #2=runtime type #3=depclause
                                 String regex2 =
                                     "(new java.lang.Object() {" +
-                                        "final #0 cast(Object self) {" +
+                                        "final #0 cast(final Object self) {" +
                                             "x10.rtt.Type rtt = #2;" +
                                             "#0 dep = (#0) x10.rtt.Types.conversion(rtt,self);" +
                                             "if (self==null) return null;" +
@@ -1146,7 +1146,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			er.printType(n.type(), 0);
 			w.write(".");
 		}
-		else if (n.qualifier() != null) {
+		else if (n.qualifier() != null && n.kind() != X10Special.SELF && n.kind() != Special.SUPER) {
 			er.printType(n.qualifier().type(), 0);
 			w.write(".");
 		}
