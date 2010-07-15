@@ -538,7 +538,6 @@ namespace x10 {
             (void) dst_place;
             assert(dst_place != x10aux::here); // handle in X10 code wrapper
             x10aux::serialization_buffer buf;
-            buf.realloc_func = x10aux::put_realloc;
             x10_ubyte code = 0;
             buf.write(code);
             buf.write(dst);
@@ -581,7 +580,6 @@ namespace x10 {
             x10aux::checkRailBounds(src_off+len-1, FMGL(length));
             assert(dst_place != x10aux::here); // handle in X10 code wrapper
             x10aux::serialization_buffer buf;
-            buf.realloc_func = x10aux::put_realloc;
             x10_ubyte code = 2;
             buf.write(code);
             buf.write(dst);
@@ -609,7 +607,6 @@ namespace x10 {
             x10aux::ref<Reference> n = notifier;
             assert(dst_place != x10aux::here); // handle in X10 code wrapper
             x10aux::serialization_buffer buf;
-            buf.realloc_func = x10aux::put_realloc;
             x10_ubyte code = 3;
             buf.write(code);
             buf.write(df);
@@ -774,7 +771,6 @@ namespace x10 {
             (void) src_place;
             assert(src_place != x10aux::here);
             x10aux::serialization_buffer buf;
-            buf.realloc_func = x10aux::get_realloc;
             x10_ubyte code = 0;
             buf.write(code);
             buf.write(src);
