@@ -131,6 +131,8 @@ public static def makeDimensionalGraph(dim: int, degree:int, numRows:int): EdgeA
   val nonZeros = numRows*halfDegree;
   val E = Rail.make[Edge](nonZeros, (int) => new Edge()) as Rail[Edge]!;
 
+  //val RANDOM_SEED = 10101010;
+  //var r: Random! = new Random(RANDOM_SEED);
   var r: Random! = new Random();
   
   var k: int = 0;
@@ -169,7 +171,7 @@ public static def graphFromEdges(EAA: EdgeArray, makeSymmetric: boolean) : Graph
 
   int edgecount = (EE.map<int>(edgeCount_FM)).reduce(utils::addF<int>());*/
   val n = (EA.nonZeros *2 / EA.numRows) + 1;
-  Console.OUT.println("n =" + n);
+  Console.OUT.println("n = " + n);
 
   /*cout << "Edges: " << edgecount << " Vertices: " << n << endl; */
   val EE = EA.E as Rail[Edge]!;
@@ -315,7 +317,7 @@ public static def BFS(start: int, GAA: GraphB): Pair {
    Console.OUT.println ("Level 0: 0");
   while (frontierSize > 0) {
    
-    val Offsets = Array.make[int](0..numEdges-1, (Point)=>0);
+    val Offsets = new Array[int](0..numEdges-1, (Point)=>0);
     totalVisited += frontierSize;
     round++;
     Console.OUT.print("Level " + round + ": ");
@@ -414,8 +416,8 @@ public static def testBFS(GG: Graph) : void {
 
  public static  def main(s: Rail[String]) {
 
-  	val n = 15;
-  	val m = 15;
+  	val n = 10;
+  	val m = 10;
   	val dimension = 3;
    
     val G = GraphUtil.graphRandomWithDimension(dimension, m, n) as Graph!;

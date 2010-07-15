@@ -167,7 +167,7 @@ public static def hash(aa: long): long
 }
 
 public static def makeDimensionalGraph(dim: int, degree:int, numRows:int): EdgeArray {
-  val halfDegree = degree/2;
+  val halfDegree = (degree + 1) / 2;
   val nonZeros = numRows*halfDegree;
   val E = Rail.make[Edge](nonZeros, (int) => new Edge()) as Rail[Edge]!;
 
@@ -188,7 +188,13 @@ public static def makeDimensionalGraph(dim: int, degree:int, numRows:int): EdgeA
     } while (j == i); */ 
  
     val Ek = E(k) as Edge!;
+    if (i == j) {
+		k--; continue;
+    }
+	  
+
     Ek.first = i;  Ek.second = j;
+
   }
    
   return new EdgeArray(E,numRows,numRows,nonZeros);
@@ -208,7 +214,7 @@ public static def graphFromEdges(EAA: EdgeArray, makeSymmetric: boolean) : Graph
   seq<neighbors> EE = r.map<neighbors>(remDups);
 
   int edgecount = (EE.map<int>(edgeCount_FM)).reduce(utils::addF<int>());*/
-  val n = (EA.nonZeros *2 / EA.numRows) + 1;
+  val n = (EA.nonZeros *2 / EA.numRows);
   Console.OUT.println("n =" + n);
 
   /*cout << "Edges: " << edgecount << " Vertices: " << n << endl; */
