@@ -34,7 +34,8 @@ fi
 tarfile="x10-$X10_VERSION""_$PLATFORM.tgz"
 
 #
-# PLAT_LIBPLAT is a comma-separated list of shell file-globbing patterns
+# PLAT_LIBPAT is a comma-separated list of shell file-globbing patterns that
+# identifies the libraries to be included in the tarball from the 'lib' directory.
 #
 case $PLATFORM in
     cygwin_*)
