@@ -57,7 +57,7 @@ import polyglot.visit.NodeVisitor;
  * build a map of compilation unit-level dependencies to be used in compilation.
  * @author rfuhrer
  */
-class ComputeDependenciesVisitor extends ContextVisitor {
+public class ComputeDependenciesVisitor extends ContextVisitor {
     private final Job fJob;
     //private final TypeSystem fTypeSystem;
     private SourceFile fFromFile;
