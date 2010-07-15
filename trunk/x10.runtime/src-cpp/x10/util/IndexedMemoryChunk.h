@@ -84,10 +84,10 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
                                                                 x10_int dstIndex,
                                                                 x10_int numElems) {
     if (dstPlace->FMGL(id) == x10aux::here) {
-        void* srcAddr = (void*)(&FMGL(data)[srcIndex]);
-        void* dstAddr = (void*)(&dst->FMGL(data)[dstIndex]);
+        void* srcAddr = (void*)(&data[srcIndex]);
+        void* dstAddr = (void*)(&dst->data[dstIndex]);
         size_t numBytes = numElems * sizeof(T);
-        if (FMGL(data) == dst->FMGL(data)) {
+        if (data == dst->data) {
             // potentially overlapping, use memmove
             memmove(dstAddr, srcAddr, numBytes);
         } else {
@@ -101,11 +101,11 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::IndexedMemoryChunk<T> this_,
                                                                     x10aux::serialization_buffer& buf) {
-    buf.write((size_t)(this_->FMGL(data)));
+    buf.write((size_t)(this_->data));
 }
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    FMGL(data) = (T*)buf.read<size_t>();
+    data = (T*)buf.read<size_t>();
 }
 
 
@@ -117,7 +117,7 @@ template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x
 }
 
 template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T>::toString() {
-    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%p)", x10aux::getRTT<T>()->name(), FMGL(data));
+    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%p)", x10aux::getRTT<T>()->name(), data);
     return x10::lang::String::Steal(tmp);
 }
 
