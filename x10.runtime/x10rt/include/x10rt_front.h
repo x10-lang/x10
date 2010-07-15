@@ -355,42 +355,12 @@ X10RT_C x10rt_place x10rt_child_index (x10rt_place child);
 
 /** \{ */
 
-/** Allocate memory in which to pack data for a message send.  The X10 process will use
- * x10rt_msg_realloc like the standard C realloc function, i.e. will first call
- * x10rt_msg_realloc(NULL,0,n) for some n and then grow the buffer with further calls as necessary.
- * It is guaranteed that the X10 process will use the same thread to both prepare the buffer and
- * send it. The X10RT implementation should recover and reuse the msg buffer at its own leisure
- * after the #x10rt_send_msg call, as if there had been a call to #x10rt_msg_realloc to resize the
- * buffer down to 0. The X10RT implementation can therefore make sure msg is aligned / pinned /
- * padded or generally allocated in any special way that it needs.
- *
- * \param old The buffer returned by a previous call, or NULL for the first call.
- *
- * \param old_sz The size that was requested in the previous call, or NULL for the first call.
- *
- * \param new_sz The size that is now needed.  If new_sz is 0, the function should return NULL and
- * free the buffer at old, if any.
- */
-X10RT_C void *x10rt_msg_realloc (void *old, size_t old_sz, size_t new_sz);
-
 /** Send a message.  The #x10rt_send_msg call should not block waiting for the remote side to finish
  * executing its callbacks, as to do so would introduce deadlocks in the X10 program.
  *
  * \param p The particulars of the message.
  */
 X10RT_C void x10rt_send_msg (x10rt_msg_params *p);
-
-/** Allocate memory in which to pack data for a message 'get'.  See #x10rt_msg_realloc for intended
- * usage.
- *
- * \param old The buffer returned by a previous call, or NULL for the first call.
- *
- * \param old_sz The size that was requested in the previous call, or NULL for the first call.
- *
- * \param new_sz The size that is now needed.  If new_sz is 0, the function should return NULL and
- * free the buffer at old, if any.
- */
-X10RT_C void *x10rt_get_realloc (void *old, size_t old_sz, size_t new_sz);
 
 /** Send a 'get' message.  The #x10rt_send_msg function is sufficient for implementing asyncs, but
  * is cumbersome and inefficient for implementing large rail copies.  This function is an
@@ -406,18 +376,6 @@ X10RT_C void *x10rt_get_realloc (void *old, size_t old_sz, size_t new_sz);
  * \param len The amount of data to copy.
  */
 X10RT_C void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
-
-/** Allocate memory in which to pack data for a message 'put'.  See #x10rt_msg_realloc for intended
- * usage.
- *
- * \param old The buffer returned by a previous call, or NULL for the first call.
- *
- * \param old_sz The size that was requested in the previous call, or NULL for the first call.
- *
- * \param new_sz The size that is now needed.  If new_sz is 0, the function should return NULL and
- * free the buffer at old, if any.
- */
-X10RT_C void *x10rt_put_realloc (void *old, size_t old_sz, size_t new_sz);
 
 /** Send a 'put' message.  See #x10rt_send_get for more information.  The #x10rt_send_put call
  * should not block waiting for the remote side to finish executing its callbacks, as to do so would

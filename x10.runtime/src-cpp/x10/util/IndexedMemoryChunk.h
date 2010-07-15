@@ -103,7 +103,6 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
     } else {
         x10aux::place dst_place = dstPlace->FMGL(id);
         x10aux::serialization_buffer buf;
-        buf.realloc_func = x10aux::put_realloc;
         buf.write((x10_long)(size_t)(dstAddr));
         IMC_serialize_finish_state(dst_place, buf);
         x10aux::send_put(dst_place, IMC_copy_to_serialization_id, buf, &data[srcIndex], numBytes);

@@ -142,11 +142,12 @@ static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
             do_update(index,update);
         } else {
             #ifdef OP_EMULATE
-            char *buf2 = (char*)x10rt_msg_realloc(NULL,0, 16);
+            char *buf2 = (char*)malloc(16);
             memcpy(buf2+0, &index, 8);
             memcpy(buf2+8, &update, 8);
             x10rt_msg_params params = {place, UPDATE_ID, buf2, 16};
             x10rt_send_msg(&params);
+            free(buf2);
             #endif
             #ifdef OP_OLD
             uint64_t remote_addr = globalTable[place];
@@ -227,11 +228,12 @@ void runBenchmark (uint64_t logLocalTableSize,
     pongs_outstanding=x10rt_nhosts();
     #endif
     for (unsigned long p=1 ; p<x10rt_nhosts() ; ++p) {
-        unsigned char *buf = (unsigned char*)x10rt_msg_realloc(NULL,0, 16);
+        unsigned char *buf = (unsigned char*)malloc(16);
         memcpy(buf+0, &logLocalTableSize, 8);
         memcpy(buf+8, &numUpdates, 8);
         x10rt_msg_params params = {p, MAIN_ID, buf, 16};
         x10rt_send_msg(&params);
+        free(buf);
     }
     do_main(logLocalTableSize, numUpdates);
     while (pongs_outstanding) {
@@ -364,12 +366,13 @@ int main(int argc, char **argv)
             globalTable[i] = intptr;
             pongs_outstanding--;
         } else {
-            char *buf = (char*)x10rt_msg_realloc(NULL,0,12);
+            char *buf = (char*)malloc(12);
             uint32_t src = x10rt_here();
             memcpy(buf+0, &src, 4);
             memcpy(buf+4, &intptr, 8);
             x10rt_msg_params p = {i, DIST_ID, buf, 12};
             x10rt_send_msg(&p);
+            free(buf);
         }
     }
     while (pongs_outstanding) {
