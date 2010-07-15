@@ -105,10 +105,8 @@ namespace {
 
     void send_finish(x10rt_place to, x10rt_remote_ptr counter_addr)
     {
-        char *buf = (char*) x10rt_net_msg_realloc(NULL, 0,
-                                                  sizeof(counter_addr));
-        memcpy(buf, &counter_addr, sizeof(counter_addr));
-        x10rt_msg_params p = { to, send_finish_id, buf, sizeof(counter_addr) };
+        // TODO: serialization
+        x10rt_msg_params p = { to, send_finish_id, &counter_addr, sizeof(counter_addr) };
         x10rt_net_send_msg(&p);
     }
 
@@ -127,14 +125,14 @@ namespace {
         x10rt_place from = htonl(x10rt_net_here());
         num = htonl(num);
         x10rt_remote_ptr counter_addr = (x10rt_remote_ptr)(size_t)counter;
-        char *buf = (char*) x10rt_net_msg_realloc(NULL, 0,
-                                                  sizeof(from)+sizeof(num)+sizeof(counter_addr));
+        char *buf = (char*) malloc(sizeof(from)+sizeof(num)+sizeof(counter_addr));
         size_t so_far = 0;
         memcpy(buf+so_far, &from, sizeof(from)); so_far+=sizeof(from);
         memcpy(buf+so_far, &num, sizeof(num)); so_far+=sizeof(num);
         memcpy(buf+so_far, &counter_addr, sizeof(counter_addr)); so_far+=sizeof(counter_addr);
         x10rt_msg_params p = { to, send_naccels_id, buf, so_far };
         x10rt_net_send_msg(&p);
+        free(buf);
     }
 
     void recv_naccels (const x10rt_msg_params *p)
@@ -163,8 +161,8 @@ namespace {
         child = htonl(child);
         cat = htonl(cat);
         x10rt_remote_ptr counter_addr = (x10rt_remote_ptr)(size_t)counter;
-        char *buf = (char*) x10rt_net_msg_realloc(NULL, 0, sizeof(from)+sizeof(child)+
-                                                           sizeof(cat)+sizeof(counter_addr));
+        // TODO: serialize
+        char *buf = (char*) malloc(sizeof(from)+sizeof(child)+sizeof(cat)+sizeof(counter_addr));
         size_t so_far = 0;
         memcpy(buf+so_far, &from, sizeof(from)); so_far+=sizeof(from);
         memcpy(buf+so_far, &child, sizeof(child)); so_far+=sizeof(child);
@@ -519,8 +517,6 @@ void x10rt_lgl_internal_barrier (void)
     }
 }
 
-void *x10rt_lgl_msg_realloc (void *old, size_t old_sz, size_t new_sz)
-{ return x10rt_net_msg_realloc(old, old_sz, new_sz); }
 void x10rt_lgl_send_msg (x10rt_msg_params *p)
 {
     x10rt_place d = p->dest_place;
@@ -551,8 +547,6 @@ void x10rt_lgl_send_msg (x10rt_msg_params *p)
     }
 }
 
-void *x10rt_lgl_get_realloc (void *old, size_t old_sz, size_t new_sz)
-{ return x10rt_net_get_realloc(old, old_sz, new_sz); }
 void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
     x10rt_place d = p->dest_place;
@@ -583,8 +577,6 @@ void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
     }
 }
 
-void *x10rt_lgl_put_realloc (void *old, size_t old_sz, size_t new_sz)
-{ return x10rt_net_put_realloc(old, old_sz, new_sz); }
 void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
     x10rt_place d = p->dest_place;

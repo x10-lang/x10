@@ -198,27 +198,13 @@ x10rt_place x10rt_lgl_child (x10rt_place host, x10rt_place index);
 x10rt_place x10rt_lgl_child_index (x10rt_place child);
 
 
-/** \see #x10rt_msg_realloc
- * \param old As in x10rt_msg_realloc
- * \param old_sz As in x10rt_msg_realloc
- * \param new_sz As in x10rt_msg_realloc
- */
-X10RT_C void *x10rt_lgl_msg_realloc (void *old, size_t old_sz, size_t new_sz);
-
-/** \see #x10rt_msg_realloc
+/** \see #x10rt_send_msg
  * \param p As in x10rt_send_msg
  */
 X10RT_C void x10rt_lgl_send_msg (x10rt_msg_params *p);
 
 
-/** \see #x10rt_get_realloc
- * \param old As in x10rt_get_realloc
- * \param old_sz As in x10rt_get_realloc
- * \param new_sz As in x10rt_get_realloc
- */
-X10RT_C void *x10rt_lgl_get_realloc (void *old, size_t old_sz, size_t new_sz);
-
-/** \see #x10rt_msg_realloc
+/** \see #x10rt_send_get
  * \param p As in x10rt_send_get
  * \param buf As in x10rt_send_get
  * \param len As in x10rt_send_get
@@ -226,14 +212,7 @@ X10RT_C void *x10rt_lgl_get_realloc (void *old, size_t old_sz, size_t new_sz);
 X10RT_C void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
 
 
-/** \see #x10rt_put_realloc
- * \param old As in x10rt_put_realloc
- * \param old_sz As in x10rt_put_realloc
- * \param new_sz As in x10rt_put_realloc
- */
-X10RT_C void *x10rt_lgl_put_realloc (void *old, size_t old_sz, size_t new_sz);
-
-/** \see #x10rt_msg_realloc
+/** \see #x10rt_send_put
  * \param p As in x10rt_send_put
  * \param buf As in x10rt_send_put
  * \param len As in x10rt_send_put

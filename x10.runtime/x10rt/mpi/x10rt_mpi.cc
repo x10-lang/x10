@@ -534,15 +534,7 @@ unsigned long x10rt_net_here(void) {
     return global_state.rank;
 }
 
-void *x10rt_net_msg_realloc(void *old, size_t old_sz, size_t new_sz) {
-    return ChkRealloc<void>(old, new_sz);
-}
-void *x10rt_net_get_realloc(void *old, size_t old_sz, size_t new_sz) {
-    return ChkRealloc<void>(old, new_sz);
-}
-void *x10rt_net_put_realloc(void *old, size_t old_sz, size_t new_sz) {
-    return ChkRealloc<void>(old, new_sz);
-}
+static void x10rt_net_probe_ex (bool network_only);
 
 void x10rt_net_send_msg(x10rt_msg_params * p) {
     assert(global_state.init);
@@ -565,8 +557,8 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
 
-    if ((global_state.pending_send_list.length() > 
-            X10RT_MAX_OUTSTANDING_SENDS) && !in_recursion) {
+    if (true || ((global_state.pending_send_list.length() > 
+            X10RT_MAX_OUTSTANDING_SENDS) && !in_recursion)) {
         /* Block this send until all pending sends
          * and receives have been completed. It is
          * OK as per X10RT semantics to block a send,
@@ -581,7 +573,7 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
                         &msg_status)) {
             }
             UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
-            x10rt_net_probe();
+            x10rt_net_probe_ex(true);
         } while (!complete);
         global_state.free_list.enqueue(req);
         in_recursion = false;
@@ -651,10 +643,24 @@ void x10rt_net_send_get(x10rt_msg_params *p,
         abort();
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    req->setBuf(get_msg);
-    req->setType(X10RT_REQ_TYPE_GET_OUTGOING_REQ);
 
-    global_state.pending_send_list.enqueue(req);
+    /* Block this send until all pending sends
+     * and receives have been completed. It is
+     * OK as per X10RT semantics to block a send,
+     * as long as we don't block x10rt_net_probe() */
+    int complete = 0;
+    MPI_Status msg_status;
+    do {
+        LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
+                    &complete,
+                    &msg_status)) {
+        }
+        UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        x10rt_net_probe_ex(true);
+    } while (!complete);
+    global_state.free_list.enqueue(req);
+
 }
 
 
@@ -697,8 +703,23 @@ void x10rt_net_send_put(x10rt_msg_params *p,
     req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_REQ);
     global_state.pending_send_list.enqueue(req);
 
-    req = global_state.free_list.popNoFail();
+    /* Block this send until all pending sends
+     * and receives have been completed. It is
+     * OK as per X10RT semantics to block a send,
+     * as long as we don't block x10rt_net_probe() */
+    int complete = 0;
+    MPI_Status msg_status;
+    do {
+        LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
+                    &complete,
+                    &msg_status)) {
+        }
+        UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        x10rt_net_probe_ex(true);
+    } while (!complete);
 
+    req = global_state.free_list.popNoFail();
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Isend(buf,
                 len,
@@ -711,9 +732,8 @@ void x10rt_net_send_put(x10rt_msg_params *p,
         abort();
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    req->setBuf(NULL);
-    req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_DATA);
-    global_state.pending_send_list.enqueue(req);
+    global_state.free_list.enqueue(req);
+
 }
 
 static void send_completion(x10rt_req_queue * q,
@@ -965,19 +985,16 @@ static void check_pending_receives() {
         if (complete) {
             switch (req_copy->getType()) {
                 case X10RT_REQ_TYPE_RECV:
-                    recv_completion(msg_status.MPI_TAG,
-                            get_recvd_bytes(&msg_status), q, req_copy);
+                    recv_completion(msg_status.MPI_TAG, get_recvd_bytes(&msg_status), q, req_copy);
                     break;
                 case X10RT_REQ_TYPE_GET_INCOMING_DATA:
                     get_incoming_data_completion(q, req_copy);
                     break;
                 case X10RT_REQ_TYPE_GET_INCOMING_REQ:
-                    get_incoming_req_completion(msg_status.MPI_SOURCE,
-                            q, req_copy);
+                    get_incoming_req_completion(msg_status.MPI_SOURCE, q, req_copy);
                     break;
                 case X10RT_REQ_TYPE_PUT_INCOMING_REQ:
-                    put_incoming_req_completion(msg_status.MPI_SOURCE,
-                            q, req_copy);
+                    put_incoming_req_completion(msg_status.MPI_SOURCE, q, req_copy);
                     break;
                 case X10RT_REQ_TYPE_PUT_INCOMING_DATA:
                     put_incoming_data_completion(q, req_copy);
@@ -1009,7 +1026,11 @@ void x10rt_net_remote_op_fence(void) {
 
 void x10rt_register_thread (void) { }
 
-void x10rt_net_probe(void) {
+void x10rt_net_probe (void) {
+    x10rt_net_probe_ex(false);
+}
+
+static void x10rt_net_probe_ex (bool network_only) {
     int arrived;
     MPI_Status msg_status;
 
@@ -1035,7 +1056,7 @@ void x10rt_net_probe(void) {
                  * processed it, will post the corresponding receive.
                  */
                 check_pending_sends();
-                check_pending_receives();
+                if (!network_only) check_pending_receives();
                 break;
             } else {
                 /* Don't need to post recv for incoming puts, they
@@ -1066,7 +1087,7 @@ void x10rt_net_probe(void) {
             }
         } else {
             check_pending_sends();
-            check_pending_receives();
+            if (!network_only) check_pending_receives();
         }
     } while (arrived);
 
