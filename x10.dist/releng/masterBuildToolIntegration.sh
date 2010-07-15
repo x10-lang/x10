@@ -23,7 +23,7 @@ linuxX86_64Host=triloka3
 
 # Linux/x86 (32-bit):
 # This host needs to have g++ version 4.2 or higher.
-linuxX86Host="" # FIXME
+linuxX86Host="bellatrix"
 
 # Cygwin/x86:
 # This host needs to have cygwin 1.7 (for gcc to work right).
@@ -39,7 +39,7 @@ aixPowerHost=""
 
 hosts="$macX86Host $linuxX86_64Host $linuxX86Host $cygwinHost $linuxPowerHost $aixPowerHost"
 
-noClean="true"
+noClean=""
 userID="$USER"
 
 usageMsg="Usage: $0 [-noclean] [-platforms platformList] [-hosts hostList] [-user remoteUserID] [-showhosts] [-showplatforms]"
@@ -49,7 +49,7 @@ while [ $# != 0 ]; do
     -hosts)
         hosts=$2
 	shift
-    ;;
+        ;;
 
     -user)
         userID=$2
@@ -145,7 +145,7 @@ do
     echo "=================================================="
     (
     scp buildToolIntegration.sh ${userID}@$host:/tmp 
-    ssh ${userID}@$host "(cd /tmp; ./buildToolIntegration.sh ${noClean} -d $remoteTmpDir -rev $rev)"
+    ssh ${userID}@$host "cd /tmp; bash -l -c './buildToolIntegration.sh ${noClean} -dir $remoteTmpDir -rev $rev'"
     rc=$?
     ssh ${userID}@$host "(cd /tmp; rm ./buildToolIntegration.sh)"
     if [ $rc == 0 ]; then
