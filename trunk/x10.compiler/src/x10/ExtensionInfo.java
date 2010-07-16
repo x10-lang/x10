@@ -405,7 +405,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                if(wsCodeGenGoal != null){
                    goals.add(wsCodeGenGoal);                   
                    wsCodeGenGoal.addPrereq(TypeCheckBarrier());
-                   wsCodeGenGoal.addPrereq(WSExpressionFlattener(job));
+                   //wsCodeGenGoal.addPrereq(WSExpressionFlattener(job));
                }
            }
            goals.add(InnerClassRemover(job));
