@@ -100,9 +100,15 @@ namespace x10aux {
             return *this;
         }
 
+        // Declare a ref: no need for a NULL __ref
+        // The frontend should guarantee ref will not be accessed prior to initialization
+        GPUSAFE ref() {
+//            fprintf(stderr, "%s\n", TYPENAME(T));
+        }
+
         // This is the big one -- turns a pointer into a ref
         // currently an implicit conversion
-        GPUSAFE ref(T* const val = NULL) : REF_INIT(val) {
+        GPUSAFE ref(T* const val) : REF_INIT(val) {
         }
 
         // Allow conversions between ref<S> and ref<T>.
