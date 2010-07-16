@@ -634,19 +634,119 @@ public final class Array[T](
         return dst;
     }
 
-    private @NoInline @NoReturn def raiseBoundsError(i0:int) {
+
+    /**
+     * Copy all of the values from this Array to the destination Array.
+     * The two arrays must be defined over the same Region.
+     * If the destination Array is in a different place, then this copy
+     * is performed asynchronously and the resulting activity will be 
+     * registered with the dynamically enclosing finish.</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param dst the destination array.  May be local or remote
+     */
+    public def copyTo(dst:Array[T](this.region)) {
+        raw.copyTo(0, dst.home, dst.raw, 0, rawLength);
+    }
+
+
+    /**
+     * Copy the specified values from this Array to the destination Array.
+     * The two arrays must be of Rank(1).
+     * If the destination Array is in a different place, then this copy
+     * is performed asynchronously and the resulting activity will be 
+     * registered with the dynamically enclosing finish.</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param srcIndex the first element to copy from in the source array
+     * @param dst the destination array.  May be local or remote
+     * @param dstIndex the first element to copy to in the destination array
+     * @param numElems the number of elements to copy
+     */
+    public def copyTo(srcIndex:int, dst:Array[T](1), dstIndex:int, numElems:int){rank==1} {
+        if (checkBounds()) {
+	    if (!region.contains(srcIndex)) raiseBoundsError(srcIndex);
+            if (!region.contains(srcIndex+numElems-1)) raiseBoundsError(srcIndex+numElems-1);
+            if (!dst.region.contains(dstIndex)) raiseBoundsError(dstIndex);
+            if (!dst.region.contains(dstIndex+numElems-1)) dst.raiseBoundsError(dstIndex+numElems-1);
+        }
+
+        raw.copyTo(srcIndex, dst.home, dst.raw, dstIndex, numElems);
+    }
+
+
+    /**
+     * Copy all of the values from the source array into this Array.
+     * The two arrays must be defined over the same Region.
+     * If the source Array is in a different place, then this copy
+     * is performed asynchronously and the resulting activity will be 
+     * registered with the dynamically enclosing finish.</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.  May be local or remote
+     */
+    public def copyFrom(src:Array[T](this.region)) {
+	raw.copyFrom(0, src.home, src.raw, 0, rawLength);
+    }
+
+
+    /**
+     * Copy the specified values from the source Array to this Array.
+     * The two arrays must be of Rank(1).
+     * If the source Array is in a different place, then this copy
+     * is performed asynchronously and the resulting activity will be 
+     * registered with the dynamically enclosing finish.</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param dstIndex the first element to copy to in the destination array
+     * @param src the destination array.  May be local or remote
+     * @param srcIndex the first element to copy from in the source array
+     * @param numElems the number of elements to copy
+     */
+    public def copyFrom(dstIndex:int, src:Array[T](1), srcIndex:int, numElems:int){rank==1} {
+        if (checkBounds()) {
+	    if (!src.region.contains(srcIndex)) raiseBoundsError(srcIndex);
+            if (!src.region.contains(srcIndex+numElems-1)) raiseBoundsError(srcIndex+numElems-1);
+            if (!region.contains(dstIndex)) raiseBoundsError(dstIndex);
+            if (!region.contains(dstIndex+numElems-1)) raiseBoundsError(dstIndex+numElems-1);
+        }
+
+        raw.copyFrom(dstIndex, src.home, src.raw, srcIndex, numElems);
+    }
+
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(pt:Point(rank)) {
+    private static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
     }    
 
