@@ -3190,7 +3190,6 @@ FinishExpression ::= finish ( Expression ) Block
         /.$BeginJava
                     List l;
                     l = new TypedList(new LinkedList(), Stmt.class, false);
-                    l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
                     l.add(AssignPropertyCall);
                     setResult(nf.Block(pos(), l));
           $EndJava
@@ -3202,11 +3201,7 @@ FinishExpression ::= finish ( Expression ) Block
         /.$BeginJava
                     List l;
                     l = new TypedList(new LinkedList(), Stmt.class, false);
-                    if (ExplicitConstructorInvocationopt == null)
-                    {
-                        l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
-                    }
-                    else
+                    if (ExplicitConstructorInvocationopt != null)
                     {
                         l.add(ExplicitConstructorInvocationopt);
                     }
