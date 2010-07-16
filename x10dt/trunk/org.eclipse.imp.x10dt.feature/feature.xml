@@ -135,16 +135,7 @@
    <plugin
          id="x10.dist.macosx.x86.fragment"
          os="macosx"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="2.0.5.qualifier"
-         fragment="true"/>
-
-   <plugin
-         id="x10.dist.macosx.x86.fragment"
-         os="macosx"
-         arch="x86_64"
+         arch="x86,x86_64"
          download-size="0"
          install-size="0"
          version="2.0.5.qualifier"
