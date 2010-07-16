@@ -46,7 +46,7 @@ page X10.Compiler {
     }
     fields {
     						    boolean ConservativeBuild {
-    						    			    defvalue false;
+    						    			    defvalue true;
     						    			    tooltip "When rebuilding include all files that have no generated files";
     						    }
         boolean PermitAssert { label "Permit asserts"; defvalue true; }
