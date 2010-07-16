@@ -46,21 +46,17 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     	} else {
     		return null;
     	}
-    	String fullname = classType.fullName().toString().replace('.', '/');
-    	if (fullname.startsWith("x10/lang") || fullname.startsWith("x10/io")) return null;
-    	return "/" + fProject.getName() + "/" + "src/" + fullname + ".x10";  //TODO!!!!!!
-    	
-    	/*
-        final String filePath= type.position().file().replace(File.separatorChar, '/');
-        String result=null;
+    	final String filePath= classType.position().file().replace(File.separatorChar, '/');
+    	if (filePath.contains("x10.jar"))
+    		return null;
+    	String result=null;
         String wsPath= fWorkspacePath;
         if(filePath.startsWith(wsPath)){
-        	result = filePath.substring(fWorkspacePath.length());//PORT 1.7 don't complain if path doesn't start with wsPath
+        	result = filePath.substring(fWorkspacePath.length());
         }else{
         	result=filePath;
         }
-        return result;
-        */
+    	return result;  
     }
 
     public void addDependency(Type fromType, Type uponType) {

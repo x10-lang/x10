@@ -589,7 +589,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
         X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
         X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
-        X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Compiler templates = " + Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY);
+        //X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Compiler templates = " + Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY);
         X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Output directory = " + opts.output_directory);
     }
 
