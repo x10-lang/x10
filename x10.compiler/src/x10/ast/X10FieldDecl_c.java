@@ -410,8 +410,10 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	    	X10FieldDecl_c n = (X10FieldDecl_c) this.type(nf.CanonicalTypeNode(type().position(), type));
 
-	    	// Add an initializer to uninitialized var fields.
-	    	if (! n.flags().flags().isFinal() && n.init() == null) {
+	    	// Add an initializer to uninitialized var field unless field is annotated @Uninitialized.
+	        Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.Uninitialized"));
+
+	    	if (! n.flags().flags().isFinal() && n.init() == null && ((X10FieldDef) n.fieldDef()).annotationsMatching(at).isEmpty()) {
 	    		Type t = n.type().type();
 	    		Expr e = null;
 	    		if (t.isBoolean()) {
