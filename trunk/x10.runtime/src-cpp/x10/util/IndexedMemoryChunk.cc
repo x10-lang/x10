@@ -10,17 +10,24 @@ namespace x10 {
     namespace util {
 
         const serialization_id_t IMC_copy_to_serialization_id =
-            DeserializationDispatcher::addPutFunctions(IMC_copy_to_buffer_finder,
-                                                       IMC_copy_to_notifier,
+            DeserializationDispatcher::addPutFunctions(IMC_buffer_finder,
+                                                       IMC_notifier,
                                                        NULL,
                                                        NULL);
 
-        void* IMC_copy_to_buffer_finder(deserialization_buffer& buf, x10_int ) {
+        const serialization_id_t IMC_copy_from_serialization_id =
+            DeserializationDispatcher::addGetFunctions(IMC_buffer_finder,
+                                                       IMC_notifier,
+                                                       NULL,
+                                                       NULL);
+
+        
+        void* IMC_buffer_finder(deserialization_buffer& buf, x10_int ) {
             void *dstAddr = (void*)(size_t)buf.read<x10_long>();
             return dstAddr;
         }
 
-        void IMC_copy_to_notifier(deserialization_buffer &buf, x10_int) {
+        void IMC_notifier(deserialization_buffer &buf, x10_int) {
             buf.read<x10_long>();  // Read and discard data used by IMC_copy_to_buffer_finder
             x10::lang::Rail_notifyEnclosingFinish(buf);
         }

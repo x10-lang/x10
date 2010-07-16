@@ -27,11 +27,13 @@ template<class T> class IndexedMemoryChunk;
 namespace x10 {
     namespace util { 
 
+        extern const x10aux::serialization_id_t IMC_copy_to_serialization_id;
+        extern const x10aux::serialization_id_t IMC_copy_from_serialization_id;
+
         extern void IMC_notifyEnclosingFinish(x10aux::deserialization_buffer&);
         extern void IMC_serialize_finish_state(x10aux::place, x10aux::serialization_buffer&);
-	    extern void *IMC_copy_to_buffer_finder(x10aux::deserialization_buffer&, x10_int);
-        extern void IMC_copy_to_notifier(x10aux::deserialization_buffer&, x10_int);
-        extern const x10aux::serialization_id_t IMC_copy_to_serialization_id;
+	    extern void *IMC_buffer_finder(x10aux::deserialization_buffer&, x10_int);
+        extern void IMC_notifier(x10aux::deserialization_buffer&, x10_int);
         
         template<class T> class IndexedMemoryChunk_ithunk0 : public x10::util::IndexedMemoryChunk<T> {
         public:
@@ -105,9 +107,33 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
         x10aux::serialization_buffer buf;
         buf.write((x10_long)(size_t)(dstAddr));
         IMC_serialize_finish_state(dst_place, buf);
-        x10aux::send_put(dst_place, IMC_copy_to_serialization_id, buf, &data[srcIndex], numBytes);
+        x10aux::send_put(dst_place, IMC_copy_to_serialization_id, buf, srcAddr, numBytes);
     }
 }
+
+
+template<class T> void x10::util::IndexedMemoryChunk<T>::copyFrom(x10_int dstIndex, x10::lang::Place srcPlace,
+                                                                  x10::util::IndexedMemoryChunk<T> src,
+                                                                  x10_int srcIndex, x10_int numElems) {
+    void* srcAddr = (void*)(&src->data[srcIndex]);
+    void* dstAddr = (void*)(&data[dstIndex]);
+    size_t numBytes = numElems * sizeof(T);
+    if (srcPlace->FMGL(id) == x10aux::here) {
+        if (data == src->data) {
+            // potentially overlapping, use memmove
+            memmove(dstAddr, srcAddr, numBytes);
+        } else {
+            memcpy(dstAddr, srcAddr, numBytes);
+        }                
+    } else {
+        x10aux::place src_place = srcPlace->FMGL(id);
+        x10aux::serialization_buffer buf;
+        buf.write((x10_long)(size_t)(srcAddr));
+        IMC_serialize_finish_state(x10aux::here, buf);
+        x10aux::send_get(src_place, IMC_copy_from_serialization_id, buf, dstAddr, numBytes);
+    }
+}
+
 
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::IndexedMemoryChunk<T> this_,
