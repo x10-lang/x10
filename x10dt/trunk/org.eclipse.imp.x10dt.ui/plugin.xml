@@ -107,7 +107,7 @@
    <extension
          point="org.eclipse.imp.runtime.autoEditStrategy">
       <autoEditStrategy
-            class="org.eclipse.imp.x10dt.ui.editor.X10AutoIndentStrategy"
+            class="org.eclipse.imp.x10dt.ui.editor.formatting.X10AutoIndentStrategy"
             language="X10">
       </autoEditStrategy>
    </extension>
