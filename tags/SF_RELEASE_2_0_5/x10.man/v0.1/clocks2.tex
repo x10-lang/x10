@@ -1,0 +1,387 @@
+\documentclass{article}
+%\usepackage{proof}
+\usepackage{fullpage}
+\usepackage{amssymb}
+\bibliographystyle{abbrv}
+
+%\newcommand \limp {\hbox{ $-\!\!\,\circ $ } }
+\newcommand \inp[2] {\hbox{in}~#1~#2}
+\newcommand \outp[2] {\hbox{out}~#1~#2}
+\newcommand \inpL {\hbox{in}\Lscr}
+\newcommand \inpR {\hbox{in}\Rscr}
+\newcommand \limp {\multimap}
+\newcommand \limpR {\limp\Rscr}
+\newcommand \limpL {\limp\Lscr}
+\newcommand \nuR {\nu\Rscr}
+\newcommand \nuL {\nu\Lscr}
+\newcommand \nme {\hbox{\sl name}~}
+\newcommand \ws {\hbox{\sl ws}}
+\newcommand \sst {\hbox{\sl ss}}
+\newcommand \rss {\hbox{\sl rs}}
+\newcommand \IMLL {\hbox{\sl IMLL}}
+\newcommand \IMLLnd {\hbox{\sl IMLL}_\nu^{\Delta}}
+\newcommand \vvec[1]{\stackrel{\rightarrow}{#1}}
+\newcommand \en[1]{[\![#1]\!]}
+\newcommand \ens[1]{\lceil #1 \rceil}
+\newcommand \enf[1]{\langle #1 \rangle}
+\newcommand \act[3]{\hbox{\sl act}~#1~#2~#3}
+\newcommand \fvar[1] {\hbox{fn}(#1)}
+\newcommand{\alt}{{\;{\tt\char`\|}\;}}
+\newcommand{\Hat}{{\;{\tt\char`\^}\;}}
+\newcommand{\now}{\mbox{\bf\tt now}}
+\newcommand{\every}{\mbox{\bf\tt every}}
+\newcommand{\then}{\rightarrow}
+\newcommand{\Else}{\Rightarrow}
+\newcommand{\next}{\mbox{\bf\tt next}}
+\newcommand{\sync}{\mbox{\bf\tt sync}}
+\newtheorem{example}{Example}
+\def\nforall{\mu}
+\def\nexists{\nu}
+%\def\tr{\triangleright}
+%\def\tl{\triangleleft}
+\def\tr{\triangleright}
+\def\tl{\triangleleft}
+\def\emp{\emptyset}
+\def\derives{\longrightarrow}
+\def\equiderives{\longleftrightarrow}
+\def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
+\def\ccfont{\sf}
+\def\cc{{\ccfont cc}}
+\def\tcc{{\ccfont tcc}}
+\def\x10{{\ccfont x10}}
+\def\X10{{\ccfont X10}}
+\def\fx10{{\ccfont fx10}}
+\def\java{{\sc Java}}
+\def\kava{{\sc Kava}}
+\newcommand \todo[1] {\begin{quotation}{\bf Todo:} {\footnotesize\em #1}\end{quotation}}
+\newcommand \metanote[1] {\begin{quotation}{\bf MetaNote:} {\footnotesize\em #1}\end{quotation}}
+\begin{document}
+\title{\X10{} Design Notes: Clocks\\
+}
+\author{{\sc PERCS} Area II\footnote{Contact: Vijay Saraswat, {\tt vsaraswa@us.ibm.com} This note is intended primarily for people working on or evaluating the \x10{} design.}\\ 
+{\sc ****DRAFT*** v0.01}\\ 
+(Please do not circulate)
+}
+
+\maketitle
+
+\begin{abstract}
+This note contains a proposal for the definition of clocks in \x10{} for repeated quiescence detection of a programmer-specified, dynamically varying, data-dependent set of activities scattered across multiple places. 
+\end{abstract}
+
+\section{Clocks}
+
+\X10{}  has a built-in final reference class, {\tt x10.lang.clock} intended
+for repeated quiescence detection of arbitrary, data-dependent
+collection of activities.
+
+Clocks may only be stored in {\em flow} variables, i.e.{} local
+variables and parameter to methods (that are marked with the {\tt
+flow} modifier).  Values received by a method in a {\tt flow} argument
+or stored in a {\tt flow} local variable may not be assigned to fields
+of classes.
+
+Each activity is initiated with zero or more clocks, namely those
+available in its lexically enclosing environment.  Because of the
+condition above, an activity cannot acquire any new clocks during its
+lifetime (except by creating them). Therefore for each activity we can
+statically determine (a superset of) the clocks used by that activity
+through a simple flow analysis.
+
+% {We need to have a cost-model for clocks. Should ensure that this
+% model reflects hierarchical quiescence detection, cf trees of short
+% circuits.)
+
+Two statements use clocks: {\tt now (c) \{S\}} and {\tt next c;},
+where {\tt c} is a clock and {\tt S} a statement.
+
+The statement {\tt now (c) \{S\}} is said to be {\em clocked on {\tt
+c}}. It behaves like {\tt S}. However {\tt c} cannot advance as long
+as {\tt S} is executing. This statement is useful in an activity that
+wishes to execute {\tt S} in the current instant and does not require
+{\tt c} thereafter. If it does wish to access c (or state related to
+c) in subsequent instants, it should use next c.
+
+The statement {\tt next c;} blocks until clock {\tt c} can advance.
+
+An \X10{} computation is said to be {\em quiescent on $c$} if each
+activity that has a reference to $c$ is blocked on {\tt next c;}.
+All activities that do not have a reference to $c$ do not need to
+be quiescent. Note that once the system is quiescent on $c$, it
+will remain quiescent on $c$ forever (unless the system takes some
+action), since no non-blocked activity has a reference to $c$,
+or can acquire a reference to $c$. That is,  quiescence on 
+a clock is a {\em stable property}. 
+
+Once the implementation has detected quiecence on $c$, the system
+resumes all activities blocked on $c$; we say that the clock $c$ {\em
+has advanced}.
+
+\todo{Present a simple example of clock advance.}
+\paragraph{Multi clock quiescence.}
+The definition of quiescence given above can cause deadlock. Consider
+the situation in which only two activities are running in
+parallel. The first executes {\tt next c; A; next d;} and the other
+exeutes {\tt next d; B; next c;}. Now the configuration is stuck, but
+it is not quiescent on $c$ or $d$. Rather it is quiescent on the
+{\em clock set} $\{c, d\}$.
+
+But note that the the first activity should be thought of as quiescent
+on $c$ {\em and} {\em conditionally quiescent} on $d$. That is, as
+long as the clock $c$ does not advance, this activity should be
+considered quiescent on $d$. Similarly, the second activity is
+quiescent on $d$ and conditionally quiescent on $c$. Further the only
+activities that reference $c$ and $d$ are these two activities. From
+this we can conclude that the system is quiescent on both $c$ and
+$d$. Therefore it makes sense to {\em jointly advance} both clocks $c$
+and $d$. 
+
+More explicitly the rule for joint advancement is as follows: Say that
+an activity is quiescent on a clock set $s$ if it is blocked on some
+clock in $s$. An \X10{} computation is said to be quiescent on $s$ if
+every activity that has a reference to some clock $c \in s$ is blocked
+on $s$.  In such a state the system may simultaneously advance all the
+clocks in $s$, thus releasing all activities blocked on $s$.
+
+Note that the notion of quiescence on a clock set generalizes
+quiescence on a clock and is strictly more powerful (i.e.{} it
+allows more computations to progress). Indeed the rule ensures that no
+computation may deadlock because it uses clocks.
+
+\todo{Need natural programming idioms that require multi-clock synchronization.}
+
+\subsection{Program equivalences}
+
+From the discussion above it should be clear that the following
+equivalences hold:
+
+\begin{eqnarray}
+ {\tt now(c)\, now(d)\,\{S\}} &=& {\tt now(d)\, now(c)\,\{S\}}\\
+ {\tt now(c)\, now(c)\,\{S\}} &=& {\tt now(c)\,\{S\}}\\
+ {\tt now(c)\, \{S\}\ next\, c;} &=& {\tt \{S\}\ next\, c;}\\
+\end{eqnarray}
+
+Note that {\tt next c; next c;} is not the same as {\tt next c;}. The
+first will wait for the clock $c$ to advance twice, and the second
+once.  Similarly  {\tt next\, c;\, next\, d;} is not the same as
+{\tt next\, d;\, next\, c;}. The first could allow the clock
+$c$ to advance by itself, whereas the second could force $c$ to 
+advance jointly with $d$. Consider, for instance, the context
+{\tt \_ | next\,c;\}.
+
+\subsection{Implementation Notes}
+Clocks may be implemented efficiently with message passing, e.g.{} by
+using short-circuit ideas in \cite{SaraswatPODC88}.  Recall that every
+activity is spawned with references to a fixed number of clocks. Each
+reference should be thought of as a global pointer to a location in
+some place representing the clock. (We shall discuss a further
+optimization below.) Each clock keeps two counters: the total number
+of outstanding references to the clock, and the number of activities
+that are currently suspended on the clock.
+
+When an activity $A$ spawns another activity $B$ that will reference a
+clock $c$ referenced by $A$, $A$ {\em splits} the reference by sending
+a message to the clock. Whenever an activity drops a reference to a
+clock, or suspends on it, it sends a message to the clock. 
+
+The optimization is that the clock can be represented in a distributed
+fashion. Each place keeps a local counter for each clock that is
+referenced by an activity in that place. The global location for the
+clock simply keeps track of the places that have references and that
+are quiescent. This can reduce the inter-place message traffic
+significantly.
+
+\paragraph{Clock set quiescence.}
+We now discuss how quiescence on clock sets may be detected. For this
+it is convenient to assume that are clocks are globally ordered (to
+avoid a ``lord of the rings'' computation).  
+
+Each activity keeps track of the set of clocks it references, together
+with the phase of each clock (an integer). Each clock $c$ tracks 
+\begin{enumerate}
+\item the number $n$ of outstanding references to it, 
+\item its current phase $m$, 
+\item the set $B$ of activities from which it has received a blocking message,
+\item the set $A$ of conditional blocking messages is has received from its activities,
+\item a set $Z$ of  clock set proposals $q(S_i,Q_i)$ it has received from other clocks, and
+\item the phase vector $\phi(d)=m$ which records $c$'s knowledge of the 
+current phase of each clock $d$ it knows about.
+\end{enumerate}
+When a clock is created $n=1$, $m=1$, $b=\emptyset$, $A=\emptyset$,
+$Z=\emptyset$, and $\phi$ is undefined for every clock except $c$
+($\phi(c)=1$). ($n$ is increased whenever a split reference message is
+received by the clock and decreased whenever a reference is dropped.)
+
+When an activity $a$ executes a {\tt next c;} statement, it sends a
+message to $c$, which adds $a$ to $b$. $a$ also sends a conditional
+blocking message $(c,m)$ to every clock $d$ that it still has a
+reference to, thereby informing them that $d$ could be part of a
+quiescent clock set involving $(c,m)$.
+
+Whenever $c$ receives a conditional blocking message $(d,m)$ from an
+activity $a$ it checks if $\phi(d) > m$. If so, the message is old and is
+ignored. If $\phi(d) < m$ then $\phi(d)$ is updated to $m$ and the rest of
+the state checked for consistency (see below). If $\phi(d)=m$
+(or $\phi(d)$ is undefined, in which case it is set to $m$)  then $a$
+together with $(d,m)$ is added to $A$. 
+
+Whenever the phase vector is updated, the state maintained by the
+clock is checked for consistency. Any clock set proposal $q(S_i,Q_i)$
+which contains a clock at an earlier phase than recorded by $\phi$ is
+discarded. Any activity in $A$ with a conditional blocking message
+$(d,m)$ is discarded if $m < \phi(d)$. The activity will now be regarded
+as being active.
+
+Whenever the clock receives a clock set proposal $q(S,Q)$ from another
+clock, it uses the clock information in $S \cup Q$ to update $\phi$
+(and its local state, if $\phi$ changes). If any clock phase in $S\cup
+Q$ is old (according to $\phi$) then the proposal is discarded;
+otherwise it is aded to $Z$. (Note that $\phi$ is updated even if the
+proposal is discarded.)
+
+A clock is said to be quiescent if $|A|+|B|=n$.  When a clock becomes
+quiescent it constructs the set $Q = Q_1 \cup \ldots \cup Q_k \cup
+\{c,m)\}$ and $S = (A \cup S_1 \cup \ldots S_k)\setminus Q$ 
+where $Z=\{q(S_1,Q_1),\ldots, q(S_k,Q_k)\}$. This represents its
+estimate of the potentially quiescent clock set to which it belongs.
+If $S=\emptyset$ then it has discovered a quiescent clock set, and it
+informs every clock in $Q$ that it can progress. Otherwise, it
+extracts the least clock $(d,m)$ from $S$ and sends a clock set
+proposal $q(S, Q)$ to $d$.
+
+When a clock receives a message that it can progress it increments $m$, 
+informs every activity in $A$ that it is unblocked, and clears
+$A$, $B$ and $Z$.
+
+Note that even after sending a clock set proposal, the clock may
+continue to receive conditional blocking messages from
+activities. These are treated exactly as above. Thus a clock may
+generate multiple clock set proposals for its current phase. This
+number is bounded by the number of messages received from activities
+referencing the clock before they send an unconditional blocking
+message.
+
+This algorithm can be improved if it is possible to devise disjoint
+{\em clock groups} and ensure that no activity can be created which
+contains clocks from more than one clock group. Now if all the clocks
+for one clock group are stored in one place then there may be no need
+to keep separate phase estimators $\phi$ at each clock. Instead the
+phase of each clock could be read directly from the clock.
+
+The algorithm can also be improved by using a hierarchical scheme with
+one ``proxy clock'' per place for a clock. The proxy sends a
+conditional or unconditional blocking message to the clock only when
+all activities in that place referencing the clock have quiesced.
+
+\subsection{Clocked types}
+
+We allow types to specify clocks, via a {\tt clocked(c)} modifier,
+e.g.{}
+
+{\footnotesize
+\begin{verbatim}
+  clocked(c) int r;
+\end{verbatim}}
+
+This declaration asserts that $r$ is accessible (readable/writable) only
+by those statements that are clocked on $c$. Thus propagation of the clock provides some control over the ``visibility'' of $r$.
+
+The declaration 
+
+{\footnotesize
+\begin{verbatim}
+  clocked(c) final int r = 1;
+\end{verbatim}}
+
+\noindent asserts additionally that in each clock instant $r$ is final, 
+i.e.{} the value of $r$ can be reset in each time instant (and stays
+constant in that instant). 
+
+\todo{Generalize the syntax so that aggregate variables can be clocked with an aggregate clock of the same shape.}
+
+We expect that most arrays containing application data will be
+declared to be {\tt clocked final}. We support this very powerful type
+declaration by providing a new statement:
+{\footnotesize
+\begin{verbatim}
+  next l = r; before c;
+\end{verbatim}}
+
+\noindent 
+for a variable $l$ declared to be clocked on $c$. The statement
+assigns $r$ to the {\em next} value of $l$. There may be multiple such
+assignments before the clock advances. The last such assignment
+specifies the value of the variable that will be visible after the
+clock has advanced.  If the variable is {\tt clocked final} it is
+guaranteed that {\em all} readers of the variable throughout this
+phase will see the value $r$.
+
+We expect that very efficient {\em clocked cache} hardware techniques
+can be developed to update the cache with the new values for clocked
+final variables before activities are resumed in the new clock phase.
+When activities resume, they will find the data they need available
+locally with low latency.
+
+A much richer vocabulary of clocked types is possible and needs to be
+investigated further. In particular we believe that the full power of
+\tcc{} can be brought to bear to develop types that vary across time. 
+Intuitively a temporal type is a finite state machine whose states are
+labeled with types and whose edges are labeled with signals which
+describe events of interest. The type at each state may describe the
+distribution of an aggregate variable across places, or the
+co-location of scalar variables. Type checking corresponds to running
+\tcc{} programs at compile-time over a constraint system that describes the atemporal type system.
+
+\subsection{Determinate shared memory concurrency}
+
+We should be able to statically guarantee determinate computation if
+the program can be typed in such a way that all mutable shared
+variables are {\tt clocked final} on a clock $c$, and all accesses to
+the variable are performed by statements clocked by $c$. Then,
+regardless of the parallelism or distribution across places, all reads
+of a variable will be answered with the same value.  \todo{Investigate
+variable declarations that allow a variable to be clocked by many
+clocks.}
+
+\subsection{Example programs}
+
+\begin{example}[Sweep3d]
+
+Consider the core of the ASCI Benchmark Sweep3D program for computing
+solutions to mass transport problems.
+
+In a nutshell the core computation is a triply nested sequential loop
+in which the value of a variable in the current iteration is dependent
+on the values of neighboring variables in a past iteration. Such a
+problem can be parallelized through pipelining. One visualizes a
+diagonal wavefront sweeping through the array. An MPI version of the
+program may be described as follows. There is a two dimensional grid
+of processors which performs the following computation
+repeatedly. Each processor synchronously receives a value from the
+processor to its west, then to its north, then computes some function
+of these values and computes a new value to be sent to the processor
+to its east and then to its south.  Ignoring the behavior of the
+boundary processors for the moment such a computation may be described
+by the following \x10{} program:
+
+{\footnotesize
+\begin{verbatim}
+region r = [1..n,1..m];
+clock[r] w,n;
+clock(w) final double [r] A; 
+for ( int t : 1..TMax) {
+  forall(int i,j:A) {
+    double west = A[i-1,j]; next w[i-1,j];           
+    double north = A[i,j-1]; next n[i,j-1]
+    next A[i,j] = f(west, north);
+    next w[i,j];
+    next n[i,j];
+    }
+}
+\end{verbatim}
+}
+\end{example}
+
+\bibliography{master}
+
+\end{document}

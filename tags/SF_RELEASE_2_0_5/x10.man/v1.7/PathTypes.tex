@@ -1,0 +1,74 @@
+
+
+Types now include /path-dependent types/ of the form base.f1.f2.f3.T.
+
+(Paths) p ::= x         // x must be a final variable or property in scope
+           |  this      // the current object
+           |  super     // mostly an alias for this
+           |  T.this    // a T object surrounding the current object
+           |  C.f       // where f is a static property
+           |  p.f       // where f is a property (or final field) in p
+           |  p.C.f     // where f is a static property
+(Types) T ::= p.T       // where T is a type property
+
+Rationale: We allow super in paths because super is already allowed
+widely in X10 expressions. Mostly this and super they are the same, but
+they might be different if the inherited type of a field is different
+from the type of the field in the current class.
+
+Note that the compiler may create temporary final variables and use
+their names to construct types. For instance:
+
+class Foo<T>(T k) { 
+  T k() {
+    return k;
+  }
+  Foo<T>(k) clone() {
+    return new Foo<T>(k);
+  }
+}
+Foo foo = ...; // foo is not final. 
+_ x = foo.k(); // what is the type?
+
+The compiler generates a temporary variable for type checking:
+
+Foo foo = ...; // foo is not final. 
+final Foo _1 = foo;  grab current version of foo
+_ x = foo.k();  // the type is _1.T
+
+Note that types are only valid within certain scopes. They must be
+rewritten when a field or method is selected to reflect the change in
+scope. For example:
+
+class Bar<T> {...}
+class Foo(final Bar y) { 
+  y.T z;  // the type of z is really this.y.T
+};
+Foo x = ...
+x.y.T z = x.z   // The type of x.z is this.y.T[x/this] 
+
+The rule is that the type of any field access x.f is the type of the
+field f in the type of x with any occurrences of this replaced by x.
+Likewise for method invocation.
+
+
+In any context, the same type may have many different names.
+
+class Bar<T> {...}
+final Bar x = ...;
+final Bar y = x;  
+// now x.T is the same as y.T through the end of this block
+
+Scala addresses name aliases by using canonicalization; in this example,
+whenever the programmer writes y.T, the compiler would canonicalize it
+to x.T. However, it is likely more synergistic with X10's dependent
+types to use a constraints approach. In that case, the type checker
+would track the constraint that x==y and would use it in type checking.
+During type inference (see #Type Elision <#Type_Elision> above), type
+constraint self==x should be added to y's type.
+
+Paths must always have a base that is in scope.
+
+[edit </mediawiki/index.php?title=X10_1.5_Design&action=edit&section=28>]
+
+
