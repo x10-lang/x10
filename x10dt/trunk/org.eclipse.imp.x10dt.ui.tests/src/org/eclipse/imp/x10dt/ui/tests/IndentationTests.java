@@ -20,7 +20,7 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
-import org.eclipse.imp.x10dt.ui.editor.X10AutoIndentStrategy;
+import org.eclipse.imp.x10dt.ui.editor.formatting.X10AutoIndentStrategy;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentCommand;
@@ -85,8 +85,8 @@ public class IndentationTests {
 	
 	        if (lineBegin < 0) {
 	            lineBegin= 0;
-	        } else if (lineBegin < markerPos && lineBegin > 0) {
-	            lineBegin++; // move past newline
+//	        } else if (lineBegin < markerPos && lineBegin > 0) {
+//	            lineBegin++; // move past newline
 	        }
 
 	        DocumentCommand cmd= new DocumentCommand() {
@@ -107,6 +107,7 @@ public class IndentationTests {
         }
     }
 
+    @SuppressWarnings("unused")
     private void checkForSpacesTabs(String line) {
         boolean spacesForTabs= fPrefsService.getBooleanPreference(X10Constants.P_SPACESFORTABS);
 //        int tabWidth= fPrefsService.getIntPreference(X10Constants.P_TABWIDTH);
@@ -676,9 +677,12 @@ public class IndentationTests {
                     "        Console.OUT.println(\"Hey\");\n" +
                     "    }\n" +
                     "  }";
-        String exp= "        Console.OUT.println(\"Hi\"); // <<<\n";
+        String expTab4= "    	Console.OUT.println(\"Hi\"); // <<<\n";
+        String expSpc4= "        Console.OUT.println(\"Hi\"); // <<<\n";
+        String expTab3= "       Console.OUT.println(\"Hi\"); // <<<\n";
+        String expSpc3= "       Console.OUT.println(\"Hi\"); // <<<\n";
 
-        indentTestHelper(org, exp);
+        indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3 : expTab3));
     }
 
     @Test
@@ -705,9 +709,12 @@ public class IndentationTests {
                     "        Console.OUT.println(\"Hey\");\n" +
                     "    }\n" +
                     "  }";
-        String exp= "        Console.OUT.println(\"Hi\"); // <<<\n";
+        String expTab4= "    	Console.OUT.println(\"Hi\"); // <<<\n";
+        String expSpc4= "        Console.OUT.println(\"Hi\"); // <<<\n";
+        String expTab3= "       Console.OUT.println(\"Hi\"); // <<<\n";
+        String expSpc3= "       Console.OUT.println(\"Hi\"); // <<<\n";
 
-        indentTestHelper(org, exp);
+        indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3 : expTab3));
     }
 
     @Test
@@ -718,9 +725,12 @@ public class IndentationTests {
                     "        Console.OUT.println(\"Hey\");\n" +
                     "    }\n" +
                     "  }";
-        String exp= "        Console.OUT.println(\"Hi\"); // <<<\n";
+        String expTab4= "    	Console.OUT.println(\"Hi\"); // <<<\n";
+        String expSpc4= "        Console.OUT.println(\"Hi\"); // <<<\n";
+        String expTab3= "       Console.OUT.println(\"Hi\"); // <<<\n";
+        String expSpc3= "       Console.OUT.println(\"Hi\"); // <<<\n";
 
-        indentTestHelper(org, exp);
+        indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3 : expTab3));
     }
 
     @Test
