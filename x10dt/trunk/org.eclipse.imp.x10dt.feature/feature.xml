@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.imp.x10dt"
       label="%featureName"
-      version="2.0.4.qualifier"
+      version="2.0.5.qualifier"
       provider-name="%providerName"
       os="win32,linux,macosx"
       arch="x86,x86_64"
