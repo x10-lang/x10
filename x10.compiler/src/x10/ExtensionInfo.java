@@ -411,6 +411,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(InnerClassRemover(job));
            goals.addAll(Optimizer.goals(this, job));
            goals.add(Desugarer(job));
+           if (x10.Configuration.FLATTEN_EXPRESSIONS) {
+               goals.add(ExpressionFlattener(job));
+           }
            goals.add(CodeGenerated(job));
            goals.add(End(job));
            
@@ -801,7 +804,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal ExpressionFlattener(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           VisitorGoal ef = new VisitorGoal("WorkStealing ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
+           VisitorGoal ef = new VisitorGoal("ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
            Goal ef2 = ef.intern(this);
            if (ef == ef2) {
                ef.addPrereq(Desugarer(job));
