@@ -11,6 +11,7 @@
 
 package x10.compiler;
 
+import x10.lang.annotations.ExpressionAnnotation;
 import x10.lang.annotations.MethodAnnotation;
 
 /**
@@ -21,4 +22,4 @@ import x10.lang.annotations.MethodAnnotation;
  * This annotation is processed by the X10 compiler's
  * common optimizer.
  */
-public interface NoInline extends MethodAnnotation { }
+public interface NoInline extends MethodAnnotation, ExpressionAnnotation { }
