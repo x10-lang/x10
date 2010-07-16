@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.ui.editor;
+package org.eclipse.imp.x10dt.ui.editor.formatting;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
@@ -16,7 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 
 /**
- * Uses the {@link org.eclipse.imp.x10dt.ui.editor.X10HeuristicScanner} to
+ * Uses the {@link org.eclipse.imp.x10dt.ui.editor.formatting.X10HeuristicScanner} to
  * get the indentation level for a certain position in a document.
  *
  * <p>
@@ -347,7 +347,7 @@ public class X10Indenter {
 	 * (method defs, array initializers)
 	 */
 	private int fAlign;
-	/** The stateful scanposition for the indentation methods. */
+	/** The stateful scan position for the indentation methods. */
 	private int fPosition;
 	/** The previous position. */
 	private int fPreviousPos;

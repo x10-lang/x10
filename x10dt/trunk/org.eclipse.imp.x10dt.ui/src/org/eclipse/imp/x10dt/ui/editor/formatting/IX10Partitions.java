@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.ui.editor;
+package org.eclipse.imp.x10dt.ui.editor.formatting;
 
 /**
  * Interface containing constants identifying the X10 document partition types

@@ -9,7 +9,7 @@
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.imp.x10dt.ui.editor;
+package org.eclipse.imp.x10dt.ui.editor.formatting;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.ui.editor;
+package org.eclipse.imp.x10dt.ui.editor.formatting;
 
 /**
  * Symbols for the X10 heuristic scanner.
