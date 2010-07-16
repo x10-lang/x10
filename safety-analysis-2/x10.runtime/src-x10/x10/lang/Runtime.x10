@@ -11,6 +11,7 @@
 
 package x10.lang;
 
+import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NativeClass;
 import x10.compiler.NativeDef;
@@ -918,6 +919,8 @@ public final class Runtime {
             this.threads = threads;
         }
 
+	public def silze() = this.size;
+
         public def apply():Void {
             val s = size;
             for (var i:Int = 1; i<s; i++) {
@@ -1038,8 +1041,10 @@ public final class Runtime {
     private static def worker():Worker! =
         pretendLocal(Thread.currentThread().worker() as Worker);
         
-     public static def workerTid():Long =
-        pretendLocal(Thread.currentThread().worker() as Worker).tid;
+     public static @Inline def workerTid():Long =
+        (Thread.currentThread().worker() as Worker!).tid;
+
+     public static @Inline def numOfWorkers():Long = runtime().pool.size;
 
     /**
      * Return the current activity
