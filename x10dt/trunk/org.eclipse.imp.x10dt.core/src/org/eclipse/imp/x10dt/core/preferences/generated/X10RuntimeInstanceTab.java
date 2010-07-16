@@ -1,11 +1,17 @@
+/******************************************/
+/* WARNING: GENERATED FILE - DO NOT EDIT! */
+/******************************************/
 package org.eclipse.imp.x10dt.core.preferences.generated;
 
 import java.util.List;
 import java.util.ArrayList;
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.imp.preferences.*;
 import org.eclipse.imp.preferences.fields.*;
 import org.osgi.service.prefs.Preferences;
@@ -39,9 +45,8 @@ public class X10RuntimeInstanceTab extends InstancePreferencesTab {
 			"Folder containing the default X10 runtime libraries",
 			parent,
 			true, true,
-			false, "Unspecified",
 			true, "",
-			true);
+			false);
 		fields.add(DefaultRuntime);
 
 
@@ -51,9 +56,8 @@ public class X10RuntimeInstanceTab extends InstancePreferencesTab {
 			"The number of logical places upon which the application is executed",
 			parent,
 			true, true,
-			false, String.valueOf(0),
-			false, "0",
-			true);
+			true, "0",
+			false);
 		fields.add(NumberOfPlaces);
 
 		return fields.toArray(new FieldEditor[fields.size()]);

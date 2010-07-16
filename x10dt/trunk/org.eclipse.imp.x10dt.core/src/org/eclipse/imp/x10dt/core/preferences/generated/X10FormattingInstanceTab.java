@@ -1,11 +1,17 @@
+/******************************************/
+/* WARNING: GENERATED FILE - DO NOT EDIT! */
+/******************************************/
 package org.eclipse.imp.x10dt.core.preferences.generated;
 
 import java.util.List;
 import java.util.ArrayList;
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.imp.preferences.*;
 import org.eclipse.imp.preferences.fields.*;
 import org.osgi.service.prefs.Preferences;
@@ -39,9 +45,8 @@ public class X10FormattingInstanceTab extends InstancePreferencesTab {
 			"The number of spaces by which to indent various entities relative to their containing constructs",
 			parent,
 			true, true,
-			false, String.valueOf(0),
-			false, "0",
-			true);
+			true, "0",
+			false);
 		fields.add(indentWidth);
 
 
@@ -51,9 +56,8 @@ public class X10FormattingInstanceTab extends InstancePreferencesTab {
 			"",
 			parent,
 			true, true,
-			false, false,
-			false, false,
-			true);
+			true, false,
+			false);
 		fields.add(indentBlockStatements);
 
 
@@ -63,9 +67,8 @@ public class X10FormattingInstanceTab extends InstancePreferencesTab {
 			"",
 			parent,
 			true, true,
-			false, false,
-			false, false,
-			true);
+			true, false,
+			false);
 		fields.add(indentMethodBody);
 
 
@@ -75,9 +78,8 @@ public class X10FormattingInstanceTab extends InstancePreferencesTab {
 			"",
 			parent,
 			true, true,
-			false, false,
-			false, false,
-			true);
+			true, false,
+			false);
 		fields.add(indentTypeBody);
 
 		return fields.toArray(new FieldEditor[fields.size()]);

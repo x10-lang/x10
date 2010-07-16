@@ -1,3 +1,6 @@
+/******************************************/
+/* WARNING: GENERATED FILE - DO NOT EDIT! */
+/******************************************/
 package org.eclipse.imp.x10dt.core.preferences.generated;
 
 import org.eclipse.imp.preferences.PreferencesInitializer;
