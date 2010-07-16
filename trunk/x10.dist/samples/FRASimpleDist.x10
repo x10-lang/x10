@@ -14,12 +14,12 @@ import x10.util.Timer;
 
 class LocalTable {
 
-    val a: Rail[long]{self.at(this)};
+    val a: Array[long](1)!;
     val mask: int;
 
     def this(size:int) {
         mask = size-1;
-        a = Rail.make[long](size, (i:int)=>i as long);
+        a = new Array[long](size, (p:Point(1))=>p(0) as long);
     }
 
     public def update(ran:long) {
@@ -38,7 +38,7 @@ class FRASimpleDist {
     // Utility routine to start random number generator at Nth step
     static def HPCC_starts(var n:long): long {
         var i:int, j:int;
-        val m2 = Rail.make[long](64);
+        val m2 = new Array[long](64);
         while (n < 0) n += PERIOD;
         while (n > PERIOD) n -= PERIOD;
         if (n == 0) return 0x1L;
@@ -119,7 +119,7 @@ class FRASimpleDist {
             async (Place.places(i)) {
 	        val table = tables();
                 var err:int = 0;
-                for (var j:int=0; j<table.a.length; j++)
+                for ((j) in table.a)
                     if (table.a(j) != j) err++;
                 println("Found " + err + " errors.");
             }
