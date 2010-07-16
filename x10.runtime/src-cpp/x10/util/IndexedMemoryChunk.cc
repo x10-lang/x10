@@ -48,6 +48,41 @@ namespace x10 {
             (fs.operator->()->*(findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifySubActivitySpawn))(x10::lang::Place_methods::_make(dst));
             buf.write(fs);
         }
+
+        void IMC_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes, x10::lang::Place dstPlace, bool overlap) {
+            if (dstPlace->FMGL(id) == x10aux::here) {
+                if (overlap) {
+                    // potentially overlapping, use memmove
+                    memmove(dstAddr, srcAddr, numBytes);
+                } else {
+                    memcpy(dstAddr, srcAddr, numBytes);
+                }                
+            } else {
+                x10aux::place dst_place = dstPlace->FMGL(id);
+                x10aux::serialization_buffer buf;
+                buf.write((x10_long)(size_t)(dstAddr));
+                IMC_serialize_finish_state(dst_place, buf);
+                x10aux::send_put(dst_place, IMC_copy_to_serialization_id, buf, srcAddr, numBytes);
+            }
+        }
+
+        void IMC_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes, x10::lang::Place srcPlace, bool overlap) {
+            if (srcPlace->FMGL(id) == x10aux::here) {
+                if (overlap) {
+                    // potentially overlapping, use memmove
+                    memmove(dstAddr, srcAddr, numBytes);
+                } else {
+                    memcpy(dstAddr, srcAddr, numBytes);
+                }
+            } else {
+                x10aux::place src_place = srcPlace->FMGL(id);
+                x10aux::serialization_buffer buf;
+                buf.write((x10_long)(size_t)(srcAddr));
+                IMC_serialize_finish_state(x10aux::here, buf);
+                x10aux::send_get(src_place, IMC_copy_from_serialization_id, buf, dstAddr, numBytes);
+            }
+        }
+        
     }
 }
 
