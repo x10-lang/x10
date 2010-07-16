@@ -23,8 +23,9 @@ public interface IConnectionTypeListener {
    * @param remoteConnectionName If <i>isLocal</i> is false such parameter indicates potentially (it may be <b>null</b>),
    * the remote connection name.
    * @param validationStatus If <i>isLocal</i> is false such parameter indicates the remote connection validation status.
+   * @param newConnection Flag indicating if this change is related to a new connection or not.
    */
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName, 
-                                final EValidationStatus validationStatus);
+                                final EValidationStatus validationStatus, final boolean newConnection);
 
 }

@@ -44,7 +44,7 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
   // --- IConnectionTypeListener's interface methods implementation
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
-                                final EValidationStatus validationStatus) {
+                                final EValidationStatus validationStatus, final boolean newConnection) {
     for (final Control control : this.fControlsAffectedByLocalRM) {
       control.setEnabled(! isLocal);
     }

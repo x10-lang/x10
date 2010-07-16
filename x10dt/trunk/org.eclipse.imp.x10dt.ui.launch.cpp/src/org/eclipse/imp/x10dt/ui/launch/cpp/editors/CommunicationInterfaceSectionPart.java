@@ -87,7 +87,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   // --- IConnectionTypeListener's interface methods implementation
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName, 
-                                final EValidationStatus validationStatus) {
+                                final EValidationStatus validationStatus, final boolean newConnection) {
     for (final String itemName : this.fCITypeCombo.getItems()) {
       final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) this.fCITypeCombo.getData(itemName);
       typeConfPart.connectionChanged(isLocal, remoteConnectionName, validationStatus);
