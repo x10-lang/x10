@@ -69,7 +69,7 @@ final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10B
     monitor.beginTask(null, files.size());
     for (final File file : files) {
       final String ccFilePath = file.getAbsolutePath();
-      copyGeneratedFile(destDir, localFileSystem, ccFilePath);
+      addCppFile(ccFilePath, copyGeneratedFile(destDir, localFileSystem, ccFilePath));
       copyGeneratedFile(destDir, localFileSystem, ccFilePath.replace(CC_EXT, H_EXT));
       copyGeneratedFile(destDir, localFileSystem, ccFilePath.replace(CC_EXT, INC_EXT));
       
@@ -77,17 +77,18 @@ final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10B
     }
   }
 
-  private void copyGeneratedFile(final IFileStore destDir, final IFileSystem localFileSystem, 
+  private String copyGeneratedFile(final IFileStore destDir, final IFileSystem localFileSystem, 
                                  final String filePath) throws CoreException {
     final IFileStore fileStore = localFileSystem.getStore(new Path(filePath));
     final String name = fileStore.getName();
     final IFileStore destFile = destDir.getChild(name);
     fileStore.copy(destFile, EFS.OVERWRITE, null);
-    String destPath = destFile.toURI().getPath();
+    final String destPath = destFile.toURI().getPath();
     if (this.fTargetOS == ETargetOS.WINDOWS && destPath.startsWith("/")) { //$NON-NLS-1$
-      destPath = destPath.substring(1);
+      return destPath.substring(1);
+    } else {
+      return destPath;
     }
-    addCppFile(filePath, destPath);
   }
   
   // --- Fields
