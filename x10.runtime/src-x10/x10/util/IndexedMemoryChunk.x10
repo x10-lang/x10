@@ -142,8 +142,11 @@ public struct IndexedMemoryChunk[T] {
      * @param numElems the number of elements to copy.
      */
     @Native("java", "x10.lang.Rail__NativeRep.copyTo(#8, #0,#1,#3,#4,#5)")
-    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
-    public native def copyTo (srcIndex:int, dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, numElems:int):void;
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5,#6)")
+    public native def copyTo (srcIndex:int, 
+                              dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
+                              numElems:int, 
+                              uncounted:boolean):void;
 
 
     /**
@@ -164,8 +167,11 @@ public struct IndexedMemoryChunk[T] {
      * @param numElems the number of elements to copy.
      */
     @Native("java", "x10.lang.Rail__NativeRep.copyFrom(#8, #0,#1,#3,#4,#5)")
-    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5)")
-    public native def copyFrom(dstIndex:int, srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int, numElems:int):void;
+    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5,#6)")
+    public native def copyFrom(dstIndex:int,
+                               srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
+                               numElems:int,
+                               uncounted:boolean):void;
 
 
    /*

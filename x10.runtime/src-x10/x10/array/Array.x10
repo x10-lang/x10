@@ -650,7 +650,29 @@ public final class Array[T](
      * @param dst the destination array.  May be local or remote
      */
     public def copyTo(dst:Array[T](this.region)) {
-        raw.copyTo(0, dst.home, dst.raw, 0, rawLength);
+	copyTo(dst,false);
+    }
+
+    /**
+     * Copy all of the values from this Array to the destination Array.
+     * The two arrays must be defined over the same Region.
+     * If the destination Array is in a different place, then this copy
+     * is performed asynchronously. Depending on the value of the 
+     * uncounted parameter, the resulting activity will either be 
+     * registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param dst the destination array.  May be local or remote
+     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     */
+    public def copyTo(dst:Array[T](this.region), uncounted:boolean) {
+        raw.copyTo(0, dst.home, dst.raw, 0, rawLength, uncounted);
     }
 
 
@@ -673,6 +695,31 @@ public final class Array[T](
      * @param numElems the number of elements to copy
      */
     public def copyTo(srcIndex:int, dst:Array[T](1), dstIndex:int, numElems:int){rank==1} {
+        copyTo(srcIndex, dst, dstIndex, numElems, false);
+    }
+
+    /**
+     * Copy the specified values from this Array to the destination Array.
+     * The two arrays must be of Rank(1).
+     * If the destination Array is in a different place, then this copy
+     * is performed asynchronously. Depending on the value of the 
+     * uncounted parameter, the resulting activity will either be 
+     * registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param srcIndex the first element to copy from in the source array
+     * @param dst the destination array.  May be local or remote
+     * @param dstIndex the first element to copy to in the destination array
+     * @param numElems the number of elements to copy
+     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     */
+    public def copyTo(srcIndex:int, dst:Array[T](1), dstIndex:int, numElems:int, uncounted:boolean){rank==1} {
         if (checkBounds()) {
 	    if (!region.contains(srcIndex)) raiseBoundsError(srcIndex);
             if (!region.contains(srcIndex+numElems-1)) raiseBoundsError(srcIndex+numElems-1);
@@ -680,7 +727,7 @@ public final class Array[T](
             if (!dst.region.contains(dstIndex+numElems-1)) dst.raiseBoundsError(dstIndex+numElems-1);
         }
 
-        raw.copyTo(srcIndex-region.min()(0), dst.home, dst.raw, dstIndex-dst.region.min()(0), numElems);
+        raw.copyTo(srcIndex-region.min()(0), dst.home, dst.raw, dstIndex-dst.region.min()(0), numElems, uncounted);
     }
 
 
@@ -700,7 +747,28 @@ public final class Array[T](
      * @param src the source array.  May be local or remote
      */
     public def copyFrom(src:Array[T](this.region)) {
-	raw.copyFrom(0, src.home, src.raw, 0, rawLength);
+        copyFrom(src, false);
+    }
+
+    /**
+     * Copy all of the values from the source array into this Array.
+     * The two arrays must be defined over the same Region.
+     * If the source Array is in a different place, then this copy
+     * is performed asynchronously. Depending on the value of the 
+     * uncounted parameter, the resulting activity will either be 
+     * registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.  May be local or remote
+     */
+    public def copyFrom(src:Array[T](this.region), uncounted:boolean) {
+	raw.copyFrom(0, src.home, src.raw, 0, rawLength, uncounted);
     }
 
 
@@ -723,6 +791,30 @@ public final class Array[T](
      * @param numElems the number of elements to copy
      */
     public def copyFrom(dstIndex:int, src:Array[T](1), srcIndex:int, numElems:int){rank==1} {
+        copyFrom(dstIndex, src, srcIndex, numElems, false);
+    }
+
+    /**
+     * Copy the specified values from the source Array to this Array.
+     * The two arrays must be of Rank(1).
+     * If the source Array is in a different place, then this copy
+     * is performed asynchronously. Depending on the value of the 
+     * uncounted parameter, the resulting activity will either be 
+     * registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param dstIndex the first element to copy to in the destination array
+     * @param src the destination array.  May be local or remote
+     * @param srcIndex the first element to copy from in the source array
+     * @param numElems the number of elements to copy
+     */
+    public def copyFrom(dstIndex:int, src:Array[T](1), srcIndex:int, numElems:int, uncounted:boolean){rank==1} {
         if (checkBounds()) {
 	    if (!src.region.contains(srcIndex)) raiseBoundsError(srcIndex);
             if (!src.region.contains(srcIndex+numElems-1)) raiseBoundsError(srcIndex+numElems-1);
@@ -730,7 +822,7 @@ public final class Array[T](
             if (!region.contains(dstIndex+numElems-1)) raiseBoundsError(dstIndex+numElems-1);
         }
 
-        raw.copyFrom(dstIndex-region.min()(0), src.home, src.raw, srcIndex-src.region.min()(0), numElems);
+        raw.copyFrom(dstIndex-region.min()(0), src.home, src.raw, srcIndex-src.region.min()(0), numElems, uncounted);
     }
 
     private static @NoInline @NoReturn def raiseBoundsError(i0:int) {

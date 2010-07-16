@@ -30,13 +30,19 @@ namespace x10 {
         extern const x10aux::serialization_id_t IMC_copy_to_serialization_id;
         extern const x10aux::serialization_id_t IMC_copy_from_serialization_id;
 
+        extern const x10aux::serialization_id_t IMC_uncounted_copy_to_serialization_id;
+        extern const x10aux::serialization_id_t IMC_unconuted_copy_from_serialization_id;
+        
         extern void IMC_notifyEnclosingFinish(x10aux::deserialization_buffer&);
         extern void IMC_serialize_finish_state(x10aux::place, x10aux::serialization_buffer&);
 	    extern void *IMC_buffer_finder(x10aux::deserialization_buffer&, x10_int);
         extern void IMC_notifier(x10aux::deserialization_buffer&, x10_int);
+        extern void IMC_uncounted_notifier(x10aux::deserialization_buffer&, x10_int);
 
-        extern void IMC_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes, x10::lang::Place dstPlace, bool overlap);
-        extern void IMC_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes, x10::lang::Place srcPlace, bool overlap);
+        extern void IMC_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes,
+                                   x10::lang::Place dstPlace, bool overlap, bool uncounted);
+        extern void IMC_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes,
+                                     x10::lang::Place srcPlace, bool overlap, bool uncounted);
         
         template<class T> class IndexedMemoryChunk_ithunk0 : public x10::util::IndexedMemoryChunk<T> {
         public:
@@ -94,21 +100,21 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
                                                                 x10::lang::Place dstPlace,
                                                                 x10::util::IndexedMemoryChunk<T> dst,
                                                                 x10_int dstIndex,
-                                                                x10_int numElems) {
+                                                                x10_int numElems, x10_boolean uncounted) {
     void* srcAddr = (void*)(&data[srcIndex]);
     void* dstAddr = (void*)(&dst->data[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    IMC_copyToBody(srcAddr, dstAddr, numBytes, dstPlace, data == dst->data);
+    IMC_copyToBody(srcAddr, dstAddr, numBytes, dstPlace, data == dst->data, uncounted);
 }
 
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::copyFrom(x10_int dstIndex, x10::lang::Place srcPlace,
                                                                   x10::util::IndexedMemoryChunk<T> src,
-                                                                  x10_int srcIndex, x10_int numElems) {
+                                                                  x10_int srcIndex, x10_int numElems, x10_boolean uncounted) {
     void* srcAddr = (void*)(&src->data[srcIndex]);
     void* dstAddr = (void*)(&data[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    IMC_copyFromBody(srcAddr, dstAddr, numBytes, srcPlace, data == src->data);
+    IMC_copyFromBody(srcAddr, dstAddr, numBytes, srcPlace, data == src->data, uncounted);
 }
 
 
