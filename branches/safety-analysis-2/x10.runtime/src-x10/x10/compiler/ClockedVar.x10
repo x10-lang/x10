@@ -21,9 +21,9 @@ public class ClockedVar[T] implements ClockableVar{
 
 
     var xRead:T;
-    val WORKERS = 128;
+    val MAXWORKERS = 256;
     val OFFSET = 8;
-    val xWrite: Rail[T]! = Rail.make[T](WORKERS);
+    val xWrite: Rail[T]! = Rail.make[T](MAXWORKERS);
     val op:(T,T)=>T;
     val opInit:T;
     var changed:Boolean;
@@ -55,7 +55,7 @@ public class ClockedVar[T] implements ClockableVar{
      	opInit = opInitial;
      	changed = false;
      	var i: int;
-     	for ( i = 0; i < WORKERS; i++)	
+     	for ( i = 0; i < MAXWORKERS; i++)	
      		xWrite(i) = opInitial;
      }
      
@@ -68,7 +68,7 @@ public class ClockedVar[T] implements ClockableVar{
         opInit = opInitial;
         changed = false; 
         var i: int;
-     	for ( i = 0; i < WORKERS; i++)	
+     	for ( i = 0; i < MAXWORKERS; i++)	
      		xWrite(i) = opInitial;
       }
       
@@ -83,8 +83,9 @@ public class ClockedVar[T] implements ClockableVar{
 
     public @Inline def setClocked(x:T) {
         //Console.OUT.println("Worker id" + Runtime.workerTid());
-    	changed = true;
-        this.xWrite((Runtime.workerTid() - OFFSET) as Int) = op(this.xWrite((Runtime.workerTid() - OFFSET) as Int), x);
+    	val i = (Runtime.workerTid() as Int);
+	changed = true;
+        this.xWrite(i) = op(xWrite(i), x);
     } 
     
     public @Inline def setR(x:T) {
@@ -92,18 +93,17 @@ public class ClockedVar[T] implements ClockableVar{
    }
     
 
-    
-
     public def move(): Void {
         if (changed) {
-        	this.xRead = this.xWrite(0);
-        	this.xWrite(0) = opInit;
+        	this.xRead = this.xWrite(OFFSET);
+        	this.xWrite(OFFSET) = opInit;
+		val numOfWorkers = Runtime.numOfWorkers();
 		var i: int;
-        	for (i = 1; i < WORKERS; i++) {
+        	for (i = OFFSET + 1; i < numOfWorkers + OFFSET; i++) {
         		this.xRead =  op (this.xRead, this.xWrite(i));
         		this.xWrite(i) = opInit;
-        	}
-        	this.changed = false;
+         	}
+         	this.changed = false;
         } 
     	
     }

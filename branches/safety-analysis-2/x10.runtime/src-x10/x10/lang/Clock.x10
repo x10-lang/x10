@@ -47,7 +47,9 @@ public class Clock(name:String) {
 
     private atomic def resumeLocal() {
         if (--alive == 0) {
-            updateClockedVars();
+    	    for (cv: ClockableVar in clockedVars) {
+    		(cv as ClockableVar!).move();
+    	    }
             alive = count;
             ++phase;
         }
@@ -74,16 +76,6 @@ public class Clock(name:String) {
     }
     
     
-    def updateClockedVars() {
-    
-    	for (cv: ClockableVar in clockedVars) {
-    		val cVar = cv as ClockableVar!;
-    		cVar.move();
-    	}
-    
-    }
-    
-
     global def resumeUnsafe() {
         val ph = get();
         if (ph < 0) return;
@@ -99,6 +91,7 @@ public class Clock(name:String) {
             await (abs < phase);
         }
         put(abs + 1);
+
     }
 
     global def dropUnsafe() {
