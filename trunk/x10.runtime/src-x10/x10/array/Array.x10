@@ -247,6 +247,12 @@ public final class Array[T](
      */
     public def iterator():Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 
+    /**
+     * Return the number of points (elements) in the Array.
+     * @return the number of points (elements) in the Array
+     */
+    public def size() = region.size();
+
 
     /**
      * Return the element of this array corresponding to the given index.
