@@ -95,8 +95,7 @@ public final class Array[T](
     /**
      * Return the IndexedMemoryChunk[T] that is providing the backing storage for the array.
      * This method is primarily intended to be used to interface with native libraries 
-     * (eg BLAS, ESSL) and to support user-defined copyTo/copyFrom idioms until the proper
-     * copyTo/copyFrom methods are added to the Array API as first class operations.<p>
+     * (eg BLAS, ESSL). <p>
      * 
      * This method should be used sparingly, since it may make client code dependent on the layout
      * algorithm used to map Points in the Array's Region to indicies in the backing IndexedMemoryChunk.
@@ -681,7 +680,7 @@ public final class Array[T](
             if (!dst.region.contains(dstIndex+numElems-1)) dst.raiseBoundsError(dstIndex+numElems-1);
         }
 
-        raw.copyTo(srcIndex, dst.home, dst.raw, dstIndex, numElems);
+        raw.copyTo(srcIndex-region.min()(0), dst.home, dst.raw, dstIndex-dst.region.min()(0), numElems);
     }
 
 
@@ -731,7 +730,7 @@ public final class Array[T](
             if (!region.contains(dstIndex+numElems-1)) raiseBoundsError(dstIndex+numElems-1);
         }
 
-        raw.copyFrom(dstIndex, src.home, src.raw, srcIndex, numElems);
+        raw.copyFrom(dstIndex-region.min()(0), src.home, src.raw, srcIndex-src.region.min()(0), numElems);
     }
 
     private static @NoInline @NoReturn def raiseBoundsError(i0:int) {
