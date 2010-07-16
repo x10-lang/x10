@@ -259,17 +259,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            return n;
 	        }
 	    }.context(c.pushBlock()));
-	    boolean valid = true;
 	    for (LocalInstance li : capturedVars) {
 	        if (!li.flags().isFinal()) {
-	            valid = false;
-	            break;
+	            System.err.println("Bad statement expression: " +n+ " at " +n.position()); // DEBUG
+	            n.dump(System.err);                                                        // DEBUG
+	            throw new InternalCompilerError("Statement expression uses non-final variable " +li+ "(at " +li.position()+ ") from the outer scope", n.position());
 	        }
-	    }
-	    if (!valid) {
-	        System.err.println("Bad statement expression: " +n+ " at " +n.position()); // DEBUG
-	        n.dump(System.err);                                   // DEBUG
-	        throw new InternalCompilerError("Statement expression uses non-final variables from the outer scope", n.position());
 	    }
 	    w.write("(new Object() { ");
 	    er.printType(n.type(), PRINT_TYPE_PARAMS);
