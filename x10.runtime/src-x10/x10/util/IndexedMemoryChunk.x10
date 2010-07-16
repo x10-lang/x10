@@ -146,6 +146,28 @@ public struct IndexedMemoryChunk[T] {
     public native def copyTo (srcIndex:int, dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, numElems:int):void;
 
 
+    /**
+     * Copies a contiguous portion of the src IndexedMemoryChunk found
+     * at the specified place into this IndexedMemoryChunk.
+     * If the source place is not the same as the current place, then
+     * the copy happens asynchronously and the created remote activity is registered 
+     * with the dynamically enclosing finish of the activity that invoked copyFrom.</p>
+     *
+     * Note: No checking is performed to verify that this operation is safe;
+     * it is the responsibility of higher-level abstractions built on top of 
+     * IndexedMemoryChunk to ensure memory, type, and place safety.
+     *
+     * @param dstIndex the index of the first element to store in the destination.
+     * @param srcPlace the source place (must be the real home of src).
+     * @param src the destination IndexedMemoryChunk.
+     * @param srcIndex the index of the first element to copy in the source.
+     * @param numElems the number of elements to copy.
+     */
+    @Native("java", "x10.lang.Rail__NativeRep.copyFrom(#8, #0,#1,#3,#4,#5)")
+    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5)")
+    public native def copyFrom(dstIndex:int, srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int, numElems:int):void;
+
+
    /*
     * @Native methods from Any because the handwritten C++ code doesn't 100% match 
     * what the compiler would have generated.
