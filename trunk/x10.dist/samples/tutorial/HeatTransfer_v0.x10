@@ -67,7 +67,7 @@ public class HeatTransfer_v0 {
 	val start = System.nanoTime();
         s.run();
 	val stop = System.nanoTime();
-	Console.OUT.printf("...completed in %1.3f seconds.\n", (stop-start as double)/1e9);
+	Console.OUT.printf("...completed in %1.3f seconds.\n", ((stop-start) as double)/1e9);
 	s.prettyPrintResult();
     }
 }

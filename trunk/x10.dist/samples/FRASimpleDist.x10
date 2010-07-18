@@ -23,8 +23,8 @@ class LocalTable {
     }
 
     public def update(ran:long) {
-        //a(ran&mask as int) ^= ran;
-        val index = ran&mask as int;
+        //a((ran&mask) as int) ^= ran;
+        val index = (ran&mask) as int;
         a(index) = a(index) ^ ran;
     }
 }
