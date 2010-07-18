@@ -82,10 +82,10 @@ class StructSpheres {
         // but the elements ought to be /*inlined*/ in the array
         val spheres =
             ValRail.make[WorldObject](num_objects, (i:Int) => {
-                val x = ran.nextDouble()*world_size as Real;
-                val y = ran.nextDouble()*world_size as Real;
-                val z = ran.nextDouble()*world_size as Real;
-                val r = ran.nextDouble()*obj_max_size as Real;
+                val x = (ran.nextDouble()*world_size) as Real;
+                val y = (ran.nextDouble()*world_size) as Real;
+                val z = (ran.nextDouble()*world_size) as Real;
+                val r = (ran.nextDouble()*obj_max_size) as Real;
                 return WorldObject(x,y,z,r);
             });
 
@@ -96,9 +96,9 @@ class StructSpheres {
         // HOT LOOP BEGINS
         for ((frame):Point in [1..reps]) {
 
-            val x = ran.nextDouble()*world_size as Real;
-            val y = ran.nextDouble()*world_size as Real;
-            val z = ran.nextDouble()*world_size as Real;
+            val x = (ran.nextDouble()*world_size) as Real;
+            val y = (ran.nextDouble()*world_size) as Real;
+            val z = (ran.nextDouble()*world_size) as Real;
 
             val pos = Vector3(x,y,z);
 

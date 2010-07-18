@@ -2010,19 +2010,17 @@ public static class MessageHandler implements IMessageHandler {
 --        ./
 
 
-    CastExpression ::=
-         CastExpression as Type
+    CastExpression ::= Primary
+                     | ExpressionName
+        /.$BeginJava
+                    setResult(ExpressionName.toExpr());
+          $EndJava
+        ./
+                     | CastExpression as Type
         /.$BeginJava
                     setResult(nf.X10Cast(pos(), Type, CastExpression));
           $EndJava
         ./
---       | ConditionalExpression ! Expression
---        /.$BeginJava
---                    setResult(nf.PlaceCast(pos(), Expression, ConditionalExpression));
---          $EndJava
---        ./
-        | ConditionalExpression
-
     
      --------------------------------------- Section :: Expression
      TypeParamWithVarianceList ::= TypeParamWithVariance
@@ -2075,12 +2073,6 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    Primary ::= here
-        /.$BeginJava
-                    setResult(((X10NodeFactory) nf).Here(pos()));
-          $EndJava
-        ./
-
     RegionExpression ::= Expression
 
     RegionExpressionList ::= RegionExpression
@@ -2094,13 +2086,6 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
                     RegionExpressionList.add(RegionExpression);
                     //setResult(RegionExpressionList);
-          $EndJava
-        ./
-
-    Primary ::= '[' ArgumentListopt ']'
-        /.$BeginJava
-                    Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
-                    setResult(tuple);
           $EndJava
         ./
 
@@ -2123,9 +2108,9 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    ClosureBody ::= CastExpression
+    ClosureBody ::= ConditionalExpression
         /.$BeginJava
-                    setResult(nf.Block(pos(), nf.X10Return(pos(), CastExpression, true)));
+                    setResult(nf.Block(pos(), nf.X10Return(pos(), ConditionalExpression, true)));
           $EndJava
         ./
                   | Annotationsopt { BlockStatementsopt LastExpression }
@@ -3625,32 +3610,45 @@ FinishExpression ::= finish ( Expression ) Block
 
     -- Chapter 15
     
-    Primary ::= Literal
-                        | self
+    Primary ::= here
+        /.$BeginJava
+                    setResult(((X10NodeFactory) nf).Here(pos()));
+          $EndJava
+        ./
+
+              | '[' ArgumentListopt ']'
+        /.$BeginJava
+                    Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
+                    setResult(tuple);
+          $EndJava
+        ./
+
+              | Literal
+              | self
         /.$BeginJava
                     setResult(nf.Self(pos()));
           $EndJava
         ./
-                        | this
+              | this
         /.$BeginJava
                     setResult(nf.This(pos()));
           $EndJava
         ./
-                        | ClassName . this
+              | ClassName . this
         /.$BeginJava
                     setResult(nf.This(pos(), ClassName.toType()));
           $EndJava
         ./
-                        | ( Expression )
+              | ( Expression )
         /.$BeginJava
                     setResult(nf.ParExpr(pos(), Expression));
           $EndJava
         ./
-                        | ClassInstanceCreationExpression
-                        | FieldAccess
-                        | MethodInvocation
-                        | MethodSelection
-                        | OperatorFunction
+              | ClassInstanceCreationExpression
+              | FieldAccess
+              | MethodInvocation
+              | MethodSelection
+              | OperatorFunction
                         
     OperatorFunction ::= TypeName . +
             /.$BeginJava
@@ -4051,12 +4049,7 @@ FinishExpression ::= finish ( Expression ) Block
           $EndJava
         ./
 
-    PostfixExpression ::= Primary
-                        | ExpressionName
-        /.$BeginJava
-                    setResult(ExpressionName.toExpr());
-          $EndJava
-        ./
+    PostfixExpression ::= CastExpression
                         | PostIncrementExpression
                         | PostDecrementExpression
     
@@ -4270,7 +4263,7 @@ FinishExpression ::= finish ( Expression ) Block
         ./
     
     AssignmentExpression ::= Assignment
-                           | CastExpression
+                           | ConditionalExpression
     
     Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
         /.$BeginJava

@@ -320,7 +320,7 @@ import x10.util.Pair;
             : Rail[T]{self.length==length}
         {
             // cast needed due to lack of support for ?: in the type inference algorithm
-            val r = p.isCUDA() ? cudaMakeRail[T](p,length) : at (p) Rail.make[T](length) as Rail[T](length);
+            val r = (p.isCUDA() ? cudaMakeRail[T](p,length) : at (p) Rail.make[T](length)) as Rail[T](length);
             finish init.copyTo(0, r, 0, length);
             return r;
         }
