@@ -108,8 +108,13 @@ public class UTS {
 			time = System.nanoTime() - time;
 			Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
 			} else {
+        // Generate the lifelineNetwork
+        val lifelineNetwork:ValRail[ValRail[Int]] = 
+          (0==l) ?  NetworkGenerator.generateRing(Place.MAX_PLACES) :
+                    NetworkGenerator.generateHyperCube(Place.MAX_PLACES);
+
 				val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
-						()=>new BinomialState(qq, mf,k,nu, w, e, l));
+	    ()=>new BinomialState(qq, mf,k,nu, w, e, l, lifelineNetwork(here.id)));
 				Console.OUT.println("Starting...");
 				var time:Long = System.nanoTime();
 				st().main(st, b0, SHA1Rand(r));

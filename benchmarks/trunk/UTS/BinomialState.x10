@@ -4,16 +4,13 @@ import x10.lang.Math;
 
 final class BinomialState {
 	var thief:Int; 
-  var thiefs:Rail[Boolean] = 
+  var thieves:Rail[Boolean] = 
         Rail.make[Boolean] (x10.lang.Math.log2(Place.MAX_PLACES));
 	val width:Int;
 	var lifelines:Long=0L;
 	var lifelineNodes:Long=0L;
 	val stack = new Stack[UTS.SHA1Rand]();
-  val myLifelines:ValRail[Int] = 
-        ValRail.make[Int](x10.lang.Math.log2(Place.MAX_PLACES),
-                          (i:Int) => (1 << i) ^ here.id);
-
+  val myLifelines:ValRail[Int];
 
 	val q:Long, m:Int, k:Int, nu:Int, l:Int;
 	val logEvents:Boolean;
@@ -25,12 +22,23 @@ final class BinomialState {
 	/** Initialize the state. Executed at all places when executing the 
 	 PlaceLocalHandle.make command in main (of UTS).
 	 */
-	public def this (q:Long, m:Int, k:Int, nu:Int, w:Int, e:Boolean, l:Int) {
+	public def this (q:Long, m:Int, k:Int, nu:Int, w:Int, e:Boolean, l:Int,
+                   lifelineNetwork:ValRail[Int]) {
 		this.q = q; this.m = m; this.k=k; this.nu=nu; this.l = l;
+    this.myLifelines = lifelineNetwork;
 		width=w;
 		thief= -1;
 		logEvents=e;
+
+    printLifelineNetwork();
 	}
+
+  def printLifelineNetwork () {
+    Console.OUT.print (here.id + " =>");
+    for (var i:Int=0; i<myLifelines.length(); ++i) 
+      if (-1 != myLifelines(i)) Console.OUT.print  (" " + myLifelines(i));
+    Console.OUT.println ();
+  }
 
 	def event(s:String) {
 		event(logEvents, s);
@@ -104,57 +112,32 @@ final class BinomialState {
 	    event("Finished main loop.");
 	}
 
-	/** If our buddy has requested a lifeline, and we have ample supply 
-	 of nodes, give him half (i.e, launch a remote async).
+  /** If our buddy/buddies have requested a lifeline, and we have ample supply 
+   of nodes, give him half (i.e, launch a remote async).
 	 */
 	def distribute(st:PLH, depth:Int) {
-    switch (l) { 
-     /* A linear case where there is just one lifeline per node */
-     case 0: 
-     {
-       if (thief >= 0) {
-		     event("Distributing to " + thief);
-		     val loot = trySteal(thief);
-		     if (loot != null) {
-		 	    async (Place(thief))
-		 	    st().launch(st, false, loot, depth);
-		 	    thief = -1;
-		     }
-		   } 
-       break;
-     }
+    // Count the number of lifeline requests.
+    var numThieves:Int = 0;
+    for (var i:Int=0; i<thieves.length(); ++i) {
+      if (true==thieves(i)) ++numThieves;
+    }
+    // Count yourself once as well -- we don't want to give out everything
+    ++numThieves;
 
-   /* The lifelines are a hypercube.
-      We will go through myLifelines and see how many buddies requested 
-      a lifeline. Count the number, and divide the work we have equally
-      amongst the buddies. 
-      ANJU: What if the people requested the lifeline are mutually 
-      registered as each other's lifelines? There will be a cascade of
-      activity where people are giving each other a part of their work!
-      */
-      case 1: 
-      {
-        val thiefsIterator:Iterator[Boolean]  = thiefs.iterator();
-        var myLifelinesPosition:Int = 0;
-        while (thiefsIterator.hasNext()) {
-          if (true == thiefsIterator.next()) {
-            val thief:Int = myLifelines(myLifelinesPosition);
-            val loot = trySteal (thief);
-            if (null != loot) {
-				      async (Place(thief))
-				      st().launch(st, false, loot, depth);
-              thiefs (myLifelinesPosition) = false;
-            } else {
-              /* No point iterating any further --- there does not 
-                 seem to be anything to steal here. */
-              break;
-            }
-          }
-          ++myLifelinesPosition;
+    // resuscitate if we have enough nodes to go by
+    val canDistribute:Boolean = (stack.size() >= (2*(numThieves)));
+    if (canDistribute) {
+      // Divide the loot evenly and resuscitate. Also reset the lifeline
+		  val numToSteal = stack.size()/numThieves;
+		  counter.incTxNodes(numToSteal*(numThieves-1));
+      for (var i:Int=0; i<thieves.length(); ++i) {
+        if (true==thieves(i)) {
+          val loot = stack.pop (numToSteal);
+          async (Place(myLifelines(i))) st().launch(st, false, loot, depth);
+          thieves(i) = false;
         }
-        break;
       }
-    } /* end switch */
+    }
   }
 
 	/** This is the code invoked locally by each node when there are no 
@@ -184,61 +167,28 @@ final class BinomialState {
 		}
 		event("No loot; establishing lifeline.");
 
-    switch (l) {
-      case 0: /* resigned to make a lifeline steal from our one buddy */
-      {
-		    val lifeline =  (p+1) % P;
-		    val loot:ValRail[SHA1Rand] = at(Place(lifeline)) st().trySteal(p); 
-		    event("Lifeline steal result " + 
-				      (loot==null ? 0 : loot.length()));
-		    return loot;
+    // resigned to make a lifeline steal from one of our lifelines.
+    var loot:ValRail[SHA1Rand] = null;
+    for (var i:Int=0; i<myLifelines.length(); ++i) {
+      val lifeline:Int = myLifelines(i);
+      if (-1 != lifeline) {
+        loot = at(Place(lifeline)) st().trySteal(p);
+        event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
+        if (null!=loot) break;
       }
-
-      case 1: /* Did not get anything from normal channels --- try lifeline
-       instead. We have log_2(Places.MAX_PLACES) lifelines. We will
-       try to steal from each of them. If none of them succeed, then 
-       setup the lifeline and getback */
-      {
-        val lifelineIter:Iterator[Int] = myLifelines.iterator();
-        var loot:ValRail[SHA1Rand] = null;
-        while (lifelineIter.hasNext()) {
-          val lifeline:Int = lifelineIter.next();
-		      loot = at(Place(lifeline)) st().trySteal(p); 
-		      event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
-          if (null!=loot) break;
-        }
-        return loot;
-      }
-
-      default: return null;
     }
+    return loot;
 	}
 
   /* Check if a particular node is the current node's lifeline */
   def storeIfLifeline (val node:Int) {
-    switch (l) {
-      case 0:
-      {
-			  if (here.id == (node+1)% Place.MAX_PLACES) {
-				  thief = node;
-				  event("Established lifeline done " + thief);
-			  }
-      } /* end case 0 */
-      case 1:
-      {
-        val lifelineIter:Iterator[Int] = myLifelines.iterator();
-        var myLifelinesPosition:Int = 0;
-        while (lifelineIter.hasNext()) {
-          if (node == lifelineIter.next()) {
-            thiefs (myLifelinesPosition) = true;    
-				    event("Established lifeline done " + 
-                  myLifelines (myLifelinesPosition));
-            break;
-          }
-          ++myLifelinesPosition;
-        }
-      } /* end case 1 */
-    } /* end switch */
+    for (var i:Int=0; i<myLifelines.length(); ++i) {
+      if (node == myLifelines(i)) {
+        thieves (i) = true;
+        event("Established lifeline done " + myLifelines (i));
+        break;
+      }
+    }
   }
 
 	/** Try to steal from the local stack --- invoked by either a 
@@ -284,7 +234,9 @@ final class BinomialState {
 	 evenly amongst all the places. This is the bootstrap mechanism
 	 for distributed UTS.
 	 */
-	def main (st:PLH, b0:Int, rng:SHA1Rand) {
+	def main (st:PLH, 
+            b0:Int, 
+            rng:SHA1Rand) {
 		val P=Place.MAX_PLACES;
 		event("Start main finish");
 		counter.lastTimeStamp = System.nanoTime();
