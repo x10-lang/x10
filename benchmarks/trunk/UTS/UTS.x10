@@ -89,8 +89,8 @@ public class UTS {
 			val geo_to_bin_shift_depth_ratio:Double = opts ("-f", 0.5);
 
       // Figure out what kind of connectivity is needed.
-      val l:Int = opts ("-l", 0);
-      val z:Int = opts ("-z", 2);
+      val l:Int = opts ("-l", 3);
+      val z:Int = opts ("-z", 1);
 
 			Console.OUT.println("--------");
 			Console.OUT.println("Places="+Place.MAX_PLACES);
@@ -102,7 +102,9 @@ public class UTS {
 					"   n=" + nu +
 					"   q=" + q +
           "   l=" + l + 
-          "   z=" + z);
+          "   z=" + z +
+          (l==3 ? "base=" + NetworkGenerator.findW(Place.MAX_PLACES, z) : "")
+           );
 
 			val qq = (q*NORMALIZER) as Long;
 

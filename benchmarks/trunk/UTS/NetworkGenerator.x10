@@ -162,11 +162,14 @@ final class NetworkGenerator {
     return network;
   }
 
+  public static findW(P:Int k:Int):Int {
+	  var w:Int = 0;
+  while (PAdicNumber.pow(w++, k) < P);
+  return w;
+  }
   public static def generateSparseEmbedding (P:Int, k:Int) {
     // Find a base "w" such that pow (w,k) >= P 
-    var w_:Int = 0;
-    while (PAdicNumber.pow(w_++, k) < P);
-    val w = w_;
+  val w = findW(P, k);
 
     // Now, create an embedding using the following rule:
     // Express a place p as a base w number. Let us assume that there 
