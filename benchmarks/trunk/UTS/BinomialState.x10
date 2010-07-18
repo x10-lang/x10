@@ -30,13 +30,14 @@ final class BinomialState {
 		thief= -1;
 		logEvents=e;
 
-    //printLifelineNetwork();
+    printLifelineNetwork();
 	}
 
   def printLifelineNetwork () {
     Console.OUT.print (here.id + " =>");
     for (var i:Int=0; i<myLifelines.length(); ++i) 
       if (-1 != myLifelines(i)) Console.OUT.print  (" " + myLifelines(i));
+      else Console.OUT.print (" X");
     Console.OUT.println ();
   }
 

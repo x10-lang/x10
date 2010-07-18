@@ -63,7 +63,8 @@ public class UTS {
 					 Option("v", "", "Verbose, default 0 (no)."),
 					 Option("n", "", "Number of nodes to process before probing."),
 					 Option("w", "", "Number of thieves to send out, less 1. (Default 0, so 1 thief will be sent out."),
-           Option("l", "", "Lifeline method: 0 for linear, 1 for hypercube")
+           Option("l", "", "Lifeline method: 0 for linear, 1 for hypercube, 2 for sparse hypercube -- in which case also enter dimension"),
+           Option("z", "", "Dimension of the sparse hypercube")
 					 ]);
 
 			val tree_type:Int = opts ("-t", 0);
@@ -89,6 +90,7 @@ public class UTS {
 
       // Figure out what kind of connectivity is needed.
       val l:Int = opts ("-l", 0);
+      val z:Int = opts ("-z", 2);
 
 			Console.OUT.println("--------");
 			Console.OUT.println("Places="+Place.MAX_PLACES);
@@ -98,7 +100,9 @@ public class UTS {
 					"   s=" + seq +
 					"   w=" + w +
 					"   n=" + nu +
-					"   q=" + q);
+					"   q=" + q +
+          "   l=" + l + 
+          "   z=" + z);
 
 			val qq = (q*NORMALIZER) as Long;
 
@@ -110,8 +114,9 @@ public class UTS {
 			} else {
         // Generate the lifelineNetwork
         val lifelineNetwork:ValRail[ValRail[Int]] = 
-          (0==l) ?  NetworkGenerator.generateRing(Place.MAX_PLACES) :
-                    NetworkGenerator.generateHyperCube(Place.MAX_PLACES);
+          (0==l) ? NetworkGenerator.generateRing(Place.MAX_PLACES) :
+            (1==l) ? NetworkGenerator.generateHyperCube(Place.MAX_PLACES):
+              NetworkGenerator.generateSparseHyperCube (Place.MAX_PLACES, z);
 
 				val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
 	    ()=>new BinomialState(qq, mf,k,nu, w, e, l, lifelineNetwork(here.id)));

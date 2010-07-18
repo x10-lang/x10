@@ -82,6 +82,79 @@ final class NetworkGenerator {
     return network;
   }
 
+  /*
+   * Given a bucket-list, a particular place, and the dimension, figure out
+   * which is the neighbor in this dimension. Since there is a chance that 
+   * not all buckets are of the same size, the neighbor *might* be -1!
+   */
+  private static def getNeighbor (buckets:ValRail[Int],
+                                  place:Int,
+                                  dimension:Int) {
+
+    // Figure out which bucket this place belongs to
+    var bucketNumber:Int=-1;
+    val nDimensions:Int = buckets.length();
+    for (var i:Int=0; i<nDimensions; ++i) {
+      if (place >= buckets(i) && place < buckets(i+1)) {
+        bucketNumber = i;
+        break;
+      }
+    }
+
+    // If the place is in the same dimension, the neighbor is +1 mod nbuckets
+    // If the place is in a different dimension, then simply shift right.
+    if (dimension==bucketNumber) {
+      return (buckets(1+bucketNumber)==(1+place)) ?
+                buckets (bucketNumber) : (1+place);
+    } else {
+      // Get the displacement of the place in the bucket
+      val displacement:Int = place - buckets(bucketNumber);
+      val numElementsInDimension:Int = 
+                      buckets(1+dimension) - buckets(dimension); 
+
+      return (displacement >= numElementsInDimension) ? 
+                  -1 : (buckets(dimension) + displacement);
+    }
+  }
+
+  /**
+   * Method to generate the sparse hyper-cube structure that Vijay suggested.
+   * The mappings are generated as follows:
+   * Let P be the total number of places.
+   * Let k be the dimensionality required.
+   * We first create k buckets (as equally split as possible).
+   * Next, for each bucket, we create an injective mapping to every other 
+   * bucket including itself.
+   */
+   public static def generateSparseHyperCube (nplaces:Int, 
+                                              nDimensions:Int) {
+     // Figure out how many elements are in each bucket
+     val quotient:Int = nplaces/nDimensions;
+     var remainder:Int = nplaces%nDimensions;
+     var firstCutBuckets:Rail[Int] = Rail.make[Int] 
+                                (nDimensions+1, (i:Int) => i*quotient);
+
+     // Adjust for the remainder
+     var extraElementRecepient:Int = 1;
+     while (0 != remainder) { 
+       for (var i:Int=extraElementRecepient; i<firstCutBuckets.length(); ++i) {
+        ++firstCutBuckets(i);
+       }
+       ++extraElementRecepient;
+       --remainder; 
+     }
+     val buckets:ValRail[Int] = firstCutBuckets;
+
+     // Now generate network. Basically, for each i, we determine which 
+     // bucket it belongs to. Then, it is pretty simple to calculate 
+     // which element it is mapped to.
+     val network:ValRail[ValRail[Int]] = ValRail.make[ValRail[Int]]
+       (nplaces, (i:Int) => ValRail.make[Int] 
+         (nDimensions, (j:Int) => getNeighbor (buckets, i, j)));
+
+     return network;
+   }
+
   
   /**
    * Verify that there are no cycles of length 2
