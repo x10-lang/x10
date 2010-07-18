@@ -39,7 +39,7 @@ final class NetworkGenerator {
 
     // Now, make this hypercube directed by pruning away the 2-cycles 
     // randomly. Bsaically, we flip a coin and keep one of the 2 edges.
-    val rng:Random = new Random();
+    val rng = new Random();
     if (2 < nplaces) {
       for (var i:Int=0; i<mutableNetwork.length(); ++i) {
         for (var j:Int=1; j<mutableNetwork(i).length(); ++j) {
@@ -138,7 +138,7 @@ final class NetworkGenerator {
     // Figure out how many elements are in each bucket
     val quotient:Int = nplaces/nDimensions;
     var remainder:Int = nplaces%nDimensions;
-    var firstCutBuckets:Rail[Int] = Rail.make[Int] 
+    var firstCutBuckets:Rail[Int]! = Rail.make[Int] 
                                (nDimensions+1, (i:Int) => i*quotient);
 
     // Adjust for the remainder
@@ -162,70 +162,39 @@ final class NetworkGenerator {
     return network;
   }
 
-  private static def pow (base:Int, radix:Int) {
-    var power:Int = 1;
-    for (var i:Int=0; i<radix; ++i) power *= base;
-    return power;
-  }
-
-  private static def printDigit (digits:ValRail[Int]) {
-    for (var i:Int=0; i<digits.length; ++i)
-      Console.OUT.print (" " + digits(i));
-    Console.OUT.println ();
-  }
-
-  private static def getNeighbor (decimalNumber:Int,
-                                  base:Int,
-                                  digitPosition:Int,
-                                  numDigits:Int,
-                                  maxDecimal:Int) {
-    var baseRepresentation:Rail[Int] = 
-                       Rail.make[Int](numDigits, (i:Int) => 0);
-
-    var currentDecimalNumber:Int = decimalNumber;
-    var digitIndex:Int = 0;
-    while (currentDecimalNumber >= base) {
-      baseRepresentation(digitIndex++) = currentDecimalNumber%base; 
-      currentDecimalNumber = currentDecimalNumber/base;
-    }
-    baseRepresentation(digitIndex) = currentDecimalNumber;
-
-    // Now, generate the neighbor in the required dimension
-    baseRepresentation(digitPosition) = 
-           (baseRepresentation(digitPosition)+1) % base;
-
-    // Finally, generate the actual neighbor from the base W representation
-    var currentPower:Int=1;
-    var neighbor:Int=0;
-    for (var i:Int=0; i<numDigits; ++i) {
-      neighbor += baseRepresentation(i)*currentPower; 
-      currentPower = currentPower*base;
-    }
-
-    return (neighbor>=maxDecimal) ? -1 : neighbor;
-  }
-
   public static def generateSparseEmbedding (P:Int, k:Int) {
     // Find a base "w" such that pow (w,k) >= P 
-    var firstCutW:Int = 0;
-    var power:Int = pow(firstCutW, k);
-    while (power < P) {
-      ++firstCutW; 
-      power = pow (firstCutW, k);
-    }
-    val w:Int = firstCutW;
+    var w_:Int = 0;
+    while (PAdicNumber.pow(w_++, k) < P);
+    val w = w_;
 
     // Now, create an embedding using the following rule:
-    // Express a place p as a base w digit. Let us assume that there 
-    // the base w digits for p are uv. Then the neighbors are:
-    // ((u+1)modw)v and (u((v+1)modw). For now, we will use Int 
+    // Express a place p as a base w number. Let us assume that there 
+    // the base w digits for p are u_1...u_k. Then the neighbors are:
+    // ((u_1+1)mod w)...((u_k+1) mod w)). For now, we will use Int 
     // for each digit assuming that w will never be greater than 
     // pow (2, 32).
     val network:ValRail[ValRail[Int]] = ValRail.make[ValRail[Int]]
      (P, (i:Int) => ValRail.make[Int] 
-       (k, (j:Int) => getNeighbor (i, w, j, k, P)));
+       (k, (j:Int) => {
+    	   val ip = new PAdicNumber(w,k,i);
+    	   val o = ip.delta(1, j).toDecimal();
+    	   o >= P ? -1 : o
+       }));
 
     return network;
+  }
+
+  /** 
+   * Print out the network.
+   */
+  public static def printNetwork (network:ValRail[ValRail[Int]]) {
+    for (var i:Int=0; i<network.length(); ++i) {
+      Console.OUT.print(i + " =>");
+      for (var j:Int=0; j<network(i).length(); ++j) 
+        if (-1 != network(i)(j)) Console.OUT.print(" " + network(i)(j));
+      Console.OUT.println();
+    }
   }
   
   /**
@@ -248,17 +217,5 @@ final class NetworkGenerator {
       }
     }
     return true;
-  }
-
-  /** 
-   * Print out the network.
-   */
-  public static def printNetwork (network:ValRail[ValRail[Int]]) {
-    for (var i:Int=0; i<network.length(); ++i) {
-      Console.OUT.print(i + " =>");
-      for (var j:Int=0; j<network(i).length(); ++j) 
-        if (-1 != network(i)(j)) Console.OUT.print(" " + network(i)(j));
-      Console.OUT.println();
-    }
   }
 }

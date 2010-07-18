@@ -41,7 +41,7 @@ public class Counter  {
 	global val timeDead:Long;
 	global val chainDepth:Int;
 	global val maxDepth:Int;
-	def this(c:Counter) {
+	def this(c:Counter!) {
 		lifelines = c.lifelines;
 		lifelineNodes=c.lifelineNodes;
 	nodesCounter =c.nodesCounter;
@@ -59,7 +59,7 @@ public class Counter  {
 	chainDepth=c.chainDepth;
 	maxDepth=c.maxDepth;
 	}
-	private def verboseStats(here:Int, sumCounters:Counter) {
+	private global def verboseStats(here:Int, sumCounters:Counter!) {
 		val P = Place.MAX_PLACES;
 		val idealRatio = 1.0F/P;
 		val pc = stealsAttempted==0L ? "NaN" : "" + safeSubstring("" + (100.0F*stealsPerpetrated)/stealsAttempted, 0,5);
@@ -92,15 +92,16 @@ public class Counter  {
 						0, 4)+ "% of max.");
 	}
 
-	}
-	public def this() {}
-
 	global safe public def toString():String {
 		return lifelines + "," + lifelineNodes + ",nc:" + nodesCounter + ","
 		+ stealsAttempted + "," + stealsPerpetrated + "," + stealsReceived + ","
 		+ nodesGiven + "," + nodesReceived + "," + lastTimeStamp + ",ta:"
 		+ timeAlive + ",td:" + timeDead + "," + maxDepth;
 	}
+	}
+	public def this() {}
+
+	
 
 	def incLifeline(n:Int) {
 		this.lifelines++;
