@@ -103,7 +103,7 @@ public class UTS {
 					"   q=" + q +
           "   l=" + l + 
           "   z=" + z +
-          (l==3 ? "base=" + NetworkGenerator.findW(Place.MAX_PLACES, z) : "")
+          (l==3 ? " base=" + NetworkGenerator.findW(Place.MAX_PLACES, z) : "")
            );
 
 			val qq = (q*NORMALIZER) as Long;

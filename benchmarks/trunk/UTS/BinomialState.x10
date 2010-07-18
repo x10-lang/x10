@@ -6,9 +6,10 @@ final class BinomialState {
 	var thief:Int; 
     val thieves = new Stack[Int](); 
 	val width:Int;
-	var lifelines:Long=0L;
-	var lifelineNodes:Long=0L;
+	// var lifelines:Long=0L;
+	// var lifelineNodes:Long=0L;
 	val stack = new Stack[UTS.SHA1Rand]();
+	// My outgoing lifelines.
     val myLifelines:ValRail[Int];
 
 	val q:Long, m:Int, k:Int, nu:Int, l:Int;
@@ -116,17 +117,16 @@ final class BinomialState {
    of nodes, give him half (i.e, launch a remote async).
 	 */
 	def distribute(st:PLH, depth:Int) {
-    // Count the number of lifeline requests.
 		val numThieves = thieves.size();
 		var numToDistribute:Int = 1+ Math.min(numThieves, stack.size() - 1);
 		if (numToDistribute > 1) {
 			val numToSteal = stack.size()/numToDistribute;
 			counter.incTxNodes(numToSteal*(numToDistribute-1));
-			while (numToDistribute-- > 1) {
+			for (var i:Int=0; i < numToDistribute; i++) {
 				val thief = thieves.pop();
 				val loot = stack.pop(numToSteal);
 				async (Place(thief)) st().launch(st, false, loot, depth);
-			}
+			}	
 		}
   }
 
