@@ -87,7 +87,7 @@ final class NetworkGenerator {
    * which is the neighbor in this dimension. Since there is a chance that 
    * not all buckets are of the same size, the neighbor *might* be -1!
    */
-  private static def getNeighbor (buckets:ValRail[Int],
+  private static def getMapping (buckets:ValRail[Int],
                                   place:Int,
                                   dimension:Int) {
 
@@ -133,35 +133,100 @@ final class NetworkGenerator {
    * Next, for each bucket, we create an injective mapping to every other 
    * bucket including itself.
    */
-   public static def generateSparseHyperCube (nplaces:Int, 
-                                              nDimensions:Int) {
-     // Figure out how many elements are in each bucket
-     val quotient:Int = nplaces/nDimensions;
-     var remainder:Int = nplaces%nDimensions;
-     var firstCutBuckets:Rail[Int] = Rail.make[Int] 
-                                (nDimensions+1, (i:Int) => i*quotient);
+  public static def generateChunkedGraph (nplaces:Int, 
+                                          nDimensions:Int) {
+    // Figure out how many elements are in each bucket
+    val quotient:Int = nplaces/nDimensions;
+    var remainder:Int = nplaces%nDimensions;
+    var firstCutBuckets:Rail[Int] = Rail.make[Int] 
+                               (nDimensions+1, (i:Int) => i*quotient);
 
-     // Adjust for the remainder
-     var extraElementRecepient:Int = 1;
-     while (0 != remainder) { 
-       for (var i:Int=extraElementRecepient; i<firstCutBuckets.length(); ++i) {
-        ++firstCutBuckets(i);
-       }
-       ++extraElementRecepient;
-       --remainder; 
-     }
-     val buckets:ValRail[Int] = firstCutBuckets;
+    // Adjust for the remainder
+    var extraElementRecepient:Int = 1;
+    while (0 != remainder) { 
+      for (var i:Int=extraElementRecepient; i<firstCutBuckets.length(); ++i) {
+       ++firstCutBuckets(i);
+      }
+      ++extraElementRecepient;
+      --remainder; 
+    }
+    val buckets:ValRail[Int] = firstCutBuckets;
 
-     // Now generate network. Basically, for each i, we determine which 
-     // bucket it belongs to. Then, it is pretty simple to calculate 
-     // which element it is mapped to.
-     val network:ValRail[ValRail[Int]] = ValRail.make[ValRail[Int]]
-       (nplaces, (i:Int) => ValRail.make[Int] 
-         (nDimensions, (j:Int) => getNeighbor (buckets, i, j)));
+    // Now generate network. Basically, for each i, we determine which 
+    // bucket it belongs to. Then, it is pretty simple to calculate 
+    // which element it is mapped to.
+    val network:ValRail[ValRail[Int]] = ValRail.make[ValRail[Int]]
+      (nplaces, (i:Int) => ValRail.make[Int] 
+        (nDimensions, (j:Int) => getMapping (buckets, i, j)));
 
-     return network;
-   }
+    return network;
+  }
 
+  private static def pow (base:Int, radix:Int) {
+    var power:Int = 1;
+    for (var i:Int=0; i<radix; ++i) power *= base;
+    return power;
+  }
+
+  private static def printDigit (digits:ValRail[Int]) {
+    for (var i:Int=0; i<digits.length; ++i)
+      Console.OUT.print (" " + digits(i));
+    Console.OUT.println ();
+  }
+
+  private static def getNeighbor (decimalNumber:Int,
+                                  base:Int,
+                                  digitPosition:Int,
+                                  numDigits:Int,
+                                  maxDecimal:Int) {
+    var baseRepresentation:Rail[Int] = 
+                       Rail.make[Int](numDigits, (i:Int) => 0);
+
+    var currentDecimalNumber:Int = decimalNumber;
+    var digitIndex:Int = 0;
+    while (currentDecimalNumber >= base) {
+      baseRepresentation(digitIndex++) = currentDecimalNumber%base; 
+      currentDecimalNumber = currentDecimalNumber/base;
+    }
+    baseRepresentation(digitIndex) = currentDecimalNumber;
+
+    // Now, generate the neighbor in the required dimension
+    baseRepresentation(digitPosition) = 
+           (baseRepresentation(digitPosition)+1) % base;
+
+    // Finally, generate the actual neighbor from the base W representation
+    var currentPower:Int=1;
+    var neighbor:Int=0;
+    for (var i:Int=0; i<numDigits; ++i) {
+      neighbor += baseRepresentation(i)*currentPower; 
+      currentPower = currentPower*base;
+    }
+
+    return (neighbor>=maxDecimal) ? -1 : neighbor;
+  }
+
+  public static def generateSparseEmbedding (P:Int, k:Int) {
+    // Find a base "w" such that pow (w,k) >= P 
+    var firstCutW:Int = 0;
+    var power:Int = pow(firstCutW, k);
+    while (power < P) {
+      ++firstCutW; 
+      power = pow (firstCutW, k);
+    }
+    val w:Int = firstCutW;
+
+    // Now, create an embedding using the following rule:
+    // Express a place p as a base w digit. Let us assume that there 
+    // the base w digits for p are uv. Then the neighbors are:
+    // ((u+1)modw)v and (u((v+1)modw). For now, we will use Int 
+    // for each digit assuming that w will never be greater than 
+    // pow (2, 32).
+    val network:ValRail[ValRail[Int]] = ValRail.make[ValRail[Int]]
+     (P, (i:Int) => ValRail.make[Int] 
+       (k, (j:Int) => getNeighbor (i, w, j, k, P)));
+
+    return network;
+  }
   
   /**
    * Verify that there are no cycles of length 2

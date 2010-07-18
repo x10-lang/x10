@@ -63,7 +63,7 @@ public class UTS {
 					 Option("v", "", "Verbose, default 0 (no)."),
 					 Option("n", "", "Number of nodes to process before probing."),
 					 Option("w", "", "Number of thieves to send out, less 1. (Default 0, so 1 thief will be sent out."),
-           Option("l", "", "Lifeline method: 0 for linear, 1 for hypercube, 2 for sparse hypercube -- in which case also enter dimension"),
+           Option("l", "", "Lifeline method: 0 for linear, 1 for hypercube, 2 for sparse chunked, 3 for sparse embedding -- in which case also enter dimension"),
            Option("z", "", "Dimension of the sparse hypercube")
 					 ]);
 
@@ -115,8 +115,10 @@ public class UTS {
         // Generate the lifelineNetwork
         val lifelineNetwork:ValRail[ValRail[Int]] = 
           (0==l) ? NetworkGenerator.generateRing(Place.MAX_PLACES) :
-            (1==l) ? NetworkGenerator.generateHyperCube(Place.MAX_PLACES):
-              NetworkGenerator.generateSparseHyperCube (Place.MAX_PLACES, z);
+          (1==l) ? NetworkGenerator.generateHyperCube(Place.MAX_PLACES):
+          (2==l) ? NetworkGenerator.generateChunkedGraph (Place.MAX_PLACES, z):
+                NetworkGenerator.generateSparseEmbedding (Place.MAX_PLACES, z);
+                        
 
 				val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
 	    ()=>new BinomialState(qq, mf,k,nu, w, e, l, lifelineNetwork(here.id)));
