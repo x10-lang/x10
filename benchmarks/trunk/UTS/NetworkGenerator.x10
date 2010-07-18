@@ -109,11 +109,18 @@ final class NetworkGenerator {
     } else {
       // Get the displacement of the place in the bucket
       val displacement:Int = place - buckets(bucketNumber);
+      val numElementsInMyBucket:Int = buckets(1+bucketNumber) - 
+                                      buckets(bucketNumber);
+      val indexInDimension:Int = 
+              (displacement + dimension) % numElementsInMyBucket;
       val numElementsInDimension:Int = 
                       buckets(1+dimension) - buckets(dimension); 
 
-      return (displacement >= numElementsInDimension) ? 
-                  -1 : (buckets(dimension) + displacement);
+      if (indexInDimension >= numElementsInDimension) {
+        return -1;
+      } else {
+        return (buckets(dimension) + indexInDimension);
+      }
     }
   }
 
