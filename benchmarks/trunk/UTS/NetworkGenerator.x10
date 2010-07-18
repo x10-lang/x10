@@ -162,7 +162,7 @@ final class NetworkGenerator {
     return network;
   }
 
-  public static findW(P:Int k:Int):Int {
+  public static def findW(P:Int, k:Int):Int {
 	  var w:Int = 0;
   while (PAdicNumber.pow(w++, k) < P);
   return w;
