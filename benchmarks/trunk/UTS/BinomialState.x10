@@ -30,7 +30,7 @@ final class BinomialState {
 		thief= -1;
 		logEvents=e;
 
-    printLifelineNetwork();
+    //printLifelineNetwork();
 	}
 
   def printLifelineNetwork () {
