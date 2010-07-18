@@ -163,9 +163,10 @@ final class NetworkGenerator {
   }
 
   public static def findW(P:Int, k:Int):Int {
+	  assert P > 1;
 	  var w:Int = 0;
-  while (PAdicNumber.pow(w++, k) < P);
-  return w-1;
+      while (PAdicNumber.pow(w++, k) < P);
+      return w-1;
   }
   public static def generateSparseEmbedding (P:Int, k:Int) {
     // Find a base "w" such that pow (w,k) >= P 

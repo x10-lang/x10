@@ -4,18 +4,17 @@ import x10.lang.Math;
 
 final class BinomialState {
 	var thief:Int; 
-  var thieves:Rail[Boolean] = 
-        Rail.make[Boolean] (x10.lang.Math.log2(Place.MAX_PLACES));
+    val thieves = new Stack[Int](); 
 	val width:Int;
 	var lifelines:Long=0L;
 	var lifelineNodes:Long=0L;
 	val stack = new Stack[UTS.SHA1Rand]();
-  val myLifelines:ValRail[Int];
+    val myLifelines:ValRail[Int];
 
 	val q:Long, m:Int, k:Int, nu:Int, l:Int;
 	val logEvents:Boolean;
 	val myRandom = new Random();
-  public val counter = new Counter();
+    public val counter = new Counter();
 	static type PLH= PlaceLocalHandle[BinomialState];
 	static type SHA1Rand = UTS.SHA1Rand;
 
@@ -25,12 +24,12 @@ final class BinomialState {
 	public def this (q:Long, m:Int, k:Int, nu:Int, w:Int, e:Boolean, l:Int,
                    lifelineNetwork:ValRail[Int]) {
 		this.q = q; this.m = m; this.k=k; this.nu=nu; this.l = l;
-    this.myLifelines = lifelineNetwork;
+        this.myLifelines = lifelineNetwork;
 		width=w;
 		thief= -1;
 		logEvents=e;
 
-    printLifelineNetwork();
+    // printLifelineNetwork();
 	}
 
   def printLifelineNetwork () {
@@ -118,27 +117,17 @@ final class BinomialState {
 	 */
 	def distribute(st:PLH, depth:Int) {
     // Count the number of lifeline requests.
-    var numThieves:Int = 0;
-    for (var i:Int=0; i<thieves.length(); ++i) {
-      if (true==thieves(i)) ++numThieves;
-    }
-    // Count yourself once as well -- we don't want to give out everything
-    ++numThieves;
-
-    // resuscitate if we have enough nodes to go by
-    val canDistribute:Boolean = (stack.size() >= (2*(numThieves)));
-    if (canDistribute) {
-      // Divide the loot evenly and resuscitate. Also reset the lifeline
-		  val numToSteal = stack.size()/numThieves;
-		  counter.incTxNodes(numToSteal*(numThieves-1));
-      for (var i:Int=0; i<thieves.length(); ++i) {
-        if (true==thieves(i)) {
-          val loot = stack.pop (numToSteal);
-          async (Place(myLifelines(i))) st().launch(st, false, loot, depth);
-          thieves(i) = false;
-        }
-      }
-    }
+		val numThieves = thieves.size();
+		var numToDistribute:Int = 1+ Math.min(numThieves, stack.size() - 1);
+		if (numToDistribute > 1) {
+			val numToSteal = stack.size()/numToDistribute;
+			counter.incTxNodes(numToSteal*(numToDistribute-1));
+			while (numToDistribute-- > 1) {
+				val thief = thieves.pop();
+				val loot = stack.pop(numToSteal);
+				async (Place(thief)) st().launch(st, false, loot, depth);
+			}
+		}
   }
 
 	/** This is the code invoked locally by each node when there are no 
@@ -173,7 +162,7 @@ final class BinomialState {
     for (var i:Int=0; i<myLifelines.length(); ++i) {
       val lifeline:Int = myLifelines(i);
       if (-1 != lifeline) {
-        loot = at(Place(lifeline)) st().trySteal(p);
+        loot = at(Place(lifeline)) st().trySteal(p, true);
         event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
         if (null!=loot) break;
       }
@@ -181,30 +170,19 @@ final class BinomialState {
     return loot;
 	}
 
-  /* Check if a particular node is the current node's lifeline */
-  def storeIfLifeline (val node:Int) {
-    for (var i:Int=0; i<myLifelines.length(); ++i) {
-      if (node == myLifelines(i)) {
-        thieves (i) = true;
-        event("Established lifeline done " + myLifelines (i));
-        break;
-      }
-    }
-  }
-
 	/** Try to steal from the local stack --- invoked by either a 
 	 theif at a remote place using asyncs (during attemptSteal) 
 	 or by the owning place itself when it wants to give work to 
 	 a fallen buddy.
 	 */
-	def trySteal (p:Int) : ValRail[SHA1Rand] {
+    def trySteal(p:Int):ValRail[SHA1Rand]=trySteal(p, false);
+	def trySteal(p:Int, isLifeLine:Boolean) : ValRail[SHA1Rand] {
 		counter.incStealsReceived();
 		val length = stack.size();
 		if (length <= 2) {
-      /* We want to check if this is from one of our neighbors, in which 
-         case, they were trying to establish a lifeline. So, store theif
-         so that we can later send him a lifeline if need be. */
-      storeIfLifeline (p);
+			if (isLifeLine) {
+				thieves.push(p);
+			}
 			event("Returning null");
 			return null;
 		}
