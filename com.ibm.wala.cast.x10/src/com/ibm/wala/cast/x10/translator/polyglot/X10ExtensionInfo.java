@@ -48,4 +48,9 @@ public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTransl
     public CAstRewriterFactory getCAstRewriterFactory() {
         return rewriterFactory;
     }
+    
+	public boolean getReplicateForDoLoops() {
+		return false;
+	}
+
 }
