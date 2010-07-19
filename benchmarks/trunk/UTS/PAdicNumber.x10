@@ -37,12 +37,11 @@ public class PAdicNumber(P:Int, K:Int) {
 		for (var i:Int=K-1; i >= 0; i--) {
 			result += digits(i);
 			if (i > 0)
-				result += ".";
+				result += "^";
 		}
 		return result;
 	}
 	
-  /*
   public static def main(args: Rail[String]!) {
 	  val n = args.length;
 	  if (n < 2) {
@@ -67,5 +66,5 @@ public class PAdicNumber(P:Int, K:Int) {
 		  }
 	  }
 	  Console.OUT.println("done.");
-  } */
+  } 
 }
