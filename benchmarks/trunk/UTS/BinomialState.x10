@@ -145,9 +145,9 @@ final class BinomialState {
 	 children. If so, push it onto the local stack.
 	 */
 	final def processSubtree (node:TreeNode) {
-    ++counter.nodesCounter;
-    if (0==treeType) TreeExpander.binomial (q, m, node, stack);
-    else TreeExpander.geometric (a, b0, d, node, stack);
+      ++counter.nodesCounter;
+      if (0==treeType) TreeExpander.binomial (q, m, node, stack);
+      else TreeExpander.geometric (a, b0, d, node, stack);
 	}
 
 	final def processLoot(loot: ValRail[TreeNode], lifeline:Boolean) {
@@ -179,8 +179,9 @@ final class BinomialState {
 	 our lifeline buddy.
 	 */
 	final def processStack(st:PLH) {
-		while (stack.size() > 0) {
-			var n:Int = min(stack.size(), nu);
+		var N:Int=0;
+		while ((N=stack.size()) > 0) {
+			var n:Int = min(N, nu);
 			while (n > 0) {
 				processAtMostN(n);
 				Runtime.probe();
@@ -197,12 +198,13 @@ final class BinomialState {
    of nodes, give him half (i.e, launch a remote async).
 	 */
 	def distribute(st:PLH, depth:Int) {
-		while (stack.size() > 1 && thieves.size() > 0) {
+		var N:Int=0;
+		while ((N=stack.size()) > 1 && thieves.size() > 0) {
 			val thief=thieves.pop();
-			val numToSteal = stack.size()/2;
+			val numToSteal = N/2;
 			val loot = stack.pop(numToSteal);
 			counter.incTxNodes(numToSteal);
-			event("Distributing " + loot.length() + " to " + thief);
+			// event("Distributing " + loot.length() + " to " + thief);
 		    val victim = here.id;
 		    // During this communication, you may process (a)
 		    // incoming thefts, this reduces stack, (b) incoming
@@ -229,13 +231,13 @@ final class BinomialState {
 		   while((q_ =  myRandom.nextInt(P)) == p) ;
 		   val q = q_;
 		   counter.incStealsAttempted();
-		   event("Stealing from " + q);
+		  // event("Stealing from " + q);
 		   // Potential communication attempt.
 		   // May receive incoming thefts or distributions.
 		   val loot = at (Place(q)) st().trySteal(p);
 		   if (loot != null) {
-			  event("Steal succeeded with " + 
-					(loot == null ? 0 : loot.length()) + " items");
+			 // event("Steal succeeded with " + 
+			//		(loot == null ? 0 : loot.length()) + " items");
 			  return loot;
 		   }
 		}
@@ -248,7 +250,7 @@ final class BinomialState {
 		    if (-1 != lifeline && ! lifelinesActivated(lifeline) ) {
 		    	 lifelinesActivated(lifeline) = true;
 			   loot = at(Place(lifeline)) st().trySteal(p, true);
-			   event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
+			  // event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
 			   if (null!=loot) {
 				   lifelinesActivated(lifeline) = false;
 				   break;
@@ -325,11 +327,11 @@ final class BinomialState {
 		finish {
 			event("Launch main");
 			if (0==treeType) { 
-        ++counter.nodesCounter; // root node is never pushed on the stack.
-        TreeExpander.processBinomialRoot (b0, rootNode, stack);
-      } else {
-        TreeExpander.geometric (a, b0, d, rootNode, stack);
-      }
+				++counter.nodesCounter; // root node is never pushed on the stack.
+				TreeExpander.processBinomialRoot (b0, rootNode, stack);
+			} else {
+				TreeExpander.geometric (a, b0, d, rootNode, stack);
+			}
 
 			val lootSize = stack.size()/P;
 			for (var pi:Int=1 ; pi<P ; ++pi) {
@@ -338,7 +340,9 @@ final class BinomialState {
 				   st().launch(st, true, loot, 0, 0);
 				counter.incTxNodes(lootSize);
 			}
+			active=true;
 			processStack(st);
+			active=false;
 			event("Finish main");
 		} 
 		event("End main finish");
