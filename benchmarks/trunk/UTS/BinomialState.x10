@@ -97,11 +97,12 @@ final class BinomialState {
 		for (var i:Int=0 ; i<numChildren ; ++i) 
 			stack.push(SHA1Rand(rng, i));
 	}
-	final def processLoot(loot: ValRail[SHA1Rand]) {
+	final def processLoot(loot: ValRail[SHA1Rand], lifeline:Boolean) {
 		if (loot != null) {
-			counter.incRxNodes(loot.length);
+			counter.incRx(lifeline, loot.length);
 			val time = System.nanoTime();
-			for (r in loot) processSubtree(r);
+			for (r in loot) 
+				processSubtree(r);
 			counter.incTimeComputing(System.nanoTime() - time);
 		}	
 	}
@@ -135,7 +136,7 @@ final class BinomialState {
 				n = min(stack.size(), nu);
 			}
 			val loot = attemptSteal(st);
-			processLoot(loot);
+			processLoot(loot,false);
 		}
 	    event("Finished main loop.");
 	}
@@ -144,21 +145,21 @@ final class BinomialState {
    of nodes, give him half (i.e, launch a remote async).
 	 */
 	def distribute(st:PLH, depth:Int) {
+		if (stack.size()==0)
+			return;
 		val numThieves = thieves.size();
 		var numToDistribute:Int = Math.min(numThieves, stack.size()-1);
 		if (numToDistribute > 0) {
 			val numToSteal = stack.size()/(numToDistribute+1);
-			counter.incTxNodes(numToSteal*numToDistribute);
 			try {
-			  for (var i:Int=0; i < numToDistribute; i++) {
-				  if (stack.size() > numToSteal) {
+			  for (var i:Int=0; i < numToDistribute && stack.size() > numToSteal+1; i++) {
 				    val thief = thieves.pop();
 				    val loot = stack.pop(numToSteal);
+				    counter.incTxNodes(numToSteal);
 				    event("Distributing " + loot.length() + " to " + thief);
 				    val victim = here.id;
 				    async (Place(thief)) 
 				      st().launch(st, false, loot, depth, victim);
-				  }
 			  }	
 			} catch (v:Throwable){
 				v.printStackTrace();
@@ -195,7 +196,7 @@ final class BinomialState {
 
 		// resigned to make a lifeline steal from one of our lifelines.
 		var loot:ValRail[SHA1Rand] = null;
-		for (var i:Int=0; i<myLifelines.length() & stack.size()==0; ++i) {
+		for (var i:Int=0; i<myLifelines.length() && stack.size()==0; ++i) {
 			val lifeline:Int = myLifelines(i);
 		    if (-1 != lifeline && ! lifelinesActivated(lifeline) ) {
 			   loot = at(Place(lifeline)) st().trySteal(p, true);
@@ -234,7 +235,7 @@ final class BinomialState {
 		try {
 			lifelinesActivated(source) = false;
 			if (stack.size() > 0) {
-				processLoot(loot);
+				processLoot(loot, true);
 				assert (! init);
 				// Now you can return, the outer activity will handle the data on the stack.
 			    if (depth > 0) 
@@ -243,11 +244,7 @@ final class BinomialState {
 			}
 		    counter.startLive();
 		    counter.updateDepth(depth);
-		    val n = loot == null ? 0 : loot.length;
-		    if (! init) {
-			  counter.incRx(depth > 0, n);
-		    }
-		    processLoot(loot);
+		    processLoot(loot, true);
 		    if (depth > 0) 
 			  distribute(st, depth+1);
 		    processStack(st);
