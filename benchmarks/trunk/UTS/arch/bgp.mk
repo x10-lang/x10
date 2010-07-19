@@ -9,7 +9,7 @@ export POSTCOMPILE_NATIVE_LIB_FLAGS ?= -O3 -DNDEBUG
 export BLAS_LIB		= -L/opt/ibmmath/lib -lesslbg -lm
 
 export USE_MEDIUM_PAGES ?= 0  # TODO: ask George
-export X10RTTRANSPORT = pgas_bgp
+export X10RTTRANSPORT = -x10rt pgas_bgp
 
 export POSTCOMPILE_AR		?= ar
 export POSTCOMPILE_ARFLAGS	?= -X64 -rv

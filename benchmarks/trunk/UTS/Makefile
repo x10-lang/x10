@@ -56,7 +56,7 @@ uts: uts.cpp sha1_rand.hpp libsha1.a
 	${CXX} ${CXXFLAGS} $< -o $@ -L. -lsha1
 
 UTS: UTS.x10 sha1_rand.hpp sha1.c
-	${X10CXX} -v -NO_CHECKS -O  ${X10CXXFLAGS} ${X10RTTRANSPORT} $< -o $@ 
+	${X10CXX} -MAIN_CLASS=UTS -v -NO_CHECKS -O  ${X10CXXFLAGS} ${X10RTTRANSPORT} $< -o $@ 
 
 run-UTS: UTS
 	mpirun -np 4 -hostfile host.list ./UTS -r 42 -b 2000 -m 8 -q 0.124975
