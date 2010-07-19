@@ -47,4 +47,5 @@ public class X10IRTranslatorExtension extends X10ExtensionInfo {
     	}
     	throw new IllegalArgumentException("CAstEntity not found for path "+filepath);
     }
+
 }

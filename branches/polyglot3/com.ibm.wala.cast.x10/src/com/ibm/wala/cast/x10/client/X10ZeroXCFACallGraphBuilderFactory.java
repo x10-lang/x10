@@ -25,7 +25,7 @@ public class X10ZeroXCFACallGraphBuilderFactory {
         Util.addDefaultSelectors(options, cha);
 //      Util.addDefaultBypassLogic(options, scope, Util.class.getClassLoader(), cha);
         addRuntimeModels(options, cha, scope);
-        return new X10ZeroXCFABuilder(cha, options, cache, null, null, options.getReflectionSpec(), ZeroXInstanceKeys.ALLOCATIONS);
+        return new X10ZeroXCFABuilder(cha, options, cache, null, null, ZeroXInstanceKeys.ALLOCATIONS);
     }
 
     private void addRuntimeModels(AnalysisOptions options, IClassHierarchy cha, AnalysisScope scope) {
