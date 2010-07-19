@@ -97,6 +97,14 @@ final class BinomialState {
 		for (var i:Int=0 ; i<numChildren ; ++i) 
 			stack.push(SHA1Rand(rng, i));
 	}
+	final def processLoot(loot: ValRail[SHA1Rand]) {
+		if (loot != null) {
+			counter.incRxNodes(loot.length);
+			val time = System.nanoTime();
+			for (r in loot) processSubtree(r);
+			counter.incTimeComputing(System.nanoTime() - time);
+		}	
+	}
 
 	/** Return an array of "k" elements popped from the local stack.*/
 	//final def pop(k:Int) = ValRail.make[SHA1Rand](k, (int)=> stack.pop());
@@ -113,7 +121,7 @@ final class BinomialState {
 	 our lifeline buddy.
 	 */
 	def processStack(st:PLH) {
-		while (true) {
+		while (stack.size() > 0) {
 			var n:Int = min(stack.size(), nu);
 			l: while (n > 0) {
 				val time = System.nanoTime();
@@ -127,17 +135,7 @@ final class BinomialState {
 				n = min(stack.size(), nu);
 			}
 			val loot = attemptSteal(st);
-			
-			if (loot == null) {
-				if (stack.size() > 0) // loot may have arrived asynchronously
-					continue;
-				break;
-			}
-			counter.incRxNodes(loot.length);
-			val time = System.nanoTime();
-			for ( r in loot) 
-				processSubtree(r);
-			counter.incTimeComputing(System.nanoTime() - time);
+			processLoot(loot);
 		}
 	    event("Finished main loop.");
 	}
@@ -180,9 +178,7 @@ final class BinomialState {
 		val P = Place.MAX_PLACES;
 		if (P == 1) return null;
 		val p = here.id;
-		for (var i:Int=0; i < width; i++) {
-		   if (stack.size() > 0)
-			 break;
+		for (var i:Int=0; i < width && stack.size()==0; i++) {
 		   var q_:Int = 0;
 		   while((q_ =  myRandom.nextInt(P)) == p) ;
 		   val q = q_;
@@ -197,23 +193,21 @@ final class BinomialState {
 		}
 		event("No loot; establishing lifeline(s).");
 
-			// resigned to make a lifeline steal from one of our lifelines.
-			var loot:ValRail[SHA1Rand] = null;
-		    for (var i:Int=0; i<myLifelines.length(); ++i) {
-			   val lifeline:Int = myLifelines(i);
-		       if (-1 != lifeline && ! lifelinesActivated(lifeline) 
-		    		   && stack.size() == 0 // help has not arrived fron others yet...
-		    		   ) {
-			      loot = at(Place(lifeline)) st().trySteal(p, true);
-			      event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
-			      if (null!=loot) break;
-			      // ok, in this case the lifeline has been recorded.
-			      // ensure that you do not again make a request to this buddy
-			      // until he responds to the earlier request with loot.
-			      lifelinesActivated(lifeline) = true;
-		       }
-		     }
-        return loot;
+		// resigned to make a lifeline steal from one of our lifelines.
+		var loot:ValRail[SHA1Rand] = null;
+		for (var i:Int=0; i<myLifelines.length() & stack.size()==0; ++i) {
+			val lifeline:Int = myLifelines(i);
+		    if (-1 != lifeline && ! lifelinesActivated(lifeline) ) {
+			   loot = at(Place(lifeline)) st().trySteal(p, true);
+			   event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
+			   if (null!=loot) break;
+			   // ok, in this case the lifeline has been recorded.
+			   // ensure that you do not again make a request to this buddy
+			   // until he responds to the earlier request with loot.
+			   lifelinesActivated(lifeline) = true;
+		    }
+		 }
+         return loot;
 	}
 
 	/** Try to steal from the local stack --- invoked by either a 
@@ -240,32 +234,22 @@ final class BinomialState {
 		try {
 			lifelinesActivated(source) = false;
 			if (stack.size() > 0) {
-				val n = loot == null ? 0 : loot.length;
-				event("Received loot (size= " + n+") while stack has " + stack.size() + " elements.");
+				processLoot(loot);
 				assert (! init);
-				if (n > 0) {
-					val time = System.nanoTime();
-					for (r in loot) processSubtree(r);
-					counter.incTimeComputing(System.nanoTime() - time);
-				}
 				// Now you can return, the outer activity will handle the data on the stack.
 				return;
 			}
-		counter.startLive();
-		counter.updateDepth(depth);
-		val n = loot == null ? 0 : loot.length;
-		if (! init) {
-			counter.incRx(depth > 0, n);
-		}
-		if (loot != null) {
-			val time = System.nanoTime();
-			for (r in loot) processSubtree(r);
-			counter.incTimeComputing(System.nanoTime() - time);
-		}
-		if (depth > 0) 
-			distribute(st, depth+1);
-		processStack(st);
-		counter.stopLive();
+		    counter.startLive();
+		    counter.updateDepth(depth);
+		    val n = loot == null ? 0 : loot.length;
+		    if (! init) {
+			  counter.incRx(depth > 0, n);
+		    }
+		    processLoot(loot);
+		    if (depth > 0) 
+			  distribute(st, depth+1);
+		    processStack(st);
+		    counter.stopLive();
 		} catch (v:Throwable) {
 			Console.OUT.println("Exception at " + here);
 			v.printStackTrace();
@@ -294,6 +278,7 @@ final class BinomialState {
 				val loot = stack.pop(lootSize);
 				async (Place(pi))
 				   st().launch(st, true, loot, 1, 0);
+				counter.incTxNodes(lootSize);
 			}
 			processStack(st);
 			event("Finish main");

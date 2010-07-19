@@ -17,6 +17,7 @@ public class Counter  {
 	var nodesReceived:Long = 0L;
 	var lastTimeStamp:Long=-1L;
 	var timeComputing:Long = 0L;
+    var timeDistributing:Long = 0L;
 	var timeAlive:Long = 0L;
 	var timeDead:Long=0L;
 	var chainDepth:Int=0;
@@ -25,7 +26,7 @@ public class Counter  {
 	public def toVal() = new ValCounter(this);
 
 	static class ValCounter {
-		global val lifelines:Long;
+	global val lifelines:Long;
 	global val lifelineNodes:Long;
 	global val nodesCounter :Long;
 	global val nodesSent :Long;
@@ -37,6 +38,7 @@ public class Counter  {
 	global val nodesReceived:Long;
 	global val lastTimeStamp:Long;
 	global val timeComputing:Long;
+	global val timeDistributing:Long;
 	global val timeAlive:Long;
 	global val timeDead:Long;
 	global val chainDepth:Int;
@@ -59,12 +61,12 @@ public class Counter  {
 	chainDepth=c.chainDepth;
 	maxDepth=c.maxDepth;
 	}
-	private global def verboseStats(here:Int, sumCounters:Counter!) {
+	private global def verboseStats(h:Int, sumCounters:Counter!) {
 		val P = Place.MAX_PLACES;
 		val idealRatio = 1.0F/P;
 		val pc = stealsAttempted==0L ? "NaN" : "" + safeSubstring("" + (100.0F*stealsPerpetrated)/stealsAttempted, 0,5);
 		val pr = stealsReceived==0L ? "NaN" : "" +  safeSubstring("" + (100.0F*stealsSuffered)/stealsReceived, 0, 5);
-		Console.OUT.println(here+": processed " + nodesCounter + " nodes.");
+		Console.OUT.println(h+": processed " + nodesCounter + " nodes.");
 		val ratio = (1.0F*nodesCounter)/sumCounters.nodesCounter;
 		val ratioS = safeSubstring(""+ratio,0,6);
 		val imbalance = (100.0F*(ratio-idealRatio))/idealRatio;
@@ -128,6 +130,9 @@ public class Counter  {
 
 	def incTimeComputing(t:Long) {
 		timeComputing += t;
+	}
+	def incTimeDistributing(t:Long) {
+		timeDistributing += t;
 	}
 	def incRx(lifeline:Boolean, n:Int) {
 		if (lifeline) {
