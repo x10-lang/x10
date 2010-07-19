@@ -24,16 +24,13 @@ import java.util.Map;
 import java.util.Set;
 
 import polyglot.ast.Binary;
-import polyglot.ast.Expr;
 import polyglot.ast.Id;
-import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
-import polyglot.types.ArrayType;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -64,7 +61,6 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.TopLevelResolver;
@@ -84,8 +80,7 @@ import polyglot.util.TransformingList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.X10NodeFactory;
-import x10.ast.X10StringLit_c;
-import x10.ast.X10ClassDecl_c;
+import x10.ast.X10NodeFactory_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
@@ -94,12 +89,9 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.parser.X10ParsedName;
-import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
-import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.X10ConstructorMatcher;
 import x10.types.matcher.X10FieldMatcher;
 import x10.types.matcher.X10MemberTypeMatcher;
@@ -674,7 +666,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return createFakeField(unknownClassDef().asType(), Flags.PUBLIC.Static(), name);
     }
     public X10FieldInstance createFakeField(ClassType container, Flags flags, Name name) {
-        Position pos = Position.COMPILER_GENERATED;
+        Position pos = X10NodeFactory_c.compilerGenerated(container);
         Type type = unknownType(pos);
         XVar thisVar = XTerms.makeEQV();
         List<Ref<? extends Type>> excTypes = Collections.emptyList();
@@ -690,7 +682,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return createFakeMethod(unknownClassDef().asType(), Flags.PUBLIC.Static(), name, typeArgs, argTypes);
     }
     public X10MethodInstance createFakeMethod(ClassType container, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes) {
-        Position pos = Position.COMPILER_GENERATED;
+        Position pos = X10NodeFactory_c.compilerGenerated(container);
         Type returnType = unknownType(pos);
         List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
         List<LocalDef> formalNames = new ArrayList<LocalDef>();
@@ -717,7 +709,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return createFakeConstructor(typeForNameSilent(containerName).typeArguments(typeArgs), argTypes);
     }
     public X10ConstructorInstance createFakeConstructor(ClassType container, List<Type> argTypes) {
-        Position pos = Position.COMPILER_GENERATED;
+        Position pos = X10NodeFactory_c.compilerGenerated(container);
         List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
         List<LocalDef> formalNames = new ArrayList<LocalDef>();
         int i = 0;
@@ -1791,7 +1783,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public VarDef createSelf(Type t) {
-        VarDef v = localDef(Position.COMPILER_GENERATED, Flags.PUBLIC, Types.ref(t), Name.make("self"));
+        VarDef v = localDef(X10NodeFactory_c.compilerGenerated(t), Flags.PUBLIC, Types.ref(t), Name.make("self"));
         return v;
     }
 

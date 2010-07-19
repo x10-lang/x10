@@ -29,7 +29,6 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.ast.ConstructorCall;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ConstructorInstance;
@@ -50,10 +49,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.X10ConstructorDecl;
-import x10.ast.X10ClassDecl;
-import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
+import x10.ast.*;
 import x10.types.ParameterType;
 import x10.types.X10Def;
 import x10.types.X10ConstructorDef;
@@ -153,7 +149,7 @@ public class NativeClassVisitor extends ContextVisitor {
         ClassBody cbody = cdecl.body();
         List<ClassMember> cmembers = new ArrayList<ClassMember>();
 
-        Position p = Position.COMPILER_GENERATED;
+        Position p = X10NodeFactory_c.compilerGenerated(cbody);
 
         // create fake def for native class
         X10ClassDef fake = (X10ClassDef) xts.createClassDef();
