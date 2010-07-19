@@ -15,36 +15,88 @@ public class UTS {
 	@NativeCPPCompilationUnit ("UTS__SHA1Rand.cc")
 	public static struct SHA1Rand {
 		public def this (seed:Int) { }
-		public def this (parent:SHA1Rand, spawn_number:Int) { }
+    public def this (parent:SHA1Rand) { }
+		public def this (parent:SHA1Rand, spawnNumber:Int) { }
 		@Native ("c++", "UTS__SHA1Rand_methods::apply(#0)")
 		public def apply () : Int = 0;
 	}
 
+  // A structure that captures a node in the tree as depth + SHA1Rand
+  public static struct TreeNode {
+    val depth:Int;
+    val rng:SHA1Rand;
 
-	static class SeqBinomialState {
-		// params that define the tree
+    public def this (seed:Int) { 
+      this.depth = -1;
+      this.rng = SHA1Rand(seed);
+    }
+
+    public def this (seed:Int, depth:Int) {
+      this.depth = depth;
+      this.rng = SHA1Rand (seed);
+    }
+
+    public def this (parent:TreeNode, spawnNumber:Int) {
+      this.depth = -1;
+      this.rng = SHA1Rand (parent.getSHA1Rand(), spawnNumber);
+    }
+
+    public def this (parent:TreeNode, spawnNumber:Int, depth:Int) {
+      this.depth = depth;
+      this.rng = SHA1Rand (parent.getSHA1Rand(), spawnNumber);
+    }
+
+    public def apply (): Int = this.rng();
+
+    public def getDepth () : Int = this.depth;
+
+    public def getSHA1Rand (): SHA1Rand = this.rng;
+  }
+
+	static class SeqUTS {
+    val b0:Int;
 		val q:Long, m:Int;
+    val a:Int, d:Int;
+    val treeType:Int;
+    val stack:Stack[TreeNode]! = new Stack[TreeNode]();
+		var nodesCounter:UInt = 0;
+    val stopCount:UInt = 25;
 
-	var nodesCounter:UInt = 0;
-	public def this (q:Long, m:Int) {
-		this.q = q; this.m = m; 
-	}
+		public def this (b0:Int, q:Long, m:Int) {
+			this.treeType = 0; this.b0 = b0; this.q = q; this.m = m; 
+      this.a = this.d = -1;
+		}
+  
 
-	public final def processSubtree (rng:SHA1Rand) {
-		processSubtree(rng, (rng() < q) ? m : 0);
-	}
-	public final def processSubtree (rng:SHA1Rand, numChildren:Int) {
-		nodesCounter++;
-		/* Iterate over all the children and push on stack. */
-		for (var i:Int=0 ; i<numChildren ; ++i) 
-			processSubtree(SHA1Rand(rng, i));
-	}
+		public def this (b0:Int, a:Int, d:Int) {
+			this.treeType = 1; this.b0 = b0; this.a = a; this.d = d; 
+      this.q = -1; this.m = -1;
+		}
 
-	public final def main (b0:Int, rng:SHA1Rand) {
-		processSubtree(rng, b0);
-		Console.OUT.println(nodesCounter+" nodes. ");
-		return nodesCounter;
-	}
+    public final def processStack () {
+
+      while (stack.size() > 0) {
+        if (0==treeType) TreeExpander.binomial (q, m, stack.pop(), stack);
+        else TreeExpander.geometric (a, b0, d, stack.pop(), stack);
+        ++nodesCounter;
+        if (nodesCounter==stopCount) return;
+      }
+
+    }
+  
+		public final def main (rootNode:TreeNode) {
+			if (0==treeType) { 
+        ++nodesCounter; // root node is never pushed on the stack.
+        TreeExpander.processBinomialRoot (b0, rootNode, stack);
+      }
+      else TreeExpander.geometric (a, b0, d, rootNode, stack);
+
+      this.processStack();
+
+			Console.OUT.println(nodesCounter+" nodes. ");
+
+			return nodesCounter;
+		}
 	}
 	
 	public static def main (args : Rail[String]!) {
@@ -67,7 +119,7 @@ public class UTS {
            Option("z", "", "Dimension of the sparse hypercube")
 					 ]);
 
-			val tree_type:Int = opts ("-t", 0);
+			val t:Int = opts ("-t", 0);
 			val b0 = opts ("-b", 4);
 			val seq = opts("-s", 0);
 			val r:Int = opts ("-r", 0);
@@ -77,8 +129,8 @@ public class UTS {
 			val e = opts("-e", 0)==1;
 
 			// geometric options
-			val geo_tree_shape_fn:Int = opts ("-a", 0);
-			val geo_tree_depth:Int = opts ("-d", 6);
+			val a:Int = opts ("-a", 0);
+			val d:Int = opts ("-d", 6);
 
 			// binomial options
 			val q:Double = opts ("-q", 15.0/64.0);
@@ -110,7 +162,8 @@ public class UTS {
 
 			if (seq != 0) {
 				var time:Long = System.nanoTime();
-			val nodes = new SeqBinomialState(qq, mf).main(b0, SHA1Rand(r));
+			  val nodes = (0==t) ? new SeqUTS (b0, qq, mf).main(TreeNode(r)):
+                             new SeqUTS (b0, a, d).main(TreeNode(r));
 			time = System.nanoTime() - time;
 			Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
 			} else {
@@ -123,11 +176,11 @@ public class UTS {
                         
 
 				val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
-	    ()=>new BinomialState(qq, mf,k,nu, w, e, l, lifelineNetwork(here.id)));
+	    ()=>new BinomialState(b0, qq, mf,k,nu, w, e, l, lifelineNetwork(here.id)));
 				Console.OUT.println("Starting...");
 				var time:Long = System.nanoTime();
 				try {
-				st().main(st, b0, SHA1Rand(r));
+				st().main(st, TreeNode(r));
 				} catch (v:Throwable) {
 					v.printStackTrace();
 				}

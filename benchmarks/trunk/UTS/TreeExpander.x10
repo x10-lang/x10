@@ -6,13 +6,14 @@ import x10.util.Stack;
 
 public class TreeExpander {
   static type TreeNode = UTS.TreeNode;
+  static type SHA1Rand = UTS.SHA1Rand;
 	private static val NORMALIZER = 2147483648.0; 
 
   public static def geometric (shapeFunction:int, /* 0..3*/
                                rootBranchingFactor:int, /* self-expln */
                                maxTreeDepth:int, /* cut off after this depth */
                                node:TreeNode, /* random number generator */
-                               stack:Stack[TreeNode]) { /* The place to store */
+                               stack:Stack[TreeNode]!) { /* The place to store */
     /* compute branching factor at this node */
     var curNodeBranchingFactor:double;
 
@@ -61,15 +62,15 @@ public class TreeExpander {
 
     /* Push all the children onto the stack */
     for (var i:Int=0; i<numChildren; ++i) 
-      stack.push(TreeNode (node, i, node.getDepth()));
+      stack.push(TreeNode (node, i, node.getDepth()+1));
   }
 
-  public static def binomial (q:double, 
+  public static def binomial (q:Long, 
                               m:int, 
                               node:TreeNode,
-                              stack:Stack[TreeNode]) {
-    val randomNumber = node() as double;
-    val numChildren = (randomNumber > q) ? m : 0;
+                              stack:Stack[TreeNode]!) {
+    val randomNumber:Long = node();
+    val numChildren:Int = (randomNumber < q) ? m : 0;
 
     /* Push all the children onto the stack */
     for (var i:Int=0; i<numChildren; ++i) stack.push(TreeNode (node, i));
@@ -77,7 +78,7 @@ public class TreeExpander {
 
   public static def processBinomialRoot (b0:Int, 
                                          node:TreeNode, 
-                                         stack:Stack[TreeNode]) {
+                                         stack:Stack[TreeNode]!) {
     for (var i:Int=0; i<b0; ++i) stack.push(TreeNode (node, i));
   }
 }

@@ -3,6 +3,10 @@ import x10.util.Random;
 import x10.lang.Math;
 
 final class BinomialState {
+	static type PLH= PlaceLocalHandle[BinomialState];
+	static type SHA1Rand = UTS.SHA1Rand;
+  static type TreeNode = UTS.TreeNode;
+
 	final static class FixedSizeStack[T] {
 		val data:Rail[T];
 	    var last:Int;
@@ -36,37 +40,87 @@ final class BinomialState {
 		def size():Int=last+1;
 		
 	}
-    val thieves:FixedSizeStack[Int]!;
+  val thieves:FixedSizeStack[Int]!;
 	
 	val width:Int;
-	val stack = new Stack[UTS.SHA1Rand]();
-	// My outgoing lifelines.
-    val myLifelines:ValRail[Int];
+	val stack = new Stack[TreeNode]();
+  val myLifelines:ValRail[Int];
+
 	// Which of the lifelines have I actually activated?
 	val lifelinesActivated: Rail[Boolean];
 
-	val q:Long, m:Int, k:Int, nu:Int, l:Int;
+  val treeType:Int; // 0=BINOMIAL, 1=GEOMETRIC
+	val b0:Int; // root branching factor
+  val q:Long, m:Int, k:Int, nu:Int; // For the binomial tree
+  val a:Int, d:Int; // For the geometric tree
+
+  val l:Int; 
 	val z:Int;
 	val logEvents:Boolean;
 	val myRandom = new Random();
-    public val counter = new Counter();
-	static type PLH= PlaceLocalHandle[BinomialState];
-	static type SHA1Rand = UTS.SHA1Rand;
+  public val counter = new Counter();
 	var active:Boolean=false;
 
 	/** Initialize the state. Executed at all places when executing the 
-	 PlaceLocalHandle.make command in main (of UTS).
+	 PlaceLocalHandle.make command in main (of UTS). BINOMIAL
 	 */
-	public def this (q:Long, m:Int, k:Int, nu:Int, w:Int, e:Boolean, l:Int,
+	public def this (b0:Int, 
+                   q:Long, 
+                   m:Int, 
+                   k:Int, 
+                   nu:Int, 
+                   w:Int, 
+                   e:Boolean, 
+                   l:Int,
                    lifelineNetwork:ValRail[Int]) {
-		this.q = q; this.m = m; this.k=k; this.nu=nu; this.l = l;
-        this.myLifelines = lifelineNetwork;
-        this.z = lifelineNetwork.length; // assume symmetric.
+    this.treeType = 0;
+		this.b0 = b0;
+    this.q = q; 
+    this.m = m; 
+    this.k=k; 
+    this.nu=nu; 
+    this.l = l;
+    this.myLifelines = lifelineNetwork;
+    this.z = lifelineNetwork.length; // assume symmetric.
 		width=w;
 		logEvents=e;
 		thieves = new FixedSizeStack[Int](z, 0);
 		lifelinesActivated = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
 		// printLifelineNetwork();
+
+    this.a = -1; 
+    this.d = -1;
+	}
+
+	/** Initialize the state. Executed at all places when executing the 
+	 PlaceLocalHandle.make command in main (of UTS). GEOMETRIC
+	 */
+	public def this (b0:Int, 
+                   a:Int, 
+                   d:Int, 
+                   k:Int, 
+                   nu:Int, 
+                   w:Int, 
+                   e:Boolean, 
+                   l:Int,
+                   lifelineNetwork:ValRail[Int]) {
+    this.treeType = 1;
+		this.b0 = b0;
+    this.a = a; 
+    this.d = d; 
+    this.k=k; 
+    this.nu=nu; 
+    this.l = l;
+    this.myLifelines = lifelineNetwork;
+    this.z = lifelineNetwork.length; // assume symmetric.
+		width=w;
+		logEvents=e;
+		thieves = new FixedSizeStack[Int](Place.MAX_PLACES, 0);
+		lifelinesActivated = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
+		// printLifelineNetwork();
+
+    this.q = -1; 
+    this.m = -1;
 	}
 
   def printLifelineNetwork () {
@@ -90,29 +144,17 @@ final class BinomialState {
 	/** Check if the current node (governed by the SHA1Rand state) has any
 	 children. If so, push it onto the local stack.
 	 */
-	final def processSubtree (rng:SHA1Rand) {
-		processSubtree(rng, (rng() < q) ? m : 0);
+	final def processSubtree (node:TreeNode) {
+    ++counter.nodesCounter;
+    if (0==treeType) TreeExpander.binomial (q, m, node, stack);
+    else TreeExpander.geometric (a, b0, d, node, stack);
 	}
 
-	/** Same as above, but called when we have already made a decision that
-	 there are going to be this "numChildren" children. Its useful to 
-	 split the functionality from the function (processSubtree) above as 
-	 in some cases (for eg., processing the root node), we just want to 
-	 directly create children instead of basing the decision off of a 
-	 random number state.
-	 */
-	final def processSubtree (rng:SHA1Rand, numChildren:Int) {
-		counter.nodesCounter++;
-		// Iterate over all the children and push on stack
-		for (var i:Int=0 ; i<numChildren ; ++i) 
-			stack.push(SHA1Rand(rng, i));
-	}
-	final def processLoot(loot: ValRail[SHA1Rand], lifeline:Boolean) {
+	final def processLoot(loot: ValRail[TreeNode], lifeline:Boolean) {
 		if (loot != null) {
 			counter.incRx(lifeline, loot.length);
 			val time = System.nanoTime();
-			for (r in loot) 
-				processSubtree(r);
+			for (r in loot) processSubtree(r);
 			counter.incTimeComputing(System.nanoTime() - time);
 		}	
 	}
@@ -124,9 +166,6 @@ final class BinomialState {
 		}
 		counter.incTimeComputing(System.nanoTime() - time);
 	}
-
-	/** Return an array of "k" elements popped from the local stack.*/
-	//final def pop(k:Int) = ValRail.make[SHA1Rand](k, (int)=> stack.pop());
 
   /** A trivial function to calculate minimum of 2 integers */
 	def min(i:int,j:int) = i < j ? i : j;
@@ -151,7 +190,7 @@ final class BinomialState {
 			val loot = attemptSteal(st);
 			processLoot(loot,false);
 		}
-	    event("Finished main loop.");
+	  event("Finished main loop.");
 	}
 
   /** If our buddy/buddies have requested a lifeline, and we have ample supply 
@@ -180,7 +219,7 @@ final class BinomialState {
 	 work from randomly chosen neighbors (for a certain number of 
 	 tries). If we are not successful, we invoke our lifeline system.
 	 */
-	def attemptSteal(st:PLH):ValRail[SHA1Rand] {
+	def attemptSteal(st:PLH):ValRail[TreeNode] {
 		event("Attempt steal");
 		val P = Place.MAX_PLACES;
 		if (P == 1) return null;
@@ -203,7 +242,7 @@ final class BinomialState {
 		event("No loot; establishing lifeline(s).");
 
 		// resigned to make a lifeline steal from one of our lifelines.
-		var loot:ValRail[SHA1Rand] = null;
+		var loot:ValRail[TreeNode] = null;
 		for (var i:Int=0; i<myLifelines.length() && stack.size()==0; ++i) {
 			val lifeline:Int = myLifelines(i);
 		    if (-1 != lifeline && ! lifelinesActivated(lifeline) ) {
@@ -225,8 +264,8 @@ final class BinomialState {
 	 or by the owning place itself when it wants to give work to 
 	 a fallen buddy.
 	 */
-    def trySteal(p:Int):ValRail[SHA1Rand]=trySteal(p, false);
-	def trySteal(p:Int, isLifeLine:Boolean) : ValRail[SHA1Rand] {
+    def trySteal(p:Int):ValRail[TreeNode]=trySteal(p, false);
+	def trySteal(p:Int, isLifeLine:Boolean) : ValRail[TreeNode] {
 		counter.incStealsReceived();
 		val length = stack.size();
 		if (length <= 2) {
@@ -240,7 +279,11 @@ final class BinomialState {
 		return stack.pop(numSteals);
 	}
 
-	def launch(st:PLH, init:Boolean, loot:ValRail[SHA1Rand], depth:Int, source:Int) {
+	def launch(st:PLH, 
+             init:Boolean, 
+             loot:ValRail[TreeNode], 
+             depth:Int, 
+             source:Int) {
 		try {
 			lifelinesActivated(source) = false;
 			if (active) {
@@ -275,14 +318,19 @@ final class BinomialState {
 	 for distributed UTS.
 	 */
 	def main (st:PLH, 
-            b0:Int, 
-            rng:SHA1Rand) {
+            rootNode:TreeNode) {
 		val P=Place.MAX_PLACES;
 		event("Start main finish");
 		counter.lastTimeStamp = System.nanoTime();
 		finish {
 			event("Launch main");
-			processSubtree(rng, b0);
+			if (0==treeType) { 
+        ++counter.nodesCounter; // root node is never pushed on the stack.
+        TreeExpander.processBinomialRoot (b0, rootNode, stack);
+      } else {
+        TreeExpander.geometric (a, b0, d, rootNode, stack);
+      }
+
 			val lootSize = stack.size()/P;
 			for (var pi:Int=1 ; pi<P ; ++pi) {
 				val loot = stack.pop(lootSize);
