@@ -127,8 +127,11 @@ final class BinomialState {
 				n = min(stack.size(), nu);
 			}
 			val loot = attemptSteal(st);
+			
 			if (loot == null) {
-					break;
+				if (stack.size() > 0) // loot may have arrived asynchronously
+					continue;
+				break;
 			}
 			counter.incRxNodes(loot.length);
 			val time = System.nanoTime();
@@ -238,10 +241,14 @@ final class BinomialState {
 			lifelinesActivated(source) = false;
 			if (stack.size() > 0) {
 				val n = loot == null ? 0 : loot.length;
+				event("Received loot (size= " + n+") while stack has " + stack.size() + " elements.");
 				assert (! init);
-				if (n > 0)
-					for (l in loot)
-						stack.push(l);
+				if (n > 0) {
+					val time = System.nanoTime();
+					for (r in loot) processSubtree(r);
+					counter.incTimeComputing(System.nanoTime() - time);
+				}
+				// Now you can return, the outer activity will handle the data on the stack.
 				return;
 			}
 		counter.startLive();
@@ -255,7 +262,8 @@ final class BinomialState {
 			for (r in loot) processSubtree(r);
 			counter.incTimeComputing(System.nanoTime() - time);
 		}
-		if (depth > 0) distribute(st, depth+1);
+		if (depth > 0) 
+			distribute(st, depth+1);
 		processStack(st);
 		counter.stopLive();
 		} catch (v:Throwable) {
