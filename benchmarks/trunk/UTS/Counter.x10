@@ -60,6 +60,7 @@ public class Counter  {
 	timeDead=c.timeDead;
 	chainDepth=c.chainDepth;
 	maxDepth=c.maxDepth;
+	timeDistributing=c.timeDistributing;
 	}
 	private global def verboseStats(h:Int, sumCounters:Counter!) {
 		val P = Place.MAX_PLACES;
