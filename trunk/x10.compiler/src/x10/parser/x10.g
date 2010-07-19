@@ -1457,13 +1457,13 @@ public static class MessageHandler implements IMessageHandler {
        ExistentialList ::= FormalParameter
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Formal.class, false);
-                    l.add(FormalParameter.flags(nf.FlagsNode(Position.COMPILER_GENERATED, Flags.FINAL)));
+                    l.add(FormalParameter.flags(nf.FlagsNode(X10NodeFactory_c.compilerGenerated(FormalParameter), Flags.FINAL)));
                     setResult(l);
           $EndJava
         ./
                           | ExistentialList ; FormalParameter
         /.$BeginJava
-                    ExistentialList.add(FormalParameter.flags(nf.FlagsNode(Position.COMPILER_GENERATED, Flags.FINAL)));
+                    ExistentialList.add(FormalParameter.flags(nf.FlagsNode(X10NodeFactory_c.compilerGenerated(FormalParameter), Flags.FINAL)));
           $EndJava
         ./
 

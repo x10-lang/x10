@@ -64,17 +64,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
-import x10.ast.AnnotationNode;
-import x10.ast.Closure;
-import x10.ast.DepParameterExpr;
-import x10.ast.X10CanonicalTypeNode;
-import x10.ast.X10ClassDecl;
-import x10.ast.X10ClassDecl_c;
-import x10.ast.X10ConstructorDecl;
-import x10.ast.X10Formal;
-import x10.ast.X10MethodDecl;
-import x10.ast.X10NodeFactory;
-import x10.ast.X10Special;
+import x10.ast.*;
 import x10.constraint.XDisEquals;
 import x10.constraint.XEQV;
 import x10.constraint.XEquals;
@@ -173,7 +163,7 @@ public class Synthesizer {
 			 Type returnType, List<Type> trow, Block block) {
 	    	
 	    	
-	    	Position CG = Position.COMPILER_GENERATED;
+	    	Position CG = X10NodeFactory_c.compilerGenerated(ct.body());
 	    	List<Expr> args = new ArrayList<Expr>(); //FIXME: what's the usage of the args?
 	    	List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 	    	List<Formal> formals = new ArrayList<Formal>(fmls.size());
@@ -301,7 +291,7 @@ public class Synthesizer {
 	public For makeForLoop(Position pos, 
 			X10Formal formal, Expr low, Expr high, Stmt body, 
 			 X10Context context) {
-		Position CG = Position.COMPILER_GENERATED;
+		Position CG = X10NodeFactory_c.compilerGenerated(pos);
 		List<Stmt> inits = new ArrayList<Stmt>();
 		// FIXME: use formal here directly, instead of local
 		Expr local = makeLocalVar(CG, null, low, inits, context);

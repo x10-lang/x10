@@ -46,7 +46,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.extension.X10Del;
@@ -62,7 +61,6 @@ import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbConstructorMatcher;
 import x10.visit.X10TypeChecker;
 
@@ -214,13 +212,14 @@ public class X10New_c extends New_c implements X10New {
         
         // Create the qualifier.
         Expr q;
+        Position cg = X10NodeFactory_c.compilerGenerated(position());
 
         if (outer.typeEquals(c.currentClass(), ar.context())) {
-            q = nf.This(Position.COMPILER_GENERATED);
+            q = nf.This(cg);
         }
         else {
-            q = nf.This(Position.COMPILER_GENERATED,
-                        nf.CanonicalTypeNode(Position.COMPILER_GENERATED, outer));
+            q = nf.This(cg,
+                        nf.CanonicalTypeNode(cg, outer));
         }
         
         q = q.type(outer);
