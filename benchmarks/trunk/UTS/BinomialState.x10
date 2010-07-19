@@ -237,6 +237,8 @@ final class BinomialState {
 				processLoot(loot);
 				assert (! init);
 				// Now you can return, the outer activity will handle the data on the stack.
+			    if (depth > 0) 
+					  distribute(st, depth+1);
 				return;
 			}
 		    counter.startLive();
