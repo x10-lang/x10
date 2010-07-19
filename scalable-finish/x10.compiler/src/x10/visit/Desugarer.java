@@ -144,6 +144,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name START_LOCAL_FINISH = Name.make("startLocalFinish");
     private static final Name START_SIMPLE_FINISH = Name.make("startSimpleFinish");
     private static final Name START_REALLY_SIMPLE_FINISH = Name.make("startReallySimpleFinish");
+    private static final Name START_REALLY_REALLY_SIMPLE_FINISH = Name.make("startReallyReallySimpleFinish");
     //
     private static final Name PUSH_EXCEPTION = Name.make("pushException");
     private static final Name STOP_FINISH = Name.make("stopFinish");
@@ -573,11 +574,12 @@ public class Desugarer extends ContextVisitor {
         	return call(pos, START_FINISH, xts.Void());
         }
     	return call(pos, START_LOCAL_FINISH, xts.Void());*/
-        System.out.println("pattern:"+p);
+        //System.out.println("pattern:"+p);
         switch(p){
         case 1:return call(pos, START_LOCAL_FINISH, xts.Void());
         case 2:return call(pos, START_SIMPLE_FINISH, xts.Void());
         case 3:return call(pos, START_REALLY_SIMPLE_FINISH, xts.Void());
+        case 4:return call(pos, START_REALLY_REALLY_SIMPLE_FINISH, xts.Void());
         //TODO:more patterns can be filled here
         default:return call(pos, START_FINISH, xts.Void());
         }
