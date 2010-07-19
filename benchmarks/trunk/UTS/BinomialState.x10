@@ -3,7 +3,7 @@ import x10.util.Random;
 import x10.lang.Math;
 
 final class BinomialState {
-	static class FixedSizeStack[T] {
+	final static class FixedSizeStack[T] {
 		val data:Rail[T];
 	    var last:Int;
 	    val size:Int;
@@ -150,15 +150,8 @@ final class BinomialState {
 			counter.incTxNodes(numToSteal*numToDistribute);
 			try {
 			  for (var i:Int=0; i < numToDistribute; i++) {
-				  if (thieves.size() <= 0) {
-					  event(true, "Attempting to pop an empty thief stack.");
-				  }
 				val thief = thieves.pop();
 				val loot = stack.pop(numToSteal);
-				assert loot != null;
-				if (loot == null) {
-					event(true, "loot is empty!");
-				}
 				event("Distributing " + loot.length() + " to " + thief);
 				val victim = here.id;
 				async (Place(thief)) 
@@ -236,6 +229,16 @@ final class BinomialState {
 
 	def launch(st:PLH, init:Boolean, loot:ValRail[SHA1Rand], depth:Int, source:Int) {
 		try {
+			if (stack.size() > 0) {
+				val n = loot == null ? 0 : loot.length;
+				assert (! init);
+				counter.incRx(depth > 0, n);
+				lifelinesActivated(source) = false;
+				if (n > 0)
+					for (l in loot)
+						stack.push(l);
+				return;
+			}
 		counter.startLive();
 		counter.updateDepth(depth);
 		val n = loot == null ? 0 : loot.length;
