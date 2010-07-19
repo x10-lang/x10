@@ -126,7 +126,11 @@ public class UTS {
 	    ()=>new BinomialState(qq, mf,k,nu, w, e, l, lifelineNetwork(here.id)));
 				Console.OUT.println("Starting...");
 				var time:Long = System.nanoTime();
+				try {
 				st().main(st, b0, SHA1Rand(r));
+				} catch (v:Throwable) {
+					v.printStackTrace();
+				}
 				time = System.nanoTime() - time;
 				Console.OUT.println("Finished.");
 				st().counter.stats(st, time, verbose);

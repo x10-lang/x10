@@ -3,14 +3,40 @@ import x10.util.Random;
 import x10.lang.Math;
 
 final class BinomialState {
-	var thief:Int; 
-    val thieves = new Stack[Int](); 
+	static class FixedSizeStack[T] {
+		val data:Rail[T];
+	    var last:Int;
+	    val size:Int;
+		def this(n:Int, t:T) {
+			data = Rail.make[T](n, (i:Int) => t);
+			last = -1;
+			size= n;
+		}
+		def empty():Boolean= last < 0;
+		def pop():T {
+			if (empty())
+				throw new Error("Popping an empty stack");
+			val result = data(last);
+			last--;
+			return result;
+		}
+		def push(t:T) {
+			if (last >= size-1)
+				throw new Error("Pushing onto a full stack");
+			last++;
+			data(last)=t;
+		}
+		def size():Int=last+1;
+		
+	}
+    val thieves:FixedSizeStack[Int]!;
+	
 	val width:Int;
-	// var lifelines:Long=0L;
-	// var lifelineNodes:Long=0L;
 	val stack = new Stack[UTS.SHA1Rand]();
 	// My outgoing lifelines.
     val myLifelines:ValRail[Int];
+	// Which of the lifelines have I actually activated?
+	val lifelinesActivated: Rail[Boolean];
 
 	val q:Long, m:Int, k:Int, nu:Int, l:Int;
 	val logEvents:Boolean;
@@ -27,10 +53,10 @@ final class BinomialState {
 		this.q = q; this.m = m; this.k=k; this.nu=nu; this.l = l;
         this.myLifelines = lifelineNetwork;
 		width=w;
-		thief= -1;
 		logEvents=e;
-
-    // printLifelineNetwork();
+		thieves = new FixedSizeStack[Int](Place.MAX_PLACES, 0);
+		lifelinesActivated = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
+		printLifelineNetwork();
 	}
 
   def printLifelineNetwork () {
@@ -73,7 +99,7 @@ final class BinomialState {
 	}
 
 	/** Return an array of "k" elements popped from the local stack.*/
-	final def pop(k:Int) = ValRail.make[SHA1Rand](k, (int)=> stack.pop());
+	//final def pop(k:Int) = ValRail.make[SHA1Rand](k, (int)=> stack.pop());
 
   /** A trivial function to calculate minimum of 2 integers */
 	def min(i:int,j:int) = i < j ? i : j;
@@ -118,15 +144,29 @@ final class BinomialState {
 	 */
 	def distribute(st:PLH, depth:Int) {
 		val numThieves = thieves.size();
-		var numToDistribute:Int = 1+ Math.min(numThieves, stack.size() - 1);
-		if (numToDistribute > 1) {
-			val numToSteal = stack.size()/numToDistribute;
-			counter.incTxNodes(numToSteal*(numToDistribute-1));
-			for (var i:Int=0; i < numToDistribute; i++) {
+		var numToDistribute:Int = Math.min(numThieves, stack.size()-1);
+		if (numToDistribute > 0) {
+			val numToSteal = stack.size()/(numToDistribute+1);
+			counter.incTxNodes(numToSteal*numToDistribute);
+			try {
+			  for (var i:Int=0; i < numToDistribute; i++) {
+				  if (thieves.size() <= 0) {
+					  event(true, "Attempting to pop an empty thief stack.");
+				  }
 				val thief = thieves.pop();
 				val loot = stack.pop(numToSteal);
-				async (Place(thief)) st().launch(st, false, loot, depth);
-			}	
+				assert loot != null;
+				if (loot == null) {
+					event(true, "loot is empty!");
+				}
+				event("Distributing " + loot.length() + " to " + thief);
+				val victim = here.id;
+				async (Place(thief)) 
+				  st().launch(st, false, loot, depth, victim);
+			  }	
+			} catch (v:Throwable){
+				v.printStackTrace();
+			}
 		}
   }
 
@@ -155,19 +195,23 @@ final class BinomialState {
 			   return loot;
 		    }
 		}
-		event("No loot; establishing lifeline.");
+		event("No loot; establishing lifeline(s).");
 
-    // resigned to make a lifeline steal from one of our lifelines.
-    var loot:ValRail[SHA1Rand] = null;
-    for (var i:Int=0; i<myLifelines.length(); ++i) {
-      val lifeline:Int = myLifelines(i);
-      if (-1 != lifeline) {
-        loot = at(Place(lifeline)) st().trySteal(p, true);
-        event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
-        if (null!=loot) break;
-      }
-    }
-    return loot;
+        // resigned to make a lifeline steal from one of our lifelines.
+        var loot:ValRail[SHA1Rand] = null;
+        for (var i:Int=0; i<myLifelines.length(); ++i) {
+          val lifeline:Int = myLifelines(i);
+          if (-1 != lifeline && ! lifelinesActivated(lifeline)) {
+             loot = at(Place(lifeline)) st().trySteal(p, true);
+             event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
+             if (null!=loot) break;
+             // ok, in this case the lifeline has been recorded.
+             // ensure that you do not again make a request to this buddy
+             // until he responds to the earlier request with loot.
+             lifelinesActivated(lifeline) = true;
+          }
+        }
+        return loot;
 	}
 
 	/** Try to steal from the local stack --- invoked by either a 
@@ -180,9 +224,8 @@ final class BinomialState {
 		counter.incStealsReceived();
 		val length = stack.size();
 		if (length <= 2) {
-			if (isLifeLine) {
-				thieves.push(p);
-			}
+			if (isLifeLine)
+		      thieves.push(p);
 			event("Returning null");
 			return null;
 		}
@@ -191,12 +234,14 @@ final class BinomialState {
 		return stack.pop(numSteals);
 	}
 
-	def launch(st:PLH, init:Boolean, loot:ValRail[SHA1Rand], depth:Int) {
+	def launch(st:PLH, init:Boolean, loot:ValRail[SHA1Rand], depth:Int, source:Int) {
+		try {
 		counter.startLive();
 		counter.updateDepth(depth);
 		val n = loot == null ? 0 : loot.length;
 		if (! init) {
 			counter.incRx(depth > 0, n);
+			lifelinesActivated(source) = false;
 		}
 		if (loot != null) {
 			val time = System.nanoTime();
@@ -206,6 +251,13 @@ final class BinomialState {
 		if (depth > 0) distribute(st, depth+1);
 		processStack(st);
 		counter.stopLive();
+		} catch (v:Throwable) {
+			Console.OUT.println("Exception at " + here);
+			v.printStackTrace();
+		} catch (v:Error) {
+			Console.OUT.println("Exception at " + here);
+			v.printStackTrace();
+		}
 	}
 
 	/** Called only for the root node. Processes all the children of 
@@ -224,9 +276,9 @@ final class BinomialState {
 			processSubtree(rng, b0);
 			val lootSize = stack.size()/P;
 			for (var pi:Int=1 ; pi<P ; ++pi) {
-				val loot = pop(lootSize);
+				val loot = stack.pop(lootSize);
 				async (Place(pi))
-				   st().launch(st, true, loot, 1);
+				   st().launch(st, true, loot, 1, 0);
 			}
 			processStack(st);
 			event("Finish main");
