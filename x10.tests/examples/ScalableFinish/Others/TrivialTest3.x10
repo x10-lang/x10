@@ -21,7 +21,7 @@ public class TrivialTest3 extends x10Test {
 	var flag: boolean = false;
 	
         
-        public def f1():void {
+        public def f1(args: Rail[String]){
 	
 	var i:int = 1;
 i++;
@@ -32,9 +32,11 @@ i++;
         public def run() {
 		
                 //TODO: test code
-      finish{
-        	async{}
-        }
+                val s = Rail.make[String](0);
+                f1(s);
+      //finish{
+      //  	async{}
+       // }
       /*var f:boolean  = true;
       if(f){
     	  f1();
