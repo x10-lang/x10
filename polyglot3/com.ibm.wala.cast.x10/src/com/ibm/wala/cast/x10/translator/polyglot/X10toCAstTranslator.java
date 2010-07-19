@@ -129,7 +129,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     }
 
     public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, X10ExtensionInfo extInfo) {
-	super(clr, nf, extInfo.typeSystem(), extInfo.getIdentityMapper());
+	super(clr, nf, extInfo.typeSystem(), extInfo.getIdentityMapper(), extInfo.getReplicateForDoLoops());
     }
 
     protected TranslatingVisitor createTranslator() {
