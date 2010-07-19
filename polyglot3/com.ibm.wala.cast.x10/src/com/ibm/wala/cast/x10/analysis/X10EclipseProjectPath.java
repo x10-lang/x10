@@ -17,7 +17,7 @@ import com.ibm.wala.ide.util.EclipseProjectPath;
 public class X10EclipseProjectPath extends EclipseProjectPath {
 
     public X10EclipseProjectPath(IJavaProject project) throws IOException, CoreException {
-	super(project, true, false);
+	super(project, AnalysisScopeType.SOURCE_FOR_PROJ);
     }
 
     @Override
