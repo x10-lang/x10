@@ -33,7 +33,7 @@ public final class Configuration extends x10.config.Configuration {
      */
     public static final ConfigurationError LOAD_ERROR;
 
-    public static boolean CHECK_INVARIANTS = true;
+    public static boolean CHECK_INVARIANTS = false;
     private static final String CHECK_INVARIANTS_desc = "Check AST invariants such as position containment, existance of xxxInstance(), etc";
 
     public static boolean ONLY_TYPE_CHECKING = false;
