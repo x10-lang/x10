@@ -42,6 +42,7 @@ public class PAdicNumber(P:Int, K:Int) {
 		return result;
 	}
 	
+  /*
   public static def main(args: Rail[String]!) {
 	  val n = args.length;
 	  if (n < 2) {
@@ -66,5 +67,5 @@ public class PAdicNumber(P:Int, K:Int) {
 		  }
 	  }
 	  Console.OUT.println("done.");
-  }
+  } */
 }
