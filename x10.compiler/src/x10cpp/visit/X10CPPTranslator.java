@@ -223,9 +223,9 @@ public class X10CPPTranslator extends Translator {
     	File dest_path = new File(dest_path_);
     	// don't copy if the two dirs are the same...
     	if (src_path.equals(dest_path)) return;
-    	assert src_path.isDirectory() : src_path_;
-    	assert dest_path.isDirectory() : dest_path_;
     	if (!dest_path.exists()) dest_path.mkdir();
+    	assert src_path.isDirectory() : src_path_+" is not a directory";
+    	assert dest_path.isDirectory() : dest_path_+" is not a directory";
     	try {
 			FileInputStream src = new FileInputStream(new File(src_path_+file));
 	    	FileOutputStream dest = new FileOutputStream(new File(dest_path_+file));
