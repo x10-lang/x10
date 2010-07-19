@@ -15,10 +15,8 @@ import x10.io.Console;
  * The classic hello world program, shows how to output to the console.
  */
 class HelloWorld {
-  public static def main(args:Rail[String]):void {
-     at (here.next()) {
-     	Console.OUT.println("Hello World from place "+here.id);
-     }
+  public static def main(args:Rail[String]) {
+   	Console.OUT.println("Hello World!" );
   }
 }
 
