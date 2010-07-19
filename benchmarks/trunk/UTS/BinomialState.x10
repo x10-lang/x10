@@ -56,7 +56,7 @@ final class BinomialState {
 		logEvents=e;
 		thieves = new FixedSizeStack[Int](Place.MAX_PLACES, 0);
 		lifelinesActivated = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
-		printLifelineNetwork();
+		// printLifelineNetwork();
 	}
 
   def printLifelineNetwork () {
@@ -150,12 +150,14 @@ final class BinomialState {
 			counter.incTxNodes(numToSteal*numToDistribute);
 			try {
 			  for (var i:Int=0; i < numToDistribute; i++) {
-				val thief = thieves.pop();
-				val loot = stack.pop(numToSteal);
-				event("Distributing " + loot.length() + " to " + thief);
-				val victim = here.id;
-				async (Place(thief)) 
-				  st().launch(st, false, loot, depth, victim);
+				  if (stack.size() > numToSteal) {
+				    val thief = thieves.pop();
+				    val loot = stack.pop(numToSteal);
+				    event("Distributing " + loot.length() + " to " + thief);
+				    val victim = here.id;
+				    async (Place(thief)) 
+				      st().launch(st, false, loot, depth, victim);
+				  }
 			  }	
 			} catch (v:Throwable){
 				v.printStackTrace();
@@ -175,35 +177,39 @@ final class BinomialState {
 		val P = Place.MAX_PLACES;
 		if (P == 1) return null;
 		val p = here.id;
-		   for (var i:Int=0; i < width; i++) {
-			  var q_:Int = 0;
-		    while((q_ =  myRandom.nextInt(P)) == p) ;
-		    val q = q_;
-		    counter.incStealsAttempted();
-		    event("Stealing from " + q);
-		    val loot = at (Place(q)) st().trySteal(p);
-		    if (loot != null) {
-			   event("Steal succeeded with " + 
+		for (var i:Int=0; i < width; i++) {
+		   if (stack.size() > 0)
+			 break;
+		   var q_:Int = 0;
+		   while((q_ =  myRandom.nextInt(P)) == p) ;
+		   val q = q_;
+		   counter.incStealsAttempted();
+		   event("Stealing from " + q);
+		   val loot = at (Place(q)) st().trySteal(p);
+		   if (loot != null) {
+			  event("Steal succeeded with " + 
 					(loot == null ? 0 : loot.length()) + " items");
-			   return loot;
-		    }
+			  return loot;
+		   }
 		}
 		event("No loot; establishing lifeline(s).");
 
-        // resigned to make a lifeline steal from one of our lifelines.
-        var loot:ValRail[SHA1Rand] = null;
-        for (var i:Int=0; i<myLifelines.length(); ++i) {
-          val lifeline:Int = myLifelines(i);
-          if (-1 != lifeline && ! lifelinesActivated(lifeline)) {
-             loot = at(Place(lifeline)) st().trySteal(p, true);
-             event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
-             if (null!=loot) break;
-             // ok, in this case the lifeline has been recorded.
-             // ensure that you do not again make a request to this buddy
-             // until he responds to the earlier request with loot.
-             lifelinesActivated(lifeline) = true;
-          }
-        }
+			// resigned to make a lifeline steal from one of our lifelines.
+			var loot:ValRail[SHA1Rand] = null;
+		    for (var i:Int=0; i<myLifelines.length(); ++i) {
+			   val lifeline:Int = myLifelines(i);
+		       if (-1 != lifeline && ! lifelinesActivated(lifeline) 
+		    		   && stack.size() == 0 // help has not arrived fron others yet...
+		    		   ) {
+			      loot = at(Place(lifeline)) st().trySteal(p, true);
+			      event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
+			      if (null!=loot) break;
+			      // ok, in this case the lifeline has been recorded.
+			      // ensure that you do not again make a request to this buddy
+			      // until he responds to the earlier request with loot.
+			      lifelinesActivated(lifeline) = true;
+		       }
+		     }
         return loot;
 	}
 
@@ -229,11 +235,10 @@ final class BinomialState {
 
 	def launch(st:PLH, init:Boolean, loot:ValRail[SHA1Rand], depth:Int, source:Int) {
 		try {
+			lifelinesActivated(source) = false;
 			if (stack.size() > 0) {
 				val n = loot == null ? 0 : loot.length;
 				assert (! init);
-				counter.incRx(depth > 0, n);
-				lifelinesActivated(source) = false;
 				if (n > 0)
 					for (l in loot)
 						stack.push(l);
@@ -244,7 +249,6 @@ final class BinomialState {
 		val n = loot == null ? 0 : loot.length;
 		if (! init) {
 			counter.incRx(depth > 0, n);
-			lifelinesActivated(source) = false;
 		}
 		if (loot != null) {
 			val time = System.nanoTime();
