@@ -181,9 +181,8 @@ final class ParUTS {
 	 our lifeline buddy.
 	 */
 	final def processStack(st:PLH) {
-		var N:Int=0;
-		while ((N=stack.size()) > 0) {
-			var n:Int = min(N, nu);
+		while (true) {
+			var n:Int = min(stack.size(), nu);
 			while (n > 0) {
 				processAtMostN(n);
 				Runtime.probe();
@@ -191,7 +190,12 @@ final class ParUTS {
 				n = min(stack.size(), nu);
 			}
 			val loot = attemptSteal(st);
-			processLoot(loot,false);
+      if (null==loot) { 
+        if (stack.size()>0) continue;
+        else break;
+      } else {
+			  processLoot(loot, false);
+      }
 		}
 	  event("Finished main loop.");
 	}
