@@ -181,8 +181,9 @@ final class ParUTS {
 	 our lifeline buddy.
 	 */
 	final def processStack(st:PLH) {
-		while (stack.size() > 0) {
-			var n:Int = min(stack.size(), nu);
+		var N:Int=0;
+		while ((N=stack.size()) > 0) {
+			var n:Int = min(N, nu);
 			while (n > 0) {
 				processAtMostN(n);
 				Runtime.probe();
@@ -199,12 +200,13 @@ final class ParUTS {
    of nodes, give him half (i.e, launch a remote async).
 	 */
 	def distribute(st:PLH, depth:Int) {
-		while (stack.size() > 1 && thieves.size() > 0) {
+		var N:Int=0;
+		while ((N=stack.size()) > 1 && thieves.size() > 0) {
 			val thief=thieves.pop();
-			val numToSteal = stack.size()/2;
+			val numToSteal = N/2;
 			val loot = stack.pop(numToSteal);
 			counter.incTxNodes(numToSteal);
-			event("Distributing " + loot.length() + " to " + thief);
+			// event("Distributing " + loot.length() + " to " + thief);
 		    val victim = here.id;
 		    // During this communication, you may process (a)
 		    // incoming thefts, this reduces stack, (b) incoming
@@ -231,13 +233,13 @@ final class ParUTS {
 		   while((q_ =  myRandom.nextInt(P)) == p) ;
 		   val q = q_;
 		   counter.incStealsAttempted();
-		   event("Stealing from " + q);
+		   // event("Stealing from " + q);
 		   // Potential communication attempt.
 		   // May receive incoming thefts or distributions.
 		   val loot = at (Place(q)) st().trySteal(p);
 		   if (loot != null) {
-			  event("Steal succeeded with " + 
-					(loot == null ? 0 : loot.length()) + " items");
+			  //event("Steal succeeded with " + 
+					//(loot == null ? 0 : loot.length()) + " items");
 			  return loot;
 		   }
 		}
@@ -250,7 +252,7 @@ final class ParUTS {
 		    if (-1 != lifeline && ! lifelinesActivated(lifeline) ) {
 		    	 lifelinesActivated(lifeline) = true;
 			   loot = at(Place(lifeline)) st().trySteal(p, true);
-			   event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
+			   // event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
 			   if (null!=loot) {
 				   lifelinesActivated(lifeline) = false;
 				   break;
@@ -340,7 +342,9 @@ final class ParUTS {
 				   st().launch(st, true, loot, 0, 0);
 				counter.incTxNodes(lootSize);
 			}
+      active=true;
 			processStack(st);
+      active=false;
 			event("Finish main");
 		} 
 		event("End main finish");
