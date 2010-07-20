@@ -16,7 +16,7 @@ the Rails and Arrays that are worth highlighting.
     on Rails because we want to allow Arrays to be defined over user-defined
     Regions. Therefore we must incur one virtual function call when
     performing a bounds check on Array.  NO_CHECKS performance of Rails
-    and Arrays is believe to be equivalent. 
+    and Arrays is believed to be equivalent. 
 
 No significant language changes were made since the 2.0.4 release.
 For details on any minor language changes, please consult the
