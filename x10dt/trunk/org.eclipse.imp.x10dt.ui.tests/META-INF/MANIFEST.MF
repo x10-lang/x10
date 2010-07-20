@@ -5,6 +5,6 @@ Bundle-SymbolicName: org.eclipse.imp.x10dt.ui.tests
 Bundle-Version: 2.0.4.qualifier
 Fragment-Host: org.eclipse.imp.x10dt.ui;bundle-version="2.0.4"
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.junit.addons;bundle-version="1.4.0",
  org.junit4;bundle-version="4.5.0"
