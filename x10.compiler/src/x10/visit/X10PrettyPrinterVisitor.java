@@ -20,37 +20,49 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import polyglot.ast.Assert_c;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block_c;
+import polyglot.ast.Branch_c;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Catch;
-import polyglot.ast.ClassMember;
+import polyglot.ast.Catch_c;
+import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall;
+import polyglot.ast.Empty_c;
+import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign_c;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
+import polyglot.ast.FlagsNode_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.Id;
 import polyglot.ast.Id_c;
+import polyglot.ast.If_c;
 import polyglot.ast.Import_c;
 import polyglot.ast.IntLit_c;
 import polyglot.ast.Labeled_c;
 import polyglot.ast.Lit;
+import polyglot.ast.Lit_c;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign_c;
+import polyglot.ast.Local_c;
 import polyglot.ast.Loop_c;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.PackageNode_c;
 import polyglot.ast.Receiver;
+import polyglot.ast.Return_c;
 import polyglot.ast.Special;
 import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
 import polyglot.ast.Throw;
+import polyglot.ast.Throw_c;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -78,6 +90,7 @@ import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import x10.Configuration;
+import x10.ast.AssignPropertyBody_c;
 import x10.ast.Async_c;
 import x10.ast.AtEach_c;
 import x10.ast.AtExpr_c;
@@ -97,20 +110,24 @@ import x10.ast.Here_c;
 import x10.ast.Next_c;
 import x10.ast.Now_c;
 import x10.ast.ParExpr;
+import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
 import x10.ast.SettableAssign_c;
 import x10.ast.StmtExpr_c;
+import x10.ast.StmtSeq_c;
 import x10.ast.SubtypeTest_c;
 import x10.ast.Tuple_c;
 import x10.ast.TypeDecl_c;
 import x10.ast.TypeParamNode;
+import x10.ast.TypeParamNode_c;
 import x10.ast.When_c;
 import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Cast_c;
+import x10.ast.X10ClassBody_c;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
@@ -203,7 +220,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (n instanceof X10CBackingArray_c) {visit((X10CBackingArray_c) n);return;}
 	    if (n instanceof X10CBackingArrayAccess_c) {visit((X10CBackingArrayAccess_c) n); return;} 
 	    if (n instanceof X10CBackingArrayAccessAssign_c) {visit((X10CBackingArrayAccessAssign_c)n); return;}
-
+	    
+	    if (n instanceof FlagsNode_c) {visit((FlagsNode_c)n); return;}
+	    if (n instanceof TypeParamNode_c) {visit((TypeParamNode_c)n); return;}
+	    
+	    System.err.println(n.position() + ": Unhandled node type: " + n.getClass());
 	    // FIXME
 //    	    tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
 // 	        "Unhandled node type: "+n.getClass(), n.position());
@@ -211,6 +232,68 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    // Don't call through del; that would be recursive.
 	    n.translate(w, tr);
     	}
+
+	public void visit(FlagsNode_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(TypeParamNode_c n) {
+	    n.translate(w, tr);
+	}
+
+	public void visit(X10ClassBody_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(PackageNode_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Loop_c n) {
+            n.translate(w, tr);
+        }
+	public void visit(Return_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Eval_c n) {
+            n.translate(w, tr);
+	}
+	public void visit(Local_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Lit_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(If_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Conditional_c n) {
+            n.translate(w, tr);
+	}
+	public void visit(ParExpr_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Unary_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(StmtSeq_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Branch_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(AssignPropertyBody_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Throw_c n) {
+            n.translate(w, tr);
+	}
+	public void visit(Catch_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Empty_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Assert_c n) {
+	    n.translate(w, tr);
+	}
 
 	public void visit(Block_c n) {
 	    String s = er.getJavaImplForStmt(n, (X10TypeSystem) tr.typeSystem());
@@ -2174,7 +2257,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Formal_c f) {
 		if (f.name().id().toString().equals(""))
 			f = (Formal_c) f.name(f.name().id(Name.makeFresh("a")));
-		visit((Node) f);
+		f.translate(w, tr);
 	}
 
 	public void visit(ForLoop_c f) {
@@ -2372,7 +2455,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				w.write(Emitter.mangleToJava(n.name().id()));
 			} else
 				// WARNING: it's important to delegate to the appropriate visit() here!
-				visit((Node)n);
+			        n.translate(w, tr);
 
 		}
 
