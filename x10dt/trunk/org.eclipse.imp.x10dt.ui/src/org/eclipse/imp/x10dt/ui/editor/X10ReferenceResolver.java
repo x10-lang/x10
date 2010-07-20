@@ -27,6 +27,7 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
+import polyglot.types.ClassDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
@@ -35,6 +36,10 @@ import polyglot.visit.NodeVisitor;
 public class X10ReferenceResolver implements IReferenceResolver, ILanguageService {
     /**
      * Get the target for a given referencing source node in the AST represented by a given ParseController.
+     * defs
+     * 
+     * 
+     * 
      */
     public Object getLinkTarget(Object node, IParseController parseController) {
         if (node instanceof Ambiguous) {
@@ -44,13 +49,35 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
             Id id= (Id) node;
             node= findParent(id, parseController);
         }
+        
         if (node instanceof TypeNode) {
-            Object grandparent = findParent((Node)node, parseController);
-            if (grandparent instanceof ConstructorDecl || grandparent instanceof ClassDecl) { //MV
-                node=grandparent;
-            }
-            
+          Object grandparent = findParent((Node)node, parseController);
+          if (grandparent instanceof ConstructorDecl) { //MV
+              node=grandparent;
+              //return node;
+          }
         }
+        	
+        
+//        if (node instanceof TypeNode) {
+//            Object grandparent = findParent((Node)node, parseController);
+//            if (grandparent instanceof ConstructorDecl) { //MV
+//                node=grandparent;
+//            }
+//            
+//            else if (grandparent instanceof ClassDecl)
+//            {
+//	            if(((TypeNode)node).type().toString().equals("x10.lang.Object"))
+//	            {
+//	            	node=grandparent;
+//	            }
+//	            
+//	            else
+//	            {
+//	            	
+//	            }
+//            }
+//        }
         if (node instanceof TypeNode) {
             TypeNode typeNode= (TypeNode) node;
             PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getSourcePositionLocator();

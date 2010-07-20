@@ -12,28 +12,21 @@
 package org.eclipse.imp.x10dt.ui.editor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
+import java.util.jar.JarFile;
 
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.services.IDocumentationProvider;
 import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.ui.JavadocContentAccess;
 
-import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
@@ -55,7 +48,6 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
-import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
@@ -65,8 +57,8 @@ import polyglot.types.ReferenceType;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
-import polyglot.types.VarInstance;
 import polyglot.util.Position;
+import x10.types.ConstrainedType;
 
 /**
  * Provide  info for Hover Help and context help
@@ -92,294 +84,239 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
         return doc;
     }
 
-	/**
-	 * Provides javadoc-like info (if available) and more for a variety of entities
-	 */
-	public String getHelpForEntity(Object target, IParseController parseController) {
-		try {
-		Node root = (Node) parseController.getCurrentAst();
-
+    private Object getTarget(Object target, IParseController parseController, Node root)
+    {
 		if (target instanceof Id) {
 			Id id = (Id) target;
-			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController.getSourcePositionLocator();
+			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController
+					.getSourcePositionLocator();
 			Node parent = (Node) locator.getParentNodeOf(id, root);
 			target = parent;
 		}
 
 		if (target instanceof Field) { // field reference
-			
 			Field field = (Field) target;
 			FieldInstance fi = field.fieldInstance();
 			target = fi;
-		}
-		else if (target instanceof FieldDef) {
-		    FieldInstance fi = ((FieldDef) target).asInstance();
-		    target = fi;
-		}
-		else if (target instanceof FieldDecl) {
+		} else if (target instanceof FieldDef) {
+			FieldInstance fi = ((FieldDef) target).asInstance();
+			target = fi;
+		} else if (target instanceof FieldDecl) {
 			FieldDecl fieldDecl = (FieldDecl) target;
-			FieldInstance fi = fieldDecl.fieldDef().asInstance(); // PORT 1.7 was fieldDecl.fieldInstance();
+			FieldInstance fi = fieldDecl.fieldDef().asInstance(); // PORT 1.7
+																	// was
+																	// fieldDecl.fieldInstance();
 			target = fi;
 		}
-		if (target instanceof Local) { // field reference	
+		
+		if (target instanceof Local) { // field reference
 			Local local = (Local) target;
 			LocalInstance li = local.localInstance();
 			target = li;
-		}
-		else if (target instanceof LocalDecl) {
+		} else if (target instanceof LocalDecl) {
 			LocalDecl localDecl = (LocalDecl) target;
-			LocalDef ld= localDecl.localDef();
+			LocalDef ld = localDecl.localDef();
 			if (ld == null)
-			    return null;
-            LocalInstance li = ld.asInstance(); // PORT1.7   was localDecl.localInstance();
-			target = li;		
+				return null;
+			LocalInstance li = ld.asInstance(); // PORT1.7 was
+												// localDecl.localInstance();
+			target = li;
+		} else if (target instanceof LocalDef) { // field reference
+			target = ((LocalDef) target).asInstance();
 		}
-		if (target instanceof FieldInstance) {
-			FieldInstance fi = (FieldInstance) target;
-			ReferenceType ownerType = fi.container().toReference(); // PORT1.7 cast must succeed?  was fi.container();
-
-			if (ownerType.isClass()) {
-				ClassType ownerClass = (ClassType) ownerType;
-				String ownerName = ownerClass.fullName().toString(); // PORT1.7 was fullname();
-				if (isJavaType(ownerName)) {
-					IType javaType = findJavaType(ownerName, parseController);
-					IField javaField = javaType.getField(fi.name().toString()); // PORT1.7  was fi.name();
-
-					return getJavaDocFor(javaField);
-				} else {
-					//String sig = fi.toString();  // field int Class.varName
-					String type = fi.type().toString(); // int   or pkg.TypeName; want TypeName only
-					type=unqualify(type);//FIXME must be a better way to get simple type, not fully qualified type
-					//sig= fi.declaration().toString();
-					String varName=fi.name().toString();  // PORT 1.7 was just name();
-					String sig = type+" "+ownerName+"."+varName;
-
-					return getX10DocFor(sig,fi);  // 2nd arg needs to be Node
-				}
-			}
-			return "Field '" + fi.name() + "' of type " + fi.type().toString();
-		} else if (target instanceof NamedVariable) {
-			NamedVariable var = (NamedVariable) target;
-			
-			Type type = var.type();
-
-			return "Variable '" + var + "' of type " + type.toString(); //PORT1.7 var.name() changed to var (implicit toString())
-		} else if (target instanceof Call) {
-			if(traceOn)System.out.println("==>Call");
-			Call call = (Call) target;
-			MethodInstance mi = call.methodInstance();
-			if (mi == null)
-			    return null;
-			ObjectType ownerType = (ObjectType)mi.container();//PORT1.7 ReferenceType->ObjectType.  We assume the cast will succeed.
-
-			if (ownerType.isClass()) {
-				ClassType ownerClass = (ClassType) ownerType;
-				String ownerName = ownerClass.fullName().toString();//PORT1.7 fullName() no longer returns a string
-				//String fullName =ownerName+"."+mi.name();
-
-				if (isJavaType(ownerName)) {
-					IType javaType = findJavaType(ownerName, parseController);
-					String[] paramTypes = convertParamTypes(mi);
-					IMethod method = javaType.getMethod(mi.name().toString(), paramTypes);//PORT1.7 name() no longer returns String
-
-					return getJavaDocFor(method);
-				} else {
-					String sig = getSignature(mi);               
-					return getX10DocFor(sig, mi);
-				}
-			}
-			return "Method " + mi.signature() + " of type " + mi.container().toString();
-		} else if (target instanceof VarInstance) {
-			// local var, parm, (java or x10) or field
-			// won't fall thru to Declaration
-			VarInstance var = (VarInstance) target;
-
-			// do we need something here? Or is it being taken care of elsewhere?		
-		/*} else if (target instanceof MethodDef) {
-		    MethodDef methodDef = (MethodDef) target;
-		    return "Method " + methodDef.container().get() + "." + methodDef.signature();
-		    */
-	//	} else if (target instanceof MethodInstance || target instanceof ConstructorInstance) {
-		} else if (target instanceof MethodDef || target instanceof ConstructorDef) {
-			if (target instanceof MethodDef){
-				target = ((MethodDef)target).asInstance();
-			} else if (target instanceof ConstructorDef){
-				target = ((ConstructorDef)target).asInstance();
-			}
-			if(traceOn)System.out.println("==>MethodInstance or ConstructorInstance");
-			//we get different info from different interfaces, so make them both for use here:
-			MemberInstance memi = (MemberInstance) target;
-			ProcedureInstance pi = (ProcedureInstance)target;
-			 
-			
-			if (isJavaMember(memi)) {   
-				StructType rt=memi.container();//PORT1.7  ReferenceType -> StructType
-				// if java then we can omit the 'java.lang' prefix ... TBD
-				if (rt instanceof ClassType) {
-					ClassType ct = (ClassType) rt;
-					String fullname=ct.fullName().toString(); //PORT1.7  fullName no longer returns a String
-					IType it = findJavaType(fullname, parseController);
-					String[] paramTypes = convertParamTypes(pi);
-					String mname = null;
-					if (pi instanceof ConstructorInstance) {
-						mname = ct.name().toString();  //PORT1.7 name() no longer returns a String
-					} else {
-						mname = ((MethodInstance) pi).name().toString();  //PORT1.7 name() no longer returns a String
-					}
-					IMethod method = it.getMethod(mname, paramTypes);
-					fullname=fullname+"."+mname;  // add args?
-					String doc = getJavaDocFor(fullname, method);
-					return doc;
-				}
-			} else { // x10
-				 /*
-				Declaration mti = (Declaration) target;
-				String sig ="?";
-				ReferenceType rt = memi.container();
-				if(rt instanceof ClassType) {
-					//name=((ClassType)rt).name(); //w/o pkg name
-					name=((ClassType)rt).fullName();
-				} else {
-					MethodInstance mi = (MethodInstance) target;
-					name = mi.name();  
-					List types = mi.formalTypes();  // args???
-					int numArgs=types.size();
-					sig=getSignature(mi);
-				}
-				*/
-				if(target instanceof MethodInstance) {
-					MethodInstance mi = (MethodInstance) target;
-					String sig=getSignature(mi);
-					String doc = getX10DocFor(sig,mi);
-					return doc;
-				}else { // constructorInstance
-					ConstructorInstance ci = (ConstructorInstance)target;
-					String name="(name)";
-					String t=ci.toString();
-					StructType rt = ci.container();//PORT1.7  ReferenceType -> StructType
-					if(rt instanceof Named) {
-						Named named = (Named) rt;
-						//name=named.name().toString();//PORT1.7 name() no longer returns a String
-						name=named.fullName().toString();//PORT1.7 fullName() no longer returns a String
-					}
-					String args=formatArgs(ci.formalTypes());
-					String sig=name+args;
-					String doc = getX10DocFor(sig, ci);
-					return doc;
-				}
-
-			}
-			
-		} 
-		else if (target instanceof ClassType) {  
-			ClassType ct = (ClassType) target;
-			String qualifiedName =ct.fullName().toString();//PORT1.7 fullName() no longer returns a String
-
-			if (isJavaType(qualifiedName)) { 
-				IType javaType = findJavaType(qualifiedName, parseController);
-				String doc = getJavaDocFor(javaType); 
-				return doc;
-			} else {
-				return getX10DocFor(qualifiedName, ct);
-			}
-			
-		} else if (target instanceof ClassDecl) {
-			ClassDecl cd = (ClassDecl)target;
-			String name=cd.name().id().toString();//PORT1.7 want fullname, how to get from ClassDecl?
-			ClassDef cdef= cd.classDef();
-			if (cdef == null)
-			    return null;
-            String fullName = cdef.fullName().toString(); ////PORT1.7 is this right?? ask Nate
-			String doc = getX10DocFor(fullName,cd);
-			return doc;
-		}
-		else if (target instanceof MethodDecl) {
-			MethodDecl md = (MethodDecl) target;
-			String tempNameMd=md.toString();// does not include pkg info: public int foo(...);
-			MethodDef mdef= md.methodDef();
-			if (mdef == null)
-			    return null;
-			MethodInstance mi=mdef.asInstance();//PORT1.7 was md.methodInstance();
-			String tempName=mi.toString(); // lots of info: method public int my.pkg.foo(type,type);
-			String name="";
-			MethodInstance test;
-			String sig = md.methodDef().signature();//PORT1.7 see what this returns.  arg names too???
-			//String sig = mi.signature();// doesn't include arg names, just types
-				 
-			StructType rt = mi.container();//PORT1.7  ReferenceType -> StructType
-			if(rt instanceof ClassType) {
-				ClassType ct = (ClassType) rt;
-				name =ct.fullName().toString();// includes package info		//PORT1.7 fullName() no longer returns a String
-			}
-			name = getSignature(mi,md);	
-			String doc = getX10DocFor(name, md);//PORT1.7 md is a Node; was md.methodInstance()
-			return doc;
-		} else if (target instanceof FieldDecl) {
-			FieldDecl fd = (FieldDecl) target;
-			FieldInstance fi = fd.fieldDef().asInstance();//PORT1.7 was fd.fieldInstance();
-			return getX10DocFor(fi);
-		}
-
-		else if (target instanceof TypeNode) {
-			TypeNode typeNode = (TypeNode) target;
-			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController.getSourcePositionLocator();
-			Node parent = (Node) locator.getParentNodeOf(target, root);
-
-			if (parent instanceof ConstructorDecl) {
-				ConstructorDecl cd = (ConstructorDecl) parent;
-				//String id = cd.id().toString();//shortname
-				//String name = typeNode.name();//shortname
-				String fullName = typeNode.toString();// FIXME better way of getting fully qualified name, incl. pkg info??
-				
-				// get Constructor args, if any
-				String sig=fullName+formatArgs(cd.formals()); 
-				ConstructorInstance ci = cd.constructorDef().asInstance(); //PORT1.7 was cd.constructorInstance();
-				return getX10DocFor(sig, ci);  //PORT1.7 use local variable
-			} else if (parent instanceof New) {
-				New n = (New) parent;		
-				return getX10DocFor(n.constructorInstance());
-			} else {
-				Type type = typeNode.type();
-				if (type == null)
-				    return null;
-				String qualifiedName = typeNode.qualifierRef().get().toString();//PORT1.7 was qualifier()->qualifierRef().get()
-				qualifiedName = stripArraySuffixes(qualifiedName);
-				return getJavaOrX10DocFor(qualifiedName, type, parseController); 
-			}
-		}
-		else if (target instanceof ClassType) {
-			ClassType type = (ClassType)target;
-			String qualifiedName = type.fullName().toString();//PORT1.7 fullName()->fullName().toString()
-			qualifiedName = stripArraySuffixes(qualifiedName);			
-			return getJavaOrX10DocFor(qualifiedName, type, parseController);//BRT
-			
-		}
-		// JavadocContentAccess seems to provide no way to get at that package
-		// docs...
-		// else if (target instanceof PackageNode) {
-		// PackageNode pkgNode= (PackageNode) target;
-		// String pkgName= pkgNode.qualifier().toString();
-		// IJavaProject javaProject=
-		// JavaCore.create(parseController.getProject().getRawProject());
-		// IPackageFragmentRoot[] pkgFragRoots=
-		// javaProject.getAllPackageFragmentRoots();
-		// for(int i= 0; i < pkgFragRoots.length; i++) {
-		// IPackageFragmentRoot pkgRoot= pkgFragRoots[i];
-		// IPackageFragment pkgFrag= pkgRoot.getPackageFragment(pkgName);
-		// if (pkgFrag.exists()) {
-		// JavadocContentAccess.???()
-		// }
-		// }
-		//
-		// }
 		
-		// return "This is a " + target.getClass().getCanonicalName();
+		if (target instanceof MethodDef) {
+			target = ((MethodDef) target).asInstance();
+		} else if (target instanceof ConstructorDef) {
+			target = ((ConstructorDef) target).asInstance();
+		}
+
+		return target;
+    }
+    
+    
+	/**
+	 * Provides javadoc-like info (if available) and more for a variety of entities
+	 */
+	public String getHelpForEntity(Object target, IParseController parseController) {
+		try {
+			Node root = (Node) parseController.getCurrentAst();
+			target = getTarget(target, parseController, root);
+			
+			if (target instanceof FieldInstance) {
+				return getHelpForEntity((FieldInstance)target, parseController, root);
+			} else if (target instanceof NamedVariable) {
+				return getHelpForEntity((NamedVariable)target, parseController, root);
+			} else if (target instanceof LocalInstance) {
+				return getHelpForEntity((LocalInstance)target, parseController, root);
+			} else if(target instanceof MethodInstance) {
+				return getHelpForEntity((MethodInstance)target, parseController, root);
+			} else if(target instanceof ConstructorInstance) {
+				return getHelpForEntity((ConstructorInstance)target, parseController, root);
+			} else if (target instanceof ClassType) {  
+				return getHelpForEntity((ClassType)target, parseController, root);	
+			} else if (target instanceof ClassDecl) {
+				return getHelpForEntity((ClassDecl)target, parseController, root);
+			} else if (target instanceof MethodDecl) {
+				return getHelpForEntity((MethodDecl)target, parseController, root);
+			} else if (target instanceof TypeNode) {
+				return getHelpForEntity((TypeNode)target, parseController, root);
+			} else if(target instanceof ConstrainedType) {
+				return getHelpForEntity((ConstrainedType)target, parseController, root);
+			}
 		} catch (NullPointerException e){
 			//If this exception is thrown, it means that there was a compilation error in the file, silently ignore
 			return "";
 		}
 		return "";
 	}
+	
+	private String getHelpForEntity(FieldInstance target, IParseController parseController, Node root) {
+    	FieldInstance fi = (FieldInstance) target;
+		ReferenceType ownerType = fi.container().toReference(); // PORT1.7 cast must succeed?  was fi.container();
+
+		if (ownerType.isClass()) {
+			ClassType ownerClass = (ClassType) ownerType;
+			String ownerName = ownerClass.fullName().toString(); // PORT1.7 was fullname();
+			
+			//String sig = fi.toString();  // field int Class.varName
+			String type = fi.type().toString(); // int   or pkg.TypeName; want TypeName only
+			type=unqualify(type);//FIXME must be a better way to get simple type, not fully qualified type
+			//sig= fi.declaration().toString();
+			String varName=fi.name().toString();  // PORT 1.7 was just name();
+			String sig = type+" "+ownerName+"."+varName;
+
+			return getX10DocFor(sig,fi);  // 2nd arg needs to be Node
+			
+		}
+		return "Field '" + fi.name() + "' of type " + fi.type().toString();
+    }
+	
+	private String getHelpForEntity(NamedVariable target, IParseController parseController, Node root) {
+    	NamedVariable var = (NamedVariable) target;
+		Type type = var.type();
+		return "Variable '" + var + "' of type " + type.toString(); //PORT1.7 var.name() changed to var (implicit toString())
+    }
+	
+	private String getHelpForEntity(LocalInstance li,
+			IParseController parseController, Node root) {
+
+		String s = li.toString();
+//		int start = s.indexOf("{self.home");
+//
+//		if (start != -1) {
+//			s = s.substring(0, start);
+//		}
+
+		return addNameToDoc(s, null);
+	}
+	
+	private String getHelpForEntity(MethodInstance mi,
+			IParseController parseController, Node root) {
+		String sig=getSignature(mi);
+		String doc = getX10DocFor(sig,mi);
+		return doc;
+	}
+	
+	private String getHelpForEntity(ConstructorInstance ci,
+			IParseController parseController, Node root) {
+		String name="(name)";
+		String t=ci.toString();
+		StructType rt = ci.container();//PORT1.7  ReferenceType -> StructType
+		if(rt instanceof Named) {
+			Named named = (Named) rt;
+			//name=named.name().toString();//PORT1.7 name() no longer returns a String
+			name=named.fullName().toString();//PORT1.7 fullName() no longer returns a String
+		}
+		String args=formatArgs(ci.formalTypes());
+		String sig=name+args;
+		String doc = getX10DocFor(sig, ci);
+		return doc;
+	}
+
+	private String getHelpForEntity(ClassType ct,
+			IParseController parseController, Node root) {
+		String qualifiedName = ct.fullName().toString();//PORT1.7 fullName()->fullName().toString()
+		qualifiedName = stripArraySuffixes(qualifiedName);			
+		return getJavaOrX10DocFor(qualifiedName, ct, parseController);//BRT
+	}
+	
+	private String getHelpForEntity(ClassDecl cd, IParseController parseController, Node root) {
+		String name=cd.name().id().toString();//PORT1.7 want fullname, how to get from ClassDecl?
+		ClassDef cdef= cd.classDef();
+		if (cdef == null)
+		    return null;
+		String fullName = cdef.fullName().toString(); ////PORT1.7 is this right?? ask Nate
+		String doc = getX10DocFor(fullName,cd);
+		return doc;
+	}
+	
+	private String getHelpForEntity(MethodDecl md, IParseController parseController, Node root) {
+		String tempNameMd=md.toString();// does not include pkg info: public int foo(...);
+		MethodDef mdef= md.methodDef();
+		if (mdef == null)
+		    return null;
+		MethodInstance mi=mdef.asInstance();//PORT1.7 was md.methodInstance();
+		String tempName=mi.toString(); // lots of info: method public int my.pkg.foo(type,type);
+		String name="";
+		MethodInstance test;
+		String sig = md.methodDef().signature();//PORT1.7 see what this returns.  arg names too???
+		//String sig = mi.signature();// doesn't include arg names, just types
+			 
+		StructType rt = mi.container();//PORT1.7  ReferenceType -> StructType
+		if(rt instanceof ClassType) {
+			ClassType ct = (ClassType) rt;
+			name =ct.fullName().toString();// includes package info		//PORT1.7 fullName() no longer returns a String
+		}
+		name = getSignature(mi,md);	
+		String doc = getX10DocFor(name, md);//PORT1.7 md is a Node; was md.methodInstance()
+		return doc;
+    }
+	
+	private String getHelpForEntity(TypeNode tn,
+			IParseController parseController, Node root) {
+		PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController.getSourcePositionLocator();
+		Node parent = (Node) locator.getParentNodeOf(tn, root);
+
+		if (parent instanceof ConstructorDecl) {
+			ConstructorDecl cd = (ConstructorDecl) parent;
+			//String id = cd.id().toString();//shortname
+			//String name = typeNode.name();//shortname
+			String fullName = tn.toString();// FIXME better way of getting fully qualified name, incl. pkg info??
+			
+			// get Constructor args, if any
+			String sig=fullName+formatArgs(cd.formals()); 
+			ConstructorInstance ci = cd.constructorDef().asInstance(); //PORT1.7 was cd.constructorInstance();
+			return getX10DocFor(sig, ci);  //PORT1.7 use local variable
+		} else if (parent instanceof New) {
+			New n = (New) parent;		
+			return getX10DocFor(n.constructorInstance());
+		} else {
+			Type type = tn.type();
+			if (type == null)
+			    return null;
+			String qualifiedName = tn.qualifierRef().get().toString();//PORT1.7 was qualifier()->qualifierRef().get()
+			qualifiedName = stripArraySuffixes(qualifiedName);
+			return getJavaOrX10DocFor(qualifiedName, type, parseController); 
+		}
+	}
+
+	private String getHelpForEntity(ConstrainedType target, IParseController parseController, Node root) {
+		return addNameToDoc(target.toString(), null);
+	}
+
+	
+
+	
+    
+    
+    
+    
+    
+    
+	
+
+	
 
 	/**
 	 * return a simple type name, not a fully qualified type
@@ -462,14 +399,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 */
 	private String getJavaOrX10DocFor(String qualifiedName, Type type,
 			IParseController parseController) {
-		String doc=null;
-		if (isJavaType(qualifiedName)) {
-			IType javaType = findJavaType(qualifiedName, parseController);
-			doc= (javaType != null) ? getJavaDocFor(javaType) : "";
-		} else {
-			doc= type.isClass() ? getX10DocFor(qualifiedName, (ClassType) type) : "";
-		}
-		return doc;
+		return type.isClass() ? getX10DocFor(qualifiedName, (ClassType) type) : "";
 	}
 
 	/**
@@ -540,8 +470,9 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 */
 	private String getNewRawX10DocFor(Position pos) {
 		String path = pos.file();
+		Reader reader = getReader(path);
+		
 		try {
-			Reader reader = new FileReader(new File(path));
 			String fileSrc = readReader(reader);
 			int idx = pos.offset();
 
@@ -556,11 +487,32 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				//String result = xrdr.getString();
 				return result;
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			return "";
 		} 
 		return null;
 	}
+	
+	private Reader getReader(String path) {
+		Reader reader = null;
+		try {
+			if (path.contains(".jar")) {
+				int index = path.lastIndexOf(":");
+				JarFile jar = new JarFile(path.substring(0, index));
+				return new InputStreamReader(jar.getInputStream(jar.getJarEntry(path.substring(index + 1))));
+			}
+
+			else {
+				reader = new FileReader(new File(path));
+			}
+		} catch (IOException e) {
+			// fall through
+		}
+
+		return reader;
+	}
+	
+	
 	private static final String BOLD="<b>";
 	private static final String UNBOLD="</b>";
 	private static final String NEWLINE="\n";
@@ -575,6 +527,9 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * @return
 	 */
 	private String addNameToDoc(String name, String doc) {
+		if(doc == null) {
+			doc = "";
+		}
 		doc=BOLD+name+UNBOLD+PARA+doc+PARA;
 		return doc;
 	}
@@ -813,22 +768,6 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return qualifiedName;
 	}
 
-	private boolean isJavaType(String qualifiedName) {
-		return qualifiedName.startsWith("java.");
-	}
-	@SuppressWarnings("restriction")
-	private boolean isJavaMember(MemberInstance mem) {
-		StructType rt = mem.container();//PORT1.7 ReferenceType->StructType
-		if(rt instanceof ClassType) {
-			ClassType ct = (ClassType) rt;
-			String fullname = ct.fullName().toString(); //PORT1.7 fullName() no longer returns a string
-			return isJavaType(fullname);
-			
-		}
-		return false;
-		
-	}
-
 	private String[] convertParamTypes(ProcedureInstance pi) {
 		String[] paramTypes = new String[pi.formalTypes().size()];
 
@@ -843,64 +782,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		}
 		return paramTypes;
 	}
-
-	/**
-	 * Get javadoc info - will get from jar file if necessary
-	 * 
-	 * @param member
-	 * @return
-	 */
-	private String getJavaDocFor(IMember member) {
-		try {
-			Reader reader = JavadocContentAccess.getHTMLContentReader(member, true, true);
-
-			if (reader == null)
-				return "";
-			String doc = readReader(reader);
-			if (traceOn)
-				System.out.println("X10ContextHelper.getJavaDocFor(): " + doc);
-			// BRT note: e.g. for System.out.println, includes double <code><code>
-			// which loses the contents in context help view.
-			// JDT hover does correctly display this, however
-			
-			/*
-			// how to get full name of member?
-			String name=member.toString();
-			String ename=member.getElementName();
-			String cname = member.getClass().getName();
-			IType type=member.getDeclaringType();
-
-			doc=addNameToDoc(name, doc);
-			*/
-			return doc;
-		} catch (JavaModelException e) {
-			String msg=e.getMessage();
-			return "";
-		}
-	}
-	/**
-	 * Get javadoc info for a member, and since we can't determine a reasonably formatted name,
-	 * we get the name passed in from those who have more information than us.
-	 * @param name
-	 * @param member
-	 * @return
-	 */
-	private String getJavaDocFor(String name, IMember member) {
-		String doc = getJavaDocFor(member);
-		doc = addNameToDoc(name, doc);
-		return doc;
-	}
-
-	private IType findJavaType(String qualName, IParseController parseController) {
-		try {
-			IJavaProject javaProject = JavaCore.create(parseController.getProject().getRawProject());
-			IType javaType = javaProject.findType(qualName);
-			return javaType;
-		} catch (JavaModelException e) {
-			return null;
-		}
-	}
-
+	
 	private String readReader(Reader reader) {
 		try {
 			StringBuffer buffer = new StringBuffer();
