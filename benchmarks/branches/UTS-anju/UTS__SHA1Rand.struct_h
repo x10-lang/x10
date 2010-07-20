@@ -1,0 +1,51 @@
+#ifndef __UTS__SHA1RAND_STRUCT_H
+#define __UTS__SHA1RAND_STRUCT_H
+
+#include "sha1_rand.hpp"
+#include <x10aux/config.h>
+#include <x10aux/ref.h>
+#include <x10aux/RTT.h>
+#include <x10aux/serialization.h>
+
+#define X10_LANG_STRUCT_STRUCT_H_NODEPS
+#include <x10/lang/Struct.struct_h>
+#undef X10_LANG_STRUCT_STRUCT_H_NODEPS
+class UTS__SHA1Rand : public x10::lang::Struct  {
+    public:
+    RTT_H_DECLS_STRUCT
+    
+    UTS__SHA1Rand* operator->() { return this; }
+    
+    static x10aux::itable_entry _itables[2];
+    
+    x10aux::itable_entry* _getITables() { return _itables; }
+    
+    static x10aux::itable_entry _iboxitables[2];
+    
+    x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
+    
+    x10_boolean _struct_equals(UTS__SHA1Rand that);
+    
+    static void _serialize(UTS__SHA1Rand this_, x10aux::serialization_buffer& buf);
+    
+    static UTS__SHA1Rand _deserialize(x10aux::deserialization_buffer& buf) {
+        UTS__SHA1Rand this_;
+        this_->_deserialize_body(buf);
+        return this_;
+    }
+    
+    void _deserialize_body(x10aux::deserialization_buffer& buf);
+    x10_boolean equals(x10aux::ref<x10::lang::Any> that);
+    
+    x10_boolean equals(UTS__SHA1Rand that);
+    
+    x10aux::ref<x10::lang::String> toString();
+    
+    x10_int hashCode();
+    
+    x10aux::ref<x10::lang::String> typeName();
+    
+    sha1_rand FMGL(cxx_sha1_rng);
+};
+#endif // UTS__SHA1RAND_STRUCT_H
+
