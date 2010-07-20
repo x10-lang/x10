@@ -13,6 +13,7 @@ public class Test {
 		 * /home/blshao/workspace/wala-bridge-1.0/x10.runtime/src-x10/x10/array/PolyScanner.x10
 		 * "/blshao/workspace/wala-bridge-1.0/test.x10/RuntimeTest.x10"
 		 * FinishAsync/finishTest2
+		 * x10.tests/examples/ScalableFinish/Others/TrivialTest3.x10
 	    	 ***************************************************************************************/
 	    String os = System.getProperty("os.name");
 	    String user = "Users";
@@ -22,7 +23,7 @@ public class Test {
 	    }
 
 	    File f = new File("/"+user+"/blshao/workspace/wala-bridge-1.0/" +
-	    		"x10.tests/examples/ScalableFinish/Others/TrivialTest3.x10");
+	    		"x10.tests/examples/ScalableFinish/FinishAsync/finishTest1.x10");
 	    X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 	 
 			/* *********************************
@@ -33,10 +34,11 @@ public class Test {
 			 *  "x10/lang/","run",""
 			 *  "x10/array/", "foo", "()V"
 			 *  "x10/lang/","foo","()V"
+			 *  "","main","(Lx10/lang/Rail;)V"
 			 ************************************/
 		
 		//compile(file, package, entrymethod, methodsig)
-		x10fa.compile(f,"","run","()Lx10/lang/Boolean;" );
+		x10fa.compile(f,"","run","()Lx10/lang/Boolean;");
 
 
 	}
