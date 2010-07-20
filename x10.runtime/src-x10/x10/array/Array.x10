@@ -55,7 +55,19 @@ public final class Array[T](
     /**
      * The region of this array.
      */
-    region:Region{self != null}
+    region:Region{self != null},
+
+    /**
+     * The number of points/data values in the array.
+     * Will always be equal to region.size(), but cached here to make it available as a property.
+     */
+     size:Int,
+
+    /**
+     * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
+     * Cached in the Array for efficient acccess at runtime in optimize apply/set methods
+     */
+    rail:Boolean
 )  implements (Point(region.rank))=>T,
               Iterable[Point(region.rank)] {
 
@@ -77,12 +89,6 @@ public final class Array[T](
      * Is this array's region zero-based?
      */
     public property zeroBased: boolean = region.zeroBased;
-
-    /**
-     * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
-     */
-    public property rail: boolean = region.rail;
-
 
     private global val raw:IndexedMemoryChunk[T];
     private global val rawLength:int;
@@ -119,7 +125,7 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      */
     public def this(reg:Region):Array[T]{self.region==reg} {
-	property(reg);
+	property(reg, reg.size(), reg.rail);
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
@@ -136,7 +142,7 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg} {
-        property(reg);
+        property(reg, reg.size(), reg.rail);
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
@@ -157,7 +163,7 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(reg:Region, init:T):Array[T]{self.region==reg} {
-        property(reg);
+        property(reg, reg.size(), reg.rail);
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
@@ -179,13 +185,13 @@ public final class Array[T](
 
 
     /**
-     * Construct Array over the region 0..rail.length-1 whose
+     * Construct Array over the region 0..aRail.length-1 whose
      * values are initialized to the corresponding values in the 
      * argument Rail.
      *
      */    
-    public def this(rail:Rail[T]!):Array[T]{self.rank==1,rect,zeroBased} {
-	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
+    public def this(aRail:Rail[T]!):Array[T]{rank==1,rect,zeroBased,self.rail} {
+	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
     }
 
 
@@ -199,8 +205,8 @@ public final class Array[T](
      *       can't refer to "T" in a static context, which is complete nonsense
      *       since this is a constructor.
      */    
-    public def this(rail:ValRail[T]!):Array[T]{self.rank==1,rect,zeroBased} {
-	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
+    public def this(aRail:ValRail[T]!):Array[T]{rank==1,rect,zeroBased,self.rail} {
+	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
     }
 
 
@@ -209,7 +215,7 @@ public final class Array[T](
      * in future releases of X10, this method will only be callable if sizeof(T) bytes 
      * of zeros is a valid value of type T. 
      */    
-    public def this(size:int):Array[T]{self.rank==1,rect,zeroBased} {
+    public def this(size:int):Array[T]{rank==1,rect,zeroBased,self.rail} {
 	this(Region.makeRectangular(0, size-1));
     }
 
@@ -221,7 +227,7 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:(Point(1))=>T):Array[T]{self.rank==1,rect,zeroBased} {
+    public def this(size:int, init:(Point(1))=>T):Array[T]{rank==1,rect,zeroBased,self.rail} {
 	this(Region.makeRectangular(0, size-1), init);
     }
 
@@ -233,7 +239,7 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:T):Array[T]{self.rank==1,rect,zeroBased} {
+    public def this(size:int, init:T):Array[T]{rank==1,rect,zeroBased,self.rail} {
 	this(Region.makeRectangular(0, size-1), init);
     }
 
@@ -248,13 +254,6 @@ public final class Array[T](
     public def iterator():Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 
     /**
-     * Return the number of points (elements) in the Array.
-     * @return the number of points (elements) in the Array
-     */
-    public def size() = region.size();
-
-
-    /**
      * Return the element of this array corresponding to the given index.
      * Only applies to one-dimensional arrays.
      * Functionally equivalent to indexing the array via a one-dimensional point.
@@ -265,10 +264,17 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     public safe @Header @Inline def apply(i0:int){rank==1}:T {
-        if (checkBounds() && !region.contains(i0)) {
-            raiseBoundsError(i0);
-        }
-        return raw(layout.offset(i0));
+	if (rail) {
+            if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
+                raiseBoundsError(i0);
+            }
+            return raw(i0);
+        } else {
+            if (checkBounds() && !region.contains(i0)) {
+                raiseBoundsError(i0);
+            }
+            return raw(layout.offset(i0));
+       }
     }
 
     /**
@@ -358,10 +364,17 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int){rank==1}:T {
-        if (checkBounds() && !region.contains(i0)) {
-            raiseBoundsError(i0);
+	if (rail) {
+            if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
+                raiseBoundsError(i0);
+            }
+            raw(i0) = v;
+        } else {
+            if (checkBounds() && !region.contains(i0)) {
+                raiseBoundsError(i0);
+            }
+            raw(layout.offset(i0)) = v;
         }
-        raw(layout.offset(i0)) = v;
         return v;
     }
 
@@ -613,7 +626,7 @@ public final class Array[T](
      * @see #map((T)=>T)
      * @see #reduce((T,T)=>T,T)
      */
-    public def scan(op:(T,T)=>T, unit:T): Array[T](region)! = scan(new Array[T](region), op, unit); // TODO: private constructor to avoid useless zeroing
+    public def scan(op:(T,T)=>T, unit:T) = scan(new Array[T](region), op, unit); // TODO: private constructor to avoid useless zeroing
 
 
     /**
