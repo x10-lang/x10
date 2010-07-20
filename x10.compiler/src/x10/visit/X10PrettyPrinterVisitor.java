@@ -300,7 +300,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	      if (s != null) {
 	          w.write(s);
 	      } else {
-            super.visit(n);
+	          n.translate(w, tr);
 	      }
 	}
 
