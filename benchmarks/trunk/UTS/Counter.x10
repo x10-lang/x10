@@ -168,7 +168,7 @@ public class Counter  {
 	 * @param time
 	 * @param verbose -- if details for each place should be printed.
 	 */
-	public def stats(st:PlaceLocalHandle[BinomialState], time:Long, verbose:Boolean) {
+	public def stats(st:PlaceLocalHandle[ParUTS], time:Long, verbose:Boolean) {
 		assert here.id == 0;
 		val P = Place.MAX_PLACES;
 		val allCounters = Rail.make[ValCounter](P,(i:Int) => at(Place(i)) st().counter.toVal());

@@ -7,6 +7,7 @@ import x10.util.Stack;
 public class TreeExpander {
   static type TreeNode = UTS.TreeNode;
   static type SHA1Rand = UTS.SHA1Rand;
+  static type Constants = UTS.Constants;
 	private static val NORMALIZER = 2147483648.0; 
 
   public static def geometric (shapeFunction:int, /* 0..3*/
@@ -20,13 +21,13 @@ public class TreeExpander {
     if (0 == node.getDepth()) { /* root node */
       curNodeBranchingFactor = rootBranchingFactor;
     } else { /* calculate the branching factor for this node */
-      if (0 == shapeFunction) { /* Exponential decrease */
+      if (Constants.EXPDEC == shapeFunction) { /* Exponential decrease */
         val tmpLogOne = -1.0 * Math.log (rootBranchingFactor as double);
         val tmpLogTwo = Math.log (maxTreeDepth as double);
         curNodeBranchingFactor = rootBranchingFactor  * 
                                  Math.pow (node.getDepth() as double, 
                                       tmpLogOne/tmpLogTwo);
-      } else if (1 == shapeFunction) { /* Cyclic */
+      } else if (Constants.CYCLIC == shapeFunction) { /* Cyclic */
         if (node.getDepth() > (5*maxTreeDepth)) {
           curNodeBranchingFactor = 0.0;
         } else {
@@ -38,11 +39,11 @@ public class TreeExpander {
           curNodeBranchingFactor = Math.pow (rootBranchingFactor, 
                                              exponent);
         }
-      } else if (2 == shapeFunction) { /* Fixed */
+      } else if (Constants.FIXED == shapeFunction) { /* Fixed */
         curNodeBranchingFactor = (node.getDepth() < maxTreeDepth) ? 
                                     rootBranchingFactor : /* true */
                                     0; /* false */
-      } else if (3 == shapeFunction) { /* Linear --- default */
+      } else if (Constants.LINEAR == shapeFunction) { /* Linear --- default */
         curNodeBranchingFactor = rootBranchingFactor *
                                  (1.0 - (node.getDepth() as double)/
                                         (maxTreeDepth as double));

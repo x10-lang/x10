@@ -7,8 +7,20 @@ import x10.util.Stack;
 
 public class UTS {
 
-	static type PLH= PlaceLocalHandle[BinomialState];
+	static type PLH= PlaceLocalHandle[ParUTS];
 	private static val NORMALIZER = 2147483648.0; // does not depend on input parameters
+
+  public static struct Constants {
+    public static val BINOMIAL = 0;
+    public static val GEOMETRIC = 1;
+    public static val HYBRID = 2;
+
+    public static val LINEAR = 0;
+    public static val EXPDEC = 1;
+    public static val CYCLIC = 2;
+    public static val FIXED = 3;
+  }
+
 
 	@NativeRep ("c++", "UTS__SHA1Rand", "UTS__SHA1Rand", null)
 	@NativeCPPCompilationUnit ("sha1.c")
@@ -63,33 +75,34 @@ public class UTS {
     val stopCount:UInt = 25;
 
 		public def this (b0:Int, q:Long, m:Int) {
-			this.treeType = 0; this.b0 = b0; this.q = q; this.m = m; 
+			this.treeType = Constants.BINOMIAL; this.b0 = b0; this.q = q; this.m = m; 
       this.a = this.d = -1;
 		}
   
 
 		public def this (b0:Int, a:Int, d:Int) {
-			this.treeType = 1; this.b0 = b0; this.a = a; this.d = d; 
+			this.treeType = Constants.GEOMETRIC; this.b0 = b0; this.a = a; this.d = d; 
       this.q = -1; this.m = -1;
 		}
 
     public final def processStack () {
 
       while (stack.size() > 0) {
-        if (0==treeType) TreeExpander.binomial (q, m, stack.pop(), stack);
+        if (Constants.BINOMIAL==treeType) 
+          TreeExpander.binomial (q, m, stack.pop(), stack);
         else TreeExpander.geometric (a, b0, d, stack.pop(), stack);
         ++nodesCounter;
-        if (nodesCounter==stopCount) return;
       }
 
     }
   
 		public final def main (rootNode:TreeNode) {
-			if (0==treeType) { 
-        ++nodesCounter; // root node is never pushed on the stack.
+			if (Constants.BINOMIAL==treeType) {
         TreeExpander.processBinomialRoot (b0, rootNode, stack);
+      } else { 
+        TreeExpander.geometric (a, b0, d, rootNode, stack);
       }
-      else TreeExpander.geometric (a, b0, d, rootNode, stack);
+      ++nodesCounter; // root node is counted -- so count it here.
 
       this.processStack();
 
@@ -146,24 +159,41 @@ public class UTS {
 
 			Console.OUT.println("--------");
 			Console.OUT.println("Places="+Place.MAX_PLACES);
-			Console.OUT.println("b0=" + b0 +
-					"   r=" + r +
-					"   m=" + mf +
-					"   s=" + seq +
-					"   w=" + w +
-					"   n=" + nu +
-					"   q=" + q +
-          "   l=" + l + 
-          "   z=" + z +
-          (l==3 ? " base=" + NetworkGenerator.findW(Place.MAX_PLACES, z) : "")
-           );
+      if (Constants.BINOMIAL==t) {
+				Console.OUT.println("b0=" + b0 +
+						"   r=" + r +
+						"   m=" + mf +
+						"   s=" + seq +
+						"   w=" + w +
+						"   n=" + nu +
+						"   q=" + q +
+            "   l=" + l + 
+            "   z=" + z +
+            (l==3 ?" base=" + NetworkGenerator.findW(Place.MAX_PLACES, z) : "")
+             );
+      } else if (Constants.GEOMETRIC==t) {
+				Console.OUT.println("b0=" + b0 +
+						"   r=" + r +
+						"   a=" + a +
+						"   d=" + d +
+						"   s=" + seq +
+						"   w=" + w +
+						"   n=" + nu +
+            "   l=" + l + 
+            "   z=" + z +
+            (l==3 ?" base=" + NetworkGenerator.findW(Place.MAX_PLACES, z) : "")
+             );
+      } else {
+
+      }
 
 			val qq = (q*NORMALIZER) as Long;
 
 			if (seq != 0) {
 				var time:Long = System.nanoTime();
-			  val nodes = (0==t) ? new SeqUTS (b0, qq, mf).main(TreeNode(r)):
-                             new SeqUTS (b0, a, d).main(TreeNode(r));
+			  val nodes = (Constants.BINOMIAL==t) ? 
+                             new SeqUTS (b0, qq, mf).main(TreeNode(r)):
+                             new SeqUTS (b0, a, d).main(TreeNode(r, 0));
 			time = System.nanoTime() - time;
 			Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
 			} else {
@@ -175,12 +205,17 @@ public class UTS {
                 NetworkGenerator.generateSparseEmbedding (Place.MAX_PLACES, z);
                         
 
-				val st = PlaceLocalHandle.make[BinomialState](Dist.makeUnique(), 
-	    ()=>new BinomialState(b0, qq, mf,k,nu, w, e, l, lifelineNetwork(here.id)));
+				val st = (Constants.BINOMIAL==t) ? 
+     PlaceLocalHandle.make[ParUTS](Dist.makeUnique(), 
+	   ()=>new ParUTS(b0, qq, mf,k,nu, w, e, l, lifelineNetwork(here.id))):
+     PlaceLocalHandle.make[ParUTS](Dist.makeUnique(), 
+	   ()=>new ParUTS(b0, a, d, k, nu, w, e, l, lifelineNetwork(here.id)));
+
 				Console.OUT.println("Starting...");
 				var time:Long = System.nanoTime();
 				try {
-				st().main(st, TreeNode(r));
+				 if (Constants.BINOMIAL==t) st().main(st, TreeNode(r));
+         else st().main(st, TreeNode(r, 0));
 				} catch (v:Throwable) {
 					v.printStackTrace();
 				}
