@@ -1,0 +1,472 @@
+2,1: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,2: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,3: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,4: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,5: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,6: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,7: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,8: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,9: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,10: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,11: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,12: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,13: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,14: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,15: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+2,16: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+3,5: <b>x10.lang.String Named.name()</b><p><p>
+3,6: <b>x10.lang.String Named.name()</b><p><p>
+3,7: <b>x10.lang.String Named.name()</b><p><p>
+3,8: <b>x10.lang.String Named.name()</b><p><p>
+3,9: <b>x10.lang.String Named.name()</b><p><p>
+3,10: <b>x10.lang.String Named.name()</b><p><p>
+3,11: <b>x10.lang.String Named.name()</b><p><p>
+3,12: <b>x10.lang.String Named.name()</b><p><p>
+3,13: <b>x10.lang.String Named.name()</b><p><p>
+3,14: <b>x10.lang.String Named.name()</b><p><p>
+3,15: <b>x10.lang.String Named.name()</b><p><p>
+3,16: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+3,17: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+3,18: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+3,19: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+3,20: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+3,21: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+3,22: <b>x10.lang.String Named.name()</b><p><p>
+7,1: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,2: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,3: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,4: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,5: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,6: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,7: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,8: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,9: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,10: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,11: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,12: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,13: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,14: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,15: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,16: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,17: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,18: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,19: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,20: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,21: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,22: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,23: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,24: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,25: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,26: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,27: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,28: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,29: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,30: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+7,31: <b>Named</b><p> x10doc comment for Named<p>
+7,32: <b>Named</b><p> x10doc comment for Named<p>
+7,33: <b>Named</b><p> x10doc comment for Named<p>
+7,34: <b>Named</b><p> x10doc comment for Named<p>
+7,35: <b>Named</b><p> x10doc comment for Named<p>
+7,36: <b>x10.lang.Object</b><p> The base class for all reference classes.
+<p>
+8,22: <b>x10.lang.String{self!=null}</b><p><p>
+8,23: <b>x10.lang.String{self!=null}</b><p><p>
+8,24: <b>x10.lang.String{self!=null}</b><p><p>
+8,25: <b>x10.lang.String{self!=null}</b><p><p>
+8,26: <b>x10.lang.String{self!=null}</b><p><p>
+8,27: <b>x10.lang.String{self!=null}</b><p><p>
+9,18: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+9,19: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+9,20: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+11,5: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,6: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,7: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,8: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,9: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,10: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,11: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,12: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,13: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,14: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,15: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,16: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,17: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,18: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,19: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,20: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,21: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,22: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,23: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,24: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,27: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,28: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,29: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,30: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,31: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,32: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,33: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,34: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+11,41: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,42: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,43: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,44: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,45: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,46: <b>x10.lang.Double</b><p> Double is a 64-bit double-precision IEEE 754 floating point data type. Unlike Java, X10 does not restrict the precision of floating point values, so they may be represented by an extended-exponent variant at runtime.  All of the normal arithmetic and bitwise operations are defined on Double, and Double is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Double constants.
+<p>
+11,47: <b>x10.lang.Any</b><p> The top of the type hierarchy. Implemented by all classes and structs.  Restriction: The types in Any cannot use "here". (In the current implementation, using "here" in a type, e.g. def at(p:Object!):boolean, would cause an infinite recursion. See PlaceChecker.pushHereTerm.) <dl><dt>Author:</dt><dd>vj 12/14/09</dd></dl><p>
+12,54: <b>local final theta: x10.lang.Double</b><p><p>
+12,55: <b>local final theta: x10.lang.Double</b><p><p>
+12,56: <b>local final theta: x10.lang.Double</b><p><p>
+12,57: <b>local final theta: x10.lang.Double</b><p><p>
+12,58: <b>local final theta: x10.lang.Double</b><p><p>
+13,29: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+13,30: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+13,31: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+13,32: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+13,33: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+13,34: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+13,36: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+13,38: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+14,27: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+14,28: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+14,29: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+14,30: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+14,31: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+14,32: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+14,34: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+14,35: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+14,45: <h5>constructor Hello.Polar.this(x10.lang.Double, x10.lang.Double): Hello.Polar{self.r==r, self.theta==theta}</h5>
+17,23: <b>x10.lang.Void Hello.main(val args: x10.lang.Rail[x10.lang.String]{self.home==here})</b><p><p>
+17,24: <b>x10.lang.Void Hello.main(val args: x10.lang.Rail[x10.lang.String]{self.home==here})</b><p><p>
+17,25: <b>x10.lang.Void Hello.main(val args: x10.lang.Rail[x10.lang.String]{self.home==here})</b><p><p>
+17,26: <b>x10.lang.Void Hello.main(val args: x10.lang.Rail[x10.lang.String]{self.home==here})</b><p><p>
+17,34: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,35: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,36: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,37: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,38: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,39: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,40: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,41: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,42: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,43: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,44: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+17,45: <b>x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+18,14: <b>local final args: x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+18,15: <b>local final args: x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+18,16: <b>local final args: x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+18,17: <b>local final args: x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+18,18: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+18,19: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+18,20: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+18,21: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+18,22: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+18,23: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+18,24: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+19,12: <h5>x10.io.Console</h5>
+19,13: <h5>x10.io.Console</h5>
+19,14: <h5>x10.io.Console</h5>
+19,15: <h5>x10.io.Console</h5>
+19,16: <h5>x10.io.Console</h5>
+19,17: <h5>x10.io.Console</h5>
+19,18: <h5>x10.io.Console</h5>
+19,19: <h5>field final public static x10.io.Printer x10.io.Console.OUT</h5>
+19,20: <h5>field final public static x10.io.Printer x10.io.Console.OUT</h5>
+19,21: <h5>field final public static x10.io.Printer x10.io.Console.OUT</h5>
+19,22: <h5>field final public static x10.io.Printer x10.io.Console.OUT</h5>
+19,23: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+19,24: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+19,25: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+19,26: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+19,27: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+19,28: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+19,29: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+19,30: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+19,31: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+19,53: <b>local final args: x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+19,54: <b>local final args: x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+19,55: <b>local final args: x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+19,56: <b>local final args: x10.lang.Rail[x10.lang.String]{self.home==here}</b><p><p>
+19,57: <b>T x10.lang.Rail.apply(x10.lang.Int)</b><p> Operator that allows access of Rail elements by index. <dl><dt>Parameters:</dt><dd><b>i</b> The index to retreive.</dd><dt>Returns:</dt><dd>The value at that index.</dd></dl><p>
+19,59: <b>T x10.lang.Rail.apply(x10.lang.Int)</b><p> Operator that allows access of Rail elements by index. <dl><dt>Parameters:</dt><dd><b>i</b> The index to retreive.</dd><dt>Returns:</dt><dd>The value at that index.</dd></dl><p>
+19,60: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+21,10: <h5>x10.io.Console</h5>
+21,11: <h5>x10.io.Console</h5>
+21,12: <h5>x10.io.Console</h5>
+21,13: <h5>x10.io.Console</h5>
+21,14: <h5>x10.io.Console</h5>
+21,15: <h5>x10.io.Console</h5>
+21,16: <h5>x10.io.Console</h5>
+21,17: <h5>field final public static x10.io.Printer x10.io.Console.OUT</h5>
+21,18: <h5>field final public static x10.io.Printer x10.io.Console.OUT</h5>
+21,19: <h5>field final public static x10.io.Printer x10.io.Console.OUT</h5>
+21,20: <h5>field final public static x10.io.Printer x10.io.Console.OUT</h5>
+21,21: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+21,22: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+21,23: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+21,24: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+21,25: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+21,26: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+21,27: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+21,28: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+21,29: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+21,47: <h5>method final global public x10.io.Printer.println(o:x10.lang.Any): x10.lang.Void</h5>
+23,14: <b>local example: x10.lang.String{self!=null}</b><p><p>
+23,15: <b>local example: x10.lang.String{self!=null}</b><p><p>
+23,16: <b>local example: x10.lang.String{self!=null}</b><p><p>
+23,17: <b>local example: x10.lang.String{self!=null}</b><p><p>
+23,18: <b>local example: x10.lang.String{self!=null}</b><p><p>
+23,19: <b>local example: x10.lang.String{self!=null}</b><p><p>
+23,20: <b>local example: x10.lang.String{self!=null}</b><p><p>
+23,21: <b>local example: x10.lang.String{self!=null}</b><p><p>
+23,22: <b>local example: x10.lang.String{self!=null}</b><p><p>
+23,23: <b>local example: x10.lang.String{self!=null}</b><p><p>
+23,24: <b>x10.lang.String{self!=null}</b><p><p>
+23,25: <b>x10.lang.String{self!=null}</b><p><p>
+25,22: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+25,23: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+25,24: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+25,29: <b>x10.lang.Rail[x10.lang.Int]{self.length==n}</b><p><p>
+25,30: <b>x10.lang.Rail[x10.lang.Int]{self.length==n}</b><p><p>
+25,31: <b>x10.lang.Rail[x10.lang.Int]{self.length==n}</b><p><p>
+25,32: <b>x10.lang.Rail[x10.lang.Int]{self.length==n}</b><p><p>
+25,33: <b>x10.lang.Rail[x10.lang.Int]{self.length==n}</b><p><p>
+25,34: <b>x10.lang.Rail[x10.lang.Int]{self.length==n}</b><p><p>
+25,35: <b>x10.lang.Rail[x10.lang.Int]{self.length==n}</b><p><p>
+25,36: <b>x10.lang.Rail[x10.lang.Int]{self.length==n}</b><p><p>
+25,37: <b>x10.lang.Rail[x10.lang.Int]{self.length==n}</b><p><p>
+25,43: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+25,44: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+25,45: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+25,46: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+25,47: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+25,48: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+25,49: <h5>field final public x10.lang.Int x10.lang.Rail.length</h5>
+25,54: <b>local final n: x10.lang.Int</b><p><p>
+26,14: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+26,15: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+26,16: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+26,17: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+26,18: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+26,19: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+26,20: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+26,21: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+26,22: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+26,23: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+26,24: <b>local example2: x10.lang.Rail[x10.lang.Int]{self.length==78}</b><p><p>
+28,14: <b>local final sq: (a1:x10.lang.Int)=> x10.lang.Int</b><p><p>
+28,15: <b>local final sq: (a1:x10.lang.Int)=> x10.lang.Int</b><p><p>
+28,16: <b>local final sq: (a1:x10.lang.Int)=> x10.lang.Int</b><p><p>
+28,17: <b>local final sq: (a1:x10.lang.Int)=> x10.lang.Int</b><p><p>
+28,18: <b>x10.lang.Fun_0_1</b><p><p>
+28,19: <b>x10.lang.Fun_0_1</b><p><p>
+28,20: <b>x10.lang.Fun_0_1</b><p><p>
+28,21: <b>x10.lang.Fun_0_1</b><p><p>
+28,22: <b>x10.lang.Fun_0_1</b><p><p>
+28,23: <b>x10.lang.Fun_0_1</b><p><p>
+28,24: <b>x10.lang.Fun_0_1</b><p><p>
+28,25: <b>x10.lang.Fun_0_1</b><p><p>
+28,26: <b>x10.lang.Fun_0_1</b><p><p>
+28,27: <b>x10.lang.Fun_0_1</b><p><p>
+28,28: <b>x10.lang.Fun_0_1</b><p><p>
+28,29: <b>x10.lang.Fun_0_1</b><p><p>
+28,30: <b>local final sq: (a1:x10.lang.Int)=> x10.lang.Int</b><p><p>
+28,31: <b>local final sq: (a1:x10.lang.Int)=> x10.lang.Int</b><p><p>
+28,32: <b>local final sq: (a1:x10.lang.Int)=> x10.lang.Int</b><p><p>
+28,33: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+28,34: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+28,35: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+28,36: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+28,37: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+28,38: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+28,39: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+28,40: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+28,41: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+28,42: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+28,43: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+29,18: <b>local s: x10.lang.Int</b><p><p>
+29,19: <b>local s: x10.lang.Int</b><p><p>
+29,20: <b>local s: x10.lang.Int</b><p><p>
+29,21: <b>local s: x10.lang.Int</b><p><p>
+29,22: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+29,23: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+29,24: <b>x10.lang.Int</b><p> Int is a 32-bit signed two's complement integral data type, with values ranging from -2147483648 to 2147483647, inclusive.  All of the normal arithmetic and bitwise operations are defined on Int, and Int is closed under those operations.  There are also static methods that define conversions from other data types, including String, as well as some Int constants.
+<p>
+29,25: <b>local s: x10.lang.Int</b><p><p>
+29,26: <b>local s: x10.lang.Int</b><p><p>
+29,27: <b>local s: x10.lang.Int</b><p><p>
+30,18: <b>local final abs_n: x10.lang.Int</b><p><p>
+30,19: <b>local final abs_n: x10.lang.Int</b><p><p>
+30,20: <b>local final abs_n: x10.lang.Int</b><p><p>
+30,21: <b>local final abs_n: x10.lang.Int</b><p><p>
+30,22: <b>local final abs_n: x10.lang.Int</b><p><p>
+30,23: <b>local final abs_n: x10.lang.Int</b><p><p>
+30,24: <b>local final abs_n: x10.lang.Int</b><p><p>
+30,25: <b>local final abs_n: x10.lang.Int</b><p><p>
+30,26: <b>local final n: x10.lang.Int</b><p><p>
+30,35: <b>local final n: x10.lang.Int</b><p><p>
+30,39: <b>local final n: x10.lang.Int</b><p><p>
+31,27: <h5>method public static x10.array.Region.makeRectangular(min:x10.lang.Intmax:x10.lang.Int): x10.array.Region{self.rect==true, self.rank==1}</h5>
+31,28: <h5>method public static x10.array.Region.makeRectangular(min:x10.lang.Intmax:x10.lang.Int): x10.array.Region{self.rect==true, self.rank==1}</h5>
+31,29: <b>local final abs_n: x10.lang.Int</b><p><p>
+31,30: <b>local final abs_n: x10.lang.Int</b><p><p>
+31,31: <b>local final abs_n: x10.lang.Int</b><p><p>
+31,32: <b>local final abs_n: x10.lang.Int</b><p><p>
+31,33: <b>local final abs_n: x10.lang.Int</b><p><p>
+31,36: <b>local s: x10.lang.Int</b><p><p>
+31,41: <b>local final abs_n: x10.lang.Int</b><p><p>
+31,42: <b>local final abs_n: x10.lang.Int</b><p><p>
+31,43: <b>local final abs_n: x10.lang.Int</b><p><p>
+31,44: <b>local final abs_n: x10.lang.Int</b><p><p>
+31,45: <b>local final abs_n: x10.lang.Int</b><p><p>
+32,14: <b>local s: x10.lang.Int</b><p><p>
+36,11: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,12: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,13: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,14: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,15: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,16: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,17: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,18: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,19: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,20: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,21: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,22: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,23: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,24: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,25: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,26: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,27: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+36,28: <b>x10.lang.Boolean</b><p> Boolean is a logical data type, with two values: 'true' and 'false'. All of the normal logical operations are defined on Boolean. There are also static methods that define conversions to and from String, as well as some Boolean constants.
+<p>
+36,29: <b>x10.lang.Boolean</b><p> Boolean is a logical data type, with two values: 'true' and 'false'. All of the normal logical operations are defined on Boolean. There are also static methods that define conversions to and from String, as well as some Boolean constants.
+<p>
+36,30: <b>x10.lang.Boolean</b><p> Boolean is a logical data type, with two values: 'true' and 'false'. All of the normal logical operations are defined on Boolean. There are also static methods that define conversions to and from String, as well as some Boolean constants.
+<p>
+36,31: <b>x10.lang.Boolean</b><p> Boolean is a logical data type, with two values: 'true' and 'false'. All of the normal logical operations are defined on Boolean. There are also static methods that define conversions to and from String, as well as some Boolean constants.
+<p>
+36,32: <b>x10.lang.Boolean</b><p> Boolean is a logical data type, with two values: 'true' and 'false'. All of the normal logical operations are defined on Boolean. There are also static methods that define conversions to and from String, as well as some Boolean constants.
+<p>
+36,33: <b>x10.lang.Boolean</b><p> Boolean is a logical data type, with two values: 'true' and 'false'. All of the normal logical operations are defined on Boolean. There are also static methods that define conversions to and from String, as well as some Boolean constants.
+<p>
+36,34: <b>x10.lang.Boolean</b><p> Boolean is a logical data type, with two values: 'true' and 'false'. All of the normal logical operations are defined on Boolean. There are also static methods that define conversions to and from String, as well as some Boolean constants.
+<p>
+36,35: <b>x10.lang.Boolean Hello.myMethod()</b><p> x10doc comment for myMethod<p>
+40,11: <b>x10.lang.String Hello.name()</b><p><p>
+40,12: <b>x10.lang.String Hello.name()</b><p><p>
+40,13: <b>x10.lang.String Hello.name()</b><p><p>
+40,14: <b>x10.lang.String Hello.name()</b><p><p>
+40,15: <b>x10.lang.String Hello.name()</b><p><p>
+40,16: <b>x10.lang.String Hello.name()</b><p><p>
+40,17: <b>x10.lang.String Hello.name()</b><p><p>
+40,18: <b>x10.lang.String Hello.name()</b><p><p>
+40,19: <b>x10.lang.String Hello.name()</b><p><p>
+40,20: <b>x10.lang.String Hello.name()</b><p><p>
+40,21: <b>x10.lang.String Hello.name()</b><p><p>
+40,22: <b>x10.lang.String Hello.name()</b><p><p>
+40,23: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+40,24: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+40,25: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+40,26: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+40,27: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+40,28: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+40,29: <b>x10.lang.String Hello.name()</b><p><p>
+41,13: <b>local s: x10.lang.String</b><p><p>
+41,14: <b>local s: x10.lang.String</b><p><p>
+41,15: <b>local s: x10.lang.String</b><p><p>
+41,16: <b>local s: x10.lang.String</b><p><p>
+41,17: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+41,18: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+41,19: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+41,20: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+41,21: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+41,22: <b>x10.lang.String</b><p> The String class represents character strings. All string literals in X10 programs, such as "Hello", are instances of String. Strings are immutable and cannot be changed after they are created. String provides a concatenation operator '+', methods for converting instances of other types to strings (which invoke the <code>x10.lang.Any.toString()</code> method), methods for examining individual characters of the sequence, for searching strings, for comparing strings, for extracting substrings, and for creating a copy of a string with all characters translated to uppercase or to lowercase.  Case mapping is defined in <code>x10.lang.Char</code>.
+<p>
+41,23: <b>local s: x10.lang.String</b><p><p>
+41,24: <b>local s: x10.lang.String</b><p><p>
+41,25: <b>local s: x10.lang.String</b><p><p>
+42,9: <b>local s: x10.lang.String</b><p><p>
+42,14: <h5>field x10.lang.Int Hello.member</h5>
+42,15: <h5>field x10.lang.Int Hello.member</h5>
+42,16: <h5>field x10.lang.Int Hello.member</h5>
+42,17: <h5>field x10.lang.Int Hello.member</h5>
+42,18: <h5>field x10.lang.Int Hello.member</h5>
+42,19: <h5>field x10.lang.Int Hello.member</h5>
+43,16: <b>local s: x10.lang.String</b><p><p>
