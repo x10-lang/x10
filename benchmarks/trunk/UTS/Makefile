@@ -62,16 +62,9 @@ X10_CLASSES=UTS.x10 \
 X10_CLASSES_CC=$(X10_CLASSES:.x10=.cc)
 X10_CLASSES_H=$(X10_CLASSES:.x10=.h)
 
-TARGET=libsha1.a
+TARGET=UTS
 
-all: UTS
-
-libsha1.a: ${SOURCES} ${HEADERS}
-	${CXX} -c ${CXXFLAGS} ${SOURCES}
-	ar rcs $@ ${OBJS}
-
-uts: uts.cpp sha1_rand.hpp libsha1.a
-	${CXX} ${CXXFLAGS} $< -o $@ -L. -lsha1
+all: ${TARGET}
 
 UTS: UTS.x10 sha1_rand.hpp sha1.c
 	${X10CXX} -MAIN_CLASS=UTS -v -NO_CHECKS -O  ${X10CXXFLAGS} ${X10RTTRANSPORT} $< -o $@ 
