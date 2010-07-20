@@ -4,84 +4,58 @@
 <head>
 
 <link rel="stylesheet" type="text/css" href="style/help.css">
-<title>Basic Editing tasks in X10DT</title>
+<title>Developing/Editing your X10 project</title>
 </head>
 
 <body>
+<a href="contents.html">Back to Table of Contents</a>
 
- <h1>Basic Editing tasks in X10DT</h1>
-<ul>
-<li><a href="#basic">Basic parts of X10DT</a></li>
-<li><a href="#newproj">New X10 Project - Java back-end</a></li>
-<li><a href="#edit">Editing the X10 source code</a></li>
-<li><a href="#error">Dealing with Errors in your code</a></li>
-<li><a href="#building">Building</a></li>
-<li><a href="#running">Running</a></li>
-</ul>
-<h2 id="basic">Basic parts of X10DT</h2>
-
-If you are not already in the X10 Perspective, switch to it now.
-To open the X10 Perspective, use the menu Window > Open Perspective > Other  and select X10.
-(You can also use the Perspective buttons in the upper right of the Eclipse toolbar.)
-<p> 
-<h3>Quick basic tour</h3>
-In the X10 Perspective, you will see the X10 projects in the Package Explorer, the editor, the Outline view,
-a Console to show output, etc., and other views.
-When you set up how you run your program, you will see the Launch Dialog where you specify how you want
-to run the program (see the "Running" section for details).
-
-<img src="images/x10dtAnnotated.png">
-<p></p>
-<img src="images/x10dtAnnotatedLaunch.png">
-
-<h2 id="newproj">Creating an X10 project</h2>
-<p>The following describes creating a local project with the Java backend.
-For information about creating a remote project, or a project with the C++ backend,
-see <a href="remoteCPP.html">X10 C++ back-end and remote projects</a>.
+ <h1>Developing/Editing your X10 project</h1>
+<p>The features described here are mostly independent of the type of X10 project (Java or C++ back-end).
 </p>
 
-
-<p>Be sure you are in the X10 Perspective.
-
-Window > Open Perspective > Other ...   and select X10.
-</p>P
-
-
-<p>To create a sample X10 project, Select File > New...  X10 Project (Java back-end)</p>
-<p>
-<br><img src="images/newproj.png">
-</p>
-<br>Give your project a name, e.g. "Hello," accept the defaults, which includes generating a sample X10 "Hello World" application.
-Hit Finish.
-<p>The X10DT creates your new project, including the source file and edits the main source file.
-Assuming that you have "Build Automatically" set, which is the default (see more below), 
-it also builds (compiles) it before showing you the new file, so it may take a few seconds to show you the 
-new source file.
-<br>
-<br><img src="images/newProjDone.png">
 <h2 id="edit">Editing the X10 source code</h2>
+<p>The Eclipse editor has many features to help you conveniently edit your X10 source.
+To open the editor on a source file, double-click on the file in the Package Explorer view.
+<br><img src="images/editFile.png">
+</p>
 <p>Syntax highlighting highlights X10 code depending on the different language features.
 For example, comments are one color, quoted strings in another, X10 keywords in another color, etc. 
 <br><img src="images/editor.png">
-<p>
+<p><b>Outline: </b>
 The Outline view, to the right of the editor view, shows the parts of the file. Expand the "Hello" class name in the Outline view
 to show the sub-parts.  Select anything in this view to have the editor navigate to its location
 and highlight what you have selected.
 <br><img src="images/outlineView.png">
-<!--
-<p>Hover over an X10 method or class name to show a yellow popup of information about that item.
-If there is javadoc ("X10doc") comment information, that will be shown.
--->
+</p>
+<p><b>Formatting: </b> as you type in the editor, and hit Enter/Return, the X10 editor attempts to
+indent the next line at the "proper" level.
+For more information on setting your preferences that control how X10 code is formatted, see
+<a href="prefs.html#format">Preferences for formatting</a>.
+</p>
+<p><b>Content Assist:</b> methods appropriate to an object can be listed easily.
+Type an object, a dot, then hit Control-space.  A list of appropriate method calls is provided in a  pop-up.
+Use the cursor or mouse to select one.  As you continue typing, the list responds to possible completions that
+match what you have typed.  For more information on content assist and code templates, 
+see <a href="ContentAssist.html">Content Assist features in X10DT</a>
+to save typing in the X10DT editor.
 
-<p>There are many features of the Eclipse editor that we won't describe here.
+<br><img src="images/editContentAssist.png">
+</p>
+ 
+<p><b>Hover Help: </b> Hover over an X10 method or class name to show a yellow popup of information about that item.
+If there is javadoc ("X10doc") comment information, that will be shown.
+<br><img src="images/editHoverHelp.png">
+</p>
+<p>There are many other features of the Eclipse editor that we won't describe here.
 But here is just one: for example, to turn on line numbering, right-click on the grey <i>marker bar</i> 
 at the left editor the editor and select "Show Line Numbers."
 <br><img src="images/lineNum1.png">
+</p>
 <p>You'll see the line numbers at the left edge of the editor.
 <br><img src="images/lineNum2.png">
+</p>
 
-<p>Content Assist is now available as of X10DT 2.0.2.  See <a href="ContentAssist.html">how to use the content assist feature</a>
-to save typing in the X10DT editor.
 <h2 id="error">Errors in your code</h2>
 <p>If there are errors in your code, you will see red error markers at the left edge of the offending line.
 For example, remove the semicolon from the end of the last line in main().

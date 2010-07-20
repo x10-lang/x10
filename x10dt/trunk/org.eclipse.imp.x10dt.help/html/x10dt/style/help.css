@@ -54,3 +54,13 @@ margin-top:10px;
 margin-left:20px;
 }
 
+p.note {
+background-color:#fdf4e0;
+border-style:none none none double;
+padding:5px 10px;
+}
+.menu {
+font-family: Palatino Linotype, Hoefler Text,Century Schoolbook L;
+font-style:italic;
+}
+

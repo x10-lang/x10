@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="style/help.css">
+<title>Running your X10 Application - Java backend</title>
+</head>
+
+<body>
+<a href="contents.html">Back to Table of Contents</a>
+
+ <h1>Running your X10 Application - Java backend</h1>
+
+
+<h2 id="running">Running - Java back-end</h2>
+To run your X10 program, the simplest way is to hit the green "Run" button (while the project or source file is selected).
+It's the green circle in the toolbar with the white triangle inside it.
+If you hover over this button, you'll see the words "Run Hello.x10" assuming that's the name of your program.
+<br><img src="images/run.png">
+<p>Hit the Run button to execute your program with all default settings for launching.
+<br>The Console view shows the output (if any).
+<br><img border="1" src="images/runDone.png">
+<p>If you want to specify more options for running your program, you'll need to edit the Eclipse
+<i>launch configuration</i>.
+<p>Next to the run button, there is a downward-pointing arrow.  Select that and select 
+"Run Configurations..."   Alternatively, you can select the Run menu, and under that, select
+"Run Configurations..."
+<p>(Note: we describe the behavior of Eclipse 3.4.  Eclipse 3.3 and other versions of Eclipse may
+label the menu items slightly differently.)
+
+<br><img border="1" src="images/runConfig.png">
+<p>
+If your project was selected, this dialog is shown with your 
+existing launch configuration shown, assuming you executed the example above to run your program at least once.
+The "Main" tab is selected when this dialog is shown.
+See the "Hello" launch configuration listed under "X10 Application" below on the left pane.
+<p>
+If you need to make a new launch configuration, then select "X10 Application" in the list on the left, and select the "New" button to create one.
+On the main tab, if your Project isn't already selected ("Hello" in our case), use the Browse button
+to select the project, or enter it in the text field.  To select the Main class, use the Search button.
+If you use the Search button,
+you may be presented with several items - choose the "Main - Hello" class.
+
+
+<br><img border="1" src="images/runConfigMain.png">
+<p>Select the "Arguments" tab to specify arguments to your program (if any).
+
+
+<br><img border="1" src="images/runConfigArgs.png">
+<p>
+Program arguments will be passed to the Main method, and VM arguments are used in the launching virtual machine.
+If you specify at least one program argument here, the Hello World sample code will print it in the console when
+you run.
+VM arguments let you control other things:  for example, to launch with assertions turned on, add "-ea" to the VM arguments. 
+<br>
+<p>To start your X10 application, Select the "Run" button in the lower right corner of the launch
+configuration dialog.
+
+The program runs, and the output appears in the console view.
+<br><img border="1" src="images/runConsoleOutput.png">
+
+
+
+<p>&nbsp;
+<p>&nbsp;
+<p>&nbsp;
+<p><a href="contents.html">Back to X10DT Table of Contents</a></p>
+</body>
+</html>

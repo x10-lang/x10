@@ -154,7 +154,7 @@
 	<topic label="Example" href="html/langref/example.html"/>
 	<topic label="Changes" href="html/langref/changelog.html"/>
 </topic>
-<topic href="html/x10dt/Overview.html" label="X10DT">
+<topic href="html/x10dt/contents.html" label="X10DT">
    <topic href="html/x10dt/basicEditing.html" label="Basic Editing in X10DT">
    </topic>
       <topic href="html/x10dt/prefs.html" label="X10 Preferences">
