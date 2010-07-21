@@ -168,6 +168,18 @@ final class NetworkGenerator {
       while (PAdicNumber.pow(w++, k) < P);
       return w-1;
   }
+
+  private static def bubbleSort (nodeList:Rail[Int]) {
+    for (var i:Int=0; i<nodeList.length(); ++i) 
+      for (var j:Int=i; j<nodeList.length(); ++j) 
+        if (nodeList(i) < nodeList(j)) {
+          val tmp:Int = nodeList(i);
+          nodeList(i) = nodeList(j);
+          nodeList(j) = tmp;
+        }
+    return ValRail.make[Int](nodeList.length(), (i:Int) => nodeList(i));
+  }
+
   public static def generateSparseEmbedding (P:Int, k:Int) {
     // Find a base "w" such that pow (w,k) >= P 
   val w = findW(P, k);
@@ -179,12 +191,12 @@ final class NetworkGenerator {
     // for each digit assuming that w will never be greater than 
     // pow (2, 32).
     val network:ValRail[ValRail[Int]] = ValRail.make[ValRail[Int]]
-     (P, (i:Int) => ValRail.make[Int] 
+     (P, (i:Int) => bubbleSort (Rail.make[Int] 
        (k, (j:Int) => {
     	   val ip = new PAdicNumber(w,k,i);
     	   val o = ip.delta(1, j).toDecimal();
     	   o >= P ? -1 : o
-       }));
+       })));
 
     return network;
   }

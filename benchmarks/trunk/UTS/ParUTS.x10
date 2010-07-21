@@ -247,20 +247,21 @@ final class ParUTS {
 
 		// resigned to make a lifeline steal from one of our lifelines.
 		var loot:ValRail[TreeNode] = null;
-		for (var i:Int=0; i<myLifelines.length() && noLoot; ++i) {
+		for (var i:Int=0; 
+         (i<myLifelines.length()) && (noLoot) && (0>myLifelines(i)); 
+         ++i) {
 			val lifeline:Int = myLifelines(i);
-		    if (-1 != lifeline && ! lifelinesActivated(lifeline) ) {
-		    	 lifelinesActivated(lifeline) = true;
-			   loot = at(Place(lifeline)) st().trySteal(p, true);
-			   // event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
-			   if (null!=loot) {
-				   lifelinesActivated(lifeline) = false;
-				   break;
-			   }
-			  
+		    if (!lifelinesActivated(lifeline) ) {
+		    	lifelinesActivated(lifeline) = true;
+			    loot = at(Place(lifeline)) st().trySteal(p, true);
+			    // event("Lifeline steal result " + (loot==null ? 0 : loot.length()));
+			    if (null!=loot) {
+				    lifelinesActivated(lifeline) = false;
+				    break;
+			    }
 		    }
 		 }
-         return loot;
+     return loot;
 	}
 
 	/** Try to steal from the local stack --- invoked by either a 
@@ -268,7 +269,7 @@ final class ParUTS {
 	 or by the owning place itself when it wants to give work to 
 	 a fallen buddy.
 	 */
-    def trySteal(p:Int):ValRail[TreeNode]=trySteal(p, false);
+  def trySteal(p:Int):ValRail[TreeNode]=trySteal(p, false);
 	def trySteal(p:Int, isLifeLine:Boolean) : ValRail[TreeNode] {
 		counter.incStealsReceived();
 		val length = stack.size();
