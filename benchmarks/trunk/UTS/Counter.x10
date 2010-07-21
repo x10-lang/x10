@@ -224,14 +224,16 @@ public class Counter  {
 		Console.OUT.println("\t" + safeSubstring("" + theftEfficiency, 0,8)+ " nodes stolen per attempt."); 
 		Console.OUT.println("\t" + ll + " lifeline steals.");
 		Console.OUT.println("\t" + safeSubstring("" + (1.0F*llN)/ll, 0,8) + " nodes stolen/lifeline steal.");
-		Console.OUT.println("\t" + safeSubstring("" + balance, 0,6) + "% imbalance in nodes processed (max magnitude).");
-		Console.OUT.println("\t" + safeSubstring("" + minAliveRatio, 0,6) 
-				+ " (earliest completion time, as % of max.");
+	//	Console.OUT.println("\t" + safeSubstring("" + balance, 0,6) + "% imbalance in nodes processed (max magnitude).");
+	//	Console.OUT.println("\t" + safeSubstring("" + minAliveRatio, 0,6) 
+	//			+ " (earliest completion time, as % of max.");
+		Console.OUT.println("\t  Nodes processed: " + computeTime(NODES, P, allCounters));
 		Console.OUT.println("\t  Time computing: " + computeTime(COMPUTING, P, allCounters));
 		Console.OUT.println("\t  Time stealing: " + computeTime(STEALING, P, allCounters));
 		Console.OUT.println("\t  Time probing: " + computeTime(PROBING, P, allCounters));
 		Console.OUT.println("\t  Time alive: " + computeTime(ALIVE, P, allCounters));
 		Console.OUT.println("\t  Time dead: " + computeTime(DEAD, P, allCounters));
+		Console.OUT.println("\t  Time alive+dead: " + computeTime(LIFE, P, allCounters));
 		Console.OUT.println("\t totalTimeAtZero = " + totalTimeAtZero);
 		Console.OUT.println("Performance = "+nodeSum+"/"+safeSubstring("" + (time/1E9), 0,6)
 				+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M nodes/s");
@@ -244,6 +246,8 @@ public class Counter  {
 	static val STEALING = 3;
 	static val ALIVE = 4;
 	static val DEAD = 5;
+	static val NODES = 6;
+	static val LIFE = 7;
 	def computeTime(i:Int, P:Int, allCounters: Rail[ValCounter]):Stat {
 		var min:Long= Long.MAX_VALUE;
 		var max:Long=-1;
@@ -254,6 +258,8 @@ public class Counter  {
 					i == PROBING ? b.timeProbing :
 						i == DISTRIBUTING ? b.timeDistributing :
 							i == DEAD ? b.timeDead :
+								i == LIFE ? b.timeAlive + b.timeDead : 
+								i == NODES ? b.nodesCounter : 
 								b.timeAlive;
 			min = Math.min(min, c);
 			max = Math.max(max, c);
@@ -264,8 +270,9 @@ public class Counter  {
 	}
 	
 	static struct Stat(min:Long, mean:Long, max:Long) {
-		public global safe def toString() = "(min:" + (1.0F*min)/max 
-		+ "% of max, mean=" + (1.0F*mean)/max + "% of max, max=" + max + ")";
+		public global safe def toString() = "(min:" + safeSubstring("" + (1.0F*min)/max, 0, 6)
+		+ "% of max, mean=" + safeSubstring("" + (1.0F*mean)/max, 0, 6)
+		+ "% of max, max=" + max + ")";
 	}
 
 	private static def safeSubstring(str:String, start:Int, end:Int) = str.substring(start, Math.min(end, str.length()));
