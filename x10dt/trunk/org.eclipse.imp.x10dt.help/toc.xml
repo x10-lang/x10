@@ -4,6 +4,15 @@
 <toc label="X10 Help" topic="html/main.html">
 <topic label="X10 FAQs"  href="html/x10faqs.html"/> 
 <topic label="X10 Summary"  href="html/x10summary.html"/> 
+<topic label="Getting started with X10" href="html/tutorial/toc.html">
+	<topic label="Getting Started" href="html/tutorial/01-Tutorial.html"/> 
+	<topic label="Concurrency" href="html/tutorial/02-Tutorial.html"/> 
+	<topic label="Parallel Summation" href="html/tutorial/03-Tutorial.html"/> 
+	<topic label="Guards and Dependent Types" href="html/tutorial/04-Tutorial.html"/> 
+	<topic label="Arrays (also Points, Regions, and Dists)" href="html/tutorial/05-Tutorial.html"/> 
+	<topic label="Objects" href="html/tutorial/06-Tutorial.html"/> 
+	<topic label="Objects and Places" href="html/tutorial/07-Tutorial.html"/> 
+</topic>
 <topic label="X10 Language Reference" href="html/langref/toc.html">
 	<topic label="Summary"  href="html/langref/summary.html"/> 
 	<topic label="Introduction"  href="html/langref/introduction.html"/> 
@@ -12,7 +21,7 @@
 		<topic label="The sequential core" href="html/langref/ove-seqcore.html"/> 
 		<topic label="Places and activities" href="html/langref/ove-placesacts.html"/> 
 		<topic label="Clocks" href="html/langref/ove-clocks.html"/> 
-		<topic label="Arrays, Regions and Distributions" href="html/langref/ove-arraysregionsdists.html"/> 
+		<topic label="Arrays, regions and distributions" href="html/langref/ove-arraysregionsdists.html"/> 
 		<topic label="Annotations" href="html/langref/ove-annotations.html"/> 
 		<topic label="Translating MPI programs to X10" href="html/langref/ove-translatingmpi.html"/> 
 		<topic label="Summary and future work" href="html/langref/ove-summaryfuturework.html"/> 
@@ -20,53 +29,57 @@
 	<topic label="Lexical structure"  href="html/langref/lexicalstructure.html"/> 
 	<topic label="Types" href="html/langref/types.html"> 
 		<topic label="Classes and interfaces" href="html/langref/typ-classesinterfaces.html"/> 
-		<topic label="Type parameters" href="html/langref/typ-parameters.html"/> 
+		<topic label="Type parameters and Generic Types" href="html/langref/typ-parameters.html"/>
+		<topic label="Function Types" href="html/langref/typ-function.html"/> 
 		<topic label="Type definitions" href="html/langref/typ-typedefs.html"/> 
 		<topic label="Constrained types" href="html/langref/typ-constrained.html"/> 
-		<topic label="Function types" href="html/langref/typ-function.html"/>
+		<topic label="Function types" href="html/langref/typ-functiontypes.html"/>
 		<topic label="Annotated types" href="html/langref/typ-annotated.html"/>
 		<topic label="Subtyping and type equivalence" href="html/langref/typ-subtyping.html"/> 
-		<topic label="Least common ancestor types" href="html/langref/typ-leastcommon.html"/>
-		<topic label="Coercions and conversions" href="html/langref/typ-coercionsconversions.html"/> 
-		<topic label="Built-in types" href="html/langref/typ-builtin.html"/>
+		<topic label="Common ancestors of types" href="html/langref/typ-leastcommon.html"/>
+		<topic label="Fundamental types" href="html/langref/typ-fundamental.html"/> 
 		<topic label="Type inference" href="html/langref/typ-inference.html"/>
 	</topic>
 	<topic label="Variables" href="html/langref/variables.html">
-		<topic label="Final variables" href="html/langref/var-final.html"/>
-		<topic label="Initial values of variables" href="html/var-initialsvals.html"/>
-    <topic label="Initial values of variables" href="html/var-destructuringsyntax.html"/>
-    <topic label="Initial values of variables" href="html/var-formal.html"/>
-    <topic label="Initial values of variables" href="html/var-localvars.html"/>
-    <topic label="Initial values of variables" href="html/var-fields.html"/>
-    <topic label="Initial values of variables" href="html/var-properties.html"/>
+		<topic label="Immutable variables" href="html/langref/var-final.html"/>
+		<topic label="Initial values of variables" href="html/langref/var-initialvals.html"/>
+    	<topic label="Destructuring syntax" href="html/langref/var-destructuringsyntax.html"/>
+    	<topic label="Formal parameters" href="html/langref/var-formal.html"/>
+    	<topic label="Local variables" href="html/langref/var-localvars.html"/>
+    	<topic label="Fields" href="html/langref/var-fields.html"/>
 	</topic>
-	<topic label="Objects" href="html/langref/objects.html">
-		<topic label="Final variables" href="html/langref/obj-basic.html"/>
-		<topic label="Initial values of variables" href="html/obj-examples.html"/>
+	<topic label="Names and packages" href="html/langref/namespackages.html">
+		<topic label="Packages" href="html/langref/nam-packages.html"/>
+		<topic label="import Declarations" href="html/langref/nam-importdecls.html"/>
+    	<topic label="Conventions on Type Names" href="html/langref/nam-conventions.html"/>
 	</topic>
-	<topic label="Names and packages" href="html/langref/namespackages.html"/>
-	<topic label="Interfaces" href="html/langref/interfaces.html"/>
+	<topic label="Interfaces" href="html/langref/interfaces.html">
+		<topic label="Field Definitions" href="html/langref/int-fielddefs.html"/>
+		<topic label="Interfaces Specifying Properties" href="html/langref/int-props.html"/>
+	</topic>
 	<topic label="Classes" href="html/langref/classes.html"> 
-		<topic label="Type invariants" href="html/langref/cla-typeinvariants.html"/> 
-		<topic label="implements and extends clauses" href="html/langref/cla-clauses.html"/> 
-		<topic label="Constructor definitions" href="html/langref/cla-constructordefs.html"/>
-		<topic label="proto qualifiers" href="html/langref/cla-protoqual.html"/> 		
-		<topic label="Field definitions" href="html/langref/cla-fielddefs.html"/>
-		<topic label="Method definitions" href="html/langref/cla-methoddefs.html"/>
+		<topic label="Principle of X10 Objects" href="html/langref/cla-principles.html"/>
+		<topic label="Fields" href="html/langref/cla-fields.html"/> 
+		<topic label="Properties" href="html/langref/cla-properties.html"/>
+		<topic label="Methods" href="html/langref/cla-methods.html"/>
+		<topic label="Instance Initialization" href="html/langref/cla-instanceinit.html"/>
+		<topic label="Constructors" href="html/langref/cla-constructors.html"/>
 		<topic label="Static initialization" href="html/langref/cla-staticinit.html"/>
+		<topic label="User-Defined Operators" href="html/langref/cla-userdefinedops.html"/> 
+		<topic label="Class Guards and Invariants" href="html/langref/cla-guards.html"/>		
 	</topic>
 	<topic label="Structs" href="html/langref/structs.html"> 
-		<topic label="Struct declarations" href="html/langref/str-decl.html"/> 
+		<topic label="Struct declaration" href="html/langref/str-decl.html"/> 
 		<topic label="Boxing of structs" href="html/langref/str-boxing.html"/> 
-		<topic label="Implementation of Any methods" href="html/langref/str-anymethods.html"/> 
-		<topic label="Struct primitives" href="html/langref/str-primitives.html"/> 
+		<topic label="Optional Implementation of Any methods" href="html/langref/str-anymethods.html"/> 
+		<topic label="Primitive Types" href="html/langref/str-primitives.html"/> 
 		<topic label="Generic programming with structs" href="html/langref/str-genericprog.html"/> 
-		<topic label="Programming methodology" href="html/langref/str-progmethodology.html"/> 
+		<topic label="Example structs" href="html/langref/str-example.html"/> 
 	</topic>
 	<topic label="Functions" href="html/langref/functions.html"> 
 		<topic label="Overview" href="html/langref/fun-overview.html"/> 
 		<topic label="Function literals" href="html/langref/fun-literals.html"/>
-		<topic label="Methods selectors" href="html/langref/fun-methodsel.html"/> 
+		<topic label="Method selectors" href="html/langref/fun-methodsel.html"/> 
 		<topic label="Operator functions" href="html/langref/fun-ops.html"/>  
 		<topic label="Functions as objects of type Any" href="html/langref/fun-astypeany.html"/> 
 	</topic>
@@ -79,8 +92,7 @@
 		<topic label="Calls" href="html/langref/exp-calls.html"/> 
 		<topic label="Assignment" href="html/langref/exp-assign.html"/> 
 		<topic label="Increment and decrement" href="html/langref/exp-incrdecr.html"/> 
-		<topic label="Numeric promotion" href="html/langref/exp-numericpro.html"/>  
-		<topic label="Unary plus and unary minus" href="html/langref/exp-unary.html"/> 
+		<topic label="Numeric Operations" href="html/langref/exp-numericpro.html"/>   
 		<topic label="Bitwise complement" href="html/langref/exp-bitwisecompl.html"/> 
 		<topic label="Binary arithmetic operations" href="html/langref/exp-binarithops.html"/> 
 		<topic label="Binary shift" href="html/langref/exp-binshiftops.html"/>
@@ -97,11 +109,12 @@
 		<topic label="instanceof" href="html/langref/exp-instanceof.html"/> 
 		<topic label="Subtyping expressions" href="html/langref/exp-subtyping.html"/> 
 		<topic label="Contains expressions" href="html/langref/exp-contains.html"/> 
-		<topic label="Rail constructors" href="html/langref/exp-railcons.html"/> 
+		<topic label="Rail constructors" href="html/langref/exp-railcons.html"/>
+		<topic label="Coercions and conversions" href="html/langref/exp-coercions.html"/> 
 	</topic>
 	<topic label="Statements" href="html/langref/statements.html"> 
 		<topic label="Empty statement" href="html/langref/sta-empty.html"/> 
-		<topic label="Local variable statement" href="html/langref/sta-localvar.html"/> 
+		<topic label="Local variable declaration" href="html/langref/sta-localvar.html"/> 
 		<topic label="Block statement" href="html/langref/sta-block.html"/> 
 		<topic label="Expression statment" href="html/langref/sta-expression.html"/> 
 		<topic label="Labeled statement" href="html/langref/sta-labeled.html"/>
@@ -117,41 +130,47 @@
 		<topic label="Return statement" href="html/langref/sta-return.html"/> 
 	</topic>
 	<topic label="Places" href="html/langref/places.html"> 
-		<topic label="Place expressions" href="html/langref/pla-expr.html"/> 
+		<topic label="The Structure of Places" href="html/langref/pla-structure.html"/> 
 		<topic label="here" href="html/langref/pla-here.html"/> 
 	</topic>
 	<topic label="Activities" href="html/langref/activities.html"> 
-		<topic label="The X10 Rooted Exception Model" href="html/langref/act-rootedexmodel.html"/> 
-		<topic label="Spawning an Activity" href="html/langref/act-spawn.html"/> 
-		<topic label="Place changes" href="html/langref/act-placechanges.html"/> 
+		<topic label="The X10 rooted exception model" href="html/langref/act-rootedexmodel.html"/>
+		<topic label="at: Place changing" href="html/langref/act-placechanging.html"/>  
+		<topic label="async: Spawning an Activity" href="html/langref/act-spawn.html"/> 
 		<topic label="Finish" href="html/langref/act-finish.html"/> 
-		<topic label="Initial Activity" href="html/langref/act-initial.html"/> 
-		<topic label="Foreach" href="html/langref/act-foreach.html"/>
-		<topic label="Ateach" href="html/langref/act-ateach.html"/>  
+		<topic label="Initial activity" href="html/langref/act-initial.html"/> 
+		<topic label="Foreach statements" href="html/langref/act-foreach.html"/>
+		<topic label="Ateach statements" href="html/langref/act-ateach.html"/>  
 		<topic label="Futures" href="html/langref/act-futures.html"/>
 		<topic label="At expressions" href="html/langref/act-atexpr.html"/>
 		<topic label="Shared variables" href="html/langref/act-sharedvars.html"/>   
-		<topic label="Atomic Blocks" href="html/langref/act-atomicblocks.html"/> 
+		<topic label="Atomic blocks" href="html/langref/act-atomicblocks.html"/> 
 	</topic>
 	<topic label="Clocks" href="html/langref/clocks.html"> 
-		<topic label="Clock Operations" href="html/langref/clockops.html"/> 
+		<topic label="Clock operations" href="html/langref/clockops.html"/> 
+		<topic label="Deadlock Freedom" href="html/langref/clockdeadlock.html"/>
 		<topic label="Program equivalences" href="html/langref/clockeq.html"/> 
 	</topic>
-	<topic label="Arrays" href="html/langref/arrays.html"> 
+	<topic label="Local and Distributed Arrays" href="html/langref/arrays.html"> 
 		<topic label="Points" href="html/langref/arr-points.html"/> 
 		<topic label="Regions" href="html/langref/arr-regions.html"/> 
 		<topic label="Distributions" href="html/langref/arr-dists.html"/> 
 		<topic label="Array Initializer" href="html/langref/arr-initializer.html"/> 
-		<topic label="Operations on Arrays" href="html/langref/arr-opers.html"/> 
+		<topic label="Operations on arrays" href="html/langref/arr-ops.html"/> 
 	</topic>
 	<topic label="Annotations and compiler plugins" href="html/langref/annotations.html"> 
 		<topic label="Annotation syntax" href="html/langref/ann-syntax.html"/> 
 		<topic label="Annotations declarations" href="html/langref/ann-decls.html"/> 
 		<topic label="Compiler plugins" href="html/langref/ann-plugins.html"/> 
 	</topic>
-	<topic label="Linking with native code" href="html/langref/linkingwith.html"/>
+	<topic label="Native Code Integration" href="html/langref/extern.html"> 
+		<topic label="Native static Methods" href="html/langref/ext-static.html"/> 
+		<topic label="Native Blocks" href="html/langref/ext-blocks.html"/> 
+		<topic label="External Java Code" href="html/langref/ext-javacode.html"/> 
+		<topic label="External C++ Code" href="html/langref/ext-cppcode.html"/>
+	</topic>
+	<topic label="Lost Bits" href="html/langref/lostbits.html"/>
 	<topic label="References" href="html/langref/refs.html"/>
-	<topic label="Example" href="html/langref/example.html"/>
 	<topic label="Changes" href="html/langref/changelog.html"/>
 </topic>
 <topic href="html/x10dt/contents.html" label="X10DT">
