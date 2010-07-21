@@ -1,19 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests
+Bundle-Name: X10DT Core Tests
 Bundle-SymbolicName: org.eclipse.imp.x10dt.core.tests
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.eclipse.imp.x10dt.core.tests.Activator
-Require-Bundle: x10.compiler;bundle-version="2.0.4";visibility:=reexport,
- org.eclipse.ui,
- org.eclipse.core.runtime,
- org.junit4;bundle-version="4.5.0",
- org.eclipse.imp.x10dt.core;bundle-version="2.0.4",
- polyglot3;bundle-version="3.2.0",
- org.eclipse.core.resources;bundle-version="3.5.2",
+Bundle-Version: 2.0.4.qualifier
+Fragment-Host: org.eclipse.imp.x10dt.core;bundle-version="2.0.4"
+Require-Bundle: org.junit4;bundle-version="4.5.0",
  org.eclipse.swtbot.eclipse.core;bundle-version="2.0.0",
  org.eclipse.swtbot.eclipse.finder;bundle-version="2.0.0",
- org.eclipse.swtbot.junit4_x;bundle-version="2.0.0",
- org.eclipse.jdt.core;bundle-version="3.6.0"
-Bundle-ActivationPolicy: lazy
+ org.eclipse.swtbot.junit4_x;bundle-version="2.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
