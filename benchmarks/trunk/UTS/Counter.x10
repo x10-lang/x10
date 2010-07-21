@@ -182,6 +182,7 @@ public class Counter  {
 	 * @param time
 	 * @param verbose -- if details for each place should be printed.
 	 */
+	
 	public def stats(st:PlaceLocalHandle[ParUTS], time:Long, verbose:Boolean) {
 		assert here.id == 0;
 		val P = Place.MAX_PLACES;
@@ -224,14 +225,48 @@ public class Counter  {
 		Console.OUT.println("\t" + ll + " lifeline steals.");
 		Console.OUT.println("\t" + safeSubstring("" + (1.0F*llN)/ll, 0,8) + " nodes stolen/lifeline steal.");
 		Console.OUT.println("\t" + safeSubstring("" + balance, 0,6) + "% imbalance in nodes processed (max magnitude).");
-		Console.OUT.println("\t" + safeSubstring("" + minAliveRatio, 0,6) + "% worst imbalance in alive time.");
-		Console.OUT.println("\t" + totalTimeAtZero + " = " + totalTimeAtZero);
+		Console.OUT.println("\t" + safeSubstring("" + minAliveRatio, 0,6) 
+				+ " (earliest completion time, as % of max.");
+		Console.OUT.println("\t  Time computing: " + computeTime(COMPUTING, P, allCounters));
+		Console.OUT.println("\t  Time stealing: " + computeTime(STEALING, P, allCounters));
+		Console.OUT.println("\t  Time probing: " + computeTime(PROBING, P, allCounters));
+		Console.OUT.println("\t  Time alive: " + computeTime(ALIVE, P, allCounters));
+		Console.OUT.println("\t  Time dead: " + computeTime(DEAD, P, allCounters));
+		Console.OUT.println("\t totalTimeAtZero = " + totalTimeAtZero);
 		Console.OUT.println("Performance = "+nodeSum+"/"+safeSubstring("" + (time/1E9), 0,6)
 				+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M nodes/s");
 
 	}
 	
+	static val COMPUTING = 0;
+	static val DISTRIBUTING = 1;
+	static val PROBING = 2;
+	static val STEALING = 3;
+	static val ALIVE = 4;
+	static val DEAD = 5;
+	def computeTime(i:Int, P:Int, allCounters: Rail[ValCounter]):Stat {
+		var min:Long= Long.MAX_VALUE;
+		var max:Long=-1;
+		var mean:Long=0;
+		for (b in allCounters) {
+			val c = i==COMPUTING ? b.timeComputing :
+				i == STEALING ? b.timeStealing :
+					i == PROBING ? b.timeProbing :
+						i == DISTRIBUTING ? b.timeDistributing :
+							i == DEAD ? b.timeDead :
+								b.timeAlive;
+			min = Math.min(min, c);
+			max = Math.max(max, c);
+			mean += c;
+		}
+		mean = mean/P;
+		return Stat(min, mean, max);
+	}
 	
+	static struct Stat(min:Long, mean:Long, max:Long) {
+		public global safe def toString() = "(min:" + (1.0F*min)/max 
+		+ "% of max, mean=" + (1.0F*mean)/max + "% of max, max=" + max + ")";
+	}
 
 	private static def safeSubstring(str:String, start:Int, end:Int) = str.substring(start, Math.min(end, str.length()));
 	public def assertTxTally() {
