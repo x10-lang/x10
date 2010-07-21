@@ -5,8 +5,8 @@ import x10.lang.Math;
 final class ParUTS {
 	static type PLH= PlaceLocalHandle[ParUTS];
 	static type SHA1Rand = UTS.SHA1Rand;
-  static type TreeNode = UTS.TreeNode;
-  static type Constants = UTS.Constants;
+    static type TreeNode = UTS.TreeNode;
+    static type Constants = UTS.Constants;
 
 	final static class FixedSizeStack[T] {
 		val data:Rail[T]!;
@@ -18,25 +18,9 @@ final class ParUTS {
 			size= n;
 		}
 		def empty():Boolean= last < 0;
-		def pop():T {
-			if (empty())
-				throw new Error("Popping an empty stack");
-			val result = data(last);
-			last--;
-			return result;
-		}
+		def pop():T = data(last--);
 		def push(t:T) {
-			if (last >= size-1) {
-				Console.OUT.print("In stack (limit=" + size + ",size=" + size() + ") unanticipated thief" + 
-						t + " at " + here.id + ", already has: " );
-				for (thief in data) {
-					Console.OUT.print("" + thief);
-				}
-				Console.OUT.println();
-				throw new Error("Pushing onto a full stack");
-			}
-			last++;
-			data(last)=t;
+			data(++last)=t;
 		}
 		def size():Int=last+1;
 		
@@ -45,17 +29,17 @@ final class ParUTS {
 	
 	val width:Int;
 	val stack = new Stack[TreeNode]();
-  val myLifelines:ValRail[Int];
+    val myLifelines:ValRail[Int];
 
 	// Which of the lifelines have I actually activated?
 	val lifelinesActivated: Rail[Boolean];
 
-  val treeType:Int; // 0=BINOMIAL, 1=GEOMETRIC
+    val treeType:Int; // 0=BINOMIAL, 1=GEOMETRIC
 	val b0:Int; // root branching factor
-  val q:Long, m:Int, k:Int, nu:Int; // For the binomial tree
-  val a:Int, d:Int; // For the geometric tree
+    val q:Long, m:Int, k:Int, nu:Int; // For the binomial tree
+    val a:Int, d:Int; // For the geometric tree
 
-  val l:Int; 
+    val l:Int; 
 	val z:Int;
 	val logEvents:Boolean;
 	val myRandom = new Random();
@@ -153,12 +137,10 @@ final class ParUTS {
 	}
 
 	final def processLoot(loot: ValRail[TreeNode], lifeline:Boolean) {
-		if (loot != null) {
 			counter.incRx(lifeline, loot.length);
 			val time = System.nanoTime();
 			for (r in loot) processSubtree(r);
-			counter.incTimeComputing(System.nanoTime() - time);
-		}	
+			counter.incTimeComputing(System.nanoTime() - time);	
 	}
 	final def processAtMostN(n:Int) {
 		val time = System.nanoTime();
@@ -190,12 +172,12 @@ final class ParUTS {
 				n = min(stack.size(), nu);
 			}
 			val loot = attemptSteal(st);
-      if (null==loot) { 
-        if (stack.size()>0) continue;
-        else break;
-      } else {
+            if (null==loot) { 
+               if (stack.size()>0) continue;
+               else break;
+            } else {
 			  processLoot(loot, false);
-      }
+            }
 		}
 	  event("Finished main loop.");
 	}
@@ -292,14 +274,15 @@ final class ParUTS {
              loot:ValRail[TreeNode], 
              depth:Int, 
              source:Int) {
+		assert loot != null;
 		try {
 			lifelinesActivated(source) = false;
 			if (active) {
-				processLoot(loot, true);
+				  processLoot(loot, true);
 				assert (! init);
 				// Now you can return, the outer activity will handle the data on the stack.
-			    if (depth > 0) 
-					  distribute(st, depth+1);
+			    //if (depth > 0) 
+				//	  distribute(st, depth+1);
 				return;
 			}
 			active=true;
@@ -333,11 +316,11 @@ final class ParUTS {
 		finish {
 			event("Launch main");
 			if (Constants.BINOMIAL==treeType) { 
-        TreeExpander.processBinomialRoot (b0, rootNode, stack);
-      } else {
-        TreeExpander.geometric (a, b0, d, rootNode, stack);
-      }
-      ++counter.nodesCounter; // root node is never pushed on the stack.
+               TreeExpander.processBinomialRoot (b0, rootNode, stack);
+            } else {
+               TreeExpander.geometric (a, b0, d, rootNode, stack);
+            }
+            ++counter.nodesCounter; // root node is never pushed on the stack.
 
 			val lootSize = stack.size()/P;
 			for (var pi:Int=1 ; pi<P ; ++pi) {
@@ -346,9 +329,9 @@ final class ParUTS {
 				   st().launch(st, true, loot, 0, 0);
 				counter.incTxNodes(lootSize);
 			}
-      active=true;
+            active=true;
 			processStack(st);
-      active=false;
+            active=false;
 			event("Finish main");
 		} 
 		event("End main finish");
