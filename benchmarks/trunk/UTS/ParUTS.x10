@@ -255,7 +255,7 @@ final class ParUTS {
 		// resigned to make a lifeline steal from one of our lifelines.
 		var loot:ValRail[TreeNode] = null;
 		for (var i:Int=0; 
-         (i<myLifelines.length()) && (noLoot) && (0>myLifelines(i)); 
+         (i<myLifelines.length()) && (noLoot) && (0<=myLifelines(i)); 
          ++i) {
 			val lifeline:Int = myLifelines(i);
 		    if (!lifelinesActivated(lifeline) ) {
