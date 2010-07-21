@@ -229,12 +229,11 @@ public class Counter  {
 	//			+ " (earliest completion time, as % of max.");
 		Console.OUT.println("Nodes processed: " + computeTime(NODES, P, allCounters));
 		Console.OUT.println("Time computing: " + computeTime(COMPUTING, P, allCounters, 1000, "us"));
-		Console.OUT.println("Time stealing: " + computeTime(STEALING, P, allCounters, 1000, "us"));
-		Console.OUT.println("Time probing: " + computeTime(PROBING, P, allCounters, 1000, "us"));
-		Console.OUT.println("Time alive: " + computeTime(ALIVE, P, allCounters, 1000, "us"));
-		Console.OUT.println("Time dead: " + computeTime(DEAD, P, allCounters, 1000, "us"));
-		Console.OUT.println("Time alive+dead: " + computeTime(LIFE, P, allCounters, 1000, "us"));
-		Console.OUT.println("totalTimeAtZero = " + (totalTimeAtZero/1000) + " us");
+		Console.OUT.println("Time stealing:  " + computeTime(STEALING, P, allCounters, 1000, "us"));
+		Console.OUT.println("Time probing:   " + computeTime(PROBING, P, allCounters, 1000, "us"));
+		Console.OUT.println("Time alive:     " + computeTime(ALIVE, P, allCounters, 1000, "us"));
+		Console.OUT.println("Time dead:      " + computeTime(DEAD, P, allCounters, 1000, "us"));
+		Console.OUT.println("Time alive+dead:" + computeTime(LIFE, P, allCounters, 1000, "us"));
 		Console.OUT.println("Performance = "+nodeSum+"/"+safeSubstring("" + (time/1E9), 0,6)
 				+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M nodes/s");
 
