@@ -172,11 +172,11 @@ public class RailCopy extends x10Test {
             Console.ERR.println("| "+(here==p?"  Local copy test    ":"  Remote copy test   ")+" |");
             Console.ERR.println("=========================");
             for (i in [1, 4200, 500000]) {
-                failures += test(i, p, (i:Int)=>(65+(i%26)) as Char, (i:Int)=>'x', "Char"+i);
-                failures += test(i, p, (i:Int)=>i+1000 as Byte, (i:Int)=>0 as Byte, "Byte"+i);
-                failures += test(i, p, (i:Int)=>i-1000 as Int, (i:Int)=>0 as Int, "Int"+i);
-                failures += test(i, p, (i:Int)=>i/1000.0 as Float, (i:Int)=>0 as Float, "Float"+i);
-                failures += test(i, p, (i:Int)=>Math.pow(-i,3) as Double, (i:Int)=>0 as Double, "Double"+i);
+                failures += test(i, p, (i:Int)=>((65+(i%26)) as Char), (i:Int)=>'x', "Char"+i);
+                failures += test(i, p, (i:Int)=>((i+1000) as Byte), (i:Int)=>(0 as Byte), "Byte"+i);
+                failures += test(i, p, (i:Int)=>((i-1000) as Int), (i:Int)=>(0 as Int), "Int"+i);
+                failures += test(i, p, (i:Int)=>((i/1000.0) as Float), (i:Int)=>(0 as Float), "Float"+i);
+                failures += test(i, p, (i:Int)=>(Math.pow(-i,3) as Double), (i:Int)=>(0 as Double), "Double"+i);
             }
         }
         Console.ERR.println("Number of failures: "+failures);

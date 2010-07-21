@@ -119,7 +119,7 @@ class FRASimpleDist {
             async (Place.places(i)) {
 	        val table = tables();
                 var err:int = 0;
-                for ((j) in table.a)
+                for ((j) in table.a) // DYNAMIC_CHECK  (because it is inside "async (Place.places(i)) {")
                     if (table.a(j) != j) err++;
                 println("Found " + err + " errors.");
             }
