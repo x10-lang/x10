@@ -194,21 +194,24 @@ final class ParUTS {
    of nodes, give him half (i.e, launch a remote async).
 	 */
 	def distribute(st:PLH, depth:Int) {
-		var N:Int=0;
-		while ((N=stack.size()) > 1 && thieves.size() > 0) {
-			val thief=thieves.pop();
-			val numToSteal = N/2;
-			val loot = stack.pop(numToSteal);
-			counter.incTxNodes(numToSteal);
-			// event("Distributing " + loot.length() + " to " + thief);
-		    val victim = here.id;
-		    // During this communication, you may process (a)
-		    // incoming thefts, this reduces stack, (b) incoming
-		    // distributions, this increases stack.
-		    async (Place(thief)) 
-		      st().launch(st, false, loot, depth, victim);
-		}
-  }
+		var numThieves:Int = thieves.size();
+    	if (numThieves > 0) {
+    		val lootSize= stack.size();
+    		if (lootSize > 2) {
+    			numThieves = min(numThieves, lootSize-2);
+    			val numToSteal = lootSize/(numThieves+1);
+    			for (var i:Int=0; i < numThieves; ++i) {
+    				val thief = thieves.pop();
+    				val loot = stack.pop(numToSteal);
+    				counter.incTxNodes(numToSteal);
+    				// event("Distributing " + loot.length() + " to " + thief);
+    			    val victim = here.id;
+    			    async (Place(thief)) 
+    			      st().launch(st, false, loot, depth, victim);
+    			}
+    		}
+    	}
+    }
 
 	/** This is the code invoked locally by each node when there are no 
 	 more nodes left on the stack. In other words, this function is 
