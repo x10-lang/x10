@@ -17,12 +17,14 @@ public class Counter  {
 	var nodesReceived:Long = 0L;
 	var lastTimeStamp:Long=-1L;
 	var timeComputing:Long = 0L;
+    var timeProbing:Long = 0L;
     var timeStealing:Long =0L;
     var timeDistributing:Long = 0L;
 	var timeAlive:Long = 0L;
 	var timeDead:Long=0L;
 	var chainDepth:Int=0;
 	var maxDepth:Int=0;
+    var totalTimeAtZero:Long=0L;
 
 	
 	public def toVal() = new ValCounter(this);
@@ -40,6 +42,7 @@ public class Counter  {
 	global val nodesReceived:Long;
 	global val lastTimeStamp:Long;
 	global val timeComputing:Long;
+	global val timeProbing:Long;
 	global val timeDistributing:Long;
 	global val timeStealing:Long;
 	global val timeAlive:Long;
@@ -59,6 +62,7 @@ public class Counter  {
 	nodesReceived=c.nodesReceived;
 	lastTimeStamp=c.lastTimeStamp;
 	timeComputing=c.timeComputing;
+	timeProbing = c.timeProbing;
 	timeStealing = c.timeStealing;
 	timeDistributing=c.timeDistributing;
 	timeAlive=c.timeAlive;
@@ -94,11 +98,14 @@ public class Counter  {
 				+ safeSubstring("" +(100.0F*timeDistributing)/total, 0,5)+ "%)");
 		Console.OUT.println("\t Time: stealing= " + (timeStealing)/1000 + " us ("
 				+ safeSubstring("" +(100.0F*timeStealing)/total, 0,5)+ "%)");
+		Console.OUT.println("\t Time: probing= " + (timeProbing)/1000 + " us ("
+				+ safeSubstring("" +(100.0F*timeProbing)/total, 0,5)+ "%)");
+		Console.OUT.println("\t Time: alive= " + timeAlive/1000 + " us ("
+				+ safeSubstring("" + (100.0F*timeAlive)/total,0,5) + "%)");
 		Console.OUT.println("\t Time: idle= " + timeDead/1000 + " us ("
 				+ safeSubstring("" + (100.0F*timeDead)/total,0,5) + "%)");
-		Console.OUT.println("\t Check time: Time Alive=" + (timeAlive/1000) + " c+d+s=" + (timeComputing+timeDistributing+timeStealing)/1000);
 		Console.OUT.println("\t Time is "
-				+ safeSubstring("" + (100.0F*(timeAlive+timeDead))/sumCounters.lastTimeStamp,
+				+ safeSubstring("" + (100.0F*(total)/sumCounters.lastTimeStamp,
 						0, 4)+ "% of max.");
 	}
 
@@ -218,7 +225,7 @@ public class Counter  {
 		Console.OUT.println("\t" + safeSubstring("" + (1.0F*llN)/ll, 0,8) + " nodes stolen/lifeline steal.");
 		Console.OUT.println("\t" + safeSubstring("" + balance, 0,6) + "% imbalance in nodes processed (max magnitude).");
 		Console.OUT.println("\t" + safeSubstring("" + minAliveRatio, 0,6) + "% worst imbalance in alive time.");
-
+		Console.OUT.println("\t" + totalTimeAtZero + " = " + counter.totalTimeAtZero);
 		Console.OUT.println("Performance = "+nodeSum+"/"+safeSubstring("" + (time/1E9), 0,6)
 				+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M nodes/s");
 

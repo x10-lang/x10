@@ -169,10 +169,15 @@ final class ParUTS {
 			var n:Int = min(stack.size(), nu);
 			while (n > 0) {
 				processAtMostN(n);
+				
+				val time:Long =  System.nanoTime();
 				Runtime.probe();
+				val time2 = System.nanoTime();
+				counter.timeProbing += (time2 - time);
 				val numThieves = thieves.size();
 				if (numThieves > 0)
 				   distribute(st, 1, numThieves);
+				counter.timeDistributing += (System.nanoTime() -time2);
 				n = min(stack.size(), nu);
 			}
 			val loot = attemptSteal(st);
@@ -195,12 +200,13 @@ final class ParUTS {
    of nodes, give him half (i.e, launch a remote async).
 	 */
 	def distribute(st:PLH, depth:Int) {
+		val time = System.nanoTime();
 		val numThieves = thieves.size();
 		if (numThieves > 0)
 		   distribute(st, 1, numThieves);
+		counter.timeDistributing += (System.nanoTime()  - time);
 	}
 	def distribute(st:PLH, depth:Int, var numThieves:Int) {
-		val time = System.nanoTime();
 		val lootSize= stack.size();
 		if (lootSize > 2) {
 			numThieves = min(numThieves, lootSize-2);
@@ -215,7 +221,6 @@ final class ParUTS {
 				st().launch(st, false, loot, depth, victim);
 			}
 		}
-		counter.timeDistributing += (System.nanoTime()  - time);
 	}
 
 	/** This is the code invoked locally by each node when there are no 
@@ -337,7 +342,9 @@ final class ParUTS {
             rootNode:TreeNode) {
 		val P=Place.MAX_PLACES;
 		event("Start main finish");
-		counter.lastTimeStamp = System.nanoTime();
+		val startAtZero = System.nanoTime();
+		counter.lastTimeStamp = startAtZero;
+		 counter.startLive();
 		finish {
 			event("Launch main");
 			if (Constants.BINOMIAL==treeType) { 
@@ -358,7 +365,9 @@ final class ParUTS {
 			processStack(st);
             active=false;
 			event("Finish main");
+			counter.stopLive();
 		} 
+		 counter.totalTimeAtZero = (System.nanoTime() - startAtZero);
 		event("End main finish");
 	}
 }
