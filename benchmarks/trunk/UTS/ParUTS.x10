@@ -142,7 +142,7 @@ final class ParUTS {
 			counter.incRx(lifeline, loot.length);
 			val time = System.nanoTime();
 			for (r in loot) processSubtree(r);
-			counter.incTimeComputing(System.nanoTime() - time);	
+			counter.timeComputing += (System.nanoTime() - time);	
 	}
 	final def processAtMostN(n:Int) {
 		val time = System.nanoTime();
@@ -150,7 +150,7 @@ final class ParUTS {
 			val e = stack.pop();
 			processSubtree(e);
 		}
-		counter.incTimeComputing(System.nanoTime() - time);
+		counter.timeComputing += (System.nanoTime() - time);
 	}
 
   /** A trivial function to calculate minimum of 2 integers */
@@ -170,7 +170,9 @@ final class ParUTS {
 			while (n > 0) {
 				processAtMostN(n);
 				Runtime.probe();
-				distribute(st, 1);
+				val numThieves = thieves.size();
+				if (numThieves > 0)
+				   distribute(st, 1, numThieves);
 				n = min(stack.size(), nu);
 			}
 			val loot = attemptSteal(st);
@@ -180,7 +182,6 @@ final class ParUTS {
             	   continue;
                }
                else {
-            	   noLoot=true;
             	   break;
                }
             } else {
@@ -194,24 +195,28 @@ final class ParUTS {
    of nodes, give him half (i.e, launch a remote async).
 	 */
 	def distribute(st:PLH, depth:Int) {
-		var numThieves:Int = thieves.size();
-    	if (numThieves > 0) {
-    		val lootSize= stack.size();
-    		if (lootSize > 2) {
-    			numThieves = min(numThieves, lootSize-2);
-    			val numToSteal = lootSize/(numThieves+1);
-    			for (var i:Int=0; i < numThieves; ++i) {
-    				val thief = thieves.pop();
-    				val loot = stack.pop(numToSteal);
-    				counter.incTxNodes(numToSteal);
-    				// event("Distributing " + loot.length() + " to " + thief);
-    			    val victim = here.id;
-    			    async (Place(thief)) 
-    			      st().launch(st, false, loot, depth, victim);
-    			}
-    		}
-    	}
-    }
+		val numThieves = thieves.size();
+		if (numThieves > 0)
+		   distribute(st, 1, numThieves);
+	}
+	def distribute(st:PLH, depth:Int, var numThieves:Int) {
+		val time = System.nanoTime();
+		val lootSize= stack.size();
+		if (lootSize > 2) {
+			numThieves = min(numThieves, lootSize-2);
+			val numToSteal = lootSize/(numThieves+1);
+			for (var i:Int=0; i < numThieves; ++i) {
+				val thief = thieves.pop();
+				val loot = stack.pop(numToSteal);
+				counter.incTxNodes(numToSteal);
+				// event("Distributing " + loot.length() + " to " + thief);
+				val victim = here.id;
+				async (Place(thief)) 
+				st().launch(st, false, loot, depth, victim);
+			}
+		}
+		counter.timeDistributing += (System.nanoTime()  - time);
+	}
 
 	/** This is the code invoked locally by each node when there are no 
 	 more nodes left on the stack. In other words, this function is 
@@ -221,7 +226,7 @@ final class ParUTS {
 	 tries). If we are not successful, we invoke our lifeline system.
 	 */
 	def attemptSteal(st:PLH):ValRail[TreeNode] {
-		event("Attempt steal");
+		val time = System.nanoTime();
 		val P = Place.MAX_PLACES;
 		if (P == 1) return null;
 		val p = here.id;
@@ -237,10 +242,12 @@ final class ParUTS {
 		   if (loot != null) {
 			  //event("Steal succeeded with " + 
 					//(loot == null ? 0 : loot.length()) + " items");
+			   counter.timeStealing += (System.nanoTime() - time);
 			  return loot;
 		   }
 		}
 		if (! noLoot) {
+			   counter.timeStealing += (System.nanoTime() - time);
 			return null;
 		}
 		event("No loot; establishing lifeline(s).");
@@ -261,7 +268,8 @@ final class ParUTS {
 			    }
 		    }
 		 }
-     return loot;
+		 counter.timeStealing += (System.nanoTime() - time);
+         return loot;
 	}
 
 	/** Try to steal from the local stack --- invoked by either a 
@@ -269,9 +277,9 @@ final class ParUTS {
 	 or by the owning place itself when it wants to give work to 
 	 a fallen buddy.
 	 */
-  def trySteal(p:Int):ValRail[TreeNode]=trySteal(p, false);
+    def trySteal(p:Int):ValRail[TreeNode]=trySteal(p, false);
 	def trySteal(p:Int, isLifeLine:Boolean) : ValRail[TreeNode] {
-		counter.incStealsReceived();
+		counter.stealsReceived++;
 		val length = stack.size();
 		if (length <= 2) {
 			if (isLifeLine)
@@ -280,7 +288,8 @@ final class ParUTS {
 			return null;
 		}
 		val numSteals = length/2;
-		counter.incTxNodes(numSteals);
+		counter.nodesGiven += (numSteals);
+		counter.stealsSuffered++;
 		return stack.pop(numSteals);
 	}
 
