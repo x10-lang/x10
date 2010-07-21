@@ -72,7 +72,7 @@ final class ParUTS {
 		logEvents=e;
 		thieves = new FixedSizeStack[Int](z, 0);
 		lifelinesActivated = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
-		// printLifelineNetwork();
+		printLifelineNetwork();
 
     this.a = -1; 
     this.d = -1;
