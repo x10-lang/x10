@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?NLS TYPE="org.eclipse.help.toc"?>
 
-<toc label="X10 Help" topic="html/main.html">
+<toc label="X10 Help">
 <topic label="X10 FAQs"  href="html/x10faqs.html"/> 
 <topic label="X10 Summary"  href="html/x10summary.html"/> 
 <topic label="Getting started with X10" href="html/tutorial/toc.html">
@@ -173,15 +173,22 @@
 	<topic label="References" href="html/langref/refs.html"/>
 	<topic label="Changes" href="html/langref/changelog.html"/>
 </topic>
-<topic href="html/x10dt/contents.html" label="X10DT">
-   <topic href="html/x10dt/basicEditing.html" label="Basic Editing in X10DT">
-   </topic>
-      <topic href="html/x10dt/prefs.html" label="X10 Preferences">
-   </topic>
-   <topic href="html/x10dt/refactoring.html" label="Refactoring">
-   </topic>
-   <topic href="html/x10dt/newAndNoteworthy.html" label="New and Noteworthy">
-   </topic>
+<topic   href="html/x10dt/contents.html" label="X10DT">
+<topic label="X10DT Overview" href="html/x10dt/Overview.html">X10DT Overview</topic>
+<topic label="Starting to use X10DT" href="html/x10dt/01start.html">Starting to use X10DT </topic>
+<topic label="X10 projects - Java back-end vs. C++ back-end" href="html/x10dt/01whichBackend.html"> </topic>
 
+<topic label="Creating a New X10 Project - Java back-end" href="html/x10dt/02NewProjJavaBackend.html"> </topic>
+<topic label="Creating a new X10 Project - C++  back-end" href="html/x10dt/02NewProjCppBackend.html"> </topic> 
+
+<topic label="Developing/editing your X10 source code" href="html/x10dt/03develop.html">
+<topic label="Content Assist" href="html/x10dt/ContentAssist.html"/>
+</topic>
+
+<topic label="Running X10 programs (java back-end)" href="html/x10dt/04runJavaBackend.html"></topic>
+<topic label="Running X10 programs (C++ backend)" href="html/x10dt/04runCppBackend.html"></topic>
+<topic label="X10 Preferences" href="html/x10dt/prefs.html"/>
+<topic label="Refactoring" href="html/x10dt/refactoring.html"/>
+<topic label="New and Noteworthy" href="html/x10dt/newAndNoteworthy.html"/>
 </topic> 
 </toc>
