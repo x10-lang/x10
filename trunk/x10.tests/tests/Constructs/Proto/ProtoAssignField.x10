@@ -25,7 +25,7 @@ public class ProtoAssignField extends x10Test {
     /**
      * Cannot read a field of a proto value.
      */
-    def m(a: proto A) {
+    def m(a: proto A!) {
     	a.x = 5;
     }
     

@@ -25,6 +25,8 @@ public class ConstructorsWithInferredTypes extends x10Test {
     public def run(): boolean = {
        val s0 : Spot{x==0} = new Spot();
        val s1 : Spot{x==1} = new Spot(1);
+       val q0 : Spot2{x==0} = new Spot2(); // todo: today we have a DYNAMIC_CHECK, but it should be inferred correctly
+       val q1 : Spot2{x==1} = new Spot2(1); // todo: today we have a DYNAMIC_CHECK, but it should be inferred correctly
        // If this compiles then it's fine.
        return true;
     }
@@ -35,6 +37,10 @@ public class ConstructorsWithInferredTypes extends x10Test {
 }
 
 class Spot(x:Int) {
+   def this():Spot{self.x==0} {property(0);}
+   def this(xx:Int):Spot{self.x==xx} {property(xx);}
+}
+class Spot2(x:Int) {
    def this() {property(0);}
    def this(xx:Int) {property(xx);}
 }
