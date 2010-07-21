@@ -1,0 +1,1109 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="./x10tutorial.css" />
+</head>
+
+<body>
+
+<h1>Objects</h1>
+
+<p>
+The two main sorts of data that you will work with in X10 are <i>objects</i>
+and <i>struct</i>s.  Objects are fairly similar to objects in Java and C++.
+Structs are more restricted and potentially more efficient; they don't have
+some of the levels of indirection that gives objects their power and their
+sluggishness.   However, objects and structs look quite similar, and a great
+deal of code can work with either one equally well.
+</p>
+
+<p>
+Objects in X10 are broadly similar to those in Java and C++ (with all methods
+virtual).   The most salient differences are: 
+</p>
+
+<ol>
+<li>Objects are entirely garbage collected.  There is no C++-style stack
+  allocation, and no destructors.
+</li>
+<li>Unlike Java, objects don't have locks associated with them.
+  Use <kbd>atomic</kbd> blocks for things that need to be synchronized. </li>
+</ol>
+
+<h2>Example: Triangles</h2>
+
+<p>
+We'll illustrate object-oriented programming with a class hierarchy of
+triangles.  We'll have five classes: 
+</p>
+
+<ul>
+<li>Triangle</li>
+<ul>
+<li>Right Triangle</li>
+<li>Isosceles Triangle</li>
+<ul><li>Equilateral Triangle</li></ul>
+<li>Miscellaneous Triangle</li>
+</ul>
+</ul>
+
+<p>
+Our hierarchy isn't perfect. In actual geometry, a right triangle can be
+isosceles, but we'll categorize it as one or the other. The miscellaneous
+triangle class includes all the specific kinds of triangles too; it can handle
+any triangle at all. (This is a common issue in representing mathematical
+objects in computer systems. A matrix algebra program might have a special
+class for diagonal matrices, since diagonal matrices can be stored and
+manipulated very efficiently. They'll also have a class for arbitrary
+matrices. You can store a diagonal matrix as if it were an arbitrary one, and
+that won't get you the advantages of the diagonal representation.)
+</p>
+
+<h3><kbd>Triangle</kbd></h3>
+
+<p>
+The <kbd>Triangle</kbd> class will be abstract. We won't have any actual
+instances of <kbd>Triangle</kbd>: all triangles will be right, isosceles, or
+miscellaneous.  But <kbd>Triangle</kbd> will explain what a triangle has to
+provide. For this example, it's not much: 
+</p>
+<ul>
+<li>The three sides of the triangle: <kbd>a</kbd>, <kbd>b</kbd>,
+  and <kbd>c</kbd>;</li>
+<li>The corresponding three angles: <kbd>alpha</kbd>
+  opposite <kbd>a</kbd>, <kbd>beta</kbd> opposite <kbd>b</kbd>, and 
+  <kbd>gamma</kbd> opposite <kbd>c</kbd>;</li>
+<li>The area, <kbd>area()</kbd>.</li>
+</ul>
+
+<p>
+The sides and angles are <i>properties</i>. Properties are special fields of
+an object. They're public, so they can be read by anyone.
+They're <kbd>val</kbd> fields, so they never change.
+They're <kbd>global</kbd>, so they're available at every place without extra
+communication. And they are set at object construction, so the compiler has a
+chance to understand what they are.  We've seen the property <kbd>home</kbd>
+previously.  
+</p>
+
+<p>
+Now, we'll make our own properties for the sides and angles.  (We could
+perfectly well make a property for the area too, since that doesn't change,
+but we want to compute it to illustrate method calls.  Conversely, we could
+have fewer properties, which would make <kbd>Triangle</kbd>s take less memory,
+but be less comprehensible by the compiler.)
+</p>
+
+
+<p>
+The simplest syntax for declaring properties is to write them in <a href="#tria-1">parentheses
+after the name of the class</a>. The way to set them is with the
+<kbd>property</kbd> command, as we do in the <a href="#tria-10">constructor</a>.
+</p>
+
+
+
+<p>
+The <kbd>Triangle</kbd> class is marked <kbd>abstract</kbd>.  As in Java and
+C++, that means that it doesn't have to include code for all its methods, and
+can't, of itself, be instantiated.  The uninstantiated methods are
+marked <kbd>abstract</kbd> too.  In our case, we'll leave the <kbd>area</kbd>
+method abstract.  
+</p>
+
+
+
+
+
+<!--
+abstract public class Triangle (a:Double, b:Double, c:Double, 
+               alpha: Double, beta: Double, gamma: Double) {
+
+  abstract global safe def area():Double;
+
+  protected def this(a:Double, b:Double, c:Double, 
+                     alpha: Double, beta: Double, gamma: Double) 
+   : Triangle{
+         self.a == a && self.b == b && self.c == c
+      && self.alpha == alpha && self.beta == beta && self.gamma == gamma
+    }{
+     property(a,b,c,alpha,beta,gamma);
+  }
+  
+  public static def sqr(d:Double) = d*d;
+  
+  public safe global def toString() = 
+    "a=" + a + ", b=" + b + ", c=" + c + 
+    ", alpha="+ alpha + ", beta=" + beta + ", gamma=" + gamma;
+}
+-->
+<table class="ex">
+<a name="src-tria-1"/>
+<tr class="ex"><td><a href="#tria-1" class="ex">1</a></td><td class="ex"><code>abstract public class Triangle (a:Double, b:Double, c:Double, </code></td></tr>
+<a name="src-tria-2"/>
+<tr class="ex"><td><a href="#tria-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alpha: Double, beta: Double, gamma: Double) {</code></td></tr>
+<a name="src-tria-3"/>
+<tr class="ex"><td><a href="#tria-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;abstract global safe def area():Double;</code></td></tr>
+<a name="src-tria-4"/>
+<tr class="ex"><td><a href="#tria-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;protected def this(a:Double, b:Double, c:Double, </code></td></tr>
+<a name="src-tria-5"/>
+<tr class="ex"><td><a href="#tria-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alpha: Double, beta: Double, gamma: Double) </code></td></tr>
+<a name="src-tria-6"/>
+<tr class="ex"><td><a href="#tria-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;: Triangle{</code></td></tr>
+<a name="src-tria-7"/>
+<tr class="ex"><td><a href="#tria-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.a == a && self.b == b && self.c == c</code></td></tr>
+<a name="src-tria-8"/>
+<tr class="ex"><td><a href="#tria-8" class="ex">8</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&& self.alpha == alpha && self.beta == beta && self.gamma == gamma</code></td></tr>
+<a name="src-tria-9"/>
+<tr class="ex"><td><a href="#tria-9" class="ex">9</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;}{</code></td></tr>
+<a name="src-tria-10"/>
+<tr class="ex"><td><a href="#tria-10" class="ex">10</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;property(a,b,c,alpha,beta,gamma);</code></td></tr>
+<a name="src-tria-11"/>
+<tr class="ex"><td><a href="#tria-11" class="ex">11</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<a name="src-tria-12"/>
+<tr class="ex"><td><a href="#tria-12" class="ex">12</a></td><td class="ex"><code>&nbsp;&nbsp;</code></td></tr>
+<a name="src-tria-13"/>
+<tr class="ex"><td><a href="#tria-13" class="ex">13</a></td><td class="ex"><code>&nbsp;&nbsp;public static def sqr(d:Double) = d*d;</code></td></tr>
+<a name="src-tria-14"/>
+<tr class="ex"><td><a href="#tria-14" class="ex">14</a></td><td class="ex"><code>&nbsp;&nbsp;</code></td></tr>
+<a name="src-tria-15"/>
+<tr class="ex"><td><a href="#tria-15" class="ex">15</a></td><td class="ex"><code>&nbsp;&nbsp;public safe global def toString() = </code></td></tr>
+<a name="src-tria-16"/>
+<tr class="ex"><td><a href="#tria-16" class="ex">16</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;"a=" + a + ", b=" + b + ", c=" + c + </code></td></tr>
+<a name="src-tria-17"/>
+<tr class="ex"><td><a href="#tria-17" class="ex">17</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;", alpha="+ alpha + ", beta=" + beta + ", gamma=" + gamma;</code></td></tr>
+<a name="src-tria-18"/>
+<tr class="ex"><td><a href="#tria-18" class="ex">18</a></td><td class="ex"><code>}</code></td></tr>
+</table>
+
+<a name="tria-1"/>
+<p>  <a href="#src-tria-1">line 1: </a><kbd class="ex">abstract public class
+    Triangle (a:Double, b:Double, c:Double, </kbd><br/>
+The list of field names after <kbd>Triangle</kbd>
+    -- <kbd>a</kbd>, <kbd>b </kbd>, <kbd>c</kbd>, etc. -- is the list of
+    properties of <kbd>Triangle</kbd> objects. They are all immutable, public
+    fields. 
+</p>
+<a name="tria-2"/>
+<!--<p>  <a href="#src-tria-2">line 2: </a><kbd class="ex">               alpha: Double, beta: Double, gamma: Double) {</kbd><br/></p>-->
+<a name="tria-3"/>
+<p>  <a href="#src-tria-3">line 3: </a><kbd class="ex">  abstract global safe
+    def area():Double;</kbd><br/>
+The <kbd>area()</kbd> method is marked <kbd>abstract</kbd>.  We won't explain
+    how to do it here. Instead, specific kinds of triangles will compute it,
+    each in their own way: general triangles will use a general formula, right
+    triangles an easier one that only works for right triangles, etc. 
+(We <i>could</i> calculate it directly, using Heron's
+formula, but we choose not to for the sake of illustrating abstract methods.)
+</p>
+<p>
+It is also marked <kbd>safe</kbd>, meaning that it can be called inside of
+atomic blocks. The full details of what safety requires are somewhat
+complicated, and will be explained later. Simple expressions like this are
+frequently safe.    For the moment, if you want to make something safe, try to
+do so, and the compiler will tell you if you can't.
+</p>
+<p>
+Finally, it is marked <kbd>global</kbd>. That means that it can be called from
+anywhere, and can only depend on information that's available everywhere --
+like the properties of the object.
+</p>
+<a name="tria-4"/>
+<p>  <a href="#src-tria-4">line 4: </a><kbd class="ex">  protected def
+    this(a:Double, b:Double, c:Double, </kbd><br/>
+Even though <kbd>Triangle</kbd> is abstract, it has a <i>constructor</i>
+method.  This is code that will be run whenever a new <kbd>Triangle</kbd> --
+or any subclass of a <kbd>Triangle</kbd> -- is made.  Constructors are defined
+using the special method name <kbd>this</kbd>. 
+</p>
+<p>
+The constructor is <kbd>protected</kbd>.  We don't want just anyone to be able
+to call this constructor.  Not all sets of six numbers make a good triangle!
+For example, <kbd>a==1.0</kbd>, <kbd>b==2.0</kbd>, and <kbd>c==10.0</kbd>
+aren't the sides of a triangle; they violate the Triangle Inequality.  Sides
+can't be zero or negative.  The three angles need to be positive, and add up
+to <kbd>Math.PI</kbd>.  
+</p>
+<p>
+So, only subclasses get to call this constructor.  Each subclass will do
+whatever tests it needs to do to check that it is producing a good triangle.  
+</p>
+
+<a name="tria-5"/>
+<p>  <a href="#src-tria-5">line 5: </a><kbd class="ex">
+    alpha: Double, beta: Double, gamma: Double) </kbd><br/>
+More constructor arguments.
+</p>
+<a name="tria-6"/>
+<p>  <a href="#src-tria-6">line 6: </a><kbd class="ex">   :
+    Triangle{</kbd><br/>
+Constructors in X10 can have return types!  At first that sounds silly -- what
+  could a <kbd>Triangle</kbd> constructor  possibly return, but
+    a <kbd>Triangle</kbd>?   But in X10, it's perfectly sensible.
+    Every <kbd>Triangle</kbd> constructor makes a <kbd>Triangle</kbd> -- but
+  sometimes you know <i>more</i> about the <kbd>Triangle</kbd> than just
+    simply that it's a generic <kbd>Triangle</kbd>.
+  In this case, we know what the sides and angles of the <kbd>Triangle</kbd>
+    are, in terms of the arguments to the constructor.  This is phrased as a
+    constraint on the return type of the constructor:
+    it's <kbd>Triangle{<i>constraints</i>}</kbd>, not
+    just <kbd>Triangle</kbd>. 
+</p>
+<a name="tria-7"/>
+<p>  <a href="#src-tria-7">line 7: </a><kbd class="ex">         self.a == a &&
+    self.b == b && self.c == c</kbd><br/>
+Here are the constraints on the side.  <kbd>self.a</kbd> is the return
+    triangle's <kbd>a</kbd> property.  Just plain <kbd>a</kbd> is the
+    <kbd>a</kbd> from the constructor's formal parameter list.
+</p>
+<a name="tria-8"/>
+<p>  <a href="#src-tria-8">line 8: </a><kbd class="ex">      && self.alpha ==
+    alpha && self.beta == beta && self.gamma == gamma</kbd><br/>
+The angles get constrained the same way.  As a result of all this
+    constraining, when we make a new triangle, X10 knows what its sides and
+    angles are, and can take advantage of those.
+</p>
+<a name="tria-9"/>
+<!--<p>  <a href="#src-tria-9">line 9: </a><kbd class="ex">    }{</kbd><br/></p>-->
+<a name="tria-10"/>
+<p>  <a href="#src-tria-10">line 10: </a><kbd class="ex">
+    property(a,b,c,alpha,beta,gamma);</kbd><br/>
+The <kbd>property</kbd> command sets the properties of the object.  It may
+    only be used in a constructor.  It must be invoked exactly once while the
+    object is being constructed.
+</p>
+<a name="tria-11"/>
+<!--<p>  <a href="#src-tria-11">line 11: </a><kbd class="ex">  }</kbd><br/></p>-->
+<a name="tria-12"/>
+<!--<p>  <a href="#src-tria-12">line 12: </a><kbd class="ex">  </kbd><br/></p>-->
+<a name="tria-13"/>
+<p>  <a href="#src-tria-13">line 13: </a><kbd class="ex">  public static def
+    sqr(d:Double) = d*d;</kbd><br/>
+Trigonometry involves lots of squaring things, so it's convenient to have that
+    as a function.
+</p>
+<a name="tria-14"/>
+<!--<p>  <a href="#src-tria-14">line 14: </a><kbd class="ex">  </kbd><br/></p>-->
+<a name="tria-15"/>
+<p>  <a href="#src-tria-15">line 15: </a><kbd class="ex">  public safe global
+    def toString() = </kbd><br/>
+We'll want to print triangles now and then.  The easiest way to do that is to
+    give them a <kbd>toString</kbd> method.  <kbd>toString</kbd>
+    is <kbd>safe</kbd> and <kbd>global</kbd>, so that it can be called from
+    anywhere.
+</p>
+<a name="tria-16"/>
+<p>  <a href="#src-tria-16">line 16: </a><kbd class="ex">    "a=" + a + ", b="
+    + b + ", c=" + c + </kbd><br/>
+The <kbd>toString</kbd> of a triangle just tells what the sides and angles of
+    the triangle are.
+</p>
+<a name="tria-17"/>
+<!--<p>  <a href="#src-tria-17">line 17: </a><kbd class="ex">    ", alpha="+ alpha + ", beta=" + beta + ", gamma=" + gamma;</kbd><br/></p>-->
+<a name="tria-18"/>
+<!--<p>  <a href="#src-tria-18">line 18: </a><kbd class="ex">}</kbd><br/></p>-->
+
+
+<h3>Right Triangle -- <kbd>RightTri</kbd></h3>
+
+<p>
+Right triangles are a very useful special case of triangle, so they get their
+own class, <kbd>RightTri</kbd>.  This class has three notable features: 
+</p>
+
+<ol>
+<li><b>Factory Methods</b>: There are several ways of specifying a right
+  triangle.  We'll give one way -- by giving one leg and the hypotenuse.
+  There are other ways (both legs, one leg and one angle, hypotenuse and one
+  angle), and those would make perfectly good factory methods too, which you
+  may do as an exercise.
+</li>
+<li><b>Area Method Implementation:</b> The formula to compute the area of a
+  right triangle is 
+  particularly simple, so we'll use it.
+</li>
+<li><b>New Method (<kbd>hypotenuse</kbd>):</b> Only right triangles have a
+  hypotenuse.  We'll give them a method <kbd>hypotenuse</kbd> returning the
+  hypotenuse.  The hypotenuse is also one of the sides -- specifically, it is
+  side <kbd>c</kbd> -- but it may be easier to remember from the
+  precisely-named <kbd>hypotenuse</kbd> method.
+</li>
+</ol>
+
+
+<!--
+public class RightTri extends Triangle {
+  public static Right : Double = Math.PI / 2;
+  protected def this(a:Double, b:Double, c:Double, 
+               alpha: Double, beta: Double) 
+  : RightTri{
+      self.a == a && self.b == b && self.c == c
+      &&
+      self.alpha == alpha && self.beta == beta && self.gamma == RightTri.Right
+    }
+  {
+     super(a,b,c,alpha,beta,Right);
+  }
+   public static def legHyp(leg: Double, hyp: Double): 
+      RightTri{self.a==leg && self.c==hyp} 
+      throws BadTri
+   = 
+   {
+      if (leg >= hyp || leg < 0 || hyp < 0) throw new BadTri("Not a proper right triangle");
+      val a = leg;
+      val c = hyp;
+      val b : Double = Math.sqrt(sqr(c) - sqr(a));
+      val r = a / c;
+      val alpha = Math.asin(r);
+      val beta = Math.acos(r);
+      return new RightTri(leg,b,hyp, alpha,beta);            
+   }
+   
+   public global safe def area() = 0.5 * a * b;
+   
+   public global safe def hypotenuse() = c;   
+   
+}
+
+-->
+<table class="ex">
+<a name="src-righttri-1"/>
+<tr class="ex"><td><a href="#righttri-1" class="ex">1</a></td><td class="ex"><code>public class RightTri extends Triangle {</code></td></tr>
+<a name="src-righttri-2"/>
+<tr class="ex"><td><a href="#righttri-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;public static Right : Double = Math.PI / 2;</code></td></tr>
+<a name="src-righttri-3"/>
+<tr class="ex"><td><a href="#righttri-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;protected def this(a:Double, b:Double, c:Double, </code></td></tr>
+<a name="src-righttri-4"/>
+<tr class="ex"><td><a href="#righttri-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alpha: Double, beta: Double) </code></td></tr>
+<a name="src-righttri-5"/>
+<tr class="ex"><td><a href="#righttri-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;: RightTri{</code></td></tr>
+<a name="src-righttri-6"/>
+<tr class="ex"><td><a href="#righttri-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.a == a && self.b == b && self.c == c</code></td></tr>
+<a name="src-righttri-7"/>
+<tr class="ex"><td><a href="#righttri-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&&</code></td></tr>
+<a name="src-righttri-8"/>
+<tr class="ex"><td><a href="#righttri-8" class="ex">8</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.alpha == alpha && self.beta == beta && self.gamma == RightTri.Right</code></td></tr>
+<a name="src-righttri-9"/>
+<tr class="ex"><td><a href="#righttri-9" class="ex">9</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<a name="src-righttri-10"/>
+<tr class="ex"><td><a href="#righttri-10" class="ex">10</a></td><td class="ex"><code>&nbsp;&nbsp;{</code></td></tr>
+<a name="src-righttri-11"/>
+<tr class="ex"><td><a href="#righttri-11" class="ex">11</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(a,b,c,alpha,beta,Right);</code></td></tr>
+<a name="src-righttri-12"/>
+<tr class="ex"><td><a href="#righttri-12" class="ex">12</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<a name="src-righttri-13"/>
+<tr class="ex"><td><a href="#righttri-13" class="ex">13</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;public static def legHyp(leg: Double, hyp: Double): </code></td></tr>
+<a name="src-righttri-14"/>
+<tr class="ex"><td><a href="#righttri-14" class="ex">14</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RightTri{self.a==leg && self.c==hyp} </code></td></tr>
+<a name="src-righttri-15"/>
+<tr class="ex"><td><a href="#righttri-15" class="ex">15</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throws BadTri</code></td></tr>
+<a name="src-righttri-16"/>
+<tr class="ex"><td><a href="#righttri-16" class="ex">16</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;= </code></td></tr>
+<a name="src-righttri-17"/>
+<tr class="ex"><td><a href="#righttri-17" class="ex">17</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;{</code></td></tr>
+<a name="src-righttri-18"/>
+<tr class="ex"><td><a href="#righttri-18"
+                      class="ex">18</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if
+      (leg >= hyp || leg < 0 ||  hyp < 0) throw new BadTri("Not a proper right triangle");</code></td></tr>
+<a name="src-righttri-19"/>
+<tr class="ex"><td><a href="#righttri-19" class="ex">19</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val a = leg;</code></td></tr>
+<a name="src-righttri-20"/>
+<tr class="ex"><td><a href="#righttri-20" class="ex">20</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val c = hyp;</code></td></tr>
+<a name="src-righttri-21"/>
+<tr class="ex"><td><a href="#righttri-21" class="ex">21</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val b : Double = Math.sqrt(sqr(c) - sqr(a));</code></td></tr>
+<a name="src-righttri-22"/>
+<tr class="ex"><td><a href="#righttri-22" class="ex">22</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val r = a / c;</code></td></tr>
+<a name="src-righttri-23"/>
+<tr class="ex"><td><a href="#righttri-23" class="ex">23</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val alpha = Math.asin(r);</code></td></tr>
+<a name="src-righttri-24"/>
+<tr class="ex"><td><a href="#righttri-24" class="ex">24</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val beta = Math.acos(r);</code></td></tr>
+<a name="src-righttri-25"/>
+
+<a name="src-righttri-26"/>
+<tr class="ex"><td><a href="#righttri-26" class="ex">26</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return new RightTri(leg,b,hyp, alpha,beta);            </code></td></tr>
+<a name="src-righttri-27"/>
+<tr class="ex"><td><a href="#righttri-27" class="ex">27</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<a name="src-righttri-28"/>
+<tr class="ex"><td><a href="#righttri-28" class="ex">28</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;</code></td></tr>
+<a name="src-righttri-29"/>
+<tr class="ex"><td><a href="#righttri-29" class="ex">29</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;public global safe def area() = 0.5 * a * b;</code></td></tr>
+<a name="src-righttri-30"/>
+<tr class="ex"><td><a href="#righttri-30" class="ex">30</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;</code></td></tr>
+<a name="src-righttri-31"/>
+<tr class="ex"><td><a href="#righttri-31" class="ex">31</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;public global safe def hypotenuse() = c;   </code></td></tr>
+<a name="src-righttri-32"/>
+<tr class="ex"><td><a href="#righttri-32" class="ex">32</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;</code></td></tr>
+<a name="src-righttri-33"/>
+<tr class="ex"><td><a href="#righttri-33" class="ex">33</a></td><td class="ex"><code>}</code></td></tr>
+</table>
+
+<a name="righttri-1"/>
+<p>  <a href="#src-righttri-1">line 1: </a><kbd class="ex">public class
+    RightTri extends Triangle {</kbd><br/>
+As in Java, the way to say that <kbd>RightTri</kbd> is a subclass
+    of <kbd>Triangle</kbd> is with the <kbd>extends</kbd> keyword. 
+</p>
+<a name="righttri-2"/>
+<p>  <a href="#src-righttri-2">line 2: </a><kbd class="ex">  public static
+    Right : Double = Math.PI / 2;</kbd><br/>
+A right angle, for later use.
+<kbd>Math.PI</kbd> is how to say &pi; in X10.
+</p>
+<a name="righttri-3"/>
+<p>  <a href="#src-righttri-3">line 3: </a><kbd class="ex">  protected def
+    this(a:Double, b:Double, c:Double, </kbd><br/>
+We need a constructor for right triangles.  This isn't a very interesting
+    constructor -- it just calls the constructor for <kbd>Triangle</kbd>.  
+As with <kbd>Triangle</kbd>, the constructor is <kbd>protected</kbd>.
+    Careless use of it can produce a <kbd>RightTri</kbd> object that isn't
+    even a well-formed triangle, like <kbd>new RightTri(-1, -100, 0,
+    RightTri.Right, RightTri.Right)</kbd>.  Making it <kbd>protected</kbd>
+    means that it can't be called casually, which limits the possibility of
+    error. 
+</p>
+<a name="righttri-4"/>
+<!--<p>  <a href="#src-righttri-4">line 4: </a><kbd class="ex">               alpha: Double, beta: Double) </kbd><br/></p>-->
+<a name="righttri-5"/>
+<p>  <a href="#src-righttri-5">line 5: </a><kbd class="ex">  : RightTri{</kbd><br/></p>
+<a name="righttri-6"/>
+<p>  <a href="#src-righttri-6">line 6: </a><kbd class="ex">      self.a == a && self.b == b && self.c == c</kbd><br/></p>
+<a name="righttri-7"/>
+<p>  <a href="#src-righttri-7">line 7: </a><kbd class="ex">      &&</kbd><br/></p>
+<a name="righttri-8"/>
+<p>  <a href="#src-righttri-8">line 8: </a><kbd class="ex">      self.alpha ==
+    alpha && self.beta == beta && self.gamma == RightTri.Right</kbd><br/>
+But, in order to get the full benefit of the X10 type system, we do need to
+    say what the properties of the triangle are.  They're not quite the same
+    as for the <kbd>Triangle</kbd> constructor: the angle <kbd>gamma</kbd> is
+    always a right angle.   Note that we get one benefit of the X10 type
+    system already: although we can construct ill-formed triangles with this
+    constructor, at least they'll have a right angle in the right place.
+</p>
+<a name="righttri-9"/>
+<!--<p>  <a href="#src-righttri-9">line 9: </a><kbd class="ex">    }</kbd><br/></p>-->
+<a name="righttri-10"/>
+<!--<p>  <a href="#src-righttri-10">line 10: </a><kbd class="ex">  {</kbd><br/></p>-->
+<a name="righttri-11"/>
+<!--<p>  <a href="#src-righttri-11">line 11: </a><kbd class="ex">     super(a,b,c,alpha,beta,Right);</kbd><br/></p>-->
+<a name="righttri-12"/>
+<!--<p>  <a href="#src-righttri-12">line 12: </a><kbd class="ex">  }</kbd><br/></p>-->
+<a name="righttri-13"/>
+<p>  <a href="#src-righttri-13">line 13: </a><kbd class="ex">   public static
+    def legHyp(leg: Double, hyp: Double): </kbd><br/>
+Here's a factory method for making a right triangle, given one <kbd>leg</kbd>
+    and the <kbd>hyp</kbd>otenuse.  We could have other methods if we felt
+    like doing the trigonometry.  We give this method a meaningful name,
+    rather than just <kbd>make</kbd>, so that the users of this class have a
+    chance to remember what kind of right triangle they're getting.  In some
+    cases you can get away with a name like <kbd>make</kbd> and using the
+    argument types to tell what you're trying to make. That wouldn't work
+    here: most of the triangle-making methods take two <kbd>Double</kbd>
+    arguments. 
+</p>
+<a name="righttri-14"/>
+<p>  <a href="#src-righttri-14">line 14: </a><kbd class="ex">
+    RightTri{self.a==leg && self.c==hyp} </kbd><br/>
+The return type includes some information about what kind of triangle was
+    being constructed.  Note that we could, in principle, stick more
+    information in there, since all six parts of the triangle are determined
+    by the leg and hypotenuse.    That's awkward to do in X10, so we don't, in
+    this case. 
+</p>
+<a name="righttri-15"/>
+<p>  <a href="#src-righttri-15">line 15: </a><kbd class="ex">      throws
+    BadTri</kbd><br/>
+Not every <kbd>leg</kbd> and <kbd>hyp</kbd> values actually make a right
+    triangle.  We can't express all the necessary conditions as X10
+    constraints; X10 can't (at this point)  have a constraint of the
+    form <kbd>leg < hyp</kbd>.   So, we'll do the typical OO thing, and throw
+    an exception if it's not a triangle. See the code for <kbd>BadTri</kbd> below.
+</p>
+<a name="righttri-16"/>
+<!--<p>  <a href="#src-righttri-16">line 16: </a><kbd class="ex">   = </kbd><br/></p>-->
+<a name="righttri-17"/>
+<!--<p>  <a href="#src-righttri-17">line 17: </a><kbd class="ex">   {</kbd><br/></p>-->
+<a name="righttri-18"/>
+<p>  <a href="#src-righttri-18">line 18: </a><kbd class="ex">      if (leg >=
+        hyp || leg < 0 || hyp < 0) throw new BadTri("Not a proper right
+        triangle");</kbd><br/>
+That's all the requirements I could think of.  (Yes, I could logically delete one of the
+        disjuncts.) 
+</p>
+<p>
+The <kbd>throw</kbd> command is the way to signal that something bad has
+happened.  The usual way to use it is to define a <a href="#badtri-section">subclass</a>
+of <kbd>Exception</kbd> (here, <kbd>BadTri</kbd>), construct a new one, and
+use <kbd>throw</kbd> on that.   The <kbd>BadTri</kbd> value has a message
+explaining what happened wrong.
+</p>
+<a name="righttri-19"/>
+<p>  <a href="#src-righttri-19">line 19: </a><kbd class="ex">      val a =
+    leg;</kbd><br/>
+The names <kbd>leg</kbd> and <kbd>hyp</kbd> were good for the parameters,
+    because they clearly explain which is the leg and which is the hypotenuse.
+    However, when I'm doing trigonometry, I am more comfortable using the
+    standard letters.  There's no particular cost to doing so; X10 probably
+    will optimize this variable away.
+</p>
+<a name="righttri-20"/>
+<!--<p>  <a href="#src-righttri-20">line 20: </a><kbd class="ex">      val c = hyp;</kbd><br/></p>-->
+<a name="righttri-21"/>
+<p>  <a href="#src-righttri-21">line 21: </a><kbd class="ex">      val b :
+    Double = Math.sqrt(sqr(c) - sqr(a));</kbd><br/>
+Using the Pythagorean Theorem.
+</p>
+<a name="righttri-22"/>
+<!--<p>  <a href="#src-righttri-22">line 22: </a><kbd class="ex">      val r = a / c;</kbd><br/></p>-->
+<a name="righttri-23"/>
+<p>  <a href="#src-righttri-23">line 23: </a><kbd class="ex">      val alpha =
+    Math.asin(r);</kbd><br/>
+Using the definition of 'sine'.
+</p>
+<a name="righttri-24"/>
+<p>  <a href="#src-righttri-24">line 24: </a><kbd class="ex">      val beta =
+    Math.acos(r);</kbd><br/>
+Using the definition of 'cosine'
+</p>
+<a name="righttri-26"/>
+<p>  <a href="#src-righttri-26">line 26: </a><kbd class="ex">      return new
+    RightTri(leg,b,hyp, alpha,beta);            </kbd><br/>
+Here, inside of the <kbd>RightTri</kbd> class itself, we are allowed to call
+    that protected constructor.  
+</p>
+<p>
+As in Java, the way to construct an <i>object</i> is with <kbd>new
+    Class(args)</kbd>.  (<i>Structs</i> are constructed by a different syntax,
+    without using <kbd>new</kbd>, as we will see.)
+</p>
+<a name="righttri-27"/>
+<!--<p>  <a href="#src-righttri-27">line 27: </a><kbd class="ex">   }</kbd><br/></p>-->
+<a name="righttri-28"/>
+<!--<p>  <a href="#src-righttri-28">line 28: </a><kbd class="ex">   </kbd><br/></p>-->
+<a name="righttri-29"/>
+<p>  <a href="#src-righttri-29">line 29: </a><kbd class="ex">   public global
+    safe def area() = 0.5 * a * b;</kbd><br/>
+Computing the area of a right triangle is a snap.
+Note that this is more efficient than using Heron's formula -- which requires
+  more multiplications, and one square root -- so we might want to use this
+  formula rather than the general one, even if we <i>had</i> used the general
+    one in the parent class <kbd>Triangle</kbd>.
+</p>
+<a name="righttri-30"/>
+<!--<p>  <a href="#src-righttri-30">line 30: </a><kbd class="ex">   </kbd><br/></p>-->
+<a name="righttri-31"/>
+<p>  <a href="#src-righttri-31">line 31: </a><kbd class="ex">   public global
+    safe def hypotenuse() = c;   </kbd><br/>
+As in most object-oriented languages, a subclass like <kbd>RightTri</kbd> can
+    introduce new methods that its parent class doesn't have.  This method
+    is more illustrative than useful -- it just gets <kbd>c</kbd>, which could also be gotten
+  by field access (<kbd>tri.c</kbd>).  But it documents which side of the
+    triangle is the hypotenuse, perhaps a bit more clearly than anywhere else
+    in the code. 
+
+</p>
+<a name="righttri-32"/>
+<!--<p>  <a href="#src-righttri-32">line 32: </a><kbd class="ex">   </kbd><br/></p>-->
+<a name="righttri-33"/>
+<!--<p>  <a href="#src-righttri-33">line 33: </a><kbd class="ex">}</kbd><br/></p>-->
+
+<a name="badtri-section"></a>
+<h3>BadTri</h3>
+
+<p>
+The <kbd>BadTri</kbd> class describes bad triangles. Some exception classes
+are rather baroque, but <kbd>BadTri</kbd> is dead simple: 
+</p>
+
+
+<!--
+public class BadTri extends Exception {
+    public def this(message: String) { super(message); } 
+}
+-->
+<table class="ex">
+<a name="src-badtri-1"/>
+<tr class="ex"><td><a href="#badtri-1" class="ex">1</a></td><td class="ex"><code>public class BadTri extends Exception {</code></td></tr>
+<a name="src-badtri-2"/>
+<tr class="ex"><td><a href="#badtri-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;public def this(message: String) { super(message); } </code></td></tr>
+<a name="src-badtri-3"/>
+<tr class="ex"><td><a href="#badtri-3" class="ex">3</a></td><td class="ex"><code>}</code></td></tr>
+</table>
+
+<a name="badtri-1"/>
+<p>  <a href="#src-badtri-1">line 1: </a><kbd class="ex">public class BadTri
+    extends Exception {</kbd><br/>
+<kbd>Exception</kbd> is a built-in type that describes exceptions.  Subclasses
+of <kbd>Exception</kbd> can be thrown by the <kbd>throw</kbd> command, as we 
+<a href="#righttri-18">did before</a>. 
+</p>
+<a name="badtri-2"/>
+<p>  <a href="#src-badtri-2">line 2: </a><kbd class="ex">    public def
+    this(message: String) { super(message); } </kbd><br/>
+We've got one way to make new <kbd>BadTri</kbd> exceptions.  They include a
+    useful and informative message, which is an arbitrary string.
+</p>
+<p>
+    The <kbd>Exception</kbd> class takes care of everything else 
+that <kbd>BadTri</kbd> will need.
+</p>
+<a name="badtri-3"/>
+<!--<p>  <a href="#src-badtri-3">line 3: </a><kbd class="ex">}</kbd><br/></p>-->
+
+<h2>Isosceles Triangles: <kbd>IsoTri</kbd></h2>
+
+<p>
+Isosceles triangles follow the same general pattern. 
+</p>
+
+
+
+<!--
+public class IsoTri extends Triangle {
+  protected def this(a:Double, b:Double, c:Double, 
+               alpha: Double, beta: Double, gamma: Double) 
+  : IsoTri{
+      self.a == a && self.b == b && self.c == c
+      &&
+      self.alpha == alpha && self.beta == beta && self.gamma == gamma
+    }
+  {
+     super(a,b,c,alpha,beta,gamma);
+  }
+  
+  public static def base(base:Double, pointAngle: Double) 
+    : IsoTri{self.a == base && self.alpha == pointAngle}
+    throws BadTri {
+    if (pointAngle <= 0.0 || pointAngle >= Math.PI) 
+       throw new BadTri("Angles should be between 0 and pi");
+    if (base <= 0.0) throw new BadTri("Side should be positive.");
+    // The other two angles are equal
+    beta : Double = 0.5 * (Math.PI - pointAngle);
+    gamma : Double = beta;
+    // Use Law of Sines on the sides.
+    // a / sin alpha == b / sin beta, so...
+    val b = base * Math.sin(beta) / Math.sin(pointAngle);
+    val c = b;    
+    
+    val tri = new IsoTri(base,b,c,pointAngle,beta,gamma);
+    return tri;
+  }
+  public safe global def area() = 0.5 * sqr(b) * Math.sin(alpha);
+}
+-->
+<table class="ex">
+<a name="src-isotri-1"/>
+<tr class="ex"><td><a href="#isotri-1" class="ex">1</a></td><td class="ex"><code>public class IsoTri extends Triangle {</code></td></tr>
+<a name="src-isotri-2"/>
+<tr class="ex"><td><a href="#isotri-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;protected def this(a:Double, b:Double, c:Double, </code></td></tr>
+<a name="src-isotri-3"/>
+<tr class="ex"><td><a href="#isotri-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alpha: Double, beta: Double, gamma: Double) </code></td></tr>
+<a name="src-isotri-4"/>
+<tr class="ex"><td><a href="#isotri-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;: IsoTri{</code></td></tr>
+<a name="src-isotri-5"/>
+<tr class="ex"><td><a href="#isotri-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.a == a && self.b == b && self.c == c</code></td></tr>
+<a name="src-isotri-6"/>
+<tr class="ex"><td><a href="#isotri-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&&</code></td></tr>
+<a name="src-isotri-7"/>
+<tr class="ex"><td><a href="#isotri-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.alpha == alpha && self.beta == beta && self.gamma == gamma</code></td></tr>
+<a name="src-isotri-8"/>
+<tr class="ex"><td><a href="#isotri-8" class="ex">8</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<a name="src-isotri-9"/>
+<tr class="ex"><td><a href="#isotri-9" class="ex">9</a></td><td class="ex"><code>&nbsp;&nbsp;{</code></td></tr>
+<a name="src-isotri-10"/>
+<tr class="ex"><td><a href="#isotri-10" class="ex">10</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(a,b,c,alpha,beta,gamma);</code></td></tr>
+<a name="src-isotri-11"/>
+<tr class="ex"><td><a href="#isotri-11" class="ex">11</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<a name="src-isotri-12"/>
+<tr class="ex"><td><a href="#isotri-12" class="ex">12</a></td><td class="ex"><code>&nbsp;&nbsp;</code></td></tr>
+<a name="src-isotri-13"/>
+<tr class="ex"><td><a href="#isotri-13" class="ex">13</a></td><td class="ex"><code>&nbsp;&nbsp;public static def base(base:Double, pointAngle: Double) </code></td></tr>
+<a name="src-isotri-14"/>
+<tr class="ex"><td><a href="#isotri-14" class="ex">14</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;: IsoTri{self.a == base && self.alpha == pointAngle}</code></td></tr>
+<a name="src-isotri-15"/>
+<tr class="ex"><td><a href="#isotri-15" class="ex">15</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;throws BadTri {</code></td></tr>
+<a name="src-isotri-16"/>
+<tr class="ex"><td><a href="#isotri-16" class="ex">16</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;if (pointAngle <= 0.0 || pointAngle >= Math.PI) </code></td></tr>
+<a name="src-isotri-17"/>
+<tr class="ex"><td><a href="#isotri-17" class="ex">17</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw new BadTri("Angles should be between 0 and pi");</code></td></tr>
+<a name="src-isotri-18"/>
+<tr class="ex"><td><a href="#isotri-18" class="ex">18</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;if (base <= 0.0) throw new BadTri("Side should be positive.");</code></td></tr>
+<a name="src-isotri-19"/>
+<tr class="ex"><td><a href="#isotri-19" class="ex">19</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;// The other two angles are equal</code></td></tr>
+<a name="src-isotri-20"/>
+<tr class="ex"><td><a href="#isotri-20" class="ex">20</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;beta : Double = 0.5 * (Math.PI - pointAngle);</code></td></tr>
+<a name="src-isotri-21"/>
+<tr class="ex"><td><a href="#isotri-21" class="ex">21</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;gamma : Double = beta;</code></td></tr>
+<a name="src-isotri-22"/>
+<tr class="ex"><td><a href="#isotri-22" class="ex">22</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;// Use Law of Sines on the sides.</code></td></tr>
+<a name="src-isotri-23"/>
+<tr class="ex"><td><a href="#isotri-23" class="ex">23</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;// a / sin alpha == b / sin beta, so...</code></td></tr>
+<a name="src-isotri-24"/>
+<tr class="ex"><td><a href="#isotri-24" class="ex">24</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val b = base * Math.sin(beta) / Math.sin(pointAngle);</code></td></tr>
+<a name="src-isotri-25"/>
+<tr class="ex"><td><a href="#isotri-25" class="ex">25</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val c = b;    </code></td></tr>
+<a name="src-isotri-26"/>
+<tr class="ex"><td><a href="#isotri-26" class="ex">26</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;</code></td></tr>
+<a name="src-isotri-27"/>
+<tr class="ex"><td><a href="#isotri-27" class="ex">27</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val tri = new IsoTri(base,b,c,pointAngle,beta,gamma);</code></td></tr>
+<a name="src-isotri-28"/>
+<tr class="ex"><td><a href="#isotri-28" class="ex">28</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;return tri;</code></td></tr>
+<a name="src-isotri-29"/>
+<tr class="ex"><td><a href="#isotri-29" class="ex">29</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<a name="src-isotri-30"/>
+<tr class="ex"><td><a href="#isotri-30" class="ex">30</a></td><td class="ex"><code>&nbsp;&nbsp;public safe global def area() = 0.5 * sqr(b) * Math.sin(alpha);</code></td></tr>
+<a name="src-isotri-31"/>
+<tr class="ex"><td><a href="#isotri-31" class="ex">31</a></td><td class="ex"><code>}</code></td></tr>
+</table>
+
+<a name="isotri-1"/>
+<!--<p>  <a href="#src-isotri-1">line 1: </a><kbd class="ex">public class IsoTri extends Triangle {</kbd><br/></p>-->
+<a name="isotri-2"/>
+<p>  <a href="#src-isotri-2">line 2: </a><kbd class="ex">  protected def
+    this(a:Double, b:Double, c:Double, </kbd><br/>
+Define a constructor for <kbd>IsoTri</kbd>.  As with <kbd>RightTri</kbd>, it
+    just calls the <kbd>Triangle</kbd> constructor.  We have to define it,
+    and give it a constrained return type,
+    though, because constructors aren't inherited.
+</p>
+<a name="isotri-3"/>
+<!--<p>  <a href="#src-isotri-3">line 3: </a><kbd class="ex">               alpha: Double, beta: Double, gamma: Double) </kbd><br/></p>-->
+<a name="isotri-4"/>
+<!--<p>  <a href="#src-isotri-4">line 4: </a><kbd class="ex">  : IsoTri{</kbd><br/></p>-->
+<a name="isotri-5"/>
+<!--<p>  <a href="#src-isotri-5">line 5: </a><kbd class="ex">      self.a == a && self.b == b && self.c == c</kbd><br/></p>-->
+<a name="isotri-6"/>
+<!--<p>  <a href="#src-isotri-6">line 6: </a><kbd class="ex">      &&</kbd><br/></p>-->
+<a name="isotri-7"/>
+<!--<p>  <a href="#src-isotri-7">line 7: </a><kbd class="ex">      self.alpha == alpha && self.beta == beta && self.gamma == gamma</kbd><br/></p>-->
+<a name="isotri-8"/>
+<!--<p>  <a href="#src-isotri-8">line 8: </a><kbd class="ex">    }</kbd><br/></p>-->
+<a name="isotri-9"/>
+<!--<p>  <a href="#src-isotri-9">line 9: </a><kbd class="ex">  {</kbd><br/></p>-->
+<a name="isotri-10"/>
+<!--<p>  <a href="#src-isotri-10">line 10: </a><kbd class="ex">     super(a,b,c,alpha,beta,gamma);</kbd><br/></p>-->
+<a name="isotri-11"/>
+<!--<p>  <a href="#src-isotri-11">line 11: </a><kbd class="ex">  }</kbd><br/></p>-->
+<a name="isotri-12"/>
+<!--<p>  <a href="#src-isotri-12">line 12: </a><kbd class="ex">  </kbd><br/></p>-->
+<a name="isotri-13"/>
+<p>  <a href="#src-isotri-13">line 13: </a><kbd class="ex">  public static def
+    base(base:Double, pointAngle: Double) </kbd><br/>
+Here's a factory method: we can specify an isosceles triangle by the length of
+    the base and the angle at the vertex.  A more complete library would have
+    a few other factory methods: any angle and any side, or the two distinct
+    sides, are enough.
+</p>
+<a name="isotri-14"/>
+<p>  <a href="#src-isotri-14">line 14: </a><kbd class="ex">    : IsoTri{self.a
+    == base && self.alpha == pointAngle}</kbd><br/>
+As usual, our factory methods return objects with some known properties.
+</p>
+<a name="isotri-15"/>
+<p>  <a href="#src-isotri-15">line 15: </a><kbd class="ex">    throws BadTri
+    {</kbd><br/>
+As usual, our factory methods detect invalid triangles.
+</p>
+<a name="isotri-16"/>
+<p>  <a href="#src-isotri-16">line 16: </a><kbd class="ex">    if (pointAngle
+    <= 0.0 || pointAngle >= Math.PI) </kbd><br/>
+Only certain angles are allowed.  
+</p>
+<a name="isotri-17"/>
+<p>  <a href="#src-isotri-17">line 17: </a><kbd class="ex">       throw new
+    BadTri("Angles should be between 0 and pi");</kbd><br/>
+The same <kbd>BadTri</kbd> class works for <kbd>IsoTri</kbd>.  
+(A truly baroque class hierarchy might have separate exception classes
+    for <kbd>BadRightTri</kbd> and <kbd>BadIsoTri</kbd>,  but for most
+    purposes the one exception class is probably enough.)
+</p>
+<a name="isotri-18"/>
+<!--<p>  <a href="#src-isotri-18">line 18: </a><kbd class="ex">    if (base <= 0.0) throw new BadTri("Side should be positive.");</kbd><br/></p>-->
+<a name="isotri-19"/>
+<!--<p>  <a href="#src-isotri-19">line 19: </a><kbd class="ex">    // The other two angles are equal</kbd><br/></p>-->
+<a name="isotri-20"/>
+<p>  <a href="#src-isotri-20">line 20: </a><kbd class="ex">    beta : Double =
+    0.5 * (Math.PI - pointAngle);</kbd><br/>
+&beta; and &gamma; are equal, and the sum of the three angles of the triangle
+    is &pi;, so this lets us calculate &beta;.  
+Notice that you can define a <kbd>val</kbd> variable by either giving its
+    type, as we do here, or by the <kbd>val</kbd> keyword (<kbd>val beta =
+    ...</kbd>), or both.   Usually <kbd>val</kbd> is more convenient; we use
+    the typed forms when we want to be explicit about the types.
+</p>
+<a name="isotri-21"/>
+<p>  <a href="#src-isotri-21">line 21: </a><kbd class="ex">    gamma : Double
+    = beta;</kbd><br/>
+We could just use <kbd>beta</kbd> here, of course. 
+</p>
+<a name="isotri-22"/>
+<!--<p>  <a href="#src-isotri-22">line 22: </a><kbd class="ex">    // Use Law of Sines on the sides.</kbd><br/></p>-->
+<a name="isotri-23"/>
+<!--<p>  <a href="#src-isotri-23">line 23: </a><kbd class="ex">    // a / sin alpha == b / sin beta, so...</kbd><br/></p>-->
+<a name="isotri-24"/>
+<p>  <a href="#src-isotri-24">line 24: </a><kbd class="ex">    val b = base *
+    Math.sin(beta) / Math.sin(pointAngle);</kbd><br/>
+This uses the <a href="http://en.wikipedia.org/wiki/Law_of_sines">Law of
+    Sines</a> to compute the other sides.
+</p>
+<a name="isotri-25"/>
+<!--<p>  <a href="#src-isotri-25">line 25: </a><kbd class="ex">    val c = b;    </kbd><br/></p>-->
+<a name="isotri-26"/>
+<!--<p>  <a href="#src-isotri-26">line 26: </a><kbd class="ex">    </kbd><br/></p>-->
+<a name="isotri-27"/>
+<!--<p>  <a href="#src-isotri-27">line 27: </a><kbd class="ex">    val tri = new IsoTri(base,b,c,pointAngle,beta,gamma);</kbd><br/></p>-->
+<a name="isotri-28"/>
+<!--<p>  <a href="#src-isotri-28">line 28: </a><kbd class="ex">    return tri;</kbd><br/></p>-->
+<a name="isotri-29"/>
+<!--<p>  <a href="#src-isotri-29">line 29: </a><kbd class="ex">  }</kbd><br/></p>-->
+<a name="isotri-30"/>
+<p>  <a href="#src-isotri-30">line 30: </a><kbd class="ex">  public safe
+    global def area() = 0.5 * sqr(b) * Math.sin(alpha);</kbd><br/>
+There's a simple formula for computing the area of an isosceles triangle.
+</p>
+<a name="isotri-31"/>
+<!--<p>  <a href="#src-isotri-31">line 31: </a><kbd class="ex">}</kbd><br/></p>-->
+
+
+<h3>Equilateral Triangles, version 1</h3>
+
+<p>
+As in most object-oriented languages, you can define subclasses of subclasses.
+In our case, an equilateral triangle is a special kind of isosceles triangle
+--- one in which the point angle is &pi;/3. So, we can simply do it that way.
+The constructor and factory are, as usual, a bit verbose about the type
+annotations; they has to explain what all the sides of the triangle are.
+The code is quite simple.
+</p>
+
+
+<!--
+public class EquiTri1 extends IsoTri {
+   public static global PiOver3 = Math.PI/3;
+      protected def this(side:Double) 
+  : EquiTri1{
+      self.a == side && self.b == side && self.c == side
+      &&
+      self.alpha == EquiTri1.PiOver3 && self.beta == EquiTri1.PiOver3 && self.gamma == EquiTri1.PiOver3
+    } = 
+  {
+     super(side,side,side,PiOver3, PiOver3, PiOver3);
+  }
+
+  public static def side(side:Double)
+  : EquiTri{self.a == side && self.b == side && self.c == side 
+      && self.alpha == EquiTri.PiOver3
+      && self.beta == EquiTri.PiOver3
+      && self.gamma == EquiTri.PiOver3
+      }
+  throws BadTri
+  =
+  {
+     if (side <= 0.0) throw new BadTri("Positive side, please.");
+     return new EquiTri(side);
+  }
+
+}  
+
+-->
+<table class="ex">
+<a name="src-equitri1-1"/>
+<tr class="ex"><td><a href="#equitri1-1" class="ex">1</a></td><td class="ex"><code>public class EquiTri1 extends IsoTri {</code></td></tr>
+<a name="src-equitri1-2"/>
+<tr class="ex"><td><a href="#equitri1-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;public static global PiOver3 = Math.PI/3;</code></td></tr>
+<a name="src-equitri1-3"/>
+<tr class="ex"><td><a href="#equitri1-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;protected def this(side:Double) </code></td></tr>
+<a name="src-equitri1-4"/>
+<tr class="ex"><td><a href="#equitri1-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;: EquiTri1{</code></td></tr>
+<a name="src-equitri1-5"/>
+<tr class="ex"><td><a href="#equitri1-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.a == side && self.b == side && self.c == side</code></td></tr>
+<a name="src-equitri1-6"/>
+<tr class="ex"><td><a href="#equitri1-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&&</code></td></tr>
+<a name="src-equitri1-7"/>
+<tr class="ex"><td><a href="#equitri1-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.alpha == EquiTri1.PiOver3 && self.beta == EquiTri1.PiOver3 && self.gamma == EquiTri1.PiOver3</code></td></tr>
+<a name="src-equitri1-8"/>
+<tr class="ex"><td><a href="#equitri1-8" class="ex">8</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;} = </code></td></tr>
+<a name="src-equitri1-9"/>
+<tr class="ex"><td><a href="#equitri1-9" class="ex">9</a></td><td class="ex"><code>&nbsp;&nbsp;{</code></td></tr>
+<a name="src-equitri1-10"/>
+<tr class="ex"><td><a href="#equitri1-10" class="ex">10</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(side,side,side,PiOver3, PiOver3, PiOver3);</code></td></tr>
+<a name="src-equitri1-11"/>
+<tr class="ex"><td><a href="#equitri1-11" class="ex">11</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<a name="src-equitri1-12"/>
+<tr class="ex"><td><a href="#equitri1-12" class="ex">12</a></td><td class="ex"><code>&nbsp;&nbsp;public static def side(side:Double)</code></td></tr>
+<a name="src-equitri1-13"/>
+<tr class="ex"><td><a href="#equitri1-13" class="ex">13</a></td><td class="ex"><code>&nbsp;&nbsp;: EquiTri{self.a == side && self.b == side && self.c == side </code></td></tr>
+<a name="src-equitri1-14"/>
+<tr class="ex"><td><a href="#equitri1-14" class="ex">14</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&& self.alpha == EquiTri.PiOver3</code></td></tr>
+<a name="src-equitri1-15"/>
+<tr class="ex"><td><a href="#equitri1-15" class="ex">15</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&& self.beta == EquiTri.PiOver3</code></td></tr>
+<a name="src-equitri1-16"/>
+<tr class="ex"><td><a href="#equitri1-16" class="ex">16</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&& self.gamma == EquiTri.PiOver3</code></td></tr>
+<a name="src-equitri1-17"/>
+<tr class="ex"><td><a href="#equitri1-17" class="ex">17</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<a name="src-equitri1-18"/>
+<tr class="ex"><td><a href="#equitri1-18" class="ex">18</a></td><td class="ex"><code>&nbsp;&nbsp;throws BadTri</code></td></tr>
+<a name="src-equitri1-19"/>
+<tr class="ex"><td><a href="#equitri1-19" class="ex">19</a></td><td class="ex"><code>&nbsp;&nbsp;=</code></td></tr>
+<a name="src-equitri1-20"/>
+<tr class="ex"><td><a href="#equitri1-20" class="ex">20</a></td><td class="ex"><code>&nbsp;&nbsp;{</code></td></tr>
+<a name="src-equitri1-21"/>
+<tr class="ex"><td><a href="#equitri1-21" class="ex">21</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (side <= 0.0) throw new BadTri("Positive side, please.");</code></td></tr>
+<a name="src-equitri1-22"/>
+<tr class="ex"><td><a href="#equitri1-22" class="ex">22</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return new EquiTri(side);</code></td></tr>
+<a name="src-equitri1-23"/>
+<tr class="ex"><td><a href="#equitri1-23" class="ex">23</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<a name="src-equitri1-24"/>
+<tr class="ex"><td><a href="#equitri1-24" class="ex">24</a></td><td class="ex"><code>}  </code></td></tr>
+</table>
+
+<a name="equitri1-1"/>
+<!--<p>  <a href="#src-equitri1-1">line 1: </a><kbd class="ex">public class EquiTri1 extends IsoTri {</kbd><br/></p>-->
+<a name="equitri1-2"/>
+<p>  <a href="#src-equitri1-2">line 2: </a><kbd class="ex">   public static
+    global PiOver3 = Math.PI/3;</kbd><br/>
+This number shows up a lot for equilateral triangles. </p>
+<a name="equitri1-3"/>
+<p> <a href="#src-equitri1-3">line 3: </a><kbd class="ex"> protected def
+    this(side:Double) </kbd><br/> It seemed silly to require six parameters
+    for the constructor when five of them are redundant. There is no good
+    reason why five redundant parameters is silly and two (or four) aren't;
+    this sort of design decision is in the whim of the programmer. This method
+    is <kbd>protected</kbd>, so such whims don't get into the public interface
+    of the class.  Only people who are reading this code, <i>e.g., </i> trying
+    to maintain the class, will have to deal with them.  Public methods have
+    to be more carefully designed.
+</p>
+<a name="equitri1-4"/>
+<!--<p>  <a href="#src-equitri1-4">line 4: </a><kbd class="ex">  : EquiTri1{</kbd><br/></p>-->
+<a name="equitri1-5"/>
+<!--<p>  <a href="#src-equitri1-5">line 5: </a><kbd class="ex">      self.a == side && self.b == side && self.c == side</kbd><br/></p>-->
+<a name="equitri1-6"/>
+<!--<p>  <a href="#src-equitri1-6">line 6: </a><kbd class="ex">      &&</kbd><br/></p>-->
+<a name="equitri1-7"/>
+<!--<p>  <a href="#src-equitri1-7">line 7: </a><kbd class="ex">      self.alpha == EquiTri1.PiOver3 && self.beta == EquiTri1.PiOver3 && self.gamma == EquiTri1.PiOver3</kbd><br/></p>-->
+<a name="equitri1-8"/>
+<!--<p>  <a href="#src-equitri1-8">line 8: </a><kbd class="ex">    } = </kbd><br/></p>-->
+<a name="equitri1-9"/>
+<!--<p>  <a href="#src-equitri1-9">line 9: </a><kbd class="ex">  {</kbd><br/></p>-->
+<a name="equitri1-10"/>
+<!--<p>  <a href="#src-equitri1-10">line 10: </a><kbd class="ex">     super(side,side,side,PiOver3, PiOver3, PiOver3);</kbd><br/></p>-->
+<a name="equitri1-11"/>
+<!--<p>  <a href="#src-equitri1-11">line 11: </a><kbd class="ex">  }</kbd><br/></p>-->
+<a name="equitri1-12"/>
+<p>  <a href="#src-equitri1-12">line 12: </a><kbd class="ex">  public static
+    def side(side:Double)</kbd><br/>
+The primary constructor for equilateral triangles just takes the side of the
+    triangle.  
+</p>
+<a name="equitri1-13"/>
+<!--<p>  <a href="#src-equitri1-13">line 13: </a><kbd class="ex">  : EquiTri{self.a == side && self.b == side && self.c == side </kbd><br/></p>-->
+<a name="equitri1-14"/>
+<!--<p>  <a href="#src-equitri1-14">line 14: </a><kbd class="ex">      && self.alpha == EquiTri.PiOver3</kbd><br/></p>-->
+<a name="equitri1-15"/>
+<!--<p>  <a href="#src-equitri1-15">line 15: </a><kbd class="ex">      && self.beta == EquiTri.PiOver3</kbd><br/></p>-->
+<a name="equitri1-16"/>
+<!--<p>  <a href="#src-equitri1-16">line 16: </a><kbd class="ex">      && self.gamma == EquiTri.PiOver3</kbd><br/></p>-->
+<a name="equitri1-17"/>
+<!--<p>  <a href="#src-equitri1-17">line 17: </a><kbd class="ex">      }</kbd><br/></p>-->
+<a name="equitri1-18"/>
+<!--<p>  <a href="#src-equitri1-18">line 18: </a><kbd class="ex">  throws BadTri</kbd><br/></p>-->
+<a name="equitri1-19"/>
+<!--<p>  <a href="#src-equitri1-19">line 19: </a><kbd class="ex">  =</kbd><br/></p>-->
+<a name="equitri1-20"/>
+<!--<p>  <a href="#src-equitri1-20">line 20: </a><kbd class="ex">  {</kbd><br/></p>-->
+<a name="equitri1-21"/>
+<!--<p>  <a href="#src-equitri1-21">line 21: </a><kbd class="ex">     if (side <= 0.0) throw new BadTri("Positive side, please.");</kbd><br/></p>-->
+<a name="equitri1-22"/>
+<!--<p>  <a href="#src-equitri1-22">line 22: </a><kbd class="ex">     return new EquiTri(side);</kbd><br/></p>-->
+<a name="equitri1-23"/>
+<!--<p>  <a href="#src-equitri1-23">line 23: </a><kbd class="ex">  }</kbd><br/></p>-->
+<a name="equitri1-24"/>
+<!--<p>  <a href="#src-equitri1-24">line 24: </a><kbd class="ex">}  </kbd><br/></p>-->
+
+<h3>Enhancing Equilateral Triangles</h3>
+
+<p>
+There are a few other things we might want to do to improve this class. 
+</p>
+
+<ol>
+<li>We might include a <kbd>side()</kbd> method, giving the length of a side.
+  This simply returns <kbd>this.a</kbd>, but it might be nicer for people to
+  use, and it does emphasize the equilaterality of the triangle.
+</li>
+<li>We could use a more efficient formulation of <kbd>area</kbd>. There's no
+  need to compute <kbd>sin(&pi;/3)</kbd> repeatedly, as <kbd>IsoTri.area()</kbd>
+  would require.
+</li>
+</ol>
+
+
+<!--
+  public static global SqrtThreeOverFour = Math.sqrt(3.0)/4.0;
+  public global safe def area() = SqrtThreeOverFour * sqr(a);
+  
+  public property side() = a;
+
+-->
+<table class="ex">
+<a name="src-equitri-addenda-1"/>
+<tr class="ex"><td><a href="#equitri-addenda-1" class="ex">1</a></td><td class="ex"><code>&nbsp;&nbsp;public static global SqrtThreeOverFour = Math.sqrt(3.0)/4.0;</code></td></tr>
+<a name="src-equitri-addenda-2"/>
+<tr class="ex"><td><a href="#equitri-addenda-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;public global safe def area() = SqrtThreeOverFour * sqr(a);</code></td></tr>
+<a name="src-equitri-addenda-3"/>
+<tr class="ex"><td><a href="#equitri-addenda-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;</code></td></tr>
+<a name="src-equitri-addenda-4"/>
+<tr class="ex"><td><a href="#equitri-addenda-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;public property side() = a;</code></td></tr>
+</table>
+
+<a name="equitri-addenda-1"/>
+<p>  <a href="#src-equitri-addenda-1">line 1: </a><kbd class="ex">  public
+    static global SqrtThreeOverFour = Math.sqrt(3.0)/4.0;</kbd><br/>
+This constant is used in the formula for the area of an equilateral triangle,
+    which we compute once, here, and use repeatedly.
+</p>
+<a name="equitri-addenda-2"/>
+<p>  <a href="#src-equitri-addenda-2">line 2: </a><kbd class="ex">  public
+    global safe def area() = SqrtThreeOverFour * sqr(a);</kbd><br/>
+And here's the formula for the area of an equilateral triangle.
+</p>
+<a name="equitri-addenda-3"/>
+<!--<p>  <a href="#src-equitri-addenda-3">line 3: </a><kbd class="ex">  </kbd><br/></p>-->
+<a name="equitri-addenda-4"/>
+<p>  <a href="#src-equitri-addenda-4">line 4: </a><kbd class="ex">  public
+    property side() = a;</kbd><br/>
+The special method that only applies to equilateral triangles.
+</p>
+
+<h2>Exercise: Miscellaneous Triangle</h2>
+
+<p>
+The general case of triangles, <kbd>MiscTri</kbd>, follows the same approach
+as <kbd>RightTri</kbd> and <kbd>IsoTri</kbd>.
+</p>
+<ol>
+<li>Define a protected constructor, <a href="#righttri-3">like this</a>.</li>
+<li>Define a factory method <kbd>SSS(a:Double, b:Double, c:Double)</kbd>.
+  Specifying the three sides is sufficient to specify a triangle.
+  <ol>
+  <li>Be sure to give it a return type that tells X10 about the triangle it produces.</li>
+  <li>Use 
+  the <a href="http://en.wikipedia.org/wiki/Triangle_inequality">triangle inequality</a>
+  and other simple tests to make sure that <kbd>(a,b,c)</kbd> are in fact the
+  sides of a triangle.  
+  </li>
+  <li>
+  Use the <a href="http://en.wikipedia.org/wiki/Law_of_cosines">Law of
+  Cosines</a> or your favorite trigonometric methods  to compute the three
+  angles for the constructor call. 
+  </li>
+  </ol>
+</li>
+<li>Define the <kbd>area</kbd> method
+  using <a href="http://en.wikipedia.org/wiki/Heron%27s_formula">Heron's
+  Formula</a> or your favorite trigonometic methods.
+</li> 
+</ol>
+
+</body>
+
+</html>
