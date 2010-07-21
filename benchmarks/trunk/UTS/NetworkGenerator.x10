@@ -183,7 +183,6 @@ final class NetworkGenerator {
   public static def generateSparseEmbedding (P:Int, k:Int) {
     // Find a base "w" such that pow (w,k) >= P 
   val w = findW(P, k);
-  val MAX = new PAdicNumber(w, k, P);
 
     // Now, create an embedding using the following rule:
     // Express a place p as a base w number. Let us assume that there 

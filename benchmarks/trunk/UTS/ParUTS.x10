@@ -103,7 +103,7 @@ final class ParUTS {
 		logEvents=e;
 		thieves = new FixedSizeStack[Int](Place.MAX_PLACES, 0);
 		lifelinesActivated = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
-		// printLifelineNetwork();
+		printLifelineNetwork();
 
     this.q = -1; 
     this.m = -1;
@@ -112,7 +112,8 @@ final class ParUTS {
   def printLifelineNetwork () {
     Console.OUT.print (here.id + " =>");
     for (var i:Int=0; i<myLifelines.length(); ++i) 
-      if (-1 != myLifelines(i)) Console.OUT.print  (" " + myLifelines(i));
+      if (-1 != myLifelines(i)) Console.OUT.print  (" " + myLifelines(i) +  " " +
+    		  new PAdicNumber(NetworkGenerator.findW(Place.MAX_PLACES, z), z, myLifelines(i)));
       else Console.OUT.print (" X");
     Console.OUT.println ();
   }
