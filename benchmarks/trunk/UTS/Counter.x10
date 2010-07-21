@@ -227,14 +227,14 @@ public class Counter  {
 	//	Console.OUT.println("\t" + safeSubstring("" + balance, 0,6) + "% imbalance in nodes processed (max magnitude).");
 	//	Console.OUT.println("\t" + safeSubstring("" + minAliveRatio, 0,6) 
 	//			+ " (earliest completion time, as % of max.");
-		Console.OUT.println("\t  Nodes processed: " + computeTime(NODES, P, allCounters));
-		Console.OUT.println("\t  Time computing: " + computeTime(COMPUTING, P, allCounters));
-		Console.OUT.println("\t  Time stealing: " + computeTime(STEALING, P, allCounters));
-		Console.OUT.println("\t  Time probing: " + computeTime(PROBING, P, allCounters));
-		Console.OUT.println("\t  Time alive: " + computeTime(ALIVE, P, allCounters));
-		Console.OUT.println("\t  Time dead: " + computeTime(DEAD, P, allCounters));
-		Console.OUT.println("\t  Time alive+dead: " + computeTime(LIFE, P, allCounters));
-		Console.OUT.println("\t totalTimeAtZero = " + totalTimeAtZero);
+		Console.OUT.println("Nodes processed: " + computeTime(NODES, P, allCounters));
+		Console.OUT.println("Time computing: " + computeTime(COMPUTING, P, allCounters, 1000, "us"));
+		Console.OUT.println("Time stealing: " + computeTime(STEALING, P, allCounters, 1000, "us"));
+		Console.OUT.println("Time probing: " + computeTime(PROBING, P, allCounters, 1000, "us"));
+		Console.OUT.println("Time alive: " + computeTime(ALIVE, P, allCounters, 1000, "us"));
+		Console.OUT.println("Time dead: " + computeTime(DEAD, P, allCounters, 1000, "us"));
+		Console.OUT.println("Time alive+dead: " + computeTime(LIFE, P, allCounters, 1000, "us"));
+		Console.OUT.println("totalTimeAtZero = " + (totalTimeAtZero/1000) + " us");
 		Console.OUT.println("Performance = "+nodeSum+"/"+safeSubstring("" + (time/1E9), 0,6)
 				+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M nodes/s");
 
@@ -248,7 +248,9 @@ public class Counter  {
 	static val DEAD = 5;
 	static val NODES = 6;
 	static val LIFE = 7;
-	def computeTime(i:Int, P:Int, allCounters: Rail[ValCounter]):Stat {
+	def computeTime(i:Int, P:Int, allCounters: Rail[ValCounter]) = 
+		computeTime(i, P, allCounters, 1, "");
+	def computeTime(i:Int, P:Int, allCounters: Rail[ValCounter], divider:Int, unit:String):Stat {
 		var min:Long= Long.MAX_VALUE;
 		var max:Long=-1;
 		var mean:Long=0;
@@ -266,13 +268,13 @@ public class Counter  {
 			mean += c;
 		}
 		mean = mean/P;
-		return Stat(min, mean, max);
+		return Stat(min, mean, max, divider, unit);
 	}
 	
-	static struct Stat(min:Long, mean:Long, max:Long) {
-		public global safe def toString() = "(min:" + safeSubstring("" + (1.0F*min)/max, 0, 6)
-		+ "% of max, mean=" + safeSubstring("" + (1.0F*mean)/max, 0, 6)
-		+ "% of max, max=" + max + ")";
+	static struct Stat(min:Long, mean:Long, max:Long, divider: Int, unit:String) {
+		public global safe def toString() = "(min:" + safeSubstring("" + (100.0F*min)/max, 0, 5)
+		+ "% of max, mean=" + safeSubstring("" + (100.0F*mean)/max, 0, 5)
+		+ "% of max, max=" + (max/divider) + " " + unit +")";
 	}
 
 	private static def safeSubstring(str:String, start:Int, end:Int) = str.substring(start, Math.min(end, str.length()));
