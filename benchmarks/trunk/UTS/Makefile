@@ -34,7 +34,14 @@ ifeq ($(BGP_CROSS_COMPILE), 1)
 endif
 
 X10RUN?=runx10
-X10CXXFLAGS=-report postcompile=5 -VERBOSE_CALLS $(X10RT_TRANSPORT)
+X10CXXFLAGS=-report \
+            postcompile=5 \
+            -VERBOSE_CALLS \
+            $(X10RT_TRANSPORT) \
+            -MAIN_CLASS=UTS \
+            -v \
+            -NO_CHECKS \
+            -O  
 
 HEADERS=sha_endian.h \
         types.h \
@@ -67,7 +74,7 @@ TARGET=UTS
 all: ${TARGET}
 
 UTS: UTS.x10 sha1_rand.hpp sha1.c
-	${X10CXX} -MAIN_CLASS=UTS -v -NO_CHECKS -O  ${X10CXXFLAGS} ${X10RTTRANSPORT} $< -o $@ 
+	${X10CXX} ${X10CXXFLAGS} $< -o $@ 
 
 run-UTS: UTS
 	mpirun -np 4 -hostfile host.list ./UTS -r 42 -b 2000 -m 8 -q 0.124975
