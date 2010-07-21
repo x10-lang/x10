@@ -27,6 +27,7 @@ import polyglot.ast.Block_c;
 import polyglot.ast.Branch_c;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
+import polyglot.ast.Case_c;
 import polyglot.ast.Catch;
 import polyglot.ast.Catch_c;
 import polyglot.ast.Conditional_c;
@@ -61,6 +62,8 @@ import polyglot.ast.Return_c;
 import polyglot.ast.Special;
 import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
+import polyglot.ast.SwitchBlock_c;
+import polyglot.ast.Switch_c;
 import polyglot.ast.Throw;
 import polyglot.ast.Throw_c;
 import polyglot.ast.Try_c;
@@ -107,6 +110,7 @@ import x10.ast.ForEach_c;
 import x10.ast.ForLoop_c;
 import x10.ast.Future_c;
 import x10.ast.Here_c;
+import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
 import x10.ast.Now_c;
 import x10.ast.ParExpr;
@@ -292,6 +296,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    n.translate(w, tr);
 	}
 	public void visit(Assert_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Switch_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(Case_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(SwitchBlock_c n) {
+	    n.translate(w, tr);
+	}
+	public void visit(LocalTypeDef_c n) {
 	    n.translate(w, tr);
 	}
 
