@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc27">
-27</a>&nbsp;&nbsp;Rail constructors</h2>
+ <h2><a name="tth_sEc26">
+26</a>&nbsp;&nbsp;Rail constructors</h2>
 <a name="RailConstructors">
 </a>
 
@@ -32,11 +32,14 @@
 
 <div class="p"><!----></div>
 The rail constructor "[a<sub>0</sub>, ..., a<sub>k&#8722;1</sub>]"
-creates an instance of <b>ValRail</b> with length k
-where the ith element is
-.  The element type of the array (<b>T</b>) is
-bound to the least common ancestor of the types of the
-&#228;<sub>i</sub>" (&#167;).
+creates an instance of <b>ValRail</b> with length k, 
+whose ith element is
+&#228;<sub>i</sub>".  The element type of the rail is a common ancestor of the
+types of the &#228;<sub>i</sub>''s, as per &#167;.
+<pre>
+val a : ValRail[Int] = [1,3,5];
+val b : ValRail[Any] = [1, a, "please"];
+</pre>
 
 <div class="p"><!----></div>
 Since arrays are subtypes of <b>(Point) =&#62; T</b>,
@@ -48,6 +51,12 @@ Rail constructors of type <b>ValRail[Int]</b> and length <b>n</b>
 may be implicitly converted to type <b>Point{rank==n}</b>.
 Rail constructors of type <b>ValRail[Region]</b> and length <b>n</b> 
 may be implicitly converted to type <b>Region{rank==n}</b>.
+
+<div class="p"><!----></div>
+<pre>
+val a : Point{rank==4} = [1,2,3,4];
+val b : Region{rank==2} = [ -1 .. 1, -2 .. 2];
+</pre>
 
 <div class="p"><!----></div>
 

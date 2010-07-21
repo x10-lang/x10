@@ -20,40 +20,28 @@
  <h2><a name="tth_sEc4">
 4</a>&nbsp;&nbsp;Clocks</h2>
 The MPI style of coordinating the activity of multiple processes with
-a single barrier is not suitable for the dynamic network of (possibly
-diverse) activities in an X10 computation. Instead, it becomes
-necessary to allow a computation to use multiple barriers. X10
-<em>clocks</em> (&#167;) are designed to offer the
-functionality of multiple barriers in a dynamic context while still
-supporting determinate, deadlock-free parallel computation.
+a single barrier is not suitable for the dynamic network of heterogeneous
+activities in an X10 computation.  
+X10 allows multiple barriers in a form that supports determinate,
+deadlock-free parallel computation, via the <b>Clock</b> type.
 
 <div class="p"><!----></div>
-Activities may use clocks to repeatedly detect quiescence of arbitrary
-programmer-specified, data-dependent set of activities. Each activity
-is spawned with a known set of clocks and may dynamically create new
-clocks. At any given time an activity is <em>registered</em> with zero or
-more clocks. It may register newly created activities with a clock,
-un-register itself with a clock, suspend on a clock or require that a
-statement (possibly involving execution of new async activities) be
-executed to completion before the clock can advance.  At any given
-step of the execution a clock is in a given phase. It advances to the
-next phase only when all its registered activities have <em>quiesced</em>
-(by executing a <b>next</b> operation on the clock).
-When a clock advances, all its activities may now resume execution.
+A single <b>Clock</b> represents a computation that occurs in phases.
+At any given time, an activity is <em>registered</em> with zero or more clocks.
+The X10 statement <b>next</b> tells all of an activity's registered clocks that
+the activity has finished the current phase, and causes it to wait for the
+next phase.  Other operations allow waiting on a single clock, starting
+new clocks or new activities registered on an extant clock, and so on. 
 
 <div class="p"><!----></div>
-Thus clocks act as <em>barriers</em> for a dynamically varying collection
-of activities. They generalize the barriers found in MPI style program
-in that an activity may use multiple clocks simultaneously. Yet
-programs using clocks are guaranteed not to suffer from
-deadlock.
 
 <div class="p"><!----></div>
-<em>
-<b>Future Extensions.&nbsp;&nbsp;</b>In future versions of the language,
-clocks will be integrated into the X10 type system,
-permitting variables to be declared so that they are <b>val</b> in each
-phase of a clock.</em>
+Clocks act as barriers for a dynamically varying collection of activities.
+They generalize the barriers found in MPI style program in that an activity
+may use multiple clocks simultaneously. Yet programs using clocks are
+guaranteed not to suffer from deadlock.
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 

@@ -84,23 +84,8 @@ have been initialized correctly.
 Since static state is immutable and is replicated to all places via 
 the initialization phase as described above, it can be accessed from
 any place.
-<hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>(Mutable
-       graphs can be created without escaping <b>this</b> 
-    by initializing the backpointer to <b>null</b> and then
-    changing it later.
-<div class="p"><!----></div>
-<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>Clearly, a value of type
-  <b>proto T</b> cannot be used anywhere that a <b>T</b> is needed,
-  since its fields cannot be read.  As discussed below, an incomplete
-  value <b>v</b> can be assigned to a field <tt>f</tt> of an object <tt>
-    o</tt> only if <tt>o</tt> is incomplete. This ensures that <b>v</b> cannot
-  escape through this assignment. A completed value <b>p</b> cannot be
-  substituted for <b>o</b> - it may permit <b>v</b> to escape through
-  an assignment to its field. Therefore <b>T</b> cannot be a subtype of
-  <b>proto T</b>.
 
 </body>
 </html>

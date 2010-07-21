@@ -36,7 +36,7 @@ The <b>ateach</b> statement is similar to the <b>foreach</b>
 statement, but it spawns activites at each place of a distribution. 
 In <b>ateach(p in D) S</b>, 
 <b>D</b> must be either of type <b>Dist</b> or of type
-<b>Array[T]</b>, 
+<b>DistArray[T]</b>, 
 and <b>p</b> will be of type <b>Point</b>.
 
 <div class="p"><!----></div>
@@ -46,7 +46,7 @@ distribution for the point. That is, if <b>D</b> is a <b>Dist</b>,
 <b>ateach(p in D) S</b> could be implemented as:
 <pre>
 foreach (p in D.region) 
-  async (D(p)) S
+  async (D(p)) S(p)
 </pre>
 
 <div class="p"><!----></div>
@@ -54,20 +54,27 @@ However, the compiler may implement it more efficiently to avoid extraneous
 communications.  In particular, it is recommended that <b>ateach(p in D)S</b>
 be implemented as the following code, which coordinates with each place of
 <b>D</b> just once, rather than once per element of <b>D</b> at that place: 
+
+<div class="p"><!----></div>
 <pre>
 foreach (p in D.places()) at (p) {
     foreach (pt in D</td><td width="150">
 &#124;here) {
-        S
+        S(p);
     }
 }
 </pre>
 
 <div class="p"><!----></div>
-If <b>e</b> is an <b>Array[T]</b>, then <b>ateach (p in e)S</b> is identical to
+If <b>e</b> is an <b>DistArray[T]</b>, then <b>ateach (p in e)S</b> is identical to
 <b>ateach(p in e.dist)S</b>; the iteration is over the array's underlying
-distribution.   <b>ateach(p in A)dealWith(A(p));</b> is a common and generally
-efficient idiom for working with the elements of an array.
+distribution.   
+The code below is a common and generally efficient way to work with the
+elements of a distributed array:
+<pre>
+ateach(p in A) 
+  dealWith(A(p));
+</pre>
 
 <div class="p"><!----></div>
 

@@ -18,56 +18,71 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 1 </a><br />Activities</h1><a name="XtenActivities">
+Chapter 14 </a><br />Activities</h1><a name="XtenActivities">
 </a>
 
 <div class="p"><!----></div>
-An X10 computation may have many concurrent <em>activities</em> "in
-flight" at any give time. We use the term activity to denote a
-dynamic execution instance of a piece of code (with references to
-data). An activity is intended to execute in parallel with other
-activities. An activity may be thought of as a very light-weight
-thread.  In X10 v2.0, an activity may not be interrupted,
-suspended or resumed as the result of actions taken by any other
-activity.
+An <em>activity</em> is a statement being executed, independently, with its own
+local variables; it may be thought of as a very light-weight thread. An
+X10 computation may have many concurrent <em>activities</em> executing at any
+give time.  All X10 code runs as part of an activity; when an X10 program is
+started, the <b>main</b> method is invoked in an activity, called the <em>root
+activity</em>.
 
 <div class="p"><!----></div>
-An activity is spawned in a given place and stays in that place for
-its lifetime.  An activity may be <em>running</em>, <em>blocked</em> on some
-condition or <em>terminated</em>. When the statement associated with an
-activity terminates normally, the activity terminates normally; when
-it terminates abruptly with some reason R, the activity terminates
-with the same reason (&#167;).
+Activities coordinate their execution by various control and data structures.
+For example, `
+<b>await (x==0);</b> blocks the current activity until some other activity
+sets <b>x</b> to zero.  However, activities determine the places at which they
+may be blocked and resumed, by <b>await</b> and similar constructs.  There are
+no means by which one activity can arbitrarily interrupt, block, or resume
+another, no method  <b>activity.interrupt()</b>.
 
 <div class="p"><!----></div>
-An activity may be long-running and may invoke recursive methods (thus
-may have a stack associated with it). On the other hand, an activity
-may be short-running, involving a fine-grained operation such as a
-single read or write.
+An activity may be <em>running</em>, <em>blocked</em> on some condition or <em>
+terminated</em>. If terminated, it is terminated in the same way that its
+statement is: in particular, if the statement terminates abruptly, the
+activity terminates abruptly for the same reason.
+(&#167;).
 
 <div class="p"><!----></div>
+Activities can be long-running entities with a good deal of local state.  In
+particular they can involve recursive method calls (and therefore have runtime
+stacks).  However, activities can also be short-running light-weight entities,
+, it is reasonable to have an activity that simply increments a variable.
 
 <div class="p"><!----></div>
 An activity may asynchronously and in parallel launch activities at
-other places.
+other places.  Every activity save the initial <b>main</b> activity is spawned
+by another.  Thus, at any instant, the activities in a program form a tree.
 
 <div class="p"><!----></div>
-X10 distinguishes between <em>local</em> termination and <em>global</em>
+X10 uses this tree in crucial ways.  
+First is the distinction 
+between <em>local</em> termination and <em>global</em>
 termination of a statement. The execution of a statement by an
 activity is said to terminate locally when the activity has finished
-all its computation related to that statement. (For instance the
+all its computation. (For instance the
 creation of an asynchronous activity terminates locally when the
 activity has been created.)  It is said to terminate globally when it
 has terminated locally and all activities that it may have spawned at
-any place (if any) have, recursively, terminated globally.
+any place have, recursively, terminated globally.
+For example, consider: 
+<pre>
+async {s1();}
+async {s2();}
+</pre>
+The primary activity spawns two child activities and then terminates locally,
+very quickly.  The child activities may take arbitrary amounts of time to
+terminate (and may spawn grandchildren).  When <b>s1()</b>, <b>s2()</b>, and
+all their descendants terminate locally, then the primary activity terminates
+globally. 
 
 <div class="p"><!----></div>
-An X10 computation is initiated as a single activity from the
-command line. This activity is the <em>root activity</em> for the entire computation. The entire computation
-terminates when (and only when) this activity globally
-terminates. Thus X10 does not permit the creation of so called
-"daemon threads"-threads that outlive the lifetime of the root
-activity. We say that an X10 computation is <em>rooted</em>
+The program as a whole terminates when the root activity terminates globally.
+In particular, X10 does not permit the creation of 
+daemon threads-threads that outlive the lifetime of the root
+activity.  We say that an X10 computation is <em>rooted</em>
 (&#167;).
 
 <div class="p"><!----></div>

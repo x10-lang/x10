@@ -17,24 +17,18 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc12">
-12</a>&nbsp;&nbsp;Binary arithmetic operations</h2> 
+ <h2><a name="tth_sEc11">
+11</a>&nbsp;&nbsp;Binary arithmetic operations</h2> 
 
 <div class="p"><!----></div>
-The binary arithmetic operations apply binary numeric promotion
-to their operands. The operands must be of numeric type.
-The type of the result is the promoted type.
-The
-<b>+</b> operator adds the promoted operands. The <b>-</b> operator
-subtracts the second operand from the first. The <b>*</b> operator
-multiplies the  promoted  operands. The <b>/</b> operator
-divides the
-first  operand  by the second.
-The <b>%</b> operator evaluates to
-the remainder of the division of the first operand by the
-second.
+The binary arithmetic operators perform the familiar binary arithmetic
+operations: <b>+</b> adds, <b>-</b> subtracts, <b>*</b> multiplies, 
+<b>/</b> divides, and <b>%</b>
+computes remainder.
 
 <div class="p"><!----></div>
+On integers, the operands are coerced to the longer of their two types, and
+then operated upon.  
 Floating point operations are determined by the IEEE 754
 standard. 
 The integer <b>/</b> and <b>%</b> throw a <b>DivideByZeroException</b>

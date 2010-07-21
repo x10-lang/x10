@@ -20,50 +20,74 @@
  <h2><a name="tth_sEc2">
 2</a>&nbsp;&nbsp;<b>here</b></h2><a name="Here">
 </a>
-X10 supports a special indexical constant<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> <b>here</b>:
+
+<div class="p"><!----></div>
+The variable <b>here</b> is always bound to the place at which the current
+computation is running, in the same way that <b>this</b> is always bound to the
+instance of the current class (for non-static code), or <b>self</b> is bound to
+the instance of the type currently being constrained.  
+<b>here</b> may denote different places in the same method body, due to
+place-shifting operations. In the following code, <b>here</b> has one value at
+<b>h0</b>, and a different one at <b>h1</b>. 
+<pre>
+val h0 = here;
+at (here.next()) {
+  val h1 = here; 
+  assert (h0 != h1);
+}
+</pre>
+
+(Similar examples show that <b>self</b> and <b>this</b> have the same behavior:
+<b>self</b> can be modified by constrained types appearing inside of type
+constraints, and <b>this</b> by inner classes.)
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">ExpressionName ::= <b>here</b> </td></tr>
+<tr><td align="right">Expression ::= <b>here</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The constant evaluates to the place at which the current activity is
-running. Unlike other place expressions, this constant cannot be 
-used as the placetype of fields, since the type of a field 
-should be independent of the activity accessing it.
-
-<div class="p"><!----></div>
-The code:
+For example, the following method looks through a collection of <b>Thing</b>s
+for ones which belong in the current place <b>here</b>, and deals with the
+things which do.  Note that every object <b>thing</b> has a property
+<b>thing.home</b> giving its home location.
 <pre>
-public class F {
-  public def m(a: F) {
-    val OldHere: Place = here;
-    async (a) {
-      Console.OUT.println(&#214;ldHere == here:" 
-                         + (OldHere == here));
-    }
+  public static def dealWithLocal(things: Rail[Thing]) {
+     for(thing in things) {
+    	 if (thing.home == here) 
+            dealWith(thing);
+     }	  
   }
-  public static def main(Rail[String]) {
-    new F().m( (at(Place.FIRST_PLACE.next()) new F()));
-  }
-}  
 </pre>
 
 <div class="p"><!----></div>
- will print out <b>true</b> iff the computation was configured
-to start with the number of places set to <b>1</b>. 
-
-
-<div class="p"><!----></div>
-<hr /><h3>Footnotes:</h3>
+<b>here</b> is frequently used in constraints, quite often of the form
+<b>ob.home == here</b>. Such constraints are necessary to check that a
+non-global method can be called on <b>ob</b>: 
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>
-An indexical constant is one whose value depends on its context
-of use.
+<pre>
+val ob : Thing{self.home == here} = new Thing();
+ob.nonGlobalMethod();
+</pre>
+
+<div class="p"><!----></div>
+This idiom is so common and useful that the constraint
+<b>Tself.home==here</b> can be abbreviated as <b>T!</b>: 
+
+<div class="p"><!----></div>
+<pre>
+val ob : Thing! = new Thing();
+ob.nonGlobalMethod();
+</pre>
+
+<div class="p"><!----></div>
+<em>Limitation</em><em>In the current implementation, sometimes ^Tself.home==here^
+does not work, though <b>T!</b> does.</em>
+
+<div class="p"><!----></div>
 
 </body>
 </html>

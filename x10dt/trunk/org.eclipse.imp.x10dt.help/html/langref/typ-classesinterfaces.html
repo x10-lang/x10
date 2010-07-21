@@ -27,38 +27,62 @@
 1.1</a>&nbsp;&nbsp;Class types</h3>
 
 <div class="p"><!----></div>
-        A <em>class declaration</em> (&#167;)
-        introduces a 
-        <em>class type</em>
-        containing all instances of the class.
+A <em>class declaration</em> (&#167;) introduces a <em>class type</em>
+containing all instances of the class.  The <b>Position</b> class below
+could describe the position of a slider control, for example.
 
 <div class="p"><!----></div>
-        Class instances are created via
-        constructor calls.  Class instances have fields and
-        methods, type members, and
-        value properties bound at construction time.
-        In addition, classes have static
-        members: constant fields, type definitions, and member
-        classes and member interfaces.
+<pre>
+class Position {
+  private var x : Int = 0;
+  public def move(dx:Int) { x += dx; }
+  public def pos() : Int = x;
+}
+</pre>
 
 <div class="p"><!----></div>
-        A class with type parameters is <em>generic</em>.  A class
-        type is legal only if all of its parameters are instantiated
-        on concrete types.
+Class instances, also called objects, are created via constructor calls. Class
+instances have fields and methods, type members, and value properties bound at
+construction time. In addition, classes have static members: constant fields,
+type definitions, and member classes and member interfaces.
 
 <div class="p"><!----></div>
-X10 does not permit mutable static state, so the role of static methods and
-initializers is quite limited. Instead programmers should use
-singleton classes to carry mutable static state.
+A class with type parameters is <em>generic</em>. A class type is instantiatable
+only if all of its parameters are instantiated on concrete types.  The
+<b>Cell[T]</b> class provides a container capable of holding a value of type
+<b>T</b>, or being empty.
 
 <div class="p"><!----></div>
-        Classes
-        are structured in a
-        single-inheritance hierarchy.  All classes
-        extend the class <b>x10.lang.Object</b>.
-        Classes are declared to extend a single
-        superclass (except for <b>Object</b>, which extends
-        no other class).
+<pre>
+class Cell[T] {
+  var empty : Boolean = true;
+  var contents : T;
+  public def putIn(t:T) { 
+    contents = t; empty = false; 
+  }
+  public def emptyOut() { empty = true; }
+  public def isEmpty() = empty;
+  public def getOut():T throws Exception {
+     if (empty) throw new Exception(&#203;mpty!");
+     return contents ;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+X10 does not permit mutable static state. A fundamental principle of the
+X10 model of computation is that all mutable state be local to some place
+(&#167;), and, as static variables are globally available, they
+cannot be mutable. When mutable global state is necessary, programmers should
+use singleton classes, putting the state in an object and using place-shifting
+commands (&#167;) and atomicity (&#167;) as necessary
+to mutate it safely.
+
+<div class="p"><!----></div>
+Classes are structured in a single-inheritance hierarchy. All classes extend
+the class <b>x10.lang.Object</b>, directly or indirectly. Each class other than
+<b>Object</b> extends a single parent class.  <b>Object</b> provides no behavior
+of its own, beyond that required by <b>Any</b>.
 
 <div class="p"><!----></div>
 Variables of class type may contain the value <b>null</b>. 
@@ -70,22 +94,46 @@ Variables of class type may contain the value <b>null</b>.
 </a>
 
 <div class="p"><!----></div>
-        An <em>interface declaration</em> (&#167;)
-        defines an <em>interface type</em>, which specifies a set of
-        methods, type members, and properties to be implemented by any class
-        declared to implement the interface.  Interfaces can also
-        have static members: constant fields, type definitions,
-        and member classes and interfaces.
+An <em>interface declaration</em> (&#167;) defines an <em>
+interface type</em>, specifying a set of methods, type members, and
+properties which must be provided by any class declared to implement the
+interface. 
 
 <div class="p"><!----></div>
-        An interface may extend multiple interfaces.
+Interfaces can also have static members: constant fields, type definitions,
+and member classes and interfaces.  However, interfaces cannot specify that
+implementing classes must provide static members.
+
+<div class="p"><!----></div>
+An interface may extend multiple interfaces.  
+<pre>
+interface Named {
+  def name():String;
+}
+interface Mobile {
+  def move(howFar:Int):Void;
+}
+interface Person extends Named, Mobile {}
+interface NamedPoint extends Named, Mobile{} 
+</pre>
 
 <div class="p"><!----></div>
 Classes may be declared to implement multiple interfaces.
 Semantically, the interface type is the set of all objects that are
 instances of classes that implement the interface. A class implements
 an interface if it is declared to and if it implements all the methods
-and properties defined in the interface.
+and properties defined in the interface.  For example, <b>KimThePoint</b>
+implements <b>Person</b>, and hence <b>Named</b> and <b>Mobile</b>.  It would be
+a static error if <b>KimThePoint</b> had no <b>name</b> method.
+
+<div class="p"><!----></div>
+<pre>
+class KimThePoint implements Person {
+   var pos : Int = 0;
+   public def name() = "Kim (" + pos + ")";
+   public def move(dPos:Int) { pos += dPos; }
+}
+</pre>
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.3">
@@ -93,27 +141,30 @@ and properties defined in the interface.
 
 <a name="properties">
 </a>
-        Classes and interfaces may have <em>properties</em>,
-        public <b>val</b> instance fields bound on object creation.  
-        For example, the following code declares a class named
-        <b>Coords</b> with properties <b>x</b> and <b>y</b>
-        and a <b>move</b> method.  The properties are bound
-        using the <b>property</b> statement in the constructor.
 
 <div class="p"><!----></div>
-package not.x10.lang;
+Classes, interfaces, and structs may have <em>properties</em>, public <b>val</b> instance
+fields bound on object creation. For example, the following code declares a
+class named <b>Coords</b> with properties <b>x</b> and <b>y</b> and a <b>move</b>
+method. The properties are bound using the <b>property</b> statement in the
+constructor.
+
+<div class="p"><!----></div>
 <pre>
 class Coords(x: Int, y: Int) {
-  def this(x: Int, y: Int) { property(x, y); }
+  def this(x: Int, y: Int) : Coords{self.x==x, self.y==y} 
+    = { property(x, y); }
   def move(dx: Int, dy: Int) = new Coords(x+dx, y+dy);
 }
 </pre>
 
 <div class="p"><!----></div>
-        The properties of a class or interface may be
-        constrained with a boolean expression.  The type
-        <b>Coords{x==0}</b> is the set of all points whose <b>x</b>
-        property is <b>0</b>.
+Properties, unlike other public <b>val</b> fields, can be used  
+at compile time in <em>constraints</em>. This allows us
+to specify subtypes based on properties, by appending a boolean expression to
+the type. For example, the type <b>Coords{x==0}</b> is the set of all points
+whose <b>x</b> property is <b>0</b>.  Details of this substantial topic are
+found in &#167;.
 
 <div class="p"><!----></div>
 

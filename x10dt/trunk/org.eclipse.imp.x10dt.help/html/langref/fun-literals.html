@@ -54,12 +54,16 @@ and optional set of exceptions throws by the body.  The body has the
 same syntax as a method body; it may be either an expression, a block
 of statements, or a block terminated by an expression to return. In
 particular, a value may be returned from the body of the function
-using a return statement (&#167;). The type of a
+using a return statement (&#167;). 
+
+<div class="p"><!----></div>
+The type of a
 function is a function type (&#167;).  In some cases the
 return type <b>T</b> is also optional and defaults to the type of the
 body. If a formal <b>xi</b> does not occur in any
-<b>Tj</b>,{c},<b>T</b> or {e}, the declaration <b>xi:Ti</b> may
-be replaced by just <b>Ti</b>.
+<b>Tj</b>, {c}, <b>T</b> or {e}, the declaration <b>xi:Ti</b> may
+be replaced by just <b>Ti</b>: <b>(Int)=&#62;7</b> is the integer function returning
+7 for all inputs.
 
 <div class="p"><!----></div>
 <a name="ClosureGuard">
@@ -78,27 +82,33 @@ As with methods, a function with return type <b>Void</b> cannot
 have a terminating expression. 
 If the return type is omitted, it is inferred, as described in
 &#167;.
-It is a static error if the return type cannot be inferred. 
+It is a static error if the return type cannot be inferred.  ,
+<b>(Int)=&#62;null</b> is not well-defined; X10 does not know which type of
+<b>null</b> is intended.  
+But <b>(Int):Rail[Double] =&#62; null</b> is legal.
 
 <div class="p"><!----></div>
 The following method takes a function parameter and uses it to
 test each element of the list, returning the first matching
-element.
+element.  It returns <b>otherwise</b> if no element matches.
+
+<div class="p"><!----></div>
 <pre>
-def find[T](f: (T) =&#62; Boolean, xs: List[T]): T = {
+
+<div class="p"><!----></div>
+def find[T](f: (T) =&#62; Boolean, xs: List[T], absent:T): T = {
   for (x: T in xs)
     if (f(x)) return x;
-  null
-}
+  absent
+  }
 </pre>
 
 <div class="p"><!----></div>
 The method may be invoked thus:
 <pre>
-xs: List[Int] = ...;
-x: Int = find((x: Int) =&#62; x&#62;0, xs);
+xs: List[Int] = new ArrayList[Int]();
+x: Int = find((x: Int) =&#62; x&#62;0, xs, 0);
 </pre>
-
 
 <div class="p"><!----></div>
 As with a normal method, the function may have a <b>throws</b>
@@ -136,7 +146,7 @@ Specifically, they can access:
 </ul>
 
 <div class="p"><!----></div>
-<em>Limitation: <b>shared</b> is not currently supported.</em>
+<em><em>Limitation</em> <b>shared</b> is not currently supported.</em>
 
 <div class="p"><!----></div>
 The function body may refer to instances of enclosing classes using
@@ -148,8 +158,10 @@ enclosing class, as usual.
 For example, the following is legal.  However, it would not be legal to add
 <b>e</b> or <b>h</b> to the sum; they are non-<b>shared</b> <b>var</b>s from the
 surrounding scope.
+
+<div class="p"><!----></div>
 <pre>
-public class Lambda {
+class Lambda {
    var a : Int = 0;
    val b = 0;
    def m(var c : Int, shared var d : Int,  val e : Int) {
@@ -157,7 +169,7 @@ public class Lambda {
       shared var g : Int = 0;
       val h : Int = 0;
       val closure = (var i: Int, val j: Int) =&#62; {
-    	  return a + b + d + e + g + h + i + j + this.a + Lambda.this.a;
+    	  return a + b + d + g + i + j + this.a + Lambda.this.a;
       };
       return closure;
    }
@@ -174,14 +186,12 @@ valid for those variables. <b>shared var</b>s are heap-allocated, which is less
 efficient but allows them to exist after <b>m</b> returns. 
 
 <div class="p"><!----></div>
- Note:
 <b>shared</b> does not guarantee <b>atomic</b> access to the shared variable. As
 with any code that might mutate shared data concurrently, be sure to protect
 references to mutable shared state with <b>atomic</b>. For example, the
 following code returns a pair of closures which operate on the same shared
 variable <b>a</b>, which are concurrency-safe-even if invoked many times
 simultaneously. Without <b>atomic</b>, it would no longer be concurrency-safe.
-
 
 <div class="p"><!----></div>
 <pre>

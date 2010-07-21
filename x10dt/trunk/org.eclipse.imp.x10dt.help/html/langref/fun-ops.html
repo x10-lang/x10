@@ -41,10 +41,10 @@ selected using the "." syntax:
 </em>
 
 <div class="p"><!----></div>
-If an operator has more than one arity (e.g., unary and binary
-<b>-</b>), the appropriate version may be selected by giving the
+If an operator has more than one arity (, unary and binary
+<b>-</b>), the unary version may be selected by giving the
 formal parameter types.  The binary version is selected by
-default.
+default, or the types may be specified for clarity.
 For example, the following equivalences hold:
 
 <div class="p"><!----></div>
@@ -62,10 +62,17 @@ Dist.</td><td width="150">
 </pre>
 
 <div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
 Unary and binary promotion (&#167;) is not performed
 when invoking these
 operations; instead, the operands are coerced individually via implicit
 coercions (&#167;), as appropriate.
+
+<div class="p"><!----></div>
+<b>The following is not implemented in version 2.0.3:</b>
 
 <div class="p"><!----></div>
 Additionally, for every expression <b>e</b> of a type <b>T</b> at which a binary
@@ -99,8 +106,9 @@ list <b>xs</b> by:
 
 <div class="p"><!----></div>
 <pre>
-xs.map(1.+)
+xs.map(1.+);
 </pre>
+
 
 <div class="p"><!----></div>
 

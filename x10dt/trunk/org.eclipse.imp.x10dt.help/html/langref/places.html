@@ -18,60 +18,42 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 1 </a><br />Places</h1><a name="XtenPlaces">
+Chapter 13 </a><br />Places</h1><a name="XtenPlaces">
 </a>
 
 <div class="p"><!----></div>
-An X10 place is a repository for data and activities. Each place
-is to be thought of as a locality boundary: the activities running in
-a place may access data items located at that place with the
-efficiency of on-chip access. Accesses to remote places may take
-orders of magnitude longer.
+An X10 place is a repository for data and activities, corresponding
+loosely to a process or a processor. Places induce a concept of "local". The
+activities running in a place may access data items located at that place with
+the efficiency of on-chip access. Accesses to remote places may take orders of
+magnitude longer. X10's system of places is designed to make this obvious.
+Programmers are aware of the places of their data, and know when they are
+incurring communication costs, but the actual operation to do so is easy. It's
+not hard to use non-local data; it's simply hard to to do so accidentally.
 
 <div class="p"><!----></div>
-X10 provides a built-in struct, <b>x10.lang.Place</b>; all
-places are instances of this struct. 
+The set of places available to a computation is determined at the time that
+the program is started, and remains fixed through the run of the program. See
+the <tt>README</tt> documentation on how to set command line and configuration
+options to set the number of places.)
 
 <div class="p"><!----></div>
-In X10 v2.0, the set of places available to a computation is
-determined at the time that the program is run and remains fixed
-through the run of the program. The number of places available 
-may be determined by reading (<b>Place.MAX_PLACES</b>). (This number
-is specified from the command line/configuration information; 
-see associated <tt>README</tt> documentation.)
+Places are first-class values in X10, as instances of the built-in struct,
+<b>x10.lang.Place</b>.   <b>Place</b> provides a number of useful ways to
+query places, such as <b>Place.places</b>, a <b>ValRail</b> of all the places
+available to the current run of the program.
 
 <div class="p"><!----></div>
-All scalar objects created during program execution are located in one
-place, though they may be referenced from other places. Aggregate
-objects (arrays) may be distributed across multiple places using
-distributions.
+Every object <b>ob</b> created by the program has a <em>home place</em>
+<b>ob.home</b>. Accesses to <b>ob</b> from activities located at <b>ob.home</b>
+are privileged.  Mutable fields can only be changed from <b>ob.home</b>, and
+normal fields and methods can only be accessed from there. 
 
 <div class="p"><!----></div>
-The set of all places in a running instance of an X10 program may
-be obtained through the <b>const</b> field <b>Place.places</b>.  (This
-set may be used to define distributions, for instance,
-&#167;.) 
-
-<div class="p"><!----></div>
-The set of all places is totally ordered.  The first place may be
-obtained by reading <b>Place.FIRST_PLACE</b>. The initial activity for
-an X10 computation starts in this place
-(&#167;). For any place, the operation <b>next()</b>
-returns the next place in the total order (wrapping around at the
-end). Further details on the methods and fields available on this
-class may be obtained by consulting the API documentation.
-
-<div class="p"><!----></div>
- Note:
-Future versions of the language may permit user-definable
-places, and the ability to dynamically create places.
-
-
-<div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-Variables of type <b>Place</b> must be initialized and are implicitly
-<b>val</b>.  
-
+However, objects can be referred to from anywhere.  Places other than
+<b>ob.home</b> may have <em>remote references</em> to <b>ob</b>.  Remote references
+convey fewer privileges than local ones, but they are far from useless.
+Fields and methods can be defined to be <b>global</b>, usable from anywhere. 
 
 <div class="p"><!----></div>
 

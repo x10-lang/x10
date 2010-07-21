@@ -18,7 +18,7 @@
 
 <body>
  <h2><a name="tth_sEc3">
-3</a>&nbsp;&nbsp;Methods selectors</h2>
+3</a>&nbsp;&nbsp;Method selectors</h2>
 <a name="MethodSelectors">
 </a>
 
@@ -26,7 +26,32 @@
 
 <div class="p"><!----></div>
 A method selector expression allows a method to be used as a
-first-class function.
+first-class function, without writing a function expression for it.
+For example, consider a class <b>Span</b> defining ranges of integers.  
+
+<div class="p"><!----></div>
+<pre>
+class Span(low:Int, high:Int) {
+  def this(low:Int, high:Int) {property(low,high);}
+  def between(n:Int) = low &lt;= n &amp;&amp; n &lt;= high;
+  def example() {
+    val digit = new Span(0,9);
+    val isDigit : (Int) =&#62; Boolean = digit.between.(Int);
+    if (isDigit(8)) x10.io.Console.OUT.println("8 is!");
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+In <b>example()</b>, 
+<b>digit.between.(Int)</b> 
+is a unary function testing whether its argument is between zero
+and nine.  It could also be written 
+<b>(n:Int) =&#62; digit.between(n)</b>.
+
+<div class="p"><!----></div>
+This is formalized thus:
 
 <div class="p"><!----></div>
   :  |        <em>  
@@ -44,11 +69,11 @@ first-class function.
 
 <div class="p"><!----></div>
 The <em>method selector expression</em> <b>e.m.(T1,...,Tn)</b> is type
-correct only if it is the case that the static type of {e} is a
-class or struct or interface with a method
+correct only if  the static type of {e} is a
+class or struct or interface <b>V</b> with a method
 <b>m(x1:T1,...xn:Tn){c}:T</b> defined on it (for some
 <b>x1,...,xn,c,T)</b>. At runtime the evaluation of this expression
-evaluates {e} to a value <b>v</b> and creates a function <b>f</b>
+evaluates {e} to a value {v} and creates a function <b>f</b>
 which, when applied to an argument list <b>(a1,...,an)</b> (of the right
 type) yields the value obtained by evaluating <b>v.m(a1,...,an)</b>.
 
@@ -61,13 +86,17 @@ e.m.[X<sub>1</sub>, ..., X<sub>m</sub>](T<sub>1</sub>, ..., T<sub>n</sub>)
 </pre>
  behaves as if it were the function
 <pre>
-((v:T)=&#62;
-  [X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>) =&#62; v.m[X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>, ..., x<sub>n</sub>))
+((v:V)=&#62;
+  [X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} 
+  =&#62; v.m[X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>, ..., x<sub>n</sub>))
 (e)
 </pre>
 
 <div class="p"><!----></div>
- Note:
+<em><em>Limitation</em> X10 functions, including method selectors, do not currently accept
+generic arguments.</em>
+
+<div class="p"><!----></div>
 Because of overloading, a method name is not sufficient to
 uniquely identify a function for a given class (in Java-like languages).
 One needs the argument type information as well.
@@ -75,7 +104,6 @@ The selector syntax (dot) is used to distinguish <b>e.m()</b> (a
 method invocation on <b>e</b> of method named <b>m</b> with no arguments)
 from <b>e.m.()</b>
 (the function bound to the method). 
-
 
 <div class="p"><!----></div>
 A static method provides a binding from a name to a function that is
@@ -90,17 +118,6 @@ of the function is specified by the declaration of <b>T.m</b>.
 Users of a function type do not care whether a function was defined
 directly (using the function syntax), or obtained via (static or
 instance) function selectors.
-
-<div class="p"><!----></div>
- Note:
-Design note: The function selector syntax is consistent with the
-reinterpretation of the usual method invocation syntax
-&#235;.m(e<sub>1</sub>,..., e<sub>n</sub>)"
-into a function specifier, <b>e.m</b>, applied to a tuple of arguments
-"(e<sub>1</sub>,..., e<sub>n</sub>)". Note that the receiver is not
-treated as "an extra argument" to the
-function. That would break the above approach.
-
 
 <div class="p"><!----></div>
 

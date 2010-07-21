@@ -20,11 +20,13 @@
  <h2><a name="tth_sEc5">
 5</a>&nbsp;&nbsp;Local variables</h2><a name="local-variables">
 </a>
-Local variable declarations may have
+Local variables are declared in a limited scope, and, dynamically, keep their
+values only for so long as the scope is being executed.  They may be <b>var</b>
+or <b>val</b>.  
+They may have 
 initializer expressions: <b>var i:Int = 1;</b> introduces 
 a variable <b>i</b> and initializes it to 1.
-The initializer must be a subtype of
-the declared type of the variable.  If the variable is immutable
+If the variable is immutable
 (<b>val</b>)
 the type may be omitted and
 inferred from the initializer type (&#167;).
@@ -32,28 +34,47 @@ Variables marked <b>shared</b> can be used by many activities at once; see
 &#167;.
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">LocalDeclaration
-        ::= LocalModifier<sup>*</sup>&nbsp;<b>var</b> LocalDeclaratorsWithType </td></tr>
-<tr><td align="right">&amp;&amp; ( <b>,</b> LocalDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">&#124; LocalModifier<sup>*</sup>&nbsp;<b>val</b> LocalDeclarators </td></tr>
-<tr><td align="right">&amp;&amp; ( <b>,</b> LocalDeclarators )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">&#124; LocalModifier<sup>*</sup>&nbsp;LocalDeclaratorsWithType </td></tr>
-<tr><td align="right">&amp;&amp; ( <b>,</b> LocalDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">LocalDeclarators
-        ::= LocalDeclaratorsWithType </td></tr>
-<tr><td align="right">::= LocalDeclaratorWithInit </td></tr>
-<tr><td align="right">LocalDeclaratorWithInit
-        ::= VarDeclarator Init </td></tr>
-<tr><td align="right">LocalDeclaratorsWithType
-        ::= VarDeclaratorId
-                ( <b>,</b> VarDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
-<tr><td align="right">LocalModifier ::= Annotation </td></tr>
-<tr><td align="right">&#124; <b>shared</b> </td></tr>
-<tr><td align="right">Init ::= <b>=</b> Expression </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
+The variable declaration <b>val x:T=e;</b> confirms that <b>e</b>'s value is of
+type <b>T</b>, and then introduces the variable <b>x</b> with type <b>T</b>.  For
+example, 
+<pre>
+   val t : Tub = new Tub();
+</pre>
+
+produces a variable <b>t</b> of type <b>Tub</b>, even though the expression
+<b>new Tub()</b> produces a value of type <b>Tub!</b> - that is, a <b>Tub</b>
+located <b>here</b>.    This can be inconvenient if, , it is desired to make
+method calls upon <b>t</b>.  
+
+<div class="p"><!----></div>
+Including type information in variable declarations is generally good
+programming practice: it explains to both the compiler and human readers
+something of the intent of the variable.  However, including types in 
+<b>val t:T=e</b> can obliterate helpful information.  So, X10 allows a <em>
+documentation type declaration</em>, written <b>val t &lt;: T = e</b>.  This 
+has the same effect as <b>val t = e</b>, giving <b>t</b> the full type inferred
+from <b>e</b>; but it also confirms statically that that type is at least
+<b>T</b>.  For example, the following gives <b>t</b> the type <b>Tub!</b> as
+desired: 
+<pre>
+   val t &lt;: Tub = new Tub();
+</pre>
+
+However, replacing <b>Tub</b> by <b>Int</b> would result in a compilation error. 
+
+<div class="p"><!----></div>
+Variables do not need to be initialized at the time of definition - not even
+<b>val</b>s. They must be initialized by the time of use, and <b>val</b>s may
+only be assigned to once. The X10 compiler performs static checks guaranteeing
+this restriction. The following is correct, albeit obtuse: 
+<pre>
+static def main(r: Rail[String]):Void {
+  val a : Int;
+  a = r.length;
+  val b : String;
+  if (a == 5) b = "five?"; else b = "" + a + " args"; 
+  // ... 
+</pre>
 
 <div class="p"><!----></div>
 

@@ -105,14 +105,11 @@ in the region, then so is every point p<sub>2</sub> between them (that is, it is
 &#124;</b> may produce non-convex regions from convex regions, e.g.,
 <b>[1,1] </td><td width="150">
 &#124;</td><td width="150">
-&#124; [3,3]</b> is a non-convex region.)
+&#124; [3,3]</b> is a non-convex region.  The operation
+<b>R.boundingBox()</b> gives the smallest rectangular region containing
+<b>R</b>.)  
 
 <div class="p"><!----></div>
-For each region <b>R</b>, the <em>rectangular closure</em> of <b>R</b> is the
-smallest rectangular region enclosing <b>R</b>.  For each integer <b>i</b>
-less than <b>R.rank</b>, the term <b>R(i)</b> represents the enumeration
-in the <b>i</b>th dimension of the rectangular closure of <b>R</b>. It may be
-used in a type expression wherever an enumeration may be used.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.1">
@@ -160,6 +157,14 @@ For a region "R" and point "p" of the same rank
 with "p". That is, point "q" is in 
 "R" if and only if point "q+p" is in "R+p". (And similarly
 for "R-p".)
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+For more details on the available methods on "Region", please
+consult the API documentation.
 
 <div class="p"><!----></div>
 

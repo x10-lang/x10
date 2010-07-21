@@ -13,23 +13,21 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-<title>Primitives</title>
+<title>Primitive Types</title>
 </head>
 
 <body>
  <h2><a name="tth_sEc4">
-4</a>&nbsp;&nbsp;"Primitives"</h2>
+4</a>&nbsp;&nbsp;Primitive Types</h2>
 
 <div class="p"><!----></div>
-The package <b>x10.lang</b> provides the following structs. Most of
-the functionality of these structs is implemented natively.
-
-<div class="p"><!----></div>
+Certain types that might be built in to other languages are in fact
+implemented as structs in package <b>x10.lang</b> in X10. Their methods and
+operations are often provided with <b>@Native</b> (&#167;) rather
+than X10 code, however. These types are:
 <pre>
-boolean, char, 
-byte, short, int, long
-float, double
-ubyte, ushort, uint, ulong
+boolean, char, byte, short, int, long
+float, double, ubyte, ushort, uint, ulong
 </pre>
 
 <div class="p"><!----></div>

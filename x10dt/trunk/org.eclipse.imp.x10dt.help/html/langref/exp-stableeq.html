@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc21">
-21</a>&nbsp;&nbsp;Stable equality</h2>
+ <h2><a name="tth_sEc20">
+20</a>&nbsp;&nbsp;Stable equality</h2>
 <a name="StableEquality">
 </a>
 
@@ -32,47 +32,46 @@
 </em>
 
 <div class="p"><!----></div>
-The <b>==</b> and <b>!=</b> operators provide <em>stable
-equality</em>; that is, the result of the equality operation is not affected
-by the mutable state of the program.
+The <b>==</b> and <b>!=</b> operators provide a fundamental, though
+non-abstract, notion of equality.  <b>a==b</b> is true if the values of <b>a</b>
+and <b>b</b> are extremely identical, in a sense defined shortly.  <b>a != b</b>
+is true iff <b>a==b</b> is false.
 
 <div class="p"><!----></div>
-Two operands may be compared with the infix predicate <b>==</b>.
-The operation
-evaluates to <b>true</b> if and only if no action taken by any
-user program can distinguish between the two operands.  In more detail,
-the rules are as follows.
 
+<ul>
+<li> If <b>a</b> and <b>b</b> are values of object type, then <b>a==b</b> holds
+      if <b>a</b> and <b>b</b> are the same object.
 <div class="p"><!----></div>
-If the operands both have reference type, then the operation evaluates
-to <b>true</b> if both are references to the same object.
+</li>
 
+<li> If one operand is <b>null</b>, then <b>a==b</b> holds iff the other is
+      also <b>null</b>.
 <div class="p"><!----></div>
-If one operand evaluates to <b>null</b> then the predicate
-evaluates to <b>true</b> if and only if the
-other operand is also <b>null</b>.
+</li>
 
-<div class="p"><!----></div>
-If the operands both have struct type, then they must be structurally equal;
+<li> If the operands both have struct type, then they must be structurally equal;
 that is, they must be instances of the same struct
-and all their fields or components must be <b>==</b>. 
+and all their fields or components must be <b>==</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> The definition of equality for function types is specified in
+      &#167;.
+<div class="p"><!----></div>
+</li>
+
+<li> If the operands have numeric types, they are coerced into the larger of
+      the two types and then compared for numeric equality.
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
-The definition of equality for function types is specified in &#167;.
-
-<div class="p"><!----></div>
-If the operands both have numeric type, binary promotion
-(&#167;<a href="#XtenPromotions">9</a>) is performed on the operands before the
-comparison.
-
-<div class="p"><!----></div>
-The predicate <b>!=</b> returns <b>true</b> (<b>false</b>) on two
-arguments if and only if the operand <b>==</b> returns <b>false</b>
-(<b>true</b>) on the same operands.
-
-<div class="p"><!----></div>
-The predicates <b>==</b> and <b>!=</b> may not be overridden by the
-programmer.
+The predicates <b>==</b> and <b>!=</b> may not be overridden by the programmer.
+Note that <b>a==b</b> is a form of <em>stable equality</em>; that is, the result of
+the equality operation is not affected by the mutable state of the program,
+after evaluation of <b>a</b> and <b>b</b>. 
 
 <div class="p"><!----></div>
 

@@ -13,12 +13,12 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Spawning an Activity</title>
+	<title>async: Spawning an Activity</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;Spawning an activity</h2><a name="AsynchronousActivity">
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;<b>async</b>: Spawning an activity</h2><a name="AsynchronousActivity">
 </a><a name="AsyncActivity">
 </a>
 
@@ -30,7 +30,7 @@ are better suited for supporting scalability than synchronous
 operations.)
 
 <div class="p"><!----></div>
-An activity is created by executing the statement:
+An activity is created by executing the <b>async</b> statement: 
 
 <div class="p"><!----></div>
   :  |        <em>  
@@ -43,20 +43,22 @@ An activity is created by executing the statement:
 </em> 
 
 <div class="p"><!----></div>
-The place expression <b>e</b> is expected to be of type <b>Place</b>,
-e.g., <b>here</b> or <b>d(p)</b> for some
-distribution <b>d</b> and point <b>p</b> (&#167;).  
-If not, the compiler replaces
-<b>e</b> with <b>e.home</b> if
-<b>e</b> is of type <b>x10.lang.Object</b>. Otherwise the compiler reports a type error. 
+The basic form of <b>async</b> is <b>async S</b>, which starts a new activity
+located <b>here</b> executing <b>S</b>.    The form 
+<b>async (p) S</b> is simply shorthand for <b>async at(p) S</b>, covering the
+common case where the activity is to be executed at some other place. 
 
 <div class="p"><!----></div>
-Note specifically that the expression <b>a(i)</b> when used as a place
-expression may evaluate to <b>a(i).home</b>, which may not be
-the same place as <b>a.dist(i)</b>. The programmer must be 
-careful to choose the right expression, appropriate for the statement.
-Accesses to <b>a(i)</b> within <em>Statement</em> should typically be guarded 
-by the place expression <b>a.dist(i)</b>.
+Note that the array subscript expression <b>a(i)</b>, when used as a place
+expression evaluates to <b>a(i).home</b>, . the home of the contents of
+<b>a(i)</b> In general, this is not the same place that the array cell itself
+is, . <b>a.dist(i)</b>. Accesses to <b>a(i)</b> should typically be guarded
+by the place expression <b>a.dist(i)</b>: 
+<pre>
+async (a.dist(i)) {
+  a(i) += 1;
+}
+</pre>
 
 <div class="p"><!----></div>
 In many cases the compiler may infer the unique place at which the
@@ -69,24 +71,24 @@ determine the unique designated place.<a href="#tthFtNtAAD" name="tthFrefAAD"><s
 
 <div class="p"><!----></div>
 An activity A executes the statement <b>async (P) S</b> by launching
-a new activity B at the designated place, to execute the specified
-statement. The statement terminates locally as soon as B is
-launched.  The activation path for B is that of A, augmented with
-information about the line number at which B was spawned.  B
+a new activity B at place <b>P</b> (or <b>P.home</b> if <b>P</b> is of an
+object type), to execute <b>S</b>. The statement terminates locally as soon as B is
+launched.  The activation path for B is that of A augmented by the
+information that A is the parent of B. 
+B
 terminates normally when S terminates normally.  It terminates
-abruptly if S throws an (uncaught) exception. The exception is
+abruptly if S throws an uncaught exception. The exception is
 propagated to A if A is a root activity (see &#167;),
-otherwise through A to A's root activity. Note that while an
-activity is running, exceptions thrown by activities it has already
-generated may propagate through it up to its root activity.
+otherwise it is propagated through A to A's root activity. Note that while
+A is running, exceptions thrown by activities it has already
+spawned may propagate through it up to its root activity, without A noticing.
 
 <div class="p"><!----></div>
-Multiple activities launched by a single activity at another place are
-not ordered in any way. They are added to the pool of activities at
-the target place and will be executed in sequence or in parallel based
-on the local scheduler's decisions. If the programmer wishes to
-sequence their execution s/he must use X10 constructs, such as
-clocks and <b>finish</b> to obtain the desired effect.  Further, the
+Multiple activities launched by a single activity at another place are not
+ordered in any way. They are added to the set of activities at the target
+place and will be executed based on the local scheduler's decisions.
+If some particular sequencing of events is needed, <b>when</b>, <b>atomic</b>,
+<b>await</b>, <b>finish</b>, clocks, and other X10 constructs can be used.
 X10 implementations are not required to have fair schedulers,
 though every implementation should make a best faith effort to ensure
 that every activity eventually gets a chance to make forward progress.

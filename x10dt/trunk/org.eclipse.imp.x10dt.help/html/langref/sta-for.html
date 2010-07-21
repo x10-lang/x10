@@ -42,8 +42,9 @@
 </em>
 
 <div class="p"><!----></div>
-X10 provides two forms of for statement: a basic for
-statement and an enhanced for statement.
+<b>for</b> statements provide bounded iteration, such as looping over a list.
+It has two forms: a basic form allowing near-arbitrary iteration, <em>a la</em>
+C, and an enhanced form designed to iterate over a collection.
 
 <div class="p"><!----></div>
 A basic <b>for</b> statement provides for arbitrary iteration in a somewhat
@@ -86,30 +87,28 @@ next: , <b>i++</b> and <b>i++,j-</b>.  If omitted, <b>step</b> does nothing.
 <b>test</b> is true.  If omitted, <b>body</b> does nothing.
 
 <div class="p"><!----></div>
-
-<div class="p"><!----></div>
 <a name="ForAllLoop">
-</a>
-<div class="p"><!----></div>
-An enhanced for statement is used to iterate over a collection.
-If the formal parameter is of type <b>T</b>,
-the collection expression must be of type <b>Iterable[T]</b>.
-Destructuring
-syntax may
-be used for the formal parameter (&#167;).
+</a>An enhanced for statement is used to iterate over a collection, or other
+structure designed to support iteration by implementing the interface
+<b>Iterable[T]</b>.    The loop variable must be of type <b>T</b>, 
+or destructurable from a value of type <b>T</b>
+(&#167;; in practice, this means that 
+<b>for ((i) in 1..10)</b> iterates over numbers from 1 to 10, while 
+<b>for (i in 1..10</b> iterates over <b>Point</b>s from 1 to 10).
 Each iteration of the loop
-binds the parameter to another element of the collection.
-The formal paramter must be immutable. 
+binds the iteration variable to another element of the collection.
 
 <div class="p"><!----></div>
-In a common case, 
-the collection is intended to be of type
-<b>Region</b> and the formal parameter is of type <b>Point</b>.
-Expressions <b>e</b> of type <b>Dist</b> and
-<b>Array</b> are also accepted, and treated as if they were
-<b>e.region</b>.
-If the collection is a region, the <b>for</b> statement
-enumerates the points in the region in canonical order.
+<pre>
+  var sum : Int = 0;
+  for ((i) in 1..n) sum += i;
+</pre>
+
+<div class="p"><!----></div>
+Certain common variant cases are accepted.  If collection is of type
+<b>Region</b>, the iteration variable may be of type <b>Point</b>. 
+If the iteratable <b>e</b> is of type <b>Dist</b> or <b>Array</b>, it is treated
+as if it were <b>e.region</b>.  
 
 <div class="p"><!----></div>
 

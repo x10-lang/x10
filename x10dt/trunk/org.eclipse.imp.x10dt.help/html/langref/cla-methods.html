@@ -13,15 +13,29 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Method definitions</title>
+	<title>Methods</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc6">
-6</a>&nbsp;&nbsp;Method definitions</h2>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Methods</h2>
 
 <div class="p"><!----></div>
-X10 permits guarded method definitions. 
+As is common in object-oriented languages, objects can have <em>methods</em>, of
+two sorts.  <em>Static methods</em> are functions, conceptually associated with a
+class and defined in its namespace.  <em>Instance methods</em> are parameterized
+code bodies associated with an instance of the class, which execute with
+priveleged access to that instance's fields. 
+
+<div class="p"><!----></div>
+Each method has a <em>signature</em>, telling what arguments it accepts, what
+type it returns, what precondition it requires, and what exceptions it may
+throw. Method definitions may be overridden by subclasses; the overriding
+definition may have a declared return type that is a subclass of the return
+type of the definition being overridden. Multiple methods with the same name
+but different signatures may be provided on a class (ad hoc polymorphism).
+Methods may be declared <b>public</b>, <b>private</b>, <b>protected</b>, or given
+default access rights.
 
 <div class="p"><!----></div>
   :  |        <em>  
@@ -37,17 +51,56 @@ X10 permits guarded method definitions.
 </em>
 
 <div class="p"><!----></div>
-A formal parameter may optionally have a <b>val</b> or <b>var</b>
-modifier (default: <b>val</b>).  
+A formal parameter may have a <b>val</b> or <b>var</b>
+modifier; <b>val</b> is the default.
 The body of the method is executed in an environment in which 
-each formal parameter corresponds to a local variable
+each formal parameter corresponds to a local variable (<b>var</b> iff the
+formal parameter is <b>var</b>)
 and is initialized with the value of the actual parameter.
-The local variable  is mutable if and only if the
-parameter is a <b>var</b> parameter.
 
 <div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Method Guards</h3>
 <a name="MethodGuard">
-</a>The guard (specified by <em>Guard</em>)
+</a>
+
+<div class="p"><!----></div>
+Often, a method will only make sense to invoke under certain
+statically-determinable conditions.  For example, <b>example(x)</b> is only
+well-defined when <b>x != null</b>, as <b>null.toString()</b> throws a null
+pointer exception: 
+<pre>
+class Example {
+   var f : String = "";
+   def example(x:Object){x != null} = {
+      this.f = x.toString();
+   }
+}
+</pre>
+
+(We could have used a constrained type <b>Objectself!=null</b> instead; in
+most cases it is a matter of personal preference or convenience of expression
+which one to use.) 
+
+<div class="p"><!----></div>
+The requirement of having a method guard is that callers must demonstrate to
+the X10
+compiler that the guard is satisfied.  (As usual with static constraint
+checking, there is no runtime cost.  Indeed, this code can be more efficient
+than usual, as it is statically provable that <b>x != null</b>.)
+This may require a cast: 
+<pre>
+  def exam(e:Example!, x:Object) {
+    if (x != null) 
+       e.example(x as Object{x != null});
+    // WRONG: if (x != null) e.example(x);
+  }
+</pre>
+
+<div class="p"><!----></div>
+The guard <b>{c}</b> 
+in a guarded method 
+<b>def m(){c} = E;</b>
 specifies a constraint <b>c</b> on the
 properties of the class <b>C</b> on which the method is being defined. The
 method exists only for those instances of <b>C</b> which satisfy <b>c</b>.  It is
@@ -62,7 +115,8 @@ The compiler checks that every method invocation
     &#235;<sub>i</sub>" must have a
     static type "S<sub>i</sub>" that is a subtype of the declared type
     "T<sub>i</sub>" for the ith
-    argument of the method, and the conjunction of static types
+    argument of the method, and the conjunction of the constraints on the
+    static types 
     of the arguments must entail the guard in the parameter list
     of the method.
 
@@ -77,76 +131,59 @@ The compiler checks that every method invocation
     Finally, if the declared return type of the method is
     <b>D{d}</b>, the
     return type computed for the call is
-    "Da: S; x<sub>1</sub>: S<sub>1</sub>; ...; x<sub>n</sub>: S<sub>n</sub>; d[a/this]",
+    "D{a: S; x<sub>1</sub>: S<sub>1</sub>; ...; x<sub>n</sub>: S<sub>n</sub>; d[a/this]}",
     where <b>a</b> is a new
     variable that does not occur in
     "d, S, S<sub>1</sub>, ..., S<sub>n</sub>", and
     "x<sub>1</sub>, ..., x<sub>n</sub>" are the formal
     parameters of the method.
 
-The method body is either an expression, a block of statements,
-or a block ending with an expression.
 
 <div class="p"><!----></div>
-Consider the program:
-<pre>
-type Point(r:Int)=Point{self.rank==r};
-final public class Point(rank: Int) implements (Int) =&#62; Int {
-    public global val coords: ValRail[Int](rank);
-    public global safe def apply(i: Int) = coords(i);
-    public global safe def coords() = coords;
-    public global safe operator - this: Point(rank) 
-       = Point.make(rank, (i:Int)=&#62;-this.coords(i));
-    public global safe operator this + (that: Point(rank)): Point(rank) 
-       = Point.make(rank, (i:Int)=&#62; this.coords(i) + that.coords(i));
-    ...
-}
-</pre>
-
-<div class="p"><!----></div>
-The following code fragment will typecheck:
-<pre>
-s: Point(3) = new Point([1,2,3]);
-t: Point(3) = new Point([-1,-1,-1]);
-u: Point(3) = s + u;
-</pre>
-
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc6.1">
-6.1</a>&nbsp;&nbsp;Property methods</h3>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Property methods</h3>
 
 <div class="p"><!----></div>
 A method declared with the modifier <b>property</b> may be used
 in constraints.  A property method declared in a class must have
-a body and must not be <b>void</b>.  The body of the method must
+a body and must not be <b>Void</b>.  The body of the method must
 consist of only a single <b>return</b> statement or a single
 expression.  It is a static error if the expression cannot be
 represented in the constraint system. 
 
 <div class="p"><!----></div>
-The expression may contain invocations of other properties. It is the
-responsibility of the programmer to ensure that the evaluation of 
-a property terminates at compile-time, otherwise the type-checker
-will not terminate and the program will fail to compile.
+The expression may contain invocations of other property methods. It is the
+responsibility of the programmer to ensure that the evaluation of a property
+terminates at compile-time, otherwise the type-checker will not terminate and
+the program will fail to compile in a potentially most unfortunate way.
 
 <div class="p"><!----></div>
 Property methods in classes are implicitly <b>final</b>; they cannot be
 overridden. Property methods are also implicitly <b>global</b>.
 
 <div class="p"><!----></div>
-A property method definition may omit the formal parameters and
+A nullary property method definition may omit the formal parameters and
 the <b>def</b> keyword.  That is, the following are equivalent:
 
 <div class="p"><!----></div>
 <pre>
 property def rail(): Boolean = rect &amp;&amp; onePlace == here &amp;&amp; zeroBased;
+</pre>
+and
+<pre>
 property rail: Boolean = rect &amp;&amp; onePlace == here &amp;&amp; zeroBased;
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.2">
-6.2</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
+Similarly, nullary property methods can be inspected in constraints without
+<b>()</b>.  
+<b>w.rail</b>, with either definition above, 
+is equivalent to 
+<b>w.rail()</b>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
 <a name="MethodOverload">
 </a>
 
@@ -159,11 +196,15 @@ considerations motivated by type parameters and dependent types.
 Two or more methods of a class or interface may have the same
 name if they have a different number of type parameters, or
 they have formal parameters of different types.  , the following is legal: 
+
+<div class="p"><!----></div>
 <pre>
+class Mful{
    def m() = 1;
    def m[T]() = 2;
    def m(x:Int) = 3;
    def m[T](x:Int) = 4;
+}
 </pre>
 
 <div class="p"><!----></div>
@@ -252,36 +293,41 @@ defined on <b>C</b> are available at the type <b>C{c}</b>
 whose guard <b>d</b> is implied by <b>c</b>.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.3">
-6.3</a>&nbsp;&nbsp;Method qualifiers</h3>
+     <h3><a name="tth_sEc4.4">
+4.4</a>&nbsp;&nbsp;Method qualifiers</h3>
 <a name="MethodQualifier">
 </a>
 
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc6.3.1">
-6.3.1</a>&nbsp;&nbsp;<b>atomic</b> qualifier</h4>
+There are a number of qualifiers which may be applied to X10 methods.
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">MethodModifier ::= <b>atomic</b>  </td></tr>
+<tr><td align="right">MethodModifier ::= <b>global</b>  </td></tr>
+<tr><td align="right">MethodModifier ::= <b>pinned</b>  </td></tr>
+<tr><td align="right">MethodModifier ::= <b>nonblocking</b>  </td></tr>
+<tr><td align="right">MethodModifier ::= <b>sequential</b>  </td></tr>
+<tr><td align="right">MethodModifier ::= <b>safe</b>  
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc4.4.1">
+4.4.1</a>&nbsp;&nbsp;<b>atomic</b> qualifier</h4>
 <a name="AtomicAnnotation">
 </a>
 
 
 <div class="p"><!----></div>
-A method may be declared <b>atomic</b>.
+A method may be declared <b>atomic</b>, indicating that it will be executed
+atomically-as if its body were wrapped in an <b>atomic</b> statement.
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">MethodModifier ::= <b>atomic</b>  
-</td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-Such a method is treated as if the statement in its body is wrapped 
-implicitly in an <b>atomic</b> statement.
-
-<div class="p"><!----></div>
-      <h4><a name="tth_sEc6.3.2">
-6.3.2</a>&nbsp;&nbsp;<b>global</b> qualifier</h4>
+      <h4><a name="tth_sEc4.4.2">
+4.4.2</a>&nbsp;&nbsp;<b>global</b> qualifier</h4>
 <a name="LocalAnnotation">
 </a>
 <a name="GlobalMethod">
@@ -289,29 +335,19 @@ implicitly in an <b>atomic</b> statement.
 
 
 <div class="p"><!----></div>
-A method may be declared <b>global</b>.
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">MethodModifier ::= <b>global</b>  
-</td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-A <b>global</b> method can be invoked on an object <b>o</b> in any place. The
-body of such a method is type-checked without assuming that
-<b>here==this.home</b>. This permits <b>global</b> fields of <b>o</b> to
-be accessed, but not local fields. The programmer must insert an explicit
-<b>at(this)...</b> to get to the place where the object lives and access
-the field.
+A method may be declared <b>global</b>, indicating that it can be invoked in
+any place. Unlike non-global methods, the body of a global method is
+type-checked without assuming that 
+<b>here==this.home</b>. This permits <b>global</b> fields of <b>o</b> to be
+accessed, but not local fields. The programmer must insert an explicit
+<b>at(this)...</b> to get to the place where the object lives to access local fields.
 
 <div class="p"><!----></div>
 <b>global</b> methods can be overridden only by methods also marked <b>global</b>.
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc6.3.3">
-6.3.3</a>&nbsp;&nbsp;<b>pinned</b> qualifier</h4>
+      <h4><a name="tth_sEc4.4.3">
+4.4.3</a>&nbsp;&nbsp;<b>pinned</b> qualifier</h4>
 <a name="PinnedAnnotation">
 </a>
 <a name="PinnedMethod">
@@ -319,28 +355,19 @@ the field.
 
 
 <div class="p"><!----></div>
-A method may be declared <b>pinned</b>.
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">MethodModifier ::= <b>pinned</b>  
-</td></tr></table>
-</em>
-
-<div class="p"><!----></div>
+A method may be declared <b>pinned</b>, indicating that the evaluation of the
+method takes place entirely <b>here</b>, without any communication necessary.
 A <b>pinned</b> method may not
 contain any <b>at</b> statement or expression whose place argument
 is not statically equivalent to <b>here</b>. It must call only
-<b>pinned</b> methods. That is, a <b>pinned</b> method does not cause
-any communication.
+<b>pinned</b> methods. 
 
 <div class="p"><!----></div>
 <b>pinned</b> methods can be overridden only by methods marked <b>pinned</b>.
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc6.3.4">
-6.3.4</a>&nbsp;&nbsp;<b>nonblocking</b> qualifier</h4>
+      <h4><a name="tth_sEc4.4.4">
+4.4.4</a>&nbsp;&nbsp;<b>nonblocking</b> qualifier</h4>
 <a name="NonblockingAnnotation">
 </a>
 <a name="NonblockingMethod">
@@ -348,27 +375,18 @@ any communication.
 
 
 <div class="p"><!----></div>
-A method may be declared <b>nonblocking</b>.
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">MethodModifier ::= <b>nonblocking</b>  
-</td></tr></table>
-</em>
-
-<div class="p"><!----></div>
+A method may be declared <b>nonblocking</b>, indicating that it does not block.  
 A <b>nonblocking</b> method may not
 contain any <b>when</b> statement whose condition
 is not statically equivalent to {true}. It must call only
-<b>nonblocking</b> methods. That is, a <b>nonblocking</b> method does not block.
+<b>nonblocking</b> methods. 
 
 <div class="p"><!----></div>
 <b>nonblocking</b> methods can be overridden only by methods marked <b>nonblocking</b>.
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc6.3.5">
-6.3.5</a>&nbsp;&nbsp;<b>sequential</b> qualifier</h4>
+      <h4><a name="tth_sEc4.4.5">
+4.4.5</a>&nbsp;&nbsp;<b>sequential</b> qualifier</h4>
 <a name="SequentialAnnotation">
 </a>
 <a name="SequentialMethod">
@@ -376,26 +394,17 @@ is not statically equivalent to {true}. It must call only
 
 
 <div class="p"><!----></div>
-A method may be declared <b>sequential</b>.
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">MethodModifier ::= <b>sequential</b>  
-</td></tr></table>
-</em>
-
-<div class="p"><!----></div>
+A method may be declared <b>sequential</b>, indicating that it does not spawn
+any other activities.
 A <b>sequential</b> method may not contain any <b>async</b>
-statement. It must call only <b>sequential</b> methods. That is, a
-<b>sequential</b> method does not spawn any activity.
+statement. It must call only <b>sequential</b> methods. 
 
 <div class="p"><!----></div>
 <b>sequential</b> methods can be overridden only by methods marked <b>sequential</b>.
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc6.3.6">
-6.3.6</a>&nbsp;&nbsp;<b>safe</b> qualifier</h4>
+      <h4><a name="tth_sEc4.4.6">
+4.4.6</a>&nbsp;&nbsp;<b>safe</b> qualifier</h4>
 <a name="SafeAnnotation">
 </a>
 <a name="SafeMethod">
@@ -403,18 +412,10 @@ statement. It must call only <b>sequential</b> methods. That is, a
 
 
 <div class="p"><!----></div>
-A method may be declared <b>safe</b>.
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">MethodModifier ::= <b>safe</b>  
-</td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-The <b>safe</b> annotation is considered shorthand for <b>pinned
-  nonblocking sequential</b>.
+A method may be declared <b>safe</b>, indicating that it is 
+<b>pinned</b>, <b>nonblocking</b>, and <b>sequential</b>.
+Safe methods are the only methods which can be called inside of <b>atomic</b>
+and <b>when</b> statements.
 
 <div class="p"><!----></div>
 

@@ -65,24 +65,24 @@ standing for <b>D.region</b>.
 
 <div class="p"><!----></div>
 Let <b>R</b> be a region, <b>Q</b> a set of places {<b>p1</b>, ..., <b>pk</b>}
-(enumerated in canonical order), and <b>P</b> a place. All the operations
-described below may be performed on <b>Dist.factory</b>.
+(enumerated in canonical order), and <b>P</b> a place.  
 
 <div class="p"><!----></div>
 
 <b>Unique distribution&nbsp;&nbsp;</b> 
-The distribution <b>unique(Q)</b> is the unique distribution from the
+The distribution <b>Dist.makeUnique(Q)</b> is the unique distribution from the
 region <b>1..k</b> to <b>Q</b> mapping each point <b>i</b> to <b>pi</b>.
 
 <div class="p"><!----></div>
 
 <b>Constant distributions.&nbsp;&nbsp;</b> 
-The distribution <b>R-&#62;P</b> maps every point in <b>R</b> to <b>P</b>.
+The distribution <b>R-&#62;P</b> maps every point in <b>R</b> to <b>P</b>, as does
+<b>Dist.makeConstant(R,P)</b>. 
 
 <div class="p"><!----></div>
 
 <b>Block distributions.&nbsp;&nbsp;</b>
-The distribution <b>block(R, Q)</b> distributes the elements of <b>R</b>
+The distribution <b>Dist.makeBlock(R, Q)</b> distributes the elements of <b>R</b>
 (in order) over the set of places <b>Q</b> in blocks  as
 follows. Let p equal <b></td><td width="150">
 &#124;R</td><td width="150">
@@ -97,36 +97,37 @@ successive blocks of size (p+1) and the remaining places get blocks of
 size p.
 
 <div class="p"><!----></div>
-The distribution <b>block(R)</b> is the same distribution as <tt>
-block(R, Place.places)</tt>.
+The distribution <b>Dist.makeBlock(R)</b> is the same distribution as <tt>
+Dist.makeBlock(R, Place.places)</tt>.
 
 <div class="p"><!----></div>
 
 <b>Cyclic distributions.&nbsp;&nbsp;</b> 
-The distribution <b>cyclic(R, Q)</b> distributes the points in <b>R</b>
+The distribution <b>Dist.makeCyclic(R, Q)</b> distributes the points in <b>R</b>
 cyclically across places in <b>Q</b> in order.
 
 <div class="p"><!----></div>
-The distribution <b>cyclic(R)</b> is the same distribution as <b>cyclic(R, Place.places)</b>.
+The distribution <b>Dist.makeCyclic(R)</b> is the same distribution as
+<b>Dist.makeCyclic(R, Place.places)</b>. 
 
 <div class="p"><!----></div>
-Thus the distribution <b>cyclic(Place.MAX_PLACES)</b> provides a 1-1
+Thus the distribution <b>Dist.makeCyclic(Place.MAX_PLACES)</b> provides a 1-1
 mapping from the region <b>Place.MAX_PLACES</b> to the set of all
-places and is the same as the distribution <b>unique(Place.places)</b>.
+places and is the same as the distribution <b>Dist.makeCyclic(Place.places)</b>.
 
 <div class="p"><!----></div>
 
 <b>Block cyclic distributions.&nbsp;&nbsp;</b>
-The distribution <b>blockCyclic(R, N, Q)</b> distributes the elements
+The distribution <b>Dist.makeBlockCyclic(R, N, Q)</b> distributes the elements
 of <b>R</b> cyclically over the set of places <b>Q</b> in blocks of size
 <b>N</b>.
 
 <div class="p"><!----></div>
 
 <b>Arbitrary distributions.&nbsp;&nbsp;</b> 
-The distribution <b>arbitrary(R,Q)</b> arbitrarily allocates points in <tt>
-R</tt> to <b>Q</b>. As above, <b>arbitrary(R)</b> is the same distribution as
-<b>arbitrary(R, Place.places)</b>.
+The distribution <b>Dist.makeArbitrary(R,Q)</b> arbitrarily allocates points in <tt>
+R</tt> to <b>Q</b>. As above, <b>Dist.makeArbitrary(R)</b> is the same distribution as
+<b>Dist.makeArbitrary(R, Place.places)</b>.
 
 <div class="p"><!----></div>
 

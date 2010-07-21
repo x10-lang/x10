@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc20">
-20</a>&nbsp;&nbsp;Conditional expressions</h2>
+ <h2><a name="tth_sEc19">
+19</a>&nbsp;&nbsp;Conditional expressions</h2>
 <a name="Conditional">
 </a>
 
@@ -39,8 +39,20 @@ the third subexpression (the alternative) is evaluated.
 
 <div class="p"><!----></div>
 The type of the condition must be <b>Boolean</b>.
-The type of the conditional expression is the least common
-ancestor (&#167;) of the types of the consequent and the alternative.
+The type of the conditional expression is some common 
+ancestor (as constrained by &#167;) of the types of the consequent and the
+alternative. 
+
+<div class="p"><!----></div>
+For example, 
+<b>a == b ? 1 : 2</b>
+evaluates to <b>1</b> if <b>a</b> and <b>b</b> are the same, and <b>2</b> if they
+are different.   As the type of <b>1</b> is <b>Int{self==1}</b> and of <b>2</b>
+is <b>Int{self==2}</b>, the type of the conditional expression has the form
+<b>Int{c}</b>, where <b>self==1</b> and <b>self==2</b> both imply <b>c</b>.  For
+example, it might be <b>Int{true}</b> - or perhaps it might be 
+<b>Int{self != 8}</b>. Note that this term has no most accurate type in the X10
+type system.
 
 <div class="p"><!----></div>
 

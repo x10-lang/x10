@@ -46,45 +46,71 @@
 </em>
 
 <div class="p"><!----></div>
-
-<div class="p"><!----></div>
 The assignment expression <b>x = e</b> assigns a value given by
 expression <b>e</b>
-to a mutable variable <b>x</b>.  There are three forms of
-assignment: <b>x</b> may be a local variable, it may be a field
-<b>y.f</b>, or it may be the variable obtained by evaluating the expression <b>a(i)</b>.
-In the last case, <b>a</b> must be an instance of a class implementing the interface
- <b>x10.lang.Settable[S,T]</b>, where 
-<b>S</b> and <b>T</b> are the types of <b>i</b> and <b>e</b>, respectively.
+to a variable <b>x</b>.  
+Most often, <b>x</b> is a mutable (<b>var</b> variable).  The same syntax is
+used for delayed initialization of a <b>val</b>, but <b>val</b>s can only be
+initialized once.
+<pre>
+  var x : Int;
+  val y : Int;
+  x = 1;
+  y = 2; // Correct; initializes y
+  x = 3; 
+  // Incorrect: y = 4;
+</pre>
 
 <div class="p"><!----></div>
-This interface is defined thus:
+There are three syntactic forms of
+assignment: 
+
+<ol type="1">
+<li> <b>x = e;</b>, assigning to a local variable, formal parameter, field of
+      <b>this</b>, etc.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>x.f = e;</b>, assigning to a field of an object.
+<div class="p"><!----></div>
+</li>
+
+<li> `a(i<sub>1</sub>,&#8230;,i<sub>n</sub>) = v;`, where n  &#8805; 0, assigning to
+      an element of an array or some other such structure. This is syntactic
+      sugar for a method call: `a.set(v,i<sub>1</sub>,&#8230;,i<sub>n</sub>)`.
+      Naturally, it is a static error if no suitable <b>set</b> method exists
+      for <b>a</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+For a binary operator &#9674;, the &#9674;-assignment expression
+"x &#9674;= e" combines the current value of <b>x</b> with the value
+of <b>e</b> by &#9674;, and stores the result back into <b>x</b>.  
+<b>i += 2</b>, for example, adds 2 to <b>i</b>. For variables and fields, 
+"x &#9674;= e" behaves just like "x = x &#9674; e". 
+
+<div class="p"><!----></div>
+The subscripting forms of &#228;(i) &#9674;= b" are slightly subtle.
+Subexpressions of <b>a</b> and <b>i</b> are only evaluated once.  However,
+<b>a(i)</b> and <b>a(i)=c</b> are each executed once-in particular, there is
+one call to <b>a.apply(i)</b> and one to <b>a.set(i,c)</b>, the desugared forms
+of <b>a(i)</b> and <b>a(i)=c</b>.  If subscripting is implemented strangely for
+the class of <b>a</b>, the behavior is <em>not</em> necessarily updating a single
+storage location. Specifically, <b>A()(I()) += B()</b> is tantamount to: 
 <pre>
-package x10.lang;
-public interface Settable[S,T] {
-    def set[S,T](i: S, v: T): T;
+{
+  val aa = A();  // Evaluate A() once
+  val ii = I();  // Evaluate I() once
+  val bb = B();  // Evaluate B() once
+  val tmp = aa(ii) + bb; // read aa(ii)
+  aa(ii) = tmp;  // write sum back to aa(ii)
 }
 </pre>
-The assignment <b>a(i) = e</b> is equivalent to the call
-<b>a.set(i, e)</b>.
 
 <div class="p"><!----></div>
-
-<div class="p"><!----></div>
-For a binary operator
-<i>op</i>,
-the
-<i>op</i>-assignment expression "x <i>op</i>= e"
-evaluates <b>x</b> to a memory location, then evaluates <b>e</b>,
-applies the operation "x <i>op</i> e", and assigns the
-result into the location computed for <b>x</b>.
-The expression is equivalent to "x = x <i>op</i> e"
-except that any subexpressions of <b>x</b> are evaluated only
-once.
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
+<em><em>Limitation</em> += does not currently meet this specification.</em>
 
 <div class="p"><!----></div>
 

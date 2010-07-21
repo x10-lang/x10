@@ -22,21 +22,17 @@
 
 <div class="p"><!----></div>
 The operators <b>++</b> and <b>-</b> increment and decrement
-a variable, respectively.  The variable must be <b>var</b>
-and of numeric type.
+a variable, respectively.  
+<b>x++</b> and <b>++x</b> both increment <b>x</b>, just as the statement 
+<b>x += 1</b> would, and similarly for <b>-</b>.  
 
 <div class="p"><!----></div>
-When the operator is prefix, the variable is
-incremented or decremented by <b>1</b> and the result of the expression is
-the new value of the variable.
-When the operator is postfix, the variable is incremented or
-decremented by <b>1</b> and the result of the expression is the old value of
-the variable.
+The difference between the two is the return value.  
+<b>++x</b> returns the <em>new</em> value of <b>x</b>, after incrementing.
+<b>x++</b> returns the <em>old</em> value of <b>, before incrementing.</b>
 
 <div class="p"><!----></div>
-The new value of the variable v is identical to the result of
-the expressions
-"v+1" or "v-1", as appropriate.
+<em><em>Limitation</em> This currently only works for numeric types.</em>
 
 <div class="p"><!----></div>
 

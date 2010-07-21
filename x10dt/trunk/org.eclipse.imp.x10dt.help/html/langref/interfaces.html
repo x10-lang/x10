@@ -18,23 +18,52 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 1 </a><br />Interfaces</h1>
+Chapter 7 </a><br />Interfaces</h1>
 <a name="XtenInterfaces">
 </a>
 
 <div class="p"><!----></div>
-X10 v2.0 interfaces are essentially the same Java
-interfaces [,&#167; 9]. An interface primarily specifies
-signatures for public methods. It may extend multiple interfaces. 
+X10 v2.0 interfaces are generally modelled on Java interfaces [,&#167;
+  9]. An interface specifies signatures for public methods, properties,
+<b>static val</b>s, and an invariant. It may extend several interfaces, giving
+X10 a large fraction of the power of multiple inheritance at a tiny fraction
+of the cost.
+
+<div class="p"><!----></div>
+The following puny example illustrates all these features: 
+<pre>
+interface Pushable(text:String, prio:Int) {
+  def push(): Void;
+  static val MAX_PRIO = 100;
+}
+class MessageButton(text:String, prio:Int) 
+  implements Pushable{self.prio==Pushable.MAX_PRIO} {
+  public def push() { 
+    x10.io.Console.OUT.println(text + " pushed");
+  }
+}
+</pre>
+
+<b>Pushable</b> defines two properties, a method, and a static value.  
+<b>MessageButton</b> implements a constrained version of <b>Pushable</b>,
+&nbsp;one with maximum priority.  It also has <b>Pushable</b>'s properties.  It
+defines the <b>push()</b> method given in the interface, as a <b>public</b>
+method-interface methods are implicitly <b>public</b>.
+
+<div class="p"><!----></div>
+A concrete type-a class or struct-can <em>implement</em> an interface,
+typically by having all the methods and properties that the interface
+requires.
+
+<div class="p"><!----></div>
+A variable may be declared to be of interface type.  Such a variable has all
+the fields and methods declared (directly or indirectly) by the interface;
+nothing else is statically available.  Values of a concrete type which
+implement the interface may be stored in the variable.  
 
 <div class="p"><!----></div>
 <a name="DepType:Interface">
-</a>X10 permits interfaces to have properties and specify an interface
-invariant. This is necessary so that programmers can build dependent
-types on top of interfaces and not just classes.
-
-<div class="p"><!----></div>
-  :  |        <em>  
+</a>  :  |        <em>  
 <table>
 <tr><td align="right">NormalInterfaceDeclaration ::=
       InterfaceModifiers<sup>?</sup>&nbsp;<b>interface</b> Identifier  </td></tr>
@@ -50,30 +79,35 @@ defined at the interface.
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 The compiler declares an error if this constraint
-   is not consistent (&#167;).  
+is not consistent.  
 
 
 <div class="p"><!----></div>
 Each interface implicitly defines a nullary getter method
-<b>def p(): T</b> for each property <b>p: T</b>. 
+<b>def p(): T</b> for each property <b>p: T</b>. The interface may not have
+another definition of a method <b>p()</b>. 
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-The compiler issues a warning if an interface body
-   contains an explicit definition for a method with this signature.
-
-
-<div class="p"><!----></div>
-A class <b>C</b> (with properties) is said to implement an interface <b>I</b> if
+A class <b>C</b> is said to implement an interface <b>I</b> if
 
 <ul>
-<li> its properties contains all the properties of <b>I</b>,
+<li> <b>I</b>, or a subtype of <b>I</b>, appears in the <b>implements</b> list
+      of <b>C</b>,
 <div class="p"><!----></div>
 </li>
 
-<li> its class invariant
-<i>inv</i>(<b>C</b>) implies
+<li> <b>C</b>'s properties include all the properties of <b>I</b>,
+<div class="p"><!----></div>
+</li>
+
+<li> <b>C</b>'s class invariant <i>inv</i>(<b>C</b>) implies
 <i>inv</i>(<b>I</b>).
+<div class="p"><!----></div>
+</li>
+
+<li> Each method <b>m</b> defined by <b>I</b> is also a method of <b>C</b> -
+      <em>with the <b>public</b></em> modifier added.   These methods may be
+      <b>abstract</b> if <b>C</b> is <b>abstract</b>.
 <div class="p"><!----></div>
 </li>
 </ul>

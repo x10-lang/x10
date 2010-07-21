@@ -18,7 +18,7 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 1 </a><br />Structs</h1>
+Chapter 9 </a><br />Structs</h1>
 <a name="XtenStructs">
 </a>
 <a name="StructClasses">
@@ -28,44 +28,36 @@ Chapter 1 </a><br />Structs</h1>
 
 
 <div class="p"><!----></div>
-An instance of a class <b>C</b> (an <em>object</em> ) is represented in X10 as
-a contiguously allocated chunk of words in the heap, containing the
-fields of the object as well as one or more words used in method
-lookup (itable/vtable). Variables with base type <b>C</b> (or a supertype of
-<b>C</b>) are implemented as cells with enough memory to hold a
-<em>reference</em> to the object. The size of a reference (32 bits or 64
-bits) depends on the underlying operating system.
+X10 objects are a powerful general-purpose programming tool. However, the
+power must be paid for in space and time. In space, a typical object
+implementation requires some extra memory for run-time class information, as
+well as a pointer for each reference to the object.  In time, a typical object
+requires an extra indirection to read or write data, and some computation to
+figure out which method body to call.  
 
 <div class="p"><!----></div>
-For many high-performance programming idioms, the overhead of one
-extra level of indirection represented by an object is not
-acceptable. For instance, a programmer may wish to define a type
-<b>Complex</b> (consisting of two double fields) and require that instances
-of this type be represented precisely as these two fields. A variable
-or field of type complex should, therefore, contain enough space to
-store two doubles. An array of complex of size <b>N</b> should store <b>2*N</b>
-doubles. Method invocations should be resolved statically so that
-there is no need to store vtable/itable words with each
-instance. Parameters of type complex should be passed inline to a
-method as two doubles. If a method's return type is complex the method
-should return two doubles on the stack. Two values of this type should
-be equal precisely when the two doubles are equal (structural
-equality).
+For high-performance computing, this overhead may not be acceptable for all
+objects. X10 provides structs, which are stripped-down objects. They are less
+powerful than objects; in particular they lack inheritance and mutable fields.
+Without inheritance, method calls do not need to do any lookup; they can be
+implemented directly. Accordingly, structs can be implemented and used more
+cheaply than objects, potentially avoiding the space and time overhead.
+(Currently, the C++ back end avoids the overhead, but the Java back end
+implements structs as Java objects and does not avoid it.)
 
 <div class="p"><!----></div>
-X10 supports the notion of <em>structs</em> which are precisely
-objects that can be implemented inline with a contiguous chunk of
-memory representing their fields, without any vtable/itable. Structs
-are introduced by struct definitions. struct definitions look very
-similar to class definitions, but have additional restrictions.
+Structs and classes are interoperable. Both can implement interfaces (in
+particular, like all X10 values they implement <b>Any</b>), and subprocedures
+whose arguments are defined by interfaces can take both structs and classes.
+(Some caution is necessary here: referring to a struct through an interface
+requires overhead similar to that required for an object.)
 
 <div class="p"><!----></div>
-
-<b>Implementation Note&nbsp;&nbsp;</b> In X10 v2.0, structs are
-only implemented as inline headerless objects when using the C++
-backend. In the Java backend, structs are mapped directly to Java
-classes and therefore have the same space and indirection
-characteristics as classes. 
+They are also interconvertable, within the constraints of structs. If you
+start off defining a struct and decide you need a class instead, the code
+change required is simply changing the keyword <b>struct</b> to <b>class</b>. If
+you have a class that does not use inheritance or mutable fields, it can be
+converted to a struct by changing its keyword.
 
 <div class="p"><!----></div>
 

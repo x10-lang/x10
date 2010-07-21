@@ -22,11 +22,12 @@
 
      <h3><a name="tth_sEc8.1">
 8.1</a>&nbsp;&nbsp;Design for scalability</h3>
-X10 is designed for scalability. An activity may atomically
-access only multiple locations in the current place. Unconditional
-atomic blocks are statically guaranteed to be non-blocking, and may
-be implemented using non-blocking techniques that avoid mutual
-exclusion bottlenecks. Data-flow synchronization permits point-to-point
+X10 is designed for scalability, by encouraging working with local data,
+and limiting the ability of events at one place to delay those at another. For
+example, an activity may atomically access only multiple locations in the
+current place. Unconditional atomic blocks are statically guaranteed to be
+non-blocking, and may be implemented using non-blocking techniques that avoid
+mutual exclusion bottlenecks. Data-flow synchronization permits point-to-point
 coordination between reader/writer activities, obviating the need for
 barrier-based or lock-based synchronization in many cases.
 
@@ -38,42 +39,42 @@ X10 is designed for productivity.
 <div class="p"><!----></div>
 
 <b>Safety and correctness.&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
 Programs written in X10 are guaranteed to be statically
-<em>type safe</em>, <em>memory safe</em> and <em>pointer safe</em>. Static type safety
-guarantees that at run time a location contains only those values whose
+<em>type safe</em>, <em>memory safe</em> and <em>pointer safe</em>. 
 
 <div class="p"><!----></div>
-dynamic type satisfies the constraints imposed by the location's
-static type and every run-time operation performed on the value in a
-location is permitted by the static type of the location.
+Static type safety guarantees that every location contains only values whose
+dynamic type agrees with the location's static type. The compiler allows a
+choice of how to handle method calls. In strict mode, method calls are
+statically checked to be permitted by the static types of operands. In lax
+mode, dynamic checks are inserted when calls may or may not be correct,
+providing weaker static correctness guarantees but more programming
+convenience. 
 
 <div class="p"><!----></div>
-Memory safety guarantees that an object may only access memory within
-its representation, and other objects it has a reference to. X10
-supports no pointer arithmetic, and bound-checks array accesses
-dynamically if necessary. X10 uses dynamic garbage collection to
-collect objects no longer referenced by the computation. X10
-guarantees that no object can retain a reference to an object
-whose memory has been reclaimed.  Further, X10 guarantees that
-every location is initialized at run time before it is read,
-and every value read from a location has previously been written into
-that location.
+Memory safety guarantees that an object may only access memory within its
+representation, and other objects it has a reference to. X10 supports no
+pointer arithmetic, and bound-checks array accesses dynamically if necessary.
+X10 uses garbage collection to collect objects no longer referenced by any
+activity. X10 guarantees that no object can retain a reference to an
+object whose memory has been reclaimed. Further, X10 guarantees that every
+location is initialized at run time before it is read, and every value read
+from a word of memory has previously been written into that word.
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
 Because places are reflected in the type system, static type safety
-also implies <em>place safety</em>: a location may contain references to only
-those objects whose location satisfies the restrictions of the static
-place type of the location.
+also implies <em>place safety</em>. All operations that need to be performed
+locally are, in fact, performed locally.  All data which is declared to be
+stored locally are, in fact, stored locally.
 
 <div class="p"><!----></div>
 X10 programs that use only clocks and unconditional atomic
 blocks are guaranteed not to deadlock. Unconditional atomic blocks
-are non-blocking, hence cannot introduce deadlocks (assuming the
-implementation is correct).
-
-<div class="p"><!----></div>
+are non-blocking, hence cannot introduce deadlocks.
 Many concurrent programs can be shown to be determinate (hence
 race-free) statically.
 
@@ -93,7 +94,6 @@ permit multi-dimensional local arrays to be operated on natively by
 native code.
 
 <div class="p"><!----></div>
-
      <h3><a name="tth_sEc8.3">
 8.3</a>&nbsp;&nbsp;Conclusion</h3>
 X10 is considerably higher-level than thread-based languages in
@@ -108,7 +108,7 @@ objects. In this the language reflects the designers' belief that
 issues of locality and distribution cannot be hidden from the
 programmer of high-performance code in high-end computing.  A
 performance model that distinguishes between computation and
-communication must be made explicit and transparent.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+communication must be made explicit and transparent.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
 At the same time we believe that the place-based type system and
 support for generic programming will allow the X10 programmer to
 be highly productive; many of the tedious details of
@@ -119,14 +119,17 @@ We expect the next version of the language to be significantly
 informed by experience in implementing and using the language. We
 expect it to have constructs to support continuous program
 optimization, and allow the programmer to provide guidance on
-clustering places to (hardware) nodes. For instance, we may introduce
-a notion of hierarchical clustering of places.
+clustering places to (hardware) nodes. 
 <hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>In this
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>The class is officially declared
+abstract to allow for multiple implementations, like sparse and band matrices,
+but in fact is abstract to avoid having to write the actual definitions of
+<b>+</b> and <b>*</b>.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>In this
 X10 is similar to more modern languages such as ZPL [].
-
 
 </body>
 </html>

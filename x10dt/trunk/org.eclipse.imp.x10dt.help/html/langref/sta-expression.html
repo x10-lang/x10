@@ -33,8 +33,22 @@
 
 <div class="p"><!----></div>
 The expression statement evaluates an expression, ignoring the
-result.  The expression must be either an assignment, an
-allocation, or a call.
+result.  Side effects of the expression occur.  
+The expression must be either an assignment, an
+allocation, or a call; , a sort of expression which could possibly have
+side effects. 
+<pre>
+class StmtEx {
+  def this() { x10.io.Console.OUT.println("New StmtEx made");  }
+  static def call() { x10.io.Console.OUT.println("call!");  }
+  def example() {
+     var a : Int = 0;
+     a = 1; // assignment
+     new StmtEx(); // allocation
+     call(); // call
+  }
+}
+</pre>
 
 <div class="p"><!----></div>
 

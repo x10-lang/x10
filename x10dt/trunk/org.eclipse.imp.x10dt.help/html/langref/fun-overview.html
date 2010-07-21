@@ -19,21 +19,13 @@
 <body>
  <h2><a name="tth_sEc1">
 1</a>&nbsp;&nbsp;Overview</h2>
-The runtime entities in X10 are of three kinds: <em>structs</em>,
-<em>objects</em>, and <em>functions</em>. This section is concerned with
-functions and their types - how they are created, and what operations
-can be performed on them.
-
-<div class="p"><!----></div>
-Intuitively, a function is a piece of code which can be applied to a
-set of arguments to produce a value. The application may not
-terminate, or may terminate abruptly. Functions may throw checked and
-unchecked exceptions. The body of a function may be any X10
-expression: hence a function evaluation may spawn multiple activities,
-read and write mutable locations, wait until memory locations contain
-a desired value, and execute over multiple places. In particular,
-function evaluation may be non-deterministic. When applied to the same
-input twice, a function may yield two different results.
+Functions, the last of the three kinds of values in X10, encapsulate pieces of
+code which can be applied to a vector of arguments to produce a value.
+Functions, when applied, can do nearly anything that any other code could do:
+fail to terminate, throw an exception, modify variables, spawn activities,
+execute in several places, and so on. X10 functions are not mathematical
+functions: the <b>f(1)</b> may return <b>true</b> on one call and <b>false</b> on
+an immediately following call.
 
 <div class="p"><!----></div>
 It is a limitation of X10 v2.0 that functions do not support
@@ -42,9 +34,29 @@ the language.
 
 <div class="p"><!----></div>
 A <em>function literal</em> <b>(x1:T1,..,xn:Tn){c}:T=&#62;e</b> creates a function of
-type<br /><b>(x1:T1,...,xn:Tn){c}=&#62;T</b> (&#167;). The body {e}
-of such an expression is type-checked in an environment in which {c} is
-true. 
+type<br /><b>(x1:T1,...,xn:Tn){c}=&#62;T</b> (&#167;).  For example, 
+<b>(x:Int) =&#62; x*x</b> is a function literal describing the squaring function on
+integers.   
+<b>null</b> is also a function value.
+
+<div class="p"><!----></div>
+Function application is written <b>f(a,b,c)</b>, following common mathematical
+usage. 
+
+Function invocation may throw unchecked exceptions. 
+
+<div class="p"><!----></div>
+The function body may be a block.  To compute integer squares by repeated
+addition (inefficiently), one may write: 
+<pre>
+val sq: (Int) =&#62; Int 
+      = (n:Int) =&#62; {
+           var s : Int = 0;
+           val abs_n = n &lt; 0 ? -n : n;
+           for ((i) in 1..abs_n) s += abs_n;
+           s
+        };
+</pre>
 
 <div class="p"><!----></div>
 A function literal evaluates to a function entity &#981;. When &#981; is
@@ -52,6 +64,8 @@ applied to a suitable list of actual parameters <b>a1</b>-<b>an</b>, it
 evaluates <b>e</b> with the formal parameters bound to the actual parameters.
 So, the following are equivalent, where <b>e</b> is an expression involving
 <b>x1</b> and <b>x2</b><a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+
+<div class="p"><!----></div>
 <pre>
 {
   val f = (x1:T1,x2:T2){true}:T =&#62; e;
@@ -73,7 +87,10 @@ and
 }
 </pre>
 
-<div class="p"><!----></div>
+This doesn't quite work if the body is a statement rather than an expression.
+A few language features are forbidden (<b>break</b> or <b>continue</b> of a loop
+that surrounds the function literal) or mean something different (<b>return</b>
+inside a function returns from the function). 
 
 <div class="p"><!----></div>
 The <em>method selector expression</em> <b>e.m.(x1:T1,...,xn:Tn)</b> (&#167;)

@@ -13,12 +13,12 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-<title>Implementation of Any methods</title>
+<title>Optional Implementation of Any methods</title>
 </head>
 
 <body>
  <h2><a name="tth_sEc3">
-3</a>&nbsp;&nbsp;Implementation of <b>Any</b> methods</h2>
+3</a>&nbsp;&nbsp;Optional Implementation of <b>Any</b> methods</h2>
 <a name="StructAnyMethods">
 </a>
 
@@ -26,7 +26,7 @@
 <div class="p"><!----></div>
 Unlike objects, structs do not have global identity. Instead, two
 structs are equal (<b>==</b>) if and only if their corresponding fields
-are equal (<b>==</b>). This is the central property of structs.
+are equal (<b>==</b>). 
 
 <div class="p"><!----></div>
 All structs implement <b>x10.lang.Any</b>. All 
@@ -37,9 +37,13 @@ structs have the following methods implicitly defined on them:
   property def at(Object)=true;
 </pre>
  It is an error for a programmer to attempt to define them.
+Note that the <b>home</b> of a struct evaluated in place <b>P</b> is equal to
+<b>P</b>-a struct, unlike an object, can have different values of <b>home</b>. 
 
 <div class="p"><!----></div>
-Structs are required to implement the following methods: 
+Structs are required to implement the following methods from <b>Any</b>.  
+Programmers need not provide them; X10 will produce them automatically if 
+the program does not include them. 
 <pre>
   public global safe def equals(Any):Boolean;
   public global safe def hashCode():Int;
@@ -48,16 +52,11 @@ Structs are required to implement the following methods:
 </pre>
 
 <div class="p"><!----></div>
-These methods are defined automatically if they are not supplied by
-the programmer.  A programmer who provides an explicit implementation
+A programmer who provides an explicit implementation
 of <b>equals(Any)</b> for a struct <b>S</b> should also consider
 supplying a definition for <b>equals(S):Boolean</b>. This will often
 yield better performance since the cost of an upcast to <b>Any</b> and
 then a downcast to <b>S</b> can be avoided.
-
-<div class="p"><!----></div>
-Expressions of a struct type may be used in <b>instanceof</b> and
-<b>as</b> expressions.
 
 <div class="p"><!----></div>
 

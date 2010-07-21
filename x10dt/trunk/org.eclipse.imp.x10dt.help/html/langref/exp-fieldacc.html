@@ -45,10 +45,36 @@ The field accessed is selected from the fields and value properties
 of the static type of the target and its superclasses.
 
 <div class="p"><!----></div>
-If the field target is given by the keyword <b>super</b>,
-the target's type is
-the superclass of the enclosing class, as
-constrained by the superclass's class invariant, if any.
+If the field target is given by the keyword <b>super</b>, the target's type is
+the superclass of the enclosing class.  This form is used to access fields of
+the parent class shadowed by same-named fields of the current class.
+
+<div class="p"><!----></div>
+If the field target is <b>Cls.super</b>, then the target's type is <b>Cls</b>,
+which must be an ancestor class of the enclosing class.  This (admittedly
+obscure) form is used to access fields of an ancestor class which are shadowed
+by same-named fields of some more recent ancestor.  The following example
+illustrates all four cases:
+
+<div class="p"><!----></div>
+<pre>
+class Uncle {
+  public static global val f = 1;
+}
+class Parent {
+  public global val f = 2;
+}
+class Ego extends Parent {
+  public global val f = 3;
+  class Child extends Ego {
+     public global val f = 4;
+     def expDotId() = this.f; // 4
+     def superDotId() = super.f; // 3
+     def classNameDotId() = Uncle.f; // 1;
+     def cnDotSuperDotId() = Ego.super.f; // 2
+  }
+}
+</pre>
 
 <div class="p"><!----></div>
 If the field target is <b>null</b>, a <b>NullPointerException</b>

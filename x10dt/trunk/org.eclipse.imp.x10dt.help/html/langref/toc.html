@@ -9,7 +9,7 @@
 <body>
 
 <h1>X10 Language Reference</h1>
-<p>X10 2.0.3</p>
+<p>X10 2.0.5</p>
   <ul>
   	<li><a href="summary.html">Summary</a></li>
   	<li><a href="introduction.html">Introduction</a></li>
@@ -19,7 +19,7 @@
 		<li><a href="ove-seqcore.html">The sequential core</a></li>
 		<li><a href="ove-placesacts.html">Places and activities</a></li>
 		<li><a href="ove-clocks.html">Clocks</a></li>
-		<li><a href="ove-arraysregionsdists.html">Arrays, Regions and Distributions</a></li>
+		<li><a href="ove-arraysregionsdists.html">Arrays, regions and distributions</a></li>
 		<li><a href="ove-annotations.html">Annotations</a></li>
 		<li><a href="ove-translatingmpi.html">Translating MPI Programs to X10</a></li>
 		<li><a href="ove-summaryfuturework.html">Summary and Future Work</a></li>
@@ -28,58 +28,63 @@
   	<li><a href="types.html">Types</a></li>
 	<ul>
 		<li><a href="typ-classesinterfaces.html">Classes and interfaces</a></li>
-		<li><a href="typ-parameters.html">Type parameters</a></li>
+		<li><a href="typ-parameters.html">Type parameters and Generic Types</a></li>
+		<li><a href="typ-function.html">Function Types</a></li>
 		<li><a href="typ-typedefs.html">Type definitions</a></li>
 		<li><a href="typ-constrained.html">Constrained types</a></li>
-		<li><a href="typ-function.html">Function types</a></li>
+		<li><a href="typ-functiontypes.html">Function types</a></li>
 		<li><a href="typ-annotated.html">Annotated types</a></li>
 		<li><a href="typ-subtyping.html">Subtyping and type equivalence</a></li>
-		<li><a href="typ-leastcommon.html">Least common ancestor types</a></li>
-		<li><a href="typ-coercionsconversions.html">Coercions and conversions</a></li>
-		<li><a href="typ-builtin.html">Built-in types</a></li>
+		<li><a href="typ-leastcommon.html">Common ancestors of types</a></li>
+		<li><a href="typ-fundamental.html">Fundamental types</a></li>
 		<li><a href="typ-inference.html">Type inference</a></li>
 	</ul>
 	<li><a href="variables.html">Variables</a></li>
 	<ul>
-		<li><a href="var-final.html">Final variables</a></li>
+		<li><a href="var-final.html">Immutable variables</a></li>
 		<li><a href="var-initialvals.html">Initial values of variables</a></li>
 		<li><a href="var-destructuringsyntax.html">Destructuring syntax</a></li>
 		<li><a href="var-formal.html">Formal parameters</a></li>
 		<li><a href="var-localvars.html">Local variables</a></li>
 		<li><a href="var-fields.html">Fields</a></li>
-		<li><a href="var-properties.html">Properties</a></li>
-	</ul>
-	<li><a href="objects.html">Objects</a></li>
-	<ul>
-		<li><a href="obj-basic.html">Basic design</a></li>
-		<li><a href="obj-examples.html">Examples</a></li>
 	</ul>
 	<li><a href="namespackages.html">Names and Packages</a></li>
+	<ul>
+		<li><a href="nam-packages.html">Packages</a></li>
+		<li><a href="nam-importdecls.html">import Declarations</a></li>
+		<li><a href="nam-conventions.html">Conventions on Type Names</a></li>
+	</ul>
 	<li><a href="interfaces.html">Interfaces</a></li>
+	<ul>
+		<li><a href="int-fielddefs.html">Field Definitions</a></li>
+		<li><a href="int-props.html">Interfaces Specifying Properties</a></li>
+	</ul>
 	<li><a href="classes.html">Classes</a></li>
 	<ul>
-		<li><a href="cla-typeinvariants.html">Type Invariants</a></li>
-		<li><a href="cla-clauses.html">implements and extends clauses</a></li>
-		<li><a href="cla-constructordefs.html">Constructor definitions</a></li>
-		<li><a href="cla-protoqualifier.html">proto qualifier on types</a></li>
-		<li><a href="cla-fielddefs.html">Field Definitions</a></li>
-		<li><a href="cla-methoddefs.html">Method Definitions</a></li>
+		<li><a href="cla-principles.html">Principle of X10 Objects</a></li>
+		<li><a href="cla-fields.html">Fields</a></li>
+		<li><a href="cla-properties.html">Properties</a></li>
+		<li><a href="cla-methods.html">Methods</a></li>
+		<li><a href="cla-instanceinit.html">Instance Initialization</a></li>
+		<li><a href="cla-constructors.html">Constructors</a></li>
 		<li><a href="cla-staticinit.html">Static initialization</a></li>
+		<li><a href="cla-userdefinedops.html">User-Defined Operators</a></li>
+		<li><a href="cla-guards.html">Class Guards and Invariants</a></li>
 	</ul>
 	<li><a href="structs.html">Structs</a></li>
 	<ul>
-		<li><a href="str-decl.html">Stuct declaration</a></li>
+		<li><a href="str-decl.html">Struct declaration</a></li>
 		<li><a href="str-boxing.html">Boxing of structs</a></li>
-		<li><a href="str-anymethods.html">Implementation of Any methods</a></li>
-		<li><a href="str-primitives.html">Primitives</a></li>
+		<li><a href="str-anymethods.html">Optional Implementation of Any methods</a></li>
+		<li><a href="str-primitives.html">Primitive Types</a></li>
 		<li><a href="str-genericprog.html">Generic Programming with structs</a></li>
-		<li><a href="str-progmethodology.html">Programming Methodology</a></li>
+		<li><a href="str-example.html">Example structs</a></li>
 	</ul>
 	<li><a href="functions.html">Functions</a></li>
 	<ul>
 		<li><a href="fun-overview.html">Overview</a></li>
 		<li><a href="fun-literals.html">Function Literals</a></li>
-		<li><a href="fun-methodsel.html">Methods selectors</a></li>
+		<li><a href="fun-methodsel.html">Method selectors</a></li>
 		<li><a href="fun-ops.html">Operator functions</a></li>
 		<li><a href="fun-astypeany.html">Functions as objects of type Any</a></li>
 	</ul>
@@ -93,8 +98,7 @@
 		<li><a href="exp-calls.html">Calls</a></li>
 		<li><a href="exp-assign.html">Assignment</a></li>
 		<li><a href="exp-incrdecr.html">Increment and decrement</a></li>
-		<li><a href="exp-numericpro.html">Numeric promotion</a></li>
-		<li><a href="exp-unary.html">Unary plus and unary minus</a></li>
+		<li><a href="exp-numericpro.html">Numeric Operations</a></li>
 		<li><a href="exp-bitwisecompl.html">Bitwise complement</a></li>
 		<li><a href="exp-binarithops.html">Binary arithmetic operations</a></li>
 		<li><a href="exp-binshiftops.html">Binary shift operations</a></li>
@@ -112,6 +116,7 @@
 		<li><a href="exp-subtyping.html">Subtyping expressions</a></li>
 		<li><a href="exp-contains.html">Contains expressions</a></li>
 		<li><a href="exp-railcons.html">Rail constructors</a></li>
+		<li><a href="exp-coercions.html">Coercions and conversions</a></li>
 	</ul>
 	<li><a href="statements.html">Statements</a></li>
 	<ul>
@@ -133,14 +138,14 @@
 	</ul>
 	<li><a href="places.html">Places</a></li>
 	<ul>
-		<li><a href="pla-expr.html">Place expressions</a></li>
+		<li><a href="pla-structure.html">The Structure of Places</a></li>
 		<li><a href="pla-here.html">here</a></li>
 	</ul>
 	<li><a href="activities.html">Activities</a></li>
 	<ul>
 		<li><a href="act-rootedexmodel.html">Rooted exception model</a></li>
-		<li><a href="act-spawn.html">Spawning an activity</a></li>
-		<li><a href="act-placechanges.html">Place changes</a></li>
+		<li><a href="act-placechanging.html">at: Place changing</a></li>
+		<li><a href="act-spawn.html">async: Spawning an activity</a></li>
 		<li><a href="act-finish.html">Finish</a></li>
 		<li><a href="act-initial.html">Initial activity</a></li>
 		<li><a href="act-foreach.html">Foreach</a></li>
@@ -153,6 +158,7 @@
 	<li><a href="clocks.html">Clocks</a></li>
 	<ul>
 		<li><a href="clockops.html">Clock operations</a></li>
+		<li><a href="clockdeadlock.html">Deadlock Freedom</a></li>
 		<li><a href="clockeq.html">Program equivalences</a></li>
 	</ul>
 	<li><a href="arrays.html">Arrays</a></li>
@@ -169,11 +175,16 @@
 		<li><a href="ann-decls.html">Annotation declarations</a></li>
 		<li><a href="ann-plugins.html">Compiler plugins</a></li>
 	</ul>
-	<li><a href="linkingwith.html">Linking with Native Code</a></li>
+	<li><a href="extern.html">Native Code Integration</a></li>
+	<ul>
+		<li><a href="ext-static.html">Native static Methods</a></li>
+		<li><a href="ext-blocks.html">Native Blocks</a></li>
+		<li><a href="ext-javacode.html">External Java Code</a></li>
+		<li><a href="ext-cppcode.html">External C++ Code</a></li>
+	</ul>
+	<li><a href="lostbits.html">Lost Bits</a></li>
 	<li><a href="refs.html">References</a></li>
-	<li><a href="example.html">Example</a></li>
-  <li><a href="changelog.html">Change Log</a></li>
-  	
+    <li><a href="changelog.html">Change Log</a></li>	
   </ul>
 </body>
 </html>

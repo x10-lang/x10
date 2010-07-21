@@ -13,12 +13,12 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Place changes</title>
+	<title>at: Place changeing</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc3">
-3</a>&nbsp;&nbsp;Place changes</h2><a name="AtStatement">
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;<b>at</b>: Place changing</h2><a name="AtStatement">
 </a>
 
 <div class="p"><!----></div>
@@ -37,10 +37,13 @@ An activity may change place using the <b>at</b> statement or
 
 <div class="p"><!----></div>
 The statement <b>at (p) S</b> executes the statement <b>S</b>
-synchronously at place <b>p</b>.
+synchronously at a place described by <b>p</b>.
 The expression <b>at (p) E</b> executes the statement <b>E</b>
 synchronously at place <b>p</b>, returning the result to the
-originating place.  , if <b>obj</b> is an object with a non-<b>global</b>
+originating place.  
+
+<div class="p"><!----></div>
+, if <b>obj</b> is an object with a non-<b>global</b>
 method <b>meth()</b>, the general way to call the method from anywhere is 
 <pre>
 at(x.home) x.meth();
@@ -53,6 +56,23 @@ val res = at(x.home)x.meth();
 </pre>
 
 <div class="p"><!----></div>
+<b>p</b> may be an expression of type <b>Place</b>, in which case its value is
+used as the place to execute the body: 
+<pre>
+   at (here.next()) S();
+   at (ob.home) S();
+</pre>
+
+Or, <b>p</b> may be an object, in which case the body is executed at
+<b>p.home</b>: 
+<pre>
+   at (ob) S();
+   // Same as at(ob.home) S();
+</pre>
+Structs and functions are global values, without home places, so they cannot
+be used as the place expression for <b>at</b>.  
+
+<div class="p"><!----></div>
 <b>at(p)S</b> does <em>not</em> start a new activity.  It should be thought of as
 transporting the current activity to <b>p</b>, running <b>S</b> there, and then
 transporting it back.    If you want to start a new activity, use <b>async</b>;
@@ -63,7 +83,9 @@ if you want to start a new activity at <b>p</b>, use
 As a consequence of this, <b>S</b> may contain constructs which only make sense
 within a single activity.  For example, 
 <pre>
-  for(x in things) at(x.home) if (x.nice()) return x;
+  for(x in things) 
+    if (at(x.home) x.nice()) 
+        return x;
 </pre>
 returns the first nice thing in a collection.   If we had used 
 <b>async at(x.home)</b>, this would not be allowed; 

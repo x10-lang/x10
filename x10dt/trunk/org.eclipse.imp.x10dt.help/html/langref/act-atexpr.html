@@ -13,7 +13,7 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>At expressions</title>
+	<title>At expression</title>
 </head>
 
 <body>
@@ -29,10 +29,16 @@
 
 <div class="p"><!----></div>
 An <b>at</b> expression evaluates an expression synchronously at the
-given place and returns its value. Note that expression evaluation may
-spawn asynchronous activities. The <b>at</b> expression will return
-without waiting for those activities to terminate. That is, <b>at</b>
-does not have built-in <b>finish</b> semantics.
+given place and returns its value.  If <b>fld</b> is a non-global field of 
+<b>ob</b>, then <b>ob.fld</b> can be read (from anywhere) by: 
+<pre>
+val f = at(ob) ob.fld;
+</pre>
+
+<div class="p"><!----></div>
+The expression evaluation may spawn asynchronous activities. The <b>at</b>
+expression will return without waiting for those activities to terminate. That
+is, <b>at</b> does not have built-in <b>finish</b> semantics.
 
 <div class="p"><!----></div>
 

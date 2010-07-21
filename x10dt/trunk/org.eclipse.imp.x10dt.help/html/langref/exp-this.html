@@ -32,12 +32,25 @@
 The expression <b>this</b> is a  local <b>val</b> containing a reference
 to an instance of the lexically enclosing class.
 It may be used only within the body of an instance method, a
-constructor, or in the initializer of a instance field.
+constructor, or in the initializer of a instance field - that is, the places
+where there is an instance of the class under consideration.
 
 <div class="p"><!----></div>
 Within an inner class, <b>this</b> may be qualified with the
 name of a lexically enclosing class.  In this case, it
-represents an instance of that enclosing class.
+represents an instance of that enclosing class.  
+For example, <b>Outer</b> is a class containing <b>Inner</b>.  Each instance of
+<b>Inner</b> has a reference <b>outer</b> to the <b>Outer</b> involved in its
+creation, which is acquired by use of <b>Outer.this</b>.
+<pre>
+class Outer {
+  val inner : Inner! = new Inner();
+  class Inner {
+    val outer : Outer = Outer.this;
+  }
+  def alwaysTrue() = (this == inner.outer);
+}
+</pre>
 
 <div class="p"><!----></div>
 The type of a <b>this</b> expression is the

@@ -30,15 +30,18 @@
 </em>
 
 <div class="p"><!----></div>
-A while statement evaluates a condition and executes a loop body
-if <b>true</b>.  If the loop body completes normally (either by reaching
-the end or via a <b>continue</b> statement with the loop header
-as target), the condition is reevaluated and the loop repeats if
-<b>true</b>.  If the condition is <b>false</b>, the loop
-exits.
+A while statement evaluates a <b>Boolean</b>-valued condition and executes a
+loop body if <b>true</b>. If the loop body completes normally (either by
+reaching the end or via a <b>continue</b> statement with the loop header as
+target), the condition is reevaluated and the loop repeats if <b>true</b>. If
+the condition is <b>false</b>, the loop exits.
 
 <div class="p"><!----></div>
-The condition must be of type <b>Boolean</b>.
+<pre>
+  while (n &#62; 1) {
+     n = (n % 2 == 1) ? 3*n+1 : n/2;
+  }
+</pre>
 
 <div class="p"><!----></div>
 

@@ -21,49 +21,15 @@
 5</a>&nbsp;&nbsp;Arrays, regions and distributions</h2>
 
 <div class="p"><!----></div>
-An X10 array type is a map from a <em>distribution</em>
-(&#167;) to a type, which may itself be an
-array type.
+X10 provides <b>DistArray</b>s, <em>distributed arrays</em>, which spread data
+across many places. An underlying <b>Dist</b> object provides the <em>
+distribution</em>, telling which elements of the <b>DistArray</b> go in which
+place. <b>Dist</b> uses subsidiary <b>Region</b> objects to abstract over the
+shape and even the dimensionality of arrays.
+Specialized X10 control statements such as <b>ateach</b> provide efficient
+parallel iteration over distributed arrays.
 
 <div class="p"><!----></div>
-A distribution is a map from a <em>region</em> (&#167;) to
-places.  A region is a collection of <em>points</em> or
-<em>indices</em>. For instance, the region <b>[0..200,1..100]</b> specifies
-a collection of two-dimensional points <b>(i,j)</b> with
-<b>i</b> ranging from <b>0</b> to <b>200</b> and <b>j</b> ranging
-from <b>1</b> to <b>100</b>. Points are used in array index expressions
-to pick out a particular array element.
-
-<div class="p"><!----></div>
-Operations are provided to construct regions from other regions, and
-to iterate over regions. Standard set operations, such as union,
-disjunction and set difference are available for regions.
-
-<div class="p"><!----></div>
-A primitive set of distributions is provided, together with operations
-on distributions. A <em>sub-distribution</em> of a distribution is one
-defined on a smaller region and agrees with the distribution
-at all points.  The standard operations on regions are extended to
-distributions.
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-A new array can be created by restricting an existing array to a
-sub-distribution, by combining multiple arrays, and by performing
-pointwise operations on arrays with the same distribution.
-
-<div class="p"><!----></div>
-X10 allows array constructors to iterate over the underlying
-distribution and specify a value at each item in the underlying
-region. Such a constructor may spawn activities at multiple places.
-
-<div class="p"><!----></div>
-<em>In future versions of the language, a programmer may specify new
-distributions, and new operations on distributions.</em>
-
-<div class="p"><!----></div>
-
 
 </body>
 </html>

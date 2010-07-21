@@ -22,34 +22,30 @@
 </a>
 
 <div class="p"><!----></div>
-Arrays are indexed by points-n-dimensional tuples of
-integers, implemented by the class <b>x10.lang.Point</b>.
-X10 specifies a simple syntax for the construction of points.
-A rail constructor (&#167;) of type <b>ValRail[Int]</b>
-of length n
-can be implicitly coerced to a <b>Point</b> of rank n.  For
-example, the following code initializes <b>p</b> to a point of
-rank two using a rail constructor:
-
-<div class="p"><!----></div>
-CHECK: <em>Huh? Why do we say rail constructor above? As opposed to just any old valrail?</em>
+General arrays are indexed by <b>Point</b>s-n-dimensional tuples of
+integers.  The <b>rank</b>
+property of a point gives its dimensionality.  Points can be constructed from
+integers or <b>ValRail</b>s by
+the <b>Point.make</b> factory methods:
 <pre>
-p: Point(2) = [1,2];
+val origin_1 : Point{self.rank==1} = Point.make(0);
+val origin_2 : Point{self.rank==2} = Point.make(0,0);
+val origin_5 : Point{self.rank==5} = Point.make([0,0,0,0,0]);
 </pre>
 
 <div class="p"><!----></div>
-The <b>Point</b> factory method <b>make</b> can take a rail constructor as
-argument.  The assignment above can be written, without
-implicit coercion, as:
+There is an implicit conversion from <b>ValRail[Int]</b> to <b>Point</b>, giving
+a convenient syntax for constructing points: 
 
 <div class="p"><!----></div>
 <pre>
-p: Point = Point.make([1,2]);
+val p : Point = [1,2,3];
+val q : Point{rank==5} = [1,2,3,4,5];
 </pre>
 
 <div class="p"><!----></div>
-Points implement the function type <b>(Int) =&#62; Int</b>; thus, the
-<b>i</b>th element of a point <b>p</b> may be accessed as <b>p(i)</b>.
+The coordinates of a point are available by subscripting; <b>p(i)</b> is the
+<b>i</b>th coordinate of the point <b>p</b>.
 
 <div class="p"><!----></div>
 

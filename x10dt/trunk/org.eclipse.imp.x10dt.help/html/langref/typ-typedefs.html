@@ -17,15 +17,91 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc3">
-3</a>&nbsp;&nbsp;Type definitions</h2>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Type definitions</h2>
 <a name="TypeDefs">
 </a>
 
-With value arguments, type arguments, and constraints, the
-syntax for X10 types can often be verbose;
-X10 therefore provides <em>type definitions</em>
-to allow users to define new type constructors.
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+<div class="p"><!----></div>
+    
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+`\`=13
+
+
+<div class="p"><!----></div>
+`^^M=13 
+
+<div class="p"><!----></div>
+`^^I=13 
+
+<div class="p"><!----></div>
+}}
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+With value arguments, type arguments, and constraints, the syntax for X10
+types can often be verbose. 
+For example, a non-null list of non-null strings is <br />
+<b>List[Stringself!=null]self!=null</b>.
+X10 provides <em>type definitions</em>
+to allow users to give short names to long types, and to commonly-used
+combinations of types. 
+We could name that type: 
+<pre>
+type LnSn = List[String{self!=null}]{self!=null};
+</pre>
+Or, we could abstract it somewhat, defining a type constructor
+<b>Nonnull[T]</b> for the type of <b>T</b>'s which are not null:
+<pre>
+type Nonnull[T] = T{self!=null};
+type LnSn = Nonnull[List[Nonnull[String]]];
+var example : LnSn;
+</pre>
+
+<div class="p"><!----></div>
+Type definitions can also refer to values, in particular, inside of
+constraints.  The type of <b>n</b>-element <b>Rails[Int]s</b> is 
+<b>Rail[Int]self.length == n</b>
+but it is often convenient to give a shorter name: 
+<pre>
+type Rail(n:Int) = Rail[Int]{self.length == n};
+var example : Rail(78); 
+</pre>
+
+<div class="p"><!----></div>
+Type definitions, like many other X10 abstractions, can have constraints on
+their use. 
+
+<pre>
+
+<div class="p"><!----></div>
+</pre>
 
 <div class="p"><!----></div>
 Type definitions have the following syntax:

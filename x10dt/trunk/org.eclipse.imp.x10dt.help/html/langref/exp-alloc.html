@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc22">
-22</a>&nbsp;&nbsp;Allocation</h2>
+ <h2><a name="tth_sEc21">
+21</a>&nbsp;&nbsp;Allocation</h2>
 <a name="ClassCreation">
 </a>
 
@@ -62,6 +62,11 @@ It is illegal to allocate an instance of an <b>abstract</b> class.
 It is illegal to allocate an instance of a class or to invoke a
 constructor that is not visible at
 the allocation expression.
+
+<div class="p"><!----></div>
+Note that instantiating a struct type uses function application syntax, not
+<b>new</b>.  As structs do not have subclassing, there is no need or
+possibility of a <em>ClassBody</em>.
 
 <div class="p"><!----></div>
 

@@ -18,19 +18,20 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 1 </a><br />Expressions</h1><a name="XtenExpressions">
+Chapter 11 </a><br />Expressions</h1><a name="XtenExpressions">
 </a>
 
 <div class="p"><!----></div>
-X10 supports a rich expression language similar to
-Java's.
-Evaluating an expression produces a value, which may be either
-an instance of a reference class, struct, or function. 
-Expressions may also be <b>void</b>; that is, they produce no
-value.
-Expression evaluation may have side effects: assignment to a
-variable, allocation, method calls, or exceptional control-flow.
-Evaluation is strict and is performed left to right.
+X10 has a rich expression language.
+Evaluating an expression produces a value, or, in a few cases, no value. 
+Expression evaluation may have side effects, such as change of the value of a 
+<b>var</b> variable or a data structure, allocation of new values, or throwing
+an exception. 
+
+<div class="p"><!----></div>
+Evaluation is performed left to right, wherever possible.  For example, in 
+<b>f()(a(),b())</b>, <b>f()</b> is evaluated, then <b>a()</b>, then <b>b()</b>,
+andd then the application.  
 
 <div class="p"><!----></div>
 

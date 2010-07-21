@@ -21,23 +21,19 @@
 2</a>&nbsp;&nbsp;Local variable declaration</h2>
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">Statement ::= LocalVariableDeclarationStatement </td></tr>
-<tr><td align="right">LocalVariableDeclarationStatement ::=
-             LocalVariableDeclaration <b>;</b> </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-The syntax of local variables declarations is described in
-&#167;.
-
-<div class="p"><!----></div>
-Local variables may be declared only within a block statement
-(&#167;).
-The scope of a local variable declaration is the 
-statement itself and the subsequent statements in the block.
+Short-lived variables are introduced by local variables declarations, as
+described in &#167;. Local variables may be declared only
+within a block statement (&#167;). The scope of a local variable
+declaration is the statement itself and the subsequent statements in the
+block.
+<pre>
+  if (a &#62; 1) {
+     val b = a/2;
+     var c : Int = 0;
+     // b and c are defined here
+  }
+  // b and c are not defined here.
+</pre>
 
 <div class="p"><!----></div>
 

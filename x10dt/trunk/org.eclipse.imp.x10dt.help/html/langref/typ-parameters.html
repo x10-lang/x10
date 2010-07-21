@@ -18,115 +18,190 @@
 
 <body>
  <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;Type parameters</h2>
+2</a>&nbsp;&nbsp;Type parameters and Generic Types</h2>
 <a name="TypeParameters">
 </a>
 
 <div class="p"><!----></div>
-        A class, interface, method, or closure may have type parameters
-        whose scope is the signature and body of the declaring
-        class, interface, method,
-        or closure.
-
-<div class="p"><!----></div>
-        Similarly, a type definition may have
-        type parameters that scope over the body of the type
-        definition.
-
-<div class="p"><!----></div>
-        Type parameters may be constrained by a <em>guard</em> on the declaration
-        (&#167;, &#167;,
-        &#167;,&#167;).
-        The type parameters of classes and interfaces must be
-        bound to concrete types (possibly to a type parameter)
-        for the type to be legal; thus <b>List[int]</b> and
-        <b>List[C]</b> are legal types, but <b>List</b> alone is
-        not.
-        The type parameters of
-        methods and closures
-        must be bound to
-        concrete types at invocation.
-        Parametrized type definitions specify new type
-        constructors; the type parameters of a type definition must be bound
-        to yield a type.
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc2.1">
-2.1</a>&nbsp;&nbsp;Generic types</h3>
 <a name="Generics">
-</a>
-
-        A <em>generic class</em> is a class
-        declared with one or more type parameters.  Generic
-        classes can be instantiated by instantiating the type
-        parameters of the base type.
+</a>A class, interface, method, closure, or type definition  may have type
+parameters.  Type parameters can be used as types, and will be bound to types
+on instantiation.  For example, a generic stack class may be defined as 
+<b>Stack[T]{...}</b>.  Stacks can hold values of any type; , 
+<b>Stack[Int]</b> is a stack of integers, and 
+<b>Stack[Pointself!=null]</b>is a stack of non-null <b>Point</b>s.
+Generics <em>must</em> be instantiated when they are used: <b>Stack</b>, by
+itself, is not a valid type.
+Type parameters may be constrained by a guard on the declaration
+(&#167;,
+&#167;,&#167;).
 
 <div class="p"><!----></div>
-Consider the following declaration of a <b>Cell</b> class.
+A <em>generic type</em> is a class, struct,  interface, or type declared with one or
+more type parameters.  When instantiated with concrete (, non-generic)
+types for its parameters, a generic type becomes a concrete type and can be
+used like any other type. For example,
+<b>Stack</b> is a generic type, 
+<b>Stack[Int]</b> is a concrete type, and can be used as one: 
+<b>var stack : Stack[Int];</b>
+
+<div class="p"><!----></div>
+A <b>Cell[T]</b> is a generic object, capable of holding a value of type
+<b>T</b>.  For example, a <b>Cell[Int]</b> can hold an <b>Int</b>, and a
+<b>Cell[Cell[Int]{self!=0}]</b> can hold a <b>Cell[Int]</b> which in turn can
+only hold non-zero numbers.  <b>Cell</b>s are actually useful in situations
+where values must be bound immutably for one reason, but need to be mutable.
 <pre>
-class Cell[X] {
-    var x: X;
-    def this(x: X) { this.x = x; }
-    def get(): X = x;
-    def set(x: X) = { this.x = x; }
+class Cell[T] {
+    var x: T;
+    def this(x: T) { this.x = x; }
+    def get(): T = x;
+    def set(x: T) = { this.x = x; }
 }
 </pre>
 
 <div class="p"><!----></div>
-This declares a class <b>Cell</b> with a type parameter <b>X</b>.
-<b>Cell</b> may be used as a type by instantiating <b>X</b>.
-
-<div class="p"><!----></div>
-<b>Cell[Int]</b> is the type of all <b>Cell</b> containing an
-<b>Int</b>.  The <b>get</b> method returns an <b>Int</b>; the
+<b>Cell[Int]</b> is the type of <b>Int</b>-holding cells.  
+The <b>get</b> method on a <b>Cell[Int]</b> returns an <b>Int</b>; the
 <b>set</b> method takes an <b>Int</b> as argument.  Note that
 <b>Cell</b> alone is not a legal type because the parameter is
 not bound.
 
 <div class="p"><!----></div>
-Parameters may be declares as <em>invariant</em>, <em>covariant</em>, or
-<em>contravariant</em>.  The <b>X</b> parameter of <b>Cell</b> above is
-invariant.  
-Consider the following classes:
+Methods may be generic, even methods in non-generic classes: 
 <pre>
-class Get[+X] {
-    var x: X;
-    def this(x: X) { this.x = x; }
-    def get(): X = x;
-}
-
-<div class="p"><!----></div>
-class Set[-X] {
-    var x: X;
-    def this(x: X) { this.x = x; }
-    def set(x: X) = { this.x = x; }
+class NonGeneric {
+  static def first[T](x:List[T]!):T = x(0);
 }
 </pre>
-The <b>X</b> parameter of the <b>Get</b> class is covariant;
-the <b>X</b> parameter of the <b>Set</b> class is contravariant.
 
 <div class="p"><!----></div>
-A covariant type parameter is permitted to appear only in covariant type positions,
-and a contravariant type parameter in contravariant positions. 
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Variance of Type Parameters</h3>
 
-<ul>
-<li> The return type of a method is a covariant position.
+
+
+
+
+
+
+<div class="p"><!----></div>
+Consider classes <b>Person :&#62; Child</b>.  Every child is a person, but there
+are people who are not children.  What is the relationship between
+<b>Cell[Person]</b> and <b>Cell[Child]</b>?  
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.1.1">
+2.1.1</a>&nbsp;&nbsp;Why Variance Is Necessary</h4>
+
+<div class="p"><!----></div>
+In this case, <b>Cell[Person]</b> and <b>Cell[Child]</b> should be unrelated.  
+If we had <b>Cell[Person] :&#62; Cell[Child]</b>, the following code would let us
+assign a <b>old</b> (a <b>Person</b> but not a <b>Child</b>) to a
+variable <b>young</b> of type <b>Child</b>, thereby breaking the type system: 
+<pre>
+// INCORRECTLY assuming Cell[Person] :&#62; Cell[Child]
+val cc : Cell[Child] = new Cell[Child]();
+val cp : Cell[Person] = cc; // legal upcast
+cp.set(old);       // legal since old : Person
+val young : Child = cc.get(); 
+</pre>
+
+<div class="p"><!----></div>
+Similarly, if <b>Cell[Person] &lt;: Cell[Child]</b>: 
+<pre>
+// INCORRECTLY assuming Cell[Person] &lt;: Cell[Child]
+val cp : Cell[Person] = new Cell[Person];
+val cc : Cell[Child] = cp; // legal upcast
+val cp.set(old); 
+val young : Child = cc.get();
+</pre>
+
+<div class="p"><!----></div>
+So, there cannot be a subtyping relationship in either direction between the
+two. And indeed, neither of these programs passes the X10 typechecker.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.1.2">
+2.1.2</a>&nbsp;&nbsp;Legitimate Variance</h4>
+
+<div class="p"><!----></div>
+The <b>Cell[Person]</b>-vs-<b>Cell[Child]</b> problems occur because it is
+possible to both store and retrieve values from the same object. However,
+entities with only one of the two capabilities <em>can</em> sensibly have some
+subtyping relations. Furthermore, both sorts of entity are useful. An entity
+which can store values but not retrieve them can nonetheless summarize them.
+An object which can retrieve values but not store values can be constructed
+with an initial value, providing a read-only cell.
+
+<div class="p"><!----></div>
+So, X10 provides <em>variance</em> to support these options.  Type parameters
+may be defined in one of three forms.  
+
+<ol type="1">
+<li> <em>invariant</em>: Given a definition <b>class C[T]{...}</b>, <b>C[Person]</b> and
+      <b>C[Child]</b> are unrelated classes; neither is a subclass of the
+      other.
 <div class="p"><!----></div>
 </li>
 
-<li> The argument types of a method are contravariant positions.
+<li> <em>covariant</em>: Given a definition <b>class C[+T]{...}</b> (the <b>+</b> indicates
+      covariance), <b>C[Person] :&#62; C[Child]</b>.  This is appropriate when
+      <b>C</b> allows retrieving values but not setting them.
 <div class="p"><!----></div>
 </li>
 
-<li> Whether a type argument position of a generic class, interface or struct type <b>C</b>
-is covariant or contravariant is determined by the <b>+</b> or <b>-</b> annotation
-at that position in the declaration of <b>C</b>.
+<li> <em>contravariant</em>: Given a definition <b>class C[-T]{...}</b> (the <b>-</b> indicates
+      contravariance), <b>C[Person] &lt;: C[Child]</b>.  This is appropriate when
+      <b>C</b> allows storing values but not retrieving them.
 <div class="p"><!----></div>
 </li>
-</ul>
+</ol>
 
 <div class="p"><!----></div>
-Given types <b>S</b> and <b>T</b>.
+The <b>T</b> parameter of <b>Cell</b> above is
+invariant.  
+
+<div class="p"><!----></div>
+A typical example of covariance is <b>Get</b>.  As the <b>example()</b> method
+shows, a <b>Get[T]</b> must be constructed with its value, and will return that
+value whenever desired.
+<pre>
+class Get[+T] {
+  val x: T;
+  def this(x: T) { this.x = x; }
+  def get(): T = x;
+  static def example() {
+     val g : Get[Int]! = new Get[Int](31);
+     val n : Int = g.get();
+     x10.io.Console.OUT.print(&#207;t's " + n);
+     x10.io.Console.OUT.print(&#207;t's still " + g.get());
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+A typical example of contravariance is <b>Set</b>.  As the <b>example()</b>
+method shows,  a variety of objects<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>  can be put into a
+<b>Set[Object]</b>.  While the object itself cannot be retrieved, some summary
+information about it - in this case, its <b>typeName</b> - can be.  
+<pre>
+class Set[-T] {
+  var x: T;
+  def this(x: T) { this.x = x; }
+  def set(x: T) = { this.x = x; } 
+  def summary(): String = this.x.typeName();
+  static def example() {
+    val s : Set[Object]! = new Set[Object](new Throwable());
+    s.summary(); // == "x10.lang.Throwable"
+    s.set(&#196; String");
+    s.summary(); // == "x10.lang.String";
+  }    
+}
+</pre>
+
+<div class="p"><!----></div>
+Given types <b>S</b> and <b>T</b>: 
 
 <ul>
 <li>If the parameter of <b>Get</b> is covariant, then
@@ -149,6 +224,32 @@ If the parameter of <b>Cell</b> is invariant, then
 <div class="p"><!----></div>
 </li>
 </ul>
+
+<div class="p"><!----></div>
+In order to make types marked as covariant and contravariant semantically
+sound, X10 performs extra checks.  
+A covariant type parameter is permitted to appear only in covariant type positions,
+and a contravariant type parameter in contravariant positions. 
+
+<ul>
+<li> The return type of a method is a covariant position.
+<div class="p"><!----></div>
+</li>
+
+<li> The argument types of a method are contravariant positions.
+<div class="p"><!----></div>
+</li>
+
+<li> Whether a type argument position of a generic class, interface or struct type <b>C</b>
+is covariant or contravariant is determined by the <b>+</b> or <b>-</b> annotation
+at that position in the declaration of <b>C</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+There are similar restrictions on use of covariant and contravariant values. 
+
 
 <div class="p"><!----></div>
 

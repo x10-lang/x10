@@ -18,7 +18,7 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 1 </a><br />Lexical structure</h1>
+Chapter 3 </a><br />Lexical structure</h1>
 
 <div class="p"><!----></div>
 In general, X10 follows Java rules [,Chapter 3] for
@@ -69,7 +69,8 @@ extends         extern          final           finally
 finish          for             foreach         future
 global
 goto            has             here            if             
-implements      import          instanceof      interface
+implements      import          in
+instanceof      interface
 native          new             next            nonblocking     
 or              package         pinned          private        
 protected       property        public          return
@@ -110,19 +111,19 @@ Less briefly, we use the following abbreviations:
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 &#948;<sub>16</sub> = <span class="roman">one</span> <span class="roman">or</span> <span class="roman">more</span> <span class="roman">hexadecimal</span> <span class="roman">digits</span><span class="roman">,</span> <span class="roman">using</span> <b><b>a</b></b>&#8722;<b><b>f</b></b><span class="roman">for</span> <span class="roman">10</span>&#8722;<span class="roman">15</span></td></tr></table></td></tr>
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
-&#953; = &#948; \mathbin</td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
-&#124; <tt>0</tt> &#948;<sub>8</sub>  \mathbin</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
-&#124; <tt>0</tt><tt>x</tt> &#948;<sub>16</sub> \mathbin</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#953; = &#948; </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; <tt>0</tt> &#948;<sub>8</sub>  </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; <tt>0</tt><tt>x</tt> &#948;<sub>16</sub> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 &#124; <tt>0</tt><tt>X</tt> &#948;<sub>16</sub></td></tr></table></td></tr>
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 &#963; = <span class="roman">optional</span> <b><b>+</b></b> <span class="roman">or</span> <b>&#8722;</b></td></tr></table></td></tr>
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
-&#946; = &#948; \mathbin</td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
-&#124; &#948;<tt>.</tt> \mathbin</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
-&#124; &#948;<tt>.</tt> &#948; \mathbin</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#946; = &#948; </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; &#948;<tt>.</tt> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#124; &#948;<tt>.</tt> &#948; </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 &#124; <tt>.</tt> &#948;</td></tr></table></td></tr>
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
-&#958; = (<tt>e</tt>  \mathbin</td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+&#958; = (<tt>e</tt>  </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 &#124; <tt>E</tt>) &#963; &#948;</td></tr></table></td></tr>
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 &#981; = &#946;&#958;</td></tr></table></td></tr></table>
@@ -211,7 +212,7 @@ Less briefly, we use the following abbreviations:
 <div class="p"><!----></div>
 </li>
 
-<li> <b>'\"'</b>, representing double-quote;
+<li> <b>'\''</b>, representing double-quote;
 <div class="p"><!----></div>
 </li>
 
@@ -219,7 +220,7 @@ Less briefly, we use the following abbreviations:
 <div class="p"><!----></div>
 </li>
 
-<li> <b>'<em>\dd</em><b>'</b>, where <em>dd</em> is one or more octal
+<li> <b>'\<em>dd</em><b>'</b>, where <em>dd</em> is one or more octal
             digits, representing the one-byte character numbered <em>dd</em>; it
             is an error if <em>dd</em> &gt; 255.</b></ul>
 <div class="p"><!----></div>
@@ -250,7 +251,10 @@ X10 has the following separators and delimiters:
 X10 has the following operators:
 <pre>
 ==  !=  &lt;   &#62;   &lt;=  &#62;=
-&amp;&amp; &#124;&#124;  &amp; &#124;   ^
+&amp;&amp;  </td><td width="150">
+&#124;</td><td width="150">
+&#124;  &amp;   </td><td width="150">
+&#124;   ^
 &lt;&lt;  &#62;&#62;  &#62;&#62;&#62;
 +   -   *   /   %
 ++  -  !   &#126;

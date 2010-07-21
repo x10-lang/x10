@@ -23,17 +23,38 @@
 <div class="p"><!----></div>
 Annotations are declared as interfaces.  They must be
 subtypes of the interface <tt>x10.lang.annotation.Annotation</tt>.
-Annotations on types, expressions, statements, classes, fields,
-methods, constructors, and local variable declarations (or
-formal parameters)
-must extend
-<tt>ExpressionAnnotation</tt>,
-<tt>StatementAnnotation</tt>,
-<tt>ClassAnnotation</tt>,
-<tt>FieldAnnotation</tt>,
-<tt>MethodAnnotation</tt>,
-<tt>ConstructorAnnotation</tt>, and
-<tt>VariableAnnotation</tt>, respectively.
+Annotations on particular static entities must extend the corresponding
+<b>Annotation</b> subclasses, as follows: 
+
+<ul>
+<li> Expressions-<b>ExpressionAnnotation</b>
+<div class="p"><!----></div>
+</li>
+
+<li> Statements-<b>StatementAnnotation</b>
+<div class="p"><!----></div>
+</li>
+
+<li> Classes-<b>ClassAnnotation</b>
+<div class="p"><!----></div>
+</li>
+
+<li> Fields-<b>FieldAnnotation</b>
+<div class="p"><!----></div>
+</li>
+
+<li> Methods-<b>MethodAnnotation</b>
+<div class="p"><!----></div>
+</li>
+
+<li> Imports-<b>ImportAnnotation</b>
+<div class="p"><!----></div>
+</li>
+
+<li> Packages-<b>PackageAnnotation</b>
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
 

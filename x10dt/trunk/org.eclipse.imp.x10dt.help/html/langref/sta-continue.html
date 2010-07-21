@@ -29,14 +29,9 @@
 </em>
 
 <div class="p"><!----></div>
-An unlabeled continue statement branches to the top of the
-currently enclosing loop.
-
-<div class="p"><!----></div>
-An labeled break statement branches to the top of the enclosing loop
-with the given label.
-
-<div class="p"><!----></div>
+An unlabeled <b>continue</b> skips the rest of the current iteration of the
+innermost enclosing loop, and proceeds on to the next.  A labeled
+<b>continue</b> does the same to the enclosing loop with that label.
 It is illegal to continue a loop not defined in the current
 method, constructor, initializer, or closure.
 

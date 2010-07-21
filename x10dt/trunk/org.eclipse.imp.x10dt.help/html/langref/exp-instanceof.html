@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc24">
-24</a>&nbsp;&nbsp;<b>instanceof</b></h2>
+ <h2><a name="tth_sEc23">
+23</a>&nbsp;&nbsp;<b>instanceof</b></h2>
 <a name="instanceOf">
 </a>
 
@@ -35,16 +35,17 @@ to determine whether an object is an instance of the given type:
 </em>
 
 <div class="p"><!----></div>
-In the above expression, <em>Type</em> is any type.
-At run time, the result of this operator is
-<b>true</b> if the <em>RelationalExpression</em> can be
-coerced
-to <em>Type</em> without a <b>ClassCastException</b> being
-thrown.  Otherwise the result is <b>false</b>.
-This determination may involve checking
-that the
-constraint, if any, associated with the type is true for the
-given expression.
+In the above expression, <em>Type</em> is any type. At run time, the
+result of this operator is <b>true</b> if the
+<em>RelationalExpression</em> can be coerced to <em>Type</em>
+without a <b>TypeCastException</b> being thrown or static error occurring.
+Otherwise the result is <b>false</b>. This determination may involve checking
+that the constraint, if any, associated with the type is true for the given
+expression.
+
+<div class="p"><!----></div>
+For example, <b>3 instanceof Intself==x</b> is an overly-complicated way of
+saying <b>3==x</b>.
 
 <div class="p"><!----></div>
 

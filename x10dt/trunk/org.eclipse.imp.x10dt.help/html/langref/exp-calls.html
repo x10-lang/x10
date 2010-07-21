@@ -38,18 +38,34 @@
 </em>
 
 <div class="p"><!----></div>
-A <em>MethodCall</em> may be to either <b>static</b> or to
-instance methods.  A <em>Call</em> may to either a method
-or a closure.  The syntax is ambiguous; the target must be
-type-checked to determine if it is the name of a method or if it
-refers to a closure.
+A <em>MethodCall</em> may be to either a <b>static</b> or an 
+instance method.  A <em>Call</em> may invoke either a method
+or a closure.  
 
 <div class="p"><!----></div>
-It is a static error if a call may resolve to both a closure
-call or to a method call.  
+The syntax is ambiguous; the target must be type-checked to determine if it is
+the name of a method or if it refers to a field containing a closure. It is a
+static error if a call may resolve to both a closure call or to a method call.
+<pre>
+class Callsome {
+  static val closure = () =&#62; 1;
+  static def method () = 2;
+  static val closureEvaluated = Callsome.closure();
+  static val methodEvaluated = Callsome.method();
+}
+</pre>
+However, adding a static method called <b>closure</b> makes <b>Callsome.closure()</b>
+ambiguous: it could be a call to the closure, or to the static method: 
 
 <div class="p"><!----></div>
-A closure call &#235;(...)" is shorthand for a method call &#235;.apply(...)".
+<pre>
+  static def closure () = 3;
+  // ERROR: static errory = Callsome.closure();
+</pre>
+
+<div class="p"><!----></div>
+A closure call &#235;(...)" is shorthand for a method call
+&#235;.apply(...)". 
 
 <div class="p"><!----></div>
 Method selection rules are similar to that of Java.
@@ -58,11 +74,8 @@ no parameters is considered more specific than a method with one or more
 type parameters that would have to be inferred.
 
 <div class="p"><!----></div>
-Type arguments may be omitted and inferred, as described in
-&#167;.
-
-<div class="p"><!----></div>
-It is a static error if a method's <em>Guard</em> is not satisfied by the caller.
+It is a static error if a method's <em>Guard</em> is not satisfied by the
+caller. 
 
 <div class="p"><!----></div>
 

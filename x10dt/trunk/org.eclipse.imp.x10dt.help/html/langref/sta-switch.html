@@ -44,12 +44,25 @@ a <b>break</b> statement.
 
 <div class="p"><!----></div>
 The index expression must be of type <b>Int</b>.
-
-<div class="p"><!----></div>
 Case labels must be of type <b>Int</b>, <b>Byte</b>, <b>Short</b>, or <b>Char</b>
 and must be compile-time 
 constants.  Case labels cannot be duplicated within the
 <b>switch</b> statement.
+
+<div class="p"><!----></div>
+In the following example, case <b>1</b> falls through to case3 <b>2</b>.  The
+other cases are separated by <b>break</b>s.
+<pre>
+switch (i) {
+  case 1: println(&#246;ne, and ");
+  case 2: println("two"); 
+          break;
+  case 3: println("three");
+          break;
+  default: println("Something else");
+           break;
+}
+</pre>
 
 <div class="p"><!----></div>
 

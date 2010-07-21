@@ -30,19 +30,20 @@
 </em>
 
 <div class="p"><!----></div>
-The <b>throw</b> statement throws an exception.  The exception
-must be a subclass of the class <b>x10.lang.Throwable</b>. 
+The <b>throw</b> statement throws an exception, which 
+must be an instance of <b>x10.lang.Throwable</b>. 
 
 <div class="p"><!----></div>
-The following statement checks if an index is in range and
+For example, the following code checks if an index is in range and
 throws an exception if not.
+
+<div class="p"><!----></div>
 <pre>
 if (i &lt; 0 </td><td width="150">
 &#124;</td><td width="150">
-&#124; i &#62; x.length)
-    throw new IndexOutOfBoundsException();
+&#124; i &#62;= x.length)
+    throw new MyIndexOutOfBoundsException();
 </pre>
-
 
 <div class="p"><!----></div>
 
