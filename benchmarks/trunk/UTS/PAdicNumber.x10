@@ -19,13 +19,20 @@ public class PAdicNumber(P:Int, K:Int) {
 		property(p, k);
 		digits = ds;
 	}
+	public safe global operator this < (that:PAdicNumber(P,K)):Boolean {
+		var i:Int =0;
+		for (; i < K && digits(i) < that.digits(i); ++i) ;
+		return i==K-1;
+	}
+	
 	/**
 	 * Return the number distance d away along dimension dim (using modulo arithmetic). 
 	 */
-	public def delta(d:Int, dim:Int)= 
-		new PAdicNumber(P, K, ValRail.make(K, (i:Int)=> (i==dim ? (digits(i)+d)% P : digits(i))));
+	global public def delta(d:Int, dim:Int)= 
+		new PAdicNumber(P, K, ValRail.make(K, 
+				(i:Int) => (i==dim ?  (digits(i)+d)% P : digits(i))));
 	
-	public def toDecimal():Int {
+	global public def toDecimal():Int {
 		 var result:Int=digits(K-1);
 	     for (var i:Int=K-1; i > 0; i--) {
 		    result = result*P + digits(i-1);

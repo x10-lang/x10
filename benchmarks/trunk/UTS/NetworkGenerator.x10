@@ -183,6 +183,7 @@ final class NetworkGenerator {
   public static def generateSparseEmbedding (P:Int, k:Int) {
     // Find a base "w" such that pow (w,k) >= P 
   val w = findW(P, k);
+  val MAX = new PAdicNumber(w, k, P);
 
     // Now, create an embedding using the following rule:
     // Express a place p as a base w number. Let us assume that there 
@@ -194,8 +195,19 @@ final class NetworkGenerator {
      (P, (i:Int) => bubbleSort (Rail.make[Int] 
        (k, (j:Int) => {
     	   val ip = new PAdicNumber(w,k,i);
-    	   val o = ip.delta(1, j).toDecimal();
-    	   o >= P ? -1 : o
+    	   val o:PAdicNumber(w, k)= ip.delta(1, j);
+    	   val od = o.toDecimal();
+    	   if (od <= P)
+    		   return od; 
+    	   var q:PAdicNumber(w,k) = o.delta(1,j);
+    	   var qd:Int = q.toDecimal();
+    	   while (qd > P) {
+    		   q = q.delta(i,j);
+    		   qd = q.toDecimal();
+    		   if (qd == od)
+    			   return -1;
+    	   }
+    	   return qd;
        })));
 
     return network;

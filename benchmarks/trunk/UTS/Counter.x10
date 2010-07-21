@@ -227,7 +227,7 @@ public class Counter  {
 	//	Console.OUT.println("\t" + safeSubstring("" + balance, 0,6) + "% imbalance in nodes processed (max magnitude).");
 	//	Console.OUT.println("\t" + safeSubstring("" + minAliveRatio, 0,6) 
 	//			+ " (earliest completion time, as % of max.");
-		Console.OUT.println("Nodes processed: " + computeTime(NODES, P, allCounters));
+		Console.OUT.println("Nodes processed:" + computeTime(NODES, P, allCounters));
 		Console.OUT.println("Time computing: " + computeTime(COMPUTING, P, allCounters, 1000, "us"));
 		Console.OUT.println("Time stealing:  " + computeTime(STEALING, P, allCounters, 1000, "us"));
 		Console.OUT.println("Time probing:   " + computeTime(PROBING, P, allCounters, 1000, "us"));
