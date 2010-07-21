@@ -43,8 +43,9 @@ final class ParUTS {
 	val z:Int;
 	val logEvents:Boolean;
 	val myRandom = new Random();
-  public val counter = new Counter();
+    public val counter = new Counter();
 	var active:Boolean=false;
+    var noLoot:Boolean=true;
 
 	/** Initialize the state. Executed at all places when executing the 
 	 PlaceLocalHandle.make command in main (of UTS). BINOMIAL
@@ -130,10 +131,11 @@ final class ParUTS {
 	 children. If so, push it onto the local stack.
 	 */
 	final def processSubtree (node:TreeNode) {
-    ++counter.nodesCounter;
-    if (Constants.BINOMIAL==treeType) 
-      TreeExpander.binomial (q, m, node, stack);
-    else TreeExpander.geometric (a, b0, d, node, stack);
+       ++counter.nodesCounter;
+       if (Constants.BINOMIAL==treeType) 
+         TreeExpander.binomial (q, m, node, stack);
+       else 
+    	   TreeExpander.geometric (a, b0, d, node, stack);
 	}
 
 	final def processLoot(loot: ValRail[TreeNode], lifeline:Boolean) {
@@ -173,8 +175,14 @@ final class ParUTS {
 			}
 			val loot = attemptSteal(st);
             if (null==loot) { 
-               if (stack.size()>0) continue;
-               else break;
+               if (! noLoot) {
+            	   noLoot=true;
+            	   continue;
+               }
+               else {
+            	   noLoot=true;
+            	   break;
+               }
             } else {
 			  processLoot(loot, false);
             }
@@ -214,7 +222,7 @@ final class ParUTS {
 		val P = Place.MAX_PLACES;
 		if (P == 1) return null;
 		val p = here.id;
-		for (var i:Int=0; i < width && stack.size()==0; i++) {
+		for (var i:Int=0; i < width && noLoot; i++) {
 		   var q_:Int = 0;
 		   while((q_ =  myRandom.nextInt(P)) == p) ;
 		   val q = q_;
@@ -229,11 +237,14 @@ final class ParUTS {
 			  return loot;
 		   }
 		}
+		if (! noLoot) {
+			return null;
+		}
 		event("No loot; establishing lifeline(s).");
 
 		// resigned to make a lifeline steal from one of our lifelines.
 		var loot:ValRail[TreeNode] = null;
-		for (var i:Int=0; i<myLifelines.length() && stack.size()==0; ++i) {
+		for (var i:Int=0; i<myLifelines.length() && noLoot; ++i) {
 			val lifeline:Int = myLifelines(i);
 		    if (-1 != lifeline && ! lifelinesActivated(lifeline) ) {
 		    	 lifelinesActivated(lifeline) = true;
@@ -278,11 +289,12 @@ final class ParUTS {
 		try {
 			lifelinesActivated(source) = false;
 			if (active) {
-				  processLoot(loot, true);
+				noLoot = false;
+				processLoot(loot, true);
 				assert (! init);
 				// Now you can return, the outer activity will handle the data on the stack.
-			    //if (depth > 0) 
-				//	  distribute(st, depth+1);
+			    if (depth > 0) 
+					  distribute(st, depth+1);
 				return;
 			}
 			active=true;
