@@ -105,7 +105,7 @@ public class Counter  {
 		Console.OUT.println("\t Time: idle= " + timeDead/1000 + " us ("
 				+ safeSubstring("" + (100.0F*timeDead)/total,0,5) + "%)");
 		Console.OUT.println("\t Time is "
-				+ safeSubstring("" + (100.0F*(total)/sumCounters.lastTimeStamp,
+				+ safeSubstring("" + (100.0F*(total)/sumCounters.lastTimeStamp),
 						0, 4)+ "% of max.");
 	}
 
@@ -225,7 +225,7 @@ public class Counter  {
 		Console.OUT.println("\t" + safeSubstring("" + (1.0F*llN)/ll, 0,8) + " nodes stolen/lifeline steal.");
 		Console.OUT.println("\t" + safeSubstring("" + balance, 0,6) + "% imbalance in nodes processed (max magnitude).");
 		Console.OUT.println("\t" + safeSubstring("" + minAliveRatio, 0,6) + "% worst imbalance in alive time.");
-		Console.OUT.println("\t" + totalTimeAtZero + " = " + counter.totalTimeAtZero);
+		Console.OUT.println("\t" + totalTimeAtZero + " = " + totalTimeAtZero);
 		Console.OUT.println("Performance = "+nodeSum+"/"+safeSubstring("" + (time/1E9), 0,6)
 				+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M nodes/s");
 
