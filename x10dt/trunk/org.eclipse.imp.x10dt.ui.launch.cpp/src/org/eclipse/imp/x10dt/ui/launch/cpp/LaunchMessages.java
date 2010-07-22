@@ -397,6 +397,8 @@ public class LaunchMessages extends NLS {
 
   public static String XPCFE_ContentCopyError;
 
+  public static String XPCFE_CouldNotCleanOutputDir;
+
   public static String XPCFE_DiscoveryCmdDialogMsg;
 
 	public static String XPCFE_DiscoveryCmdFailedMarkerMsg;

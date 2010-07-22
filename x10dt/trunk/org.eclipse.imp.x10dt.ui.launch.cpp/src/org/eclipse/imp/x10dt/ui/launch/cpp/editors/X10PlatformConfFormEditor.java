@@ -14,9 +14,16 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceDescription;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
@@ -210,7 +217,65 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   }
 
   public void doSave(final IProgressMonitor monitor) {
-    save();
+    final IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+    synchronized (file) {
+      IResourceUtils.deletePlatformConfMarkers(file);
+      
+      final IProject project = file.getProject();
+      final IWorkspace workspace = project.getWorkspace();
+      final IWorkspaceDescription description = workspace.getDescription();
+      boolean isAutoBuilding = description.isAutoBuilding();
+      if (isAutoBuilding == true) {
+        description.setAutoBuilding(false);
+        try {
+          workspace.setDescription(description);
+        } catch (CoreException except) {
+          CppLaunchCore.log(except.getStatus());
+        }
+      }
+
+      monitor.beginTask(null, 3);
+      final BuildChangeListener buildListener = new BuildChangeListener();
+      try {
+        project.getWorkspace().addResourceChangeListener(buildListener);
+        project.build(IncrementalProjectBuilder.CLEAN_BUILD, new SubProgressMonitor(monitor, 1));
+        while (buildListener.hasFinished()) ;
+      } catch (CoreException except) {
+        DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
+                      .createAndOpen(getEditorSite(), LaunchMessages.XPCFE_ConfSavingErrorDlgTitle,
+                                     LaunchMessages.XPCFE_CouldNotCleanOutputDir);
+      } finally {
+        if (isAutoBuilding) {
+          description.setAutoBuilding(true);
+          try {
+            workspace.setDescription(description);
+          } catch (CoreException except) {
+            CppLaunchCore.log(except.getStatus());
+          }
+        }
+        project.getWorkspace().removeResourceChangeListener(buildListener);
+      }
+      if (monitor.isCanceled()) {
+        return;
+      }
+      try {
+        getCurrentPlatformConf().applyChanges();
+        X10PlatformConfFactory.save(file, getCurrentPlatformConf());
+        monitor.worked(1);
+        commitPages(true);
+        if (! getCurrentPlatformConf().isComplete(false)) {
+          IResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPCFE_PlatformConfNotComplete, IMarker.SEVERITY_WARNING, 
+                                               IMarker.PRIORITY_HIGH);
+        }
+        monitor.worked(1);
+      } catch (CoreException except) {
+        DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
+                      .createAndOpen(getEditorSite(), LaunchMessages.XPCFE_ConfSavingErrorDlgTitle,
+                                     LaunchMessages.XPCFE_ContentCopyError);
+      } finally {
+        monitor.done();
+      }
+    }
   }
 
   public void doSaveAs() {
@@ -302,26 +367,6 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   // --- Private code
   
-  private void save() {
-    final IFile file = ((IFileEditorInput) getEditorInput()).getFile();
-    synchronized (file) {
-      IResourceUtils.deletePlatformConfMarkers(file);
-      try {
-        getCurrentPlatformConf().applyChanges();
-        X10PlatformConfFactory.save(file, getCurrentPlatformConf());
-        commitPages(true);
-        if (! getCurrentPlatformConf().isComplete(false)) {
-          IResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPCFE_PlatformConfNotComplete, IMarker.SEVERITY_WARNING, 
-                                               IMarker.PRIORITY_HIGH);
-        }
-      } catch (CoreException except) {
-        DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
-                      .createAndOpen(getEditorSite(), LaunchMessages.XPCFE_ConfSavingErrorDlgTitle,
-                                     LaunchMessages.XPCFE_ContentCopyError);
-      }
-    }
-  }
-  
   private synchronized void validate() {
     final IX10PlatformChecker checker = PlatformCheckerFactory.create();
   	IResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getEditorInput()).getFile());
@@ -379,8 +424,30 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     // --- Overridden methods
     
     public void run() {
-      save();
+      doSave(new NullProgressMonitor());
     }
+    
+  }
+  
+  private static final class BuildChangeListener implements IResourceChangeListener {
+
+    // --- Interface methods implementation
+    
+    public void resourceChanged(final IResourceChangeEvent event) {
+      if (event.getType() == IResourceChangeEvent.POST_BUILD) {
+        this.fHasFinished = true;
+      }
+    }
+    
+    // --- Internal services
+    
+    boolean hasFinished() {
+      return this.fHasFinished;
+    }
+    
+    // --- Fields
+    
+    private boolean fHasFinished;
     
   }
   

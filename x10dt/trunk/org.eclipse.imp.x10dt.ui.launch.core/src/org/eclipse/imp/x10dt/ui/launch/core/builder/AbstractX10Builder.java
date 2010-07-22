@@ -118,56 +118,91 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
+    if (! getProject().isAccessible()) {
+      return null;
+    }
     try {
       if (this.fProjectWrapper == null) {
         return new IProject[0];
       }
+      final SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+      final Collection<IFile> sourcesToCompile = new HashSet<IFile>();
+      final Collection<IFile> deletedSources = new HashSet<IFile>();
+      final Collection<IFile> nativeFiles = new HashSet<IFile>();
+      
+      final IX10BuilderFileOp x10BuilderOp = createX10BuilderFileOp();
+      if (! x10BuilderOp.hasAllPrerequisites()) {
+        IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
+                                        IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+        UIUtils.showProblemsView();
+        return null;
+      }
+      final Set<IProject> dependentProjects = cleanFiles(kind, subMonitor.newChild(10), sourcesToCompile, deletedSources, 
+                                                         nativeFiles, x10BuilderOp);
+      if (dependentProjects == null) {
+        return null;
+      }
+
+      final String localOutputDir = ProjectUtils.getProjectOutputDirPath(getProject());
+      x10BuilderOp.copyToOutputDir(nativeFiles, subMonitor.newChild(5));
+      compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20));
+      
+      compileGeneratedFiles(x10BuilderOp, sourcesToCompile, subMonitor.newChild(65));
+      
+      return dependentProjects.toArray(new IProject[dependentProjects.size()]);
+    } finally {
+      monitor.done();
+    }
+  }
+
+  private Set<IProject> cleanFiles(final int kind, final SubMonitor subMonitor, final Collection<IFile> sourcesToCompile,
+                                   final Collection<IFile> deletedSources, final Collection<IFile> nativeFiles,
+                                   final IX10BuilderFileOp x10BuilderFileOp) throws CoreException {
+    subMonitor.beginTask(null, 10);
+    try {
       final boolean shouldBuildAll;
-      if (kind == CLEAN_BUILD || kind == FULL_BUILD) {
+      if (kind == FULL_BUILD) {
         this.fDependencyInfo.clearAllDependencies();
         shouldBuildAll = true;
       } else {
         shouldBuildAll = this.fDependencyInfo.getDependencies().isEmpty();
       }
-      final Collection<IFile> sourcesToCompile = new HashSet<IFile>();
-      final Collection<IFile> deletedSources = new HashSet<IFile>();
-      final Collection<IFile> nativeFiles = new HashSet<IFile>();
-
-      final SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
       
       final Set<IProject> dependentProjects = new HashSet<IProject>();
       collectSourceFilesToCompile(sourcesToCompile, nativeFiles, deletedSources, this.fProjectWrapper, dependentProjects,
-                                  createNativeFilesFilter(), shouldBuildAll, subMonitor.newChild(10));
+                                  createNativeFilesFilter(), shouldBuildAll, subMonitor.newChild(5));
+      if (subMonitor.isCanceled()) {
+        return null;
+      }
       
       clearMarkers(sourcesToCompile);
       
-      if (this.fX10BuilderFileOp == null) {
-      	this.fX10BuilderFileOp = createX10BuilderFileOp();
-      	if (! this.fX10BuilderFileOp.hasAllPrerequisites()) {
-          IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
-                                          IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
-          UIUtils.showProblemsView();
-          return dependentProjects.toArray(new IProject[dependentProjects.size()]);
-        }
-      }
-      
-      this.fX10BuilderFileOp.cleanFiles(CountableIterableFactory.create(sourcesToCompile, nativeFiles, deletedSources),
-                                        subMonitor);
-
-      final String localOutputDir = ProjectUtils.getProjectOutputDirPath(getProject());
-      this.fX10BuilderFileOp.copyToOutputDir(nativeFiles, subMonitor.newChild(5));
-      compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20));
-      
-      compileGeneratedFiles(this.fX10BuilderFileOp, sourcesToCompile, subMonitor.newChild(65));
-      
-      return dependentProjects.toArray(new IProject[dependentProjects.size()]);
+      x10BuilderFileOp.cleanFiles(CountableIterableFactory.create(sourcesToCompile, nativeFiles, deletedSources),
+                                  subMonitor.newChild(5));
+      return dependentProjects;
     } finally {
-    	this.fX10BuilderFileOp = null;
-      monitor.done();
+      subMonitor.done();
     }
   }
   
   // --- Overridden methods
+  
+  protected void clean(final IProgressMonitor monitor) throws CoreException {
+    if (getProject().isAccessible()) {
+      if (this.fProjectWrapper == null) {
+        this.fProjectWrapper = JavaCore.create(getProject());
+      }
+      this.fDependencyInfo.clearAllDependencies();
+      final IX10BuilderFileOp x10BuilderOp = createX10BuilderFileOp();
+      if (! x10BuilderOp.hasAllPrerequisites()) {
+        IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
+                                        IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+        UIUtils.showProblemsView();
+      }
+      cleanFiles(CLEAN_BUILD, SubMonitor.convert(monitor), new HashSet<IFile>(), new HashSet<IFile>(), 
+                 new HashSet<IFile>(), x10BuilderOp);
+    }
+  }
   
   protected void startupOnInitialize() {
     if (getProject().isAccessible()) {
@@ -296,9 +331,12 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     
     final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(1000000, getProject(), extInfo.compilerName()));
     Globals.initialize(compiler);
-    
-    compiler.compile(toSources(sourcesToCompile));
-    computeDependencies(extInfo.scheduler().commandLineJobs());
+    try {
+      compiler.compile(toSources(sourcesToCompile));
+      computeDependencies(extInfo.scheduler().commandLineJobs());
+    } finally {
+      Globals.initialize(null);
+    }
   }
   
   private void computeDependencies(final Collection<Job> jobs){
@@ -362,7 +400,5 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   private PolyglotDependencyInfo fDependencyInfo;
   
   private IJavaProject fProjectWrapper;
-  
-  private IX10BuilderFileOp fX10BuilderFileOp;
   
 }
