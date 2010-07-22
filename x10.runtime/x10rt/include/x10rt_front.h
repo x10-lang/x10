@@ -60,23 +60,23 @@
  * In all cases, individual messages may be re-ordered but delivery must be guaranteed.
  *
  * There are three types of messages:  'Plain' messages carry data that has been specially packed
- * into a buffer (allocated with the x10rt_*_realloc family of functions), and invoke a callback on
- * the remote side to handle the message.  'Put' messages additionally carry large amount of data
- * that is transmitted directly from a given existing datastructure, and have callbacks on the
- * remote side to locate a home for the data as well as to indicate that the transfer is complete.
- * 'Get' messages cause data to be retrieved from a place directly into the given datastructure, and
- * have a callback on the remote side to locate the source of the data and a callback on the
- * destination to indicate that the transfer is complete.  In X10, plain messages are used to
- * implement asyncs whereas put/get messages are used to implement the Rail copy functions.
+ * into a buffer (allocated by the caller), and invoke a callback on the remote side to handle the
+ * message.  'Put' messages additionally carry large amount of data that is transmitted directly
+ * from a given existing datastructure, and have callbacks on the remote side to locate a home for
+ * the data as well as to indicate that the transfer is complete.  'Get' messages cause data to be
+ * retrieved from a place directly into the given datastructure, and have a callback on the remote
+ * side to locate the source of the data and a callback on the destination to indicate that the
+ * transfer is complete.  In X10, plain messages are used to implement asyncs whereas put/get
+ * messages are used to implement the copyTo/copyFrom functionality.
  *
  * All of these messages cause callbacks to be invoked on the far side, so can be considered
- * 'active'.  They all carry a packed buffer of serialised data that is swallowed by X10RT.  There
- * is therefore a lot of overlap in functionality.  Note that if the amount of data is small or is
- * not in a contiguous form, or if the data formatting (endian, alignment, etc.) is not the same
- * between the two hosts, it is appropriate to use the 'plain' messages.  If the data is in a
- * contiguous form, the allocation and copy overhead of using a big packed buffer can be avoided by
- * using the get/put messages.  Note that the get/put messages still require a packed buffer, but it
- * would in this case only be used for metadata and thus the overhead would be negligible.
+ * 'active'.  They all carry a packed buffer of serialised data.  There is therefore a lot of
+ * overlap in functionality.  Note that if the amount of data is small or is not in a contiguous
+ * form, or if the data formatting (endian, alignment, etc.) is not the same between the two hosts,
+ * it is appropriate to use the 'plain' messages.  If the data is in a contiguous form, the
+ * allocation and packing overhead of using a big packed buffer can be avoided by using the get/put
+ * messages.  Note that the get/put messages still require a packed buffer, but it would in this
+ * case only be used for metadata and thus the overhead would be negligible.
  *
  * @subsection structure Library Structure
  *
@@ -91,13 +91,13 @@
  *
  * Underneath the Logical Layer are the networking layers.  There is a Core Networking Layer
  * x10rt_net.h which provides the links between hosts.  There are currently many implementations of
- * the core networking layer:  There is a standalone implementation that only supports a single host
- * place.  There is an MPI implementation that uses MPI for communication between hosts.  There is
- * also a proprietary implementation on top of the PGAS library, which internally supports many HPC
- * libraries and also has a sockets implementation.  All of these implement the symbols in
- * x10rt_net.h so they cannot currently be used simultaneously.  However one can link against
- * whichever implementation is preferred for inter-host communication.  Details on the available
- * implementations of the Core Networking Layer can be found <a
+ * the core networking layer:  There is a standalone implementation that allows multiple places via
+ * inter-process communication on a single host.  There is an MPI implementation that uses MPI for
+ * communication between hosts.  There is also a proprietary implementation on top of the PGAS
+ * library, which internally supports many HPC libraries and also has a sockets implementation.  All
+ * of these implement the symbols in x10rt_net.h so they cannot currently be used simultaneously.
+ * However one can link against whichever implementation is preferred for inter-host communication.
+ * Details on the available implementations of the Core Networking Layer can be found <a
  * href=http://x10.codehaus.org/X10RT+Implementations>here</a>.
  *
  * In addition to the Core Networking Layer x10rt_net.h there is a layer for CUDA, which is intended
@@ -111,20 +111,6 @@
  * \image html cake.png "X10RT structural diagram"
  * 
  *
- * @subsection performance Performance Notes
- *
- * The x10rt_send_* functions may block until some internal operation has completed, such as writing
- * to a network buffer. But blocking until acknowledgement from the other side of the transmission
- * is not allowed as it may impact the performance of the X10 program.
- *
- * The X10RT implementation is permitted to handle messages when it is called via one of the
- * x10rt_send_* calls. This relaxation may be useful for increasing throughput.
- *
- * The #x10rt_probe() function should not block waiting for network traffic to arrive, as to do so
- * would impact performance. Instead of blocking, #x10rt_probe() should return and the action should
- * be deferred to some future call of #x10rt_probe() (which may be from another thread) whereupon
- * the action can be completed instantly.
- *
  * @subsection callbacks Callbacks
  *
  * The X10RT API makes heavy use of callbacks at all levels for handling of incoming messages and
@@ -134,6 +120,22 @@
  * remote termination.  These callbacks can execute for as long as they need to but if they become
  * idle for whatever reason, they should not block or busy wait.  They should call #x10rt_probe() to
  * trigger more callbacks.
+ *
+ * @subsection performance Performance Notes
+ *
+ * The x10rt_send_* functions may block until some internal operation has completed, such as writing
+ * to a network buffer. But blocking until the callback has completed at the other side of the
+ * transmission is not allowed as it may cause deadlocks to emerge within the X10 program.
+ *
+ * The X10RT implementation is permitted to handle messages (i.e. behave as if #x10rt_probe() has
+ * been called) when it is called via one of the x10rt_send_* calls. This relaxation may be useful
+ * for increasing throughput.
+ *
+ * The #x10rt_probe() function should not block waiting for network traffic to arrive, as to do so
+ * would impact performance.  In the event of incomplete arrival of a message, #x10rt_probe() should
+ * return, and the full receipt and associated action should be deferred to some future call of
+ * #x10rt_probe() (which may be from another thread), i.e. to a time when sufficient data is
+ * available to allow the immediate handling of the message.
 */
 
 /** \name Initialization functions
@@ -363,10 +365,10 @@ X10RT_C x10rt_place x10rt_child_index (x10rt_place child);
 X10RT_C void x10rt_send_msg (x10rt_msg_params *p);
 
 /** Send a 'get' message.  The #x10rt_send_msg function is sufficient for implementing asyncs, but
- * is cumbersome and inefficient for implementing large rail copies.  This function is an
+ * is cumbersome and inefficient for implementing large data copies.  This function is an
  * alternative API that can be used when a large amount of data needs to be transfered and is
  * already stored in a simple contiguous format.  The #x10rt_send_get call should not block waiting
- * for the remote side to finish executing its callbacks, as to do so would introduce deadlocks in
+ * for the remote side to finish executing its callbacks, as to do so could introduce deadlocks in
  * the X10 program.
  *
  * \param p The particulars of the message.
@@ -378,7 +380,7 @@ X10RT_C void x10rt_send_msg (x10rt_msg_params *p);
 X10RT_C void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
 
 /** Send a 'put' message.  See #x10rt_send_get for more information.  The #x10rt_send_put call
- * should not block waiting for the remote side to finish executing its callbacks, as to do so would
+ * should not block waiting for the remote side to finish executing its callbacks, as to do so could
  * introduce deadlocks in the X10 program.
  *
  * \param p The particulars of the message.
@@ -394,7 +396,7 @@ X10RT_C void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
  * \bug This is a blocking API.
  *
  * \param place The location where memory will be allocated.
- * \param sz The amount of memory to allocate
+ * \param sz The amount of memory to allocate.
  * \returns A pointer that is valid on the remote place only.
  */
 X10RT_C x10rt_remote_ptr x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz);
@@ -405,17 +407,6 @@ X10RT_C x10rt_remote_ptr x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr
  * \param ptr The address in memory, valid at the remote place.
  */
 X10RT_C void x10rt_remote_free (x10rt_place place, x10rt_remote_ptr ptr);
-
-/** Do an 64 bit XOR operation at a remote place.
- * \param place The place where the memory resides.
- * \param addr The location of the 64 bit word at the remote place.
- * \param update The value that will be XORed with the existing value at that location.
- */
-X10RT_C void x10rt_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long update);
-
-/** Wait for outstanding x10rt_remote_xor operations to complete.
- */
-X10RT_C void x10rt_remote_op_fence (void);
 
 /** Do an operation on a word at the remote place.  There is no way to determine if the operation
  * succeeded yet or at all.
