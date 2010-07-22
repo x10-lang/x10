@@ -44,6 +44,7 @@ import com.ibm.wala.cfg.IBasicBlock;
 import com.ibm.wala.cfg.ShrikeCFG;
 import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.classLoader.IBytecodeMethod;
+import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.classLoader.SourceDirectoryTreeModule;
 import com.ibm.wala.classLoader.SourceFileModule;
@@ -335,14 +336,26 @@ public class X10FinishAsyncAnalysis {
     private void visitMethodInvocation(
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
 	    AnalysisEnvironment env, AstJavaInvokeInstruction inst) {
-	CGNode caller = cg.getNode(env.cur_method_node);
-	String callerpack = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
-	String callername = getName(caller.getMethod().getName().toString());
+	int index = instmap.get(inst).intValue();
+	/* the method that we are analyzing and the one invokes "inst" */
+	CGNode caller; 
+	String callerPack; 
+	String callerName;
+	int invokeLine; 
+	int invokeCol; 
+	/* same for all possible targets of "inst" */
+	caller = cg.getNode(env.cur_method_node);
+	callerPack = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
+	callerName = getName(caller.getMethod().getName().toString());
+	invokeLine = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
+	invokeCol = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
 	
-	
-	//FIXME: remove this two lines and figure out how to get def 
-	int defline = ((AstMethod)caller.getMethod()).getSourcePosition().getFirstLine();
-	int defcolumn = ((AstMethod)caller.getMethod()).getSourcePosition().getLastCol();
+	/* the method that is possibly being called */
+	CGNode callee;
+	String defPack;
+	String defName;
+	int defLine;
+	int defCol;
 	
 	
 	CallSiteReference callsite =inst.getCallSite();
@@ -350,21 +363,20 @@ public class X10FinishAsyncAnalysis {
  	if (allcallees.size() > 0) {
 	    Iterator<CGNode> it = allcallees.iterator();
 	    while (it.hasNext()) {
-		CGNode callee = it.next();
-		 
-		String defpack = getPackage(callee.getMethod().getDeclaringClass().getName().toString());
-		String defname = getName(callee.getMethod().getName().toString());
-		defline = ((AstMethod)callee.getMethod()).getSourcePosition().getFirstLine();
-		defcolumn = ((AstMethod)callee.getMethod()).getSourcePosition().getLastCol();
-		int index = instmap.get(inst).intValue();
-		int calledline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
-		int calledcolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
-		updateTable(epcfg,env,defpack,defname,defline,defcolumn,
-			callerpack,callername,calledline,calledcolumn,false);
+		callee = it.next();
+		defPack = getPackage(callee.getMethod().getDeclaringClass().getName().toString());
+		defName = getName(callee.getMethod().getName().toString());
+		defLine = ((AstMethod)callee.getMethod()).getSourcePosition().getFirstLine();
+		defCol = ((AstMethod)callee.getMethod()).getSourcePosition().getLastCol();
+		
+		updateTable(epcfg,env,defPack,defName,defLine,defCol,
+			callerPack,callerName,invokeLine,invokeCol,false);
 	    }
 	} else {
-	    //TODO:
 	    System.err.println("cannot find callee's cgnode");
+	    System.err.println(inst.toString());
+	    /*
+	     * FIXME: broken code
 	    String calleepack = getPackage(inst.getDeclaredTarget().getDeclaringClass().getName().toString());
 	    String calleename = getName(inst.getDeclaredTarget().getName().toString());
 	    int index = instmap.get(inst).intValue();
@@ -372,6 +384,7 @@ public class X10FinishAsyncAnalysis {
 	    int calledcolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
 	    updateTable(epcfg,env,calleepack,calleename,defline,defcolumn,
 			callerpack,calleename,calledline,calledcolumn,false);
+			*/
 	}
     }
 
@@ -465,7 +478,8 @@ public class X10FinishAsyncAnalysis {
      */
     private void parseIR(int nodenum) {
 	CGNode md = cg.getNode(nodenum);
- 	IR ir = md.getIR();
+	//System.err.println(md.getMethod().getSignature());
+	IR ir = md.getIR();
 	if (ir != null) {
 	    // original control flow graph
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> cfg = ir
@@ -564,11 +578,16 @@ public class X10FinishAsyncAnalysis {
      */
     public void compile(final File testedFile, final String pack,
 	    final String entrymethod, final String methodtype) throws Exception {
+	
 	final String mainClass = testedFile.getName().substring(0,
 		testedFile.getName().lastIndexOf('.'));
-	final X10SourceAnalysisEngine engine = new X10SourceAnalysisEngine() {
+	
+	final X10SourceAnalysisEngine engine = 
+	    new X10SourceAnalysisEngine() {
+	    
 	    protected Iterable<Entrypoint> makeDefaultEntrypoints(
 		    final AnalysisScope scope, final IClassHierarchy cha) {
+		
 		final ClassLoaderReference loaderRef = X10SourceLoaderImpl.X10SourceLoader;
 		final TypeReference typeRef = TypeReference.findOrCreate(
 			loaderRef, 'L' + pack + mainClass);
@@ -586,22 +605,21 @@ public class X10FinishAsyncAnalysis {
 		return null;
 	    }
 	};
-	engine.addX10SystemModule(new SourceDirectoryTreeModule(new File(
-		"../x10.runtime/src-x10/"), "10"));
-	File dirpath = new File("/"+os+"/blshao/workspace/wala-bridge-1.0/" +
-	    		"x10.tests/examples/x10lib/");
-	SourceDirectoryTreeModule dir = new SourceDirectoryTreeModule(dirpath);
-	engine.addX10SourceModule(dir);
+
+	engine.addX10SystemModule(new SourceDirectoryTreeModule(new File("../x10.runtime/src-x10/"), "10"));
+	engine.addX10SourceModule(new SourceDirectoryTreeModule(new File("../x10.tests/examples/x10lib/")));
+	engine.addX10SourceModule(new SourceFileModule(testedFile, testedFile.getName()));
 	
-	engine.addX10SourceModule(new SourceFileModule(testedFile, testedFile
-		.getName()));
-	boolean ifSaved = true;
-	boolean ifExpanded = false;
+	
+	boolean ifSaved = false;
+	boolean ifExpanded = true;
 	boolean ifStat = false;
 	boolean ifDump = true;
 	boolean[] mask = {true,true,true};
 	// build the call graph: ExplicitCallGraph
 	cg = engine.buildDefaultCallGraph();
+	
+	//GraphUtil.printNumberedGraph(cg, "test");
 	System.out.println("Baolin here again --- Call Graph");
 	buildCallTable();
 	if(ifStat){
@@ -618,14 +636,15 @@ public class X10FinishAsyncAnalysis {
 	if(ifExpanded){
 	    System.out.println("Expanding Talbe:");
 	    CallTableUtil.expandCallTable(calltable, mask);
-	    CallTableUtil.updateAllArity(calltable);
-	    CallTableUtil.expandCallTable(calltable, mask);	
+	    //CallTableUtil.updateAllArity(calltable);
+	    //CallTableUtil.expandCallTable(calltable, mask);	
 	}
 	if(ifStat && ifExpanded){
-	    System.out.println("New Talbe:");
+	    
 	    CallTableUtil.getStat(calltable);
 	}
-	if(ifDump && ifStat && ifExpanded){
+	if(ifDump && ifExpanded){
+	    System.out.println("New Talbe:");
 	    CallTableUtil.dumpCallTable(calltable);
 	}
 	System.out.println("finished ... ");

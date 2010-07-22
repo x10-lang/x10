@@ -9,6 +9,7 @@ import com.ibm.wala.cfg.ControlFlowGraph;
 import com.ibm.wala.cfg.IBasicBlock;
 import com.ibm.wala.ipa.cfg.EdgeFilter;
 import com.ibm.wala.ipa.cfg.PrunedCFG;
+import com.ibm.wala.ssa.SSAGetCaughtExceptionInstruction;
 
 
 /**
@@ -26,29 +27,33 @@ public class MyExceptionPrunedCFG {
     public boolean hasNormalEdge(T src, T dst) {
       return cfg.getNormalSuccessors(src).contains(dst);
     }
-
+    /**
+     * an exception edge will be removed if:
+     * 1 the src node contains a method call
+     * 2 the dst node either has a getCaughtException Instruction
+     *   or is the ExitBlock
+     */
     public boolean hasExceptionalEdge(T src, T dst) {
-	Iterator<I> all = src.iterator();
-	boolean flag = false;
-	//System.err.println("src instructions:");
-	while(all.hasNext()){
-	    I inst = all.next();
-	    //System.err.println("\t:"+inst.toString());
-	    //System.err.println("\t:"+inst.getClass());
+	Iterator<I> allSrc = src.iterator();
+	Iterator<I> allDst = dst.iterator();
+	boolean hasMethodInvoke = false;
+	boolean hasCaughtException = false;
+	
+	while(allSrc.hasNext()){
+	    I inst = allSrc.next();
 	    if(inst instanceof AstJavaInvokeInstruction ||
 	       inst instanceof AsyncInvokeInstruction){
-		flag = true;
+		hasMethodInvoke = true;
 	    }else{
-		flag = false;
+		hasMethodInvoke = false;
 	    }
 	}
-	//System.err.println("dest instructions:");
-	Iterator<I> alld = dst.iterator();
-	while(alld.hasNext()){
-	    I inst = alld.next();
-	    //System.err.println("\t:"+inst.toString());
+	while(allDst.hasNext()){
+	    I inst = allDst.next();
+	    if(inst instanceof SSAGetCaughtExceptionInstruction)
+		hasCaughtException = true;
 	}
-      if(flag && dst.isExitBlock()){
+      if(hasMethodInvoke && (dst.isExitBlock() || hasCaughtException)){
 	  return false;
       }
       return true;

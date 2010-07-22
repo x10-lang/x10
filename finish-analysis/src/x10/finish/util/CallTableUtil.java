@@ -53,31 +53,28 @@ public class CallTableUtil {
 	}
     }
 
-    /**
-     * 
-     * @param k
-     *            - entry to the current method in the calltable
-     * @param cfg
-     *            - current method's control flow graph
-     */
+  
     private static void updateArity(CallTableKey k,
 	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable) {
 	LinkedList<CallTableVal> callees = calltable.get(k);
 	LinkedList<CallTableVal> new_callees = new LinkedList<CallTableVal>();
 	boolean rec_call = false;
-	String key_sig = k.scope;
+	String key_sig = k.genSignature();
 
 	// get block numbers of all recursive calls
 	for (int i = 0; i < callees.size(); i++) {
 	    CallTableVal v = callees.get(i);
-	    // CallTableAtVal always has the same scope as its enclosing
-	    // methods,
-	    // but it is just skipped because it never causes a recursion
+	    // CallTableAtVal just skipped because it never causes a recursion
 	    if (v instanceof CallTableMethodVal) {
-		String val_sig = v.scope;
-		if (val_sig.endsWith(key_sig)) {
-		    rec_call = true;
+		if(!((CallTableMethodVal)v).is_async){
+		    String val_sig = ((CallTableMethodVal) v).genSignature();
+		    int at_pos = val_sig.indexOf('@');
+		    val_sig = val_sig.substring(0,at_pos);
+		    if (val_sig.equals(key_sig)){
+			rec_call = true;
+		    }
 		}
+		
 	    }
 	}
 	if (rec_call) {
@@ -102,7 +99,11 @@ public class CallTableUtil {
 		.copy(calltable);
 	Iterator<CallTableKey> it = new_table.keySet().iterator();
 	while (it.hasNext()) {
-	    updateArity(it.next(), calltable);
+	    CallTableKey v = it.next();
+	    if(v instanceof CallTableMethodKey  && !(v.name.contains("activity"))){
+		updateArity(v, calltable);
+	    }
+	    
 	}
     }
 
