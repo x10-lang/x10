@@ -25,7 +25,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
+import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.ParseErrorCodes;
@@ -40,6 +43,7 @@ import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.visit.PostCompiled;
@@ -90,8 +94,11 @@ public class BuilderExtensionInfo extends x10.ExtensionInfo {
                     		for (Object f: compiler.outputFiles()){
                                 commandline.add((String) f);
                             }
-                            
-                            BatchCompiler.compile(commandline.toArray(new String[0]), new PrintWriter(System.out), new PrintWriter(System.err), null);                  
+                    		final MessageConsole console = ConsoleUtil.findConsole("X10 Console");
+                    		final MessageConsoleStream consoleStream = console.newMessageStream();
+                    		if (!BatchCompiler.compile(commandline.toArray(new String[0]), new PrintWriter(System.out), new PrintWriter(consoleStream), null)){
+                    			throw new InternalCompilerError("Generated Java file has compilation errors");
+                    		}
                         }
                         return true;
                     }
