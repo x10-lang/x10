@@ -199,22 +199,29 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
      * then typeCheckOverride would have set it from the type of the initializer.
      */
     @Override
-    public Node typeCheck(ContextVisitor tc) {
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
         final TypeNode typeNode = type();
         Type type = typeNode.type();
+
+        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
 
         try {
             X10TypeMixin.checkMissingParameters(typeNode);
         } catch (SemanticException e) {
+            if (xtc.throwExceptions())
+                throw e;
             Errors.issue(tc.job(), e, this);
         }
         type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
         Ref<Type> r = (Ref<Type>) typeNode.typeRef();
         r.update(type);
 
-        if (type.isVoid())
-            Errors.issue(tc.job(),
-                    new SemanticException("Local variable cannot have type " + this.type().type() + ".", position()));
+        if (type.isVoid()) {
+            SemanticException e = new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
+            if (xtc.throwExceptions())
+                throw e;
+            Errors.issue(tc.job(), e);
+        }
 
         TypeSystem ts = tc.typeSystem();
 
@@ -222,6 +229,8 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             ts.checkLocalFlags(flags.flags());
         }
         catch (SemanticException e) {
+            if (xtc.throwExceptions())
+                throw new SemanticException(e.getMessage(), position());
             Errors.issue(tc.job(), e, this);
         }
 
@@ -235,7 +244,10 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
                 return n.init(newInit);
             }
             catch (SemanticException e) {
-                Errors.issue(tc.job(), new Errors.CannotAssign(n.init, type, n.init.position()), n);
+                Errors.CannotAssign e2 = new Errors.CannotAssign(n.init, type, n.init.position());
+                if (xtc.throwExceptions())
+                    throw e2;
+                Errors.issue(tc.job(), e2, n);
             }
         }
 
