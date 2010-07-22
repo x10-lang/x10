@@ -18,56 +18,55 @@ import harness.x10Test;
  * @author Baolin Shao (bshao@us.ibm.com)
  */
 public class finishTest1 extends x10Test {
+	 var flag: boolean = false;
+     public def f1():void {
+    	 // method contains async
+    	 async{}
+     }
+     public def f2():void {
+    	 // method contains at
+    	 at(here){}
+     } 
+     public def run() {
+	
+    	 //TODO: test code
+    	 var i:int = 0;
+    	 // finish without any statement
+    	 finish{
+    		 
+    	 }
+    	 // finish with single async
+    	 finish{
+    		 async{}
+    	 }
+    	 // finish with single at
+    	 finish{
+    		 at(here){}
+    	 }
+    	 
+    	 // finish with other statements
+    	 finish{
+    		 i = i + 1;
+    	 }
+    	 
+    	 // finish with method call
+    	 finish{
+    		 f1();
+    	 }
+    	 finish{
+    		 f2();
+    	 }
+    	 
+    	 //default successful condition
+    	 var b: boolean = false;
+    	 atomic { b = flag; }
+    	 return b;
+     }
+     
+     public static def main(args: Rail[String]) {
+    	 new finishTest1().execute();
+     }
+ }
 
-	var flag: boolean = false;
-        public def f1():void {
-                // method contains async
-                async{}
-        }
-        public def f2():void {
-                // method contains at
-                at(here){}
-        } 
-	public def run() {
-		
-                //TODO: test code
-                var i:int = 0;
-                // finish without any statement
-                 finish{
-           
-                }
-                // finish with single async
-                finish{
-                        async{}
-                }
-                // finish with single at
-                finish{
-                        at(here){}
-                }
-
-                // finish with other statements
-                finish{
-                        i = i + 1;
-                }
-   
-                // finish with method call
-                finish{
-                        f1();
-                }
-                finish{
-                        f2();
-                }
-
-                //default successful condition
-                var b: boolean = false;
-		atomic { b = flag; }
-		return b;
-	}
-
-	public static def main(args: Rail[String]) {
-		new finishTest1().execute();
-	}
-}
 
 
-         

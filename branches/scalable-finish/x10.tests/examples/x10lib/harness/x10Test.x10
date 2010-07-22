@@ -119,7 +119,7 @@ abstract public class x10Test {
            return noErr;
         }
          // FIXME:uncomment this definition will casue wala to fail building callgraph
-        public abstract def test() : Void;
+        //public abstract def test() : Void;
         public val errors : List[String]! = new ArrayList[String]();
 
          public def errorString() : String = {

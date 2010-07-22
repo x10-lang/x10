@@ -11,47 +11,77 @@
 
 import harness.x10Test;
 import x10.compiler.*;
+import x10.lang.*;
+
 /**
  * Description: 
  * Expected Result: run() returns true if successful, false otherwise.
  * @author Baolin Shao (bshao@us.ibm.com)
  */
 public class TrivialTest3 extends x10Test {
-
-	var flag: boolean = false;
-	
-        
-        public def f1(args: Rail[String]){
-	
-	var i:int = 1;
-i++;
-	//throw new IllegalOperationException();
-
-}
-        
-        public def run() {
-		
-                //TODO: test code
-                val s = Rail.make[String](0);
-                f1(s);
-      //finish{
-      //  	async{}
-       // }
-      /*var f:boolean  = true;
-      if(f){
-    	  f1();
-    	  throw new IllegalOperationException();
-    	  //f1();
-    	  }
-      var i:int = 1;
-    	  f1();
-      i++;
-      i = i + 3;*/
+	 var flag: boolean = false;
+ public def f1(args: Rail[String]){
+	 var i:int = 1;
+ i++;
+ //throw new IllegalOperationException();
+ }
+ public def f2() {}
  
-                //default successful condition
-                var b: boolean = false;
-		atomic { b = flag; }
-		return b;
+ public def f3(){
+	 finish{
+		 f4();
+	 }
+ }
+ 
+ public def f4(){
+	 async{
+		 f3();
+	 }
+ }
+ public def run() {
+		
+	 //TODO: test code
+	 
+	 
+	 //val x = this;
+	 //val body: ()=>Void = ()=>x.f2();
+	 //finish{
+		 //   body();
+	 //}
+	 
+	 
+	 
+	 // try{
+		// f2();
+	 // }
+	 // catch(e:Exception ){
+		 // Console.OUT.println("2");
+	 // }
+	 
+	 
+	 
+	 f3();
+	 
+	 /*finish{
+	 async(here.next()){}
+ }*/
+ //    val s = Rail.make[String](0);
+ // f1(s);
+ /*var f:boolean  = true;
+  * if(f){
+	  * f1();
+	  * throw new IllegalOperationException();
+	  * //f1();
+  * }
+  * var i:int = 1;
+  * f1();
+  * i++;
+  * i = i + 3;*/
+  
+  //default successful condition
+  var b: boolean = false;
+  atomic { b = flag; }
+  return b;
 	}
 
 	public static def main(args: Rail[String]) {
