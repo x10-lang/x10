@@ -137,7 +137,7 @@ public class Async_c extends Stmt_c implements Async {
 		return reconstruct(place, clocks, body);
 	}
 
-	XConstrainedTerm placeTerm;
+	public XConstrainedTerm placeTerm;
 	
 	 @Override
 	    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
