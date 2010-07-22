@@ -66,7 +66,7 @@ public class finishTest2 extends x10Test {
         finish{
                 at(here){}
                 f1();
-                i = i + 1;
+                //i = i + 1;
         }
         finish{
                 async{}

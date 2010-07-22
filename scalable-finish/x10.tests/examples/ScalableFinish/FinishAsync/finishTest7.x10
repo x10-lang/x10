@@ -31,17 +31,20 @@ public class finishTest7 extends x10Test {
 		
                 //TODO: test code
         var i:int = 1;
-        for(i=1;i<10;i++){
+        finish{
         	for(i=1;i<10;i++){
-        		async{}
-                        if(i==3) break;
+        		for(i=1;i<10;i++){
+        			async{}
+        			if(i==3) break;
+        		}
+        		f1();
         	}
-        	f1();
-        }
-        for(i=1;i<10;i++){
         	for(i=1;i<10;i++){
-        		async{}
-                        if(i==3) continue;	
+        		for(i=1;i<10;i++){
+        			async{}
+        			if(i==3) continue;	
+        		}
+        		
         	}
         	f1();
         }
