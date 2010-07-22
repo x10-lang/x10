@@ -170,39 +170,43 @@ final class CppCompilationChecker implements ICppCompilationChecker {
     final Compiler compiler = new Compiler(extInfo, errorQueue);
     Globals.initialize(compiler);
     
-    compiler.compile(Arrays.<Source>asList(new StreamSource(sourceInputStream, testFilePath.getAbsolutePath())));
-    
-    final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(this.fRemoteServices);
-    if (! isLocal) {
-      monitor.subTask(LaunchMessages.APCC_TransferringFiles);
-      final IFileSystem fileSystem = EFS.getLocalFileSystem();
-      final IFileStore destDir = fileManager.getResource(workspaceDir);
-      try {
-        for (final Object fileName : compiler.outputFiles()) {
-          for (final File generatedFile : localTestDir.listFiles(new CppFileNameFilter((String) fileName))) {
-            if (monitor.isCanceled()) {
-              throw new InterruptedException();
-            }
-            final IFileStore curFileStore = fileSystem.getStore(new Path(generatedFile.getAbsolutePath()));
-            curFileStore.copy(destDir.getChild(curFileStore.getName()), EFS.OVERWRITE, null);            
-          }
-        }
-      } finally {
-        FileUtils.deleteDirectory(localTestDir);
-      }
-    }
+    try {
+      compiler.compile(Arrays.<Source> asList(new StreamSource(sourceInputStream, testFilePath.getAbsolutePath())));
 
-    monitor.done();
-    
-    if (errorQueue.hasErrors()) {
-      return new Pair<String, String>(errorQueue.getAllErrors(), null);
-    } else {
-      final Collection<String> ccFile = CollectionUtils.filter(compiler.outputFiles(), new CCFileFilter());
-      if (ccFile.isEmpty()) {
-        return new Pair<String, String>(LaunchMessages.APCC_NoGeneratedFilesError, null);
-      } else {
-        return new Pair<String, String>(null, ccFile.iterator().next());
+      final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(this.fRemoteServices);
+      if (!isLocal) {
+        monitor.subTask(LaunchMessages.APCC_TransferringFiles);
+        final IFileSystem fileSystem = EFS.getLocalFileSystem();
+        final IFileStore destDir = fileManager.getResource(workspaceDir);
+        try {
+          for (final Object fileName : compiler.outputFiles()) {
+            for (final File generatedFile : localTestDir.listFiles(new CppFileNameFilter((String) fileName))) {
+              if (monitor.isCanceled()) {
+                throw new InterruptedException();
+              }
+              final IFileStore curFileStore = fileSystem.getStore(new Path(generatedFile.getAbsolutePath()));
+              curFileStore.copy(destDir.getChild(curFileStore.getName()), EFS.OVERWRITE, null);
+            }
+          }
+        } finally {
+          FileUtils.deleteDirectory(localTestDir);
+        }
       }
+
+      monitor.done();
+
+      if (errorQueue.hasErrors()) {
+        return new Pair<String, String>(errorQueue.getAllErrors(), null);
+      } else {
+        final Collection<String> ccFile = CollectionUtils.filter(compiler.outputFiles(), new CCFileFilter());
+        if (ccFile.isEmpty()) {
+          return new Pair<String, String>(LaunchMessages.APCC_NoGeneratedFilesError, null);
+        } else {
+          return new Pair<String, String>(null, ccFile.iterator().next());
+        }
+      }
+    } finally {
+      Globals.initialize(null);
     }
   }
   
