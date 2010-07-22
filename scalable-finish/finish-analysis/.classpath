@@ -16,10 +16,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.shrike"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lpg.runtime.java"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/polyglot3"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/x10.common"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/x10.compiler"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/x10.constraints"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/x10.runtime"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/x10.tests"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

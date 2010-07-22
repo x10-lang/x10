@@ -23,7 +23,7 @@ public class Test {
 	    }
 
 	    File f = new File("/"+user+"/blshao/workspace/wala-bridge-1.0/" +
-	    		"x10.tests/examples/ScalableFinish/FinishAsync/finishTest1.x10");
+	    		"x10.tests/examples/ScalableFinish/Others/TrivialTest3.x10");
 	    X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 	 
 			/* *********************************
@@ -35,10 +35,12 @@ public class Test {
 			 *  "x10/array/", "foo", "()V"
 			 *  "x10/lang/","foo","()V"
 			 *  "","main","(Lx10/lang/Rail;)V"
+			 *  "","run","()Lx10/lang/Boolean;"
 			 ************************************/
 		
 		//compile(file, package, entrymethod, methodsig)
-		x10fa.compile(f,"","run","()Lx10/lang/Boolean;");
+	    	x10fa.compile(f, "","run","()Lx10/lang/Boolean;");  
+		//x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
 
 
 	}
