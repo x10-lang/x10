@@ -117,23 +117,26 @@ public final class X10Utils {
     
     final Compiler compiler = new Compiler(extInfo, new ShallowErrorQueue());
     Globals.initialize(compiler);
-    
-    monitor.subTask(Messages.XU_ParsingX10Files);
-    // Unfortunately we can't pass the monitor to the compiler :-/
-    compiler.compile(x10Files);
-    monitor.worked(7);
-    monitor.subTask(Messages.XU_SearchForMainTypes);
-    final NodeVisitor nodeVisitor = new X10MainTypeNodeVisitor(x10Types);
-    for (final Source source : x10Files) {
-      if (monitor.isCanceled()) {
-        throw new InterruptedException();
+    try {
+      monitor.subTask(Messages.XU_ParsingX10Files);
+      // Unfortunately we can't pass the monitor to the compiler :-/
+      compiler.compile(x10Files);
+      monitor.worked(7);
+      monitor.subTask(Messages.XU_SearchForMainTypes);
+      final NodeVisitor nodeVisitor = new X10MainTypeNodeVisitor(x10Types);
+      for (final Source source : x10Files) {
+        if (monitor.isCanceled()) {
+          throw new InterruptedException();
+        }
+        final Node astRootNode = extInfo.getASTFor(source);
+        if (astRootNode != null) {
+          astRootNode.visit(nodeVisitor);
+        }
       }
-      final Node astRootNode = extInfo.getASTFor(source);
-      if (astRootNode != null) {
-        astRootNode.visit(nodeVisitor);
-      }
+    } finally {
+      Globals.initialize(null);
+      monitor.worked(3);
     }
-    monitor.worked(3);
   }
   
   // --- Private code
