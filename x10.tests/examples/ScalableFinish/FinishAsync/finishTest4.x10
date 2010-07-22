@@ -17,27 +17,25 @@ import harness.x10Test;
  * @author Baolin Shao (bshao@us.ibm.com)
  */
 public class finishTest4 extends x10Test {
-
-	var flag: boolean = false;
-        public def f1():void {
-                // method contains async
-                async{}
-        }
-        public def f2():void {
-                // method contains at
-                at(here){}
-        } 
-	public def run() {
-		
-                //TODO: test code
-
-        finish{
-                at(here){
-                        async{}
-                }
-                async{
-                        at(here){}
-                }
+	 var flag: boolean = false;
+     public def f1():void {
+    	 // method contains async
+    	 async{}
+     }
+     public def f2():void {
+    	 // method contains at
+    	 at(here){}
+     } 
+     public def run() {
+ 
+    	 //TODO: test code
+    	 finish{
+    	 at(here){
+    		 async{}
+    	 }
+    	 async{
+    		 at(here){}
+    	 }
         }
         async{
                 finish{
