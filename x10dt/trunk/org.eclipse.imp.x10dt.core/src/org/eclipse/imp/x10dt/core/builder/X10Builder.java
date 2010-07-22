@@ -108,8 +108,6 @@ public class X10Builder extends IncrementalProjectBuilder {
      * fBuildAll is reset in collectSourcesToCompile.
      */
     private boolean fBuildAll = true;
-    
-    private Collection<ErrorInfo> fErrors;
 
     public X10Builder() {}
 
@@ -451,12 +449,12 @@ public class X10Builder extends IncrementalProjectBuilder {
     private void invokeX10C(final Collection<IFile> sources) {
         X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Running X10C on source file set '" + fileSetToString(sources) + "'...");
         clearMarkersOn(sources);
-        fErrors= new ArrayList<ErrorInfo>();
+        final Collection<ErrorInfo> errors = new ArrayList<ErrorInfo>();
         
         IWorkspace ws= ResourcesPlugin.getWorkspace();
     	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
         	public void run(IProgressMonitor monitor) {
-        		compileAllSources(sources, fErrors);
+        		compileAllSources(sources, errors);
         	}
         };
         try {
@@ -464,7 +462,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         } catch (CoreException e) {
             e.printStackTrace();
         }
-        createMarkers(fErrors);
+        createMarkers(errors);
         X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10C completed on source file set.");
     }
 
