@@ -76,7 +76,7 @@ Type \: FunctionType \\
     \| ConstrainedType  \\
 
 FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")"
-Constraint\opt Throws\opt \xcd"=>" TypeOrVoid \\
+Constraint\opt Throws\opt Offers\opt \xcd"=>" TypeOrVoid \\
 TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter )\star \xcd"]" \\
 TypeParameter \: Identifier \\
 Throws \: \xcd"throws" TypeName ( \xcd"," TypeName )\star \\
