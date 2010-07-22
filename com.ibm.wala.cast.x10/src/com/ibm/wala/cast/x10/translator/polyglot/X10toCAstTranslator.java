@@ -774,6 +774,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return getTypeDict().getCAstTypeFor(type).getName();
 	}
 
+	/*
 	private MethodReference createMethodRefForClosure(Closure closure) {
 	    List formals= closure.formals();
 	    TypeName[] argTypes= new TypeName[formals.size()];
@@ -784,10 +785,10 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    TypeName retType= TypeName.findOrCreate(castNameForType(closure.returnType().type()));
 	    MethodReference closureRef= MethodReference.findOrCreate(
 		    TypeReference.findOrCreate(fClassLoaderRef, "Lclosure" + new PolyglotSourcePosition(closure.position())),
-		    new Selector(Atom.findOrCreateAsciiAtom("invoke"), Descriptor.findOrCreate(argTypes, retType)));
+		    new Selector(Atom.findOrCreateAsciiAtom("apply"), Descriptor.findOrCreate(argTypes, retType)));
 	    return closureRef;
 	}
-
+    */
 /*	
 	public CAstNode visit(GenParameterExpr gpe, WalkContext context) {
 	    // TODO Auto-generated method stub
@@ -905,7 +906,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public String getName() {
-	    return "invoke";
+	    return "apply";
 	}
 
 	public CAstNodeTypeMap getNodeTypeMap() {
