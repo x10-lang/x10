@@ -417,6 +417,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return doc;
 	}
 	private String getX10DocFor(TypeObject decl) {//PORT1.7 Declaration -> TypeObject?  try this.
+		if (decl == null) return "";
 		String doc = getNewRawX10DocFor(decl.position());
 		return doc;
 	}
