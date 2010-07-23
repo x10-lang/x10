@@ -24,7 +24,7 @@ import x10.compiler.NativeCPPInclude;
 
 @NativeCPPInclude("pgas_collectives.h")
 
-final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
+final class DistributedRail2[T] implements Settable[Int,T], Iterable[T] {
     global val data : PlaceLocalHandle[Rail[T]];
 
     public def this (init:ValRail[T]) {
@@ -35,7 +35,7 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
         this(ValRail.make(len, init));
     }
 
-    public static safe operator[S] (x:DistributedRail[S]) = x() as ValRail[S];
+    public static safe operator[S] (x:DistributedRail2[S]) = x() as ValRail[S];
 
     public global safe def apply () = data();
 
@@ -116,14 +116,14 @@ public class KMeansSPMD {
             // file is dimension-major
             val file = new File(fname), fr = file.openRead();
             val init_points = (Int) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
-            val num_file_points = file.size() / dim / 4 as Int;
+            val num_file_points = (file.size() / dim / 4) as Int;
             val file_points = ValRail.make(num_file_points*dim, init_points);
 
             var results : Rail[Float]!;
 
             // clusters are dimension-major
-            val clusters       = new DistributedRail[Float](num_clusters*dim, file_points);
-            val cluster_counts = new DistributedRail[Int](num_clusters, (Int)=>0);
+            val clusters       = new DistributedRail2[Float](num_clusters*dim, file_points);
+            val cluster_counts = new DistributedRail2[Int](num_clusters, (Int)=>0);
 
 
             finish {

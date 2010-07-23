@@ -18,7 +18,7 @@ class Random {
 		srandom(I);
 	}
 	
-	def nextDouble() = random() / (1L<<31 as Double);
+	def nextDouble() = random() / ((1L<<31) as Double);
 }
 
 

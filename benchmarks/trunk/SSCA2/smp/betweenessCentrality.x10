@@ -35,7 +35,7 @@ class betweenessCentrality implements ((graph) => Rail(DOUBLE_T)) {
 
    if (tid==0)  time =omp_get_wtime();
 
-   #pragma omp barrier
+    /* #pragma omp barrier */
 
    if (tid == 0) {
      S = Rail(VERT_T)(n);
