@@ -37,8 +37,8 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.builder.ComputeDependenciesVisitor;
 import org.eclipse.imp.x10dt.core.builder.PolyglotDependencyInfo;
+import org.eclipse.imp.x10dt.core.builder.StreamSource;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
-import org.eclipse.imp.x10dt.core.utils.JavaModelFileResource;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
@@ -58,7 +58,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.frontend.Compiler;
-import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
@@ -329,7 +328,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     final ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir, 
                                                       false /* withMainMethod */, monitor);
     
-    final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(1000000, getProject(), extInfo.compilerName()));
+    final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(1000000, extInfo.compilerName()));
     Globals.initialize(compiler);
     try {
       compiler.compile(toSources(sourcesToCompile));
@@ -369,7 +368,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     final Collection<Source> pSources = new ArrayList<Source>(sources.size());
     for (final IFile file : sources) {
       try {
-        pSources.add(new FileSource(new JavaModelFileResource(file)));
+        pSources.add(new StreamSource(file.getContents(), file.getLocation().toOSString()));
       } catch (IOException except) {
         throw new CoreException(new Status(IStatus.ERROR, LaunchCore.getInstance().getBundle().getSymbolicName(), 
                                            NLS.bind(Messages.CPPB_FileReadingErrorMessage, file), except));

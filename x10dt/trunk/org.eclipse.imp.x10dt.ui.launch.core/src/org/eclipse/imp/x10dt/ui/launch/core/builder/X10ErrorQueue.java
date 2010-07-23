@@ -7,15 +7,12 @@
  *****************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.builder;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
@@ -29,10 +26,8 @@ import polyglot.util.Position;
 
 final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
 
-  X10ErrorQueue(final int errorsLimit, final IProject project, final String compilerName) {
+  X10ErrorQueue(final int errorsLimit, final String compilerName) {
     super(errorsLimit, compilerName);
-    this.fProject = project;
-    this.fRoot = ResourcesPlugin.getWorkspace().getRoot();
   }
   
   // --- Abstract methods implementation
@@ -43,28 +38,13 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
     } else {
       final int severity = (error.getErrorKind() == ErrorInfo.WARNING) ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR;
       final Position position = error.getPosition();
-      try {
-        final IFile[] files = this.fRoot.findFilesForLocationURI(new URI(position.file().replace('\\', '/')));
-        if (files.length == 0) {
-          // We could not find the associated resource. So we add a marker to the project.
-          IResourceUtils.addBuildMarkerTo(this.fProject, error.getMessage(), severity, position.file(), IMarker.PRIORITY_NORMAL, 
-                                          position.line(), position.offset(), position.endOffset());
-        } else {
-          for (final IFile file : files) {
-            IResourceUtils.addBuildMarkerTo(file, error.getMessage(), severity, position.file(), IMarker.PRIORITY_NORMAL, 
-                                            position.line(), position.offset(), position.endOffset());
-          }
-        }
-      } catch (URISyntaxException except) {
-        LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.EQ_URIErrorMsg, position.file()), except);
-      }
+      final IPath rootPath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+      final IPath filePath = new Path(position.file());
+      final String workspaceRelatedPath = filePath.removeFirstSegments(rootPath.segmentCount()).makeAbsolute().toString();
+      final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(workspaceRelatedPath));
+      IResourceUtils.addBuildMarkerTo(file, error.getMessage(), severity, position.file(), IMarker.PRIORITY_NORMAL, 
+                                      position.line(), position.offset(), position.endOffset());
     }
   }
   
-  // --- Fields
-  
-  private final IProject fProject;
-  
-  private final IWorkspaceRoot fRoot;
-
 }

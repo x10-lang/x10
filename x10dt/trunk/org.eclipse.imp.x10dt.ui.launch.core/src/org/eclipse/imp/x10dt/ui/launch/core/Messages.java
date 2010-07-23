@@ -50,7 +50,6 @@ public class Messages extends NLS {
   public static String EALD_ErrorLogView;
   public static String EDB_NoShellError;
   public static String EQ_PosErrorMsg;
-  public static String EQ_URIErrorMsg;
   public static String JPU_ResourceErrorMsg;
   public static String JPU_UnexpectedEntryKindMsg;
   public static String RIS_StreamClosed;

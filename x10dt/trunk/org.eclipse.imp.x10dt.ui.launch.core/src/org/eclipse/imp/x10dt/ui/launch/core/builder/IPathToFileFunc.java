@@ -9,6 +9,7 @@ package org.eclipse.imp.x10dt.ui.launch.core.builder;
 
 import java.io.File;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IFunctor;
 
@@ -18,11 +19,25 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.IFunctor;
  * @author egeay
  */
 public final class IPathToFileFunc implements IFunctor<IPath, File> {
-
+   
+  IPathToFileFunc() {
+    this.fRootPath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+  }
+  
+  
   // --- Interface methods implementation
   
   public File apply(final IPath path) {
-    return path.toFile();
+    final int count = path.matchingFirstSegments(this.fRootPath);
+    if (this.fRootPath.segmentCount() == count) {
+      return path.removeFirstSegments(count).makeAbsolute().toFile();
+    } else {
+      return path.toFile();
+    }
   }
+  
+  // --- Fields
+  
+  private final IPath fRootPath;
 
 }
