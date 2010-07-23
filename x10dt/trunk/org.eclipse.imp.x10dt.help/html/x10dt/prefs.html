@@ -36,6 +36,22 @@ its color changes to red indicating its value has changed.
 </p>
 <h2 id=compiler>Compiler Preferences</h2>
 <br><img src="images/prefsCompiler.png"></img></br>
+<h3 id=conservative>Conservative Build </h3>
+<p>This is a new compiler option "Conservative Build", which is turned
+on by default. When turned on, this option causes each file that has no
+generated code in a project to be re-submitted for compilation on every
+build. This ensures that all the files that need to be recompiled are
+indeed compiled when the user saves in an editor, and overcomes some
+shortcomings of the compiler which make it difficult to compute
+dependencies between files. However, this feature is overly
+conservative, and thus can cause the builder to be slower. 
+
+To make builds faster, this option may be turned off. In this case, the user may
+occasionally observe stale compilation errors. This of course can be
+easily remedied by doing a clean every now and then.
+</p>
+
+
 <h3 id=echo>Echo Compile Arguments to Console </h3>
 <p>To see the x10 compiler arguments, check this option.
 <br><img src="images/prefsEchoCompileArgs.png">
