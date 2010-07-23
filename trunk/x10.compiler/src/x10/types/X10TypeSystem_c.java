@@ -624,11 +624,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             Goal goal = Globals.currentGoal();
             if (goal != null)
                 goal.fail();
-            return createFakeClass(qualName);
+            return createFakeClass(qualName, e);
         }
     }
 
-    public X10ClassType createFakeClass(QName fullName) {
+    public X10ClassType createFakeClass(QName fullName, SemanticException error) {
         X10ClassDef cd = (X10ClassDef) createClassDef();
         cd.name(fullName.name());
         cd.position(Position.COMPILER_GENERATED);
@@ -644,7 +644,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
         systemResolver().install(fullName, cd.asType());
 
-        return (X10ParsedClassType) cd.asType();
+        return ((X10ParsedClassType) cd.asType()).error(error);
     }
 
     protected X10ClassType typeForNameSilent(QName fullName) {
@@ -655,33 +655,33 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             return (X10ClassType) typeForName(fullName);
         }
         catch (SemanticException e) {
-            return createFakeClass(fullName);
+            return createFakeClass(fullName, e);
         }
     }
 
-    public X10FieldInstance createFakeField(QName containerName, Flags flags, Name name) {
-        return createFakeField(typeForNameSilent(containerName), flags, name);
+    public X10FieldInstance createFakeField(QName containerName, Flags flags, Name name, SemanticException error) {
+        return createFakeField(typeForNameSilent(containerName), flags, name, error);
     }
-    public X10FieldInstance createFakeField(Name name) {
-        return createFakeField(unknownClassDef().asType(), Flags.PUBLIC.Static(), name);
+    public X10FieldInstance createFakeField(Name name, SemanticException error) {
+        return createFakeField(unknownClassDef().asType(), Flags.PUBLIC.Static(), name, error);
     }
-    public X10FieldInstance createFakeField(ClassType container, Flags flags, Name name) {
+    public X10FieldInstance createFakeField(ClassType container, Flags flags, Name name, SemanticException error) {
         Position pos = X10NodeFactory_c.compilerGenerated(container);
         Type type = unknownType(pos);
         XVar thisVar = XTerms.makeEQV();
         List<Ref<? extends Type>> excTypes = Collections.emptyList();
         X10FieldDef fd = (X10FieldDef) fieldDef(pos, Types.ref(container), flags,
                                                 Types.ref(type), name, thisVar);
-        return (X10FieldInstance) fd.asInstance();
+        return ((X10FieldInstance) fd.asInstance()).error(error);
     }
 
-    public X10MethodInstance createFakeMethod(QName containerName, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes) {
-        return createFakeMethod(typeForNameSilent(containerName), flags, name, typeArgs, argTypes);
+    public X10MethodInstance createFakeMethod(QName containerName, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
+        return createFakeMethod(typeForNameSilent(containerName), flags, name, typeArgs, argTypes, error);
     }
-    public X10MethodInstance createFakeMethod(Name name, List<Type> typeArgs, List<Type> argTypes) {
-        return createFakeMethod(unknownClassDef().asType(), Flags.PUBLIC.Static(), name, typeArgs, argTypes);
+    public X10MethodInstance createFakeMethod(Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
+        return createFakeMethod(unknownClassDef().asType(), Flags.PUBLIC.Static(), name, typeArgs, argTypes, error);
     }
-    public X10MethodInstance createFakeMethod(ClassType container, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes) {
+    public X10MethodInstance createFakeMethod(ClassType container, Flags flags, Name name, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
         Position pos = X10NodeFactory_c.compilerGenerated(container);
         Type returnType = unknownType(pos);
         List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
@@ -702,13 +702,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             typeParams.add(Types.ref(new ParameterType_c(this, pos, Name.make("T"+(++i)), Types.ref(md))));
         }
         md.setTypeParameters(typeParams);
-        return (X10MethodInstance) md.asInstance();
+        return ((X10MethodInstance) md.asInstance()).error(error);
     }
 
-    public X10ConstructorInstance createFakeConstructor(QName containerName, List<Type> typeArgs, List<Type> argTypes) {
-        return createFakeConstructor(typeForNameSilent(containerName).typeArguments(typeArgs), argTypes);
+    public X10ConstructorInstance createFakeConstructor(QName containerName, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
+        return createFakeConstructor(typeForNameSilent(containerName).typeArguments(typeArgs), argTypes, error);
     }
-    public X10ConstructorInstance createFakeConstructor(ClassType container, List<Type> argTypes) {
+    public X10ConstructorInstance createFakeConstructor(ClassType container, List<Type> argTypes, SemanticException error) {
         Position pos = X10NodeFactory_c.compilerGenerated(container);
         List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
         List<LocalDef> formalNames = new ArrayList<LocalDef>();
@@ -728,15 +728,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 //            typeParams.add(Types.ref(new ParameterType_c(this, pos, Name.make("T"+(++i)), Types.ref(cd))));
 //        }
 //        cd.setTypeParameters(typeParams);
-        return (X10ConstructorInstance) cd.asInstance();
+        return ((X10ConstructorInstance) cd.asInstance()).error(error);
     }
     
-    public X10LocalInstance createFakeLocal(Name name) {
+    public X10LocalInstance createFakeLocal(Name name, SemanticException error) {
         Position pos = Position.COMPILER_GENERATED;
         Type type = unknownType(pos);
         List<Ref<? extends Type>> excTypes = Collections.emptyList();
         X10LocalDef ld = (X10LocalDef) localDef(pos, Flags.FINAL, Types.ref(type), name);
-        return (X10LocalInstance) ld.asInstance();
+        return ((X10LocalInstance) ld.asInstance()).error(error);
     }
 
     @Override

@@ -161,6 +161,17 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
         return rightType;
     }
 
+    private SemanticException error;
+
+    public SemanticException error() {
+        return error;
+    }
+
+    public X10FieldInstance error(SemanticException e) {
+        X10FieldInstance_c n = (X10FieldInstance_c) copy();
+        n.error = e;
+        return n;
+    }
     public String containerString() {
 	Type container = container();
 	container = X10TypeMixin.baseType(container);

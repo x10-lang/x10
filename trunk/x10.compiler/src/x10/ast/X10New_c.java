@@ -381,13 +381,13 @@ public class X10New_c extends New_c implements X10New {
                 throw e;
             Errors.issue(tc.job(), e, this);
             X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
-	        List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
-	        for (Expr a : this.arguments) {
-	            argTypes.add(a.type());
-	        }
-	        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(tn.type());
-            X10ConstructorInstance ci = ts.createFakeConstructor(ct, argTypes);
-	        Type rt = ci.returnType();
+            List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
+            for (Expr a : this.arguments) {
+                argTypes.add(a.type());
+            }
+            X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(tn.type());
+            X10ConstructorInstance ci = ts.createFakeConstructor(ct, argTypes, e);
+            Type rt = ci.returnType();
             return (X10New_c) constructorInstance(ci).type(rt);
         }
     }
