@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style/help.css">
+<title>Refactoring in X10DT</title>
+</head>
+
+<body>
+<a href="contents.html">Back to Table of Contents</a>
+ <h1>X10 Refactoring</h1>
+
+<h2>What is Refactoring?</h2>
+<p>Refactoring is a behavior-preserving source-to-source transformation.
+As classically defined, refactoring is intended primarily to improve source code maintainability.
+<p>A classic simple case of refactoring is the Rename refactoring.
+For example, in the X10DT editor, select a local variable or method name.
+(To "select", you can double-click on the variable name.  It will be highlighted, shown here with a blue background.)
+Then point at this selection and hit the right mouse (bring up the context menu).
+Select Refactor > Rename.
+<br><img border=1 src="images/refactor_rename1.png">
+<p>In the resulting dialog, change the name of the variable to a new value.
+In this example, "result" will be changed to "myval".
+<br><img src="images/refactor_rename.png">
+<p>If you hit the "Preview" button, the next dialog will show a "before" and "after" version of
+the changes to be made.
+<br><img src="images/refactor_rename_preview.png">
+<p>Click the OK button to accept the changes.
+<p>If, after the changes are made, you change your mind, you can always hit "Undo"  (Ctrl-Z  or Mac OSX command-Z).
+<h2>Refactoring for Concurrency</h2>
+<p>The X10 refactorings for concurrency are 
+behavior-preserving transformations that can be used to safely improve parallel performance.
+<p>
+Examples of refactoring for concurrency include:
+<ul>
+<li>Introduce additional concurrency
+<li>Reorganize existing concurrency
+<br>E.g., substitute one form of concurrency for another: use clocks for phased computations in lieu of individual activities
+<li>Alter data distributions to improve locality
+<li>Introduce word-level parallelism (for bit operations)
+</ul>
+<p> Current X10 refactoring menu:
+<br><img src="images/refactoringMenu.png">
+
+<h2>An X10 Example of Refactoring for Concurrency</h2>
+<p>
+<p>Select an area of code, and use the right mouse (context menu) Refactor.
+You will see a selection of refactorings that are available.
+<p>
+In this example, a loop in the code is highlighted, and "Loop Flat Parallelization" is selected.
+<p>
+<img src="images/refactor_MontyPi1.png">
+<p>On the next dialog, 
+if you  check "Verbose," a console will contain information and pre- and post- conditions to the refactoring.
+Click "Preview" to see the next screen.
+<br><img src="images/refactor_confirm.png">
+<p>
+The old and proposed new version of the code are show side-by-side.
+Differences are indicated by shaded areas.
+Note that here, the refactoring has inserted "finish" and "async."
+<img src="images/refactor_MontyPi2.png">
+<p>
+Select  the "OK" button to accept the changes and modify your source file.
+
+<p>&nbsp;
+<p>&nbsp;
+<p><a href="03develop.html">Back to Developing/Editing your X10 project</a></p>
+<p><a href="contents.html">Back to X10DT Table of Contents</a></p>
+</body>
+</html>

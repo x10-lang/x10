@@ -1,0 +1,1271 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="./x10tutorial.css" />
+</head>
+
+<body>
+
+<h1><kbd>Array</kbd>s (also, <kbd>Point</kbd>s, <kbd>Region</kbd>s, and <kbd>Dist</kbd>s)</h1>
+
+<p>
+Arrays in most languages are very simple things that let you access some data
+by number&ndash;<kbd>A(3)</kbd>&ndash;or, if you're lucky, by several numbers at
+once&ndash;<kbd>A(1,2,3)</kbd>. X10 has those, too, as we have seen: <kbd>Rail</kbd>s
+and <kbd>ValRail</kbd>s.
+</p>
+
+<p>
+X10's <kbd>Array</kbd>s are far more powerful than that. They are designed for
+the usual array stuff&ndash;<b>and</b> they let you distribute data across
+multiple <i>places</i>.
+</p>
+
+<p>
+This makes arrays into one of your main tools for parallelizing computations.
+Suppose you want to add up a lot of numbers <kbd>A(i)</kbd>, and suppose that
+you have been foresighted enough to distribute them over your places&ndash;and
+let's say that you have a 16-core processor, with 16 places, each with
+1/16<sup>th</sup> of the <kbd>A(i)</kbd>'s.  Let's say that <kbd>A(i)</kbd> is
+at place <kbd>P(i)</kbd>.
+To add up all the numbers, you
+could have a main loop which gets the data <kbd>A(i)</kbd> from 
+place <kbd>P(i)</kbd>:
+</p>
+<pre class="ex">  var sum : Int = 0;
+  for (i in subscripts) sum += at(P(i)) A(i); 
+</pre>
+
+<a name="pseudocode-parallel-sum"></a>
+<p>
+But the better way would be to do something like the following, which has each
+core add up the numbers stored at that core.  These additions can all be done
+at the same time, so this version will be about sixteen times faster than the
+previous one&ndash;or maybe more, since it does less communication.
+</p>
+<pre class="ex">  var sum : Int = 0;
+  at each place {
+    var local_sum : Int = 0;
+    for (i in subscripts at the place) local_sum += A(i);
+    at(initial place) atomic {sum += local_sum;}
+  }
+</pre>
+
+<p>
+Arrays are your tool to do the problem the second way.  They distribute data
+among many places, and keep track of which indices go with which places as
+well as with which data.   
+</p>
+
+<p>
+This, of course, makes Arrays more complicated.  We are going to need several
+concepts before we can learn arrays.
+</p>
+
+<ol>
+<li><kbd>Point</kbd>: a collection of one or more integers to be
+  used as a subscript of an <kbd>Array</kbd>.</li> 
+<li><kbd>Region</kbd>: A bunch of <kbd>Point</kbd>s, which will be used to
+  describe the set of <i>all subscripts</i> for which our <kbd>Array</kbd>
+  has a value.</li>
+<li><kbd>Dist</kbd>: Short for <i>distribution</i>: it adds to a <kbd>Region</kbd>
+  a mapping that assigns a <kbd>Place</kbd> to every <kbd>Point</kbd> in
+  the <kbd>Region</kbd>. The distribution says how
+  the <kbd>Array</kbd>'s values are distributed over the <kbd>Place</kbd>s in our
+  system&ndash;<i>e.g.</i> it might say that the first half of the array is on
+  processor 3 and the second half on processor 4.</li>
+<li><kbd>Array[T]</kbd>: The whole story: a <kbd>Dist</kbd>
+  telling where the data is, and, of course, the data itself (of any
+  type <kbd>T</kbd>). </li> 
+</ol>
+
+<h1>Point</h1>
+
+<p>
+When you subscript an <kbd>Array</kbd> in X10, you will use
+a <kbd>Point</kbd>.  A <kbd>Point</kbd> is one or more integers, so you're
+really subscripting by a few numbers, the same as you would in FORTRAN.
+(It's <i>more</i> convenient than Java subscripting if you're working with
+two-dimensional arrays&ndash;X10's two-dimensional arrays are realio, trulio
+two-dimensional arrays, not one-dimensional arrays of one-dimensional arrays.   
+Even <i>irregular</i> two-dimensional arrays in X10, like triangular or band
+arrays, are realio, trulio two-dimensional arrays.
+</p>
+
+<p>
+<kbd>Point</kbd>s have a number called their <kbd>rank</kbd>, which is how
+many coordinates they have.  So, a one-dimensional array will be indexed
+by <kbd>Point{rank==1}</kbd>s, a two-dimensional one by 
+<kbd>Point{rank==2}</kbd>s, and so on. (Don't worry. You can also use one or
+more integers directly without packing them up in a <kbd>Point</kbd>, if
+that's convenient. The syntax <kbd>a(1,2,3)</kbd> is a perfectly fine shorthand
+for <kbd>a([1,2,3])</kbd>. Points and regions let you
+write code that handles arrays of any number of dimensions, or exotic shapes
+like discs: &ldquo;all integer points <kbd>[m,n]</kbd> in the plane that are inside the
+disc of radius <kbd>r</kbd> centered at <kbd>[0,0]</kbd>.&rdquo; is a perfectly
+fine region for building an array on!  All kinds of regions that are not just
+simple rectangles arise naturally in real world problems, so a little effort
+to build them into our language is well worth it.
+</p>
+
+<p>
+For convenience, you can use <kbd>ValRail[Int]</kbd>s as <kbd>Point</kbd>s.
+So, you're allowed to write: 
+</p>
+<pre class="ex">    val p1 : Point{rank==1} = [1];
+    val p2 : Point{rank==2} = [1,2];
+    val p8 : Point{rank==8} = [1,2,3,4,5,6,7,8];
+</pre>
+
+<p>
+(You don't need to write the <kbd>rank</kbd> constraint in most cases; they're
+just there to emphasize the concept in the example.)
+</p>
+
+<p>
+You can also do <i>pattern matching</i> to take <kbd>Point</kbd>s apart into
+numbers. (This is a special case: X10 v.2 doesn't do any other kind of pattern
+matching.)  If you write <kbd>val (a,b,c) = p;</kbd>, X10 will take your
+rank-3 <kbd>Point</kbd> <kbd>p</kbd> apart and set <kbd>a</kbd> to its first
+coordinate, <kbd>b</kbd> to its second, and <kbd>c</kbd> to its third.  (This
+works for any number of coordinates, even one.)
+</p>
+
+<!--
+    val p1 : Point{rank==1} = [1];
+    val (i,j) = p2;
+    x10.io.Console.OUT.println("i=" + i + ", j=" +j);
+
+-->
+<a name="src-pointy1-1">
+</a><a name="src-pointy1-2">
+</a><a name="src-pointy1-3">
+</a><table class="ex">
+<tbody><tr class="ex"><td><a href="#pointy1-1" class="ex">1</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val p2 : Point{rank==2} = [1,2];</code></td></tr>
+<tr class="ex"><td><a href="#pointy1-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val (i,j) = p2;</code></td></tr>
+<tr class="ex"><td><a href="#pointy1-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println("i=" + i + ", j=" +j);</code></td></tr>
+</tbody></table>
+
+<a name="pointy1-1">
+</a><p><a name="pointy1-1">  </a><a href="#src-pointy1-1">line 1: </a><kbd class="ex">    val p2 :
+    Point{rank==2} = [4,3];</kbd><br>Declare and initialize our rank-two point.</p>
+<a name="pointy1-2">
+</a><p><a name="pointy1-2">  </a><a href="#src-pointy1-2">line 2: </a><kbd class="ex">    val (i,j) =
+    p2;</kbd><br>
+Pick the point apart by pattern matching.  This sets <kbd>i</kbd> to the first
+    coordinate <kbd>4</kbd> and <kbd>j</kbd> to the second
+    coordinate <kbd>3</kbd>.  Executing the <kbd>println</kbd> that follows should send
+	 &ldquo;<kbd>i=4, j=3</kbd>&rdquo; to your screen.
+</p>
+<a name="pointy1-3">
+<!--<p>  <a href="#src-pointy1-3">line 3: </a><kbd class="ex">    x10.io.Console.OUT.println("i=" + i + ", j=" +j);</kbd><br/></p>-->
+
+
+</a><p>
+<a name="pointy1-3">And that's enough to work with <kbd>Point</kbd>s. 
+</a></p>
+
+<h1><kbd><a name="pointy1-3">Region</a></kbd><a name="pointy1-3">s</a></h1>
+
+<p>
+<a name="pointy1-3">A <kbd>Region</kbd> is a set of points that all have the same rank.
+A <kbd>Point</kbd> is a single place where an <kbd>Array</kbd> is defined.
+A <kbd>Region</kbd> will list <i>all</i> the places where an <kbd>Array</kbd>
+is defined. For example, the 2<span style="font-family:Arial;">x</span>2 identity matrix will have
+a <kbd>Region</kbd> that amounts to
+the <kbd>Point</kbd>s <kbd>[0,0]</kbd>, <kbd>[0,1]</kbd>, <kbd>[1,0]</kbd>,
+and <kbd>[1,1]</kbd>. (Assuming that we're numbering indices starting from 0:
+a mathematician might prefer
+the <kbd>Point</kbd>s <kbd>[1,1]</kbd>, <kbd>[1,2]</kbd>, <kbd>[2,1]</kbd>,
+and <kbd>[2,2]</kbd>, which <kbd>Array</kbd>s can do just fine.)
+</a>
+</p>
+
+<p>
+<a name="pointy1-3">Since all the <kbd>Point</kbd>s in a <kbd>Region</kbd> <kbd>R</kbd> have the
+same <kbd>rank</kbd>, the <kbd>Region</kbd> itself has a <kbd>rank</kbd>.  So,
+the <kbd>Region</kbd> for the identity matrix has <kbd>rank==2</kbd>.
+</a></p>
+
+<p>
+<a name="pointy1-3">There are a lot of ways to make <kbd>Region</kbd>s, but we'll only look at a
+couple of them now.   The first kind is a one-dimensional interval:
+</a></p>
+
+<pre class="ex"><a name="pointy1-3">var R1 = 1..100;
+</a></pre>
+
+<p>
+<a name="pointy1-3">This makes <kbd>R1</kbd> a <kbd>Region{rank==1}</kbd> consisting of the hundred
+points <kbd>[1]</kbd>, <kbd>[2]</kbd>, ..., <kbd>[100]</kbd>. You'll use this
+sort of region when you work with standard one-dimensional arrays with
+consecutive subscripts&ndash;the kind you would find in Java or C++, but in X10, of course, you
+can also add information to the regions that says what processors get which parts of the array.
+<!-- (ignoring distribution).  This is the right sort of region, distributed or not, for vectors
+-->
+</a></p>
+
+<p>
+<a name="pointy1-3">(<b>Aside:</b> We've seen both the <kbd>..</kbd> notation and pattern matching assigment
+</a><a href="file:///private/var/folders/-6/-69hFJheG6qqY43b76AtWU+++TI/TemporaryItems/03-Tutorial.html#fun2-13">before</a>,
+in lines like <kbd>for ((i) in a..b)</kbd>, in which
+</p>
+<blockquote>
+	<!-- a..b is NOT a constructor: it is a literal expression with a binary infix operator ".." -->
+	<kbd>a..b</kbd> is a rank-1 <kbd>Region</kbd> whose Points  are <kbd>[a]</kbd>
+	through <kbd>[b]</kbd>, and
+	<p>
+	the parentheses around the <kbd>i</kbd> cause pattern matching as it would in 
+	an assignment like <kbd>val (i) = [a];</kbd>
+</blockquote>
+<p>
+	Thus, as we iterate over the region <kbd>a..b</kbd>, matching <kbd>(i)</kbd>
+	against <kbd>[a]</kbd>, then against  <kbd>[a+1]</kbd> and so on up to 
+	<kbd>[b]</kbd>, we will find that <kbd>i</kbd> is set to <kbd>a</kbd>, then
+	to <kbd>a+1</kbd>, and so on, up to <kbd>b</kbd>.
+	So, you can use the idiom <kbd>for((i) in a..b)</kbd> knowing that it's using some standard
+language features, and not a random, ad-hoc construction at all.  Or you can
+just use it without thinking of <kbd>Region</kbd>s and <kbd>Point</kbd>s and
+pattern matching.  But knowing what it really means explains
+the possibly-confusing error message that happens when you leave off
+the <kbd>()</kbd>, and just write <kbd>for (i in a..b)</kbd>&ndash;when you do
+that, you're iterating over a collection of <kbd>Point</kbd>s, so <kbd>i</kbd>
+is a <kbd>Point</kbd>, rather than the <kbd>Int</kbd> you had in mind.
+</p>
+
+<p>
+If you want a classic FORTRAN-style two-dimensional array, its region will
+look like: 
+</p>
+<pre class="ex">  val R2 = [1..100, 1..200];
+</pre>
+<p>
+The coordinates don't have to start at <kbd>0</kbd>. That convention, adopted by
+C, then C++ and Java, historically was simply a way of helping the compiler generate clean
+code for array accesses. X10's <kbd>Rail</kbd>s continue to follow this 
+convention for much the same reasons, but <kbd>Array</kbd>s are more flexible.
+If it's somehow convenient to have a
+coordinate ranging from -3 to 3, then <kbd>-3 .. 3</kbd> is your region.
+Furthermore, you can have any number of dimensions you
+like: 
+</p>
+<pre class="ex">  val R3 : Region{rank==3} = [0..1, 1..2, 2..4];
+</pre>
+
+<p>
+One last operation we'll cover is <kbd>||</kbd>, which forms
+the <i>union</i> of two <kbd>Region</kbd>s of the same rank, jamming them into
+one region. This region doesn't have to be rectangular or even contiguous.  
+</p>
+
+<pre class="ex">    val U1a : Region{rank==1} = [1..2];
+    val U1b : Region{rank==1} = [100..200]; 
+    val U1  = U1a || U1b; 
+    val U2a : Region{rank==2} = [1..2, 3..4];
+    val U2b : Region{rank==2} =  [100..200, 300..400];
+    val U2  = U2a || U2b;
+</pre>
+
+<p>
+So, <kbd>U1</kbd> has points <kbd>[1], [2], [100], [101], [102], ...,
+    [200]</kbd>, and <kbd>U2</kbd>.  <kbd>U2</kbd> is two squares: a 2<span style="font-family:sans-serif">x</span>2 
+    one from <kbd>U2a</kbd>, and a 101<span style="font-family:sans-serif">x</span>101 one from <kbd>U2b</kbd>. 
+</p>
+
+<p>
+There are a lot of other choices&ndash;intersections, upper and lower triangular
+regions, Cartesian products, set differences, translations, and other useful
+things.  Look in the manual if you need interesting-shaped regions; X10
+probably has the one you want.
+</p>
+
+<h1>Dists</h1>
+
+<p>
+The next piece of our story is the <kbd>Dist</kbd>.  As the name
+suggests, it explains how the <kbd>Array</kbd> is distributed over
+the <kbd>Place</kbd>s of the program. 
+</p>
+
+<p>
+Ultimately, the distribution is supposed to act like a function of
+type <kbd>(Point)=&gt;Place</kbd>&ndash;it tells which place each piece of the array
+will be stored.  In fact, that's part of the type <kbd>Dist</kbd>&ndash;you can
+use it like a function.  If <kbd>p:Point</kbd> and <kbd>d:Dist</kbd>,
+then <kbd>d(p)</kbd> is a <kbd>Place</kbd>.  And if <kbd>a</kbd> is
+an <kbd>Array</kbd> with distribution <kbd>d</kbd>, then <kbd>a(p)</kbd> is
+located at place <kbd>d(p)</kbd>.  
+</p>
+
+<p>
+The point of <kbd>Dist</kbd>s being their own data type is that we can quickly
+and easily rearrange where data is stored, by changing a few <kbd>Dist</kbd>
+declarations or arguments.  For example, we might guess initially that the best
+arrangement is to have adjacent data values stored on adjacent processors,
+using a <kbd>cyclic</kbd> distribution.  After some thought, we might decide
+that it's best to put adjacent data on the <i>same</i> processor whenever
+possible, using a <kbd>block</kbd> distribution.  Changing from one to the
+other is a matter of modifying one statement from:
+</p>
+<pre class="ex">val d : Dist = Dist.makeCyclic(R);
+</pre>
+<p>
+to
+</p>
+<pre class="ex">val d : Dist = Dist.makeBlock(R);
+</pre>
+
+
+<p>
+There are a number of factory methods making different distributions.  We'll
+stick with the simplest three of them.
+</p>
+<ol>
+<li><b>Constant Distribution:</b>  Sometimes it's useful to put all your data
+  in one place.  <kbd>R -&gt; here</kbd> is a <kbd>Dist</kbd> that maps
+  every <kbd>Point</kbd> in <kbd>R</kbd> to <kbd>here</kbd>.  <kbd>R -&gt;
+  p</kbd> maps every point to <kbd>p</kbd>. 
+</li>
+<li><b>Cyclic Distribution:</b> This puts adjacent points into different
+  places.   <kbd>Dist.makeCyclic(R)</kbd> puts the first <kbd>Point</kbd>
+  of <kbd>R</kbd> on the first place, the second <kbd>Point</kbd> on the
+  second place, etc.  It wraps around, so if there are 4 places, the
+  fifth <kbd>Point</kbd> gets back to the first <kbd>Place</kbd>.
+</li>
+<li><b>Block Distribution:</b> This arranges the points as evenly as possible
+  among the places.  The first fraction of the points goes to the first place,
+  the second fraction to the second, and so on.  The fractions are as close as
+  possible to the same size&ndash;some might be one item bigger than others if
+  the number of places doesn't evenly divide the number of points, but they'll
+  never be more than one item off.
+</li>
+</ol>
+
+<p>
+There are lots of others.  Block and cyclic distributions can work on a subset
+of the points; there's a "block cyclic" distribution, a random distribution,
+and more.   This is enough to get us started. 
+</p>
+
+<p>
+Here's what these distributions look like, plus some simple code for working
+with them.  We're just going to print the numbers of the places for each
+point.  
+</p>
+
+
+<!--
+public class DistPlay {
+  public static def main(argv:Rail[String]!) {
+    R : Region = 1..35;
+    show("R -> here          ", R -> here);
+    show("Dist.makeCyclic(R) ", Dist.makeCyclic(R));
+    show("Dist.makeBlock(R)  ", Dist.makeBlock(R));
+  }
+  static def show(s:String, d:Dist) {
+    x10.io.Console.OUT.print(s + " = ");
+    for(p:Point in d.region) 
+       x10.io.Console.OUT.print("" + d(p).id);
+    x10.io.Console.OUT.println("");
+  }
+}
+-->
+<a name="src-distplay-1">
+</a><a name="src-distplay-2">
+</a><a name="src-distplay-3">
+</a><a name="src-distplay-4">
+</a><a name="src-distplay-5">
+</a><a name="src-distplay-6">
+</a><a name="src-distplay-7">
+</a><a name="src-distplay-8">
+</a><a name="src-distplay-9">
+</a><a name="src-distplay-10">
+</a><a name="src-distplay-11">
+</a><a name="src-distplay-12">
+</a><a name="src-distplay-13">
+</a><a name="src-distplay-14">
+</a><table class="ex">
+<tbody><tr class="ex"><td><a href="#distplay-1" class="ex">1</a></td><td class="ex"><code>public class DistPlay {</code></td></tr>
+<tr class="ex"><td><a href="#distplay-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;public static def main(argv:Rail[String]!) {</code></td></tr>
+<tr class="ex"><td><a href="#distplay-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;R : Region = 1..35;</code></td></tr>
+<tr class="ex"><td><a href="#distplay-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;show("R -&gt; here          ", R -&gt; here);</code></td></tr>
+<tr class="ex"><td><a href="#distplay-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;show("Dist.makeCyclic(R) ", Dist.makeCyclic(R));</code></td></tr>
+<tr class="ex"><td><a href="#distplay-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;show("Dist.makeBlock(R)  ", Dist.makeBlock(R));</code></td></tr>
+<tr class="ex"><td><a href="#distplay-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#distplay-8" class="ex">8</a></td><td class="ex"><code>&nbsp;&nbsp;static def show(s:String, d:Dist) {</code></td></tr>
+<tr class="ex"><td><a href="#distplay-9" class="ex">9</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.print(s + " = ");</code></td></tr>
+<tr class="ex"><td><a href="#distplay-10" class="ex">10</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;for(p:Point in d.region) </code></td></tr>
+<tr class="ex"><td><a href="#distplay-11" class="ex">11</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.print("" + d(p).id);</code></td></tr>
+<tr class="ex"><td><a href="#distplay-12" class="ex">12</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println("");</code></td></tr>
+<tr class="ex"><td><a href="#distplay-13" class="ex">13</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#distplay-14" class="ex">14</a></td><td class="ex"><code>}</code></td></tr>
+</tbody></table>
+
+<a name="distplay-1">
+<!--<p>  <a href="#src-distplay-1">line 1: </a><kbd class="ex">public class DistPlay {</kbd><br/></p>-->
+</a><a name="distplay-2">
+<!--<p>  <a href="#src-distplay-2">line 2: </a><kbd class="ex">  public static def main(argv:Rail[String]!) {</kbd><br/></p>-->
+</a><a name="distplay-3">
+</a><p><a name="distplay-3">  </a><a href="#src-distplay-3">line 3: </a><kbd class="ex">    R : Region =
+    1..35;</kbd><br>
+Let's see what happens with 35 points&ndash;35 was chosen because the four places
+  that we have by default do <b>not</b> evenly cover the 35 points.  Also,
+    when we print things, it'll fit nicely on one line.
+</p>
+<a name="distplay-4">
+</a><p><a name="distplay-4">  </a><a href="#src-distplay-4">line 4: </a><kbd class="ex">    show("R -&gt; here
+    ", R -&gt; here);</kbd><br>
+A constant distribution.
+</p>
+<a name="distplay-5">
+</a><p><a name="distplay-5">  </a><a href="#src-distplay-5">line 5: </a><kbd class="ex">
+    show("Dist.makeCyclic(R) ", Dist.makeCyclic(R));</kbd><br>
+A cyclic distribution.
+</p>
+<a name="distplay-6">
+</a><p><a name="distplay-6">  </a><a href="#src-distplay-6">line 6: </a><kbd class="ex">
+    show("Dist.makeBlock(R)  ", Dist.makeBlock(R));</kbd><br>
+A block distribution.
+</p>
+<a name="distplay-7">
+<!--<p>  <a href="#src-distplay-7">line 7: </a><kbd class="ex">  }</kbd><br/></p>-->
+</a><a name="distplay-8">
+<!--<p>  <a href="#src-distplay-8">line 8: </a><kbd class="ex">  static def show(s:String, d:Dist) {</kbd><br/></p>-->
+</a><a name="distplay-9">
+<!--<p>  <a href="#src-distplay-9">line 9: </a><kbd class="ex">    x10.io.Console.OUT.print(s + " = ");</kbd><br/></p>-->
+</a><a name="distplay-10">
+</a><p><a name="distplay-10">  </a><a href="#src-distplay-10">line 10: </a><kbd class="ex">    for(p:Point
+    in d.region) </kbd><br>
+To work with the <i>points</i> in a distribution, you will generally use its
+    region: <kbd>d.region</kbd>. 
+</p>
+<a name="distplay-11">
+</a><p><a name="distplay-11">  </a><a href="#src-distplay-11">line 11: </a><kbd class="ex">
+    x10.io.Console.OUT.print("" + d(p).id);</kbd><br>
+<kbd>d(p)</kbd> is the <kbd>Place</kbd> which distribution <kbd>d</kbd>
+assigns to point <kbd>p</kbd>.  <kbd>Place</kbd>s have an <kbd>id</kbd> field,
+which is a small number&ndash;0 for the first place, etc.  So, this line prints
+out the number of the place.
+</p>
+<a name="distplay-12">
+</a><p><a name="distplay-12">  </a><a href="#src-distplay-12">line 12: </a><kbd class="ex">
+    x10.io.Console.OUT.println("");</kbd><br>
+Finish up the line started by the preceding code.
+</p>
+<a name="distplay-13">
+<!--<p>  <a href="#src-distplay-13">line 13: </a><kbd class="ex">  }</kbd><br/></p>-->
+</a><a name="distplay-14">
+<!--<p>  <a href="#src-distplay-14">line 14: </a><kbd class="ex">}</kbd><br/></p>-->
+
+
+</a><p>
+<a name="distplay-14">The output of this program is: 
+</a></p>
+<pre class="output"><a name="distplay-14">R -&gt; here           = 00000000000000000000000000000000000
+Dist.makeCyclic(R)  = 01230123012301230123012301230123012
+Dist.makeBlock(R)   = 00000000011111111122222222233333333
+</a></pre>
+<p>
+<a name="distplay-14">As you can see, <kbd>R -&gt; here</kbd> puts every point at place 0.  The cyclic
+distribution cycles through the four places. The block distribution puts a
+the first 9 points at 0, the second 9 at 1, the third at 2, and the remaining 8 at 3. 
+</a></p>
+
+<h2><a name="distplay-14">Arrays, finally</a></h2>
+
+<p>
+<a name="distplay-14">When you use an <kbd>Array</kbd> in X10, you need three things: 
+</a></p>
+<ol>
+<li><a name="distplay-14">The type of value stored in the array.  You'll use
+  an <kbd>Array[Int]</kbd> to store <kbd>Int</kbd>s.</a></li>
+<li><a name="distplay-14">The <kbd>Dist</kbd> telling which <kbd>Place</kbd> each element of the
+  array lives at.  This <kbd>Dist</kbd> involves a <kbd>Region</kbd>, which
+  in turn involves a bunch of <kbd>Point</kbd>s, as we have seen.</a></li>
+<li><a name="distplay-14">The initial contents of the array.  You will use
+  a </a><a href="file:///private/var/folders/-6/-69hFJheG6qqY43b76AtWU+++TI/TemporaryItems/03-Tutorial.html#functions">function</a>
+  to generate these values. 
+</li>
+</ol>
+
+<p>
+Here's a simple example: 
+</p>
+
+
+<!--
+public class ArrayExample1 {
+  public static def main(argv:Rail[String]!) {
+    R : Region= 1..35;
+    val D : Dist = Dist.makeBlock(R);
+    val f : (Point)=> Int = ((i):Point) => 10*i;
+    val a : Array[Int] = Array.make[Int](D, f);
+  }
+}
+
+-->
+<a name="src-arrayexample1-1">
+</a><a name="src-arrayexample1-2">
+</a><a name="src-arrayexample1-3">
+</a><a name="src-arrayexample1-4">
+</a><a name="src-arrayexample1-5">
+</a><a name="src-arrayexample1-6">
+</a><a name="src-arrayexample1-7">
+</a><a name="src-arrayexample1-8">
+</a><table class="ex">
+<tbody><tr class="ex"><td><a href="#arrayexample1-1" class="ex">1</a></td><td class="ex"><code>public class ArrayExample1 {</code></td></tr>
+<tr class="ex"><td><a href="#arrayexample1-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;public static def main(argv:Rail[String]!) {</code></td></tr>
+<tr class="ex"><td><a href="#arrayexample1-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val R : Region= 1..35;</code></td></tr>
+<tr class="ex"><td><a href="#arrayexample1-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val D : Dist = Dist.makeBlock(R);</code></td></tr>
+<tr class="ex"><td><a href="#arrayexample1-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val f : (Point)=&gt; Int = ((i):Point) =&gt; 10*i;</code></td></tr>
+<tr class="ex"><td><a href="#arrayexample1-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val a : Array[Int] = Array.make[Int](D, f);</code></td></tr>
+<tr class="ex"><td><a href="#arrayexample1-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#arrayexample1-8" class="ex">8</a></td><td class="ex"><code>}</code></td></tr>
+</tbody></table>
+
+<a name="arrayexample1-1">
+<!--<p>  <a href="#src-arrayexample1-1">line 1: </a><kbd class="ex">public class ArrayExample1 {</kbd><br/></p>-->
+</a><a name="arrayexample1-2">
+<!--<p>  <a href="#src-arrayexample1-2">line 2: </a><kbd class="ex">  public static def main(argv:Rail[String]!) {</kbd><br/></p>-->
+</a><a name="arrayexample1-3">
+</a><p><a name="arrayexample1-3">  </a><a href="#src-arrayexample1-3">line 3: </a><kbd class="ex">    R :
+    Region= 1..35;</kbd><br>
+Create the region that we'll be using, as in previous examples.  There's no
+    need to do it in a separate line; we're just doing that to make the pieces
+    obvious.
+</p>
+<a name="arrayexample1-4">
+</a><p><a name="arrayexample1-4">  </a><a href="#src-arrayexample1-4">line 4: </a><kbd class="ex">    val D :
+    Dist = Dist.makeBlock(R);</kbd><br>
+Any distribution would work here.  In fact, you could change the distribution
+    by changing this line, and thereby redistribute your data. 
+As with the region, this line doesn't need to be a separate declaration (and
+    usually won't be).
+</p>
+<a name="arrayexample1-5">
+</a><p><a name="arrayexample1-5">  </a><a href="#src-arrayexample1-5">line 5: </a><kbd class="ex">    val f :
+    (Point)=&gt; Int = ((i):Point) =&gt; 10*i;</kbd><br>
+For this example, let's start off with <kbd>a(1)=10</kbd>, <kbd>a(2)=20</kbd>,
+    and so on.
+</p>
+<a name="arrayexample1-6">
+</a><p><a name="arrayexample1-6">  </a><a href="#src-arrayexample1-6">line 6: </a><kbd class="ex">    val a :
+    Array[Int] = Array.make[Int](D, f);</kbd><br>
+Here's where we actually make the array.  Note that we're specifying the
+    element type as a type parameter, with the <kbd>[Int]</kbd>, and the
+    distribution and initialization functions as regular
+    parameters <kbd>(D,f)</kbd>.    There's no other choice, since types can't
+    be regular parameters and expressions can't be type parameters.
+</p>
+
+<p>
+Also, it's <kbd><u>Array.make[Int]</u>(D,f)</kbd>,
+not <kbd><u>Array[Int].make</u>(D,f)</kbd>. The type <kbd>T</kbd> is a
+parameter to <kbd>make</kbd>.  
+</p>
+
+<a name="arrayexample1-7">
+<!--<p>  <a href="#src-arrayexample1-7">line 7: </a><kbd class="ex">  }</kbd><br/></p>-->
+</a><a name="arrayexample1-8">
+<!--<p>  <a href="#src-arrayexample1-8">line 8: </a><kbd class="ex">}</kbd><br/></p>-->
+
+</a><p>
+<a name="arrayexample1-8">This example has broken out the region, distribution, and initialization into
+separate parts.  You can certainly do it in one statement: 
+</a></p>
+<pre class="ex"><a name="arrayexample1-8">    val a : Array[Int] = Array.make[Int](Dist.makeBlock(1..35), ((i):Point) =&gt; 10*i);
+</a></pre>
+<p>
+<a name="arrayexample1-8">If you're defining several arrays that ought to be distributed the
+same way, however, you are probably better off naming the <kbd>Dist</kbd> and using it in
+several places. 
+</a></p>
+
+<a name="printing-example"></a>
+<h3>Printing an Array</h3>
+
+<p>
+You will probably wind up wanting to print an array at some point.  Here's how
+to do it.  Lots of simple array manipulations will follow this general
+pattern.  
+</p>
+
+<p>
+There are two important points in this code.
+</p>
+<ol>
+<li>Iterating over an array actually iterates over the <i><kbd>Point</kbd>s
+    in its <kbd>Region</kbd></i>&ndash;which is to say, iterates over the valid
+  subscripts for that array.
+  </li>  
+<li>Even though the elements of the array may be located in different places,
+  the <kbd>toString()</kbd> method is <kbd>global</kbd>, so it can be called
+  from anywhere.  If you want to do something that's not global, you'll have
+  to use the place-shifting command <kbd>at</kbd>, just like any other time
+  you're working with data that's not there.  We'll see that in the following example.
+</li>
+</ol>
+
+
+<!--
+public class PrintArray {
+  public static def main(argv:Rail[String]!) {
+    R : Region= 1..8;
+    val D : Dist = R -> here; 
+    val f : (Point)=> Int = ((i):Point) => 10*i;
+    val a : Array[Int] = Array.make[Int](D, f);
+    val b : Array[Int] = Array.make[Int](D, ((i):Point) => i*i);
+    x10.io.Console.OUT.println("str(a) = " + a + " containing " + str(a));
+    x10.io.Console.OUT.println("str(b) = " + b + " containing " + str(b));
+  }
+  
+  public static def str[T](a:Array[T]):String = 
+  {
+    var s : String = "";
+    var first : Boolean = true;
+    for(point in a) {
+       if (first) first=false;
+       else s += ",";
+       s += a(point).toString(); // works 'cause toString is global
+    }
+    return s;    
+  }
+}
+
+-->
+<a name="src-printarray-1">
+</a><a name="src-printarray-2">
+</a><a name="src-printarray-3">
+</a><a name="src-printarray-4">
+</a><a name="src-printarray-5">
+</a><a name="src-printarray-6">
+</a><a name="src-printarray-7">
+</a><a name="src-printarray-8">
+</a><a name="src-printarray-9">
+</a><a name="src-printarray-10">
+</a><a name="src-printarray-11">
+</a><a name="src-printarray-12">
+</a><a name="src-printarray-13">
+</a><a name="src-printarray-14">
+</a><a name="src-printarray-15">
+</a><a name="src-printarray-16">
+</a><a name="src-printarray-17">
+</a><a name="src-printarray-18">
+</a><a name="src-printarray-19">
+</a><a name="src-printarray-20">
+</a><a name="src-printarray-21">
+</a><a name="src-printarray-22">
+</a><a name="src-printarray-23">
+</a><a name="src-printarray-24">
+</a><table class="ex">
+<tbody><tr class="ex"><td><a href="#printarray-1" class="ex">1</a></td><td class="ex"><code>public class PrintArray {</code></td></tr>
+<tr class="ex"><td><a href="#printarray-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;public static def main(argv:Rail[String]!) {</code></td></tr>
+<tr class="ex"><td><a href="#printarray-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;R : Region= 1..8;</code></td></tr>
+<tr class="ex"><td><a href="#printarray-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val D : Dist = R -&gt; here; </code></td></tr>
+<tr class="ex"><td><a href="#printarray-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val f : (Point)=&gt; Int = ((i):Point) =&gt; 10*i;</code></td></tr>
+<tr class="ex"><td><a href="#printarray-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val a : Array[Int] = Array.make[Int](D, f);</code></td></tr>
+<tr class="ex"><td><a href="#printarray-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val b : Array[Int] = Array.make[Int](D, ((i):Point) =&gt; i*i);</code></td></tr>
+<tr class="ex"><td><a href="#printarray-8" class="ex">8</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println("str(a) = " + a + " containing " + str(a));</code></td></tr>
+<tr class="ex"><td><a href="#printarray-9" class="ex">9</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println("str(b) = " + b + " containing " + str(b));</code></td></tr>
+<tr class="ex"><td><a href="#printarray-10" class="ex">10</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#printarray-11" class="ex">11</a></td><td class="ex"><code>&nbsp;&nbsp;</code></td></tr>
+<tr class="ex"><td><a href="#printarray-12" class="ex">12</a></td><td class="ex"><code>&nbsp;&nbsp;public static def str[T](a:Array[T]):String = </code></td></tr>
+<tr class="ex"><td><a href="#printarray-13" class="ex">13</a></td><td class="ex"><code>&nbsp;&nbsp;{</code></td></tr>
+<tr class="ex"><td><a href="#printarray-14" class="ex">14</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;var s : String = "";</code></td></tr>
+<tr class="ex"><td><a href="#printarray-15" class="ex">15</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;var first : Boolean = true;</code></td></tr>
+<tr class="ex"><td><a href="#printarray-16" class="ex">16</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;for(point in a) {</code></td></tr>
+<tr class="ex"><td><a href="#printarray-17" class="ex">17</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (first) first=false;</code></td></tr>
+<tr class="ex"><td><a href="#printarray-18" class="ex">18</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else s += ",";</code></td></tr>
+<tr class="ex"><td><a href="#printarray-19" class="ex">19</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s += a(point).toString(); // works 'cause toString is global</code></td></tr>
+<tr class="ex"><td><a href="#printarray-20" class="ex">20</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#printarray-21" class="ex">21</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;return s;    </code></td></tr>
+<tr class="ex"><td><a href="#printarray-22" class="ex">22</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#printarray-23" class="ex">23</a></td><td class="ex"><code>&nbsp;&nbsp;</code></td></tr>
+<tr class="ex"><td><a href="#printarray-24" class="ex">24</a></td><td class="ex"><code>}</code></td></tr>
+</tbody></table>
+
+<a name="printarray-1">
+<!--<p>  <a href="#src-printarray-1">line 1: </a><kbd class="ex">public class PrintArray {</kbd><br/></p>-->
+</a><a name="printarray-2">
+<!--<p>  <a href="#src-printarray-2">line 2: </a><kbd class="ex">  public static def main(argv:Rail[String]!) {</kbd><br/></p>-->
+</a><a name="printarray-3">
+<!--<p>  <a href="#src-printarray-3">line 3: </a><kbd class="ex">    R : Region= 1..8;</kbd><br/></p>-->
+</a><a name="printarray-4">
+<!--<p>  <a href="#src-printarray-4">line 4: </a><kbd class="ex">    val D : Dist = R -> here; </kbd><br/></p>-->
+</a><a name="printarray-5">
+<!--<p>  <a href="#src-printarray-5">line 5: </a><kbd class="ex">    val f : (Point)=> Int = ((i):Point) => 10*i;</kbd><br/></p>-->
+</a><a name="printarray-6">
+</a><p><a name="printarray-6">  </a><a href="#src-printarray-6">line 6: </a><kbd class="ex">    val a :
+    Array[Int] = Array.make[Int](D, f);</kbd><br>
+<kbd>a</kbd> holds multiples of ten.
+</p>
+<a name="printarray-7">
+</a><p><a name="printarray-7">  </a><a href="#src-printarray-7">line 7: </a><kbd class="ex">    val b :
+    Array[Int] = Array.make[Int](D, ((i):Point) =&gt; i*i);</kbd><br>
+<kbd>b</kbd> holds squares.
+</p>
+<a name="printarray-8">
+<!--<p>  <a href="#src-printarray-8">line 8: </a><kbd class="ex">    x10.io.Console.OUT.println("str(a) = " + a + " containing " + str(a));</kbd><br/></p>-->
+</a><a name="printarray-9">
+<!--<p>  <a href="#src-printarray-9">line 9: </a><kbd class="ex">    x10.io.Console.OUT.println("str(b) = " + b + " containing " + str(b));</kbd><br/></p>-->
+</a><a name="printarray-10">
+<!--<p>  <a href="#src-printarray-10">line 10: </a><kbd class="ex">  }</kbd><br/></p>-->
+</a><a name="printarray-11">
+<!--<p>  <a href="#src-printarray-11">line 11: </a><kbd class="ex">  </kbd><br/></p>-->
+</a><a name="printarray-12">
+</a><p><a name="printarray-12">  </a><a href="#src-printarray-12">line 12: </a><kbd class="ex">  public static
+    def str[T](a:Array[T]):String = </kbd><br>
+<kbd>str(a)</kbd> returns a string consisting of the elements of <kbd>a</kbd>,
+converted to strings, separated by commas.
+</p>
+<a name="printarray-13">
+<!--<p>  <a href="#src-printarray-13">line 13: </a><kbd class="ex">  {</kbd><br/></p>-->
+</a><a name="printarray-14">
+<!--<p>  <a href="#src-printarray-14">line 14: </a><kbd class="ex">    var s : String = "";</kbd><br/></p>-->
+</a><a name="printarray-15">
+</a><p><a name="printarray-15">  </a><a href="#src-printarray-15">line 15: </a><kbd class="ex">    var first :
+    Boolean = true;</kbd><br>
+The code involving <kbd>first</kbd>, here and later, is quite mundane programming to put commas
+    between consecutive elements of the result.
+</p>
+<a name="printarray-16">
+</a><p><a name="printarray-16">  </a><a href="#src-printarray-16">line 16: </a><kbd class="ex">    for(point
+    in a) {</kbd><br>
+The variable <kbd>point</kbd> ranges over the <kbd>Point</kbd>s which are
+    elements of <kbd>a.dist</kbd>.  These values are suitable subscripts
+    for <kbd>a</kbd>.   (<kbd>point</kbd> isn't a special name
+    like <kbd>this</kbd> or <kbd>here</kbd> or <kbd>self</kbd>; it could
+    equally well be called <kbd>p</kbd> or <kbd>pwynt</kbd> or whatever.)
+</p>
+<a name="printarray-17">
+<!--<p>  <a href="#src-printarray-17">line 17: </a><kbd class="ex">       if (first) first=false;</kbd><br/></p>-->
+</a><a name="printarray-18">
+<!--<p>  <a href="#src-printarray-18">line 18: </a><kbd class="ex">       else s += ",";</kbd><br/></p>-->
+</a><a name="printarray-19">
+</a><p><a name="printarray-19">  </a><a href="#src-printarray-19">line 19: </a><kbd class="ex">       s +=
+    a(point).toString(); // works 'cause toString is global</kbd><br>
+Here we use <kbd>point</kbd> as a subscript.  If <kbd>toString()</kbd>
+    weren't <kbd>global</kbd>, we'd need to do something like 
+    <kbd>at(a.dist(point)) ... a(p).nonGlobal() ...</kbd>.  In later examples
+    we'll see code that does that.
+</p>
+<a name="printarray-20">
+<!--<p>  <a href="#src-printarray-20">line 20: </a><kbd class="ex">    }</kbd><br/></p>-->
+</a><a name="printarray-21">
+<!--<p>  <a href="#src-printarray-21">line 21: </a><kbd class="ex">    return s;    </kbd><br/></p>-->
+</a><a name="printarray-22">
+<!--<p>  <a href="#src-printarray-22">line 22: </a><kbd class="ex">  }</kbd><br/></p>-->
+</a><a name="printarray-23">
+<!--<p>  <a href="#src-printarray-23">line 23: </a><kbd class="ex">  </kbd><br/></p>-->
+</a><a name="printarray-24">
+<!--<p>  <a href="#src-printarray-24">line 24: </a><kbd class="ex">}</kbd><br/></p>-->
+
+</a><a name="adding-two-arrays"></a>
+<h3>Adding Two Arrays</h3>
+
+<p>
+Now, let's add two arrays that have the same underlying distribution.  (We can
+add two arrays with different distributions over the same region, but that
+takes more communication and somewhat different code.) 
+</p>
+
+<p>
+The code for this has a lot in common with
+the <a href="#printing-example">printing example</a>. We'll construct two
+arrays over the same distribution <kbd>D</kbd>, and add them.  Note that
+our <kbd>add</kbd> method has a constraint saying that it only works on arrays
+with the same distribution, as well as a return type saying that it produces
+an array with the same distribution as the two input arrays.
+</p>
+
+<p>
+The output of this program is: 
+</p>
+
+<pre class="output">str(a) = 10,20,30,40,50,60,70,80
+str(b) = 1,4,9,16,25,36,49,64
+str(c) = 11,24,39,56,75,96,119,144
+</pre>
+<p>
+So it actually does add those two arrays.
+</p>
+
+<!--
+public class ArraySum {
+  public static def main(argv:Rail[String]!) {
+    R : Region= 1..8;
+    val D : Dist = R -> here; // or Dist.makeBlock(R);
+    val f : (Point)=> Int = ((i):Point) => 10*i;
+    val a : Array[Int]{dist==D} = Array.make[Int](D, f);
+    val b : Array[Int]{dist==D} = Array.make[Int](D, ((i):Point) => i*i);
+    x10.io.Console.OUT.println("str(a) = " + str(a));
+    x10.io.Console.OUT.println("str(b) = " + str(b));
+    val c = add(a,b);
+    x10.io.Console.OUT.println("str(c) = " + str(c));
+  }
+  
+  public static def str[T](a:Array[T]):String = 
+  {
+    var s : String = "";
+    var first : Boolean = true;
+    for(x in a) {
+       if (first) first=false;
+       else s += ",";
+       s += a(x);
+    }
+    return s;    
+  }
+  
+  public static def add(a:Array[Int], b:Array[Int])
+     {a.dist == b.dist}
+     :Array[Int]{self.dist == a.dist}
+     =
+     {
+       c : Array[Int]{dist == a.dist} 
+            = Array.make[Int](a.dist, (p:Point)=>0);
+       for(val p in a.dist) {
+         at(a.dist(p)) {
+           c(p) = a(p) + b(p);
+         }
+       }
+       return c;
+     }
+}
+
+-->
+<a name="src-arraysum1-1">
+</a><a name="src-arraysum1-2">
+</a><a name="src-arraysum1-3">
+</a><a name="src-arraysum1-4">
+</a><a name="src-arraysum1-5">
+</a><a name="src-arraysum1-6">
+</a><a name="src-arraysum1-7">
+</a><a name="src-arraysum1-8">
+</a><a name="src-arraysum1-9">
+</a><a name="src-arraysum1-10">
+</a><a name="src-arraysum1-11">
+</a><a name="src-arraysum1-12">
+</a><a name="src-arraysum1-13">
+</a><a name="src-arraysum1-14">
+</a><a name="src-arraysum1-15">
+</a><a name="src-arraysum1-16">
+</a><a name="src-arraysum1-17">
+</a><a name="src-arraysum1-18">
+</a><a name="src-arraysum1-19">
+</a><a name="src-arraysum1-20">
+</a><a name="src-arraysum1-21">
+</a><a name="src-arraysum1-22">
+</a><a name="src-arraysum1-23">
+</a><a name="src-arraysum1-24">
+</a><a name="src-arraysum1-25">
+</a><a name="src-arraysum1-26">
+</a><a name="src-arraysum1-27">
+</a><a name="src-arraysum1-28">
+</a><a name="src-arraysum1-29">
+</a><a name="src-arraysum1-30">
+</a><a name="src-arraysum1-31">
+</a><a name="src-arraysum1-32">
+</a><a name="src-arraysum1-33">
+</a><a name="src-arraysum1-34">
+</a><a name="src-arraysum1-35">
+</a><a name="src-arraysum1-36">
+</a><a name="src-arraysum1-37">
+</a><a name="src-arraysum1-38">
+</a><a name="src-arraysum1-39">
+</a><a name="src-arraysum1-40">
+</a><table class="ex">
+<tbody><tr class="ex"><td><a href="#arraysum1-1" class="ex">1</a></td><td class="ex"><code>public class ArraySum {</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;public static def main(argv:Rail[String]!) {</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;R : Region= 1..8;</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val D : Dist = R -&gt; here; // or Dist.makeBlock(R);</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val f : (Point)=&gt; Int = ((i):Point) =&gt; 10*i;</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val a : Array[Int]{dist==D} = Array.make[Int](D, f);</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val b : Array[Int]{dist==D} = Array.make[Int](D, ((i):Point) =&gt; i*i);</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-8" class="ex">8</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println("str(a) = " + str(a));</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-9" class="ex">9</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println("str(b) = " + str(b));</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-10" class="ex">10</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val c = add(a,b);</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-11" class="ex">11</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println("str(c) = " + str(c));</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-12" class="ex">12</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-13" class="ex">13</a></td><td class="ex"><code>&nbsp;&nbsp;</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-14" class="ex">14</a></td><td class="ex"><code>&nbsp;&nbsp;public static def str[T](a:Array[T]):String = </code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-15" class="ex">15</a></td><td class="ex"><code>&nbsp;&nbsp;{</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-16" class="ex">16</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;var s : String = "";</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-17" class="ex">17</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;var first : Boolean = true;</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-18" class="ex">18</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;for(x in a) {</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-19" class="ex">19</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (first) first=false;</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-20" class="ex">20</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else s += ",";</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-21" class="ex">21</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s += a(x);</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-22" class="ex">22</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-23" class="ex">23</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;return s;    </code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-24" class="ex">24</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-25" class="ex">25</a></td><td class="ex"><code>&nbsp;&nbsp;</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-26" class="ex">26</a></td><td class="ex"><code>&nbsp;&nbsp;public static def add(a:Array[Int], b:Array[Int])</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-27" class="ex">27</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{a.dist == b.dist}</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-28" class="ex">28</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:Array[Int]{self.dist == a.dist}</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-29" class="ex">29</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-30" class="ex">30</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-31" class="ex">31</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c : Array[Int]{dist == a.dist} </code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-32" class="ex">32</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= Array.make[Int](a.dist, (p:Point)=&gt;0);</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-33" class="ex">33</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(val p in a.dist) {</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-34" class="ex">34</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at(a.dist(p)) {</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-35" class="ex">35</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c(p) = a(p) + b(p);</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-36" class="ex">36</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-37" class="ex">37</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-38" class="ex">38</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return c;</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-39" class="ex">39</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#arraysum1-40" class="ex">40</a></td><td class="ex"><code>}</code></td></tr>
+</tbody></table>
+
+<a name="arraysum1-1">
+<!--<p>  <a href="#src-arraysum1-1">line 1: </a><kbd class="ex">public class ArraySum {</kbd><br/></p>-->
+</a><a name="arraysum1-2">
+<!--<p>  <a href="#src-arraysum1-2">line 2: </a><kbd class="ex">  public static def main(argv:Rail[String]!) {</kbd><br/></p>-->
+</a><a name="arraysum1-3">
+<!--<p>  <a href="#src-arraysum1-3">line 3: </a><kbd class="ex">    R : Region= 1..8;</kbd><br/></p>-->
+</a><a name="arraysum1-4">
+<!--<p>  <a href="#src-arraysum1-4">line 4: </a><kbd class="ex">    val D : Dist = R -> here; // or Dist.makeBlock(R);</kbd><br/></p>-->
+</a><a name="arraysum1-5">
+<!--<p>  <a href="#src-arraysum1-5">line 5: </a><kbd class="ex">    val f : (Point)=> Int = ((i):Point) => 10*i;</kbd><br/></p>-->
+</a><a name="arraysum1-6">
+</a><p><a name="arraysum1-6">  </a><a href="#src-arraysum1-6">line 6: </a><kbd class="ex">    val a :
+    Array[Int]{dist==D} = Array.make[Int](D, f);</kbd><br>
+Notice that we list <kbd>a</kbd>'s distribution as part of its type.  
+(We could have left the type out altogether; X10 knows
+    that <kbd>Array.make[T](D,f)</kbd> produces an array with
+    distribution <kbd>D</kbd>.  We wrote it down in this example to make it
+    clear what information X10 actually needs to do this example.)
+</p>
+<a name="arraysum1-7">
+</a><p><a name="arraysum1-7">  </a><a href="#src-arraysum1-7">line 7: </a><kbd class="ex">    val b :
+    Array[Int]{dist==D} = Array.make[Int](D, ((i):Point) =&gt; i*i);</kbd><br>
+Similarly, we tell X10 that <kbd>b</kbd> has distribution <kbd>D</kbd>.
+</p>
+<a name="arraysum1-8">
+<!--<p>  <a href="#src-arraysum1-8">line 8: </a><kbd class="ex">    x10.io.Console.OUT.println("str(a) = " + str(a));</kbd><br/></p>-->
+</a><a name="arraysum1-9">
+<!--<p>  <a href="#src-arraysum1-9">line 9: </a><kbd class="ex">    x10.io.Console.OUT.println("str(b) = " + str(b));</kbd><br/></p>-->
+</a><a name="arraysum1-10">
+</a><p><a name="arraysum1-10">  </a><a href="#src-arraysum1-10">line 10: </a><kbd class="ex">    val c =
+    add(a,b);</kbd><br>
+Now, we get to add <kbd>a</kbd> and <kbd>b</kbd>. Notice how innocuous and
+    straightforward this line looks!  In fact, there's a significant amount of
+    work going on to make sure that this method call is valid.  X10 knows from
+    previous lines that <kbd>a</kbd> and <kbd>b</kbd> both have
+    distribution <kbd>D</kbd>.  It deduces from this fact that they have
+    the <i>same</i> distribution, which is what line 27 says
+    that <kbd>add</kbd> really requires.  
+</p>
+<p>
+<b>Exercise:</b>
+See for yourself how careful X10 is being.  Remove the <kbd>{dist==D}</kbd>
+clause from <kbd>b</kbd>'s declaration, and see what happens.
+</p>
+
+<a name="arraysum1-11">
+<!--<p>  <a href="#src-arraysum1-11">line 11: </a><kbd class="ex">    x10.io.Console.OUT.println("str(c) = " + str(c));</kbd><br/></p>-->
+</a><a name="arraysum1-12">
+<!--<p>  <a href="#src-arraysum1-12">line 12: </a><kbd class="ex">  }</kbd><br/></p>-->
+</a><a name="arraysum1-13">
+<!--<p>  <a href="#src-arraysum1-13">line 13: </a><kbd class="ex">  </kbd><br/></p>-->
+</a><a name="arraysum1-14">
+<!--<p>  <a href="#src-arraysum1-14">line 14: </a><kbd class="ex">  public static def str[T](a:Array[T]):String = </kbd><br/></p>-->
+</a><a name="arraysum1-15">
+<!--<p>  <a href="#src-arraysum1-15">line 15: </a><kbd class="ex">  {</kbd><br/></p>-->
+</a><a name="arraysum1-16">
+<!--<p>  <a href="#src-arraysum1-16">line 16: </a><kbd class="ex">    var s : String = "";</kbd><br/></p>-->
+</a><a name="arraysum1-17">
+<!--<p>  <a href="#src-arraysum1-17">line 17: </a><kbd class="ex">    var first : Boolean = true;</kbd><br/></p>-->
+</a><a name="arraysum1-18">
+<!--<p>  <a href="#src-arraysum1-18">line 18: </a><kbd class="ex">    for(x in a) {</kbd><br/></p>-->
+</a><a name="arraysum1-19">
+<!--<p>  <a href="#src-arraysum1-19">line 19: </a><kbd class="ex">       if (first) first=false;</kbd><br/></p>-->
+</a><a name="arraysum1-20">
+<!--<p>  <a href="#src-arraysum1-20">line 20: </a><kbd class="ex">       else s += ",";</kbd><br/></p>-->
+</a><a name="arraysum1-21">
+<!--<p>  <a href="#src-arraysum1-21">line 21: </a><kbd class="ex">       s += a(x);</kbd><br/></p>-->
+</a><a name="arraysum1-22">
+<!--<p>  <a href="#src-arraysum1-22">line 22: </a><kbd class="ex">    }</kbd><br/></p>-->
+</a><a name="arraysum1-23">
+<!--<p>  <a href="#src-arraysum1-23">line 23: </a><kbd class="ex">    return s;    </kbd><br/></p>-->
+</a><a name="arraysum1-24">
+<!--<p>  <a href="#src-arraysum1-24">line 24: </a><kbd class="ex">  }</kbd><br/></p>-->
+</a><a name="arraysum1-25">
+<!--<p>  <a href="#src-arraysum1-25">line 25: </a><kbd class="ex">  </kbd><br/></p>-->
+</a><a name="arraysum1-26">
+</a><p><a name="arraysum1-26">  </a><a href="#src-arraysum1-26">line 26: </a><kbd class="ex">  public static
+    def add(a:Array[Int], b:Array[Int])</kbd><br>
+Here's where we start declaring <kbd>add</kbd>.  For the sake of this example,
+    we spread the declaration out over many lines.  In actual code, you'd
+    condense this.
+</p>
+<a name="arraysum1-27">
+</a><p><a name="arraysum1-27">  </a><a href="#src-arraysum1-27">line 27: </a><kbd class="ex">     {a.dist ==
+    b.dist}</kbd><br>
+This is the constraint on the <kbd>add</kbd> method: it only takes arrays with
+    the same distribution.
+</p>
+<a name="arraysum1-28">
+</a><p><a name="arraysum1-28">  </a><a href="#src-arraysum1-28">line 28: </a><kbd class="ex">
+    :Array[Int]{self.dist == a.dist}</kbd><br>
+And this is the return type: <kbd>add</kbd> returns an array with the same
+    distribution as <kbd>a</kbd>.  (Which is the same as that of <kbd>b</kbd>
+    as well, by the preceding line.)
+</p>
+<a name="arraysum1-29">
+</a><p><a name="arraysum1-29">  </a><a href="#src-arraysum1-29">line 29: </a><kbd class="ex">
+    =</kbd><br>
+When I write a method with both <a href="#arraysum1-27">preconditions</a>
+    and <a href="#arraysum-38">postconditions</a>, I like to put
+    the <kbd>=</kbd> that separates the conditions from the actual code body.
+    It makes it a bit clear which <kbd>{...}</kbd> is condition and which is code.
+</p>
+<a name="arraysum1-30">
+</a><p><a name="arraysum1-30">  </a><a href="#src-arraysum1-30">line 30: </a><kbd class="ex">
+    {</kbd><br>
+And of course, I need the <kbd>{</kbd> that starts the code body, too.
+</p>
+<a name="arraysum1-31">
+</a><p><a name="arraysum1-31">  </a><a href="#src-arraysum1-31">line 31: </a><kbd class="ex">       c :
+    Array[Int]{dist == a.dist} </kbd><br>
+We're going to return <kbd>c</kbd>.  We need to make sure that its type is
+the <a href="#arraysum1-28">return type of the function</a>. (It could be
+    even be <i>stronger</i>&ndash;we might have wanted to say more
+    about <kbd>c</kbd> than just what <kbd>add</kbd> says of its return type.
+    That would be OK.  In this case, just using <kbd>add</kbd>'s return type
+    is plenty.)
+</p>
+<a name="arraysum1-32">
+</a><p><a name="arraysum1-32">  </a><a href="#src-arraysum1-32">line 32: </a><kbd class="ex">            = Array.make[Int](a.dist, (p:Point)=&gt;0);</kbd><br>
+And create the array <kbd>c</kbd>, just as we've seen with other arrays.  Its
+  elements are initialized to zero. We'll actually overwrite those zeros
+  without using them.  (In fact, there's a one-argument version
+  of <kbd>Array.make</kbd> which initializes everything to a default value: 
+  <kbd>Array.make[Int](D)</kbd> would work fine here.)
+</p>
+<a name="arraysum1-33">
+</a><p><a name="arraysum1-33">  </a><a href="#src-arraysum1-33">line 33: </a><kbd class="ex">       for(val p
+    in a.dist) {</kbd><br>
+Iterate over the points <kbd>p</kbd> of <kbd>a</kbd>'s distribution, which, as
+    we have said often enough for both you and X10 to get the point, is the
+    same as that of <kbd>b</kbd> 
+    and <kbd>c</kbd>. 
+(We could
+equally well 
+    have used <kbd>for(val p in a)</kbd>, as we
+    did <a href="#printing-example">when we printed arrays</a>.  Use whichever form
+    suits your fancy.)
+</p>
+<a name="arraysum1-34">
+</a><p><a name="arraysum1-34">  </a><a href="#src-arraysum1-34">line 34: </a><kbd class="ex">
+    at(a.dist(p)) {</kbd><br>
+<kbd>a(p)</kbd>,  <kbd>b(p)</kbd>, and <kbd>c(p)</kbd> all live at the same
+place&ndash;and that place is given by <kbd>a.dist(p)</kbd>. So, start an
+activity at that place...
+</p>
+<a name="arraysum1-35">
+</a><p><a name="arraysum1-35">  </a><a href="#src-arraysum1-35">line 35: </a><kbd class="ex">           c(p)
+    = a(p) + b(p);</kbd><br>
+... and do the addition there. 
+</p>
+<a name="arraysum1-36">
+<!--<p>  <a href="#src-arraysum1-36">line 36: </a><kbd class="ex">         }</kbd><br/></p>-->
+</a><a name="arraysum1-37">
+<!--<p>  <a href="#src-arraysum1-37">line 37: </a><kbd class="ex">       }</kbd><br/></p>-->
+</a><a name="arraysum1-38">
+</a><p><a name="arraysum1-38">  </a><a href="#src-arraysum1-38">line 38: </a><kbd class="ex">       return
+    c;</kbd><br>
+After all the adding is done, we can return <kbd>c</kbd> as the result.
+</p>
+<a name="arraysum1-39">
+<!--<p>  <a href="#src-arraysum1-39">line 39: </a><kbd class="ex">     }</kbd><br/></p>-->
+</a><a name="arraysum1-40">
+<!--<p>  <a href="#src-arraysum1-40">line 40: </a><kbd class="ex">}</kbd><br/></p>-->
+
+</a><a name="opt-add"></a>
+<h2>Optimizing Array Sum</h2>
+
+<p>
+The <kbd>add</kbd> method of <a href="#adding-two-arrays">the last section</a>
+works fine. However, it does a lot of communication. Suppose that we've got
+four places, and <kbd>D</kbd> distributes 400,000 points evenly across those
+four places.  The <a href="#arraysum1-33"><kbd>for</kbd> loop on line 33</a>
+will run 400,000 times.  Each iteration will start
+an <a href="#arraysum1-34">activity</a>.  3/4 of those will be at different
+places.  So, the code is paying the overhead to send a message from one place
+to another and start an activity there 300,000 times.
+</p>
+
+<p>
+A more efficient way to phrase that would be to start <i>one</i> activity at
+each place. That one activity would loop over the points at its place, and do
+the addition for all of them. This cuts down the activity-starting costs from
+300,000 to 3, which might be significant.   
+</p>
+
+<p>
+Of course, the code is a bit more complicated too. Fortunately,
+X10's <kbd>Dist</kbd> class gives us just the tools we need to translate that
+English into X10 without any fuss.
+</p>
+
+<p>
+Here's the improved <kbd>add</kbd> code.  We're just modifying <kbd>add</kbd>;
+the rest of the program is the same.   This is found in <kbd>OptArraySum.x10</kbd>.
+</p>
+
+
+<!--
+  public static def add(a:Array[Int], b:Array[Int])
+     {a.dist == b.dist}
+     :Array[Int]{self.dist == a.dist}
+     =
+     {
+       c : Array[Int]{dist == a.dist} 
+            = Array.make[Int](a.dist, (p:Point)=>0);
+       val D = a.dist;
+       val places : ValRail[Place] = D.places();
+       for(place in places) {
+         at(place) {
+           val pointsAtP : Region{rank == D.rank} = D.get(place);
+           for(pt in pointsAtP) {
+              c(pt) = a(pt) + b(pt);
+           }
+         }// at(p)
+       }//for
+       return c;
+     }
+-->
+<a name="src-optadd-1">
+</a><a name="src-optadd-2">
+</a><a name="src-optadd-3">
+</a><a name="src-optadd-4">
+</a><a name="src-optadd-5">
+</a><a name="src-optadd-6">
+</a><a name="src-optadd-7">
+</a><a name="src-optadd-8">
+</a><a name="src-optadd-9">
+</a><a name="src-optadd-10">
+</a><a name="src-optadd-11">
+</a><a name="src-optadd-12">
+</a><a name="src-optadd-13">
+</a><a name="src-optadd-14">
+</a><a name="src-optadd-15">
+</a><a name="src-optadd-16">
+</a><a name="src-optadd-17">
+</a><a name="src-optadd-18">
+</a><a name="src-optadd-19">
+</a><table class="ex">
+<tbody><tr class="ex"><td><a href="#optadd-1" class="ex">1</a></td><td class="ex"><code>&nbsp;&nbsp;public static def add(a:Array[Int], b:Array[Int])</code></td></tr>
+<tr class="ex"><td><a href="#optadd-2" class="ex">2</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{a.dist == b.dist}</code></td></tr>
+<tr class="ex"><td><a href="#optadd-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:Array[Int]{self.dist == a.dist}</code></td></tr>
+<tr class="ex"><td><a href="#optadd-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=</code></td></tr>
+<tr class="ex"><td><a href="#optadd-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</code></td></tr>
+<tr class="ex"><td><a href="#optadd-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c : Array[Int]{dist == a.dist} </code></td></tr>
+<tr class="ex"><td><a href="#optadd-7" class="ex">7</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= Array.make[Int](a.dist, (p:Point)=&gt;0);</code></td></tr>
+<tr class="ex"><td><a href="#optadd-8" class="ex">8</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val D = a.dist;</code></td></tr>
+<tr class="ex"><td><a href="#optadd-9" class="ex">9</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val places : ValRail[Place] = D.places();</code></td></tr>
+<tr class="ex"><td><a href="#optadd-10" class="ex">10</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(place in places) {</code></td></tr>
+<tr class="ex"><td><a href="#optadd-11" class="ex">11</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at(place) {</code></td></tr>
+<tr class="ex"><td><a href="#optadd-12" class="ex">12</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val pointsAtP : Region{rank == D.rank} = D.get(place);</code></td></tr>
+<tr class="ex"><td><a href="#optadd-13" class="ex">13</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(pt in pointsAtP) {</code></td></tr>
+<tr class="ex"><td><a href="#optadd-14" class="ex">14</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c(pt) = a(pt) + b(pt);</code></td></tr>
+<tr class="ex"><td><a href="#optadd-15" class="ex">15</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a href="#optadd-16" class="ex">16</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}// at(p)</code></td></tr>
+<tr class="ex"><td><a href="#optadd-17" class="ex">17</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}//for</code></td></tr>
+<tr class="ex"><td><a href="#optadd-18" class="ex">18</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return c;</code></td></tr>
+<tr class="ex"><td><a href="#optadd-19" class="ex">19</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code></td></tr>
+</tbody></table>
+
+<a name="optadd-1">
+</a><p><a name="optadd-1">  </a><a href="#src-optadd-1">line 1: </a><kbd class="ex">  public static def
+    add(a:Array[Int], b:Array[Int])</kbd><br>
+The interface of <kbd>add</kbd> is just the same as 
+<a href="#adding-two-arrays">before</a>.
+</p>
+<a name="optadd-2">
+<!--<p>  <a href="#src-optadd-2">line 2: </a><kbd class="ex">     {a.dist == b.dist}</kbd><br/></p>-->
+</a><a name="optadd-3">
+<!--<p>  <a href="#src-optadd-3">line 3: </a><kbd class="ex">     :Array[Int]{self.dist == a.dist}</kbd><br/></p>-->
+</a><a name="optadd-4">
+<!--<p>  <a href="#src-optadd-4">line 4: </a><kbd class="ex">     =</kbd><br/></p>-->
+</a><a name="optadd-5">
+<!--<p>  <a href="#src-optadd-5">line 5: </a><kbd class="ex">     {</kbd><br/></p>-->
+</a><a name="optadd-6">
+<!--<p>  <a href="#src-optadd-6">line 6: </a><kbd class="ex">       c : Array[Int]{dist == a.dist} </kbd><br/></p>-->
+</a><a name="optadd-7">
+<!--<p>  <a href="#src-optadd-7">line 7: </a><kbd class="ex">            = Array.make[Int](a.dist, (p:Point)=>0);</kbd><br/></p>-->
+</a><a name="optadd-8">
+</a><p><a name="optadd-8">  </a><a href="#src-optadd-8">line 8: </a><kbd class="ex">       val D =
+    a.dist;</kbd><br>
+We don't actually <i>need</i> to give <kbd>a.dist</kbd> a name; we could
+    perfectly well use <kbd>a.dist</kbd> below, instead of <kbd>D</kbd>.
+    Giving it a name can make code easier to read.
+</p>
+<a name="optadd-9">
+</a><p><a name="optadd-9">  </a><a href="#src-optadd-9">line 9: </a><kbd class="ex">       val places :
+    ValRail[Place] = D.places();</kbd><br>
+One of the useful library methods on distributions is <kbd>places()</kbd>,
+    which returns a <kbd>ValRail[Place]</kbd> containing all the 
+places that the distribution actually uses.  
+There's no good reason to start off computations at places that <kbd>a</kbd>
+    and <kbd>b</kbd> <i>don't</i> have elements.
+</p>
+<a name="optadd-10">
+</a><p><a name="optadd-10">  </a><a href="#src-optadd-10">line 10: </a><kbd class="ex">       for(place in
+    places) {</kbd><br>
+Loop over the relevant places, and ...
+</p>
+<a name="optadd-11">
+</a><p><a name="optadd-11">  </a><a href="#src-optadd-11">line 11: </a><kbd class="ex">         at(place)
+    {</kbd><br>
+...start one activity at each of them which will do the additions that belong at
+    that place.
+</p>
+<a name="optadd-12">
+</a><p><a name="optadd-12">  </a><a href="#src-optadd-12">line 12: </a><kbd class="ex">           val
+    pointsAtP : Region{rank == D.rank} = D.get(place);</kbd><br>
+So, what <i>are</i> the additions that belong at <kbd>place</kbd>?  
+<kbd>Dist</kbd> has another method <kbd>D.get(place)</kbd> which returns
+a <kbd>Region</kbd> with precisely the points of <kbd>D</kbd> living
+at <kbd>place</kbd>. 
+</p>
+<p>
+That constraint <kbd>{rank == D.rank}</kbd> is required to prove to the
+typechecker that we know what we're doing.  Subscripting <kbd>a(p)</kbd>
+doesn't work for just any old point&ndash;it only works for points that have the
+right number of coordinates, so that we don't try to subscript our
+one-dimensional array with [1,2,3,4,5]. 
+</p>
+<a name="optadd-13">
+</a><p><a name="optadd-13">  </a><a href="#src-optadd-13">line 13: </a><kbd class="ex">           for(pt
+    in pointsAtP) {</kbd><br>
+Here's where we loop over the points that belong at <kbd>place</kbd>.
+</p>
+<a name="optadd-14">
+</a><p><a name="optadd-14">  </a><a href="#src-optadd-14">line 14: </a><kbd class="ex">              c(pt)
+    = a(pt) + b(pt);</kbd><br>
+And, finally, we can do the addition.
+</p>
+<a name="optadd-15">
+<!--<p>  <a href="#src-optadd-15">line 15: </a><kbd class="ex">           }</kbd><br/></p>-->
+</a><a name="optadd-16">
+<!--<p>  <a href="#src-optadd-16">line 16: </a><kbd class="ex">         }// at(p)</kbd><br/></p>-->
+</a><a name="optadd-17">
+<!--<p>  <a href="#src-optadd-17">line 17: </a><kbd class="ex">       }//for</kbd><br/></p>-->
+</a><a name="optadd-18">
+<!--<p>  <a href="#src-optadd-18">line 18: </a><kbd class="ex">       return c;</kbd><br/></p>-->
+</a><a name="optadd-19">
+<!--<p>  <a href="#src-optadd-19">line 19: </a><kbd class="ex">     }</kbd><br/></p>-->
+
+</a><h2><a name="optadd-19">Exercises</a></h2>
+
+<p>
+<a name="optadd-19">Back </a><a href="#pseudocode-parallel-sum">at the beginning of this section</a>
+we gave pseudocode for an efficient parallelized <kbd>sum()</kbd> method to
+add up all the elements of an array.  Write it.  <b>Hint:</b> It's a lot
+like <a href="#opt-add">the optimized version of</a> <kbd>add</kbd>.   
+</p>
+
+
+</body>
+
+</html>

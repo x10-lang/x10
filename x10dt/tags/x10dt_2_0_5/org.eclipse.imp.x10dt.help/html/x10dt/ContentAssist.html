@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style/help.css">
+<title>Content Assist in X10DT</title>
+</head>
+
+<body>
+<a href="contents.html">Back to Table of Contents</a>
+
+<h1>Content assist in X10DT</h1>
+<p>Content Assist includes several features that can reduce the number of keystrokes 
+you must type to create your code. 
+It makes predictions about what can be typed next,  
+based on the current context, scope, and prefix.
+
+
+<ul>
+<li><a href="#functionality">Functionality</a></li>
+<li><a href="#templates">Code Templates</a></li>
+</ul>
+<h2 id="functionality">Functionality</h2>
+
+In the X10 editor, control-space will activate the content assist feature, which
+provides code templates. These templates suggest X10 constructs that
+may be used in various contexts.
+
+Content assist also provides limited support for code completion: displaying the members
+of a type and identifier completion.
+
+Currently the content assist feature works <b>only in the absence of compilation errors</b>.
+The code completion aspect will become more useful once this restriction is lifted (future work).
+
+Note that template proposals are non-exhaustive. 
+
+
+<h2 id="templates">Code Templates</h2>
+
+There are 2 contexts in which code templates can be activated: a class body and a method body.
+More contexts will be added in the future. The following snapshots show examples of both.
+In addition, this feature proposes qualifiers for field and method declarations.
+
+Template proposals are filtered according to prefix. For example, if the user types control-space
+followed by "a", only templates whose name start with "a" will be shown.
+<p>
+<img src="images/ContentAssist1.png">
+<img src="images/ContentAssist2.png">
+<img src="images/ContentAssist3.png">
+</p>
+
+<p>&nbsp;
+<p>&nbsp;
+<p><a href="contents.html">Back to Developing/Editing your X10 project</a></p>
+<p>&nbsp;
+<p><a href="contents.html">Back to X10DT Table of Contents</a></p>
+</body>
+</html>

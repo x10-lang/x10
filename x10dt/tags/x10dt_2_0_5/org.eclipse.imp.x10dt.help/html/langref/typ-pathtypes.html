@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Path types and path type constructors</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Path types and path type constructors</h2>
+
+<div class="p"><!----></div>
+Instance member type definitions declare <em>path types</em>.
+
+If the type definition is parametrized, the definition specifies
+a type constructor; instantiating the parameters yields a type.
+A path type (constructor)
+is of the form "p.X", and consists of a final access path
+"p", and a type
+member
+
+"X".
+The final access path "p" must be either "this", "self", a final
+local variable, or a final field or value property whose target
+is itself a final access path.  The path must type-check 
+as a normal expression in the scope in which it appears.
+The type member
+
+or property
+
+"X" must be an instance member of the type of the
+path "p".
+
+<div class="p"><!----></div>
+The name resolution rules for "X" are identical to the name
+resolution rules for fields and local variables.
+If an identifier "X" resolves to a type member or property
+of an enclosing class or interface "T", then "X" is equivalent to
+the path type "T.this.X".
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Final access paths</h3>
+<a name="FinalAccessPath">
+</a>
+
+
+<div class="p"><!----></div>
+        To ensure soundness of the type system, the expression "e"
+	used in a path type "e.X" must be a <em>final access
+	path</em>, either a final local variable or formal parameter
+	(including the special variables "this" and "self"),
+	or a final field or value property of a final access path.
+
+
+<div class="p"><!----></div>
+</body>
+</html>
