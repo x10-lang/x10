@@ -183,12 +183,15 @@
 
 <topic label="Developing/editing your X10 source code" href="html/x10dt/03develop.html">
 <topic label="Content Assist" href="html/x10dt/ContentAssist.html"/>
+<topic label="Refactoring" href="html/x10dt/refactoring.html"/>
 </topic>
 
 <topic label="Running X10 programs (java back-end)" href="html/x10dt/04runJavaBackend.html"></topic>
 <topic label="Running X10 programs (C++ backend)" href="html/x10dt/04runCppBackend.html"></topic>
 <topic label="X10 Preferences" href="html/x10dt/prefs.html"/>
-<topic label="Refactoring" href="html/x10dt/refactoring.html"/>
+
 <topic label="What&apos;s New 2.0.5" href="html/x10dt/whatsNew/whatsNew-2_0_5.html"/>
 </topic> 
+<!--  PLEASE NOTE if you make a change/addition here, please also change contents.html 
+      which is needed for our online versions of the docs.-->
 </toc>
