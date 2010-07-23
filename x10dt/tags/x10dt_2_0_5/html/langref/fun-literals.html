@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Function literals</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Function Literals</h2>
+
+<a name="FunctionLiteral">
+</a>
+
+<div class="p"><!----></div>
+X10 provides first-class, typed functions, including
+<em>closures</em>, <em>operator functions</em>, and <em>method
+  selectors</em>.
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">ClosureExpression ::=
+        <b>(</b>
+        Formals<sup>?</sup>&nbsp;
+<b>)</b>
+</td></tr>
+<tr><td align="right">&amp;&amp;
+        Guard<sup>?</sup>&nbsp;
+ReturnType<sup>?</sup>&nbsp;
+Throws<sup>?</sup>&nbsp;
+<b>=&#62;</b> ClosureBody </td></tr>
+<tr><td align="right">ClosureBody ::=
+        Expression </td></tr>
+<tr><td align="right">&#124; <b> Statement<sup>*</sup>&nbsp;<b></b></b> </td></tr>
+<tr><td align="right">&#124; <b> Statement<sup>*</sup>&nbsp;Expression <b></b></b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+Functions have zero or more formal parameters, an optional return type
+and optional set of exceptions throws by the body.  The body has the
+same syntax as a method body; it may be either an expression, a block
+of statements, or a block terminated by an expression to return. In
+particular, a value may be returned from the body of the function
+using a return statement (&#167;). 
+
+<div class="p"><!----></div>
+The type of a
+function is a function type (&#167;).  In some cases the
+return type <b>T</b> is also optional and defaults to the type of the
+body. If a formal <b>xi</b> does not occur in any
+<b>Tj</b>, {c}, <b>T</b> or {e}, the declaration <b>xi:Ti</b> may
+be replaced by just <b>Ti</b>: <b>(Int)=&#62;7</b> is the integer function returning
+7 for all inputs.
+
+<div class="p"><!----></div>
+<a name="ClosureGuard">
+</a>As with methods, a function may declare a guard to
+constrain the actual parameters with which it may be invoked.
+The guard may refer to the type parameters, formal parameters,
+and any <b>val</b>s in scope at the function expression.
+
+<div class="p"><!----></div>
+The body of the function is evaluated when the function is
+invoked by a call expression (&#167;), not at the function's
+place in the program text.
+
+<div class="p"><!----></div>
+As with methods, a function with return type <b>Void</b> cannot
+have a terminating expression. 
+If the return type is omitted, it is inferred, as described in
+&#167;.
+It is a static error if the return type cannot be inferred.  ,
+<b>(Int)=&#62;null</b> is not well-defined; X10 does not know which type of
+<b>null</b> is intended.  
+But <b>(Int):Rail[Double] =&#62; null</b> is legal.
+
+<div class="p"><!----></div>
+The following method takes a function parameter and uses it to
+test each element of the list, returning the first matching
+element.  It returns <b>otherwise</b> if no element matches.
+
+<div class="p"><!----></div>
+<pre>
+
+<div class="p"><!----></div>
+def find[T](f: (T) =&#62; Boolean, xs: List[T], absent:T): T = {
+  for (x: T in xs)
+    if (f(x)) return x;
+  absent
+  }
+</pre>
+
+<div class="p"><!----></div>
+The method may be invoked thus:
+<pre>
+xs: List[Int] = new ArrayList[Int]();
+x: Int = find((x: Int) =&#62; x&#62;0, xs, 0);
+</pre>
+
+<div class="p"><!----></div>
+As with a normal method, the function may have a <b>throws</b>
+clause. It is a static error if the body of the function throws a
+checked exception that is not declared in the function's <b>throws</b>
+clause.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Outer variable access</h3>
+
+<div class="p"><!----></div>
+In a function
+"(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} =&#62; { s }"
+the types , the guard <b>c</b> and the body <b>s</b>
+may access many, though not all, sorts of variables from outer scopes.  
+Specifically, they can access: 
+
+<ul>
+<li> All fields of the enclosing object and class;
+<div class="p"><!----></div>
+</li>
+
+<li> All type parameters;
+<div class="p"><!----></div>
+</li>
+
+<li> All <b>val</b> variables;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>var</b> variables with the <b>shared</b> annotation.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+<em><em>Limitation</em> <b>shared</b> is not currently supported.</em>
+
+<div class="p"><!----></div>
+The function body may refer to instances of enclosing classes using
+the syntax <b>C.this</b>, where <b>C</b> is the name of the
+enclosing class.  <b>this</b> refers to the instance of the immediately
+enclosing class, as usual.
+
+<div class="p"><!----></div>
+For example, the following is legal.  However, it would not be legal to add
+<b>e</b> or <b>h</b> to the sum; they are non-<b>shared</b> <b>var</b>s from the
+surrounding scope.
+
+<div class="p"><!----></div>
+<pre>
+class Lambda {
+   var a : Int = 0;
+   val b = 0;
+   def m(var c : Int, shared var d : Int,  val e : Int) {
+      var f : Int = 0;
+      shared var g : Int = 0;
+      val h : Int = 0;
+      val closure = (var i: Int, val j: Int) =&#62; {
+    	  return a + b + d + g + i + j + this.a + Lambda.this.a;
+      };
+      return closure;
+   }
+}
+</pre>
+
+<div class="p"><!----></div>
+<b>Rationale:</b> Non-<b>shared</b> <b>var</b>s like <b>e</b> and <b>h</b> are
+excluded in X10, as in many other languages, for practical implementation
+reasons. They are allocated on the stack, which is desirable for efficiency.
+However, the closure may exist for long after the stack frame containing
+<b>e</b> and <b>h</b> has been freed, so those storage locations are no longer
+valid for those variables. <b>shared var</b>s are heap-allocated, which is less
+efficient but allows them to exist after <b>m</b> returns. 
+
+<div class="p"><!----></div>
+<b>shared</b> does not guarantee <b>atomic</b> access to the shared variable. As
+with any code that might mutate shared data concurrently, be sure to protect
+references to mutable shared state with <b>atomic</b>. For example, the
+following code returns a pair of closures which operate on the same shared
+variable <b>a</b>, which are concurrency-safe-even if invoked many times
+simultaneously. Without <b>atomic</b>, it would no longer be concurrency-safe.
+
+<div class="p"><!----></div>
+<pre>
+  def counters() {
+      shared var a : Int = 0;
+       return [
+          () =&#62; {atomic a ++;},
+          () =&#62; {atomic return a;}
+          ];
+   }
+</pre>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

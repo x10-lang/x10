@@ -1,0 +1,221 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Finish</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Finish</h2><a name="finish">
+</a>
+The statement <b>finish S</b> converts global termination to local
+termination and introduces a root activity.   It executes <b>S</b>, and then
+waits for all activities spawned by <b>S</b>, directly or indirectly, to
+finish. It also collects exceptions thrown by those activities.
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">Statement ::= FinishStatement </td></tr>
+<tr><td align="right">FinishStatement ::= <b>finish</b> Statement 
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+An activity A executes <b>finish S</b> by executing <b>S</b>.  The
+execution of <b>S</b> may spawn other asynchronous activities (here or
+at other places).  Uncaught exceptions thrown or propagated by any
+activity spawned by <b>S</b> are accumulated at <b>finish S</b>.
+<b>finish S</b> terminates locally when all activities spawned by
+<b>S</b> terminate globally (either abruptly or normally). If <b>S</b>
+terminates normally, then <b>finish S</b> terminates normally and A
+continues execution with the next statement after <b>finish S</b>.  If
+<b>S</b> terminates abruptly, then <b>finish S</b> terminates abruptly
+and throws a single exception, <b>x10.lang.MultipleExceptions</b>
+formed from the collection of exceptions accumulated at <b>finish S</b>.
+
+<div class="p"><!----></div>
+Thus a <b>finish S</b> statement serves as a collection point for
+uncaught exceptions generated during the execution of <b>S</b>.
+
+<div class="p"><!----></div>
+Note that repeatedly <b>finish</b>ing a statement has little effect after
+the first <b>finish</b>: <b>finish finish S</b> is indistinguishable
+from <b>finish S</b> if <b>S</b> throws no exceptions.  (If <b>S</b> throws
+exceptions, <b>finish S</b> wraps them in one layer of 
+<b>MultipleExceptions</b> and <b>finish finish S</b> in two layers.)
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Collecting  <b>finish</b></h3><a name="collecting-finish">
+</a>
+
+
+<div class="p"><!----></div>
+An extended version of <b>finish</b>, called <b>collecting finish</b>, can
+accumulate results from the various activities inside of it. These activities
+can <b>offer</b> values for the finish to accumulate.  The collecting finish
+uses a <b>reduction</b> object to combine them into a single result, which is
+the value of the collecting finish expression.   
+
+<div class="p"><!----></div>
+The following example illustrates the use of collecting finish to compute
+statistical sums (n, x, and x<sup>2</sup>, for use in calculating mean and
+standard deviation<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>)  
+
+<div class="p"><!----></div>
+An <b>Accum</b> value represents a set of partial sums: 
+<tt>Accum</tt><tt>(</tt>n <tt>,</tt> &#8721;x <tt>,</tt> &#8721;x<sup>2</sup> <tt>)</tt>.
+For example, <b>Accum(0,0,0)</b> is a sum of no
+data points; <b>Accum(1,4,16)</b> is a sum of one data point of value 4, and
+<b>Accum(2,8,25)</b> is a sum of of the data points 3 and 4.  
+
+<div class="p"><!----></div>
+The <b>StatReducer()</b> struct describes the algebra of <b>Accum</b> values.
+There is a <b>zero</b> element, the sum of no values, <b>Accum(0,0,0)</b>.  To
+add two accumulations, add the components.  
+
+<div class="p"><!----></div>
+The collecting finish itself appears in the <b>accumulate(data)</b> method.
+<b>finish(StatReducer())S</b> evaluates the block <b>S</b>, which will execute
+zero or more <b>offer E</b> statements - in this case, the values being
+offered are the accumulations due to single data values.  After the body
+<b>S</b> is finished, the offered values are combined using the
+<b>StatReducer()</b> to give a single <b>Accum</b> value, which is the value of
+the <b>finish</b> block.  Note that this would work just as well if the values
+were offered in parallel.
+
+<div class="p"><!----></div>
+<pre>
+class MRex {
+
+<div class="p"><!----></div>
+  static struct Accum(n:Int, sum:Int, sumSq:Int) {
+     def this(n:Int, sum:Int, sumSq:Int){property(n,sum,sumSq);}
+  }
+  static struct StatReducer implements Reducible[Accum] {
+    public global safe def zero() = Accum(0,0,0);
+    public global safe def apply(a:Accum, b:Accum) 
+      = Accum(a.n+b.n, a.sum+b.sum, a.sumSq+b.sumSq);
+  }
+
+<div class="p"><!----></div>
+  static def accumulate(data: ValRail[Int]):Accum {
+    val v = finish(StatReducer()) {
+       for (x in data)  offer Accum(1, x, x*x);
+    };
+    return v;
+  }
+
+<div class="p"><!----></div>
+  public static def main(Rail[String]!) {
+    val data = [5, 6, 8, 4, 7, 4, 2, 3, 6, 6, 3, 5, 4, 5, 6, 5, 4, 5];
+    val a : Accum = accumulate(data);
+    val mean = (a.sum as Double) / a.n;
+    val variance = ((a.sumSq as Double) / a.n) - mean*mean;
+    val sdev = Math.sqrt(variance);
+    x10.io.Console.OUT.println("mean= " + mean + "; sdev = " + sdev);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Semantics of Collecting Finish</h3>
+
+<div class="p"><!----></div>
+When X10 evaluates <b>finish(E)S</b>, it evaluates the reducible <b>E</b> to a
+value &#1013;. The body <b>S</b> is evaluated, and the values &#969;
+it offers are collected into a multiset &#8486;.  Let
+&#950; = &#1013;.\TTzero() and &#945;&#8727;&#946; = &#1013;.\TTapply(&#945;,&#946;).  
+
+<div class="p"><!----></div>
+Then, &#8486; is reduced to a singleton by nondeterministically applying
+the following operations, until &#8486; is a singleton multiset (, a
+multiset containing one element, and that element having membership 1). 
+
+<ul>
+<li> &#8486;\TT:= &#8486;&#8746;{ &#950;} .  A <b>zero</b> may be
+      inserted into &#8486;.  This is required to get a single value out if
+      &#8486; was initially empty; but zeros may be added even if
+      &#8486; is not empty.
+<div class="p"><!----></div>
+</li>
+
+<li> If &#945; &#8712; &#8486; and &#946; &#8712; &#8486;&#8722; {&#945;}, then
+      &#8486;\TT:= (&#8486;&#8722; {&#945;,&#946;}) &#8746;{&#945;&#8727;&#946;} . Two elements of &#8486; may be combined into a single element.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+The value of <b>finish(E)S</b> is the single element of &#8486; after this
+terminates.  
+
+<div class="p"><!----></div>
+In general, the value of <b>finish(E)S</b> is not fully determined by this
+procedure; different orders of evaluation of the steps may, in general, give
+different results.  (, consider reducing a set of strings by concatenation: 
+{ <b>&#228;"</b>, <b>"b"</b> } can reduce to <b>&#228;b"</b> or <b>"ba"</b>.)  
+
+<div class="p"><!----></div>
+However, a simple semantic discipline will ensure that the value of
+<b>finish(E)S</b> is deterministic.   If the value &#1013; of <b>E</b> has
+the properties that: 
+
+<ul>
+<li> &#950;&#8727;&#945; =  &#945; for all &#945;;
+<div class="p"><!----></div>
+</li>
+
+<li> &#945;&#8727;&#946; =  &#946;&#8727;&#945; for all &#945;, &#946;;
+<div class="p"><!----></div>
+</li>
+
+<li> &#945;&#8727;(&#946;&#8727;&#947;) = (&#945;&#8727;&#946;) &#8727;&#947;  for all &#945;, &#946;, &#947;;
+<div class="p"><!----></div>
+</li>
+</ul>
+(The algebraically-inclined will recognize these as the zero, commutative, and
+associative laws, giving the structure of a commutative monoid.) 
+In this case, if &#8486; =  { &#945;<sub>1</sub>, &#8230;, &#945;<sub>n</sub> }, where n  &#8805; 0, then the value
+of the collecting finish is independent of the order of the elements, and
+equal to: 
+
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+&#950;&#8727;&#945;<sub>1</sub> &#8727;&#8230;&#8727;&#945;<sub>n</sub></td></tr></table>
+</td></tr></table>
+
+
+
+<div class="p"><!----></div>
+For example, using <b>Int</b>s with zero and addition will add up the offered
+values, and with one and multiplication will multiply them.  The <b>Accum</b>
+and <b>StatReducer</b> types of the preceding example also guarantee
+determinacy, and show how to accumulate several values at once.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Exceptions in Collecting Finish</h3>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

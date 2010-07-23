@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>at: Place changeing</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;<b>at</b>: Place changing</h2><a name="AtStatement">
+</a>
+
+<div class="p"><!----></div>
+An activity may change place using the <b>at</b> statement or
+<b>at</b> expression:
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">Statement ::= AtStatement </td></tr>
+<tr><td align="right">AtStatement ::= <b>at</b> PlaceExpressionSingleList Statement </td></tr>
+<tr><td align="right">Expression ::= AtExpression </td></tr>
+<tr><td align="right">AtExpression ::= <b>at</b> PlaceExpressionSingleList ClosureBody 
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The statement <b>at (p) S</b> executes the statement <b>S</b>
+synchronously at a place described by <b>p</b>.
+The expression <b>at (p) E</b> executes the statement <b>E</b>
+synchronously at place <b>p</b>, returning the result to the
+originating place.  
+
+<div class="p"><!----></div>
+, if <b>obj</b> is an object with a non-<b>global</b>
+method <b>meth()</b>, the general way to call the method from anywhere is 
+<pre>
+at(x.home) x.meth();
+</pre>
+ 
+Or, if you want to capture the result of the method call, use the
+<b>at</b>-expression:  
+<pre>
+val res = at(x.home)x.meth();
+</pre>
+
+<div class="p"><!----></div>
+<b>p</b> may be an expression of type <b>Place</b>, in which case its value is
+used as the place to execute the body: 
+<pre>
+   at (here.next()) S();
+   at (ob.home) S();
+</pre>
+
+Or, <b>p</b> may be an object, in which case the body is executed at
+<b>p.home</b>: 
+<pre>
+   at (ob) S();
+   // Same as at(ob.home) S();
+</pre>
+Structs and functions are global values, without home places, so they cannot
+be used as the place expression for <b>at</b>.  
+
+<div class="p"><!----></div>
+<b>at(p)S</b> does <em>not</em> start a new activity.  It should be thought of as
+transporting the current activity to <b>p</b>, running <b>S</b> there, and then
+transporting it back.    If you want to start a new activity, use <b>async</b>;
+if you want to start a new activity at <b>p</b>, use 
+<b>at(p) async S</b>.  
+
+<div class="p"><!----></div>
+As a consequence of this, <b>S</b> may contain constructs which only make sense
+within a single activity.  For example, 
+<pre>
+  for(x in things) 
+    if (at(x.home) x.nice()) 
+        return x;
+</pre>
+returns the first nice thing in a collection.   If we had used 
+<b>async at(x.home)</b>, this would not be allowed; 
+you can't <b>return</b> from an
+<b>async</b>. 
+
+<div class="p"><!----></div>
+
+</body>
+</html>
