@@ -330,7 +330,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
     public void initCompiler(Compiler compiler) {
 	super.initCompiler(compiler);
-	QueryEngine.init(this);
+	//QueryEngine.init(this);
     }
 
     // =================================
