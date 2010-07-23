@@ -158,6 +158,17 @@ implements X10ParsedClassType
     }
     protected SemanticException realClauseInvalid;
 	
+    private SemanticException error;
+
+    public SemanticException error() {
+        return error;
+    }
+
+    public X10ParsedClassType error(SemanticException e) {
+        X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
+        n.error = e;
+        return n;
+    }
     public X10ClassDef x10Def() {
         return (X10ClassDef) def();
     }
