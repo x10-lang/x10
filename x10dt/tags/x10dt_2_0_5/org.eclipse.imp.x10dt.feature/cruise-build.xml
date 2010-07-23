@@ -1,0 +1,15 @@
+<project name="org.eclipse.safari.x10dt.feature" default="all">
+    <target name="all" depends="build, test, publish"/>
+
+    <target name="build">
+      <cvs command="update -d -P -A"/>
+      <ant antfile="exportFeature.xml" target="build.feature.jar"/>
+    </target>
+
+    <target name="test">
+    </target>
+
+    <target name="publish" depends="build">
+        <ant antfile="exportFeature.xml" target="publish"/>
+    </target>
+</project>
