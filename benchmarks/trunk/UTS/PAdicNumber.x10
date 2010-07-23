@@ -13,7 +13,7 @@ public class PAdicNumber(P:Int, K:Int) {
 	public def this(p:Int, k:Int, x:Int):PAdicNumber{self.P==p, self.K==k} {
 		property(p,k);
 		digits = ValRail.make
-	     (k, (i:Int) => { val wi = pow(i); (x % (p*wi))/wi});
+	     (k, (i:Int) => { val wi = pow(p,i); (x % (p*wi))/wi});
 	}
 	def this (p:Int, k:Int, ds:ValRail[Int]/*(k)*/) {
 		property(p, k);

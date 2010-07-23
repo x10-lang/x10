@@ -44,7 +44,7 @@ public class Output {
     * @param builderIn the Builder used to construct the traceback sequences
     * @return the string corresponding to the bytes in the reversed input ValRail 
     */
-   private global def cleanup(builderIn: ValRailBuilder[Byte]!) {
+   private static def cleanup(builderIn: ValRailBuilder[Byte]!) {
       val source = builderIn.result();
       val builderOut = new StringBuilder();
       for(var i: Int = source.length-1; i>=0; i--) builderOut.add(source(i) as Char);

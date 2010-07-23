@@ -236,7 +236,7 @@ public class Scorer {
     * @param b the second score
     * @param c the third score
     */
-   private def maxOrZero(a: Int, b: Int, c: Int) {
+   private static def maxOrZero(a: Int, b: Int, c: Int) {
       if (a > b) {
          if (a > c)   return a > 0 ? a : 0;
          else         return c > 0 ? c : 0;
