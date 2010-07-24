@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.x10dt.core.utils.JavaModelFileResource;
+import org.eclipse.imp.x10dt.core.builder.StreamSource;
 import org.eclipse.imp.x10dt.ui.Messages;
 import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.imp.x10dt.ui.parser.ExtensionInfo;
@@ -41,7 +41,6 @@ import org.eclipse.osgi.util.NLS;
 
 import polyglot.ast.Node;
 import polyglot.frontend.Compiler;
-import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Source;
 import polyglot.types.ClassType;
@@ -205,7 +204,7 @@ public final class X10Utils {
         final IFile file = (IFile) resource;
         if (X10_EXT.equalsIgnoreCase(file.getFileExtension())) {
           try {
-            this.fX10Files.add(new FileSource(new JavaModelFileResource(file)));
+            this.fX10Files.add(new StreamSource(file.getContents(), file.getLocation().toOSString()));
           } catch (IOException except) {
             throw new CoreException(new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, 
                                                NLS.bind(Messages.XU_X10FileReadingError, file.getLocation().toString()), 
