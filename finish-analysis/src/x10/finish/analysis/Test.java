@@ -2,6 +2,8 @@ package x10.finish.analysis;
 
 import java.io.*;
 
+import x10.finish.util.HprofParser;
+
 public class Test {
 
 	public static void main(String[] args) throws Exception {
@@ -39,9 +41,10 @@ public class Test {
 			 ************************************/
 		
 		//compile(file, package, entrymethod, methodsig)
-	    	x10fa.compile(f, "","run","()Lx10/lang/Boolean;");  
+	    	//x10fa.compile(f, "","run","()Lx10/lang/Boolean;");  
 		//x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
-
+	    HprofParser p = new HprofParser("/"+user+"/blshao/java.hprof.txt");
+	    p.parse();
 
 	}
 }
