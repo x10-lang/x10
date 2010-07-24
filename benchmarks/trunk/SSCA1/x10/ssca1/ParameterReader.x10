@@ -63,21 +63,22 @@ public struct ParameterReader {
      * Use the default buffer size to read in the parameter file named by the argument.
      * @param path should specify an ASCII file of the format described in the initial comment
      */
-   public def this(path: String, commentStart_: Char) {
+   public def this(path: String, commentStartChar_: Char) {
       var status: String;
       val keys_ = new ValRailBuilder[String]();
       val values_ = new ValRailBuilder[String]();
-      commentStart = commentStart_.ord();
+      val commentStart_ = commentStartChar_.ord();
       try {
          val relative = new File(path);
          val absolute = relative.getAbsoluteFile();
          val reader = absolute.openRead();
-         for(status = readAParameter(reader, keys_, values_); 
-             status.equals(""); 
-             status=readAParameter(reader, keys_, values_)) {
+         for(status = readAParameter(reader, keys_, values_, commentStart_); 
+             status.equals("");
+             status=readAParameter(reader, keys_, values_, commentStart_)) {
           }
           reader.close();
       } catch(e: IOException) { status = e.getMessage(); }
+      commentStart = commentStart_;
       keys   = keys_.result();
       values = values_.result();
       errors = status.equals("EOF") ? "" : status;
@@ -150,7 +151,7 @@ public struct ParameterReader {
    /**
     * remove both leading and trailing white space
     */
-   private def trim(s: String) {
+   private static def trim(s: String) {
       var start: Int = 0;
       val size = s.length();
       while(start < size && s(start).ord()<=0x20) start += 1;
@@ -169,7 +170,7 @@ public struct ParameterReader {
     * @throws EOFException when attempting to read beyond the end of the file.
     * @throws IOException more generally if the reader fails.
     */
-   private def readNonEmptyLine(reader: FileReader!): String throws IOException {
+   private static def readNonEmptyLine(reader: FileReader!, commentStart: Int): String throws IOException {
       val builder = new StringBuilder();
       // skip leading white space
       //Console.ERR.println("available? "+reader.available()); // !BUG
@@ -188,7 +189,7 @@ public struct ParameterReader {
          if (DEBUG) Console.ERR.println("answer: '"+answer+"', length="+answer.length());
          if (answer.length() > 0) return answer;
          else if (DEBUG) Console.ERR.println("Try again");
-         // else if (reader.available() > 0)  return readNonEmptyLine(reader);
+         // else if (reader.available() > 0)  return readNonEmptyLine(reader, commentStart);
          // else {  return ""; }
       }
    }
@@ -204,7 +205,7 @@ public struct ParameterReader {
     * @return the empty string normally, an error message otherwise
     * @throws IOException if a read attempt fails for any reason other than EOF
     */
-   private def readString(reader: FileReader!, values_:ValRailBuilder[String]!, initialSegment: String) {
+   private static def readString(reader: FileReader!, values_:ValRailBuilder[String]!, initialSegment: String, commentStart: Int) {
       var endString: Int = initialSegment.indexOf("'");
       if (endString >= 0) {
          values_.add(initialSegment.substring(0, endString));
@@ -213,7 +214,7 @@ public struct ParameterReader {
       val buffer = new StringBuilder();
       buffer.add(initialSegment);
       try {
-         var line: String = readNonEmptyLine(reader);
+         var line: String = readNonEmptyLine(reader, commentStart);
          line = trim(line);
          while(true) {
             endString = line.indexOf("'");
@@ -236,10 +237,10 @@ public struct ParameterReader {
      * @return the empty string normally, an error message otherwise
      * @throws IOException if a read attempt fails for any reason other than EOF
      */
-   private def readDecimal(reader: FileReader!, values_:ValRailBuilder[String]!, initialSegment: String) {
+   private static def readDecimal(reader: FileReader!, values_:ValRailBuilder[String]!, initialSegment: String, commentStart: Int) {
       var line: String = initialSegment;
       try { 
-         if(line.length() == 0) line = readNonEmptyLine(reader);
+         if(line.length() == 0) line = readNonEmptyLine(reader, commentStart);
          Int.parseInt(line);
          values_.add(line);
          return "";
@@ -263,7 +264,7 @@ public struct ParameterReader {
     * @return the empty string normally, an error message otherwise
     * @throws IOException if a read attempt fails for any reason other than EOF
     */
-   private def readArray(reader: FileReader!, values_:ValRailBuilder[String]!, initialSegment: String) {
+   private static def readArray(reader: FileReader!, values_:ValRailBuilder[String]!, initialSegment: String, commentStart: Int) {
       val buffer = new StringBuilder();
       var line: String = initialSegment;
       try {
@@ -277,7 +278,7 @@ public struct ParameterReader {
             }
             else buffer.add(line);
             buffer.add(" ");
-            line = this.readNonEmptyLine(reader);
+            line = readNonEmptyLine(reader, commentStart);
         }
       } catch(ioe: Exception) { return ioe.getMessage()+"\r\n"; }
    }
@@ -296,9 +297,9 @@ public struct ParameterReader {
     * @return a completion code: empty string means "everything ok", 'EOF' means "end of
     *   file".
     */
-   private def readAParameter(reader: FileReader!, keys_: ValRailBuilder[String]!, values_: ValRailBuilder[String]!) {
+   private static def readAParameter(reader: FileReader!, keys_: ValRailBuilder[String]!, values_: ValRailBuilder[String]!, commentStart: Int) {
       try {
-         var line: String = readNonEmptyLine(reader);
+         var line: String = readNonEmptyLine(reader, commentStart);
          val firstEqual = line.indexOf("=");
          if (firstEqual <= 0) {
            return "Missing '=' in parameter start: '"+line+"'\r\n";
@@ -308,14 +309,14 @@ public struct ParameterReader {
             keys_.add(key);
             if (DEBUG) Console.ERR.println("Parameter key = '"+key+"'");
             val initialSegment = trim(line.substring(firstEqual+1, line.length()));
-            line = initialSegment.length() == 0 ? readNonEmptyLine(reader) : initialSegment;
+            line = initialSegment.length() == 0 ? readNonEmptyLine(reader, commentStart) : initialSegment;
             val size = line.length();
             val firstChar = line.charAt(0);
             if (DEBUG) Console.ERR.println("First char: '"+firstChar+"'");
             return (firstChar == '[') ?
-               readArray(reader, values_, line.substring(1, size)) :
-               (firstChar == '\'' ? readString(reader, values_, line.substring(1, size)) :
-               readDecimal(reader, values_, line));
+               readArray(reader, values_, line.substring(1, size), commentStart) :
+               (firstChar == '\'' ? readString(reader, values_, line.substring(1, size), commentStart) :
+               readDecimal(reader, values_, line, commentStart));
          }
       } catch (e1: EOFException) {
     	 if (DEBUG) Console.ERR.println("EOF thrown");
