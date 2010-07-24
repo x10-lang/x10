@@ -312,9 +312,12 @@ final class ParUTS {
 				noLoot = false;
 				processLoot(loot, true);
 				assert (! init);
-				// Now you can return, the outer activity will handle the data on the stack.
+        /*
+        // Now you can return, the outer activity will handle the data on the
+        // stack.
 			    if (depth > 0) 
 					  distribute(st, depth+1);
+            */
 				return;
 			}
 			active=true;
