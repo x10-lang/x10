@@ -53,7 +53,8 @@ OBJS=$(SOURCES:.c=.o)
 
 X10_STRUCTS=UTS__TreeNode.x10 \
             UTS__Constants.x10 \
-            Counter__ValCounter.x10 
+            Counter__ValCounter.x10 \
+            Counter__Stat.x10 
 X10_STRUCTS_CC=$(X10_STRUCTS:.x10=.cc)
 X10_STRUCTS_H=$(X10_STRUCTS:.x10=.h)
 X10_STRUCTS_STRUCTS_H=$(X10_STRUCTS:.x10=.struct_h)
