@@ -19,13 +19,12 @@ public final class Binomial(b0:Int, q:Double, m:Int) implements TaskFrame[UTS.SH
 	public def runTask(s:SHA1Rand, stack:Stack[SHA1Rand]!) {
 		pushN(s, s() < q ? m : 0, stack);
 	}
-	private def pushN(s:SHA1Rand, N:Int, stack:Stack[SHA1Rand]!) {
-		//Event.event(true, "Pushing " + N + " children on stack.");
-		for (var i:Int=0; i<N; ++i) 
-			stack.push(SHA1Rand(s, i));
-	}
 	public def runRootTask(s:SHA1Rand, stack:Stack[SHA1Rand]!) {
 		pushN(s, b0, stack);
+	}
+	private def pushN(s:SHA1Rand, N:Int, stack:Stack[SHA1Rand]!) {
+		for (var i:Int=0; i<N; ++i) 
+			stack.push(SHA1Rand(s, i));
 	}
 	
 }
