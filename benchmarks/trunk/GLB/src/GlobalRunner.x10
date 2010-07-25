@@ -11,7 +11,6 @@ import x10.lang.Math;
  */
 public final class GlobalRunner[T]  {
 	static type PLH[T]= PlaceLocalHandle[LocalRunner[T]];
-    static type Constants = UTS.Constants;
     global val st:PLH[T];
     /**
      * @param nu -- number of tasks to process before probing for incoming asyncs
