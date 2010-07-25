@@ -101,7 +101,7 @@ public class UTS {
 			} else {
               if (Constants.BINOMIAL==t) {
             	  val g = new GlobalRunner[SHA1Rand](nu, w, e, l, z, Dist.makeUnique(), 
-                				  ():TaskFrame[SHA1Rand] => new Binomial(b0, qq, mf) as TaskFrame[SHA1Rand]);
+                				  ():TaskFrame[SHA1Rand] => new Binomial(b0, qq, mf));
             	  Console.OUT.println("Starting...");
             	  var time:Long = System.nanoTime();
             	  g.run(SHA1Rand(r));
