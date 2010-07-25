@@ -1,5 +1,5 @@
 /**
- * A Counter object tracks statistics associated with one place in a UTS execution.
+ * A Counter object tracks statistics associated with a LocalRunner.
  * @author vj
  *
  */
@@ -30,95 +30,93 @@ public class Counter  {
 	public def toVal() = new ValCounter(this);
 
 	static class ValCounter {
-	  global val lifelines:Long;
-	  global val lifelineNodes:Long;
-	global val nodesCounter :Long;
-	global val nodesSent :Long;
-	global val stealsAttempted:Long;
-	global val stealsPerpetrated:Long;
-	global val stealsReceived:Long;
-	global val stealsSuffered:Long;
-	global val nodesGiven:Long;
-	global val nodesReceived:Long;
-	global val lastTimeStamp:Long;
-	global val timeComputing:Long;
-	global val timeProbing:Long;
-	global val timeDistributing:Long;
-	global val timeStealing:Long;
-	global val timeAlive:Long;
-	global val timeDead:Long;
-	global val chainDepth:Int;
-	global val maxDepth:Int;
-	def this(c:Counter!) {
-		lifelines = c.lifelines;
-		lifelineNodes=c.lifelineNodes;
-	nodesCounter =c.nodesCounter;
-	nodesSent =c.nodesSent;
-	stealsAttempted=c.stealsAttempted;
-	stealsPerpetrated=c.stealsPerpetrated;
-	stealsReceived=c.stealsReceived;
-	stealsSuffered=c.stealsSuffered;
-	nodesGiven=c.nodesGiven;
-	nodesReceived=c.nodesReceived;
-	lastTimeStamp=c.lastTimeStamp;
-	timeComputing=c.timeComputing;
-	timeProbing = c.timeProbing;
-	timeStealing = c.timeStealing;
-	timeDistributing=c.timeDistributing;
-	timeAlive=c.timeAlive;
-	timeDead=c.timeDead;
-	chainDepth=c.chainDepth;
-	maxDepth=c.maxDepth;
-	}
-	private global def verboseStats(h:Int, sumCounters:Counter!) {
-		val P = Place.MAX_PLACES;
-		val idealRatio = 1.0F/P;
-		val pc = stealsAttempted==0L ? "NaN" : "" + safeSubstring("" + (100.0F*stealsPerpetrated)/stealsAttempted, 0,5);
-		val pr = stealsReceived==0L ? "NaN" : "" +  safeSubstring("" + (100.0F*stealsSuffered)/stealsReceived, 0, 5);
-		Console.OUT.println(h+": processed " + nodesCounter + " nodes.");
-		val ratio = (1.0F*nodesCounter)/sumCounters.nodesCounter;
-		val ratioS = safeSubstring(""+ratio,0,6);
-		val imbalance = (100.0F*(ratio-idealRatio))/idealRatio;
-		val imbalanceS = safeSubstring(""+ imbalance,0,4);
-		Console.OUT.println("\t " + lifelines + " lifeline steals received "  
-				+ lifelineNodes + " (total nodes).");
-		Console.OUT.println("\t " + ratioS + " ratio, "  
-				+ imbalanceS + "% imbalance in nodes processed.");
-		Console.OUT.println("\t" + stealsPerpetrated+"/"+ stealsAttempted +"="
-				+ pc +"% successful steals, received " 
-				+ nodesReceived + " nodes.");
-		Console.OUT.println("\t" + stealsSuffered+"/"+stealsReceived+"="
-				+ pr + "% suffered, gave " 
-				+ nodesGiven + " nodes.");
-		Console.OUT.println("\t max launch depth=" + maxDepth);
-		val total = timeAlive + timeDead;
-		Console.OUT.println("\t Time: computing= " + timeComputing/1000 + " us ("
-				+ safeSubstring("" + (100.0F*timeComputing)/total , 0, 5)+ "%)");
-		Console.OUT.println("\t Time: distributing= " + timeDistributing/1000 + " us ("
-				+ safeSubstring("" +(100.0F*timeDistributing)/total, 0,5)+ "%)");
-		Console.OUT.println("\t Time: stealing= " + (timeStealing)/1000 + " us ("
-				+ safeSubstring("" +(100.0F*timeStealing)/total, 0,5)+ "%)");
-		Console.OUT.println("\t Time: probing= " + (timeProbing)/1000 + " us ("
-				+ safeSubstring("" +(100.0F*timeProbing)/total, 0,5)+ "%)");
-		Console.OUT.println("\t Time: alive= " + timeAlive/1000 + " us ("
-				+ safeSubstring("" + (100.0F*timeAlive)/total,0,5) + "%)");
-		Console.OUT.println("\t Time: idle= " + timeDead/1000 + " us ("
-				+ safeSubstring("" + (100.0F*timeDead)/total,0,5) + "%)");
-		Console.OUT.println("\t Time is "
-				+ safeSubstring("" + (100.0F*(total)/sumCounters.lastTimeStamp),
-						0, 4)+ "% of max.");
-	}
+	    global val lifelines:Long;
+	    global val lifelineNodes:Long;
+	    global val nodesCounter :Long;
+	    global val nodesSent :Long;
+	    global val stealsAttempted:Long;
+	    global val stealsPerpetrated:Long;
+	    global val stealsReceived:Long;
+	    global val stealsSuffered:Long;
+	    global val nodesGiven:Long;
+	    global val nodesReceived:Long;
+	    global val lastTimeStamp:Long;
+	    global val timeComputing:Long;
+	    global val timeProbing:Long;
+	    global val timeDistributing:Long;
+	    global val timeStealing:Long;
+	    global val timeAlive:Long;
+	    global val timeDead:Long;
+	    global val chainDepth:Int;
+	    global val maxDepth:Int;
+	    def this(c:Counter!) {
+	    	lifelines = c.lifelines;
+	    	lifelineNodes=c.lifelineNodes;
+	    	nodesCounter =c.nodesCounter;
+	    	nodesSent =c.nodesSent;
+	    	stealsAttempted=c.stealsAttempted;
+	    	stealsPerpetrated=c.stealsPerpetrated;
+	    	stealsReceived=c.stealsReceived;
+	    	stealsSuffered=c.stealsSuffered;
+	    	nodesGiven=c.nodesGiven;
+	    	nodesReceived=c.nodesReceived;
+	    	lastTimeStamp=c.lastTimeStamp;
+	    	timeComputing=c.timeComputing;
+	    	timeProbing = c.timeProbing;
+	    	timeStealing = c.timeStealing;
+	    	timeDistributing=c.timeDistributing;
+	    	timeAlive=c.timeAlive;
+	    	timeDead=c.timeDead;
+	    	chainDepth=c.chainDepth;
+	    	maxDepth=c.maxDepth;
+	    }
+	    private global def verboseStats(h:Int, sumCounters:Counter!) {
+	    	val P = Place.MAX_PLACES;
+	    	val idealRatio = 1.0F/P;
+	    	val pc = stealsAttempted==0L ? "NaN" : "" + safeSubstring("" + (100.0F*stealsPerpetrated)/stealsAttempted, 0,5);
+	    	val pr = stealsReceived==0L ? "NaN" : "" +  safeSubstring("" + (100.0F*stealsSuffered)/stealsReceived, 0, 5);
+	    	Console.OUT.println(h+": processed " + nodesCounter + " nodes.");
+	    	val ratio = (1.0F*nodesCounter)/sumCounters.nodesCounter;
+	    	val ratioS = safeSubstring(""+ratio,0,6);
+	    	val imbalance = (100.0F*(ratio-idealRatio))/idealRatio;
+	    	val imbalanceS = safeSubstring(""+ imbalance,0,4);
+	    	Console.OUT.println("\t " + lifelines + " lifeline steals received "  
+	    			+ lifelineNodes + " (total nodes).");
+	    	Console.OUT.println("\t " + ratioS + " ratio, "  
+	    			+ imbalanceS + "% imbalance in nodes processed.");
+	    	Console.OUT.println("\t" + stealsPerpetrated+"/"+ stealsAttempted +"="
+	    			+ pc +"% successful steals, received " 
+	    			+ nodesReceived + " nodes.");
+	    	Console.OUT.println("\t" + stealsSuffered+"/"+stealsReceived+"="
+	    			+ pr + "% suffered, gave " 
+	    			+ nodesGiven + " nodes.");
+	    	Console.OUT.println("\t max launch depth=" + maxDepth);
+	    	val total = timeAlive + timeDead;
+	    	Console.OUT.println("\t Time: computing= " + timeComputing/1000 + " us ("
+	    			+ safeSubstring("" + (100.0F*timeComputing)/total , 0, 5)+ "%)");
+	    	Console.OUT.println("\t Time: distributing= " + timeDistributing/1000 + " us ("
+	    			+ safeSubstring("" +(100.0F*timeDistributing)/total, 0,5)+ "%)");
+	    	Console.OUT.println("\t Time: stealing= " + (timeStealing)/1000 + " us ("
+	    			+ safeSubstring("" +(100.0F*timeStealing)/total, 0,5)+ "%)");
+	    	Console.OUT.println("\t Time: probing= " + (timeProbing)/1000 + " us ("
+	    			+ safeSubstring("" +(100.0F*timeProbing)/total, 0,5)+ "%)");
+	    	Console.OUT.println("\t Time: alive= " + timeAlive/1000 + " us ("
+	    			+ safeSubstring("" + (100.0F*timeAlive)/total,0,5) + "%)");
+	    	Console.OUT.println("\t Time: idle= " + timeDead/1000 + " us ("
+	    			+ safeSubstring("" + (100.0F*timeDead)/total,0,5) + "%)");
+	    	Console.OUT.println("\t Time is "
+	    			+ safeSubstring("" + (100.0F*(total)/sumCounters.lastTimeStamp),
+	    					0, 4)+ "% of max.");
+	    }
 
-	global safe public def toString():String {
-		return lifelines + "," + lifelineNodes + ",nc:" + nodesCounter + ","
-		+ stealsAttempted + "," + stealsPerpetrated + "," + stealsReceived + ","
-		+ nodesGiven + "," + nodesReceived + "," + lastTimeStamp + ",ta:"
-		+ timeAlive + ",td:" + timeDead + "," + maxDepth;
-	}
+	    global safe public def toString():String {
+	    	return lifelines + "," + lifelineNodes + ",nc:" + nodesCounter + ","
+	    	+ stealsAttempted + "," + stealsPerpetrated + "," + stealsReceived + ","
+	    	+ nodesGiven + "," + nodesReceived + "," + lastTimeStamp + ",ta:"
+	    	+ timeAlive + ",td:" + timeDead + "," + maxDepth;
+	    }
 	}
 	public def this() {}
-
-	
 
 	def incLifeline(n:Int) {
 		this.lifelines++;

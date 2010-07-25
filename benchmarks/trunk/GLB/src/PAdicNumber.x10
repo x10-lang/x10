@@ -1,15 +1,18 @@
 /**
- * A representation of a number in K "digits" of base P.
- * Useful in hypercube based routing.
+ * A representation of a number in K "digits" of base P, with 
+ * "most significant digit" first.
+ * 
+ * <p> Useful in hypercube based routing.
  */
 public class PAdicNumber(P:Int, K:Int) {
+	// digits(0) is the most significant digit.
 	global val digits: ValRail[Int]/*(K)*/;
-	public static def pow(w:Int, var n:Int) {
-		var result:Int=1;
-	while (n-- > 0) result *= w;
-	return result;
-	}
-	def pow(n:Int) = pow(P, n);
+    public static def pow(w:Int, var n:Int) {
+	   var result:Int=1;
+       while (n-- > 0) result *= w;
+       return result;
+    }
+	public def pow(n:Int) = pow(P, n);
 	public def this(p:Int, k:Int, x:Int):PAdicNumber{self.P==p, self.K==k} {
 		property(p,k);
 		digits = ValRail.make
@@ -19,11 +22,19 @@ public class PAdicNumber(P:Int, K:Int) {
 		property(p, k);
 		digits = ds;
 	}
+	/**
+	 * Numerical less than relationship, implemented by lexicographic
+	 * ordering on representation.
+	 */
 	public safe global operator this < (that:PAdicNumber(P,K)):Boolean {
 		var i:Int =0;
 		for (; i < K && digits(i) < that.digits(i); ++i) ;
 		return i==K-1;
 	}
+	/**
+	 * Two numbers are equal if they have the same base, the same number
+	 * of digits and the same digits.
+	 */
 	public global safe def equals(o:Any):Boolean {
 		if (! (o instanceof PAdicNumber)) 
 			return false;
@@ -46,6 +57,11 @@ public class PAdicNumber(P:Int, K:Int) {
 		new PAdicNumber(P, K, ValRail.make(K, 
 				(i:Int) => (i==dim ?  (digits(i)+d)% P : digits(i))));
 	
+	/**
+	 * Return the number distance d away along dimension dim (using modulo arithmetic). 
+	 * If d >= bound, keep adding d to the dim'th component (using modulo arithmetic)
+	 * until you reach a number < bound. Assume: this < bound.
+	 */
 	global public def boundedDelta(d:Int, dim:Int, bound:Int): PAdicNumber(P,K) {
 		val o = new PAdicNumber(P, K, ValRail.make(K, 
 				(i:Int) => (i==dim ?  (digits(i)+d)% P : digits(i))));
@@ -64,8 +80,9 @@ public class PAdicNumber(P:Int, K:Int) {
 		return q;
 	}
 		
-	
-	
+	/** Return a decimal representation of this.
+	 * 
+	 */
 	global public def toDecimal():Int {
 		 var result:Int=digits(K-1);
 	     for (var i:Int=K-1; i > 0; i--) {
@@ -73,6 +90,9 @@ public class PAdicNumber(P:Int, K:Int) {
 	     }
 	     return result;
 	}
+	/**
+	 * A string representation in base P, with most significant digit to the left.
+	 */
 	global safe public def toString() {
 		var result:String="";
 		for (var i:Int=K-1; i >= 0; i--) {
