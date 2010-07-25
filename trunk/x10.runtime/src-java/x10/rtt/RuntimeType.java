@@ -53,7 +53,7 @@ public class RuntimeType<T> implements Type<T> {
     
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof RuntimeType) {
+        if (o instanceof RuntimeType<?>) {
             RuntimeType<?> rt = (RuntimeType<?>) o;
             if (base.equals(rt.base)) {
                 return true;
@@ -64,7 +64,7 @@ public class RuntimeType<T> implements Type<T> {
     
     public boolean isSubtype(Type<?> o) {
         if (this == o) return true;
-        if (o instanceof RuntimeType) {
+        if (o instanceof RuntimeType<?>) {
             RuntimeType<?> rt = (RuntimeType<?>) o;
             if (rt.base.isAssignableFrom(base)) {
                 return true;
@@ -322,7 +322,14 @@ public class RuntimeType<T> implements Type<T> {
     }
 
     public String typeName() {
-        return base.toString().substring(6);
+        String name = base.toString();
+        if (name.startsWith("class ")) {
+            name = name.substring("class ".length());
+        } else if (name.startsWith("interface ")) {
+            name = name.substring("interface ".length());
+        }
+        // TODO convert to X10 typename
+        return name;
     }
 
     public final String typeName(Object o) {
