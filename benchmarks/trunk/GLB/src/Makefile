@@ -2,7 +2,7 @@
 
 # <BEGIN> user settings #
 
-export X10CXX 		?= ~/x10-trunk/x10.dist/bin/x10c++
+export X10CXX 		?= ~/x10-opt/x10.dist/bin/x10c++
 
 #leave blank by default, X10 automatically chooses a transport for you. To
 #force a particular implementation, please uncheck one of the other options.
@@ -36,10 +36,8 @@ endif
 X10RUN?=runx10
 X10CXXFLAGS=-report postcompile=5 -VERBOSE_CALLS $(X10RT_TRANSPORT)
 
-HEADERS=sha_endian.h \
-        types.h \
-        sha1.h 
-
+HEADERS=
+        
 SOURCES=sha1.c
 
 OBJS=$(SOURCES:.c=.o)
@@ -64,15 +62,13 @@ X10_CLASSES=GlobalRunner.x10 \
 X10_CLASSES_CC=$(X10_CLASSES:.x10=.cc)
 X10_CLASSES_H=$(X10_CLASSES:.x10=.h)
 
-TARGET=UTS
+TARGET= GlobalRunner
 
 all: ${TARGET}
 
-UTS: UTS.x10 sha1_rand.hpp sha1.c
-	${X10CXX} -MAIN_CLASS=UTS -v -NO_CHECKS -O  ${X10CXXFLAGS} ${X10RTTRANSPORT} $< -o $@ 
+GlobalRunner: GlobalRunner.x10 TaskFrame.x10 TreeNode.x10 Counter.x10 SeqRunner.x10 NetworkGenerator.x10 PAdicNumber.x10 Event.x10 
+	${X10CXX}  -v -NO_CHECKS -O  ${X10CXXFLAGS} ${X10RTTRANSPORT} $< -o $@ 
 
-run-UTS: UTS
-	mpirun -np 4 -hostfile host.list ./UTS -r 42 -b 2000 -m 8 -q 0.124975
 
 test: Sha1Rand.cpp libsha1.a
 	${CXX} ${CXXFLAGS} -DSHA1_TEST $< -o $@ -L. -lsha1
