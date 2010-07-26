@@ -42,8 +42,7 @@ SOURCES=sha1.c
 
 OBJS=$(SOURCES:.c=.o)
 
-X10_STRUCTS=TreeNode.x10 \
-            Counter__ValCounter.x10 \
+X10_STRUCTS= Counter__ValCounter.x10 \
             Counter__Stat.x10 
 X10_STRUCTS_CC=$(X10_STRUCTS:.x10=.cc)
 X10_STRUCTS_H=$(X10_STRUCTS:.x10=.h)
@@ -55,7 +54,6 @@ X10_CLASSES=GlobalRunner.x10 \
             Counter.x10 \
             SeqRunner.x10 \
             NetworkGenerator.x10 \
-            TreeNode.x10 \
             PAdicNumber.x10 \
             Event.x10 \
             TaskFrame.x10 
@@ -66,7 +64,7 @@ TARGET= GlobalRunner
 
 all: ${TARGET}
 
-GlobalRunner: GlobalRunner.x10 TaskFrame.x10 TreeNode.x10 Counter.x10 SeqRunner.x10 NetworkGenerator.x10 PAdicNumber.x10 Event.x10 
+GlobalRunner: GlobalRunner.x10 TaskFrame.x10  Counter.x10 SeqRunner.x10 NetworkGenerator.x10 PAdicNumber.x10 Event.x10 
 	${X10CXX}  -v -NO_CHECKS -O  ${X10CXXFLAGS} ${X10RTTRANSPORT} $< -o $@ 
 
 
