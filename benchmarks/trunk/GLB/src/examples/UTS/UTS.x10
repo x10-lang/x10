@@ -96,37 +96,42 @@ public class UTS {
             	 
              }
 			val qq = (q*NORMALIZER) as Long;
-
+			val reducer = new Reducible[UInt] {
+				global safe public def zero()=0;
+				global safe public apply(a:UInt, b:UInt)=a+b;
+			};
 			if (seq != 0) {
-				var nodes:Int;
+				var result:Int;
+			    Console.OUT.println("Starting...");
 				var time:Long = System.nanoTime();
 				if (Constants.BINOMIAL==t) {
-					val runner = new SeqRunner[SHA1Rand](new Binomial(b0,qq,mf));
-					nodes=runner.run(SHA1Rand(r));
+					val runner = new SeqRunner[SHA1Rand, UInt](new Binomial(b0,qq,mf));
+					result=runner.run(SHA1Rand(r), reducer);
 				} else {
-					val runner = new SeqRunner[TreeNode](new Geometric(b0,a,d));
-					nodes=runner.run(TreeNode(0, SHA1Rand( r)));
+					val runner = new SeqRunner[TreeNode, UInt](new Geometric(b0,a,d));
+					result=runner.run(TreeNode(0, SHA1Rand( r)), reducer);
 				}
 				time = System.nanoTime() - time;
-				Console.OUT.println("Performance = "+nodes+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
+				Console.OUT.println("Finished with result " + result + ".");
+				Console.OUT.println("Performance = "+result+"/"+(time/1E9)+"="+ (nodes/(time/1E3)) + "M nodes/s");
 			} else {
               if (Constants.BINOMIAL==t) {
-            	  val g = new GlobalRunner[SHA1Rand](nu, w, e, l, z, Dist.makeUnique(), 
+            	  val g = new GlobalRunner[SHA1Rand, UInt](nu, w, e, l, z, Dist.makeUnique(), 
                 				  ():TaskFrame[SHA1Rand] => new Binomial(b0, qq, mf));
             	  Console.OUT.println("Starting...");
             	  var time:Long = System.nanoTime();
-            	  g.run(SHA1Rand(r));
+            	  val result = g.run(SHA1Rand(r), reducer);
             	  time = System.nanoTime() - time;
-            	  Console.OUT.println("Finished.");
+            	  Console.OUT.println("Finished with result " + result + ".");
             	  g.stats(time, verbose);
               } else {
-            	  val g =  new GlobalRunner[TreeNode](nu, w, e, l, z, Dist.makeUnique(), 
+            	  val g =  new GlobalRunner[TreeNode, UInt](nu, w, e, l, z, Dist.makeUnique(), 
 						  ()=> new Geometric(b0, a,d));
             	  Console.OUT.println("Starting...");
             	  var time:Long = System.nanoTime();
-            	  g.run(TreeNode(0,SHA1Rand(r)));
+            	  val result = g.run(TreeNode(0,SHA1Rand(r)), reducer);
             	  time = System.nanoTime() - time;
-            	  Console.OUT.println("Finished.");
+            	  Console.OUT.println("Finished with result " + result + ".");
             	  g.stats(time, verbose); 
               }
 			}

@@ -14,7 +14,7 @@
  */
 
 import x10.util.Stack;
-public class Geometric implements TaskFrame[TreeNode]{
+public class Geometric implements TaskFrame[TreeNode, Int]{
 	static type Constants = UTS.Constants;
 	public static def usageLine(b0:Int, r:Int, a:Int, d:Int, seq:Int, w:Int, nu:Int, l:Int, z:Int) {
 		Console.OUT.println("b0=" + b0 +
@@ -36,12 +36,12 @@ public class Geometric implements TaskFrame[TreeNode]{
 		this.a = a; 
 		this.d = d; 
 	}
-	public def runRootTask(s:TreeNode, stack:Stack[TreeNode]!):Void {
+	public def runRootTask(s:TreeNode, stack:Stack[TreeNode]!):Void offers Int {
 		runTask(s, stack);
 	}
-	public def runTask (
+	public def runTask offers Int (
 			node:TreeNode, 
-			stack:Stack[TreeNode]!) { 
+			stack:Stack[TreeNode]!) offers Int { 
 		/* compute branching factor at this node */
 		var curNodeBranchingFactor:double;
 
@@ -91,5 +91,6 @@ public class Geometric implements TaskFrame[TreeNode]{
 	/* Push all the children onto the stack */
 	for (var i:Int=0; i<numChildren; ++i) 
 		stack.push(TreeNode (node.d+1, node.r));
+	offer numChildren;
 	}
 }

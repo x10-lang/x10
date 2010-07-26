@@ -13,6 +13,7 @@
  * A Counter object tracks statistics associated with a LocalRunner.
  * @author vj
  *
+ *TODO: Get rid of ValCounter once atcopy is implemented.
  */
 public class Counter  {
 

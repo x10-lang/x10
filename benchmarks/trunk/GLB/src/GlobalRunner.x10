@@ -20,9 +20,9 @@ import x10.lang.Math;
  * and then optionally print out statistics by invoking <code>stats</code>.
  * 
  */
-public final class GlobalRunner[T]  {
-	static type PLH[T]= PlaceLocalHandle[LocalRunner[T]];
-    global val st:PLH[T];
+public final class GlobalRunner[T, Z]  {
+	static type PLH[T,Z]= PlaceLocalHandle[LocalRunner[T,Z]];
+    global val st:PLH[T,Z];
     /**
      * @param nu -- number of tasks to process before probing for incoming asyncs
      * @param w -- number of random steals to attempt before using lifelines
@@ -35,15 +35,15 @@ public final class GlobalRunner[T]  {
      * @param dist -- the distribution over which the globalRunner will operate. dist must be unique.
      * @param maker -- a TaskFrame maker used to initialize the GlobalRunner in each place.
      */
-    def this(nu:Int, w:Int, e:Boolean, l:Int, z:Int, dist:Dist, maker: ()=> TaskFrame[T]) {
+    def this(nu:Int, w:Int, e:Boolean, l:Int, z:Int, dist:Dist, maker: ()=> TaskFrame[T, Z]) {
     	   val lifelineNetwork:ValRail[ValRail[Int]] = 
                (0==l) ? NetworkGenerator.generateRing(Place.MAX_PLACES) :
                (1==l) ? NetworkGenerator.generateHyperCube(Place.MAX_PLACES):
                (2==l) ? NetworkGenerator.generateChunkedGraph (Place.MAX_PLACES, z):
                     NetworkGenerator.generateSparseEmbedding (Place.MAX_PLACES, z);
-  	  this.st = PlaceLocalHandle.make[LocalRunner[T]](dist, 
-        		()=>new LocalRunner[T](  nu, w, e, lifelineNetwork(here.id), 
-        				maker() as TaskFrame[T]!));
+  	  this.st = PlaceLocalHandle.make[LocalRunner[T, Z]](dist, 
+        		()=>new LocalRunner[T, Z](  nu, w, e, lifelineNetwork(here.id), 
+        				maker() as TaskFrame[T, Z]!));
       
     }
     /**
@@ -51,8 +51,8 @@ public final class GlobalRunner[T]  {
      * across the places specified in the distribution supplied on creation of this object. On completion
      * of this method, the task has completed. 
      */
-    public def run(t:T) {
-    	st().main(st, t);
+    public def run(t:T, reducer:Reducible[Z])  {
+    	st().main(st, t, reducer);
     }
     /**
      * Return the results of the computation. Should only be called after <code>run(t:T)</code>
@@ -90,7 +90,7 @@ public final class GlobalRunner[T]  {
      * An instance of <code>LocalRunner</code> lives in each place.
      * It is the workhorse for the global load balancing scheduler.
      */
-    final static class LocalRunner[T] {
+    final static class LocalRunner[T, Z] {
 
     	val width:Int, nu:Int;
     
@@ -126,7 +126,7 @@ public final class GlobalRunner[T]  {
     	var noLoot:Boolean=true;
     	
     	// the frame for execution of the task.
-    	val frame:TaskFrame[T]!;
+    	val frame:TaskFrame[T,Z]!;
     	
     	// the dimensionality of the hypercube in which the lifeline graph is embedded
     	val z:Int;
@@ -143,7 +143,7 @@ public final class GlobalRunner[T]  {
     			w:Int, 
     			e:Boolean, 
     			lifelineNetwork:ValRail[Int],
-    			f:TaskFrame[T]!) {
+    			f:TaskFrame[T,Z]!) {
     		this.nu=nu; 
     		this.myLifelines = lifelineNetwork;
     		this.z = lifelineNetwork.length; // assume symmetric.
@@ -168,7 +168,7 @@ public final class GlobalRunner[T]  {
     	 * Process the loot - the ValRail of tasks received from the environment.
     	 * 
     	 */
-    	final def processLoot(loot: ValRail[T], lifeline:Boolean) {
+    	final def processLoot(loot: ValRail[T], lifeline:Boolean) offers Z {
     		counter.incRx(lifeline, loot.length);
     		val time = System.nanoTime();
     		for (r in loot) 
@@ -178,7 +178,7 @@ public final class GlobalRunner[T]  {
     	
     	/** Process at most N tasks from the stack.
     	 */
-    	final def processAtMostN(n:Int) {
+    	final def processAtMostN(n:Int) offers Z{
     		val time = System.nanoTime();
     		for (var count:Int=0; count < n; count++) {
     			val e = stack.pop();
@@ -196,7 +196,7 @@ public final class GlobalRunner[T]  {
     	 * <p> Exit loop when stack is empty, and terminate. 
     	 * 
     	 */
-    	final def processStack(st:PLH[T]) {
+    	final def processStack(st:PLH[T, Z]) offers Z {
     		while (true) {
     			var n:Int = Math.min(stack.size(), nu);
     		  
@@ -230,14 +230,14 @@ public final class GlobalRunner[T]  {
 
     	/** Distribute loot to activated incoming lifelines.
     	 */
-    	def distribute(st:PLH[T], depth:Int) {
+    	def distribute(st:PLH[T, Z], depth:Int) offers Z {
     		val time = System.nanoTime();
     		val numThieves = thieves.size();
     		if (numThieves > 0)
     			distribute(st, 1, numThieves);
     		counter.timeDistributing += (System.nanoTime()  - time);
     	}
-    	def distribute(st:PLH[T], depth:Int, var numThieves:Int) {
+    	def distribute(st:PLH[T,Z], depth:Int, var numThieves:Int) offers Z {
     		val lootSize= stack.size();
     		if (lootSize > 2) {
     			numThieves = Math.min(numThieves, lootSize-2);
@@ -262,7 +262,7 @@ public final class GlobalRunner[T]  {
 	 work from randomly chosen neighbors (for a certain number of 
 	 tries). If we are not successful, we invoke our lifeline system.
     	 */
-    	def attemptSteal(st:PLH[T]):ValRail[T] {
+    	def attemptSteal(st:PLH[T,Z]):ValRail[T] {
     		val time = System.nanoTime();
     		val P = Place.MAX_PLACES;
     		if (P == 1) return null;
@@ -326,11 +326,11 @@ public final class GlobalRunner[T]  {
     		return stack.pop(numSteals);
     	}
 
-    	def launch(st:PLH[T], 
+    	def launch(st:PLH[T,Z], 
     			init:Boolean, 
     			loot:ValRail[T], 
     			depth:Int, 
-    			source:Int) {
+    			source:Int) offers Z {
     		// assert loot != null;
     		try {
     			Event.event("Place" + source + ") launches " 
@@ -372,14 +372,14 @@ public final class GlobalRunner[T]  {
     	 * and execute the tasks on all available places.
     	 * 
     	 */
-    	def main (st:PLH[T], 
-    			rootTask:T) {
+    	
+    	def main (st:PLH[T,Z], rootTask:T, reducer: Reducible[Z])  {
     		val P=Place.MAX_PLACES;
     		Event.event("Start main finish");
     		val startAtZero = System.nanoTime();
     		counter.lastTimeStamp = startAtZero;
     		counter.startLive();
-    		finish {
+    		val result:Z =  finish (reducer) {
     			Event.event("Launch main");
     			frame.runRootTask(rootTask, stack);
     			++counter.nodesCounter; // root node is never pushed on the stack.
@@ -396,9 +396,10 @@ public final class GlobalRunner[T]  {
     			active=false;
     			Event.event("Finish main");
     			counter.stopLive();
-    		} 
+    		}; 
     		counter.totalTimeAtZero = (System.nanoTime() - startAtZero);
     		Event.event("End main finish");
+    		return result;
     	}
     }
 }

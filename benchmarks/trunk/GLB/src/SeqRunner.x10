@@ -15,14 +15,14 @@
  * @author vj
  */
 import x10.util.Stack;
-public final class SeqRunner[T] {
+public final class SeqRunner[T, Z] {
     val stack = new Stack[T]();
     var nodesCounter:UInt = 0;
-    val frame:TaskFrame[T]!;
-    def this(f:TaskFrame[T]!) {
+    val frame:TaskFrame[T,Z]!;
+    def this(f:TaskFrame[T,Z]!) {
     	this.frame=f;
     }
-    def processStack () {
+    def processStack () offers Z{
       while (stack.size() > 0) {
     	  val task = stack.pop();
           frame.runTask(task, stack);
@@ -33,7 +33,7 @@ public final class SeqRunner[T] {
      * Run the given task to completion, and return the number of tasks that 
      * have been executed in doing so. 
      */
-    public def run (task:T):UInt {
+    public def run (task:T):UInt offers Z {
     	++nodesCounter; 
     	frame.runTask(task, stack);
         this.processStack();

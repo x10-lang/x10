@@ -14,7 +14,7 @@
  * A representation of the UTS Binomial tree benchmark.
  */
 import x10.util.Stack;
-public final class Binomial(b0:Int, q:Double, m:Int) implements TaskFrame[UTS.SHA1Rand]{
+public final class Binomial(b0:Int, q:Double, m:Int) implements TaskFrame[UTS.SHA1Rand, Int]{
 	static type SHA1Rand=UTS.SHA1Rand;
 	public static def usageLine(b0:Int, r:Int, mf:Int, seq:Int, w:Int, nu:Int, q:Double, l:Int, z:Int) {
 		Console.OUT.println("b0=" + b0 +
@@ -28,15 +28,16 @@ public final class Binomial(b0:Int, q:Double, m:Int) implements TaskFrame[UTS.SH
                 "   z=" + z +
                 (l==3 ?" base=" + NetworkGenerator.findW(Place.MAX_PLACES, z) : ""));
 	}
-	public def runTask(s:SHA1Rand, stack:Stack[SHA1Rand]!) {
+	public def runTask(s:SHA1Rand, stack:Stack[SHA1Rand]!) offers Int {
 		pushN(s, s() < q ? m : 0, stack);
 	}
-	public def runRootTask(s:SHA1Rand, stack:Stack[SHA1Rand]!) {
+	public def runRootTask(s:SHA1Rand, stack:Stack[SHA1Rand]!) offers Int {
 		pushN(s, b0, stack);
 	}
-	private def pushN(s:SHA1Rand, N:Int, stack:Stack[SHA1Rand]!) {
+	private def pushN(s:SHA1Rand, N:Int, stack:Stack[SHA1Rand]!) offers Int {
 		for (var i:Int=0; i<N; ++i) 
 			stack.push(SHA1Rand(s, i));
+		offer N;
 	}
 	
 }
