@@ -58,7 +58,8 @@ public class Checker {
 				throw new Errors.CannotCallCodeThatOffers(pi, pos);
 			if (! tc.typeSystem().isSubtype(offerType, type, cxt)) 
 				throw new Errors.OfferTypeMismatch(offerType, type, pos);
-		}
+		} else {
+        }
 		
 	}
 

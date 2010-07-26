@@ -83,9 +83,10 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	    if (r == null) {
 	        throw new Errors.IsNotReducible(e, e.position());
 	    }
-	    Context childScope = enterChildScope(body, tc.context());
+        Node tmpNode = reconstruct(e,body).type(r);
+	    Context childScope = tmpNode.enterChildScope(body, tc.context());
 	    ContextVisitor childVisitor = tc.context(childScope);
-	    Stmt b = (Stmt) visitChild(body, childVisitor);
+	    Stmt b = (Stmt) tmpNode.visitChild(body, childVisitor);
 	    Node n = reconstruct(e,b).type(r);
 	    List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
 	    if (oldAnnotations == null || oldAnnotations.isEmpty()) {
