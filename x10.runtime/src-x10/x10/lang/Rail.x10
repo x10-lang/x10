@@ -108,17 +108,21 @@ public final class Rail[T](length: Int)
     @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4)")
     public native static safe def make[S](length: Int): Rail[S]!{self.length==length};
 
-	 @Native("java", "x10.lang.Rail__NativeRep.<#2>makeClockedRail(#3, #4, #5, #6, #7)")
+    @Native("java", "x10.lang.Rail__NativeRep.<#2>makeClockedRail(#3, #4, #5, #6, #7)")
+    @Native("c++", "x10::lang::Rail__NativeRep::makeClockedRail<#1 >(#4,#5,#6,#7)")
     public native static safe def makeClocked[S](length: Int, c: Clock, op: (S,S)=>S, opinit: S): Rail[ClockedVar[S]]!{self.length==length};
     
      @Native("java", "x10.lang.Rail__NativeRep.<#2>makeClockedRail(#3, #4, #5, #6, #7, #8)")
+    @Native("c++", "x10::lang::Rail__NativeRep::makeClockedRail<#1 >(#4,#5,#6,#7,#8)")
     public native static safe def makeClocked[S](length: Int, init: (Int) => S, c: Clock, op: (S,S)=>S, opinit: S): Rail[ClockedVar[S]]!{self.length==length};
     
      @Native("java", "x10.lang.Rail__NativeRep.<#2>setClocked(#3, #0, #4, #5)")
-     public native static safe def setClocked[T](index: Int, value: T): void;
+    @Native("c++", "x10::lang::Rail__NativeRep::setClockedCPP<#1 >(#0,#4,#5)")
+     public native  safe def setClocked[T](index: Int, value: T): void;
      
-      @Native("java", "x10.lang.Rail__NativeRep.<#2>getClocked$G(#3, #0, #4)")
-     public native static safe def getClocked[T](index: Int): T;
+      @Native("java", "x10.lang.Rail__NativeRep.<#2>getClocked$G(#3,#0,#4)")
+    @Native("c++", "x10::lang::Rail__NativeRep::getClockedCPP<#1 >(#0, #4)")
+     public native safe def getClocked[T](index: Int): T;
  
 
     /**
