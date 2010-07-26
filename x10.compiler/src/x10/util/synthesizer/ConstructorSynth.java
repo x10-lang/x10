@@ -200,10 +200,15 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
         // FIXME: need set the constructor's type parameters
         // conDecl.typeParameters(cDecl.typeParameters());
         conDecl = conDecl.returnType(xnf.CanonicalTypeNode(pos, conDef.returnType()));
-        conDecl = (X10ConstructorDecl) conDecl.constructorDef(conDef);
         if(annotations.size() > 0){
             conDecl = (X10ConstructorDecl) ((X10Del)conDecl.del()).annotations(annotations);           
+            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(annotations.size());
+            for (AnnotationNode an : annotations) {
+                ats.add(an.annotationType().typeRef());
+            }
+            conDef.setDefAnnotations(ats);
         }
+        conDecl = (X10ConstructorDecl) conDecl.constructorDef(conDef);
         
         return conDecl;
     }
