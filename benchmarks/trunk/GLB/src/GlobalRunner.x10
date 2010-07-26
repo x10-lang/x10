@@ -18,8 +18,8 @@ public final class GlobalRunner[T]  {
      * @param e -- enable event logging
      * @param l -- kind of lifeline network to use. 
      * <ul><li> 0 -- linear chain, 
-     * <li> 1 -- 
-     * <li> 2-- 
+     * <li> 1 -- (do not use this)
+     * <li> 2--  (do not use this)
      * <li> 3 -- k-hypercube embedding
      * @param dist -- the distribution over which the globalRunner will operate. dist must be unique.
      * @param maker -- a TaskFrame maker used to initialize the GlobalRunner in each place.
@@ -36,7 +36,9 @@ public final class GlobalRunner[T]  {
       
     }
     /**
-     * Run the given task.
+     * Run the given task as the root task. Tasks created during its execution will be globally load balanced
+     * across the places specified in the distribution supplied on creation of this object. On completion
+     * of this method, the task has completed. 
      */
     public def run(t:T) {
     	st().main(st, t);

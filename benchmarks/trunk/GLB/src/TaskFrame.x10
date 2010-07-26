@@ -15,6 +15,17 @@
 
 import x10.util.Stack;
 /**
+ * A user program hat intends to use <code>GlobalRunner</code> must 
+ * provide an implementation of <code>TaskFrame</code>. The <code>TaskFrame[T]</code>
+ * is parametrized on the task type <code>T</code>. This is the type of data that is stored
+ * on the stacks used for global load balancing. 
+ * <p> To use global load balancing, user code must first create an instance of <code>GlobalRunner</code>.
+ * The constructor for <code>GlobalRunner</code> takes various parameters that govern the behavior of 
+ * global load balancing. It also takes a nullary function that returns an instance of the user supplied
+ * <code>TaskFrame[T]</code>. This function will be invoked once at each place at which <code>GlobalRunner</code>
+ * is intended to run. 
+ * 
+ * <p> Typically, the TaskFrame istance
  * A TaskFrame provides additional parameters that may be necessary to
  * execute a task. Typically, there is one TaskFrame instance per place.
  */
