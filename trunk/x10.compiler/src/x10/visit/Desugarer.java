@@ -605,14 +605,11 @@ public class Desugarer extends ContextVisitor {
     		ConstrainedType ct = (ConstrainedType) reducerType;
     		reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
         }
-        
+
+        // reducerType is "Reducible[T]", and reducerTarget is "T"
         // Parse out T
-        Type reducerTarget = null;
-        for (Type t : xts.interfaces(reducerType)) {
-        	for (Type tt : ((X10ParsedClassType)t).typeArguments()) {
-        		reducerTarget = tt;
-        	}
-        }
+        Type reducerTarget = X10TypeMixin.reducerType(reducerType);
+        assert reducerTarget!=null;
         
         Type coFinish = xts.load("x10.lang.Runtime.CollectingFinish");
         Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(reducerTarget)));

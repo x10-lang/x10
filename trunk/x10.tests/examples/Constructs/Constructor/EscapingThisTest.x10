@@ -15,6 +15,9 @@ class Test(p:Test) {
 	def this(q:Test!):Test{self.p==q} {
 		property(q);
 		w = 2;
+		val alias = q; 
+		val callToString = ""+q;
+		val callOp1 = q+q; 
 		q.tt = q;
 		this.tt = q;
 		foo(q);
@@ -27,6 +30,9 @@ class Test(p:Test) {
 		property(this); // ERR
 		w = 4;
 		val alias = this; // ERR
+		val callToString = ""+this; // ERR
+		val callOp1 = q+this; // ERR
+		val callOp2 = this+q; // ERR
 		q.tt = this; // ERR
 		this.tt = q;
 		q.tt = this.tt;
@@ -36,6 +42,7 @@ class Test(p:Test) {
 		val inner1 = new Inner(); // ERR
 		val inner2 = this.new Inner(); // ERR
 	}
+	operator this+(that:Test):Test = null;
 	def m() {}
 	global def g() {}
 	global def z(q:Test) {}
