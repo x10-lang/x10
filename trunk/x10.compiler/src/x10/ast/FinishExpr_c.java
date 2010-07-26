@@ -107,7 +107,9 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	public Context enterChildScope(Node child, Context c) {
 		X10Context xc = (X10Context) super.enterChildScope(child, c);
 		if (child == body) {
+		// Push T, not Reducible[T].
 			Type type = reducer.type();
+			type = X10TypeMixin.reducerType(type);
 			if (type != null) {
 				xc = (X10Context) xc.pushCollectingFinishScope(type);
 			}
