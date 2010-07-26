@@ -224,12 +224,18 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         methodDecl = (X10MethodDecl) xnf.MethodDecl(pos, flagNode, returnTypeNode, xnf.Id(pos, methodDef.name()), 
                 formals, throwTypeNodes, block);
 
-        methodDecl = (X10MethodDecl) methodDecl.methodDef(methodDef); //Need set the method def to the method instance
-        
         if(annotations.size() > 0){
             methodDecl = (X10MethodDecl) ((X10Del)methodDecl.del()).annotations(annotations);           
+            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(annotations.size());
+            for (AnnotationNode an : annotations) {
+                ats.add(an.annotationType().typeRef());
+                System.err.println(an + " " + an.annotationType() + " " + an.annotationType().typeRef());
+            }
+            methodDef.setDefAnnotations(ats);
         }
 
+        methodDecl = (X10MethodDecl) methodDecl.methodDef(methodDef); //Need set the method def to the method instance
+        
         return methodDecl;
     }
     
