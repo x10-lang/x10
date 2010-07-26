@@ -338,12 +338,23 @@ import x10.compiler.Inline;
 
 
 
-	   public static safe @Inline def setClocked[T](r: Rail[T]!, index: Int, value: T)
-    	   = (r(index) as ClockedVar[T]!).setClocked(value);
+	   public static safe @Inline def setClocked[T](r: Rail[T]!, index: Int, value: T): void =
+	(r(index) as ClockedVar[T]!).setClocked(value);
+	   
     
     	
     	
     	 public static safe @Inline def getClocked[T](r: Rail[T]!, index: Int): T
+    	   = (r(index) as ClockedVar[T]!).getClocked();  
+  
+    	
+
+	   public static safe @Inline def setClockedCPP[T](r: Rail[ClockedVar[T]]!, index: Int, value: T): void =
+		(r(index) as ClockedVar[T]!).setClocked(value);
+    
+    	
+    	
+    	 public static safe @Inline def getClockedCPp[T](r: Rail[ClockedVar[T]]!, index: Int): T
     	   = (r(index) as ClockedVar[T]!).getClocked();  
   
     	

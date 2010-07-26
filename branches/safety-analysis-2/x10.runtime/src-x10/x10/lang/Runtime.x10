@@ -1041,8 +1041,8 @@ public final class Runtime {
     private static def worker():Worker! =
         pretendLocal(Thread.currentThread().worker() as Worker);
         
-     public static @Inline def workerTid():Long =
-        (Thread.currentThread().worker() as Worker!).tid;
+     public static @Inline def workerTid():Int =
+        (Thread.currentThread().worker() as Worker!).workerId;
 
      public static @Inline def numOfWorkers():Long = runtime().pool.size;
 
