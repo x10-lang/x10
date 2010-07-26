@@ -22,7 +22,7 @@ public final class SeqRunner[T, Z] {
     def this(f:TaskFrame[T,Z]!) {
     	this.frame=f;
     }
-    def processStack () offers Z{
+    def processStack ():Void offers Z{
       while (stack.size() > 0) {
     	  val task = stack.pop();
           frame.runTask(task, stack);
