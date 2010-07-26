@@ -33,10 +33,12 @@ public final class SeqRunner[T, Z] {
      * Run the given task to completion, and return the number of tasks that 
      * have been executed in doing so. 
      */
-    public def run (task:T):UInt offers Z {
+    public def run (task:T, reducer:Reducible[Z]):Z  {
     	++nodesCounter; 
-    	frame.runTask(task, stack);
-        this.processStack();
-        return nodesCounter;
+    	val result = finish (reducer) {
+    	    frame.runTask(task, stack);
+            this.processStack();
+    	}; 
+        return result;
 	}
 }

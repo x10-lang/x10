@@ -14,7 +14,7 @@
  */
 
 import x10.util.Stack;
-public class Geometric implements TaskFrame[TreeNode, Int]{
+public class Geometric implements TaskFrame[TreeNode, UInt]{
 	static type Constants = UTS.Constants;
 	public static def usageLine(b0:Int, r:Int, a:Int, d:Int, seq:Int, w:Int, nu:Int, l:Int, z:Int) {
 		Console.OUT.println("b0=" + b0 +
@@ -36,12 +36,12 @@ public class Geometric implements TaskFrame[TreeNode, Int]{
 		this.a = a; 
 		this.d = d; 
 	}
-	public def runRootTask(s:TreeNode, stack:Stack[TreeNode]!):Void offers Int {
+	public def runRootTask(s:TreeNode, stack:Stack[TreeNode]!):Void offers UInt {
 		runTask(s, stack);
 	}
-	public def runTask offers Int (
+	public def runTask  (
 			node:TreeNode, 
-			stack:Stack[TreeNode]!) offers Int { 
+			stack:Stack[TreeNode]!) offers UInt { 
 		/* compute branching factor at this node */
 		var curNodeBranchingFactor:double;
 
@@ -84,12 +84,12 @@ public class Geometric implements TaskFrame[TreeNode, Int]{
 	val probForCurNodeBranchingFactor = 1.0 / (1.0 + curNodeBranchingFactor);
 	val randomNumber = (node.r)() as double;
 	val normalizedRandomNumber = randomNumber / UTS.NORMALIZER;
-	val numChildren = Math.floor ((Math.log (1-normalizedRandomNumber)) /
+	val numChildren:UInt = Math.floor ((Math.log (1-normalizedRandomNumber)) /
 			(Math.log 
-					(1-probForCurNodeBranchingFactor))) as int;
+					(1-probForCurNodeBranchingFactor))) as UInt;
 
 	/* Push all the children onto the stack */
-	for (var i:Int=0; i<numChildren; ++i) 
+	for (var i:UInt=0; i<numChildren; ++i) 
 		stack.push(TreeNode (node.d+1, node.r));
 	offer numChildren;
 	}

@@ -51,9 +51,7 @@ public final class GlobalRunner[T, Z]  {
      * across the places specified in the distribution supplied on creation of this object. On completion
      * of this method, the task has completed. 
      */
-    public def run(t:T, reducer:Reducible[Z])  {
-    	st().main(st, t, reducer);
-    }
+    public def run(t:T, reducer:Reducible[Z]) = st().main(st, t, reducer);
     /**
      * Return the results of the computation. Should only be called after <code>run(t:T)</code>
      * has returned.
@@ -159,7 +157,7 @@ public final class GlobalRunner[T, Z]  {
 
     	/** Process the current task.
     	 */
-    	final def processSubtree (task:T) {
+    	final def processSubtree (task:T):Void offers Z {
     		++counter.nodesCounter;
     		frame.runTask(task, stack);
     	}
@@ -168,7 +166,7 @@ public final class GlobalRunner[T, Z]  {
     	 * Process the loot - the ValRail of tasks received from the environment.
     	 * 
     	 */
-    	final def processLoot(loot: ValRail[T], lifeline:Boolean) offers Z {
+    	final def processLoot(loot: ValRail[T], lifeline:Boolean):Void offers Z {
     		counter.incRx(lifeline, loot.length);
     		val time = System.nanoTime();
     		for (r in loot) 
@@ -178,7 +176,7 @@ public final class GlobalRunner[T, Z]  {
     	
     	/** Process at most N tasks from the stack.
     	 */
-    	final def processAtMostN(n:Int) offers Z{
+    	final def processAtMostN(n:Int):Void offers Z{
     		val time = System.nanoTime();
     		for (var count:Int=0; count < n; count++) {
     			val e = stack.pop();
@@ -196,7 +194,7 @@ public final class GlobalRunner[T, Z]  {
     	 * <p> Exit loop when stack is empty, and terminate. 
     	 * 
     	 */
-    	final def processStack(st:PLH[T, Z]) offers Z {
+    	final def processStack(st:PLH[T, Z]):Void offers Z {
     		while (true) {
     			var n:Int = Math.min(stack.size(), nu);
     		  
@@ -230,7 +228,7 @@ public final class GlobalRunner[T, Z]  {
 
     	/** Distribute loot to activated incoming lifelines.
     	 */
-    	def distribute(st:PLH[T, Z], depth:Int) offers Z {
+    	def distribute(st:PLH[T, Z], depth:Int):Void offers Z {
     		val time = System.nanoTime();
     		val numThieves = thieves.size();
     		if (numThieves > 0)
@@ -330,7 +328,7 @@ public final class GlobalRunner[T, Z]  {
     			init:Boolean, 
     			loot:ValRail[T], 
     			depth:Int, 
-    			source:Int) offers Z {
+    			source:Int):Void offers Z {
     		// assert loot != null;
     		try {
     			Event.event("Place" + source + ") launches " 
@@ -373,7 +371,7 @@ public final class GlobalRunner[T, Z]  {
     	 * 
     	 */
     	
-    	def main (st:PLH[T,Z], rootTask:T, reducer: Reducible[Z])  {
+    	def main (st:PLH[T,Z], rootTask:T, reducer: Reducible[Z]):Z  {
     		val P=Place.MAX_PLACES;
     		Event.event("Start main finish");
     		val startAtZero = System.nanoTime();
