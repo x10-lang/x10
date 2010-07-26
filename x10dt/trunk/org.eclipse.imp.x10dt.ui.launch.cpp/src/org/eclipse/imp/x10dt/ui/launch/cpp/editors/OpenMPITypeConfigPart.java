@@ -14,13 +14,11 @@ import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_PERIO
 import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_PERIODIC_MONITOR_TIME;
 import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_REMOTE_INSTALL_PATH;
 
-import org.eclipse.core.runtime.preferences.IPreferencesService;
-import org.eclipse.imp.x10dt.ui.launch.core.Constants;
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IOpenMPIInterfaceConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
-import org.eclipse.ptp.rm.mpi.openmpi.core.OpenMPIPlugin;
 import org.eclipse.ptp.rm.mpi.openmpi.core.OpenMPIPreferenceManager;
 import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
@@ -36,6 +34,7 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 
+@SuppressWarnings("deprecation")
 final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart implements ICITypeConfigurationPart {
   
   OpenMPITypeConfigPart(final IOpenMPIResourceManagerConfiguration toolRMConf) {
@@ -158,19 +157,13 @@ final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart impleme
   }
   
   private void updateOpenMPIVersionSelection(final String prefix) {
-    final IPreferencesService preferences = OpenMPIPreferenceManager.getPreferences();
-    super.fLaunchCmdText.setText(preferences.getString(OpenMPIPlugin.getUniqueIdentifier(), prefix + PREFS_LAUNCH_CMD,
-                                                       Constants.EMPTY_STR, null));
-    super.fDebugCmdText.setText(preferences.getString(OpenMPIPlugin.getUniqueIdentifier(), prefix + PREFS_DEBUG_CMD,
-                                                      Constants.EMPTY_STR, null));
-    super.fDiscoverCmdText.setText(preferences.getString(OpenMPIPlugin.getUniqueIdentifier(), prefix + PREFS_DISCOVER_CMD,
-                                                         Constants.EMPTY_STR, null));
-    super.fMonitorCmdText.setText(preferences.getString(OpenMPIPlugin.getUniqueIdentifier(),
-                                                        prefix + PREFS_PERIODIC_MONITOR_CMD, Constants.EMPTY_STR, null));
-    super.fPeriodicTimeSpinner.setSelection(preferences.getInt(OpenMPIPlugin.getUniqueIdentifier(),
-                                                               prefix + PREFS_PERIODIC_MONITOR_TIME, 0, null));
-    super.fInstallLocText.setText(preferences.getString(OpenMPIPlugin.getUniqueIdentifier(), 
-                                                        prefix + PREFS_REMOTE_INSTALL_PATH, Constants.EMPTY_STR, null));
+    final Preferences preferences = OpenMPIPreferenceManager.getPreferences();
+    super.fLaunchCmdText.setText(preferences.getString(prefix + PREFS_LAUNCH_CMD));
+    super.fDebugCmdText.setText(preferences.getString(prefix + PREFS_DEBUG_CMD));
+    super.fDiscoverCmdText.setText(preferences.getString(prefix + PREFS_DISCOVER_CMD));
+    super.fMonitorCmdText.setText(preferences.getString(prefix + PREFS_PERIODIC_MONITOR_CMD));
+    super.fPeriodicTimeSpinner.setSelection(preferences.getInt(prefix + PREFS_PERIODIC_MONITOR_TIME));
+    super.fInstallLocText.setText(preferences.getString(prefix + PREFS_REMOTE_INSTALL_PATH));
   }
   
   // --- Fields
