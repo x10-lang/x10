@@ -229,7 +229,6 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
             List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(annotations.size());
             for (AnnotationNode an : annotations) {
                 ats.add(an.annotationType().typeRef());
-                System.err.println(an + " " + an.annotationType() + " " + an.annotationType().typeRef());
             }
             methodDef.setDefAnnotations(ats);
         }
