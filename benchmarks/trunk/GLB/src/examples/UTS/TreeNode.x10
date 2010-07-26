@@ -10,4 +10,4 @@
  */
 
 
-struct TreeNode(d:Int, r:UTS.SHA1Rand) {}
+struct TreeNode(d:UInt, r:UTS.SHA1Rand) {}

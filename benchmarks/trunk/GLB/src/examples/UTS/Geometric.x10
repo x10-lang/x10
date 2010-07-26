@@ -14,9 +14,9 @@
  */
 
 import x10.util.Stack;
-public class Geometric implements TaskFrame[TreeNode, UInt]{
+public class Geometric(b0:UInt, a:UInt, d:UInt) implements TaskFrame[TreeNode, UInt]{
 	static type Constants = UTS.Constants;
-	public static def usageLine(b0:Int, r:Int, a:Int, d:Int, seq:Int, w:Int, nu:Int, l:Int, z:Int) {
+	public static def usageLine(b0:UInt, r:UInt, a:UInt, d:UInt, seq:UInt, w:UInt, nu:UInt, l:UInt, z:UInt) {
 		Console.OUT.println("b0=" + b0 +
 				"   r=" + r +
 				"   a=" + a +
@@ -26,16 +26,9 @@ public class Geometric implements TaskFrame[TreeNode, UInt]{
 				"   n=" + nu +
 				"   l=" + l + 
 				"   z=" + z +
-				(l==3 ?" base=" + NetworkGenerator.findW(Place.MAX_PLACES, z) : ""));
+				(l==3U ?" base=" + NetworkGenerator.findW(Place.MAX_PLACES, z) : ""));
 	}
-	val b0:Int, a:Int, d:Int;
-	public def this (b0:Int, 
-			a:Int, 
-			d:Int) {
-		this.b0 = b0;
-		this.a = a; 
-		this.d = d; 
-	}
+	
 	public def runRootTask(s:TreeNode, stack:Stack[TreeNode]!):Void offers UInt {
 		runTask(s, stack);
 	}
@@ -45,7 +38,7 @@ public class Geometric implements TaskFrame[TreeNode, UInt]{
 		/* compute branching factor at this node */
 		var curNodeBranchingFactor:double;
 
-	if (0 == node.d) { /* root node */
+	if (0U == node.d) { /* root node */
 		curNodeBranchingFactor = b0;
 	} else { /* calculate the branching factor for this node */
 		if (Constants.EXPDEC == a) { /* Exponential decrease */
@@ -55,7 +48,7 @@ public class Geometric implements TaskFrame[TreeNode, UInt]{
 			Math.pow (node.d as double, 
 					tmpLogOne/tmpLogTwo);
 		} else if (Constants.CYCLIC == a) { /* Cyclic */
-			if (node.d > (5*d)) {
+			if (node.d > (5U*d)) {
 				curNodeBranchingFactor = 0.0;
 			} else {
 				val TWO = 2.0;
@@ -69,7 +62,7 @@ public class Geometric implements TaskFrame[TreeNode, UInt]{
 		} else if (Constants.FIXED == a) { /* Fixed */
 			curNodeBranchingFactor = (node.d < d) ? 
 					b0 : /* true */
-						0; /* false */
+						0U; /* false */
 		} else if (Constants.LINEAR == a) { /* Linear --- default */
 			curNodeBranchingFactor = b0 *
 			(1.0 - (node.d as double)/

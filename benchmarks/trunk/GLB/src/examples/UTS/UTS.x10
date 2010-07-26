@@ -21,14 +21,14 @@ public class UTS {
   static val NORMALIZER = 2147483648.0; // does not depend on input parameters
 
   public static struct Constants {
-    public static val BINOMIAL = 0;
-    public static val GEOMETRIC = 1;
-    public static val HYBRID = 2;
+    public static val BINOMIAL = 0U;
+    public static val GEOMETRIC = 1U;
+    public static val HYBRID = 2U;
 
-    public static val LINEAR = 0;
-    public static val EXPDEC = 1;
-    public static val CYCLIC = 2;
-    public static val FIXED = 3;
+    public static val LINEAR = 0U;
+    public static val EXPDEC = 1U;
+    public static val CYCLIC = 2U;
+    public static val FIXED = 3U;
   }
 	@NativeRep ("c++", "UTS__SHA1Rand", "UTS__SHA1Rand", null)
 	@NativeCPPCompilationUnit ("sha1.c")
@@ -61,30 +61,30 @@ public class UTS {
                      Option("z", "", "Dimension of the sparse hypercube")
 					 ]);
 
-			val t:Int = opts ("-t", 0);
-			val b0 = opts ("-b", 4);
-			val seq = opts("-s", 0);
-			val r:Int = opts ("-r", 0);
+			val t = opts ("-t", 0) as UInt;
+			val b0 = opts ("-b", 4) as UInt;
+			val seq = opts("-s", 0) as UInt;
+			val r = opts ("-r", 0) as UInt;
 			val verbose = opts("-v",0)==1;
-			val nu:Int = opts("-n",200);
-			val w:Int = opts("-w", 0);
+			val nu = opts("-n",200) as UInt;
+			val w = opts("-w", 0) as UInt;
 			val e = opts("-e", 0)==1;
 
 			// geometric options
-			val a:Int = opts ("-a", 0);
-			val d:Int = opts ("-d", 6);
+			val a = opts ("-a", 0) as UInt;
+			val d = opts ("-d", 6) as UInt;
 
 			// binomial options
 			val q:Double = opts ("-q", 15.0/64.0);
-			val mf:Int = opts ("-m", 4);
-			val k:Int = opts ("-k", 0);
+			val mf = opts ("-m", 4) as UInt;
+			val k = opts ("-k", 0) as UInt;
 
 			// hybrid options
 			val geo_to_bin_shift_depth_ratio:Double = opts ("-f", 0.5);
 
             // Figure out what kind of connectivity is needed.
-            val l:Int = opts ("-l", 3);
-            val z:Int = opts ("-z", 1);
+            val l = opts ("-l", 3) as UInt;
+            val z = opts ("-z", 1) as UInt;
 
 			Console.OUT.println("--------");
 			Console.OUT.println("Places="+Place.MAX_PLACES);
@@ -100,7 +100,7 @@ public class UTS {
 				global safe public def zero()=0U;
 				global safe public def apply(a:UInt, b:UInt)=a+b;
 			};
-			if (seq != 0) {
+			if (seq != 0U) {
 				var result:Int;
 			    Console.OUT.println("Starting...");
 				var time:Long = System.nanoTime();
