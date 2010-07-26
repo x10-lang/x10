@@ -22,7 +22,6 @@ public class ClockedVar[T] implements ClockableVar{
 
     var xRead:T;
     val MAXWORKERS = 1024;
-    val OFFSET = 16;
     val xWrite: Rail[T]! = Rail.make[T](MAXWORKERS);
     val op:(T,T)=>T;
     val opInit:T;
@@ -72,22 +71,22 @@ public class ClockedVar[T] implements ClockableVar{
      		xWrite(i) = opInitial;
       }
       
-    public @Inline def get$G():ClockedVar[T] = this;
+    public @Inline @Header def get$G():ClockedVar[T] = this;
    
 
-    public @Inline def getClocked():T = xRead;
+    public @Inline @Header def getClocked():T = xRead;
     
 
 
 
 
-    public @Inline def setClocked(x:T) {
-    	val i = (Runtime.workerTid() as Int);
+    public @Inline @Header def setClocked(x:T) {
+    	val i = Runtime.workerTid();
 	changed = true;
         this.xWrite(i) = op(xWrite(i), x);
     } 
     
-    public @Inline def setR(x:T) {
+    public @Inline @Header def setR(x:T) {
 	this.xRead=x;
    }
     
@@ -99,7 +98,7 @@ public class ClockedVar[T] implements ClockableVar{
 		val numOfWorkers = Runtime.numOfWorkers();
         	//Console.OUT.println("Worker id" + numOfWorkers);
 		var i: int;
-        	for (i = 1; i < numOfWorkers + OFFSET; i++) {
+        	for (i = 1; i < numOfWorkers; i++) {
         		this.xRead =  op (this.xRead, this.xWrite(i));
         		this.xWrite(i) = opInit;
          	}
