@@ -2,11 +2,12 @@
 
 <project name="x10.dist.host" default="update" basedir=".">
     <property file="../x10.dist.host/x10.dist.properties"/>
+	<!-- /tmp is location that cache will be downloaded to and expanded -->
     <property name="tmp" location="${basedir}/tmp"/>
     <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
 	<!-- Bump version here: for 2.0.3  (also see x10.dist.properties file) -->
-    <property name="x10.version" value="2.0.3"/>	
+    <!-- unused? <property name="x10.version" value="2.0.3"/>	 -->
     <property name="x10.dist.location" location="${tmp}"/>
 	<property name="x10.tarball" value="x10-${x10.timestamp}_${x10.platform}.tgz"/> 
 	<property name="x10.tarball.url" value="${x10.tarball.url.base}/${x10.tarball}${x10.tarball.url.suffix}"/>
@@ -31,30 +32,15 @@
             </or>
         </condition>
     </target>
-    <target name="clean">
-    	<!--  note: for 2.0.4, just use/delete everything from platform tarballs, not specific files or patterns  -->
-        <delete>
-            <fileset dir="${lib}">
-                <include name="lib*.a"/> 
-            	<include name="lib*.so*"/>  <!-- 2.0.2: linux now has shared libs not .a's -->
-                <include name="*.dll"/>  <!-- cygwin has DLLs  -->                
-                <include name="libx10.mft"/>
-            	<exclude name="dummy.file"/>
-            </fileset>
-        </delete>
-        <delete>
-            <fileset dir="${incdir}">
-                <include name="*.h"/>
-                <include name="**/*.h"/>
-                <include name="*.inc"/>
-                <include name="**/*.inc"/>
-                <exclude name="dummy.file"/>
-            </fileset>
-        </delete>
-        <delete dir="${incdir}/x10"/>
-        <delete dir="${incdir}/x10aux"/>
-        <delete dir="${tmp}/include"/>
-        <delete dir="${tmp}/lib"/>
+    <target name="clean">	
+    	<!--  note: for 2.0.5, just use/delete everything from platform tarballs, not specific files or patterns  -->
+        <delete dir="${incdir}"/>
+        <delete dir="${lib}"/>
+    	<echo message="Delete the stuff expanded from the tarball but not the tarball itself"/>
+    	<delete dir="${tmp}" includeEmptyDirs="true">
+    		<include name="**/*"/>
+    	    <exclude name="*.tgz"/>
+    	</delete> 
     </target>
     <target name="distclean" depends="clean">
         <delete dir="${tmp}"/>
@@ -68,16 +54,8 @@
         <echo message="x10.tarball.url=${x10.tarball.url}; dest=${tmp}/${x10.tarball}"/>
 	    </target>
     <target name="expand-x10-tarball" depends="init,x10-tarball-download" unless="x10.already.expanded">
-    	<!--  note: for 2.0.4, just use/delete everything from platform tarballs, not specific files or patterns  -->
-        <untar src="${local.x10.tarball}" dest="${tmp}" compression="gzip">
-            <patternset>
-                <include name="include/**"/>
-                <include name="lib/lib*.a"/>
-            	<include name="lib/lib*.so*"/>  <!-- 2.0.2: linux now has shared libs not .a's -->
-                <include name="lib/*.dll"/><!--  2.0.2 cygwin has libgc.dll.a-->
-                <include name="lib/libx10.mft"/>
-            </patternset>
-        </untar>
+    	<!--  note: for 2.0.5, just use/delete everything from platform tarballs, not specific files or patterns  -->
+        <untar src="${local.x10.tarball}" dest="${tmp}" compression="gzip"/>
     </target>
     <target name="download" depends="init,x10-tarball-download"/>
     <target name="expand" depends="init,expand-x10-tarball"/>
@@ -86,9 +64,9 @@
         <copy todir="${incdir}">
             <fileset dir="${x10.dist.location}/include" includes="**"/>
         </copy>
-        <copy todir="${lib}"> <!-- 2.0.2: copy .so files too - linux uses shared lib .so* files -->
-        	<!--  note: for 2.0.4, just use/delete everything from platform tarballs, not specific files or patterns  -->
-            <fileset dir="${x10.dist.location}/lib" includes="lib*.a,lib*.so*,*.dll,libx10.mft,"/><!-- 2.0.2-->
+        <copy todir="${lib}"> 
+        	<!--  note: for 2.0.5, just use/delete everything from platform tarballs, not specific files or patterns  -->
+            <fileset dir="${x10.dist.location}/lib" />
         </copy>
     </target>
     <target name="dist" depends="init,update"/>
