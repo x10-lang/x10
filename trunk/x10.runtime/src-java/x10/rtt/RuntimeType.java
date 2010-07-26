@@ -96,7 +96,8 @@ public class RuntimeType<T> implements Type<T> {
     // o instanceof This and params
     public final boolean instanceof$(Object o, Type<?>... params) {
         if (o == null) {return false;}
-        if (o.getClass() == base) {
+        Class<?> target = o.getClass();
+        if (target == base || checkAnonymous(target)) {
             Any any = (x10.core.Any) o;
             for (int i = 0, s = params.length; i < s; i ++) {
                 switch (variances[i]) {
@@ -119,6 +120,19 @@ public class RuntimeType<T> implements Type<T> {
         else {
             return false;
         }
+    }
+
+    private boolean checkAnonymous(Class<?> target) {
+        if (!target.isAnonymousClass()) {
+            return false;
+        }
+        if (target.getSuperclass() != java.lang.Object.class && target.getSuperclass() == base) {
+            return true;
+        }
+        if (target.getInterfaces().length == 1 && target.getInterfaces()[0] == base) {
+            return true;
+        }
+        return false;
     }
 
     private final boolean checkParents(Object o, Type<?>... params) {
@@ -350,7 +364,8 @@ public class RuntimeType<T> implements Type<T> {
     // for shortcut
     public final boolean instanceof$(Object o, Type<?> param0) {
         if (o == null) {return false;}
-        if (o.getClass() == base) {
+        Class<?> target = o.getClass();
+        if (target == base || checkAnonymous(target)) {
             Any any = (x10.core.Any) o;
             if (variances[0].equals(Variance.INVARIANT)) {
                 if (!param0.equals(any.getParam(0))) {return false;}
@@ -375,7 +390,8 @@ public class RuntimeType<T> implements Type<T> {
     // for shortcut
     public final boolean instanceof$(Object o, Type<?> param0, Type<?> param1) {
         if (o == null) {return false;}
-        if (o.getClass() == base) {
+        Class<?> target = o.getClass();
+        if (target == base || checkAnonymous(target)) {
             Any any = (x10.core.Any) o;
             if (variances[0].equals(Variance.INVARIANT)) {
                 if (!param0.equals(any.getParam(0))) {return false;}
@@ -410,7 +426,8 @@ public class RuntimeType<T> implements Type<T> {
     // for shortcut 
     public final boolean instanceof$(Object o, Type<?> param0, Type<?> param1, Type<?> param2) {
         if (o == null) {return false;}
-        if (o.getClass() == base) {
+        Class<?> target = o.getClass();
+        if (target == base || checkAnonymous(target)) {
             Any any = (x10.core.Any) o;
             if (variances[0].equals(Variance.INVARIANT)) {
                 if (!param0.equals(any.getParam(0))) {return false;}
