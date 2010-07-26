@@ -27,7 +27,11 @@ final class CygwinTargetOpHelper extends AbstractTargetOpHelper implements ITarg
       final List<String> cygpathCmd = new ArrayList<String>();
       cygpathCmd.add("cygpath"); //$NON-NLS-1$
       cygpathCmd.add("-u"); //$NON-NLS-1$
-      cygpathCmd.add(resourcePath);
+      if (resourcePath.charAt(0) == '/') {
+        cygpathCmd.add(resourcePath.substring(1)); 
+      } else {
+        cygpathCmd.add(resourcePath);
+      }
       final StringBuilder output = new StringBuilder();
       try {
         final int returnCode = run(cygpathCmd, new IProcessOuputListener() {
