@@ -10,6 +10,9 @@
  */
 package x10.util.synthesizer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
@@ -22,8 +25,11 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.ast.AnnotationNode;
 import x10.ast.X10FieldDecl;
+import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
+import x10.extension.X10Del;
 import x10.types.X10Context;
 import x10.types.X10FieldDef;
 
@@ -35,14 +41,15 @@ public class FieldSynth extends AbstractStateSynth implements IClassMemberSynth 
 
     X10FieldDef fieldDef;
     X10FieldDecl fieldDecl;
-
+    List<AnnotationNode> annotations;  // annotations of the new method
+    
     public FieldSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, Name name, Flags flags,
             Type type) {
         super(xnf, xct, pos);
 
         fieldDef = (X10FieldDef) xts.fieldDef(pos, Types.ref(classDef.asType()), flags, Types.ref(type), name);
         classDef.addField(fieldDef);
-
+        annotations = new ArrayList<AnnotationNode>();
     }
 
     public FieldSynth(X10NodeFactory xnf, X10Context xct, ClassDef classDef, String name, Type type) {
@@ -53,6 +60,10 @@ public class FieldSynth extends AbstractStateSynth implements IClassMemberSynth 
         this(xnf, xct, pos, classDef, Name.make(name), Flags.NONE, type);
     }
 
+    public void addAnnotation(AnnotationNode annotation){
+        annotations.add(annotation);
+    }
+    
     public void setType(Type type){
         try {
             checkClose();
@@ -91,6 +102,11 @@ public class FieldSynth extends AbstractStateSynth implements IClassMemberSynth 
         CanonicalTypeNode tnode = xnf.CanonicalTypeNode(pos, type);
         FlagsNode fnode = xnf.FlagsNode(pos, flags);
         fieldDecl = (X10FieldDecl) xnf.FieldDecl(pos, fnode, tnode, id).fieldDef(fieldDef);
+        
+        if(annotations.size() > 0){
+            fieldDecl = (X10FieldDecl) ((X10Del)fieldDecl.del()).annotations(annotations);           
+        }
+        
         return fieldDecl;
     }
 
