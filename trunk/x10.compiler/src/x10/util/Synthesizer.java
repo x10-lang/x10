@@ -78,6 +78,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.extension.X10Del;
+import x10.types.FunctionType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -1559,4 +1560,19 @@ public class Synthesizer {
     public Expr thisRef(Type classType, final Position pos){
         return xnf.This(pos).type(classType);
     }
+    
+    /**
+     * Generate type of "()=> type"
+     * @param type
+     * @param pos
+     * @return
+     */
+    public FunctionType simpleFunctionType(Type type, Position pos){        
+        return xts.closureType(pos, Types.ref(type),
+                       Collections.EMPTY_LIST,
+                       Collections.EMPTY_LIST,
+                       null, 
+                       Collections.EMPTY_LIST);
+    }
+    
 }

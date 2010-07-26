@@ -160,39 +160,6 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
         return conSynth;
     }
 
-    /**
-     * This will create a constructor of CType something like this(o:CType!) The
-     * body is: super(o) and copy all fields from o to this
-     * 
-     * @param pos
-     * @return CodeBlockSynth so that more statements could be added
-     * @throws SemanticException
-     */
-    public CodeBlockSynth createCopyConstructor(Position pos) throws SemanticException {
-        Type cType = (Type) classDef.asType();
-        Type ccType = PlaceChecker.AddIsHereClause(cType, xct);
-        Type sType = classDef.superType().get();
-        Type scType = PlaceChecker.AddIsHereClause(sType, xct);
-
-        ConstructorSynth conSynth = createConstructor(pos);
-        Expr otherRef = conSynth.addFormal(compilerPos, ccType, "o");
-        CodeBlockSynth conStmtsSynth = conSynth.createConstructorBody(compilerPos);
-        SuperCallSynth superCallSynth = conStmtsSynth.createSuperCall(compilerPos, classDef);
-        superCallSynth.addArgument(scType, otherRef);
-
-        // now try to add fields copy directly
-        Receiver leftReceiver = xnf.This(compilerPos).type(cType);
-        for (FieldDef df : classDef.fields()) {
-            Name fieldName = df.name();
-            Stmt s = xnf.Eval(compilerPos, synth.makeFieldToFieldAssign(compilerPos, leftReceiver, fieldName, otherRef,
-                                                                        fieldName, xct));
-            conStmtsSynth.addStmt(s);
-        }
-
-        return conStmtsSynth;
-
-    }
-
     public ClassSynth createInnerClass(Position pos, Type type, String className) {
         ClassSynth cSynth = new ClassSynth(xnf, xct, pos, type, className);
         membersSynth.add(cSynth);
