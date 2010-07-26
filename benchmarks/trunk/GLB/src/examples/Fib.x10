@@ -65,7 +65,7 @@ public class Fib {
 				Console.OUT.println("Starting...");
 				var time:Long = System.nanoTime();
 
-				val runner = new SeqRunner[UInt UInt](new Fib2());
+				val runner = new SeqRunner[UInt, UInt](new Fib2());
 				val result=runner.run(x, reducer);
 
 				time = System.nanoTime() - time;
