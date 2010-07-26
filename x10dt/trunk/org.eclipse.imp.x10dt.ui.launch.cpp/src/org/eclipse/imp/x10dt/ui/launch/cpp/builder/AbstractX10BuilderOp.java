@@ -281,7 +281,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
       if (fileStore.fetchInfo().isDirectory()) {
         collectAllObjectFiles(objectFiles, fileStore);
       } else if (name.endsWith(O_EXT)) {
-        objectFiles.add(fileStore.toURI().getPath());
+        objectFiles.add(this.fTargetOpHelper.getTargetSystemPath(fileStore.toURI().getPath()));
       }
     }
   }
