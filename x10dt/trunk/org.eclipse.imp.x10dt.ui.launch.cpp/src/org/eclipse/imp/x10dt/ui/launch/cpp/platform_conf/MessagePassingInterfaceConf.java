@@ -127,22 +127,6 @@ abstract class MessagePassingInterfaceConf extends AbstractCommunicationInterfac
                                         this.fDefaultIntallLocation, this.fInstallLocation) + super.hashCode();
   }
   
-  public boolean isComplete() {
-    if (super.isComplete()) {
-      if (! this.fDefaultToolCmds) {
-        if (! hasData(this.fDiscoverCmd)) {
-          return false;
-        }
-      }
-      if (! this.fDefaultIntallLocation) {
-        return hasData(this.fInstallLocation);
-      }
-      return true;
-    } else {
-      return false;
-    }
-  }
-  
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append(super.toString()).append("\nDefault Tools Commands: ").append(this.fDefaultToolCmds) //$NON-NLS-1$

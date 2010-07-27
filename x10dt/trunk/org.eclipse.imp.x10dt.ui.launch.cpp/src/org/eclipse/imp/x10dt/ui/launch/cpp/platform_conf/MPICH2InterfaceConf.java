@@ -28,7 +28,18 @@ final class MPICH2InterfaceConf extends MessagePassingInterfaceConf implements I
   
   public boolean isComplete() {
     if (super.isComplete()) {
-      return hasData(super.fLaunchCmd) && hasData(super.fDebugCmd);
+      boolean firstStep = false;
+      if (super.fDefaultToolCmds) {
+        firstStep = true;
+      } else {
+        firstStep = hasData(super.fLaunchCmd) && hasData(super.fDebugCmd) && hasData(super.fDiscoverCmd) && 
+                    hasData(super.fMonitorCmd);
+      }
+      if (firstStep) {
+        return (super.fDefaultIntallLocation ? true : hasData(super.fInstallLocation));
+      } else {
+        return false;
+      }
     } else {
       return false;
     }

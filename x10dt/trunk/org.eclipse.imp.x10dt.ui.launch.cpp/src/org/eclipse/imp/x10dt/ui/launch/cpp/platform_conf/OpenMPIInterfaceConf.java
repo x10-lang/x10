@@ -72,10 +72,22 @@ final class OpenMPIInterfaceConf extends MessagePassingInterfaceConf implements 
       if (this.fOpenMPIVersion == null) {
         return false;
       }
-      if ((this.fOpenMPIVersion != EOpenMPIVersion.EAutoDetect) && (! hasData(this.fLaunchCmd) || ! hasData(this.fDebugCmd))) {
+      boolean firstStep = false;
+      if (super.fDefaultToolCmds) {
+        firstStep = true;
+      } else {
+        if (this.fOpenMPIVersion == EOpenMPIVersion.EAutoDetect) {
+          firstStep = hasData(super.fDiscoverCmd);
+        } else {
+          firstStep = hasData(super.fLaunchCmd) && hasData(super.fDebugCmd) && hasData(super.fDiscoverCmd) && 
+                      hasData(super.fMonitorCmd);
+        }
+      }
+      if (firstStep) {
+        return (super.fDefaultIntallLocation ? true : hasData(super.fInstallLocation));
+      } else {
         return false;
       }
-      return true;
     } else {
       return false;
     }
