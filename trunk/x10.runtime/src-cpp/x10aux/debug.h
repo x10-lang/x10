@@ -89,6 +89,13 @@ struct _X10methodName
     uint16_t _lineIndex;         // Index into _CPPtoX10xrefList of the first line of the method
 };
 
+struct _X10VarMap
+{
+	const char* X10name;
+	const char* X10type;
+	const char* CPPname;
+};
+
 enum _MetaLanguage {
   X10_META_LANG = 0    // Metalanguage 0 is X10
 };
@@ -116,10 +123,10 @@ struct _MetaDebugInfo_t {
   const struct _X10methodName* x10methodNameList; // The method name mapping list
 };
 
-extern void _X10_Entry_Hook();     // A hook at the start of every X10 method.
-extern void _X10_Exit_Hook();      // A hook at the end of every X10 method.
-extern void _X10_Statement_Hook(); // A hook at the start of every X10 executable statement.
-                                   // Follows any method start hook, and precedes any method end hook.
+//extern void _X10_Entry_Hook();     // A hook at the start of every X10 method.
+//extern void _X10_Exit_Hook();      // A hook at the end of every X10 method.
+extern void _X10_Statement_Hook();   // A hook at the start of every X10 executable statement.
+                                     // Follows any method start hook, and precedes any method end hook.
 
 #endif //X10AUX_DEBUG_H
 // vim:tabstop=4:shiftwidth=4:expandtab

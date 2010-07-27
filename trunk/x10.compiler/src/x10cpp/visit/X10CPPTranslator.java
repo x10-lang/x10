@@ -35,6 +35,7 @@ import polyglot.ast.Branch;
 import polyglot.ast.Catch;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
+import polyglot.ast.CompoundStmt;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
 import polyglot.ast.FieldDecl;
@@ -162,7 +163,10 @@ public class X10CPPTranslator extends Translator {
 			w.write("//#line " + line + " \"" + file + "\": "+n.getClass().getName());
 			w.newline();
 		}
-
+		
+		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof CompoundStmt))
+			w.write("_X10_STATEMENT_HOOK(), ");
+		
 		final int startLine = w.currentStream().getStreamLineNumber(); // for debug info
 
 		// FIXME: [IP] Some nodes have no del() -- warn in that case
