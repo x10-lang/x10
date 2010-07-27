@@ -118,9 +118,14 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       
       public void widgetSelected(final SelectionEvent event) {
         updateCommunicationTypeInfo(ciTypeCombo, managedForm, toolkit, parent);
+
+        final String serviceName = ciModeCombo.getItem(ciModeCombo.getSelectionIndex());
+        final String serviceModeId = (String) ciModeCombo.getData(serviceName);
+        getPlatformConf().setServiceModeId(getPlatformConf().getCommunicationInterfaceConf().getServiceTypeId(), serviceModeId);
+
         updateDirtyState(managedForm);
       }
-      
+
       public void widgetDefaultSelected(final SelectionEvent event) {
         widgetSelected(event);
       }
@@ -133,8 +138,9 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
         final String serviceModeId = (String) ciModeCombo.getData(serviceName);
         final String serviceTypeName = ciTypeCombo.getItem(ciTypeCombo.getSelectionIndex());
         final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) ciTypeCombo.getData(serviceTypeName);
+        getPlatformConf().setServiceTypeId(typeConfPart.getServiceProviderId());
         getPlatformConf().setServiceModeId(typeConfPart.getServiceProviderId(), serviceModeId);
-        
+
         updateDirtyState(managedForm);
       }
       
