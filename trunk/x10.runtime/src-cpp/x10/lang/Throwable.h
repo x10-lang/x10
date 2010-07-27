@@ -13,7 +13,7 @@
 #define X10_LANG_THROWABLE_H
 
 #include <x10aux/config.h>
-#if defined(__GLIBC__) || defined(_AIX)
+#if defined(__GLIBC__) || defined(_AIX) || defined(__APPLE__)
 #define MAX_TRACE_SIZE 1024
 #else
 #define MAX_TRACE_SIZE 1
