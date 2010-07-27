@@ -18,8 +18,8 @@ abstract class AbstractFormControlChecker {
   // --- Code for descendants
   
   protected final void addMessages(final String messageText, final int type) {
-    this.fHeaderMMgr.addMessage(this, messageText, null /* data */, type);
-    this.fPageMMgr.addMessage(this, messageText, null /* data */, type, this.fControl);
+    this.fHeaderMMgr.addMessage(this.fControl, messageText, null /* data */, type);
+    this.fPageMMgr.addMessage(this.fControl, messageText, null /* data */, type, this.fControl);
   }
   
   protected final Control getControl() {
@@ -27,8 +27,8 @@ abstract class AbstractFormControlChecker {
   }
   
   protected final void removeMessages() {
-    this.fHeaderMMgr.removeMessage(this);
-    this.fPageMMgr.removeMessage(this, this.fControl);
+    this.fHeaderMMgr.removeMessage(this.fControl);
+    this.fPageMMgr.removeMessage(this.fControl, this.fControl);
   }
   
   // --- Private code
