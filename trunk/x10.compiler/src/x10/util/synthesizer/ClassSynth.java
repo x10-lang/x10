@@ -33,6 +33,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.ClassDef.Kind;
 import polyglot.util.Position;
+import polyglot.frontend.Job;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10NodeFactory;
@@ -51,15 +52,16 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
 
     List<IClassMemberSynth> membersSynth;
 
-    public ClassSynth(X10NodeFactory xnf, X10Context xct, ClassDecl classDecl) {
+    public ClassSynth(Job job, X10NodeFactory xnf, X10Context xct, ClassDecl classDecl) {
         super(xnf, xct, classDecl.position());
         this.classDecl = (X10ClassDecl) classDecl;
         this.classDef = (X10ClassDef) classDecl.classDef();
         // no need to set others
         membersSynth = new ArrayList<IClassMemberSynth>();
+        classDef.setJob(job);
     }
 
-    public ClassSynth(X10NodeFactory xnf, X10Context xct, Position pos, Type superType, Name className,
+    public ClassSynth(Job job, X10NodeFactory xnf, X10Context xct, Position pos, Type superType, Name className,
             List<Type> interfaces, Flags flags, Kind kind) {
         super(xnf, xct, pos);
         membersSynth = new ArrayList<IClassMemberSynth>();
@@ -75,6 +77,7 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
         classDef.name(className);
         classDef.setFlags(flags);
         classDef.kind(kind); // important to set kind
+        classDef.setJob(job);
     }
 
     /**
@@ -85,12 +88,12 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
      * @param superType
      * @param className
      */
-    public ClassSynth(X10NodeFactory xnf, X10Context xct, Type superType, String className) {
-        this(xnf, xct, compilerPos, superType, className);
+    public ClassSynth(Job job, X10NodeFactory xnf, X10Context xct, Type superType, String className) {
+        this(job, xnf, xct, compilerPos, superType, className);
     }
 
-    public ClassSynth(X10NodeFactory xnf, X10Context xct, Position pos, Type superType, String className) {
-        this(xnf, xct, pos, superType, Name.make(className), new ArrayList<Type>(), Flags.NONE, ClassDef.TOP_LEVEL);
+    public ClassSynth(Job job, X10NodeFactory xnf, X10Context xct, Position pos, Type superType, String className) {
+        this(job, xnf, xct, pos, superType, Name.make(className), new ArrayList<Type>(), Flags.NONE, ClassDef.TOP_LEVEL);
     }
 
     public X10ClassDef getClassDef() {
@@ -161,7 +164,7 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
     }
 
     public ClassSynth createInnerClass(Position pos, Type type, String className) {
-        ClassSynth cSynth = new ClassSynth(xnf, xct, pos, type, className);
+        ClassSynth cSynth = new ClassSynth(classDef.job(), xnf, xct, pos, type, className);
         membersSynth.add(cSynth);
         return cSynth;
     }
