@@ -104,6 +104,12 @@ public class FieldSynth extends AbstractStateSynth implements IClassMemberSynth 
         fieldDecl = (X10FieldDecl) xnf.FieldDecl(pos, fnode, tnode, id).fieldDef(fieldDef);
         
         if(annotations.size() > 0){
+            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(annotations.size());
+            for (AnnotationNode an : annotations) {
+                ats.add(an.annotationType().typeRef());
+            }
+            fieldDef.setDefAnnotations(ats);
+            fieldDecl = (X10FieldDecl) fieldDecl.fieldDef(fieldDef);
             fieldDecl = (X10FieldDecl) ((X10Del)fieldDecl.del()).annotations(annotations);           
         }
         
