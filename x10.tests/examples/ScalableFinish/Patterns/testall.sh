@@ -1,25 +1,25 @@
 #!/bin/sh
-#./run.sh ManyLocalFinish1_old 1
-#./run.sh ManyLocalFinish1_old 2
-#./run.sh ManyLocalFinish1_old 4
-#./run.sh ManyLocalFinish1_old 8
-#./run.sh ManyLocalFinish1_old 16
-#./run.sh ManyLocalFinish1 1
-#./run.sh ManyLocalFinish1 2
-#./run.sh ManyLocalFinish1 4
-#./run.sh ManyLocalFinish1 8
-#./run.sh ManyLocalFinish1 16
+ ./run.sh ManyLocalFinish1_old 1
+ ./run.sh ManyLocalFinish1_old 2
+ ./run.sh ManyLocalFinish1_old 4
+ ./run.sh ManyLocalFinish1_old 8
+ ./run.sh ManyLocalFinish1_old 16
+ ./run.sh ManyLocalFinish1 1
+ ./run.sh ManyLocalFinish1 2
+ ./run.sh ManyLocalFinish1 4
+ ./run.sh ManyLocalFinish1 8
+ ./run.sh ManyLocalFinish1 16
 
-#./run.sh ManyLocalFinish2_old 1
-#./run.sh ManyLocalFinish2_old 2
-#./run.sh ManyLocalFinish2_old 4
-#./run.sh ManyLocalFinish2_old 8
-#./run.sh ManyLocalFinish2_old 16
-#./run.sh ManyLocalFinish2 1
-#./run.sh ManyLocalFinish2 2
-#./run.sh ManyLocalFinish2 4
-#./run.sh ManyLocalFinish2 8
-#./run.sh ManyLocalFinish2 16
+ ./run.sh ManyLocalFinish2_old 1
+ ./run.sh ManyLocalFinish2_old 2
+ ./run.sh ManyLocalFinish2_old 4
+ ./run.sh ManyLocalFinish2_old 8
+ ./run.sh ManyLocalFinish2_old 16
+ ./run.sh ManyLocalFinish2 1
+ ./run.sh ManyLocalFinish2 2
+ ./run.sh ManyLocalFinish2 4
+ ./run.sh ManyLocalFinish2 8
+ ./run.sh ManyLocalFinish2 16
 
 #./run.sh SimpleFinish1_old 1
 #./run.sh SimpleFinish1_old 2
@@ -70,9 +70,9 @@
 #./run.sh SimpleFinish5_old 4
 #./run.sh SimpleFinish5_old 8
 #./run.sh SimpleFinish5_old 16
-./run.sh SimpleFinish5 1
-./run.sh SimpleFinish5 2
-./run.sh SimpleFinish5 4
-./run.sh SimpleFinish5 8
-./run.sh SimpleFinish5 16
+#./run.sh SimpleFinish5 1
+#./run.sh SimpleFinish5 2
+#./run.sh SimpleFinish5 4
+#./run.sh SimpleFinish5 8
+#./run.sh SimpleFinish5 16
 
