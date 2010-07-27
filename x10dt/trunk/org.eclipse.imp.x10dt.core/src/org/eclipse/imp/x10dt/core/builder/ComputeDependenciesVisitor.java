@@ -175,11 +175,15 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
             recordTypeDependency(ci.container());
         } else if (n instanceof ClassDecl) {
             ClassDecl classDecl = (ClassDecl) n;
-			fFromType = classDecl.classDef().asType(); // PORT1.7 classDecl.type()->classDecl.classDef().asType()
-			List<ClassType> supers = new ArrayList<ClassType>();
-			superTypes(classDecl.classDef().asType(), supers);
-			for(ClassType supert: supers){
-				recordTypeDependency(supert);
+			ClassDef classDef= classDecl.classDef();
+
+			if (classDef != null) {
+				fFromType = classDef.asType(); // PORT1.7 classDecl.type()->classDecl.classDef().asType()
+				List<ClassType> supers = new ArrayList<ClassType>();
+				superTypes(classDef.asType(), supers);
+				for(ClassType supert: supers){
+					recordTypeDependency(supert);
+				}
 			}
 //			if (classDecl.superClass() != null) {// interfaces have no superclass
 //				recordTypeDependency(classDecl.superClass().type());
