@@ -269,6 +269,16 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		place = "here";
 	}
 
+	/**
+	 * Determines the statement that the user either highlighted or clicked on
+	 * before selecting to apply the "Extract Concurrent" refactoring. This is
+	 * only a best guess approximation that works out the statement by looking
+	 * at successively larger selections of the code until a Stmt type is
+	 * encountered. It will also continue to scan until it encounters the
+	 * enclosing procedure declaration (stored in the fNodeMethod field).
+	 * 
+	 * @return the nearest Stmt node to the selected text
+	 */
 	public Node_c findNode() {// UniversalEditor editor) {
 		Point sel = ed.getSelection();
 
@@ -290,8 +300,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				System.out.println(tmp + " " + tmp.getClass());
 				last = tmp;
 			}
-			if (innerStmtNode == null && tmp instanceof Stmt_c)
+			if (innerStmtNode == null && tmp instanceof Stmt_c) {
 				innerStmtNode = (Stmt_c) tmp;
+			}
 			if (tmp instanceof ProcedureDecl) {
 				fNodeMethod = (ProcedureDecl) tmp;
 				break;
@@ -393,6 +404,14 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return new RefactoringStatus();
 	}
 
+	/**
+	 * Determines the set of variables that are used as induction variables for
+	 * the provided loop.
+	 * 
+	 * @param loop
+	 *            an X10 loop with induction variables
+	 * @return the set of variables defined by the loop
+	 */
 	private Set<VarDecl> findInductionVars(CompoundStmt loop) {
 		if (loop instanceof X10Loop) {
 			X10Loop x10Loop = (X10Loop) loop;
@@ -454,6 +473,16 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			return this;
 		}
 
+		/**
+		 * Determines if the given variable has already been seen by the finder.
+		 * Based on the variable instance, not the name of the variable.
+		 * 
+		 * @param vi
+		 *            the instance to compare
+		 * @param par
+		 *            the name, in the case of fields
+		 * @return true, if the variable has already been seen
+		 */
 		private boolean containsLVal(VarInstance vi, NamedVariable par) {
 			for (Variable var : fLValues) {
 				if (var instanceof Field) {
@@ -489,11 +518,26 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			return false;
 		}
 
+		/**
+		 * Gets the calculated set of variables. Note: will return null in the
+		 * case that the visitor has not been run.
+		 * 
+		 * @return the calculated set of variables.
+		 */
 		public Set<Variable> getLValues() {
 			return fLValues;
 		}
 	}
 
+	/**
+	 * Determines the variables that are referenced in the loop and creates a
+	 * set of associations between those variables and the previously calculated
+	 * pointer keys for the method.
+	 * 
+	 * @param loop
+	 *            the loop which will be duplicated.
+	 * @return a set of variables and pointer keys.
+	 */
 	private Set<VarWithFirstUse> findLoopRefedLVals(Stmt loop) {
 		Set<VarWithFirstUse> result = new HashSet<VarWithFirstUse>();
 		LValueFinder lvalFinder = new LValueFinder();
@@ -517,12 +561,22 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return result;
 	}
 
+	/**
+	 * Creates a map between variables and instance keys for determining aliases
+	 * and information flow.
+	 * 
+	 * @param vars
+	 *            a set of variables to seed the points to set
+	 * @return a points to map from variables to instance pointer keys
+	 */
 	private Map<VarWithFirstUse, Collection<InstanceKey>> findPointsToSets(
 			Set<VarWithFirstUse> vars) {
 		Map<VarWithFirstUse, Collection<InstanceKey>> result = new HashMap<VarWithFirstUse, Collection<InstanceKey>>();
 		PointerAnalysis analysis = fEngine.getPointerAnalysis();
 		ArrayList<VarWithFirstUse> fieldWorklist = new ArrayList<VarWithFirstUse>();
 
+		// Seed points to set with basic points to information from pointer
+		// analysis
 		for (VarWithFirstUse var : vars) {
 			if (var.getFirstUse() instanceof Local) {
 				PointerKey key = var.getPtrKeyOfFirstUse();
@@ -538,6 +592,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				fieldWorklist.add(var);
 		}
 
+		// Iterate over worklist until it is empty (standard algo)
 		while (!fieldWorklist.isEmpty()) {
 			VarWithFirstUse field = fieldWorklist.remove(0);
 			Variable fieldTarget;
@@ -585,6 +640,16 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return result;
 	}
 
+	/**
+	 * Translate between Polyglot variable and internal representation of a
+	 * variable.
+	 * 
+	 * @param vars
+	 *            internal representations of variables
+	 * @param var
+	 *            a Polyglot variable
+	 * @return the internal representation of the Polyglot variable
+	 */
 	private VarWithFirstUse getVarWithFirstUse(Set<VarWithFirstUse> vars,
 			Variable var) {
 		boolean arrayMode = ((var instanceof ArrayAccess)
@@ -625,6 +690,13 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return null;
 	}
 
+	/**
+	 * Convert points to map into an alias map: var -> list var.
+	 * 
+	 * @param pointsToInfo
+	 *            the points to map
+	 * @return an alias map
+	 */
 	private Map<VarWithFirstUse, Set<VarWithFirstUse>> computeAliasInfo(
 			Map<VarWithFirstUse, Collection<InstanceKey>> pointsToInfo) {
 		Map<VarWithFirstUse, Set<VarWithFirstUse>> resultMap = new HashMap<VarWithFirstUse, Set<VarWithFirstUse>>();
@@ -699,11 +771,14 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return (PolyglotUtils.findNodeOfType(path, Atomic.class) != null);
 	}
 
+	/**
+	 * BadClockVisitor can be used to detect inappropriate usage of a clock that
+	 * would prevent application of the "extract concurrent" refactoring.
+	 * 
+	 * @author smarkstr, rmfuhrer
+	 */
 	private class BadClockVisitor extends NodeVisitor {
 		private boolean fResult = false;
-
-		public BadClockVisitor() {
-		}
 
 		@Override
 		public Node override(Node n) {
@@ -724,12 +799,23 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			return n;
 		}
 
+		/**
+		 * Determines whether visit over AST uncovered bad clock usage.
+		 * 
+		 * @return true, if the AST had bad clock usage; false, otherwise.
+		 */
 		public boolean getResult() {
 			return fResult;
 		}
 	}
 
-	// Examines loop body for any clock manipulations other than resume()
+	/**
+	 * Examines loop body for any clock manipulations other than resume().
+	 * 
+	 * @param stmt
+	 *            The statement to examine for bad clock usage
+	 * @return true, if the statement uses clocks; false, otherwise.
+	 */
 	private boolean badClockUse(Stmt stmt) {
 		BadClockVisitor bc = new BadClockVisitor();
 		stmt.visit(bc);
@@ -747,6 +833,13 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		private final Set<Expr> fEffects = new HashSet<Expr>();
 
+		/**
+		 * Constructs a visitor which will watch for effecting expressions on
+		 * the provided l-values.
+		 * 
+		 * @param lvalsToWatch
+		 *            the l-values which the effects visitor will monitor.
+		 */
 		public EffectsVisitor(Set<Expr> lvalsToWatch) {
 			if (lvalsToWatch != null)
 				fLValsToWatch = lvalsToWatch;
@@ -764,6 +857,12 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			return this;
 		}
 
+		/**
+		 * Returns a set of expressions which have effects on the monitored
+		 * l-values.
+		 * 
+		 * @return set of effecting expressions.
+		 */
 		public Set<Expr> getEffects() {
 			fEffects.retainAll(fLValsToWatch);
 			return fEffects;
@@ -780,6 +879,17 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return (ev.getEffects().size() > 0);
 	}
 
+	/**
+	 * Determines if the preconditions for applying the refactoring are met.
+	 * 
+	 * @param loop
+	 *            the loop to be transformed
+	 * @param pivot
+	 *            the statement which acts as the focus of the refactoring
+	 * @param method
+	 *            the method in which the code resides
+	 * @return true, if the preconditions are met; false, otherwise.
+	 */
 	private boolean preconditionsHold(Stmt loop, Stmt pivot,
 			ProcedureDecl method) {
 		if (hasEffectsOn(pivot, null))
@@ -787,6 +897,15 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return true;
 	}
 
+	/**
+	 * Builds a map from Polyglot variables to WALA pointer analysis results.
+	 * 
+	 * @param rootEntity
+	 *            the WALA CAst entity root for the program
+	 * @return a map from Polyglot variables to WALA pointer keys
+	 * @throws ThrowableStatus
+	 *             when source to CAst entity map cannot be made
+	 */
 	private Map<Variable, PointerKey> buildVarToPtrKeyMap(CAstEntity rootEntity)
 			throws ThrowableStatus {
 		Map<Variable, PointerKey> resultMap = new HashMap<Variable, PointerKey>();
@@ -1002,6 +1121,19 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		}
 	}
 
+	/**
+	 * Creates a mapping from WALA CAstNodes to WALA pointer keys.
+	 * 
+	 * @param cast2VarMap
+	 *            a map from CAstNodes to Polyglot Variables
+	 * @param castNodeVarMap
+	 *            a map from source positions to CAstNodes
+	 * @param castNodeType
+	 *            a map from CAstNodes to internal type representations
+	 * @param sourceToInstructionMap
+	 *            a map from source positions to WALA SSAInstructions
+	 * @return
+	 */
 	private Map<CAstNode, PointerKey> buildCAst2PointerKeyMap(
 			HashMap<CAstNode, Variable> cast2VarMap,
 			RefactoringMap<RefactoringPosition, CAstNode> castNodeVarMap,
@@ -1130,6 +1262,18 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return cast2KeyMap;
 	}
 
+	/**
+	 * Creates a placeholder instance key for field references to obtain some
+	 * localized field sensitivity. Places this key into the current WALA
+	 * CAstNode to pointer key map.
+	 * 
+	 * @param cast2VarMap
+	 *            map from WALA CAstNodes to Polyglot variables
+	 * @param cast2KeyMap
+	 *            map from WALA CAstNodes to pointer keys
+	 * @param cNode
+	 *            the CAstNode which will be used to create the dummy key
+	 */
 	private void createDummyInstanceFieldKey(
 			HashMap<CAstNode, Variable> cast2VarMap,
 			Map<CAstNode, PointerKey> cast2KeyMap, CAstNode cNode) {
@@ -1150,6 +1294,18 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				cNodeClass), cNodeField));
 	}
 
+	/**
+	 * Creates a placeholder instance key for array references to obtain some
+	 * localized array sensitivity. Places this key into the current WALA
+	 * CAstNode to pointer key map.
+	 * 
+	 * @param cast2VarMap
+	 *            map from WALA CAstNodes to Polyglot variables
+	 * @param cast2KeyMap
+	 *            map from WALA CAstNodes to pointer keys
+	 * @param cNode
+	 *            the CAstNode which will be used to create the dummy key
+	 */
 	private void createDummyArrayInstanceKey(
 			HashMap<CAstNode, Variable> cast2VarMap,
 			Map<CAstNode, PointerKey> cast2KeyMap, CAstNode cNode,
@@ -1172,6 +1328,18 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		// NormalAllocationSiteKey(srcNode,null,cNodeClass)));
 	}
 
+	/**
+	 * Recursively creates a source position to WALA SSAInstruction map.
+	 * 
+	 * @param methRef
+	 *            a WALA method reference
+	 * @param astMeths
+	 *            a set of visited method references (debug purposes)
+	 * @param map
+	 *            a map from source positions to SSAInstructions
+	 * @throws ThrowableStatus
+	 *             when WALA data is incomplete for the method reference
+	 */
 	private void buildSourceToInstructionMap(MethodReference methRef,
 			Set<AstMethod> astMeths,
 			// TODO Multiple InstructionContainers might need to be stored for
@@ -1229,7 +1397,16 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		}
 	}
 
-	private boolean nonproductiveSSAInstruction(SSAInstruction ssai) {
+	/**
+	 * Determines if a given SSAInstruction will affect the refactoring
+	 * analysis.
+	 * 
+	 * @param ssai
+	 *            an SSAInstruction
+	 * @return true, if the instruction has no result on analysis; false,
+	 *         otherwise.
+	 */
+	private static boolean nonproductiveSSAInstruction(SSAInstruction ssai) {
 		return (ssai instanceof SSAGotoInstruction)
 				|| (ssai instanceof SSASwitchInstruction)
 				|| (ssai instanceof SSAFinishInstruction)
@@ -1238,6 +1415,22 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				|| (ssai instanceof SSAAbstractThrowInstruction);
 	}
 
+	/**
+	 * Using collected information, calls the appropriate WALA methods to create
+	 * the WALA intermediate representation.
+	 * 
+	 * @param sources
+	 *            the source files to analyze
+	 * @param libs
+	 *            the libraries to include in analysis
+	 * @param javaProject
+	 *            the project being edited
+	 * @throws IOException
+	 *             when source files or entry points are non-existent
+	 * @throws ClassHierarchyException
+	 * @throws ThrowableStatus
+	 * @throws CancelException
+	 */
 	private void doCreateIR(Collection<String> sources, List<String> libs,
 			IJavaProject javaProject) throws IOException,
 			ClassHierarchyException, ThrowableStatus, CancelException {
@@ -1276,6 +1469,15 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		checkCallGraphShape();
 	}
 
+	/**
+	 * Converts string paths into analysis modules.
+	 * 
+	 * @param sources
+	 *            paths to the source files
+	 * @param libs
+	 *            paths to the library files
+	 * @throws IOException
+	 */
 	private void populateScope(Collection<String> sources, List<String> libs)
 			throws IOException {
 		boolean foundLib = false;
@@ -1306,21 +1508,21 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		}
 	}
 
-	private void methodRefDebugOutput() throws IOException {
-		/*
-		 * int index= 0; for(Iterator irIter=
-		 * fMethodIR.iterateAllInstructions(); irIter.hasNext();) {
-		 * SSAInstruction sa= (SSAInstruction) irIter.next();
-		 * System.out.println((index++) + " " + fMethodRef.getSignature() + " "
-		 * + sa.getClass());
-		 * 
-		 * for(int i= 0; i < sa.getNumberOfUses(); i++) { System.out.print(">> "
-		 * + sa.getUse(i)); String[] saUseVarNames=
-		 * fMethodIR.getLocalNames(index, sa .getUse(i)); if (saUseVarNames ==
-		 * null) { System.out.println(" local map is null"); break; } for(int j=
-		 * 0; j < saUseVarNames.length; j++) System.out.print(" " +
-		 * saUseVarNames[j]); System.out.println(); } } System.out.println();
-		 */}
+	// private void methodRefDebugOutput() throws IOException {
+	// /*
+	// * int index= 0; for(Iterator irIter=
+	// * fMethodIR.iterateAllInstructions(); irIter.hasNext();) {
+	// * SSAInstruction sa= (SSAInstruction) irIter.next();
+	// * System.out.println((index++) + " " + fMethodRef.getSignature() + " "
+	// * + sa.getClass());
+	// *
+	// * for(int i= 0; i < sa.getNumberOfUses(); i++) { System.out.print(">> "
+	// * + sa.getUse(i)); String[] saUseVarNames=
+	// * fMethodIR.getLocalNames(index, sa .getUse(i)); if (saUseVarNames ==
+	// * null) { System.out.println(" local map is null"); break; } for(int j=
+	// * 0; j < saUseVarNames.length; j++) System.out.print(" " +
+	// * saUseVarNames[j]); System.out.println(); } } System.out.println();
+	// */}
 
 	/**
 	 * Prints out all IR information for the selected method and stores the
@@ -1343,8 +1545,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		Set<CGNode> srcNodes = fCallGraph.getNodes(fMethodRef);
 
 		// Print out debug information about the current method
-		if (debugOutput)
-			methodRefDebugOutput();
+		// if (debugOutput)
+		// methodRefDebugOutput();
 		if (srcNodes.size() == 0)
 			throw ThrowableStatus
 					.createFatalErrorStatus("Unreachable/non-existent method: "
@@ -1373,6 +1575,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			System.out.println(">> " + p.getValueNumber() + " PointerKey " + p);
 	}
 
+	@Override
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm)
 			throws CoreException, OperationCanceledException {
 		// Check for preconditions here
@@ -1429,12 +1632,20 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		}
 	}
 
+	@Override
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
 			throws CoreException, OperationCanceledException {
 		// Atomic
 		return new RefactoringStatus();
 	}
 
+	/**
+	 * Sets the place where concurrent execution should occur. Defaults to
+	 * "here".
+	 * 
+	 * @param place
+	 *            an X10 place expression
+	 */
 	public void setPlace(String place) {
 		if (place != "")
 			this.place = place;
@@ -1443,6 +1654,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public Change createChange(IProgressMonitor pm) throws CoreException,
 			OperationCanceledException {
 
