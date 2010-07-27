@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Fields</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Fields</h2>
+
+<div class="p"><!----></div>
+Like most other kinds of variables in X10, 
+the fields of an object can be either <b>val</b> or <b>var</b>. 
+Fields can be <b>static</b>,<b>global</b>, or <b>property</b>; see
+&#167; and &#167;.
+Field declarations may have optional
+initializer expressions, as for local variables, &#167;<a href="#local-variables">5</a>.
+<b>var</b> fields without an initializer are initialized with the default value
+of their type. <b>val</b> fields without an initializer must be initialized by
+each constructor.
+
+<div class="p"><!----></div>
+For <b>val</b> fields, as for <b>val</b> local variables, the type may be
+omitted and inferred from the initializer type (&#167;).
+<b>var</b> files, like <b>var</b> local variables, must be declared with a type.
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">FieldDeclaration
+        ::= FieldModifier<sup>*</sup>&nbsp;<b>var</b> FieldDeclaratorsWithType </td></tr>
+<tr><td align="right">&amp;&amp; ( <b>,</b> FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; FieldModifier<sup>*</sup>&nbsp;<b>val</b> FieldDeclarators </td></tr>
+<tr><td align="right">&amp;&amp; ( <b>,</b> FieldDeclarators )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; FieldModifier<sup>*</sup>&nbsp;FieldDeclaratorsWithType </td></tr>
+<tr><td align="right">&amp;&amp; ( <b>,</b> FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">FieldDeclarators
+        ::= FieldDeclaratorsWithType </td></tr>
+<tr><td align="right">::= FieldDeclaratorWithInit </td></tr>
+<tr><td align="right">FieldDeclaratorId
+        ::= Identifier  </td></tr>
+<tr><td align="right">FieldDeclaratorWithInit
+        ::= FieldDeclaratorId Init </td></tr>
+<tr><td align="right">&#124; FieldDeclaratorId ResultType Init </td></tr>
+<tr><td align="right">FieldDeclaratorsWithType
+        ::= FieldDeclaratorId ( <b>,</b> FieldDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
+<tr><td align="right">FieldModifier ::= Annotation </td></tr>
+<tr><td align="right">&#124; <b>static</b> </td></tr>
+<tr><td align="right">&#124; <b>property</b> </td></tr>
+<tr><td align="right">&#124; <b>global</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>This code is
+unnecessarily turgid for the sake of the example.  One would generally write
+<b>public def bump() = ++n;</b>.
+
+</body>
+</html>

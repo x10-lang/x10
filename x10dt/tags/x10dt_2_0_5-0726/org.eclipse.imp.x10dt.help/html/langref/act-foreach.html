@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Foreach statements</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Foreach statements</h2><a name="foreach-section">
+</a>
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">Statement ::= ForEachStatement </td></tr>
+<tr><td align="right">ForEachStatement ::= 
+      <b>foreach</b> <b>(</b> Formal <b>in</b> Expression <b>)</b>
+          Statement 
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The <b>foreach</b> statement is a parallel version of the enhanced <b>for</b>
+statement (&#167;). <b>for(x in C)S</b> executes <b>S</b> <em>
+  sequentially</em>, with everything happening <b>here</b>. <b>foreach(x in C)S</b>
+executes <b>S</b> for each iteration of the loop <em>in parallel</em>, located at
+<b>x.home</b>. It is thus equivalent to:
+<pre>
+foreach (x in C)
+  async at (x.home) S
+</pre>
+
+<div class="p"><!----></div>
+As a common and useful special case, <b>C</b> may be a <b>Dist</b> or an
+<b>Array</b>.  For both of these, <b>foreach(x in C)S</b> is treated just like 
+<b>foreach(x in C.region)S</b>.  <b>x</b> ranges over the <b>Point</b>s of the
+region.  Each activity that <b>foreach</b> starts is located at <b>here</b> -
+the same place that the <b>foreach</b> statement itself is executing.  (If you
+want to start an activity at the place where the array element <b>C(p)</b> is
+located, use <b>ateach</b> (&#167;) instead of <b>foreach</b>.)
+
+<div class="p"><!----></div>
+Exceptions thrown by <b>S</b>, like other exceptions in <b>async</b>s, are
+propagated to the root activity of the <b>foreach</b>.  
+
+<div class="p"><!----></div>
+
+</body>
+</html>

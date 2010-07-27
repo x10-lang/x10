@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Initial values of variables</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Initial values of variables</h2>
+<a name="NullaryConstructor">
+</a>
+
+<div class="p"><!----></div>
+Every assignment, binding, or initialization to a variable of type <b>T{c}</b>
+must be an instance of type <b>T</b> satisfying the constraint <b>{c}</b>.
+Variables must be given a value before they are used. This may be done by
+initialization, which is the only way for immutable (<b>val</b>) variables and
+one option for mutable (<b>var</b>) ones: 
+
+<div class="p"><!----></div>
+<pre>
+  val immut : Int = 3;
+  var mutab : Int = immut;
+  val use = immut + mutab;
+</pre>
+Or, for mutable variables, it may be done by a later assignment.  
+
+<div class="p"><!----></div>
+<pre>
+  var muta2 : Int;
+  muta2 = 4;
+  val use = muta2 * 10;
+</pre>
+
+<div class="p"><!----></div>
+Every class variable must be initialized before it is read, through
+the execution of an explicit initializer or a static block. Every
+instance variable must be initialized before it is read, through the
+execution of an explicit initializer or a constructor.
+
+Mutable instance variables of class type are initialized to 
+to <b>null</b>.
+Mutable instance variables of struct type are 
+assumed to have an initializer that sets the value to the
+result of invoking the nullary constructor on the class. 
+An initializer is required if the default initial value of the variable's type
+is not
+assignable to the variable's type, , <b>Int</b> variables are initialized to
+zero, but that doesn't work for <b>val x:Int{x!=0}</b>.
+
+<div class="p"><!----></div>
+Each method and constructor parameter is initialized to the
+corresponding argument value provided by the invoker of the method. An
+exception-handling parameter is initialized to the object thrown by
+the exception. A local variable must be explicitly given a value by
+initialization or assignment, in a way that the compiler can verify
+using the rules for definite assignment [,&#167;&#126;16].
+
+<div class="p"><!----></div>
+
+</body>
+</html>
