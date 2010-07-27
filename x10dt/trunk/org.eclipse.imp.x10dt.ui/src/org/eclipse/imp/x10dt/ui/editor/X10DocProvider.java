@@ -103,10 +103,15 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			target = fi;
 		} else if (target instanceof FieldDecl) {
 			FieldDecl fieldDecl = (FieldDecl) target;
-			FieldInstance fi = fieldDecl.fieldDef().asInstance(); // PORT 1.7
-																	// was
-																	// fieldDecl.fieldInstance();
-			target = fi;
+			FieldDef fieldDef= fieldDecl.fieldDef();
+
+			if (fieldDef == null) {
+				target = null;
+			} else {
+				FieldInstance fi = fieldDef.asInstance();
+
+				target = fi;
+			}
 		}
 		
 		if (target instanceof Local) { // field reference
