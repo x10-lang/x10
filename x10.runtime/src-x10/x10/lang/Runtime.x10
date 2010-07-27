@@ -371,7 +371,7 @@ public final class Runtime {
     def this(r:Reducible[T]) {
     	this.reducer=r;
     	this.result=reducer.zero();
-    	this.resultRail = Rail.make[T](MAX, (Int) => reducer.zero());
+    	this.resultRail = Rail.make[T](MAX, (Int) => this.result);
     }
     def accept(t:T) {
     	this.result=reducer(result,t);
