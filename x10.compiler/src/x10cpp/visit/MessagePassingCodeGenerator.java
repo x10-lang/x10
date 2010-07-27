@@ -4266,7 +4266,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            Name rn = Name.make(getId());
 	            Type rt = cd.asInstance().returnType();
 	            this.ret = rt.isVoid() ? null : xts.localDef(closure.position(), xts.NoFlags(), Types.ref(rt), rn);
-	            this.label = Name.make("__ret"+getUniqueId_());
+	            this.label = Name.makeFresh("__ret");
 	        }
 	    }
 	    // TODO: use override to short-circuit the traversal
