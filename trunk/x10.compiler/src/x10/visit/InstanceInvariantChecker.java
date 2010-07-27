@@ -35,15 +35,13 @@ public class InstanceInvariantChecker extends NodeVisitor
     }
 
     public Node visitEdgeNoOverride(Node parent, Node n) {
-        try
-        {
-            if (Report.should_report("InstanceInvariantChecker", 2))
-	            Report.report(2, "Checking invariants for: " + n);
-            checkInvariants(n);
+        if (Report.should_report("InstanceInvariantChecker", 2))
+            Report.report(2, "Checking invariants for: " + n);
+        String m = checkInvariants(n);
+        if (m==null)
             n.del().visitChildren(this); // if there is an error, I don't recurse to the children
-
-        } catch (SemanticException e) {
-            String msg = e.getMessage()+("!")+
+        else {
+            String msg = m+("!")+
                     (" n=")+(n).toString();
             job.compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR,msg,n.position());
         }
@@ -57,45 +55,42 @@ public class InstanceInvariantChecker extends NodeVisitor
     	}
     	return false;
     }
-    private void myAssert(boolean cond, String msg) throws SemanticException {
-        if (!cond)
-            throw new SemanticException(msg);
-    }
     
-    private void checkInvariants(Node n) throws SemanticException {
-        myAssert(n != null,"Cannot visit null");
+    private String checkInvariants(Node n) {
+        if (n == null) return "Cannot visit null";
 
-        myAssert(!isAmbiguous(n), "Ambiguous node found in AST");
+        if (isAmbiguous(n)) return "Ambiguous node found in AST";
         
         if (n instanceof Typed) {
-            myAssert(((Typed)n).type()!=null,"Typed node is missing type");
+            if (((Typed)n).type()==null) return "Typed node is missing type";
         }
 
         if (n instanceof ClassMember) {
-            myAssert(((ClassMember)n).memberDef()!=null,"ClassMember missing memberDef");
+            if (((ClassMember)n).memberDef()==null) return "ClassMember missing memberDef";
         }
         if (n instanceof VarDecl) {
-            myAssert(((VarDecl)n).localDef()!=null,"VarDecl missing localDef");
+            if (((VarDecl)n).localDef()==null) return "VarDecl missing localDef";
         }
 
         if (n instanceof ProcedureCall) {
-            myAssert(((ProcedureCall)n).procedureInstance()!=null,"ProcedureCall missing procedureInstance");
+            if (((ProcedureCall)n).procedureInstance()==null) return "ProcedureCall missing procedureInstance";
         }
         if (n instanceof NamedVariable) {
-            myAssert(((NamedVariable)n).varInstance()!=null,"NamedVariable missing varInstance");
+            if (((NamedVariable)n).varInstance()==null) return "NamedVariable missing varInstance";
         }
         if (n instanceof FieldAssign) {
-            myAssert(((FieldAssign)n).fieldInstance()!=null,"FieldAssign missing fieldInstance");
+            if (((FieldAssign)n).fieldInstance()==null) return "FieldAssign missing fieldInstance";
         }
         // x10 specific
         if (n instanceof Closure) {
-            myAssert(((Closure)n).closureDef()!=null,"Closure missing closureDef");
+            if (((Closure)n).closureDef()==null) return "Closure missing closureDef";
         }
         if (n instanceof AssignPropertyBody) {
-            myAssert(((AssignPropertyBody)n).constructorInstance()!=null,"AssignPropertyBody missing constructorInstance");
+            if (((AssignPropertyBody)n).constructorInstance()==null) return "AssignPropertyBody missing constructorInstance";
         }
         if (n instanceof SettableAssign) {
-            myAssert(((SettableAssign)n).methodInstance()!=null,"SettableAssign missing methodInstance");
+            if (((SettableAssign)n).methodInstance()==null) return "SettableAssign missing methodInstance";
         }
+        return null;
     }
 }
