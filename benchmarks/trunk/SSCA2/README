@@ -1,0 +1,11 @@
+o openMP -- the original version in C + OpenMP
+
+o smp -- Shared memory version of SSCA2 
+   o kernel 4 not impelemented
+
+o par-1d - 1d distributed version of SSCA2
+  o (dist-1d) is it's older version
+
+o par-1d-hybrid -- hybrid of SMP and par-1d (only KERNEL 3 is hybrid)
+
+
