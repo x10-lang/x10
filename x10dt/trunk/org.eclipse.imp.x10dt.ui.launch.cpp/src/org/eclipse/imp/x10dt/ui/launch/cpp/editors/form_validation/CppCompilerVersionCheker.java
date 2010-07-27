@@ -42,7 +42,7 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
       if (((text.length() >= 3) && (lowerCaseName.charAt(0) == 'x') && (lowerCaseName.charAt(1) == 'l') && 
           (lowerCaseName.charAt(2) == 'c')) || MPCC.equals(text)) {
         listener = new XlC_CompilerVersionOutputListener();
-      } else if (GPP.equals(text) || GCC.equals(text)){
+      } else if (text.startsWith(GPP) || text.startsWith(GCC)){
         listener = new GnuCompilerVersionOutputListener();
       } else {
         listener = null;
