@@ -63,6 +63,20 @@ par-1d-dbg-clean:
 par-1d-opt-clean:
 	$(MAKE) -C par-1d OUTDIR=opt-gen clean
 
+par-1d-hybrid-opt: sprng
+	$(MAKE) -C par-1d-hybrid OUTDIR=opt-gen par-1d-opt
+
+par-1d-hybrid-dbg: sprng
+	$(MAKE) -C par-1d-hybrid OUTDIR=dbg-gen par-1d-dbg
+
+par-1d-hybrid-clean: par-1d-hybrid-opt-clean par-1d-dbg-clean
+
+par-1d-hybrid-dbg-clean:
+	$(MAKE) -C par-1d-hybrid OUTDIR=dbg-gen clean
+
+par-1d-hybrid-opt-clean:
+	$(MAKE) -C par-1d-hybrid OUTDIR=opt-gen clean
+
 sprng-clean:
 	$(MAKE) -C sprng2.0 clean
 
