@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.parser.IMessageHandler;
-import org.eclipse.imp.parser.MessageHandlerAdapter;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -37,22 +36,20 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.framework.Bundle;
 
 import polyglot.ast.SourceFile;
+import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
-import polyglot.main.Report;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
-import polyglot.util.SilentErrorQueue;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
 public class CompilerDelegate {
     private org.eclipse.imp.x10dt.ui.parser.ExtensionInfo fExtInfo;
-    private polyglot.frontend.Compiler fCompiler;
 
     private final IJavaProject fX10Project;
 
@@ -73,12 +70,12 @@ public class CompilerDelegate {
             	}
             }
         };
-        fCompiler = new polyglot.frontend.Compiler(fExtInfo, eq);
-    	Globals.initialize(fCompiler); //PORT1.7 must initialize before jobs/goals are added to queue (change for Polyglot v3)
-        Report.setQueue(eq);
+        final Compiler compiler = new Compiler(fExtInfo, eq);
+    	Globals.initialize(compiler);
+//        Report.setQueue(eq);
     }
 
-    public polyglot.frontend.Compiler getCompiler() { return fCompiler; }
+    public Compiler getCompiler() { return Globals.Compiler(); }
     public ExtensionInfo getExtInfo() { return fExtInfo; }
 
     public X10Lexer getLexerFor(Source src) { return fExtInfo.getLexerFor(src); }
@@ -87,7 +84,7 @@ public class CompilerDelegate {
 
     public boolean compile(Collection<Source> sources) {
         fExtInfo.setInterestingSources(sources);
-    	return fCompiler.compile(sources);
+    	return Globals.Compiler().compile(sources);
     }
 
     /**
