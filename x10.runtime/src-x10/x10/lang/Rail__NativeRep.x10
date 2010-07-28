@@ -354,7 +354,7 @@ import x10.compiler.Inline;
     
     	
     	
-    	 public static safe @Inline def getClockedCPp[T](r: Rail[ClockedVar[T]]!, index: Int): T
+    	 public static safe @Inline def getClockedCPP[T](r: Rail[ClockedVar[T]]!, index: Int): T
     	   = (r(index) as ClockedVar[T]!).getClocked();  
   
     	

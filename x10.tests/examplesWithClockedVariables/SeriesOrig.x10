@@ -161,9 +161,9 @@ public class SeriesOrig extends SeriesTest {
 
 	public def JGFinitialise(): void = {
 		switch (size) {
-			case 0: array_rows = 10000; break;
-			case 1: array_rows = 100000; break;
-			case 2: array_rows = 1000000; break;
+			case 0: array_rows = 1000; break;
+			case 1: array_rows = 10000; break;
+			case 2: array_rows = 100000; break;
 			default: throw new Error();
 		}
 		buildTestData();

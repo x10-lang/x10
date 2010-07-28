@@ -116,16 +116,20 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	 
 	    private Call createWrappingCall(Local local) {
 	        X10MethodInstance mi;
+		Type type;
+		Type retType;
 	        try {
-	            Type type = xts.typeForName(CLOCKEDVAR);
-	            
-	            mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(local.type(), Name.make("getClocked"), Collections.EMPTY_LIST, context));
+	            type = xts.typeForName(CLOCKEDVAR);
+		    retType = local.type();
+	            mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(type, Name.make("getClocked"), Collections.EMPTY_LIST, context));
 	        } catch (SemanticException e) {
 	            throw new InternalCompilerError("Something is terribly wrong", e);
 	        }
 	        Call call = xnf.Call(local.position(), local, xnf.Id(local.position(), "getClocked"));
-	        call = (Call) call.methodInstance(mi).type(local.type());
-	        return call;
+	        call = (Call) call.methodInstance(mi).type(retType);
+	   	System.out.println (mi + "  " + mi.flags().isFinal());
+
+		    return call;
 	    }
 
 	 
@@ -245,11 +249,11 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                X10ClassType type2 = ((X10ClassType) type).typeArguments(typeArgs);
 	                Expr construct = xnf.New(position,xnf.CanonicalTypeNode(position, type2), args)
 	               
-	                .constructorInstance(xts.findConstructor(type2, xts.ConstructorMatcher(n.type().type(), argsType, context)))
+	                .constructorInstance(xts.findConstructor(type2, xts.ConstructorMatcher(type2, argsType, context)))
 	                .type(type2);
 	                // clear shared flag and set final flag
 	                FieldDecl fieldDecl = xnf.FieldDecl(position,xnf.FlagsNode(position,X10Flags.toX10Flags(f).Final()), xnf.CanonicalTypeNode(position, type2), n.name(), construct) 
-	                .fieldDef(xts.fieldDef(n.position(), Types.ref(type2), n.flags().flags().Final(), Types.ref(type2), n.name().id()));
+	                .fieldDef(xts.fieldDef(n.position(), n.fieldDef().container(), n.flags().flags().Final(), Types.ref(type2), n.name().id()));
 	                return fieldDecl;
 	            } catch (SemanticException e) {
 	                throw new InternalCompilerError("Something is terribly wrong", e);
@@ -343,7 +347,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
           	try {
               Type type = xts.typeForName(CLOCKEDVAR);
              
-              mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(field.type(), Name.make("getClocked"), Collections.EMPTY_LIST, context));
+              mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(type, Name.make("getClocked"), Collections.EMPTY_LIST, context));
           	} catch (SemanticException e) {
           		throw new InternalCompilerError("Something is terribly wrong", e);
           	}
