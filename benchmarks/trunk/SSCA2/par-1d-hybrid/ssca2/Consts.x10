@@ -15,7 +15,7 @@ public def this(scale: Types.INT_T, n: Types.LONG_T, m: Types.LONG_T, maxwt: Typ
 	MaxIntWeight = maxwt;
 	SubGraphPathLength = sublength;
 	K4Approx = k4;
-        this.nthreads = nthreads;
+	this.nthreads = nthreads;
 }
 };
 

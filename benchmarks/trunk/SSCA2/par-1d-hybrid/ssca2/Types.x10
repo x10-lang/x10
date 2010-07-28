@@ -8,8 +8,8 @@ public class Types {
 	static type LONG_T = Int; //x10.lang.Long; /* 64 bit */
 	static type WEIGHT_T = LONG_T;
 	static type VERT_T =  LONG_T;
-        public static type EDGE_T = Triplet[VERT_T, VERT_T, WEIGHT_T];
-
-        public static type UVPair = Pair[VERT_T, VERT_T];
-
+	public static type EDGE_T = Triplet[VERT_T, VERT_T, WEIGHT_T];
+	
+	public static type UVPair = Pair[VERT_T, VERT_T];
+	
 };

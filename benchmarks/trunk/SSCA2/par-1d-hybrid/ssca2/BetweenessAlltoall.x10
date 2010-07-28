@@ -137,7 +137,8 @@ class BetweenessAlltoall extends BetweenessCentrality {
 							
 						} else { 
 							val owner = pg.owner_id(neighbor);   
-							(N(owner) as GrowableRail[UVDSQuad]!).add(UVDSQuad(vertex, neighbor, d(vertex), sig(vertex))); }
+							(N(owner) as GrowableRail[UVDSQuad]!).add(UVDSQuad(vertex, neighbor, d(vertex), sig(vertex))); 
+						}
 					}
 			}
 			
