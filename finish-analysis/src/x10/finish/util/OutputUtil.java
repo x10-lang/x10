@@ -3,14 +3,19 @@ package x10.finish.util;
 import java.io.ByteArrayInputStream;
 
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.ArrayList;
 
 import x10.finish.*;
 import x10.finish.table.CallTableKey;
@@ -23,6 +28,7 @@ public class OutputUtil {
     /**
      * Returns a copy of the object, or null if the object cannot be serialized.
      */
+    public static int PLACE_NUMBER=16;
     public static Object copy(Object orig) {
 	Object obj = null;
 	try {
@@ -77,5 +83,97 @@ public class OutputUtil {
 	    ex.printStackTrace();
 	}
 	return calltable;
+    }
+    
+    private static class PlotRecord{
+	long root;
+	long remote;
+	long all;
+	public PlotRecord(long ro, long re, long a){
+	    root = ro;
+	    remote = re;
+	    all = a;
+	}
+    }
+    public static void Write2Plot(String dir) throws Exception {
+	String os = System.getProperty("os.name");
+	String user = "Users";
+	if (os.contains("Linux")) {
+	    user = "home";
+
+	}
+	String path = "/"+user+"/blshao/workspace/x10-compiler/"+
+			"x10.tests/examples/ScalableFinish/Patterns/expr2/";
+	PlotRecord[] newStat = new PlotRecord[16];
+	PlotRecord[] oldStat = new PlotRecord[16];
+	//for(int i=0;i<=4;i++){ 
+	for(int i=0;i<PLACE_NUMBER;i++){
+	    //int index = (int)Math.pow(2.0, i);
+	    int index = i+1;
+	    String file_name = path + dir + "/" + dir + "_"+index+".java.hprof.txt";
+	    //System.err.println(file_name);
+	    HprofParser p = new HprofParser(file_name);
+	    p.parse();
+	    //p.dump(1);
+	    long root = p.getRootStat();
+	    long remote = p.getRemoteStat();
+	    long all = p.getAllStat();
+	    //System.out.println("new "+index+"="+root+"\t"+remote+"\t"+all);
+	    PlotRecord pr = new PlotRecord(root,remote,all);
+	    //newStat[index-1] = pr;
+	    newStat[i] = pr;
+	}
+	//for(int i=0;i<=4;i++){ 
+	for(int i=0;i<PLACE_NUMBER;i++){
+	    //int index = (int)Math.pow(2.0, i);
+	    int index = i + 1;
+	    String file_name = path + dir + "/" + dir + "_old_"+index+".java.hprof.txt";
+	    //System.err.println(file_name);
+	    HprofParser p = new HprofParser(file_name);
+	    p.parse();
+	   // p.dump(1);
+	    long root = p.getRootStat();
+	    long remote = p.getRemoteStat();
+	    long all = p.getAllStat();
+	    //System.out.println("old "+index+"="+root+"\t"+remote+"\t"+all);
+	    PlotRecord pr = new PlotRecord(root,remote,all);
+	    //oldStat[index-1] = pr;
+	    oldStat[i] = pr;
+	}
+	String outPath = path + dir;
+	//String outPath = "/Users/blshao/Desktop";
+	BufferedWriter rootData = 
+            new BufferedWriter(new FileWriter(outPath+"/root.dat"));
+	BufferedWriter remoteData = 
+            new BufferedWriter(new FileWriter(outPath+"/remote.dat"));
+	BufferedWriter allData = 
+            new BufferedWriter(new FileWriter(outPath+"/all.dat"));
+	for(int i=0;i<PLACE_NUMBER;i++){
+	//for(int i=0;i<=4;i++){ 
+	    //int index = (int)Math.pow(2.0, i);
+	    //PlotRecord newRec = newStat[index-1];
+	    //PlotRecord oldRec = oldStat[index-1];
+	    
+	    int index = i+1;
+	    PlotRecord newRec = newStat[i];
+	    PlotRecord oldRec = oldStat[i];
+	    String rootOut = index + "\t" + oldRec.root + "\t" + newRec.root + "\n";
+	    String remoteOut = index + "\t" + oldRec.remote + "\t" + newRec.remote + "\n";
+	    String allOut = index + "\t" + oldRec.all + "\t" + newRec.all + "\n";
+	    //System.out.println(allOut);
+	    //Thread.sleep(1000);
+	    //System.out.println(rootOut);
+	    //Thread.sleep(1000);
+	    //System.out.println(remoteOut);
+	    //Thread.sleep(1000);
+	    rootData.write(rootOut);
+	    remoteData.write(remoteOut);
+	    allData.write(allOut);
+	}
+	System.out.println(dir+" finished");
+	rootData.close();
+	remoteData.close();
+	allData.close();
+
     }
 }
