@@ -57,6 +57,7 @@ class FindSubGraphs {
                    val i_begin = tid*chunkSize;
                    val i_end = tid == nthreads-1 ? flength : (tid+1)*chunkSize;
 
+              //x10.io.Console.OUT.println("tid " + tid + " " + i_begin + " " + i_end);
               for (var i_var: Int = i_begin; i_var < i_end; i_var++) {
                 val i = i_var; 
                 val vertex = frontier(i);

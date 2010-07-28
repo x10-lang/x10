@@ -39,10 +39,10 @@ all_opt: smp-opt\
 
 
 smp-opt:
-	$(MAKE) -C smp smp-opt
+	$(MAKE) -C smp OUTDIR=opt-gen smp-opt
 
 smp-dbg:
-	$(MAKE) -C smp smp-dbg
+	$(MAKE) -C smp OUTDIR=dbg-gen smp-dbg
 
 smp-clean:
 	$(MAKE) -C smp clean
