@@ -35,6 +35,7 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
@@ -190,8 +191,14 @@ public class Desugarer extends ContextVisitor {
                 }
             }
         }
-        return super.superEnter(parent, n);
+        if (n instanceof Return) {
+            Return f = (Return) n;
+            if (f.expr() instanceof FinishExpr) {
+                reducerS.push((FinishExpr) f.expr());
+            }
+        }
 
+        return super.superEnter(parent, n);
     }
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
@@ -217,6 +224,8 @@ public class Desugarer extends ContextVisitor {
             return visitFinish((Finish) n);
         if (n instanceof Offer)
             return visitOffer((Offer) n);
+        if (n instanceof Return)
+            return visitReturn((Return) n);
         if (n instanceof ForEach)
             return visitForEach((ForEach) n);
         if (n instanceof AtEach)
@@ -612,14 +621,17 @@ public class Desugarer extends ContextVisitor {
     //    catch (t:Throwable) { Runtime.pushException(t); }
     //    finally { x = f.stopFinishExpr(); }
     //    }
-    private Stmt visitFinishExpr(Assign n, LocalDecl l) throws SemanticException {
+    private Stmt visitFinishExpr(Assign n, LocalDecl l, Return r) throws SemanticException {
     	FinishExpr f = null;
-    	if ((l==null) && (n!=null)) {
-    		f = (FinishExpr) n.right();
-    	}
-    	if ((n==null) && (l!=null)) {
-    		f = (FinishExpr) l.init();
-    	}
+        if ((l==null) && (n!=null)&& (r == null)) {
+                f = (FinishExpr) n.right();
+        }
+        if ((n==null) && (l!=null)&& (r==null)) {
+                f = (FinishExpr) l.init();
+        }
+        if ((n==null) && (l==null)&& (r!=null)) {
+                f = (FinishExpr) r.expr();
+        }
     	
         Position pos = f.position();
         Expr reducer = f.reducer();
@@ -668,17 +680,21 @@ public class Desugarer extends ContextVisitor {
         // Begin finally block
         Name STOPFINISHEXPR = Name.make("stopFinishExpr");
         Stmt returnS = null;
-        if ((l==null) && (n!=null)) {
+        if ((l==null) && (n!=null)&& (r==null)) {
         	Expr left = n.left(xnf).type(reducerTarget);
             Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
             Expr b = xnf.Assign(pos, left, Assign.ASSIGN, instanceCall).type(reducerTarget);
             returnS = xnf.Eval(pos, b);
       	}
-        if ((n==null) && (l!=null)) {
+        if ((n==null) && (l!=null) && (r==null)) {
             Expr local2 = xnf.Local(pos, l.name()).localInstance(l.localDef().asInstance()).type(reducerTarget);
         	Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
          	Expr b = xnf.Assign(pos, local2, Assign.ASSIGN, instanceCall).type(reducerTarget);
             returnS = xnf.Eval(pos, b);
+        }
+        if ((n==null) && (l==null) && (r!=null)) {
+            Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
+            returnS = xnf.X10Return(pos, instanceCall, true);
         }
         
         Block finalBlock = xnf.Block(pos, returnS);
@@ -723,12 +739,22 @@ public class Desugarer extends ContextVisitor {
     	return offercall;		 
 	}
 
+    //handle finishR in return stmt:
+    private Stmt visitReturn(Return n) throws SemanticException {
+        if (n.expr() instanceof FinishExpr) {
+            Stmt returnS = visitFinishExpr(null,null,n);
+            return returnS;
+        }
+
+        return n;
+    }
+
     private Stmt visitLocalDecl(LocalDecl n) throws SemanticException {
         if (n.init() instanceof FinishExpr) {
             Position pos = n.position();
             ArrayList<Stmt> sList = new ArrayList<Stmt>();
             sList.add(n.init(null));                      
-            Stmt s = visitFinishExpr(null, n);
+            Stmt s = visitFinishExpr(null, n,null);
             sList.add(s);
             return xnf.StmtSeq(pos, sList);
         }
@@ -912,7 +938,7 @@ public class Desugarer extends ContextVisitor {
             Assign f = (Assign) n.expr();
             Expr right = f.right();
             if (right instanceof FinishExpr)
-                return visitFinishExpr(f, null);
+                return visitFinishExpr(f, null,null);
              
         }
         if (n.expr() instanceof X10Unary_c) {
