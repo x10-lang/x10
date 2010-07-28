@@ -369,13 +369,13 @@ public static def BFS(start: int, GAA: GraphB): Pair {
 	 		 val Gngh  = G(ngh) as VertexB!;
 	 		//Console.OUT.println(Gngh.level + " " + Gngh.pId);
 	  		if (Gngh.pId == v) {
-	    		k++;
-	    		Console.OUT.print(ngh + " ");
-	    		val Frontierriii = Frontierr(iii); 
-	    		val GFrontieri = G(Frontierriii) as VertexB!;
-	    		val childrn = GFrontieri.Children;
-	    		FrontierNextt(o+j) = childrn(j);
-	    		Gngh.level = Gngh.level+1;
+	    			k++;
+	    			Console.OUT.print(ngh + " ");
+	    			val Frontierriii = Frontierr(iii); 
+	    			val GFrontieri = G(Frontierriii) as VertexB!;
+	    			val childrn = GFrontieri.Children;
+	    			FrontierNextt(o+j) = childrn(j);
+	    			Gngh.level = Gngh.level+1;
 	  		} 
 	  		//else FrontierNext(o+j) = -1;
 		}

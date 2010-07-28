@@ -1,3 +1,4 @@
+export X10RT_STANDALONE_NUMPLACES=1
 example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
 for ((i = 0; i < ${#example[@]}; i++))
 do
@@ -5,20 +6,20 @@ do
 	echo ""
 	echo "----${example[$i]}: Clocked Code -----"
 	echo ""
-	../../../x10.dist/bin/x10c++  -x10rt ../${example[$i]}.x10 > out.txt 
-	time  ../../../x10.dist/bin/runx10 a.out
+	../../../x10.dist/bin/x10c++ -SAFE_PARALLEIZATION_CHECK=true  -x10rt standalone ../${example[$i]}.x10 > out.txt 
+	time  ./a.out 
 
 	echo ""
 	echo "----${example[$i]}Orig: Original Code -----"
 	echo ""
-	../../../x10.dist/bin/x10c++  -x10rt ../${example[$i]}Orig.x10 > out.txt 
-	time  ../../../x10.dist/bin/runx10 a.out
+	../../../x10.dist/bin/x10c++  -x10rt standalone ../${example[$i]}Orig.x10 > out.txt 
+	time  ./a.out
 
 	echo ""
 	echo "----${example[$i]}Orig: Original Code with safe parallelization check -----"
 	echo ""
-	../../../x10.dist/bin/x10c++  -SAFE_PARALLELIZATION_CHECK=true ../${example[$i]}Orig.x10 > out.txt 
+	../../../x10.dist/bin/x10c++ -x10rt standalone -SAFE_PARALLELIZATION_CHECK=true ../${example[$i]}Orig.x10 > out.txt 
 done
 
-rm *.java *.class
+rm *.h *.inc *.class
 

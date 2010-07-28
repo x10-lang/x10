@@ -35,7 +35,7 @@ public class PipelineOrig {
    
 
     public static def main(args:Rail[String]!) {
-         val h = new Pipeline();  // final variable
+         val h = new PipelineOrig();  // final variable
          h.pipeline();
     }
 
