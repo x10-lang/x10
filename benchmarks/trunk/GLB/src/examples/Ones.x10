@@ -16,20 +16,16 @@ import x10.lang.Math;
 import x10.util.Random;
 import x10.util.Stack;
 
-public class Fib {
-    static def fib(n:UInt):UInt = n < 2u ? n : fib(n-1)+fib(n-2);
-    static class Fib2 implements TaskFrame[UInt, UInt] {
-        public def runTask(t:UInt, s:Stack[UInt]!):Void offers UInt {
-            if (t < 20u) 
-                offer fib(t);
-            else {
-                s.push(t-1);
-                s.push(t-2);
-            }
-        }
-        public def runRootTask(t:UInt, s:Stack[UInt]!):Void offers UInt {
-            runTask(t, s);
-        }
+public class Counts implements TaskFrame[UInt, UInt] {
+    var c:UInt=0;
+    public def runTask(t:UInt, s:Stack[UInt]!):Void offers UInt {
+	//	offer t;
+	c += t;
+
+    }
+    public def runRootTask(t:UInt, s:Stack[UInt]!):Void offers UInt {
+	for (var i:UInt=0u; i < t; i++) 
+	    s.push(1);
     }
     public static def main (args : Rail[String]!) {
         try {
@@ -44,18 +40,23 @@ public class Fib {
                 global safe public def zero()=0u;
                 global safe public def apply(a:UInt, b:UInt)=a+b;
             };
+	    val counts = ValRail.make[Counts](Place.MAX_PLACES, 
+					      (i:Int)=> at(place(i)) new Counts());
 	    val runner
-		= seq ? new SeqRunner[UInt,UInt](new Fib2()) as Runner[UInt,UInt]!
+		= seq ? new SeqRunner[UInt,UInt](new Ones()) as Runner[UInt,UInt]!
 		: new GlobalRunner[UInt, UInt](args, 
-			 ():TaskFrame[UInt,UInt]=> new Fib2()) as Runner[UInt,UInt]!;
+					       ():TaskFrame[UInt,UInt]=> counts(i)) as Runner[UInt,UInt]!;
 	    Console.OUT.println("Starting...");
 	    var time:Long = System.nanoTime();
 	    val result=runner(x, reducer);
 	    time = System.nanoTime() - time;
-	    Console.OUT.println("Finished with result " 
-				+ result + "(" + fib(x) + ").");
-	    runner.stats(time, false);
+	    Console.OUT.println("Finished with result " + result + ".");
+	    runner.stats(time, true);
             Console.OUT.println("--------");
+	    for (int i=0; i < counts.length; ++i) {
+		at (counts(i)) 
+		    Console.OUT.println("Count(" + i+")=" + counts(i).c);
+	    }
         } catch (e:Throwable) {
             e.printStackTrace(Console.ERR);
         }

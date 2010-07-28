@@ -87,21 +87,21 @@ public class Counter  {
 	    	val idealRatio = 1.0F/P;
 	    	val pc = stealsAttempted==0L ? "NaN" : "" + safeSubstring("" + (100.0F*stealsPerpetrated)/stealsAttempted, 0,5);
 	    	val pr = stealsReceived==0L ? "NaN" : "" +  safeSubstring("" + (100.0F*stealsSuffered)/stealsReceived, 0, 5);
-	    	Console.OUT.println(h+": processed " + nodesCounter + " nodes.");
+	    	Console.OUT.println(h+": processed " + nodesCounter + " tasks.");
 	    	val ratio = (1.0F*nodesCounter)/sumCounters.nodesCounter;
 	    	val ratioS = safeSubstring(""+ratio,0,6);
 	    	val imbalance = (100.0F*(ratio-idealRatio))/idealRatio;
 	    	val imbalanceS = safeSubstring(""+ imbalance,0,4);
 	    	Console.OUT.println("\t " + lifelines + " lifeline steals received "  
-	    			+ lifelineNodes + " (total nodes).");
+	    			+ lifelineNodes + " (total tasks).");
 	    	Console.OUT.println("\t " + ratioS + " ratio, "  
-	    			+ imbalanceS + "% imbalance in nodes processed.");
+	    			+ imbalanceS + "% imbalance in tasks processed.");
 	    	Console.OUT.println("\t" + stealsPerpetrated+"/"+ stealsAttempted +"="
 	    			+ pc +"% successful steals, received " 
-	    			+ nodesReceived + " nodes.");
+	    			+ nodesReceived + " tasks.");
 	    	Console.OUT.println("\t" + stealsSuffered+"/"+stealsReceived+"="
 	    			+ pr + "% suffered, gave " 
-	    			+ nodesGiven + " nodes.");
+	    			+ nodesGiven + " tasks.");
 	    	Console.OUT.println("\t max launch depth=" + maxDepth);
 	    	val total = timeAlive + timeDead;
 	    	Console.OUT.println("\t Time: computing= " + timeComputing/1000 + " us ("
@@ -228,16 +228,16 @@ public class Counter  {
 		val steals = sumCounters.stealsPerpetrated;
 		val llN = sumCounters.lifelineNodes;
 		val ll = sumCounters.lifelines;
-		Console.OUT.println("Overhead:\n\t" + (stolenSum+llN) + " total nodes stolen."); 
+		Console.OUT.println("Overhead:\n\t" + (stolenSum+llN) + " total tasks stolen."); 
 		val theftEfficiency = (stolenSum*1.0F)/steals;
 		Console.OUT.println("\t" + safeSubstring("" + steals, 0,5)+ " direct steals."); 
-		Console.OUT.println("\t" + safeSubstring("" + theftEfficiency, 0,8)+ " nodes stolen per attempt."); 
+		Console.OUT.println("\t" + safeSubstring("" + theftEfficiency, 0,8)+ " tasks stolen per attempt."); 
 		Console.OUT.println("\t" + ll + " lifeline steals.");
-		Console.OUT.println("\t" + safeSubstring("" + (1.0F*llN)/ll, 0,8) + " nodes stolen/lifeline steal.");
+		Console.OUT.println("\t" + safeSubstring("" + (1.0F*llN)/ll, 0,8) + " tasks stolen/lifeline steal.");
 	//	Console.OUT.println("\t" + safeSubstring("" + balance, 0,6) + "% imbalance in nodes processed (max magnitude).");
 	//	Console.OUT.println("\t" + safeSubstring("" + minAliveRatio, 0,6) 
 	//			+ " (earliest completion time, as % of max.");
-		Console.OUT.println("Nodes processed:" + computeTime(NODES, P, allCounters));
+		Console.OUT.println("Tasks processed:" + computeTime(NODES, P, allCounters));
 		Console.OUT.println("Time computing: " + computeTime(COMPUTING, P, allCounters, 1000, "us"));
 		Console.OUT.println("Time stealing:  " + computeTime(STEALING, P, allCounters, 1000, "us"));
 		Console.OUT.println("Time probing:   " + computeTime(PROBING, P, allCounters, 1000, "us"));
@@ -245,7 +245,7 @@ public class Counter  {
 		Console.OUT.println("Time dead:      " + computeTime(DEAD, P, allCounters, 1000, "us"));
 		Console.OUT.println("Time alive+dead:" + computeTime(LIFE, P, allCounters, 1000, "us"));
 		Console.OUT.println("Performance = "+nodeSum+"/"+safeSubstring("" + (time/1E9), 0,6)
-				+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M nodes/s");
+				+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M tasks/s");
 
 	}
 	
@@ -286,7 +286,7 @@ public class Counter  {
 		+ "% of max, max=" + (max/divider) + " " + unit +")";
 	}
 
-	private static def safeSubstring(str:String, start:Int, end:Int) = str.substring(start, Math.min(end, str.length()));
+	public static def safeSubstring(str:String, start:Int, end:Int) = str.substring(start, Math.min(end, str.length()));
 	public def assertTxTally() {
 		Console.OUT.println("Rx:" + (nodesReceived + lifelineNodes) + " Tx: "+ nodesGiven);
 	}

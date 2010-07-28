@@ -15,30 +15,28 @@
  * @author vj
  */
 import x10.util.Stack;
-public final class SeqRunner[T, Z] {
+public final class SeqRunner[T, Z](frame:TaskFrame[T,Z]!) implements Runner[T,Z] {
     val stack = new Stack[T]();
-    var nodesCounter:UInt = 0;
-    val frame:TaskFrame[T,Z]!;
-    def this(f:TaskFrame[T,Z]!) {
-    	this.frame=f;
-    }
-    def processStack ():Void offers Z{
-      while (stack.size() > 0) {
-    	  val task = stack.pop();
-          frame.runTask(task, stack);
-          ++nodesCounter;
-      }
-    }
+    var taskCounter:UInt = 0;
     /**
      * Run the given task to completion, and return the number of tasks that 
      * have been executed in doing so. 
      */
-    public def run (task:T, reducer:Reducible[Z]):Z  {
-    	++nodesCounter; 
+    public def apply (var task:T, reducer:Reducible[Z]):Z  {
     	val result = finish (reducer) {
-    	    frame.runTask(task, stack);
-            this.processStack();
-    	}; 
+	    stack.push(task);
+	    while (stack.size() > 0) {
+		task = stack.pop();
+		frame.runTask(task, stack);
+		++taskCounter;
+	    }
+	};
         return result;
+    }
+	public def stats(time:Long, verbose:Boolean) {
+		Console.OUT.println("Performance = "+taskCounter
+				    +"/"+Counter.safeSubstring("" + (time/1E9), 0,6)
+				    +" = "+ Counter.safeSubstring("" + (taskCounter/(time/1E3)), 0, 6) + "M tasks/s");
+
 	}
 }

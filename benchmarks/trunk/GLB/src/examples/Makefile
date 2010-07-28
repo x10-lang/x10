@@ -37,35 +37,31 @@ X10RUN?=runx10
 X10CXXFLAGS=-report \
             postcompile=5 \
             -VERBOSE_CALLS \
-            $(X10RT_TRANSPORT) \
-            -MAIN_CLASS=UTS \
-            -v \
-            -NO_CHECKS=true \
             -O \
-            -sourcepath ../.. 
+            -NO_CHECKS=true \
+            $(X10RT_TRANSPORT) \
+            -v \
+            -sourcepath ..
 
-HEADERS=sha_endian.h \
-        types.h \
-        sha1.h 
+HEADERS=
         
-SOURCES=sha1.c
+SOURCES=
 
 OBJS=$(SOURCES:.c=.o)
 
-X10_STRUCTS= UTS__Constants.x10 \
-            Counter__Stat.x10\
-            Counter__ValCounter.x10\
-            GlobalRunner__FixedSizeStack.x10\
-            TreeNode.x10\
-
+X10_STRUCTS= GlobalRunner__FixedSizeStack.x10 \
+	  Counter__Stat.x10 \
+	  Counter__ValCounter.x10\
+	  Counts__Anonymous__0.x10\
+	  Fib__Anonymous__0.x10\
+	  Fib__Fib2.x10\
+	  Ones__Anonymous__0.x10
             
 X10_STRUCTS_CC=$(X10_STRUCTS:.x10=.cc)
 X10_STRUCTS_H=$(X10_STRUCTS:.x10=.h)
 X10_STRUCTS_STRUCTS_H=$(X10_STRUCTS:.x10=.struct_h)
 
-X10_CLASSES=UTS.x10\
-            Binomial.x10 \
-            Geometric.x10 \
+X10_CLASSES=Fib.x10 \
             GlobalRunner__LocalRunner.x10\
             NetworkGenerator.x10\
             PAdicNumber.x10\
@@ -74,20 +70,23 @@ X10_CLASSES=UTS.x10\
             TreeNode.x10\
             TaskFrame.x10\
             Event.x10\
-            Counter.x10
+            Counter.x10 Ones.x10 Counts.x10
 
 X10_CLASSES_CC=$(X10_CLASSES:.x10=.cc)
 X10_CLASSES_H=$(X10_CLASSES:.x10=.h)
 
-TARGET= UTS
+TARGET= Fib
 
 all: ${TARGET}
 
-UTS: Binomial.x10 Geometric.x10 UTS.x10
-	${X10CXX}  -v  ${X10CXXFLAGS} ${X10RTTRANSPORT} $< -o $@ 
+Fib: Fib.x10
+	${X10CXX} -v  ${X10CXXFLAGS} -MAIN_CLASS=Fib ${X10RTTRANSPORT} $< -o $@ 
 
-
-test: Sha1Rand.cpp libsha1.a
+Ones: Ones.x10
+	${X10CXX} -v  ${X10CXXFLAGS} -MAIN_CLASS=Ones ${X10RTTRANSPORT} $< -o $@ 
+Counts: Counts.x10
+	${X10CXX} -v  ${X10CXXFLAGS} -MAIN_CLASS=Counts ${X10RTTRANSPORT} $< -o $@ 
+test: 
 	${CXX} ${CXXFLAGS} -DSHA1_TEST $< -o $@ -L. -lsha1
 
 clean:

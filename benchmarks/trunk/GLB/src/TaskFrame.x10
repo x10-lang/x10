@@ -40,17 +40,17 @@ import x10.util.Stack;
  * A TaskFrame provides additional parameters that may be necessary to
  * execute a task. Typically, there is one TaskFrame instance per place.
  */
-public interface TaskFrame[T, Z] {
+public interface TaskFrame[A, B] {
 	/**
 	 * Run this task in the given task frame. 
 	 * Implementations of this method will use 
 	 * the stack to create additional tasks, if necessary.
 	 */
-	def runTask(t:T, stack:Stack[T]!):Void offers Z;
+	def runTask(t:A, stack:Stack[A]!):Void offers B;
 	
 	/**
 	 * Run this task as a root task. Implementations of this method
 	 * will use the stack to create additional tasks, if necessary.
 	 */
-	def runRootTask(t:T, stack:Stack[T]!):Void offers Z;
+	def runRootTask(t:A, stack:Stack[A]!):Void offers B;
 }
