@@ -57,6 +57,8 @@ X10_STRUCTS= UTS__Constants.x10 \
             Counter__ValCounter.x10\
             GlobalRunner__FixedSizeStack.x10\
             TreeNode.x10\
+            UTS__Anonymous__0.x10 \
+            UTS__SHA1Rand.x10 
 
             
 X10_STRUCTS_CC=$(X10_STRUCTS:.x10=.cc)
@@ -74,7 +76,8 @@ X10_CLASSES=UTS.x10\
             TreeNode.x10\
             TaskFrame.x10\
             Event.x10\
-            Counter.x10
+            Counter.x10\
+            Runner.x10
 
 X10_CLASSES_CC=$(X10_CLASSES:.x10=.cc)
 X10_CLASSES_H=$(X10_CLASSES:.x10=.h)
