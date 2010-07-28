@@ -759,7 +759,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        h.write("#undef "+guard+"_NODEPS"); h.newline();
 		        allIncludes.add(ct);
 		    }
-		    if (isStruct) {
+		    if (isStruct && ct.toClass() != null) {
                 String header = getStructHeader(ct.toClass());
                 String guard = getHeaderGuard(header);
                 sh.writeln("#define "+guard+"_NODEPS");
@@ -814,7 +814,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            Type fct = fi.type();
 		            if (!dupes.contains(fct)) {
 		                dupes.add(fct);
-		                if (xts.isStructType(fct)) {
+		                if (xts.isStructType(fct) && fct.toClass() != null) {
 		                    String header = getStructHeader(fct.toClass());
 		                    String guard = getHeaderGuard(header);
 		                    fh.writeln("#define "+guard+"_NODEPS");
@@ -3094,13 +3094,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    }
 
 		    boolean virtual_dispatch = true;
-		    if (t.isClass()) {
+		    /*if (t.isClass()) {
 		        X10ClassType ct = (X10ClassType)t.toClass();
 		        X10ClassDef cd = ct.x10Def();
 		        if (cd.flags().isFinal()) {
 		            virtual_dispatch = false;
 		        }
-		    }
+		    }*/
 		    if (mi.flags().isFinal()) {
 		        virtual_dispatch = false;
 		    }
@@ -3536,6 +3536,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
                 Type t_ = X10TypeMixin.stripConstraints(t);
                 Type f_ = X10TypeMixin.stripConstraints(f);
+		Boolean ignore =  (t_ instanceof ParameterType) && !(f_ instanceof ParameterType); 
 
                 X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
                 X10Context context = (X10Context) tr.context();
@@ -3561,13 +3562,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     }
                 } else {
 				    if (c.conversionType()==Converter.ConversionType.UNCHECKED) {
-				        sw.write("x10aux::class_cast_unchecked");
+				    	// HACK. FIXME
+					if(ignore) 
+						c.printSubExpr(c.expr(), true, sw, tr);
+				        else {
+						//System.out.println(c.expr() + " " + t_ + " " + f_);
+						sw.write("x10aux::class_cast_unchecked");
+				    		sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
+				    		c.printSubExpr(c.expr(), true, sw, tr);
+				    		sw.write(")");
+					}
 				    } else {
 				        sw.write("x10aux::class_cast");
+				    	sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
+				    	c.printSubExpr(c.expr(), true, sw, tr);
+				    	sw.write(")");
 				    }
-				    sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
-				    c.printSubExpr(c.expr(), true, sw, tr);
-				    sw.write(")");
 				}
 			} else {
 				throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());

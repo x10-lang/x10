@@ -172,7 +172,7 @@ class UTSOrig {
 	    Console.OUT.println("Usage : <exec><P : int>");
 	    return;
 	}*/
-	val P = 4; //Int.parseInt(args(0));
+	val P = 8; //Int.parseInt(args(0));
         new UTSOrig(P).run();
     }
    

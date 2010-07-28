@@ -118,15 +118,17 @@ class UTS {
 	 tiles = Tile.tile(0..b0-1 as Region(1), 0..P-1 as Region(1)) as Rail[Region(1)]!;
  		
     }
+
     def visit(r:UTSRand.descriptor,p:int)  @ClockedM(c) {
 	val x = UTSRand.number(r);
         val b = x<q? m : 0; // binomial distributio
-        sumb = b;
-        size = 1;
        
         for (var i:int=0; i<b; i++)
 	    visit(UTSRand.next(r,i),p);
+        sumb = b;
+        size = 1;
     }
+
    def visitRegion(r:Region(1),p:int)  @ClockedM(c) {
 	for (var i:int=r.min(0);i<= r.max(0); i++) {
 	    visit(UTSRand.next(r0, i),p);
@@ -166,7 +168,7 @@ class UTS {
 	    Console.OUT.println("Usage : <exec><P : int>");
 	    return;
 	}*/
-	val P = 4; //Int.parseInt(args(0));
+	val P = 8; //Int.parseInt(args(0));
         new UTS(P).run();
     }
    

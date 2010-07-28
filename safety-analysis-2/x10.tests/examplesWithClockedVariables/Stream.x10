@@ -67,19 +67,19 @@ public class Stream {
             if (times(j) < min)
                 min = times(j);
         }
-        printStats(N, min, verified);
+        printStats(N, min);
+        Console.OUT.println("Result is " + (verified ? "verified." : "NOT verified."));
       }
     }
 
     static def now():double = Timer.nanoTime() * 1e-9;
 
-    static def printStats(N:long, time:double, verified:boolean) {
+    static def printStats(N:long, time:double) {
         val size = (3*8*N/MEG);
         val rate = (3*8*N) / (1.0E9*time);
         Console.OUT.println("Number of places=" + NUM_PLACES);
         Console.OUT.println("Size of arrays: " + size +" MB (total)" + size/NUM_PLACES + " MB (per place)");
         Console.OUT.println("Min time: " + time + " rate=" + rate + " GB/s");
-        Console.OUT.println("Result is " + (verified ? "verified." : "NOT verified."));
     }
 }
 
