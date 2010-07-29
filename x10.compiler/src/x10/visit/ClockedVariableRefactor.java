@@ -26,6 +26,7 @@ import polyglot.ast.FieldDecl;
 import polyglot.ast.Field_c;
 import polyglot.ast.Id;
 import polyglot.ast.Import;
+import polyglot.ast.Initializer_c;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
@@ -43,6 +44,7 @@ import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.InitializerDef_c;
 import polyglot.types.Name;
 import polyglot.types.ParsedClassType;
 import polyglot.types.QName;
@@ -73,8 +75,11 @@ import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
 import x10.types.ConstrainedType_c;
 import x10.types.X10ClassType;
+import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
+import x10.types.X10InitializerDef;
+import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
@@ -98,7 +103,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	}
 	
 	 private static final QName CLOCKEDVAR = QName.make("x10.compiler.ClockedVar");
-	 private static final QName CLOCKEDATOMICINT = QName.make("x10.compiler.ClockedAtomicInt");
+	 private static final QName CLOCKEDINT = QName.make("x10.compiler.ClockedAtomicInt");
 	 private static final QName RAIL = QName.make("x10.lang.Rail");
 	 private static final QName ARRAY = QName.make("x10.array.Array");
 	 private static final QName CLOCKEDARRAY = QName.make("x10.array.ClockedArray");
@@ -147,6 +152,23 @@ public class ClockedVariableRefactor extends ContextVisitor {
 		 return null;
 	 }
 	 
+	 
+	 private boolean isOpIntPlus(Expr op) {
+		 boolean isPlus = false;
+		 boolean  isInt = false;
+		 Expr init = null;
+		 if (op instanceof Field) {
+			init =((X10FieldDef)(((Field) op).fieldInstance()).def()).fieldDecl().init();
+		 } else if (op instanceof  Local) {			 
+			init = ((X10LocalDef)((Local)op).localInstance().def()).localDecl().init();
+		 }
+		 isInt = op.type().toString().contains("=> x10.lang.Int");
+		 if (init !=  null) {
+			 isPlus = init.toString().contains("x + y");
+		 }
+		
+		 return isInt && isPlus;
+	 }
 	 
 	 private Expr extractOp(Type t) {
 		 AnnotatedType at = (AnnotatedType) t;
@@ -233,6 +255,8 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                List<Type> typeArgs = new ArrayList<Type>();
 	                typeArgs.add(n.type().type());
 	                
+	           
+	                
 	                List<Expr> args = new ArrayList<Expr>();
 	                args.add(c);
 	                args.add(op);
@@ -246,7 +270,11 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                argsType.add(init.type());
 	                argsType.add(n.type().type());	               
 
-	                X10ClassType type2 = ((X10ClassType) type).typeArguments(typeArgs);
+	                Type type2;
+	                if (!this.isOpIntPlus(op))
+	                	type2 = ((X10ClassType) type).typeArguments(typeArgs);
+	                else 
+	                	type2 = xts.typeForName(CLOCKEDINT);
 	                Expr construct = xnf.New(position,xnf.CanonicalTypeNode(position, type2), args)
 	               
 	                .constructorInstance(xts.findConstructor(type2, xts.ConstructorMatcher(type2, argsType, context)))

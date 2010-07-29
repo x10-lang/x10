@@ -1,5 +1,9 @@
-example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
-
+if [ $# == 1 ]
+then
+ example=($1)
+else
+ example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
+fi
 rm out.txt
 COUNT=10
 for ((i = 0; i < ${#example[@]}; i++))

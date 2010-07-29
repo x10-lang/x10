@@ -11,6 +11,7 @@
 
 package x10.types;
 
+import polyglot.ast.FieldDecl;
 import polyglot.types.FieldDef;
 import polyglot.types.Ref;
 import x10.constraint.XConstraint;
@@ -18,4 +19,6 @@ import x10.constraint.XConstraint;
 public interface X10FieldDef extends FieldDef, X10Def, X10MemberDef {
     boolean isProperty();
     void setProperty();
+    public void setFieldDecl(FieldDecl fieldDecl);
+    public FieldDecl fieldDecl();
 }

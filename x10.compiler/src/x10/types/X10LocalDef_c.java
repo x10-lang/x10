@@ -13,6 +13,7 @@ package x10.types;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.LocalDecl;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef_c;
 import polyglot.types.LocalInstance;
@@ -75,6 +76,15 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
     		placeTerm = pt;
     	//else 
     	//	assert placeTerm == pt;
+    }
+    
+    LocalDecl lDecl;
+    public void setLocalDecl (LocalDecl localDecl) {
+    	this.lDecl = localDecl;
+    }
+    
+    public LocalDecl localDecl() {
+    	return lDecl;
     }
     
     @Override

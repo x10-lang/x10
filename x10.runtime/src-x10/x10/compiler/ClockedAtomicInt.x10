@@ -15,55 +15,52 @@ import x10.util.concurrent.atomic.AtomicInteger;
 
 
 
-public class ClockedAtomicInt implements ClockableVar {
+public class ClockedAtomicInt extends ClockedVar[Int] implements ClockableVar {
 
   
-    val xRead:AtomicInteger! = new AtomicInteger();
-    val xWrite: AtomicInteger! = new AtomicInteger();
-    val opInit:Int;
-    var changed:Boolean;
+    val xRead:AtomicInteger! = new AtomicInteger(0);
+    val xWrite: AtomicInteger! = new AtomicInteger(0);
+    var changed:Boolean = false;
 
     
 
-    public def this (c: Clock!, opInitial:Int) {
-    	c.addClockedVar(this); 
-     	opInit = opInitial;
-     	changed = false;	
-     	xWrite.set(opInitial);
+    public def this (c: Clock!, oper: (Int,Int)=>Int, opInitial:Int) {
+    	c.addClockedVar(this); 	
+     
      }
      
-    public def this(c:Clock, opInitial:Int, x:Int)
+    public def this(c:Clock, oper: (Int,Int)=>Int, opInitial:Int, x:Int)
      {
     	val clk = c as Clock!; 
     	xRead.set(x);
         clk.addClockedVar(this); 
-        opInit = opInitial;
-        changed = false;
-        xWrite.set(opInitial); 
-      }
+	}
+	
+	
+	public @Inline @Header def get$G():ClockedAtomicInt[Int] = this;
       
-    public def get():Int {
+    public @Inline def getClocked():Int {
     	  return xRead.get();
    }
 
 
 
-    public def set(x:Int) {
+    public @Inline def setClocked(x:Int) {
     	changed = true;
 		xWrite.addAndGet(x);
     
 
     } 
     
-    public def setR(x:Int){xRead.set(x);}
+    public @Inline def setR(x:Int){xRead.set(x);}
     
-    public def getW(){return xWrite;}
+    public @Inline def getW(){return xWrite;}
     
 
-    public def move(): Void {
+    public @Inline def move(): Void {
         if (changed)
         	this.xRead.set(this.xWrite.get()); 
-     	this.xWrite.set(opInit);
+     	this.xWrite.set(0);
     	this.changed = false;
     }
 
