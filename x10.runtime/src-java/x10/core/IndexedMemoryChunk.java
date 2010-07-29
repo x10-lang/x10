@@ -22,10 +22,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
     public final Object value;
     public final Type<T> type;
 
-    private IndexedMemoryChunk(Type<T> type, int length) {
+    public IndexedMemoryChunk(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
-        this.value = type.makeArray(length);
+        this.value = value;
+    }
+
+    private IndexedMemoryChunk(Type<T> type, int length) {
+        this(type, length, type.makeArray(length));
     }
 
     public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, int length) {
@@ -50,6 +54,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
 
     @Override
     public boolean _struct_equals(Object o) {
+        return this == o;
+        /*
         if (!_RTT.instanceof$(o, type)) return false;
         IndexedMemoryChunk<?> chunk = (IndexedMemoryChunk<?>) o;
         Object chunk_value = chunk.value;
@@ -78,6 +84,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
             return Arrays.equals((double[]) value, (double[]) chunk_value);
         }
         return Arrays.equals((Object[]) value, (Object[]) chunk_value);
+        */
     }
 
     public static final RuntimeType<IndexedMemoryChunk<?>> _RTT = new RuntimeType<IndexedMemoryChunk<?>>(
