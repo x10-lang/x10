@@ -100,7 +100,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		// This installs a LocalDef 
 		 n = (X10LocalDecl_c) super.buildTypes(tb);
 		X10LocalDef fi = (X10LocalDef) n.localDef();
-
+		fi.setLocalDecl(this);
 	        List<AnnotationNode> as = ((X10Del) n.del()).annotations();
 	        if (as != null) {
 	            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
