@@ -36,17 +36,26 @@ import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.jface.text.IRegion;
 
+import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Source;
+import polyglot.util.ErrorInfo;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
 public class ParseController extends SimpleLPGParseController {
+	public interface InvariantViolationHandler {
+		public void clear();
+		public void handleViolation(ErrorInfo error);
+		public void consumeAST(Node root);
+	}
+
     private CompilerDelegate fCompiler;
     private PMMonitor fMonitor;
     private IPrsStream fPrsStream;
     private ILexStream fLexStream;
+    private InvariantViolationHandler fViolationHandler;
 
     public ParseController() {
     	super(X10DTCorePlugin.kLanguageName);
@@ -80,6 +89,10 @@ public class ParseController extends SimpleLPGParseController {
         fMonitor= new PMMonitor(null);
     }
 
+    public void setViolationHandler(InvariantViolationHandler handler) {
+    	fViolationHandler= handler;
+    }
+
     public Object parse(String contents, IProgressMonitor monitor) {
         FileSource fileSource= null;
         try {
@@ -95,8 +108,8 @@ public class ParseController extends SimpleLPGParseController {
 
             streams.add(fileSource);
             IPath sourcePath = (fProject != null) ? Platform.getLocation().append(fProject.getName()).append(fFilePath) : fFilePath;
-    		
-            fCompiler= new CompilerDelegate(fMonitor, handler, proj, sourcePath); // Create the compiler
+
+            fCompiler= new CompilerDelegate(fMonitor, handler, proj, sourcePath, fViolationHandler); // Create the compiler
             fCompiler.compile(streams);
         } catch (IOException e) {
             throw new Error(e);
@@ -112,6 +125,9 @@ public class ParseController extends SimpleLPGParseController {
             	fParser = new ParserDelegate(parser); // HACK - SimpleLPGParseController.cacheKeywordsOnce() needs an IParser and an ILexer, so create them here. Luckily, they're just lightweight wrappers...
             	fLexer = new LexerDelegate(lexer);
             	fCurrentAst= fCompiler.getASTFor(fileSource);
+            }
+            if (fViolationHandler != null) {
+            	fViolationHandler.consumeAST((Node) fCurrentAst);
             }
             // RMF 8/2/2006 - cacheKeywordsOnce() must have been run for syntax highlighting to work.
             // Must do this after attempting parsing (even though that might fail), since it depends

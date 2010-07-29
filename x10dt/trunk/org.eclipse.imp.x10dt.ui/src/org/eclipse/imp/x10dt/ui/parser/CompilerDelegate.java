@@ -45,34 +45,48 @@ import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
+import x10.errors.X10ErrorInfo;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
 public class CompilerDelegate {
-    private org.eclipse.imp.x10dt.ui.parser.ExtensionInfo fExtInfo;
+	private org.eclipse.imp.x10dt.ui.parser.ExtensionInfo fExtInfo;
 
     private final IJavaProject fX10Project;
 
-    CompilerDelegate(Monitor monitor, final IMessageHandler handler, final IProject project, final IPath filePath) {
+    private final ParseController.InvariantViolationHandler fViolationHandler;
+
+    CompilerDelegate(Monitor monitor, final IMessageHandler handler, final IProject project, final IPath filePath, ParseController.InvariantViolationHandler violationHandler) {
         this.fX10Project= (project != null) ? JavaCore.create(project) : null;
+        fViolationHandler= violationHandler;
         fExtInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath));
         buildOptions(fExtInfo);
-       // ErrorQueue eq= new SilentErrorQueue(100, "stderr");
+
         ErrorQueue eq = new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
             protected void displayError(ErrorInfo error) {
-        	 	Position pos = error.getPosition();
-            	if (pos != null) {
-            		IPath errorPath = new Path(pos.file());
-            		if (filePath.equals(errorPath))
-            			handler.handleSimpleMessage(error.getMessage(), pos.offset(), pos.endOffset(), pos.column(), pos.endColumn(), pos.line(), pos.endLine());
+            	if (isValidationMsg(error)) {
+            		if (fViolationHandler != null) {
+            			fViolationHandler.handleViolation(error);
+            		}
             	} else {
-            	    handler.handleSimpleMessage(error.getMessage(), 0, 0, 1, 1, 1, 1);
+            	 	Position pos = error.getPosition();
+                	if (pos != null) {
+                		IPath errorPath = new Path(pos.file());
+                		if (filePath.equals(errorPath)) {
+                			handler.handleSimpleMessage(error.getMessage(), pos.offset(), pos.endOffset(), pos.column(), pos.endColumn(), pos.line(), pos.endLine());
+                		}
+                	} else {
+                	    handler.handleSimpleMessage(error.getMessage(), 0, 0, 1, 1, 1, 1);
+                	}
             	}
             }
         };
         final Compiler compiler = new Compiler(fExtInfo, eq);
     	Globals.initialize(compiler);
-//        Report.setQueue(eq);
+    }
+
+    protected boolean isValidationMsg(ErrorInfo error) {
+    	return (error.getErrorKind() == X10ErrorInfo.INVARIANT_VIOLATION_KIND);
     }
 
     public Compiler getCompiler() { return Globals.Compiler(); }
@@ -83,6 +97,10 @@ public class CompilerDelegate {
     public SourceFile getASTFor(Source src) { return (SourceFile) fExtInfo.getASTFor(src); }
 
     public boolean compile(Collection<Source> sources) {
+        if (fViolationHandler != null) {
+        	fViolationHandler.clear();
+        }
+
         fExtInfo.setInterestingSources(sources);
     	return Globals.Compiler().compile(sources);
     }
@@ -179,6 +197,7 @@ public class CompilerDelegate {
             opts.parseCommandLine(new String[] { "-assert", "-noserial", "-c", // "-commandlineonly",
                     "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath
             }, new HashSet<String>());
+            x10.Configuration.CHECK_INVARIANTS= (fViolationHandler != null);
         } catch (UsageError e) {
             if (!e.getMessage().equals("must specify at least one source file")) {
                 X10DTUIPlugin.getInstance().writeErrorMsg(e.getMessage());
@@ -186,10 +205,8 @@ public class CompilerDelegate {
         } catch (JavaModelException e) {
             X10DTUIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
         }
-        // X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " +
-        // opts.source_path);
-        // X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " +
-        // opts.classpath);
+        // X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
+        // X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
     }
 
     private String buildClassPathSpec() {

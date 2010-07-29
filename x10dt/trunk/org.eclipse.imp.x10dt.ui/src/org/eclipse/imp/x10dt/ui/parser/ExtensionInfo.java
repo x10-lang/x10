@@ -34,9 +34,12 @@ import polyglot.frontend.Parser;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
 import polyglot.frontend.SourceGoal_c;
+import polyglot.frontend.VisitorGoal;
 import polyglot.util.ErrorQueue;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
+import x10.visit.InstanceInvariantChecker;
+import x10.visit.PositionInvariantChecker;
 
 /**
  * Information about our extension of the polyglot compiler. This derives from
@@ -91,6 +94,13 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 if (ExtensionInfo.this.fInterestingSources.contains(job.source())) {
                     goals.add(RetrieveASTearly(job));
                 }
+                if (x10.Configuration.CHECK_INVARIANTS) {
+                	goals.add(new VisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job, "parsed")));
+                }
+                if (x10.Configuration.CHECK_INVARIANTS) {
+                	goals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
+                }
+
                 goals.add(TypesInitialized(job));
                 goals.add(ImportTableInitialized(job));
           //      goals.add(CastRewritten(job));
