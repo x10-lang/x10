@@ -14,7 +14,7 @@
  * A representation of the UTS Binomial tree benchmark.
  */
 import x10.util.Stack;
-public final class Binomial(b0:UInt, q:Double, m:UInt) implements TaskFrame[UTS.SHA1Rand, UInt]{
+public final class Binomial(b0:UInt, q:Double, m:UInt) extends TaskFrame[UTS.SHA1Rand, UInt]{
 	static type SHA1Rand=UTS.SHA1Rand;
 	public static def usageLine(b0:UInt, r:UInt, mf:UInt, seq:UInt, w:UInt, nu:UInt, q:Double, l:UInt, z:UInt) {
 		Console.OUT.println("b0=" + b0 +
@@ -37,7 +37,7 @@ public final class Binomial(b0:UInt, q:Double, m:UInt) implements TaskFrame[UTS.
 	private def pushN(s:SHA1Rand, N:UInt, stack:Stack[SHA1Rand]!) offers UInt {
 		for (var i:UInt=0; i<N; ++i) 
 			stack.push(SHA1Rand(s, i));
-		offer N;
+		//		offer N;
 	}
 	
 }

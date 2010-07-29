@@ -18,7 +18,7 @@ import x10.util.Stack;
 
 public class Fib {
     static def fib(n:UInt):UInt = n < 2u ? n : fib(n-1)+fib(n-2);
-    static class Fib2 implements TaskFrame[UInt, UInt] {
+    static final class Fib2 extends TaskFrame[UInt, UInt] {
         public def runTask(t:UInt, s:Stack[UInt]!):Void offers UInt {
             if (t < 20u) 
                 offer fib(t);

@@ -14,7 +14,7 @@
  */
 
 import x10.util.Stack;
-public class Geometric(b0:UInt, a:UInt, d:UInt) implements TaskFrame[TreeNode, UInt]{
+public class Geometric(b0:UInt, a:UInt, d:UInt) extends TaskFrame[TreeNode, UInt]{
 	static type Constants = UTS.Constants;
 	public static def usageLine(b0:UInt, r:UInt, a:UInt, d:UInt, seq:UInt, w:UInt, nu:UInt, l:UInt, z:UInt) {
 		Console.OUT.println("b0=" + b0 +

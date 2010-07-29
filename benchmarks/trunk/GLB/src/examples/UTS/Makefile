@@ -58,7 +58,6 @@ X10_STRUCTS= UTS__Constants.x10 \
             GlobalRunner__FixedSizeStack.x10\
             TreeNode.x10\
             UTS__Anonymous__0.x10 \
-            UTS__SHA1Rand.x10 
 
             
 X10_STRUCTS_CC=$(X10_STRUCTS:.x10=.cc)

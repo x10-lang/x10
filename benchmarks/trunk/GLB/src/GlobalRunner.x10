@@ -82,7 +82,7 @@ public final class GlobalRunner[T, Z]  implements Runner[T,Z] {
      * across the places specified in the distribution supplied on creation of this object. On completion
      * of this method, the task has completed. 
      */
-    public def apply(t:T, reducer:Reducible[Z]) = st().main(st, t, reducer);
+    public def apply(t:T, reducer:Reducible[Z]):Z = st().main(st, t, reducer);
     /**
      * Return the results of the computation. Should only be called after <code>run(t:T)</code>
      * has returned.
@@ -201,7 +201,8 @@ public final class GlobalRunner[T, Z]  implements Runner[T,Z] {
                 counter.incRx(lifeline, loot.length);
                 val time = System.nanoTime();
                 for (r in loot) 
-		    stack.push(r); // processSubtree(r);
+		     processSubtree(r);
+		    // stack.push(r); 
                 counter.timeComputing += (System.nanoTime() - time);    
 		Event.event("Processing finishes with loot, stack "+ stack.size());
         }

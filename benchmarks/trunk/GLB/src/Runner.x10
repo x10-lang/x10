@@ -3,9 +3,9 @@
    a collecting finish of type Z. It returns the result
    of the finish.
 */
-public interface Runner[T,Z] extends (T,Reducible[Z])=> Z {
+public interface  Runner[T,Z] extends (T,Reducible[Z])=> Z {
 
     /**  Print statistics about execution.
      */
-    def stats(time:Long, verbose:Boolean):Void;
+     def stats(time:Long, verbose:Boolean):Void;
 }
