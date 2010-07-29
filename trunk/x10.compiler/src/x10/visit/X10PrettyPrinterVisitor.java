@@ -23,8 +23,10 @@ import java.util.Set;
 import polyglot.ast.Assert_c;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
+import polyglot.ast.Block;
 import polyglot.ast.Block_c;
 import polyglot.ast.Branch_c;
+import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Case_c;
@@ -33,6 +35,7 @@ import polyglot.ast.Catch_c;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Empty_c;
+import polyglot.ast.Eval;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign_c;
@@ -66,6 +69,7 @@ import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
 import polyglot.ast.Throw;
 import polyglot.ast.Throw_c;
+import polyglot.ast.Try;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -88,6 +92,7 @@ import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
@@ -142,6 +147,7 @@ import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
+import x10.ast.X10NodeFactory;
 import x10.ast.X10Return_c;
 import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
@@ -1405,10 +1411,30 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	
 	public void visit(Try_c c) {
-		
-        TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
-        final List<Catch> catchBlocks = c.catchBlocks();
-        
+		if (isFinish(c)) {
+		    List<Catch> ncatches = new ArrayList<Catch>(c.catchBlocks().size());
+		    for (Catch catch1 : c.catchBlocks()) {
+		        Block body = catch1.body();
+		        X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
+		        Position pos = Position.COMPILER_GENERATED;
+		        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		        Type re = xts.RuntimeException();
+		        New new1 = xnf.New(Position.COMPILER_GENERATED, xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, re), Collections.EMPTY_LIST);
+		        X10ConstructorInstance ci;
+		        try {
+		            ci = xts.findConstructor(re, xts.ConstructorMatcher(re, Collections.EMPTY_LIST, tr.context()));
+		        } catch (SemanticException e) {
+		            e.printStackTrace();
+		            throw new InternalCompilerError("");
+		        }
+		        new1 = new1.constructorInstance(ci);
+		        body = body.append(xnf.Throw(pos, new1));
+                        ncatches.add(catch1.body(body));
+		    }
+		    c = (Try_c) c.catchBlocks(ncatches);
+		}
+		TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
+		final List<Catch> catchBlocks = c.catchBlocks();
 		if (!catchBlocks.isEmpty()) {
 		    final String temp = "__$generated_wrappedex$__";
 		    expander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", temp, new Expander(er) {
@@ -1452,6 +1478,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		
 		expander.expand(tr);
+	}
+
+	private boolean isFinish(Try c) {
+	    List<Stmt> statements = c.tryBlock().statements();
+	    if (statements.size() > 0) {
+	        Stmt stmt = statements.get(0);
+	        if (stmt instanceof Eval) {
+	            Expr expr = ((Eval) stmt).expr();
+	            if (expr instanceof Call) {
+	                Call call = (Call) expr;
+	                Receiver target = call.target();
+	                if (target instanceof X10CanonicalTypeNode) {
+	                    if (target.type().typeEquals(((X10TypeSystem) tr.typeSystem()).Runtime(), tr.context())) {
+	                        if (call.methodInstance().name().toString().equals("startFinish")) {
+	                            return true;
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    return false;
 	}
 	
 	public void visit(Tuple_c c) {
