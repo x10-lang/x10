@@ -5,11 +5,7 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.LocalInstance;
-import polyglot.types.Ref;
-import polyglot.types.StructType;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
+import polyglot.types.*;
 import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
 
@@ -62,7 +58,14 @@ final class ReinstantiatedMethodInstance extends
 		return throwTypes;
 	}
 
-	@Override
+    @Override
+    public Ref<? extends Type> offerType() {
+        final Ref<? extends Type> ref = fi.offerType();
+        if (ref==null) return null;
+        return new Ref_c<Type>(this.typeParamSubst.reinstantiate(ref.get()));
+    }
+
+    @Override
 	public CConstraint guard() {
 		if (guard == null)
 			return this.typeParamSubst.reinstantiate(fi.guard());

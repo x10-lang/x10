@@ -28,7 +28,7 @@ public class FSSimpleDist {
     const NUM_PLACES = Place.MAX_PLACES;
 
     public static def main(args:Rail[String]!) {
-        val verified: Rail[boolean]! = [true];
+        val verified = new Cell[Boolean](true);
         val times = Rail.make[double](NUM_TIMES);
         val N0 = args.length > 0 ? int.parse(args(0)) : DEFAULT_SIZE;
         val N = N0 * NUM_PLACES;
@@ -63,8 +63,7 @@ public class FSSimpleDist {
                     // verification
                     for (var i:int=0; i<localSize; i++)
                         if (a(i) != b(i) + alpha*c(i)) 
-                            async(verified)
-                                verified(0) = false;
+                            verified.set(false);
                 }
             }
         }
@@ -73,7 +72,7 @@ public class FSSimpleDist {
         for (var j:int=0; j<NUM_TIMES; j++)
             if (times(j) < min)
                 min = times(j);
-        printStats(N, min, verified(0));
+        printStats(N, min, verified());
     }
 
     static def now():double = Timer.nanoTime() * 1e-9;

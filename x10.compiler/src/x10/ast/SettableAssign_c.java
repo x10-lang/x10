@@ -248,11 +248,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		args.add(right);
 		args.addAll(index);
 
-		try {
-		    // First try to find the method without implicit conversions.
-		    mi = ClosureCall_c.findAppropriateMethod(xtc, array.type(), Name.make("set"), typeArgs, actualTypes);
-		}
-		catch (SemanticException e) {
+		// First try to find the method without implicit conversions.
+		mi = ClosureCall_c.findAppropriateMethod(xtc, array.type(), Name.make("set"), typeArgs, actualTypes);
+		if (mi.error() != null) {
 		    // Now, try to find the method with implicit conversions, making them explicit.
 		    try {
 		        X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), Name.make("set")), Collections.EMPTY_LIST, args);
@@ -260,9 +258,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		        mi = (X10MethodInstance) p.fst();
 		        args = p.snd();
 		    }
-		    catch (SemanticException e2) {
-		        if (e instanceof Errors.CannotGenerateCast)
-		            throw e;
+		    catch (SemanticException e) {
+		        if (mi.error() instanceof Errors.CannotGenerateCast)
+		            throw mi.error();
 		        Type bt = X10TypeMixin.baseType(array.type());
 		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
 		        throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position());
@@ -274,13 +272,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		actualTypes = new ArrayList<Type>(mi.formalTypes());
 		actualTypes.remove(0);
 
-		try {
-		    // First try to find the method without implicit conversions.
-		    ami = ClosureCall_c.findAppropriateMethod(xtc, array.type(), Name.make("apply"), typeArgs, actualTypes);
-		}
-		catch (SemanticException e) {
-		}
-		if (ami == null) {
+		// First try to find the method without implicit conversions.
+		ami = ClosureCall_c.findAppropriateMethod(xtc, array.type(), Name.make("apply"), typeArgs, actualTypes);
+		if (ami.error() != null) {
 		    Type bt = X10TypeMixin.baseType(array.type());
 		    boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
 		    throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position());

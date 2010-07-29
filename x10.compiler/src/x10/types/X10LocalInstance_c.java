@@ -93,6 +93,17 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         }
     }
 
+    private SemanticException error;
+
+    public SemanticException error() {
+        return error;
+    }
+
+    public X10LocalInstance error(SemanticException e) {
+        X10LocalInstance_c n = (X10LocalInstance_c) copy();
+        n.error = e;
+        return n;
+    }
     public String toString() {
 	String s = "local " + X10Flags.toX10Flags(flags()).prettyPrint() + name() + ": " + type();
 	return s;

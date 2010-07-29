@@ -26,7 +26,7 @@ public class X10AmbExpr_c extends AmbExpr_c {
                 throw e;
             Errors.issue(ar.job(), e, this);
             X10TypeSystem_c xts = (X10TypeSystem_c) ar.typeSystem();
-            X10LocalInstance li = xts.createFakeLocal(name.id());
+            X10LocalInstance li = xts.createFakeLocal(name.id(), e);
             return ar.nodeFactory().Local(position(), name).localInstance(li).type(li.type());
         }
     }
