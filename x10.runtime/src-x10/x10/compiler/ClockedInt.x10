@@ -50,13 +50,13 @@ public class ClockedInt extends ClockedVar[int] implements ClockableVar{
 
 
 
-    public @Inline @Header def setClocked(x:Int) {
+    public @Inline def setClocked(x:Int) {
     	val i = Runtime.workerTid();
 		changed = true;
         this.xWrite(i) += x;
     } 
     
-    public @Inline @Header def setR(x:Int) {
+    public @Inline def setR(x:Int) {
 	  this.xRead=x;
    }
     
