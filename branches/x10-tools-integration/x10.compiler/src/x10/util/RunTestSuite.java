@@ -29,6 +29,7 @@ public class RunTestSuite {
             "_DYNAMIC_CALLS.x10","_MustFailCompile.x10",
     };
     private static final String[] EXCLUDE_FILES = {
+            "NOT_WORKING","SSCA2","FT-alltoall","FT-global"
     };
     private static final String[] EXCLUDE_FILES_WITH = {
             "TypedefOverloading","NQueens",
@@ -191,12 +192,13 @@ public class RunTestSuite {
     private static void recurse(File dir, ArrayList<File> files) {
         if (files.size()>=MAX_FILES_NUM) return;
         for (File f : dir.listFiles()) {
+            String name = f.getName();
+            if (shouldIgnoreFile(name)) continue;
             if (files.size()>=MAX_FILES_NUM) return;
             if (f.isDirectory())
                 recurse(f, files);
             else {
-                String name = f.getName();
-                if (name.endsWith(".x10") && !shouldIgnoreFile(name)) {                    
+                if (name.endsWith(".x10")) {
                     files.add(f);
                 }
             }

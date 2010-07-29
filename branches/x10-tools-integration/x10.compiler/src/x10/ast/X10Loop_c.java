@@ -128,9 +128,6 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	    TypeChecker tc1 = (TypeChecker) tc.enter(parent, this);
 	    
 	    Expr domain = (Expr) this.visitChild(this.domain, tc1);
-	    if (domain.type() instanceof UnknownType) {
-	        throw new SemanticException();
-	    }
 	    Type domainType =  domain.type();
 	    
 	    Formal formal = (Formal) this.visitChild(this.formal, tc1);
@@ -150,7 +147,6 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10Loop_c n = (X10Loop_c) typeCheckNode(tc);
 		return n;
-	
 	}
 	
 	

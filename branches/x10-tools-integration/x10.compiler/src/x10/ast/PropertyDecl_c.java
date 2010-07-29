@@ -14,7 +14,6 @@ package x10.ast;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.ast.ArrayInit;
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
@@ -24,21 +23,12 @@ import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
-import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
-import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
-import polyglot.types.TypeSystem;
-import polyglot.types.UnknownType;
 import polyglot.util.Position;
-import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
-import x10.types.X10Context;
-import x10.types.X10FieldDef;
-import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
-import x10.types.X10TypeSystem;
+import x10.types.*;
 
 public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     public PropertyDecl_c(Position pos, FlagsNode flags, TypeNode type,
@@ -97,10 +87,11 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
 	}
         return body;
     }
-   
+
+    private Position getCompilerGenPos() { return X10NodeFactory_c.compilerGenerated(position()); }
     protected MethodDecl getter(X10NodeFactory nf) {
         X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
-        Position pos = Position.COMPILER_GENERATED;
+        Position pos = getCompilerGenPos();
         Flags flags = X10Flags.PROPERTY.Public().Final();
         List<Formal> formals = Collections.EMPTY_LIST;
         List<TypeNode> throwTypes = Collections.EMPTY_LIST;
@@ -121,7 +112,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      * <RAJ> 
      */
     protected MethodDecl abstractGetter(X10NodeFactory nf) {
-      MethodDecl abstractGetter = nf.MethodDecl(Position.COMPILER_GENERATED, nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.PROPERTY.Public().Abstract()), type, name, 
+      MethodDecl abstractGetter = nf.MethodDecl(getCompilerGenPos(), nf.FlagsNode(getCompilerGenPos(), X10Flags.PROPERTY.Public().Abstract()), type, name, 
                               Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
       return abstractGetter;
     }

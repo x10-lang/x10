@@ -217,7 +217,7 @@ public class CodeBlockSynth extends AbstractStateSynth implements IStmtSynth{
     public NewLocalVarSynth createLocalVar(Position pos, Name name, Flags flags, 
                                            Expr initializer,List<AnnotationNode> annotations){
         NewLocalVarSynth synth = new NewLocalVarSynth(xnf, xct, pos, name, flags,
-                                                      initializer, annotations);
+                                                      initializer, initializer.type(), annotations);
         addStmt(synth);
         return synth;
     }

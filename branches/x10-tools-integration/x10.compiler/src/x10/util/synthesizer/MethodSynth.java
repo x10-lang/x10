@@ -30,13 +30,19 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.ast.AnnotationNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
+import x10.ast.X10MethodDecl_c;
 import x10.ast.X10NodeFactory;
+import x10.constraint.XTerm;
+import x10.extension.X10Del;
+import x10.types.X10ClassDef;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
 
 /**
  * Method synthesizer to construct a method
@@ -44,10 +50,12 @@ import x10.types.X10TypeSystem;
  */
 public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth{
 
+    List<AnnotationNode> annotations;  // annotations of the new method
     CodeBlockSynth codeBlockSynth;
     List<Formal> formals;
     X10MethodDef methodDef; //only be created once;
     X10MethodDecl methodDecl; //only be created once;
+    XTerm placeTerm;
     
     
     public MethodSynth(X10NodeFactory xnf, X10Context xct, Position pos, ClassDef classDef, Name methodName,
@@ -55,7 +63,7 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         super(xnf, xct, pos);
 
         this.formals = formals;
-        
+        annotations = new ArrayList<AnnotationNode>();
         List<Ref<? extends Type>> formalTypeRefs = new ArrayList<Ref<? extends Type>>();
         List<LocalDef> formalNames = new ArrayList<LocalDef>();
         List<Ref<? extends Type>> throwTypeRefs = new ArrayList<Ref<? extends Type>>();
@@ -73,6 +81,8 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
                 methodName, 
                 formalTypeRefs, 
                 throwTypeRefs);//this constructor will not set formal names
+        methodDef.setThisVar(((X10ClassDef) classDef).thisVar());
+        placeTerm = PlaceChecker.methodPT(flags, classDef);
         methodDef.setFormalNames(formalNames);
         classDef.addMethod(methodDef);
         
@@ -105,6 +115,10 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
             e.printStackTrace();
         }
 
+    }
+    
+    public void addAnnotation(AnnotationNode annotation){
+        annotations.add(annotation);
     }
     
     
@@ -217,6 +231,16 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         methodDecl = (X10MethodDecl) xnf.MethodDecl(pos, flagNode, returnTypeNode, xnf.Id(pos, methodDef.name()), 
                 formals, throwTypeNodes, block);
 
+        if(annotations.size() > 0){
+            methodDecl = (X10MethodDecl) ((X10Del)methodDecl.del()).annotations(annotations);           
+            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(annotations.size());
+            for (AnnotationNode an : annotations) {
+                ats.add(an.annotationType().typeRef());
+            }
+            methodDef.setDefAnnotations(ats);
+        }
+
+        ((X10MethodDecl_c) methodDecl).placeTerm = placeTerm;
         methodDecl = (X10MethodDecl) methodDecl.methodDef(methodDef); //Need set the method def to the method instance
         
         return methodDecl;
