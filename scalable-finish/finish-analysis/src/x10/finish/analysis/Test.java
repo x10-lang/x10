@@ -2,8 +2,8 @@ package x10.finish.analysis;
 
 import java.io.*;
 
-import x10.finish.util.HprofParser;
-import x10.finish.util.OutputUtil;
+import x10.finish.table.HprofParser;
+import x10.finish.table.OutputUtil;
 
 public class Test {
 
