@@ -15,8 +15,10 @@ import java.util.Map;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Assign_c;
+import polyglot.ast.Binary;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Assign.Operator;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
@@ -39,6 +41,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
+import x10.visit.X10TypeChecker;
 import static polyglot.ast.Assign.*;
 
 /**
@@ -65,18 +68,18 @@ public class Checker {
 
 	public static Node typeCheckAssign(Assign_c a, ContextVisitor tc) throws SemanticException {
 	    Assign_c n = (Assign_c) a.typeCheckLeft(tc);
-	
+
 	    TypeSystem ts = tc.typeSystem();
 	    Type t = n.leftType();
-	
+
 	    if (t == null)
 	        t = ts.unknownType(n.position());
-	
+
 	    Expr right = n.right();
 	    Assign.Operator op = n.operator();
-	
+
 	    Type s = right.type();
-	
+
 	    if (op == ASSIGN) {
 	        try {
 	            Expr e = Converter.attemptCoercion(tc, right, t);
@@ -87,14 +90,33 @@ public class Checker {
 	        	throw new Errors.CannotAssign(right, t, n.position());
 	        }
 	    }
-	
+
+	    if (op == ADD_ASSIGN || op == Assign.SUB_ASSIGN || op == Assign.MUL_ASSIGN ||
+	        op == DIV_ASSIGN || op == MOD_ASSIGN || op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN ||
+	        op == BIT_XOR_ASSIGN || op == SHL_ASSIGN || op == SHR_ASSIGN || op == USHR_ASSIGN)
+	    {
+	        Binary.Operator bop = op.binaryOperator();
+	        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
+	        NodeFactory nf = tc.nodeFactory();
+	        Binary bin = (Binary) nf.Binary(n.position(), n.left(nf), bop, right).typeCheck(xtc);
+	        // FIXME: special case for Strings; typecheck-type transformation
+	        if (op == ADD_ASSIGN && ts.typeEquals(X10TypeMixin.baseType(t), ts.String(), tc.context()) &&
+	                ts.canCoerceToString(s, tc.context()))
+	        {
+	            Expr newRight = X10Binary_c.coerceToString(tc, right);
+	            return n.right(newRight).type(bin.type());
+	        }
+	        return n.type(bin.type());
+	    }
+
+	    assert (false);
 	    if (op == ADD_ASSIGN) {
 	        // t += s
 	        if (ts.typeEquals(X10TypeMixin.baseType(t), ts.String(), tc.context()) && ts.canCoerceToString(s, tc.context())) {
 	            Expr newRight = X10Binary_c.coerceToString(tc, right);
 	            return n.right(newRight).type(ts.String());
 	        }                
-	
+
 	        if (t.isNumeric() && s.isNumeric()) {
 	            return n.type(ts.promote(t, s));
 	        }
@@ -146,83 +168,81 @@ public class Checker {
 	                                    op + ".");
 	}
 	
-	  public static void checkVariancesOfType(Position pos, Type t, ParameterType.Variance requiredVariance, 
-	    		String desc, Map<Name,ParameterType.Variance> vars, ContextVisitor tc) throws SemanticException {
-	        if (t instanceof ParameterType) {
-	            ParameterType pt = (ParameterType) t;
-	            X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
-	            if (pt.def() != cd)
-	                return;
-	            ParameterType.Variance actualVariance = vars.get(pt.name());
-	            if (actualVariance == null)
-	                return;
-	            switch (actualVariance) {
+	public static void checkVariancesOfType(Position pos, Type t, ParameterType.Variance requiredVariance, 
+	        String desc, Map<Name,ParameterType.Variance> vars, ContextVisitor tc) throws SemanticException {
+	    if (t instanceof ParameterType) {
+	        ParameterType pt = (ParameterType) t;
+	        X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
+	        if (pt.def() != cd)
+	            return;
+	        ParameterType.Variance actualVariance = vars.get(pt.name());
+	        if (actualVariance == null)
+	            return;
+	        switch (actualVariance) {
+	        case INVARIANT:
+	            break;
+	        case COVARIANT:
+	            switch (requiredVariance) {
 	            case INVARIANT:
+	                throw new SemanticException("Cannot use covariant parameter " + pt + " " + desc + "; must be invariant.", pos);
+	            case COVARIANT:
+	                break;
+	            case CONTRAVARIANT:
+	                throw new SemanticException("Cannot use covariant parameter " + pt + " " + desc + "; must be contravariant or invariant.", pos);
+	            }
+	            break;
+	        case CONTRAVARIANT:
+	            switch (requiredVariance) {
+	            case INVARIANT:
+	                throw new SemanticException("Cannot use contravariant parameter " + pt + " " + desc + "; must be invariant.", pos);
+	            case COVARIANT:
+	                throw new SemanticException("Cannot use contravariant parameter " + pt + " " + desc + "; must be covariant or invariant.", pos);
+	            case CONTRAVARIANT:
+	                break;
+	            }
+	            break;
+	        }
+	    }
+	    if (t instanceof MacroType) {
+	        MacroType mt = (MacroType) t;
+	        checkVariancesOfType(pos, mt.definedType(), requiredVariance, desc, vars, tc);
+	    }
+	    if (t instanceof X10ClassType) {
+	        X10ClassType ct = (X10ClassType) t;
+	        X10ClassDef def = ct.x10Def();
+	        for (int i = 0; i < ct.typeArguments().size(); i++) {
+	            Type at = ct.typeArguments().get(i);
+	            ParameterType pt = def.typeParameters().get(i);
+	            ParameterType.Variance v = def.variances().get(i);
+	            ParameterType.Variance newVariance;
+
+	            switch (v) {
+	            case INVARIANT:
+	                checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
 	                break;
 	            case COVARIANT:
-	                switch (requiredVariance) {
-	                case INVARIANT:
-	                    throw new SemanticException("Cannot use covariant parameter " + pt + " " + desc + "; must be invariant.", pos);
-	                case COVARIANT:
-	                    break;
-	                case CONTRAVARIANT:
-	                    throw new SemanticException("Cannot use covariant parameter " + pt + " " + desc + "; must be contravariant or invariant.", pos);
-	                }
+	                checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
 	                break;
 	            case CONTRAVARIANT:
 	                switch (requiredVariance) {
 	                case INVARIANT:
-	                    throw new SemanticException("Cannot use contravariant parameter " + pt + " " + desc + "; must be invariant.", pos);
+	                    checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
+	                    break;
 	                case COVARIANT:
-	                    throw new SemanticException("Cannot use contravariant parameter " + pt + " " + desc + "; must be covariant or invariant.", pos);
+	                    checkVariancesOfType(pos, at, ParameterType.Variance.CONTRAVARIANT, desc, vars, tc);
+	                    break;
 	                case CONTRAVARIANT:
+	                    checkVariancesOfType(pos, at, ParameterType.Variance.COVARIANT, desc, vars, tc);
 	                    break;
 	                }
 	                break;
 	            }
 	        }
-	        if (t instanceof MacroType) {
-	            MacroType mt = (MacroType) t;
-	            checkVariancesOfType(pos, mt.definedType(), requiredVariance, desc, vars, tc);
-	        }
-	        if (t instanceof X10ClassType) {
-	            X10ClassType ct = (X10ClassType) t;
-	            X10ClassDef def = ct.x10Def();
-	            for (int i = 0; i < ct.typeArguments().size(); i++) {
-	                Type at = ct.typeArguments().get(i);
-	                ParameterType pt = def.typeParameters().get(i);
-	                ParameterType.Variance v = def.variances().get(i);
-	                ParameterType.Variance newVariance;
-
-	                switch (v) {
-	                case INVARIANT:
-	                    checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
-	                    break;
-	                case COVARIANT:
-	                    checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
-	                    break;
-	                case CONTRAVARIANT:
-	                    switch (requiredVariance) {
-	                    case INVARIANT:
-	                        checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
-	                        break;
-	                    case COVARIANT:
-	                        checkVariancesOfType(pos, at, ParameterType.Variance.CONTRAVARIANT, desc, vars, tc);
-	                        break;
-	                    case CONTRAVARIANT:
-	                        checkVariancesOfType(pos, at, ParameterType.Variance.COVARIANT, desc, vars, tc);
-	                        break;
-	                    }
-	                    break;
-	                }
-	            }
-	        }
-	        if (t instanceof ConstrainedType) {
-	            ConstrainedType ct = (ConstrainedType) t;
-	            Type at = Types.get(ct.baseType());
-	            checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
-	        }
 	    }
-
-
+	    if (t instanceof ConstrainedType) {
+	        ConstrainedType ct = (ConstrainedType) t;
+	        Type at = Types.get(ct.baseType());
+	        checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
+	    }
+	}
 }
