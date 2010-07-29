@@ -22,15 +22,7 @@ public class Test {
 	 * *********************************************************
 	 * ***************
 	 */
-	String os = System.getProperty("os.name");
-	String user = "Users";
-	if (os.contains("Linux")) {
-	    user = "home";
-
-	}
-
-	File f = new File("/" + user + "/blshao/workspace/wala-bridge-1.0/"
-		+ "x10.tests/examples/ScalableFinish/Others/TrivialTest3.x10");
+	File f = new File("../x10.tests/examples/ScalableFinish/Others/TrivialTest3.x10");
 	X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 
 	/* *********************************
@@ -44,12 +36,12 @@ public class Test {
 	 */
 
 	// compile(file, package, entrymethod, methodsig)
-	// x10fa.compile(f, "","run","()Lx10/lang/Boolean;");
+	 x10fa.compile(f, "","run","()Lx10/lang/Boolean;");
 	// x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
 	//OutputUtil.Write2Plot("SimpleFinish5");
 	//OutputUtil.Write2Plot("SimpleFinish4");
 	//OutputUtil.Write2Plot("SimpleFinish3");
-	OutputUtil.Write2Plot("SimpleFinish2");
+	//OutputUtil.Write2Plot("SimpleFinish2");
 	//OutputUtil.Write2Plot("SimpleFinish1");
 	//OutputUtil.Write2Plot("ManyLocalFinish2");
 	//OutputUtil.Write2Plot("ManyLocalFinish1");
