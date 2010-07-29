@@ -14,6 +14,7 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +53,7 @@ import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.TypeSystem_c.MethodMatcher;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -60,6 +62,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
@@ -738,4 +741,60 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		sb.append(")");
 		return sb.toString();
 	}
+
+
+    /** Write the expression to an output file. */
+   @Override
+	  public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+	    w.begin(0);
+	    if (!targetImplicit) {
+	        if (target instanceof Expr) {
+	          printSubExpr((Expr) target, w, tr);
+	        }
+	        else if (target != null) {
+	          print(target, w, tr);
+	        }
+	    w.write(".");
+	    w.allowBreak(2, 3, "", 0);
+	    }
+
+        w.write(name + "");
+
+	    if (typeArguments.size() > 0) {
+	        w.write("[");
+	        w.allowBreak(2, 2, "", 0); // miser mode
+	        w.begin(0);
+	                
+	        for (Iterator<TypeNode> i = typeArguments.iterator(); i.hasNext(); ) {
+	            TypeNode t = i.next();
+	            t.prettyPrint(w, tr);
+	            if (i.hasNext()) {
+	            w.write(",");
+	            w.allowBreak(0, " ");
+	            }
+	        }
+            w.write("]");
+	        w.end();
+	    }
+	    
+	    w.write("(");
+	    if (arguments.size() > 0) {
+	    w.allowBreak(2, 2, "", 0); // miser mode
+	    w.begin(0);
+	            
+	    for (Iterator<Expr> i = arguments.iterator(); i.hasNext(); ) {
+	        Expr e = i.next();
+	        print(e, w, tr);
+
+	        if (i.hasNext()) {
+	        w.write(",");
+	        w.allowBreak(0, " ");
+	        }
+	    }
+
+	    w.end();
+	    }
+	    w.write(")");
+	    w.end();
+	  }
 }
