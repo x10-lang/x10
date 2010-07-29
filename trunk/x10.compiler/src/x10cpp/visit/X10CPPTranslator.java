@@ -165,7 +165,13 @@ public class X10CPPTranslator extends Translator {
 		}
 		
 		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof CompoundStmt))
-			w.write("_X10_STATEMENT_HOOK(), ");
+		{
+			w.write("_X10_STATEMENT_HOOK()");
+			if (!(parent instanceof For))
+				w.write("; ");
+			else
+				w.write(", ");
+		}
 		
 		final int startLine = w.currentStream().getStreamLineNumber(); // for debug info
 
