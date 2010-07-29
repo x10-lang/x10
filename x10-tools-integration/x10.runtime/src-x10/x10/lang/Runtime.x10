@@ -371,7 +371,7 @@ public final class Runtime {
     def this(r:Reducible[T]) {
     	this.reducer=r;
     	this.result=reducer.zero();
-    	this.resultRail = Rail.make[T](MAX, (Int) => reducer.zero());
+    	this.resultRail = Rail.make[T](MAX, (Int) => this.result);
     }
     def accept(t:T) {
     	this.result=reducer(result,t);
@@ -384,12 +384,17 @@ public final class Runtime {
     }
     def  placeMerge(){
         for(var i:Int =0; i<MAX; i++) {
-            if (this.workerFlag(i))
+            if (this.workerFlag(i)) {
                 this.result = reducer(result,resultRail(i));
+		resultRail(i)=reducer.zero();
+	    }
         }
     }
 
     def result()=result;
+	def reset() {
+	    result = reducer.zero();
+	}
     }
 
     static class RootCollectingFinish[T] extends RootFinish {
@@ -444,7 +449,9 @@ public final class Runtime {
     final public def waitForFinishExpr(safe:Boolean):T {
         waitForFinish(safe);
         sr.placeMerge();
-        return sr.result();
+	val result = sr.result();
+	sr.reset();
+        return result;
     }
 
     }
@@ -620,6 +627,7 @@ public final class Runtime {
             } else {
             	sr.placeMerge();
                 val x = sr.result();
+		sr.reset();
                 val closure = () => { (r as RootCollectingFinish[T]!).notify(m, x); deallocObject(m); };
                 runAtNative(r.home.id, closure);
                 dealloc(closure);
@@ -643,6 +651,7 @@ public final class Runtime {
             } else {
             	sr.placeMerge();
                 val x = sr.result();
+		sr.reset();
                 val closure = () => { (r as RootCollectingFinish[T]!).notify2(m, x) ; deallocObject(m); };
                 runAtNative(r.home.id, closure);
                 dealloc(closure);
@@ -1452,6 +1461,7 @@ public final class Runtime {
             val thisWorker = worker();
             val id = thisWorker.workerId;
             val state = currentState();
+	    //	    Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
             if (here.equals(state.home)) {
                 (state as RootCollectingFinish[T]!).accept(t,id);
             } else {

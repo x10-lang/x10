@@ -18,7 +18,7 @@ import x10.rtt.RuntimeType.Variance;
 public interface Fun_0_7<T1,T2,T3,T4,T5,T6,T7,U> extends Any {
     U apply$G(T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7);
     
-    public static final RuntimeType _RTT = new RuntimeType(
+    public static final RuntimeType<Fun_0_7<?,?,?,?,?,?,?,?>> _RTT = new RuntimeType<Fun_0_7<?,?,?,?,?,?,?,?>>(
         Fun_0_7.class,
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT,

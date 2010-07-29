@@ -21,7 +21,7 @@ public class ConInstanceHere extends x10Test {
 	def n() {
 		at (here.next()) {
 		  // This call will compile only if -strictCalls is not set.
-		  m();
+		  m(); // DYNAMIC_CHECK
 		}
 	}
 	

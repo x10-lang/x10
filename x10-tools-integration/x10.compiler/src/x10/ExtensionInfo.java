@@ -330,7 +330,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
     public void initCompiler(Compiler compiler) {
 	super.initCompiler(compiler);
-	QueryEngine.init(this);
+	//QueryEngine.init(this);
     }
 
     // =================================
@@ -405,12 +405,15 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                if(wsCodeGenGoal != null){
                    goals.add(wsCodeGenGoal);                   
                    wsCodeGenGoal.addPrereq(TypeCheckBarrier());
-                   wsCodeGenGoal.addPrereq(WSExpressionFlattener(job));
+                   //wsCodeGenGoal.addPrereq(WSExpressionFlattener(job));
                }
            }
            goals.add(InnerClassRemover(job));
            goals.addAll(Optimizer.goals(this, job));
            goals.add(Desugarer(job));
+           if (x10.Configuration.FLATTEN_EXPRESSIONS) {
+               goals.add(ExpressionFlattener(job));
+           }
            goals.add(CodeGenerated(job));
            goals.add(End(job));
            
@@ -630,8 +633,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   NodeFactory nf = extInfo.nodeFactory();
     	   Goal cg = new ValidatingOutputGoal(job, new X10Translator(job, ts, nf, extInfo.targetFactory()));
            Goal cg2 = cg.intern(this);
+           // FIXME: guarded to make local optimizations effective in java backend
+           if (x10.Configuration.FLATTEN_EXPRESSIONS || x10.Configuration.INLINE_OPTIMIZATIONS) {
            if (cg == cg2) {
                cg2.addPrereq(ExpressionFlattener(job));
+           }
            }
            return cg2;
        }
@@ -798,7 +804,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal ExpressionFlattener(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           VisitorGoal ef = new VisitorGoal("WorkStealing ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
+           VisitorGoal ef = new VisitorGoal("ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
            Goal ef2 = ef.intern(this);
            if (ef == ef2) {
                ef.addPrereq(Desugarer(job));

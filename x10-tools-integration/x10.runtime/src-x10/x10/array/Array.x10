@@ -55,7 +55,19 @@ public final class Array[T](
     /**
      * The region of this array.
      */
-    region:Region{self != null}
+    region:Region{self != null},
+
+    /**
+     * The number of points/data values in the array.
+     * Will always be equal to region.size(), but cached here to make it available as a property.
+     */
+     size:Int,
+
+    /**
+     * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
+     * Cached in the Array for efficient acccess at runtime in optimize apply/set methods
+     */
+    rail:Boolean
 )  implements (Point(region.rank))=>T,
               Iterable[Point(region.rank)] {
 
@@ -78,12 +90,6 @@ public final class Array[T](
      */
     public property zeroBased: boolean = region.zeroBased;
 
-    /**
-     * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
-     */
-    public property rail: boolean = region.rail;
-
-
     private global val raw:IndexedMemoryChunk[T];
     private global val rawLength:int;
     private val layout:RectLayout!{self!=null};
@@ -95,8 +101,7 @@ public final class Array[T](
     /**
      * Return the IndexedMemoryChunk[T] that is providing the backing storage for the array.
      * This method is primarily intended to be used to interface with native libraries 
-     * (eg BLAS, ESSL) and to support user-defined copyTo/copyFrom idioms until the proper
-     * copyTo/copyFrom methods are added to the Array API as first class operations.<p>
+     * (eg BLAS, ESSL). <p>
      * 
      * This method should be used sparingly, since it may make client code dependent on the layout
      * algorithm used to map Points in the Array's Region to indicies in the backing IndexedMemoryChunk.
@@ -120,7 +125,7 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      */
     public def this(reg:Region):Array[T]{self.region==reg} {
-	property(reg);
+	property(reg, reg.size(), reg.rail);
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
@@ -137,7 +142,7 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg} {
-        property(reg);
+        property(reg, reg.size(), reg.rail);
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
@@ -158,7 +163,7 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(reg:Region, init:T):Array[T]{self.region==reg} {
-        property(reg);
+        property(reg, reg.size(), reg.rail);
 
         layout = new RectLayout(reg.min(), reg.max());
         val n = layout.size();
@@ -180,13 +185,13 @@ public final class Array[T](
 
 
     /**
-     * Construct Array over the region 0..rail.length-1 whose
+     * Construct Array over the region 0..aRail.length-1 whose
      * values are initialized to the corresponding values in the 
      * argument Rail.
      *
      */    
-    public def this(rail:Rail[T]!):Array[T]{self.rank==1,rect,zeroBased} {
-	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
+    public def this(aRail:Rail[T]!):Array[T]{rank==1,rect,zeroBased,self.rail} {
+	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
     }
 
 
@@ -200,8 +205,8 @@ public final class Array[T](
      *       can't refer to "T" in a static context, which is complete nonsense
      *       since this is a constructor.
      */    
-    public def this(rail:ValRail[T]!):Array[T]{self.rank==1,rect,zeroBased} {
-	this(Region.makeRectangular(0, rail.length-1), ((i):Point(1)) => rail(i));
+    public def this(aRail:ValRail[T]!):Array[T]{rank==1,rect,zeroBased,self.rail} {
+	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
     }
 
 
@@ -210,7 +215,7 @@ public final class Array[T](
      * in future releases of X10, this method will only be callable if sizeof(T) bytes 
      * of zeros is a valid value of type T. 
      */    
-    public def this(size:int):Array[T]{self.rank==1,rect,zeroBased} {
+    public def this(size:int):Array[T]{rank==1,rect,zeroBased,self.rail} {
 	this(Region.makeRectangular(0, size-1));
     }
 
@@ -222,7 +227,7 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:(Point(1))=>T):Array[T]{self.rank==1,rect,zeroBased} {
+    public def this(size:int, init:(Point(1))=>T):Array[T]{rank==1,rect,zeroBased,self.rail} {
 	this(Region.makeRectangular(0, size-1), init);
     }
 
@@ -234,7 +239,7 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:T):Array[T]{self.rank==1,rect,zeroBased} {
+    public def this(size:int, init:T):Array[T]{rank==1,rect,zeroBased,self.rail} {
 	this(Region.makeRectangular(0, size-1), init);
     }
 
@@ -248,7 +253,6 @@ public final class Array[T](
      */
     public def iterator():Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 
-
     /**
      * Return the element of this array corresponding to the given index.
      * Only applies to one-dimensional arrays.
@@ -260,10 +264,17 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     public safe @Header @Inline def apply(i0:int){rank==1}:T {
-        if (checkBounds() && !region.contains(i0)) {
-            raiseBoundsError(i0);
-        }
-        return raw(layout.offset(i0));
+	if (rail) {
+            if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
+                raiseBoundsError(i0);
+            }
+            return raw(i0);
+        } else {
+            if (checkBounds() && !region.contains(i0)) {
+                raiseBoundsError(i0);
+            }
+            return raw(layout.offset(i0));
+       }
     }
 
     /**
@@ -353,10 +364,17 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int){rank==1}:T {
-        if (checkBounds() && !region.contains(i0)) {
-            raiseBoundsError(i0);
+	if (rail) {
+            if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
+                raiseBoundsError(i0);
+            }
+            raw(i0) = v;
+        } else {
+            if (checkBounds() && !region.contains(i0)) {
+                raiseBoundsError(i0);
+            }
+            raw(layout.offset(i0)) = v;
         }
-        raw(layout.offset(i0)) = v;
         return v;
     }
 
@@ -608,7 +626,7 @@ public final class Array[T](
      * @see #map((T)=>T)
      * @see #reduce((T,T)=>T,T)
      */
-    public def scan(op:(T,T)=>T, unit:T): Array[T](region)! = scan(new Array[T](region), op, unit); // TODO: private constructor to avoid useless zeroing
+    public def scan(op:(T,T)=>T, unit:T) = scan(new Array[T](region), op, unit); // TODO: private constructor to avoid useless zeroing
 
 
     /**
@@ -634,19 +652,211 @@ public final class Array[T](
         return dst;
     }
 
-    private @NoInline @NoReturn def raiseBoundsError(i0:int) {
+
+    /**
+     * Copy all of the values from this Array to the destination Array.
+     * The two arrays must be defined over the same Region.
+     * If the destination Array is in a different place, then this copy
+     * is performed asynchronously and the resulting activity will be 
+     * registered with the dynamically enclosing finish.</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param dst the destination array.  May be local or remote
+     */
+    public def copyTo(dst:Array[T](this.region)) {
+	copyTo(dst,false);
+    }
+
+    /**
+     * Copy all of the values from this Array to the destination Array.
+     * The two arrays must be defined over the same Region.
+     * If the destination Array is in a different place, then this copy
+     * is performed asynchronously. Depending on the value of the 
+     * uncounted parameter, the resulting activity will either be 
+     * registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param dst the destination array.  May be local or remote
+     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     */
+    public def copyTo(dst:Array[T](this.region), uncounted:boolean) {
+        raw.copyTo(0, dst.home, dst.raw, 0, rawLength, uncounted);
+    }
+
+
+    /**
+     * Copy the specified values from this Array to the destination Array.
+     * The two arrays must be of Rank(1).
+     * If the destination Array is in a different place, then this copy
+     * is performed asynchronously and the resulting activity will be 
+     * registered with the dynamically enclosing finish.</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param srcIndex the first element to copy from in the source array
+     * @param dst the destination array.  May be local or remote
+     * @param dstIndex the first element to copy to in the destination array
+     * @param numElems the number of elements to copy
+     */
+    public def copyTo(srcIndex:int, dst:Array[T](1), dstIndex:int, numElems:int){rank==1} {
+        copyTo(srcIndex, dst, dstIndex, numElems, false);
+    }
+
+    /**
+     * Copy the specified values from this Array to the destination Array.
+     * The two arrays must be of Rank(1).
+     * If the destination Array is in a different place, then this copy
+     * is performed asynchronously. Depending on the value of the 
+     * uncounted parameter, the resulting activity will either be 
+     * registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param srcIndex the first element to copy from in the source array
+     * @param dst the destination array.  May be local or remote
+     * @param dstIndex the first element to copy to in the destination array
+     * @param numElems the number of elements to copy
+     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     */
+    public def copyTo(srcIndex:int, dst:Array[T](1), dstIndex:int, numElems:int, uncounted:boolean){rank==1} {
+        if (checkBounds()) {
+	    if (!region.contains(srcIndex)) raiseBoundsError(srcIndex);
+            if (!region.contains(srcIndex+numElems-1)) raiseBoundsError(srcIndex+numElems-1);
+            if (!dst.region.contains(dstIndex)) raiseBoundsError(dstIndex);
+            if (!dst.region.contains(dstIndex+numElems-1)) dst.raiseBoundsError(dstIndex+numElems-1);
+        }
+
+        raw.copyTo(srcIndex-region.min()(0), dst.home, dst.raw, dstIndex-dst.region.min()(0), numElems, uncounted);
+    }
+
+
+    /**
+     * Copy all of the values from the source array into this Array.
+     * The two arrays must be defined over the same Region.
+     * If the source Array is in a different place, then this copy
+     * is performed asynchronously and the resulting activity will be 
+     * registered with the dynamically enclosing finish.</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.  May be local or remote
+     */
+    public def copyFrom(src:Array[T](this.region)) {
+        copyFrom(src, false);
+    }
+
+    /**
+     * Copy all of the values from the source array into this Array.
+     * The two arrays must be defined over the same Region.
+     * If the source Array is in a different place, then this copy
+     * is performed asynchronously. Depending on the value of the 
+     * uncounted parameter, the resulting activity will either be 
+     * registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.  May be local or remote
+     */
+    public def copyFrom(src:Array[T](this.region), uncounted:boolean) {
+	raw.copyFrom(0, src.home, src.raw, 0, rawLength, uncounted);
+    }
+
+
+    /**
+     * Copy the specified values from the source Array to this Array.
+     * The two arrays must be of Rank(1).
+     * If the source Array is in a different place, then this copy
+     * is performed asynchronously and the resulting activity will be 
+     * registered with the dynamically enclosing finish.</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param dstIndex the first element to copy to in the destination array
+     * @param src the destination array.  May be local or remote
+     * @param srcIndex the first element to copy from in the source array
+     * @param numElems the number of elements to copy
+     */
+    public def copyFrom(dstIndex:int, src:Array[T](1), srcIndex:int, numElems:int){rank==1} {
+        copyFrom(dstIndex, src, srcIndex, numElems, false);
+    }
+
+    /**
+     * Copy the specified values from the source Array to this Array.
+     * The two arrays must be of Rank(1).
+     * If the source Array is in a different place, then this copy
+     * is performed asynchronously. Depending on the value of the 
+     * uncounted parameter, the resulting activity will either be 
+     * registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param dstIndex the first element to copy to in the destination array
+     * @param src the destination array.  May be local or remote
+     * @param srcIndex the first element to copy from in the source array
+     * @param numElems the number of elements to copy
+     */
+    public def copyFrom(dstIndex:int, src:Array[T](1), srcIndex:int, numElems:int, uncounted:boolean){rank==1} {
+        if (checkBounds()) {
+	    if (!src.region.contains(srcIndex)) raiseBoundsError(srcIndex);
+            if (!src.region.contains(srcIndex+numElems-1)) raiseBoundsError(srcIndex+numElems-1);
+            if (!region.contains(dstIndex)) raiseBoundsError(dstIndex);
+            if (!region.contains(dstIndex+numElems-1)) raiseBoundsError(dstIndex+numElems-1);
+        }
+
+        raw.copyFrom(dstIndex-region.min()(0), src.home, src.raw, srcIndex-src.region.min()(0), numElems, uncounted);
+    }
+
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in array");
     }    
-    private @NoInline @NoReturn def raiseBoundsError(pt:Point(rank)) {
+    private static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
     }    
 
