@@ -159,8 +159,10 @@ public class ClockedVariableRefactor extends ContextVisitor {
 		 Expr init = null;
 		 if (op instanceof Field) {
 			init =((X10FieldDef)(((Field) op).fieldInstance()).def()).fieldDecl().init();
-		 } else if (op instanceof  Local) {			 
-			init = ((X10LocalDef)((Local)op).localInstance().def()).localDecl().init();
+		 } else if (op instanceof  Local) {		
+			LocalDecl  lDecl = ((X10LocalDef)((Local)op).localInstance().def()).localDecl(); 
+			if (lDecl != null)
+				init = lDecl.init();
 		 }
 		 isInt = op.type().toString().contains("=> x10.lang.Int");
 		 if (init !=  null) {
@@ -223,8 +225,11 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                argsType.add(op.type());
 	                argsType.add(init.type());
 	                argsType.add(n.type().type());	               
-
-	                X10ClassType type2 = ((X10ClassType) type).typeArguments(typeArgs);
+	                Type type2;
+	                if (!this.isOpIntPlus(op))
+	                	type2 = ((X10ClassType) type).typeArguments(typeArgs);
+	                else 
+	                	type2 = xts.typeForName(CLOCKEDINT);
 	                Expr construct = xnf.New(position,xnf.CanonicalTypeNode(position, type2), args)
 	               
 	                .constructorInstance(xts.findConstructor(type2, xts.ConstructorMatcher(n.type().type(), argsType, context)))
@@ -498,11 +503,17 @@ public class ClockedVariableRefactor extends ContextVisitor {
 							args.add(c);
 							args.add(op);
 							args.add(opInit);
+							String mName;
+							 if (!this.isOpIntPlus(op))
+				                	mName = "makeClocked";
+							 else
+								 	mName = "makeIntClocked";
+				                
 							
-							mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(call.type(), Name.make("makeClocked"), typeArgs, argTypes, context));
+							mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(call.type(), Name.make(mName), typeArgs, argTypes, context));
 							
 					
-						return (Call) xnf.Call(call.position(), target,  xnf.Id(call.position(), "makeClocked"), args).methodInstance(mi).type(mi.returnType());
+						return (Call) xnf.Call(call.position(), target,  xnf.Id(call.position(), mName), args).methodInstance(mi).type(mi.returnType());
 					}
 			} catch (SemanticException e) {
 				throw new InternalCompilerError("Something is terribly wrong", e);

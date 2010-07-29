@@ -38,6 +38,7 @@ public class ClockedAtomicInt extends ClockedVar[Int] implements ClockableVar {
 	
 	
 	public @Inline @Header def get$G():ClockedAtomicInt[Int] = this;
+    
       
     public @Inline def getClocked():Int {
     	  return xRead.get();
@@ -46,6 +47,7 @@ public class ClockedAtomicInt extends ClockedVar[Int] implements ClockableVar {
 
 
     public @Inline def setClocked(x:Int) {
+       // Console.OUT.println("setting");
     	changed = true;
 		xWrite.addAndGet(x);
     
