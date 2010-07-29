@@ -96,7 +96,7 @@ public class X10FoldingUpdater extends LPGFolderBase {
             int len= rightPos - leftPos + 1;
 
             if (leftPos >= 0 && len > 0) {
-            	System.out.println("Making annotation @ <" + leftPos + ", len: " + len + "> for imports");
+//            	System.out.println("Making annotation @ <" + leftPos + ", len: " + len + "> for imports");
             	makeAnnotation(leftPos, len);
             }
         }
@@ -119,7 +119,7 @@ public class X10FoldingUpdater extends LPGFolderBase {
 		int foldLen= foldEnd - foldStart + 1;
 
         if (foldStart >= 0 && foldLen > 0) {
-        	System.out.println("Making annotation @ <" + foldStart + ", len: " + foldLen + "> for node of type " + node.getClass());
+//        	System.out.println("Making annotation @ <" + foldStart + ", len: " + foldLen + "> for node of type " + node.getClass());
         	makeAnnotation(foldStart, foldLen);
         }
     }   
@@ -137,7 +137,7 @@ public class X10FoldingUpdater extends LPGFolderBase {
     	foldImports(astRoot, parseController);
     	foldComments(fLexStream);
 
-    	dumpAnnotations(annotations, newAnnotations);
+//    	dumpAnnotations(annotations, newAnnotations);
     }
 
     /*
