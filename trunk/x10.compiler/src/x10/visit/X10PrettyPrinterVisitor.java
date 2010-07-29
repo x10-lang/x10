@@ -399,7 +399,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			er.coerce(n, n.right(), l.type());
 		}
 		else {
-			Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
+			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			tr.print(n, l, w);
 			w.write(" = ");
@@ -427,7 +427,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		else if (n.target() instanceof TypeNode || n.target() instanceof Local || n.target() instanceof Lit) {
 			// target has no side effects--evaluate it more than once
-			Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
+			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			tr.print(n, n.target(), w);
 			w.write(".");
@@ -447,7 +447,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// x.f += e
 			// -->
 			// new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
-			Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
+			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			w.write("new java.lang.Object() {");
 			w.allowBreak(0, " ");
@@ -2643,7 +2643,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 		}
 		else if (! effects) {
-			Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
+			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			X10TypeSystem xts = (X10TypeSystem) ts;
 			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()))) {
@@ -2691,7 +2691,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		else {
 			// new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
-			Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
+			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			X10TypeSystem xts = (X10TypeSystem) ts;
 			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()))) {
