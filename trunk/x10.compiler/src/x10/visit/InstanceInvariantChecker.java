@@ -25,6 +25,7 @@ import x10.ast.X10Formal_c;
 import x10.ast.Closure;
 import x10.ast.AssignPropertyBody;
 import x10.ast.SettableAssign;
+import x10.errors.X10ErrorInfo;
 
 public class InstanceInvariantChecker extends NodeVisitor
 {
@@ -35,17 +36,17 @@ public class InstanceInvariantChecker extends NodeVisitor
     }
 
     public Node visitEdgeNoOverride(Node parent, Node n) {
-        if (Report.should_report("InstanceInvariantChecker", 2))
-            Report.report(2, "Checking invariants for: " + n);
-        String m = checkInvariants(n);
-        if (m==null)
-            n.del().visitChildren(this); // if there is an error, I don't recurse to the children
-        else {
-            String msg = m+("!")+
-                    (" n=")+(n).toString();
-            job.compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR,msg,n.position());
-        }
-        return n;
+    	if (Report.should_report("InstanceInvariantChecker", 2))
+    		Report.report(2, "Checking invariants for: " + n);
+    	String m = checkInvariants(n);
+
+    	if (m!=null) {
+    		String msg = m+("!")+(" n=")+(n).toString();
+    		job.compiler().errorQueue().enqueue(X10ErrorInfo.INVARIANT_VIOLATION_KIND,msg,n.position());
+    	}
+
+    	n.del().visitChildren(this); // if there is an error, I don't recurse to the children
+    	return n;
     }
     
     private boolean isAmbiguous(Node n){
@@ -55,40 +56,35 @@ public class InstanceInvariantChecker extends NodeVisitor
     	}
     	return false;
     }
+    private void myAssert(boolean cond, String msg) throws SemanticException {
+        if (!cond)
+            throw new SemanticException(msg);
+    }
     
     private String checkInvariants(Node n) {
         if (n == null) return "Cannot visit null";
 
         if (isAmbiguous(n)) return "Ambiguous node found in AST";
-        
+
         if (n instanceof Typed) {
             if (((Typed)n).type()==null) return "Typed node is missing type";
-        }
-
-        if (n instanceof ClassMember) {
+        } else if (n instanceof ClassMember) {
             if (((ClassMember)n).memberDef()==null) return "ClassMember missing memberDef";
-        }
-        if (n instanceof VarDecl) {
+        } else if (n instanceof VarDecl) {
             if (((VarDecl)n).localDef()==null) return "VarDecl missing localDef";
-        }
-
-        if (n instanceof ProcedureCall) {
+        } else if (n instanceof ProcedureCall) {
             if (((ProcedureCall)n).procedureInstance()==null) return "ProcedureCall missing procedureInstance";
-        }
-        if (n instanceof NamedVariable) {
+        } else if (n instanceof NamedVariable) {
             if (((NamedVariable)n).varInstance()==null) return "NamedVariable missing varInstance";
-        }
-        if (n instanceof FieldAssign) {
+        } else if (n instanceof FieldAssign) {
             if (((FieldAssign)n).fieldInstance()==null) return "FieldAssign missing fieldInstance";
         }
         // x10 specific
-        if (n instanceof Closure) {
+        else if (n instanceof Closure) {
             if (((Closure)n).closureDef()==null) return "Closure missing closureDef";
-        }
-        if (n instanceof AssignPropertyBody) {
+        } else if (n instanceof AssignPropertyBody) {
             if (((AssignPropertyBody)n).constructorInstance()==null) return "AssignPropertyBody missing constructorInstance";
-        }
-        if (n instanceof SettableAssign) {
+        } else if (n instanceof SettableAssign) {
             if (((SettableAssign)n).methodInstance()==null) return "SettableAssign missing methodInstance";
         }
         return null;

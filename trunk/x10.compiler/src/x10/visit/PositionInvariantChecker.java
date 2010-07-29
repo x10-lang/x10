@@ -12,6 +12,7 @@ import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import x10.ast.AnnotationNode_c;
 import x10.ast.X10Formal_c;
+import x10.errors.X10ErrorInfo;
 
 public class PositionInvariantChecker extends NodeVisitor
 {
@@ -27,17 +28,24 @@ public class PositionInvariantChecker extends NodeVisitor
         if (Report.should_report("PositionInvariantChecker", 2))
             Report.report(2, "Checking invariants for: " + n);
         String m = checkInvariants(parent, n);
-        if (m==null)
-            n.del().visitChildren(this); // if there is an error, I don't recurse to the children
-        else {
-            String msg = "After goal "+previousGoalName+": "+
-                    m+("!")+
-                    (" parentPos=")+(parent.position())+
+        if (m!=null) {
+        	String msg;
+        	if (parent != null) {
+        		msg = "After goal "+previousGoalName+": "+
+        			m+("!")+
+        			(" parentPos=")+(parent.position())+
                     (" nPos=")+(n.position())+
                     (" parent=")+(parent)+
                     (" n=")+(n).toString();
-            job.compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR,msg,n.position());
+        	} else {
+        		msg = "After goal "+previousGoalName+": "+
+    			m+("!")+
+                (" nPos=")+(n.position())+
+                (" n=")+(n).toString();
+        	}
+            job.compiler().errorQueue().enqueue(X10ErrorInfo.INVARIANT_VIOLATION_KIND,msg,n.position());
         }
+        n.del().visitChildren(this); // if there is an error, I don't recurse to the children
         return n;
     }
     private String checkInvariants(Node parent, Node n) {
