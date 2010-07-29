@@ -24,7 +24,7 @@ public class ClockedVar[T] implements ClockableVar{
     val MAXWORKERS = 1024;
     val xWrite: Rail[T]! = Rail.make[T](MAXWORKERS);
     val op:(T,T)=>T;
-    val opInit:T;
+    var opInit:T;
     var changed:Boolean;
 
     
@@ -45,7 +45,10 @@ public class ClockedVar[T] implements ClockableVar{
     
     
     //val lock = new Lock();
-  
+
+    public def this () {
+	op = null;
+   }
 
     public def this (c: Clock!, oper: (T,T)=>T!, opInitial:T) {
 		  

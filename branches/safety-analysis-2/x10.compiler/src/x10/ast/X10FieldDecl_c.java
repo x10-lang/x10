@@ -227,6 +227,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
     	X10FieldDef fi = (X10FieldDef) ts.fieldDef(position(), Types.ref(ct.asType()), flags, type.typeRef(), name.id());
     	fi.setThisVar(((X10ClassDef) ct).thisVar());
+    	fi.setFieldDecl(this);
 
     	return fi;
     }

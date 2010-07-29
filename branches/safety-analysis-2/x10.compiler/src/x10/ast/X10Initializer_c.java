@@ -47,5 +47,5 @@ public class X10Initializer_c extends Initializer_c {
         }
         return c;
     }
-
+ 
 }

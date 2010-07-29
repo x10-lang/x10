@@ -17,6 +17,7 @@ package x10.types;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.FieldDecl;
 import polyglot.types.FieldDef_c;
 import polyglot.types.Flags;
 import polyglot.types.Name;
@@ -40,6 +41,7 @@ import x10.types.constraints.TypeConstraint;
 public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     boolean isProperty;
     XVar thisVar;
+    FieldDecl fDecl;
     
     public X10FieldDef_c(TypeSystem ts, Position pos,
             Ref<? extends StructType> container,
@@ -58,7 +60,16 @@ public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     public void setThisVar(XVar thisVar) {
         this.thisVar = thisVar;
     }
-
+    
+    public void setFieldDecl(FieldDecl fieldDecl) {
+    	this.fDecl = fieldDecl;
+    	
+    }
+    
+    public FieldDecl fieldDecl() {
+    	return this.fDecl;
+    	
+    }
     // BEGIN ANNOTATION MIXIN
     List<Ref<? extends Type>> annotations;
 
