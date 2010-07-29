@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import polyglot.ast.Assert;
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
 import polyglot.ast.Catch;
@@ -164,7 +165,7 @@ public class X10CPPTranslator extends Translator {
 			w.newline();
 		}
 		
-		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof CompoundStmt))
+		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof CompoundStmt) && !(n instanceof Assert))
 		{
 			w.write("_X10_STATEMENT_HOOK()");
 			if (!(parent instanceof For))
