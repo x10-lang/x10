@@ -21,19 +21,19 @@ public class GraphUtil {
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg, String name) {
 	String os = System.getProperty("os.name");
 	String dot_path = "";
-	String file_path = "";
+	 
 	MySSACFGNodeDecorator mnd = new MySSACFGNodeDecorator();
 	if (!os.contains("Linux")) {
 	    dot_path = "/Applications/Graphviz.app/Contents/MacOS/dot";
-	    file_path = "/Users/blshao/Desktop/";
+	    
 	} else {
 	    dot_path = "/usr/bin/dot";
-	    file_path = "/home/blshao/Desktop/";
+	     
 	}
-	String full_name = file_path+name;
+	 
 	try {
-	    DotUtil.dotify(epcfg, mnd, (full_name + ".dot"), 
-		    (full_name + ".pdf"),dot_path);
+	    DotUtil.dotify(epcfg, mnd, (name + ".dot"), 
+		    (name + ".pdf"),dot_path);
 	} catch (WalaException e) {
 	    System.out.println(e.toString());
 	}

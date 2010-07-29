@@ -92,15 +92,6 @@ import com.ibm.wala.viz.NodeDecorator;
  */
 public class X10FinishAsyncAnalysis {
     HashMap<SSAInstruction,Integer> instmap;
-    public static String os;
-    static{
-	if(System.getProperty("os.name").contains("Linux")){
-	    os = "home";	
-	}
-	else{
-	    os = "Users";
-	}
-    }
     // per program
     /*
      * data structure we use to capture caller-callee relationship in a x10
@@ -608,6 +599,7 @@ public class X10FinishAsyncAnalysis {
 
 	engine.addX10SystemModule(new SourceDirectoryTreeModule(new File("../x10.runtime/src-x10/"), "10"));
 	engine.addX10SourceModule(new SourceDirectoryTreeModule(new File("../x10.tests/examples/x10lib/")));
+	System.err.println(testedFile.getName());
 	engine.addX10SourceModule(new SourceFileModule(testedFile, testedFile.getName()));
 	
 	
@@ -631,7 +623,7 @@ public class X10FinishAsyncAnalysis {
 	}
 	if(ifSaved){
 	    System.out.println("saving ... ...");
-	    OutputUtil.saveCallTable("/"+os+"/blshao/calltable.dat", calltable);
+	    OutputUtil.saveCallTable("calltable.dat", calltable);
 	}
 	if(ifExpanded){
 	    System.out.println("Expanding Talbe:");
