@@ -34,10 +34,10 @@ public abstract class IndexedMemoryChunk__NativeRep {
         if (dstPlace == here) {
             copyToLocal(src, srcIndex, dst, dstIndex, numElems);
         } else {
-            // TODO copy between different Places
             at (dstPlace) {
+                // TODO copy between different Places
                 for (var i: Int = 0; i < numElems; i++) {
-                    dst(dstIndex + i) = src(srcIndex + 1);
+                    dst(dstIndex + i) = src(srcIndex + i);
                 }
             }
         }
@@ -51,8 +51,9 @@ public abstract class IndexedMemoryChunk__NativeRep {
             copyFromLocal(dst, dstIndex, src, srcIndex, numElems);
         } else {
             // TODO copy between different Places
+            copyFromLocal(dst, dstIndex, src, srcIndex, numElems);
             for (var i: Int = 0; i < numElems; i++) {
-                dst(dstIndex + i) = src(srcIndex + 1);
+                dst(dstIndex + i) = src(srcIndex + i);
             }
         }
     }
