@@ -51,7 +51,6 @@ public abstract class IndexedMemoryChunk__NativeRep {
             copyFromLocal(dst, dstIndex, src, srcIndex, numElems);
         } else {
             // TODO copy between different Places
-            copyFromLocal(dst, dstIndex, src, srcIndex, numElems);
             for (var i: Int = 0; i < numElems; i++) {
                 dst(dstIndex + i) = src(srcIndex + i);
             }
