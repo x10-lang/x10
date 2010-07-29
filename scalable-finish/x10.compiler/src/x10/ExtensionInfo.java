@@ -350,7 +350,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(RegisterPlugins(job));
            
            goals.add(PreTypeCheck(job));
-           goals.add(TypesInitializedForCommandLine());
+           goals.add(TypesInitializedForCommandLineBarrier());
            goals.add(TypeChecked(job));
            goals.add(ReassembleAST(job));
            
