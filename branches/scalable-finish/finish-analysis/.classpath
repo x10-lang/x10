@@ -7,9 +7,9 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.cast.java.polyglot"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.cast.x10"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.core"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.ide"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.shrike"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lpg.runtime.java"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/x10.tests"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/finish-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.ibm.wala.shrike"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

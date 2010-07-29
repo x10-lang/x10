@@ -1,8 +1,5 @@
 package x10.finish.analysis;
 import java.io.ByteArrayInputStream;
-
-
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.ObjectInputStream;
@@ -24,14 +21,14 @@ import x10.finish.table.CallTableAtVal;
 import x10.finish.table.CallTableScopeKey;
 import x10.finish.table.CallTableKey;
 import x10.finish.table.CallTableMethodKey;
+import x10.finish.table.CallTableUtil;
 import x10.finish.table.CallTableVal;
-import x10.finish.util.CallTableUtil;
+import x10.finish.table.OutputUtil;
 import x10.finish.util.FinishAsyncNode;
 import x10.finish.util.GraphUtil;
 import x10.finish.util.MyExceptionPrunedCFG;
 import x10.finish.util.NatLoop;
 import x10.finish.util.NatLoopSolver;
-import x10.finish.util.OutputUtil;
 
 import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
 import com.ibm.wala.cast.loader.AstMethod;
@@ -623,7 +620,7 @@ public class X10FinishAsyncAnalysis {
 	}
 	if(ifSaved){
 	    System.out.println("saving ... ...");
-	    OutputUtil.saveCallTable("calltable.dat", calltable);
+	    CallTableUtil.saveCallTable("calltable.dat", calltable);
 	}
 	if(ifExpanded){
 	    System.out.println("Expanding Talbe:");
