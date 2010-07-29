@@ -29,7 +29,7 @@ import x10.ast.X10Call;
 import x10.ast.X10NodeFactory;
 import x10.emitter.Emitter;
 import x10.extension.X10Ext;
-import x10.finish.util.CallTableUtil;
+import x10.finish.table.CallTableUtil;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeSystem;
 

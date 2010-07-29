@@ -2,6 +2,7 @@ package x10.visit;
 
 import java.util.HashMap;
 
+
 import java.util.List;
 import java.util.Stack;
 
@@ -37,8 +38,6 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.*;
 import x10.extension.X10Ext;
 import x10.extension.X10Ext_c;
-import x10.finish.util.OutputUtil;
-import x10.finish.util.CallTableUtil;
 import x10.finish.table.*;
 import x10.types.X10ClassDef;
 import x10.types.X10ParsedClassType_c;
@@ -47,7 +46,7 @@ import x10.types.X10TypeSystem;
 public class FinishAsyncVisitor extends ContextVisitor {
 	//FIXME;
 	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable =
-		OutputUtil.loadCallTable("calltable.dat");
+		CallTableUtil.loadCallTable("calltable.dat");
 	private String src_package = null;
 	private String src_path = null;
 	private String src_method = null;
