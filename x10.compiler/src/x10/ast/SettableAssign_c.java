@@ -284,7 +284,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		    X10Call_c left = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(),
 		            Name.make("apply")), Collections.EMPTY_LIST,
 		            index).methodInstance(ami).type(ami.returnType());
-		    X10Binary_c n = (X10Binary_c) nf.Binary(position(), left, binaryOp(op), right);
+		    X10Binary_c n = (X10Binary_c) nf.Binary(position(), left, op.binaryOperator(), right);
 		    try {
 		        n.del().disambiguate(xtc).del().typeCheck(xtc).del().checkConstants(xtc);
 		    }
@@ -327,7 +327,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    v.visitCFGList(index, right(), ENTRY);
 	    v.visitCFG(right(), this, EXIT);
 	}
-	
+
 	public List<Type> throwTypes(TypeSystem ts) {
 		List<Type> l = new ArrayList<Type>(super.throwTypes(ts));
 		l.add(ts.NullPointerException());
@@ -341,9 +341,9 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    sb.append("(");
 	    String sep = "";
 	    for (Expr e : index) {
-		sb.append(sep);
-		sep = ", ";
-		sb.append(e);
+	        sb.append(sep);
+	        sep = ", ";
+	        sb.append(e);
 	    }
 	    sb.append(") ");
 	    sb.append(op);
@@ -351,56 +351,38 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    sb.append(right.toString());
 	    return sb.toString();
 	}
-    
-    /** Write the expression to an output file. */
-  public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-      Type at = array.type();
 
-      printSubExpr(array, w, tr);
-      w.write ("(");
-      w.begin(0);
+	/** Write the expression to an output file. */
+	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+	    Type at = array.type();
 
-      for(Iterator<Expr> i = index.iterator(); i.hasNext();) {
-      	Expr e = i.next();
-      	print(e, w, tr);
-          if (i.hasNext()) {
-              w.write(",");
-              w.allowBreak(0, " ");
-      }
-      }
-      
-      w.write(" ");
-      w.write(op.toString());
-      w.write(" ");
-      
-      print(right, w, tr);
-      
-      w.end();
-     
-      w.write (")");
- 	}
-  
-  public String leftToString() {
-	  String arg = index.toString();
-	  return array.toString() + "(" + arg.substring(1, arg.length()-1) + ")";
-  }
-	
-    public static Binary.Operator binaryOp(Assign.Operator op) {
-        Map<Assign.Operator, Binary.Operator> map = new HashMap<Assign.Operator, Binary.Operator>();
-        map.put(Assign.ADD_ASSIGN, Binary.ADD);
-        map.put(Assign.SUB_ASSIGN, Binary.SUB);
-        map.put(Assign.MUL_ASSIGN, Binary.MUL);
-        map.put(Assign.DIV_ASSIGN, Binary.DIV);
-        map.put(Assign.MOD_ASSIGN, Binary.MOD);
-        map.put(Assign.BIT_AND_ASSIGN, Binary.BIT_AND);
-        map.put(Assign.BIT_OR_ASSIGN, Binary.BIT_OR);
-        map.put(Assign.BIT_XOR_ASSIGN, Binary.BIT_XOR);
-        map.put(Assign.SHL_ASSIGN, Binary.SHL);
-        map.put(Assign.SHR_ASSIGN, Binary.SHR);
-        map.put(Assign.USHR_ASSIGN, Binary.USHR);
-        Binary.Operator binop = map.get(op);
-        assert binop != null;
-        return binop;
-    }
+	    printSubExpr(array, w, tr);
+	    w.write ("(");
+	    w.begin(0);
+
+	    for(Iterator<Expr> i = index.iterator(); i.hasNext();) {
+	        Expr e = i.next();
+	        print(e, w, tr);
+	        if (i.hasNext()) {
+	            w.write(",");
+	            w.allowBreak(0, " ");
+	        }
+	    }
+
+	    w.write(" ");
+	    w.write(op.toString());
+	    w.write(" ");
+
+	    print(right, w, tr);
+
+	    w.end();
+
+	    w.write (")");
+	}
+
+	public String leftToString() {
+	    String arg = index.toString();
+	    return array.toString() + "(" + arg.substring(1, arg.length()-1) + ")";
+	}
 
 }
