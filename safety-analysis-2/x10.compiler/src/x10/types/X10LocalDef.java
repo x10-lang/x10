@@ -11,6 +11,7 @@
 
 package x10.types;
 
+import polyglot.ast.LocalDecl;
 import polyglot.types.LocalDef;
 import x10.constraint.XTerm;
 
@@ -18,4 +19,6 @@ public interface X10LocalDef extends LocalDef, X10Def {
 	
 	XTerm placeTerm();
 	void setPlaceTerm(XTerm xt);
+	public void setLocalDecl (LocalDecl localDecl);
+	public LocalDecl localDecl();
 }

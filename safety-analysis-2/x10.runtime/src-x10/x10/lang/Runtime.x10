@@ -732,7 +732,7 @@ public final class Runtime {
          */
         public native def this(body:()=>Void, name:String);
 
-        public static native def currentThread():Thread!;
+        public static native @Inline def currentThread():Thread!;
 
         public native def start():Void;
 
