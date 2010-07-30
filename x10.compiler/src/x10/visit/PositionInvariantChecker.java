@@ -12,6 +12,7 @@ import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import x10.ast.AnnotationNode_c;
 import x10.ast.X10Formal_c;
+import x10.errors.X10ErrorInfo;
 
 public class PositionInvariantChecker extends NodeVisitor
 {
@@ -24,44 +25,43 @@ public class PositionInvariantChecker extends NodeVisitor
     }
 
     public Node visitEdgeNoOverride(Node parent, Node n) {
-        try
-        {
-            if (Report.should_report("PositionInvariantChecker", 2))
-	            Report.report(2, "Checking invariants for: " + n);
-            checkInvariants(parent, n);
-            n.del().visitChildren(this); // if there is an error, I don't recurse to the children
-
-
-        } catch (SemanticException e) {
-            String msg = "After goal "+previousGoalName+": "+
-                    e.getMessage()+("!")+
-                    (" parentPos=")+(parent.position())+
+        if (Report.should_report("PositionInvariantChecker", 2))
+            Report.report(2, "Checking invariants for: " + n);
+        String m = checkInvariants(parent, n);
+        if (m!=null) {
+        	String msg;
+        	if (parent != null) {
+        		msg = "After goal "+previousGoalName+": "+
+        			m+("!")+
+        			(" parentPos=")+(parent.position())+
                     (" nPos=")+(n.position())+
                     (" parent=")+(parent)+
                     (" n=")+(n).toString();
-            job.compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR,msg,n.position());
+        	} else {
+        		msg = "After goal "+previousGoalName+": "+
+    			m+("!")+
+                (" nPos=")+(n.position())+
+                (" n=")+(n).toString();
+        	}
+            job.compiler().errorQueue().enqueue(X10ErrorInfo.INVARIANT_VIOLATION_KIND,msg,n.position());
         }
-
+        n.del().visitChildren(this); // if there is an error, I don't recurse to the children
         return n;
     }
-    private void myAssert(boolean cond, String msg) throws SemanticException {
-        if (!cond)
-            throw new SemanticException(msg);
-    }
-    private void checkInvariants(Node parent, Node n) throws SemanticException {
-        if (parent == null) return;
-        myAssert(n != null,"Cannot visit null");
+    private String checkInvariants(Node parent, Node n) {
+        if (parent == null) return null;
+        if (n == null) return "Cannot visit null";
         Position pPos = parent.position();
         Position nPos = n.position();
-        myAssert((pPos != null) && (nPos != null),"Positions must never be null");
-        if (nPos.isCompilerGenerated()) return;
+        if ((pPos == null) || (nPos == null)) return "Positions must never be null";
+        if (nPos.isCompilerGenerated()) return null;
         if (pPos.isCompilerGenerated()) {
             //myAssert(nPos.isCompilerGenerated()) : "If your parent is COMPILER_GENERATED, then you must be COMPILER_GENERATED";
             // todo: take from some ancestor
-            return;
+            return null;
         }
-        myAssert(equals(pPos.file(), nPos.file()),"Positions must have the same file");
-        myAssert(equals(pPos.path(), nPos.path()),"Positions must have the same path");
+        if (!(equals(pPos.file(), nPos.file()))) return "Positions must have the same file";
+        if (!(equals(pPos.path(), nPos.path()))) return "Positions must have the same path";
 
         /*
         todo: remove this.
@@ -87,26 +87,28 @@ public class PositionInvariantChecker extends NodeVisitor
          */
         if (parent instanceof LocalDecl || parent instanceof FieldDecl ||
                 parent instanceof X10Formal_c) { // e.g., "for (val p(i,j): Point(2) in r) {"
-            if (n instanceof FlagsNode_c) return;
-            if (n instanceof AnnotationNode_c) return;
+            if (n instanceof FlagsNode_c) return null;
+            if (n instanceof AnnotationNode_c) return null;
             //if (n instanceof ClosureCall_c) return; //val q1(m,n) = [0,1] as Point;
         }
 
 
-
-        checkNumbers(pPos.line(), nPos.line(), true);
-        checkNumbers(pPos.endLine(), nPos.endLine(), false);
-        checkNumbers(pPos.offset(), nPos.offset(), true);
-        checkNumbers(pPos.endOffset(), nPos.endOffset(), false);
+        String s;
+        if ((s=checkNumbers(pPos.line(), nPos.line(), true))!=null) return s;
+        if ((s=checkNumbers(pPos.endLine(), nPos.endLine(), false))!=null) return s;
+        if ((s=checkNumbers(pPos.offset(), nPos.offset(), true))!=null) return s;
+        if ((s=checkNumbers(pPos.endOffset(), nPos.endOffset(), false))!=null) return s;
         if (pPos.line() == nPos.line())
-            checkNumbers(pPos.column(), nPos.column(), true);
+            if ((s=checkNumbers(pPos.column(), nPos.column(), true))!=null) return s;
         if (pPos.endLine() == nPos.endLine())
-            checkNumbers(pPos.endColumn(), nPos.endColumn(), false);
+            if ((s=checkNumbers(pPos.endColumn(), nPos.endColumn(), false))!=null) return s;
+        return null;
     }
 
-    public void checkNumbers(int pNum, int nNum, boolean isBeginning) throws SemanticException {
-        myAssert(nNum>=0 && pNum>=0,"We have unknown numbers");
-        myAssert(isBeginning ? pNum<=nNum : pNum>=nNum,"Illegal containment of positions");
+    public String checkNumbers(int pNum, int nNum, boolean isBeginning) {
+        if (nNum<0 || pNum<0) return "We have unknown numbers";
+        if (isBeginning ? pNum>nNum : pNum<nNum) return "Illegal containment of positions";
+        return null;
     }
 
     public static boolean equals(Object o1, Object o2) {
