@@ -379,6 +379,10 @@ public class LaunchMessages extends NLS {
 
   public static String RMCP_ValidateRemoteConnBt;
 
+  public static String XCB_ConfigurationError;
+
+  public static String XCB_OptionError;
+
   public static String XPC_ArchivingFailure;
 
   public static String XPC_CITypeNotSupported;
