@@ -27,6 +27,7 @@ import org.eclipse.imp.builder.DependencyInfo;
 import polyglot.types.ClassType;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
+import polyglot.util.Position;
 import x10.types.X10TypeMixin;
 
 /**
@@ -46,7 +47,11 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     	} else {
     		return null;
     	}
-    	final String filePath= classType.position().file().replace(File.separatorChar, '/');
+    	Position pos= classType.position();
+    	if (pos == null) {
+    		return null;
+    	}
+    	final String filePath= pos.file().replace(File.separatorChar, '/');
     	if (filePath.contains("x10.jar"))
     		return null;
     	String result=null;
