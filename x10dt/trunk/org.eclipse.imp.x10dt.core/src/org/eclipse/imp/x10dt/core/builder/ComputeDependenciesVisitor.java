@@ -49,6 +49,7 @@ import polyglot.types.ParsedClassType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 
@@ -89,7 +90,8 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
     }
     private boolean isBinary(ClassType classType) {
         // HACK for some reason ParsedClassType's show up even for class files(???)...
-        return !(classType instanceof ParsedClassType) || classType.position().file().endsWith(".class");
+        Position pos= classType.position();
+		return !(classType instanceof ParsedClassType) || (pos != null && pos.file().endsWith(".class"));
     }
     @Override
     public NodeVisitor begin() {
