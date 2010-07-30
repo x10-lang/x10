@@ -381,6 +381,7 @@ public class Counter {
           case Event.STEALING: ++numStealing; break;
           case Event.DISTRIBUTING: ++numDistributing; break;
           case Event.PROBING: ++numProbing; break;
+          default: Console.OUT.println ("Event not recognized");
         }
       }
 
@@ -392,6 +393,30 @@ public class Counter {
                                    numProbing));
     }
 
+    // Now there might be one story left yet. So, we should simply add all this
+    // to the lifeStory.
+    var lastPlaceIndex:Int = -1;
+    for (var i:Int=0; i<lifeStories.length(); ++i) {
+      if (lifeStories(i).size() > 0) {
+        lastPlaceIndex = i;
+        break;
+      }
+    }
+
+    if (-1 != lastPlaceIndex) {
+      val story:Stack[Event]! = lifeStories(lastPlaceIndex);
+      while (story.size() > 0) {
+        val currentEvent:Event = story.pop();
+        lifetimeGraph.add (LifeGraph(currentEvent.timeStamp,
+                                 (currentEvent.state==Event.DEAD)? 1 : 0,
+                                 (currentEvent.state==Event.COMPUTING)? 1 : 0,
+                                 (currentEvent.state==Event.STEALING)? 1 : 0,
+                                 (currentEvent.state==Event.DISTRIBUTING)? 1 : 0,
+                                 (currentEvent.state==Event.PROBING)? 1 : 0));
+      }
+    }
+
+    // Print the story out.
     val beginningOfTime:Long = lifetimeGraph(0).timeStamp;
     for (var i:Int=0; i<lifetimeGraph.size(); ++i)
       Console.OUT.println (lifetimeGraph(i).toString(beginningOfTime));
