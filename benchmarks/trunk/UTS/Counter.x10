@@ -86,7 +86,7 @@ public class Counter {
 		timeDead=c.timeDead;
 		chainDepth=c.chainDepth;
 		maxDepth=c.maxDepth;
-    lifeStory = c.lifeStory.toVal();
+    lifeStory = ValRail.make[Event] (c.lifeStory.size(), (i:Int) => c.lifeStory(i));
 	}
 
 	private global def verboseStats(h:Int, sumCounters:Counter!) {
@@ -306,11 +306,12 @@ public class Counter {
     }
 
     public def toString (beginningOfTime:Long) {
-      val s:String = ""  + ((timeStamp-beginningOfTime)/1000) + 
-                     " " + numDead + 
+      val s:String = ""  + (timeStamp-beginningOfTime) + 
                      " " + numComputing + 
                      " " + numStealing +
-                     " " + numDistributing;
+                     " " + numDistributing +
+                     " " + numProbing +
+                     " " + numDead;
       return s;
     }
   } 
@@ -340,6 +341,17 @@ public class Counter {
     return stackToReturn;
   }
 
+  /**
+   * Get the number of dead processes. Important in adding up at the end.
+   */
+  private def getNumDeadProcs (lifeStories:ValRail[Stack[Event]!]!){
+    var numDeadProcs:Int = 0;
+    for (story in lifeStories) 
+      if (story.size() == 0) ++numDeadProcs;
+    return numDeadProcs;
+  }
+
+
   // Prints the life story of the UTS run. Notice that there may be some extra 
   // time given to some states as we do not fill in information in between states.
   private def printLifeStory (allCounters:Rail[ValCounter]!) {
@@ -356,8 +368,10 @@ public class Counter {
 
     val lifetimeGraph:ArrayList[LifeGraph]! = new ArrayList[LifeGraph]();
 
+    var firstIteration:Boolean = true;
+    var lastUndoctoredTimeStamp:Long = -1L;
     while (hasAtLeastTwoFullStacks (lifeStories)) {
-      val lowestTimeStamp:Long = getMinTimeStamp (lifeStories);
+      var lowestTimeStamp:Long = getMinTimeStamp (lifeStories);
 
       for (var i:Int=0; i<lifeStories.length(); ++i) {
         val story = lifeStories(i);
@@ -383,6 +397,17 @@ public class Counter {
           case Event.PROBING: ++numProbing; break;
           default: Console.OUT.println ("Event not recognized");
         }
+      }
+
+      // Bump this timestamp by one --- its harmless as we have no clocks with 
+      // nanosecond precision.
+      if (true==firstIteration) {
+        lastUndoctoredTimeStamp = lowestTimeStamp;
+        firstIteration = false;
+      } else if (lowestTimeStamp == lastUndoctoredTimeStamp) {
+         ++lowestTimeStamp;
+      } else {
+        lastUndoctoredTimeStamp = lowestTimeStamp;
       }
 
       lifetimeGraph.add (LifeGraph(lowestTimeStamp,
@@ -417,9 +442,11 @@ public class Counter {
     }
 
     // Print the story out.
+    Console.OUT.println ("################################################");
     val beginningOfTime:Long = lifetimeGraph(0).timeStamp;
     for (var i:Int=0; i<lifetimeGraph.size(); ++i)
       Console.OUT.println (lifetimeGraph(i).toString(beginningOfTime));
+    Console.OUT.println ("################################################");
   }
 	
 	static val COMPUTING = 0;
