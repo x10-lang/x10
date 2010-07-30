@@ -1,8 +1,7 @@
 import x10.compiler.*;
 import x10.util.OptionsParser;
 import x10.util.Option;
-import x10.lang.Math;
-import x10.util.Stack;
+
 
 public class TreeExpander {
   static type TreeNode = UTS.TreeNode;
@@ -14,7 +13,7 @@ public class TreeExpander {
                                rootBranchingFactor:int, /* self-expln */
                                maxTreeDepth:int, /* cut off after this depth */
                                node:TreeNode, /* random number generator */
-                               stack:Stack[TreeNode]!) { /* The place to store */
+                               deque:Deque[TreeNode]!) { /* The place to store */
     /* compute branching factor at this node */
     var curNodeBranchingFactor:double;
 
@@ -61,25 +60,25 @@ public class TreeExpander {
                                   (Math.log 
                                 (1-probForCurNodeBranchingFactor))) as int;
 
-    /* Push all the children onto the stack */
+    /* Push all the children onto the Deque */
     for (var i:Int=0; i<numChildren; ++i) 
-      stack.push(TreeNode (node, i, node.getDepth()+1));
+      deque.push(TreeNode (node, i, node.getDepth()+1));
   }
 
   public static def binomial (q:Long, 
                               m:int, 
                               node:TreeNode,
-                              stack:Stack[TreeNode]!) {
+                              deque:Deque[TreeNode]!) {
     val randomNumber:Long = node();
     val numChildren:Int = (randomNumber < q) ? m : 0;
 
     /* Push all the children onto the stack */
-    for (var i:Int=0; i<numChildren; ++i) stack.push(TreeNode (node, i));
+    for (var i:Int=0; i<numChildren; ++i) deque.push(TreeNode (node, i));
   }
 
   public static def processBinomialRoot (b0:Int, 
                                          node:TreeNode, 
-                                         stack:Stack[TreeNode]!) {
-    for (var i:Int=0; i<b0; ++i) stack.push(TreeNode (node, i));
+                                         deque:Deque[TreeNode]!) {
+    for (var i:Int=0; i<b0; ++i) deque.push(TreeNode (node, i));
   }
 }

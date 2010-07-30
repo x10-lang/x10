@@ -70,7 +70,7 @@ public class UTS {
 		val q:Long, m:Int;
     val a:Int, d:Int;
     val treeType:Int;
-    val stack:Stack[TreeNode]! = new Stack[TreeNode]();
+    val stack:Deque[TreeNode]! = new Deque[TreeNode]();
 		var nodesCounter:UInt = 0;
     val stopCount:UInt = 25;
 
@@ -87,7 +87,7 @@ public class UTS {
 
     public final def processStack () {
 
-      while (stack.size() > 0) {
+      while (stack.size() > 0u) {
         if (Constants.BINOMIAL==treeType) 
           TreeExpander.binomial (q, m, stack.pop(), stack);
         else TreeExpander.geometric (a, b0, d, stack.pop(), stack);

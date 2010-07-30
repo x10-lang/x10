@@ -1,4 +1,4 @@
-import x10.util.Stack;
+
 import x10.util.Random;
 import x10.lang.Math;
 
@@ -28,7 +28,7 @@ final class ParUTS {
   val thieves:FixedSizeStack[Int]!;
 	
 	val width:Int;
-	val stack = new Stack[TreeNode]();
+	val stack = new Deque[TreeNode]();
     val myLifelines:ValRail[Int];
 
 	// Which of the lifelines have I actually activated?
@@ -43,7 +43,7 @@ final class ParUTS {
 	val z:Int;
 	val logEvents:Boolean;
 	val myRandom = new Random();
-  public val counter = new Counter();
+    public val counter = new Counter();
 	var active:Boolean=false;
     var noLoot:Boolean=true;
 
@@ -209,12 +209,12 @@ final class ParUTS {
 	def distribute(st:PLH, depth:Int, var numThieves:Int) {
 		val time = System.nanoTime();
 		val lootSize= stack.size();
-		if (lootSize > 2) {
+		if (lootSize > 2u) {
 			numThieves = min(numThieves, lootSize-2);
 			val numToSteal = lootSize/(numThieves+1);
 			for (var i:Int=0; i < numThieves; ++i) {
 				val thief = thieves.pop();
-				val loot = stack.pop(numToSteal);
+				val loot = stack.steal(numToSteal);
 				counter.incTxNodes(numToSteal);
 				// event("Distributing " + loot.length() + " to " + thief);
 				val victim = here.id;
@@ -287,17 +287,18 @@ final class ParUTS {
   def trySteal(p:Int):ValRail[TreeNode]=trySteal(p, false);
 	def trySteal(p:Int, isLifeLine:Boolean) : ValRail[TreeNode] {
 		counter.stealsReceived++;
-		val length = stack.size();
-		if (length <= 2) {
+		val length = stack.size() as Int;
+		 val numSteals = k==0 ? (length >=2 ? length/2 : 0)
+                 : (k < length ? k : (k/2 < length ? k/2 : 0));
+		if (numSteals==0) {
 			if (isLifeLine)
 		      thieves.push(p);
 			event("Returning null");
 			return null;
 		}
-		val numSteals = length/2;
 		counter.nodesGiven += (numSteals);
 		counter.stealsSuffered++;
-		return stack.pop(numSteals);
+		return stack.steal(numSteals);
 	}
 
 	def launch(st:PLH, 
@@ -345,19 +346,8 @@ final class ParUTS {
             rootNode:TreeNode) {
 		val P=Place.MAX_PLACES;
 		event("Start main finish");
-
-    // First, we have to make sure that everyone gets the beginning of time ---
-    // this was not happening previously. I don't know if this invalidates a lot 
-    // of the statistics we collected. Vijay, any comments?
-    finish {
-			for (var pi:Int=1 ; pi<P ; ++pi) {
-        async (Place(pi)) st().counter.setLastStartStopLiveTimeStamp();
-      }
-      counter.setLastStartStopLiveTimeStamp();
-		  counter.startLive();
-    }
-
-    // Now, launch the main computation
+		val startAtZero = System.nanoTime();
+		 counter.startLive();
 		finish {
 			event("Launch main");
 			if (Constants.BINOMIAL==treeType) { 
@@ -369,14 +359,14 @@ final class ParUTS {
 
 			val lootSize = stack.size()/P;
 			for (var pi:Int=1 ; pi<P ; ++pi) {
-				val loot = stack.pop(lootSize);
+				val loot = stack.steal(lootSize);
 				async (Place(pi))
 				   st().launch(st, true, loot, 0, 0);
 				counter.incTxNodes(lootSize);
 			}
-      active=true;
+            active=true;
 			processStack(st);
-      active=false;
+            active=false;
 			event("Finish main");
 			counter.stopLive();
 		} 
